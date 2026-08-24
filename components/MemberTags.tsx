@@ -40,6 +40,30 @@ export const TAG_HELP: Record<string, string> = {
   unknown: "Logs and achievements are both private",
 };
 
+/**
+ * Thai wording of the same explanations. The FC is Thai; the site is in English
+ * because the data is, but nobody should have to read a second language to find out
+ * what a badge on their own name means. Kept beside TAG_HELP so the two cannot drift.
+ */
+export const TAG_HELP_TH: Record<string, string> = {
+  "tier-clear": "เคลียร์บอสครบทุกตัวใน savage tier ปัจจุบัน",
+  prog: "มี log ใน savage tier ปัจจุบัน แต่ยังเคลียร์ไม่ครบ",
+  ultimate: "เคลียร์ Ultimate มาแล้วอย่างน้อย 1 ตัว",
+  veteran: "เคยเคลียร์ savage หรือ Ultimate มาก่อน แต่ไม่ใช่ tier นี้",
+  extreme: "เคลียร์ extreme trial ของ patch นี้อย่างน้อย 1 ตัว",
+  crafter: "มี achievement สาย craft หายาก — อยู่ใน 30% แรกของคนที่มีสายนี้",
+  gatherer: "มี achievement สายตกปลา เหมือง และเก็บของป่าหายาก — 30% แรก",
+  relic: "มี achievement สายทำ relic weapon กับ tool หายาก — 30% แรก",
+  explorer: "มี achievement สาย Eureka, Bozja และสายสำรวจหายาก — 30% แรก",
+  treasure: "มี achievement สายแผนที่สมบัติกับล่าหัวหายาก — 30% แรก",
+  goldsaucer: "มี achievement สาย Gold Saucer หายาก — 30% แรก",
+  seasonal: "มี achievement จากอีเวนต์ตามเทศกาลหายาก — 30% แรก",
+  pvp: "มี achievement สาย PvP หายาก — 30% แรก",
+  oldtimer: "มี achievement เก่าจากยุคแรกๆ ของเกมที่หายาก — 30% แรก",
+  casual: "ยังไม่มีสถิติอะไรโดดเด่น แต่เปิดข้อมูลบางส่วนไว้",
+  unknown: "ปิดทั้ง log และ achievement ไว้ทั้งคู่",
+};
+
 export const TAG_CLASS: Record<string, string> = {
   // One colour per kind of content. Savage keeps a single hue across both of its
   // states — they are the same content, and a dashed border reads as unfinished

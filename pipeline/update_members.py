@@ -170,6 +170,10 @@ ACHV_TIERS: list[tuple[str, float]] = [
 # Fewest achievements a graded playstyle can rest on. See tier_for.
 GRADE_MIN_ACHV = 3
 
+# Ownership below which an achievement is treated as a bonus rather than as part of
+# what a playstyle asks of you. See bucket_maxima.
+ATTAINABLE_PCT = 0.5
+
 
 def achv_points(pct: float | None) -> float:
     """What one rare achievement is worth: exactly how exclusive it is.
@@ -205,11 +209,25 @@ def bucket_score(v) -> float:
 
 
 def bucket_maxima(rarity: dict[int, dict]) -> dict[str, float]:
-    """Total points available in each playstyle — the denominator for a grade."""
+    """What a dedicated player in each playstyle could realistically hold.
+
+    Not the sum of everything rare, which is a completionist fantasy rather than a
+    yardstick. Gathering has 61 achievements under 0.5% ownership — legendary fish
+    and the like — and once rarity drives the score those 61 are 89% of the total,
+    so every real collection measured against it lands near zero and no gatherer can
+    ever be graded. PvP is worse at 97%; crafting, whose tail is only four
+    achievements, is barely affected. Grading against the full sum therefore says
+    nothing about the playstyle and everything about the shape of its tail.
+
+    Achievements below ATTAINABLE_PCT are excluded from the denominator only. They
+    still score in full, so holding one pushes somebody up the scale rather than
+    being expected of them — which is the right way round for content that almost
+    nobody finishes.
+    """
     out: dict[str, float] = {}
     for info in rarity.values():
         pct = info.get("pct")
-        if pct is None or pct > CONFIG["rare_pct"]:
+        if pct is None or pct > CONFIG["rare_pct"] or pct < ATTAINABLE_PCT:
             continue
         b = achv_bucket(info)
         if b:
@@ -228,7 +246,10 @@ def tier_for(score: float, ceiling: float | None,
     """
     if not ceiling or score <= 0:
         return None, None
-    share = score / ceiling
+    # Clamped because the numerator counts achievements the denominator leaves out,
+    # so holding a big pile of the near-impossible ones could in principle read as
+    # more than everything.
+    share = min(1.0, score / ceiling)
     if count < GRADE_MIN_ACHV:
         return None, share
     for name, need in ACHV_TIERS:
