@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AuthButton from "@/components/AuthButton";
 
+// Events and Minigames are built but unlinked until that phase is picked up again —
+// their routes 404 in the meantime (see app/events, app/games).
 const TABS = [
-  { href: "/", label: "หน้าแรก" },
-  { href: "/members", label: "สมาชิก" },
-  { href: "/events", label: "กิจกรรม" },
-  { href: "/games", label: "มินิเกม" },
+  { href: "/", label: "Home" },
+  { href: "/members", label: "Members" },
 ];
 
 export default function Nav() {
