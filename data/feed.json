@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 60692052,
+   "name": "Jedos Darkflamemaster",
+   "text": "set a new best parse: 1"
+  },
+  {
+   "date": "2026-08-24",
    "type": "level_100",
    "id": 29907674,
    "name": "Ranjoe Tp'",
@@ -1392,13 +1399,6 @@
    "id": 37648492,
    "name": "Sunshine Eveningfall",
    "text": "set a new best parse: 90"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "cleared M9S for the first time 🎉"
   }
  ]
 }

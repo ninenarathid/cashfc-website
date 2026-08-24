@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-24T20:03:03Z",
+ "generated_at": "2026-08-24T20:05:55Z",
  "fc": {
   "name": "Cafe And SHabu",
   "id": "9233505136016478451",
@@ -61,8 +61,8 @@
     "Summoner": {
      "fights": 2,
      "kills": 5,
-     "parse": 8.5,
-     "score": 4.8,
+     "parse": 7.6,
+     "score": 4.3,
      "tier": null
     },
     "WhiteMage": {
@@ -141,15 +141,15 @@
     "Warrior": {
      "fights": 12,
      "kills": 28,
-     "parse": 60.3,
-     "score": 51.8,
+     "parse": 65.6,
+     "score": 56.3,
      "tier": "expert"
     },
     "Paladin": {
      "fights": 4,
      "kills": 19,
-     "parse": 20.8,
-     "score": 17.0,
+     "parse": 32.6,
+     "score": 26.6,
      "tier": null
     },
     "WhiteMage": {
@@ -169,8 +169,8 @@
     "Summoner": {
      "fights": 2,
      "kills": 14,
-     "parse": 39.5,
-     "score": 26.5,
+     "parse": 39.7,
+     "score": 26.6,
      "tier": null
     }
    },
@@ -178,8 +178,8 @@
     "job": "Warrior",
     "fights": 12,
     "kills": 28,
-    "parse": 60.3,
-    "score": 51.8,
+    "parse": 65.6,
+    "score": 56.3,
     "tier": "expert"
    },
    "legacy_clears": 4,
@@ -245,8 +245,8 @@
     "Dancer": {
      "fights": 5,
      "kills": 31,
-     "parse": 22.8,
-     "score": 19.8,
+     "parse": 51.5,
+     "score": 44.8,
      "tier": null
     },
     "Bard": {
@@ -337,7 +337,7 @@
    "name": "Zuma Zerk",
    "rank": "Chef de Cuisine",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/1ffa95caae734c5870b40efc7dc93912_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597968",
+   "avatar": "https://img2.finalfantasyxiv.com/f/1ffa95caae734c5870b40efc7dc93912_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601568",
    "parse": 100,
    "savage_kills": 4,
    "current_seen": true,
@@ -364,8 +364,8 @@
     "Warrior": {
      "fights": 20,
      "kills": 239,
-     "parse": 90.5,
-     "score": 90.5,
+     "parse": 95.0,
+     "score": 95.0,
      "tier": "legendary"
     }
    },
@@ -373,8 +373,8 @@
     "job": "Warrior",
     "fights": 20,
     "kills": 239,
-    "parse": 90.5,
-    "score": 90.5,
+    "parse": 95.0,
+    "score": 95.0,
     "tier": "legendary"
    },
    "legacy_clears": 4,
@@ -428,8 +428,8 @@
     "Scholar": {
      "fights": 4,
      "kills": 52,
-     "parse": 31.8,
-     "score": 29.5,
+     "parse": 27.1,
+     "score": 25.1,
      "tier": null
     }
    },
@@ -583,9 +583,9 @@
     "Paladin": {
      "fights": 7,
      "kills": 75,
-     "parse": 56.4,
-     "score": 54.6,
-     "tier": "expert"
+     "parse": 78.4,
+     "score": 75.9,
+     "tier": "master"
     },
     "Summoner": {
      "fights": 1,
@@ -597,9 +597,9 @@
     "WhiteMage": {
      "fights": 4,
      "kills": 35,
-     "parse": 54.5,
-     "score": 48.2,
-     "tier": null
+     "parse": 58.9,
+     "score": 52.0,
+     "tier": "expert"
     }
    },
    "job_top": {
@@ -672,16 +672,16 @@
     "Dancer": {
      "fights": 15,
      "kills": 345,
-     "parse": 87.9,
-     "score": 87.9,
+     "parse": 91.7,
+     "score": 91.7,
      "tier": "legendary"
     },
     "RedMage": {
      "fights": 2,
      "kills": 63,
-     "parse": 76.5,
-     "score": 64.0,
-     "tier": "expert"
+     "parse": 78.8,
+     "score": 65.9,
+     "tier": "master"
     },
     "WhiteMage": {
      "fights": 1,
@@ -695,8 +695,8 @@
     "job": "Dancer",
     "fights": 15,
     "kills": 345,
-    "parse": 87.9,
-    "score": 87.9,
+    "parse": 91.7,
+    "score": 91.7,
     "tier": "legendary"
    },
    "legacy_clears": 4,
@@ -732,7 +732,7 @@
    "name": "Kori Kona",
    "rank": "Chief de popoto",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a641044c4692a7944c97a779b46f0326_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597917",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a641044c4692a7944c97a779b46f0326_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601517",
    "parse": 15,
    "savage_kills": 0,
    "current_seen": false,
@@ -812,8 +812,8 @@
     "Paladin": {
      "fights": 2,
      "kills": 30,
-     "parse": 23.5,
-     "score": 17.7,
+     "parse": 34.9,
+     "score": 26.3,
      "tier": null
     }
    },
@@ -849,7 +849,7 @@
    "name": "Minami Taira",
    "rank": "Chief de popoto",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/29e76ca1630d6471068946ffc1a5b643_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598093",
+   "avatar": "https://img2.finalfantasyxiv.com/f/29e76ca1630d6471068946ffc1a5b643_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601693",
    "parse": 94,
    "savage_kills": 0,
    "current_seen": false,
@@ -873,8 +873,8 @@
     "Dragoon": {
      "fights": 9,
      "kills": 38,
-     "parse": 44.2,
-     "score": 39.5,
+     "parse": 53.2,
+     "score": 47.5,
      "tier": null
     },
     "Reaper": {
@@ -949,24 +949,24 @@
     "Sage": {
      "fights": 2,
      "kills": 81,
-     "parse": 52.5,
-     "score": 45.4,
-     "tier": null
+     "parse": 71.0,
+     "score": 61.4,
+     "tier": "expert"
     },
     "WhiteMage": {
      "fights": 2,
      "kills": 36,
-     "parse": 65.0,
-     "score": 50.3,
+     "parse": 66.7,
+     "score": 51.6,
      "tier": "expert"
     }
    },
    "job_top": {
-    "job": "WhiteMage",
+    "job": "Sage",
     "fights": 2,
-    "kills": 36,
-    "parse": 65.0,
-    "score": 50.3,
+    "kills": 81,
+    "parse": 71.0,
+    "score": 61.4,
     "tier": "expert"
    },
    "legacy_clears": 0,
@@ -1038,22 +1038,22 @@
     "Samurai": {
      "fights": 4,
      "kills": 35,
-     "parse": 68.0,
-     "score": 60.1,
-     "tier": "expert"
+     "parse": 76.6,
+     "score": 67.7,
+     "tier": "master"
     },
     "Scholar": {
      "fights": 2,
      "kills": 7,
-     "parse": 26.0,
-     "score": 15.6,
+     "parse": 35.9,
+     "score": 21.5,
      "tier": null
     },
     "BlackMage": {
      "fights": 3,
      "kills": 6,
-     "parse": 12.7,
-     "score": 8.1,
+     "parse": 13.0,
+     "score": 8.3,
      "tier": null
     },
     "Gunbreaker": {
@@ -1066,9 +1066,9 @@
     "WhiteMage": {
      "fights": 3,
      "kills": 21,
-     "parse": 61.7,
-     "score": 47.6,
-     "tier": null
+     "parse": 73.6,
+     "score": 56.8,
+     "tier": "expert"
     },
     "Dancer": {
      "fights": 1,
@@ -1080,18 +1080,18 @@
     "Paladin": {
      "fights": 3,
      "kills": 28,
-     "parse": 75.7,
-     "score": 60.8,
+     "parse": 76.1,
+     "score": 61.1,
      "tier": "expert"
     }
    },
    "job_top": {
-    "job": "Dancer",
-    "fights": 1,
-    "kills": 18,
-    "parse": 96.0,
-    "score": 61.6,
-    "tier": "expert"
+    "job": "Samurai",
+    "fights": 4,
+    "kills": 35,
+    "parse": 76.6,
+    "score": 67.7,
+    "tier": "master"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1154,15 +1154,15 @@
     "WhiteMage": {
      "fights": 16,
      "kills": 138,
-     "parse": 64.8,
-     "score": 64.8,
-     "tier": "expert"
+     "parse": 76.7,
+     "score": 76.7,
+     "tier": "master"
     },
     "Scholar": {
      "fights": 2,
      "kills": 33,
-     "parse": 33.5,
-     "score": 25.6,
+     "parse": 54.6,
+     "score": 41.7,
      "tier": null
     },
     "Sage": {
@@ -1175,8 +1175,8 @@
     "Astrologian": {
      "fights": 2,
      "kills": 15,
-     "parse": 34.0,
-     "score": 23.1,
+     "parse": 37.7,
+     "score": 25.6,
      "tier": null
     }
    },
@@ -1184,9 +1184,9 @@
     "job": "WhiteMage",
     "fights": 16,
     "kills": 138,
-    "parse": 64.8,
-    "score": 64.8,
-    "tier": "expert"
+    "parse": 76.7,
+    "score": 76.7,
+    "tier": "master"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1247,23 +1247,23 @@
     "RedMage": {
      "fights": 10,
      "kills": 99,
-     "parse": 86.3,
-     "score": 86.3,
+     "parse": 90.8,
+     "score": 90.8,
      "tier": "legendary"
     },
     "Warrior": {
      "fights": 5,
      "kills": 29,
-     "parse": 70.0,
-     "score": 60.4,
-     "tier": "expert"
+     "parse": 80.5,
+     "score": 69.5,
+     "tier": "master"
     },
     "Pictomancer": {
      "fights": 2,
      "kills": 25,
-     "parse": 67.0,
-     "score": 49.2,
-     "tier": null
+     "parse": 83.8,
+     "score": 61.5,
+     "tier": "expert"
     },
     "Reaper": {
      "fights": 1,
@@ -1277,8 +1277,8 @@
     "job": "RedMage",
     "fights": 10,
     "kills": 99,
-    "parse": 86.3,
-    "score": 86.3,
+    "parse": 90.8,
+    "score": 90.8,
     "tier": "legendary"
    },
    "legacy_clears": 4,
@@ -1414,22 +1414,22 @@
     "Dancer": {
      "fights": 13,
      "kills": 117,
-     "parse": 66.2,
-     "score": 66.2,
-     "tier": "master"
+     "parse": 64.4,
+     "score": 64.4,
+     "tier": "expert"
     },
     "Warrior": {
      "fights": 2,
      "kills": 38,
-     "parse": 71.0,
-     "score": 55.4,
+     "parse": 69.9,
+     "score": 54.5,
      "tier": "expert"
     },
     "Paladin": {
      "fights": 5,
      "kills": 109,
-     "parse": 68.0,
-     "score": 68.0,
+     "parse": 77.2,
+     "score": 77.2,
      "tier": "master"
     },
     "Astrologian": {
@@ -1451,8 +1451,8 @@
     "job": "Paladin",
     "fights": 5,
     "kills": 109,
-    "parse": 68.0,
-    "score": 68.0,
+    "parse": 77.2,
+    "score": 77.2,
     "tier": "master"
    },
    "legacy_clears": 4,
@@ -1514,15 +1514,15 @@
     "Ninja": {
      "fights": 11,
      "kills": 98,
-     "parse": 71.5,
-     "score": 71.4,
+     "parse": 73.6,
+     "score": 73.5,
      "tier": "master"
     },
     "Viper": {
      "fights": 4,
      "kills": 28,
-     "parse": 88.5,
-     "score": 76.0,
+     "parse": 89.1,
+     "score": 76.5,
      "tier": "master"
     }
    },
@@ -1530,8 +1530,8 @@
     "job": "Viper",
     "fights": 4,
     "kills": 28,
-    "parse": 88.5,
-    "score": 76.0,
+    "parse": 89.1,
+    "score": 76.5,
     "tier": "master"
    },
    "legacy_clears": 4,
@@ -1588,8 +1588,8 @@
     "Machinist": {
      "fights": 2,
      "kills": 117,
-     "parse": 67.5,
-     "score": 59.9,
+     "parse": 67.4,
+     "score": 59.8,
      "tier": "expert"
     },
     "Reaper": {
@@ -1611,8 +1611,8 @@
     "job": "Machinist",
     "fights": 2,
     "kills": 117,
-    "parse": 67.5,
-    "score": 59.9,
+    "parse": 67.4,
+    "score": 59.8,
     "tier": "expert"
    },
    "legacy_clears": 0,
@@ -1646,7 +1646,7 @@
    "name": "Boonies Princess",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a12749e137dbdaed47aca5b526c134cb_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598055",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a12749e137dbdaed47aca5b526c134cb_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601655",
    "parse": 99,
    "savage_kills": 4,
    "current_seen": true,
@@ -1675,16 +1675,16 @@
     "BlackMage": {
      "fights": 15,
      "kills": 131,
-     "parse": 72.8,
-     "score": 72.8,
-     "tier": "master"
+     "parse": 81.7,
+     "score": 81.7,
+     "tier": "legendary"
     },
     "Summoner": {
      "fights": 3,
      "kills": 76,
-     "parse": 52.0,
-     "score": 47.5,
-     "tier": null
+     "parse": 84.4,
+     "score": 77.1,
+     "tier": "master"
     },
     "Pictomancer": {
      "fights": 1,
@@ -1705,9 +1705,9 @@
     "job": "BlackMage",
     "fights": 15,
     "kills": 131,
-    "parse": 72.8,
-    "score": 72.8,
-    "tier": "master"
+    "parse": 81.7,
+    "score": 81.7,
+    "tier": "legendary"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1769,9 +1769,9 @@
     "Samurai": {
      "fights": 10,
      "kills": 233,
-     "parse": 63.2,
-     "score": 63.2,
-     "tier": "expert"
+     "parse": 87.8,
+     "score": 87.8,
+     "tier": "legendary"
     },
     "Viper": {
      "fights": 1,
@@ -1785,9 +1785,9 @@
     "job": "Samurai",
     "fights": 10,
     "kills": 233,
-    "parse": 63.2,
-    "score": 63.2,
-    "tier": "expert"
+    "parse": 87.8,
+    "score": 87.8,
+    "tier": "legendary"
    },
    "legacy_clears": 1,
    "fflogs": "ok",
@@ -1821,7 +1821,7 @@
    "name": "Cheryl Klenovich",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/42757ca063a192feb8889f9e0f9aeb8a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598152",
+   "avatar": "https://img2.finalfantasyxiv.com/f/42757ca063a192feb8889f9e0f9aeb8a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601752",
    "parse": 100,
    "savage_kills": 4,
    "current_seen": true,
@@ -1847,8 +1847,8 @@
     "Astrologian": {
      "fights": 19,
      "kills": 256,
-     "parse": 80.5,
-     "score": 80.5,
+     "parse": 88.0,
+     "score": 88.0,
      "tier": "legendary"
     }
    },
@@ -1856,8 +1856,8 @@
     "job": "Astrologian",
     "fights": 19,
     "kills": 256,
-    "parse": 80.5,
-    "score": 80.5,
+    "parse": 88.0,
+    "score": 88.0,
     "tier": "legendary"
    },
    "legacy_clears": 4,
@@ -1916,8 +1916,8 @@
     "BlackMage": {
      "fights": 12,
      "kills": 111,
-     "parse": 59.2,
-     "score": 59.2,
+     "parse": 64.0,
+     "score": 64.0,
      "tier": "expert"
     },
     "RedMage": {
@@ -1939,8 +1939,8 @@
     "job": "BlackMage",
     "fights": 12,
     "kills": 111,
-    "parse": 59.2,
-    "score": 59.2,
+    "parse": 64.0,
+    "score": 64.0,
     "tier": "expert"
    },
    "legacy_clears": 4,
@@ -2004,8 +2004,8 @@
     "Viper": {
      "fights": 7,
      "kills": 149,
-     "parse": 70.1,
-     "score": 70.1,
+     "parse": 76.6,
+     "score": 76.6,
      "tier": "master"
     },
     "Scholar": {
@@ -2018,8 +2018,8 @@
     "BlackMage": {
      "fights": 2,
      "kills": 8,
-     "parse": 18.5,
-     "score": 11.3,
+     "parse": 18.9,
+     "score": 11.6,
      "tier": null
     },
     "Reaper": {
@@ -2032,8 +2032,8 @@
     "Paladin": {
      "fights": 2,
      "kills": 17,
-     "parse": 27.5,
-     "score": 19.0,
+     "parse": 36.8,
+     "score": 25.5,
      "tier": null
     },
     "Gunbreaker": {
@@ -2048,8 +2048,8 @@
     "job": "Viper",
     "fights": 7,
     "kills": 149,
-    "parse": 70.1,
-    "score": 70.1,
+    "parse": 76.6,
+    "score": 76.6,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -2113,8 +2113,8 @@
     "Monk": {
      "fights": 10,
      "kills": 109,
-     "parse": 86.5,
-     "score": 86.5,
+     "parse": 90.0,
+     "score": 90.0,
      "tier": "legendary"
     },
     "Bard": {
@@ -2127,8 +2127,8 @@
     "Samurai": {
      "fights": 2,
      "kills": 69,
-     "parse": 90.0,
-     "score": 76.2,
+     "parse": 92.3,
+     "score": 78.2,
      "tier": "master"
     }
    },
@@ -2136,8 +2136,8 @@
     "job": "Monk",
     "fights": 10,
     "kills": 109,
-    "parse": 86.5,
-    "score": 86.5,
+    "parse": 90.0,
+    "score": 90.0,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -2197,25 +2197,25 @@
     "Gunbreaker": {
      "fights": 6,
      "kills": 87,
-     "parse": 61.7,
-     "score": 60.8,
-     "tier": "expert"
+     "parse": 67.0,
+     "score": 66.0,
+     "tier": "master"
     },
     "Dragoon": {
      "fights": 4,
      "kills": 84,
-     "parse": 55.2,
-     "score": 54.2,
-     "tier": "expert"
+     "parse": 78.0,
+     "score": 76.6,
+     "tier": "master"
     }
    },
    "job_top": {
-    "job": "Gunbreaker",
-    "fights": 6,
-    "kills": 87,
-    "parse": 61.7,
-    "score": 60.8,
-    "tier": "expert"
+    "job": "Dragoon",
+    "fights": 4,
+    "kills": 84,
+    "parse": 78.0,
+    "score": 76.6,
+    "tier": "master"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2363,8 +2363,8 @@
     "Viper": {
      "fights": 9,
      "kills": 143,
-     "parse": 89.6,
-     "score": 89.6,
+     "parse": 94.7,
+     "score": 94.7,
      "tier": "legendary"
     },
     "Machinist": {
@@ -2377,8 +2377,8 @@
     "Dragoon": {
      "fights": 2,
      "kills": 26,
-     "parse": 83.0,
-     "score": 61.3,
+     "parse": 87.3,
+     "score": 64.4,
      "tier": "expert"
     }
    },
@@ -2386,8 +2386,8 @@
     "job": "Viper",
     "fights": 9,
     "kills": 143,
-    "parse": 89.6,
-    "score": 89.6,
+    "parse": 94.7,
+    "score": 94.7,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -2445,8 +2445,8 @@
     "Warrior": {
      "fights": 6,
      "kills": 56,
-     "parse": 82.5,
-     "score": 77.2,
+     "parse": 84.9,
+     "score": 79.5,
      "tier": "master"
     },
     "Dancer": {
@@ -2459,8 +2459,8 @@
     "Scholar": {
      "fights": 2,
      "kills": 3,
-     "parse": 23.5,
-     "score": 12.2,
+     "parse": 27.0,
+     "score": 14.1,
      "tier": null
     }
    },
@@ -2468,8 +2468,8 @@
     "job": "Warrior",
     "fights": 6,
     "kills": 56,
-    "parse": 82.5,
-    "score": 77.2,
+    "parse": 84.9,
+    "score": 79.5,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -2535,15 +2535,15 @@
     "Gunbreaker": {
      "fights": 7,
      "kills": 92,
-     "parse": 75.0,
-     "score": 74.4,
+     "parse": 73.0,
+     "score": 72.4,
      "tier": "master"
     },
     "Warrior": {
      "fights": 5,
      "kills": 117,
-     "parse": 82.4,
-     "score": 82.4,
+     "parse": 87.1,
+     "score": 87.1,
      "tier": "legendary"
     },
     "DarkKnight": {
@@ -2558,8 +2558,8 @@
     "job": "Warrior",
     "fights": 5,
     "kills": 117,
-    "parse": 82.4,
-    "score": 82.4,
+    "parse": 87.1,
+    "score": 87.1,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -2594,7 +2594,7 @@
    "name": "Hakuryu Flare",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/00a9cfe8629c41f8fe6e0eb70e4fd12f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598220",
+   "avatar": "https://img2.finalfantasyxiv.com/f/00a9cfe8629c41f8fe6e0eb70e4fd12f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601820",
    "parse": 98,
    "savage_kills": 4,
    "current_seen": true,
@@ -2620,15 +2620,15 @@
     "Viper": {
      "fights": 3,
      "kills": 30,
-     "parse": 81.3,
-     "score": 65.9,
+     "parse": 85.5,
+     "score": 69.3,
      "tier": "master"
     },
     "Monk": {
      "fights": 8,
      "kills": 91,
-     "parse": 81.8,
-     "score": 81.0,
+     "parse": 86.0,
+     "score": 85.2,
      "tier": "legendary"
     },
     "Samurai": {
@@ -2643,8 +2643,8 @@
     "job": "Monk",
     "fights": 8,
     "kills": 91,
-    "parse": 81.8,
-    "score": 81.0,
+    "parse": 86.0,
+    "score": 85.2,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -2700,8 +2700,8 @@
     "Machinist": {
      "fights": 4,
      "kills": 14,
-     "parse": 50.0,
-     "score": 39.2,
+     "parse": 52.9,
+     "score": 41.5,
      "tier": null
     }
    },
@@ -2763,16 +2763,16 @@
     "Paladin": {
      "fights": 6,
      "kills": 52,
-     "parse": 71.7,
-     "score": 66.5,
+     "parse": 73.5,
+     "score": 68.2,
      "tier": "master"
     },
     "DarkKnight": {
      "fights": 3,
      "kills": 75,
-     "parse": 81.7,
-     "score": 74.5,
-     "tier": "master"
+     "parse": 91.6,
+     "score": 83.6,
+     "tier": "legendary"
     },
     "Monk": {
      "fights": 1,
@@ -2793,9 +2793,9 @@
     "job": "DarkKnight",
     "fights": 3,
     "kills": 75,
-    "parse": 81.7,
-    "score": 74.5,
-    "tier": "master"
+    "parse": 91.6,
+    "score": 83.6,
+    "tier": "legendary"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2855,8 +2855,8 @@
     "Paladin": {
      "fights": 3,
      "kills": 14,
-     "parse": 34.3,
-     "score": 25.0,
+     "parse": 39.5,
+     "score": 28.7,
      "tier": null
     },
     "Warrior": {
@@ -2876,8 +2876,8 @@
     "Gunbreaker": {
      "fights": 3,
      "kills": 17,
-     "parse": 31.3,
-     "score": 23.4,
+     "parse": 34.5,
+     "score": 25.8,
      "tier": null
     }
    },
@@ -3026,7 +3026,7 @@
    "name": "Kururuki Tzuzaku",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/77eb1ed3b8bd41d255d4c1ea845798c5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599417",
+   "avatar": "https://img2.finalfantasyxiv.com/f/77eb1ed3b8bd41d255d4c1ea845798c5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601494",
    "parse": 98,
    "savage_kills": 2,
    "current_seen": true,
@@ -3052,12 +3052,19 @@
     "Gunbreaker": {
      "fights": 8,
      "kills": 160,
-     "parse": 47.0,
-     "score": 47.0,
-     "tier": null
+     "parse": 84.7,
+     "score": 84.7,
+     "tier": "legendary"
     }
    },
-   "job_top": null,
+   "job_top": {
+    "job": "Gunbreaker",
+    "fights": 8,
+    "kills": 160,
+    "parse": 84.7,
+    "score": 84.7,
+    "tier": "legendary"
+   },
    "legacy_clears": 0,
    "fflogs": "ok",
    "mounts": null,
@@ -3118,15 +3125,15 @@
     "Warrior": {
      "fights": 6,
      "kills": 113,
-     "parse": 70.8,
-     "score": 70.8,
+     "parse": 75.6,
+     "score": 75.6,
      "tier": "master"
     },
     "Dancer": {
      "fights": 4,
      "kills": 106,
-     "parse": 88.0,
-     "score": 88.0,
+     "parse": 87.7,
+     "score": 87.7,
      "tier": "legendary"
     },
     "BlackMage": {
@@ -3155,8 +3162,8 @@
     "job": "Dancer",
     "fights": 4,
     "kills": 106,
-    "parse": 88.0,
-    "score": 88.0,
+    "parse": 87.7,
+    "score": 87.7,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -3226,22 +3233,22 @@
     "Paladin": {
      "fights": 6,
      "kills": 90,
-     "parse": 80.8,
-     "score": 79.9,
-     "tier": "master"
+     "parse": 84.2,
+     "score": 83.3,
+     "tier": "legendary"
     },
     "Warrior": {
      "fights": 4,
      "kills": 159,
-     "parse": 93.0,
-     "score": 93.0,
+     "parse": 96.5,
+     "score": 96.5,
      "tier": "legendary"
     },
     "DarkKnight": {
      "fights": 2,
      "kills": 34,
-     "parse": 90.5,
-     "score": 69.5,
+     "parse": 90.1,
+     "score": 69.2,
      "tier": "master"
     },
     "Summoner": {
@@ -3263,8 +3270,8 @@
     "job": "Warrior",
     "fights": 4,
     "kills": 159,
-    "parse": 93.0,
-    "score": 93.0,
+    "parse": 96.5,
+    "score": 96.5,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -3335,15 +3342,15 @@
     "Bard": {
      "fights": 4,
      "kills": 47,
-     "parse": 94.0,
-     "score": 86.1,
+     "parse": 93.6,
+     "score": 85.8,
      "tier": "legendary"
     },
     "Dancer": {
      "fights": 2,
      "kills": 14,
-     "parse": 81.0,
-     "score": 54.4,
+     "parse": 91.7,
+     "score": 61.6,
      "tier": "expert"
     },
     "Scholar": {
@@ -3356,22 +3363,22 @@
     "WhiteMage": {
      "fights": 2,
      "kills": 59,
-     "parse": 86.0,
-     "score": 71.3,
+     "parse": 83.8,
+     "score": 69.5,
      "tier": "master"
     },
     "RedMage": {
      "fights": 2,
      "kills": 36,
-     "parse": 73.0,
-     "score": 56.5,
+     "parse": 79.7,
+     "score": 61.7,
      "tier": "expert"
     },
     "Pictomancer": {
      "fights": 2,
      "kills": 35,
-     "parse": 89.5,
-     "score": 69.0,
+     "parse": 91.6,
+     "score": 70.6,
      "tier": "master"
     },
     "Astrologian": {
@@ -3386,8 +3393,8 @@
     "job": "Bard",
     "fights": 4,
     "kills": 47,
-    "parse": 94.0,
-    "score": 86.1,
+    "parse": 93.6,
+    "score": 85.8,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -3452,15 +3459,15 @@
     "Scholar": {
      "fights": 7,
      "kills": 89,
-     "parse": 66.3,
-     "score": 65.5,
+     "parse": 70.6,
+     "score": 69.8,
      "tier": "master"
     },
     "Sage": {
      "fights": 3,
      "kills": 78,
-     "parse": 62.7,
-     "score": 57.5,
+     "parse": 66.1,
+     "score": 60.6,
      "tier": "expert"
     },
     "Bard": {
@@ -3473,8 +3480,8 @@
     "WhiteMage": {
      "fights": 2,
      "kills": 47,
-     "parse": 69.0,
-     "score": 55.5,
+     "parse": 68.4,
+     "score": 55.0,
      "tier": "expert"
     },
     "RedMage": {
@@ -3489,8 +3496,8 @@
     "job": "Scholar",
     "fights": 7,
     "kills": 89,
-    "parse": 66.3,
-    "score": 65.5,
+    "parse": 70.6,
+    "score": 69.8,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -3552,22 +3559,22 @@
     "Machinist": {
      "fights": 3,
      "kills": 44,
-     "parse": 52.3,
-     "score": 44.6,
+     "parse": 51.3,
+     "score": 43.7,
      "tier": null
     },
     "Dancer": {
      "fights": 2,
      "kills": 52,
-     "parse": 62.0,
-     "score": 50.5,
+     "parse": 78.2,
+     "score": 63.7,
      "tier": "expert"
     },
     "Paladin": {
      "fights": 3,
      "kills": 88,
-     "parse": 40.0,
-     "score": 37.2,
+     "parse": 44.8,
+     "score": 41.7,
      "tier": null
     }
    },
@@ -3575,8 +3582,8 @@
     "job": "Dancer",
     "fights": 2,
     "kills": 52,
-    "parse": 62.0,
-    "score": 50.5,
+    "parse": 78.2,
+    "score": 63.7,
     "tier": "expert"
    },
    "legacy_clears": 0,
@@ -3636,15 +3643,15 @@
     "WhiteMage": {
      "fights": 5,
      "kills": 27,
-     "parse": 16.0,
-     "score": 13.7,
+     "parse": 21.2,
+     "score": 18.1,
      "tier": null
     },
     "Warrior": {
      "fights": 3,
      "kills": 97,
-     "parse": 69.7,
-     "score": 65.6,
+     "parse": 71.4,
+     "score": 67.2,
      "tier": "master"
     }
    },
@@ -3652,8 +3659,8 @@
     "job": "Warrior",
     "fights": 3,
     "kills": 97,
-    "parse": 69.7,
-    "score": 65.6,
+    "parse": 71.4,
+    "score": 67.2,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -3771,9 +3778,9 @@
     "Dancer": {
      "fights": 7,
      "kills": 36,
-     "parse": 48.9,
-     "score": 43.4,
-     "tier": null
+     "parse": 59.1,
+     "score": 52.4,
+     "tier": "expert"
     },
     "WhiteMage": {
      "fights": 1,
@@ -3783,7 +3790,14 @@
      "tier": null
     }
    },
-   "job_top": null,
+   "job_top": {
+    "job": "Dancer",
+    "fights": 7,
+    "kills": 36,
+    "parse": 59.1,
+    "score": 52.4,
+    "tier": "expert"
+   },
    "legacy_clears": 0,
    "fflogs": "ok",
    "mounts": null,
@@ -3841,8 +3855,8 @@
     "Samurai": {
      "fights": 7,
      "kills": 88,
-     "parse": 91.4,
-     "score": 90.2,
+     "parse": 91.6,
+     "score": 90.4,
      "tier": "legendary"
     },
     "Monk": {
@@ -3871,8 +3885,8 @@
     "job": "Samurai",
     "fights": 7,
     "kills": 88,
-    "parse": 91.4,
-    "score": 90.2,
+    "parse": 91.6,
+    "score": 90.4,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -3908,7 +3922,7 @@
    "name": "Motochita Muses",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ec8a555cd5e6d49299e6e6525d945423_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598034",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ec8a555cd5e6d49299e6e6525d945423_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601634",
    "parse": 92,
    "savage_kills": 4,
    "current_seen": true,
@@ -3931,8 +3945,8 @@
     "Dancer": {
      "fights": 9,
      "kills": 130,
-     "parse": 72.3,
-     "score": 72.3,
+     "parse": 78.0,
+     "score": 78.0,
      "tier": "master"
     }
    },
@@ -3940,8 +3954,8 @@
     "job": "Dancer",
     "fights": 9,
     "kills": 130,
-    "parse": 72.3,
-    "score": 72.3,
+    "parse": 78.0,
+    "score": 78.0,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -4004,15 +4018,15 @@
     "Sage": {
      "fights": 3,
      "kills": 18,
-     "parse": 7.0,
-     "score": 5.3,
+     "parse": 6.7,
+     "score": 5.1,
      "tier": null
     },
     "Scholar": {
      "fights": 6,
      "kills": 234,
-     "parse": 18.8,
-     "score": 18.8,
+     "parse": 33.4,
+     "score": 33.4,
      "tier": null
     },
     "Astrologian": {
@@ -4080,8 +4094,8 @@
     "Samurai": {
      "fights": 7,
      "kills": 38,
-     "parse": 61.0,
-     "score": 54.5,
+     "parse": 62.3,
+     "score": 55.6,
      "tier": "expert"
     }
    },
@@ -4089,8 +4103,8 @@
     "job": "Samurai",
     "fights": 7,
     "kills": 38,
-    "parse": 61.0,
-    "score": 54.5,
+    "parse": 62.3,
+    "score": 55.6,
     "tier": "expert"
    },
    "legacy_clears": 0,
@@ -4153,15 +4167,15 @@
     "Scholar": {
      "fights": 6,
      "kills": 144,
-     "parse": 17.7,
-     "score": 17.7,
+     "parse": 19.5,
+     "score": 19.5,
      "tier": null
     },
     "WhiteMage": {
      "fights": 2,
      "kills": 63,
-     "parse": 42.0,
-     "score": 35.1,
+     "parse": 55.0,
+     "score": 46.0,
      "tier": null
     }
    },
@@ -4226,16 +4240,16 @@
     "Viper": {
      "fights": 6,
      "kills": 75,
-     "parse": 76.2,
-     "score": 73.8,
+     "parse": 72.1,
+     "score": 69.8,
      "tier": "master"
     },
     "Ninja": {
      "fights": 3,
      "kills": 35,
-     "parse": 60.0,
-     "score": 49.6,
-     "tier": null
+     "parse": 60.5,
+     "score": 50.1,
+     "tier": "expert"
     },
     "RedMage": {
      "fights": 1,
@@ -4247,8 +4261,8 @@
     "Reaper": {
      "fights": 4,
      "kills": 112,
-     "parse": 85.0,
-     "score": 85.0,
+     "parse": 91.3,
+     "score": 91.3,
      "tier": "legendary"
     }
    },
@@ -4256,8 +4270,8 @@
     "job": "Reaper",
     "fights": 4,
     "kills": 112,
-    "parse": 85.0,
-    "score": 85.0,
+    "parse": 91.3,
+    "score": 91.3,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -4321,22 +4335,22 @@
     "BlackMage": {
      "fights": 4,
      "kills": 61,
-     "parse": 97.0,
-     "score": 91.7,
+     "parse": 97.1,
+     "score": 91.8,
      "tier": "legendary"
     },
     "Pictomancer": {
      "fights": 7,
      "kills": 181,
-     "parse": 94.1,
-     "score": 94.1,
+     "parse": 95.3,
+     "score": 95.3,
      "tier": "legendary"
     },
     "RedMage": {
      "fights": 2,
      "kills": 4,
-     "parse": 70.0,
-     "score": 38.2,
+     "parse": 63.5,
+     "score": 34.7,
      "tier": null
     }
    },
@@ -4344,8 +4358,8 @@
     "job": "Pictomancer",
     "fights": 7,
     "kills": 181,
-    "parse": 94.1,
-    "score": 94.1,
+    "parse": 95.3,
+    "score": 95.3,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -4408,15 +4422,15 @@
     "BlackMage": {
      "fights": 2,
      "kills": 14,
-     "parse": 31.0,
-     "score": 20.8,
+     "parse": 25.4,
+     "score": 17.0,
      "tier": null
     },
     "Machinist": {
      "fights": 6,
      "kills": 138,
-     "parse": 86.2,
-     "score": 86.2,
+     "parse": 94.5,
+     "score": 94.5,
      "tier": "legendary"
     },
     "WhiteMage": {
@@ -4431,8 +4445,8 @@
     "job": "Machinist",
     "fights": 6,
     "kills": 138,
-    "parse": 86.2,
-    "score": 86.2,
+    "parse": 94.5,
+    "score": 94.5,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -4504,8 +4518,8 @@
     "Paladin": {
      "fights": 5,
      "kills": 221,
-     "parse": 85.4,
-     "score": 85.4,
+     "parse": 95.5,
+     "score": 95.5,
      "tier": "legendary"
     },
     "Samurai": {
@@ -4520,8 +4534,8 @@
     "job": "Paladin",
     "fights": 5,
     "kills": 221,
-    "parse": 85.4,
-    "score": 85.4,
+    "parse": 95.5,
+    "score": 95.5,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -4584,9 +4598,9 @@
     "Sage": {
      "fights": 11,
      "kills": 192,
-     "parse": 49.6,
-     "score": 49.6,
-     "tier": null
+     "parse": 68.7,
+     "score": 68.7,
+     "tier": "master"
     },
     "Monk": {
      "fights": 1,
@@ -4596,7 +4610,14 @@
      "tier": null
     }
    },
-   "job_top": null,
+   "job_top": {
+    "job": "Sage",
+    "fights": 11,
+    "kills": 192,
+    "parse": 68.7,
+    "score": 68.7,
+    "tier": "master"
+   },
    "legacy_clears": 0,
    "fflogs": "ok",
    "mounts": null,
@@ -4748,25 +4769,25 @@
     "Viper": {
      "fights": 5,
      "kills": 35,
-     "parse": 90.4,
-     "score": 79.9,
+     "parse": 85.1,
+     "score": 75.2,
      "tier": "master"
     },
     "Samurai": {
      "fights": 9,
      "kills": 69,
-     "parse": 80.1,
-     "score": 76.8,
-     "tier": "master"
+     "parse": 87.9,
+     "score": 84.3,
+     "tier": "legendary"
     }
    },
    "job_top": {
-    "job": "Viper",
-    "fights": 5,
-    "kills": 35,
-    "parse": 90.4,
-    "score": 79.9,
-    "tier": "master"
+    "job": "Samurai",
+    "fights": 9,
+    "kills": 69,
+    "parse": 87.9,
+    "score": 84.3,
+    "tier": "legendary"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4825,18 +4846,18 @@
     "Warrior": {
      "fights": 9,
      "kills": 201,
-     "parse": 69.4,
-     "score": 69.4,
-     "tier": "master"
+     "parse": 93.2,
+     "score": 93.2,
+     "tier": "legendary"
     }
    },
    "job_top": {
     "job": "Warrior",
     "fights": 9,
     "kills": 201,
-    "parse": 69.4,
-    "score": 69.4,
-    "tier": "master"
+    "parse": 93.2,
+    "score": 93.2,
+    "tier": "legendary"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -5017,22 +5038,22 @@
     "Monk": {
      "fights": 7,
      "kills": 183,
-     "parse": 91.9,
-     "score": 91.9,
+     "parse": 93.1,
+     "score": 93.1,
      "tier": "legendary"
     },
     "Warrior": {
      "fights": 3,
      "kills": 71,
-     "parse": 96.0,
-     "score": 87.0,
+     "parse": 96.5,
+     "score": 87.5,
      "tier": "legendary"
     },
     "Dancer": {
      "fights": 3,
      "kills": 255,
-     "parse": 91.3,
-     "score": 86.2,
+     "parse": 93.5,
+     "score": 88.2,
      "tier": "legendary"
     },
     "RedMage": {
@@ -5047,8 +5068,8 @@
     "job": "Monk",
     "fights": 7,
     "kills": 183,
-    "parse": 91.9,
-    "score": 91.9,
+    "parse": 93.1,
+    "score": 93.1,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -5107,8 +5128,8 @@
     "Warrior": {
      "fights": 6,
      "kills": 69,
-     "parse": 25.5,
-     "score": 24.5,
+     "parse": 39.5,
+     "score": 37.9,
      "tier": null
     }
    },
@@ -5169,8 +5190,8 @@
     "WhiteMage": {
      "fights": 8,
      "kills": 73,
-     "parse": 76.1,
-     "score": 73.5,
+     "parse": 78.3,
+     "score": 75.6,
      "tier": "master"
     },
     "Dancer": {
@@ -5185,8 +5206,8 @@
     "job": "WhiteMage",
     "fights": 8,
     "kills": 73,
-    "parse": 76.1,
-    "score": 73.5,
+    "parse": 78.3,
+    "score": 75.6,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -5246,8 +5267,8 @@
     "Scholar": {
      "fights": 6,
      "kills": 68,
-     "parse": 77.3,
-     "score": 74.0,
+     "parse": 79.4,
+     "score": 76.0,
      "tier": "master"
     }
    },
@@ -5255,8 +5276,8 @@
     "job": "Scholar",
     "fights": 6,
     "kills": 68,
-    "parse": 77.3,
-    "score": 74.0,
+    "parse": 79.4,
+    "score": 76.0,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -5323,8 +5344,8 @@
     "Astrologian": {
      "fights": 5,
      "kills": 29,
-     "parse": 2.6,
-     "score": 2.2,
+     "parse": 6.2,
+     "score": 5.3,
      "tier": null
     }
    },
@@ -5385,8 +5406,8 @@
     "Paladin": {
      "fights": 8,
      "kills": 64,
-     "parse": 73.2,
-     "score": 69.6,
+     "parse": 78.0,
+     "score": 74.2,
      "tier": "master"
     },
     "DarkKnight": {
@@ -5408,8 +5429,8 @@
     "job": "Paladin",
     "fights": 8,
     "kills": 64,
-    "parse": 73.2,
-    "score": 69.6,
+    "parse": 78.0,
+    "score": 74.2,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -5469,8 +5490,8 @@
     "DarkKnight": {
      "fights": 3,
      "kills": 37,
-     "parse": 69.0,
-     "score": 57.5,
+     "parse": 67.6,
+     "score": 56.3,
      "tier": "expert"
     },
     "Paladin": {
@@ -5574,8 +5595,8 @@
     "WhiteMage": {
      "fights": 8,
      "kills": 45,
-     "parse": 36.4,
-     "score": 33.2,
+     "parse": 35.6,
+     "score": 32.4,
      "tier": null
     }
    },
@@ -5636,8 +5657,8 @@
     "Reaper": {
      "fights": 9,
      "kills": 187,
-     "parse": 81.7,
-     "score": 81.7,
+     "parse": 93.2,
+     "score": 93.2,
      "tier": "legendary"
     }
    },
@@ -5645,8 +5666,8 @@
     "job": "Reaper",
     "fights": 9,
     "kills": 187,
-    "parse": 81.7,
-    "score": 81.7,
+    "parse": 93.2,
+    "score": 93.2,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -5829,7 +5850,7 @@
    "name": "Aimday Yeji",
    "rank": "Taster",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/979ec646bc7323d0ce62db4e2c9acfcb_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597930",
+   "avatar": "https://img2.finalfantasyxiv.com/f/979ec646bc7323d0ce62db4e2c9acfcb_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601530",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -6028,8 +6049,8 @@
     "Summoner": {
      "fights": 6,
      "kills": 117,
-     "parse": 56.2,
-     "score": 56.2,
+     "parse": 57.8,
+     "score": 57.8,
      "tier": "expert"
     },
     "Dancer": {
@@ -6044,8 +6065,8 @@
     "job": "Summoner",
     "fights": 6,
     "kills": 117,
-    "parse": 56.2,
-    "score": 56.2,
+    "parse": 57.8,
+    "score": 57.8,
     "tier": "expert"
    },
    "legacy_clears": 0,
@@ -6103,12 +6124,19 @@
     "Reaper": {
      "fights": 5,
      "kills": 141,
-     "parse": 47.2,
-     "score": 47.2,
-     "tier": null
+     "parse": 65.2,
+     "score": 65.2,
+     "tier": "master"
     }
    },
-   "job_top": null,
+   "job_top": {
+    "job": "Reaper",
+    "fights": 5,
+    "kills": 141,
+    "parse": 65.2,
+    "score": 65.2,
+    "tier": "master"
+   },
    "legacy_clears": 0,
    "fflogs": "ok",
    "mounts": null,
@@ -6217,31 +6245,31 @@
     "Gunbreaker": {
      "fights": 8,
      "kills": 87,
-     "parse": 72.1,
-     "score": 71.0,
+     "parse": 72.9,
+     "score": 71.8,
      "tier": "master"
     },
     "Paladin": {
      "fights": 2,
      "kills": 47,
-     "parse": 66.0,
+     "parse": 66.1,
      "score": 53.1,
      "tier": "expert"
     },
     "Viper": {
      "fights": 2,
      "kills": 80,
-     "parse": 64.0,
-     "score": 55.3,
-     "tier": "expert"
+     "parse": 80.2,
+     "score": 69.3,
+     "tier": "master"
     }
    },
    "job_top": {
     "job": "Gunbreaker",
     "fights": 8,
     "kills": 87,
-    "parse": 72.1,
-    "score": 71.0,
+    "parse": 72.9,
+    "score": 71.8,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -6376,7 +6404,7 @@
    "name": "Azelia Tayta",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/0340f34a708ad44df16184ba378ceaa4_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597963",
+   "avatar": "https://img2.finalfantasyxiv.com/f/0340f34a708ad44df16184ba378ceaa4_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601563",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -6809,7 +6837,7 @@
    "name": "El Blung",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7d8687975fb4b43c5afd5f3bd7865815_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598091",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7d8687975fb4b43c5afd5f3bd7865815_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601691",
    "parse": 80,
    "savage_kills": 4,
    "current_seen": true,
@@ -6833,15 +6861,15 @@
     "Dancer": {
      "fights": 7,
      "kills": 107,
-     "parse": 57.9,
-     "score": 57.9,
+     "parse": 64.0,
+     "score": 64.0,
      "tier": "expert"
     },
     "Warrior": {
      "fights": 3,
      "kills": 47,
-     "parse": 48.3,
-     "score": 41.5,
+     "parse": 50.2,
+     "score": 43.2,
      "tier": null
     }
    },
@@ -6849,8 +6877,8 @@
     "job": "Dancer",
     "fights": 7,
     "kills": 107,
-    "parse": 57.9,
-    "score": 57.9,
+    "parse": 64.0,
+    "score": 64.0,
     "tier": "expert"
    },
    "legacy_clears": 0,
@@ -6918,8 +6946,8 @@
     "Dancer": {
      "fights": 3,
      "kills": 52,
-     "parse": 44.0,
-     "score": 38.3,
+     "parse": 45.0,
+     "score": 39.2,
      "tier": null
     },
     "Pictomancer": {
@@ -7248,7 +7276,7 @@
    "name": "Flora Neuenmuller",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/609a79458d740e249d363c17a9038454_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598221",
+   "avatar": "https://img2.finalfantasyxiv.com/f/609a79458d740e249d363c17a9038454_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601821",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7488,7 +7516,7 @@
    "name": "J'atoh Nunh",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/39deab8bac4b2a23c0e5dd0c80154f99_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598095",
+   "avatar": "https://img2.finalfantasyxiv.com/f/39deab8bac4b2a23c0e5dd0c80154f99_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601695",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7678,8 +7706,8 @@
     "Paladin": {
      "fights": 4,
      "kills": 13,
-     "parse": 39.2,
-     "score": 30.4,
+     "parse": 43.8,
+     "score": 34.0,
      "tier": null
     }
    },
@@ -7715,7 +7743,7 @@
    "name": "Lins Miyuki",
    "rank": "Taster",
    "level": 87,
-   "avatar": "https://img2.finalfantasyxiv.com/f/5435b5e2f6089d08a4fbf16f050d0905_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597843",
+   "avatar": "https://img2.finalfantasyxiv.com/f/5435b5e2f6089d08a4fbf16f050d0905_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601443",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7809,7 +7837,7 @@
    "name": "Lucienvt Yenslayer",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/16ffcd6df461e6e2ff138ac3cff57039_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597807",
+   "avatar": "https://img2.finalfantasyxiv.com/f/16ffcd6df461e6e2ff138ac3cff57039_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601407",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7945,7 +7973,7 @@
    "name": "Luna Froggo",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/6f4071bc66462934a8026a031b6a759d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598310",
+   "avatar": "https://img2.finalfantasyxiv.com/f/6f4071bc66462934a8026a031b6a759d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601910",
    "parse": 100,
    "savage_kills": 0,
    "current_seen": false,
@@ -7969,25 +7997,25 @@
     "DarkKnight": {
      "fights": 2,
      "kills": 16,
-     "parse": 86.5,
-     "score": 59.3,
+     "parse": 86.3,
+     "score": 59.2,
      "tier": "expert"
     },
     "Warrior": {
      "fights": 2,
      "kills": 66,
-     "parse": 94.5,
-     "score": 79.6,
-     "tier": "master"
+     "parse": 97.7,
+     "score": 82.2,
+     "tier": "legendary"
     }
    },
    "job_top": {
     "job": "Warrior",
     "fights": 2,
     "kills": 66,
-    "parse": 94.5,
-    "score": 79.6,
-    "tier": "master"
+    "parse": 97.7,
+    "score": 82.2,
+    "tier": "legendary"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -8082,8 +8110,8 @@
     "Summoner": {
      "fights": 2,
      "kills": 102,
-     "parse": 56.0,
-     "score": 49.7,
+     "parse": 56.1,
+     "score": 49.8,
      "tier": null
     }
    },
@@ -8141,8 +8169,8 @@
     "Viper": {
      "fights": 3,
      "kills": 6,
-     "parse": 17.3,
-     "score": 11.1,
+     "parse": 20.5,
+     "score": 13.1,
      "tier": null
     }
    },
@@ -8239,8 +8267,8 @@
     "WhiteMage": {
      "fights": 2,
      "kills": 83,
-     "parse": 71.0,
-     "score": 61.6,
+     "parse": 70.9,
+     "score": 61.5,
      "tier": "expert"
     }
    },
@@ -8248,8 +8276,8 @@
     "job": "WhiteMage",
     "fights": 2,
     "kills": 83,
-    "parse": 71.0,
-    "score": 61.6,
+    "parse": 70.9,
+    "score": 61.5,
     "tier": "expert"
    },
    "legacy_clears": 0,
@@ -8283,7 +8311,7 @@
    "name": "Minion Ke",
    "rank": "Taster",
    "level": 96,
-   "avatar": "https://img2.finalfantasyxiv.com/f/75bbc832c72af70bcb5ce16e6f1804ec_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597997",
+   "avatar": "https://img2.finalfantasyxiv.com/f/75bbc832c72af70bcb5ce16e6f1804ec_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601597",
    "parse": 44,
    "savage_kills": 0,
    "current_seen": false,
@@ -8313,8 +8341,8 @@
     "Pictomancer": {
      "fights": 3,
      "kills": 48,
-     "parse": 28.3,
-     "score": 24.4,
+     "parse": 40.3,
+     "score": 34.8,
      "tier": null
     }
    },
@@ -8372,8 +8400,8 @@
     "Pictomancer": {
      "fights": 3,
      "kills": 132,
-     "parse": 38.0,
-     "score": 35.9,
+     "parse": 52.3,
+     "score": 49.4,
      "tier": null
     }
    },
@@ -8552,7 +8580,7 @@
    "name": "Nowhere Man",
    "rank": "Taster",
    "level": 96,
-   "avatar": "https://img2.finalfantasyxiv.com/f/20521876a6fdb2e53eaba078b8435fbd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598014",
+   "avatar": "https://img2.finalfantasyxiv.com/f/20521876a6fdb2e53eaba078b8435fbd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601614",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -8620,8 +8648,8 @@
     "Paladin": {
      "fights": 2,
      "kills": 27,
-     "parse": 40.5,
-     "score": 30.1,
+     "parse": 40.9,
+     "score": 30.4,
      "tier": null
     }
    },
@@ -8678,8 +8706,8 @@
     "Dragoon": {
      "fights": 2,
      "kills": 11,
-     "parse": 6.0,
-     "score": 3.9,
+     "parse": 5.9,
+     "score": 3.8,
      "tier": null
     }
    },
@@ -8740,18 +8768,18 @@
     "WhiteMage": {
      "fights": 6,
      "kills": 132,
-     "parse": 64.8,
-     "score": 64.8,
-     "tier": "expert"
+     "parse": 68.5,
+     "score": 68.5,
+     "tier": "master"
     }
    },
    "job_top": {
     "job": "WhiteMage",
     "fights": 6,
     "kills": 132,
-    "parse": 64.8,
-    "score": 64.8,
-    "tier": "expert"
+    "parse": 68.5,
+    "score": 68.5,
+    "tier": "master"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -8815,8 +8843,8 @@
     "Viper": {
      "fights": 2,
      "kills": 119,
-     "parse": 66.5,
-     "score": 59.0,
+     "parse": 66.4,
+     "score": 58.9,
      "tier": "expert"
     }
    },
@@ -8824,8 +8852,8 @@
     "job": "Viper",
     "fights": 2,
     "kills": 119,
-    "parse": 66.5,
-    "score": 59.0,
+    "parse": 66.4,
+    "score": 58.9,
     "tier": "expert"
    },
    "legacy_clears": 0,
@@ -8973,8 +9001,8 @@
     "Viper": {
      "fights": 2,
      "kills": 111,
-     "parse": 85.5,
-     "score": 75.9,
+     "parse": 84.3,
+     "score": 74.8,
      "tier": "master"
     }
    },
@@ -8982,8 +9010,8 @@
     "job": "Viper",
     "fights": 2,
     "kills": 111,
-    "parse": 85.5,
-    "score": 75.9,
+    "parse": 84.3,
+    "score": 74.8,
     "tier": "master"
    },
    "legacy_clears": 0,
@@ -9072,7 +9100,7 @@
    "name": "Snow Winsfield",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/5d10a912eeae37ec5f6457cf73a60e78_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598057",
+   "avatar": "https://img2.finalfantasyxiv.com/f/5d10a912eeae37ec5f6457cf73a60e78_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601657",
    "parse": 98,
    "savage_kills": 4,
    "current_seen": true,
@@ -9101,15 +9129,15 @@
     "Viper": {
      "fights": 9,
      "kills": 88,
-     "parse": 77.1,
-     "score": 76.1,
-     "tier": "master"
+     "parse": 85.0,
+     "score": 83.9,
+     "tier": "legendary"
     },
     "Reaper": {
      "fights": 5,
      "kills": 90,
-     "parse": 87.8,
-     "score": 86.9,
+     "parse": 91.8,
+     "score": 90.8,
      "tier": "legendary"
     }
    },
@@ -9117,8 +9145,8 @@
     "job": "Reaper",
     "fights": 5,
     "kills": 90,
-    "parse": 87.8,
-    "score": 86.9,
+    "parse": 91.8,
+    "score": 90.8,
     "tier": "legendary"
    },
    "legacy_clears": 0,
@@ -9258,7 +9286,7 @@
    "name": "Syndra Gal",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/1ee540389dff59421c5676dfd3f2ff59_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597930",
+   "avatar": "https://img2.finalfantasyxiv.com/f/1ee540389dff59421c5676dfd3f2ff59_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601530",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9541,7 +9569,7 @@
    "name": "Yuukizuz Akino",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/48198d6ab05027a783afbe65f74de24f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597910",
+   "avatar": "https://img2.finalfantasyxiv.com/f/48198d6ab05027a783afbe65f74de24f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601510",
    "parse": 67,
    "savage_kills": 4,
    "current_seen": true,
@@ -9567,8 +9595,8 @@
     "Pictomancer": {
      "fights": 8,
      "kills": 92,
-     "parse": 33.5,
-     "score": 33.2,
+     "parse": 38.6,
+     "score": 38.3,
      "tier": null
     },
     "Viper": {
@@ -9800,7 +9828,6 @@
    "rank": "Chef Toumant",
    "level": 74,
    "avatar": "https://img2.finalfantasyxiv.com/f/fca59d51f7c51ccb26ac63465153c35b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600710",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9812,6 +9839,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -9842,7 +9870,6 @@
    "rank": "Chef Toumant",
    "level": 64,
    "avatar": "https://img2.finalfantasyxiv.com/f/d21d5312f60bc6e131801a5cdcb75fc5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598892",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9859,6 +9886,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -9889,7 +9917,6 @@
    "rank": "Chef Toumant",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/ed53d3f6e131b03c708cdc930772de80_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598455",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9901,6 +9928,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -9930,8 +9958,7 @@
    "name": "Osilit Bloodhood",
    "rank": "Chef Toumant",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/5f92d976766c91a44e9029df79687b75_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597882",
-   "fflogs": "ok",
+   "avatar": "https://img2.finalfantasyxiv.com/f/5f92d976766c91a44e9029df79687b75_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601482",
    "parse": 20,
    "savage_kills": 0,
    "current_seen": false,
@@ -9974,6 +10001,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": 127,
    "minions": 218,
    "rare_achv": null,
@@ -10005,7 +10033,6 @@
    "rank": "Chef Toumant",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/435873f118efcfb2377f547442eaa45e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599629",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10017,6 +10044,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10047,7 +10075,6 @@
    "rank": "Chef Toumant",
    "level": 54,
    "avatar": "https://img2.finalfantasyxiv.com/f/e694637c2845fc19644aee6ab801a4b7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601101",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10059,6 +10086,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10088,8 +10116,7 @@
    "name": "Qzarel Lumina",
    "rank": "Chef Toumant",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/b5b1010c5909ab91b6ff54510d195aad_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598303",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/b5b1010c5909ab91b6ff54510d195aad_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601903",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10101,6 +10128,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10130,8 +10158,7 @@
    "name": "Samuel Porter",
    "rank": "Chef Toumant",
    "level": 54,
-   "avatar": "https://img2.finalfantasyxiv.com/f/6760d5574b3ad631a33f827fc08b30ce_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598211",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/6760d5574b3ad631a33f827fc08b30ce_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601811",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10148,6 +10175,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10174,7 +10202,6 @@
    "rank": "Chef Toumant",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/f0f9442c1a1578eec5f91749c9a09983_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600160",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10186,6 +10213,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10216,7 +10244,6 @@
    "rank": "Chef Toumant",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/0625729b883f79bc9623a9ce280f8484_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599698",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10233,6 +10260,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10263,7 +10291,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/66b7c787f878e673e98d1bd39791c67e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598690",
-   "fflogs": "ok",
    "parse": 45,
    "savage_kills": 0,
    "current_seen": false,
@@ -10290,6 +10317,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10319,8 +10347,7 @@
    "name": "Acerola Orion",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f02a5726205bd743f7065338b8c7b02b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597751",
-   "fflogs": "ok",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f02a5726205bd743f7065338b8c7b02b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601351",
    "parse": 84,
    "savage_kills": 0,
    "current_seen": false,
@@ -10341,20 +10368,21 @@
     "Viper": {
      "fights": 2,
      "kills": 70,
-     "parse": 64.5,
-     "score": 54.7,
-     "tier": "expert"
+     "parse": 79.5,
+     "score": 67.5,
+     "tier": "master"
     }
    },
    "job_top": {
     "job": "Viper",
     "fights": 2,
     "kills": 70,
-    "parse": 64.5,
-    "score": 54.7,
-    "tier": "expert"
+    "parse": 79.5,
+    "score": 67.5,
+    "tier": "master"
    },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10385,7 +10413,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/fe694772398f0ac530f015a1f77cd0f8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601127",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10402,6 +10429,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10432,7 +10460,6 @@
    "rank": "On vacation",
    "level": 93,
    "avatar": "https://img2.finalfantasyxiv.com/f/1003f4cd71839c35363531245fdc545d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598957",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10449,6 +10476,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10478,8 +10506,7 @@
    "name": "Aerithara Elric-",
    "rank": "On vacation",
    "level": 91,
-   "avatar": "https://img2.finalfantasyxiv.com/f/5209576cc00c70d5ee1c03949945f238_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597913",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/5209576cc00c70d5ee1c03949945f238_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601513",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10496,6 +10523,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10526,7 +10554,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/7d5f570da1dcbec5e3f7286647bd3599_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599936",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10543,6 +10570,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10573,7 +10601,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/24ef3dda559fcb61bd4725be7763b492_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599810",
-   "fflogs": "ok",
    "parse": 7,
    "savage_kills": 0,
    "current_seen": false,
@@ -10600,6 +10627,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": 30,
    "minions": 101,
    "rare_achv": null,
@@ -10631,7 +10659,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/d7d71bdfa112045984c426881fe8ff9a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598694",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10648,6 +10675,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10678,7 +10706,6 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/b512c69171112c03642978b96e45d8e0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600873",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10695,6 +10722,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10725,7 +10753,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/5169db2832475812f6b5350ccb0b7965_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600873",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10742,6 +10769,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10772,7 +10800,6 @@
    "rank": "On vacation",
    "level": 92,
    "avatar": "https://img2.finalfantasyxiv.com/f/dabf7b441cec171d76aa762f2572cf2f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599370",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10789,6 +10816,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10819,7 +10847,6 @@
    "rank": "On vacation",
    "level": 40,
    "avatar": "https://img2.finalfantasyxiv.com/f/2569211d8722925fa2cbf4f63e9f1216_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600749",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10836,6 +10863,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10866,7 +10894,6 @@
    "rank": "On vacation",
    "level": 84,
    "avatar": "https://img2.finalfantasyxiv.com/f/5cca50a23fbf484f5551bec5b742f5d4_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600256",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10883,6 +10910,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10913,7 +10941,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/139c62867ca1256c165d3f99a3427ed6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600293",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10930,6 +10957,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -10959,8 +10987,7 @@
    "name": "Alicia Bohm",
    "rank": "On vacation",
    "level": 92,
-   "avatar": "https://img2.finalfantasyxiv.com/f/c5ba690e39670e4184b9ec97b60ede79_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597914",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/c5ba690e39670e4184b9ec97b60ede79_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601514",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10977,6 +11004,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 59,
    "minions": 236,
    "rare_achv": null,
@@ -11008,7 +11036,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/b550b6df1f9ededca6a8b0ea9aca167a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600385",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11025,6 +11052,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11055,7 +11083,6 @@
    "rank": "On vacation",
    "level": 38,
    "avatar": "https://img2.finalfantasyxiv.com/f/21ad0d50ec909b000a77b5230a6537fc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599215",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11072,6 +11099,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11102,7 +11130,6 @@
    "rank": "On vacation",
    "level": 95,
    "avatar": "https://img2.finalfantasyxiv.com/f/a11139bf5f4316dc13b69b56e28b1efc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599820",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11119,6 +11146,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 135,
    "minions": 321,
    "rare_achv": 15,
@@ -11156,7 +11184,6 @@
    "rank": "On vacation",
    "level": 41,
    "avatar": "https://img2.finalfantasyxiv.com/f/765f778ea9d513f98c167085cbaa3496_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599111",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11173,6 +11200,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11202,8 +11230,7 @@
    "name": "Amil Aeronril",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/0e6145c42c527756d9bb54e6f14ce4b7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597964",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/0e6145c42c527756d9bb54e6f14ce4b7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601564",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11220,6 +11247,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 44,
    "minions": 98,
    "rare_achv": null,
@@ -11251,7 +11279,6 @@
    "rank": "On vacation",
    "level": 85,
    "avatar": "https://img2.finalfantasyxiv.com/f/2bfd6d6319ae2207b49b3814adeb07a5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600807",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11268,6 +11295,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11298,7 +11326,6 @@
    "rank": "On vacation",
    "level": 53,
    "avatar": "https://img2.finalfantasyxiv.com/f/396a0a999be508b7229cbeda6e75c54b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599246",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11315,6 +11342,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11345,7 +11373,6 @@
    "rank": "On vacation",
    "level": 86,
    "avatar": "https://img2.finalfantasyxiv.com/f/53bd739af251a8e13ec3f83d5b04d175_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600386",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11362,6 +11389,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11392,7 +11420,6 @@
    "rank": "On vacation",
    "level": 63,
    "avatar": "https://img2.finalfantasyxiv.com/f/90aecb02a6806c21b023c8ffd15bb6b2_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599612",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11409,6 +11436,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11439,7 +11467,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/07c6081821340cfbb8c61bd4cfb67e84_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600697",
-   "fflogs": "ok",
    "parse": 35,
    "savage_kills": 3,
    "current_seen": true,
@@ -11463,27 +11490,28 @@
     "WhiteMage": {
      "fights": 2,
      "kills": 12,
-     "parse": 18.5,
-     "score": 12.1,
+     "parse": 18.2,
+     "score": 11.9,
      "tier": null
     },
     "Sage": {
      "fights": 4,
      "kills": 14,
-     "parse": 22.8,
-     "score": 17.9,
+     "parse": 21.9,
+     "score": 17.2,
      "tier": null
     },
     "Warrior": {
      "fights": 2,
      "kills": 16,
-     "parse": 22.0,
-     "score": 15.1,
+     "parse": 24.0,
+     "score": 16.5,
      "tier": null
     }
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11515,7 +11543,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/5e91cc072904f9949402422678f80bef_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599501",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11532,6 +11559,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 116,
    "minions": 293,
    "rare_achv": 94,
@@ -11573,7 +11601,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/78c0a6ddc5fde6ebeb64ee8cba7a4096_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598748",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11590,6 +11617,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11620,7 +11648,6 @@
    "rank": "On vacation",
    "level": 99,
    "avatar": "https://img2.finalfantasyxiv.com/f/b047d34d0cb3c3c1a9b96d315e1ec970_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599845",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11637,6 +11664,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11666,8 +11694,7 @@
    "name": "Armadillo Girdled",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/fb7dd1dadc1ac385e29377296cb23b5c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597772",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/fb7dd1dadc1ac385e29377296cb23b5c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601372",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11684,6 +11711,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11714,7 +11742,6 @@
    "rank": "On vacation",
    "level": 57,
    "avatar": "https://img2.finalfantasyxiv.com/f/85dabf96a0dea0826b60bd5950334682_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11731,6 +11758,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11761,7 +11789,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/750af38da2a99d8584b5bc21539a1e85_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599333",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11778,6 +11805,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 32,
    "minions": 112,
    "rare_achv": null,
@@ -11809,7 +11837,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/51fd768b01619e3033614a91e1509be7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599635",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11826,6 +11853,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11856,7 +11884,6 @@
    "rank": "On vacation",
    "level": 91,
    "avatar": "https://img2.finalfantasyxiv.com/f/33f97cf5f574e278f8efea3590cce8f7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600668",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11873,6 +11900,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 25,
    "minions": 115,
    "rare_achv": null,
@@ -11903,8 +11931,7 @@
    "name": "Aui Aye",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/78ad127b292e0b5c83175e94ef81bf47_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598161",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/78ad127b292e0b5c83175e94ef81bf47_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601761",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11921,6 +11948,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11951,7 +11979,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/efe5154869a31e008d71084e1aec9215_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599063",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11968,6 +11995,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -11997,8 +12025,7 @@
    "name": "Baby Bb",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f3fb8840b377d8bcddf2d81bfeeb1fd9_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597913",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f3fb8840b377d8bcddf2d81bfeeb1fd9_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601513",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12015,6 +12042,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12044,8 +12072,7 @@
    "name": "Bark Ree",
    "rank": "On vacation",
    "level": 59,
-   "avatar": "https://img2.finalfantasyxiv.com/f/503bc668ba29667b4f6182262f0d0b99_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597913",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/503bc668ba29667b4f6182262f0d0b99_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601513",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12062,6 +12089,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12092,7 +12120,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/7663d112cd640b3742b69dcae9ffaef8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601012",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12109,6 +12136,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 65,
    "minions": 154,
    "rare_achv": 15,
@@ -12146,7 +12174,6 @@
    "rank": "On vacation",
    "level": 98,
    "avatar": "https://img2.finalfantasyxiv.com/f/18e6c7bc63ee5dd425013a5f12c7666a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601202",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12163,6 +12190,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 77,
    "minions": 160,
    "rare_achv": 7,
@@ -12198,7 +12226,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/789deb8bcc8df3a7b650a9020619bb4f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600302",
-   "fflogs": "ok",
    "parse": 73,
    "savage_kills": 0,
    "current_seen": false,
@@ -12227,8 +12254,8 @@
     "Summoner": {
      "fights": 2,
      "kills": 56,
-     "parse": 68.5,
-     "score": 56.4,
+     "parse": 67.5,
+     "score": 55.6,
      "tier": "expert"
     }
    },
@@ -12236,11 +12263,12 @@
     "job": "Summoner",
     "fights": 2,
     "kills": 56,
-    "parse": 68.5,
-    "score": 56.4,
+    "parse": 67.5,
+    "score": 55.6,
     "tier": "expert"
    },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12271,7 +12299,6 @@
    "rank": "On vacation",
    "level": 83,
    "avatar": "https://img2.finalfantasyxiv.com/f/ece9f16a7f563d4fe185cd698e71b6b1_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600145",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12288,6 +12315,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12318,7 +12346,6 @@
    "rank": "On vacation",
    "level": 55,
    "avatar": "https://img2.finalfantasyxiv.com/f/aeafda013161636ef1883a6720834267_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598521",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12335,6 +12362,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12364,8 +12392,7 @@
    "name": "Bi Bo",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/61d8b59c15aa4fd9c2561183e2862dc7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597834",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/61d8b59c15aa4fd9c2561183e2862dc7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601434",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12377,6 +12404,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12407,7 +12435,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/1e168c6bb345243812665a6d2a90e259_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599809",
-   "fflogs": "ok",
    "parse": 41,
    "savage_kills": 0,
    "current_seen": false,
@@ -12428,13 +12455,14 @@
     "Scholar": {
      "fights": 2,
      "kills": 20,
-     "parse": 35.5,
-     "score": 25.2,
+     "parse": 33.9,
+     "score": 24.1,
      "tier": null
     }
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12465,7 +12493,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/bb41a4378844be9e853e42e27bd88cd0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598976",
-   "fflogs": "ok",
    "parse": 64,
    "savage_kills": 0,
    "current_seen": false,
@@ -12487,9 +12514,9 @@
     "Sage": {
      "fights": 2,
      "kills": 136,
-     "parse": 36.0,
-     "score": 31.9,
-     "tier": null
+     "parse": 63.2,
+     "score": 56.1,
+     "tier": "expert"
     },
     "Gunbreaker": {
      "fights": 1,
@@ -12499,8 +12526,16 @@
      "tier": null
     }
    },
-   "job_top": null,
+   "job_top": {
+    "job": "Sage",
+    "fights": 2,
+    "kills": 136,
+    "parse": 63.2,
+    "score": 56.1,
+    "tier": "expert"
+   },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12531,7 +12566,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/36d5d5f1a2a5e57a9ca3f6965c9f20f0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600267",
-   "fflogs": "ok",
    "parse": 72,
    "savage_kills": 0,
    "current_seen": false,
@@ -12561,13 +12595,14 @@
     "Viper": {
      "fights": 2,
      "kills": 25,
-     "parse": 63.0,
-     "score": 46.2,
+     "parse": 67.7,
+     "score": 49.7,
      "tier": null
     }
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12598,7 +12633,6 @@
    "rank": "On vacation",
    "level": 39,
    "avatar": "https://img2.finalfantasyxiv.com/f/aae677ddedd69d091fd3f8e5ca45a53c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599824",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12615,6 +12649,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12645,7 +12680,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/ab8498c59ba5ddb5b90e240ae520590e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600041",
-   "fflogs": "ok",
    "parse": 64,
    "savage_kills": 0,
    "current_seen": false,
@@ -12680,6 +12714,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12710,7 +12745,6 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/838d5febf23447f2c981eb4488159380_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12727,6 +12761,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12757,7 +12792,6 @@
    "rank": "On vacation",
    "level": 76,
    "avatar": "https://img2.finalfantasyxiv.com/f/a34d6d73005756b9515764c3f0d0a379_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600224",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12774,6 +12808,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12803,8 +12838,7 @@
    "name": "Brownie Brown",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/cb74baedfcc050289e1fb865f837a4f8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598161",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/cb74baedfcc050289e1fb865f837a4f8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601761",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12821,6 +12855,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12851,7 +12886,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/290e9a0afb389fc00e989953f86f508c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12868,6 +12902,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12898,7 +12933,6 @@
    "rank": "On vacation",
    "level": 94,
    "avatar": "https://img2.finalfantasyxiv.com/f/fb44b11a2f3daa8b5b3703a649de7531_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599546",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12915,6 +12949,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12945,7 +12980,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/ea29340b30cbc1905a1c26ff1a944d00_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598984",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12962,6 +12996,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -12991,8 +13026,7 @@
    "name": "Cappu Chino",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/370b2e10a6979e4a4c522d906fe13358_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597831",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/370b2e10a6979e4a4c522d906fe13358_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601431",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13009,6 +13043,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13039,7 +13074,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/682851aa95bff17b38bdce707e81bb3c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600244",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13056,6 +13090,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13086,7 +13121,6 @@
    "rank": "On vacation",
    "level": 85,
    "avatar": "https://img2.finalfantasyxiv.com/f/f1eb4a867b5eb8e60c35bd771a42b62a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599953",
-   "fflogs": "ok",
    "parse": 23,
    "savage_kills": 0,
    "current_seen": false,
@@ -13113,6 +13147,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13143,7 +13178,6 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/920c64c912932f8422d1535629dbb9ba_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599121",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13160,6 +13194,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13190,7 +13225,6 @@
    "rank": "On vacation",
    "level": 92,
    "avatar": "https://img2.finalfantasyxiv.com/f/fca84acf3030094ef0aa5b0e83f9dbaf_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600935",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13207,6 +13241,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13237,7 +13272,6 @@
    "rank": "On vacation",
    "level": 51,
    "avatar": "https://img2.finalfantasyxiv.com/f/29bab47e0e0e067d681fa1cbc31604b3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598428",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13254,6 +13288,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13284,7 +13319,6 @@
    "rank": "On vacation",
    "level": 51,
    "avatar": "https://img2.finalfantasyxiv.com/f/2de5f1f96ee0f56f8d04eaf68683ca3a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601127",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13301,6 +13335,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13330,8 +13365,7 @@
    "name": "Chocola Meilleure",
    "rank": "On vacation",
    "level": 51,
-   "avatar": "https://img2.finalfantasyxiv.com/f/90875c0ca869d0e71e3486fc914fe2a6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597789",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/90875c0ca869d0e71e3486fc914fe2a6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601389",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13348,6 +13382,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13378,7 +13413,6 @@
    "rank": "On vacation",
    "level": 87,
    "avatar": "https://img2.finalfantasyxiv.com/f/fade9116ec3a976531a04486dbd34228_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601233",
-   "fflogs": "ok",
    "parse": 1,
    "savage_kills": 0,
    "current_seen": false,
@@ -13405,6 +13439,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13434,8 +13469,7 @@
    "name": "Chuju Okita",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/dfce0526af3f92765c19ddb998dc3b41_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598208",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/dfce0526af3f92765c19ddb998dc3b41_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601808",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13452,6 +13486,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13482,7 +13517,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/ac0287a5eecd9b2062aeafdc686deb7a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599866",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13499,6 +13533,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 140,
    "minions": 216,
    "rare_achv": null,
@@ -13530,7 +13565,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/add6a8cb8163e62fd58489532f4ab10f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598681",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13547,6 +13581,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13577,7 +13612,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/e5545db973debf156b1036d2ff2f7bd5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598999",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13594,6 +13628,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13624,7 +13659,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/7cc917b9cd30e6fa70900ff303e1605f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598518",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13641,6 +13675,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13671,7 +13706,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/322a9dd440f9e963b96017c2f25f8db5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599824",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13688,6 +13722,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 58,
    "minions": 114,
    "rare_achv": null,
@@ -13719,7 +13754,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/dbe5ccde0b067b088d8104ff6762b97d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600282",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13736,6 +13770,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13765,8 +13800,7 @@
    "name": "Deuce Bigalow",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/382e5c1bee811687b2cfb1471bd37f46_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597756",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/382e5c1bee811687b2cfb1471bd37f46_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601356",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13783,6 +13817,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13813,7 +13848,6 @@
    "rank": "On vacation",
    "level": 76,
    "avatar": "https://img2.finalfantasyxiv.com/f/dfc9f3b4ae795e6251494592dfc08cd5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599750",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13830,6 +13864,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13860,7 +13895,6 @@
    "rank": "On vacation",
    "level": 86,
    "avatar": "https://img2.finalfantasyxiv.com/f/a411f90cbf358f819ec3da02e27318ac_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599680",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13877,6 +13911,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 9,
    "minions": 22,
    "rare_achv": null,
@@ -13908,7 +13943,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/1d7eea3ebe041265a2dec606adbc55f2_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600268",
-   "fflogs": "ok",
    "parse": 90,
    "savage_kills": 2,
    "current_seen": true,
@@ -13932,9 +13966,9 @@
     "Viper": {
      "fights": 6,
      "kills": 56,
-     "parse": 26.3,
-     "score": 24.6,
-     "tier": null
+     "parse": 60.0,
+     "score": 56.2,
+     "tier": "expert"
     },
     "RedMage": {
      "fights": 1,
@@ -13944,8 +13978,16 @@
      "tier": null
     }
    },
-   "job_top": null,
+   "job_top": {
+    "job": "Viper",
+    "fights": 6,
+    "kills": 56,
+    "parse": 60.0,
+    "score": 56.2,
+    "tier": "expert"
+   },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -13977,7 +14019,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/7d8a5b9dedf7e35e75a0846576473b92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598967",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13994,6 +14035,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14024,7 +14066,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/a48e439fdb4d1991f727cf526fa6ea5c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600491",
-   "fflogs": "ok",
    "parse": 80,
    "savage_kills": 0,
    "current_seen": false,
@@ -14045,13 +14086,21 @@
     "Samurai": {
      "fights": 2,
      "kills": 23,
-     "parse": 56.5,
-     "score": 41.0,
-     "tier": null
+     "parse": 69.8,
+     "score": 50.6,
+     "tier": "expert"
     }
    },
-   "job_top": null,
+   "job_top": {
+    "job": "Samurai",
+    "fights": 2,
+    "kills": 23,
+    "parse": 69.8,
+    "score": 50.6,
+    "tier": "expert"
+   },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": 112,
    "minions": 274,
    "rare_achv": 31,
@@ -14090,7 +14139,6 @@
    "rank": "On vacation",
    "level": 70,
    "avatar": "https://img2.finalfantasyxiv.com/f/f7410b6dfe82577726d12ffa13933a6c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599269",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14107,6 +14155,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 26,
    "minions": 68,
    "rare_achv": 16,
@@ -14141,7 +14190,6 @@
    "rank": "On vacation",
    "level": 60,
    "avatar": "https://img2.finalfantasyxiv.com/f/a8ce0a2109c7f8778f0904baeb37f9f4_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601095",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14158,6 +14206,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14187,8 +14236,7 @@
    "name": "Eiko Fujiwara",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/05273c808057eba9abba02b51b35b5e6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597979",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/05273c808057eba9abba02b51b35b5e6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601579",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14205,6 +14253,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14235,7 +14284,6 @@
    "rank": "On vacation",
    "level": 53,
    "avatar": "https://img2.finalfantasyxiv.com/f/e85844f84204ea35baa820bb0b686d5d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598597",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14252,6 +14300,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14281,8 +14330,7 @@
    "name": "Elise Lionheart",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/92aa260a91c0dc2de1ca59b32884f97a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598158",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/92aa260a91c0dc2de1ca59b32884f97a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601758",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14299,6 +14347,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14329,7 +14378,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/797e325f071d5fb1f52b36bee6c3c6ce_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600989",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14346,6 +14394,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 11,
    "minions": 21,
    "rare_achv": null,
@@ -14377,7 +14426,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/bc065c4481047db81446fc469c6689fd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600386",
-   "fflogs": "ok",
    "parse": 53,
    "savage_kills": 0,
    "current_seen": false,
@@ -14398,13 +14446,14 @@
     "Machinist": {
      "fights": 2,
      "kills": 21,
-     "parse": 48.0,
-     "score": 34.3,
+     "parse": 46.8,
+     "score": 33.5,
      "tier": null
     }
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": 59,
    "minions": 149,
    "rare_achv": null,
@@ -14436,7 +14485,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/27756281f00c9f27c9552d9670ffb89f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599822",
-   "fflogs": "ok",
    "parse": 45,
    "savage_kills": 0,
    "current_seen": false,
@@ -14458,13 +14506,14 @@
     "WhiteMage": {
      "fights": 3,
      "kills": 40,
-     "parse": 44.0,
-     "score": 37.1,
+     "parse": 43.9,
+     "score": 37.0,
      "tier": null
     }
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14495,7 +14544,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/220d08b17b1e51e3bd66d15a78b90ef3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599822",
-   "fflogs": "ok",
    "parse": 68,
    "savage_kills": 0,
    "current_seen": false,
@@ -14530,6 +14578,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14560,7 +14609,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/b4bef559b5012b3fa3c6be99688d23dc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601084",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14577,6 +14625,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 22,
    "minions": 67,
    "rare_achv": 0,
@@ -14608,7 +14657,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/a0a45162fbe4051a948620d4c7222e4c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600940",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14625,6 +14673,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14655,7 +14704,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/e2fde1f263a81e7629a4e80dfd220913_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601024",
-   "fflogs": "ok",
    "parse": 57,
    "savage_kills": 0,
    "current_seen": false,
@@ -14682,6 +14730,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14713,7 +14762,6 @@
    "rank": "On vacation",
    "level": 85,
    "avatar": "https://img2.finalfantasyxiv.com/f/d54ad8e04184693b23130333ab58ddb6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599080",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14730,6 +14778,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14760,7 +14809,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/8e67dea75567ad4cd9bef747af1b77d8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599505",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14777,6 +14825,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14807,7 +14856,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/f858f2e55ccefbecee38f46f46e76a60_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598793",
-   "fflogs": "ok",
    "parse": 95,
    "savage_kills": 0,
    "current_seen": false,
@@ -14830,8 +14878,8 @@
     "Gunbreaker": {
      "fights": 2,
      "kills": 40,
-     "parse": 89.5,
-     "score": 70.3,
+     "parse": 89.2,
+     "score": 70.1,
      "tier": "master"
     },
     "DarkKnight": {
@@ -14846,11 +14894,12 @@
     "job": "Gunbreaker",
     "fights": 2,
     "kills": 40,
-    "parse": 89.5,
-    "score": 70.3,
+    "parse": 89.2,
+    "score": 70.1,
     "tier": "master"
    },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": 122,
    "minions": 276,
    "rare_achv": 70,
@@ -14894,7 +14943,6 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/4c2372d6e4b2a74377676208ebabd7aa_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598350",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14911,6 +14959,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14941,7 +14990,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/b03e6905474abd94be3e059b6f8f5898_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600495",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14958,6 +15006,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -14988,7 +15037,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/92e3a30bcd57cc0dc774dcbc060571ef_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598619",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15005,6 +15053,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15035,7 +15084,6 @@
    "rank": "On vacation",
    "level": 84,
    "avatar": "https://img2.finalfantasyxiv.com/f/8b9e09d031bf30a8f0bb8739cc435a0f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599140",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15052,6 +15100,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 21,
    "minions": 60,
    "rare_achv": null,
@@ -15083,7 +15132,6 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/60822ca9387221b2624115fb247e1b72_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598989",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15100,6 +15148,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 16,
    "minions": 38,
    "rare_achv": 0,
@@ -15131,7 +15180,6 @@
    "rank": "On vacation",
    "level": 65,
    "avatar": "https://img2.finalfantasyxiv.com/f/1fde7ead864d9f5aa6bd5f8fd845a062_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599236",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15148,6 +15196,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15178,7 +15227,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/0ea586542c7661b41ef66ee205543b00_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599357",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15195,6 +15243,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 35,
    "minions": 50,
    "rare_achv": null,
@@ -15226,7 +15275,6 @@
    "rank": "On vacation",
    "level": 98,
    "avatar": "https://img2.finalfantasyxiv.com/f/3dcba6f75beebace138a9b978278d251_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598776",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15243,6 +15291,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15272,8 +15321,7 @@
    "name": "Fishstop Moon-osha",
    "rank": "On vacation",
    "level": 86,
-   "avatar": "https://img2.finalfantasyxiv.com/f/597012f376c854518f6a3939fa4774ec_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597948",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/597012f376c854518f6a3939fa4774ec_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601548",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15290,6 +15338,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15320,7 +15369,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/a33f7da823f9a6d7f812be8d866d4c0f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599559",
-   "fflogs": "ok",
    "parse": 30,
    "savage_kills": 0,
    "current_seen": false,
@@ -15343,8 +15391,8 @@
     "Sage": {
      "fights": 2,
      "kills": 8,
-     "parse": 20.5,
-     "score": 12.6,
+     "parse": 20.1,
+     "score": 12.3,
      "tier": null
     },
     "Warrior": {
@@ -15357,6 +15405,7 @@
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15389,7 +15438,6 @@
    "rank": "On vacation",
    "level": 57,
    "avatar": "https://img2.finalfantasyxiv.com/f/a47434719ab74178717207e6d088b8c7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600762",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15406,6 +15454,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15436,7 +15485,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/9965566534027d0f5e72dee279bdb866_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600463",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15453,6 +15501,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15483,7 +15532,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/11665c02a72e7ac31b031faab4fb9a0b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600591",
-   "fflogs": "ok",
    "parse": 98,
    "savage_kills": 4,
    "current_seen": true,
@@ -15510,8 +15558,8 @@
     "Machinist": {
      "fights": 11,
      "kills": 323,
-     "parse": 93.1,
-     "score": 93.1,
+     "parse": 94.3,
+     "score": 94.3,
      "tier": "legendary"
     },
     "Dragoon": {
@@ -15533,11 +15581,12 @@
     "job": "Machinist",
     "fights": 11,
     "kills": 323,
-    "parse": 93.1,
-    "score": 93.1,
+    "parse": 94.3,
+    "score": 94.3,
     "tier": "legendary"
    },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": 148,
    "minions": 323,
    "rare_achv": null,
@@ -15566,7 +15615,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/0ae1e360ff3e2e23f90343797e495256_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598977",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15578,6 +15626,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 26,
    "minions": 69,
    "rare_achv": null,
@@ -15608,8 +15657,7 @@
    "name": "Gin Salmon",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/05d76f18cffcfcc09fbfe1fef36eb8a8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598037",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/05d76f18cffcfcc09fbfe1fef36eb8a8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601637",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15626,6 +15674,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15656,7 +15705,6 @@
    "rank": "On vacation",
    "level": 70,
    "avatar": "https://img2.finalfantasyxiv.com/f/71ab697a24bf8b3c404938b4f20717bc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599822",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15673,6 +15721,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15703,7 +15752,6 @@
    "rank": "On vacation",
    "level": 79,
    "avatar": "https://img2.finalfantasyxiv.com/f/84ae337ae8abc59b626eefac16bb085d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600361",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15720,6 +15768,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15750,7 +15799,6 @@
    "rank": "On vacation",
    "level": 88,
    "avatar": "https://img2.finalfantasyxiv.com/f/de6b91dec987e0812f07c75718a4285f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600405",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15767,6 +15815,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15797,7 +15846,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/0c4844de389cacdf864bbc34add04daa_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598953",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15814,6 +15862,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 49,
    "minions": 71,
    "rare_achv": null,
@@ -15845,7 +15894,6 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/fc2b12108f3979e656ecb88c7495bb8a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15862,6 +15910,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -15891,8 +15940,7 @@
    "name": "Gunz Fields",
    "rank": "On vacation",
    "level": 29,
-   "avatar": "https://img2.finalfantasyxiv.com/f/bb9d0163bc8460275e54d7ce1a7f74a3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597914",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/bb9d0163bc8460275e54d7ce1a7f74a3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601514",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15909,6 +15957,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 3,
    "minions": 2,
    "rare_achv": null,
@@ -15940,7 +15989,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/ee4da791d8fc8ab25672e7ea4c6cb616_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600590",
-   "fflogs": "ok",
    "parse": 98,
    "savage_kills": 0,
    "current_seen": false,
@@ -15963,9 +16011,9 @@
     "Viper": {
      "fights": 3,
      "kills": 40,
-     "parse": 80.0,
-     "score": 67.4,
-     "tier": "master"
+     "parse": 71.9,
+     "score": 60.5,
+     "tier": "expert"
     },
     "Samurai": {
      "fights": 1,
@@ -15979,11 +16027,12 @@
     "job": "Viper",
     "fights": 3,
     "kills": 40,
-    "parse": 80.0,
-    "score": 67.4,
-    "tier": "master"
+    "parse": 71.9,
+    "score": 60.5,
+    "tier": "expert"
    },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16014,7 +16063,6 @@
    "rank": "On vacation",
    "level": 83,
    "avatar": "https://img2.finalfantasyxiv.com/f/20764b076ca2d9437892346e9c091266_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599661",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16031,6 +16079,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16060,8 +16109,7 @@
    "name": "Halyn Halora",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ebf27483eb0d86631e7a67c1e5fecc45_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598025",
-   "fflogs": "ok",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ebf27483eb0d86631e7a67c1e5fecc45_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601625",
    "parse": 64,
    "savage_kills": 3,
    "current_seen": true,
@@ -16082,13 +16130,14 @@
     "Reaper": {
      "fights": 5,
      "kills": 46,
-     "parse": 22.2,
-     "score": 20.3,
+     "parse": 53.8,
+     "score": 49.2,
      "tier": null
     }
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16120,7 +16169,6 @@
    "rank": "On vacation",
    "level": 86,
    "avatar": "https://img2.finalfantasyxiv.com/f/3e60e109d718755ac3f503d6dee9c348_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599173",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16137,6 +16185,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 84,
    "minions": 168,
    "rare_achv": 50,
@@ -16176,8 +16225,7 @@
    "name": "Hanami Hunter",
    "rank": "On vacation",
    "level": 62,
-   "avatar": "https://img2.finalfantasyxiv.com/f/818c0c49bb48cf58d2866ce3d7097f44_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597913",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/818c0c49bb48cf58d2866ce3d7097f44_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601513",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16194,6 +16242,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16224,7 +16273,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/133b72a398b117fa24416d3ae7746ed1_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599271",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16241,6 +16289,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16270,8 +16319,7 @@
    "name": "Haru Luminous",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d3cf499ade8442f65736637044c57541_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598160",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d3cf499ade8442f65736637044c57541_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601760",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16288,6 +16336,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16318,7 +16367,6 @@
    "rank": "On vacation",
    "level": 91,
    "avatar": "https://img2.finalfantasyxiv.com/f/6dd404c36e4859dff8175166a0c643ae_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599521",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16335,6 +16383,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 8,
    "minions": 19,
    "rare_achv": 0,
@@ -16366,7 +16415,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/fda41f8f260c82264e962ac44ada6573_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598967",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16383,6 +16431,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16413,7 +16462,6 @@
    "rank": "On vacation",
    "level": 78,
    "avatar": "https://img2.finalfantasyxiv.com/f/18612c4e2e3549912194b2b4ee33d619_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16430,6 +16478,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16460,7 +16509,6 @@
    "rank": "On vacation",
    "level": 54,
    "avatar": "https://img2.finalfantasyxiv.com/f/afab20f698e9aa0d8c17762685a6a1c0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16477,6 +16525,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16507,7 +16556,6 @@
    "rank": "On vacation",
    "level": 83,
    "avatar": "https://img2.finalfantasyxiv.com/f/f620205c5309892346f35767bc09c840_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601056",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16524,6 +16572,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16554,7 +16603,6 @@
    "rank": "On vacation",
    "level": 88,
    "avatar": "https://img2.finalfantasyxiv.com/f/c5030f0caeb4c6b6e880b74ba0228186_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600954",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16571,6 +16619,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16600,8 +16649,7 @@
    "name": "Hoshiko Hikari",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/5286afe6a0d7c50b5ec4dc1ba895d11f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598111",
-   "fflogs": "none",
+   "avatar": "https://img2.finalfantasyxiv.com/f/5286afe6a0d7c50b5ec4dc1ba895d11f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601711",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16618,6 +16666,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16648,7 +16697,6 @@
    "rank": "On vacation",
    "level": 47,
    "avatar": "https://img2.finalfantasyxiv.com/f/578f8e6890ae70f80f4367a2a5738e53_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599054",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16665,6 +16713,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16695,7 +16744,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/888cd6d2f1b3d4df706d22a648c0a12f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16712,6 +16760,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 24,
    "minions": 64,
    "rare_achv": null,
@@ -16743,7 +16792,6 @@
    "rank": "On vacation",
    "level": 83,
    "avatar": "https://img2.finalfantasyxiv.com/f/779e7c974a707958793443201dddd013_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600768",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16760,6 +16808,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16790,7 +16839,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/cb19bd1f515b092e220bd868909414a3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598976",
-   "fflogs": "ok",
    "parse": 90,
    "savage_kills": 0,
    "current_seen": false,
@@ -16811,20 +16859,21 @@
     "Viper": {
      "fights": 2,
      "kills": 116,
-     "parse": 58.5,
-     "score": 51.9,
-     "tier": "expert"
+     "parse": 86.7,
+     "score": 76.9,
+     "tier": "master"
     }
    },
    "job_top": {
     "job": "Viper",
     "fights": 2,
     "kills": 116,
-    "parse": 58.5,
-    "score": 51.9,
-    "tier": "expert"
+    "parse": 86.7,
+    "score": 76.9,
+    "tier": "master"
    },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16854,14 +16903,19 @@
    "name": "Ixa Vollstandig",
    "rank": "On vacation",
    "level": 23,
-   "avatar": "https://img2.finalfantasyxiv.com/f/2f45a10f916adcfdb5dcedf06f773854_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598254",
-   "fflogs": "pending",
+   "avatar": "https://img2.finalfantasyxiv.com/f/2f45a10f916adcfdb5dcedf06f773854_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601854",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -16889,7 +16943,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 40652404,
@@ -16897,13 +16951,18 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/f8a37ce3353b56ab92847116b2afc9cf_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600524",
-   "fflogs": "pending",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -16931,21 +16990,26 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 33966579,
    "name": "James Jasper",
    "rank": "On vacation",
    "level": 32,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7fa870a96d18a8c035d7dcab89da72f3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598161",
-   "fflogs": "pending",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7fa870a96d18a8c035d7dcab89da72f3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601761",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -16974,21 +17038,26 @@
    "tags": [
     "casual"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 35361599,
    "name": "Jedi Rider",
    "rank": "On vacation",
    "level": 60,
-   "avatar": "https://img2.finalfantasyxiv.com/f/b53a50d0b6c6f489de6a4ea48cee7378_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598158",
-   "fflogs": "pending",
+   "avatar": "https://img2.finalfantasyxiv.com/f/b53a50d0b6c6f489de6a4ea48cee7378_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601758",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17016,7 +17085,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 60692052,
@@ -17024,16 +17093,31 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/88e4d34aa2d66059aceeaface1460662_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600162",
-   "fflogs": "pending",
-   "parse": null,
+   "fflogs": "ok",
+   "parse": 1,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
-   "ex_cleared": [],
-   "ex_kills": 0,
-   "job_scores": {},
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "ex_cleared": [
+    "Enuo"
+   ],
+   "ex_kills": 4,
+   "job_scores": {
+    "Viper": {
+     "fights": 1,
+     "kills": 4,
+     "parse": 1.0,
+     "score": 0.5,
+     "tier": null
+    }
+   },
    "job_top": null,
    "legacy_clears": 0,
    "mounts": null,
@@ -17056,9 +17140,9 @@
    "ult_achv_only": [],
    "achv_tiers": {},
    "tags": [
-    "unknown"
+    "extreme"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 23901016,
@@ -17149,7 +17233,7 @@
    "name": "Joey Zaa",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/c2bcc232c105bdf6755c479c4ad34e52_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597989",
+   "avatar": "https://img2.finalfantasyxiv.com/f/c2bcc232c105bdf6755c479c4ad34e52_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601589",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -17191,7 +17275,7 @@
    "name": "Jorjae Wang",
    "rank": "On vacation",
    "level": 70,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7adffa400ecb88ad336bd3ad87191d92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598163",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7adffa400ecb88ad336bd3ad87191d92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601763",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -17527,7 +17611,7 @@
    "name": "Kappa Kappayuthz",
    "rank": "On vacation",
    "level": 66,
-   "avatar": "https://img2.finalfantasyxiv.com/f/1191aa871c121c8b38ccddb3a03d5dbd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598240",
+   "avatar": "https://img2.finalfantasyxiv.com/f/1191aa871c121c8b38ccddb3a03d5dbd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601840",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18409,7 +18493,7 @@
    "name": "Linda Alvina",
    "rank": "On vacation",
    "level": 92,
-   "avatar": "https://img2.finalfantasyxiv.com/f/87a7dc02dd2057ff265ae4727500d9e5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598018",
+   "avatar": "https://img2.finalfantasyxiv.com/f/87a7dc02dd2057ff265ae4727500d9e5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601618",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18535,7 +18619,7 @@
    "name": "Lipwan Superior",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/56717a9302e7f2d12879619cc44c79dc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598102",
+   "avatar": "https://img2.finalfantasyxiv.com/f/56717a9302e7f2d12879619cc44c79dc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601702",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18582,7 +18666,7 @@
    "name": "Little Sister",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a825cf9278066c89d52266a6bae68f30_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598161",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a825cf9278066c89d52266a6bae68f30_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601761",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18708,7 +18792,7 @@
    "name": "Lucy Luminous",
    "rank": "On vacation",
    "level": 70,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a9d37324d05d340feadfe8b3c20d4c1f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598161",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a9d37324d05d340feadfe8b3c20d4c1f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601761",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19424,7 +19508,7 @@
    "name": "Milly Beee",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7f5cc35488c5c9290c67d5cf408ccf04_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597995",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7f5cc35488c5c9290c67d5cf408ccf04_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601595",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19803,7 +19887,7 @@
    "name": "Momose Hochizora",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/526e08dda480dd8e31a9d34d870e31b6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597827",
+   "avatar": "https://img2.finalfantasyxiv.com/f/526e08dda480dd8e31a9d34d870e31b6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601427",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19929,7 +20013,7 @@
    "name": "Mulata Shogo",
    "rank": "On vacation",
    "level": 22,
-   "avatar": "https://img2.finalfantasyxiv.com/f/46bbac89d3b41ff4e4cdc599b9605328_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598092",
+   "avatar": "https://img2.finalfantasyxiv.com/f/46bbac89d3b41ff4e4cdc599b9605328_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601692",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20013,7 +20097,7 @@
    "name": "Mystic Hwall",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3abe7b828bf90116555b80b17abca16c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597913",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3abe7b828bf90116555b80b17abca16c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601513",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20056,7 +20140,7 @@
    "name": "Namine Raspberyl",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/4af03ca7db92184417e6f1cb56099a1c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597818",
+   "avatar": "https://img2.finalfantasyxiv.com/f/4af03ca7db92184417e6f1cb56099a1c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601418",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20440,7 +20524,7 @@
    "name": "Nemoha Chelewae",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/eb036b5b1f86979c4648e4058ecbddfb_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597913",
+   "avatar": "https://img2.finalfantasyxiv.com/f/eb036b5b1f86979c4648e4058ecbddfb_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601513",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20524,7 +20608,7 @@
    "name": "Neo Anderson",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/dd482e01545414b2adc59c9485e65d83_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597747",
+   "avatar": "https://img2.finalfantasyxiv.com/f/dd482e01545414b2adc59c9485e65d83_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601347",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20650,7 +20734,7 @@
    "name": "New Skills",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/2893f03b3323a1023e43f15b61f01c2b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597915",
+   "avatar": "https://img2.finalfantasyxiv.com/f/2893f03b3323a1023e43f15b61f01c2b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601515",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21029,7 +21113,7 @@
    "name": "Nuna Ghiza",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d9d7e31ead6f3cf6e6ccdf2cd26d0ddb_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597913",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d9d7e31ead6f3cf6e6ccdf2cd26d0ddb_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601513",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21323,7 +21407,7 @@
    "name": "Omare Maki",
    "rank": "On vacation",
    "level": 68,
-   "avatar": "https://img2.finalfantasyxiv.com/f/535e2c11accc50bd95e44fe4742f27e9_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598081",
+   "avatar": "https://img2.finalfantasyxiv.com/f/535e2c11accc50bd95e44fe4742f27e9_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601681",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21449,7 +21533,7 @@
    "name": "Oxyy Genn",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d6bc790ef1a4419206aa5a81e0be2387_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598300",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d6bc790ef1a4419206aa5a81e0be2387_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601900",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21659,7 +21743,7 @@
    "name": "Peko Saku",
    "rank": "On vacation",
    "level": 82,
-   "avatar": "https://img2.finalfantasyxiv.com/f/b799208d2cdb41cb73701c5a0492edf3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597912",
+   "avatar": "https://img2.finalfantasyxiv.com/f/b799208d2cdb41cb73701c5a0492edf3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601512",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21743,7 +21827,7 @@
    "name": "Phantasm Gloria",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/58571ff1b07d10cfa2a728b107d382f5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598252",
+   "avatar": "https://img2.finalfantasyxiv.com/f/58571ff1b07d10cfa2a728b107d382f5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601852",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -22370,7 +22454,7 @@
    "name": "Rana Murphy",
    "rank": "On vacation",
    "level": 61,
-   "avatar": "https://img2.finalfantasyxiv.com/f/78de49e085d47acf81f86f7ee3359e92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598160",
+   "avatar": "https://img2.finalfantasyxiv.com/f/78de49e085d47acf81f86f7ee3359e92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601760",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -22838,7 +22922,7 @@
    "name": "Ruka Aeon",
    "rank": "On vacation",
    "level": 82,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d37ab6da6b55b12fa2b107f59774315b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598246",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d37ab6da6b55b12fa2b107f59774315b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601846",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23342,7 +23426,7 @@
    "name": "Shiomi Shirogane",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/916cc33d7d16a3ba0ed90427968e730d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597774",
+   "avatar": "https://img2.finalfantasyxiv.com/f/916cc33d7d16a3ba0ed90427968e730d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601374",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23434,7 +23518,7 @@
    "name": "Shiryu Shadow",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f0ab8f640f8ba9e27837a8f5fc3eda84_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597915",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f0ab8f640f8ba9e27837a8f5fc3eda84_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601515",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23728,7 +23812,7 @@
    "name": "Sorara Zeric",
    "rank": "On vacation",
    "level": 28,
-   "avatar": "https://img2.finalfantasyxiv.com/f/c2a3991d738530ea26ff48128f246571_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597787",
+   "avatar": "https://img2.finalfantasyxiv.com/f/c2a3991d738530ea26ff48128f246571_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601387",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24064,7 +24148,7 @@
    "name": "Taro Yeon",
    "rank": "On vacation",
    "level": 76,
-   "avatar": "https://img2.finalfantasyxiv.com/f/2057f5598e7d84781a8a15ce7a6b4503_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598164",
+   "avatar": "https://img2.finalfantasyxiv.com/f/2057f5598e7d84781a8a15ce7a6b4503_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601764",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24359,7 +24443,7 @@
    "name": "Tofu Tofu",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3f54a8a5b4d2c286f225c2ab0a30336d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597914",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3f54a8a5b4d2c286f225c2ab0a30336d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601514",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24570,7 +24654,7 @@
    "name": "Umbra Cereza",
    "rank": "On vacation",
    "level": 74,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d93fe1c8008a954193abfb2cccd520fe_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598142",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d93fe1c8008a954193abfb2cccd520fe_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601742",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25882,7 +25966,7 @@
    "name": "Zireael Foley",
    "rank": "On vacation",
    "level": 86,
-   "avatar": "https://img2.finalfantasyxiv.com/f/4aabe276fbd81fb14047bbf4643ae589_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787597914",
+   "avatar": "https://img2.finalfantasyxiv.com/f/4aabe276fbd81fb14047bbf4643ae589_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601514",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,

@@ -4487,8 +4487,13 @@
   "minions": null,
   "rare": null,
   "level": 23,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "40652404": {
   "name": "Jade Solaire",
@@ -4498,8 +4503,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "33966579": {
   "name": "James Jasper",
@@ -4509,8 +4519,13 @@
   "minions": 32,
   "rare": null,
   "level": 32,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "35361599": {
   "name": "Jedi Rider",
@@ -4520,19 +4535,29 @@
   "minions": null,
   "rare": null,
   "level": 60,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "60692052": {
   "name": "Jedos Darkflamemaster",
-  "parse": null,
+  "parse": 1,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "23901016": {
   "name": "Jeemoh Jeemomoh",

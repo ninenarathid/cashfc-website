@@ -13279,5 +13279,106 @@
   ],
   "legacy": [],
   "_status": "ok"
+ },
+ "36001341": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "40652404": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "33966579": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "35361599": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "60692052": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 1,
+    "kills": 4,
+    "job": "Viper",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
  }
 }
