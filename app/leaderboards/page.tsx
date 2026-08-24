@@ -42,12 +42,13 @@ export default function LeaderboardsPage() {
       </div>
       <h1 className="font-display text-3xl font-bold">Who does what best</h1>
       <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-        Ranked by rare achievements, where each one is worth{" "}
-        <b className="text-ink">1 + log₁₀(10 ÷ % of players who own it)</b>. Something
-        10% of players have scores 1 point, 1% scores 2, 0.1% scores 3 — so collecting
-        a lot adds up, but rarity counts for much more. The percentage is the share of
-        everything rare in that playstyle, which is what earns the Legendary, Master
-        and Expert titles. Only members with public achievements can appear here.
+        Ranked by rare achievements, where each one is worth as much as it is rare:{" "}
+        <b className="text-ink">10 ÷ % of players who own it</b>. Something 10% of
+        players have scores 1 point, 1% scores 10, and 0.2% scores 50 — holding more
+        of them still adds up, but one genuinely hard achievement outweighs a pile of
+        easy ones. The percentage is how much of everything rare in that playstyle
+        somebody holds, and it is what earns the Legendary, Master and Expert titles.
+        Only members with public achievements can appear here.
       </p>
 
       {boards.length === 0 ? (
@@ -91,9 +92,10 @@ export default function LeaderboardsPage() {
                     </span>
                     <span className="text-right font-data text-[12px] text-muted"
                           title={`${r.n} rare achievements · ${r.score.toFixed(1)} points`}>
-                      {r.share != null
-                        ? `${(r.share * 100).toFixed(1)}%`
-                        : r.score.toFixed(1)}
+                      {/* Always the share, never the raw score: the two are on
+                          different scales and a column that silently switches
+                          between them ranks nothing. */}
+                      {r.share != null ? `${(r.share * 100).toFixed(1)}%` : "—"}
                       <small className="ml-1 opacity-60">({r.n})</small>
                     </span>
                   </li>

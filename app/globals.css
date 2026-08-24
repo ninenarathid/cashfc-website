@@ -13,9 +13,9 @@
   --color-jade: #4fb8a8;
   --color-copper: #c98a5b;
   --color-steel: #7ea6c9;
-  --font-display: var(--font-prompt);
-  --font-body: var(--font-anuphan);
-  --font-data: var(--font-chakra);
+  --font-display: var(--font-display-face);
+  --font-body: var(--font-body-face);
+  --font-data: var(--font-data-face);
 }
 
 body {

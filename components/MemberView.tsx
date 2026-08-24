@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import type { Member, MemberRaids, Overlay, RaidZone } from "@/lib/types";
+import type { Member, MemberRaids, Overlay, RaidEncounter, RaidZone } from "@/lib/types";
 import {
   LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday, ultimateAbbr,
 } from "@/lib/types";
@@ -123,12 +123,26 @@ export default function MemberView({
     return g;
   }, [raids]);
 
-  const currentCards = tierLabels.map((label, i) => ({
-    label,
-    enc: raids?.current?.encounters.find((e) => e.label === label) ?? null,
-    cleared: raids?.current?.clears?.[i] ?? false,
-  }));
+  // FF Logs splits the final boss of a tier into two encounters, so one label can
+  // own two cards — M12S-1 and M12S-2 are fought and parsed separately. Only the
+  // last part counts as clearing the tier, which is what clears[] already records.
+  interface TierCard {
+    key: string; label: string; enc: RaidEncounter | null; cleared: boolean;
+  }
+  const currentCards: TierCard[] = tierLabels.flatMap((label, i): TierCard[] => {
+    const cleared = raids?.current?.clears?.[i] ?? false;
+    const parts = (raids?.current?.encounters ?? []).filter(
+      (e) => e.label === label || e.label?.startsWith(`${label}-`));
+    if (!parts.length) return [{ key: label, label, enc: null, cleared }];
+    return parts.map((enc, j) => ({
+      key: enc.label ?? `${label}-${j}`,
+      label: enc.label ?? label,
+      enc,
+      cleared: j === parts.length - 1 ? cleared : (enc.kills ?? 0) > 0,
+    }));
+  });
   const hasCurrentData = !!raids?.current?.encounters?.length;
+  const extremes = raids?.extremes ?? [];
 
   const pctTile = (label: string, value: number | null,
                    values: (number | null)[], color: string) => {
@@ -281,13 +295,14 @@ export default function MemberView({
 
       {/* ── Raid: current tier. Hidden entirely when FF Logs has nothing — four
           empty cards saying "Awaiting data" is worse than not asking. ── */}
-      {hasCurrentData && (
+      {(hasCurrentData || extremes.length > 0) && (
       <section className="mt-6">
         <h2 className="mb-2 font-display text-lg font-semibold">
-          Current tier{" "}
+          Current patch{" "}
           <span className="text-[13px] font-normal text-muted">
             {tierLabels[0]}–{tierLabels[tierLabels.length - 1]}
             {raids?.current?.zone ? ` · ${raids.current.zone}` : ""}
+            {extremes.length > 0 && ` · ${extremes.length} extreme trials`}
           </span>
         </h2>
         {raids === null ? (
@@ -296,8 +311,8 @@ export default function MemberView({
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-            {currentCards.map(({ label, enc, cleared }) => (
-              <div key={label}
+            {currentCards.map(({ key, label, enc, cleared }) => (
+              <div key={key}
                    className={`rounded-xl border p-3.5 ${
                      enc || cleared ? "border-line bg-surface"
                                     : "border-dashed border-line bg-transparent opacity-60"}`}>
@@ -324,46 +339,46 @@ export default function MemberView({
             ))}
           </div>
         )}
+
+        {/* Same patch, lower difficulty — kept in this section so "what is this
+            person doing right now" is one answer rather than two. */}
+        {extremes.length > 0 && (
+          <>
+            <h3 className="mb-2 mt-4 font-display text-[15px] font-semibold">
+              Extreme trials{" "}
+              <span className="text-[12.5px] font-normal text-muted">
+                ({extremes.filter((e) => e.cleared).length} of {extremes.length} cleared)
+              </span>
+            </h3>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {extremes.map((e) => (
+                <div key={`${e.zone_id}-${e.name}`}
+                     className={`flex items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5 ${
+                       e.cleared ? "border-line bg-surface" : "border-dashed border-line opacity-60"}`}>
+                  <div className="min-w-0">
+                    <div className="truncate font-data text-[13.5px] text-ink">{e.name}</div>
+                    <div className="text-[11.5px] text-muted">
+                      {e.cleared ? `${e.kills} kills` : "no log"}
+                      {e.job && (
+                        <span className="inline-flex items-center gap-1">
+                          {" · "}<JobIcon job={e.job} size={14} /> {e.job}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="font-data text-lg font-semibold"
+                       style={{ color: parseColor(e.best) }}>
+                    {e.best ?? "—"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </section>
       )}
 
       <JobBreakdown raids={raids} jobScores={m.job_scores} />
-
-
-      {/* ── Extreme trials of the current patch ── */}
-      {(raids?.extremes?.length ?? 0) > 0 && (
-        <section className="mt-6">
-          <h2 className="mb-2 font-display text-lg font-semibold">
-            Extreme trials{" "}
-            <span className="text-[13px] font-normal text-muted">
-              ({raids!.extremes!.filter((e) => e.cleared).length} cleared)
-            </span>
-          </h2>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {raids!.extremes!.map((e) => (
-              <div key={`${e.zone_id}-${e.name}`}
-                   className={`flex items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5 ${
-                     e.cleared ? "border-line bg-surface" : "border-dashed border-line opacity-60"}`}>
-                <div className="min-w-0">
-                  <div className="truncate font-data text-[13.5px] text-ink">{e.name}</div>
-                  <div className="text-[11.5px] text-muted">
-                    {e.cleared ? `${e.kills} kills` : "no log"}
-                    {e.job && (
-                      <span className="inline-flex items-center gap-1">
-                        {" · "}<JobIcon job={e.job} size={14} /> {e.job}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="font-data text-lg font-semibold"
-                     style={{ color: parseColor(e.best) }}>
-                  {e.best ?? "—"}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Ultimates nobody logged. FF Logs is opt-in, so a clear can be real and
           invisible there; the Lodestone achievement still proves it happened. */}

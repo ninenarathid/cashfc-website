@@ -60,10 +60,11 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
             Grades
           </div>
           <p className="text-[12.5px] leading-relaxed text-muted">
-            Each rare achievement is worth{" "}
-            <b className="text-ink">1 + log₁₀(10 ÷ % of players who own it)</b> — so
-            something 10% of players have scores 1 point, 1% scores 2, and 0.1% scores
-            3. Collecting a lot adds up, but rarity counts for much more.
+            Each rare achievement is worth as much as it is rare:{" "}
+            <b className="text-ink">10 ÷ % of players who own it</b> — so something
+            10% of players have scores 1 point, 1% scores 10, and 0.2% scores 50.
+            Holding more of them adds up, but one genuinely hard achievement
+            outweighs a pile of easy ones.
           </p>
           <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
             The grade is your score as a share of{" "}
@@ -78,6 +79,8 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
             <li><b className="text-ink">Legendary</b> — 25% or more of that playstyle</li>
             <li><b className="text-ink">Master</b> — 12% or more</li>
             <li><b className="text-ink">Expert</b> — 5% or more</li>
+            <li>Any grade needs at least three achievements behind it, so a single
+                lucky find is not a title.</li>
             <li>
               <b className="text-ink">No prefix</b> — earned the tag, under 5%
             </li>

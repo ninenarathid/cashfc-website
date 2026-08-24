@@ -167,18 +167,28 @@ ACHV_TIERS: list[tuple[str, float]] = [
     ("expert", 0.05),
 ]
 
+# Fewest achievements a graded playstyle can rest on. See tier_for.
+GRADE_MIN_ACHV = 3
+
 
 def achv_points(pct: float | None) -> float:
-    """What one rare achievement is worth.
+    """What one rare achievement is worth: exactly how exclusive it is.
 
-    1 + log10(10 / pct): something 10% of players own scores 1, 1% scores 2, 0.1%
-    scores 3. Collecting a lot still adds up, but rarity is worth far more than
-    volume, which is the distinction the tags are trying to draw. The floor keeps a
-    0.0% rounding from running away with the scale.
+    rare_pct / pct, so an achievement 10% of players own scores 1, 1% scores 10 and
+    0.2% scores 50.
+
+    The old curve was 1 + log10(10 / pct), which squeezed the whole 0.2-10% range
+    into 1.0-2.7 points. Rarity therefore barely mattered: a pile of nearly-common
+    achievements beat a genuinely hard set every time, which is the opposite of what
+    these tags are for. Rarity is now what the score is proportional to, and holding
+    more of them still adds up because scores are summed.
+
+    The floor matches FFXIV Collect's one-decimal rounding — anything displayed as
+    0.0% would otherwise divide by nothing.
     """
     if pct is None:
         return 0.0
-    return 1.0 + math.log10(10.0 / max(pct, 0.05))
+    return round(CONFIG["rare_pct"] / max(pct, 0.1), 3)
 
 
 def bucket_count(v) -> int:
@@ -207,11 +217,20 @@ def bucket_maxima(rarity: dict[int, dict]) -> dict[str, float]:
     return out
 
 
-def tier_for(score: float, ceiling: float | None) -> tuple[str | None, float | None]:
-    """Grade and share of the playstyle, or (None, None) without a ceiling."""
+def tier_for(score: float, ceiling: float | None,
+             count: int = 99) -> tuple[str | None, float | None]:
+    """Grade and share of the playstyle, or (None, None) without a ceiling.
+
+    A grade also needs GRADE_MIN_ACHV achievements behind it. Now that one 0.2%
+    achievement is worth 50 points, a single lucky find in a small playstyle —
+    Treasure holds only 14 rare achievements in total — would otherwise clear the
+    Legendary bar on its own, which is not a claim about how someone plays.
+    """
     if not ceiling or score <= 0:
         return None, None
     share = score / ceiling
+    if count < GRADE_MIN_ACHV:
+        return None, share
     for name, need in ACHV_TIERS:
         if share >= need:
             return name, share
@@ -413,10 +432,12 @@ def encounters_from_blob(blob: dict, labels: list[str] | None) -> tuple[list[dic
     Lindwurm and Lindwurm II, Anabaseios reports Athena and Pallas Athena — so a
     four-boss tier comes back with five rows. Mapping rows to labels positionally
     would therefore credit the tier clear to part one. Both extra rows belong to the
-    final label, and the later one decides whether the tier is actually cleared.
+    final label, they are shown separately as M12S-1 and M12S-2 because they are
+    fought and parsed separately, and only part two counts as clearing the tier.
     """
     rankings = blob.get("rankings") or []
-    if labels and len(rankings) == len(labels) + 1:
+    split = bool(labels) and len(rankings) == len(labels) + 1
+    if split:
         slots = list(range(len(labels) - 1)) + [len(labels) - 1, len(labels) - 1]
     else:
         slots = list(range(len(rankings)))
@@ -431,10 +452,15 @@ def encounters_from_blob(blob: dict, labels: list[str] | None) -> tuple[list[dic
             # A later row for the same slot overwrites deliberately: for a split boss
             # the final part is the one that counts.
             clears[slot] = kills > 0
+        # Part one and part two of a split boss get their own labels so the board
+        # does not show the same name twice with different parses.
+        part = ""
+        if split and slot == len(labels) - 1:
+            part = "-1" if i == len(rankings) - 2 else "-2"
         if kills <= 0 and pct is None:
             continue
         out.append({
-            "label": (labels[slot] if labels and slot is not None
+            "label": (labels[slot] + part if labels and slot is not None
                       and slot < len(labels) else None),
             "name": (rk.get("encounter") or {}).get("name"),
             "best": round(pct) if pct is not None else None,
@@ -1154,13 +1180,20 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None)
         for name, _ in ACHV_BUCKETS:
             v = (m.get("achv_buckets") or {}).get(name)
             n = bucket_count(v)
-            if n and n >= bucket_cut[name]:
+            if not n:
+                continue
+            # Recorded for anyone who has any of this kind, not only for those who
+            # clear the tag cut: the share is what the leaderboards rank by, and
+            # mixing shares with raw scores in one column compares two scales. The
+            # cut only decides whether the playstyle is a big enough part of what
+            # they do to label them with it.
+            t, share = tier_for(bucket_score(v), ceilings.get(name), n)
+            if share is not None and isinstance(v, dict):
+                v["share"] = round(share, 4)
+            if n >= bucket_cut[name]:
                 tags.append(name)
-                t, share = tier_for(bucket_score(v), ceilings.get(name))
                 if t:
                     tiers[name] = t
-                if share is not None and isinstance(v, dict):
-                    v["share"] = round(share, 4)
         m["achv_tiers"] = tiers
 
         if not tags:

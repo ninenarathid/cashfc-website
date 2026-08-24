@@ -1,23 +1,34 @@
 import type { Metadata } from "next";
-import { Prompt, Anuphan, Chakra_Petch } from "next/font/google";
+import { Mitr, Noto_Sans_Thai_Looped, Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 
-const prompt = Prompt({
-  subsets: ["thai", "latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-prompt",
-  display: "swap",
-});
-const anuphan = Anuphan({
-  subsets: ["thai", "latin"],
-  variable: "--font-anuphan",
-  display: "swap",
-});
-const chakra = Chakra_Petch({
+// This is a Free Company hangout, not a spreadsheet, so all three faces lean warm
+// and all three carry a full Thai set — the FC is Thai and the site is in English,
+// and mixing a Thai fallback into a Latin face makes the two halves of a sentence
+// look like different websites.
+//
+// Mitr's rounded terminals do the friendliness in the headings; Noto Sans Thai
+// Looped sets the body in looped Thai letterforms, which read as conversational to
+// Thai readers where the plain loopless style reads as officialese; Bai Jamjuree
+// keeps numbers and small caps labels distinct without the angular military look
+// the board had before.
+const display = Mitr({
   subsets: ["thai", "latin"],
   weight: ["500", "600"],
-  variable: "--font-chakra",
+  variable: "--font-display-face",
+  display: "swap",
+});
+const body = Noto_Sans_Thai_Looped({
+  subsets: ["thai", "latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-body-face",
+  display: "swap",
+});
+const data = Bai_Jamjuree({
+  subsets: ["thai", "latin"],
+  weight: ["500", "600"],
+  variable: "--font-data-face",
   display: "swap",
 });
 
@@ -33,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${prompt.variable} ${anuphan.variable} ${chakra.variable} font-body antialiased`}
+        className={`${display.variable} ${body.variable} ${data.variable} font-body antialiased`}
       >
         <div className="mx-auto max-w-5xl px-4 pb-16">
           <Nav />
