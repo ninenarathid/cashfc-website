@@ -275,7 +275,13 @@ export default function MemberView({
         </section>
       )}
 
-      {/* ── Raid: current tier ── */}
+      {/* Ahead of the raid tier: for most of this FC the achievements are the
+          interesting part, and plenty of members have no raid data at all. */}
+      <RareAchievements items={rareAchievements} />
+
+      {/* ── Raid: current tier. Hidden entirely when FF Logs has nothing — four
+          empty cards saying "Awaiting data" is worse than not asking. ── */}
+      {hasCurrentData && (
       <section className="mt-6">
         <h2 className="mb-2 font-display text-lg font-semibold">
           Current tier{" "}
@@ -319,10 +325,10 @@ export default function MemberView({
           </div>
         )}
       </section>
+      )}
 
       <JobBreakdown raids={raids} jobScores={m.job_scores} />
 
-      <RareAchievements items={rareAchievements} />
 
       {/* ── Extreme trials of the current patch ── */}
       {(raids?.extremes?.length ?? 0) > 0 && (

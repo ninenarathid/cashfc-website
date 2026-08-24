@@ -470,8 +470,13 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
     # filters on, so those are the fixed set, and everything else — ultimates, older
     # tiers — takes one rotating slot per run. Each additional zone costs about a
     # fifth of the members a run can reach.
-    zones = [current] + cur_extremes
-    rotating = ults + older
+    # The newest expansion re-lists every older Ultimate under one "Ultimates (Legacy)"
+    # zone, so its three zones cover all seven fights. Rotating through all nine
+    # ultimate zones instead meant a member was asked about one of them per run and
+    # showed a single Ultimate for weeks while holding several.
+    cur_ults = [z for z in ults if z["expansion"] == current["expansion"]]
+    zones = [current] + cur_extremes + cur_ults
+    rotating = older + [z for z in ults if z not in cur_ults]
     if full_history:
         zones += rotating
         log(f"FFLogs [FULL HISTORY] — adding all {len(rotating)} other zones; "
@@ -818,6 +823,11 @@ def collect_rarity_map() -> dict[int, dict]:
 
 COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
                   "ach_public", "portrait", "ult_achv")
+
+# Bump whenever COLLECT_FIELDS gains something. Cached entries written before a new
+# field existed cannot supply it, and because the cache is judged fresh by age alone
+# the field would stay empty forever — which is exactly what happened to ult_achv.
+COLLECT_CACHE_VERSION = 2
 
 
 def merge_ultimates(members: list[dict]) -> None:
@@ -1447,13 +1457,17 @@ def main() -> None:
     state = extra.setdefault("pipeline", {})
     collect_cache = extra.setdefault("collect", {})
     fresh = (time.time() - float(state.get("collect_at") or 0)) < args.collect_max_age * 3600
-    refresh_collect = not args.skip_collect and (not fresh or not collect_cache)
+    outdated = int(state.get("collect_v") or 0) != COLLECT_CACHE_VERSION
+    refresh_collect = not args.skip_collect and (not fresh or not collect_cache or outdated)
+    if outdated and collect_cache:
+        log("FFXIV Collect — cache predates the current field set, refetching")
 
     rarity: dict[int, dict] = {}
     if refresh_collect:
         rarity = collect_rarity_map()
         run_collect(members, rarity, args.collect_delay, collect_cache)
         state["collect_at"] = time.time()
+        state["collect_v"] = COLLECT_CACHE_VERSION
         save_json("extra.json", extra)
         build_achievements(members, rarity)
     else:
@@ -1483,12 +1497,19 @@ def main() -> None:
 
     # Grades are a share of everything rare in each playstyle, so the ceilings have to
     # survive runs that read FFXIV Collect from cache and never see the catalogue.
+    # If they are missing, fetch the catalogue on its own — it is a single request,
+    # and without it no playstyle tag can be graded at all.
+    if not rarity and not state.get("bucket_max") and not args.skip_collect:
+        try:
+            rarity = collect_rarity_map()
+        except Exception as ex:
+            log(f"Playstyle grades — could not load the achievement catalogue: {ex}")
     if rarity:
         state["bucket_max"] = bucket_maxima(rarity)
         save_json("extra.json", extra)
     ceilings = state.get("bucket_max") or {}
     if not ceilings:
-        log("Playstyle grades skipped — no achievement catalogue cached yet")
+        log("Playstyle grades skipped — no achievement catalogue available")
 
     # After every source has reported, so the cutoffs see the real distribution.
     assign_tags(members, ceilings)
