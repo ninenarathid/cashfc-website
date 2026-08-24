@@ -1,7 +1,7 @@
 "use client";
 
 import type { Member } from "@/lib/types";
-import { ACHV_TIER_HELP, ACHV_TIER_LABEL, ultimateAbbr } from "@/lib/types";
+import { ACHV_TIER_HELP, ACHV_TIER_LABEL, CONTENT_LABEL, ultimateAbbr } from "@/lib/types";
 import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
 
 /**
@@ -107,7 +107,7 @@ export default function MemberTags(
       {jobs.map(([job, s]) => (
         <span
           key={job}
-          title={`${s.parse} average best parse over ${s.kills} kills across ${s.fights} fights — good person to ask about ${job}`}
+          title={`${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights${s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : ""} — good person to ask about ${jobLabel(job)}`}
           style={jobTierStyle(job, s.tier)}
           className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad}`}>
           <JobIcon job={job} size={size === "md" ? 15 : 13} />

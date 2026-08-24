@@ -660,6 +660,16 @@ JOB_TIERS: list[tuple[str, float]] = [
     ("expert", 50.0),
 ]
 
+# Content is not equally hard, and a parse percentile is only ever measured against
+# the people doing that same content — so 99 in an Ultimate is measured against a far
+# stronger field than 99 in an Extreme, and should not count the same.
+#
+# Two knobs, because they answer different questions:
+#   weight — how much a fight shapes someone's average at all
+#   bonus  — what the same parse is worth once it is in there
+CONTENT_WEIGHT = {"ultimate": 3.0, "savage": 2.0, "legacy": 1.5, "extreme": 1.0}
+CONTENT_BONUS = {"ultimate": 12.0, "savage": 5.0, "legacy": 3.0, "extreme": 0.0}
+
 
 def score_jobs(entry: dict) -> dict[str, dict]:
     """Rate each job this member has logged on, for "who could teach this?".
@@ -684,32 +694,36 @@ def score_jobs(entry: dict) -> dict[str, dict]:
     """
     acc: dict[str, dict] = {}
 
-    def add(job, best, kills):
+    def add(job, best, kills, kind):
         if not job:
             return
         r = acc.setdefault(job, {"fights": 0, "kills": 0, "parses": []})
         r["fights"] += 1
         r["kills"] += kills or 0
         if best is not None:
-            # A fight with no kills still gets counted once, so a pure prog parse
-            # is not thrown away entirely.
-            r["parses"].append((best, max(kills or 0, 1)))
+            # A fight with no kills still counts once, so a pure prog parse is not
+            # thrown away entirely. Capped at 100 so the hardest content cannot
+            # invent a parse better than a perfect one.
+            weight = max(kills or 0, 1) * CONTENT_WEIGHT[kind]
+            r["parses"].append((min(100.0, best + CONTENT_BONUS[kind]), weight, kind))
 
     for e in (entry.get("current") or {}).get("encounters", []):
-        add(e.get("job"), e.get("best"), e.get("kills"))
+        add(e.get("job"), e.get("best"), e.get("kills"), "savage")
     for e in entry.get("extremes", []):
-        add(e.get("job"), e.get("best"), e.get("kills"))
+        add(e.get("job"), e.get("best"), e.get("kills"), "extreme")
     for u in entry.get("ultimates", []):
-        add(u.get("job"), u.get("best"), u.get("kills"))
+        add(u.get("job"), u.get("best"), u.get("kills"), "ultimate")
     for lz in entry.get("legacy", []):
         for e in lz.get("encounters", []):
-            add(e.get("job"), e.get("best"), e.get("kills"))
+            add(e.get("job"), e.get("best"), e.get("kills"), "legacy")
 
     out: dict[str, dict] = {}
     for job, r in acc.items():
-        wsum = sum(w for _, w in r["parses"])
-        parse = (round(sum(p * w for p, w in r["parses"]) / wsum, 1)
+        wsum = sum(w for _, w, _ in r["parses"])
+        parse = (round(sum(p * w for p, w, _ in r["parses"]) / wsum, 1)
                  if wsum else 0.0)
+        hardest = max((k for _, _, k in r["parses"]),
+                      key=lambda k: CONTENT_WEIGHT[k], default=None)
         depth = min(1.0, math.log10(1 + r["kills"]) / 2.0)    # ~100 kills tops it out
         breadth = min(1.0, r["fights"] / 4.0)                 # four fights tops it out
         experience = 0.7 * depth + 0.3 * breadth
@@ -718,7 +732,7 @@ def score_jobs(entry: dict) -> dict[str, dict]:
         score = round(parse * (0.25 + 0.75 * experience), 1)
         tier = next((n for n, need in JOB_TIERS if score >= need), None)
         out[job] = {"fights": r["fights"], "kills": r["kills"], "parse": parse,
-                    "score": score, "tier": tier}
+                    "score": score, "tier": tier, "hardest": hardest}
     return out
 
 

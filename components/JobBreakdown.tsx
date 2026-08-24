@@ -1,7 +1,7 @@
 "use client";
 
 import type { JobScore, MemberRaids } from "@/lib/types";
-import { ACHV_TIER_LABEL } from "@/lib/types";
+import { ACHV_TIER_LABEL, CONTENT_LABEL } from "@/lib/types";
 import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
 
 /** FFLogs' standard parse colours. */
@@ -136,7 +136,8 @@ export default function JobBreakdown(
                 <span className="flex items-center justify-end gap-2">
                   {s?.tier && (
                     <span
-                      title={`Proficiency ${s.score} of 100 — ${s.parse} average best parse over ${s.kills} kills across ${s.fights} fights`}
+                      title={`Proficiency ${s.score} of 100 — ${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights` +
+                        (s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : "")}
                       style={jobTierStyle(r.job, s.tier)}
                       className="whitespace-nowrap rounded-full border px-2 py-[2px] text-[10.5px]">
                       {ACHV_TIER_LABEL[s.tier]}

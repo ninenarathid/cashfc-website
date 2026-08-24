@@ -11,7 +11,13 @@ export interface JobScore {
   parse: number;
   score: number;
   tier: string | null;
+  /** Hardest content this job's record covers: ultimate / savage / legacy / extreme. */
+  hardest?: string | null;
 }
+
+export const CONTENT_LABEL: Record<string, string> = {
+  ultimate: "Ultimate", savage: "Savage", legacy: "older Savage", extreme: "Extreme",
+};
 
 export interface Member {
   id: number;
