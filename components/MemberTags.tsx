@@ -66,6 +66,17 @@ export const TAG_CLASS: Record<string, string> = {
   unknown: "border-dashed border-line text-muted",
 };
 
+/** The same palette as TAG_CLASS, as hex, for charts that cannot use classes. */
+export const TAG_COLOR: Record<string, string> = {
+  "tier-clear": "#d14b3a", prog: "#a8483c", raider: "#c14a3c",
+  ultimate: "#e5cc80", veteran: "#b8a678", extreme: "#c86fd1",
+  achiever: "#4fb8a8",
+  crafter: "#c98a5b", gatherer: "#6aa84f", relic: "#b07ce8",
+  explorer: "#4fa8b8", treasure: "#d9a441", goldsaucer: "#e07bb0",
+  seasonal: "#8fa3d9", pvp: "#7ea6c9", oldtimer: "#a58b6a",
+  casual: "#9c8f78", unknown: "#55493a",
+};
+
 /** "Legendary crafter" reads better than "Legendary Crafter" mid-sentence. */
 export function tagText(tag: string, tier?: string): string {
   const base = TAG_LABELS[tag] ?? tag;
