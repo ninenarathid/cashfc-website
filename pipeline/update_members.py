@@ -340,42 +340,61 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
         return None
     current = tiers[0]
 
-    # Everything from the current patch, every run: the tier itself, every ultimate,
-    # and every extreme trial of the current expansion. That is what the site filters
-    # on, and it comfortably fits the free hourly point budget.
-    cur_extremes = [z for z in extremes if z["expansion"] == current["expansion"]]
-    zones = [current] + ults + cur_extremes
-
-    # Older savage tiers are the expensive part — sweeping all of them at once burns
-    # the whole hourly budget and finishes nothing. Take one per run instead, rotating,
-    # so the backlog fills in over a couple of weeks and each run still completes.
-    older = tiers[1:]
     extra = load_json("extra.json", {})
     state = extra.setdefault("pipeline", {})
-    if older:
-        if full_history:
-            zones += older
-            log(f"FFLogs [FULL HISTORY] — adding all {len(older)} older tiers; "
-                "this can exceed the hourly point budget")
-        else:
-            cursor = int(state.get("legacy_cursor", 0)) % len(older)
-            pick = older[cursor]
-            zones.append(pick)
-            state["legacy_cursor"] = (cursor + 1) % len(older)
-            save_json("extra.json", extra)
-            log(f"FFLogs legacy backfill {cursor + 1}/{len(older)}: {pick['name']}")
+    cur_extremes = [z for z in extremes if z["expansion"] == current["expansion"]]
+    older = tiers[1:]
+
+    # Measured against the live API: roughly nine points per member-zone, against a
+    # 3,600/hour budget. Fourteen zones therefore covered only 25 members before the
+    # budget was gone. The current tier and its extreme trials are what the board
+    # filters on, so those are the fixed set, and everything else — ultimates, older
+    # tiers — takes one rotating slot per run. Each additional zone costs about a
+    # fifth of the members a run can reach.
+    zones = [current] + cur_extremes
+    rotating = ults + older
+    if full_history:
+        zones += rotating
+        log(f"FFLogs [FULL HISTORY] — adding all {len(rotating)} other zones; "
+            "expect to exhaust the hourly budget after a few dozen members")
+    elif rotating:
+        idx = int(state.get("zone_cursor", 0)) % len(rotating)
+        zones.append(rotating[idx])
+        state["zone_cursor"] = (idx + 1) % len(rotating)
+        log(f"FFLogs rotating zone {idx + 1}/{len(rotating)}: {rotating[idx]['name']}")
 
     log(f"FFLogs current tier: {current['name']} ({current['id']}) "
         f"[{current['expansion']}]")
-    log(f"FFLogs zones this run: {len(zones)} "
-        f"(1 tier + {len(ults)} ultimate + {len(cur_extremes)} extreme"
-        f"{' + ' + str(len(older)) + ' legacy' if full_history and older else ' + 1 legacy' if older else ''})")
+    log(f"FFLogs zones this run: {len(zones)} — "
+        + ", ".join(z["name"] for z in zones))
 
-    ult_ids = {z["id"] for z in ults}
-    ex_ids = {z["id"] for z in cur_extremes}
+    # Only the zones actually queried, so a zone left out this run keeps whatever a
+    # previous run stored for it instead of being wiped.
+    queried = {z["id"] for z in zones}
+    ult_ids = {z["id"] for z in ults} & queried
+    ex_ids = {z["id"] for z in cur_extremes} & queried
     zmeta = {z["id"]: z for z in zones}
     bs = CONFIG["fflogs_batch_size"]
-    queue = active_first(members)
+
+    # Members already covered in this pass. A run gets through a fraction of the
+    # roster before the budget runs out, so without this every run would re-fetch the
+    # same first names forever and the rest would never be reached. Tracked by id
+    # rather than by index so it survives people joining and leaving.
+    done_ids = set(state.get("fflogs_cycle") or [])
+    queue = [m for m in active_first(members) if str(m["id"]) not in done_ids]
+    if not queue:
+        done_ids = set()
+        queue = active_first(members)
+        log("FFLogs — previous pass covered everyone; starting a new one")
+    log(f"FFLogs — {len(queue)} members left in this pass "
+        f"({len(done_ids)}/{len(members)} already covered)")
+
+    def remember(processed: list[dict]) -> None:
+        done_ids.update(str(x["id"]) for x in processed)
+        state["fflogs_cycle"] = sorted(done_ids)
+        save_json("extra.json", extra)
+
+    save_json("extra.json", extra)
 
     for start in range(0, len(queue), bs):
         chunk = queue[start:start + bs]
@@ -487,9 +506,10 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             # bank what we have and let the next scheduled run continue instead. Members
             # not reached keep whatever their previous run stored.
             save_json("raids.json", raids)
+            remember(queue[: start + bs])
             log(f"FFLogs quota nearly spent ({spent:.0f}/{limit}) after "
                 f"{min(start + bs, len(queue))}/{len(queue)} members — "
-                "stopping here; the next run picks up the rest")
+                "stopping here; the next run resumes from the next member")
             for rest in queue[start + bs:]:
                 rest["fflogs"] = raids.get(str(rest["id"]), {}).get("_status", "pending")
             break
@@ -498,7 +518,10 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
         if done % 50 < bs:
             log(f"FFLogs — {done}/{len(queue)} members")
             save_json("raids.json", raids)   # checkpoint: a timeout keeps this much
+            remember(queue[:done])
         time.sleep(0.3)
+    else:
+        remember(queue)                      # whole pass finished without stopping
 
     save_json("raids.json", raids)
     return {"current_zone": current, "ultimate_zones": ults,

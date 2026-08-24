@@ -430,9 +430,37 @@ export default function MemberView({
           {pctTile("Rare achv", m.rare_achv, agg.rare, "#e5cc80")}
         </div>
         {m.ach_public === false && (
-          <p className="mt-2 text-[12px] text-muted">
-            This player keeps achievements private, so rare achievement data is hidden
-          </p>
+          // Worth spelling out rather than just saying "hidden": achievements are
+          // private by default on The Lodestone, so most people here never chose this
+          // and have no idea there is a switch.
+          <div className="mt-3 rounded-xl border border-dashed border-line px-4 py-3 text-[12.5px] leading-relaxed text-muted">
+            <b className="text-ink">Achievements are hidden for this character.</b>{" "}
+            The Lodestone keeps achievements private by default, so this is almost
+            certainly just the default rather than a deliberate choice.
+            <div className="mt-2">
+              If this is your character and you would like them shown here:
+              <ol className="mt-1 list-decimal space-y-0.5 pl-5">
+                <li>
+                  Log in to{" "}
+                  <a href="https://na.finalfantasyxiv.com/lodestone/"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-amber no-underline">The Lodestone</a>{" "}
+                  with your Square Enix account.
+                </li>
+                <li>
+                  Open{" "}
+                  <a href={`https://na.finalfantasyxiv.com/lodestone/character/${m.id}/achievement/`}
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-amber no-underline">your achievements page</a>{" "}
+                  and switch the display setting to public.
+                </li>
+                <li>
+                  Give it a day. The Lodestone takes a while to apply the change, and
+                  this board refreshes every night at 03:30.
+                </li>
+              </ol>
+            </div>
+          </div>
         )}
       </section>
     </main>
