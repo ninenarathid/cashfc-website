@@ -72,10 +72,26 @@ jobs:
       # resumes from them instead of starting over.
       - name: Commit & push if changed
         if: always()
+        # Everything under data/ is generated from scratch each run, so on a clash
+        # with what somebody pushed meanwhile this run's copy is simply the newer
+        # read of the same sources — hence -X theirs, which during a rebase means the
+        # commit being replayed. A plain "git pull --rebase" stopped on that conflict
+        # and failed the run, losing an hour of FF Logs progress with it.
         run: |
           git config user.name "fc-board-bot"
           git config user.email "actions@users.noreply.github.com"
           git add data
-          git diff --cached --quiet || git commit -m "data: update $(date -u +%Y-%m-%d) [${{ job.status }}]"
-          git pull --rebase --autostash
-          git push
+          if git diff --cached --quiet; then
+            echo "No data changes to commit"
+            exit 0
+          fi
+          git commit -m "data: update $(date -u +%Y-%m-%d) [${{ job.status }}]"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase -X theirs origin/main || { git rebase --abort; exit 1; }
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected, retrying (attempt $attempt)"
+          done
+          exit 1

@@ -174,6 +174,11 @@ GRADE_MIN_ACHV = 3
 # what a playstyle asks of you. See bucket_maxima.
 ATTAINABLE_PCT = 0.5
 
+# Bump whenever achv_points or bucket_maxima changes. The ceilings are cached in
+# extra.json so runs that read FFXIV Collect from cache can still grade, which also
+# means a new formula would otherwise be graded against the old denominator forever.
+BUCKET_MAX_VERSION = 2
+
 
 def achv_points(pct: float | None) -> float:
     """What one rare achievement is worth: exactly how exclusive it is.
@@ -1550,17 +1555,22 @@ def main() -> None:
     # After Collect, because that is where the achievement evidence comes from.
     merge_ultimates(members)
 
-    # Grades are a share of everything rare in each playstyle, so the ceilings have to
-    # survive runs that read FFXIV Collect from cache and never see the catalogue.
-    # If they are missing, fetch the catalogue on its own — it is a single request,
-    # and without it no playstyle tag can be graded at all.
-    if not rarity and not state.get("bucket_max") and not args.skip_collect:
+    # Grades are a share of what a playstyle realistically asks of you, so the
+    # ceilings have to survive runs that read FFXIV Collect from cache and never see
+    # the catalogue. If they are missing — or were computed by an older version of
+    # bucket_maxima — fetch the catalogue on its own. It is a single request, and
+    # without it no playstyle tag can be graded at all.
+    stale_ceilings = int(state.get("bucket_max_v") or 0) != BUCKET_MAX_VERSION
+    if stale_ceilings and state.get("bucket_max"):
+        log("Playstyle ceilings — formula changed, recomputing")
+    if not rarity and (stale_ceilings or not state.get("bucket_max"))             and not args.skip_collect:
         try:
             rarity = collect_rarity_map()
         except Exception as ex:
             log(f"Playstyle grades — could not load the achievement catalogue: {ex}")
     if rarity:
         state["bucket_max"] = bucket_maxima(rarity)
+        state["bucket_max_v"] = BUCKET_MAX_VERSION
         save_json("extra.json", extra)
     ceilings = state.get("bucket_max") or {}
     if not ceilings:

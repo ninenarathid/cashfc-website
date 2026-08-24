@@ -264,11 +264,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       if (tag !== "all" && !m.tags.includes(tag)) return false;
       // AND, not OR: "Crafter and Gatherer" should mean someone who is both.
       for (const t of adv.tags) if (!m.tags.includes(t)) return false;
-      // Search covers race and clan too, so "viera" or "seeker" find people by look
-      // without having to open the filter panel first.
-      if (q && ![m.name, m.race, m.clan].some(
-        (f) => f && f.toLowerCase().includes(q))) return false;
       const ov = overlays[m.id];
+      // Search covers the nickname, race and clan too — in the FC people go by their
+      // nickname, so that is what somebody types, and "viera" or "seeker" find people
+      // by look without having to open the filter panel first.
+      if (q && ![m.name, ov?.nickname, m.race, m.clan].some(
+        (f) => f && f.toLowerCase().includes(q))) return false;
       if (adv.lfg && !(ov?.lfg ?? []).includes(adv.lfg)) return false;
       if (adv.rank && m.rank !== adv.rank) return false;
       if (adv.race && m.race !== adv.race) return false;
@@ -381,7 +382,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
         <div className="flex flex-wrap gap-2.5">
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)}
-                 placeholder="Search character name…" aria-label="Search character name"
+                 placeholder="Search name, nickname or race…" aria-label="Search by name, nickname or race"
                  className="min-w-[200px] flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-muted" />
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortKey)}
                   aria-label="Sort by"
@@ -651,6 +652,11 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     <Link href={`/member/${m.id}`}
                           className="truncate font-data text-[15px] font-semibold tracking-[0.01em] text-ink no-underline hover:text-amber">
                       {m.name}
+                      {ov?.nickname && (
+                        <span className="ml-1 font-normal text-muted">
+                          ({ov.nickname})
+                        </span>
+                      )}
                       {ov && (
                         <span className="ml-1.5" style={{ color: accent }}
                               title={ov.discord ? `Linked Discord: ${ov.discord}` : "Verified"}>
