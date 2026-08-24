@@ -17,6 +17,7 @@ function Chip({ t }: { t: string }) {
 }
 
 function Group({ title, tags }: { title: string; tags: string[] }) {
+  if (!tags.length) return null;
   return (
     <div>
       <div className="mb-1.5 font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
@@ -39,15 +40,21 @@ function Group({ title, tags }: { title: string; tags: string[] }) {
  * rarity rather than anything a member wrote down. Without this, "Legendary gatherer"
  * looks like a title someone chose for themselves.
  */
-export default function TagLegend() {
+export default function TagLegend({ present }: { present?: Set<string> }) {
+  // Only explain tags somebody in the FC actually has. A glossary listing badges
+  // nobody holds reads like the page is broken, or like they are missing.
+  const keep = (tags: string[]) =>
+    present ? tags.filter((t) => present.has(t)) : tags;
+
   return (
     <details className="mt-3 rounded-xl border border-line bg-surface">
       <summary className="cursor-pointer select-none px-4 py-2.5 text-[13.5px] font-medium text-muted marker:text-amber">
         What do the tags mean?
       </summary>
       <div className="grid gap-5 border-t border-line px-4 py-4 sm:grid-cols-2">
-        <Group title="Raiding — from FF Logs" tags={RAID_TAGS} />
-        <Group title="Playstyle — from rare achievements" tags={PLAY_TAGS} />
+        <Group title="Raiding — from FF Logs" tags={keep(RAID_TAGS)} />
+        <Group title="Playstyle — from rare achievements" tags={keep(PLAY_TAGS)} />
+        <Group title="Everything else" tags={keep(OTHER_TAGS)} />
         <div className="sm:col-span-2">
           <div className="mb-1.5 font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
             Grades

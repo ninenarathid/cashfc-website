@@ -8,6 +8,7 @@ import {
 } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import JobIcon, { ALL_JOBS, ROLE_LABEL, jobRole } from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
 
 
@@ -78,6 +79,10 @@ function PresenceDot({ m, size = 11 }: { m: Member; size?: number }) {
 interface Adv {
   lfg: string; rank: string;
   boss: number[]; lvMin: string; race: string; activity: string;
+  /** Any job of this role with a recorded score. */
+  role: string;
+  /** One specific job with a recorded score. */
+  job: string;
   /** Extreme trials that must all be cleared, by boss name. */
   ex: string[];
   /** "Last seen collecting" window, from SEEN_OPTIONS. */
@@ -85,7 +90,7 @@ interface Adv {
 }
 const ADV_EMPTY: Adv = {
   lfg: "", rank: "", boss: [], lvMin: "",
-  race: "", activity: ACTIVITY_DEFAULT, ex: [], seen: "",
+  race: "", activity: ACTIVITY_DEFAULT, ex: [], seen: "", role: "", job: "",
 };
 
 const daysSince = (iso: string): number =>
@@ -118,10 +123,11 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       boss,
       lvMin: p.get("lv") ?? "", race: p.get("race") ?? "",
       activity: p.get("act") ?? ACTIVITY_DEFAULT, ex, seen: p.get("seen") ?? "",
+      role: p.get("role") ?? "", job: p.get("job") ?? "",
     });
     if (p.get("lfg") || p.get("rank") ||
         boss.length || ex.length || p.get("lv") || p.get("race") ||
-        p.get("act") || p.get("seen")) setAdvOpen(true);
+        p.get("act") || p.get("seen") || p.get("role") || p.get("job")) setAdvOpen(true);
     inited.current = true;
   }, []);
 
@@ -141,6 +147,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.race) p.set("race", adv.race);
     if (adv.activity !== ACTIVITY_DEFAULT) p.set("act", adv.activity);
     if (adv.seen) p.set("seen", adv.seen);
+    if (adv.role) p.set("role", adv.role);
+    if (adv.job) p.set("job", adv.job);
     const qs = p.toString();
     window.history.replaceState(null, "",
       qs ? `?${qs}` : window.location.pathname);
@@ -208,6 +216,26 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   const racedCount = useMemo(
     () => races.reduce((s, [, n]) => s + n, 0), [races]);
 
+  // Who plays what, from any recorded score rather than only graded ones — someone
+  // can play a job perfectly well without being teaching material.
+  const roleCounts = useMemo(() => {
+    const c = { tank: 0, healer: 0, dps: 0, total: 0 };
+    for (const m of visible) {
+      const roles = new Set(Object.keys(m.job_scores ?? {}).map(jobRole));
+      if (roles.size) c.total += 1;
+      for (const r of roles) if (r) c[r] += 1;
+    }
+    return c;
+  }, [visible]);
+
+  const jobsPlayed = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const m of visible) {
+      for (const j of Object.keys(m.job_scores ?? {})) c[j] = (c[j] ?? 0) + 1;
+    }
+    return Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }, [visible]);
+
   const activityCounts = useMemo(() => {
     const vacation = visible.filter(isOnVacation).length;
     return { active: visible.length - vacation, vacation };
@@ -226,6 +254,13 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       if (adv.lfg && !(ov?.lfg ?? []).includes(adv.lfg)) return false;
       if (adv.rank && m.rank !== adv.rank) return false;
       if (adv.race && m.race !== adv.race) return false;
+      // A recorded score is enough to count as playing the job. Requiring a tier
+      // would hide everyone who plays it competently but is not teaching material.
+      if (adv.role || adv.job) {
+        const played = Object.keys(m.job_scores ?? {});
+        if (adv.job && !played.includes(adv.job)) return false;
+        if (adv.role && !played.some((j) => jobRole(j) === adv.role)) return false;
+      }
       if (adv.activity === "active" && isOnVacation(m)) return false;
       if (adv.activity === "vacation" && !isOnVacation(m)) return false;
       if (adv.seen) {
@@ -256,7 +291,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
-    (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) +
+    (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
     (adv.seen ? 1 : 0);
 
   // How many members we actually have acquisition dates for. Shown next to the
@@ -369,6 +404,31 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               <option value="">Rank: any</option>
               {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
+            {/* Recruiting questions are usually shaped "a tank who is progging", so
+                role sits next to the other who-are-they filters rather than under
+                raiding. Counts come from who has a recorded score on such a job. */}
+            {roleCounts.total > 0 && (
+              <select value={adv.role}
+                      onChange={(e) => setAdv({ ...adv, role: e.target.value, job: "" })}
+                      className={selCls} aria-label="Role played">
+                <option value="">Role: any</option>
+                {(["tank", "healer", "dps"] as const).map((r) => (
+                  <option key={r} value={r} disabled={!roleCounts[r]}>
+                    {ROLE_LABEL[r]} ({roleCounts[r]})
+                  </option>
+                ))}
+              </select>
+            )}
+            {jobsPlayed.length > 0 && (
+              <select value={adv.job}
+                      onChange={(e) => setAdv({ ...adv, job: e.target.value })}
+                      className={selCls} aria-label="Job played">
+                <option value="">Job: any</option>
+                {jobsPlayed.map(([job, n]) => (
+                  <option key={job} value={job}>{job} ({n})</option>
+                ))}
+              </select>
+            )}
             {races.length > 0 && (
               <select value={adv.race}
                       onChange={(e) => setAdv({ ...adv, race: e.target.value })}
@@ -490,7 +550,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           )}
         </div>
 
-        <TagLegend />
+        <TagLegend present={new Set(Object.keys(counts))} />
       </div>
 
       {view === "kitchen" ? (

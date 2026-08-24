@@ -28,8 +28,6 @@ export interface Member {
   mounts: number | null;
   minions: number | null;
   rare_achv: number | null;
-  craft_achv?: number | null;
-  pvp_achv?: number | null;
   ach_public: boolean | null;
   fflogs: string;
   nameday?: Nameday | null;

@@ -5,6 +5,11 @@ reachable as `/logo.png`.
 
 Expected:
 
-- `logo.png` — the FC wordmark, shown in the nav (falls back to a text wordmark
-  while the file is missing). Transparent PNG, roughly 4:3, any size from about
-  400px wide up; it renders at 32px tall so detail beyond ~600px is wasted bytes.
+- `logo-header.png` — the mark in the top navigation bar. Rendered 48px tall on
+  mobile and 56px on desktop, so roughly 200-600px wide is plenty. Transparent
+  PNG. Falls back to `logo.png`, then to a text wordmark, if absent.
+- `logo.png` — the large wordmark on the home page, up to 448px wide. Transparent
+  PNG; around 1000px wide keeps it sharp on high-density screens without being
+  wasteful. Also used by the nav if no header logo is supplied.
+
+Keep both well under a megabyte — every visitor downloads them.

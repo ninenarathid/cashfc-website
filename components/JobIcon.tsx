@@ -66,6 +66,19 @@ export function jobInfo(name?: string | null) {
   return JOBS[key(name)] ?? null;
 }
 
+export const ROLE_LABEL: Record<Role, string> = {
+  tank: "Tank", healer: "Healer", dps: "DPS",
+};
+
+export function jobRole(name?: string | null): Role | null {
+  return jobInfo(name)?.role ?? null;
+}
+
+/** Every job FF Logs might report, for filter dropdowns. */
+export const ALL_JOBS = Object.entries(JOBS)
+  .map(([k, v]) => ({ name: k.replace(/([a-z])([A-Z])/g, "$1 $2"), ...v }))
+  .sort((a, b) => a.role.localeCompare(b.role) || a.abbr.localeCompare(b.abbr));
+
 export function jobAbbr(name?: string | null): string | null {
   return jobInfo(name)?.abbr ?? name ?? null;
 }

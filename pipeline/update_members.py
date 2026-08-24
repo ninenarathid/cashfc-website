@@ -58,8 +58,6 @@ CONFIG = {
     # Tag thresholds
     "rare_pct": 10.0,
     "rare_show": 24,           # rarest achievements kept per member for their profile
-    "crafter_achv_min": 120,
-    "pvp_achv_min": 60,
 
     # Feed
     "feed_max": 200,
@@ -80,7 +78,6 @@ CONFIG = {
     # unknown character queues it ("adding") for a later run to pick up.
     "lala_delay": 0.6,
     "lala_passes": 2,          # retry sweeps per run for ids that errored
-    "lala_active_days": 90,    # "did something in the last N days" = active
 
     # The schedule runs every few hours so FFLogs coverage can accumulate, but these
     # two sources describe slow-moving collections. Re-reading them every run would
@@ -792,7 +789,7 @@ def collect_rarity_map() -> dict[int, dict]:
     return out
 
 
-COLLECT_FIELDS = ("mounts", "minions", "rare_achv", "craft_achv", "pvp_achv",
+COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
                   "ach_public", "portrait", "ult_achv")
 
 
@@ -846,7 +843,6 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
                 cache: dict) -> None:
     for i, m in enumerate(active_first(members), 1):
         m.update({"mounts": None, "minions": None, "rare_achv": None,
-                  "craft_achv": None, "pvp_achv": None,
                   "ach_public": None, "portrait": None})
         try:
             r = requests.get(f"{COLLECT_API}/characters/{m['id']}",
@@ -865,7 +861,7 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
             # who never uploaded a log or who hide their profile there.
             m["ult_achv"] = sorted({ULTIMATE_ACHV[a] for a in ids if a in ULTIMATE_ACHV})
             if m["ach_public"] and ids:
-                rare = craft = pvp = 0
+                rare = 0
                 buckets: dict[str, dict] = {}
                 rarest: list[tuple[float, int]] = []
                 for aid in ids:
@@ -888,11 +884,7 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
                                 slot["score"] + achv_points(p), 2)
                             if slot["min"] is None or p < slot["min"]:
                                 slot["min"] = p
-                    if info["type"] == "Crafting & Gathering":
-                        craft += 1
-                    elif info["type"] == "PvP":
-                        pvp += 1
-                m["rare_achv"], m["craft_achv"], m["pvp_achv"] = rare, craft, pvp
+                m["rare_achv"] = rare
                 m["achv_buckets"] = buckets
                 # Rarest first, capped: a member can hold hundreds under 10%, and the
                 # profile page only shows a shelf of them. Underscore-prefixed so it

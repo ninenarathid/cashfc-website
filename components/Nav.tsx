@@ -15,9 +15,12 @@ const TABS = [
 
 export default function Nav() {
   const pathname = usePathname();
-  // Falls back to the text wordmark if public/logo.png is missing, so the header is
-  // never a broken image.
-  const [logoBroken, setLogoBroken] = useState(false);
+  // The header takes its own artwork, since a mark that works at 56px in a nav bar is
+  // rarely the same one that works at 450px on the front page. Falls back to the
+  // shared logo, then to the text wordmark, so the header is never a broken image
+  // whichever files happen to exist.
+  const [logoSrc, setLogoSrc] = useState("/logo-header.png");
+  const logoBroken = logoSrc === "";
   return (
     <nav className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5 border-b border-line py-4">
       <Link href="/" className="flex items-center no-underline">
@@ -27,9 +30,10 @@ export default function Nav() {
           </span>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src="/logo.png" alt="Cafe And SHabu"
+          <img src={logoSrc} alt="Cafe And SHabu"
                className="h-12 w-auto sm:h-14"
-               onError={() => setLogoBroken(true)} />
+               onError={() =>
+                 setLogoSrc((s) => (s === "/logo-header.png" ? "/logo.png" : ""))} />
         )}
       </Link>
       <div className="flex flex-wrap items-center gap-1.5">
