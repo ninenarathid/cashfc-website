@@ -4,11 +4,11 @@
    "date": "2026-08-24",
    "total": 502,
    "tags": {
-    "extreme": 113,
+    "extreme": 114,
     "ultimate": 30,
     "tier-clear": 39,
     "veteran": 9,
-    "unknown": 332,
+    "unknown": 331,
     "casual": 48,
     "achiever": 7,
     "gatherer": 5,
@@ -23,8 +23,8 @@
    },
    "raider": 60,
    "ultimate": 30,
-   "extreme": 113,
-   "unknown": 332,
+   "extreme": 114,
+   "unknown": 331,
    "final_boss": 39
   }
  ]

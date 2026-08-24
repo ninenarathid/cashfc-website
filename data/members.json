@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-24T20:05:55Z",
+ "generated_at": "2026-08-24T20:13:33Z",
  "fc": {
   "name": "Cafe And SHabu",
   "id": "9233505136016478451",
@@ -63,21 +63,24 @@
      "kills": 5,
      "parse": 7.6,
      "score": 4.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 2,
      "parse": 3.0,
      "score": 1.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "BlackMage": {
      "fights": 1,
      "kills": 5,
      "parse": 5.0,
      "score": 2.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -141,46 +144,52 @@
     "Warrior": {
      "fights": 12,
      "kills": 28,
-     "parse": 65.6,
-     "score": 56.3,
-     "tier": "expert"
+     "parse": 71.3,
+     "score": 61.2,
+     "tier": "expert",
+     "hardest": "ultimate"
     },
     "Paladin": {
      "fights": 4,
      "kills": 19,
-     "parse": 32.6,
-     "score": 26.6,
-     "tier": null
+     "parse": 32.0,
+     "score": 26.1,
+     "tier": null,
+     "hardest": "ultimate"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 6,
      "parse": 38.0,
      "score": 20.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Scholar": {
      "fights": 1,
      "kills": 9,
      "parse": 33.0,
      "score": 18.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 2,
      "kills": 14,
      "parse": 39.7,
      "score": 26.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Warrior",
     "fights": 12,
     "kills": 28,
-    "parse": 65.6,
-    "score": 56.3,
-    "tier": "expert"
+    "parse": 71.3,
+    "score": 61.2,
+    "tier": "expert",
+    "hardest": "ultimate"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -240,21 +249,24 @@
      "kills": 7,
      "parse": 6.0,
      "score": 3.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Dancer": {
      "fights": 5,
      "kills": 31,
-     "parse": 51.5,
-     "score": 44.8,
-     "tier": null
+     "parse": 49.8,
+     "score": 43.3,
+     "tier": null,
+     "hardest": "legacy"
     },
     "Bard": {
      "fights": 1,
      "kills": 15,
      "parse": 16.0,
      "score": 10.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -290,7 +302,7 @@
    "name": "Notifire Sky",
    "rank": "Chef de Cuisine",
    "level": 59,
-   "avatar": "https://img2.finalfantasyxiv.com/f/bff007df39c195668ac1cef50f500af6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598529",
+   "avatar": "https://img2.finalfantasyxiv.com/f/bff007df39c195668ac1cef50f500af6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602129",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -364,18 +376,20 @@
     "Warrior": {
      "fights": 20,
      "kills": 239,
-     "parse": 95.0,
-     "score": 95.0,
-     "tier": "legendary"
+     "parse": 98.3,
+     "score": 98.3,
+     "tier": "legendary",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "Warrior",
     "fights": 20,
     "kills": 239,
-    "parse": 95.0,
-    "score": 95.0,
-    "tier": "legendary"
+    "parse": 98.3,
+    "score": 98.3,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -428,9 +442,10 @@
     "Scholar": {
      "fights": 4,
      "kills": 52,
-     "parse": 27.1,
-     "score": 25.1,
-     "tier": null
+     "parse": 39.1,
+     "score": 36.3,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": null,
@@ -583,23 +598,26 @@
     "Paladin": {
      "fights": 7,
      "kills": 75,
-     "parse": 78.4,
-     "score": 75.9,
-     "tier": "master"
+     "parse": 76.8,
+     "score": 74.4,
+     "tier": "master",
+     "hardest": "legacy"
     },
     "Summoner": {
      "fights": 1,
      "kills": 82,
      "parse": 98.0,
      "score": 79.4,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 4,
      "kills": 35,
-     "parse": 58.9,
-     "score": 52.0,
-     "tier": "expert"
+     "parse": 70.9,
+     "score": 62.6,
+     "tier": "expert",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
@@ -608,7 +626,8 @@
     "kills": 82,
     "parse": 98.0,
     "score": 79.4,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 3,
    "fflogs": "ok",
@@ -672,32 +691,36 @@
     "Dancer": {
      "fights": 15,
      "kills": 345,
-     "parse": 91.7,
-     "score": 91.7,
-     "tier": "legendary"
+     "parse": 92.7,
+     "score": 92.7,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "RedMage": {
      "fights": 2,
      "kills": 63,
      "parse": 78.8,
      "score": 65.9,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 1,
-     "parse": 3.0,
-     "score": 1.2,
-     "tier": null
+     "parse": 15.0,
+     "score": 5.8,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "Dancer",
     "fights": 15,
     "kills": 345,
-    "parse": 91.7,
-    "score": 91.7,
-    "tier": "legendary"
+    "parse": 92.7,
+    "score": 92.7,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -755,7 +778,8 @@
      "kills": 2,
      "parse": 9.5,
      "score": 4.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -814,7 +838,8 @@
      "kills": 30,
      "parse": 34.9,
      "score": 26.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -873,16 +898,18 @@
     "Dragoon": {
      "fights": 9,
      "kills": 38,
-     "parse": 53.2,
-     "score": 47.5,
-     "tier": null
+     "parse": 54.4,
+     "score": 48.6,
+     "tier": null,
+     "hardest": "ultimate"
     },
     "Reaper": {
      "fights": 1,
      "kills": 14,
      "parse": 94.0,
      "score": 57.8,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -891,7 +918,8 @@
     "kills": 14,
     "parse": 94.0,
     "score": 57.8,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -951,14 +979,16 @@
      "kills": 81,
      "parse": 71.0,
      "score": 61.4,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 2,
      "kills": 36,
      "parse": 66.7,
      "score": 51.6,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -967,7 +997,8 @@
     "kills": 81,
     "parse": 71.0,
     "score": 61.4,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -1038,60 +1069,68 @@
     "Samurai": {
      "fights": 4,
      "kills": 35,
-     "parse": 76.6,
-     "score": 67.7,
-     "tier": "master"
+     "parse": 75.5,
+     "score": 66.7,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Scholar": {
      "fights": 2,
      "kills": 7,
-     "parse": 35.9,
-     "score": 21.5,
-     "tier": null
+     "parse": 30.8,
+     "score": 18.5,
+     "tier": null,
+     "hardest": "savage"
     },
     "BlackMage": {
      "fights": 3,
      "kills": 6,
-     "parse": 13.0,
-     "score": 8.3,
-     "tier": null
+     "parse": 12.8,
+     "score": 8.2,
+     "tier": null,
+     "hardest": "savage"
     },
     "Gunbreaker": {
      "fights": 1,
      "kills": 5,
      "parse": 62.0,
      "score": 31.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 3,
      "kills": 21,
-     "parse": 73.6,
-     "score": 56.8,
-     "tier": "expert"
+     "parse": 80.1,
+     "score": 61.8,
+     "tier": "expert",
+     "hardest": "ultimate"
     },
     "Dancer": {
      "fights": 1,
      "kills": 18,
-     "parse": 96.0,
-     "score": 61.6,
-     "tier": "expert"
+     "parse": 100.0,
+     "score": 64.2,
+     "tier": "expert",
+     "hardest": "ultimate"
     },
     "Paladin": {
      "fights": 3,
      "kills": 28,
-     "parse": 76.1,
-     "score": 61.1,
-     "tier": "expert"
+     "parse": 79.1,
+     "score": 63.5,
+     "tier": "expert",
+     "hardest": "legacy"
     }
    },
    "job_top": {
     "job": "Samurai",
     "fights": 4,
     "kills": 35,
-    "parse": 76.6,
-    "score": 67.7,
-    "tier": "master"
+    "parse": 75.5,
+    "score": 66.7,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1154,39 +1193,44 @@
     "WhiteMage": {
      "fights": 16,
      "kills": 138,
-     "parse": 76.7,
-     "score": 76.7,
-     "tier": "master"
+     "parse": 81.2,
+     "score": 81.2,
+     "tier": "legendary",
+     "hardest": "ultimate"
     },
     "Scholar": {
      "fights": 2,
      "kills": 33,
-     "parse": 54.6,
-     "score": 41.7,
-     "tier": null
+     "parse": 67.4,
+     "score": 51.5,
+     "tier": "expert",
+     "hardest": "ultimate"
     },
     "Sage": {
      "fights": 1,
      "kills": 8,
      "parse": 74.0,
      "score": 41.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Astrologian": {
      "fights": 2,
      "kills": 15,
-     "parse": 37.7,
-     "score": 25.6,
-     "tier": null
+     "parse": 49.9,
+     "score": 33.9,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "WhiteMage",
     "fights": 16,
     "kills": 138,
-    "parse": 76.7,
-    "score": 76.7,
-    "tier": "master"
+    "parse": 81.2,
+    "score": 81.2,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1247,39 +1291,44 @@
     "RedMage": {
      "fights": 10,
      "kills": 99,
-     "parse": 90.8,
-     "score": 90.8,
-     "tier": "legendary"
+     "parse": 94.5,
+     "score": 94.5,
+     "tier": "legendary",
+     "hardest": "ultimate"
     },
     "Warrior": {
      "fights": 5,
      "kills": 29,
-     "parse": 80.5,
-     "score": 69.5,
-     "tier": "master"
+     "parse": 84.1,
+     "score": 72.6,
+     "tier": "master",
+     "hardest": "legacy"
     },
     "Pictomancer": {
      "fights": 2,
      "kills": 25,
-     "parse": 83.8,
-     "score": 61.5,
-     "tier": "expert"
+     "parse": 81.2,
+     "score": 59.6,
+     "tier": "expert",
+     "hardest": "ultimate"
     },
     "Reaper": {
      "fights": 1,
      "kills": 1,
-     "parse": 70.0,
-     "score": 27.0,
-     "tier": null
+     "parse": 82.0,
+     "score": 31.6,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "RedMage",
     "fights": 10,
     "kills": 99,
-    "parse": 90.8,
-    "score": 90.8,
-    "tier": "legendary"
+    "parse": 94.5,
+    "score": 94.5,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1351,7 +1400,8 @@
      "kills": 23,
      "parse": 17.0,
      "score": 12.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -1414,37 +1464,42 @@
     "Dancer": {
      "fights": 13,
      "kills": 117,
-     "parse": 64.4,
-     "score": 64.4,
-     "tier": "expert"
+     "parse": 69.3,
+     "score": 69.3,
+     "tier": "master",
+     "hardest": "ultimate"
     },
     "Warrior": {
      "fights": 2,
      "kills": 38,
      "parse": 69.9,
      "score": 54.5,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Paladin": {
      "fights": 5,
      "kills": 109,
      "parse": 77.2,
      "score": 77.2,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     },
     "Astrologian": {
      "fights": 1,
      "kills": 4,
-     "parse": 68.0,
-     "score": 33.3,
-     "tier": null
+     "parse": 80.0,
+     "score": 39.2,
+     "tier": null,
+     "hardest": "ultimate"
     },
     "Bard": {
      "fights": 1,
      "kills": 29,
-     "parse": 30.0,
-     "score": 20.8,
-     "tier": null
+     "parse": 42.0,
+     "score": 29.1,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": {
@@ -1453,7 +1508,8 @@
     "kills": 109,
     "parse": 77.2,
     "score": 77.2,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1514,25 +1570,28 @@
     "Ninja": {
      "fights": 11,
      "kills": 98,
-     "parse": 73.6,
-     "score": 73.5,
-     "tier": "master"
+     "parse": 78.3,
+     "score": 78.2,
+     "tier": "master",
+     "hardest": "ultimate"
     },
     "Viper": {
      "fights": 4,
      "kills": 28,
-     "parse": 89.1,
-     "score": 76.5,
-     "tier": "master"
+     "parse": 92.1,
+     "score": 79.1,
+     "tier": "master",
+     "hardest": "legacy"
     }
    },
    "job_top": {
     "job": "Viper",
     "fights": 4,
     "kills": 28,
-    "parse": 89.1,
-    "score": 76.5,
-    "tier": "master"
+    "parse": 92.1,
+    "score": 79.1,
+    "tier": "master",
+    "hardest": "legacy"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1567,7 +1626,7 @@
    "name": "Boom Astraea",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/56ddadba4bd43937cadcf672feb6d013_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598764",
+   "avatar": "https://img2.finalfantasyxiv.com/f/56ddadba4bd43937cadcf672feb6d013_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602364",
    "parse": 68,
    "savage_kills": 0,
    "current_seen": false,
@@ -1590,21 +1649,24 @@
      "kills": 117,
      "parse": 67.4,
      "score": 59.8,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Reaper": {
      "fights": 1,
      "kills": 1,
-     "parse": 51.0,
-     "score": 19.6,
-     "tier": null
+     "parse": 63.0,
+     "score": 24.3,
+     "tier": null,
+     "hardest": "ultimate"
     },
     "Dancer": {
      "fights": 1,
      "kills": 7,
-     "parse": 65.0,
-     "score": 35.3,
-     "tier": null
+     "parse": 77.0,
+     "score": 41.8,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": {
@@ -1613,7 +1675,8 @@
     "kills": 117,
     "parse": 67.4,
     "score": 59.8,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -1675,39 +1738,44 @@
     "BlackMage": {
      "fights": 15,
      "kills": 131,
-     "parse": 81.7,
-     "score": 81.7,
-     "tier": "legendary"
+     "parse": 84.3,
+     "score": 84.3,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Summoner": {
      "fights": 3,
      "kills": 76,
-     "parse": 84.4,
-     "score": 77.1,
-     "tier": "master"
+     "parse": 78.4,
+     "score": 71.7,
+     "tier": "master",
+     "hardest": "ultimate"
     },
     "Pictomancer": {
      "fights": 1,
      "kills": 19,
      "parse": 79.0,
      "score": 51.2,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Warrior": {
      "fights": 1,
      "kills": 2,
-     "parse": 51.0,
-     "score": 22.0,
-     "tier": null
+     "parse": 63.0,
+     "score": 27.2,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "BlackMage",
     "fights": 15,
     "kills": 131,
-    "parse": 81.7,
-    "score": 81.7,
-    "tier": "legendary"
+    "parse": 84.3,
+    "score": 84.3,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1769,25 +1837,28 @@
     "Samurai": {
      "fights": 10,
      "kills": 233,
-     "parse": 87.8,
-     "score": 87.8,
-     "tier": "legendary"
+     "parse": 86.7,
+     "score": 86.7,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Viper": {
      "fights": 1,
      "kills": 7,
      "parse": 41.0,
      "score": 22.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Samurai",
     "fights": 10,
     "kills": 233,
-    "parse": 87.8,
-    "score": 87.8,
-    "tier": "legendary"
+    "parse": 86.7,
+    "score": 86.7,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 1,
    "fflogs": "ok",
@@ -1847,18 +1918,20 @@
     "Astrologian": {
      "fights": 19,
      "kills": 256,
-     "parse": 88.0,
-     "score": 88.0,
-     "tier": "legendary"
+     "parse": 86.9,
+     "score": 86.9,
+     "tier": "legendary",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "Astrologian",
     "fights": 19,
     "kills": 256,
-    "parse": 88.0,
-    "score": 88.0,
-    "tier": "legendary"
+    "parse": 86.9,
+    "score": 86.9,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -1916,32 +1989,36 @@
     "BlackMage": {
      "fights": 12,
      "kills": 111,
-     "parse": 64.0,
-     "score": 64.0,
-     "tier": "expert"
+     "parse": 70.8,
+     "score": 70.8,
+     "tier": "master",
+     "hardest": "savage"
     },
     "RedMage": {
      "fights": 1,
      "kills": 6,
      "parse": 49.0,
      "score": 25.9,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 1,
      "kills": 12,
-     "parse": 75.0,
-     "score": 44.9,
-     "tier": null
+     "parse": 87.0,
+     "score": 52.1,
+     "tier": "expert",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "BlackMage",
     "fights": 12,
     "kills": 111,
-    "parse": 64.0,
-    "score": 64.0,
-    "tier": "expert"
+    "parse": 70.8,
+    "score": 70.8,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 4,
    "fflogs": "ok",
@@ -2004,53 +2081,60 @@
     "Viper": {
      "fights": 7,
      "kills": 149,
-     "parse": 76.6,
-     "score": 76.6,
-     "tier": "master"
+     "parse": 78.3,
+     "score": 78.3,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Scholar": {
      "fights": 1,
      "kills": 3,
      "parse": 35.0,
      "score": 16.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "BlackMage": {
      "fights": 2,
      "kills": 8,
      "parse": 18.9,
      "score": 11.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Reaper": {
      "fights": 1,
      "kills": 7,
      "parse": 83.0,
      "score": 45.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Paladin": {
      "fights": 2,
      "kills": 17,
-     "parse": 36.8,
-     "score": 25.5,
-     "tier": null
+     "parse": 34.0,
+     "score": 23.5,
+     "tier": null,
+     "hardest": "ultimate"
     },
     "Gunbreaker": {
      "fights": 1,
      "kills": 31,
      "parse": 81.0,
      "score": 56.8,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Viper",
     "fights": 7,
     "kills": 149,
-    "parse": 76.6,
-    "score": 76.6,
-    "tier": "master"
+    "parse": 78.3,
+    "score": 78.3,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2113,32 +2197,36 @@
     "Monk": {
      "fights": 10,
      "kills": 109,
-     "parse": 90.0,
-     "score": 90.0,
-     "tier": "legendary"
+     "parse": 94.2,
+     "score": 94.2,
+     "tier": "legendary",
+     "hardest": "ultimate"
     },
     "Bard": {
      "fights": 1,
      "kills": 20,
      "parse": 66.0,
      "score": 43.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Samurai": {
      "fights": 2,
      "kills": 69,
      "parse": 92.3,
      "score": 78.2,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Monk",
     "fights": 10,
     "kills": 109,
-    "parse": 90.0,
-    "score": 90.0,
-    "tier": "legendary"
+    "parse": 94.2,
+    "score": 94.2,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2197,16 +2285,18 @@
     "Gunbreaker": {
      "fights": 6,
      "kills": 87,
-     "parse": 67.0,
-     "score": 66.0,
-     "tier": "master"
+     "parse": 67.6,
+     "score": 66.6,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Dragoon": {
      "fights": 4,
      "kills": 84,
      "parse": 78.0,
      "score": 76.6,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -2215,7 +2305,8 @@
     "kills": 84,
     "parse": 78.0,
     "score": 76.6,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2271,30 +2362,34 @@
     "Machinist": {
      "fights": 1,
      "kills": 2,
-     "parse": 4.0,
-     "score": 1.7,
-     "tier": null
+     "parse": 9.0,
+     "score": 3.9,
+     "tier": null,
+     "hardest": "savage"
     },
     "Gunbreaker": {
      "fights": 1,
      "kills": 28,
      "parse": 30.0,
      "score": 20.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Astrologian": {
      "fights": 1,
      "kills": 78,
      "parse": 97.0,
      "score": 78.0,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     },
     "Sage": {
      "fights": 1,
      "kills": 50,
      "parse": 83.0,
      "score": 62.6,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -2303,7 +2398,8 @@
     "kills": 78,
     "parse": 97.0,
     "score": 78.0,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2363,32 +2459,36 @@
     "Viper": {
      "fights": 9,
      "kills": 143,
-     "parse": 94.7,
-     "score": 94.7,
-     "tier": "legendary"
+     "parse": 96.4,
+     "score": 96.4,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Machinist": {
      "fights": 1,
      "kills": 1,
      "parse": 13.0,
      "score": 5.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Dragoon": {
      "fights": 2,
      "kills": 26,
      "parse": 87.3,
      "score": 64.4,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Viper",
     "fights": 9,
     "kills": 143,
-    "parse": 94.7,
-    "score": 94.7,
-    "tier": "legendary"
+    "parse": 96.4,
+    "score": 96.4,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2445,32 +2545,36 @@
     "Warrior": {
      "fights": 6,
      "kills": 56,
-     "parse": 84.9,
-     "score": 79.5,
-     "tier": "master"
+     "parse": 90.1,
+     "score": 84.3,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Dancer": {
      "fights": 1,
      "kills": 10,
      "parse": 65.0,
      "score": 37.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Scholar": {
      "fights": 2,
      "kills": 3,
      "parse": 27.0,
      "score": 14.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Warrior",
     "fights": 6,
     "kills": 56,
-    "parse": 84.9,
-    "score": 79.5,
-    "tier": "master"
+    "parse": 90.1,
+    "score": 84.3,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2535,23 +2639,26 @@
     "Gunbreaker": {
      "fights": 7,
      "kills": 92,
-     "parse": 73.0,
-     "score": 72.4,
-     "tier": "master"
+     "parse": 77.9,
+     "score": 77.3,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Warrior": {
      "fights": 5,
      "kills": 117,
      "parse": 87.1,
      "score": 87.1,
-     "tier": "legendary"
+     "tier": "legendary",
+     "hardest": "extreme"
     },
     "DarkKnight": {
      "fights": 1,
      "kills": 29,
      "parse": 57.0,
      "score": 39.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -2560,7 +2667,8 @@
     "kills": 117,
     "parse": 87.1,
     "score": 87.1,
-    "tier": "legendary"
+    "tier": "legendary",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2620,32 +2728,36 @@
     "Viper": {
      "fights": 3,
      "kills": 30,
-     "parse": 85.5,
-     "score": 69.3,
-     "tier": "master"
+     "parse": 88.3,
+     "score": 71.5,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Monk": {
      "fights": 8,
      "kills": 91,
-     "parse": 86.0,
-     "score": 85.2,
-     "tier": "legendary"
+     "parse": 87.8,
+     "score": 87.0,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Samurai": {
      "fights": 1,
      "kills": 4,
      "parse": 76.0,
      "score": 37.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Monk",
     "fights": 8,
     "kills": 91,
-    "parse": 86.0,
-    "score": 85.2,
-    "tier": "legendary"
+    "parse": 87.8,
+    "score": 87.0,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2679,7 +2791,7 @@
    "name": "Haruki Mizumoto",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/dc29e74dd4627633c44becf5714a17b6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598723",
+   "avatar": "https://img2.finalfantasyxiv.com/f/dc29e74dd4627633c44becf5714a17b6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602323",
    "parse": 74,
    "savage_kills": 2,
    "current_seen": true,
@@ -2700,9 +2812,10 @@
     "Machinist": {
      "fights": 4,
      "kills": 14,
-     "parse": 52.9,
-     "score": 41.5,
-     "tier": null
+     "parse": 56.9,
+     "score": 44.6,
+     "tier": null,
+     "hardest": "savage"
     }
    },
    "job_top": null,
@@ -2763,30 +2876,34 @@
     "Paladin": {
      "fights": 6,
      "kills": 52,
-     "parse": 73.5,
-     "score": 68.2,
-     "tier": "master"
+     "parse": 78.1,
+     "score": 72.4,
+     "tier": "master",
+     "hardest": "savage"
     },
     "DarkKnight": {
      "fights": 3,
      "kills": 75,
      "parse": 91.6,
      "score": 83.6,
-     "tier": "legendary"
+     "tier": "legendary",
+     "hardest": "extreme"
     },
     "Monk": {
      "fights": 1,
      "kills": 18,
      "parse": 69.0,
      "score": 44.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Scholar": {
      "fights": 1,
      "kills": 13,
      "parse": 34.0,
      "score": 20.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -2795,7 +2912,8 @@
     "kills": 75,
     "parse": 91.6,
     "score": 83.6,
-    "tier": "legendary"
+    "tier": "legendary",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -2855,30 +2973,34 @@
     "Paladin": {
      "fights": 3,
      "kills": 14,
-     "parse": 39.5,
-     "score": 28.7,
-     "tier": null
+     "parse": 42.4,
+     "score": 30.8,
+     "tier": null,
+     "hardest": "savage"
     },
     "Warrior": {
      "fights": 1,
      "kills": 16,
      "parse": 48.0,
      "score": 30.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "DarkKnight": {
      "fights": 2,
      "kills": 2,
      "parse": 4.5,
      "score": 2.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Gunbreaker": {
      "fights": 3,
      "kills": 17,
      "parse": 34.5,
      "score": 25.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -2936,7 +3058,8 @@
      "kills": 14,
      "parse": 21.0,
      "score": 12.9,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -2979,7 +3102,7 @@
    "name": "Komi Kona",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/68846bb99e92081afd81bb5e20a0cde1_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598368",
+   "avatar": "https://img2.finalfantasyxiv.com/f/68846bb99e92081afd81bb5e20a0cde1_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601968",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -3052,18 +3175,20 @@
     "Gunbreaker": {
      "fights": 8,
      "kills": 160,
-     "parse": 84.7,
-     "score": 84.7,
-     "tier": "legendary"
+     "parse": 79.1,
+     "score": 79.1,
+     "tier": "master",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "Gunbreaker",
     "fights": 8,
     "kills": 160,
-    "parse": 84.7,
-    "score": 84.7,
-    "tier": "legendary"
+    "parse": 79.1,
+    "score": 79.1,
+    "tier": "master",
+    "hardest": "ultimate"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3125,46 +3250,52 @@
     "Warrior": {
      "fights": 6,
      "kills": 113,
-     "parse": 75.6,
-     "score": 75.6,
-     "tier": "master"
+     "parse": 76.0,
+     "score": 76.0,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Dancer": {
      "fights": 4,
      "kills": 106,
-     "parse": 87.7,
-     "score": 87.7,
-     "tier": "legendary"
+     "parse": 88.9,
+     "score": 88.9,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "BlackMage": {
      "fights": 1,
      "kills": 34,
      "parse": 83.0,
      "score": 59.1,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Bard": {
      "fights": 1,
      "kills": 33,
      "parse": 90.0,
      "score": 63.7,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Gunbreaker": {
      "fights": 1,
      "kills": 24,
      "parse": 86.0,
      "score": 57.9,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Dancer",
     "fights": 4,
     "kills": 106,
-    "parse": 87.7,
-    "score": 87.7,
-    "tier": "legendary"
+    "parse": 88.9,
+    "score": 88.9,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3233,46 +3364,52 @@
     "Paladin": {
      "fights": 6,
      "kills": 90,
-     "parse": 84.2,
-     "score": 83.3,
-     "tier": "legendary"
+     "parse": 93.0,
+     "score": 92.0,
+     "tier": "legendary",
+     "hardest": "ultimate"
     },
     "Warrior": {
      "fights": 4,
      "kills": 159,
-     "parse": 96.5,
-     "score": 96.5,
-     "tier": "legendary"
+     "parse": 96.3,
+     "score": 96.3,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "DarkKnight": {
      "fights": 2,
      "kills": 34,
-     "parse": 90.1,
-     "score": 69.2,
-     "tier": "master"
+     "parse": 93.4,
+     "score": 71.7,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Summoner": {
      "fights": 1,
      "kills": 4,
      "parse": 44.0,
      "score": 21.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Gunbreaker": {
      "fights": 1,
      "kills": 44,
      "parse": 90.0,
      "score": 66.6,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Warrior",
     "fights": 4,
     "kills": 159,
-    "parse": 96.5,
-    "score": 96.5,
-    "tier": "legendary"
+    "parse": 96.3,
+    "score": 96.3,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3342,60 +3479,68 @@
     "Bard": {
      "fights": 4,
      "kills": 47,
-     "parse": 93.6,
-     "score": 85.8,
-     "tier": "legendary"
+     "parse": 98.4,
+     "score": 90.2,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Dancer": {
      "fights": 2,
      "kills": 14,
-     "parse": 91.7,
-     "score": 61.6,
-     "tier": "expert"
+     "parse": 97.4,
+     "score": 65.4,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Scholar": {
      "fights": 1,
      "kills": 4,
      "parse": 60.0,
      "score": 29.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 2,
      "kills": 59,
      "parse": 83.8,
      "score": 69.5,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     },
     "RedMage": {
      "fights": 2,
      "kills": 36,
      "parse": 79.7,
      "score": 61.7,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Pictomancer": {
      "fights": 2,
      "kills": 35,
-     "parse": 91.6,
-     "score": 70.6,
-     "tier": "master"
+     "parse": 93.5,
+     "score": 72.1,
+     "tier": "master",
+     "hardest": "ultimate"
     },
     "Astrologian": {
      "fights": 1,
      "kills": 36,
      "parse": 74.0,
      "score": 53.1,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Bard",
     "fights": 4,
     "kills": 47,
-    "parse": 93.6,
-    "score": 85.8,
-    "tier": "legendary"
+    "parse": 98.4,
+    "score": 90.2,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3459,46 +3604,52 @@
     "Scholar": {
      "fights": 7,
      "kills": 89,
-     "parse": 70.6,
-     "score": 69.8,
-     "tier": "master"
+     "parse": 77.0,
+     "score": 76.1,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Sage": {
      "fights": 3,
      "kills": 78,
      "parse": 66.1,
      "score": 60.6,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Bard": {
      "fights": 1,
      "kills": 7,
      "parse": 49.0,
      "score": 26.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 2,
      "kills": 47,
-     "parse": 68.4,
-     "score": 55.0,
-     "tier": "expert"
+     "parse": 64.7,
+     "score": 52.0,
+     "tier": "expert",
+     "hardest": "ultimate"
     },
     "RedMage": {
      "fights": 1,
      "kills": 36,
      "parse": 91.0,
      "score": 65.3,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Scholar",
     "fights": 7,
     "kills": 89,
-    "parse": 70.6,
-    "score": 69.8,
-    "tier": "master"
+    "parse": 77.0,
+    "score": 76.1,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3559,23 +3710,26 @@
     "Machinist": {
      "fights": 3,
      "kills": 44,
-     "parse": 51.3,
-     "score": 43.7,
-     "tier": null
+     "parse": 56.5,
+     "score": 48.2,
+     "tier": null,
+     "hardest": "savage"
     },
     "Dancer": {
      "fights": 2,
      "kills": 52,
      "parse": 78.2,
      "score": 63.7,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Paladin": {
      "fights": 3,
      "kills": 88,
      "parse": 44.8,
      "score": 41.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -3584,7 +3738,8 @@
     "kills": 52,
     "parse": 78.2,
     "score": 63.7,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3643,16 +3798,18 @@
     "WhiteMage": {
      "fights": 5,
      "kills": 27,
-     "parse": 21.2,
-     "score": 18.1,
-     "tier": null
+     "parse": 21.1,
+     "score": 18.0,
+     "tier": null,
+     "hardest": "savage"
     },
     "Warrior": {
      "fights": 3,
      "kills": 97,
      "parse": 71.4,
      "score": 67.2,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -3661,7 +3818,8 @@
     "kills": 97,
     "parse": 71.4,
     "score": 67.2,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3778,25 +3936,28 @@
     "Dancer": {
      "fights": 7,
      "kills": 36,
-     "parse": 59.1,
-     "score": 52.4,
-     "tier": "expert"
+     "parse": 68.5,
+     "score": 60.7,
+     "tier": "expert",
+     "hardest": "ultimate"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 2,
      "parse": 8.0,
      "score": 3.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Dancer",
     "fights": 7,
     "kills": 36,
-    "parse": 59.1,
-    "score": 52.4,
-    "tier": "expert"
+    "parse": 68.5,
+    "score": 60.7,
+    "tier": "expert",
+    "hardest": "ultimate"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3855,39 +4016,44 @@
     "Samurai": {
      "fights": 7,
      "kills": 88,
-     "parse": 91.6,
-     "score": 90.4,
-     "tier": "legendary"
+     "parse": 94.9,
+     "score": 93.6,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Monk": {
      "fights": 1,
      "kills": 9,
      "parse": 97.0,
      "score": 55.2,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Gunbreaker": {
      "fights": 1,
      "kills": 21,
      "parse": 96.0,
      "score": 63.2,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Viper": {
      "fights": 1,
      "kills": 30,
      "parse": 87.0,
      "score": 60.7,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Samurai",
     "fights": 7,
     "kills": 88,
-    "parse": 91.6,
-    "score": 90.4,
-    "tier": "legendary"
+    "parse": 94.9,
+    "score": 93.6,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3945,18 +4111,20 @@
     "Dancer": {
      "fights": 9,
      "kills": 130,
-     "parse": 78.0,
-     "score": 78.0,
-     "tier": "master"
+     "parse": 80.2,
+     "score": 80.2,
+     "tier": "legendary",
+     "hardest": "savage"
     }
    },
    "job_top": {
     "job": "Dancer",
     "fights": 9,
     "kills": 130,
-    "parse": 78.0,
-    "score": 78.0,
-    "tier": "master"
+    "parse": 80.2,
+    "score": 80.2,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -3991,7 +4159,7 @@
    "name": "Mumu Nene",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a9d9b65bd73e9e79c17d48689ef5850f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598552",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a9d9b65bd73e9e79c17d48689ef5850f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602152",
    "parse": 42,
    "savage_kills": 2,
    "current_seen": true,
@@ -4018,23 +4186,26 @@
     "Sage": {
      "fights": 3,
      "kills": 18,
-     "parse": 6.7,
-     "score": 5.1,
-     "tier": null
+     "parse": 11.4,
+     "score": 8.6,
+     "tier": null,
+     "hardest": "savage"
     },
     "Scholar": {
      "fights": 6,
      "kills": 234,
      "parse": 33.4,
      "score": 33.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Astrologian": {
      "fights": 1,
      "kills": 7,
      "parse": 3.0,
      "score": 1.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -4094,18 +4265,20 @@
     "Samurai": {
      "fights": 7,
      "kills": 38,
-     "parse": 62.3,
-     "score": 55.6,
-     "tier": "expert"
+     "parse": 68.1,
+     "score": 60.8,
+     "tier": "expert",
+     "hardest": "savage"
     }
    },
    "job_top": {
     "job": "Samurai",
     "fights": 7,
     "kills": 38,
-    "parse": 62.3,
-    "score": 55.6,
-    "tier": "expert"
+    "parse": 68.1,
+    "score": 60.8,
+    "tier": "expert",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4169,14 +4342,16 @@
      "kills": 144,
      "parse": 19.5,
      "score": 19.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 2,
      "kills": 63,
      "parse": 55.0,
      "score": 46.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -4211,7 +4386,7 @@
    "name": "Ninenine The'phantom",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/5bd4bc050ebd47be29f780d1a7c163d6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598580",
+   "avatar": "https://img2.finalfantasyxiv.com/f/5bd4bc050ebd47be29f780d1a7c163d6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602180",
    "parse": 96,
    "savage_kills": 4,
    "current_seen": true,
@@ -4240,39 +4415,44 @@
     "Viper": {
      "fights": 6,
      "kills": 75,
-     "parse": 72.1,
-     "score": 69.8,
-     "tier": "master"
+     "parse": 77.9,
+     "score": 75.5,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Ninja": {
      "fights": 3,
      "kills": 35,
      "parse": 60.5,
      "score": 50.1,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "RedMage": {
      "fights": 1,
      "kills": 33,
      "parse": 80.0,
      "score": 56.7,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Reaper": {
      "fights": 4,
      "kills": 112,
-     "parse": 91.3,
-     "score": 91.3,
-     "tier": "legendary"
+     "parse": 91.8,
+     "score": 91.8,
+     "tier": "legendary",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "Reaper",
     "fights": 4,
     "kills": 112,
-    "parse": 91.3,
-    "score": 91.3,
-    "tier": "legendary"
+    "parse": 91.8,
+    "score": 91.8,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4335,32 +4515,36 @@
     "BlackMage": {
      "fights": 4,
      "kills": 61,
-     "parse": 97.1,
-     "score": 91.8,
-     "tier": "legendary"
+     "parse": 100.0,
+     "score": 94.6,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Pictomancer": {
      "fights": 7,
      "kills": 181,
-     "parse": 95.3,
-     "score": 95.3,
-     "tier": "legendary"
+     "parse": 98.0,
+     "score": 98.0,
+     "tier": "legendary",
+     "hardest": "ultimate"
     },
     "RedMage": {
      "fights": 2,
      "kills": 4,
      "parse": 63.5,
      "score": 34.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Pictomancer",
     "fights": 7,
     "kills": 181,
-    "parse": 95.3,
-    "score": 95.3,
-    "tier": "legendary"
+    "parse": 98.0,
+    "score": 98.0,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4422,23 +4606,26 @@
     "BlackMage": {
      "fights": 2,
      "kills": 14,
-     "parse": 25.4,
-     "score": 17.0,
-     "tier": null
+     "parse": 31.8,
+     "score": 21.3,
+     "tier": null,
+     "hardest": "savage"
     },
     "Machinist": {
      "fights": 6,
      "kills": 138,
      "parse": 94.5,
      "score": 94.5,
-     "tier": "legendary"
+     "tier": "legendary",
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 12,
      "parse": 41.0,
      "score": 24.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -4447,7 +4634,8 @@
     "kills": 138,
     "parse": 94.5,
     "score": 94.5,
-    "tier": "legendary"
+    "tier": "legendary",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4520,14 +4708,16 @@
      "kills": 221,
      "parse": 95.5,
      "score": 95.5,
-     "tier": "legendary"
+     "tier": "legendary",
+     "hardest": "extreme"
     },
     "Samurai": {
      "fights": 1,
      "kills": 11,
-     "parse": 77.0,
-     "score": 45.4,
-     "tier": null
+     "parse": 89.0,
+     "score": 52.5,
+     "tier": "expert",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
@@ -4536,7 +4726,8 @@
     "kills": 221,
     "parse": 95.5,
     "score": 95.5,
-    "tier": "legendary"
+    "tier": "legendary",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4598,25 +4789,28 @@
     "Sage": {
      "fights": 11,
      "kills": 192,
-     "parse": 68.7,
-     "score": 68.7,
-     "tier": "master"
+     "parse": 69.0,
+     "score": 69.0,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Monk": {
      "fights": 1,
      "kills": 4,
      "parse": 49.0,
      "score": 24.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Sage",
     "fights": 11,
     "kills": 192,
-    "parse": 68.7,
-    "score": 68.7,
-    "tier": "master"
+    "parse": 69.0,
+    "score": 69.0,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4674,37 +4868,42 @@
     "Warrior": {
      "fights": 2,
      "kills": 12,
-     "parse": 30.0,
-     "score": 19.6,
-     "tier": null
+     "parse": 35.0,
+     "score": 22.9,
+     "tier": null,
+     "hardest": "savage"
     },
     "Paladin": {
      "fights": 1,
      "kills": 5,
      "parse": 31.0,
      "score": 15.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Viper": {
      "fights": 1,
      "kills": 1,
      "parse": 22.0,
      "score": 8.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Gunbreaker": {
      "fights": 2,
      "kills": 4,
      "parse": 5.5,
      "score": 3.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "DarkKnight": {
      "fights": 1,
      "kills": 8,
      "parse": 35.0,
      "score": 19.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -4769,25 +4968,28 @@
     "Viper": {
      "fights": 5,
      "kills": 35,
-     "parse": 85.1,
-     "score": 75.2,
-     "tier": "master"
+     "parse": 92.5,
+     "score": 81.7,
+     "tier": "legendary",
+     "hardest": "ultimate"
     },
     "Samurai": {
      "fights": 9,
      "kills": 69,
-     "parse": 87.9,
-     "score": 84.3,
-     "tier": "legendary"
+     "parse": 85.7,
+     "score": 82.2,
+     "tier": "legendary",
+     "hardest": "savage"
     }
    },
    "job_top": {
     "job": "Samurai",
     "fights": 9,
     "kills": 69,
-    "parse": 87.9,
-    "score": 84.3,
-    "tier": "legendary"
+    "parse": 85.7,
+    "score": 82.2,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4846,18 +5048,20 @@
     "Warrior": {
      "fights": 9,
      "kills": 201,
-     "parse": 93.2,
-     "score": 93.2,
-     "tier": "legendary"
+     "parse": 93.9,
+     "score": 93.9,
+     "tier": "legendary",
+     "hardest": "savage"
     }
    },
    "job_top": {
     "job": "Warrior",
     "fights": 9,
     "kills": 201,
-    "parse": 93.2,
-    "score": 93.2,
-    "tier": "legendary"
+    "parse": 93.9,
+    "score": 93.9,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -4913,7 +5117,8 @@
      "kills": 1,
      "parse": 1.0,
      "score": 0.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -5038,39 +5243,44 @@
     "Monk": {
      "fights": 7,
      "kills": 183,
-     "parse": 93.1,
-     "score": 93.1,
-     "tier": "legendary"
+     "parse": 93.9,
+     "score": 93.9,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Warrior": {
      "fights": 3,
      "kills": 71,
-     "parse": 96.5,
-     "score": 87.5,
-     "tier": "legendary"
+     "parse": 98.1,
+     "score": 88.9,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Dancer": {
      "fights": 3,
      "kills": 255,
      "parse": 93.5,
      "score": 88.2,
-     "tier": "legendary"
+     "tier": "legendary",
+     "hardest": "extreme"
     },
     "RedMage": {
      "fights": 1,
      "kills": 32,
-     "parse": 87.0,
-     "score": 61.3,
-     "tier": "expert"
+     "parse": 99.0,
+     "score": 69.8,
+     "tier": "master",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "Monk",
     "fights": 7,
     "kills": 183,
-    "parse": 93.1,
-    "score": 93.1,
-    "tier": "legendary"
+    "parse": 93.9,
+    "score": 93.9,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -5106,7 +5316,7 @@
    "name": "Soft Stone",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/53ce3a2d020b25854ec4c55e6f75ecb7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598473",
+   "avatar": "https://img2.finalfantasyxiv.com/f/53ce3a2d020b25854ec4c55e6f75ecb7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602073",
    "parse": 64,
    "savage_kills": 3,
    "current_seen": true,
@@ -5128,9 +5338,10 @@
     "Warrior": {
      "fights": 6,
      "kills": 69,
-     "parse": 39.5,
-     "score": 37.9,
-     "tier": null
+     "parse": 37.6,
+     "score": 36.1,
+     "tier": null,
+     "hardest": "savage"
     }
    },
    "job_top": null,
@@ -5190,25 +5401,28 @@
     "WhiteMage": {
      "fights": 8,
      "kills": 73,
-     "parse": 78.3,
-     "score": 75.6,
-     "tier": "master"
+     "parse": 81.4,
+     "score": 78.6,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Dancer": {
      "fights": 1,
      "kills": 6,
-     "parse": 57.0,
-     "score": 30.1,
-     "tier": null
+     "parse": 69.0,
+     "score": 36.4,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "WhiteMage",
     "fights": 8,
     "kills": 73,
-    "parse": 78.3,
-    "score": 75.6,
-    "tier": "master"
+    "parse": 81.4,
+    "score": 78.6,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -5267,18 +5481,20 @@
     "Scholar": {
      "fights": 6,
      "kills": 68,
-     "parse": 79.4,
-     "score": 76.0,
-     "tier": "master"
+     "parse": 79.8,
+     "score": 76.4,
+     "tier": "master",
+     "hardest": "savage"
     }
    },
    "job_top": {
     "job": "Scholar",
     "fights": 6,
     "kills": 68,
-    "parse": 79.4,
-    "score": 76.0,
-    "tier": "master"
+    "parse": 79.8,
+    "score": 76.4,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -5322,7 +5538,7 @@
    "name": "Trevas Aka",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a8df6ab092e4c1be1685c9049b7ff5ff_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598515",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a8df6ab092e4c1be1685c9049b7ff5ff_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602115",
    "parse": 9,
    "savage_kills": 2,
    "current_seen": true,
@@ -5344,9 +5560,10 @@
     "Astrologian": {
      "fights": 5,
      "kills": 29,
-     "parse": 6.2,
-     "score": 5.3,
-     "tier": null
+     "parse": 6.9,
+     "score": 6.0,
+     "tier": null,
+     "hardest": "savage"
     }
    },
    "job_top": null,
@@ -5406,32 +5623,36 @@
     "Paladin": {
      "fights": 8,
      "kills": 64,
-     "parse": 78.0,
-     "score": 74.2,
-     "tier": "master"
+     "parse": 83.6,
+     "score": 79.5,
+     "tier": "master",
+     "hardest": "savage"
     },
     "DarkKnight": {
      "fights": 1,
      "kills": 6,
      "parse": 44.0,
      "score": 23.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Pictomancer": {
      "fights": 1,
      "kills": 21,
      "parse": 54.0,
      "score": 35.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Paladin",
     "fights": 8,
     "kills": 64,
-    "parse": 78.0,
-    "score": 74.2,
-    "tier": "master"
+    "parse": 83.6,
+    "score": 79.5,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -5492,28 +5713,32 @@
      "kills": 37,
      "parse": 67.6,
      "score": 56.3,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Paladin": {
      "fights": 1,
      "kills": 21,
      "parse": 75.0,
      "score": 49.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Samurai": {
      "fights": 1,
      "kills": 56,
      "parse": 79.0,
      "score": 60.6,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 1,
      "kills": 54,
      "parse": 67.0,
      "score": 51.1,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -5522,7 +5747,8 @@
     "kills": 56,
     "parse": 79.0,
     "score": 60.6,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -5595,9 +5821,10 @@
     "WhiteMage": {
      "fights": 8,
      "kills": 45,
-     "parse": 35.6,
-     "score": 32.4,
-     "tier": null
+     "parse": 43.3,
+     "score": 39.5,
+     "tier": null,
+     "hardest": "savage"
     }
    },
    "job_top": null,
@@ -5657,18 +5884,20 @@
     "Reaper": {
      "fights": 9,
      "kills": 187,
-     "parse": 93.2,
-     "score": 93.2,
-     "tier": "legendary"
+     "parse": 94.6,
+     "score": 94.6,
+     "tier": "legendary",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "Reaper",
     "fights": 9,
     "kills": 187,
-    "parse": 93.2,
-    "score": 93.2,
-    "tier": "legendary"
+    "parse": 94.6,
+    "score": 94.6,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -5703,7 +5932,7 @@
    "name": "Heidi Fox",
    "rank": "Table Cat",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/0c9720900b9444d061530d6f7f6bc1bc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598663",
+   "avatar": "https://img2.finalfantasyxiv.com/f/0c9720900b9444d061530d6f7f6bc1bc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602263",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -5768,7 +5997,8 @@
      "kills": 1,
      "parse": 1.0,
      "score": 0.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -5964,9 +6194,10 @@
     "Samurai": {
      "fights": 1,
      "kills": 1,
-     "parse": 6.0,
-     "score": 2.3,
-     "tier": null
+     "parse": 18.0,
+     "score": 6.9,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": null,
@@ -6044,21 +6275,24 @@
      "kills": 26,
      "parse": 26.0,
      "score": 17.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 6,
      "kills": 117,
      "parse": 57.8,
      "score": 57.8,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Dancer": {
      "fights": 1,
      "kills": 37,
      "parse": 69.0,
      "score": 49.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -6067,7 +6301,8 @@
     "kills": 117,
     "parse": 57.8,
     "score": 57.8,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -6126,7 +6361,8 @@
      "kills": 141,
      "parse": 65.2,
      "score": 65.2,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -6135,7 +6371,8 @@
     "kills": 141,
     "parse": 65.2,
     "score": 65.2,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -6245,32 +6482,36 @@
     "Gunbreaker": {
      "fights": 8,
      "kills": 87,
-     "parse": 72.9,
-     "score": 71.8,
-     "tier": "master"
+     "parse": 76.2,
+     "score": 75.1,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Paladin": {
      "fights": 2,
      "kills": 47,
      "parse": 66.1,
      "score": 53.1,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Viper": {
      "fights": 2,
      "kills": 80,
      "parse": 80.2,
      "score": 69.3,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Gunbreaker",
     "fights": 8,
     "kills": 87,
-    "parse": 72.9,
-    "score": 71.8,
-    "tier": "master"
+    "parse": 76.2,
+    "score": 75.1,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -6568,7 +6809,8 @@
      "kills": 1,
      "parse": 2.0,
      "score": 0.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -6626,7 +6868,8 @@
      "kills": 1,
      "parse": 1.0,
      "score": 0.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -6733,21 +6976,24 @@
      "kills": 34,
      "parse": 45.0,
      "score": 32.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Bard": {
      "fights": 1,
      "kills": 31,
      "parse": 81.0,
      "score": 56.8,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Machinist": {
      "fights": 1,
      "kills": 25,
      "parse": 67.0,
      "score": 45.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -6756,7 +7002,8 @@
     "kills": 31,
     "parse": 81.0,
     "score": 56.8,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -6861,25 +7108,28 @@
     "Dancer": {
      "fights": 7,
      "kills": 107,
-     "parse": 64.0,
-     "score": 64.0,
-     "tier": "expert"
+     "parse": 65.0,
+     "score": 65.0,
+     "tier": "master",
+     "hardest": "savage"
     },
     "Warrior": {
      "fights": 3,
      "kills": 47,
      "parse": 50.2,
      "score": 43.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Dancer",
     "fights": 7,
     "kills": 107,
-    "parse": 64.0,
-    "score": 64.0,
-    "tier": "expert"
+    "parse": 65.0,
+    "score": 65.0,
+    "tier": "master",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -6939,30 +7189,34 @@
     "Scholar": {
      "fights": 2,
      "kills": 2,
-     "parse": 12.0,
-     "score": 5.9,
-     "tier": null
+     "parse": 15.3,
+     "score": 7.5,
+     "tier": null,
+     "hardest": "savage"
     },
     "Dancer": {
      "fights": 3,
      "kills": 52,
      "parse": 45.0,
      "score": 39.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Pictomancer": {
      "fights": 1,
      "kills": 9,
      "parse": 53.0,
      "score": 30.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 1,
      "kills": 8,
      "parse": 29.0,
      "score": 16.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -7370,7 +7624,7 @@
    "name": "Gotnogod Soluna",
    "rank": "Taster",
    "level": 85,
-   "avatar": "https://img2.finalfantasyxiv.com/f/e09aa30945afb320f326d8205c9a893e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598757",
+   "avatar": "https://img2.finalfantasyxiv.com/f/e09aa30945afb320f326d8205c9a893e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602357",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7412,7 +7666,7 @@
    "name": "Hiro Hikari",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/c2679701c5ab42ceda12e9d8d2659cdd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600946",
+   "avatar": "https://img2.finalfantasyxiv.com/f/c2679701c5ab42ceda12e9d8d2659cdd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602291",
    "parse": 7,
    "savage_kills": 0,
    "current_seen": false,
@@ -7434,7 +7688,8 @@
      "kills": 1,
      "parse": 7.0,
      "score": 2.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -7469,7 +7724,7 @@
    "name": "Ician Wyra'li",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/5ca04168440838d3859c6bf7d4f95b44_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598453",
+   "avatar": "https://img2.finalfantasyxiv.com/f/5ca04168440838d3859c6bf7d4f95b44_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602053",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7570,7 +7825,7 @@
    "name": "K' Potassium",
    "rank": "Taster",
    "level": 35,
-   "avatar": "https://img2.finalfantasyxiv.com/f/87dbd30585808fc1e07bb71baf6de7e1_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598553",
+   "avatar": "https://img2.finalfantasyxiv.com/f/87dbd30585808fc1e07bb71baf6de7e1_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602153",
    "parse": 19,
    "savage_kills": 2,
    "current_seen": true,
@@ -7588,9 +7843,10 @@
     "BlackMage": {
      "fights": 2,
      "kills": 6,
-     "parse": 13.5,
-     "score": 7.9,
-     "tier": null
+     "parse": 18.5,
+     "score": 10.8,
+     "tier": null,
+     "hardest": "savage"
     }
    },
    "job_top": null,
@@ -7701,14 +7957,16 @@
      "kills": 2,
      "parse": 16.0,
      "score": 6.9,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Paladin": {
      "fights": 4,
      "kills": 13,
      "parse": 43.8,
      "score": 34.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -7879,7 +8137,7 @@
    "name": "Luminosity Eternelle",
    "rank": "Taster",
    "level": 99,
-   "avatar": "https://img2.finalfantasyxiv.com/f/66633448611ff2c6e91c3ea8817a1205_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598693",
+   "avatar": "https://img2.finalfantasyxiv.com/f/66633448611ff2c6e91c3ea8817a1205_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602293",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7997,16 +8255,18 @@
     "DarkKnight": {
      "fights": 2,
      "kills": 16,
-     "parse": 86.3,
-     "score": 59.2,
-     "tier": "expert"
+     "parse": 95.5,
+     "score": 65.5,
+     "tier": "master",
+     "hardest": "ultimate"
     },
     "Warrior": {
      "fights": 2,
      "kills": 66,
      "parse": 97.7,
      "score": 82.2,
-     "tier": "legendary"
+     "tier": "legendary",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -8015,7 +8275,8 @@
     "kills": 66,
     "parse": 97.7,
     "score": 82.2,
-    "tier": "legendary"
+    "tier": "legendary",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -8084,35 +8345,40 @@
      "kills": 7,
      "parse": 31.0,
      "score": 16.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 20,
      "parse": 50.0,
      "score": 32.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Pictomancer": {
      "fights": 1,
      "kills": 9,
      "parse": 43.0,
      "score": 24.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Viper": {
      "fights": 1,
      "kills": 21,
      "parse": 51.0,
      "score": 33.6,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 2,
      "kills": 102,
      "parse": 56.1,
      "score": 49.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -8171,7 +8437,8 @@
      "kills": 6,
      "parse": 20.5,
      "score": 13.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -8234,42 +8501,48 @@
      "kills": 15,
      "parse": 44.0,
      "score": 27.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Warrior": {
      "fights": 1,
      "kills": 14,
      "parse": 31.0,
      "score": 19.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 1,
      "kills": 4,
      "parse": 43.0,
      "score": 21.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Paladin": {
      "fights": 1,
      "kills": 40,
      "parse": 40.0,
      "score": 29.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Astrologian": {
      "fights": 1,
      "kills": 16,
      "parse": 31.0,
      "score": 19.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 2,
      "kills": 83,
      "parse": 70.9,
      "score": 61.5,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -8278,7 +8551,8 @@
     "kills": 83,
     "parse": 70.9,
     "score": 61.5,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -8336,14 +8610,16 @@
      "kills": 1,
      "parse": 7.0,
      "score": 2.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Pictomancer": {
      "fights": 3,
      "kills": 48,
      "parse": 40.3,
      "score": 34.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -8402,7 +8678,8 @@
      "kills": 132,
      "parse": 52.3,
      "score": 49.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -8650,7 +8927,8 @@
      "kills": 27,
      "parse": 40.9,
      "score": 30.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -8708,7 +8986,8 @@
      "kills": 11,
      "parse": 5.9,
      "score": 3.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -8770,7 +9049,8 @@
      "kills": 132,
      "parse": 68.5,
      "score": 68.5,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -8779,7 +9059,8 @@
     "kills": 132,
     "parse": 68.5,
     "score": 68.5,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -8845,7 +9126,8 @@
      "kills": 119,
      "parse": 66.4,
      "score": 58.9,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -8854,7 +9136,8 @@
     "kills": 119,
     "parse": 66.4,
     "score": 58.9,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -9003,7 +9286,8 @@
      "kills": 111,
      "parse": 84.3,
      "score": 74.8,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -9012,7 +9296,8 @@
     "kills": 111,
     "parse": 84.3,
     "score": 74.8,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -9129,25 +9414,28 @@
     "Viper": {
      "fights": 9,
      "kills": 88,
-     "parse": 85.0,
-     "score": 83.9,
-     "tier": "legendary"
+     "parse": 87.9,
+     "score": 86.7,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Reaper": {
      "fights": 5,
      "kills": 90,
-     "parse": 91.8,
-     "score": 90.8,
-     "tier": "legendary"
+     "parse": 90.0,
+     "score": 89.0,
+     "tier": "legendary",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
     "job": "Reaper",
     "fights": 5,
     "kills": 90,
-    "parse": 91.8,
-    "score": 90.8,
-    "tier": "legendary"
+    "parse": 90.0,
+    "score": 89.0,
+    "tier": "legendary",
+    "hardest": "ultimate"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -9204,7 +9492,8 @@
      "kills": 15,
      "parse": 8.0,
      "score": 5.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -9333,7 +9622,7 @@
    "name": "Tamazon Kitsu",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/45df2191f2dbf348101997c89d818348_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598502",
+   "avatar": "https://img2.finalfantasyxiv.com/f/45df2191f2dbf348101997c89d818348_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602102",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9595,23 +9884,26 @@
     "Pictomancer": {
      "fights": 8,
      "kills": 92,
-     "parse": 38.6,
-     "score": 38.3,
-     "tier": null
+     "parse": 40.7,
+     "score": 40.4,
+     "tier": null,
+     "hardest": "ultimate"
     },
     "Viper": {
      "fights": 1,
      "kills": 4,
      "parse": 27.0,
      "score": 13.2,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 2,
      "kills": 6,
      "parse": 23.0,
      "score": 13.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -9916,7 +10208,7 @@
    "name": "Mizuki Sekine",
    "rank": "Chef Toumant",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ed53d3f6e131b03c708cdc930772de80_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598455",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ed53d3f6e131b03c708cdc930772de80_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602055",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9982,21 +10274,24 @@
      "kills": 16,
      "parse": 6.0,
      "score": 3.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Astrologian": {
      "fights": 1,
      "kills": 11,
      "parse": 16.0,
      "score": 9.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 14,
      "parse": 20.0,
      "score": 12.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -10290,7 +10585,7 @@
    "name": "A'kane Dorothy",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/66b7c787f878e673e98d1bd39791c67e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598690",
+   "avatar": "https://img2.finalfantasyxiv.com/f/66b7c787f878e673e98d1bd39791c67e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602290",
    "parse": 45,
    "savage_kills": 0,
    "current_seen": false,
@@ -10312,7 +10607,8 @@
      "kills": 2,
      "parse": 45.0,
      "score": 19.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -10370,7 +10666,8 @@
      "kills": 70,
      "parse": 79.5,
      "score": 67.5,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -10379,7 +10676,8 @@
     "kills": 70,
     "parse": 79.5,
     "score": 67.5,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -10622,7 +10920,8 @@
      "kills": 6,
      "parse": 7.0,
      "score": 3.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -10658,7 +10957,7 @@
    "name": "Aiqing Kumamon",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d7d71bdfa112045984c426881fe8ff9a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598694",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d7d71bdfa112045984c426881fe8ff9a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602294",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11490,23 +11789,26 @@
     "WhiteMage": {
      "fights": 2,
      "kills": 12,
-     "parse": 18.2,
-     "score": 11.9,
-     "tier": null
+     "parse": 19.7,
+     "score": 12.9,
+     "tier": null,
+     "hardest": "savage"
     },
     "Sage": {
      "fights": 4,
      "kills": 14,
-     "parse": 21.9,
-     "score": 17.2,
-     "tier": null
+     "parse": 23.5,
+     "score": 18.4,
+     "tier": null,
+     "hardest": "savage"
     },
     "Warrior": {
      "fights": 2,
      "kills": 16,
      "parse": 24.0,
      "score": 16.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -11600,7 +11902,7 @@
    "name": "Arichii Marilouay",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/78c0a6ddc5fde6ebeb64ee8cba7a4096_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598748",
+   "avatar": "https://img2.finalfantasyxiv.com/f/78c0a6ddc5fde6ebeb64ee8cba7a4096_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602348",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12249,14 +12551,16 @@
      "kills": 4,
      "parse": 20.0,
      "score": 9.8,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 2,
      "kills": 56,
      "parse": 67.5,
      "score": 55.6,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -12265,7 +12569,8 @@
     "kills": 56,
     "parse": 67.5,
     "score": 55.6,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -12345,7 +12650,7 @@
    "name": "Ben Kao",
    "rank": "On vacation",
    "level": 55,
-   "avatar": "https://img2.finalfantasyxiv.com/f/aeafda013161636ef1883a6720834267_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598521",
+   "avatar": "https://img2.finalfantasyxiv.com/f/aeafda013161636ef1883a6720834267_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602121",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12457,7 +12762,8 @@
      "kills": 20,
      "parse": 33.9,
      "score": 24.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -12516,14 +12822,16 @@
      "kills": 136,
      "parse": 63.2,
      "score": 56.1,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Gunbreaker": {
      "fights": 1,
      "kills": 5,
      "parse": 3.0,
      "score": 1.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -12532,7 +12840,8 @@
     "kills": 136,
     "parse": 63.2,
     "score": 56.1,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -12590,14 +12899,16 @@
      "kills": 10,
      "parse": 41.5,
      "score": 26.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Viper": {
      "fights": 2,
      "kills": 25,
      "parse": 67.7,
      "score": 49.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -12702,14 +13013,16 @@
      "kills": 3,
      "parse": 64.0,
      "score": 29.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 1,
      "parse": 18.0,
      "score": 6.9,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -13142,7 +13455,8 @@
      "kills": 3,
      "parse": 23.0,
      "score": 10.7,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -13271,7 +13585,7 @@
    "name": "Chissa Tofu",
    "rank": "On vacation",
    "level": 51,
-   "avatar": "https://img2.finalfantasyxiv.com/f/29bab47e0e0e067d681fa1cbc31604b3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598428",
+   "avatar": "https://img2.finalfantasyxiv.com/f/29bab47e0e0e067d681fa1cbc31604b3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602028",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13434,7 +13748,8 @@
      "kills": 1,
      "parse": 1.0,
      "score": 0.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -13564,7 +13879,7 @@
    "name": "Cool Piggy",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/add6a8cb8163e62fd58489532f4ab10f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598681",
+   "avatar": "https://img2.finalfantasyxiv.com/f/add6a8cb8163e62fd58489532f4ab10f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602281",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13658,7 +13973,7 @@
    "name": "Cystal Wingsky",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7cc917b9cd30e6fa70900ff303e1605f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598518",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7cc917b9cd30e6fa70900ff303e1605f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602118",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13966,25 +14281,28 @@
     "Viper": {
      "fights": 6,
      "kills": 56,
-     "parse": 60.0,
-     "score": 56.2,
-     "tier": "expert"
+     "parse": 54.1,
+     "score": 50.6,
+     "tier": "expert",
+     "hardest": "savage"
     },
     "RedMage": {
      "fights": 1,
      "kills": 6,
      "parse": 46.0,
      "score": 24.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Viper",
     "fights": 6,
     "kills": 56,
-    "parse": 60.0,
-    "score": 56.2,
-    "tier": "expert"
+    "parse": 54.1,
+    "score": 50.6,
+    "tier": "expert",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -14088,7 +14406,8 @@
      "kills": 23,
      "parse": 69.8,
      "score": 50.6,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -14097,7 +14416,8 @@
     "kills": 23,
     "parse": 69.8,
     "score": 50.6,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -14283,7 +14603,7 @@
    "name": "Elenor Light",
    "rank": "On vacation",
    "level": 53,
-   "avatar": "https://img2.finalfantasyxiv.com/f/e85844f84204ea35baa820bb0b686d5d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598597",
+   "avatar": "https://img2.finalfantasyxiv.com/f/e85844f84204ea35baa820bb0b686d5d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602197",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14448,7 +14768,8 @@
      "kills": 21,
      "parse": 46.8,
      "score": 33.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -14508,7 +14829,8 @@
      "kills": 40,
      "parse": 43.9,
      "score": 37.0,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -14566,14 +14888,16 @@
      "kills": 15,
      "parse": 68.0,
      "score": 42.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Summoner": {
      "fights": 1,
      "kills": 1,
      "parse": 1.0,
      "score": 0.4,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
@@ -14723,9 +15047,10 @@
     "Samurai": {
      "fights": 1,
      "kills": 1,
-     "parse": 57.0,
-     "score": 22.0,
-     "tier": null
+     "parse": 69.0,
+     "score": 26.6,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": null,
@@ -14880,14 +15205,16 @@
      "kills": 40,
      "parse": 89.2,
      "score": 70.1,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     },
     "DarkKnight": {
      "fights": 1,
      "kills": 19,
-     "parse": 73.0,
-     "score": 47.3,
-     "tier": null
+     "parse": 85.0,
+     "score": 55.1,
+     "tier": "expert",
+     "hardest": "ultimate"
     }
    },
    "job_top": {
@@ -14896,7 +15223,8 @@
     "kills": 40,
     "parse": 89.2,
     "score": 70.1,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -14942,7 +15270,7 @@
    "name": "Eric Luminous",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/4c2372d6e4b2a74377676208ebabd7aa_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598350",
+   "avatar": "https://img2.finalfantasyxiv.com/f/4c2372d6e4b2a74377676208ebabd7aa_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601950",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15036,7 +15364,7 @@
    "name": "Eydis Ein",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/92e3a30bcd57cc0dc774dcbc060571ef_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598619",
+   "avatar": "https://img2.finalfantasyxiv.com/f/92e3a30bcd57cc0dc774dcbc060571ef_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602219",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15274,7 +15602,7 @@
    "name": "Felous Vanish",
    "rank": "On vacation",
    "level": 98,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3dcba6f75beebace138a9b978278d251_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598776",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3dcba6f75beebace138a9b978278d251_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602376",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15393,14 +15721,16 @@
      "kills": 8,
      "parse": 20.1,
      "score": 12.3,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     },
     "Warrior": {
      "fights": 1,
      "kills": 12,
-     "parse": 30.0,
-     "score": 18.0,
-     "tier": null
+     "parse": 42.0,
+     "score": 25.1,
+     "tier": null,
+     "hardest": "ultimate"
     }
    },
    "job_top": null,
@@ -15558,32 +15888,36 @@
     "Machinist": {
      "fights": 11,
      "kills": 323,
-     "parse": 94.3,
-     "score": 94.3,
-     "tier": "legendary"
+     "parse": 95.5,
+     "score": 95.5,
+     "tier": "legendary",
+     "hardest": "savage"
     },
     "Dragoon": {
      "fights": 1,
      "kills": 51,
      "parse": 95.0,
      "score": 71.9,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     },
     "Bard": {
      "fights": 1,
      "kills": 45,
      "parse": 96.0,
      "score": 71.3,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
     "job": "Machinist",
     "fights": 11,
     "kills": 323,
-    "parse": 94.3,
-    "score": 94.3,
-    "tier": "legendary"
+    "parse": 95.5,
+    "score": 95.5,
+    "tier": "legendary",
+    "hardest": "savage"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -16013,14 +16347,16 @@
      "kills": 40,
      "parse": 71.9,
      "score": 60.5,
-     "tier": "expert"
+     "tier": "expert",
+     "hardest": "extreme"
     },
     "Samurai": {
      "fights": 1,
      "kills": 12,
      "parse": 57.0,
      "score": 34.1,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -16029,7 +16365,8 @@
     "kills": 40,
     "parse": 71.9,
     "score": 60.5,
-    "tier": "expert"
+    "tier": "expert",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -16130,9 +16467,10 @@
     "Reaper": {
      "fights": 5,
      "kills": 46,
-     "parse": 53.8,
-     "score": 49.2,
-     "tier": null
+     "parse": 49.8,
+     "score": 45.5,
+     "tier": null,
+     "hardest": "savage"
     }
    },
    "job_top": null,
@@ -16861,7 +17199,8 @@
      "kills": 116,
      "parse": 86.7,
      "score": 76.9,
-     "tier": "master"
+     "tier": "master",
+     "hardest": "extreme"
     }
    },
    "job_top": {
@@ -16870,7 +17209,8 @@
     "kills": 116,
     "parse": 86.7,
     "score": 76.9,
-    "tier": "master"
+    "tier": "master",
+    "hardest": "extreme"
    },
    "legacy_clears": 0,
    "fflogs": "ok",
@@ -16904,7 +17244,6 @@
    "rank": "On vacation",
    "level": 23,
    "avatar": "https://img2.finalfantasyxiv.com/f/2f45a10f916adcfdb5dcedf06f773854_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601854",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16921,6 +17260,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16951,7 +17291,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/f8a37ce3353b56ab92847116b2afc9cf_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600524",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16968,6 +17307,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -16998,7 +17338,6 @@
    "rank": "On vacation",
    "level": 32,
    "avatar": "https://img2.finalfantasyxiv.com/f/7fa870a96d18a8c035d7dcab89da72f3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601761",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -17015,6 +17354,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": 8,
    "minions": 32,
    "rare_achv": null,
@@ -17046,7 +17386,6 @@
    "rank": "On vacation",
    "level": 60,
    "avatar": "https://img2.finalfantasyxiv.com/f/b53a50d0b6c6f489de6a4ea48cee7378_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601758",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -17063,6 +17402,7 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -17093,7 +17433,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/88e4d34aa2d66059aceeaface1460662_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600162",
-   "fflogs": "ok",
    "parse": 1,
    "savage_kills": 0,
    "current_seen": false,
@@ -17115,11 +17454,13 @@
      "kills": 4,
      "parse": 1.0,
      "score": 0.5,
-     "tier": null
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
@@ -17150,13 +17491,18 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/98bc8103ccf7a4eecfbab604479d4a65_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599813",
-   "fflogs": "pending",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17184,7 +17530,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 28127069,
@@ -17192,17 +17538,42 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/4a0db2d1daed98eccf0cf4aba5e2a35d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600256",
-   "fflogs": "pending",
-   "parse": null,
+   "fflogs": "ok",
+   "parse": 84,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
-   "ex_cleared": [],
-   "ex_kills": 0,
-   "job_scores": {},
-   "job_top": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "ex_cleared": [
+    "Valigarmanda",
+    "Zoraal Ja"
+   ],
+   "ex_kills": 15,
+   "job_scores": {
+    "Bard": {
+     "fights": 2,
+     "kills": 15,
+     "parse": 83.3,
+     "score": 56.5,
+     "tier": "expert",
+     "hardest": "extreme"
+    }
+   },
+   "job_top": {
+    "job": "Bard",
+    "fights": 2,
+    "kills": 15,
+    "parse": 83.3,
+    "score": 56.5,
+    "tier": "expert",
+    "hardest": "extreme"
+   },
    "legacy_clears": 0,
    "mounts": null,
    "minions": null,
@@ -17224,9 +17595,9 @@
    "ult_achv_only": [],
    "achv_tiers": {},
    "tags": [
-    "unknown"
+    "extreme"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 35270049,
@@ -17234,13 +17605,18 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/c2bcc232c105bdf6755c479c4ad34e52_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601589",
-   "fflogs": "pending",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17268,7 +17644,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 42277370,
@@ -17276,13 +17652,18 @@
    "rank": "On vacation",
    "level": 70,
    "avatar": "https://img2.finalfantasyxiv.com/f/7adffa400ecb88ad336bd3ad87191d92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601763",
-   "fflogs": "pending",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17310,7 +17691,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 34290087,
@@ -17318,13 +17699,18 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/cc9499f38834e5b6a2514455e0f5d158_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600350",
-   "fflogs": "pending",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17352,7 +17738,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 42342468,
@@ -18409,7 +18795,7 @@
    "name": "Lighto Fukui",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/891322ccda010e6bff54efc0e9e11850_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598331",
+   "avatar": "https://img2.finalfantasyxiv.com/f/891322ccda010e6bff54efc0e9e11850_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601931",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19298,7 +19684,7 @@
    "name": "Mewwr Wewr",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/39bb175775619434b255f0c0c2305df7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598727",
+   "avatar": "https://img2.finalfantasyxiv.com/f/39bb175775619434b255f0c0c2305df7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602327",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19634,7 +20020,7 @@
    "name": "Mirea Mimlemel",
    "rank": "On vacation",
    "level": 85,
-   "avatar": "https://img2.finalfantasyxiv.com/f/2084508d543cee429d4cd6591324582f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598509",
+   "avatar": "https://img2.finalfantasyxiv.com/f/2084508d543cee429d4cd6591324582f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602109",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19761,7 +20147,7 @@
    "name": "Moji Momiji",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/8ffa1b76662842a86f006acf2cb19947_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598772",
+   "avatar": "https://img2.finalfantasyxiv.com/f/8ffa1b76662842a86f006acf2cb19947_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602372",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21491,7 +21877,7 @@
    "name": "Owlz Nithz",
    "rank": "On vacation",
    "level": 53,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7cb18843459fff16248839cd9985f758_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598612",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7cb18843459fff16248839cd9985f758_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602212",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21659,7 +22045,7 @@
    "name": "Peace Kumamon",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/c5c9a1cc41a40d57f203334d86c4122c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598694",
+   "avatar": "https://img2.finalfantasyxiv.com/f/c5c9a1cc41a40d57f203334d86c4122c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602294",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23006,7 +23392,7 @@
    "name": "Ryoshi Headhunter",
    "rank": "On vacation",
    "level": 60,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a9d10b3b4a841abcefe30ff305064ab5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598414",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a9d10b3b4a841abcefe30ff305064ab5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602014",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23048,7 +23434,7 @@
    "name": "Sakura Stellar",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/686b6716995ea851e88cc0ec403b8a25_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598445",
+   "avatar": "https://img2.finalfantasyxiv.com/f/686b6716995ea851e88cc0ec403b8a25_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602045",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23132,7 +23518,7 @@
    "name": "Samosaz Spici",
    "rank": "On vacation",
    "level": 56,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a05e9887a920e92064c205d181a99b33_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598681",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a05e9887a920e92064c205d181a99b33_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602281",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23300,7 +23686,7 @@
    "name": "Selene Raenia",
    "rank": "On vacation",
    "level": 64,
-   "avatar": "https://img2.finalfantasyxiv.com/f/15347c1cdb3ae10d34cf4c1c84607de7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598707",
+   "avatar": "https://img2.finalfantasyxiv.com/f/15347c1cdb3ae10d34cf4c1c84607de7_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602307",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23384,7 +23770,7 @@
    "name": "Sete Lunarstra",
    "rank": "On vacation",
    "level": 72,
-   "avatar": "https://img2.finalfantasyxiv.com/f/33471979a1b6dd0294d808c370f2cc2d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598609",
+   "avatar": "https://img2.finalfantasyxiv.com/f/33471979a1b6dd0294d808c370f2cc2d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602209",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23854,7 +24240,7 @@
    "name": "Spacer Kirito",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/b726aeefd616fc690e262495d648da8c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598444",
+   "avatar": "https://img2.finalfantasyxiv.com/f/b726aeefd616fc690e262495d648da8c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602044",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24829,7 +25215,7 @@
    "name": "Viperrin Stormrage",
    "rank": "On vacation",
    "level": 89,
-   "avatar": "https://img2.finalfantasyxiv.com/f/b5a4bb900d90bc007f91edbc5bfe4d9c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598491",
+   "avatar": "https://img2.finalfantasyxiv.com/f/b5a4bb900d90bc007f91edbc5bfe4d9c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602091",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25376,7 +25762,7 @@
    "name": "Xlis Alice",
    "rank": "On vacation",
    "level": 50,
-   "avatar": "https://img2.finalfantasyxiv.com/f/2a576a34bcb629d0e03201e3bc7db1d8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598502",
+   "avatar": "https://img2.finalfantasyxiv.com/f/2a576a34bcb629d0e03201e3bc7db1d8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602102",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,

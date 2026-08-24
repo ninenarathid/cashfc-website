@@ -4567,19 +4567,29 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "28127069": {
   "name": "Jim Carried",
-  "parse": null,
+  "parse": 84,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "35270049": {
   "name": "Joey Zaa",
@@ -4589,8 +4599,13 @@
   "minions": null,
   "rare": null,
   "level": 80,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "42277370": {
   "name": "Jorjae Wang",
@@ -4600,8 +4615,13 @@
   "minions": null,
   "rare": null,
   "level": 70,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "34290087": {
   "name": "Judy Hops",
@@ -4611,8 +4631,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "42342468": {
   "name": "Juhara Chiharu",

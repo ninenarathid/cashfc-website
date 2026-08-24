@@ -13380,5 +13380,116 @@
   ],
   "legacy": [],
   "_status": "ok"
+ },
+ "23901016": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "28127069": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 82,
+    "kills": 5,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 84,
+    "kills": 10,
+    "job": "Bard",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "35270049": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "42277370": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "34290087": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
  }
 }
