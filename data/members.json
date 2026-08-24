@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-08-24T20:13:33Z",
+ "generated_at": "2026-08-24T20:21:34Z",
  "fc": {
   "name": "Cafe And SHabu",
   "id": "9233505136016478451",
@@ -91,8 +91,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c1cbceeda2b4e6afab854537973f3334_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703729861",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "14th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -116,7 +115,7 @@
    "name": "Aqua Eleison",
    "rank": "Sous Chef",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/09f8d5e0b2c8fab999bac4ae59282834_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598812",
+   "avatar": "https://img2.finalfantasyxiv.com/f/09f8d5e0b2c8fab999bac4ae59282834_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602412",
    "parse": 96,
    "savage_kills": 4,
    "current_seen": true,
@@ -198,8 +197,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/09f8d5e0b2c8fab999bac4ae59282834_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1762628906",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "4th Sun of the 1st Astral Moon",
     "month": 1,
@@ -277,7 +275,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -325,7 +322,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
     "month": 1,
@@ -398,7 +394,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -424,7 +419,7 @@
    "name": "Aaaaaaa Yaaaaaa",
    "rank": "Chief de popoto",
    "level": 99,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ff3ff5e96aeb81e54ad4739cf063053f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599104",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ff3ff5e96aeb81e54ad4739cf063053f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602704",
    "parse": 47,
    "savage_kills": 0,
    "current_seen": false,
@@ -456,7 +451,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 6th Astral Moon",
     "month": 11,
@@ -480,7 +474,7 @@
    "name": "Aisu Kazimira",
    "rank": "Chief de popoto",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/bc199f5e21a698e6949869bdab10c508_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599087",
+   "avatar": "https://img2.finalfantasyxiv.com/f/bc199f5e21a698e6949869bdab10c508_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602687",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -503,7 +497,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 6th Astral Moon",
     "month": 11,
@@ -550,7 +543,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -636,8 +628,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/58d06d66abe8353d1a8a51e40c9e5df2_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1645103965",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "25th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -729,7 +720,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 5th Astral Moon",
     "month": 9,
@@ -790,8 +780,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a641044c4692a7944c97a779b46f0326_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778412230",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "31st Sun of the 4th Umbral Moon",
     "month": 8,
@@ -815,7 +804,7 @@
    "name": "Little Eevee",
    "rank": "Chief de popoto",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/b64e4c1fccb26d80979d26251ba8a604_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599107",
+   "avatar": "https://img2.finalfantasyxiv.com/f/b64e4c1fccb26d80979d26251ba8a604_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602707",
    "parse": 39,
    "savage_kills": 0,
    "current_seen": false,
@@ -850,7 +839,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 4th Astral Moon",
     "month": 7,
@@ -928,8 +916,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/29e76ca1630d6471068946ffc1a5b643_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1729881178",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "3rd Sun of the 5th Umbral Moon",
     "month": 10,
@@ -954,7 +941,7 @@
    "name": "Parker Thonhart",
    "rank": "Chief de popoto",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3dc9125badc78221a0e8e18b371b696d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598891",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3dc9125badc78221a0e8e18b371b696d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602491",
    "parse": 77,
    "savage_kills": 0,
    "current_seen": false,
@@ -1007,15 +994,50 @@
    "rare_achv": 360,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3dc9125badc78221a0e8e18b371b696d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1775383504",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "crafter": 58,
-    "pvp": 53,
-    "treasure": 28,
-    "goldsaucer": 7,
-    "relic": 146,
-    "gatherer": 16,
-    "explorer": 12
+    "crafter": {
+     "n": 58,
+     "min": 1.4,
+     "score": 90.51,
+     "share": 0.2481
+    },
+    "pvp": {
+     "n": 53,
+     "min": 0.3,
+     "score": 80.4,
+     "share": 0.1664
+    },
+    "treasure": {
+     "n": 28,
+     "min": 1.1,
+     "score": 36.82,
+     "share": 0.3146
+    },
+    "goldsaucer": {
+     "n": 7,
+     "min": 1.1,
+     "score": 9.09,
+     "share": 0.17
+    },
+    "relic": {
+     "n": 146,
+     "min": 1.2,
+     "score": 180.67,
+     "share": 0.4355
+    },
+    "gatherer": {
+     "n": 16,
+     "min": 1.3,
+     "score": 24.06,
+     "share": 0.0543
+    },
+    "explorer": {
+     "n": 12,
+     "min": 2.4,
+     "score": 14.05,
+     "share": 0.0755
+    }
    },
    "nameday": null,
    "race": null,
@@ -1025,7 +1047,15 @@
    "mount_rank": null,
    "minion_rank": null,
    "ult_achv_only": [],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "gatherer": "expert",
+    "crafter": "master",
+    "relic": "legendary",
+    "explorer": "expert",
+    "treasure": "legendary",
+    "goldsaucer": "master",
+    "pvp": "master"
+   },
    "tags": [
     "extreme",
     "achiever",
@@ -1139,8 +1169,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/59b2e567cf6fc54c80405b7bdfdd10ba_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1746969337",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "25th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -1239,7 +1268,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -1265,13 +1293,16 @@
    "name": "Akemi Rei",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/af307f1a08f4ba0caa5504e948e86431_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599070",
+   "avatar": "https://img2.finalfantasyxiv.com/f/af307f1a08f4ba0caa5504e948e86431_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602670",
    "parse": 98,
    "savage_kills": 4,
    "current_seen": true,
-   "ult_clears": 1,
+   "ult_clears": 4,
    "ult_cleared": [
-    "Futures Rewritten"
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
    ],
    "current_clears": [
     true,
@@ -1337,15 +1368,51 @@
    "rare_achv": 142,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/af307f1a08f4ba0caa5504e948e86431_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1707807378",
-   "ult_achv": null,
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "crafter": 17,
-    "gatherer": 16,
-    "seasonal": 3,
-    "relic": 71,
-    "pvp": 5,
-    "treasure": 4,
-    "explorer": 6
+    "crafter": {
+     "n": 17,
+     "min": 3.4,
+     "score": 19.69,
+     "share": 0.054
+    },
+    "gatherer": {
+     "n": 16,
+     "min": 1.9,
+     "score": 21.75,
+     "share": 0.0491
+    },
+    "seasonal": {
+     "n": 3,
+     "min": 6.2,
+     "score": 3.41
+    },
+    "relic": {
+     "n": 71,
+     "min": 5.7,
+     "score": 76.12,
+     "share": 0.1835
+    },
+    "pvp": {
+     "n": 5,
+     "min": 3.0,
+     "score": 5.97
+    },
+    "treasure": {
+     "n": 4,
+     "min": 5.0,
+     "score": 4.44,
+     "share": 0.0379
+    },
+    "explorer": {
+     "n": 6,
+     "min": 5.0,
+     "score": 6.62
+    }
    },
    "nameday": {
     "text": "5th Sun of the 3rd Astral Moon",
@@ -1358,8 +1425,15 @@
    "lala_synced": "2026-05-14",
    "mount_rank": "1477",
    "minion_rank": "1055",
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
+   "achv_tiers": {
+    "crafter": "expert",
+    "relic": "master"
+   },
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1377,7 +1451,7 @@
    "name": "Allen Crist",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/19bfd54db5888e69b8341514580cbb70_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598890",
+   "avatar": "https://img2.finalfantasyxiv.com/f/19bfd54db5888e69b8341514580cbb70_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602490",
    "parse": 18,
    "savage_kills": 0,
    "current_seen": false,
@@ -1412,7 +1486,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 4th Astral Moon",
     "month": 7,
@@ -1518,7 +1591,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 4th Astral Moon",
     "month": 7,
@@ -1544,7 +1616,7 @@
    "name": "Blue Mana",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/afb01dab428cc8430fb60666cc0a7465_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598817",
+   "avatar": "https://img2.finalfantasyxiv.com/f/afb01dab428cc8430fb60666cc0a7465_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602417",
    "parse": 97,
    "savage_kills": 4,
    "current_seen": true,
@@ -1600,7 +1672,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -1685,7 +1756,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -1784,7 +1854,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 6th Astral Moon",
     "month": 11,
@@ -1867,7 +1936,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 6th Astral Moon",
     "month": 11,
@@ -1940,7 +2008,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 2nd Astral Moon",
     "month": 3,
@@ -1966,7 +2033,7 @@
    "name": "Chu Celestial",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/4bc2f85cca54850d5d6ad591ba9b8d8e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599095",
+   "avatar": "https://img2.finalfantasyxiv.com/f/4bc2f85cca54850d5d6ad591ba9b8d8e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602695",
    "parse": 86,
    "savage_kills": 4,
    "current_seen": true,
@@ -2027,7 +2094,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -2143,7 +2209,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -2235,7 +2300,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -2315,7 +2379,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -2340,7 +2403,7 @@
    "name": "Dontae Luciano",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ef318cd4cc973718b40bd4b4dafb2c01_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599120",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ef318cd4cc973718b40bd4b4dafb2c01_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602720",
    "parse": 97,
    "savage_kills": 1,
    "current_seen": true,
@@ -2408,7 +2471,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
     "month": 1,
@@ -2497,7 +2559,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -2526,8 +2587,10 @@
    "parse": 93,
    "savage_kills": 4,
    "current_seen": true,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 1,
+   "ult_cleared": [
+    "The Epic of Alexander"
+   ],
    "current_clears": [
     true,
     true,
@@ -2583,10 +2646,20 @@
    "rare_achv": 18,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c6e5625498ec7d7f71cdbdc6e45b6a9_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1697591670",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Epic of Alexander"
+   ],
    "achv_buckets": {
-    "pvp": 1,
-    "relic": 13
+    "pvp": {
+     "n": 1,
+     "min": 6.2,
+     "score": 1.21
+    },
+    "relic": {
+     "n": 13,
+     "min": 6.2,
+     "score": 13.85
+    }
    },
    "nameday": {
     "text": "27th Sun of the 6th Astral Moon",
@@ -2599,9 +2672,12 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
+   "ult_achv_only": [
+    "The Epic of Alexander"
+   ],
    "achv_tiers": {},
    "tags": [
+    "ultimate",
     "tier-clear",
     "extreme"
    ],
@@ -2677,7 +2753,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 5th Umbral Moon",
     "month": 10,
@@ -2766,7 +2841,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 1st Astral Moon",
     "month": 1,
@@ -2826,7 +2900,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 1st Astral Moon",
     "month": 1,
@@ -2922,7 +2995,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -3011,7 +3083,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -3036,7 +3107,7 @@
    "name": "Karuma Amamiya",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3d2407d7f87f553f69f479a3834e7591_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598895",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3d2407d7f87f553f69f479a3834e7591_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602495",
    "parse": 21,
    "savage_kills": 0,
    "current_seen": false,
@@ -3070,13 +3141,34 @@
    "rare_achv": 14,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d2407d7f87f553f69f479a3834e7591_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1732919271",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "crafter": 1,
-    "relic": 4,
-    "pvp": 1,
-    "treasure": 4,
-    "explorer": 1
+    "crafter": {
+     "n": 1,
+     "min": 6.7,
+     "score": 1.17
+    },
+    "relic": {
+     "n": 4,
+     "min": 2.5,
+     "score": 4.66
+    },
+    "pvp": {
+     "n": 1,
+     "min": 8.0,
+     "score": 1.1
+    },
+    "treasure": {
+     "n": 4,
+     "min": 8.2,
+     "score": 4.16,
+     "share": 0.0355
+    },
+    "explorer": {
+     "n": 1,
+     "min": 9.0,
+     "score": 1.05
+    }
    },
    "nameday": {
     "text": "21st Sun of the 6th Astral Moon",
@@ -3125,7 +3217,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 4th Umbral Moon",
     "month": 8,
@@ -3197,7 +3288,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 5th Astral Moon",
     "month": 9,
@@ -3227,8 +3317,10 @@
    "parse": 97,
    "savage_kills": 4,
    "current_seen": true,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 1,
+   "ult_cleared": [
+    "The Epic of Alexander"
+   ],
    "current_clears": [
     true,
     true,
@@ -3304,12 +3396,30 @@
    "rare_achv": 19,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8d77ed980324a031248973cacd273ed5_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703300298",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Epic of Alexander"
+   ],
    "achv_buckets": {
-    "relic": 8,
-    "goldsaucer": 1,
-    "explorer": 2,
-    "treasure": 1
+    "relic": {
+     "n": 8,
+     "min": 4.7,
+     "score": 8.75
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 6.5,
+     "score": 1.19
+    },
+    "explorer": {
+     "n": 2,
+     "min": 2.5,
+     "score": 2.66
+    },
+    "treasure": {
+     "n": 1,
+     "min": 9.8,
+     "score": 1.01
+    }
    },
    "nameday": {
     "text": "31st Sun of the 4th Umbral Moon",
@@ -3322,9 +3432,12 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
+   "ult_achv_only": [
+    "The Epic of Alexander"
+   ],
    "achv_tiers": {},
    "tags": [
+    "ultimate",
     "tier-clear",
     "extreme"
    ],
@@ -3339,9 +3452,14 @@
    "parse": 98,
    "savage_kills": 4,
    "current_seen": true,
-   "ult_clears": 1,
+   "ult_clears": 6,
    "ult_cleared": [
-    "Futures Rewritten"
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
    ],
    "current_clears": [
     true,
@@ -3418,12 +3536,34 @@
    "rare_achv": 22,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4073dc2b14e7075bdf18a56205300d34_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1726071391",
-   "ult_achv": null,
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "gatherer": 1,
-    "explorer": 1,
-    "relic": 11,
-    "treasure": 1
+    "gatherer": {
+     "n": 1,
+     "min": 6.7,
+     "score": 1.17
+    },
+    "explorer": {
+     "n": 1,
+     "min": 8.3,
+     "score": 1.08
+    },
+    "relic": {
+     "n": 11,
+     "min": 6.5,
+     "score": 11.63
+    },
+    "treasure": {
+     "n": 1,
+     "min": 8.2,
+     "score": 1.09
+    }
    },
    "nameday": {
     "text": "17th Sun of the 2nd Umbral Moon",
@@ -3436,7 +3576,13 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
+   "ult_achv_only": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_tiers": {},
    "tags": [
     "ultimate",
@@ -3549,7 +3695,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -3658,7 +3803,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 4th Astral Moon",
     "month": 7,
@@ -3748,8 +3892,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b9b6001d2b753084e83bb5ffe6db506c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1765462099",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "15th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -3778,8 +3921,13 @@
    "parse": 78,
    "savage_kills": 3,
    "current_seen": true,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 4,
+   "ult_cleared": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "current_clears": [
     true,
     true,
@@ -3828,14 +3976,47 @@
    "rare_achv": 158,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7f2cb159bf631180f9d2620d958d7498_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787232522",
-   "ult_achv": null,
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "crafter": 44,
-    "gatherer": 24,
-    "pvp": 10,
-    "relic": 23,
-    "explorer": 22,
-    "treasure": 2
+    "crafter": {
+     "n": 44,
+     "min": 1.1,
+     "score": 56.47,
+     "share": 0.1548
+    },
+    "gatherer": {
+     "n": 24,
+     "min": 1.5,
+     "score": 30.14,
+     "share": 0.068
+    },
+    "pvp": {
+     "n": 10,
+     "min": 3.7,
+     "score": 11.86,
+     "share": 0.0245
+    },
+    "relic": {
+     "n": 23,
+     "min": 4.7,
+     "score": 25.47
+    },
+    "explorer": {
+     "n": 22,
+     "min": 1.3,
+     "score": 27.4,
+     "share": 0.1472
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.9,
+     "score": 2.06
+    }
    },
    "nameday": {
     "text": "23rd Sun of the 5th Astral Moon",
@@ -3848,9 +4029,19 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "achv_tiers": {
+    "gatherer": "expert",
+    "crafter": "master",
+    "explorer": "master"
+   },
    "tags": [
+    "ultimate",
     "prog",
     "extreme",
     "achiever",
@@ -3866,7 +4057,7 @@
    "name": "Mithra Muses",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7b15a6c0871c9ae970d9757b87db7f23_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598960",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7b15a6c0871c9ae970d9757b87db7f23_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602560",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -3889,7 +4080,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 6th Astral Moon",
     "month": 11,
@@ -3913,7 +4103,7 @@
    "name": "Mog Hikarino",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/512bde6c18cf84dfe58b5146e9a40f08_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599042",
+   "avatar": "https://img2.finalfantasyxiv.com/f/512bde6c18cf84dfe58b5146e9a40f08_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602642",
    "parse": 77,
    "savage_kills": 4,
    "current_seen": true,
@@ -3966,7 +4156,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -4062,8 +4251,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ba4d3a48327506b032214fd93776e2fd_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1697583214",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "19th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -4133,8 +4321,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ec8a555cd5e6d49299e6e6525d945423_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1754234320",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "15th Sun of the 1st Astral Moon",
     "month": 1,
@@ -4216,7 +4403,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 6th Astral Moon",
     "month": 11,
@@ -4241,7 +4427,7 @@
    "name": "Nagi Amano",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f28cff515c92ec7b0b57239b0594e705_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598858",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f28cff515c92ec7b0b57239b0594e705_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602458",
    "parse": 84,
    "savage_kills": 2,
    "current_seen": true,
@@ -4287,8 +4473,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f28cff515c92ec7b0b57239b0594e705_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701595516",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "16th Sun of the 1st Astral Moon",
     "month": 1,
@@ -4362,7 +4547,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 4th Umbral Moon",
     "month": 8,
@@ -4461,7 +4645,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 1st Astral Moon",
     "month": 1,
@@ -4553,7 +4736,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 4th Astral Moon",
     "month": 7,
@@ -4644,13 +4826,36 @@
    "rare_achv": 130,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6ce984d46d9d1bf6284f767a5985281f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1765032874",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "crafter": 16,
-    "relic": 82,
-    "explorer": 17,
-    "gatherer": 4,
-    "treasure": 1
+    "crafter": {
+     "n": 16,
+     "min": 3.0,
+     "score": 19.43,
+     "share": 0.0533
+    },
+    "relic": {
+     "n": 82,
+     "min": 4.4,
+     "score": 95.26,
+     "share": 0.2296
+    },
+    "explorer": {
+     "n": 17,
+     "min": 0.8,
+     "score": 21.6,
+     "share": 0.1161
+    },
+    "gatherer": {
+     "n": 4,
+     "min": 3.1,
+     "score": 4.82
+    },
+    "treasure": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    }
    },
    "nameday": {
     "text": "30th Sun of the 4th Astral Moon",
@@ -4664,7 +4869,11 @@
    "mount_rank": null,
    "minion_rank": null,
    "ult_achv_only": [],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "crafter": "expert",
+    "relic": "master",
+    "explorer": "expert"
+   },
    "tags": [
     "prog",
     "extreme",
@@ -4680,7 +4889,7 @@
    "name": "Rin Shiba",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/0c945d29a29b8899127ece1422d6012a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599120",
+   "avatar": "https://img2.finalfantasyxiv.com/f/0c945d29a29b8899127ece1422d6012a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602720",
    "parse": 97,
    "savage_kills": 0,
    "current_seen": false,
@@ -4736,8 +4945,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c945d29a29b8899127ece1422d6012a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1783686886",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "6th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -4819,7 +5027,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 1st Astral Moon",
     "month": 1,
@@ -4914,7 +5121,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -4998,7 +5204,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -5070,7 +5275,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 4th Astral Moon",
     "month": 7,
@@ -5095,7 +5299,7 @@
    "name": "Seville Beoulve",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d8a0ed94d93290089d93b481ec490f76_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598874",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d8a0ed94d93290089d93b481ec490f76_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602474",
    "parse": 1,
    "savage_kills": 0,
    "current_seen": false,
@@ -5129,16 +5333,55 @@
    "rare_achv": 464,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d8a0ed94d93290089d93b481ec490f76_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1786976074",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "crafter": 103,
-    "gatherer": 20,
-    "treasure": 16,
-    "pvp": 9,
-    "goldsaucer": 18,
-    "relic": 145,
-    "explorer": 10,
-    "seasonal": 1
+    "crafter": {
+     "n": 103,
+     "min": 1.4,
+     "score": 144.83,
+     "share": 0.397
+    },
+    "gatherer": {
+     "n": 20,
+     "min": 1.4,
+     "score": 25.0,
+     "share": 0.0564
+    },
+    "treasure": {
+     "n": 16,
+     "min": 2.4,
+     "score": 19.82,
+     "share": 0.1694
+    },
+    "pvp": {
+     "n": 9,
+     "min": 4.3,
+     "score": 10.54,
+     "share": 0.0218
+    },
+    "goldsaucer": {
+     "n": 18,
+     "min": 1.1,
+     "score": 23.9,
+     "share": 0.447
+    },
+    "relic": {
+     "n": 145,
+     "min": 0.7,
+     "score": 171.15,
+     "share": 0.4126
+    },
+    "explorer": {
+     "n": 10,
+     "min": 4.9,
+     "score": 11.28,
+     "share": 0.0606
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 4.6,
+     "score": 1.34
+    }
    },
    "nameday": {
     "text": "8th Sun of the 3rd Astral Moon",
@@ -5152,7 +5395,14 @@
    "mount_rank": "678",
    "minion_rank": "380",
    "ult_achv_only": [],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "gatherer": "expert",
+    "crafter": "legendary",
+    "relic": "legendary",
+    "explorer": "expert",
+    "treasure": "master",
+    "goldsaucer": "legendary"
+   },
    "tags": [
     "extreme",
     "achiever",
@@ -5189,8 +5439,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ef87fcf3e51a3d900995b472d2607e3c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1746965233",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "14th Sun of the 4th Astral Moon",
     "month": 7,
@@ -5289,8 +5538,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/85ca0e8351d35aaae91350ac05881dc8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701595967",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "24th Sun of the 4th Astral Moon",
     "month": 7,
@@ -5352,7 +5600,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 6th Umbral Moon",
     "month": 12,
@@ -5431,7 +5678,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 6th Astral Moon",
     "month": 11,
@@ -5457,7 +5703,7 @@
    "name": "Takamina Aamin",
    "rank": "Food Raider",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f4e3bdfe96f220aed972927474bf792f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598995",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f4e3bdfe96f220aed972927474bf792f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602595",
    "parse": 87,
    "savage_kills": 1,
    "current_seen": true,
@@ -5503,14 +5749,40 @@
    "rare_achv": 79,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f4e3bdfe96f220aed972927474bf792f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1777728935",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "pvp": 9,
-    "goldsaucer": 1,
-    "relic": 42,
-    "crafter": 7,
-    "explorer": 4,
-    "gatherer": 3
+    "pvp": {
+     "n": 9,
+     "min": 5.0,
+     "score": 10.56,
+     "share": 0.0219
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    },
+    "relic": {
+     "n": 42,
+     "min": 4.0,
+     "score": 49.29,
+     "share": 0.1188
+    },
+    "crafter": {
+     "n": 7,
+     "min": 1.5,
+     "score": 9.75
+    },
+    "explorer": {
+     "n": 4,
+     "min": 8.3,
+     "score": 4.15
+    },
+    "gatherer": {
+     "n": 3,
+     "min": 3.2,
+     "score": 3.64
+    }
    },
    "nameday": {
     "text": "13th Sun of the 3rd Umbral Moon",
@@ -5524,7 +5796,9 @@
    "mount_rank": "1108",
    "minion_rank": "2526",
    "ult_achv_only": [],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "relic": "expert"
+   },
    "tags": [
     "prog",
     "extreme",
@@ -5574,7 +5848,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 4th Astral Moon",
     "month": 7,
@@ -5661,7 +5934,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -5757,16 +6029,52 @@
    "rare_achv": 298,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2c720b66754800ca6fa7ef80130c8a86_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787249446",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "crafter": 11,
-    "pvp": 18,
-    "relic": 149,
-    "treasure": 11,
-    "gatherer": 8,
-    "explorer": 33,
-    "goldsaucer": 1,
-    "seasonal": 1
+    "crafter": {
+     "n": 11,
+     "min": 1.6,
+     "score": 14.24
+    },
+    "pvp": {
+     "n": 18,
+     "min": 1.7,
+     "score": 22.75,
+     "share": 0.0471
+    },
+    "relic": {
+     "n": 149,
+     "min": 0.4,
+     "score": 189.88,
+     "share": 0.4577
+    },
+    "treasure": {
+     "n": 11,
+     "min": 3.6,
+     "score": 12.99,
+     "share": 0.111
+    },
+    "gatherer": {
+     "n": 8,
+     "min": 3.2,
+     "score": 9.51
+    },
+    "explorer": {
+     "n": 33,
+     "min": 0.2,
+     "score": 50.24,
+     "share": 0.2699
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 5.4,
+     "score": 1.27
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 4.6,
+     "score": 1.34
+    }
    },
    "nameday": {
     "text": "9th Sun of the 6th Umbral Moon",
@@ -5780,7 +6088,11 @@
    "mount_rank": null,
    "minion_rank": null,
    "ult_achv_only": [],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "relic": "legendary",
+    "explorer": "legendary",
+    "treasure": "expert"
+   },
    "tags": [
     "extreme",
     "achiever",
@@ -5835,7 +6147,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -5906,7 +6217,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -5950,8 +6260,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c9720900b9444d061530d6f7f6bc1bc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701596161",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "11th Sun of the 6th Astral Moon",
     "month": 11,
@@ -5975,7 +6284,7 @@
    "name": "Vivienne Yhisa",
    "rank": "Table Cat",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d1b8f4c269ec1b8ea0e091d92c99b071_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598970",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d1b8f4c269ec1b8ea0e091d92c99b071_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602570",
    "parse": 1,
    "savage_kills": 0,
    "current_seen": false,
@@ -6009,7 +6318,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 2nd Astral Moon",
     "month": 3,
@@ -6056,7 +6364,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 6th Astral Moon",
     "month": 11,
@@ -6103,7 +6410,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -6150,7 +6456,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -6178,9 +6483,12 @@
    "parse": 6,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 1,
+   "ult_clears": 4,
    "ult_cleared": [
-    "Futures Rewritten"
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
    ],
    "current_clears": [
     false,
@@ -6208,13 +6516,42 @@
    "rare_achv": 132,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f78256581768f009cad1adf9e803c5ee_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704030443",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "relic": 37,
-    "crafter": 43,
-    "pvp": 9,
-    "seasonal": 14,
-    "explorer": 8
+    "relic": {
+     "n": 37,
+     "min": 3.4,
+     "score": 40.41,
+     "share": 0.0974
+    },
+    "crafter": {
+     "n": 43,
+     "min": 2.4,
+     "score": 55.04,
+     "share": 0.1509
+    },
+    "pvp": {
+     "n": 9,
+     "min": 3.0,
+     "score": 10.82,
+     "share": 0.0224
+    },
+    "seasonal": {
+     "n": 14,
+     "min": 6.9,
+     "score": 14.85,
+     "share": 0.1373
+    },
+    "explorer": {
+     "n": 8,
+     "min": 0.7,
+     "score": 11.98,
+     "share": 0.0644
+    }
    },
    "nameday": {
     "text": "18th Sun of the 6th Astral Moon",
@@ -6227,8 +6564,17 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "achv_tiers": {
+    "crafter": "master",
+    "relic": "expert",
+    "explorer": "expert",
+    "seasonal": "master"
+   },
    "tags": [
     "ultimate",
     "veteran",
@@ -6246,7 +6592,7 @@
    "name": "Aloha Banana",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/372c17d7642091d983f1510debce5173_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598894",
+   "avatar": "https://img2.finalfantasyxiv.com/f/372c17d7642091d983f1510debce5173_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602494",
    "parse": 72,
    "savage_kills": 0,
    "current_seen": false,
@@ -6311,7 +6657,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -6381,7 +6726,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -6409,8 +6753,10 @@
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 1,
+   "ult_cleared": [
+    "The Weapon's Refrain"
+   ],
    "current_clears": [
     false,
     false,
@@ -6428,10 +6774,20 @@
    "rare_achv": 19,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c64f37f4fcc59ff1eaf67750aac7995f_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1716023603",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "crafter": 1,
-    "relic": 15
+    "crafter": {
+     "n": 1,
+     "min": 7.7,
+     "score": 1.11
+    },
+    "relic": {
+     "n": 15,
+     "min": 5.5,
+     "score": 16.19
+    }
    },
    "nameday": {
     "text": "13th Sun of the 1st Astral Moon",
@@ -6444,10 +6800,13 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
+   "ult_achv_only": [
+    "The Weapon's Refrain"
+   ],
    "achv_tiers": {},
    "tags": [
-    "casual"
+    "ultimate",
+    "veteran"
    ],
    "last_change": "2026-08-24"
   },
@@ -6520,7 +6879,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -6549,8 +6907,10 @@
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 1,
+   "ult_cleared": [
+    "The Epic of Alexander"
+   ],
    "current_clears": [
     false,
     false,
@@ -6568,11 +6928,27 @@
    "rare_achv": 114,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e0c783390f48357edd149433ff310e4f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1766149279",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Epic of Alexander"
+   ],
    "achv_buckets": {
-    "crafter": 16,
-    "relic": 77,
-    "explorer": 1
+    "crafter": {
+     "n": 16,
+     "min": 3.4,
+     "score": 18.27,
+     "share": 0.0501
+    },
+    "relic": {
+     "n": 77,
+     "min": 4.0,
+     "score": 86.5,
+     "share": 0.2085
+    },
+    "explorer": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    }
    },
    "nameday": {
     "text": "3rd Sun of the 2nd Umbral Moon",
@@ -6585,9 +6961,16 @@
    "lala_synced": "2026-04-12",
    "mount_rank": "3610",
    "minion_rank": "1859",
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "The Epic of Alexander"
+   ],
+   "achv_tiers": {
+    "crafter": "expert",
+    "relic": "master"
+   },
    "tags": [
+    "ultimate",
+    "veteran",
     "crafter",
     "relic"
    ],
@@ -6598,7 +6981,7 @@
    "name": "Ayino Kun",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/6d9e3f70133de9016ea094a3a43422d4_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598886",
+   "avatar": "https://img2.finalfantasyxiv.com/f/6d9e3f70133de9016ea094a3a43422d4_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602486",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -6621,7 +7004,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -6668,8 +7050,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0340f34a708ad44df16184ba378ceaa4_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1650885009",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "17th Sun of the 5th Astral Moon",
     "month": 9,
@@ -6716,7 +7097,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 1st Astral Moon",
     "month": 1,
@@ -6763,7 +7143,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 1st Astral Moon",
     "month": 1,
@@ -6821,8 +7200,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/08f17a13a92aa4b670684ae41d861017_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1767540606",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "15th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -6880,8 +7258,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/806d952699df011e61e28f655ee65683_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778738487",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "20th Sun of the 1st Astral Moon",
     "month": 1,
@@ -6928,7 +7305,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -7012,8 +7388,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a3dc0e200e8e2be142e8eaf5bd564e1b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703798971",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "24th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -7037,7 +7412,7 @@
    "name": "Devy Lanta",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/910426c38442447d0653ae92d2da3a71_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598850",
+   "avatar": "https://img2.finalfantasyxiv.com/f/910426c38442447d0653ae92d2da3a71_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602450",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7060,7 +7435,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -7138,8 +7512,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7d8687975fb4b43c5afd5f3bd7865815_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703873054",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "30th Sun of the 5th Astral Moon",
     "month": 9,
@@ -7164,7 +7537,7 @@
    "name": "Elaina Celestial",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/4abb2c1a206fe98b8df30c2757e073a9_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598840",
+   "avatar": "https://img2.finalfantasyxiv.com/f/4abb2c1a206fe98b8df30c2757e073a9_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602440",
    "parse": 53,
    "savage_kills": 1,
    "current_seen": true,
@@ -7227,7 +7600,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 6th Astral Moon",
     "month": 11,
@@ -7275,7 +7647,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -7299,7 +7670,7 @@
    "name": "Elle'kuro Dean'deluca",
    "rank": "Taster",
    "level": 76,
-   "avatar": "https://img2.finalfantasyxiv.com/f/e958e294dda8461009c3cc9afad7bd88_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598856",
+   "avatar": "https://img2.finalfantasyxiv.com/f/e958e294dda8461009c3cc9afad7bd88_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602456",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7322,7 +7693,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -7369,7 +7739,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -7416,7 +7785,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 5th Astral Moon",
     "month": 9,
@@ -7440,7 +7808,7 @@
    "name": "Farcia Soluna",
    "rank": "Taster",
    "level": 97,
-   "avatar": "https://img2.finalfantasyxiv.com/f/1ca364eba596951d9ee115a598810501_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598879",
+   "avatar": "https://img2.finalfantasyxiv.com/f/1ca364eba596951d9ee115a598810501_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602479",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -7458,8 +7826,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ca364eba596951d9ee115a598810501_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1786500415",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "7th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -7506,7 +7873,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 4th Astral Moon",
     "month": 7,
@@ -7553,7 +7919,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 5th Astral Moon",
     "month": 9,
@@ -7600,7 +7965,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -7642,7 +8006,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -7700,7 +8063,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 1st Astral Moon",
     "month": 1,
@@ -7747,7 +8109,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "32nd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -7794,13 +8155,33 @@
    "rare_achv": 16,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/39deab8bac4b2a23c0e5dd0c80154f99_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1749238345",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "pvp": 4,
-    "goldsaucer": 1,
-    "seasonal": 1,
-    "relic": 5,
-    "crafter": 1
+    "pvp": {
+     "n": 4,
+     "min": 6.0,
+     "score": 4.4
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 7.7,
+     "score": 1.11
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    },
+    "relic": {
+     "n": 5,
+     "min": 8.4,
+     "score": 5.27
+    },
+    "crafter": {
+     "n": 1,
+     "min": 8.8,
+     "score": 1.06
+    }
    },
    "nameday": {
     "text": "31st Sun of the 4th Umbral Moon",
@@ -7857,9 +8238,13 @@
    "rare_achv": 2,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/87dbd30585808fc1e07bb71baf6de7e1_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703418455",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "relic": 2
+    "relic": {
+     "n": 2,
+     "min": 7.1,
+     "score": 2.25
+    }
    },
    "nameday": {
     "text": "19th Sun of the 4th Astral Moon",
@@ -7907,7 +8292,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 1st Astral Moon",
     "month": 1,
@@ -7977,7 +8361,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 6th Umbral Moon",
     "month": 12,
@@ -8024,7 +8407,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
     "month": 1,
@@ -8071,7 +8453,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "14th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -8113,7 +8494,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 1st Astral Moon",
     "month": 1,
@@ -8160,7 +8540,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -8207,7 +8586,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 4th Astral Moon",
     "month": 7,
@@ -8235,9 +8613,13 @@
    "parse": 100,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 1,
+   "ult_clears": 5,
    "ult_cleared": [
-    "Futures Rewritten"
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Weapon's Refrain"
    ],
    "current_clears": [
     false,
@@ -8285,12 +8667,35 @@
    "rare_achv": 101,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6f4071bc66462934a8026a031b6a759d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1744779042",
-   "ult_achv": null,
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "crafter": 2,
-    "relic": 40,
-    "treasure": 2,
-    "explorer": 3
+    "crafter": {
+     "n": 2,
+     "min": 9.5,
+     "score": 2.02
+    },
+    "relic": {
+     "n": 40,
+     "min": 3.7,
+     "score": 44.79,
+     "share": 0.108
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.4,
+     "score": 2.09
+    },
+    "explorer": {
+     "n": 3,
+     "min": 5.0,
+     "score": 3.45
+    }
    },
    "nameday": {
     "text": "29th Sun of the 3rd Astral Moon",
@@ -8303,8 +8708,15 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Weapon's Refrain"
+   ],
+   "achv_tiers": {
+    "relic": "expert"
+   },
    "tags": [
     "ultimate",
     "veteran",
@@ -8389,7 +8801,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 1st Astral Moon",
     "month": 1,
@@ -8449,7 +8860,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 6th Umbral Moon",
     "month": 12,
@@ -8561,7 +8971,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -8630,7 +9039,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -8654,7 +9062,7 @@
    "name": "Mizuki Hoshiko",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/490c60be60162be257869667b2e81764_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598892",
+   "avatar": "https://img2.finalfantasyxiv.com/f/490c60be60162be257869667b2e81764_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602492",
    "parse": 58,
    "savage_kills": 0,
    "current_seen": false,
@@ -8690,8 +9098,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/490c60be60162be257869667b2e81764_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701596775",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "30th Sun of the 4th Astral Moon",
     "month": 7,
@@ -8738,8 +9145,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d0d8abc2bd55031b985037a60aa39b6f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1742908214",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "23rd Sun of the 5th Umbral Moon",
     "month": 10,
@@ -8786,7 +9192,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -8833,7 +9238,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 5th Astral Moon",
     "month": 9,
@@ -8880,7 +9284,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -8939,7 +9342,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -8998,7 +9400,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 6th Astral Moon",
     "month": 11,
@@ -9022,7 +9423,7 @@
    "name": "Peonies Dunieres",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3d9b441ad00a49892f80ef85e6fb589b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598895",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3d9b441ad00a49892f80ef85e6fb589b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602495",
    "parse": 80,
    "savage_kills": 0,
    "current_seen": false,
@@ -9069,14 +9470,40 @@
    "rare_achv": 53,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d9b441ad00a49892f80ef85e6fb589b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1761753602",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "pvp": 5,
-    "relic": 27,
-    "gatherer": 1,
-    "treasure": 5,
-    "explorer": 5,
-    "crafter": 1
+    "pvp": {
+     "n": 5,
+     "min": 1.5,
+     "score": 6.27
+    },
+    "relic": {
+     "n": 27,
+     "min": 4.0,
+     "score": 30.87,
+     "share": 0.0744
+    },
+    "gatherer": {
+     "n": 1,
+     "min": 9.8,
+     "score": 1.01
+    },
+    "treasure": {
+     "n": 5,
+     "min": 4.0,
+     "score": 5.88,
+     "share": 0.0502
+    },
+    "explorer": {
+     "n": 5,
+     "min": 3.4,
+     "score": 5.57
+    },
+    "crafter": {
+     "n": 1,
+     "min": 8.8,
+     "score": 1.06
+    }
    },
    "nameday": {
     "text": "1st Sun of the 3rd Umbral Moon",
@@ -9090,7 +9517,10 @@
    "mount_rank": null,
    "minion_rank": null,
    "ult_achv_only": [],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "relic": "expert",
+    "treasure": "expert"
+   },
    "tags": [
     "extreme",
     "relic",
@@ -9103,7 +9533,7 @@
    "name": "R'bael Senkou",
    "rank": "Taster",
    "level": 91,
-   "avatar": "https://img2.finalfantasyxiv.com/f/286a2a5ed2c6a4ec6296808f295cbf82_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598911",
+   "avatar": "https://img2.finalfantasyxiv.com/f/286a2a5ed2c6a4ec6296808f295cbf82_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602511",
    "parse": 67,
    "savage_kills": 0,
    "current_seen": false,
@@ -9146,7 +9576,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 1st Astral Moon",
     "month": 1,
@@ -9170,7 +9599,7 @@
    "name": "Rainy Tempestra",
    "rank": "Taster",
    "level": 58,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f729530b5d60cdc133573675c2465350_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598858",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f729530b5d60cdc133573675c2465350_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602458",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9188,7 +9617,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -9235,10 +9663,19 @@
    "rare_achv": 31,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/930ea37f90bbe277dc0530864ef33dbf_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701594430",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "gatherer": 26,
-    "relic": 4
+    "gatherer": {
+     "n": 26,
+     "min": 2.7,
+     "score": 33.97,
+     "share": 0.0767
+    },
+    "relic": {
+     "n": 4,
+     "min": 5.3,
+     "score": 4.44
+    }
    },
    "nameday": {
     "text": "23rd Sun of the 4th Umbral Moon",
@@ -9252,7 +9689,9 @@
    "mount_rank": null,
    "minion_rank": null,
    "ult_achv_only": [],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "gatherer": "expert"
+   },
    "tags": [
     "gatherer"
    ],
@@ -9267,8 +9706,11 @@
    "parse": 90,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 2,
+   "ult_cleared": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "current_clears": [
     false,
     false,
@@ -9306,12 +9748,32 @@
    "rare_achv": 25,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e413b42da4fef3619091351f1ec2db13_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704054205",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "pvp": 7,
-    "relic": 14,
-    "explorer": 2,
-    "treasure": 1
+    "pvp": {
+     "n": 7,
+     "min": 4.5,
+     "score": 7.96,
+     "share": 0.0165
+    },
+    "relic": {
+     "n": 14,
+     "min": 7.9,
+     "score": 14.53
+    },
+    "explorer": {
+     "n": 2,
+     "min": 2.5,
+     "score": 2.66
+    },
+    "treasure": {
+     "n": 1,
+     "min": 9.8,
+     "score": 1.01
+    }
    },
    "nameday": {
     "text": "26th Sun of the 4th Astral Moon",
@@ -9324,9 +9786,14 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
+   "ult_achv_only": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_tiers": {},
    "tags": [
+    "ultimate",
+    "veteran",
     "extreme",
     "pvp"
    ],
@@ -9360,8 +9827,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d38d2e9757b81139881af795bbaa7b3b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703899951",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "16th Sun of the 1st Astral Moon",
     "month": 1,
@@ -9444,7 +9910,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 4th Astral Moon",
     "month": 7,
@@ -9504,7 +9969,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 5th Astral Moon",
     "month": 9,
@@ -9551,7 +10015,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 1st Astral Moon",
     "month": 1,
@@ -9598,7 +10061,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -9645,7 +10107,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 4th Astral Moon",
     "month": 7,
@@ -9692,7 +10153,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 6th Astral Moon",
     "month": 11,
@@ -9716,7 +10176,7 @@
    "name": "Transparent Crystal",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/86dc66b29f2b751848c2947cb5e876d0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599045",
+   "avatar": "https://img2.finalfantasyxiv.com/f/86dc66b29f2b751848c2947cb5e876d0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602645",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9739,7 +10199,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -9786,7 +10245,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 1st Astral Moon",
     "month": 1,
@@ -9810,7 +10268,7 @@
    "name": "Viiska Howl",
    "rank": "Taster",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ac7dc32e221d492b58e750f21ba4d6c3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598959",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ac7dc32e221d492b58e750f21ba4d6c3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602559",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -9833,8 +10291,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ac7dc32e221d492b58e750f21ba4d6c3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1734106408",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "31st Sun of the 5th Umbral Moon",
     "month": 10,
@@ -9914,7 +10371,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -9963,7 +10419,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 6th Astral Moon",
     "month": 11,
@@ -9987,7 +10442,7 @@
    "name": "Ardthur Greywaters",
    "rank": "Chef Toumant",
    "level": 32,
-   "avatar": "https://img2.finalfantasyxiv.com/f/8f17aa186b22e25118b38c79132b48ae_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598886",
+   "avatar": "https://img2.finalfantasyxiv.com/f/8f17aa186b22e25118b38c79132b48ae_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602486",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10005,7 +10460,7 @@
    "rare_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8f17aa186b22e25118b38c79132b48ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778600107",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {},
    "nameday": {
     "text": "23rd Sun of the 2nd Umbral Moon",
@@ -10048,7 +10503,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 4th Astral Moon",
     "month": 7,
@@ -10095,7 +10549,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 1st Astral Moon",
     "month": 1,
@@ -10137,7 +10590,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 4th Astral Moon",
     "month": 7,
@@ -10161,7 +10613,7 @@
    "name": "Lree Thai",
    "rank": "Chef Toumant",
    "level": 64,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d21d5312f60bc6e131801a5cdcb75fc5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598892",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d21d5312f60bc6e131801a5cdcb75fc5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602492",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10184,7 +10636,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -10226,7 +10677,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -10302,8 +10752,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5f92d976766c91a44e9029df79687b75_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1737667176",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "14th Sun of the 4th Astral Moon",
     "month": 7,
@@ -10345,7 +10794,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 1st Astral Moon",
     "month": 1,
@@ -10387,7 +10835,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 4th Astral Moon",
     "month": 7,
@@ -10429,7 +10876,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 1st Astral Moon",
     "month": 1,
@@ -10476,7 +10922,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": null,
    "race": null,
    "clan": null,
@@ -10514,7 +10959,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -10561,7 +11005,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 4th Umbral Moon",
     "month": 8,
@@ -10619,7 +11062,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 1st Astral Moon",
     "month": 1,
@@ -10686,7 +11128,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -10733,7 +11174,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 6th Astral Moon",
     "month": 11,
@@ -10757,7 +11197,7 @@
    "name": "Aem Sejuro",
    "rank": "On vacation",
    "level": 93,
-   "avatar": "https://img2.finalfantasyxiv.com/f/1003f4cd71839c35363531245fdc545d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598957",
+   "avatar": "https://img2.finalfantasyxiv.com/f/1003f4cd71839c35363531245fdc545d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602557",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -10780,7 +11220,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -10827,7 +11266,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -10874,7 +11312,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 4th Astral Moon",
     "month": 7,
@@ -10932,8 +11369,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/24ef3dda559fcb61bd4725be7763b492_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703571465",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "28th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -10980,7 +11416,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 4th Astral Moon",
     "month": 7,
@@ -11027,7 +11462,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 4th Umbral Moon",
     "month": 8,
@@ -11074,7 +11508,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -11121,7 +11554,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 4th Astral Moon",
     "month": 7,
@@ -11168,7 +11600,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -11215,7 +11646,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -11262,7 +11692,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 1st Astral Moon",
     "month": 1,
@@ -11309,8 +11738,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c5ba690e39670e4184b9ec97b60ede79_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1730631377",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "24th Sun of the 5th Astral Moon",
     "month": 9,
@@ -11357,7 +11785,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 2nd Astral Moon",
     "month": 3,
@@ -11404,7 +11831,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -11451,13 +11877,33 @@
    "rare_achv": 15,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a11139bf5f4316dc13b69b56e28b1efc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703129642",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "pvp": 2,
-    "goldsaucer": 2,
-    "relic": 7,
-    "seasonal": 1,
-    "explorer": 1
+    "pvp": {
+     "n": 2,
+     "min": 9.2,
+     "score": 2.06
+    },
+    "goldsaucer": {
+     "n": 2,
+     "min": 7.7,
+     "score": 2.16
+    },
+    "relic": {
+     "n": 7,
+     "min": 6.2,
+     "score": 7.56
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    },
+    "explorer": {
+     "n": 1,
+     "min": 8.8,
+     "score": 1.06
+    }
    },
    "nameday": {
     "text": "3rd Sun of the 2nd Astral Moon",
@@ -11482,7 +11928,7 @@
    "name": "Alternative Zero",
    "rank": "On vacation",
    "level": 41,
-   "avatar": "https://img2.finalfantasyxiv.com/f/765f778ea9d513f98c167085cbaa3496_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599111",
+   "avatar": "https://img2.finalfantasyxiv.com/f/765f778ea9d513f98c167085cbaa3496_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602711",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -11505,7 +11951,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 1st Astral Moon",
     "month": 1,
@@ -11552,8 +11997,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0e6145c42c527756d9bb54e6f14ce4b7_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703789964",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "17th Sun of the 1st Astral Moon",
     "month": 1,
@@ -11600,7 +12044,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -11647,7 +12090,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -11694,7 +12136,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -11741,7 +12182,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 1st Astral Moon",
     "month": 1,
@@ -11819,7 +12259,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -11848,8 +12287,11 @@
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 2,
+   "ult_cleared": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "current_clears": [
     false,
     false,
@@ -11867,15 +12309,49 @@
    "rare_achv": 94,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5e91cc072904f9949402422678f80bef_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703939823",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "crafter": 41,
-    "goldsaucer": 5,
-    "pvp": 3,
-    "relic": 8,
-    "gatherer": 5,
-    "treasure": 4,
-    "seasonal": 3
+    "crafter": {
+     "n": 41,
+     "min": 1.0,
+     "score": 54.58,
+     "share": 0.1496
+    },
+    "goldsaucer": {
+     "n": 5,
+     "min": 2.8,
+     "score": 6.53,
+     "share": 0.1221
+    },
+    "pvp": {
+     "n": 3,
+     "min": 5.1,
+     "score": 3.6
+    },
+    "relic": {
+     "n": 8,
+     "min": 3.5,
+     "score": 8.78
+    },
+    "gatherer": {
+     "n": 5,
+     "min": 3.6,
+     "score": 6.71
+    },
+    "treasure": {
+     "n": 4,
+     "min": 4.4,
+     "score": 4.56,
+     "share": 0.039
+    },
+    "seasonal": {
+     "n": 3,
+     "min": 8.6,
+     "score": 3.07
+    }
    },
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
@@ -11888,9 +12364,17 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "achv_tiers": {
+    "crafter": "master",
+    "goldsaucer": "master"
+   },
    "tags": [
+    "ultimate",
+    "veteran",
     "crafter",
     "treasure",
     "goldsaucer"
@@ -11925,7 +12409,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 6th Astral Moon",
     "month": 11,
@@ -11972,7 +12455,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -12019,7 +12501,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -12043,7 +12524,7 @@
    "name": "Ascaris Altz'",
    "rank": "On vacation",
    "level": 57,
-   "avatar": "https://img2.finalfantasyxiv.com/f/85dabf96a0dea0826b60bd5950334682_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
+   "avatar": "https://img2.finalfantasyxiv.com/f/85dabf96a0dea0826b60bd5950334682_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602566",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12066,7 +12547,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 1st Astral Moon",
     "month": 1,
@@ -12113,8 +12593,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/750af38da2a99d8584b5bc21539a1e85_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1709281333",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "20th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -12161,7 +12640,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -12208,8 +12686,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/33f97cf5f574e278f8efea3590cce8f7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736169820",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "29th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -12256,7 +12733,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
     "month": 1,
@@ -12280,7 +12756,7 @@
    "name": "Avoiding Puddle",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/efe5154869a31e008d71084e1aec9215_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599063",
+   "avatar": "https://img2.finalfantasyxiv.com/f/efe5154869a31e008d71084e1aec9215_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602663",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -12303,7 +12779,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -12350,7 +12825,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -12397,7 +12871,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -12444,13 +12917,33 @@
    "rare_achv": 15,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7663d112cd640b3742b69dcae9ffaef8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703865848",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "pvp": 1,
-    "relic": 2,
-    "explorer": 2,
-    "crafter": 2,
-    "treasure": 2
+    "pvp": {
+     "n": 1,
+     "min": 8.0,
+     "score": 1.1
+    },
+    "relic": {
+     "n": 2,
+     "min": 9.2,
+     "score": 2.04
+    },
+    "explorer": {
+     "n": 2,
+     "min": 2.5,
+     "score": 2.66
+    },
+    "crafter": {
+     "n": 2,
+     "min": 7.4,
+     "score": 2.13
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.2,
+     "score": 2.11
+    }
    },
    "nameday": {
     "text": "8th Sun of the 6th Astral Moon",
@@ -12498,11 +12991,23 @@
    "rare_achv": 7,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18e6c7bc63ee5dd425013a5f12c7666a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704031274",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "crafter": 1,
-    "relic": 3,
-    "treasure": 2
+    "crafter": {
+     "n": 1,
+     "min": 9.2,
+     "score": 1.04
+    },
+    "relic": {
+     "n": 3,
+     "min": 8.8,
+     "score": 3.06
+    },
+    "treasure": {
+     "n": 2,
+     "min": 5.4,
+     "score": 2.35
+    }
    },
    "nameday": {
     "text": "27th Sun of the 5th Umbral Moon",
@@ -12579,7 +13084,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 1st Astral Moon",
     "month": 1,
@@ -12626,7 +13130,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 1st Astral Moon",
     "month": 1,
@@ -12673,7 +13176,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "14th Sun of the 4th Astral Moon",
     "month": 7,
@@ -12715,7 +13217,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 5th Astral Moon",
     "month": 9,
@@ -12774,7 +13275,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 1st Astral Moon",
     "month": 1,
@@ -12798,7 +13298,7 @@
    "name": "Billy Najah",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/bb41a4378844be9e853e42e27bd88cd0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598976",
+   "avatar": "https://img2.finalfantasyxiv.com/f/bb41a4378844be9e853e42e27bd88cd0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602576",
    "parse": 64,
    "savage_kills": 0,
    "current_seen": false,
@@ -12850,7 +13350,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "32nd Sun of the 1st Astral Moon",
     "month": 1,
@@ -12919,7 +13418,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -12966,7 +13464,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 1st Astral Moon",
     "month": 1,
@@ -13033,7 +13530,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 1st Astral Moon",
     "month": 1,
@@ -13057,7 +13553,7 @@
    "name": "Boyekon Redroof",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/838d5febf23447f2c981eb4488159380_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
+   "avatar": "https://img2.finalfantasyxiv.com/f/838d5febf23447f2c981eb4488159380_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602697",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13080,7 +13576,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -13127,7 +13622,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 5th Astral Moon",
     "month": 9,
@@ -13174,7 +13668,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 1st Astral Moon",
     "month": 1,
@@ -13198,7 +13691,7 @@
    "name": "Bunnypx Wild",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/290e9a0afb389fc00e989953f86f508c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
+   "avatar": "https://img2.finalfantasyxiv.com/f/290e9a0afb389fc00e989953f86f508c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602697",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13221,7 +13714,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 1st Astral Moon",
     "month": 1,
@@ -13268,7 +13760,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -13292,7 +13783,7 @@
    "name": "Cannes Ferragamo",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ea29340b30cbc1905a1c26ff1a944d00_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598984",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ea29340b30cbc1905a1c26ff1a944d00_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602584",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13315,7 +13806,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 3rd Astral Moon",
     "month": 5,
@@ -13362,7 +13852,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 4th Umbral Moon",
     "month": 8,
@@ -13409,7 +13898,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -13467,7 +13955,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -13491,7 +13978,7 @@
    "name": "Chicha Chichi",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/920c64c912932f8422d1535629dbb9ba_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599121",
+   "avatar": "https://img2.finalfantasyxiv.com/f/920c64c912932f8422d1535629dbb9ba_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602721",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13514,7 +14001,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -13561,7 +14047,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 1st Astral Moon",
     "month": 1,
@@ -13608,7 +14093,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 1st Astral Moon",
     "month": 1,
@@ -13655,7 +14139,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "32nd Sun of the 1st Astral Moon",
     "month": 1,
@@ -13702,7 +14185,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -13760,7 +14242,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 1st Astral Moon",
     "month": 1,
@@ -13807,7 +14288,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -13854,8 +14334,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ac0287a5eecd9b2062aeafdc686deb7a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1644734658",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "26th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -13902,7 +14381,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 4th Astral Moon",
     "month": 7,
@@ -13926,7 +14404,7 @@
    "name": "Cygnus Stellar",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/e5545db973debf156b1036d2ff2f7bd5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598999",
+   "avatar": "https://img2.finalfantasyxiv.com/f/e5545db973debf156b1036d2ff2f7bd5_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602599",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -13949,7 +14427,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 1st Astral Moon",
     "month": 1,
@@ -13996,7 +14473,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 2nd Astral Moon",
     "month": 3,
@@ -14043,8 +14519,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/322a9dd440f9e963b96017c2f25f8db5_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703582463",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "19th Sun of the 5th Astral Moon",
     "month": 9,
@@ -14091,7 +14566,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -14138,7 +14612,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 1st Astral Moon",
     "month": 1,
@@ -14185,7 +14658,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -14232,8 +14704,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a411f90cbf358f819ec3da02e27318ac_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1769691671",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "1st Sun of the 4th Astral Moon",
     "month": 7,
@@ -14311,7 +14782,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 1st Astral Moon",
     "month": 1,
@@ -14336,7 +14806,7 @@
    "name": "Duke Kaboom",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7d8a5b9dedf7e35e75a0846576473b92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598967",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7d8a5b9dedf7e35e75a0846576473b92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602567",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -14359,7 +14829,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 6th Astral Moon",
     "month": 11,
@@ -14426,14 +14895,38 @@
    "rare_achv": 31,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a48e439fdb4d1991f727cf526fa6ea5c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736059605",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "relic": 13,
-    "pvp": 1,
-    "gatherer": 9,
-    "explorer": 2,
-    "goldsaucer": 1,
-    "treasure": 1
+    "relic": {
+     "n": 13,
+     "min": 8.0,
+     "score": 13.31
+    },
+    "pvp": {
+     "n": 1,
+     "min": 9.2,
+     "score": 1.04
+    },
+    "gatherer": {
+     "n": 9,
+     "min": 2.1,
+     "score": 10.56
+    },
+    "explorer": {
+     "n": 2,
+     "min": 8.6,
+     "score": 2.13
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 4.1,
+     "score": 1.39
+    },
+    "treasure": {
+     "n": 1,
+     "min": 9.5,
+     "score": 1.02
+    }
    },
    "nameday": {
     "text": "21st Sun of the 4th Umbral Moon",
@@ -14481,10 +14974,19 @@
    "rare_achv": 16,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7410b6dfe82577726d12ffa13933a6c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704037472",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "gatherer": 6,
-    "seasonal": 10
+    "gatherer": {
+     "n": 6,
+     "min": 2.4,
+     "score": 7.82
+    },
+    "seasonal": {
+     "n": 10,
+     "min": 5.8,
+     "score": 11.09,
+     "share": 0.1026
+    }
    },
    "nameday": {
     "text": "11th Sun of the 4th Umbral Moon",
@@ -14498,7 +15000,9 @@
    "mount_rank": "7294",
    "minion_rank": "7408",
    "ult_achv_only": [],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "seasonal": "expert"
+   },
    "tags": [
     "seasonal"
    ],
@@ -14532,7 +15036,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 1st Astral Moon",
     "month": 1,
@@ -14579,7 +15082,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 4th Astral Moon",
     "month": 7,
@@ -14626,7 +15128,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 2nd Astral Moon",
     "month": 3,
@@ -14673,7 +15174,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 1st Astral Moon",
     "month": 1,
@@ -14720,8 +15220,7 @@
    "rare_achv": null,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/797e325f071d5fb1f52b36bee6c3c6ce_8f82f937943b6baf4c565020d5eba0ccfl0_640x873.jpg?1593744816",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "23rd Sun of the 1st Umbral Moon",
     "month": 2,
@@ -14780,8 +15279,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bc065c4481047db81446fc469c6689fd_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702413547",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "7th Sun of the 6th Astral Moon",
     "month": 11,
@@ -14841,7 +15339,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -14908,7 +15405,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -14955,7 +15451,7 @@
    "rare_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b4bef559b5012b3fa3c6be99688d23dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703389003",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {},
    "nameday": {
     "text": "21st Sun of the 6th Umbral Moon",
@@ -15003,7 +15499,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 6th Astral Moon",
     "month": 11,
@@ -15061,7 +15556,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -15086,7 +15580,7 @@
    "name": "Entprise Yakult",
    "rank": "On vacation",
    "level": 85,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d54ad8e04184693b23130333ab58ddb6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599080",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d54ad8e04184693b23130333ab58ddb6_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602680",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15109,7 +15603,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 1st Astral Moon",
     "month": 1,
@@ -15156,7 +15649,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -15180,13 +15672,17 @@
    "name": "Epicenter Eorzea",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f858f2e55ccefbecee38f46f46e76a60_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598793",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f858f2e55ccefbecee38f46f46e76a60_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602393",
    "parse": 95,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 1,
+   "ult_clears": 5,
    "ult_cleared": [
-    "The Omega Protocol"
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
    ],
    "current_clears": [
     false,
@@ -15233,14 +15729,47 @@
    "rare_achv": 70,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f858f2e55ccefbecee38f46f46e76a60_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704054309",
-   "ult_achv": null,
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "seasonal": 24,
-    "treasure": 5,
-    "goldsaucer": 3,
-    "relic": 14,
-    "explorer": 7,
-    "pvp": 5
+    "seasonal": {
+     "n": 24,
+     "min": 4.2,
+     "score": 27.13,
+     "share": 0.2509
+    },
+    "treasure": {
+     "n": 5,
+     "min": 5.2,
+     "score": 5.43,
+     "share": 0.0464
+    },
+    "goldsaucer": {
+     "n": 3,
+     "min": 2.4,
+     "score": 3.87
+    },
+    "relic": {
+     "n": 14,
+     "min": 2.8,
+     "score": 15.28
+    },
+    "explorer": {
+     "n": 7,
+     "min": 1.2,
+     "score": 10.07,
+     "share": 0.0541
+    },
+    "pvp": {
+     "n": 5,
+     "min": 3.1,
+     "score": 6.17
+    }
    },
    "nameday": {
     "text": "29th Sun of the 4th Umbral Moon",
@@ -15253,8 +15782,16 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "achv_tiers": {
+    "explorer": "expert",
+    "seasonal": "legendary"
+   },
    "tags": [
     "ultimate",
     "veteran",
@@ -15293,7 +15830,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 1st Astral Moon",
     "month": 1,
@@ -15340,7 +15876,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
     "month": 1,
@@ -15387,7 +15922,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -15411,7 +15945,7 @@
    "name": "Faelix Frosty",
    "rank": "On vacation",
    "level": 84,
-   "avatar": "https://img2.finalfantasyxiv.com/f/8b9e09d031bf30a8f0bb8739cc435a0f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599140",
+   "avatar": "https://img2.finalfantasyxiv.com/f/8b9e09d031bf30a8f0bb8739cc435a0f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602740",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15434,8 +15968,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b9e09d031bf30a8f0bb8739cc435a0f_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704602215",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "24th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -15459,7 +15992,7 @@
    "name": "Faerina Frosty",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/60822ca9387221b2624115fb247e1b72_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598989",
+   "avatar": "https://img2.finalfantasyxiv.com/f/60822ca9387221b2624115fb247e1b72_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602589",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15482,7 +16015,7 @@
    "rare_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/60822ca9387221b2624115fb247e1b72_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1716470189",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {},
    "nameday": {
     "text": "29th Sun of the 4th Astral Moon",
@@ -15530,7 +16063,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -15577,8 +16109,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0ea586542c7661b41ef66ee205543b00_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701595632",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "4th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -15625,7 +16156,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -15672,7 +16202,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 5th Astral Moon",
     "month": 9,
@@ -15741,7 +16270,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 2nd Astral Moon",
     "month": 3,
@@ -15790,7 +16318,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -15837,7 +16364,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 5th Astral Moon",
     "month": 9,
@@ -15926,8 +16452,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/11665c02a72e7ac31b031faab4fb9a0b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1732277517",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": null,
    "race": null,
    "clan": null,
@@ -15948,7 +16473,7 @@
    "name": "Furfur Albadia",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/0ae1e360ff3e2e23f90343797e495256_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598977",
+   "avatar": "https://img2.finalfantasyxiv.com/f/0ae1e360ff3e2e23f90343797e495256_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602577",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -15966,8 +16491,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0ae1e360ff3e2e23f90343797e495256_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703406304",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": null,
     "month": null,
@@ -16014,7 +16538,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 5th Astral Moon",
     "month": 9,
@@ -16061,7 +16584,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -16108,7 +16630,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 5th Astral Moon",
     "month": 9,
@@ -16155,7 +16676,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 6th Astral Moon",
     "month": 11,
@@ -16179,7 +16699,7 @@
    "name": "Gramp Lessgooo",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/0c4844de389cacdf864bbc34add04daa_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598953",
+   "avatar": "https://img2.finalfantasyxiv.com/f/0c4844de389cacdf864bbc34add04daa_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602553",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16202,8 +16722,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c4844de389cacdf864bbc34add04daa_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1780040965",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "24th Sun of the 6th Astral Moon",
     "month": 11,
@@ -16227,7 +16746,7 @@
    "name": "Grimnier Von'colven",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/fc2b12108f3979e656ecb88c7495bb8a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
+   "avatar": "https://img2.finalfantasyxiv.com/f/fc2b12108f3979e656ecb88c7495bb8a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602566",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16250,7 +16769,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -16297,8 +16815,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bb9d0163bc8460275e54d7ce1a7f74a3_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1711118975",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "31st Sun of the 1st Astral Moon",
     "month": 1,
@@ -16375,7 +16892,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -16422,7 +16938,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -16481,7 +16996,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -16529,16 +17043,48 @@
    "rare_achv": 50,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3e60e109d718755ac3f503d6dee9c348_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1744478373",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "crafter": 5,
-    "gatherer": 4,
-    "goldsaucer": 3,
-    "treasure": 1,
-    "seasonal": 7,
-    "relic": 17,
-    "explorer": 2,
-    "pvp": 3
+    "crafter": {
+     "n": 5,
+     "min": 5.4,
+     "score": 5.51
+    },
+    "gatherer": {
+     "n": 4,
+     "min": 4.4,
+     "score": 4.98
+    },
+    "goldsaucer": {
+     "n": 3,
+     "min": 5.0,
+     "score": 3.49
+    },
+    "treasure": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    },
+    "seasonal": {
+     "n": 7,
+     "min": 6.2,
+     "score": 7.59
+    },
+    "relic": {
+     "n": 17,
+     "min": 3.2,
+     "score": 18.76
+    },
+    "explorer": {
+     "n": 2,
+     "min": 4.8,
+     "score": 2.46
+    },
+    "pvp": {
+     "n": 3,
+     "min": 5.0,
+     "score": 3.69
+    }
    },
    "nameday": {
     "text": "10th Sun of the 5th Astral Moon",
@@ -16586,7 +17132,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 6th Astral Moon",
     "month": 11,
@@ -16633,7 +17178,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 6th Umbral Moon",
     "month": 12,
@@ -16680,7 +17224,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 4th Astral Moon",
     "month": 7,
@@ -16727,7 +17270,7 @@
    "rare_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6dd404c36e4859dff8175166a0c643ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736399680",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {},
    "nameday": {
     "text": "21st Sun of the 6th Astral Moon",
@@ -16752,7 +17295,7 @@
    "name": "Haruko Sho",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/fda41f8f260c82264e962ac44ada6573_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598967",
+   "avatar": "https://img2.finalfantasyxiv.com/f/fda41f8f260c82264e962ac44ada6573_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602567",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16775,7 +17318,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -16799,7 +17341,7 @@
    "name": "Helga Holybringer",
    "rank": "On vacation",
    "level": 78,
-   "avatar": "https://img2.finalfantasyxiv.com/f/18612c4e2e3549912194b2b4ee33d619_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
+   "avatar": "https://img2.finalfantasyxiv.com/f/18612c4e2e3549912194b2b4ee33d619_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602697",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16822,7 +17364,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 3rd Astral Moon",
     "month": 5,
@@ -16846,7 +17387,7 @@
    "name": "Helotte Phantompray",
    "rank": "On vacation",
    "level": 54,
-   "avatar": "https://img2.finalfantasyxiv.com/f/afab20f698e9aa0d8c17762685a6a1c0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
+   "avatar": "https://img2.finalfantasyxiv.com/f/afab20f698e9aa0d8c17762685a6a1c0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602697",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -16869,7 +17410,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -16916,7 +17456,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -16963,7 +17502,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 6th Astral Moon",
     "month": 11,
@@ -17010,7 +17548,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 6th Astral Moon",
     "month": 11,
@@ -17034,7 +17571,7 @@
    "name": "Idiosy Glorfindel",
    "rank": "On vacation",
    "level": 47,
-   "avatar": "https://img2.finalfantasyxiv.com/f/578f8e6890ae70f80f4367a2a5738e53_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599054",
+   "avatar": "https://img2.finalfantasyxiv.com/f/578f8e6890ae70f80f4367a2a5738e53_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602654",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -17057,7 +17594,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 1st Astral Moon",
     "month": 1,
@@ -17081,7 +17617,7 @@
    "name": "Immundus Vitae",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/888cd6d2f1b3d4df706d22a648c0a12f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
+   "avatar": "https://img2.finalfantasyxiv.com/f/888cd6d2f1b3d4df706d22a648c0a12f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602697",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -17104,8 +17640,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/888cd6d2f1b3d4df706d22a648c0a12f_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704002543",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "13th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -17152,7 +17687,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -17176,7 +17710,7 @@
    "name": "Ishfhiyrtt Ntr",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/cb19bd1f515b092e220bd868909414a3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598976",
+   "avatar": "https://img2.finalfantasyxiv.com/f/cb19bd1f515b092e220bd868909414a3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602576",
    "parse": 90,
    "savage_kills": 0,
    "current_seen": false,
@@ -17219,7 +17753,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 5th Astral Moon",
     "month": 9,
@@ -17266,7 +17799,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 1st Astral Moon",
     "month": 1,
@@ -17313,7 +17845,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 4th Astral Moon",
     "month": 7,
@@ -17360,8 +17891,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7fa870a96d18a8c035d7dcab89da72f3_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702172279",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "8th Sun of the 1st Astral Moon",
     "month": 1,
@@ -17408,7 +17938,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -17466,7 +17995,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "14th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -17491,7 +18019,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/98bc8103ccf7a4eecfbab604479d4a65_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599813",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -17508,12 +18035,12 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 4th Astral Moon",
     "month": 7,
@@ -17538,7 +18065,6 @@
    "rank": "On vacation",
    "level": 100,
    "avatar": "https://img2.finalfantasyxiv.com/f/4a0db2d1daed98eccf0cf4aba5e2a35d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600256",
-   "fflogs": "ok",
    "parse": 84,
    "savage_kills": 0,
    "current_seen": false,
@@ -17575,12 +18101,12 @@
     "hardest": "extreme"
    },
    "legacy_clears": 0,
+   "fflogs": "ok",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -17605,7 +18131,6 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/c2bcc232c105bdf6755c479c4ad34e52_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601589",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -17622,12 +18147,12 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -17652,7 +18177,6 @@
    "rank": "On vacation",
    "level": 70,
    "avatar": "https://img2.finalfantasyxiv.com/f/7adffa400ecb88ad336bd3ad87191d92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787601763",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -17669,12 +18193,12 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 4th Astral Moon",
     "month": 7,
@@ -17699,7 +18223,6 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/cc9499f38834e5b6a2514455e0f5d158_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600350",
-   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
@@ -17716,12 +18239,12 @@
    "job_scores": {},
    "job_top": null,
    "legacy_clears": 0,
+   "fflogs": "none",
    "mounts": null,
    "minions": null,
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 1st Astral Moon",
     "month": 1,
@@ -17745,14 +18268,19 @@
    "name": "Juhara Chiharu",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/815b8a5cfd5700152e56c623d22907d1_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599017",
-   "fflogs": "pending",
+   "avatar": "https://img2.finalfantasyxiv.com/f/815b8a5cfd5700152e56c623d22907d1_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602617",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17763,7 +18291,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -17780,7 +18307,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 18278635,
@@ -17788,13 +18315,18 @@
    "rank": "On vacation",
    "level": 90,
    "avatar": "https://img2.finalfantasyxiv.com/f/3d70eb238b1eb11c59cc75373a9dc733_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787600536",
-   "fflogs": "pending",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17805,7 +18337,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -17822,7 +18353,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 20014912,
@@ -17830,24 +18361,53 @@
    "rank": "On vacation",
    "level": 80,
    "avatar": "https://img2.finalfantasyxiv.com/f/fd4a55456a1aa7fe3eb3c9f5ef104e29_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599410",
-   "fflogs": "pending",
-   "parse": null,
+   "fflogs": "ok",
+   "parse": 98,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
-   "job_scores": {},
-   "job_top": null,
-   "legacy_clears": 0,
+   "job_scores": {
+    "Scholar": {
+     "fights": 1,
+     "kills": 22,
+     "parse": 100.0,
+     "score": 66.4,
+     "tier": "master",
+     "hardest": "legacy"
+    },
+    "Astrologian": {
+     "fights": 3,
+     "kills": 51,
+     "parse": 93.3,
+     "score": 81.1,
+     "tier": "legendary",
+     "hardest": "legacy"
+    }
+   },
+   "job_top": {
+    "job": "Astrologian",
+    "fights": 3,
+    "kills": 51,
+    "parse": 93.3,
+    "score": 81.1,
+    "tier": "legendary",
+    "hardest": "legacy"
+   },
+   "legacy_clears": 4,
    "mounts": null,
    "minions": null,
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 5th Astral Moon",
     "month": 9,
@@ -17862,9 +18422,9 @@
    "ult_achv_only": [],
    "achv_tiers": {},
    "tags": [
-    "unknown"
+    "veteran"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 31012021,
@@ -17872,13 +18432,18 @@
    "rank": "On vacation",
    "level": 54,
    "avatar": "https://img2.finalfantasyxiv.com/f/1d7938e51ad61b6e0709798e23d5065f_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599619",
-   "fflogs": "pending",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17889,7 +18454,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -17906,21 +18470,26 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 31923628,
    "name": "Kakigori Kyrielight",
    "rank": "On vacation",
    "level": 95,
-   "avatar": "https://img2.finalfantasyxiv.com/f/6baa32aa6877192635f3b78dd436d88c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599027",
-   "fflogs": "pending",
+   "avatar": "https://img2.finalfantasyxiv.com/f/6baa32aa6877192635f3b78dd436d88c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602627",
+   "fflogs": "none",
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
    "ult_clears": 0,
    "ult_cleared": [],
-   "current_clears": null,
+   "current_clears": [
+    false,
+    false,
+    false,
+    false
+   ],
    "ex_cleared": [],
    "ex_kills": 0,
    "job_scores": {},
@@ -17931,7 +18500,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 6th Astral Moon",
     "month": 11,
@@ -17948,7 +18516,7 @@
    "tags": [
     "unknown"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 57387464,
@@ -17973,7 +18541,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "14th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -18015,7 +18582,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -18057,7 +18623,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -18099,7 +18664,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -18123,7 +18687,7 @@
    "name": "Kazumi Masa",
    "rank": "On vacation",
    "level": 82,
-   "avatar": "https://img2.finalfantasyxiv.com/f/932bad7c0c2115522eaae3d1b8143d1b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598930",
+   "avatar": "https://img2.finalfantasyxiv.com/f/932bad7c0c2115522eaae3d1b8143d1b_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602530",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18141,7 +18705,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 1st Astral Moon",
     "month": 1,
@@ -18183,7 +18746,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 6th Astral Moon",
     "month": 11,
@@ -18225,7 +18787,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 5th Astral Moon",
     "month": 9,
@@ -18267,7 +18828,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -18309,7 +18869,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 1st Astral Moon",
     "month": 1,
@@ -18333,7 +18892,7 @@
    "name": "Kirin Rin",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/183d627e4a3080e217b6aa013a208703_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598970",
+   "avatar": "https://img2.finalfantasyxiv.com/f/183d627e4a3080e217b6aa013a208703_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602570",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18351,7 +18910,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "14th Sun of the 1st Astral Moon",
     "month": 1,
@@ -18375,7 +18933,7 @@
    "name": "Kisei Ryusekai",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/e39993c216d738e46ac956ef8a6cffb2_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
+   "avatar": "https://img2.finalfantasyxiv.com/f/e39993c216d738e46ac956ef8a6cffb2_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602566",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18393,7 +18951,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 5th Astral Moon",
     "month": 9,
@@ -18435,7 +18992,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 5th Astral Moon",
     "month": 9,
@@ -18477,7 +19033,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 6th Astral Moon",
     "month": 11,
@@ -18501,7 +19056,7 @@
    "name": "Kouro Moro",
    "rank": "On vacation",
    "level": 15,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a4adc54e9c800c0fe169a728567d0d08_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598802",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a4adc54e9c800c0fe169a728567d0d08_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602402",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18519,7 +19074,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 1st Astral Moon",
     "month": 1,
@@ -18561,7 +19115,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -18603,7 +19156,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -18645,7 +19197,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -18687,7 +19238,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 1st Astral Moon",
     "month": 1,
@@ -18711,7 +19261,7 @@
    "name": "Leonest Lionheart",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3c9d80cff9ccabee966a2de592991a96_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598984",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3c9d80cff9ccabee966a2de592991a96_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602584",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18729,7 +19279,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 4th Umbral Moon",
     "month": 8,
@@ -18771,7 +19320,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -18813,7 +19361,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -18837,7 +19384,7 @@
    "name": "Lime Xerxes",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a998089a9659b882bf61a1afcc2d767e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598964",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a998089a9659b882bf61a1afcc2d767e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602564",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -18855,7 +19402,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 6th Umbral Moon",
     "month": 12,
@@ -18897,7 +19443,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 1st Astral Moon",
     "month": 1,
@@ -18939,7 +19484,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -18981,7 +19525,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -19023,11 +19566,23 @@
    "rare_achv": 9,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/56717a9302e7f2d12879619cc44c79dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701599820",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "crafter": 4,
-    "goldsaucer": 1,
-    "relic": 2
+    "crafter": {
+     "n": 4,
+     "min": 2.9,
+     "score": 5.35
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    },
+    "relic": {
+     "n": 2,
+     "min": 8.2,
+     "score": 2.09
+    }
    },
    "nameday": {
     "text": "6th Sun of the 6th Astral Moon",
@@ -19070,7 +19625,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -19112,7 +19666,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 1st Astral Moon",
     "month": 1,
@@ -19154,7 +19707,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 4th Astral Moon",
     "month": 7,
@@ -19196,7 +19748,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -19238,8 +19789,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b2f3bcc1b639b83ac35f734ae0dcc610_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703503935",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "24th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -19281,7 +19831,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -19323,7 +19872,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -19347,7 +19895,7 @@
    "name": "Mantra Crimson",
    "rank": "On vacation",
    "level": 85,
-   "avatar": "https://img2.finalfantasyxiv.com/f/48b1a8154d1081143959589d27686e25_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598893",
+   "avatar": "https://img2.finalfantasyxiv.com/f/48b1a8154d1081143959589d27686e25_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602493",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19365,8 +19913,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/48b1a8154d1081143959589d27686e25_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1769688814",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "28th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -19390,7 +19937,7 @@
    "name": "Masahiro Dixon",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/81274544d79e7e44323deffc95a71a6d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598965",
+   "avatar": "https://img2.finalfantasyxiv.com/f/81274544d79e7e44323deffc95a71a6d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602565",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19408,7 +19955,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 6th Astral Moon",
     "month": 11,
@@ -19450,7 +19996,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 4th Astral Moon",
     "month": 7,
@@ -19474,7 +20019,7 @@
    "name": "Maverick Flourite",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/2b5da5e8d9de53af3777d069f13fd601_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599079",
+   "avatar": "https://img2.finalfantasyxiv.com/f/2b5da5e8d9de53af3777d069f13fd601_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602679",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19492,7 +20037,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -19534,7 +20078,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -19576,7 +20119,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 6th Astral Moon",
     "month": 11,
@@ -19618,7 +20160,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -19660,7 +20201,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -19702,7 +20242,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 4th Astral Moon",
     "month": 7,
@@ -19726,7 +20265,7 @@
    "name": "Mickey Valentine",
    "rank": "On vacation",
    "level": 85,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3fca7a30bf4c47cfa2f7e06447b22590_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3fca7a30bf4c47cfa2f7e06447b22590_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602566",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19744,7 +20283,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -19768,7 +20306,7 @@
    "name": "Midas Mirror",
    "rank": "On vacation",
    "level": 86,
-   "avatar": "https://img2.finalfantasyxiv.com/f/8c4eef3ce20c69a1d8eec78563465c28_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598864",
+   "avatar": "https://img2.finalfantasyxiv.com/f/8c4eef3ce20c69a1d8eec78563465c28_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602464",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19786,7 +20324,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -19828,7 +20365,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "32nd Sun of the 4th Umbral Moon",
     "month": 8,
@@ -19852,7 +20388,7 @@
    "name": "Miijinz Inferne",
    "rank": "On vacation",
    "level": 76,
-   "avatar": "https://img2.finalfantasyxiv.com/f/b4f5bed4b5c56daf3270870a83be4a38_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598866",
+   "avatar": "https://img2.finalfantasyxiv.com/f/b4f5bed4b5c56daf3270870a83be4a38_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602466",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -19870,7 +20406,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 1st Umbral Moon",
     "month": 2,
@@ -19912,7 +20447,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -19954,7 +20488,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -19996,7 +20529,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 5th Astral Moon",
     "month": 9,
@@ -20038,7 +20570,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -20080,8 +20611,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c017d8c9c58fc45f2a6459437db861c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703059088",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "8th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -20123,7 +20653,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 4th Astral Moon",
     "month": 7,
@@ -20165,7 +20694,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 2nd Astral Moon",
     "month": 3,
@@ -20207,7 +20735,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -20249,7 +20776,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -20291,7 +20817,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 5th Astral Moon",
     "month": 9,
@@ -20333,7 +20858,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -20357,7 +20881,7 @@
    "name": "Moona Freed",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ceb00ca1015381d0e218d625d0b278fc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598989",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ceb00ca1015381d0e218d625d0b278fc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602589",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20375,7 +20899,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 6th Astral Moon",
     "month": 11,
@@ -20417,7 +20940,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 6th Astral Moon",
     "month": 11,
@@ -20441,7 +20963,7 @@
    "name": "Murgur Murgurgle",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/daa4d0d45b22746a279155207f988796_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598968",
+   "avatar": "https://img2.finalfantasyxiv.com/f/daa4d0d45b22746a279155207f988796_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602568",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20459,7 +20981,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 3rd Astral Moon",
     "month": 5,
@@ -20501,8 +21022,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3abe7b828bf90116555b80b17abca16c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1630171959",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "11th Sun of the 1st Astral Moon",
     "month": 1,
@@ -20544,7 +21064,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 1st Astral Moon",
     "month": 1,
@@ -20586,7 +21105,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 5th Astral Moon",
     "month": 9,
@@ -20610,7 +21128,7 @@
    "name": "Nara Saurus",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/9e6201a2d0aac9960d0d8f8c0e24babc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598921",
+   "avatar": "https://img2.finalfantasyxiv.com/f/9e6201a2d0aac9960d0d8f8c0e24babc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602521",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20628,7 +21146,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 6th Astral Moon",
     "month": 11,
@@ -20670,7 +21187,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 6th Astral Moon",
     "month": 11,
@@ -20712,7 +21228,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 1st Astral Moon",
     "month": 1,
@@ -20736,7 +21251,7 @@
    "name": "Natsuki Tri",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/a1dcbbbe60947803608670d54e1593c8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598977",
+   "avatar": "https://img2.finalfantasyxiv.com/f/a1dcbbbe60947803608670d54e1593c8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602577",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20754,7 +21269,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 5th Umbral Moon",
     "month": 10,
@@ -20783,8 +21297,10 @@
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 1,
+   "ult_cleared": [
+    "The Epic of Alexander"
+   ],
    "current_clears": null,
    "ex_cleared": [],
    "ex_kills": 0,
@@ -20796,12 +21312,30 @@
    "rare_achv": 9,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d3c970ed15669d384c830ff7989229fa_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703395963",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Epic of Alexander"
+   ],
    "achv_buckets": {
-    "crafter": 2,
-    "pvp": 1,
-    "treasure": 1,
-    "explorer": 1
+    "crafter": {
+     "n": 2,
+     "min": 7.7,
+     "score": 2.11
+    },
+    "pvp": {
+     "n": 1,
+     "min": 9.0,
+     "score": 1.05
+    },
+    "treasure": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    },
+    "explorer": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    }
    },
    "nameday": {
     "text": "21st Sun of the 4th Astral Moon",
@@ -20814,12 +21348,15 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
+   "ult_achv_only": [
+    "The Epic of Alexander"
+   ],
    "achv_tiers": {},
    "tags": [
-    "casual"
+    "ultimate",
+    "veteran"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 16385554,
@@ -20844,7 +21381,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 1st Astral Moon",
     "month": 1,
@@ -20868,7 +21404,7 @@
    "name": "Nell Weasley",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/153c4fb0d1494efaca0ddd20b7d08f6e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599059",
+   "avatar": "https://img2.finalfantasyxiv.com/f/153c4fb0d1494efaca0ddd20b7d08f6e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602659",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -20886,7 +21422,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 6th Astral Moon",
     "month": 11,
@@ -20928,7 +21463,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -20970,7 +21504,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 6th Astral Moon",
     "month": 11,
@@ -21012,7 +21545,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -21054,7 +21586,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 4th Astral Moon",
     "month": 7,
@@ -21096,7 +21627,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 1st Astral Moon",
     "month": 1,
@@ -21138,8 +21668,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2893f03b3323a1023e43f15b61f01c2b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703022588",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "2nd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -21163,7 +21692,7 @@
    "name": "Newpiyaa Razboi",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/454d247966cfa64a85b2cdce600821ce_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598971",
+   "avatar": "https://img2.finalfantasyxiv.com/f/454d247966cfa64a85b2cdce600821ce_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602571",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21181,7 +21710,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 4th Astral Moon",
     "month": 7,
@@ -21223,7 +21751,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 5th Astral Moon",
     "month": 9,
@@ -21265,7 +21792,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -21307,7 +21833,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 1st Astral Moon",
     "month": 1,
@@ -21349,7 +21874,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -21373,7 +21897,7 @@
    "name": "Nore Vanessa",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/fe53c653cd34ba177e548013d5e8ca7d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598925",
+   "avatar": "https://img2.finalfantasyxiv.com/f/fe53c653cd34ba177e548013d5e8ca7d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602525",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21391,7 +21915,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -21415,7 +21938,7 @@
    "name": "Norn Noy",
    "rank": "On vacation",
    "level": 71,
-   "avatar": "https://img2.finalfantasyxiv.com/f/ed465f09d22f4d429bbf357246e9788a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
+   "avatar": "https://img2.finalfantasyxiv.com/f/ed465f09d22f4d429bbf357246e9788a_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602566",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21433,7 +21956,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 1st Astral Moon",
     "month": 1,
@@ -21475,7 +21997,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -21517,7 +22038,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -21559,7 +22079,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
     "month": 1,
@@ -21601,7 +22120,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 5th Umbral Moon",
     "month": 10,
@@ -21643,7 +22161,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 1st Umbral Moon",
     "month": 2,
@@ -21667,7 +22184,7 @@
    "name": "Oishi Allcafe",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/460b9abab75c501fb49b844b4e263096_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598784",
+   "avatar": "https://img2.finalfantasyxiv.com/f/460b9abab75c501fb49b844b4e263096_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602384",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21685,7 +22202,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "9th Sun of the 4th Astral Moon",
     "month": 7,
@@ -21727,7 +22243,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 1st Astral Moon",
     "month": 1,
@@ -21769,7 +22284,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -21811,7 +22325,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 1st Astral Moon",
     "month": 1,
@@ -21835,7 +22348,7 @@
    "name": "Oppa' Pkz",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f7361e167d74099a52303c910691e899_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598965",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f7361e167d74099a52303c910691e899_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602565",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -21853,7 +22366,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "14th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -21895,7 +22407,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "32nd Sun of the 1st Astral Moon",
     "month": 1,
@@ -21937,7 +22448,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 1st Astral Moon",
     "month": 1,
@@ -21979,7 +22489,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 5th Umbral Moon",
     "month": 10,
@@ -22021,7 +22530,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -22063,7 +22571,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -22087,7 +22594,7 @@
    "name": "Peace Walker",
    "rank": "On vacation",
    "level": 69,
-   "avatar": "https://img2.finalfantasyxiv.com/f/e080be284677282582e30a8b1f6ed4fc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598975",
+   "avatar": "https://img2.finalfantasyxiv.com/f/e080be284677282582e30a8b1f6ed4fc_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602575",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -22105,7 +22612,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -22147,7 +22653,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -22189,7 +22694,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -22231,7 +22735,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 1st Umbral Moon",
     "month": 2,
@@ -22273,7 +22776,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 4th Astral Moon",
     "month": 7,
@@ -22315,7 +22817,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 6th Astral Moon",
     "month": 11,
@@ -22357,7 +22858,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 1st Astral Moon",
     "month": 1,
@@ -22399,7 +22899,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 4th Astral Moon",
     "month": 7,
@@ -22441,7 +22940,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 1st Astral Moon",
     "month": 1,
@@ -22483,7 +22981,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": null,
    "race": null,
    "clan": null,
@@ -22521,7 +23018,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 1st Astral Moon",
     "month": 1,
@@ -22563,7 +23059,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 5th Umbral Moon",
     "month": 10,
@@ -22605,7 +23100,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 4th Astral Moon",
     "month": 7,
@@ -22647,7 +23141,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -22689,7 +23182,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 1st Astral Moon",
     "month": 1,
@@ -22713,7 +23205,7 @@
    "name": "Qxrt Xq",
    "rank": "On vacation",
    "level": 52,
-   "avatar": "https://img2.finalfantasyxiv.com/f/94ca673821f2b518717b0dc51487d55c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599073",
+   "avatar": "https://img2.finalfantasyxiv.com/f/94ca673821f2b518717b0dc51487d55c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602673",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -22731,7 +23223,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 5th Astral Moon",
     "month": 9,
@@ -22773,7 +23264,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -22797,7 +23287,7 @@
    "name": "Rainbow Byvq",
    "rank": "On vacation",
    "level": 86,
-   "avatar": "https://img2.finalfantasyxiv.com/f/f5d3e22581862abfc57476b27be45cd8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598965",
+   "avatar": "https://img2.finalfantasyxiv.com/f/f5d3e22581862abfc57476b27be45cd8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602565",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -22815,8 +23305,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f5d3e22581862abfc57476b27be45cd8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701767696",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "25th Sun of the 5th Astral Moon",
     "month": 9,
@@ -22858,7 +23347,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -22900,7 +23388,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -22942,7 +23429,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 6th Astral Moon",
     "month": 11,
@@ -22984,7 +23470,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -23026,7 +23511,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 6th Astral Moon",
     "month": 11,
@@ -23068,11 +23552,23 @@
    "rare_achv": 20,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/9dd47d5004832f478f876dcb039f7029_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704038000",
-   "ult_achv": null,
+   "ult_achv": [],
    "achv_buckets": {
-    "pvp": 1,
-    "relic": 16,
-    "treasure": 2
+    "pvp": {
+     "n": 1,
+     "min": 9.3,
+     "score": 1.03
+    },
+    "relic": {
+     "n": 16,
+     "min": 3.5,
+     "score": 17.88
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.9,
+     "score": 2.06
+    }
    },
    "nameday": {
     "text": "13th Sun of the 5th Astral Moon",
@@ -23097,7 +23593,7 @@
    "name": "Rishima Garaine",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/26e78382819807caa8f2212e08f95527_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599059",
+   "avatar": "https://img2.finalfantasyxiv.com/f/26e78382819807caa8f2212e08f95527_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602659",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23115,7 +23611,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -23157,8 +23652,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0b7986045f63deb60d8eef7bd8a12133_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703879795",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "18th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -23182,7 +23676,7 @@
    "name": "Roku Roku",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/cbf42b07c96c7ae36db1aa08db8c6601_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598969",
+   "avatar": "https://img2.finalfantasyxiv.com/f/cbf42b07c96c7ae36db1aa08db8c6601_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602569",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23200,7 +23694,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -23242,7 +23735,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 3rd Umbral Moon",
     "month": 6,
@@ -23284,7 +23776,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 4th Astral Moon",
     "month": 7,
@@ -23326,7 +23817,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "17th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -23350,7 +23840,7 @@
    "name": "Runie Run",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/55e10cbb06f7af5d694ea495dbfd28e0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598977",
+   "avatar": "https://img2.finalfantasyxiv.com/f/55e10cbb06f7af5d694ea495dbfd28e0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602577",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23368,7 +23858,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 1st Astral Moon",
     "month": 1,
@@ -23410,7 +23899,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 6th Astral Moon",
     "month": 11,
@@ -23452,7 +23940,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 1st Astral Moon",
     "month": 1,
@@ -23494,7 +23981,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 5th Umbral Moon",
     "month": 10,
@@ -23536,7 +24022,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 6th Astral Moon",
     "month": 11,
@@ -23560,7 +24045,7 @@
    "name": "Sanya Polaali",
    "rank": "On vacation",
    "level": 61,
-   "avatar": "https://img2.finalfantasyxiv.com/f/c556e6bb473f93f0713d0f51dd7f3a68_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599047",
+   "avatar": "https://img2.finalfantasyxiv.com/f/c556e6bb473f93f0713d0f51dd7f3a68_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602647",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23578,7 +24063,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 6th Astral Moon",
     "month": 11,
@@ -23620,7 +24104,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -23644,7 +24127,7 @@
    "name": "Seafood Salad",
    "rank": "On vacation",
    "level": 83,
-   "avatar": "https://img2.finalfantasyxiv.com/f/0674b9549441f8eea060a0d7ba5dfe3c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599098",
+   "avatar": "https://img2.finalfantasyxiv.com/f/0674b9549441f8eea060a0d7ba5dfe3c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602698",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23662,7 +24145,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -23704,7 +24186,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -23746,7 +24227,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "6th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -23788,7 +24268,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 3rd Astral Moon",
     "month": 5,
@@ -23817,8 +24296,14 @@
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 5,
+   "ult_cleared": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "current_clears": null,
    "ex_cleared": [],
    "ex_kills": 0,
@@ -23830,14 +24315,45 @@
    "rare_achv": 69,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/916cc33d7d16a3ba0ed90427968e730d_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704064245",
-   "ult_achv": null,
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "crafter": 5,
-    "gatherer": 5,
-    "seasonal": 14,
-    "treasure": 2,
-    "relic": 25,
-    "explorer": 3
+    "crafter": {
+     "n": 5,
+     "min": 5.4,
+     "score": 5.61
+    },
+    "gatherer": {
+     "n": 5,
+     "min": 2.4,
+     "score": 7.1
+    },
+    "seasonal": {
+     "n": 14,
+     "min": 4.2,
+     "score": 16.91,
+     "share": 0.1564
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.9,
+     "score": 2.06
+    },
+    "relic": {
+     "n": 25,
+     "min": 3.2,
+     "score": 29.19
+    },
+    "explorer": {
+     "n": 3,
+     "min": 3.3,
+     "score": 3.8
+    }
    },
    "nameday": {
     "text": "22nd Sun of the 1st Umbral Moon",
@@ -23850,19 +24366,29 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "achv_tiers": {
+    "seasonal": "master"
+   },
    "tags": [
+    "ultimate",
+    "veteran",
     "seasonal"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 44926008,
    "name": "Shiraishi Shu",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3c712b9f2b308ac3f54eeaddd90f556c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599087",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3c712b9f2b308ac3f54eeaddd90f556c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602687",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -23880,7 +24406,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "23rd Sun of the 4th Astral Moon",
     "month": 7,
@@ -23922,7 +24447,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 1st Astral Moon",
     "month": 1,
@@ -23964,7 +24488,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "8th Sun of the 4th Astral Moon",
     "month": 7,
@@ -24006,7 +24529,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "30th Sun of the 1st Astral Moon",
     "month": 1,
@@ -24048,7 +24570,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 6th Astral Moon",
     "month": 11,
@@ -24090,7 +24611,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "15th Sun of the 4th Astral Moon",
     "month": 7,
@@ -24114,7 +24634,7 @@
    "name": "Sopier Kit",
    "rank": "On vacation",
    "level": 92,
-   "avatar": "https://img2.finalfantasyxiv.com/f/7f6a4c23fa42ff958911e96539c673e0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598967",
+   "avatar": "https://img2.finalfantasyxiv.com/f/7f6a4c23fa42ff958911e96539c673e0_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602567",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24132,7 +24652,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 5th Astral Moon",
     "month": 9,
@@ -24174,7 +24693,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 4th Astral Moon",
     "month": 7,
@@ -24216,7 +24734,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "31st Sun of the 1st Astral Moon",
     "month": 1,
@@ -24258,7 +24775,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "28th Sun of the 4th Astral Moon",
     "month": 7,
@@ -24282,7 +24798,7 @@
    "name": "Spike Le'granddanois",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/d430735d55eb14d24845f5b9dca6e93d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598918",
+   "avatar": "https://img2.finalfantasyxiv.com/f/d430735d55eb14d24845f5b9dca6e93d_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602518",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24300,7 +24816,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 4th Astral Moon",
     "month": 7,
@@ -24342,7 +24857,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
     "month": 1,
@@ -24384,7 +24898,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -24408,7 +24921,7 @@
    "name": "Syliz Lena",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/1e3807ad351020b950c6ef98e15f1f66_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599098",
+   "avatar": "https://img2.finalfantasyxiv.com/f/1e3807ad351020b950c6ef98e15f1f66_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602698",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24426,7 +24939,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "14th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -24468,7 +24980,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 1st Astral Moon",
     "month": 1,
@@ -24510,7 +25021,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -24552,7 +25062,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 1st Astral Moon",
     "month": 1,
@@ -24594,7 +25103,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 6th Astral Moon",
     "month": 11,
@@ -24618,7 +25126,7 @@
    "name": "Temuru Tempesto",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3182f6f1040944054ef4aedf6398b5e8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598967",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3182f6f1040944054ef4aedf6398b5e8_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602567",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24636,7 +25144,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 6th Astral Moon",
     "month": 11,
@@ -24678,7 +25185,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 4th Astral Moon",
     "month": 7,
@@ -24702,7 +25208,7 @@
    "name": "Tina Luminous",
    "rank": "On vacation",
    "level": 84,
-   "avatar": "https://img2.finalfantasyxiv.com/f/e526b35571092925678ddd6451cffc92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598961",
+   "avatar": "https://img2.finalfantasyxiv.com/f/e526b35571092925678ddd6451cffc92_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602561",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -24720,7 +25226,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 1st Astral Moon",
     "month": 1,
@@ -24762,7 +25267,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -24804,8 +25308,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6bde8f32b50a8814efefc3cedb3d9459_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701597294",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "9th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -24847,7 +25350,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 1st Astral Moon",
     "month": 1,
@@ -24889,8 +25391,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1abb5b3bcbaa56195136037bf5f6f62c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1729785167",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "4th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -24932,7 +25433,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 4th Umbral Moon",
     "month": 8,
@@ -24974,7 +25474,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "20th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -24998,7 +25497,7 @@
    "name": "Ull Sixktraz",
    "rank": "On vacation",
    "level": 57,
-   "avatar": "https://img2.finalfantasyxiv.com/f/b3f62ed0a863496e729be0405401410e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599005",
+   "avatar": "https://img2.finalfantasyxiv.com/f/b3f62ed0a863496e729be0405401410e_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602605",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25016,7 +25515,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -25058,7 +25556,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "7th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -25087,8 +25584,11 @@
    "parse": null,
    "savage_kills": 0,
    "current_seen": false,
-   "ult_clears": 0,
-   "ult_cleared": [],
+   "ult_clears": 2,
+   "ult_cleared": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "current_clears": null,
    "ex_cleared": [],
    "ex_kills": 0,
@@ -25100,13 +25600,37 @@
    "rare_achv": 37,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b62c966d854f55967b31694754cc27e6_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1715364341",
-   "ult_achv": null,
+   "ult_achv": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "achv_buckets": {
-    "pvp": 6,
-    "goldsaucer": 5,
-    "relic": 14,
-    "crafter": 1,
-    "explorer": 1
+    "pvp": {
+     "n": 6,
+     "min": 3.1,
+     "score": 6.94
+    },
+    "goldsaucer": {
+     "n": 5,
+     "min": 2.4,
+     "score": 5.97,
+     "share": 0.1117
+    },
+    "relic": {
+     "n": 14,
+     "min": 8.1,
+     "score": 14.4
+    },
+    "crafter": {
+     "n": 1,
+     "min": 8.6,
+     "score": 1.07
+    },
+    "explorer": {
+     "n": 1,
+     "min": 8.8,
+     "score": 1.06
+    }
    },
    "nameday": {
     "text": "22nd Sun of the 2nd Umbral Moon",
@@ -25119,19 +25643,26 @@
    "lala_synced": null,
    "mount_rank": null,
    "minion_rank": null,
-   "ult_achv_only": [],
-   "achv_tiers": {},
+   "ult_achv_only": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "achv_tiers": {
+    "goldsaucer": "expert"
+   },
    "tags": [
+    "ultimate",
+    "veteran",
     "goldsaucer"
    ],
-   "last_change": null
+   "last_change": "2026-08-24"
   },
   {
    "id": 41073949,
    "name": "Vanir Arkwright",
    "rank": "On vacation",
    "level": 87,
-   "avatar": "https://img2.finalfantasyxiv.com/f/1c3b047a70f64fbc9df6bfd3bdcd4010_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599086",
+   "avatar": "https://img2.finalfantasyxiv.com/f/1c3b047a70f64fbc9df6bfd3bdcd4010_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602686",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25149,7 +25680,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "32nd Sun of the 6th Umbral Moon",
     "month": 12,
@@ -25191,7 +25721,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 6th Astral Moon",
     "month": 11,
@@ -25233,7 +25762,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "16th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -25275,7 +25803,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "25th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -25299,7 +25826,7 @@
    "name": "Warlord Akuma",
    "rank": "On vacation",
    "level": 80,
-   "avatar": "https://img2.finalfantasyxiv.com/f/3ec7b211f7443df60adf715ecffd42dd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787599097",
+   "avatar": "https://img2.finalfantasyxiv.com/f/3ec7b211f7443df60adf715ecffd42dd_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602697",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25317,7 +25844,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 1st Astral Moon",
     "month": 1,
@@ -25359,7 +25885,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "26th Sun of the 1st Astral Moon",
     "month": 1,
@@ -25401,7 +25926,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 6th Astral Moon",
     "month": 11,
@@ -25443,7 +25967,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "22nd Sun of the 5th Umbral Moon",
     "month": 10,
@@ -25467,7 +25990,7 @@
    "name": "Wind-up Whitefrost",
    "rank": "On vacation",
    "level": 2,
-   "avatar": "https://img2.finalfantasyxiv.com/f/127a1169e673fcd13d1601065c285a67_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598919",
+   "avatar": "https://img2.finalfantasyxiv.com/f/127a1169e673fcd13d1601065c285a67_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602519",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25485,7 +26008,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 2nd Umbral Moon",
     "month": 4,
@@ -25509,7 +26031,7 @@
    "name": "Winner Hamm",
    "rank": "On vacation",
    "level": 63,
-   "avatar": "https://img2.finalfantasyxiv.com/f/8b81e1d450a0283c86972486f84efb6c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
+   "avatar": "https://img2.finalfantasyxiv.com/f/8b81e1d450a0283c86972486f84efb6c_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602566",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25527,7 +26049,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "10th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -25569,7 +26090,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -25593,7 +26113,7 @@
    "name": "Winyaan Seirei",
    "rank": "On vacation",
    "level": 90,
-   "avatar": "https://img2.finalfantasyxiv.com/f/9aef89e17aa9b70c78ec4adac101cc36_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598966",
+   "avatar": "https://img2.finalfantasyxiv.com/f/9aef89e17aa9b70c78ec4adac101cc36_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602566",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25611,7 +26131,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 2nd Astral Moon",
     "month": 3,
@@ -25653,7 +26172,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "18th Sun of the 4th Astral Moon",
     "month": 7,
@@ -25695,8 +26213,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bb3fd4a9af6f7e7d9ef350658e57c73c_410ddb5a66a2fcacf538bec5ea5d0291fl0_640x873.jpg?1699150851",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "31st Sun of the 4th Astral Moon",
     "month": 7,
@@ -25738,7 +26255,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "21st Sun of the 6th Umbral Moon",
     "month": 12,
@@ -25780,7 +26296,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "11th Sun of the 6th Umbral Moon",
     "month": 12,
@@ -25804,7 +26319,7 @@
    "name": "Y'uki No",
    "rank": "On vacation",
    "level": 54,
-   "avatar": "https://img2.finalfantasyxiv.com/f/70ecec8c48a99735015617e62e0a7ed9_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598983",
+   "avatar": "https://img2.finalfantasyxiv.com/f/70ecec8c48a99735015617e62e0a7ed9_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602583",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -25822,7 +26337,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 4th Umbral Moon",
     "month": 8,
@@ -25864,7 +26378,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "13th Sun of the 1st Umbral Moon",
     "month": 2,
@@ -25906,7 +26419,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "12th Sun of the 1st Astral Moon",
     "month": 1,
@@ -25948,7 +26460,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "1st Sun of the 1st Astral Moon",
     "month": 1,
@@ -25990,7 +26501,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "29th Sun of the 6th Astral Moon",
     "month": 11,
@@ -26014,7 +26524,7 @@
    "name": "Yume Mukuchi",
    "rank": "On vacation",
    "level": 65,
-   "avatar": "https://img2.finalfantasyxiv.com/f/80bf535e3a71523d2f92d836a3d60ed3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598862",
+   "avatar": "https://img2.finalfantasyxiv.com/f/80bf535e3a71523d2f92d836a3d60ed3_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602462",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -26032,7 +26542,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "5th Sun of the 1st Astral Moon",
     "month": 1,
@@ -26074,7 +26583,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 3rd Astral Moon",
     "month": 5,
@@ -26116,8 +26624,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/584481d72545532f06096dd0c8b5dcc5_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703889824",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "16th Sun of the 6th Astral Moon",
     "month": 11,
@@ -26141,7 +26648,7 @@
    "name": "Zene Neko",
    "rank": "On vacation",
    "level": 100,
-   "avatar": "https://img2.finalfantasyxiv.com/f/12cdbe46d07a3ac1345519a97cfcbc61_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787598970",
+   "avatar": "https://img2.finalfantasyxiv.com/f/12cdbe46d07a3ac1345519a97cfcbc61_7bb6b1e488f0e4f01c5314d010b60f31fc0.jpg?1787602570",
    "fflogs": "pending",
    "parse": null,
    "savage_kills": 0,
@@ -26159,7 +26666,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "32nd Sun of the 1st Astral Moon",
     "month": 1,
@@ -26201,7 +26707,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "4th Sun of the 4th Astral Moon",
     "month": 7,
@@ -26243,8 +26748,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2fbde07a4390bcc6cd18130e30fac148_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702170327",
-   "ult_achv": null,
-   "achv_buckets": {},
+   "ult_achv": [],
    "nameday": {
     "text": "20th Sun of the 4th Umbral Moon",
     "month": 8,
@@ -26286,7 +26790,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "19th Sun of the 4th Astral Moon",
     "month": 7,
@@ -26328,7 +26831,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "27th Sun of the 1st Astral Moon",
     "month": 1,
@@ -26370,7 +26872,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "2nd Sun of the 6th Umbral Moon",
     "month": 12,
@@ -26412,7 +26913,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "3rd Sun of the 6th Astral Moon",
     "month": 11,
@@ -26454,7 +26954,6 @@
    "rare_achv": null,
    "ach_public": null,
    "portrait": null,
-   "ult_achv": null,
    "nameday": {
     "text": "24th Sun of the 3rd Astral Moon",
     "month": 5,

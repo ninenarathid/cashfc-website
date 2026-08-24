@@ -2493,7 +2493,7 @@
  },
  "pipeline": {
   "legacy_cursor": 1,
-  "zone_cursor": 6,
+  "zone_cursor": 7,
   "fflogs_cycle": [
    "11603711",
    "11950156",
@@ -2521,10 +2521,12 @@
    "16397778",
    "1643244",
    "17473430",
+   "18278635",
    "18538032",
    "18578874",
    "18659677",
    "19827594",
+   "20014912",
    "20400811",
    "21620195",
    "2168537",
@@ -2606,6 +2608,7 @@
    "31001697",
    "31001781",
    "31010962",
+   "31012021",
    "31155521",
    "31236337",
    "31334257",
@@ -2622,6 +2625,7 @@
    "31831003",
    "31899766",
    "31902843",
+   "31923628",
    "32046284",
    "32147626",
    "32147756",
@@ -2706,6 +2710,7 @@
    "42215185",
    "42215186",
    "42277370",
+   "42342468",
    "42349146",
    "42509107",
    "42845691",
@@ -2791,8 +2796,20 @@
    "9155192",
    "9444020"
   ],
-  "collect_at": 1787597505.9164484,
-  "lala_at": 1787598241.8103597
+  "collect_at": 1787602886.4754848,
+  "lala_at": 1787598241.8103597,
+  "collect_v": 2,
+  "bucket_max": {
+   "explorer": 186.12,
+   "relic": 414.82,
+   "gatherer": 443.06,
+   "seasonal": 108.13,
+   "crafter": 364.79,
+   "pvp": 483.2,
+   "goldsaucer": 53.47,
+   "treasure": 117.02,
+   "oldtimer": 505.29
+  }
  },
  "chara": {
   "24228478": {
@@ -5497,10 +5514,9 @@
    "mounts": 61,
    "minions": 227,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c1cbceeda2b4e6afab854537973f3334_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703729861",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5508,10 +5524,9 @@
    "mounts": 255,
    "minions": 463,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/09f8d5e0b2c8fab999bac4ae59282834_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1762628906",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5519,10 +5534,9 @@
    "mounts": 108,
    "minions": 174,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/58d06d66abe8353d1a8a51e40c9e5df2_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1645103965",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5530,10 +5544,9 @@
    "mounts": 159,
    "minions": 426,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a641044c4692a7944c97a779b46f0326_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778412230",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5541,10 +5554,9 @@
    "mounts": 91,
    "minions": 160,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/29e76ca1630d6471068946ffc1a5b643_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1729881178",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5552,10 +5564,9 @@
    "mounts": 249,
    "minions": 475,
    "rare_achv": 360,
-   "craft_achv": 137,
-   "pvp_achv": 128,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3dc9125badc78221a0e8e18b371b696d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1775383504",
+   "ult_achv": [],
    "rare_ids": [
     1470,
     1455,
@@ -5583,23 +5594,50 @@
     2651
    ],
    "achv_buckets": {
-    "crafter": 58,
-    "pvp": 53,
-    "treasure": 28,
-    "goldsaucer": 7,
-    "relic": 146,
-    "gatherer": 16,
-    "explorer": 12
+    "crafter": {
+     "n": 58,
+     "min": 1.4,
+     "score": 90.51
+    },
+    "pvp": {
+     "n": 53,
+     "min": 0.3,
+     "score": 80.4
+    },
+    "treasure": {
+     "n": 28,
+     "min": 1.1,
+     "score": 36.82
+    },
+    "goldsaucer": {
+     "n": 7,
+     "min": 1.1,
+     "score": 9.09
+    },
+    "relic": {
+     "n": 146,
+     "min": 1.2,
+     "score": 180.67
+    },
+    "gatherer": {
+     "n": 16,
+     "min": 1.3,
+     "score": 24.06
+    },
+    "explorer": {
+     "n": 12,
+     "min": 2.4,
+     "score": 14.05
+    }
    }
   },
   "29511615": {
    "mounts": 146,
    "minions": 242,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/59b2e567cf6fc54c80405b7bdfdd10ba_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1746969337",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5607,10 +5645,13 @@
    "mounts": 131,
    "minions": 337,
    "rare_achv": 142,
-   "craft_achv": 132,
-   "pvp_achv": 72,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/af307f1a08f4ba0caa5504e948e86431_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1707807378",
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     2564,
     2563,
@@ -5638,23 +5679,52 @@
     1337
    ],
    "achv_buckets": {
-    "crafter": 17,
-    "gatherer": 16,
-    "seasonal": 3,
-    "relic": 71,
-    "pvp": 5,
-    "treasure": 4,
-    "explorer": 6
+    "crafter": {
+     "n": 17,
+     "min": 3.4,
+     "score": 19.69
+    },
+    "gatherer": {
+     "n": 16,
+     "min": 1.9,
+     "score": 21.75
+    },
+    "seasonal": {
+     "n": 3,
+     "min": 6.2,
+     "score": 3.41
+    },
+    "relic": {
+     "n": 71,
+     "min": 5.7,
+     "score": 76.12
+    },
+    "pvp": {
+     "n": 5,
+     "min": 3.0,
+     "score": 5.97
+    },
+    "treasure": {
+     "n": 4,
+     "min": 5.0,
+     "score": 4.44
+    },
+    "explorer": {
+     "n": 6,
+     "min": 5.0,
+     "score": 6.62
+    }
    }
   },
   "28950119": {
    "mounts": 117,
    "minions": 228,
    "rare_achv": 18,
-   "craft_achv": 42,
-   "pvp_achv": 57,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c6e5625498ec7d7f71cdbdc6e45b6a9_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1697591670",
+   "ult_achv": [
+    "The Epic of Alexander"
+   ],
    "rare_ids": [
     1468,
     1581,
@@ -5676,18 +5746,25 @@
     3200
    ],
    "achv_buckets": {
-    "pvp": 1,
-    "relic": 13
+    "pvp": {
+     "n": 1,
+     "min": 6.2,
+     "score": 1.21
+    },
+    "relic": {
+     "n": 13,
+     "min": 6.2,
+     "score": 13.85
+    }
    }
   },
   "42948817": {
    "mounts": 115,
    "minions": 255,
    "rare_achv": 14,
-   "craft_achv": 57,
-   "pvp_achv": 60,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d2407d7f87f553f69f479a3834e7591_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1732919271",
+   "ult_achv": [],
    "rare_ids": [
     3538,
     2991,
@@ -5705,21 +5782,42 @@
     3346
    ],
    "achv_buckets": {
-    "crafter": 1,
-    "relic": 4,
-    "pvp": 1,
-    "treasure": 4,
-    "explorer": 1
+    "crafter": {
+     "n": 1,
+     "min": 6.7,
+     "score": 1.17
+    },
+    "relic": {
+     "n": 4,
+     "min": 2.5,
+     "score": 4.66
+    },
+    "pvp": {
+     "n": 1,
+     "min": 8.0,
+     "score": 1.1
+    },
+    "treasure": {
+     "n": 4,
+     "min": 8.2,
+     "score": 4.16
+    },
+    "explorer": {
+     "n": 1,
+     "min": 9.0,
+     "score": 1.05
+    }
    }
   },
   "38808156": {
    "mounts": 77,
    "minions": 137,
    "rare_achv": 19,
-   "craft_achv": 7,
-   "pvp_achv": 18,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8d77ed980324a031248973cacd273ed5_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703300298",
+   "ult_achv": [
+    "The Epic of Alexander"
+   ],
    "rare_ids": [
     1952,
     2055,
@@ -5742,20 +5840,41 @@
     2036
    ],
    "achv_buckets": {
-    "relic": 8,
-    "goldsaucer": 1,
-    "explorer": 2,
-    "treasure": 1
+    "relic": {
+     "n": 8,
+     "min": 4.7,
+     "score": 8.75
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 6.5,
+     "score": 1.19
+    },
+    "explorer": {
+     "n": 2,
+     "min": 2.5,
+     "score": 2.66
+    },
+    "treasure": {
+     "n": 1,
+     "min": 9.8,
+     "score": 1.01
+    }
    }
   },
   "31902843": {
    "mounts": 113,
    "minions": 177,
    "rare_achv": 22,
-   "craft_achv": 35,
-   "pvp_achv": 27,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4073dc2b14e7075bdf18a56205300d34_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1726071391",
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     2991,
     3162,
@@ -5781,20 +5900,35 @@
     2871
    ],
    "achv_buckets": {
-    "gatherer": 1,
-    "explorer": 1,
-    "relic": 11,
-    "treasure": 1
+    "gatherer": {
+     "n": 1,
+     "min": 6.7,
+     "score": 1.17
+    },
+    "explorer": {
+     "n": 1,
+     "min": 8.3,
+     "score": 1.08
+    },
+    "relic": {
+     "n": 11,
+     "min": 6.5,
+     "score": 11.63
+    },
+    "treasure": {
+     "n": 1,
+     "min": 8.2,
+     "score": 1.09
+    }
    }
   },
   "37056222": {
    "mounts": 147,
    "minions": 321,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b9b6001d2b753084e83bb5ffe6db506c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1765462099",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5802,10 +5936,14 @@
    "mounts": 160,
    "minions": 284,
    "rare_achv": 158,
-   "craft_achv": 156,
-   "pvp_achv": 66,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7f2cb159bf631180f9d2620d958d7498_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787232522",
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     1323,
     2767,
@@ -5833,22 +5971,45 @@
     3266
    ],
    "achv_buckets": {
-    "crafter": 44,
-    "gatherer": 24,
-    "pvp": 10,
-    "relic": 23,
-    "explorer": 22,
-    "treasure": 2
+    "crafter": {
+     "n": 44,
+     "min": 1.1,
+     "score": 56.47
+    },
+    "gatherer": {
+     "n": 24,
+     "min": 1.5,
+     "score": 30.14
+    },
+    "pvp": {
+     "n": 10,
+     "min": 3.7,
+     "score": 11.86
+    },
+    "relic": {
+     "n": 23,
+     "min": 4.7,
+     "score": 25.47
+    },
+    "explorer": {
+     "n": 22,
+     "min": 1.3,
+     "score": 27.4
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.9,
+     "score": 2.06
+    }
    }
   },
   "26268800": {
    "mounts": 72,
    "minions": 115,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ba4d3a48327506b032214fd93776e2fd_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1697583214",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5856,10 +6017,9 @@
    "mounts": 177,
    "minions": 421,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ec8a555cd5e6d49299e6e6525d945423_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1754234320",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5867,10 +6027,9 @@
    "mounts": 42,
    "minions": 82,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f28cff515c92ec7b0b57239b0594e705_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701595516",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5878,10 +6037,9 @@
    "mounts": 103,
    "minions": 274,
    "rare_achv": 130,
-   "craft_achv": 90,
-   "pvp_achv": 11,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6ce984d46d9d1bf6284f767a5985281f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1765032874",
+   "ult_achv": [],
    "rare_ids": [
     3663,
     3674,
@@ -5909,21 +6067,40 @@
     3802
    ],
    "achv_buckets": {
-    "crafter": 16,
-    "relic": 82,
-    "explorer": 17,
-    "gatherer": 4,
-    "treasure": 1
+    "crafter": {
+     "n": 16,
+     "min": 3.0,
+     "score": 19.43
+    },
+    "relic": {
+     "n": 82,
+     "min": 4.4,
+     "score": 95.26
+    },
+    "explorer": {
+     "n": 17,
+     "min": 0.8,
+     "score": 21.6
+    },
+    "gatherer": {
+     "n": 4,
+     "min": 3.1,
+     "score": 4.82
+    },
+    "treasure": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    }
    }
   },
   "15912826": {
    "mounts": 199,
    "minions": 339,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c945d29a29b8899127ece1422d6012a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1783686886",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5931,10 +6108,9 @@
    "mounts": 173,
    "minions": 415,
    "rare_achv": 464,
-   "craft_achv": 236,
-   "pvp_achv": 88,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d8a0ed94d93290089d93b481ec490f76_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1786976074",
+   "ult_achv": [],
    "rare_ids": [
     607,
     3964,
@@ -5962,24 +6138,55 @@
     2655
    ],
    "achv_buckets": {
-    "crafter": 103,
-    "gatherer": 20,
-    "treasure": 16,
-    "pvp": 9,
-    "goldsaucer": 18,
-    "relic": 145,
-    "explorer": 10,
-    "seasonal": 1
+    "crafter": {
+     "n": 103,
+     "min": 1.4,
+     "score": 144.83
+    },
+    "gatherer": {
+     "n": 20,
+     "min": 1.4,
+     "score": 25.0
+    },
+    "treasure": {
+     "n": 16,
+     "min": 2.4,
+     "score": 19.82
+    },
+    "pvp": {
+     "n": 9,
+     "min": 4.3,
+     "score": 10.54
+    },
+    "goldsaucer": {
+     "n": 18,
+     "min": 1.1,
+     "score": 23.9
+    },
+    "relic": {
+     "n": 145,
+     "min": 0.7,
+     "score": 171.15
+    },
+    "explorer": {
+     "n": 10,
+     "min": 4.9,
+     "score": 11.28
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 4.6,
+     "score": 1.34
+    }
    }
   },
   "43864764": {
    "mounts": 233,
    "minions": 301,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ef87fcf3e51a3d900995b472d2607e3c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1746965233",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5987,10 +6194,9 @@
    "mounts": 146,
    "minions": 297,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/85ca0e8351d35aaae91350ac05881dc8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701595967",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -5998,10 +6204,9 @@
    "mounts": 164,
    "minions": 286,
    "rare_achv": 79,
-   "craft_achv": 77,
-   "pvp_achv": 81,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f4e3bdfe96f220aed972927474bf792f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1777728935",
+   "ult_achv": [],
    "rare_ids": [
     2653,
     3717,
@@ -6029,22 +6234,45 @@
     3823
    ],
    "achv_buckets": {
-    "pvp": 9,
-    "goldsaucer": 1,
-    "relic": 42,
-    "crafter": 7,
-    "explorer": 4,
-    "gatherer": 3
+    "pvp": {
+     "n": 9,
+     "min": 5.0,
+     "score": 10.56
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    },
+    "relic": {
+     "n": 42,
+     "min": 4.0,
+     "score": 49.29
+    },
+    "crafter": {
+     "n": 7,
+     "min": 1.5,
+     "score": 9.75
+    },
+    "explorer": {
+     "n": 4,
+     "min": 8.3,
+     "score": 4.15
+    },
+    "gatherer": {
+     "n": 3,
+     "min": 3.2,
+     "score": 3.64
+    }
    }
   },
   "29918404": {
    "mounts": 204,
    "minions": 414,
    "rare_achv": 298,
-   "craft_achv": 98,
-   "pvp_achv": 99,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2c720b66754800ca6fa7ef80130c8a86_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787249446",
+   "ult_achv": [],
    "rare_ids": [
     4005,
     3684,
@@ -6072,24 +6300,55 @@
     1077
    ],
    "achv_buckets": {
-    "crafter": 11,
-    "pvp": 18,
-    "relic": 149,
-    "treasure": 11,
-    "gatherer": 8,
-    "explorer": 33,
-    "goldsaucer": 1,
-    "seasonal": 1
+    "crafter": {
+     "n": 11,
+     "min": 1.6,
+     "score": 14.24
+    },
+    "pvp": {
+     "n": 18,
+     "min": 1.7,
+     "score": 22.75
+    },
+    "relic": {
+     "n": 149,
+     "min": 0.4,
+     "score": 189.88
+    },
+    "treasure": {
+     "n": 11,
+     "min": 3.6,
+     "score": 12.99
+    },
+    "gatherer": {
+     "n": 8,
+     "min": 3.2,
+     "score": 9.51
+    },
+    "explorer": {
+     "n": 33,
+     "min": 0.2,
+     "score": 50.24
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 5.4,
+     "score": 1.27
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 4.6,
+     "score": 1.34
+    }
    }
   },
   "12058921": {
    "mounts": 125,
    "minions": 274,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c9720900b9444d061530d6f7f6bc1bc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701596161",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6097,10 +6356,13 @@
    "mounts": 128,
    "minions": 320,
    "rare_achv": 132,
-   "craft_achv": 110,
-   "pvp_achv": 55,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f78256581768f009cad1adf9e803c5ee_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704030443",
+   "ult_achv": [
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     1736,
     1744,
@@ -6128,21 +6390,42 @@
     163
    ],
    "achv_buckets": {
-    "relic": 37,
-    "crafter": 43,
-    "pvp": 9,
-    "seasonal": 14,
-    "explorer": 8
+    "relic": {
+     "n": 37,
+     "min": 3.4,
+     "score": 40.41
+    },
+    "crafter": {
+     "n": 43,
+     "min": 2.4,
+     "score": 55.04
+    },
+    "pvp": {
+     "n": 9,
+     "min": 3.0,
+     "score": 10.82
+    },
+    "seasonal": {
+     "n": 14,
+     "min": 6.9,
+     "score": 14.85
+    },
+    "explorer": {
+     "n": 8,
+     "min": 0.7,
+     "score": 11.98
+    }
    }
   },
   "34434658": {
    "mounts": 63,
    "minions": 144,
    "rare_achv": 19,
-   "craft_achv": 53,
-   "pvp_achv": 3,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c64f37f4fcc59ff1eaf67750aac7995f_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1716023603",
+   "ult_achv": [
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     2387,
     3368,
@@ -6165,18 +6448,27 @@
     3373
    ],
    "achv_buckets": {
-    "crafter": 1,
-    "relic": 15
+    "crafter": {
+     "n": 1,
+     "min": 7.7,
+     "score": 1.11
+    },
+    "relic": {
+     "n": 15,
+     "min": 5.5,
+     "score": 16.19
+    }
    }
   },
   "29339718": {
    "mounts": 100,
    "minions": 289,
    "rare_achv": 114,
-   "craft_achv": 80,
-   "pvp_achv": 24,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e0c783390f48357edd149433ff310e4f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1766149279",
+   "ult_achv": [
+    "The Epic of Alexander"
+   ],
    "rare_ids": [
     2930,
     1328,
@@ -6204,19 +6496,30 @@
     3308
    ],
    "achv_buckets": {
-    "crafter": 16,
-    "relic": 77,
-    "explorer": 1
+    "crafter": {
+     "n": 16,
+     "min": 3.4,
+     "score": 18.27
+    },
+    "relic": {
+     "n": 77,
+     "min": 4.0,
+     "score": 86.5
+    },
+    "explorer": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    }
    }
   },
   "42215186": {
    "mounts": 16,
    "minions": 23,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0340f34a708ad44df16184ba378ceaa4_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1650885009",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6224,10 +6527,9 @@
    "mounts": 33,
    "minions": 77,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/08f17a13a92aa4b670684ae41d861017_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1767540606",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6235,10 +6537,9 @@
    "mounts": 65,
    "minions": 116,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/806d952699df011e61e28f655ee65683_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778738487",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6246,10 +6547,9 @@
    "mounts": 61,
    "minions": 89,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a3dc0e200e8e2be142e8eaf5bd564e1b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703798971",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6257,10 +6557,9 @@
    "mounts": 103,
    "minions": 161,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7d8687975fb4b43c5afd5f3bd7865815_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703873054",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6268,10 +6567,9 @@
    "mounts": 27,
    "minions": 103,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ca364eba596951d9ee115a598810501_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1786500415",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6279,10 +6577,9 @@
    "mounts": 143,
    "minions": 334,
    "rare_achv": 16,
-   "craft_achv": 44,
-   "pvp_achv": 91,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/39deab8bac4b2a23c0e5dd0c80154f99_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1749238345",
+   "ult_achv": [],
    "rare_ids": [
     2990,
     2387,
@@ -6302,37 +6599,65 @@
     2484
    ],
    "achv_buckets": {
-    "pvp": 4,
-    "goldsaucer": 1,
-    "seasonal": 1,
-    "relic": 5,
-    "crafter": 1
+    "pvp": {
+     "n": 4,
+     "min": 6.0,
+     "score": 4.4
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 7.7,
+     "score": 1.11
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    },
+    "relic": {
+     "n": 5,
+     "min": 8.4,
+     "score": 5.27
+    },
+    "crafter": {
+     "n": 1,
+     "min": 8.8,
+     "score": 1.06
+    }
    }
   },
   "36183378": {
    "mounts": 35,
    "minions": 105,
    "rare_achv": 2,
-   "craft_achv": 20,
-   "pvp_achv": 31,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/87dbd30585808fc1e07bb71baf6de7e1_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703418455",
+   "ult_achv": [],
    "rare_ids": [
     2868,
     2779
    ],
    "achv_buckets": {
-    "relic": 2
+    "relic": {
+     "n": 2,
+     "min": 7.1,
+     "score": 2.25
+    }
    }
   },
   "16099244": {
    "mounts": 103,
    "minions": 168,
    "rare_achv": 101,
-   "craft_achv": 55,
-   "pvp_achv": 30,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6f4071bc66462934a8026a031b6a759d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1744779042",
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     2735,
     2731,
@@ -6360,20 +6685,35 @@
     2455
    ],
    "achv_buckets": {
-    "crafter": 2,
-    "relic": 40,
-    "treasure": 2,
-    "explorer": 3
+    "crafter": {
+     "n": 2,
+     "min": 9.5,
+     "score": 2.02
+    },
+    "relic": {
+     "n": 40,
+     "min": 3.7,
+     "score": 44.79
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.4,
+     "score": 2.09
+    },
+    "explorer": {
+     "n": 3,
+     "min": 5.0,
+     "score": 3.45
+    }
    }
   },
   "31592995": {
    "mounts": 107,
    "minions": 317,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/490c60be60162be257869667b2e81764_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701596775",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6381,10 +6721,9 @@
    "mounts": 67,
    "minions": 105,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d0d8abc2bd55031b985037a60aa39b6f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1742908214",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6392,10 +6731,9 @@
    "mounts": 110,
    "minions": 230,
    "rare_achv": 53,
-   "craft_achv": 46,
-   "pvp_achv": 53,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d9b441ad00a49892f80ef85e6fb589b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1761753602",
+   "ult_achv": [],
    "rare_ids": [
     2007,
     3683,
@@ -6423,22 +6761,45 @@
     3113
    ],
    "achv_buckets": {
-    "pvp": 5,
-    "relic": 27,
-    "gatherer": 1,
-    "treasure": 5,
-    "explorer": 5,
-    "crafter": 1
+    "pvp": {
+     "n": 5,
+     "min": 1.5,
+     "score": 6.27
+    },
+    "relic": {
+     "n": 27,
+     "min": 4.0,
+     "score": 30.87
+    },
+    "gatherer": {
+     "n": 1,
+     "min": 9.8,
+     "score": 1.01
+    },
+    "treasure": {
+     "n": 5,
+     "min": 4.0,
+     "score": 5.88
+    },
+    "explorer": {
+     "n": 5,
+     "min": 3.4,
+     "score": 5.57
+    },
+    "crafter": {
+     "n": 1,
+     "min": 8.8,
+     "score": 1.06
+    }
    }
   },
   "29907674": {
    "mounts": 42,
    "minions": 115,
    "rare_achv": 31,
-   "craft_achv": 88,
-   "pvp_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/930ea37f90bbe277dc0530864ef33dbf_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701594430",
+   "ult_achv": [],
    "rare_ids": [
     2245,
     3187,
@@ -6466,18 +6827,28 @@
     2176
    ],
    "achv_buckets": {
-    "gatherer": 26,
-    "relic": 4
+    "gatherer": {
+     "n": 26,
+     "min": 2.7,
+     "score": 33.97
+    },
+    "relic": {
+     "n": 4,
+     "min": 5.3,
+     "score": 4.44
+    }
    }
   },
   "35158574": {
    "mounts": 59,
    "minions": 154,
    "rare_achv": 25,
-   "craft_achv": 49,
-   "pvp_achv": 79,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e413b42da4fef3619091351f1ec2db13_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704054205",
+   "ult_achv": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     2882,
     1454,
@@ -6505,20 +6876,35 @@
     2665
    ],
    "achv_buckets": {
-    "pvp": 7,
-    "relic": 14,
-    "explorer": 2,
-    "treasure": 1
+    "pvp": {
+     "n": 7,
+     "min": 4.5,
+     "score": 7.96
+    },
+    "relic": {
+     "n": 14,
+     "min": 7.9,
+     "score": 14.53
+    },
+    "explorer": {
+     "n": 2,
+     "min": 2.5,
+     "score": 2.66
+    },
+    "treasure": {
+     "n": 1,
+     "min": 9.8,
+     "score": 1.01
+    }
    }
   },
   "8713004": {
    "mounts": 75,
    "minions": 107,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d38d2e9757b81139881af795bbaa7b3b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703899951",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6526,10 +6912,9 @@
    "mounts": 60,
    "minions": 232,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ac7dc32e221d492b58e750f21ba4d6c3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1734106408",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6537,10 +6922,9 @@
    "mounts": 2,
    "minions": 2,
    "rare_achv": 0,
-   "craft_achv": 0,
-   "pvp_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8f17aa186b22e25118b38c79132b48ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778600107",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6548,10 +6932,9 @@
    "mounts": 127,
    "minions": 218,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5f92d976766c91a44e9029df79687b75_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1737667176",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6559,10 +6942,9 @@
    "mounts": 30,
    "minions": 101,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/24ef3dda559fcb61bd4725be7763b492_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703571465",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6570,10 +6952,9 @@
    "mounts": 59,
    "minions": 236,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c5ba690e39670e4184b9ec97b60ede79_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1730631377",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6581,10 +6962,9 @@
    "mounts": 135,
    "minions": 321,
    "rare_achv": 15,
-   "craft_achv": 27,
-   "pvp_achv": 62,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a11139bf5f4316dc13b69b56e28b1efc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703129642",
+   "ult_achv": [],
    "rare_ids": [
     1581,
     2861,
@@ -6603,21 +6983,40 @@
     3346
    ],
    "achv_buckets": {
-    "pvp": 2,
-    "goldsaucer": 2,
-    "relic": 7,
-    "seasonal": 1,
-    "explorer": 1
+    "pvp": {
+     "n": 2,
+     "min": 9.2,
+     "score": 2.06
+    },
+    "goldsaucer": {
+     "n": 2,
+     "min": 7.7,
+     "score": 2.16
+    },
+    "relic": {
+     "n": 7,
+     "min": 6.2,
+     "score": 7.56
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    },
+    "explorer": {
+     "n": 1,
+     "min": 8.8,
+     "score": 1.06
+    }
    }
   },
   "28810440": {
    "mounts": 44,
    "minions": 98,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0e6145c42c527756d9bb54e6f14ce4b7_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703789964",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6625,10 +7024,12 @@
    "mounts": 116,
    "minions": 293,
    "rare_achv": 94,
-   "craft_achv": 138,
-   "pvp_achv": 52,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5e91cc072904f9949402422678f80bef_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703939823",
+   "ult_achv": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     2487,
     1604,
@@ -6656,23 +7057,50 @@
     1968
    ],
    "achv_buckets": {
-    "crafter": 41,
-    "goldsaucer": 5,
-    "pvp": 3,
-    "relic": 8,
-    "gatherer": 5,
-    "treasure": 4,
-    "seasonal": 3
+    "crafter": {
+     "n": 41,
+     "min": 1.0,
+     "score": 54.58
+    },
+    "goldsaucer": {
+     "n": 5,
+     "min": 2.8,
+     "score": 6.53
+    },
+    "pvp": {
+     "n": 3,
+     "min": 5.1,
+     "score": 3.6
+    },
+    "relic": {
+     "n": 8,
+     "min": 3.5,
+     "score": 8.78
+    },
+    "gatherer": {
+     "n": 5,
+     "min": 3.6,
+     "score": 6.71
+    },
+    "treasure": {
+     "n": 4,
+     "min": 4.4,
+     "score": 4.56
+    },
+    "seasonal": {
+     "n": 3,
+     "min": 8.6,
+     "score": 3.07
+    }
    }
   },
   "512253": {
    "mounts": 32,
    "minions": 112,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/750af38da2a99d8584b5bc21539a1e85_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1709281333",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6680,10 +7108,9 @@
    "mounts": 25,
    "minions": 115,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/33f97cf5f574e278f8efea3590cce8f7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736169820",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6691,10 +7118,9 @@
    "mounts": 65,
    "minions": 154,
    "rare_achv": 15,
-   "craft_achv": 57,
-   "pvp_achv": 40,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7663d112cd640b3742b69dcae9ffaef8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703865848",
+   "ult_achv": [],
    "rare_ids": [
     2730,
     3092,
@@ -6713,21 +7139,40 @@
     2928
    ],
    "achv_buckets": {
-    "pvp": 1,
-    "relic": 2,
-    "explorer": 2,
-    "crafter": 2,
-    "treasure": 2
+    "pvp": {
+     "n": 1,
+     "min": 8.0,
+     "score": 1.1
+    },
+    "relic": {
+     "n": 2,
+     "min": 9.2,
+     "score": 2.04
+    },
+    "explorer": {
+     "n": 2,
+     "min": 2.5,
+     "score": 2.66
+    },
+    "crafter": {
+     "n": 2,
+     "min": 7.4,
+     "score": 2.13
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.2,
+     "score": 2.11
+    }
    }
   },
   "24211446": {
    "mounts": 77,
    "minions": 160,
    "rare_achv": 7,
-   "craft_achv": 65,
-   "pvp_achv": 26,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18e6c7bc63ee5dd425013a5f12c7666a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704031274",
+   "ult_achv": [],
    "rare_ids": [
     2407,
     2351,
@@ -6738,19 +7183,30 @@
     2596
    ],
    "achv_buckets": {
-    "crafter": 1,
-    "relic": 3,
-    "treasure": 2
+    "crafter": {
+     "n": 1,
+     "min": 9.2,
+     "score": 1.04
+    },
+    "relic": {
+     "n": 3,
+     "min": 8.8,
+     "score": 3.06
+    },
+    "treasure": {
+     "n": 2,
+     "min": 5.4,
+     "score": 2.35
+    }
    }
   },
   "8999658": {
    "mounts": 140,
    "minions": 216,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ac0287a5eecd9b2062aeafdc686deb7a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1644734658",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6758,10 +7214,9 @@
    "mounts": 58,
    "minions": 114,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/322a9dd440f9e963b96017c2f25f8db5_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703582463",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6769,10 +7224,9 @@
    "mounts": 9,
    "minions": 22,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a411f90cbf358f819ec3da02e27318ac_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1769691671",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6780,10 +7234,9 @@
    "mounts": 112,
    "minions": 274,
    "rare_achv": 31,
-   "craft_achv": 59,
-   "pvp_achv": 69,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a48e439fdb4d1991f727cf526fa6ea5c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736059605",
+   "ult_achv": [],
    "rare_ids": [
     2603,
     2802,
@@ -6811,22 +7264,45 @@
     1508
    ],
    "achv_buckets": {
-    "relic": 13,
-    "pvp": 1,
-    "gatherer": 9,
-    "explorer": 2,
-    "goldsaucer": 1,
-    "treasure": 1
+    "relic": {
+     "n": 13,
+     "min": 8.0,
+     "score": 13.31
+    },
+    "pvp": {
+     "n": 1,
+     "min": 9.2,
+     "score": 1.04
+    },
+    "gatherer": {
+     "n": 9,
+     "min": 2.1,
+     "score": 10.56
+    },
+    "explorer": {
+     "n": 2,
+     "min": 8.6,
+     "score": 2.13
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 4.1,
+     "score": 1.39
+    },
+    "treasure": {
+     "n": 1,
+     "min": 9.5,
+     "score": 1.02
+    }
    }
   },
   "9155192": {
    "mounts": 26,
    "minions": 68,
    "rare_achv": 16,
-   "craft_achv": 31,
-   "pvp_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7410b6dfe82577726d12ffa13933a6c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704037472",
+   "ult_achv": [],
    "rare_ids": [
     268,
     189,
@@ -6846,18 +7322,25 @@
     1192
    ],
    "achv_buckets": {
-    "gatherer": 6,
-    "seasonal": 10
+    "gatherer": {
+     "n": 6,
+     "min": 2.4,
+     "score": 7.82
+    },
+    "seasonal": {
+     "n": 10,
+     "min": 5.8,
+     "score": 11.09
+    }
    }
   },
   "30053876": {
    "mounts": 11,
    "minions": 21,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/797e325f071d5fb1f52b36bee6c3c6ce_8f82f937943b6baf4c565020d5eba0ccfl0_640x873.jpg?1593744816",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6865,10 +7348,9 @@
    "mounts": 59,
    "minions": 149,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bc065c4481047db81446fc469c6689fd_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702413547",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6876,10 +7358,9 @@
    "mounts": 22,
    "minions": 67,
    "rare_achv": 0,
-   "craft_achv": 6,
-   "pvp_achv": 15,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b4bef559b5012b3fa3c6be99688d23dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703389003",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6887,10 +7368,15 @@
    "mounts": 122,
    "minions": 276,
    "rare_achv": 70,
-   "craft_achv": 39,
-   "pvp_achv": 54,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f858f2e55ccefbecee38f46f46e76a60_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704054309",
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     1744,
     3405,
@@ -6918,22 +7404,45 @@
     1591
    ],
    "achv_buckets": {
-    "seasonal": 24,
-    "treasure": 5,
-    "goldsaucer": 3,
-    "relic": 14,
-    "explorer": 7,
-    "pvp": 5
+    "seasonal": {
+     "n": 24,
+     "min": 4.2,
+     "score": 27.13
+    },
+    "treasure": {
+     "n": 5,
+     "min": 5.2,
+     "score": 5.43
+    },
+    "goldsaucer": {
+     "n": 3,
+     "min": 2.4,
+     "score": 3.87
+    },
+    "relic": {
+     "n": 14,
+     "min": 2.8,
+     "score": 15.28
+    },
+    "explorer": {
+     "n": 7,
+     "min": 1.2,
+     "score": 10.07
+    },
+    "pvp": {
+     "n": 5,
+     "min": 3.1,
+     "score": 6.17
+    }
    }
   },
   "50103049": {
    "mounts": 21,
    "minions": 60,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b9e09d031bf30a8f0bb8739cc435a0f_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704602215",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6941,10 +7450,9 @@
    "mounts": 16,
    "minions": 38,
    "rare_achv": 0,
-   "craft_achv": 0,
-   "pvp_achv": 14,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/60822ca9387221b2624115fb247e1b72_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1716470189",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6952,10 +7460,9 @@
    "mounts": 35,
    "minions": 50,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0ea586542c7661b41ef66ee205543b00_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701595632",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6963,10 +7470,9 @@
    "mounts": 148,
    "minions": 323,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/11665c02a72e7ac31b031faab4fb9a0b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1732277517",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6974,10 +7480,9 @@
    "mounts": 26,
    "minions": 69,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0ae1e360ff3e2e23f90343797e495256_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703406304",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6985,10 +7490,9 @@
    "mounts": 49,
    "minions": 71,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c4844de389cacdf864bbc34add04daa_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1780040965",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -6996,10 +7500,9 @@
    "mounts": 3,
    "minions": 2,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bb9d0163bc8460275e54d7ce1a7f74a3_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1711118975",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7007,10 +7510,9 @@
    "mounts": 84,
    "minions": 168,
    "rare_achv": 50,
-   "craft_achv": 85,
-   "pvp_achv": 40,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3e60e109d718755ac3f503d6dee9c348_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1744478373",
+   "ult_achv": [],
    "rare_ids": [
     565,
     2222,
@@ -7038,24 +7540,55 @@
     564
    ],
    "achv_buckets": {
-    "crafter": 5,
-    "gatherer": 4,
-    "goldsaucer": 3,
-    "treasure": 1,
-    "seasonal": 7,
-    "relic": 17,
-    "explorer": 2,
-    "pvp": 3
+    "crafter": {
+     "n": 5,
+     "min": 5.4,
+     "score": 5.51
+    },
+    "gatherer": {
+     "n": 4,
+     "min": 4.4,
+     "score": 4.98
+    },
+    "goldsaucer": {
+     "n": 3,
+     "min": 5.0,
+     "score": 3.49
+    },
+    "treasure": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    },
+    "seasonal": {
+     "n": 7,
+     "min": 6.2,
+     "score": 7.59
+    },
+    "relic": {
+     "n": 17,
+     "min": 3.2,
+     "score": 18.76
+    },
+    "explorer": {
+     "n": 2,
+     "min": 4.8,
+     "score": 2.46
+    },
+    "pvp": {
+     "n": 3,
+     "min": 5.0,
+     "score": 3.69
+    }
    }
   },
   "43335087": {
    "mounts": 8,
    "minions": 19,
    "rare_achv": 0,
-   "craft_achv": 0,
-   "pvp_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6dd404c36e4859dff8175166a0c643ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736399680",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7063,10 +7596,9 @@
    "mounts": 24,
    "minions": 64,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/888cd6d2f1b3d4df706d22a648c0a12f_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704002543",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7074,10 +7606,9 @@
    "mounts": 8,
    "minions": 32,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7fa870a96d18a8c035d7dcab89da72f3_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702172279",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7085,10 +7616,9 @@
    "mounts": 19,
    "minions": 85,
    "rare_achv": 9,
-   "craft_achv": 49,
-   "pvp_achv": 12,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/56717a9302e7f2d12879619cc44c79dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701599820",
+   "ult_achv": [],
    "rare_ids": [
     2168,
     1723,
@@ -7101,19 +7631,30 @@
     2664
    ],
    "achv_buckets": {
-    "crafter": 4,
-    "goldsaucer": 1,
-    "relic": 2
+    "crafter": {
+     "n": 4,
+     "min": 2.9,
+     "score": 5.35
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    },
+    "relic": {
+     "n": 2,
+     "min": 8.2,
+     "score": 2.09
+    }
    }
   },
   "24690035": {
    "mounts": 39,
    "minions": 85,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b2f3bcc1b639b83ac35f734ae0dcc610_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703503935",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7121,10 +7662,9 @@
    "mounts": 54,
    "minions": 74,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/48b1a8154d1081143959589d27686e25_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1769688814",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7132,10 +7672,9 @@
    "mounts": 42,
    "minions": 71,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c017d8c9c58fc45f2a6459437db861c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703059088",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7143,10 +7682,9 @@
    "mounts": 3,
    "minions": 2,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3abe7b828bf90116555b80b17abca16c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1630171959",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7154,10 +7692,11 @@
    "mounts": 66,
    "minions": 123,
    "rare_achv": 9,
-   "craft_achv": 38,
-   "pvp_achv": 44,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d3c970ed15669d384c830ff7989229fa_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703395963",
+   "ult_achv": [
+    "The Epic of Alexander"
+   ],
    "rare_ids": [
     3155,
     1320,
@@ -7170,20 +7709,35 @@
     770
    ],
    "achv_buckets": {
-    "crafter": 2,
-    "pvp": 1,
-    "treasure": 1,
-    "explorer": 1
+    "crafter": {
+     "n": 2,
+     "min": 7.7,
+     "score": 2.11
+    },
+    "pvp": {
+     "n": 1,
+     "min": 9.0,
+     "score": 1.05
+    },
+    "treasure": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    },
+    "explorer": {
+     "n": 1,
+     "min": 8.9,
+     "score": 1.05
+    }
    }
   },
   "43707810": {
    "mounts": 45,
    "minions": 67,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2893f03b3323a1023e43f15b61f01c2b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703022588",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7191,10 +7745,9 @@
    "mounts": 39,
    "minions": 104,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f5d3e22581862abfc57476b27be45cd8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701767696",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7202,10 +7755,9 @@
    "mounts": 91,
    "minions": 152,
    "rare_achv": 20,
-   "craft_achv": 36,
-   "pvp_achv": 52,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/9dd47d5004832f478f876dcb039f7029_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704038000",
+   "ult_achv": [],
    "rare_ids": [
     2218,
     2149,
@@ -7229,19 +7781,30 @@
     2860
    ],
    "achv_buckets": {
-    "pvp": 1,
-    "relic": 16,
-    "treasure": 2
+    "pvp": {
+     "n": 1,
+     "min": 9.3,
+     "score": 1.03
+    },
+    "relic": {
+     "n": 16,
+     "min": 3.5,
+     "score": 17.88
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.9,
+     "score": 2.06
+    }
    }
   },
   "42646897": {
    "mounts": 21,
    "minions": 50,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0b7986045f63deb60d8eef7bd8a12133_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703879795",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7249,10 +7812,15 @@
    "mounts": 149,
    "minions": 186,
    "rare_achv": 69,
-   "craft_achv": 49,
-   "pvp_achv": 41,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/916cc33d7d16a3ba0ed90427968e730d_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704064245",
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     1354,
     2993,
@@ -7280,22 +7848,45 @@
     2145
    ],
    "achv_buckets": {
-    "crafter": 5,
-    "gatherer": 5,
-    "seasonal": 14,
-    "treasure": 2,
-    "relic": 25,
-    "explorer": 3
+    "crafter": {
+     "n": 5,
+     "min": 5.4,
+     "score": 5.61
+    },
+    "gatherer": {
+     "n": 5,
+     "min": 2.4,
+     "score": 7.1
+    },
+    "seasonal": {
+     "n": 14,
+     "min": 4.2,
+     "score": 16.91
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.9,
+     "score": 2.06
+    },
+    "relic": {
+     "n": 25,
+     "min": 3.2,
+     "score": 29.19
+    },
+    "explorer": {
+     "n": 3,
+     "min": 3.3,
+     "score": 3.8
+    }
    }
   },
   "39073020": {
    "mounts": 56,
    "minions": 146,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6bde8f32b50a8814efefc3cedb3d9459_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701597294",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7303,10 +7894,9 @@
    "mounts": 46,
    "minions": 121,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1abb5b3bcbaa56195136037bf5f6f62c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1729785167",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7314,10 +7904,12 @@
    "mounts": 114,
    "minions": 233,
    "rare_achv": 37,
-   "craft_achv": 46,
-   "pvp_achv": 71,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b62c966d854f55967b31694754cc27e6_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1715364341",
+   "ult_achv": [
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
    "rare_ids": [
     2180,
     1469,
@@ -7345,21 +7937,40 @@
     1675
    ],
    "achv_buckets": {
-    "pvp": 6,
-    "goldsaucer": 5,
-    "relic": 14,
-    "crafter": 1,
-    "explorer": 1
+    "pvp": {
+     "n": 6,
+     "min": 3.1,
+     "score": 6.94
+    },
+    "goldsaucer": {
+     "n": 5,
+     "min": 2.4,
+     "score": 5.97
+    },
+    "relic": {
+     "n": 14,
+     "min": 8.1,
+     "score": 14.4
+    },
+    "crafter": {
+     "n": 1,
+     "min": 8.6,
+     "score": 1.07
+    },
+    "explorer": {
+     "n": 1,
+     "min": 8.8,
+     "score": 1.06
+    }
    }
   },
   "26634125": {
    "mounts": 26,
    "minions": 78,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bb3fd4a9af6f7e7d9ef350658e57c73c_410ddb5a66a2fcacf538bec5ea5d0291fl0_640x873.jpg?1699150851",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7367,10 +7978,9 @@
    "mounts": 57,
    "minions": 116,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/584481d72545532f06096dd0c8b5dcc5_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703889824",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7378,10 +7988,9 @@
    "mounts": 20,
    "minions": 28,
    "rare_achv": null,
-   "craft_achv": null,
-   "pvp_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2fbde07a4390bcc6cd18130e30fac148_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702170327",
+   "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
   }

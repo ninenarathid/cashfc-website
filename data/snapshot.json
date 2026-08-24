@@ -258,7 +258,7 @@
  "13533056": {
   "name": "Akemi Rei",
   "parse": 98,
-  "ult": 1,
+  "ult": 4,
   "mounts": 131,
   "minions": 337,
   "rare": 142,
@@ -482,7 +482,7 @@
  "28950119": {
   "name": "Einz Aizerces",
   "parse": 93,
-  "ult": 0,
+  "ult": 1,
   "mounts": 117,
   "minions": 228,
   "rare": 18,
@@ -626,7 +626,7 @@
  "38808156": {
   "name": "Kwiyo Ki",
   "parse": 97,
-  "ult": 0,
+  "ult": 1,
   "mounts": 77,
   "minions": 137,
   "rare": 19,
@@ -642,7 +642,7 @@
  "31902843": {
   "name": "Lapista Scholares",
   "parse": 98,
-  "ult": 1,
+  "ult": 6,
   "mounts": 113,
   "minions": 177,
   "rare": 22,
@@ -706,7 +706,7 @@
  "22461237": {
   "name": "Metatron Vtretikh",
   "parse": 78,
-  "ult": 0,
+  "ult": 4,
   "mounts": 160,
   "minions": 284,
   "rare": 158,
@@ -1208,7 +1208,7 @@
  "8836061": {
   "name": "Allusia Heartfilia",
   "parse": 6,
-  "ult": 1,
+  "ult": 4,
   "mounts": 128,
   "minions": 320,
   "rare": 132,
@@ -1256,7 +1256,7 @@
  "34434658": {
   "name": "Araiva Leonhart",
   "parse": null,
-  "ult": 0,
+  "ult": 1,
   "mounts": 63,
   "minions": 144,
   "rare": 19,
@@ -1288,7 +1288,7 @@
  "29339718": {
   "name": "Ashe Fantine",
   "parse": null,
-  "ult": 0,
+  "ult": 1,
   "mounts": 100,
   "minions": 289,
   "rare": 114,
@@ -1785,7 +1785,7 @@
  "16099244": {
   "name": "Luna Froggo",
   "parse": 100,
-  "ult": 1,
+  "ult": 5,
   "mounts": 103,
   "minions": 168,
   "rare": 101,
@@ -2036,7 +2036,7 @@
  "35158574": {
   "name": "Rikka Haulia",
   "parse": 90,
-  "ult": 0,
+  "ult": 2,
   "mounts": 59,
   "minions": 154,
   "rare": 25,
@@ -2812,7 +2812,7 @@
  "20400811": {
   "name": "Ariadne Ilsildar",
   "parse": null,
-  "ult": 0,
+  "ult": 2,
   "mounts": 116,
   "minions": 293,
   "rare": 94,
@@ -3847,7 +3847,7 @@
  "1643244": {
   "name": "Epicenter Eorzea",
   "parse": 95,
-  "ult": 1,
+  "ult": 5,
   "mounts": 122,
   "minions": 276,
   "rare": 70,
@@ -4647,8 +4647,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "18278635": {
   "name": "Juicy Oniontear",
@@ -4658,19 +4663,29 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "20014912": {
   "name": "Kaede Chan",
-  "parse": null,
+  "parse": 98,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 80,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31012021": {
   "name": "Kaizerz Heaventh",
@@ -4680,8 +4695,13 @@
   "minions": null,
   "rare": null,
   "level": 54,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31923628": {
   "name": "Kakigori Kyrielight",
@@ -4691,8 +4711,13 @@
   "minions": null,
   "rare": null,
   "level": 95,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "57387464": {
   "name": "Kanao Rin",
@@ -5434,13 +5459,13 @@
  "37815847": {
   "name": "Necro Himawari",
   "parse": null,
-  "ult": 0,
+  "ult": 1,
   "mounts": 66,
   "minions": 123,
   "rare": 9,
   "level": 90,
   "cc": null,
-  "chg": null
+  "chg": "2026-08-24"
  },
  "16385554": {
   "name": "Neko Sehkerla",
@@ -6226,13 +6251,13 @@
  "1607774": {
   "name": "Shiomi Shirogane",
   "parse": null,
-  "ult": 0,
+  "ult": 5,
   "mounts": 149,
   "minions": 186,
   "rare": 69,
   "level": 90,
   "cc": null,
-  "chg": null
+  "chg": "2026-08-24"
  },
  "44926008": {
   "name": "Shiraishi Shu",
@@ -6556,13 +6581,13 @@
  "34597671": {
   "name": "Valkyries Zearaskia",
   "parse": null,
-  "ult": 0,
+  "ult": 2,
   "mounts": 114,
   "minions": 233,
   "rare": 37,
   "level": 100,
   "cc": null,
-  "chg": null
+  "chg": "2026-08-24"
  },
  "41073949": {
   "name": "Vanir Arkwright",

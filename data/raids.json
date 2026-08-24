@@ -13491,5 +13491,135 @@
   "extremes": [],
   "legacy": [],
   "_status": "none"
+ },
+ "42342468": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "18278635": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "20014912": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "name": "Ramuh",
+      "best": 98,
+      "median": 95,
+      "kills": 22,
+      "job": "Scholar"
+     },
+     {
+      "label": "E6S",
+      "name": "Ifrit and Garuda",
+      "best": 97,
+      "median": 85,
+      "kills": 18,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E7S",
+      "name": "The Idol of Darkness",
+      "best": 90,
+      "median": 76,
+      "kills": 17,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E8S",
+      "name": "Shiva",
+      "best": 83,
+      "median": 78,
+      "kills": 16,
+      "job": "Astrologian"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "31012021": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "31923628": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
  }
 }

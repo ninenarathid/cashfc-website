@@ -2,6 +2,118 @@
  "events": [
   {
    "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 28950119,
+   "name": "Einz Aizerces",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 38808156,
+   "name": "Kwiyo Ki",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 31902843,
+   "name": "Lapista Scholares",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 22461237,
+   "name": "Metatron Vtretikh",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 8836061,
+   "name": "Allusia Heartfilia",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 34434658,
+   "name": "Araiva Leonhart",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 16099244,
+   "name": "Luna Froggo",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 35158574,
+   "name": "Rikka Haulia",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 20400811,
+   "name": "Ariadne Ilsildar",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 20014912,
+   "name": "Kaede Chan",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 37815847,
+   "name": "Necro Himawari",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 1607774,
+   "name": "Shiomi Shirogane",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 34597671,
+   "name": "Valkyries Zearaskia",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
    "type": "parse_up",
    "id": 28127069,
    "name": "Jim Carried",
@@ -1287,118 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 58455997,
-   "name": "Salmon Sushiroll",
-   "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 58455997,
-   "name": "Salmon Sushiroll",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 58455997,
-   "name": "Salmon Sushiroll",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 58455997,
-   "name": "Salmon Sushiroll",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "set a new best parse: 1"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "set a new best parse: 99"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 44141004,
-   "name": "Soft Stone",
-   "text": "set a new best parse: 64"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 44141004,
-   "name": "Soft Stone",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 44141004,
-   "name": "Soft Stone",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 44141004,
-   "name": "Soft Stone",
-   "text": "cleared M11S for the first time 🎉"
   }
  ]
 }
