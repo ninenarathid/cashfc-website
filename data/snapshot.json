@@ -1,0 +1,5022 @@
+{
+ "24228478": {
+  "name": "Pyrozus Helison",
+  "parse": null,
+  "ult": 0,
+  "mounts": 61,
+  "minions": 227,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "15308846": {
+  "name": "Aqua Eleison",
+  "parse": null,
+  "ult": 0,
+  "mounts": 255,
+  "minions": 463,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "3968346": {
+  "name": "Panuz Chocobunny",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "14959902": {
+  "name": "Notifire Sky",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 59,
+  "cc": null
+ },
+ "28789661": {
+  "name": "Zuma Zerk",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31628293": {
+  "name": "Aaaaaaa Yaaaaaa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 99,
+  "cc": null
+ },
+ "57885671": {
+  "name": "Aisu Kazimira",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "58199536": {
+  "name": "Areeya Lovekin",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "24186600": {
+  "name": "Dumb Bunny",
+  "parse": null,
+  "ult": 0,
+  "mounts": 108,
+  "minions": 174,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29152036": {
+  "name": "Fluffy Tinytail",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "38041221": {
+  "name": "Kori Kona",
+  "parse": null,
+  "ult": 0,
+  "mounts": 159,
+  "minions": 426,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "22767255": {
+  "name": "Minami Taira",
+  "parse": null,
+  "ult": 0,
+  "mounts": 91,
+  "minions": 160,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "33766568": {
+  "name": "Nell Weasley",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "38152072": {
+  "name": "Parker Thonhart",
+  "parse": null,
+  "ult": 0,
+  "mounts": 249,
+  "minions": 475,
+  "rare": 360,
+  "level": 100,
+  "cc": null
+ },
+ "29511615": {
+  "name": "Whitefang Dimmoon",
+  "parse": null,
+  "ult": 0,
+  "mounts": 146,
+  "minions": 242,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "31236337": {
+  "name": "Whitefrost Marionette",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29881709": {
+  "name": "Y'uki No",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 54,
+  "cc": null
+ },
+ "13533056": {
+  "name": "Akemi Rei",
+  "parse": null,
+  "ult": 0,
+  "mounts": 131,
+  "minions": 337,
+  "rare": 142,
+  "level": 100,
+  "cc": null
+ },
+ "44970350": {
+  "name": "Allen Crist",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "19827594": {
+  "name": "Aylufa Regolith",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "32147626": {
+  "name": "Bear Boatz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "36248712": {
+  "name": "Boom Astraea",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "26699926": {
+  "name": "Boonies Princess",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "32147756": {
+  "name": "Bunny Nirawz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "36261473": {
+  "name": "Cheryl Klenovich",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "36130968": {
+  "name": "Chu Celestial",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "28579232": {
+  "name": "Dessiny Valkyrie",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "47221226": {
+  "name": "Destiny Marjory",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "39199441": {
+  "name": "Dodoco Chocodoco",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 87,
+  "cc": null
+ },
+ "40389196": {
+  "name": "Dontae Luciano",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "47540663": {
+  "name": "Edel Meither",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "28950119": {
+  "name": "Einz Aizerces",
+  "parse": null,
+  "ult": 0,
+  "mounts": 117,
+  "minions": 228,
+  "rare": 18,
+  "level": 100,
+  "cc": null
+ },
+ "28120733": {
+  "name": "Fukurou Under",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 4,
+  "cc": null
+ },
+ "12478532": {
+  "name": "Hakuryu Flare",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "50821570": {
+  "name": "Haruki Mizumoto",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 95,
+  "cc": null
+ },
+ "42349146": {
+  "name": "Henzski Celestial",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42021700": {
+  "name": "Josuke Mizumoto",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42948817": {
+  "name": "Karuma Amamiya",
+  "parse": null,
+  "ult": 0,
+  "mounts": 115,
+  "minions": 255,
+  "rare": 14,
+  "level": 100,
+  "cc": null
+ },
+ "57375278": {
+  "name": "Komi Kona",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "25506828": {
+  "name": "Kururuki Tzuzaku",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "38808156": {
+  "name": "Kwiyo Ki",
+  "parse": null,
+  "ult": 0,
+  "mounts": 77,
+  "minions": 137,
+  "rare": 19,
+  "level": 100,
+  "cc": null
+ },
+ "31902843": {
+  "name": "Lapista Scholares",
+  "parse": null,
+  "ult": 0,
+  "mounts": 113,
+  "minions": 177,
+  "rare": 22,
+  "level": 100,
+  "cc": null
+ },
+ "30864049": {
+  "name": "Lay Stardust",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34509521": {
+  "name": "Liliya Quintilis",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "37056222": {
+  "name": "Lucine Nokomis",
+  "parse": null,
+  "ult": 0,
+  "mounts": 147,
+  "minions": 321,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "22461237": {
+  "name": "Metatron Vtretikh",
+  "parse": null,
+  "ult": 0,
+  "mounts": 160,
+  "minions": 284,
+  "rare": 158,
+  "level": 100,
+  "cc": null
+ },
+ "5294880": {
+  "name": "Mithra Muses",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "5435582": {
+  "name": "Mog Hikarino",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "26268800": {
+  "name": "Mono Sodium",
+  "parse": null,
+  "ult": 0,
+  "mounts": 72,
+  "minions": 115,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "6173187": {
+  "name": "Motochita Muses",
+  "parse": null,
+  "ult": 0,
+  "mounts": 177,
+  "minions": 421,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "51922514": {
+  "name": "Mumu Nene",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "36183541": {
+  "name": "Nagi Amano",
+  "parse": null,
+  "ult": 0,
+  "mounts": 42,
+  "minions": 82,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "21620195": {
+  "name": "Nefe'li Lucias",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "5644067": {
+  "name": "Ninenine The'phantom",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "9444020": {
+  "name": "Non Elemental",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "24313144": {
+  "name": "Oxyy Genn",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "22425670": {
+  "name": "Panjasira Niyajama",
+  "parse": null,
+  "ult": 0,
+  "mounts": 103,
+  "minions": 274,
+  "rare": 130,
+  "level": 100,
+  "cc": null
+ },
+ "15912826": {
+  "name": "Rin Shiba",
+  "parse": null,
+  "ult": 0,
+  "mounts": 199,
+  "minions": 339,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "11950156": {
+  "name": "Rothe Happer",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "30667251": {
+  "name": "Roxas Akatsuki",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29325838": {
+  "name": "Ryuu Dawnblade",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "58455997": {
+  "name": "Salmon Sushiroll",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "44133352": {
+  "name": "Seville Beoulve",
+  "parse": null,
+  "ult": 0,
+  "mounts": 173,
+  "minions": 415,
+  "rare": 464,
+  "level": 100,
+  "cc": null
+ },
+ "43864764": {
+  "name": "Shinonome Kamemaru",
+  "parse": null,
+  "ult": 0,
+  "mounts": 233,
+  "minions": 301,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29998658": {
+  "name": "Shippei Astana",
+  "parse": null,
+  "ult": 0,
+  "mounts": 146,
+  "minions": 297,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "44141004": {
+  "name": "Soft Stone",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "23767900": {
+  "name": "Spike Le'granddanois",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "37648492": {
+  "name": "Sunshine Eveningfall",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "11603711": {
+  "name": "Takamina Aamin",
+  "parse": null,
+  "ult": 0,
+  "mounts": 164,
+  "minions": 286,
+  "rare": 79,
+  "level": 100,
+  "cc": null
+ },
+ "58202955": {
+  "name": "Trevas Aka",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "26298391": {
+  "name": "Yozora Luna",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29918404": {
+  "name": "Zarass Gierlos",
+  "parse": null,
+  "ult": 0,
+  "mounts": 204,
+  "minions": 414,
+  "rare": 298,
+  "level": 100,
+  "cc": null
+ },
+ "42976317": {
+  "name": "Zeadz Stellar",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 63,
+  "cc": null
+ },
+ "24123541": {
+  "name": "Zeren Dragonia",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "12058921": {
+  "name": "Heidi Fox",
+  "parse": null,
+  "ult": 0,
+  "mounts": 125,
+  "minions": 274,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "38335568": {
+  "name": "Vivienne Yhisa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "5034519": {
+  "name": "Acerola Orion",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "6951533": {
+  "name": "Aemond Targaryen",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 94,
+  "cc": null
+ },
+ "38802422": {
+  "name": "Aimday Yeji",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "30176379": {
+  "name": "Akee Littlered",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "56108574": {
+  "name": "Akina Natsume",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 74,
+  "cc": null
+ },
+ "8836061": {
+  "name": "Allusia Heartfilia",
+  "parse": null,
+  "ult": 0,
+  "mounts": 128,
+  "minions": 320,
+  "rare": 132,
+  "level": 100,
+  "cc": null
+ },
+ "8286372": {
+  "name": "Aloha Banana",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29090821": {
+  "name": "Amber Levana",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34434658": {
+  "name": "Araiva Leonhart",
+  "parse": null,
+  "ult": 0,
+  "mounts": 63,
+  "minions": 144,
+  "rare": 19,
+  "level": 92,
+  "cc": null
+ },
+ "14476396": {
+  "name": "Arawn A'nnwn",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29339718": {
+  "name": "Ashe Fantine",
+  "parse": null,
+  "ult": 0,
+  "mounts": 100,
+  "minions": 289,
+  "rare": 114,
+  "level": 100,
+  "cc": null
+ },
+ "13860363": {
+  "name": "Ayino Kun",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42215186": {
+  "name": "Azelia Tayta",
+  "parse": null,
+  "ult": 0,
+  "mounts": 16,
+  "minions": 23,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "2957360": {
+  "name": "Break Darkflame",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "4026627": {
+  "name": "Brisingamen Raw",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 97,
+  "cc": null
+ },
+ "14538982": {
+  "name": "Candy Crush",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 94,
+  "cc": null
+ },
+ "44143115": {
+  "name": "Chapton Lola",
+  "parse": null,
+  "ult": 0,
+  "mounts": 33,
+  "minions": 77,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "24150396": {
+  "name": "Chaser Dc",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 85,
+  "cc": null
+ },
+ "46055730": {
+  "name": "Chuju Okita",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34376591": {
+  "name": "Crashbone Noudenet",
+  "parse": null,
+  "ult": 0,
+  "mounts": 65,
+  "minions": 116,
+  "rare": null,
+  "level": 51,
+  "cc": null
+ },
+ "38488824": {
+  "name": "Daffodil Amary",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34546216": {
+  "name": "Dekkapi Kung",
+  "parse": null,
+  "ult": 0,
+  "mounts": 61,
+  "minions": 89,
+  "rare": null,
+  "level": 99,
+  "cc": null
+ },
+ "30293847": {
+  "name": "Devy Lanta",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "30172592": {
+  "name": "Duke Kaboom",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "39959181": {
+  "name": "El Blung",
+  "parse": null,
+  "ult": 0,
+  "mounts": 103,
+  "minions": 161,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "35601257": {
+  "name": "Elaina Celestial",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29795820": {
+  "name": "Elle Lauren",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 58,
+  "cc": null
+ },
+ "42053180": {
+  "name": "Elle'kuro Dean'deluca",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 81,
+  "cc": null
+ },
+ "15543487": {
+  "name": "Evageline Akmacdowell",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "16192933": {
+  "name": "Evangeline Ak-mcdowel",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "47494518": {
+  "name": "Farcia Soluna",
+  "parse": null,
+  "ult": 0,
+  "mounts": 27,
+  "minions": 103,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31899766": {
+  "name": "Firenna Dragist",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31001697": {
+  "name": "Flora Neuenmuller",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29585811": {
+  "name": "Frey Ichinose",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "60619924": {
+  "name": "Gotnogod Soluna",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 84,
+  "cc": null
+ },
+ "39850923": {
+  "name": "Hiro Hikari",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "39850921": {
+  "name": "Hoshiko Hikari",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31001781": {
+  "name": "Ician Wyra'li",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "26844665": {
+  "name": "J'atoh Nunh",
+  "parse": null,
+  "ult": 0,
+  "mounts": 143,
+  "minions": 334,
+  "rare": 16,
+  "level": 100,
+  "cc": null
+ },
+ "18278635": {
+  "name": "Juicy Oniontear",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36183378": {
+  "name": "K' Potassium",
+  "parse": null,
+  "ult": 0,
+  "mounts": 35,
+  "minions": 105,
+  "rare": 2,
+  "level": 100,
+  "cc": null
+ },
+ "24114157": {
+  "name": "Kapi Nampla",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31155521": {
+  "name": "Ketchup Love",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42461214": {
+  "name": "Lena Milize",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "37409022": {
+  "name": "Lighto Fukui",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "46739693": {
+  "name": "Lins Miyuki",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 87,
+  "cc": null
+ },
+ "53933347": {
+  "name": "Little Alyss",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 81,
+  "cc": null
+ },
+ "35634484": {
+  "name": "Little Eevee",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "60852230": {
+  "name": "Lucienvt Yenslayer",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "35854535": {
+  "name": "Luminosity Eternelle",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 99,
+  "cc": null
+ },
+ "33807451": {
+  "name": "Lumus Losgard",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 94,
+  "cc": null
+ },
+ "16099244": {
+  "name": "Luna Froggo",
+  "parse": null,
+  "ult": 0,
+  "mounts": 103,
+  "minions": 168,
+  "rare": 101,
+  "level": 100,
+  "cc": null
+ },
+ "29918255": {
+  "name": "Lyndanisse Vymmaith",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "46243891": {
+  "name": "Marin Elysium",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31655994": {
+  "name": "Meki Mekino",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "32373387": {
+  "name": "Mewwr Wewr",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34790386": {
+  "name": "Mikote Menphina",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "38796459": {
+  "name": "Minion Ke",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 96,
+  "cc": null
+ },
+ "31592995": {
+  "name": "Mizuki Hoshiko",
+  "parse": null,
+  "ult": 0,
+  "mounts": 107,
+  "minions": 317,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42215185": {
+  "name": "Nakamura Sayu",
+  "parse": null,
+  "ult": 0,
+  "mounts": 67,
+  "minions": 105,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "3902073": {
+  "name": "Namine Raspberyl",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "39001402": {
+  "name": "Nes Brio",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 89,
+  "cc": null
+ },
+ "30596644": {
+  "name": "Noelle Eisner",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31831003": {
+  "name": "North Nostafari",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "7283668": {
+  "name": "Nowhere Man",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 96,
+  "cc": null
+ },
+ "8113158": {
+  "name": "Olivie Brown",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "2852829": {
+  "name": "Papamaru Dj",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "37061370": {
+  "name": "Peonies Dunieres",
+  "parse": null,
+  "ult": 0,
+  "mounts": 110,
+  "minions": 230,
+  "rare": 53,
+  "level": 100,
+  "cc": null
+ },
+ "31632996": {
+  "name": "Puni Punii",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "33387937": {
+  "name": "R'bael Senkou",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "60599300": {
+  "name": "Rainy Tempestra",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 57,
+  "cc": null
+ },
+ "29907674": {
+  "name": "Ranjoe Tp'",
+  "parse": null,
+  "ult": 0,
+  "mounts": 42,
+  "minions": 115,
+  "rare": 31,
+  "level": 100,
+  "cc": null
+ },
+ "35158574": {
+  "name": "Rikka Haulia",
+  "parse": null,
+  "ult": 0,
+  "mounts": 59,
+  "minions": 154,
+  "rare": 25,
+  "level": 100,
+  "cc": null
+ },
+ "8713004": {
+  "name": "Shoe Bite",
+  "parse": null,
+  "ult": 0,
+  "mounts": 75,
+  "minions": 107,
+  "rare": null,
+  "level": 83,
+  "cc": null
+ },
+ "36363091": {
+  "name": "Snow Winsfield",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 68,
+  "cc": null
+ },
+ "53006949": {
+  "name": "Snow Wit",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "49929911": {
+  "name": "Sun Prism",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "30582341": {
+  "name": "Sweetpea Swp",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "30253575": {
+  "name": "Syndra Gal",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "36624109": {
+  "name": "Tamazon Kitsu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "55640987": {
+  "name": "Thuchy Oppa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 87,
+  "cc": null
+ },
+ "29991345": {
+  "name": "Transparent Crystal",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "33608576": {
+  "name": "Verles Eisner",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31806535": {
+  "name": "Viiska Howl",
+  "parse": null,
+  "ult": 0,
+  "mounts": 60,
+  "minions": 232,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42845691": {
+  "name": "Yuukizuz Akino",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "15932791": {
+  "name": "Yuziris Andra'nov",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "60814172": {
+  "name": "Ardthur Greywaters",
+  "parse": null,
+  "ult": 0,
+  "mounts": 2,
+  "minions": 2,
+  "rare": 0,
+  "level": 32,
+  "cc": null
+ },
+ "54318245": {
+  "name": "Doffy Centuryboy",
+  "parse": null,
+  "ult": 0,
+  "mounts": 9,
+  "minions": 22,
+  "rare": null,
+  "level": 86,
+  "cc": null
+ },
+ "54419512": {
+  "name": "Film Nio",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 77,
+  "cc": null
+ },
+ "60873337": {
+  "name": "Imy Kitty",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 61,
+  "cc": null
+ },
+ "60475540": {
+  "name": "Joaline Auchefornei",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 74,
+  "cc": null
+ },
+ "19896720": {
+  "name": "Linda Alvina",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 92,
+  "cc": null
+ },
+ "61758559": {
+  "name": "Lree Thai",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 64,
+  "cc": null
+ },
+ "40160371": {
+  "name": "Mantra Crimson",
+  "parse": null,
+  "ult": 0,
+  "mounts": 54,
+  "minions": 74,
+  "rare": null,
+  "level": 85,
+  "cc": null
+ },
+ "60972300": {
+  "name": "Mizuki Sekine",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 95,
+  "cc": null
+ },
+ "29389419": {
+  "name": "Osilit Bloodhood",
+  "parse": null,
+  "ult": 0,
+  "mounts": 127,
+  "minions": 218,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "60780260": {
+  "name": "Priscilla Deusvult",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "60933255": {
+  "name": "Priya Heartfilia",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "60854619": {
+  "name": "Quasar Araxelanz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 54,
+  "cc": null
+ },
+ "61748681": {
+  "name": "Qzarel Lumina",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "30741737": {
+  "name": "Samuel Porter",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 54,
+  "cc": null
+ },
+ "60211788": {
+  "name": "Shikihara Catlover",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31685121": {
+  "name": "Squid Girls",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "57419573": {
+  "name": "A'kane Dorothy",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "25504317": {
+  "name": "Achel Clay",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "5297796": {
+  "name": "Aem Sejuro",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 93,
+  "cc": null
+ },
+ "34505698": {
+  "name": "Aerithara Elric-",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 91,
+  "cc": null
+ },
+ "1623780": {
+  "name": "Agendria Lometta",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "3256238": {
+  "name": "Ai Tsukuyomi",
+  "parse": null,
+  "ult": 0,
+  "mounts": 30,
+  "minions": 101,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "45150763": {
+  "name": "Aiqing Kumamon",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "38018463": {
+  "name": "Aisha Edel'sfiel",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "35863297": {
+  "name": "Aleks Ss",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 92,
+  "cc": null
+ },
+ "34873931": {
+  "name": "Alexander Lucifer",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 40,
+  "cc": null
+ },
+ "22164254": {
+  "name": "Alice Auaa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 84,
+  "cc": null
+ },
+ "18538032": {
+  "name": "Alice Carrollo",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42509107": {
+  "name": "Alicia Bohm",
+  "parse": null,
+  "ult": 0,
+  "mounts": 59,
+  "minions": 236,
+  "rare": null,
+  "level": 92,
+  "cc": null
+ },
+ "28860700": {
+  "name": "Alicia Silverwalker",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "41059127": {
+  "name": "Alt Pira",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 38,
+  "cc": null
+ },
+ "24770177": {
+  "name": "Alteria Ferron",
+  "parse": null,
+  "ult": 0,
+  "mounts": 135,
+  "minions": 321,
+  "rare": 15,
+  "level": 95,
+  "cc": null
+ },
+ "50267765": {
+  "name": "Alternative Zero",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 41,
+  "cc": null
+ },
+ "28810440": {
+  "name": "Amil Aeronril",
+  "parse": null,
+  "ult": 0,
+  "mounts": 44,
+  "minions": 98,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "40809430": {
+  "name": "Ank Drogonewt",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 85,
+  "cc": null
+ },
+ "30943571": {
+  "name": "Anya Takamaki",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 53,
+  "cc": null
+ },
+ "28213199": {
+  "name": "Aquilax Xaliuqa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 86,
+  "cc": null
+ },
+ "31764639": {
+  "name": "Arctophylax D'arc",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 63,
+  "cc": null
+ },
+ "4505633": {
+  "name": "Arcz Iris",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "20400811": {
+  "name": "Ariadne Ilsildar",
+  "parse": null,
+  "ult": 0,
+  "mounts": 116,
+  "minions": 293,
+  "rare": 94,
+  "level": 90,
+  "cc": null
+ },
+ "31334257": {
+  "name": "Arichii Marilouay",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "15895457": {
+  "name": "Arik Ageas",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 99,
+  "cc": null
+ },
+ "36159286": {
+  "name": "Armadillo Girdled",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29944592": {
+  "name": "Ascaris Altz'",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 57,
+  "cc": null
+ },
+ "512253": {
+  "name": "Ashelia White",
+  "parse": null,
+  "ult": 0,
+  "mounts": 32,
+  "minions": 112,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "29918399": {
+  "name": "Athaliah Aylin",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "25620101": {
+  "name": "Athena Leonheart",
+  "parse": null,
+  "ult": 0,
+  "mounts": 25,
+  "minions": 115,
+  "rare": null,
+  "level": 91,
+  "cc": null
+ },
+ "30863840": {
+  "name": "Aui Aye",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "18659677": {
+  "name": "Avoiding Puddle",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "34086580": {
+  "name": "Baby Bb",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "29479627": {
+  "name": "Bark Ree",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 59,
+  "cc": null
+ },
+ "31806958": {
+  "name": "Baron Master",
+  "parse": null,
+  "ult": 0,
+  "mounts": 65,
+  "minions": 154,
+  "rare": 15,
+  "level": 100,
+  "cc": null
+ },
+ "24211446": {
+  "name": "Beammess Dose",
+  "parse": null,
+  "ult": 0,
+  "mounts": 77,
+  "minions": 160,
+  "rare": 7,
+  "level": 98,
+  "cc": null
+ },
+ "27213488": {
+  "name": "Bella Arisu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 83,
+  "cc": null
+ },
+ "30426712": {
+  "name": "Ben Kao",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 55,
+  "cc": null
+ },
+ "31010962": {
+  "name": "Bi Bo",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "17473430": {
+  "name": "Bigon Truesilver",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "58199756": {
+  "name": "Billy Najah",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "43423269": {
+  "name": "Bladez Sweeney",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "45938803": {
+  "name": "Blue Mana",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "47658617": {
+  "name": "Bogotaz Lucaz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 39,
+  "cc": null
+ },
+ "5720080": {
+  "name": "Bowling Chan",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "33604767": {
+  "name": "Boyekon Redroof",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "21899488": {
+  "name": "Brightbye Goodboi",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 76,
+  "cc": null
+ },
+ "29734643": {
+  "name": "Brownie Brown",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "33954541": {
+  "name": "Bunnypx Wild",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "38276690": {
+  "name": "Cannes Ferragamo",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36320452": {
+  "name": "Cappu Chino",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "24104450": {
+  "name": "Cepheus Stellar",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31471584": {
+  "name": "Chicha Chichi",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "46485530": {
+  "name": "Chillin Chu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 92,
+  "cc": null
+ },
+ "36609029": {
+  "name": "Chissa Tofu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 51,
+  "cc": null
+ },
+ "58160672": {
+  "name": "Choco Ball",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 51,
+  "cc": null
+ },
+ "35096411": {
+  "name": "Chocola Meilleure",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 51,
+  "cc": null
+ },
+ "55476354": {
+  "name": "Chrisyard Mephisto",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 87,
+  "cc": null
+ },
+ "8999658": {
+  "name": "Chzzck Godslayer",
+  "parse": null,
+  "ult": 0,
+  "mounts": 140,
+  "minions": 216,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "16034463": {
+  "name": "Cool Piggy",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "24103365": {
+  "name": "Cygnus Stellar",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34228206": {
+  "name": "Cystal Wingsky",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "40990512": {
+  "name": "Dat Duc",
+  "parse": null,
+  "ult": 0,
+  "mounts": 58,
+  "minions": 114,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "18578874": {
+  "name": "De'lalia Aredhel",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "31737067": {
+  "name": "Deuce Bigalow",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "36260815": {
+  "name": "Dlite Belialuin",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 76,
+  "cc": null
+ },
+ "46625326": {
+  "name": "Draku Majikku",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "40394823": {
+  "name": "Dummii Amary",
+  "parse": null,
+  "ult": 0,
+  "mounts": 112,
+  "minions": 274,
+  "rare": 31,
+  "level": 100,
+  "cc": null
+ },
+ "9155192": {
+  "name": "E'stelle Blanc",
+  "parse": null,
+  "ult": 0,
+  "mounts": 26,
+  "minions": 68,
+  "rare": 16,
+  "level": 70,
+  "cc": null
+ },
+ "52866044": {
+  "name": "Eidmoth Lion",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 60,
+  "cc": null
+ },
+ "35250799": {
+  "name": "Eiko Fujiwara",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29612903": {
+  "name": "Elenor Light",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 53,
+  "cc": null
+ },
+ "34511319": {
+  "name": "Elise Lionheart",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "30053876": {
+  "name": "Elisis Deost",
+  "parse": null,
+  "ult": 0,
+  "mounts": 11,
+  "minions": 21,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36855080": {
+  "name": "Elkronin Ketchupeater",
+  "parse": null,
+  "ult": 0,
+  "mounts": 59,
+  "minions": 149,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34522645": {
+  "name": "Ellone Chrysler",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34522644": {
+  "name": "Elwann Halffu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "44409962": {
+  "name": "Elynn Faenys",
+  "parse": null,
+  "ult": 0,
+  "mounts": 22,
+  "minions": 67,
+  "rare": 0,
+  "level": 100,
+  "cc": null
+ },
+ "40910522": {
+  "name": "Emi Kamazuki",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "32046284": {
+  "name": "Ene Shy",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "47645809": {
+  "name": "Entprise Yakult",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 85,
+  "cc": null
+ },
+ "57967682": {
+  "name": "Envynaja T'kob",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "1643244": {
+  "name": "Epicenter Eorzea",
+  "parse": null,
+  "ult": 0,
+  "mounts": 122,
+  "minions": 276,
+  "rare": 70,
+  "level": 100,
+  "cc": null
+ },
+ "15785511": {
+  "name": "Eric Luminous",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "31519555": {
+  "name": "Ernese Gold",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "16397778": {
+  "name": "Eydis Ein",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "50103049": {
+  "name": "Faelix Frosty",
+  "parse": null,
+  "ult": 0,
+  "mounts": 21,
+  "minions": 60,
+  "rare": null,
+  "level": 84,
+  "cc": null
+ },
+ "50120275": {
+  "name": "Faerina Frosty",
+  "parse": null,
+  "ult": 0,
+  "mounts": 16,
+  "minions": 38,
+  "rare": 0,
+  "level": 80,
+  "cc": null
+ },
+ "31802544": {
+  "name": "Fafamu Famu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 65,
+  "cc": null
+ },
+ "29782062": {
+  "name": "Farn Yun",
+  "parse": null,
+  "ult": 0,
+  "mounts": 35,
+  "minions": 50,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "33859953": {
+  "name": "Felous Vanish",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 98,
+  "cc": null
+ },
+ "36228998": {
+  "name": "Fishstop Moon-osha",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 86,
+  "cc": null
+ },
+ "30559609": {
+  "name": "Florice Frostingway",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "16168981": {
+  "name": "Francis Fleuret",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 57,
+  "cc": null
+ },
+ "47337818": {
+  "name": "Freedom Marjory",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36168487": {
+  "name": "Freki Plumis",
+  "parse": null,
+  "ult": 0,
+  "mounts": 148,
+  "minions": 323,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29863848": {
+  "name": "Furfur Albadia",
+  "parse": null,
+  "ult": 0,
+  "mounts": 26,
+  "minions": 69,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "45101386": {
+  "name": "Gin Salmon",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36165070": {
+  "name": "Ginonpu Kudokusega",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 70,
+  "cc": null
+ },
+ "12235132": {
+  "name": "God King",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 79,
+  "cc": null
+ },
+ "37696532": {
+  "name": "Golden Lancer",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 88,
+  "cc": null
+ },
+ "36183250": {
+  "name": "Gramp Lessgooo",
+  "parse": null,
+  "ult": 0,
+  "mounts": 49,
+  "minions": 71,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29710631": {
+  "name": "Grimnier Von'colven",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "51852387": {
+  "name": "Gunz Fields",
+  "parse": null,
+  "ult": 0,
+  "mounts": 3,
+  "minions": 2,
+  "rare": null,
+  "level": 29,
+  "cc": null
+ },
+ "36090951": {
+  "name": "Guuji Mercedexs",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29498103": {
+  "name": "Haku Quinu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 83,
+  "cc": null
+ },
+ "58725327": {
+  "name": "Halyn Halora",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "13162369": {
+  "name": "Hanabira Haruna",
+  "parse": null,
+  "ult": 0,
+  "mounts": 84,
+  "minions": 168,
+  "rare": 50,
+  "level": 86,
+  "cc": null
+ },
+ "25661865": {
+  "name": "Hanami Hunter",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 62,
+  "cc": null
+ },
+ "32857279": {
+  "name": "Harp Abel",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "16173247": {
+  "name": "Haru Luminous",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "43335087": {
+  "name": "Haru Senbonzakura",
+  "parse": null,
+  "ult": 0,
+  "mounts": 8,
+  "minions": 19,
+  "rare": 0,
+  "level": 91,
+  "cc": null
+ },
+ "30333493": {
+  "name": "Haruko Sho",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "28163062": {
+  "name": "Helga Holybringer",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 78,
+  "cc": null
+ },
+ "28931955": {
+  "name": "Helotte Phantompray",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 54,
+  "cc": null
+ },
+ "33272037": {
+  "name": "Hermanita Imouto",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 83,
+  "cc": null
+ },
+ "27875326": {
+  "name": "Hez King",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 88,
+  "cc": null
+ },
+ "2168537": {
+  "name": "Idiosy Glorfindel",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 47,
+  "cc": null
+ },
+ "29542040": {
+  "name": "Immundus Vitae",
+  "parse": null,
+  "ult": 0,
+  "mounts": 24,
+  "minions": 64,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "44925955": {
+  "name": "Iris Kaoru",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 83,
+  "cc": null
+ },
+ "58508421": {
+  "name": "Ishfhiyrtt Ntr",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "36001341": {
+  "name": "Ixa Vollstandig",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 23,
+  "cc": null
+ },
+ "40652404": {
+  "name": "Jade Solaire",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "33966579": {
+  "name": "James Jasper",
+  "parse": null,
+  "ult": 0,
+  "mounts": 8,
+  "minions": 32,
+  "rare": null,
+  "level": 32,
+  "cc": null
+ },
+ "35361599": {
+  "name": "Jedi Rider",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 60,
+  "cc": null
+ },
+ "60692052": {
+  "name": "Jedos Darkflamemaster",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "23901016": {
+  "name": "Jeemoh Jeemomoh",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "28127069": {
+  "name": "Jim Carried",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "35270049": {
+  "name": "Joey Zaa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "42277370": {
+  "name": "Jorjae Wang",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 70,
+  "cc": null
+ },
+ "34290087": {
+  "name": "Judy Hops",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "42342468": {
+  "name": "Juhara Chiharu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "20014912": {
+  "name": "Kaede Chan",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "31012021": {
+  "name": "Kaizerz Heaventh",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 54,
+  "cc": null
+ },
+ "31923628": {
+  "name": "Kakigori Kyrielight",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 95,
+  "cc": null
+ },
+ "57387464": {
+  "name": "Kanao Rin",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 64,
+  "cc": null
+ },
+ "43797998": {
+  "name": "Kappa Kappayuthz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 66,
+  "cc": null
+ },
+ "34155014": {
+  "name": "Karok Yawn",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "47218599": {
+  "name": "Kawa Lynn",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "28679815": {
+  "name": "Kazumi Masa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 82,
+  "cc": null
+ },
+ "12003402": {
+  "name": "Kei Chan",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 51,
+  "cc": null
+ },
+ "44081209": {
+  "name": "Kelfa Kalifula",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 60,
+  "cc": null
+ },
+ "46431057": {
+  "name": "Kin Grita",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 93,
+  "cc": null
+ },
+ "50417039": {
+  "name": "King's Tarotto",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 79,
+  "cc": null
+ },
+ "39034125": {
+  "name": "Kirin Rin",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "29899571": {
+  "name": "Kisei Ryusekai",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "29659200": {
+  "name": "Kleenex Tissue",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "48527875": {
+  "name": "Kotetsu Bardly",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "28012936": {
+  "name": "Kouro Moro",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 15,
+  "cc": null
+ },
+ "37881871": {
+  "name": "Kyaru Momochi",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "27905098": {
+  "name": "Kynnir Dragogriff",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 68,
+  "cc": null
+ },
+ "5761905": {
+  "name": "Laura Nessonier",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "34510497": {
+  "name": "Leonest Lionheart",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "39907836": {
+  "name": "Leylin Kim",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 77,
+  "cc": null
+ },
+ "568409": {
+  "name": "Lime Xerxes",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "18489055": {
+  "name": "Linda Ing",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "24747734": {
+  "name": "Liora Verasch",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "31685046": {
+  "name": "Lipwan Superior",
+  "parse": null,
+  "ult": 0,
+  "mounts": 19,
+  "minions": 85,
+  "rare": 9,
+  "level": 90,
+  "cc": null
+ },
+ "30645476": {
+  "name": "Little Sister",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "24300584": {
+  "name": "Litty Suta-bakkusu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 74,
+  "cc": null
+ },
+ "29162543": {
+  "name": "Lmoavkei Best",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 69,
+  "cc": null
+ },
+ "16172034": {
+  "name": "Lucy Luminous",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 70,
+  "cc": null
+ },
+ "24690035": {
+  "name": "Lynn De'lancelot",
+  "parse": null,
+  "ult": 0,
+  "mounts": 39,
+  "minions": 85,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "16173017": {
+  "name": "Lysette Coreria",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 89,
+  "cc": null
+ },
+ "31211526": {
+  "name": "Mali Narak",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "27412308": {
+  "name": "Masahiro Dixon",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29764422": {
+  "name": "Masakujung Crystalys",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 84,
+  "cc": null
+ },
+ "30559981": {
+  "name": "Maverick Flourite",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "44031569": {
+  "name": "Maya Smith",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 82,
+  "cc": null
+ },
+ "59690047": {
+  "name": "Mayonnaise Chocolate",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 32,
+  "cc": null
+ },
+ "36016570": {
+  "name": "Mental Breakdance",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 96,
+  "cc": null
+ },
+ "28380674": {
+  "name": "Mickey Valentine",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 85,
+  "cc": null
+ },
+ "49891708": {
+  "name": "Midas Mirror",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 86,
+  "cc": null
+ },
+ "39734861": {
+  "name": "Mighty Pui",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 23,
+  "cc": null
+ },
+ "51044792": {
+  "name": "Miijinz Inferne",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 76,
+  "cc": null
+ },
+ "37143017": {
+  "name": "Milly Beee",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "34507717": {
+  "name": "Mira Lionheart",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "29151949": {
+  "name": "Mirai Haname",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 63,
+  "cc": null
+ },
+ "34474329": {
+  "name": "Mirea Mimlemel",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 85,
+  "cc": null
+ },
+ "32793260": {
+  "name": "Mizuki Mizuhiki",
+  "parse": null,
+  "ult": 0,
+  "mounts": 42,
+  "minions": 71,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "27818479": {
+  "name": "Mocca Lighting",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 74,
+  "cc": null
+ },
+ "34184163": {
+  "name": "Moji Momiji",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "32046109": {
+  "name": "Mojito Crush",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 82,
+  "cc": null
+ },
+ "31225966": {
+  "name": "Molepy Walker",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 35,
+  "cc": null
+ },
+ "34611224": {
+  "name": "Momose Hochizora",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "37911500": {
+  "name": "Monandaeg Deliciosus",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "30714243": {
+  "name": "Moona Freed",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "10807425": {
+  "name": "Mulata Shogo",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 22,
+  "cc": null
+ },
+ "35164241": {
+  "name": "Murgur Murgurgle",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "32023977": {
+  "name": "Mystic Hwall",
+  "parse": null,
+  "ult": 0,
+  "mounts": 3,
+  "minions": 2,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "10638899": {
+  "name": "Naomi Misora",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 60,
+  "cc": null
+ },
+ "8234305": {
+  "name": "Nara Saurus",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "17723972": {
+  "name": "Naruga Vagrant",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "29128390": {
+  "name": "Naskdin Ykorn",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 93,
+  "cc": null
+ },
+ "30421228": {
+  "name": "Natsuki Tri",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "37815847": {
+  "name": "Necro Himawari",
+  "parse": null,
+  "ult": 0,
+  "mounts": 66,
+  "minions": 123,
+  "rare": 9,
+  "level": 90,
+  "cc": null
+ },
+ "16385554": {
+  "name": "Neko Sehkerla",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 50,
+  "cc": null
+ },
+ "33870496": {
+  "name": "Nemoha Chelewae",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "32150308": {
+  "name": "Nene Mumu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36149590": {
+  "name": "Neo Anderson",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "27302476": {
+  "name": "Nesies Ashwood",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "43707810": {
+  "name": "New Skills",
+  "parse": null,
+  "ult": 0,
+  "mounts": 45,
+  "minions": 67,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "42341300": {
+  "name": "Newpiyaa Razboi",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "33931644": {
+  "name": "Nier Eclipse",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 31,
+  "cc": null
+ },
+ "49891716": {
+  "name": "Nin Pesnut",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "58314431": {
+  "name": "No Mushroomgame",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "24991794": {
+  "name": "Noel Rosteilo",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "28011817": {
+  "name": "Nore Vanessa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "30056598": {
+  "name": "Norn Noy",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 71,
+  "cc": null
+ },
+ "37731936": {
+  "name": "Null Skyrage",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "34057749": {
+  "name": "Nuna Ghiza",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "5762434": {
+  "name": "Oakley Ale",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "32223527": {
+  "name": "Odachi Nameless",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "27935097": {
+  "name": "Ohmo Shiroi",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 71,
+  "cc": null
+ },
+ "33825599": {
+  "name": "Oishi Allcafe",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "31745191": {
+  "name": "Oivxii Hikari",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "44409828": {
+  "name": "Olgar Aurelius",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42653584": {
+  "name": "Omare Maki",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 68,
+  "cc": null
+ },
+ "26433344": {
+  "name": "Oppa' Pkz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "56143721": {
+  "name": "Owlz Nithz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 53,
+  "cc": null
+ },
+ "53019673": {
+  "name": "Pallas Raindance",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "37065671": {
+  "name": "Paxis Stone",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 63,
+  "cc": null
+ },
+ "45094564": {
+  "name": "Peace Kumamon",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36162283": {
+  "name": "Peace Walker",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 69,
+  "cc": null
+ },
+ "22689957": {
+  "name": "Peko Saku",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 82,
+  "cc": null
+ },
+ "36151779": {
+  "name": "Percival Heisenberg",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 91,
+  "cc": null
+ },
+ "718420": {
+  "name": "Phantasm Gloria",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "17468497": {
+  "name": "Pheonix Down",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "43481858": {
+  "name": "Pika Juni",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "48010347": {
+  "name": "Pineapplepipe Pikachu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "43116127": {
+  "name": "Piyo Stellar",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 68,
+  "cc": null
+ },
+ "57711304": {
+  "name": "Pola Lis",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "44475864": {
+  "name": "Porokon Savant",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 96,
+  "cc": null
+ },
+ "25541816": {
+  "name": "Presca Burgstalgen",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "48050166": {
+  "name": "Promptpay Legend",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 53,
+  "cc": null
+ },
+ "2656352": {
+  "name": "Puro Purio",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "41098683": {
+  "name": "Qxrt Xq",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 52,
+  "cc": null
+ },
+ "3908109": {
+  "name": "Rachel Martius",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "27453486": {
+  "name": "Rainbow Byvq",
+  "parse": null,
+  "ult": 0,
+  "mounts": 39,
+  "minions": 104,
+  "rare": null,
+  "level": 86,
+  "cc": null
+ },
+ "47401423": {
+  "name": "Rana Murphy",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 61,
+  "cc": null
+ },
+ "53799276": {
+  "name": "Raysen Windsor",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 72,
+  "cc": null
+ },
+ "47585776": {
+  "name": "Ren Amamiyaa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 53,
+  "cc": null
+ },
+ "22164216": {
+  "name": "Revan Martius",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "33487130": {
+  "name": "Rimuru Tempesta",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "40624820": {
+  "name": "Rin Miyauchi",
+  "parse": null,
+  "ult": 0,
+  "mounts": 91,
+  "minions": 152,
+  "rare": 20,
+  "level": 100,
+  "cc": null
+ },
+ "29901287": {
+  "name": "Rishima Garaine",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "42646897": {
+  "name": "Rising Top",
+  "parse": null,
+  "ult": 0,
+  "mounts": 21,
+  "minions": 50,
+  "rare": null,
+  "level": 77,
+  "cc": null
+ },
+ "36225854": {
+  "name": "Roku Roku",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "30472222": {
+  "name": "Rossete Sacrifar",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "39961214": {
+  "name": "Ruby Sugarstar",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "35863038": {
+  "name": "Ruka Aeon",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 82,
+  "cc": null
+ },
+ "29395299": {
+  "name": "Runie Run",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "31710850": {
+  "name": "Ryoshi Headhunter",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 60,
+  "cc": null
+ },
+ "43374218": {
+  "name": "Sakura Stellar",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "42053451": {
+  "name": "Sam Millers",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 60,
+  "cc": null
+ },
+ "37924865": {
+  "name": "Samosaz Spici",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 56,
+  "cc": null
+ },
+ "47548993": {
+  "name": "Sanya Polaali",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 61,
+  "cc": null
+ },
+ "29864090": {
+  "name": "Scylla Melfrey",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "40940579": {
+  "name": "Seafood Salad",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 83,
+  "cc": null
+ },
+ "29501278": {
+  "name": "Selene Raenia",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 64,
+  "cc": null
+ },
+ "10837088": {
+  "name": "Selker Phantom",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 97,
+  "cc": null
+ },
+ "29351667": {
+  "name": "Sete Lunarstra",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 72,
+  "cc": null
+ },
+ "1607774": {
+  "name": "Shiomi Shirogane",
+  "parse": null,
+  "ult": 0,
+  "mounts": 149,
+  "minions": 186,
+  "rare": 69,
+  "level": 90,
+  "cc": null
+ },
+ "44926008": {
+  "name": "Shiraishi Shu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "50131148": {
+  "name": "Shiryu Shadow",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "37236539": {
+  "name": "Shivan Ryse",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "32027062": {
+  "name": "Sir Colaz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 76,
+  "cc": null
+ },
+ "47715909": {
+  "name": "Sleepless Pierrot",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "31239994": {
+  "name": "Sopier Kit",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 92,
+  "cc": null
+ },
+ "35361791": {
+  "name": "Soraacg Mikazuki",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "53247027": {
+  "name": "Sorara Zeric",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 28,
+  "cc": null
+ },
+ "2801638": {
+  "name": "Spacer Kirito",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "38971737": {
+  "name": "Stongar Scene",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 40,
+  "cc": null
+ },
+ "45194317": {
+  "name": "Sweet Dango",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 89,
+  "cc": null
+ },
+ "42690618": {
+  "name": "Syliz Lena",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36164592": {
+  "name": "Synyster Gionni",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "43282900": {
+  "name": "Takumi Yuki",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "25619696": {
+  "name": "Taro Yeon",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 76,
+  "cc": null
+ },
+ "29992221": {
+  "name": "Tem Sulyvhan",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 57,
+  "cc": null
+ },
+ "30848420": {
+  "name": "Temuru Tempesto",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "39869488": {
+  "name": "Thracie Tood",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "15783222": {
+  "name": "Tina Luminous",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 84,
+  "cc": null
+ },
+ "34524608": {
+  "name": "Tinana Titania",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 82,
+  "cc": null
+ },
+ "39073020": {
+  "name": "Toasted Bread",
+  "parse": null,
+  "ult": 0,
+  "mounts": 56,
+  "minions": 146,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "39458429": {
+  "name": "Tofu Tofu",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "37843804": {
+  "name": "Tony Woodsome",
+  "parse": null,
+  "ult": 0,
+  "mounts": 46,
+  "minions": 121,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "51077689": {
+  "name": "Toru Celestial",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "15296154": {
+  "name": "Tussuki Yoshikuni",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "31833183": {
+  "name": "Ull Sixktraz",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 57,
+  "cc": null
+ },
+ "34357286": {
+  "name": "Umbra Cereza",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 74,
+  "cc": null
+ },
+ "34597671": {
+  "name": "Valkyries Zearaskia",
+  "parse": null,
+  "ult": 0,
+  "mounts": 114,
+  "minions": 233,
+  "rare": 37,
+  "level": 100,
+  "cc": null
+ },
+ "41073949": {
+  "name": "Vanir Arkwright",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 87,
+  "cc": null
+ },
+ "23921786": {
+  "name": "Vinera Fennes",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "50416713": {
+  "name": "Viperrin Stormrage",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 89,
+  "cc": null
+ },
+ "36490427": {
+  "name": "Waffle Spike",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "28067306": {
+  "name": "Warlord Akuma",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 80,
+  "cc": null
+ },
+ "51078504": {
+  "name": "Wayde Skyrunner",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 76,
+  "cc": null
+ },
+ "51359685": {
+  "name": "Whiskerus Purrenius",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "27293755": {
+  "name": "Whitebyss Light",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 83,
+  "cc": null
+ },
+ "43037186": {
+  "name": "Wind-up Whitefrost",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 2,
+  "cc": null
+ },
+ "29853808": {
+  "name": "Winner Hamm",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 63,
+  "cc": null
+ },
+ "49712485": {
+  "name": "Winston Tnot",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 45,
+  "cc": null
+ },
+ "30088400": {
+  "name": "Winyaan Seirei",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36427926": {
+  "name": "Wipa Chawa",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "26634125": {
+  "name": "Wtdragonus Zenith",
+  "parse": null,
+  "ult": 0,
+  "mounts": 26,
+  "minions": 78,
+  "rare": null,
+  "level": 91,
+  "cc": null
+ },
+ "30504149": {
+  "name": "Xia Qingyue",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "36315588": {
+  "name": "Xlis Alice",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 50,
+  "cc": null
+ },
+ "51060767": {
+  "name": "Yatchy Concreategirls",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 76,
+  "cc": null
+ },
+ "47423083": {
+  "name": "Yueying Hua",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "38841973": {
+  "name": "Yujin Narak",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 54,
+  "cc": null
+ },
+ "48152565": {
+  "name": "Yuma Miretmoor",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "42832439": {
+  "name": "Yume Mukuchi",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 65,
+  "cc": null
+ },
+ "693670": {
+  "name": "Zediez Vesarius",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "35629716": {
+  "name": "Zeldris Ragnarsson",
+  "parse": null,
+  "ult": 0,
+  "mounts": 57,
+  "minions": 116,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "39850342": {
+  "name": "Zene Neko",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "10926041": {
+  "name": "Zero Einzbern",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "40669284": {
+  "name": "Zewen Naptune",
+  "parse": null,
+  "ult": 0,
+  "mounts": 20,
+  "minions": 28,
+  "rare": null,
+  "level": 99,
+  "cc": null
+ },
+ "32102060": {
+  "name": "Zige Regios",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 85,
+  "cc": null
+ },
+ "34172006": {
+  "name": "Zion Zoen",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": null
+ },
+ "44401264": {
+  "name": "Zireael Foley",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 86,
+  "cc": null
+ },
+ "42146242": {
+  "name": "Zxazi Rowan",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ },
+ "43412434": {
+  "name": "Zylith Sweeney",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null
+ }
+}

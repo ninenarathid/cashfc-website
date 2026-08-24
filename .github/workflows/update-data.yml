@@ -1,0 +1,56 @@
+name: Update FC data
+
+on:
+  schedule:
+    - cron: "30 20 * * *"   # 20:30 UTC = 03:30 น. เวลาไทย ทุกวัน
+  workflow_dispatch:
+    inputs:
+      full_history:
+        description: "กวาด savage ทุก tier ย้อนหลัง"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-fc-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r pipeline/requirements.txt
+
+      - name: Run pipeline
+        env:
+          FFLOGS_CLIENT_ID: ${{ secrets.FFLOGS_CLIENT_ID }}
+          FFLOGS_CLIENT_SECRET: ${{ secrets.FFLOGS_CLIENT_SECRET }}
+        run: |
+          FLAGS=""
+          # วันอาทิตย์ หรือติ๊ก full_history ตอนกด Run เอง -> กวาด savage ทุก tier
+          if [ "$(date -u +%u)" = "7" ] || [ "${{ inputs.full_history }}" = "true" ]; then
+            FLAGS="--full-history"
+          fi
+          python pipeline/update_members.py $FLAGS
+
+      # commit ข้อมูลใหม่ -> push -> Vercel redeploy อัตโนมัติ
+      - name: Commit & push if changed
+        run: |
+          git config user.name "fc-board-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "data: daily update $(date -u +%Y-%m-%d)"
+          git push
