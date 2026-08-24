@@ -5,7 +5,7 @@ import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 const RAID_TAGS = ["tier-clear", "prog", "extreme", "ultimate", "veteran"];
 const PLAY_TAGS = ["crafter", "gatherer", "relic", "explorer", "treasure",
                    "goldsaucer", "seasonal", "pvp", "oldtimer"];
-const OTHER_TAGS = ["achiever", "casual", "unknown"];
+const OTHER_TAGS = ["casual", "unknown"];
 
 function Chip({ t }: { t: string }) {
   return (

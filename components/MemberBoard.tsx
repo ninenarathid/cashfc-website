@@ -643,7 +643,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               if (m.rare_achv != null) meta.push(`${m.rare_achv} rare achv`);
               return (
                 <div key={m.id}
-                     className="grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors [content-visibility:auto] hover:border-[#55492f] sm:grid-cols-[44px_minmax(150px,1.3fr)_1.6fr_auto] sm:px-4">
+                     className="grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors [content-visibility:auto] hover:border-[#55492f] sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4">
                   <Link href={`/member/${m.id}`} className="contents">
                     <Avatar m={m} />
                   </Link>
@@ -676,12 +676,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         </span>
                       ) : null;
                     })}
-                  </div>
-                  <div className="col-start-2 flex items-center gap-3.5 sm:col-start-auto sm:justify-self-end">
-                    <Link href={`/member/${m.id}`}
-                          className="rounded-md border border-line px-2.5 py-1 font-data text-[10.5px] tracking-[0.06em] text-muted no-underline transition-colors hover:border-amber hover:text-amber">
-                      PROFILE
-                    </Link>
                   </div>
                 </div>
               );

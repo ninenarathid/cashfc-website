@@ -1132,8 +1132,6 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None)
     collapsed into one big "unknown" bucket even when their extreme-trial record was
     sitting right there.
     """
-    rare_cut = _cut([m.get("rare_achv") for m in members], 80)
-
     # One cutoff per playstyle, taken across only the members who have any of that
     # kind at all. A shared threshold would be meaningless: 84 rare relic
     # achievements exist against 33 for Gold Saucer, so the same number means very
@@ -1143,7 +1141,7 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None)
                     for m in members], 70)
         for name, _ in ACHV_BUCKETS
     }
-    log(f"Tag cutoffs from this roster — rare>={rare_cut} · "
+    log("Tag cutoffs from this roster — "
         + " ".join(f"{k}>={v}" for k, v in bucket_cut.items() if v != float("inf")))
 
     ceilings = bucket_max or {}
@@ -1174,9 +1172,6 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None)
 
         if m.get("ex_cleared"):
             tags.append("extreme")
-
-        if (m.get("rare_achv") or 0) >= rare_cut:
-            tags.append("achiever")
 
         # Playstyle tags, graded against everyone else who plays that way.
         tiers: dict[str, str] = {}

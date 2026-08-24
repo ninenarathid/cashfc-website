@@ -15,7 +15,6 @@ export const TAG_LABELS: Record<string, string> = {
   all: "All",
   "tier-clear": "Tier cleared", prog: "Progging",
   ultimate: "Ultimate", veteran: "Veteran", extreme: "Extreme",
-  achiever: "Achiever",
   crafter: "Crafter", gatherer: "Gatherer", relic: "Relic grinder",
   explorer: "Explorer", treasure: "Treasure hunter", goldsaucer: "Gold Saucer",
   seasonal: "Seasonal", pvp: "PvP", oldtimer: "Old-timer",
@@ -28,7 +27,6 @@ export const TAG_HELP: Record<string, string> = {
   ultimate: "Has cleared at least one Ultimate",
   veteran: "Cleared savage or Ultimate content, but not this tier",
   extreme: "Cleared at least one extreme trial this patch",
-  achiever: "Top 20% of the FC for rare achievements overall",
   crafter: "Rare crafting achievements — top 30% of everyone who has any",
   gatherer: "Rare fishing, mining and botany achievements — top 30%",
   relic: "Rare relic weapon and tool achievements — top 30%",
@@ -53,7 +51,6 @@ export const TAG_CLASS: Record<string, string> = {
   // fifth of the roster has one it should not shout over everything else.
   ultimate: "border-gold/35 bg-gold/5 text-gold/85",
   veteran: "border-[#a05a5a]/45 bg-[#a05a5a]/10 text-[#c08585]",
-  achiever: "border-jade/30 bg-jade/5 text-jade/85",
   crafter: "border-copper/50 bg-copper/10 text-copper",
   gatherer: "border-[#6aa84f]/50 bg-[#6aa84f]/10 text-[#93c47d]",
   relic: "border-[#b07ce8]/50 bg-[#b07ce8]/10 text-[#c9a8f0]",
@@ -71,7 +68,6 @@ export const TAG_CLASS: Record<string, string> = {
 export const TAG_COLOR: Record<string, string> = {
   "tier-clear": "#d14b3a", prog: "#a8483c",
   ultimate: "#e5cc80", veteran: "#a05a5a", extreme: "#a87fd8",
-  achiever: "#4fb8a8",
   crafter: "#c98a5b", gatherer: "#6aa84f", relic: "#b07ce8",
   explorer: "#4fa8b8", treasure: "#d9a441", goldsaucer: "#e07bb0",
   seasonal: "#8fa3d9", pvp: "#7ea6c9", oldtimer: "#a58b6a",
