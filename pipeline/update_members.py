@@ -850,10 +850,13 @@ def collect_rarity_map() -> dict[int, dict]:
 COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
                   "ach_public", "portrait", "ult_achv")
 
-# Bump whenever COLLECT_FIELDS gains something. Cached entries written before a new
-# field existed cannot supply it, and because the cache is judged fresh by age alone
-# the field would stay empty forever — which is exactly what happened to ult_achv.
-COLLECT_CACHE_VERSION = 2
+# Bump whenever COLLECT_FIELDS gains something, or whenever achv_points changes.
+# Cached entries written before a new field existed cannot supply it, and because the
+# cache is judged fresh by age alone the field would stay empty forever — which is
+# exactly what happened to ult_achv. Bucket scores are cached the same way, so a new
+# scoring formula that did not bump this would keep serving the old numbers until the
+# cache aged out.
+COLLECT_CACHE_VERSION = 3
 
 
 def merge_ultimates(members: list[dict]) -> None:
