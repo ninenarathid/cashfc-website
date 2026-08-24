@@ -128,63 +128,6 @@ export default function FcCharts({
           )}
         </div>
 
-        {/* Parse distribution */}
-        <div>
-          <div className="mb-1 text-[13px] font-medium text-muted">
-            Parse distribution (best)
-          </div>
-          {anyParse ? (
-            <div className="h-52">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={parseDist}>
-                  <XAxis dataKey="name" tick={{ fill: "#9c8f78", fontSize: 11 }}
-                         axisLine={{ stroke: "#3a3226" }} tickLine={false} />
-                  <YAxis allowDecimals={false} width={28}
-                         tick={{ fill: "#9c8f78", fontSize: 11 }}
-                         axisLine={{ stroke: "#3a3226" }} tickLine={false} />
-                  <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#efe6d30d" }} />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    {parseDist.map((s) => <Cell key={s.name} fill={s.color} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line text-[13px] text-muted">
-              Waiting on FF Logs data (set the API keys, then run the pipeline)
-            </div>
-          )}
-        </div>
-
-        {/* Current-tier prog board */}
-        <div>
-          <div className="mb-1 text-[13px] font-medium text-muted">
-            Current tier progress
-          </div>
-          <div className="flex flex-col gap-2.5">
-            {prog.map((p) => (
-              <div key={p.label}>
-                <div className="mb-0.5 flex justify-between font-data text-[12px]">
-                  <span className="text-ink">{p.label}</span>
-                  <span className="text-muted">
-                    {p.cleared}/{total} cleared · {share(p.cleared)}
-                  </span>
-                </div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-card">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-chili to-amber transition-[width]"
-                    style={{ width: `${total ? Math.round((p.cleared / total) * 100) : 0}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-            {!anyProg && (
-              <div className="text-[12px] text-muted">
-                No clear data yet — it appears automatically once FF Logs is connected
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* FC history over time */}
         <div>
@@ -215,6 +158,73 @@ export default function FcCharts({
             </div>
           )}
         </div>
+        {/* Raiding stats, folded away. This FC does plenty that has nothing to do
+            with raiding, and an overview that leads with parse percentages says
+            otherwise. Open it if you want it. */}
+        <details className="sm:col-span-2 rounded-xl border border-line bg-card">
+          <summary className="cursor-pointer select-none px-3 py-2 text-[13px] font-medium text-muted marker:text-amber">
+            ⚔️ Raiding — parse distribution and tier progress
+          </summary>
+          <div className="grid gap-6 px-3 pb-3 pt-1 sm:grid-cols-2">
+          {/* Parse distribution */}
+          <div>
+            <div className="mb-1 text-[13px] font-medium text-muted">
+              Parse distribution (best)
+            </div>
+            {anyParse ? (
+              <div className="h-52">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={parseDist}>
+                    <XAxis dataKey="name" tick={{ fill: "#9c8f78", fontSize: 11 }}
+                           axisLine={{ stroke: "#3a3226" }} tickLine={false} />
+                    <YAxis allowDecimals={false} width={28}
+                           tick={{ fill: "#9c8f78", fontSize: 11 }}
+                           axisLine={{ stroke: "#3a3226" }} tickLine={false} />
+                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#efe6d30d" }} />
+                    <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                      {parseDist.map((s) => <Cell key={s.name} fill={s.color} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line text-[13px] text-muted">
+                Waiting on FF Logs data (set the API keys, then run the pipeline)
+              </div>
+            )}
+          </div>
+
+          {/* Current-tier prog board */}
+          <div>
+            <div className="mb-1 text-[13px] font-medium text-muted">
+              Current tier progress
+            </div>
+            <div className="flex flex-col gap-2.5">
+              {prog.map((p) => (
+                <div key={p.label}>
+                  <div className="mb-0.5 flex justify-between font-data text-[12px]">
+                    <span className="text-ink">{p.label}</span>
+                    <span className="text-muted">
+                      {p.cleared}/{total} cleared · {share(p.cleared)}
+                    </span>
+                  </div>
+                  <div className="h-2.5 overflow-hidden rounded-full bg-card">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-chili to-amber transition-[width]"
+                      style={{ width: `${total ? Math.round((p.cleared / total) * 100) : 0}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+              {!anyProg && (
+                <div className="text-[12px] text-muted">
+                  No clear data yet — it appears automatically once FF Logs is connected
+                </div>
+              )}
+            </div>
+          </div>
+          </div>
+        </details>
       </div>
     </details>
   );

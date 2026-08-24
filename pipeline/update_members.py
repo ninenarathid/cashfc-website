@@ -26,6 +26,7 @@ Usage:
 import argparse
 import datetime as dt
 import json
+import math
 import os
 import re
 import sys
@@ -57,8 +58,6 @@ CONFIG = {
     # Tag thresholds
     "rare_pct": 10.0,
     "rare_show": 24,           # rarest achievements kept per member for their profile
-    "collector_rare_min": 5,
-    "collector_mounts_min": 300,
     "crafter_achv_min": 120,
     "pvp_achv_min": 60,
 
@@ -135,6 +134,76 @@ ACHV_BUCKETS: list[tuple[str, dict]] = [
     ("pvp",        {"types": {"PvP"}}),
     ("oldtimer",   {"types": {"Legacy"}}),
 ]
+
+
+# Grades within a playstyle, hardest first, as a share of everything rare that exists
+# in that playstyle.
+#
+# Absolute rather than a ranking against other members: a title should describe what
+# someone actually did, so however many people clear the bar all of them earn it, and
+# nobody is demoted because a keener collector joined the FC.
+#
+# Expressed as a share because the buckets are wildly different sizes — the rare
+# achievements in Old-timer add up to 505 points against 53 for Gold Saucer, so one
+# fixed score would be unreachable in one and trivial in the other. A share means
+# "you hold this much of everything rare in that playstyle", which is the same claim
+# whichever playstyle it is.
+# "Ultimate" is deliberately avoided: in FFXIV that already means the Ultimate raids.
+ACHV_TIERS: list[tuple[str, float]] = [
+    ("legendary", 0.25),
+    ("master", 0.12),
+    ("expert", 0.05),
+]
+
+
+def achv_points(pct: float | None) -> float:
+    """What one rare achievement is worth.
+
+    1 + log10(10 / pct): something 10% of players own scores 1, 1% scores 2, 0.1%
+    scores 3. Collecting a lot still adds up, but rarity is worth far more than
+    volume, which is the distinction the tags are trying to draw. The floor keeps a
+    0.0% rounding from running away with the scale.
+    """
+    if pct is None:
+        return 0.0
+    return 1.0 + math.log10(10.0 / max(pct, 0.05))
+
+
+def bucket_count(v) -> int:
+    """Bucket entries are {"n","min"}; older cached runs stored a bare count."""
+    return int(v.get("n", 0)) if isinstance(v, dict) else int(v or 0)
+
+
+def bucket_rarest(v) -> float | None:
+    return v.get("min") if isinstance(v, dict) else None
+
+
+def bucket_score(v) -> float:
+    return float(v.get("score", 0.0)) if isinstance(v, dict) else 0.0
+
+
+def bucket_maxima(rarity: dict[int, dict]) -> dict[str, float]:
+    """Total points available in each playstyle — the denominator for a grade."""
+    out: dict[str, float] = {}
+    for info in rarity.values():
+        pct = info.get("pct")
+        if pct is None or pct > CONFIG["rare_pct"]:
+            continue
+        b = achv_bucket(info)
+        if b:
+            out[b] = round(out.get(b, 0.0) + achv_points(pct), 2)
+    return out
+
+
+def tier_for(score: float, ceiling: float | None) -> tuple[str | None, float | None]:
+    """Grade and share of the playstyle, or (None, None) without a ceiling."""
+    if not ceiling or score <= 0:
+        return None, None
+    share = score / ceiling
+    for name, need in ACHV_TIERS:
+        if share >= need:
+            return name, share
+    return None, share
 
 
 def achv_bucket(info: dict) -> str | None:
@@ -458,7 +527,11 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                 entry["_status"] = "hidden"
                 continue
 
-            new_ults = entry.get("ultimates", [])
+            # Drop rows written before ultimates were stored per fight. They carry
+            # only a zone name, and two different zones are both called "Ultimates
+            # (Legacy)", so they cannot be told apart on screen. Better to show
+            # nothing for a day or two until the zone rotation refills them.
+            new_ults = [u for u in entry.get("ultimates", []) if u.get("name")]
             new_ults = [u for u in new_ults if u.get("zone_id") not in ult_ids]
             new_ex = entry.get("extremes", [])
             new_ex = [e for e in new_ex if e.get("zone_id") not in ex_ids]
@@ -683,7 +756,7 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
             ids = ach.get("ids") or []
             if m["ach_public"] and ids:
                 rare = craft = pvp = 0
-                buckets: dict[str, int] = {}
+                buckets: dict[str, dict] = {}
                 rarest: list[tuple[float, int]] = []
                 for aid in ids:
                     info = rarity.get(aid)
@@ -697,7 +770,14 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
                         # someone actually spends their time.
                         b = achv_bucket(info)
                         if b:
-                            buckets[b] = buckets.get(b, 0) + 1
+                            slot = buckets.setdefault(
+                                b, {"n": 0, "min": None, "score": 0.0})
+                            slot["n"] += 1
+                            p = info["pct"]
+                            slot["score"] = round(
+                                slot["score"] + achv_points(p), 2)
+                            if slot["min"] is None or p < slot["min"]:
+                                slot["min"] = p
                     if info["type"] == "Crafting & Gathering":
                         craft += 1
                     elif info["type"] == "PvP":
@@ -872,7 +952,7 @@ def _cut(values: list, pct: float) -> float:
     return xs[min(len(xs) - 1, int(len(xs) * pct / 100))]
 
 
-def assign_tags(members: list[dict]) -> None:
+def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None) -> None:
     """Tag the roster against how this FC actually looks, not fixed numbers.
 
     The old rules read as wrong on real data. Absolute cutoffs (300 mounts, 120
@@ -881,8 +961,6 @@ def assign_tags(members: list[dict]) -> None:
     collapsed into one big "unknown" bucket even when their extreme-trial record was
     sitting right there.
     """
-    mount_cut = _cut([m.get("mounts") for m in members], 80)
-    minion_cut = _cut([m.get("minions") for m in members], 80)
     rare_cut = _cut([m.get("rare_achv") for m in members], 80)
 
     # One cutoff per playstyle, taken across only the members who have any of that
@@ -890,11 +968,14 @@ def assign_tags(members: list[dict]) -> None:
     # achievements exist against 33 for Gold Saucer, so the same number means very
     # different things depending on the bucket.
     bucket_cut = {
-        name: _cut([(m.get("achv_buckets") or {}).get(name) for m in members], 70)
+        name: _cut([bucket_count((m.get("achv_buckets") or {}).get(name))
+                    for m in members], 70)
         for name, _ in ACHV_BUCKETS
     }
-    log(f"Tag cutoffs from this roster — mounts>={mount_cut} rare>={rare_cut} · "
+    log(f"Tag cutoffs from this roster — rare>={rare_cut} · "
         + " ".join(f"{k}>={v}" for k, v in bucket_cut.items() if v != float("inf")))
+
+    ceilings = bucket_max or {}
 
     for m in members:
         tags = []
@@ -918,14 +999,22 @@ def assign_tags(members: list[dict]) -> None:
         if m.get("ex_cleared"):
             tags.append("extreme")
 
-        if (m.get("mounts") or 0) >= mount_cut or (m.get("minions") or 0) >= minion_cut:
-            tags.append("collector")
         if (m.get("rare_achv") or 0) >= rare_cut:
             tags.append("achiever")
+
+        # Playstyle tags, graded against everyone else who plays that way.
+        tiers: dict[str, str] = {}
         for name, _ in ACHV_BUCKETS:
-            n = (m.get("achv_buckets") or {}).get(name) or 0
+            v = (m.get("achv_buckets") or {}).get(name)
+            n = bucket_count(v)
             if n and n >= bucket_cut[name]:
                 tags.append(name)
+                t, share = tier_for(bucket_score(v), ceilings.get(name))
+                if t:
+                    tiers[name] = t
+                if share is not None and isinstance(v, dict):
+                    v["share"] = round(share, 4)
+        m["achv_tiers"] = tiers
 
         if not tags:
             blind = (m.get("fflogs") in ("hidden", "none", "skipped", "error", "pending")
@@ -1019,7 +1108,7 @@ def build_history(members: list[dict], today: str) -> None:
     final_boss = sum(1 for m in members
                      if (m.get("current_clears") or [False])[-1])
     row = {"date": today, "total": len(members), "raider": has("raider"),
-           "ultimate": has("ultimate"), "collector": has("collector"),
+           "ultimate": has("ultimate"), "extreme": has("extreme"),
            "unknown": has("unknown"), "final_boss": final_boss}
     hist["rows"] = [r for r in hist["rows"] if r["date"] != today] + [row]
     save_json("history.json", hist)
@@ -1247,8 +1336,17 @@ def main() -> None:
         inject_lala(members, extra.get("lala") or {})
         log(f"Lalachievements — reused {len(extra.get('lala') or {})} cached entries")
 
+    # Grades are a share of everything rare in each playstyle, so the ceilings have to
+    # survive runs that read FFXIV Collect from cache and never see the catalogue.
+    if rarity:
+        state["bucket_max"] = bucket_maxima(rarity)
+        save_json("extra.json", extra)
+    ceilings = state.get("bucket_max") or {}
+    if not ceilings:
+        log("Playstyle grades skipped — no achievement catalogue cached yet")
+
     # After every source has reported, so the cutoffs see the real distribution.
-    assign_tags(members)
+    assign_tags(members, ceilings)
 
     if not args.skip_news:
         build_news()

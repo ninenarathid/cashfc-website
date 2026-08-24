@@ -10,6 +10,7 @@ import AuthButton from "@/components/AuthButton";
 const TABS = [
   { href: "/", label: "Home" },
   { href: "/members", label: "Members" },
+  { href: "/leaderboards", label: "Leaderboards" },
 ];
 
 export default function Nav() {

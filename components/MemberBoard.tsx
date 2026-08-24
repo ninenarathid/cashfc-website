@@ -4,65 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { BoardData, Member, Overlay } from "@/lib/types";
 import {
-  LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation, ON_VACATION_RANK, ultimateAbbr,
+  LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation, ON_VACATION_RANK,
 } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
+import MemberTags, { TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import TagLegend from "@/components/TagLegend";
 
-// Order matters: this is the order the filter chips appear in. Raid standing first,
-// then the playstyles derived from rare achievements — this game is not only raiding,
-// and the board should not read as though it were.
-const TAG_LABELS: Record<string, string> = {
-  all: "All",
-  "tier-clear": "Tier cleared", prog: "Progging", raider: "Raider",
-  ultimate: "Ultimate", veteran: "Veteran", extreme: "Extreme",
-  collector: "Collector", achiever: "Achiever",
-  crafter: "Crafter", gatherer: "Gatherer", relic: "Relic grinder",
-  explorer: "Explorer", treasure: "Treasure hunter", goldsaucer: "Gold Saucer",
-  seasonal: "Seasonal", pvp: "PvP", oldtimer: "Old-timer",
-  casual: "Casual", unknown: "No data",
-};
-const TAG_HELP: Record<string, string> = {
-  "tier-clear": "Cleared every boss of the current savage tier",
-  prog: "Partway through the current savage tier",
-  raider: "Has savage kills in the current tier",
-  ultimate: "Has cleared at least one Ultimate",
-  veteran: "Cleared savage or Ultimate content, but not this tier",
-  extreme: "Cleared at least one extreme trial this patch",
-  collector: "Top 20% of the FC for mounts or minions",
-  achiever: "Top 20% of the FC for rare achievements overall",
-  crafter: "Rare crafting achievements — top 30% of everyone who has any",
-  gatherer: "Rare fishing, mining and botany achievements — top 30%",
-  relic: "Rare relic weapon and tool achievements — top 30%",
-  explorer: "Rare Eureka, Bozja and exploration achievements — top 30%",
-  treasure: "Rare treasure map and hunt achievements — top 30%",
-  goldsaucer: "Rare Gold Saucer achievements — top 30%",
-  seasonal: "Rare seasonal event achievements — top 30%",
-  pvp: "Rare PvP achievements — top 30%",
-  oldtimer: "Rare legacy achievements from the game's early years — top 30%",
-  casual: "No standout stats, but some data is public",
-  unknown: "Logs and achievements are both private",
-};
-const TAG_CLASS: Record<string, string> = {
-  "tier-clear": "border-chili/60 bg-chili/15 text-chili",
-  prog: "border-chili/35 bg-chili/5 text-chili/85",
-  raider: "border-chili/50 bg-chili/10 text-chili",
-  ultimate: "border-gold/50 bg-gold/10 text-gold",
-  veteran: "border-gold/30 bg-gold/5 text-gold/80",
-  extreme: "border-[#c86fd1]/50 bg-[#c86fd1]/10 text-[#d79ade]",
-  collector: "border-jade/45 bg-jade/10 text-jade",
-  achiever: "border-jade/30 bg-jade/5 text-jade/85",
-  crafter: "border-copper/50 bg-copper/10 text-copper",
-  gatherer: "border-[#6aa84f]/50 bg-[#6aa84f]/10 text-[#93c47d]",
-  relic: "border-[#b07ce8]/50 bg-[#b07ce8]/10 text-[#c9a8f0]",
-  explorer: "border-[#4fa8b8]/50 bg-[#4fa8b8]/10 text-[#7fc7d4]",
-  treasure: "border-[#d9a441]/45 bg-[#d9a441]/10 text-[#e3bd76]",
-  goldsaucer: "border-[#e07bb0]/45 bg-[#e07bb0]/10 text-[#efa5cb]",
-  seasonal: "border-[#8fa3d9]/45 bg-[#8fa3d9]/10 text-[#b0bee6]",
-  pvp: "border-steel/45 bg-steel/10 text-steel",
-  oldtimer: "border-[#a58b6a]/50 bg-[#a58b6a]/10 text-[#c2ac91]",
-  casual: "border-line text-muted",
-  unknown: "border-dashed border-line text-muted",
-};
 
 const ACTIVITY_OPTIONS = [
   { key: "active", label: "Active" },
@@ -79,7 +26,7 @@ const SEEN_OPTIONS = [
   { key: "old", label: "Over 6 months ago", days: -180 },
 ];
 
-type SortKey = "name" | "parse" | "level" | "mounts" | "rare";
+type SortKey = "name" | "parse" | "mounts" | "rare";
 
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("");
 const hue = (n: string) => [...n].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
@@ -291,8 +238,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       return true;
     });
     const val = (m: Member): number =>
-      sortBy === "level" ? (m.level ?? -1)
-      : sortBy === "parse" ? (m.parse ?? -1)
+      sortBy === "parse" ? (m.parse ?? -1)
       : sortBy === "mounts" ? (m.mounts ?? -1)
       : (m.rare_achv ?? -1);
     // Active members always sort above the ~320 marked On vacation, whatever the
@@ -357,7 +303,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   className="rounded-lg border border-line bg-surface px-3 py-2 text-ink">
             <option value="name">Sort by name</option>
             <option value="parse">Sort by parse</option>
-            <option value="level">Sort by level</option>
             <option value="mounts">Sort by mounts</option>
             <option value="rare">Sort by rare achv</option>
           </select>
@@ -505,6 +450,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         <div className="text-[13px] text-muted">
           Showing {list.length} of {visible.length} members
         </div>
+
+        <TagLegend />
       </div>
 
       {view === "kitchen" ? (
@@ -527,7 +474,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                           {m.name}
                           {overlays[m.id] && <span className="ml-1 text-amber">✦</span>}
                         </span>
-                        <span className="block text-[11px] text-muted">Lv {m.level ?? "—"}</span>
                       </span>
                     </Link>
                   ))}
@@ -546,7 +492,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             list.map((m) => {
               const ov = overlays[m.id];
               const accent = ov?.accent ?? "#e8a33d";
-              const meta = [m.rank ?? "—", `Lv ${m.level ?? "—"}`];
+              const meta = [m.rank ?? "—"];
               if (m.race) meta.push(m.race);
               if (m.mounts != null) meta.push(`${m.mounts} mounts`);
               if (m.rare_achv != null) meta.push(`${m.rare_achv} rare achv`);
@@ -575,25 +521,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     )}
                   </div>
                   <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-start-auto">
-                    {m.tags.map((t) => {
-                      const ults = m.ult_cleared ?? [];
-                      // Which Ultimates, not just that there were some: UCOB and FRU
-                      // are worlds apart and the shorthand is what people use.
-                      const abbr = t === "ultimate" && ults.length
-                        ? ults.map(ultimateAbbr) : null;
-                      return (
-                        <span key={t}
-                              title={abbr ? `Cleared: ${ults.join(", ")}` : (TAG_HELP[t] ?? "")}
-                              className={`whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium ${TAG_CLASS[t] ?? "border-line text-muted"}`}>
-                          {abbr ? abbr.join(" · ") : (TAG_LABELS[t] ?? t)}
-                          {t === "extreme" && (m.ex_cleared?.length ?? 0) > 0 && (
-                            <small className="ml-1 opacity-75">
-                              {m.ex_cleared!.length}/{extremes.length || "?"}
-                            </small>
-                          )}
-                        </span>
-                      );
-                    })}
+                    <MemberTags m={m} extremeTotal={extremes.length} />
                     {(ov?.lfg ?? []).map((k) => {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
                       return o ? (

@@ -29,8 +29,13 @@ export interface Member {
   ex_cleared?: string[] | null;
   /** Ultimates cleared, by full encounter name — abbreviate with ultimateAbbr(). */
   ult_cleared?: string[] | null;
-  /** Rare-achievement counts per playstyle bucket, keyed as the pipeline names them. */
-  achv_buckets?: Record<string, number> | null;
+  /**
+   * Per playstyle: how many rare achievements, the rarest one's ownership %, and the
+   * rarity-weighted score the leaderboards and grades both rank on.
+   */
+  achv_buckets?: Record<string, { n: number; min: number | null; score?: number; share?: number }> | null;
+  /** Per playstyle: "legendary" | "master" | "expert", from the rarest thing held. */
+  achv_tiers?: Record<string, string> | null;
   ex_kills?: number | null;
   /** Kills recorded in savage tiers older than the current one. */
   legacy_clears?: number | null;
@@ -91,7 +96,9 @@ export interface FeedEvent { date: string; type: string; id: number; name: strin
 export interface NewsItem { title: string; url: string; date: string | null }
 export interface HistoryRow {
   date: string; total: number; raider: number; ultimate: number;
-  collector: number; unknown: number; final_boss: number;
+  // Older rows recorded "collector" here; the tag is gone and newer runs write
+  // "extreme" instead, so both are optional and the chart just skips a missing one.
+  collector?: number; extreme?: number; unknown: number; final_boss: number;
 }
 export interface Overlay {
   // No self-declared job: FF Logs reports the job behind each parse, which stays
@@ -152,6 +159,22 @@ export const ultimateAbbr = (name: string): string =>
   ULTIMATE_ABBR[name] ??
   // Unknown or newly released: initials beat printing the whole title.
   name.replace(/^The\s+/i, "").split(/\s+/).map((w) => w[0]).join("").toUpperCase();
+
+/**
+ * Grade prefixes for the playstyle tags. Earned by holding a share of everything rare
+ * in that playstyle — an absolute bar, so any number of members can reach it.
+ */
+export const ACHV_TIER_LABEL: Record<string, string> = {
+  legendary: "Legendary",
+  master: "Master",
+  expert: "Expert",
+};
+
+export const ACHV_TIER_HELP: Record<string, string> = {
+  legendary: "holds 25% or more of everything rare in this playstyle",
+  master: "holds 12% or more of everything rare in this playstyle",
+  expert: "holds 5% or more of everything rare in this playstyle",
+};
 
 /** Playable races, in the order Lodestone lists them. */
 export const RACE_ORDER = [

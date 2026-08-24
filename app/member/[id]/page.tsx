@@ -51,6 +51,7 @@ export default async function Page(
       m={m}
       raids={raids[id] ?? null}
       rareAchievements={rareAchievements}
+      extremeTotal={(data.extremes ?? []).length}
       tierLabels={data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"]}
       agg={agg}
       fc={{ name: data.fc.name, world: data.fc.world, region: data.fc.region ?? "JP" }}

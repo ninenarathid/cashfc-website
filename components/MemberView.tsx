@@ -9,6 +9,7 @@ import {
 } from "@/lib/types";
 import { computeBadges, percentile, topN } from "@/lib/badges";
 import JobBreakdown from "@/components/JobBreakdown";
+import MemberTags from "@/components/MemberTags";
 import RareAchievements, { type AchievementInfo } from "@/components/RareAchievements";
 import { createClient } from "@/lib/supabase/client";
 
@@ -26,11 +27,13 @@ function parseColor(p: number | null | undefined): string {
 const DEFAULT_BANNER = "linear-gradient(135deg,#241b10,#3a2c14)";
 
 export default function MemberView({
-  m, raids, tierLabels, agg, fc, rareAchievements = [],
+  m, raids, tierLabels, agg, fc, rareAchievements = [], extremeTotal,
 }: {
   m: Member;
   raids: MemberRaids | null;
   rareAchievements?: AchievementInfo[];
+  /** How many extreme trials this patch has, for the "cleared x of y" chip. */
+  extremeTotal?: number;
   tierLabels: string[];
   agg: { mounts: (number | null)[]; minions: (number | null)[]; rare: (number | null)[] };
   fc: { name: string; world: string; region: string };
@@ -254,9 +257,14 @@ export default function MemberView({
         </div>
       </section>
 
+      {/* ── Playstyle tags, the same chips the board shows ── */}
+      <section className="mt-4 flex flex-wrap gap-2">
+        <MemberTags m={m} extremeTotal={extremeTotal} size="md" />
+      </section>
+
       {/* ── Badges ── */}
       {badges.length > 0 && (
-        <section className="mt-4 flex flex-wrap gap-2">
+        <section className="mt-3 flex flex-wrap gap-2">
           {badges.map((b) => (
             <span key={b.name} title={b.desc}
                   className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/8 px-3 py-1.5 text-[12.5px] text-gold">
