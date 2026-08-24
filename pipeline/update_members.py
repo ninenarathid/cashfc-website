@@ -732,6 +732,9 @@ def summarize_raids(m: dict, raids: dict) -> None:
             best = max(best or 0, e["best"])
     m["parse"] = best
     m["savage_kills"] = sum(1 for c in cur.get("clears", []) if c)
+    # Any ranked encounter in the current tier, cleared or not — what separates
+    # "progging" from "has not touched it".
+    m["current_seen"] = bool(cur.get("encounters"))
     ults = entry.get("ultimates", [])
     m["ult_clears"] = sum(1 for u in ults if u.get("cleared"))
     # Named, so the board can say which ultimates without loading raids.json.
@@ -1089,12 +1092,17 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None)
 
         # One state per member, newest evidence wins: raiding this tier beats having
         # raided years ago. Without the chain someone could read as both at once.
+        #
+        # There is no separate "raider" tag. It sat alongside tier-clear and prog on
+        # every current-tier raider and said nothing those two did not already say
+        # more precisely.
         if clears and cleared_n == len(clears):
-            tags += ["raider", "tier-clear"]         # current tier fully cleared
-        elif cleared_n > 0:
-            tags += ["raider", "prog"]               # partway through the current tier
-        elif m.get("savage_kills", 0) > 0:
-            tags.append("raider")
+            tags.append("tier-clear")                # current tier fully cleared
+        elif cleared_n > 0 or m.get("current_seen"):
+            # Logged in the tier without clearing everything — which is what progging
+            # is. Keyed off having any ranked encounter, so someone still working on
+            # the first boss counts too.
+            tags.append("prog")
         elif m.get("legacy_clears", 0) > 0 or m.get("ult_clears", 0) > 0:
             tags.append("veteran")                   # cleared before, not this tier
 
@@ -1209,7 +1217,15 @@ def build_history(members: list[dict], today: str) -> None:
     has = lambda t: sum(1 for m in members if t in m["tags"])  # noqa: E731
     final_boss = sum(1 for m in members
                      if (m.get("current_clears") or [False])[-1])
-    row = {"date": today, "total": len(members), "raider": has("raider"),
+    # Every tag, not just the raiding ones — the FC does plenty besides raid, and a
+    # history that only tracks raid progress can only ever tell that story.
+    tag_counts: dict[str, int] = {}
+    for m in members:
+        for t in m["tags"]:
+            tag_counts[t] = tag_counts.get(t, 0) + 1
+
+    row = {"date": today, "total": len(members), "tags": tag_counts,
+           "raider": has("tier-clear") + has("prog"),   # kept: older rows use this key
            "ultimate": has("ultimate"), "extreme": has("extreme"),
            "unknown": has("unknown"), "final_boss": final_boss}
     hist["rows"] = [r for r in hist["rows"] if r["date"] != today] + [row]

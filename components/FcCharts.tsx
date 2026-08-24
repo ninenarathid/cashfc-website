@@ -95,6 +95,34 @@ export default function FcCharts({
       label, cleared: shown.filter((m) => m.current_clears?.[i]).length,
     })), [shown, labels]);
 
+  // History rows carry a per-tag breakdown; flatten it so every tag is a plottable
+  // series alongside the roster-wide numbers the pipeline has always recorded.
+  const historyRows = useMemo(
+    () => history.map((r) => ({ ...r, ...(r.tags ?? {}) })), [history]);
+
+  const series = useMemo(() => {
+    const seen = new Set<string>();
+    for (const r of history) for (const k of Object.keys(r.tags ?? {})) seen.add(k);
+    const tagSeries = [...seen]
+      .sort((a, b) => (TAG_ORDER.indexOf(a) + 99) - (TAG_ORDER.indexOf(b) + 99))
+      .map((k) => ({ key: k, label: TAG_LABELS[k] ?? k, color: TAG_COLOR[k] ?? "#7a7a7a" }));
+    return [
+      { key: "final_boss", label: "Final boss cleared", color: "#4fb8a8" },
+      ...tagSeries,
+    ];
+  }, [history]);
+
+  // Everything at once is unreadable, so start with the few that describe the FC's
+  // shape and let people add the rest.
+  const [shownSeries, setShownSeries] = useState<Set<string>>(
+    () => new Set(["tier-clear", "prog", "extreme", "ultimate", "final_boss"]));
+  const toggleSeries = (k: string) =>
+    setShownSeries((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(k)) next.add(k);
+      return next;
+    });
+
   const anyParse = parseDist.some((p) => p.value > 0);
   const anyProg = prog.some((p) => p.cleared > 0);
   const racedTotal = raceCounts.reduce((s, r) => s + r.value, 0);
@@ -213,34 +241,59 @@ export default function FcCharts({
 
             {/* FC history over time. Not affected by the toggles: the pipeline records
                 one roster-wide row a night and cannot re-cut the past. */}
-            <div>
-              <div className="mb-1 text-[13px] font-medium text-muted">
-                FC history over time{" "}
-                <span className="text-[11px] text-muted/70">(whole FC)</span>
+            <div className="sm:col-span-2">
+              <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+                <span className="text-[13px] font-medium text-muted">
+                  FC history over time{" "}
+                  <span className="text-[11px] text-muted/70">
+                    (whole FC — the toggles above do not apply)
+                  </span>
+                </span>
+                {history.length >= 2 && (
+                  <span className="text-[11.5px] text-muted/70">
+                    tap a name to add or remove its line
+                  </span>
+                )}
               </div>
               {history.length >= 2 ? (
-                <div className="h-52">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={history}>
-                      <XAxis dataKey="date" tick={{ fill: "#9c8f78", fontSize: 10 }}
-                             axisLine={{ stroke: "#3a3226" }} tickLine={false} />
-                      <YAxis allowDecimals={false} width={28}
-                             tick={{ fill: "#9c8f78", fontSize: 11 }}
-                             axisLine={{ stroke: "#3a3226" }} tickLine={false} />
-                      <Tooltip contentStyle={tooltipStyle} />
-                      <Line type="monotone" dataKey="raider" name="Raider"
-                            stroke="#d14b3a" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="ultimate" name="Ultimate"
-                            stroke="#e5cc80" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="final_boss" name="Final boss cleared"
-                            stroke="#4fb8a8" strokeWidth={2} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+                <>
+                  <div className="h-56">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={historyRows}>
+                        <XAxis dataKey="date" tick={{ fill: "#9c8f78", fontSize: 10 }}
+                               axisLine={{ stroke: "#3a3226" }} tickLine={false} />
+                        <YAxis allowDecimals={false} width={28}
+                               tick={{ fill: "#9c8f78", fontSize: 11 }}
+                               axisLine={{ stroke: "#3a3226" }} tickLine={false} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                        {[...series].filter((s) => shownSeries.has(s.key)).map((s) => (
+                          <Line key={s.key} type="monotone" dataKey={s.key} name={s.label}
+                                stroke={s.color} strokeWidth={2} dot={false} />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11.5px]">
+                    {series.map((s) => {
+                      const on = shownSeries.has(s.key);
+                      return (
+                        <button key={s.key}
+                                onClick={() => toggleSeries(s.key)}
+                                aria-pressed={on}
+                                className={`inline-flex items-center gap-1 transition-opacity ${
+                                  on ? "text-ink" : "text-muted opacity-50"}`}>
+                          <span className="size-2 rounded-full"
+                                style={{ background: s.color }} />
+                          {s.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
               ) : (
                 <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line px-4 text-center text-[13px] leading-relaxed text-muted">
                   The chart starts drawing once at least two days have accumulated
-                  — the pipeline records a stat row every night.
+                  — the pipeline records one row a night.
                 </div>
               )}
             </div>

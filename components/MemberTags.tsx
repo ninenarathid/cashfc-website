@@ -13,7 +13,7 @@ import JobIcon, { jobTierStyle } from "@/components/JobIcon";
  */
 export const TAG_LABELS: Record<string, string> = {
   all: "All",
-  "tier-clear": "Tier cleared", prog: "Progging", raider: "Raider",
+  "tier-clear": "Tier cleared", prog: "Progging",
   ultimate: "Ultimate", veteran: "Veteran", extreme: "Extreme",
   achiever: "Achiever",
   crafter: "Crafter", gatherer: "Gatherer", relic: "Relic grinder",
@@ -24,8 +24,7 @@ export const TAG_LABELS: Record<string, string> = {
 
 export const TAG_HELP: Record<string, string> = {
   "tier-clear": "Cleared every boss of the current savage tier",
-  prog: "Partway through the current savage tier",
-  raider: "Has savage kills in the current tier",
+  prog: "Logged in the current savage tier without clearing all of it",
   ultimate: "Has cleared at least one Ultimate",
   veteran: "Cleared savage or Ultimate content, but not this tier",
   extreme: "Cleared at least one extreme trial this patch",
@@ -44,14 +43,16 @@ export const TAG_HELP: Record<string, string> = {
 };
 
 export const TAG_CLASS: Record<string, string> = {
+  // One colour per kind of content. Savage keeps a single hue across both of its
+  // states — they are the same content, and a dashed border reads as unfinished
+  // far better than a second colour would.
   "tier-clear": "border-chili/60 bg-chili/15 text-chili",
-  prog: "border-chili/35 bg-chili/5 text-chili/85",
-  raider: "border-chili/50 bg-chili/10 text-chili",
+  prog: "border-dashed border-chili/45 bg-chili/5 text-chili/85",
+  extreme: "border-[#a87fd8]/50 bg-[#a87fd8]/10 text-[#c0a2e6]",
   // Deliberately quiet: clearing an Ultimate is a big deal, but on a board where a
   // fifth of the roster has one it should not shout over everything else.
   ultimate: "border-gold/35 bg-gold/5 text-gold/85",
-  veteran: "border-gold/30 bg-gold/5 text-gold/80",
-  extreme: "border-[#c86fd1]/50 bg-[#c86fd1]/10 text-[#d79ade]",
+  veteran: "border-[#a05a5a]/45 bg-[#a05a5a]/10 text-[#c08585]",
   achiever: "border-jade/30 bg-jade/5 text-jade/85",
   crafter: "border-copper/50 bg-copper/10 text-copper",
   gatherer: "border-[#6aa84f]/50 bg-[#6aa84f]/10 text-[#93c47d]",
@@ -68,8 +69,8 @@ export const TAG_CLASS: Record<string, string> = {
 
 /** The same palette as TAG_CLASS, as hex, for charts that cannot use classes. */
 export const TAG_COLOR: Record<string, string> = {
-  "tier-clear": "#d14b3a", prog: "#a8483c", raider: "#c14a3c",
-  ultimate: "#e5cc80", veteran: "#b8a678", extreme: "#c86fd1",
+  "tier-clear": "#d14b3a", prog: "#a8483c",
+  ultimate: "#e5cc80", veteran: "#a05a5a", extreme: "#a87fd8",
   achiever: "#4fb8a8",
   crafter: "#c98a5b", gatherer: "#6aa84f", relic: "#b07ce8",
   explorer: "#4fa8b8", treasure: "#d9a441", goldsaucer: "#e07bb0",

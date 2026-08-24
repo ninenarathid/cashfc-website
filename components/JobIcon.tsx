@@ -7,29 +7,38 @@ import { useState } from "react";
  * Keyed by the full job name FF Logs reports (bestSpec), with the three-letter
  * abbreviation alongside because that is what people read at a glance.
  */
+/**
+ * Colours follow the in-game job stones rather than the parser palettes, so a tag
+ * looks like the crystal a player recognises.
+ *
+ * Three stones are lifted from their true shade: Dark Knight, Ninja and Reaper are
+ * near-black in game, and rendered honestly they would vanish into this background —
+ * so each keeps the hue that identifies it (Dark Knight's wine, Ninja's red rune,
+ * Reaper's gold) at a lightness that can actually be read.
+ */
 const JOBS: Record<string, { id: number; abbr: string; role: Role; color: string }> = {
-  Paladin:      { id: 19, abbr: "PLD", role: "tank",   color: "#a8d2e6" },
-  Warrior:      { id: 21, abbr: "WAR", role: "tank",   color: "#cf2621" },
-  DarkKnight:   { id: 32, abbr: "DRK", role: "tank",   color: "#d126cc" },
-  Gunbreaker:   { id: 37, abbr: "GNB", role: "tank",   color: "#796d30" },
-  WhiteMage:    { id: 24, abbr: "WHM", role: "healer", color: "#fff0dc" },
-  Scholar:      { id: 28, abbr: "SCH", role: "healer", color: "#8657ff" },
-  Astrologian:  { id: 33, abbr: "AST", role: "healer", color: "#ffe74a" },
-  Sage:         { id: 40, abbr: "SGE", role: "healer", color: "#80a0f0" },
-  Monk:         { id: 20, abbr: "MNK", role: "dps",    color: "#d69c00" },
-  Dragoon:      { id: 22, abbr: "DRG", role: "dps",    color: "#4164cd" },
-  Ninja:        { id: 30, abbr: "NIN", role: "dps",    color: "#af1964" },
-  Samurai:      { id: 34, abbr: "SAM", role: "dps",    color: "#e46d04" },
-  Reaper:       { id: 39, abbr: "RPR", role: "dps",    color: "#965a90" },
-  Viper:        { id: 41, abbr: "VPR", role: "dps",    color: "#108860" },
-  Bard:         { id: 23, abbr: "BRD", role: "dps",    color: "#91ba5e" },
-  Machinist:    { id: 31, abbr: "MCH", role: "dps",    color: "#6ee1d6" },
-  Dancer:       { id: 38, abbr: "DNC", role: "dps",    color: "#e2b0af" },
-  BlackMage:    { id: 25, abbr: "BLM", role: "dps",    color: "#a579d6" },
-  Summoner:     { id: 27, abbr: "SMN", role: "dps",    color: "#2d9b78" },
-  RedMage:      { id: 35, abbr: "RDM", role: "dps",    color: "#e87b7b" },
-  Pictomancer:  { id: 42, abbr: "PCT", role: "dps",    color: "#fc92e1" },
-  BlueMage:     { id: 36, abbr: "BLU", role: "dps",    color: "#4f8bc9" },
+  Paladin:      { id: 19, abbr: "PLD", role: "tank",   color: "#a8cfe4" },
+  Warrior:      { id: 21, abbr: "WAR", role: "tank",   color: "#d33a30" },
+  DarkKnight:   { id: 32, abbr: "DRK", role: "tank",   color: "#bc4f63" },
+  Gunbreaker:   { id: 37, abbr: "GNB", role: "tank",   color: "#b3a04a" },
+  WhiteMage:    { id: 24, abbr: "WHM", role: "healer", color: "#efe4cf" },
+  Scholar:      { id: 28, abbr: "SCH", role: "healer", color: "#5f5fd4" },
+  Astrologian:  { id: 33, abbr: "AST", role: "healer", color: "#dd8a2e" },
+  Sage:         { id: 40, abbr: "SGE", role: "healer", color: "#cfdde3" },
+  Monk:         { id: 20, abbr: "MNK", role: "dps",    color: "#d9a520" },
+  Dragoon:      { id: 22, abbr: "DRG", role: "dps",    color: "#3f6ad0" },
+  Ninja:        { id: 30, abbr: "NIN", role: "dps",    color: "#c84e5e" },
+  Samurai:      { id: 34, abbr: "SAM", role: "dps",    color: "#e0d2ae" },
+  Reaper:       { id: 39, abbr: "RPR", role: "dps",    color: "#a89060" },
+  Viper:        { id: 41, abbr: "VPR", role: "dps",    color: "#c8443a" },
+  Bard:         { id: 23, abbr: "BRD", role: "dps",    color: "#9cbe4a" },
+  Machinist:    { id: 31, abbr: "MCH", role: "dps",    color: "#7fdcd6" },
+  Dancer:       { id: 38, abbr: "DNC", role: "dps",    color: "#e6c9b8" },
+  BlackMage:    { id: 25, abbr: "BLM", role: "dps",    color: "#8a5ac8" },
+  Summoner:     { id: 27, abbr: "SMN", role: "dps",    color: "#46a862" },
+  RedMage:      { id: 35, abbr: "RDM", role: "dps",    color: "#d8476a" },
+  Pictomancer:  { id: 42, abbr: "PCT", role: "dps",    color: "#f0c53f" },
+  BlueMage:     { id: 36, abbr: "BLU", role: "dps",    color: "#52a8dd" },
 };
 
 type Role = "tank" | "healer" | "dps";

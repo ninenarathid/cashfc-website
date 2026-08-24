@@ -119,6 +119,11 @@ export interface HistoryRow {
   // Older rows recorded "collector" here; the tag is gone and newer runs write
   // "extreme" instead, so both are optional and the chart just skips a missing one.
   collector?: number; extreme?: number; unknown: number; final_boss: number;
+  /**
+   * Count per tag on that day. Absent from rows written before the FC did anything
+   * but raid in this chart, which is why every series is drawn defensively.
+   */
+  tags?: Record<string, number>;
 }
 export interface Overlay {
   // No self-declared job: FF Logs reports the job behind each parse, which stays

@@ -7,7 +7,7 @@ import {
   LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation, ON_VACATION_RANK,
 } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
-import MemberTags, { TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import MemberTags, { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 import JobIcon, { ALL_JOBS, ROLE_LABEL, jobRole } from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
 
@@ -85,12 +85,15 @@ interface Adv {
   job: string;
   /** Extreme trials that must all be cleared, by boss name. */
   ex: string[];
+  /** Tags a member must have *all* of. The chip row above picks one; this narrows. */
+  tags: string[];
   /** "Last seen collecting" window, from SEEN_OPTIONS. */
   seen: string;
 }
 const ADV_EMPTY: Adv = {
   lfg: "", rank: "", boss: [], lvMin: "",
   race: "", activity: ACTIVITY_DEFAULT, ex: [], seen: "", role: "", job: "",
+  tags: [],
 };
 
 const daysSince = (iso: string): number =>
@@ -118,16 +121,18 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (p.get("view") === "kitchen") setView("kitchen");
     const boss = (p.get("boss") ?? "").split(",").filter(Boolean).map(Number);
     const ex = (p.get("ex") ?? "").split(",").filter(Boolean);
+    const tags = (p.get("tags") ?? "").split(",").filter(Boolean);
     setAdv({
       lfg: p.get("lfg") ?? "", rank: p.get("rank") ?? "",
       boss,
       lvMin: p.get("lv") ?? "", race: p.get("race") ?? "",
       activity: p.get("act") ?? ACTIVITY_DEFAULT, ex, seen: p.get("seen") ?? "",
-      role: p.get("role") ?? "", job: p.get("job") ?? "",
+      role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
     });
     if (p.get("lfg") || p.get("rank") ||
         boss.length || ex.length || p.get("lv") || p.get("race") ||
-        p.get("act") || p.get("seen") || p.get("role") || p.get("job")) setAdvOpen(true);
+        p.get("act") || p.get("seen") || p.get("role") || p.get("job") ||
+        tags.length) setAdvOpen(true);
     inited.current = true;
   }, []);
 
@@ -149,6 +154,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.seen) p.set("seen", adv.seen);
     if (adv.role) p.set("role", adv.role);
     if (adv.job) p.set("job", adv.job);
+    if (adv.tags.length) p.set("tags", adv.tags.join(","));
     const qs = p.toString();
     window.history.replaceState(null, "",
       qs ? `?${qs}` : window.location.pathname);
@@ -193,26 +199,36 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     () => data.members.filter((m) => !hiddenIds.has(m.id)),
     [data.members, hiddenIds]);
 
+  // Everything the secondary filters count is counted within the activity selection,
+  // so switching to Active re-labels them all. A "Crafter 12" that still says 12
+  // after narrowing to the active roster is telling you about people you excluded.
+  const inScope = useMemo(
+    () => visible.filter((m) =>
+      adv.activity === "active" ? !isOnVacation(m)
+      : adv.activity === "vacation" ? isOnVacation(m)
+      : true),
+    [visible, adv.activity]);
+
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: visible.length };
-    for (const m of visible) for (const t of m.tags) c[t] = (c[t] ?? 0) + 1;
+    const c: Record<string, number> = { all: inScope.length };
+    for (const m of inScope) for (const t of m.tags) c[t] = (c[t] ?? 0) + 1;
     return c;
-  }, [visible]);
+  }, [inScope]);
 
   const ranks = useMemo(() => {
-    const set = new Set(visible.map((m) => m.rank).filter(Boolean) as string[]);
+    const set = new Set(inScope.map((m) => m.rank).filter(Boolean) as string[]);
     return [...set].sort(
       (a, b) => (RANK_ORDER.indexOf(a) + 99) - (RANK_ORDER.indexOf(b) + 99));
-  }, [visible]);
+  }, [inScope]);
 
   // Head count per race. Empty until the pipeline has scraped character pages,
   // which is why the race filter hides itself when nothing has been collected yet.
   const races = useMemo(() => {
     const c: Record<string, number> = {};
-    for (const m of visible) if (m.race) c[m.race] = (c[m.race] ?? 0) + 1;
+    for (const m of inScope) if (m.race) c[m.race] = (c[m.race] ?? 0) + 1;
     return Object.entries(c).sort(
       (a, b) => (RACE_ORDER.indexOf(a[0]) + 99) - (RACE_ORDER.indexOf(b[0]) + 99));
-  }, [visible]);
+  }, [inScope]);
   const racedCount = useMemo(
     () => races.reduce((s, [, n]) => s + n, 0), [races]);
 
@@ -220,21 +236,21 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   // can play a job perfectly well without being teaching material.
   const roleCounts = useMemo(() => {
     const c = { tank: 0, healer: 0, dps: 0, total: 0 };
-    for (const m of visible) {
+    for (const m of inScope) {
       const roles = new Set(Object.keys(m.job_scores ?? {}).map(jobRole));
       if (roles.size) c.total += 1;
       for (const r of roles) if (r) c[r] += 1;
     }
     return c;
-  }, [visible]);
+  }, [inScope]);
 
   const jobsPlayed = useMemo(() => {
     const c: Record<string, number> = {};
-    for (const m of visible) {
+    for (const m of inScope) {
       for (const j of Object.keys(m.job_scores ?? {})) c[j] = (c[j] ?? 0) + 1;
     }
     return Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  }, [visible]);
+  }, [inScope]);
 
   const activityCounts = useMemo(() => {
     const vacation = visible.filter(isOnVacation).length;
@@ -246,6 +262,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const lv = Number(adv.lvMin) || null;
     const filtered = visible.filter((m) => {
       if (tag !== "all" && !m.tags.includes(tag)) return false;
+      // AND, not OR: "Crafter and Gatherer" should mean someone who is both.
+      for (const t of adv.tags) if (!m.tags.includes(t)) return false;
       // Search covers race and clan too, so "viera" or "seeker" find people by look
       // without having to open the filter panel first.
       if (q && ![m.name, m.race, m.clan].some(
@@ -292,19 +310,20 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
     (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
+    adv.tags.length +
     (adv.seen ? 1 : 0);
 
   // How many members we actually have acquisition dates for. Shown next to the
   // "last seen" filter so a small result set reads as missing data, not inactivity.
   const seenKnown = useMemo(
-    () => visible.filter((m) => m.last_active).length, [visible]);
+    () => inScope.filter((m) => m.last_active).length, [inScope]);
 
   // How many members cleared each extreme, so the chips can show what is worth picking.
   const exCounts = useMemo(() => {
     const c: Record<string, number> = {};
-    for (const m of visible) for (const n of m.ex_cleared ?? []) c[n] = (c[n] ?? 0) + 1;
+    for (const m of inScope) for (const n of m.ex_cleared ?? []) c[n] = (c[n] ?? 0) + 1;
     return c;
-  }, [visible]);
+  }, [inScope]);
 
   const selCls = "rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink";
 
@@ -443,7 +462,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               <select value={adv.seen}
                       onChange={(e) => setAdv({ ...adv, seen: e.target.value })}
                       className={selCls} aria-label="Last seen collecting"
-                      title={`Based on mount, minion and achievement dates — known for ${seenKnown} of ${visible.length} members`}>
+                      title={`Based on mount, minion and achievement dates — known for ${seenKnown} of ${inScope.length} members`}>
                 <option value="">Last seen: any ({seenKnown} known)</option>
                 {SEEN_OPTIONS.map((o) => (
                   <option key={o.key} value={o.key}>{o.label}</option>
@@ -454,6 +473,33 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                    onChange={(e) => setAdv({ ...adv, lvMin: e.target.value })}
                    placeholder="Lv ≥" aria-label="Minimum level"
                    className="w-20 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink placeholder:text-muted" />
+            </div>
+
+            {/* Every tag, AND-ed. The chip row above the panel picks a single tag;
+                this is how you ask for a combination, like a crafter who also
+                gathers, or a tier-clear who runs extremes. */}
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
+              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+                Has all of
+              </span>
+              {Object.keys(TAG_LABELS)
+                .filter((t) => t !== "all" && counts[t])
+                .map((t) => {
+                  const on = adv.tags.includes(t);
+                  return (
+                    <button key={t}
+                      onClick={() => setAdv({ ...adv,
+                        tags: on ? adv.tags.filter((x) => x !== t) : [...adv.tags, t] })}
+                      aria-pressed={on}
+                      title={TAG_HELP[t] ?? ""}
+                      className={`rounded-full border px-2.5 py-[3px] text-[11.5px] ${
+                        on ? TAG_CLASS[t] ?? "border-amber bg-amber/15 text-amber"
+                           : "border-line text-muted hover:border-muted"}`}>
+                      {TAG_LABELS[t]}
+                      <small className="ml-1 opacity-70">{counts[t]}</small>
+                    </button>
+                  );
+                })}
             </div>
 
             {/* Current-patch content, one chip per fight. Chips are AND-ed, so picking
@@ -467,7 +513,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                 <span className="text-[11.5px] text-muted">Savage</span>
                 {labels.map((lb, i) => {
                   const on = adv.boss.includes(i);
-                  const n = visible.filter((m) => m.current_clears?.[i]).length;
+                  const n = inScope.filter((m) => m.current_clears?.[i]).length;
                   return (
                     <button key={lb}
                       onClick={() => setAdv({ ...adv,
