@@ -320,7 +320,7 @@ export default function MemberView({
         )}
       </section>
 
-      <JobBreakdown raids={raids} />
+      <JobBreakdown raids={raids} jobScores={m.job_scores} />
 
       <RareAchievements items={rareAchievements} />
 

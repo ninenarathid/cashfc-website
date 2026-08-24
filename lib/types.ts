@@ -1,5 +1,18 @@
 export interface Nameday { text: string | null; month: number | null; day: number | null }
 
+/**
+ * How well and how much a member plays one job, from FF Logs. `parse` is the mean of
+ * their best parses rather than the single highest, and `score` scales that by
+ * experience so a lucky pull on a thin record cannot pass for proficiency.
+ */
+export interface JobScore {
+  fights: number;
+  kills: number;
+  parse: number;
+  score: number;
+  tier: string | null;
+}
+
 export interface Member {
   id: number;
   name: string;
@@ -41,6 +54,10 @@ export interface Member {
   achv_buckets?: Record<string, { n: number; min: number | null; score?: number; share?: number }> | null;
   /** Per playstyle: "legendary" | "master" | "expert", from the rarest thing held. */
   achv_tiers?: Record<string, string> | null;
+  /** Per job, from FF Logs: how good and how experienced they are on it. */
+  job_scores?: Record<string, JobScore> | null;
+  /** Their strongest job, present only when it reached Expert or better. */
+  job_top?: (JobScore & { job: string }) | null;
   ex_kills?: number | null;
   /** Kills recorded in savage tiers older than the current one. */
   legacy_clears?: number | null;

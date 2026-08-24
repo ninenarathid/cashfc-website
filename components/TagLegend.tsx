@@ -75,6 +75,13 @@ export default function TagLegend() {
               <b className="text-ink">No prefix</b> — earned the tag, under 5%
             </li>
           </ul>
+          <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
+            A grade can also appear against a <b className="text-ink">job</b>, from FF
+            Logs. It blends the average of someone&rsquo;s best parses with how much
+            they have actually played it — kills and how many different fights — so a
+            single lucky pull does not qualify. It is there to answer &ldquo;who could
+            show a newcomer this job?&rdquo;, and only shows from Expert up.
+          </p>
           <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
             Everything here is read from public Lodestone, FF Logs and FFXIV Collect
             data. Members who keep achievements or logs private show as{" "}

@@ -8,6 +8,7 @@ import Timeline from "@/components/home/Timeline";
 import BirthdaysToday from "@/components/home/BirthdaysToday";
 import type { BoardData, FeedEvent, Member, NewsItem } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
+import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 
 const FEED_ICON: Record<string, string> = {
   parse_up: "📈", boss_clear: "⚔️", ult_clear: "🏆", mounts_up: "🐎",
@@ -25,7 +26,18 @@ export default function Home() {
   const feed = ((feedRaw as { events?: FeedEvent[] }).events ?? []).slice(0, 30);
   const news = ((newsRaw as { items?: NewsItem[] }).items ?? []);
   const members = data.members;
-  const count = (t: string) => members.filter((m) => m.tags.includes(t)).length;
+  const activeCount = members.filter((m) => !isOnVacation(m)).length;
+
+  // Headline counts per playstyle, biggest first, skipping the buckets that only say
+  // what could not be read.
+  const SKIP = new Set(["casual", "unknown"]);
+  const tally: Record<string, number> = {};
+  for (const m of members) {
+    for (const t of m.tags) if (!SKIP.has(t)) tally[t] = (tally[t] ?? 0) + 1;
+  }
+  const tagStats = Object.entries(tally)
+    .map(([tag, n]) => ({ tag, n }))
+    .sort((a, b) => b.n - a.n);
 
   // Member of the day. A hash of the date picked at random, so some members came up
   // twice while others never appeared; walking a fixed shuffle by day number instead
@@ -67,18 +79,39 @@ export default function Home() {
             Browse all {data.fc.total} members
           </Link>
         </div>
-        <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-2.5">
-          {[
-            ["Members", data.fc.total, "text-ink"],
-            ["Raider", count("raider"), "text-chili"],
-            ["Ultimate", count("ultimate"), "text-gold"],
-          ].map(([label, n, cls]) => (
-            <div key={label as string} className="rounded-xl border border-line bg-surface px-3 py-2.5">
-              <div className={`font-data text-2xl font-semibold ${cls}`}>{n}</div>
-              <div className="text-xs text-muted">{label}</div>
+        <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-2.5">
+          <div className="rounded-xl border border-line bg-surface px-3 py-2.5">
+            <div className="font-data text-2xl font-semibold text-ink">
+              {data.fc.total}
             </div>
-          ))}
+            <div className="text-xs text-muted">Members</div>
+          </div>
+          <div className="rounded-xl border border-line bg-surface px-3 py-2.5">
+            <div className="flex items-baseline justify-center gap-2">
+              <span className="size-2.5 rounded-full bg-[#43b581]" />
+              <span className="font-data text-2xl font-semibold text-ink">
+                {activeCount}
+              </span>
+            </div>
+            <div className="text-xs text-muted">Active</div>
+          </div>
         </div>
+
+        {/* How the FC actually spends its time. Jobs stay off the front page —
+            that is a question for a member's own profile, not a headline. */}
+        {tagStats.length > 0 && (
+          <div className="mx-auto mt-3 flex max-w-2xl flex-wrap justify-center gap-1.5">
+            {tagStats.map(({ tag, n }) => (
+              <Link key={tag} href={`/members?tag=${tag}`}
+                    title={TAG_HELP[tag] ?? ""}
+                    className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium no-underline transition-opacity hover:opacity-80 ${
+                      TAG_CLASS[tag] ?? "border-line text-muted"}`}>
+                {TAG_LABELS[tag] ?? tag}
+                <small className="font-data opacity-75">{n}</small>
+              </Link>
+            ))}
+          </div>
+        )}
       </header>
 
       <Announcements />

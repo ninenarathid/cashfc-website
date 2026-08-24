@@ -1,6 +1,7 @@
 "use client";
 
-import type { MemberRaids } from "@/lib/types";
+import type { JobScore, MemberRaids } from "@/lib/types";
+import { ACHV_TIER_LABEL } from "@/lib/types";
 import JobIcon from "@/components/JobIcon";
 
 /** FFLogs' standard parse colours. */
@@ -56,7 +57,10 @@ export function jobRows(raids: MemberRaids | null): JobRow[] {
     .sort((a, b) => b.fights - a.fights || b.best - a.best);
 }
 
-export default function JobBreakdown({ raids }: { raids: MemberRaids | null }) {
+export default function JobBreakdown(
+  { raids, jobScores }:
+  { raids: MemberRaids | null; jobScores?: Record<string, JobScore> | null },
+) {
   const rows = jobRows(raids);
   if (!rows.length) return null;
 
@@ -93,10 +97,19 @@ export default function JobBreakdown({ raids }: { raids: MemberRaids | null }) {
                 {r.fights} fight{r.fights === 1 ? "" : "s"} · {r.kills} kills
               </span>
             </span>
-            <span className="w-9 text-right font-data text-sm font-semibold"
-                  style={{ color: parseColor(r.best || null) }}
-                  title={`Best parse on ${r.job} — ${r.where.join(", ")}`}>
-              {r.best || "—"}
+            <span className="flex items-center justify-end gap-2">
+              {jobScores?.[r.job]?.tier && (
+                <span
+                  title={`${jobScores[r.job].parse} average best parse over ${jobScores[r.job].kills} kills across ${jobScores[r.job].fights} fights`}
+                  className="whitespace-nowrap rounded-full border border-line bg-card px-2 py-[2px] text-[10.5px] text-muted">
+                  {ACHV_TIER_LABEL[jobScores[r.job].tier!]}
+                </span>
+              )}
+              <span className="w-9 text-right font-data text-sm font-semibold"
+                    style={{ color: parseColor(r.best || null) }}
+                    title={`Best parse on ${r.job} — ${r.where.join(", ")}`}>
+                {r.best || "—"}
+              </span>
             </span>
           </div>
         ))}

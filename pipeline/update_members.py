@@ -654,6 +654,67 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             "extreme_zones": cur_extremes}
 
 
+# Grades for job proficiency, hardest first. Absolute, like the playstyle grades:
+# whoever clears the bar earns it. The board only shows Expert and above — the point
+# is finding somebody who could teach a newcomer, and below that the answer is no.
+JOB_TIERS: list[tuple[str, float]] = [
+    ("legendary", 80.0),
+    ("master", 65.0),
+    ("expert", 50.0),
+]
+
+
+def score_jobs(entry: dict) -> dict[str, dict]:
+    """Rate each job this member has logged on, for "who could teach this?".
+
+    Skill is the mean of their best parses, not the single highest, because one lucky
+    pull says nothing about whether they can explain the fight.
+
+    Experience then *scales* that skill rather than adding to it. Adding them up let a
+    99 parse off two kills reach Expert on the parse alone, which is exactly the
+    person you would not ask. As a multiplier, a thin record caps what a good parse
+    can be worth, and the two components it blends are:
+
+    * kills, log-scaled — the gap between 5 and 50 kills is enormous, 500 to 1,000
+      barely matters;
+    * distinct fights — someone who has only ever done one boss knows one boss.
+    """
+    acc: dict[str, dict] = {}
+
+    def add(job, best, kills):
+        if not job:
+            return
+        r = acc.setdefault(job, {"fights": 0, "kills": 0, "parses": []})
+        r["fights"] += 1
+        r["kills"] += kills or 0
+        if best is not None:
+            r["parses"].append(best)
+
+    for e in (entry.get("current") or {}).get("encounters", []):
+        add(e.get("job"), e.get("best"), e.get("kills"))
+    for e in entry.get("extremes", []):
+        add(e.get("job"), e.get("best"), e.get("kills"))
+    for u in entry.get("ultimates", []):
+        add(u.get("job"), u.get("best"), u.get("kills"))
+    for lz in entry.get("legacy", []):
+        for e in lz.get("encounters", []):
+            add(e.get("job"), e.get("best"), e.get("kills"))
+
+    out: dict[str, dict] = {}
+    for job, r in acc.items():
+        parse = round(sum(r["parses"]) / len(r["parses"]), 1) if r["parses"] else 0.0
+        depth = min(1.0, math.log10(1 + r["kills"]) / 2.0)    # ~100 kills tops it out
+        breadth = min(1.0, r["fights"] / 4.0)                 # four fights tops it out
+        experience = 0.7 * depth + 0.3 * breadth
+        # Floor of 0.25: a strong parse on a thin record still counts for something,
+        # just nowhere near enough to reach a tier on its own.
+        score = round(parse * (0.25 + 0.75 * experience), 1)
+        tier = next((n for n, need in JOB_TIERS if score >= need), None)
+        out[job] = {"fights": r["fights"], "kills": r["kills"], "parse": parse,
+                    "score": score, "tier": tier}
+    return out
+
+
 def summarize_raids(m: dict, raids: dict) -> None:
     """Roll the merged raids entry up into members.json — parse, kills, current_clears."""
     entry = raids.get(str(m["id"])) or {}
@@ -689,6 +750,14 @@ def summarize_raids(m: dict, raids: dict) -> None:
     ex = entry.get("extremes", [])
     m["ex_cleared"] = sorted(e["name"] for e in ex if e.get("cleared") and e.get("name"))
     m["ex_kills"] = sum(e.get("kills") or 0 for e in ex)
+
+    # Per-job proficiency, plus the single best job so the board can name one without
+    # loading the whole raid file.
+    jobs = score_jobs(entry)
+    m["job_scores"] = jobs
+    best_job = max(jobs.items(), key=lambda kv: kv[1]["score"], default=None)
+    m["job_top"] = ({"job": best_job[0], **best_job[1]}
+                    if best_job and best_job[1]["tier"] else None)
 
     # Separates "raided in an older expansion" from "raiding now", which the tags need.
     m["legacy_clears"] = sum(
