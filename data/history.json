@@ -3,11 +3,11 @@
   {
    "date": "2026-08-24",
    "total": 502,
-   "raider": 12,
-   "ultimate": 15,
+   "raider": 55,
+   "ultimate": 32,
    "collector": 23,
-   "unknown": 396,
-   "final_boss": 11
+   "unknown": 352,
+   "final_boss": 37
   }
  ]
 }

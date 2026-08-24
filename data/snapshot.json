@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 100,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -401,135 +401,195 @@
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
-  "parse": null,
-  "ult": 0,
+  "parse": 86,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "47221226": {
   "name": "Destiny Marjory",
-  "parse": null,
-  "ult": 0,
+  "parse": 99,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "39199441": {
   "name": "Dodoco Chocodoco",
-  "parse": null,
+  "parse": 91,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
   "chg": "2026-08-24"
  },
  "40389196": {
   "name": "Dontae Luciano",
-  "parse": null,
+  "parse": 97,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "47540663": {
   "name": "Edel Meither",
-  "parse": null,
+  "parse": 99,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "28950119": {
   "name": "Einz Aizerces",
-  "parse": null,
+  "parse": 93,
   "ult": 0,
   "mounts": 117,
   "minions": 228,
   "rare": 18,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "28120733": {
   "name": "Fukurou Under",
-  "parse": null,
+  "parse": 96,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 4,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "12478532": {
   "name": "Hakuryu Flare",
-  "parse": null,
+  "parse": 98,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
-  "parse": null,
+  "parse": 74,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
   "chg": "2026-08-24"
  },
  "42349146": {
   "name": "Henzski Celestial",
-  "parse": null,
+  "parse": 98,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
-  "parse": null,
+  "parse": 48,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "42948817": {
   "name": "Karuma Amamiya",
-  "parse": null,
+  "parse": 21,
   "ult": 0,
   "mounts": 115,
   "minions": 255,
   "rare": 14,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -539,85 +599,125 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
-  "parse": null,
-  "ult": 0,
+  "parse": 98,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "38808156": {
   "name": "Kwiyo Ki",
-  "parse": null,
+  "parse": 97,
   "ult": 0,
   "mounts": 77,
   "minions": 137,
   "rare": 19,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "31902843": {
   "name": "Lapista Scholares",
-  "parse": null,
-  "ult": 0,
+  "parse": 98,
+  "ult": 1,
   "mounts": 113,
   "minions": 177,
   "rare": 22,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "30864049": {
   "name": "Lay Stardust",
-  "parse": null,
-  "ult": 0,
+  "parse": 98,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "34509521": {
   "name": "Liliya Quintilis",
-  "parse": null,
-  "ult": 0,
+  "parse": 95,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "37056222": {
   "name": "Lucine Nokomis",
-  "parse": null,
+  "parse": 82,
   "ult": 0,
   "mounts": 147,
   "minions": 321,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "22461237": {
   "name": "Metatron Vtretikh",
-  "parse": null,
+  "parse": 78,
   "ult": 0,
   "mounts": 160,
   "minions": 284,
   "rare": 158,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "5294880": {
   "name": "Mithra Muses",
@@ -627,173 +727,253 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "5435582": {
   "name": "Mog Hikarino",
-  "parse": null,
-  "ult": 0,
+  "parse": 77,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "26268800": {
   "name": "Mono Sodium",
-  "parse": null,
+  "parse": 100,
   "ult": 0,
   "mounts": 72,
   "minions": 115,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "6173187": {
   "name": "Motochita Muses",
-  "parse": null,
+  "parse": 92,
   "ult": 0,
   "mounts": 177,
   "minions": 421,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "51922514": {
   "name": "Mumu Nene",
-  "parse": null,
+  "parse": 42,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "36183541": {
   "name": "Nagi Amano",
-  "parse": null,
+  "parse": 84,
   "ult": 0,
   "mounts": 42,
   "minions": 82,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
-  "parse": null,
+  "parse": 61,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "5644067": {
   "name": "Ninenine The'phantom",
-  "parse": null,
-  "ult": 0,
+  "parse": 96,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "9444020": {
   "name": "Non Elemental",
-  "parse": null,
-  "ult": 0,
+  "parse": 100,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "22425670": {
   "name": "Panjasira Niyajama",
-  "parse": null,
+  "parse": 99,
   "ult": 0,
   "mounts": 103,
   "minions": 274,
   "rare": 130,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "15912826": {
   "name": "Rin Shiba",
-  "parse": null,
-  "ult": 0,
+  "parse": 97,
+  "ult": 1,
   "mounts": 199,
   "minions": 339,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "11950156": {
   "name": "Rothe Happer",
-  "parse": null,
+  "parse": 83,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "30667251": {
   "name": "Roxas Akatsuki",
-  "parse": null,
+  "parse": 35,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 93,
-  "cc": null,
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
   "chg": "2026-08-24"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
-  "parse": null,
-  "ult": 0,
+  "parse": 99,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "58455997": {
   "name": "Salmon Sushiroll",
-  "parse": null,
+  "parse": 97,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "44133352": {
   "name": "Seville Beoulve",
-  "parse": null,
+  "parse": 1,
   "ult": 0,
   "mounts": 173,
   "minions": 415,
   "rare": 464,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -808,102 +988,147 @@
  },
  "29998658": {
   "name": "Shippei Astana",
-  "parse": null,
-  "ult": 0,
+  "parse": 99,
+  "ult": 1,
   "mounts": 146,
   "minions": 297,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "44141004": {
   "name": "Soft Stone",
-  "parse": null,
+  "parse": 64,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "37648492": {
   "name": "Sunshine Eveningfall",
-  "parse": null,
-  "ult": 0,
+  "parse": 90,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "11603711": {
   "name": "Takamina Aamin",
-  "parse": null,
+  "parse": 87,
   "ult": 0,
   "mounts": 164,
   "minions": 286,
   "rare": 79,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "58202955": {
   "name": "Trevas Aka",
-  "parse": null,
+  "parse": 9,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "26298391": {
   "name": "Yozora Luna",
-  "parse": null,
+  "parse": 89,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "29918404": {
   "name": "Zarass Gierlos",
-  "parse": null,
+  "parse": 83,
   "ult": 0,
   "mounts": 204,
   "minions": 414,
   "rare": 298,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "42976317": {
   "name": "Zeadz Stellar",
-  "parse": null,
+  "parse": 62,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
   "chg": "2026-08-24"
  },
  "24123541": {
   "name": "Zeren Dragonia",
-  "parse": null,
-  "ult": 0,
+  "parse": 99,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "12058921": {
   "name": "Heidi Fox",
@@ -918,14 +1143,19 @@
  },
  "38335568": {
   "name": "Vivienne Yhisa",
-  "parse": null,
+  "parse": 1,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "6951533": {
   "name": "Aemond Targaryen",
@@ -935,8 +1165,13 @@
   "minions": null,
   "rare": null,
   "level": 94,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -946,8 +1181,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "56108574": {
   "name": "Akina Natsume",
@@ -957,41 +1197,61 @@
   "minions": null,
   "rare": null,
   "level": 74,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
-  "parse": null,
-  "ult": 0,
+  "parse": 6,
+  "ult": 1,
   "mounts": 128,
   "minions": 320,
   "rare": 132,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "8286372": {
   "name": "Aloha Banana",
-  "parse": null,
+  "parse": 72,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "29090821": {
   "name": "Amber Levana",
-  "parse": null,
+  "parse": 80,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "34434658": {
   "name": "Araiva Leonhart",
@@ -1001,19 +1261,29 @@
   "minions": 144,
   "rare": 19,
   "level": 92,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "14476396": {
   "name": "Arawn A'nnwn",
-  "parse": null,
+  "parse": 90,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "29339718": {
   "name": "Ashe Fantine",
@@ -1023,8 +1293,13 @@
   "minions": 289,
   "rare": 114,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -1034,8 +1309,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "42215186": {
   "name": "Azelia Tayta",
@@ -1045,8 +1325,13 @@
   "minions": 23,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "2957360": {
   "name": "Break Darkflame",
@@ -1056,8 +1341,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "4026627": {
   "name": "Brisingamen Raw",
@@ -1067,30 +1357,45 @@
   "minions": null,
   "rare": null,
   "level": 97,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "44143115": {
   "name": "Chapton Lola",
-  "parse": null,
+  "parse": 2,
   "ult": 0,
   "mounts": 33,
   "minions": 77,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "34376591": {
   "name": "Crashbone Noudenet",
-  "parse": null,
+  "parse": 1,
   "ult": 0,
   "mounts": 65,
   "minions": 116,
   "rare": null,
   "level": 51,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "38488824": {
   "name": "Daffodil Amary",
@@ -1100,19 +1405,29 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "34546216": {
   "name": "Dekkapi Kung",
-  "parse": null,
+  "parse": 81,
   "ult": 0,
   "mounts": 61,
   "minions": 89,
   "rare": null,
   "level": 99,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "30293847": {
   "name": "Devy Lanta",
@@ -1122,30 +1437,45 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "39959181": {
   "name": "El Blung",
-  "parse": null,
+  "parse": 80,
   "ult": 0,
   "mounts": 103,
   "minions": 161,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-24"
  },
  "35601257": {
   "name": "Elaina Celestial",
-  "parse": null,
+  "parse": 53,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -1155,8 +1485,13 @@
   "minions": null,
   "rare": null,
   "level": 58,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "42053180": {
   "name": "Elle'kuro Dean'deluca",
@@ -1166,7 +1501,12 @@
   "minions": null,
   "rare": null,
   "level": 75,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
   "chg": "2026-08-24"
  },
  "15543487": {
@@ -1177,8 +1517,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "16192933": {
   "name": "Evangeline Ak-mcdowel",
@@ -1188,8 +1533,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "47494518": {
   "name": "Farcia Soluna",
@@ -1210,8 +1560,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31001697": {
   "name": "Flora Neuenmuller",
@@ -1221,8 +1576,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "29585811": {
   "name": "Frey Ichinose",
@@ -1232,8 +1592,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -1248,14 +1613,19 @@
  },
  "39850923": {
   "name": "Hiro Hikari",
-  "parse": null,
+  "parse": 7,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31001781": {
   "name": "Ician Wyra'li",
@@ -1265,8 +1635,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -1276,19 +1651,29 @@
   "minions": 334,
   "rare": 16,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "36183378": {
   "name": "K' Potassium",
-  "parse": null,
+  "parse": 19,
   "ult": 0,
   "mounts": 35,
   "minions": 105,
   "rare": 2,
-  "level": 100,
-  "cc": null,
-  "chg": null
+  "level": 35,
+  "cc": [
+   true,
+   true,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -1298,19 +1683,29 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31155521": {
   "name": "Ketchup Love",
-  "parse": null,
+  "parse": 70,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -1320,8 +1715,13 @@
   "minions": null,
   "rare": null,
   "level": 87,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -1331,8 +1731,13 @@
   "minions": null,
   "rare": null,
   "level": 81,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "60852230": {
   "name": "Lucienvt Yenslayer",
@@ -1353,8 +1758,13 @@
   "minions": null,
   "rare": null,
   "level": 99,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "33807451": {
   "name": "Lumus Losgard",
@@ -1364,74 +1774,109 @@
   "minions": null,
   "rare": null,
   "level": 94,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "16099244": {
   "name": "Luna Froggo",
-  "parse": null,
-  "ult": 0,
+  "parse": 100,
+  "ult": 1,
   "mounts": 103,
   "minions": 168,
   "rare": 101,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "29918255": {
   "name": "Lyndanisse Vymmaith",
-  "parse": null,
+  "parse": 62,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "46243891": {
   "name": "Marin Elysium",
-  "parse": null,
+  "parse": 24,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 63,
-  "cc": null,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
   "chg": "2026-08-24"
  },
  "34790386": {
   "name": "Mikote Menphina",
-  "parse": null,
+  "parse": 75,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "38796459": {
   "name": "Minion Ke",
-  "parse": null,
+  "parse": 44,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 96,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31592995": {
   "name": "Mizuki Hoshiko",
-  "parse": null,
+  "parse": 58,
   "ult": 0,
   "mounts": 107,
   "minions": 317,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "42215185": {
   "name": "Nakamura Sayu",
@@ -1441,8 +1886,13 @@
   "minions": 105,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "30596644": {
   "name": "Noelle Eisner",
@@ -1452,8 +1902,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -1463,8 +1918,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -1474,51 +1934,76 @@
   "minions": null,
   "rare": null,
   "level": 96,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "8113158": {
   "name": "Olivie Brown",
-  "parse": null,
+  "parse": 51,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "2852829": {
   "name": "Papamaru Dj",
-  "parse": null,
+  "parse": 7,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "37061370": {
   "name": "Peonies Dunieres",
-  "parse": null,
+  "parse": 80,
   "ult": 0,
   "mounts": 110,
   "minions": 230,
   "rare": 53,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "33387937": {
   "name": "R'bael Senkou",
-  "parse": null,
+  "parse": 67,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 91,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
   "chg": "2026-08-24"
  },
  "60599300": {
@@ -1540,19 +2025,29 @@
   "minions": 115,
   "rare": 31,
   "level": 99,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
   "chg": "2026-08-24"
  },
  "35158574": {
   "name": "Rikka Haulia",
-  "parse": null,
+  "parse": 90,
   "ult": 0,
   "mounts": 59,
   "minions": 154,
   "rare": 25,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "8713004": {
   "name": "Shoe Bite",
@@ -1562,30 +2057,45 @@
   "minions": 107,
   "rare": null,
   "level": 83,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "36363091": {
   "name": "Snow Winsfield",
-  "parse": null,
-  "ult": 0,
+  "parse": 98,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
   "chg": "2026-08-24"
  },
  "49929911": {
   "name": "Sun Prism",
-  "parse": null,
+  "parse": 8,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "30582341": {
   "name": "Sweetpea Swp",
@@ -1595,8 +2105,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "30253575": {
   "name": "Syndra Gal",
@@ -1606,8 +2121,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "36624109": {
   "name": "Tamazon Kitsu",
