@@ -2137,8 +2137,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "55640987": {
   "name": "Thuchy Oppa",
@@ -2148,8 +2153,13 @@
   "minions": null,
   "rare": null,
   "level": 87,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "29991345": {
   "name": "Transparent Crystal",
@@ -2159,8 +2169,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -2170,8 +2185,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -2181,8 +2201,13 @@
   "minions": 232,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "42845691": {
   "name": "Yuukizuz Akino",
