@@ -3,6 +3,48 @@
   {
    "date": "2026-08-24",
    "type": "parse_up",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "set a new best parse: 67"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
    "id": 28579232,
    "name": "Dessiny Valkyrie",
    "text": "set a new best parse: 86"
@@ -1357,48 +1399,6 @@
    "id": 39959181,
    "name": "El Blung",
    "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 35601257,
-   "name": "Elaina Celestial",
-   "text": "set a new best parse: 53"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 35601257,
-   "name": "Elaina Celestial",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 39850923,
-   "name": "Hiro Hikari",
-   "text": "set a new best parse: 7"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "set a new best parse: 19"
   }
  ]
 }

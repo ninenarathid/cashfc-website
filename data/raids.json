@@ -9932,5 +9932,168 @@
   "extremes": [],
   "legacy": [],
   "_status": "none"
+ },
+ "42845691": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 67,
+     "median": 32,
+     "kills": 13,
+     "job": "Pictomancer"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 37,
+     "median": 16,
+     "kills": 12,
+     "job": "Pictomancer"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 31,
+     "median": 12,
+     "kills": 9,
+     "job": "Pictomancer"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 19,
+     "median": 9,
+     "kills": 12,
+     "job": "Pictomancer"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 4,
+     "median": 2,
+     "kills": 4,
+     "job": "Pictomancer"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Epic of Alexander",
+    "best": 8,
+    "kills": 4,
+    "job": "Pictomancer",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 27,
+    "kills": 4,
+    "job": "Viper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 23,
+    "kills": 3,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 23,
+    "kills": 3,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 67,
+    "kills": 11,
+    "job": "Pictomancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 35,
+    "kills": 27,
+    "job": "Pictomancer",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "15932791": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "60814172": {
+  "_status": "none"
+ },
+ "54419512": {
+  "_status": "none"
+ },
+ "60873337": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
  }
 }
