@@ -1,3 +1,620 @@
 {
- "events": []
+ "events": [
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 24228478,
+   "name": "Pyrozus Helison",
+   "text": "set a new best parse: 13"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 3968346,
+   "name": "Panuz Chocobunny",
+   "text": "set a new best parse: 57"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "set a new best parse: 47"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "set a new best parse: 15"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 35634484,
+   "name": "Little Eevee",
+   "text": "set a new best parse: 39"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 22767255,
+   "name": "Minami Taira",
+   "text": "set a new best parse: 94"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 22767255,
+   "name": "Minami Taira",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "set a new best parse: 77"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "set a new best parse: 18"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "set a new best parse: 92"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 45938803,
+   "name": "Blue Mana",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 45938803,
+   "name": "Blue Mana",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 45938803,
+   "name": "Blue Mana",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 45938803,
+   "name": "Blue Mana",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 45938803,
+   "name": "Blue Mana",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 45938803,
+   "name": "Blue Mana",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "set a new best parse: 68"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 32147756,
+   "name": "Bunny Nirawz",
+   "text": "set a new best parse: 95"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 32147756,
+   "name": "Bunny Nirawz",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 32147756,
+   "name": "Bunny Nirawz",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "set a new best parse: 86"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "level_100",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "level_100",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100!"
+  }
+ ]
 }

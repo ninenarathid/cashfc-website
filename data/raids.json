@@ -1,1 +1,3006 @@
-{}
+{
+ "24228478": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 4,
+    "kills": 3,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 3,
+    "kills": 2,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 5,
+    "kills": 5,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 13,
+    "kills": 2,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "15308846": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 71,
+     "median": 56,
+     "kills": 2,
+     "job": "Warrior"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 96,
+     "median": 57,
+     "kills": 5,
+     "job": "Warrior"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 44,
+     "median": 32,
+     "kills": 4,
+     "job": "Warrior"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 18,
+     "median": 13,
+     "kills": 2,
+     "job": "Warrior"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 29,
+     "median": 23,
+     "kills": 2,
+     "job": "Warrior"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 58,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 84,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "best": 65,
+    "kills": 3,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "best": 9,
+    "kills": 1,
+    "job": "Paladin",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 1,
+    "kills": 1,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 38,
+    "kills": 6,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 25,
+    "kills": 9,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 48,
+    "kills": 8,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 33,
+    "kills": 9,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 40,
+    "kills": 10,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 39,
+    "kills": 4,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 92,
+      "median": 86,
+      "kills": 3,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 82,
+      "median": 65,
+      "kills": 3,
+      "job": "Warrior"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 62,
+      "median": 62,
+      "kills": 1,
+      "job": "Warrior"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 23,
+      "median": 23,
+      "kills": 1,
+      "job": "Warrior"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "3968346": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 6,
+    "kills": 7,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 57,
+    "kills": 27,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 16,
+    "kills": 15,
+    "job": "Bard",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 48,
+      "median": 48,
+      "kills": 1,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 1,
+      "median": 1,
+      "kills": 1,
+      "job": "Dancer"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 5,
+      "median": 5,
+      "kills": 1,
+      "job": "Dancer"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 3,
+      "median": 3,
+      "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "14959902": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "28789661": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 99,
+     "median": 88,
+     "kills": 10,
+     "job": "Warrior"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 99,
+     "median": 96,
+     "kills": 13,
+     "job": "Warrior"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 99,
+     "median": 82,
+     "kills": 8,
+     "job": "Warrior"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 95,
+     "median": 83,
+     "kills": 13,
+     "job": "Warrior"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 89,
+     "median": 83,
+     "kills": 5,
+     "job": "Warrior"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 97,
+    "kills": 8,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "best": 97,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 96,
+    "kills": 13,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "best": 100,
+    "kills": 51,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "best": 100,
+    "kills": 52,
+    "job": "Warrior",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 85,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 66,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 96,
+    "kills": 2,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 74,
+    "kills": 4,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 69,
+    "kills": 8,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 60,
+    "kills": 12,
+    "job": "Warrior",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 100,
+      "median": 94,
+      "kills": 12,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 98,
+      "median": 91,
+      "kills": 10,
+      "job": "Warrior"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 97,
+      "median": 90,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 95,
+      "median": 66,
+      "kills": 7,
+      "job": "Warrior"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "31628293": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "best": 47,
+    "kills": 1,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 35,
+    "kills": 11,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "best": 10,
+    "kills": 17,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "best": 35,
+    "kills": 23,
+    "job": "Scholar",
+    "cleared": true
+   }
+  ],
+  "extremes": [],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "57885671": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "58199536": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "24186600": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 39,
+    "kills": 9,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "best": 75,
+    "kills": 13,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "best": 40,
+    "kills": 4,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "best": 64,
+    "kills": 9,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 32,
+    "kills": 1,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 67,
+    "kills": 2,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 78,
+    "kills": 26,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 90,
+    "kills": 36,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 98,
+    "kills": 82,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 57,
+      "median": 44,
+      "kills": 4,
+      "job": "Paladin"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 38,
+      "median": 31,
+      "kills": 4,
+      "job": "Paladin"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 33,
+      "median": 27,
+      "kills": 2,
+      "job": "Paladin"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "29152036": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 91,
+     "median": 70,
+     "kills": 12,
+     "job": "Dancer"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 89,
+     "median": 66,
+     "kills": 13,
+     "job": "Dancer"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 93,
+     "median": 63,
+     "kills": 11,
+     "job": "Dancer"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 83,
+     "median": 54,
+     "kills": 12,
+     "job": "Dancer"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 89,
+     "median": 54,
+     "kills": 6,
+     "job": "Dancer"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 3,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 81,
+    "kills": 17,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 99,
+    "kills": 66,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 84,
+    "kills": 41,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 90,
+    "kills": 15,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 98,
+    "kills": 33,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 69,
+    "kills": 22,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 94,
+    "kills": 59,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 89,
+    "kills": 65,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 97,
+      "median": 57,
+      "kills": 13,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 85,
+      "median": 67,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 73,
+      "median": 43,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 67,
+      "median": 47,
+      "kills": 6,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "38041221": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 4,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 15,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "35634484": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 39,
+    "kills": 26,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 8,
+    "kills": 4,
+    "job": "Paladin",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "22767255": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "best": 39,
+    "kills": 2,
+    "job": "Dragoon",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 15,
+    "kills": 1,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 65,
+    "kills": 1,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 88,
+    "kills": 6,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 94,
+    "kills": 14,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 44,
+    "kills": 7,
+    "job": "Dragoon",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 39,
+      "median": 35,
+      "kills": 4,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 70,
+      "median": 34,
+      "kills": 9,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 34,
+      "median": 12,
+      "kills": 7,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 4,
+      "median": 4,
+      "kills": 1,
+      "job": "Dragoon"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "38152072": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 28,
+    "kills": 10,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 59,
+    "kills": 13,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 77,
+    "kills": 71,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 71,
+    "kills": 23,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "29511615": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 82,
+     "median": 67,
+     "kills": 9,
+     "job": "Samurai"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 42,
+     "median": 27,
+     "kills": 8,
+     "job": "Samurai"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 3,
+     "median": 3,
+     "kills": 2,
+     "job": "Scholar"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 3,
+     "median": 1,
+     "kills": 3,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 1,
+     "median": 1,
+     "kills": 1,
+     "job": "BlackMage"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "best": 72,
+    "kills": 9,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "best": 96,
+    "kills": 18,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 62,
+    "kills": 5,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 51,
+    "kills": 3,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 34,
+    "kills": 2,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 49,
+    "kills": 5,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 97,
+    "kills": 15,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 84,
+    "kills": 10,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 89,
+      "median": 55,
+      "kills": 10,
+      "job": "Paladin"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 92,
+      "median": 77,
+      "kills": 9,
+      "job": "Paladin"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 46,
+      "median": 36,
+      "kills": 9,
+      "job": "Paladin"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 29,
+      "median": 21,
+      "kills": 2,
+      "job": "WhiteMage"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "31236337": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 91,
+     "median": 51,
+     "kills": 13,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 90,
+     "median": 65,
+     "kills": 15,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 81,
+     "median": 47,
+     "kills": 13,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 69,
+     "median": 45,
+     "kills": 15,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 51,
+     "median": 40,
+     "kills": 7,
+     "job": "WhiteMage"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 23,
+    "kills": 2,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "best": 4,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 68,
+    "kills": 11,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "best": 56,
+    "kills": 32,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "best": 39,
+    "kills": 13,
+    "job": "Astrologian",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 49,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 40,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 11,
+    "kills": 1,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 72,
+    "kills": 11,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 74,
+    "kills": 8,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 53,
+    "kills": 8,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 29,
+    "kills": 2,
+    "job": "Astrologian",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 91,
+      "median": 51,
+      "kills": 13,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 85,
+      "median": 61,
+      "kills": 11,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 96,
+      "median": 67,
+      "kills": 9,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 74,
+      "median": 55,
+      "kills": 7,
+      "job": "WhiteMage"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "13533056": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 97,
+     "median": 90,
+     "kills": 9,
+     "job": "RedMage"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 90,
+     "median": 71,
+     "kills": 10,
+     "job": "RedMage"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 93,
+     "median": 53,
+     "kills": 9,
+     "job": "RedMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 85,
+     "median": 69,
+     "kills": 11,
+     "job": "RedMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 82,
+     "median": 66,
+     "kills": 7,
+     "job": "RedMage"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 47,
+    "kills": 2,
+    "job": "Pictomancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "best": 70,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 60,
+    "kills": 1,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "best": 97,
+    "kills": 15,
+    "job": "RedMage",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 76,
+    "kills": 4,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 23,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 98,
+    "kills": 19,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 87,
+    "kills": 23,
+    "job": "Pictomancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 85,
+    "kills": 14,
+    "job": "RedMage",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 96,
+      "median": 79,
+      "kills": 7,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 92,
+      "median": 73,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 69,
+      "median": 41,
+      "kills": 7,
+      "job": "Warrior"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 70,
+      "median": 37,
+      "kills": 6,
+      "job": "Warrior"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "44970350": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 18,
+    "kills": 12,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 16,
+    "kills": 11,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "19827594": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 84,
+     "median": 18,
+     "kills": 6,
+     "job": "Dancer"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 80,
+     "median": 39,
+     "kills": 5,
+     "job": "Dancer"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 60,
+     "median": 15,
+     "kills": 4,
+     "job": "Dancer"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 83,
+     "median": 33,
+     "kills": 12,
+     "job": "Dancer"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 79,
+     "median": 27,
+     "kills": 3,
+     "job": "Dancer"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 45,
+    "kills": 16,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "best": 30,
+    "kills": 1,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "best": 47,
+    "kills": 19,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 68,
+    "kills": 4,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "best": 56,
+    "kills": 14,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "best": 30,
+    "kills": 29,
+    "job": "Bard",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 68,
+    "kills": 26,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 29,
+    "kills": 4,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 68,
+    "kills": 12,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 74,
+    "kills": 12,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 82,
+    "kills": 15,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 83,
+    "kills": 33,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 78,
+    "kills": 45,
+    "job": "Paladin",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 92,
+      "median": 68,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 69,
+      "median": 41,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 49,
+      "median": 17,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 86,
+      "median": 44,
+      "kills": 9,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "45938803": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 90,
+     "median": 42,
+     "kills": 6,
+     "job": "Ninja"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 87,
+     "median": 77,
+     "kills": 7,
+     "job": "Ninja"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 81,
+     "median": 70,
+     "kills": 7,
+     "job": "Ninja"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 71,
+     "median": 48,
+     "kills": 10,
+     "job": "Ninja"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 66,
+     "median": 50,
+     "kills": 6,
+     "job": "Ninja"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 66,
+    "kills": 9,
+    "job": "Ninja",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 67,
+    "kills": 10,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 85,
+    "kills": 1,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 97,
+    "kills": 24,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 45,
+    "kills": 11,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 31,
+    "kills": 7,
+    "job": "Ninja",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 97,
+      "median": 81,
+      "kills": 7,
+      "job": "Viper"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 92,
+      "median": 83,
+      "kills": 7,
+      "job": "Viper"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 91,
+      "median": 63,
+      "kills": 8,
+      "job": "Viper"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 74,
+      "median": 41,
+      "kills": 6,
+      "job": "Viper"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "36248712": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 51,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "best": 65,
+    "kills": 7,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 68,
+    "kills": 51,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 67,
+    "kills": 66,
+    "job": "Machinist",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "26699926": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 80,
+     "median": 37,
+     "kills": 11,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 93,
+     "median": 49,
+     "kills": 14,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 99,
+     "median": 36,
+     "kills": 11,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 40,
+     "median": 11,
+     "kills": 12,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 88,
+     "median": 39,
+     "kills": 6,
+     "job": "BlackMage"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 51,
+    "kills": 2,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 25,
+    "kills": 3,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "best": 40,
+    "kills": 6,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 67,
+    "kills": 1,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 35,
+    "kills": 2,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 23,
+    "kills": 1,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 64,
+    "kills": 2,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 74,
+    "kills": 8,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 92,
+    "kills": 27,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 91,
+    "kills": 67,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 79,
+    "kills": 19,
+    "job": "Pictomancer",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 93,
+      "median": 35,
+      "kills": 10,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 82,
+      "median": 53,
+      "kills": 10,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 85,
+      "median": 62,
+      "kills": 9,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 77,
+      "median": 61,
+      "kills": 7,
+      "job": "BlackMage"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "32147756": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 56,
+     "median": 31,
+     "kills": 5,
+     "job": "Samurai"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 47,
+     "median": 25,
+     "kills": 4,
+     "job": "Samurai"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 41,
+    "kills": 7,
+    "job": "Viper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 44,
+    "kills": 5,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 32,
+    "kills": 2,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 60,
+    "kills": 7,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 70,
+    "kills": 5,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 84,
+    "kills": 19,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 95,
+    "kills": 88,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 93,
+    "kills": 95,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 51,
+      "median": 42,
+      "kills": 3,
+      "job": "Samurai"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "36261473": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 95,
+     "median": 63,
+     "kills": 9,
+     "job": "Astrologian"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 91,
+     "median": 72,
+     "kills": 9,
+     "job": "Astrologian"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 67,
+     "median": 43,
+     "kills": 8,
+     "job": "Astrologian"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 82,
+     "median": 47,
+     "kills": 11,
+     "job": "Astrologian"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 70,
+     "median": 43,
+     "kills": 7,
+     "job": "Astrologian"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "best": 82,
+    "kills": 6,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "best": 68,
+    "kills": 1,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "best": 53,
+    "kills": 19,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "best": 59,
+    "kills": 5,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "best": 51,
+    "kills": 4,
+    "job": "Astrologian",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 98,
+    "kills": 32,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 69,
+    "kills": 1,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 100,
+    "kills": 56,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 89,
+    "kills": 18,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 93,
+    "kills": 40,
+    "job": "Astrologian",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 94,
+      "median": 70,
+      "kills": 9,
+      "job": "Astrologian"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 93,
+      "median": 81,
+      "kills": 8,
+      "job": "Astrologian"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 82,
+      "median": 70,
+      "kills": 7,
+      "job": "Astrologian"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 94,
+      "median": 67,
+      "kills": 6,
+      "job": "Astrologian"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "36130968": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 81,
+     "median": 53,
+     "kills": 11,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 77,
+     "median": 53,
+     "kills": 13,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 82,
+     "median": 55,
+     "kills": 10,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm",
+     "best": 70,
+     "median": 40,
+     "kills": 14,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M12S",
+     "name": "Lindwurm II",
+     "best": 48,
+     "median": 28,
+     "kills": 5,
+     "job": "BlackMage"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "best": 75,
+    "kills": 12,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 32,
+    "kills": 11,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 49,
+    "kills": 6,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 63,
+    "kills": 5,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 8,
+    "kills": 3,
+    "job": "BlackMage",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 86,
+      "median": 32,
+      "kills": 12,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 51,
+      "median": 28,
+      "kills": 11,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 55,
+      "median": 21,
+      "kills": 11,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 57,
+      "median": 16,
+      "kills": 5,
+      "job": "BlackMage"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ }
+}
