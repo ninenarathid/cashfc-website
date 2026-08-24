@@ -6082,8 +6082,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "32223527": {
   "name": "Odachi Nameless",
@@ -6093,8 +6098,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "27935097": {
   "name": "Ohmo Shiroi",
@@ -6104,8 +6114,13 @@
   "minions": null,
   "rare": null,
   "level": 71,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "33825599": {
   "name": "Oishi Allcafe",
@@ -6115,8 +6130,13 @@
   "minions": null,
   "rare": null,
   "level": 80,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "31745191": {
   "name": "Oivxii Hikari",
@@ -6126,8 +6146,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-24"
  },
  "44409828": {
   "name": "Olgar Aurelius",
