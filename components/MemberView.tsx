@@ -8,6 +8,7 @@ import {
   LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday, ultimateAbbr,
 } from "@/lib/types";
 import { computeBadges, percentile, topN } from "@/lib/badges";
+import CollectionHelp from "@/components/CollectionHelp";
 import JobBreakdown from "@/components/JobBreakdown";
 import JobIcon from "@/components/JobIcon";
 import MemberTags from "@/components/MemberTags";
@@ -531,70 +532,7 @@ export default function MemberView({
             hides achievements by default, and FFXIV Collect only knows characters
             somebody has looked up there. */}
         {collectState !== "ok" && (
-          <div className="mt-3 rounded-xl border border-dashed border-line px-4 py-3 text-[12.5px] leading-relaxed text-muted">
-            {collectState === "unknown" ? (
-              <>
-                <b className="text-ink">
-                  This character is not registered on FFXIV Collect yet.
-                </b>{" "}
-                That is where the board reads mounts, minions and achievements from,
-                and it only keeps data for characters somebody has looked up there —
-                so nothing here is a judgement about how much they play.
-              </>
-            ) : (
-              <>
-                <b className="text-ink">Achievements are hidden for this character.</b>{" "}
-                Mounts and minions came through, but The Lodestone keeps achievements
-                private by default, so this is almost certainly the default rather
-                than a deliberate choice.
-              </>
-            )}
-            <div className="mt-2">
-              If this is your character and you would like it all shown here:
-              <ol className="mt-1 list-decimal space-y-1 pl-5">
-                {collectState === "unknown" && (
-                  <li>
-                    Look yourself up once on{" "}
-                    <a href="https://ffxivcollect.com/characters/search"
-                       target="_blank" rel="noopener noreferrer"
-                       className="text-amber no-underline">FFXIV Collect</a>{" "}
-                    — pick Data Center <b className="text-ink">Elemental</b>, world{" "}
-                    <b className="text-ink">Tonberry</b>, search the name and open the
-                    page. That is what registers the character.
-                  </li>
-                )}
-                <li>
-                  Log in to{" "}
-                  <a href="https://na.finalfantasyxiv.com/lodestone/"
-                     target="_blank" rel="noopener noreferrer"
-                     className="text-amber no-underline">The Lodestone</a>{" "}
-                  with your Square Enix account, and switch to this character if you
-                  have several — the setting is per character.
-                </li>
-                <li>
-                  Open{" "}
-                  <a href="https://na.finalfantasyxiv.com/lodestone/my/setting/profile/"
-                     target="_blank" rel="noopener noreferrer"
-                     className="text-amber no-underline">Character Settings</a>,
-                  find <b className="text-ink">Achievements</b> in the list of what
-                  other people may see, set it to <b className="text-ink">Public</b>{" "}
-                  and save.
-                </li>
-                <li>
-                  Check it took: open{" "}
-                  <a href={`https://na.finalfantasyxiv.com/lodestone/character/${m.id}/achievement/`}
-                     target="_blank" rel="noopener noreferrer"
-                     className="text-amber no-underline">this achievements page</a>{" "}
-                  in a private window. A list means it worked; &ldquo;You do not have
-                  permission to view this page&rdquo; means it is still hidden.
-                </li>
-                <li>
-                  Give it a day — The Lodestone takes a while to apply the change, and
-                  this board refreshes every four hours.
-                </li>
-              </ol>
-            </div>
-          </div>
+          <CollectionHelp state={collectState} characterId={m.id} />
         )}
       </section>
     </main>
