@@ -42,9 +42,13 @@ export default function Home() {
         <div className="font-data text-[11px] uppercase tracking-[0.24em] text-amber">
           Free Company · {data.fc.world} [{data.fc.dc}]
         </div>
-        <h1 className="mt-1 font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-          {data.fc.name}
-        </h1>
+        {/* The wordmark carries the FC name, so the h1 stays for screen readers and
+            search results but is not painted twice. */}
+        <h1 className="sr-only">{data.fc.name}</h1>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt={data.fc.name}
+             className="mx-auto mt-2 w-full max-w-sm sm:max-w-md"
+             width={1000} height={722} />
         <p className="mx-auto mt-2 max-w-md text-[14.5px] text-muted">
           Our second home — meet the roster, follow what everyone is up to,
           and get together in game.

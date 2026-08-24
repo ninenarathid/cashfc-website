@@ -26,7 +26,8 @@ export default function Nav() {
           </span>
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src="/logo.png" alt="Cafe And SHabu" className="h-8 w-auto"
+          <img src="/logo.png" alt="Cafe And SHabu"
+               className="h-12 w-auto sm:h-14"
                onError={() => setLogoBroken(true)} />
         )}
       </Link>

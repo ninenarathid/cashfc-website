@@ -42,18 +42,8 @@ const TAG_CLASS: Record<string, string> = {
   casual: "border-line text-muted",
   unknown: "border-dashed border-line text-muted",
 };
-const FFLOGS_NOTE: Record<string, string> = {
-  ok: "Has data on FF Logs", none: "No logs found", hidden: "Player hides their FF Logs profile",
-  skipped: "Not linked to FF Logs yet", error: "Fetch failed", pending: "Waiting for next update",
-};
+
 const JOBS = ["PLD","WAR","DRK","GNB","WHM","SCH","AST","SGE","MNK","DRG","NIN","SAM","RPR","VPR","BRD","MCH","DNC","BLM","SMN","RDM","PCT","BLU"];
-const BRACKETS = [
-  { key: "100", label: "Gold (100)", min: 100 },
-  { key: "99", label: "Pink (99+)", min: 99 },
-  { key: "95", label: "Orange (95+)", min: 95 },
-  { key: "75", label: "Purple (75+)", min: 75 },
-  { key: "50", label: "Blue (50+)", min: 50 },
-];
 const ACTIVITY_OPTIONS = [
   { key: "active", label: "Active" },
   { key: "vacation", label: "On vacation" },
@@ -71,16 +61,6 @@ const SEEN_OPTIONS = [
 
 type SortKey = "name" | "parse" | "level" | "mounts" | "rare";
 
-function parseColor(p: number | null): string {
-  if (p == null) return "#7a7a7a";
-  if (p >= 100) return "#e5cc80";
-  if (p >= 99) return "#e268a8";
-  if (p >= 95) return "#ff8000";
-  if (p >= 75) return "#a335ee";
-  if (p >= 50) return "#2f7fd4";
-  if (p >= 25) return "#4caf50";
-  return "#7a7a7a";
-}
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("");
 const hue = (n: string) => [...n].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
 
@@ -124,15 +104,15 @@ function PresenceDot({ m, size = 11 }: { m: Member; size?: number }) {
 }
 
 interface Adv {
-  lfg: string; job: string; rank: string; bracket: string;
-  boss: number[]; ult: boolean; lvMin: string; race: string; activity: string;
+  lfg: string; job: string; rank: string;
+  boss: number[]; lvMin: string; race: string; activity: string;
   /** Extreme trials that must all be cleared, by boss name. */
   ex: string[];
   /** "Last seen collecting" window, from SEEN_OPTIONS. */
   seen: string;
 }
 const ADV_EMPTY: Adv = {
-  lfg: "", job: "", rank: "", bracket: "", boss: [], ult: false, lvMin: "",
+  lfg: "", job: "", rank: "", boss: [], lvMin: "",
   race: "", activity: "", ex: [], seen: "",
 };
 
@@ -163,12 +143,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const ex = (p.get("ex") ?? "").split(",").filter(Boolean);
     setAdv({
       lfg: p.get("lfg") ?? "", job: p.get("job") ?? "", rank: p.get("rank") ?? "",
-      bracket: p.get("br") ?? "", boss, ult: p.get("ult") === "1",
+      boss,
       lvMin: p.get("lv") ?? "", race: p.get("race") ?? "",
       activity: p.get("act") ?? "", ex, seen: p.get("seen") ?? "",
     });
-    if (p.get("lfg") || p.get("job") || p.get("rank") || p.get("br") ||
-        boss.length || ex.length || p.get("ult") || p.get("lv") || p.get("race") ||
+    if (p.get("lfg") || p.get("job") || p.get("rank") ||
+        boss.length || ex.length || p.get("lv") || p.get("race") ||
         p.get("act") || p.get("seen")) setAdvOpen(true);
     inited.current = true;
   }, []);
@@ -184,10 +164,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.lfg) p.set("lfg", adv.lfg);
     if (adv.job) p.set("job", adv.job);
     if (adv.rank) p.set("rank", adv.rank);
-    if (adv.bracket) p.set("br", adv.bracket);
     if (adv.boss.length) p.set("boss", adv.boss.join(","));
     if (adv.ex.length) p.set("ex", adv.ex.join(","));
-    if (adv.ult) p.set("ult", "1");
     if (adv.lvMin) p.set("lv", adv.lvMin);
     if (adv.race) p.set("race", adv.race);
     if (adv.activity) p.set("act", adv.activity);
@@ -254,7 +232,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const bracketMin = BRACKETS.find((b) => b.key === adv.bracket)?.min;
     const lv = Number(adv.lvMin) || null;
     const filtered = visible.filter((m) => {
       if (tag !== "all" && !m.tags.includes(tag)) return false;
@@ -278,10 +255,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         if (!want) return false;
         if (want.days > 0 ? d > want.days : d <= -want.days) return false;
       }
-      if (bracketMin != null && !(m.parse != null && m.parse >= bracketMin)) return false;
       for (const i of adv.boss) if (!m.current_clears?.[i]) return false;
       for (const name of adv.ex) if (!m.ex_cleared?.includes(name)) return false;
-      if (adv.ult && m.ult_clears <= 0) return false;
       if (lv != null && (m.level ?? 0) < lv) return false;
       return true;
     });
@@ -295,7 +270,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   }, [visible, overlays, tag, query, sortBy, adv]);
 
   const advCount = (adv.lfg ? 1 : 0) + (adv.job ? 1 : 0) + (adv.rank ? 1 : 0) +
-    (adv.bracket ? 1 : 0) + adv.boss.length + adv.ex.length + (adv.ult ? 1 : 0) +
+    adv.boss.length + adv.ex.length +
     (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) + (adv.activity ? 1 : 0) +
     (adv.seen ? 1 : 0);
 
@@ -432,12 +407,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
                 This patch
               </span>
-              <select value={adv.bracket}
-                      onChange={(e) => setAdv({ ...adv, bracket: e.target.value })}
-                      className={selCls} aria-label="Parse bracket">
-                <option value="">Parse: any</option>
-                {BRACKETS.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
-              </select>
 
               <span className="flex flex-wrap items-center gap-1.5">
                 <span className="text-[11.5px] text-muted">Savage</span>
@@ -481,13 +450,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                 </span>
               )}
 
-              <button onClick={() => setAdv({ ...adv, ult: !adv.ult })}
-                      aria-pressed={adv.ult}
-                      className={`rounded-md border px-2.5 py-1 text-[12px] ${
-                        adv.ult ? "border-gold bg-gold/15 text-gold"
-                                : "border-line text-muted hover:border-muted"}`}>
-                🏆 Has Ultimate
-              </button>
             </div>
           </div>
         )}
@@ -607,14 +569,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     })}
                   </div>
                   <div className="col-start-2 flex items-center gap-3.5 sm:col-start-auto sm:justify-self-end">
-                    <div className="min-w-[34px] text-right font-data text-sm font-semibold"
-                         style={{ color: parseColor(m.parse) }}
-                         title={FFLOGS_NOTE[m.fflogs] ?? ""}>
-                      {m.parse ?? "—"}
-                      <small className="block text-[9.5px] font-medium tracking-[0.08em] text-muted">
-                        BEST %
-                      </small>
-                    </div>
                     <Link href={`/member/${m.id}`}
                           className="rounded-md border border-line px-2.5 py-1 font-data text-[10.5px] tracking-[0.06em] text-muted no-underline transition-colors hover:border-amber hover:text-amber">
                       PROFILE
