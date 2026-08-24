@@ -2,6 +2,300 @@
  "events": [
   {
    "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "set a new best parse: 93"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 53019673,
+   "name": "Pallas Raindance",
+   "text": "set a new best parse: 76"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "set a new best parse: 68"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 57711304,
+   "name": "Pola Lis",
+   "text": "set a new best parse: 23"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "set a new best parse: 52"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 40624820,
+   "name": "Rin Miyauchi",
+   "text": "set a new best parse: 26"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 40624820,
+   "name": "Rin Miyauchi",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "set a new best parse: 90"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "set a new best parse: 79"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "set a new best parse: 27"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 1607774,
+   "name": "Shiomi Shirogane",
+   "text": "set a new best parse: 10"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 44926008,
+   "name": "Shiraishi Shu",
+   "text": "set a new best parse: 93"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 44926008,
+   "name": "Shiraishi Shu",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "set a new best parse: 78"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "boss_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "set a new best parse: 17"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 39073020,
+   "name": "Toasted Bread",
+   "text": "set a new best parse: 24"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "ult_clear",
+   "id": 39073020,
+   "name": "Toasted Bread",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 51077689,
+   "name": "Toru Celestial",
+   "text": "set a new best parse: 52"
+  },
+  {
+   "date": "2026-08-24",
+   "type": "parse_up",
+   "id": 34597671,
+   "name": "Valkyries Zearaskia",
+   "text": "set a new best parse: 48"
+  },
+  {
+   "date": "2026-08-24",
    "type": "ult_clear",
    "id": 5644067,
    "name": "Ninenine The'phantom",
@@ -1105,300 +1399,6 @@
    "id": 34509521,
    "name": "Liliya Quintilis",
    "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "set a new best parse: 82"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "set a new best parse: 78"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "set a new best parse: 77"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "set a new best parse: 92"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 51922514,
-   "name": "Mumu Nene",
-   "text": "set a new best parse: 42"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 51922514,
-   "name": "Mumu Nene",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 51922514,
-   "name": "Mumu Nene",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "set a new best parse: 84"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 21620195,
-   "name": "Nefe'li Lucias",
-   "text": "set a new best parse: 61"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "set a new best parse: 96"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared M11S for the first time 🎉"
   }
  ]
 }

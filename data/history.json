@@ -4,12 +4,12 @@
    "date": "2026-08-24",
    "total": 502,
    "tags": {
-    "extreme": 123,
-    "ultimate": 42,
-    "tier-clear": 39,
-    "veteran": 21,
-    "unknown": 319,
-    "casual": 44,
+    "extreme": 134,
+    "ultimate": 53,
+    "tier-clear": 42,
+    "veteran": 28,
+    "unknown": 306,
+    "casual": 42,
     "gatherer": 5,
     "crafter": 7,
     "relic": 10,
@@ -17,14 +17,14 @@
     "treasure": 8,
     "goldsaucer": 4,
     "pvp": 7,
-    "prog": 22,
+    "prog": 23,
     "seasonal": 4
    },
-   "raider": 61,
-   "ultimate": 42,
-   "extreme": 123,
-   "unknown": 319,
-   "final_boss": 39
+   "raider": 65,
+   "ultimate": 53,
+   "extreme": 134,
+   "unknown": 306,
+   "final_boss": 42
   }
  ]
 }
