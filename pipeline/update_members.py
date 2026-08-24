@@ -664,8 +664,14 @@ JOB_TIERS: list[tuple[str, float]] = [
 def score_jobs(entry: dict) -> dict[str, dict]:
     """Rate each job this member has logged on, for "who could teach this?".
 
-    Skill is the mean of their best parses, not the single highest, because one lucky
-    pull says nothing about whether they can explain the fight.
+    Skill is their best parses averaged with each fight weighted by how many times
+    they killed it, not the single highest and not a flat mean.
+
+    Flat mean was wrong: a Samurai main with 22 kills at 99 on their usual fight was
+    dragged to Master by two fights they had touched twice, whose parses mean almost
+    nothing. Weighting by kills says a parse earned over twenty pulls describes the
+    player and a parse from two does not — which is the same reason the single
+    highest is no good either.
 
     Experience then *scales* that skill rather than adding to it. Adding them up let a
     99 parse off two kills reach Expert on the parse alone, which is exactly the
@@ -685,7 +691,9 @@ def score_jobs(entry: dict) -> dict[str, dict]:
         r["fights"] += 1
         r["kills"] += kills or 0
         if best is not None:
-            r["parses"].append(best)
+            # A fight with no kills still gets counted once, so a pure prog parse
+            # is not thrown away entirely.
+            r["parses"].append((best, max(kills or 0, 1)))
 
     for e in (entry.get("current") or {}).get("encounters", []):
         add(e.get("job"), e.get("best"), e.get("kills"))
@@ -699,7 +707,9 @@ def score_jobs(entry: dict) -> dict[str, dict]:
 
     out: dict[str, dict] = {}
     for job, r in acc.items():
-        parse = round(sum(r["parses"]) / len(r["parses"]), 1) if r["parses"] else 0.0
+        wsum = sum(w for _, w in r["parses"])
+        parse = (round(sum(p * w for p, w in r["parses"]) / wsum, 1)
+                 if wsum else 0.0)
         depth = min(1.0, math.log10(1 + r["kills"]) / 2.0)    # ~100 kills tops it out
         breadth = min(1.0, r["fights"] / 4.0)                 # four fights tops it out
         experience = 0.7 * depth + 0.3 * breadth

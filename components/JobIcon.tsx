@@ -79,6 +79,10 @@ export const ROLE_LABEL: Record<Role, string> = {
   tank: "Tank", healer: "Healer", dps: "DPS",
 };
 
+/** FF Logs reports "RedMage", "DarkKnight", "BlackMage" with no space. */
+export const jobLabel = (job: string): string =>
+  job.replace(/([a-z])([A-Z])/g, "$1 $2");
+
 export function jobRole(name?: string | null): Role | null {
   return jobInfo(name)?.role ?? null;
 }

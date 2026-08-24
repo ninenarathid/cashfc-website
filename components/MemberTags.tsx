@@ -2,7 +2,7 @@
 
 import type { Member } from "@/lib/types";
 import { ACHV_TIER_HELP, ACHV_TIER_LABEL, ultimateAbbr } from "@/lib/types";
-import JobIcon, { jobTierStyle } from "@/components/JobIcon";
+import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
 
 /**
  * Shared so the board and the member page cannot drift apart: the same member has to
@@ -111,7 +111,7 @@ export default function MemberTags(
           style={jobTierStyle(job, s.tier)}
           className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad}`}>
           <JobIcon job={job} size={size === "md" ? 15 : 13} />
-          {ACHV_TIER_LABEL[s.tier!]} {job}
+          {ACHV_TIER_LABEL[s.tier!]} {jobLabel(job)}
         </span>
       ))}
       {m.tags.map((t) => {
