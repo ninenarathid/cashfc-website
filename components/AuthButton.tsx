@@ -14,7 +14,7 @@ export default function AuthButton() {
     supabase.auth.getUser().then(({ data }) => {
       const u = data.user;
       setUser(u ? {
-        name: (u.user_metadata.full_name ?? u.user_metadata.name ?? "สมาชิก") as string,
+        name: (u.user_metadata.full_name ?? u.user_metadata.name ?? "Member") as string,
         avatar: (u.user_metadata.avatar_url ?? null) as string | null,
       } : null);
       setReady(true);
@@ -22,7 +22,7 @@ export default function AuthButton() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       const u = session?.user;
       setUser(u ? {
-        name: (u.user_metadata.full_name ?? u.user_metadata.name ?? "สมาชิก") as string,
+        name: (u.user_metadata.full_name ?? u.user_metadata.name ?? "Member") as string,
         avatar: (u.user_metadata.avatar_url ?? null) as string | null,
       } : null);
     });

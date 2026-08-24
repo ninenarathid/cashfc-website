@@ -19,7 +19,7 @@ export async function generateMetadata(
   return {
     title: m ? `${m.name} — Cafe And SHabu` : "Member — Cafe And SHabu",
     description: m
-      ? `โปรไฟล์ ${m.name} · ${m.rank ?? ""} · Lv ${m.level ?? "?"}`
+      ? `${m.name} · ${m.rank ?? ""} · Lv ${m.level ?? "?"}`
       : undefined,
   };
 }

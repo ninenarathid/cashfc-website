@@ -3,11 +3,11 @@ import type { Member, MemberRaids } from "@/lib/types";
 export interface Badge { icon: string; name: string; desc: string }
 
 export interface FcAgg {
-  mountsTop10: number;   // ค่า mounts ต่ำสุดของ top 10
-  rareTop10: number;     // ค่า rare achv ต่ำสุดของ top 10
+  mountsTop10: number;   // lowest mount count still inside the FC top 10
+  rareTop10: number;     // lowest rare-achievement count still inside the FC top 10
 }
 
-/** ป้ายตำแหน่งอัตโนมัติธีมร้านอาหาร — เกณฑ์ปรับได้ที่นี่ */
+/** Automatic restaurant-themed badges — tweak the thresholds here. */
 export function computeBadges(
   m: Member, raids: MemberRaids | null, agg: FcAgg, claimed: boolean,
 ): Badge[] {
@@ -16,27 +16,27 @@ export function computeBadges(
   const currentBest = Math.max(
     -1, ...(raids?.current?.encounters ?? []).map((e) => e.best ?? -1));
   if (currentBest >= 99)
-    out.push({ icon: "⭐⭐⭐", name: "มิชลินสามดาว",
-               desc: `parse ${currentBest} ใน tier ปัจจุบัน` });
+    out.push({ icon: "⭐⭐⭐", name: "Three Michelin Stars",
+               desc: `parse ${currentBest} in the current tier` });
   else if (currentBest >= 95)
-    out.push({ icon: "⭐⭐", name: "มิชลินสองดาว",
-               desc: `parse ${currentBest} ใน tier ปัจจุบัน` });
+    out.push({ icon: "⭐⭐", name: "Two Michelin Stars",
+               desc: `parse ${currentBest} in the current tier` });
 
   for (const u of raids?.ultimates ?? [])
     if (u.cleared)
       out.push({ icon: "🏆", name: `Legend — ${u.zone}`,
-                 desc: "เคลียร์ Ultimate" });
+                 desc: "Ultimate cleared" });
 
   if ((m.mounts ?? 0) >= agg.mountsTop10 && (m.mounts ?? 0) > 0)
-    out.push({ icon: "🐎", name: "เชฟใหญ่สายสะสม",
-               desc: `mounts ${m.mounts} — top 10 ของ FC` });
+    out.push({ icon: "🐎", name: "Head Chef of Collecting",
+               desc: `${m.mounts} mounts — FC top 10` });
 
   if ((m.rare_achv ?? 0) >= agg.rareTop10 && (m.rare_achv ?? 0) > 0)
-    out.push({ icon: "🥔", name: "ราชา popoto",
-               desc: `rare achievement ${m.rare_achv} — top 10 ของ FC` });
+    out.push({ icon: "🥔", name: "Popoto King",
+               desc: `${m.rare_achv} rare achievements — FC top 10` });
 
   if (claimed)
-    out.push({ icon: "🍲", name: "ขาประจำร้าน", desc: "ยืนยันตัวตนผ่าน Discord" });
+    out.push({ icon: "🍲", name: "Regular", desc: "Verified via Discord" });
 
   return out;
 }

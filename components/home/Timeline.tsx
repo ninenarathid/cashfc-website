@@ -43,7 +43,7 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
   return (
     <section className="mt-6">
       <div className="mb-2 flex items-baseline gap-3">
-        <h2 className="font-display text-lg font-semibold">Timeline อัปเดต</h2>
+        <h2 className="font-display text-lg font-semibold">Update timeline</h2>
         <span className="text-[12px] text-muted">
           <span className="text-amber">●</span> Official ·{" "}
           <span className="text-jade">●</span> FC
@@ -58,9 +58,9 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
             />
             <div className="text-[11.5px] font-medium text-muted">
               {it.date &&
-                new Date(it.date + "T00:00:00").toLocaleDateString("th-TH",
+                new Date(it.date + "T00:00:00").toLocaleDateString("en-GB",
                   { day: "numeric", month: "short", year: "numeric" })}
-              {it.kind === "fc" && <span className="ml-2 text-jade">โพสต์จาก FC</span>}
+              {it.kind === "fc" && <span className="ml-2 text-jade">Posted by the FC</span>}
             </div>
             {it.url ? (
               <a href={it.url} target="_blank" rel="noopener noreferrer"

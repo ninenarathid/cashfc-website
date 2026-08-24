@@ -1,13 +1,13 @@
 -- ============================================================
--- FC Member Board — Supabase schema (รันครั้งเดียวใน SQL Editor)
+-- FC Member Board — Supabase schema (run once in the SQL Editor)
 -- ============================================================
 
--- ─── โปรไฟล์สมาชิก (ผูกกับบัญชี Discord ที่ login) ───────────
+-- ─── Member profiles (tied to the logged-in Discord account) ─────────────
 create table public.profiles (
   id               uuid primary key references auth.users (id) on delete cascade,
   discord_username text,
   discord_avatar   text,
-  character_id     bigint unique,          -- ตัวละครที่ claim (id จาก Lodestone)
+  character_id     bigint unique,          -- claimed character (Lodestone id)
   character_name   text,
   bio              text check (char_length(bio) <= 200),
   favorite_job     text check (char_length(favorite_job) <= 8),
@@ -18,7 +18,7 @@ create table public.profiles (
 
 alter table public.profiles enable row level security;
 
--- ─── helper: ผู้ใช้ปัจจุบันเป็นแอดมินไหม ─────────────────────
+-- ─── helper: is the current user an admin? ───────────────────────────────
 create or replace function public.is_admin()
 returns boolean
 language sql stable security definer set search_path = public
@@ -29,11 +29,11 @@ as $$
   );
 $$;
 
--- ทุกคนอ่านโปรไฟล์ได้ (เอาไปโชว์บนกระดาน)
+-- Everyone can read profiles (they are shown on the board)
 create policy "profiles: read for everyone"
   on public.profiles for select using (true);
 
--- เจ้าของแก้ของตัวเองได้ / แอดมินแก้ของใครก็ได้ (เช่น ปลด claim ผิดคน)
+-- Owners edit their own row; admins edit anyone (e.g. to release a wrong claim)
 create policy "profiles: owner update"
   on public.profiles for update
   using (auth.uid() = id);
@@ -42,13 +42,13 @@ create policy "profiles: admin update"
   on public.profiles for update
   using (public.is_admin());
 
--- กันสมาชิกตั้ง is_admin ให้ตัวเอง: จำกัดคอลัมน์ที่ role ปกติแก้ได้
+-- Stop members granting themselves is_admin: restrict the columns a normal role may write
 revoke insert, update on table public.profiles from anon, authenticated;
 grant update (character_id, character_name, bio, favorite_job,
               accent_color, discord_username, discord_avatar, updated_at)
   on table public.profiles to authenticated;
 
--- ─── สร้างแถวโปรไฟล์อัตโนมัติเมื่อมีคน login ครั้งแรก ─────────
+-- ─── Create the profile row automatically on first login ─────────────────
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql security definer set search_path = public
@@ -71,10 +71,10 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- ─── ข้อมูล override รายตัวละคร (แอดมินคุมกระดาน) ────────────
+-- ─── Per-character overrides (admin control over the board) ──────────────
 create table public.member_overrides (
   character_id bigint primary key,
-  hidden       boolean not null default false,  -- ซ่อนจากกระดาน
+  hidden       boolean not null default false,  -- hide from the board
   note         text check (char_length(note) <= 200),
   updated_at   timestamptz not null default now()
 );
@@ -89,7 +89,7 @@ create policy "overrides: admin write"
   using (public.is_admin())
   with check (public.is_admin());
 
--- ─── ประกาศจาก FC (แอดมินโพสต์ หน้าแรกแสดง) ─────────────────
+-- ─── FC announcements (posted by admins, shown on the home page) ─────────
 create table public.announcements (
   id         bigint generated always as identity primary key,
   title      text not null check (char_length(title) <= 120),
@@ -109,11 +109,11 @@ create policy "announcements: admin write"
   with check (public.is_admin());
 
 -- ============================================================
--- หลังจาก login ด้วย Discord ครั้งแรก ให้ตั้งตัวเองเป็นแอดมิน
--- ด้วยคำสั่งนี้ (แก้ชื่อเป็น Discord ของคุณ):
+-- After logging in with Discord for the first time, make yourself an admin
+-- with this statement (swap in your own Discord name):
 --
 --   update public.profiles set is_admin = true
---   where discord_username = 'ชื่อDiscordของคุณ';
+--   where discord_username = 'yourDiscordName';
 --
--- หรือดู id ก่อนด้วย: select id, discord_username from public.profiles;
+-- To look up the name first: select id, discord_username from public.profiles;
 -- ============================================================

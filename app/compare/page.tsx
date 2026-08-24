@@ -2,7 +2,7 @@ import raw from "@/data/members.json";
 import CompareClient from "@/components/CompareClient";
 import type { BoardData } from "@/lib/types";
 
-export const metadata = { title: "เทียบสมาชิก — Cafe And SHabu" };
+export const metadata = { title: "Compare members — Cafe And SHabu" };
 
 export default function ComparePage() {
   const data = raw as unknown as BoardData;

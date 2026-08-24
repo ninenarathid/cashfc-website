@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // refresh token ให้ session ไม่หลุด
+  // Refresh the token so the session does not silently expire
   await supabase.auth.getUser();
   return response;
 }

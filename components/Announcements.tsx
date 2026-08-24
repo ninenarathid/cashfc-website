@@ -29,14 +29,14 @@ export default function Announcements() {
   return (
     <section className="mt-5 flex flex-col gap-2">
       <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">
-        ประกาศจาก FC
+        FC announcements
       </div>
       {items.map((a) => (
         <div key={a.id} className="rounded-xl border border-amber/30 bg-amber/5 px-4 py-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="font-display font-semibold">{a.title}</div>
             <div className="font-data text-[11px] text-muted">
-              {new Date(a.created_at).toLocaleDateString("th-TH", {
+              {new Date(a.created_at).toLocaleDateString("en-GB", {
                 day: "numeric", month: "short", year: "numeric",
               })}
             </div>

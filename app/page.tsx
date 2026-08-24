@@ -25,11 +25,11 @@ export default function Home() {
   const members = data.members;
   const count = (t: string) => members.filter((m) => m.tags.includes(t)).length;
 
-  // สมาชิกประจำวัน — seed จากวันที่ของข้อมูล ทุกคนเห็นคนเดียวกัน
+  // Member of the day — seeded from the data's own date so everyone sees the same person
   const dateSeed = (data.generated_at ?? "").slice(0, 10);
   const spot: Member = members[hashStr(dateSeed) % Math.max(members.length, 1)];
 
-  // nameday วันนี้ (อิงวันที่ generate ข้อมูล — รีเฟรชทุกคืนพร้อม pipeline)
+  // Today's namedays, keyed off the generation date so they roll over with the pipeline
   const gen = new Date(data.generated_at);
   const todayNamedays = members.filter(
     (m) => m.nameday?.month === gen.getUTCMonth() + 1 &&
@@ -46,26 +46,20 @@ export default function Home() {
           {data.fc.name}
         </h1>
         <p className="mx-auto mt-2 max-w-md text-[14.5px] text-muted">
-          บ้านหลังที่สองของพวกเรา — ดูสมาชิก ติดตามความเคลื่อนไหว
-          และรวมตัวกันทำกิจกรรม
+          Our second home — meet the roster, follow what everyone is up to,
+          and get together in game.
         </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
           <Link
             href="/members"
             className="rounded-lg border border-amber bg-amber/15 px-5 py-2 text-amber no-underline transition-colors hover:bg-amber/25"
           >
-            ดูสมาชิกทั้ง {data.fc.total} คน
-          </Link>
-          <Link
-            href="/events"
-            className="rounded-lg border border-line px-5 py-2 text-muted no-underline transition-colors hover:border-muted hover:text-ink"
-          >
-            กิจกรรม
+            Browse all {data.fc.total} members
           </Link>
         </div>
         <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-2.5">
           {[
-            ["สมาชิก", data.fc.total, "text-ink"],
+            ["Members", data.fc.total, "text-ink"],
             ["Raider", count("raider"), "text-chili"],
             ["Ultimate", count("ultimate"), "text-gold"],
           ].map(([label, n, cls]) => (
@@ -83,7 +77,7 @@ export default function Home() {
       {todayNamedays.length > 0 && (
         <section className="mt-5 rounded-xl border border-gold/40 bg-gold/8 px-4 py-3">
           <span className="font-display font-semibold text-gold">
-            🎂 วันนี้ nameday ของ:{" "}
+            🎂 Nameday today:{" "}
           </span>
           {todayNamedays.map((m, i) => (
             <span key={m.id}>
@@ -93,21 +87,21 @@ export default function Home() {
               </Link>
             </span>
           ))}
-          <span className="text-[13px] text-muted"> — ไปอวยพรกันหน่อย!</span>
+          <span className="text-[13px] text-muted"> — go wish them well!</span>
         </section>
       )}
 
-      {/* ── ฟีด + Timeline ── */}
+      {/* ── Activity feed + Timeline ── */}
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <section>
           <h2 className="mb-2 font-display text-lg font-semibold">
-            ความเคลื่อนไหวใน FC
+            FC activity
           </h2>
           {feed.length === 0 ? (
             <div className="rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] leading-relaxed text-muted">
-              ฟีดจะเริ่มมีเหตุการณ์ตั้งแต่รอบอัปเดตถัดไป
-              (ระบบเทียบข้อมูลวันต่อวัน — parse นิวไฮ, เคลียร์บอสใหม่,
-              mount ใหม่ จะเด้งขึ้นที่นี่อัตโนมัติ)
+              Events start showing up after the next update run. The pipeline diffs
+              the roster day over day, so new best parses, first boss clears and
+              fresh mounts land here automatically.
             </div>
           ) : (
             <div className="flex flex-col gap-1.5">
@@ -120,7 +114,7 @@ export default function Home() {
                     </Link>{" "}
                     <span className="text-muted">{e.text}</span>
                     <span className="ml-2 text-[11px] text-muted/70">
-                      {new Date(e.date + "T00:00:00").toLocaleDateString("th-TH",
+                      {new Date(e.date + "T00:00:00").toLocaleDateString("en-GB",
                         { day: "numeric", month: "short" })}
                     </span>
                   </div>
@@ -133,11 +127,11 @@ export default function Home() {
         <div>
           <Timeline news={news} />
 
-          {/* ── สมาชิกประจำวัน ── */}
+          {/* ── Member of the day ── */}
           {spot && (
             <section className="mt-6">
               <h2 className="mb-2 font-display text-lg font-semibold">
-                สมาชิกประจำวัน
+                Member of the day
               </h2>
               <Link
                 href={`/member/${spot.id}`}
@@ -156,7 +150,7 @@ export default function Home() {
                     {spot.mounts != null && ` · ${spot.mounts} mounts`}
                   </div>
                   <div className="mt-1 text-[12px] text-amber">
-                    ดูโปรไฟล์ →
+                    View profile →
                   </div>
                 </div>
               </Link>

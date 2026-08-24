@@ -14,27 +14,55 @@ const tooltipStyle = {
 };
 
 export default function FcCharts({
-  tagCounts, parseDist, prog, total, history,
+  tagCounts, parseDist, prog, total, history, raceCounts, activity,
 }: {
   tagCounts: Slice[];
   parseDist: Slice[];
   prog: { label: string; cleared: number }[];
   total: number;
   history: HistoryRow[];
+  raceCounts: Slice[];
+  activity: { active: number; vacation: number };
 }) {
   const anyParse = parseDist.some((p) => p.value > 0);
   const anyProg = prog.some((p) => p.cleared > 0);
+  const racedTotal = raceCounts.reduce((s, r) => s + r.value, 0);
 
   return (
     <details className="mt-5 rounded-xl border border-line bg-surface open:pb-4">
       <summary className="cursor-pointer select-none px-4 py-3 font-display font-semibold marker:text-amber">
-        📊 ภาพรวม FC
+        📊 FC overview
       </summary>
 
       <div className="grid gap-6 px-4 sm:grid-cols-2">
-        {/* สัดส่วนแท็ก */}
+        {/* Activity split */}
+        <div className="sm:col-span-2">
+          <div className="mb-1 text-[13px] font-medium text-muted">Activity</div>
+          <div className="flex gap-2.5">
+            <div className="flex-1 rounded-xl border border-line bg-card px-3 py-2.5">
+              <div className="flex items-baseline gap-2">
+                <span className="size-2.5 rounded-full bg-[#43b581]" />
+                <span className="font-data text-2xl font-semibold text-ink">
+                  {activity.active}
+                </span>
+              </div>
+              <div className="text-xs text-muted">Active</div>
+            </div>
+            <div className="flex-1 rounded-xl border border-line bg-card px-3 py-2.5">
+              <div className="flex items-baseline gap-2">
+                <span className="size-2.5 rounded-full bg-[#747f8d]" />
+                <span className="font-data text-2xl font-semibold text-muted">
+                  {activity.vacation}
+                </span>
+              </div>
+              <div className="text-xs text-muted">On vacation</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Player-type split */}
         <div>
-          <div className="mb-1 text-[13px] font-medium text-muted">สัดส่วนสายผู้เล่น</div>
+          <div className="mb-1 text-[13px] font-medium text-muted">Player types</div>
           <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -56,10 +84,45 @@ export default function FcCharts({
           </div>
         </div>
 
-        {/* การกระจาย parse */}
+        {/* Race breakdown */}
         <div>
           <div className="mb-1 text-[13px] font-medium text-muted">
-            การกระจาย parse (best)
+            Races{racedTotal ? ` (${racedTotal} known)` : ""}
+          </div>
+          {racedTotal ? (
+            <>
+              <div className="h-52">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={raceCounts} dataKey="value" nameKey="name"
+                         innerRadius={45} outerRadius={75} paddingAngle={2} stroke="none">
+                      {raceCounts.map((s) => <Cell key={s.name} fill={s.color} />)}
+                    </Pie>
+                    <Tooltip contentStyle={tooltipStyle} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-muted">
+                {raceCounts.map((s) => (
+                  <span key={s.name} className="inline-flex items-center gap-1">
+                    <span className="size-2 rounded-full" style={{ background: s.color }} />
+                    {s.name} {s.value}
+                  </span>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line px-4 text-center text-[13px] leading-relaxed text-muted">
+              Race data arrives once the pipeline has walked the character pages
+              — run the workflow with &ldquo;full_extras&rdquo; ticked to fill it in one pass.
+            </div>
+          )}
+        </div>
+
+        {/* Parse distribution */}
+        <div>
+          <div className="mb-1 text-[13px] font-medium text-muted">
+            Parse distribution (best)
           </div>
           {anyParse ? (
             <div className="h-52">
@@ -79,22 +142,22 @@ export default function FcCharts({
             </div>
           ) : (
             <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line text-[13px] text-muted">
-              รอข้อมูลจาก FF Logs (ตั้งค่า API แล้วรัน pipeline)
+              Waiting on FF Logs data (set the API keys, then run the pipeline)
             </div>
           )}
         </div>
 
-        {/* Prog board tier ปัจจุบัน */}
+        {/* Current-tier prog board */}
         <div>
           <div className="mb-1 text-[13px] font-medium text-muted">
-            ความคืบหน้า tier ปัจจุบัน
+            Current tier progress
           </div>
           <div className="flex flex-col gap-2.5">
             {prog.map((p) => (
               <div key={p.label}>
                 <div className="mb-0.5 flex justify-between font-data text-[12px]">
                   <span className="text-ink">{p.label}</span>
-                  <span className="text-muted">เคลียร์แล้ว {p.cleared}/{total}</span>
+                  <span className="text-muted">{p.cleared}/{total} cleared</span>
                 </div>
                 <div className="h-2.5 overflow-hidden rounded-full bg-card">
                   <div
@@ -106,15 +169,15 @@ export default function FcCharts({
             ))}
             {!anyProg && (
               <div className="text-[12px] text-muted">
-                ยังไม่มีข้อมูลการเคลียร์ — จะขึ้นอัตโนมัติเมื่อเชื่อม FF Logs
+                No clear data yet — it appears automatically once FF Logs is connected
               </div>
             )}
           </div>
         </div>
 
-        {/* กราฟประวัติ FC */}
+        {/* FC history over time */}
         <div>
-          <div className="mb-1 text-[13px] font-medium text-muted">ประวัติ FC ตามเวลา</div>
+          <div className="mb-1 text-[13px] font-medium text-muted">FC history over time</div>
           {history.length >= 2 ? (
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
@@ -129,15 +192,15 @@ export default function FcCharts({
                         stroke="#d14b3a" strokeWidth={2} dot={false} />
                   <Line type="monotone" dataKey="ultimate" name="Ultimate"
                         stroke="#e5cc80" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="final_boss" name="เคลียร์บอสสุดท้าย"
+                  <Line type="monotone" dataKey="final_boss" name="Final boss cleared"
                         stroke="#4fb8a8" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           ) : (
             <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line px-4 text-center text-[13px] leading-relaxed text-muted">
-              กราฟจะเริ่มวาดเมื่อมีข้อมูลสะสมตั้งแต่ 2 วันขึ้นไป
-              — pipeline เก็บสถิติให้ทุกคืนอัตโนมัติ
+              The chart starts drawing once at least two days have accumulated
+              — the pipeline records a stat row every night.
             </div>
           )}
         </div>

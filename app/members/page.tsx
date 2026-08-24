@@ -3,8 +3,15 @@ import historyRaw from "@/data/history.json";
 import MemberBoard from "@/components/MemberBoard";
 import FcCharts from "@/components/FcCharts";
 import type { BoardData, HistoryRow } from "@/lib/types";
+import { RACE_ORDER, isOnVacation } from "@/lib/types";
 
-export const metadata = { title: "สมาชิก — Cafe And SHabu" };
+// One colour per playable race, reused by the overview donut.
+const RACE_COLORS: Record<string, string> = {
+  Hyur: "#e8a33d", Elezen: "#7ea6c9", Lalafell: "#4fb8a8", "Miqo'te": "#d14b3a",
+  Roegadyn: "#c98a5b", "Au Ra": "#a37fd1", Hrothgar: "#e5cc80", Viera: "#8fbf6a",
+};
+
+export const metadata = { title: "Members — Cafe And SHabu" };
 
 export default function MembersPage() {
   const data = raw as unknown as BoardData;
@@ -20,7 +27,7 @@ export default function MembersPage() {
     { name: "Crafter", value: tagCount("crafter"), color: "#c98a5b" },
     { name: "PvP", value: tagCount("pvp"), color: "#7ea6c9" },
     { name: "Casual", value: tagCount("casual"), color: "#9c8f78" },
-    { name: "ไม่มีข้อมูล", value: tagCount("unknown"), color: "#55493a" },
+    { name: "No data", value: tagCount("unknown"), color: "#55493a" },
   ].filter((x) => x.value > 0);
 
   const brackets = [
@@ -43,6 +50,17 @@ export default function MembersPage() {
     cleared: data.members.filter((m) => m.current_clears?.[i]).length,
   }));
 
+  // Head count per race. Stays empty until the pipeline has scraped character pages,
+  // and the overview hides the donut in that case rather than drawing an empty circle.
+  const raceTally: Record<string, number> = {};
+  for (const m of data.members) if (m.race) raceTally[m.race] = (raceTally[m.race] ?? 0) + 1;
+  const raceCounts = Object.entries(raceTally)
+    .sort((a, b) => (RACE_ORDER.indexOf(a[0]) + 99) - (RACE_ORDER.indexOf(b[0]) + 99))
+    .map(([name, value]) => ({ name, value, color: RACE_COLORS[name] ?? "#7a7a7a" }));
+
+  const vacation = data.members.filter(isOnVacation).length;
+  const activity = { active: data.members.length - vacation, vacation };
+
   return (
     <main className="pt-2">
       <FcCharts
@@ -51,6 +69,8 @@ export default function MembersPage() {
         prog={prog}
         total={data.fc.total}
         history={history}
+        raceCounts={raceCounts}
+        activity={activity}
       />
       <MemberBoard data={data} />
     </main>

@@ -16,7 +16,7 @@ export async function createClient() {
             cookieStore.set(name, value, options),
           );
         } catch {
-          // ถูกเรียกจาก Server Component — middleware จะ refresh session ให้แทน
+          // Called from a Server Component — middleware refreshes the session instead
         }
       },
     },

@@ -115,9 +115,9 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
     setMsg(error
       ? { ok: false,
           text: error.code === "23505"
-            ? "ตัวละครนี้ถูกคนอื่น claim ไปแล้ว — ถ้าเป็นของคุณจริง แจ้งแอดมินให้ปลดได้"
-            : `บันทึกไม่สำเร็จ: ${error.message}` }
-      : { ok: true, text: "บันทึกแล้ว — โปรไฟล์และกระดานอัปเดตทันที" });
+            ? "That character is already claimed by someone else — if it is really yours, ask an admin to release it"
+            : `Could not save: ${error.message}` }
+      : { ok: true, text: "Saved — your profile and the board update immediately" });
   }
 
   async function toggleHide() {
@@ -129,25 +129,25 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
     });
     if (!error) setHidden(next);
     setMsg(error
-      ? { ok: false, text: "ทำรายการไม่สำเร็จ (ต้องรัน migration_v2.sql ก่อน)" }
-      : { ok: true, text: next ? "ซ่อนคุณจากกระดานแล้ว" : "กลับมาแสดงบนกระดานแล้ว" });
+      ? { ok: false, text: "Action failed (has migration_v2.sql been run?)" }
+      : { ok: true, text: next ? "You are now hidden from the board" : "You are visible on the board again" });
   }
 
-  if (phase === "loading") return <Notice>กำลังโหลด…</Notice>;
+  if (phase === "loading") return <Notice>Loading…</Notice>;
 
   if (phase === "no-config")
     return (
       <Notice>
-        ยังไม่ได้เชื่อม Supabase — ตั้งค่า <b className="text-amber">NEXT_PUBLIC_SUPABASE_URL</b> และ{" "}
-        <b className="text-amber">NEXT_PUBLIC_SUPABASE_ANON_KEY</b> ตาม README ก่อน
-        แล้วหน้านี้จะเปิดใช้งานเอง
+        Supabase is not connected yet — set <b className="text-amber">NEXT_PUBLIC_SUPABASE_URL</b> and{" "}
+        <b className="text-amber">NEXT_PUBLIC_SUPABASE_ANON_KEY</b> as described in the README,
+        and this page switches itself on.
       </Notice>
     );
 
   if (phase === "logged-out")
     return (
       <Notice>
-        เข้าสู่ระบบด้วย Discord เพื่อ claim ตัวละครและแต่งโปรไฟล์ของคุณ
+        Sign in with Discord to claim your character and customise your profile
         <div className="mt-4">
           <button
             onClick={() =>
@@ -156,7 +156,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
                 options: { redirectTo: `${location.origin}/auth/callback` },
               })}
             className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-5 py-2 text-[#a5b2ff] transition-colors hover:bg-[#5865F2]/25">
-            Login ด้วย Discord
+            Log in with Discord
           </button>
         </div>
       </Notice>
@@ -165,7 +165,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   return (
     <main className="pt-7">
       <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">Profile</div>
-      <h1 className="font-display text-3xl font-bold">โปรไฟล์ของฉัน</h1>
+      <h1 className="font-display text-3xl font-bold">My profile</h1>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3">
         {profile?.discord_avatar ? (
@@ -174,32 +174,32 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         ) : null}
         <div className="min-w-0 flex-1">
           <div className="font-data text-sm font-semibold">
-            {profile?.discord_username ?? "สมาชิก Discord"}
+            {profile?.discord_username ?? "Discord member"}
           </div>
-          <div className="text-[12px] text-muted">เชื่อมผ่าน Discord แล้ว</div>
+          <div className="text-[12px] text-muted">Linked via Discord</div>
         </div>
         {charId && (
           <Link href={`/member/${charId}`}
                 className="rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted no-underline hover:border-amber hover:text-amber">
-            ดูหน้าของฉัน
+            View my page
           </Link>
         )}
         {profile?.is_admin && (
           <Link href="/admin"
                 className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-1.5 text-[13px] text-chili no-underline hover:bg-chili/20">
-            หน้าแอดมิน
+            Admin panel
           </Link>
         )}
         <button
           onClick={async () => { await supabase!.auth.signOut(); location.href = "/"; }}
           className="rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted hover:border-muted hover:text-ink">
-          ออกจากระบบ
+          Sign out
         </button>
       </div>
 
-      {/* claim ตัวละคร */}
+      {/* Character claim */}
       <section className="mt-5 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">ตัวละครของฉัน</div>
+        <div className="font-display font-semibold">My character</div>
         {charId ? (
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <span className="font-data text-[15px] font-semibold"
@@ -208,19 +208,19 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
             </span>
             <button onClick={() => { setCharId(null); setCharName(null); }}
                     className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:border-muted hover:text-ink">
-              ยกเลิกการเชื่อม
+              Unlink
             </button>
             <button onClick={toggleHide}
                     className={`rounded-lg border px-3 py-1 text-[12.5px] ${
                       hidden ? "border-jade/50 text-jade hover:bg-jade/10"
                              : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-              {hidden ? "เลิกซ่อนจากกระดาน" : "ซ่อนฉันจากกระดาน"}
+              {hidden ? "Show me on the board" : "Hide me from the board"}
             </button>
           </div>
         ) : (
           <div className="mt-2">
             <input value={pick} onChange={(e) => setPick(e.target.value)}
-                   placeholder="พิมพ์ชื่อตัวละครของคุณอย่างน้อย 2 ตัวอักษร…"
+                   placeholder="Type at least 2 characters of your character name…"
                    className="w-full rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted" />
             {suggestions.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
@@ -236,38 +236,38 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           </div>
         )}
         <p className="mt-2 text-[12px] leading-relaxed text-muted">
-          หนึ่งตัวละคร claim ได้คนเดียว — claim แล้วจะมี ✦ บนกระดาน และแต่งหน้าโปรไฟล์ตัวเองได้
+          One character can only be claimed by one account — once claimed you get a ✦ on the board and can customise your own page
         </p>
       </section>
 
-      {/* แต่งโปรไฟล์ */}
+      {/* Profile customisation */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">แต่งโปรไฟล์</div>
+        <div className="font-display font-semibold">Customise profile</div>
 
         <label className="mt-3 block text-[13px] text-muted">
-          Bio / สเตตัส (ไม่เกิน 200 ตัวอักษร)
+          Bio / status (200 characters max)
           <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 200))}
                     rows={2}
-                    placeholder="เช่น หา static ลง savage / รับปั้มเมนเทอร์ / ขายเค้ก popoto"
+                    placeholder="e.g. looking for a savage static / happy to mentor / selling popoto cake"
                     className="mt-1 w-full rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted" />
         </label>
 
         <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-4">
           <label className="block text-[13px] text-muted">
-            จ๊อบโปรด
+            Main job
             <select value={job} onChange={(e) => setJob(e.target.value)}
                     className="mt-1 block rounded-lg border border-line bg-card px-3 py-2 text-ink">
-              <option value="">— ไม่ระบุ —</option>
+              <option value="">— not set —</option>
               {JOBS.map((j) => <option key={j} value={j}>{j}</option>)}
             </select>
           </label>
 
           <div className="text-[13px] text-muted">
-            สีประจำตัว
+            Accent colour
             <div className="mt-1.5 flex gap-2">
               {COLORS.map((c) => (
                 <button key={c} onClick={() => setColor(color === c ? "" : c)}
-                        aria-label={`เลือกสี ${c}`}
+                        aria-label={`Pick colour ${c}`}
                         className={`size-7 rounded-full border-2 transition-transform ${
                           color === c ? "scale-110 border-ink" : "border-transparent"}`}
                         style={{ background: c }} />
@@ -277,11 +277,11 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         </div>
 
         <div className="mt-4 text-[13px] text-muted">
-          แบนเนอร์หน้าโปรไฟล์
+          Profile banner
           <div className="mt-1.5 flex flex-wrap gap-2">
             {BANNERS.map((bnr) => (
               <button key={bnr} onClick={() => setBanner(banner === bnr ? "" : bnr)}
-                      aria-label="เลือกแบนเนอร์"
+                      aria-label="Pick banner"
                       className={`h-10 w-20 rounded-lg border-2 transition-transform ${
                         banner === bnr ? "scale-105 border-amber" : "border-line"}`}
                       style={{ background: bnr }} />
@@ -290,7 +290,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         </div>
 
         <div className="mt-4 text-[13px] text-muted">
-          สถานะ &ldquo;กำลังหา&rdquo; (โชว์บนกระดาน + ใช้เป็นตัวกรอง)
+          &ldquo;Looking for&rdquo; status (shown on the board and usable as a filter)
           <div className="mt-1.5 flex flex-wrap gap-2">
             {LFG_OPTIONS.map((o) => {
               const on = lfg.includes(o.key);
@@ -311,7 +311,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         <div className="mt-5 flex items-center gap-3">
           <button onClick={save} disabled={saving}
                   className="rounded-lg border border-amber bg-amber/15 px-5 py-2 text-amber transition-colors hover:bg-amber/25 disabled:opacity-50">
-            {saving ? "กำลังบันทึก…" : "บันทึกโปรไฟล์"}
+            {saving ? "Saving…" : "Save profile"}
           </button>
           {msg && (
             <span className={`text-[13px] ${msg.ok ? "text-jade" : "text-chili"}`}>

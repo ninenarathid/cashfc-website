@@ -86,27 +86,27 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   }, [pick, memberOptions]);
 
   if (phase === "loading")
-    return <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center text-muted">กำลังตรวจสอบสิทธิ์…</div>;
+    return <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center text-muted">Checking permissions…</div>;
 
   if (phase === "denied")
     return (
       <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center leading-relaxed text-muted">
-        หน้านี้เฉพาะแอดมิน — ถ้าคุณควรเป็นแอดมิน ให้รันคำสั่งตั้งสิทธิ์ท้ายไฟล์{" "}
-        <b className="text-amber">supabase/schema.sql</b> ใน SQL Editor ก่อน
+        Admins only — if you should be an admin, run the grant statement at the end of{" "}
+        <b className="text-amber">supabase/schema.sql</b> in the SQL Editor first.
       </div>
     );
 
   return (
     <main className="pt-7">
       <div className="font-data text-[11px] uppercase tracking-[0.22em] text-chili">Admin</div>
-      <h1 className="font-display text-3xl font-bold">จัดการเว็บไซต์</h1>
+      <h1 className="font-display text-3xl font-bold">Site admin</h1>
       {msg && <div className="mt-2 text-[13px] text-jade">{msg}</div>}
 
       {/* ── Discord settings ── */}
       <section className="mt-5 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">Discord ของ FC</div>
+        <div className="font-display font-semibold">FC Discord</div>
         <p className="mt-1 text-[12.5px] text-muted">
-          Server ID (เปิด Server Widget ใน Discord ก่อน) + invite link — ใช้แสดง widget บนหน้าแรก
+          Server ID (enable Server Widget in Discord first) + invite link — powers the widget on the home page
         </p>
         <div className="mt-3 flex flex-wrap gap-2.5">
           <input value={serverId} onChange={(e) => setServerId(e.target.value)}
@@ -120,22 +120,22 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 { key: "discord_server_id", value: serverId.trim() || null, updated_at: now },
                 { key: "discord_invite_url", value: invite.trim() || null, updated_at: now },
               ]);
-              flash(error ? "บันทึกไม่สำเร็จ (รัน migration_v2.sql หรือยัง?)" : "บันทึกแล้ว");
+              flash(error ? "Save failed (has migration_v2.sql been run?)" : "Saved");
             }}
             className="rounded-lg border border-amber bg-amber/15 px-4 py-2 text-amber hover:bg-amber/25">
-            บันทึก
+            Save
           </button>
         </div>
       </section>
 
-      {/* ── ประกาศ ── */}
+      {/* ── Announcements ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">ประกาศจาก FC (การ์ดเด่นหน้าแรก)</div>
+        <div className="font-display font-semibold">FC announcements (featured card on the home page)</div>
         <div className="mt-3 flex flex-col gap-2">
           <input value={aTitle} onChange={(e) => setATitle(e.target.value.slice(0, 120))}
-                 placeholder="หัวข้อประกาศ" className={inputCls} />
+                 placeholder="Announcement title" className={inputCls} />
           <textarea value={aBody} onChange={(e) => setABody(e.target.value.slice(0, 2000))}
-                    rows={3} placeholder="รายละเอียด (ไม่บังคับ)" className={inputCls} />
+                    rows={3} placeholder="Details (optional)" className={inputCls} />
           <button
             onClick={async () => {
               if (!aTitle.trim()) return;
@@ -143,10 +143,10 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
               const { error } = await supabase!.from("announcements")
                 .insert({ title: aTitle.trim(), body: aBody.trim() || null,
                           created_by: u.user?.id });
-              if (!error) { setATitle(""); setABody(""); await refresh(); flash("โพสต์ประกาศแล้ว"); }
+              if (!error) { setATitle(""); setABody(""); await refresh(); flash("Announcement posted"); }
             }}
             className="self-start rounded-lg border border-amber bg-amber/15 px-4 py-2 text-amber hover:bg-amber/25">
-            โพสต์ประกาศ
+            Post announcement
           </button>
         </div>
         <div className="mt-3 flex flex-col gap-2">
@@ -159,34 +159,34 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
               <button
                 onClick={async () => {
                   await supabase!.from("announcements").delete().eq("id", a.id);
-                  await refresh(); flash("ลบประกาศแล้ว");
+                  await refresh(); flash("Announcement deleted");
                 }}
                 className="shrink-0 rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                ลบ
+                Delete
               </button>
             </div>
           ))}
-          {anns.length === 0 && <div className="text-[13px] text-muted">ยังไม่มีประกาศ</div>}
+          {anns.length === 0 && <div className="text-[13px] text-muted">No announcements yet</div>}
         </div>
       </section>
 
       {/* ── Timeline posts ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">โพสต์ลง Timeline (คู่กับข่าว official)</div>
+        <div className="font-display font-semibold">Timeline posts (alongside official news)</div>
         <p className="mt-1 text-[12.5px] text-muted">
-          เช่น &ldquo;FC house ย้ายบ้านใหม่&rdquo;, &ldquo;นัดถ่ายรูปหมู่ 7.5&rdquo; — ขึ้นเรียงเวลาเดียวกับข่าวเกม
+          e.g. &ldquo;FC house has moved&rdquo;, &ldquo;7.5 group photo meetup&rdquo; — interleaved with game news by date
         </p>
         <div className="mt-3 flex flex-col gap-2">
           <div className="flex flex-wrap gap-2">
             <input value={pTitle} onChange={(e) => setPTitle(e.target.value.slice(0, 120))}
-                   placeholder="หัวข้อ" className={`${inputCls} min-w-[200px] flex-1`} />
+                   placeholder="Title" className={`${inputCls} min-w-[200px] flex-1`} />
             <input type="date" value={pDate} onChange={(e) => setPDate(e.target.value)}
-                   className={inputCls} aria-label="วันที่" />
+                   className={inputCls} aria-label="Date" />
           </div>
           <textarea value={pBody} onChange={(e) => setPBody(e.target.value.slice(0, 1000))}
-                    rows={2} placeholder="รายละเอียด (ไม่บังคับ)" className={inputCls} />
+                    rows={2} placeholder="Details (optional)" className={inputCls} />
           <input value={pUrl} onChange={(e) => setPUrl(e.target.value)}
-                 placeholder="ลิงก์ (ไม่บังคับ)" className={inputCls} />
+                 placeholder="Link (optional)" className={inputCls} />
           <button
             onClick={async () => {
               if (!pTitle.trim()) return;
@@ -197,11 +197,11 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 created_by: u.user?.id,
               });
               if (!error) { setPTitle(""); setPBody(""); setPUrl(""); await refresh();
-                            flash("โพสต์ลง timeline แล้ว"); }
-              else flash("โพสต์ไม่สำเร็จ (รัน migration_v2.sql หรือยัง?)");
+                            flash("Posted to the timeline"); }
+              else flash("Post failed (has migration_v2.sql been run?)");
             }}
             className="self-start rounded-lg border border-jade bg-jade/15 px-4 py-2 text-jade hover:bg-jade/25">
-            โพสต์ลง timeline
+            Post to timeline
           </button>
         </div>
         <div className="mt-3 flex flex-col gap-2">
@@ -217,23 +217,23 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
               <button
                 onClick={async () => {
                   await supabase!.from("timeline_posts").delete().eq("id", p.id);
-                  await refresh(); flash("ลบโพสต์แล้ว");
+                  await refresh(); flash("Post deleted");
                 }}
                 className="shrink-0 rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                ลบ
+                Delete
               </button>
             </div>
           ))}
-          {posts.length === 0 && <div className="text-[13px] text-muted">ยังไม่มีโพสต์</div>}
+          {posts.length === 0 && <div className="text-[13px] text-muted">No posts yet</div>}
         </div>
       </section>
 
-      {/* ── ซ่อนสมาชิก / โน้ต ── */}
+      {/* ── Hide members / internal notes ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">ควบคุมกระดานสมาชิก</div>
+        <div className="font-display font-semibold">Member board controls</div>
         <input value={pick}
                onChange={(e) => { setPick(e.target.value); setSelected(null); }}
-               placeholder="ค้นหาชื่อสมาชิก…" className={`${inputCls} mt-3 w-full`} />
+               placeholder="Search member name…" className={`${inputCls} mt-3 w-full`} />
         {suggestions.length > 0 && !selected && (
           <div className="mt-2 flex flex-wrap gap-2">
             {suggestions.map((s) => (
@@ -252,7 +252,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           <div className="mt-3 flex flex-wrap items-center gap-2.5">
             <span className="font-data font-semibold">{selected.name}</span>
             <input value={note} onChange={(e) => setNote(e.target.value.slice(0, 200))}
-                   placeholder="โน้ตภายใน (ไม่บังคับ)"
+                   placeholder="Internal note (optional)"
                    className={`${inputCls} min-w-[180px] flex-1 py-1.5 text-[13px]`} />
             {[false, true].map((h) => (
               <button key={String(h)}
@@ -263,35 +263,35 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                           updated_at: new Date().toISOString(),
                         });
                         await refresh();
-                        flash(h ? "ซ่อนจากกระดานแล้ว" : "บันทึกแล้ว (แสดงปกติ)");
+                        flash(h ? "Hidden from the board" : "Saved (still visible)");
                       }}
                       className={`rounded-lg border px-3 py-1.5 text-[13px] ${
                         h ? "border-chili/50 text-chili hover:bg-chili/10"
                           : "border-jade/50 text-jade hover:bg-jade/10"}`}>
-                {h ? "ซ่อนจากกระดาน" : "แสดงปกติ + บันทึกโน้ต"}
+                {h ? "Hide from board" : "Keep visible + save note"}
               </button>
             ))}
           </div>
         )}
         {overrides.length > 0 && (
           <div className="mt-4 flex flex-col gap-1.5">
-            <div className="text-[12px] uppercase tracking-wider text-muted">รายการ override</div>
+            <div className="text-[12px] uppercase tracking-wider text-muted">Active overrides</div>
             {overrides.map((o) => (
               <div key={o.character_id}
                    className="flex items-center justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2 text-[13px]">
                 <span className="min-w-0 truncate">
                   <b className="font-data">{nameOf(o.character_id)}</b>
-                  {o.hidden && <span className="ml-2 text-chili">ซ่อนอยู่</span>}
+                  {o.hidden && <span className="ml-2 text-chili">hidden</span>}
                   {o.note && <span className="ml-2 text-muted">— {o.note}</span>}
                 </span>
                 <button
                   onClick={async () => {
                     await supabase!.from("member_overrides").delete()
                       .eq("character_id", o.character_id);
-                    await refresh(); flash("ลบ override แล้ว");
+                    await refresh(); flash("Override cleared");
                   }}
                   className="shrink-0 rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-muted hover:text-ink">
-                  ล้าง
+                  Clear
                 </button>
               </div>
             ))}
@@ -299,9 +299,9 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
         )}
       </section>
 
-      {/* ── จัดการ claim ── */}
+      {/* ── Claim management ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">ตัวละครที่ถูก claim</div>
+        <div className="font-display font-semibold">Claimed characters</div>
         <div className="mt-3 flex flex-col gap-1.5">
           {claims.map((c) => (
             <div key={c.id}
@@ -315,14 +315,14 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                   await supabase!.from("profiles")
                     .update({ character_id: null, character_name: null })
                     .eq("id", c.id);
-                  await refresh(); flash("ปลด claim แล้ว");
+                  await refresh(); flash("Claim released");
                 }}
                 className="shrink-0 rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                ปลด
+                Release
               </button>
             </div>
           ))}
-          {claims.length === 0 && <div className="text-[13px] text-muted">ยังไม่มีใคร claim ตัวละคร</div>}
+          {claims.length === 0 && <div className="text-[13px] text-muted">Nobody has claimed a character yet</div>}
         </div>
       </section>
     </main>

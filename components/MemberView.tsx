@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import type { Member, MemberRaids, Overlay, RaidZone } from "@/lib/types";
-import { LFG_OPTIONS } from "@/lib/types";
+import { LFG_OPTIONS, ON_VACATION_RANK, isOnVacation } from "@/lib/types";
 import { computeBadges, percentile, topN } from "@/lib/badges";
 import { createClient } from "@/lib/supabase/client";
 
@@ -64,22 +64,23 @@ export default function MemberView({
 
   async function sendKudos() {
     if (!supabase || !user) {
-      setKudosMsg("login ด้วย Discord ก่อนถึงส่งได้");
+      setKudosMsg("Log in with Discord first");
       return;
     }
     const { error } = await supabase.from("kudos")
       .insert({ sender_id: user.id, receiver_character_id: m.id });
     if (error) {
       setKudosMsg(error.code === "23505"
-        ? "วันนี้ส่งให้คนนี้ไปแล้ว — พรุ่งนี้มาใหม่นะ" : "ส่งไม่สำเร็จ ลองอีกครั้ง");
+        ? "Already sent to this member today — come back tomorrow" : "Could not send, try again");
     } else {
       setKudos((k) => (k ?? 0) + 1);
-      setKudosMsg("ส่ง popoto แล้ว 🥔");
+      setKudosMsg("Popoto sent 🥔");
     }
     setTimeout(() => setKudosMsg(""), 3000);
   }
 
   const accent = ov?.accent ?? "#e8a33d";
+  const onVacation = isOnVacation(m);
   const badges = useMemo(
     () => computeBadges(m, raids, {
       mountsTop10: topN(agg.mounts, 10),
@@ -90,7 +91,7 @@ export default function MemberView({
   const legacyGroups = useMemo(() => {
     const g: Record<string, RaidZone[]> = {};
     for (const z of raids?.legacy ?? [])
-      (g[z.expansion ?? "อื่นๆ"] ??= []).push(z);
+      (g[z.expansion ?? "Other"] ??= []).push(z);
     return g;
   }, [raids]);
 
@@ -115,7 +116,7 @@ export default function MemberView({
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-card">
               <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
             </div>
-            <div className="mt-1 text-[11px] text-muted">มากกว่า {pct}% ของ FC</div>
+            <div className="mt-1 text-[11px] text-muted">Higher than {pct}% of the FC</div>
           </>
         )}
       </div>
@@ -134,21 +135,31 @@ export default function MemberView({
                  className="h-44 w-32 shrink-0 rounded-xl border border-line object-cover object-top sm:h-52 sm:w-40" />
           )}
           <div className="min-w-0 flex-1">
-            <div className="font-data text-[11px] uppercase tracking-[0.2em] text-ink/60">
+            <div className="flex items-center gap-2 font-data text-[11px] uppercase tracking-[0.2em] text-ink/60">
+              <span
+                title={onVacation ? ON_VACATION_RANK : "Active"}
+                aria-label={onVacation ? ON_VACATION_RANK : "Active"}
+                role="img"
+                className={`size-2.5 shrink-0 rounded-full ${
+                  onVacation ? "bg-[#747f8d]" : "bg-[#43b581]"}`}
+              />
               {fc.name} · {m.rank ?? "Member"}
             </div>
             <h1 className="font-data text-3xl font-bold tracking-tight sm:text-4xl">
               {m.name}
               {ov && (
                 <span className="ml-2" style={{ color: accent }}
-                      title={ov.discord ? `เชื่อม Discord: ${ov.discord}` : "ยืนยันตัวตนแล้ว"}>
+                      title={ov.discord ? `Linked Discord: ${ov.discord}` : "Verified"}>
                   ✦
                 </span>
               )}
             </h1>
             <div className="mt-1 text-[13px] text-ink/70">
               Lv {m.level ?? "—"}
-              {ov?.job && <> · จ๊อบโปรด <b className="font-data">{ov.job}</b></>}
+              {m.race && (
+                <> · {m.race}{m.clan ? ` (${m.clan})` : ""}</>
+              )}
+              {ov?.job && <> · main <b className="font-data">{ov.job}</b></>}
               {m.nameday?.text && <> · 🎂 {m.nameday.text}</>}
             </div>
             {ov?.bio && (
@@ -179,18 +190,18 @@ export default function MemberView({
               ))}
               <button onClick={sendKudos}
                       className="rounded-md border border-amber/60 bg-bg/40 px-3 py-1 text-[12.5px] text-amber hover:bg-amber/15">
-                🥔 ส่ง popoto{kudos != null ? ` · ${kudos}` : ""}
+                🥔 Send popoto{kudos != null ? ` · ${kudos}` : ""}
               </button>
               <button
                 onClick={() => { navigator.clipboard?.writeText(window.location.href);
                                  setCopied(true); setTimeout(() => setCopied(false), 2000); }}
                 className="rounded-md border border-line bg-bg/40 px-3 py-1 text-[12.5px] text-ink/70 hover:border-muted hover:text-ink">
-                {copied ? "คัดลอกแล้ว ✓" : "แชร์ลิงก์"}
+                {copied ? "Copied ✓" : "Share link"}
               </button>
               {isOwner && (
                 <Link href="/profile"
                       className="rounded-md border border-jade/60 bg-bg/40 px-3 py-1 text-[12.5px] text-jade no-underline hover:bg-jade/15">
-                  แต่งหน้านี้
+                  Edit this page
                 </Link>
               )}
             </div>
@@ -199,7 +210,7 @@ export default function MemberView({
         </div>
       </section>
 
-      {/* ── ป้ายตำแหน่ง ── */}
+      {/* ── Badges ── */}
       {badges.length > 0 && (
         <section className="mt-4 flex flex-wrap gap-2">
           {badges.map((b) => (
@@ -211,10 +222,10 @@ export default function MemberView({
         </section>
       )}
 
-      {/* ── Raid: tier ปัจจุบัน ── */}
+      {/* ── Raid: current tier ── */}
       <section className="mt-6">
         <h2 className="mb-2 font-display text-lg font-semibold">
-          Tier ปัจจุบัน{" "}
+          Current tier{" "}
           <span className="text-[13px] font-normal text-muted">
             {tierLabels[0]}–{tierLabels[tierLabels.length - 1]}
             {raids?.current?.zone ? ` · ${raids.current.zone}` : ""}
@@ -222,7 +233,7 @@ export default function MemberView({
         </h2>
         {raids === null ? (
           <div className="rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-muted">
-            ยังไม่เชื่อม FF Logs — ข้อมูล raid จะขึ้นอัตโนมัติหลังตั้งค่า API แล้วรัน pipeline
+            Not linked to FF Logs yet — raid data appears automatically once the API keys are set and the pipeline runs
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
@@ -233,10 +244,10 @@ export default function MemberView({
                                     : "border-dashed border-line bg-transparent opacity-60"}`}>
                 <div className="flex items-baseline justify-between">
                   <span className="font-data text-[15px] font-semibold text-ink">{label}</span>
-                  {cleared && <span className="text-[11px] text-jade">เคลียร์แล้ว</span>}
+                  {cleared && <span className="text-[11px] text-jade">Cleared</span>}
                 </div>
                 <div className="mt-0.5 truncate text-[11.5px] text-muted">
-                  {enc?.name ?? (hasCurrentData ? "ยังไม่มี log" : "รอข้อมูล")}
+                  {enc?.name ?? (hasCurrentData ? "No log yet" : "Awaiting data")}
                 </div>
                 <div className="mt-2 font-data text-3xl font-semibold"
                      style={{ color: parseColor(enc?.best) }}>
@@ -285,8 +296,8 @@ export default function MemberView({
       {Object.keys(legacyGroups).length > 0 && (
         <section className="mt-6">
           <h2 className="mb-2 font-display text-lg font-semibold">
-            Savage รุ่นก่อน{" "}
-            <span className="text-[13px] font-normal text-muted">(เก็บครบ กดกางดูได้)</span>
+            Previous savage tiers{" "}
+            <span className="text-[13px] font-normal text-muted">(all kept — expand to view)</span>
           </h2>
           <div className="flex flex-col gap-2">
             {Object.entries(legacyGroups).map(([exp, zones]) => (
@@ -308,7 +319,7 @@ export default function MemberView({
                             {z.zone}
                           </span>
                           <span className="text-[11.5px] text-muted">
-                            เคลียร์ {kills}/{z.encounters.length} · best{" "}
+                            {kills}/{z.encounters.length} cleared · best{" "}
                             <b style={{ color: parseColor(best < 0 ? null : best) }}>
                               {best < 0 ? "—" : best}
                             </b>
@@ -335,7 +346,7 @@ export default function MemberView({
 
       {/* ── Collection ── */}
       <section className="mt-6">
-        <h2 className="mb-2 font-display text-lg font-semibold">ของสะสม</h2>
+        <h2 className="mb-2 font-display text-lg font-semibold">Collection</h2>
         <div className="grid grid-cols-3 gap-2.5">
           {pctTile("Mounts", m.mounts, agg.mounts, "#4fb8a8")}
           {pctTile("Minions", m.minions, agg.minions, "#7ea6c9")}
@@ -343,7 +354,7 @@ export default function MemberView({
         </div>
         {m.ach_public === false && (
           <p className="mt-2 text-[12px] text-muted">
-            ผู้เล่นตั้ง achievement เป็น private — ข้อมูล rare achievement จึงไม่แสดง
+            This player keeps achievements private, so rare achievement data is hidden
           </p>
         )}
       </section>

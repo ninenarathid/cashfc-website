@@ -33,10 +33,10 @@ export default function DiscordCard() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
         <div>
           <div className="font-display font-semibold text-[#a5b2ff]">
-            Discord ของ FC
+            FC Discord
           </div>
           <div className="text-[12.5px] text-muted">
-            คุยกัน นัดเรด นัดกิจกรรม — รวมตัวกันที่นี่
+            Chat, organise raids, plan events — this is where everyone hangs out
           </div>
         </div>
         {invite && (
@@ -46,7 +46,7 @@ export default function DiscordCard() {
             rel="noopener noreferrer"
             className="rounded-lg bg-[#5865F2] px-5 py-2 text-[14px] font-medium text-white no-underline transition-opacity hover:opacity-90"
           >
-            เข้าร่วม Discord
+            Join the Discord
           </a>
         )}
       </div>

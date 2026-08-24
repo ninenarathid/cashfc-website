@@ -20,6 +20,11 @@ export interface Member {
   ach_public: boolean | null;
   fflogs: string;
   nameday?: Nameday | null;
+  /** Race / clan scraped from Lodestone. Absent until the pipeline has covered them. */
+  race?: string | null;
+  clan?: string | null;
+  /** Last date any tracked stat moved (YYYY-MM-DD). Null until enough history exists. */
+  last_change?: string | null;
 }
 
 export interface RaidEncounter {
@@ -62,13 +67,27 @@ export interface Overlay {
 }
 
 export const LFG_OPTIONS = [
-  { key: "static", label: "หา static" },
-  { key: "mentor", label: "รับสอน" },
-  { key: "craft", label: "รับงาน craft" },
-  { key: "friends", label: "หาเพื่อนเล่น" },
+  { key: "static", label: "Looking for static" },
+  { key: "mentor", label: "Happy to teach" },
+  { key: "craft", label: "Taking craft requests" },
+  { key: "friends", label: "Looking for friends" },
 ] as const;
 
 export const RANK_ORDER = [
   "Dishwasher", "Sous Chef", "Chef de Cuisine", "Chief de popoto",
   "Food Raider", "Chef Toumant", "Taster", "Table Cat", "On vacation",
+];
+
+/**
+ * FC rank used in-game to mark someone as not currently playing. Lodestone does not
+ * publish last-login, so this officer-maintained rank is the only activity signal
+ * that covers the whole roster.
+ */
+export const ON_VACATION_RANK = "On vacation";
+
+export const isOnVacation = (m: Member): boolean => m.rank === ON_VACATION_RANK;
+
+/** Playable races, in the order Lodestone lists them. */
+export const RACE_ORDER = [
+  "Hyur", "Elezen", "Lalafell", "Miqo'te", "Roegadyn", "Au Ra", "Hrothgar", "Viera",
 ];
