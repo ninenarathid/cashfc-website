@@ -6,14 +6,37 @@ import type { BoardData, Member, Overlay } from "@/lib/types";
 import { LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation, ON_VACATION_RANK } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 
+// Order matters: this is the order the filter chips appear in.
 const TAG_LABELS: Record<string, string> = {
-  all: "All", raider: "Raider", ultimate: "Ultimate", collector: "Collector",
-  crafter: "Crafter", pvp: "PvP", casual: "Casual", unknown: "No data",
+  all: "All",
+  "tier-clear": "Tier cleared", prog: "Progging", raider: "Raider",
+  ultimate: "Ultimate", veteran: "Veteran", extreme: "Extreme",
+  collector: "Collector", achiever: "Achiever", crafter: "Crafter", pvp: "PvP",
+  casual: "Casual", unknown: "No data",
+};
+const TAG_HELP: Record<string, string> = {
+  "tier-clear": "Cleared every boss of the current savage tier",
+  prog: "Partway through the current savage tier",
+  raider: "Has savage kills in the current tier",
+  ultimate: "Has cleared at least one Ultimate",
+  veteran: "Cleared savage or Ultimate content, but not this tier",
+  extreme: "Cleared at least one extreme trial this patch",
+  collector: "Top 20% of the FC for mounts or minions",
+  achiever: "Top 20% of the FC for rare achievements",
+  crafter: "Top 10% of the FC for crafting achievements",
+  pvp: "Top 10% of the FC for PvP achievements",
+  casual: "No standout stats, but some data is public",
+  unknown: "Logs and achievements are both private",
 };
 const TAG_CLASS: Record<string, string> = {
+  "tier-clear": "border-chili/60 bg-chili/15 text-chili",
+  prog: "border-chili/35 bg-chili/5 text-chili/85",
   raider: "border-chili/50 bg-chili/10 text-chili",
   ultimate: "border-gold/50 bg-gold/10 text-gold",
+  veteran: "border-gold/30 bg-gold/5 text-gold/80",
+  extreme: "border-[#c86fd1]/50 bg-[#c86fd1]/10 text-[#d79ade]",
   collector: "border-jade/45 bg-jade/10 text-jade",
+  achiever: "border-jade/30 bg-jade/5 text-jade/85",
   crafter: "border-copper/50 bg-copper/10 text-copper",
   pvp: "border-steel/45 bg-steel/10 text-steel",
   casual: "border-line text-muted",
@@ -34,6 +57,16 @@ const BRACKETS = [
 const ACTIVITY_OPTIONS = [
   { key: "active", label: "Active" },
   { key: "vacation", label: "On vacation" },
+];
+// Filters on the real acquisition dates from Lalachievements. Kept separate from the
+// rank-based Active filter above on purpose: that one covers everyone, this one only
+// covers members the site has actually indexed, so merging them would quietly drop
+// people from results for a reason nobody could see.
+const SEEN_OPTIONS = [
+  { key: "30", label: "Last 30 days", days: 30 },
+  { key: "90", label: "Last 90 days", days: 90 },
+  { key: "180", label: "Last 6 months", days: 180 },
+  { key: "old", label: "Over 6 months ago", days: -180 },
 ];
 
 type SortKey = "name" | "parse" | "level" | "mounts" | "rare";
@@ -93,14 +126,22 @@ function PresenceDot({ m, size = 11 }: { m: Member; size?: number }) {
 interface Adv {
   lfg: string; job: string; rank: string; bracket: string;
   boss: number[]; ult: boolean; lvMin: string; race: string; activity: string;
+  /** Extreme trials that must all be cleared, by boss name. */
+  ex: string[];
+  /** "Last seen collecting" window, from SEEN_OPTIONS. */
+  seen: string;
 }
 const ADV_EMPTY: Adv = {
   lfg: "", job: "", rank: "", bracket: "", boss: [], ult: false, lvMin: "",
-  race: "", activity: "",
+  race: "", activity: "", ex: [], seen: "",
 };
+
+const daysSince = (iso: string): number =>
+  Math.floor((Date.now() - new Date(`${iso}T00:00:00Z`).getTime()) / 86_400_000);
 
 export default function MemberBoard({ data }: { data: BoardData }) {
   const labels = data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"];
+  const extremes = data.extremes ?? [];
   const [tag, setTag] = useState("all");
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortKey>("name");
@@ -119,15 +160,16 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (p.get("sort")) setSortBy(p.get("sort") as SortKey);
     if (p.get("view") === "kitchen") setView("kitchen");
     const boss = (p.get("boss") ?? "").split(",").filter(Boolean).map(Number);
+    const ex = (p.get("ex") ?? "").split(",").filter(Boolean);
     setAdv({
       lfg: p.get("lfg") ?? "", job: p.get("job") ?? "", rank: p.get("rank") ?? "",
       bracket: p.get("br") ?? "", boss, ult: p.get("ult") === "1",
       lvMin: p.get("lv") ?? "", race: p.get("race") ?? "",
-      activity: p.get("act") ?? "",
+      activity: p.get("act") ?? "", ex, seen: p.get("seen") ?? "",
     });
     if (p.get("lfg") || p.get("job") || p.get("rank") || p.get("br") ||
-        boss.length || p.get("ult") || p.get("lv") || p.get("race") ||
-        p.get("act")) setAdvOpen(true);
+        boss.length || ex.length || p.get("ult") || p.get("lv") || p.get("race") ||
+        p.get("act") || p.get("seen")) setAdvOpen(true);
     inited.current = true;
   }, []);
 
@@ -144,10 +186,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.rank) p.set("rank", adv.rank);
     if (adv.bracket) p.set("br", adv.bracket);
     if (adv.boss.length) p.set("boss", adv.boss.join(","));
+    if (adv.ex.length) p.set("ex", adv.ex.join(","));
     if (adv.ult) p.set("ult", "1");
     if (adv.lvMin) p.set("lv", adv.lvMin);
     if (adv.race) p.set("race", adv.race);
     if (adv.activity) p.set("act", adv.activity);
+    if (adv.seen) p.set("seen", adv.seen);
     const qs = p.toString();
     window.history.replaceState(null, "",
       qs ? `?${qs}` : window.location.pathname);
@@ -214,7 +258,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const lv = Number(adv.lvMin) || null;
     const filtered = visible.filter((m) => {
       if (tag !== "all" && !m.tags.includes(tag)) return false;
-      if (q && !m.name.toLowerCase().includes(q)) return false;
+      // Search covers race and clan too, so "viera" or "seeker" find people by look
+      // without having to open the filter panel first.
+      if (q && ![m.name, m.race, m.clan].some(
+        (f) => f && f.toLowerCase().includes(q))) return false;
       const ov = overlays[m.id];
       if (adv.lfg && !(ov?.lfg ?? []).includes(adv.lfg)) return false;
       if (adv.job && ov?.job !== adv.job) return false;
@@ -222,8 +269,18 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       if (adv.race && m.race !== adv.race) return false;
       if (adv.activity === "active" && isOnVacation(m)) return false;
       if (adv.activity === "vacation" && !isOnVacation(m)) return false;
+      if (adv.seen) {
+        // Members with no acquisition data can't satisfy a "last seen" window, so
+        // they drop out rather than being silently counted as recently active.
+        if (!m.last_active) return false;
+        const d = daysSince(m.last_active);
+        const want = SEEN_OPTIONS.find((o) => o.key === adv.seen);
+        if (!want) return false;
+        if (want.days > 0 ? d > want.days : d <= -want.days) return false;
+      }
       if (bracketMin != null && !(m.parse != null && m.parse >= bracketMin)) return false;
       for (const i of adv.boss) if (!m.current_clears?.[i]) return false;
+      for (const name of adv.ex) if (!m.ex_cleared?.includes(name)) return false;
       if (adv.ult && m.ult_clears <= 0) return false;
       if (lv != null && (m.level ?? 0) < lv) return false;
       return true;
@@ -238,8 +295,21 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   }, [visible, overlays, tag, query, sortBy, adv]);
 
   const advCount = (adv.lfg ? 1 : 0) + (adv.job ? 1 : 0) + (adv.rank ? 1 : 0) +
-    (adv.bracket ? 1 : 0) + adv.boss.length + (adv.ult ? 1 : 0) + (adv.lvMin ? 1 : 0) +
-    (adv.race ? 1 : 0) + (adv.activity ? 1 : 0);
+    (adv.bracket ? 1 : 0) + adv.boss.length + adv.ex.length + (adv.ult ? 1 : 0) +
+    (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) + (adv.activity ? 1 : 0) +
+    (adv.seen ? 1 : 0);
+
+  // How many members we actually have acquisition dates for. Shown next to the
+  // "last seen" filter so a small result set reads as missing data, not inactivity.
+  const seenKnown = useMemo(
+    () => visible.filter((m) => m.last_active).length, [visible]);
+
+  // How many members cleared each extreme, so the chips can show what is worth picking.
+  const exCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const m of visible) for (const n of m.ex_cleared ?? []) c[n] = (c[n] ?? 0) + 1;
+    return c;
+  }, [visible]);
 
   const selCls = "rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink";
 
@@ -292,7 +362,18 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         </div>
 
         {advOpen && (
-          <div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-line bg-surface p-3">
+          <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5">
+            {advCount > 0 && (
+              <button onClick={() => setAdv(ADV_EMPTY)}
+                      className="self-end text-[12.5px] text-muted underline hover:text-ink">
+                Clear all {advCount} filter{advCount > 1 ? "s" : ""}
+              </button>
+            )}
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+                Who
+              </span>
             <select value={adv.lfg} onChange={(e) => setAdv({ ...adv, lfg: e.target.value })}
                     className={selCls} aria-label="Looking-for status">
               <option value="">Looking for: any</option>
@@ -328,44 +409,86 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                 ))}
               </select>
             )}
-            <select value={adv.bracket}
-                    onChange={(e) => setAdv({ ...adv, bracket: e.target.value })}
-                    className={selCls} aria-label="Parse bracket">
-              <option value="">Parse: any</option>
-              {BRACKETS.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
-            </select>
-            <span className="flex items-center gap-1.5">
-              {labels.map((lb, i) => {
-                const on = adv.boss.includes(i);
-                return (
-                  <button key={lb}
-                    onClick={() => setAdv({ ...adv,
-                      boss: on ? adv.boss.filter((x) => x !== i) : [...adv.boss, i] })}
-                    className={`rounded-md border px-2 py-1 font-data text-[11.5px] ${
-                      on ? "border-chili bg-chili/15 text-chili"
-                         : "border-line text-muted hover:border-muted"}`}
-                    title={`Only members who have cleared ${lb}`}>
-                    {lb}
-                  </button>
-                );
-              })}
-            </span>
-            <button onClick={() => setAdv({ ...adv, ult: !adv.ult })}
-                    className={`rounded-md border px-2.5 py-1 text-[12px] ${
-                      adv.ult ? "border-gold bg-gold/15 text-gold"
-                              : "border-line text-muted hover:border-muted"}`}>
-              🏆 Has Ultimate
-            </button>
+            {seenKnown > 0 && (
+              <select value={adv.seen}
+                      onChange={(e) => setAdv({ ...adv, seen: e.target.value })}
+                      className={selCls} aria-label="Last seen collecting"
+                      title={`Based on mount, minion and achievement dates — known for ${seenKnown} of ${visible.length} members`}>
+                <option value="">Last seen: any ({seenKnown} known)</option>
+                {SEEN_OPTIONS.map((o) => (
+                  <option key={o.key} value={o.key}>{o.label}</option>
+                ))}
+              </select>
+            )}
             <input type="number" min={1} max={100} value={adv.lvMin}
                    onChange={(e) => setAdv({ ...adv, lvMin: e.target.value })}
                    placeholder="Lv ≥" aria-label="Minimum level"
                    className="w-20 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink placeholder:text-muted" />
-            {advCount > 0 && (
-              <button onClick={() => setAdv(ADV_EMPTY)}
-                      className="ml-auto text-[12.5px] text-muted underline hover:text-ink">
-                Clear filters
+            </div>
+
+            {/* Current-patch content, one chip per fight. Chips are AND-ed, so picking
+                three bosses finds people who cleared all three. */}
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
+              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+                This patch
+              </span>
+              <select value={adv.bracket}
+                      onChange={(e) => setAdv({ ...adv, bracket: e.target.value })}
+                      className={selCls} aria-label="Parse bracket">
+                <option value="">Parse: any</option>
+                {BRACKETS.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
+              </select>
+
+              <span className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11.5px] text-muted">Savage</span>
+                {labels.map((lb, i) => {
+                  const on = adv.boss.includes(i);
+                  const n = visible.filter((m) => m.current_clears?.[i]).length;
+                  return (
+                    <button key={lb}
+                      onClick={() => setAdv({ ...adv,
+                        boss: on ? adv.boss.filter((x) => x !== i) : [...adv.boss, i] })}
+                      aria-pressed={on}
+                      className={`rounded-md border px-2 py-1 font-data text-[11.5px] ${
+                        on ? "border-chili bg-chili/15 text-chili"
+                           : "border-line text-muted hover:border-muted"}`}
+                      title={`Cleared ${lb} — ${n} member${n === 1 ? "" : "s"}`}>
+                      {lb}<small className="ml-1 opacity-70">{n}</small>
+                    </button>
+                  );
+                })}
+              </span>
+
+              {extremes.length > 0 && (
+                <span className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11.5px] text-muted">Extreme</span>
+                  {extremes.map((name) => {
+                    const on = adv.ex.includes(name);
+                    const n = exCounts[name] ?? 0;
+                    return (
+                      <button key={name}
+                        onClick={() => setAdv({ ...adv,
+                          ex: on ? adv.ex.filter((x) => x !== name) : [...adv.ex, name] })}
+                        aria-pressed={on}
+                        className={`rounded-md border px-2 py-1 text-[11.5px] ${
+                          on ? "border-[#c86fd1] bg-[#c86fd1]/15 text-[#d79ade]"
+                             : "border-line text-muted hover:border-muted"}`}
+                        title={`Cleared ${name} — ${n} member${n === 1 ? "" : "s"}`}>
+                        {name}<small className="ml-1 opacity-70">{n}</small>
+                      </button>
+                    );
+                  })}
+                </span>
+              )}
+
+              <button onClick={() => setAdv({ ...adv, ult: !adv.ult })}
+                      aria-pressed={adv.ult}
+                      className={`rounded-md border px-2.5 py-1 text-[12px] ${
+                        adv.ult ? "border-gold bg-gold/15 text-gold"
+                                : "border-line text-muted hover:border-muted"}`}>
+                🏆 Has Ultimate
               </button>
-            )}
+            </div>
           </div>
         )}
 
@@ -375,6 +498,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             const on = tag === key;
             return (
               <button key={key} onClick={() => setTag(key)} aria-pressed={on}
+                title={TAG_HELP[key] ?? ""}
                 className={`inline-flex items-center gap-2 rounded-md border px-3.5 py-1.5 pl-2.5 text-[13.5px] transition-colors ${
                   on ? "border-amber bg-amber/10 text-amber"
                      : "border-line bg-card text-muted hover:border-muted hover:text-ink"}`}>
@@ -462,9 +586,14 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   </div>
                   <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-start-auto">
                     {m.tags.map((t) => (
-                      <span key={t}
+                      <span key={t} title={TAG_HELP[t] ?? ""}
                             className={`whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium ${TAG_CLASS[t] ?? "border-line text-muted"}`}>
                         {TAG_LABELS[t] ?? t}
+                        {t === "extreme" && (m.ex_cleared?.length ?? 0) > 0 && (
+                          <small className="ml-1 opacity-75">
+                            {m.ex_cleared!.length}/{extremes.length || "?"}
+                          </small>
+                        )}
                       </span>
                     ))}
                     {(ov?.lfg ?? []).map((k) => {

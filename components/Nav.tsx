@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import AuthButton from "@/components/AuthButton";
@@ -13,10 +14,21 @@ const TABS = [
 
 export default function Nav() {
   const pathname = usePathname();
+  // Falls back to the text wordmark if public/logo.png is missing, so the header is
+  // never a broken image.
+  const [logoBroken, setLogoBroken] = useState(false);
   return (
     <nav className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5 border-b border-line py-4">
-      <Link href="/" className="font-data text-[11px] uppercase tracking-[0.22em] text-amber no-underline">
-        Cafe And SHabu
+      <Link href="/" className="flex items-center no-underline">
+        {logoBroken ? (
+          <span className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">
+            Cafe And SHabu
+          </span>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src="/logo.png" alt="Cafe And SHabu" className="h-8 w-auto"
+               onError={() => setLogoBroken(true)} />
+        )}
       </Link>
       <div className="flex flex-wrap items-center gap-1.5">
         {TABS.map((t) => {
