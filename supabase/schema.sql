@@ -18,6 +18,17 @@ create table public.profiles (
 
 alter table public.profiles enable row level security;
 
+-- ─── helper: ผู้ใช้ปัจจุบันเป็นแอดมินไหม ─────────────────────
+create or replace function public.is_admin()
+returns boolean
+language sql stable security definer set search_path = public
+as $$
+  select coalesce(
+    (select is_admin from public.profiles where id = auth.uid()),
+    false
+  );
+$$;
+
 -- ทุกคนอ่านโปรไฟล์ได้ (เอาไปโชว์บนกระดาน)
 create policy "profiles: read for everyone"
   on public.profiles for select using (true);
@@ -59,17 +70,6 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
-
--- ─── helper: ผู้ใช้ปัจจุบันเป็นแอดมินไหม ─────────────────────
-create or replace function public.is_admin()
-returns boolean
-language sql stable security definer set search_path = public
-as $$
-  select coalesce(
-    (select is_admin from public.profiles where id = auth.uid()),
-    false
-  );
-$$;
 
 -- ─── ข้อมูล override รายตัวละคร (แอดมินคุมกระดาน) ────────────
 create table public.member_overrides (
