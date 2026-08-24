@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { TAG_CLASS, TAG_LABELS } from "@/components/MemberTags";
 
 export interface AchievementInfo {
   name: string | null;
@@ -11,9 +12,11 @@ export interface AchievementInfo {
   patch: string | null;
   points: number | null;
   title: string | null;
+  /** The playstyle tag this achievement counts toward, if any. */
+  bucket?: string | null;
 }
 
-const SHOW_FIRST = 8;
+const SHOW_FIRST = 10;
 
 /** Rarer reads hotter. Thresholds follow FFXIV Collect's own ownership percentages. */
 function rarityColor(pct: number | null): string {
@@ -44,7 +47,7 @@ export default function RareAchievements(
       <h2 className="mb-2 font-display text-lg font-semibold">
         Rarest achievements{" "}
         <span className="text-[13px] font-normal text-muted">
-          ({items.length} shown, rarest first)
+          ({items.length} shown, rarest first · the chip names the playstyle it counts toward)
         </span>
       </h2>
       <div className="grid gap-2 sm:grid-cols-2">
@@ -62,11 +65,21 @@ export default function RareAchievements(
               <div className="truncate text-[13.5px] text-ink" title={a.name ?? ""}>
                 {a.name ?? "—"}
               </div>
-              <div className="truncate text-[11.5px] text-muted">
-                {[a.category, a.patch && `patch ${a.patch}`].filter(Boolean).join(" · ")}
-                {a.title && (
-                  <span className="text-gold"> · title &ldquo;{a.title}&rdquo;</span>
+              <div className="flex flex-wrap items-center gap-x-1.5 text-[11.5px] text-muted">
+                {a.bucket && (
+                  // Names the playstyle tag this one feeds, so the connection between
+                  // "Legendary relic grinder" and the achievements behind it is visible.
+                  <span className={`rounded-full border px-1.5 py-[1px] text-[10px] ${
+                    TAG_CLASS[a.bucket] ?? "border-line text-muted"}`}>
+                    {TAG_LABELS[a.bucket] ?? a.bucket}
+                  </span>
                 )}
+                <span className="truncate">
+                  {[a.category, a.patch && `patch ${a.patch}`].filter(Boolean).join(" · ")}
+                  {a.title && (
+                    <span className="text-gold"> · title &ldquo;{a.title}&rdquo;</span>
+                  )}
+                </span>
               </div>
             </div>
             <div className="shrink-0 text-right font-data text-[12.5px] font-semibold"

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { NOTICE_KEY } from "@/components/home/ShowYourData";
 
 interface Option { id: number; name: string }
 interface Announcement { id: number; title: string; body: string | null; created_at: string }
@@ -28,6 +29,8 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
   const [serverId, setServerId] = useState("");
   const [invite, setInvite] = useState("");
+  // Defaults to on, matching the notice itself: no row means nobody has retired it yet.
+  const [noticeOn, setNoticeOn] = useState(true);
 
   const [overrides, setOverrides] = useState<Override[]>([]);
   const [pick, setPick] = useState("");
@@ -60,6 +63,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
     for (const r of s.data ?? []) {
       if (r.key === "discord_server_id") setServerId(r.value ?? "");
       if (r.key === "discord_invite_url") setInvite(r.value ?? "");
+      if (r.key === NOTICE_KEY) setNoticeOn(r.value !== "off");
     }
     setOverrides((o.data as Override[]) ?? []);
     setClaims((c.data as ClaimedProfile[]) ?? []);
@@ -125,6 +129,39 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
             className="rounded-lg border border-amber bg-amber/15 px-4 py-2 text-amber hover:bg-amber/25">
             Save
           </button>
+        </div>
+      </section>
+
+      {/* ── The how-to notice on the front page ── */}
+      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
+        <div className="font-display font-semibold">
+          &ldquo;Want your data on the board?&rdquo; notice
+        </div>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+          The bilingual walkthrough on the home page telling members how to make
+          their achievements public and register on FFXIV Collect. Worth retiring
+          once most of the FC has done it, so the front page is not permanently
+          nagging people who already have.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={async () => {
+              const next = noticeOn ? "off" : "on";
+              const { error } = await supabase!.from("site_settings").upsert([
+                { key: NOTICE_KEY, value: next, updated_at: new Date().toISOString() },
+              ]);
+              if (!error) setNoticeOn(!noticeOn);
+              flash(error ? "Save failed (has migration_v2.sql been run?)"
+                          : next === "on" ? "Notice is showing" : "Notice hidden");
+            }}
+            className={`rounded-lg border px-4 py-2 ${
+              noticeOn ? "border-amber bg-amber/15 text-amber hover:bg-amber/25"
+                       : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+            {noticeOn ? "Showing on the home page" : "Hidden"}
+          </button>
+          <span className="text-[12.5px] text-muted">
+            {noticeOn ? "Click to hide it" : "Click to show it again"}
+          </span>
         </div>
       </section>
 

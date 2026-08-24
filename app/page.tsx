@@ -6,6 +6,7 @@ import Announcements from "@/components/Announcements";
 import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
 import BirthdaysToday from "@/components/home/BirthdaysToday";
+import ShowYourData from "@/components/home/ShowYourData";
 import type { BoardData, FeedEvent, Member, NewsItem } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
 import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
@@ -116,6 +117,12 @@ export default function Home() {
 
       <Announcements />
       <DiscordCard />
+
+      <ShowYourData
+        known={members.filter((m) => m.mounts != null).length}
+        total={members.length}
+        publicAchv={members.filter((m) => m.ach_public === true).length}
+      />
 
       <BirthdaysToday members={members} />
 

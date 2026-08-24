@@ -57,7 +57,7 @@ CONFIG = {
 
     # Tag thresholds
     "rare_pct": 10.0,
-    "rare_show": 24,           # rarest achievements kept per member for their profile
+    "rare_show": 100,          # rarest achievements kept per member for their profile
 
     # Feed
     "feed_max": 200,
@@ -1066,6 +1066,9 @@ def build_achievements(members: list[dict], rarity: dict[int, dict]) -> None:
             "icon": info.get("icon"), "category": info.get("category"),
             "type": info.get("type"), "patch": info.get("patch"),
             "points": info.get("points"), "title": info.get("title"),
+            # Which playstyle tag this one feeds, so the page can show why it counts
+            # rather than leaving the connection to the tags implicit.
+            "bucket": achv_bucket(info),
         }
     save_json("achv.json", {"catalog": catalog, "members": per})
     log(f"Rare achievements — {len(per)} members, {len(catalog)} distinct achievements")
