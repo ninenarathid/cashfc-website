@@ -2,11 +2,15 @@ name: Update FC data
 
 on:
   schedule:
-    - cron: "30 20 * * *"   # 20:30 UTC = 03:30 น. เวลาไทย ทุกวัน
+    - cron: "30 20 * * *"   # 20:30 UTC = 03:30 Asia/Bangkok, daily
   workflow_dispatch:
     inputs:
       full_history:
-        description: "กวาด savage ทุก tier ย้อนหลัง"
+        description: "Sweep every savage tier ever released"
+        type: boolean
+        default: false
+      full_extras:
+        description: "Fetch nameday + race/clan for the whole roster in one run"
         type: boolean
         default: false
 
@@ -40,13 +44,17 @@ jobs:
           FFLOGS_CLIENT_SECRET: ${{ secrets.FFLOGS_CLIENT_SECRET }}
         run: |
           FLAGS=""
-          # วันอาทิตย์ หรือติ๊ก full_history ตอนกด Run เอง -> กวาด savage ทุก tier
+          # Sunday, or full_history ticked on a manual run -> sweep every savage tier
           if [ "$(date -u +%u)" = "7" ] || [ "${{ inputs.full_history }}" = "true" ]; then
-            FLAGS="--full-history"
+            FLAGS="$FLAGS --full-history"
+          fi
+          # full_extras ticked -> fetch race/clan + nameday for the whole roster at once
+          if [ "${{ inputs.full_extras }}" = "true" ]; then
+            FLAGS="$FLAGS --full-extras"
           fi
           python pipeline/update_members.py $FLAGS
 
-      # commit ข้อมูลใหม่ -> push -> Vercel redeploy อัตโนมัติ
+      # commit new data -> push -> Vercel redeploys automatically
       - name: Commit & push if changed
         run: |
           git config user.name "fc-board-bot"
