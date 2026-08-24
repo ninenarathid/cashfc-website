@@ -2,7 +2,12 @@ name: Update FC data
 
 on:
   schedule:
-    - cron: "30 20 * * *"   # 20:30 UTC = 03:30 Asia/Bangkok, daily
+    # Every four hours. FF Logs allows 3,600 points an hour and a run costs about
+    # nine per member-zone, so one run reaches roughly 80 of 502 members; six runs a
+    # day is what keeps the whole roster fresh. Each run resumes where the last
+    # stopped, and the slower-moving sources (FFXIV Collect, Lalachievements) refresh
+    # about once a day from cache rather than on every run.
+    - cron: "30 */4 * * *"
   workflow_dispatch:
     inputs:
       full_history:
@@ -49,8 +54,10 @@ jobs:
           FFLOGS_CLIENT_SECRET: ${{ secrets.FFLOGS_CLIENT_SECRET }}
         run: |
           FLAGS=""
-          # Sunday, or full_history ticked on a manual run -> sweep every savage tier
-          if [ "$(date -u +%u)" = "7" ] || [ "${{ inputs.full_history }}" = "true" ]; then
+          # Only when asked. The weekly automatic sweep is gone: --full-history spends
+          # the whole hourly FF Logs budget on a couple of dozen members and stalls the
+          # rotating backfill that actually covers the roster.
+          if [ "${{ inputs.full_history }}" = "true" ]; then
             FLAGS="$FLAGS --full-history"
           fi
           # full_extras ticked -> fetch race/clan + nameday for the whole roster at once

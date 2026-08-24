@@ -5,7 +5,9 @@ import newsRaw from "@/data/news.json";
 import Announcements from "@/components/Announcements";
 import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
+import BirthdaysToday from "@/components/home/BirthdaysToday";
 import type { BoardData, FeedEvent, Member, NewsItem } from "@/lib/types";
+import { isOnVacation } from "@/lib/types";
 
 const FEED_ICON: Record<string, string> = {
   parse_up: "📈", boss_clear: "⚔️", ult_clear: "🏆", mounts_up: "🐎",
@@ -25,15 +27,19 @@ export default function Home() {
   const members = data.members;
   const count = (t: string) => members.filter((m) => m.tags.includes(t)).length;
 
-  // Member of the day — seeded from the data's own date so everyone sees the same person
+  // Member of the day. A hash of the date picked at random, so some members came up
+  // twice while others never appeared; walking a fixed shuffle by day number instead
+  // gives every active member exactly one turn before anyone repeats. The shuffle is
+  // seeded from character ids, so the order is stable and everyone sees the same
+  // person on the same day.
   const dateSeed = (data.generated_at ?? "").slice(0, 10);
-  const spot: Member = members[hashStr(dateSeed) % Math.max(members.length, 1)];
-
-  // Today's namedays, keyed off the generation date so they roll over with the pipeline
-  const gen = new Date(data.generated_at);
-  const todayNamedays = members.filter(
-    (m) => m.nameday?.month === gen.getUTCMonth() + 1 &&
-           m.nameday?.day === gen.getUTCDate());
+  const dayNumber = Math.floor(Date.parse(`${dateSeed}T00:00:00Z`) / 86_400_000);
+  const rotation = members
+    .filter((m) => !isOnVacation(m))
+    .sort((a, b) => hashStr(String(a.id)) - hashStr(String(b.id)));
+  const spot: Member | undefined = rotation.length
+    ? rotation[((dayNumber % rotation.length) + rotation.length) % rotation.length]
+    : undefined;
 
   return (
     <main>
@@ -78,22 +84,7 @@ export default function Home() {
       <Announcements />
       <DiscordCard />
 
-      {todayNamedays.length > 0 && (
-        <section className="mt-5 rounded-xl border border-gold/40 bg-gold/8 px-4 py-3">
-          <span className="font-display font-semibold text-gold">
-            🎂 Nameday today:{" "}
-          </span>
-          {todayNamedays.map((m, i) => (
-            <span key={m.id}>
-              {i > 0 && " · "}
-              <Link href={`/member/${m.id}`} className="text-ink no-underline hover:text-gold">
-                {m.name}
-              </Link>
-            </span>
-          ))}
-          <span className="text-[13px] text-muted"> — go wish them well!</span>
-        </section>
-      )}
+      <BirthdaysToday members={members} />
 
       {/* ── Activity feed + Timeline ── */}
       <div className="mt-6 grid gap-8 md:grid-cols-2">

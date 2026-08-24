@@ -82,6 +82,13 @@ CONFIG = {
     "lala_delay": 0.6,
     "lala_passes": 2,          # retry sweeps per run for ids that errored
     "lala_active_days": 90,    # "did something in the last N days" = active
+
+    # The schedule runs every few hours so FFLogs coverage can accumulate, but these
+    # two sources describe slow-moving collections. Re-reading them every run would
+    # mean ~1,500 third-party requests every few hours for data that barely changes,
+    # so they refresh roughly daily and other runs use the cache.
+    "collect_max_age_h": 20,
+    "lala_max_age_h": 20
 }
 
 # Boss labels for older tiers: matched on zone name (substring) -> (prefix, first number)
@@ -111,6 +118,37 @@ EXTREME_PATTERN = "(extreme)"
 
 # FC rank meaning "not playing at the moment".
 ON_VACATION_RANK = "On vacation"
+
+# Rare achievements sorted into playstyles, so the board reflects that this game is
+# not only raiding. Matched against FFXIV Collect's own type and category names, in
+# order — first match wins, which is why gathering sits above crafting (both share
+# the "Crafting & Gathering" type) and relics above the rest of "Items".
+# Counts come from the ~1,700 achievements owned by 10% of players or fewer.
+ACHV_BUCKETS: list[tuple[str, dict]] = [
+    ("gatherer",   {"categories": {"Fisher", "Miner", "Botanist", "Gathering"}}),
+    ("crafter",    {"types": {"Crafting & Gathering"}}),
+    ("relic",      {"types": {"Items"}, "contains": ("Weapons", "Tools")}),
+    ("explorer",   {"types": {"Exploration"}, "categories": {"Field Operations"}}),
+    ("treasure",   {"categories": {"Treasure Hunt", "The Hunt"}}),
+    ("goldsaucer", {"categories": {"Gold Saucer"}}),
+    ("seasonal",   {"categories": {"Seasonal Events"}}),
+    ("pvp",        {"types": {"PvP"}}),
+    ("oldtimer",   {"types": {"Legacy"}}),
+]
+
+
+def achv_bucket(info: dict) -> str | None:
+    """Which playstyle a rare achievement belongs to, or None if it fits nowhere."""
+    cat = info.get("category") or ""
+    typ = info.get("type") or ""
+    for name, rule in ACHV_BUCKETS:
+        if cat in rule.get("categories", ()):
+            return name
+        if typ in rule.get("types", ()):
+            if "contains" in rule and not any(w in cat for w in rule["contains"]):
+                continue
+            return name
+    return None
 
 
 def active_first(members: list[dict]) -> list[dict]:
@@ -446,18 +484,18 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                             "cleared": e["kills"] > 0,
                         })
                 elif zid in ult_ids:
+                    # One row per ultimate, not per zone: "Ultimates (Legacy)" holds
+                    # five separate fights, and rolling them into a single entry threw
+                    # away which ones a member had actually cleared.
                     encs, _ = encounters_from_blob(zblob, None)
-                    best = max((e["best"] for e in encs if e["best"] is not None),
-                               default=None)
-                    kills = sum(e["kills"] for e in encs)
-                    if kills > 0 or best is not None:
+                    for e in encs:
                         has_any = True
                         new_ults.append({
                             "zone": z["name"], "zone_id": zid,
                             "expansion": z.get("expansion"),
-                            "best": best, "kills": kills,
-                            "job": next((e["job"] for e in encs if e["job"]), None),
-                            "cleared": kills > 0,
+                            "name": e["name"], "best": e["best"],
+                            "kills": e["kills"], "job": e["job"],
+                            "cleared": e["kills"] > 0,
                         })
                 else:
                     is_current = zid == current["id"]
@@ -489,7 +527,7 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                                    ("zone", "zone_id", "expansion", "encounters")})
                 entry.pop("current", None)
 
-            new_ults.sort(key=lambda u: u["zone_id"], reverse=True)
+            new_ults.sort(key=lambda u: (-u["zone_id"], u.get("name") or ""))
             new_ex.sort(key=lambda e: (-e["zone_id"], e["name"] or ""))
             legacy.sort(key=lambda lz: lz["zone_id"], reverse=True)
             entry["ultimates"] = new_ults
@@ -548,7 +586,11 @@ def summarize_raids(m: dict, raids: dict) -> None:
             best = max(best or 0, e["best"])
     m["parse"] = best
     m["savage_kills"] = sum(1 for c in cur.get("clears", []) if c)
-    m["ult_clears"] = sum(1 for u in entry.get("ultimates", []) if u.get("cleared"))
+    ults = entry.get("ultimates", [])
+    m["ult_clears"] = sum(1 for u in ults if u.get("cleared"))
+    # Named, so the board can say which ultimates without loading raids.json.
+    m["ult_cleared"] = sorted({u["name"] for u in ults
+                               if u.get("cleared") and u.get("name")})
     m["current_clears"] = cur.get("clears") or None
 
     # Extreme trials of the current patch: the board filters on individual fights, so
@@ -593,7 +635,35 @@ def collect_rarity_map() -> dict[int, dict]:
     return out
 
 
-def run_collect(members: list[dict], rarity: dict[int, dict], delay: float) -> None:
+COLLECT_FIELDS = ("mounts", "minions", "rare_achv", "craft_achv", "pvp_achv",
+                  "ach_public", "portrait")
+
+
+def hydrate_collect(members: list[dict], cache: dict) -> int:
+    """Fill collection stats in from the last fetch instead of hitting the API.
+
+    members.json is rebuilt from scratch every run, so a stage that does not run
+    would otherwise blank the fields it owns. Caching them is what lets the schedule
+    run often for FFLogs progress without re-asking FFXIV Collect about 502
+    characters each time — their mount and minion counts do not move by the hour.
+    """
+    hit = 0
+    for m in members:
+        c = cache.get(str(m["id"]))
+        if not c:
+            m.update({k: None for k in COLLECT_FIELDS})
+            continue
+        for k in COLLECT_FIELDS:
+            m[k] = c.get(k)
+        m["achv_buckets"] = dict(c.get("achv_buckets") or {})
+        if c.get("rare_ids"):
+            m["_rare_ids"] = list(c["rare_ids"])
+        hit += 1
+    return hit
+
+
+def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
+                cache: dict) -> None:
     for i, m in enumerate(active_first(members), 1):
         m.update({"mounts": None, "minions": None, "rare_achv": None,
                   "craft_achv": None, "pvp_achv": None,
@@ -613,6 +683,7 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float) -> N
             ids = ach.get("ids") or []
             if m["ach_public"] and ids:
                 rare = craft = pvp = 0
+                buckets: dict[str, int] = {}
                 rarest: list[tuple[float, int]] = []
                 for aid in ids:
                     info = rarity.get(aid)
@@ -621,11 +692,18 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float) -> N
                     if info["pct"] is not None and info["pct"] <= CONFIG["rare_pct"]:
                         rare += 1
                         rarest.append((info["pct"], aid))
+                        # Playstyle buckets count rare achievements only: everyone
+                        # trips over the common ones, so they say nothing about how
+                        # someone actually spends their time.
+                        b = achv_bucket(info)
+                        if b:
+                            buckets[b] = buckets.get(b, 0) + 1
                     if info["type"] == "Crafting & Gathering":
                         craft += 1
                     elif info["type"] == "PvP":
                         pvp += 1
                 m["rare_achv"], m["craft_achv"], m["pvp_achv"] = rare, craft, pvp
+                m["achv_buckets"] = buckets
                 # Rarest first, capped: a member can hold hundreds under 10%, and the
                 # profile page only shows a shelf of them. Underscore-prefixed so it
                 # is dropped before members.json is written.
@@ -633,6 +711,10 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float) -> N
                 m["_rare_ids"] = [aid for _, aid in rarest[: CONFIG["rare_show"]]]
         except Exception as ex:
             log(f"Collect error @ {m['name']}: {ex}")
+        else:
+            cache[str(m["id"])] = {**{k: m.get(k) for k in COLLECT_FIELDS},
+                                   "rare_ids": m.get("_rare_ids") or [],
+                                   "achv_buckets": m.get("achv_buckets") or {}}
         if i % 50 == 0:
             log(f"FFXIV Collect — {i}/{len(members)} members")
         time.sleep(delay)
@@ -711,9 +793,15 @@ def run_lalachievements(members: list[dict], extra: dict) -> None:
     log(f"Lalachievements — {stats['ok']} fetched this run, "
         f"{stats['adding']} queued for indexing, {stats['failed']} unavailable; "
         f"{len(store)}/{len(members)} known in total")
+    inject_lala(members, store)
 
-    # Inject onto members. Kept even for characters this run could not reach, because
-    # a previous run may have stored them.
+
+def inject_lala(members: list[dict], store: dict) -> None:
+    """Copy stored Lalachievements values onto members.
+
+    Separate from the fetch so a run that skips the fetch still shows what earlier
+    runs collected, rather than dropping last_active for everyone.
+    """
     for m in members:
         s = store.get(str(m["id"])) or {}
         m["last_active"] = (time.strftime("%Y-%m-%d", time.gmtime(s["last_active"]))
@@ -796,10 +884,17 @@ def assign_tags(members: list[dict]) -> None:
     mount_cut = _cut([m.get("mounts") for m in members], 80)
     minion_cut = _cut([m.get("minions") for m in members], 80)
     rare_cut = _cut([m.get("rare_achv") for m in members], 80)
-    craft_cut = _cut([m.get("craft_achv") for m in members], 90)
-    pvp_cut = _cut([m.get("pvp_achv") for m in members], 90)
-    log(f"Tag cutoffs from this roster — mounts>={mount_cut} rare>={rare_cut} "
-        f"craft>={craft_cut} pvp>={pvp_cut}")
+
+    # One cutoff per playstyle, taken across only the members who have any of that
+    # kind at all. A shared threshold would be meaningless: 84 rare relic
+    # achievements exist against 33 for Gold Saucer, so the same number means very
+    # different things depending on the bucket.
+    bucket_cut = {
+        name: _cut([(m.get("achv_buckets") or {}).get(name) for m in members], 70)
+        for name, _ in ACHV_BUCKETS
+    }
+    log(f"Tag cutoffs from this roster — mounts>={mount_cut} rare>={rare_cut} · "
+        + " ".join(f"{k}>={v}" for k, v in bucket_cut.items() if v != float("inf")))
 
     for m in members:
         tags = []
@@ -827,10 +922,10 @@ def assign_tags(members: list[dict]) -> None:
             tags.append("collector")
         if (m.get("rare_achv") or 0) >= rare_cut:
             tags.append("achiever")
-        if (m.get("craft_achv") or 0) >= craft_cut:
-            tags.append("crafter")
-        if (m.get("pvp_achv") or 0) >= pvp_cut:
-            tags.append("pvp")
+        for name, _ in ACHV_BUCKETS:
+            n = (m.get("achv_buckets") or {}).get(name) or 0
+            if n and n >= bucket_cut[name]:
+                tags.append(name)
 
         if not tags:
             blind = (m.get("fflogs") in ("hidden", "none", "skipped", "error", "pending")
@@ -1076,6 +1171,10 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--nameday-batch", type=int, default=CONFIG["nameday_batch"])
     ap.add_argument("--collect-delay", type=float, default=CONFIG["delay_collect"])
+    ap.add_argument("--collect-max-age", type=float, default=CONFIG["collect_max_age_h"],
+                    help="hours before FFXIV Collect is re-fetched (0 = every run)")
+    ap.add_argument("--lala-max-age", type=float, default=CONFIG["lala_max_age_h"],
+                    help="hours before Lalachievements is re-fetched (0 = every run)")
     ap.add_argument("--list-zones", action="store_true")
     ap.add_argument("--out", default=os.path.join(DATA_DIR, "members.json"))
     args = ap.parse_args()
@@ -1109,21 +1208,44 @@ def main() -> None:
         summarize_raids(m, raids)
     save_json("raids.json", raids)
 
+    # Collection stats change slowly, and the schedule runs often so FFLogs coverage
+    # can catch up. Re-asking FFXIV Collect about 502 characters every run would be
+    # rude for data that barely moves, so it refreshes at most once a day and every
+    # other run reads the cache.
+    extra = load_json("extra.json", {})
+    state = extra.setdefault("pipeline", {})
+    collect_cache = extra.setdefault("collect", {})
+    fresh = (time.time() - float(state.get("collect_at") or 0)) < args.collect_max_age * 3600
+    refresh_collect = not args.skip_collect and (not fresh or not collect_cache)
+
     rarity: dict[int, dict] = {}
-    if args.skip_collect:
-        for m in members:
-            m.update({"mounts": None, "minions": None, "rare_achv": None,
-                      "craft_achv": None, "pvp_achv": None,
-                      "ach_public": None, "portrait": None})
-    else:
+    if refresh_collect:
         rarity = collect_rarity_map()
-        run_collect(members, rarity, args.collect_delay)
-    build_achievements(members, rarity)
+        run_collect(members, rarity, args.collect_delay, collect_cache)
+        state["collect_at"] = time.time()
+        save_json("extra.json", extra)
+        build_achievements(members, rarity)
+    else:
+        hit = hydrate_collect(members, collect_cache)
+        log(f"FFXIV Collect — reused cached stats for {hit}/{len(members)} members"
+            + (" (--skip-collect)" if args.skip_collect else ""))
+        for m in members:
+            m.pop("_rare_ids", None)   # achv.json is already correct; leave it alone
 
     build_character_extras(members, args.nameday_batch, args.full_extras)
 
-    if not args.skip_lala:
-        run_lalachievements(members, load_json("extra.json", {}))
+    # Same reasoning, and this one accumulates in extra.json anyway: members already
+    # fetched keep their values, so a skipped run costs nothing but freshness.
+    extra = load_json("extra.json", {})
+    state = extra.setdefault("pipeline", {})
+    lala_fresh = (time.time() - float(state.get("lala_at") or 0)) < args.lala_max_age * 3600
+    if not args.skip_lala and not lala_fresh:
+        run_lalachievements(members, extra)
+        state["lala_at"] = time.time()
+        save_json("extra.json", extra)
+    else:
+        inject_lala(members, extra.get("lala") or {})
+        log(f"Lalachievements — reused {len(extra.get('lala') or {})} cached entries")
 
     # After every source has reported, so the cutoffs see the real distribution.
     assign_tags(members)

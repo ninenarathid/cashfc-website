@@ -27,6 +27,10 @@ export interface Member {
   last_change?: string | null;
   /** Current-patch extreme trials this member has cleared, by boss name. */
   ex_cleared?: string[] | null;
+  /** Ultimates cleared, by full encounter name — abbreviate with ultimateAbbr(). */
+  ult_cleared?: string[] | null;
+  /** Rare-achievement counts per playstyle bucket, keyed as the pipeline names them. */
+  achv_buckets?: Record<string, number> | null;
   ex_kills?: number | null;
   /** Kills recorded in savage tiers older than the current one. */
   legacy_clears?: number | null;
@@ -51,6 +55,12 @@ export interface RaidZone {
 }
 export interface UltimateEntry {
   zone: string; zone_id: number; expansion?: string | null;
+  /**
+   * The individual fight. Absent in data written before ultimates were split per
+   * encounter, where `zone` was all there was — and a zone called "Ultimates
+   * (Legacy)" covers five different fights, so prefer this whenever it is present.
+   */
+  name?: string | null;
   best: number | null; kills: number; job: string | null; cleared: boolean;
 }
 export interface ExtremeEntry {
@@ -124,6 +134,24 @@ export const RANK_ORDER = [
 export const ON_VACATION_RANK = "On vacation";
 
 export const isOnVacation = (m: Member): boolean => m.rank === ON_VACATION_RANK;
+
+/**
+ * Community shorthand for each Ultimate. FF Logs reports full encounter names, but
+ * nobody says "The Unending Coil of Bahamut" out loud.
+ */
+export const ULTIMATE_ABBR: Record<string, string> = {
+  "The Unending Coil of Bahamut": "UCOB",
+  "The Weapon's Refrain": "UWU",
+  "The Epic of Alexander": "TEA",
+  "Dragonsong's Reprise": "DSR",
+  "The Omega Protocol": "TOP",
+  "Futures Rewritten": "FRU",
+};
+
+export const ultimateAbbr = (name: string): string =>
+  ULTIMATE_ABBR[name] ??
+  // Unknown or newly released: initials beat printing the whole title.
+  name.replace(/^The\s+/i, "").split(/\s+/).map((w) => w[0]).join("").toUpperCase();
 
 /** Playable races, in the order Lodestone lists them. */
 export const RACE_ORDER = [

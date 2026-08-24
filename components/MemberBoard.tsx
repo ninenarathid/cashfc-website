@@ -3,15 +3,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { BoardData, Member, Overlay } from "@/lib/types";
-import { LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation, ON_VACATION_RANK } from "@/lib/types";
+import {
+  LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation, ON_VACATION_RANK, ultimateAbbr,
+} from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 
-// Order matters: this is the order the filter chips appear in.
+// Order matters: this is the order the filter chips appear in. Raid standing first,
+// then the playstyles derived from rare achievements — this game is not only raiding,
+// and the board should not read as though it were.
 const TAG_LABELS: Record<string, string> = {
   all: "All",
   "tier-clear": "Tier cleared", prog: "Progging", raider: "Raider",
   ultimate: "Ultimate", veteran: "Veteran", extreme: "Extreme",
-  collector: "Collector", achiever: "Achiever", crafter: "Crafter", pvp: "PvP",
+  collector: "Collector", achiever: "Achiever",
+  crafter: "Crafter", gatherer: "Gatherer", relic: "Relic grinder",
+  explorer: "Explorer", treasure: "Treasure hunter", goldsaucer: "Gold Saucer",
+  seasonal: "Seasonal", pvp: "PvP", oldtimer: "Old-timer",
   casual: "Casual", unknown: "No data",
 };
 const TAG_HELP: Record<string, string> = {
@@ -22,9 +29,16 @@ const TAG_HELP: Record<string, string> = {
   veteran: "Cleared savage or Ultimate content, but not this tier",
   extreme: "Cleared at least one extreme trial this patch",
   collector: "Top 20% of the FC for mounts or minions",
-  achiever: "Top 20% of the FC for rare achievements",
-  crafter: "Top 10% of the FC for crafting achievements",
-  pvp: "Top 10% of the FC for PvP achievements",
+  achiever: "Top 20% of the FC for rare achievements overall",
+  crafter: "Rare crafting achievements — top 30% of everyone who has any",
+  gatherer: "Rare fishing, mining and botany achievements — top 30%",
+  relic: "Rare relic weapon and tool achievements — top 30%",
+  explorer: "Rare Eureka, Bozja and exploration achievements — top 30%",
+  treasure: "Rare treasure map and hunt achievements — top 30%",
+  goldsaucer: "Rare Gold Saucer achievements — top 30%",
+  seasonal: "Rare seasonal event achievements — top 30%",
+  pvp: "Rare PvP achievements — top 30%",
+  oldtimer: "Rare legacy achievements from the game's early years — top 30%",
   casual: "No standout stats, but some data is public",
   unknown: "Logs and achievements are both private",
 };
@@ -38,7 +52,14 @@ const TAG_CLASS: Record<string, string> = {
   collector: "border-jade/45 bg-jade/10 text-jade",
   achiever: "border-jade/30 bg-jade/5 text-jade/85",
   crafter: "border-copper/50 bg-copper/10 text-copper",
+  gatherer: "border-[#6aa84f]/50 bg-[#6aa84f]/10 text-[#93c47d]",
+  relic: "border-[#b07ce8]/50 bg-[#b07ce8]/10 text-[#c9a8f0]",
+  explorer: "border-[#4fa8b8]/50 bg-[#4fa8b8]/10 text-[#7fc7d4]",
+  treasure: "border-[#d9a441]/45 bg-[#d9a441]/10 text-[#e3bd76]",
+  goldsaucer: "border-[#e07bb0]/45 bg-[#e07bb0]/10 text-[#efa5cb]",
+  seasonal: "border-[#8fa3d9]/45 bg-[#8fa3d9]/10 text-[#b0bee6]",
   pvp: "border-steel/45 bg-steel/10 text-steel",
+  oldtimer: "border-[#a58b6a]/50 bg-[#a58b6a]/10 text-[#c2ac91]",
   casual: "border-line text-muted",
   unknown: "border-dashed border-line text-muted",
 };
@@ -554,17 +575,25 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     )}
                   </div>
                   <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-start-auto">
-                    {m.tags.map((t) => (
-                      <span key={t} title={TAG_HELP[t] ?? ""}
-                            className={`whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium ${TAG_CLASS[t] ?? "border-line text-muted"}`}>
-                        {TAG_LABELS[t] ?? t}
-                        {t === "extreme" && (m.ex_cleared?.length ?? 0) > 0 && (
-                          <small className="ml-1 opacity-75">
-                            {m.ex_cleared!.length}/{extremes.length || "?"}
-                          </small>
-                        )}
-                      </span>
-                    ))}
+                    {m.tags.map((t) => {
+                      const ults = m.ult_cleared ?? [];
+                      // Which Ultimates, not just that there were some: UCOB and FRU
+                      // are worlds apart and the shorthand is what people use.
+                      const abbr = t === "ultimate" && ults.length
+                        ? ults.map(ultimateAbbr) : null;
+                      return (
+                        <span key={t}
+                              title={abbr ? `Cleared: ${ults.join(", ")}` : (TAG_HELP[t] ?? "")}
+                              className={`whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium ${TAG_CLASS[t] ?? "border-line text-muted"}`}>
+                          {abbr ? abbr.join(" · ") : (TAG_LABELS[t] ?? t)}
+                          {t === "extreme" && (m.ex_cleared?.length ?? 0) > 0 && (
+                            <small className="ml-1 opacity-75">
+                              {m.ex_cleared!.length}/{extremes.length || "?"}
+                            </small>
+                          )}
+                        </span>
+                      );
+                    })}
                     {(ov?.lfg ?? []).map((k) => {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
                       return o ? (

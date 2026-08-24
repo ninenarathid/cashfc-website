@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import type { Member, MemberRaids, Overlay, RaidZone } from "@/lib/types";
-import { LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday } from "@/lib/types";
+import {
+  LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday, ultimateAbbr,
+} from "@/lib/types";
 import { computeBadges, percentile, topN } from "@/lib/badges";
 import JobBreakdown from "@/components/JobBreakdown";
 import RareAchievements, { type AchievementInfo } from "@/components/RareAchievements";
@@ -344,27 +346,41 @@ export default function MemberView({
         <section className="mt-6">
           <h2 className="mb-2 font-display text-lg font-semibold">Ultimates</h2>
           <div className="flex flex-col gap-2">
-            {raids!.ultimates!.map((u) => (
-              <div key={u.zone_id}
-                   className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-2.5">
-                <div className="min-w-0">
-                  <span className="font-data text-[14px] font-semibold text-ink">{u.zone}</span>
-                  {u.cleared && (
-                    <span className="ml-2 rounded-full border border-gold/50 bg-gold/10 px-2 py-[2px] text-[11px] text-gold">
-                      🏆 Legend
+            {raids!.ultimates!.map((u, i) => {
+              // Prefer the fight name over the zone: FF Logs groups five different
+              // Ultimates under zones named "Ultimates", "Ultimates (Legacy)" and
+              // "Ultimates (Stormblood)", which say nothing about what was cleared.
+              const title = u.name ?? u.zone;
+              const short = u.name ? ultimateAbbr(u.name) : null;
+              return (
+                <div key={`${u.zone_id}-${u.name ?? i}`}
+                     className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-2.5">
+                  <div className="min-w-0">
+                    {short && (
+                      <span className="mr-2 rounded-md border border-gold/40 bg-gold/10 px-1.5 py-[1px] font-data text-[12px] font-bold text-gold">
+                        {short}
+                      </span>
+                    )}
+                    <span className="font-data text-[14px] font-semibold text-ink">
+                      {title}
                     </span>
-                  )}
-                  <div className="text-[11.5px] text-muted">
-                    {u.kills} kills{u.job ? ` · ${u.job}` : ""}
-                    {u.expansion ? ` · ${u.expansion}` : ""}
+                    {u.cleared && (
+                      <span className="ml-2 rounded-full border border-gold/50 bg-gold/10 px-2 py-[2px] text-[11px] text-gold">
+                        🏆 Legend
+                      </span>
+                    )}
+                    <div className="text-[11.5px] text-muted">
+                      {u.kills} kills{u.job ? ` · ${u.job}` : ""}
+                      {u.expansion ? ` · ${u.expansion}` : ""}
+                    </div>
+                  </div>
+                  <div className="font-data text-xl font-semibold"
+                       style={{ color: parseColor(u.best) }}>
+                    {u.best ?? "—"}
                   </div>
                 </div>
-                <div className="font-data text-xl font-semibold"
-                     style={{ color: parseColor(u.best) }}>
-                  {u.best ?? "—"}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}

@@ -27,9 +27,12 @@ export default function FcCharts({
   const anyParse = parseDist.some((p) => p.value > 0);
   const anyProg = prog.some((p) => p.cleared > 0);
   const racedTotal = raceCounts.reduce((s, r) => s + r.value, 0);
+  // Counts alone do not answer "is that a lot?" for a 502-member FC.
+  const share = (n: number, of = total) =>
+    of > 0 ? `${Math.round((n / of) * 100)}%` : "—";
 
   return (
-    <details className="mt-5 rounded-xl border border-line bg-surface open:pb-4">
+    <details open className="mt-5 rounded-xl border border-line bg-surface open:pb-4">
       <summary className="cursor-pointer select-none px-4 py-3 font-display font-semibold marker:text-amber">
         📊 FC overview
       </summary>
@@ -46,7 +49,9 @@ export default function FcCharts({
                   {activity.active}
                 </span>
               </div>
-              <div className="text-xs text-muted">Active</div>
+              <div className="text-xs text-muted">
+                Active <span className="text-muted/70">· {share(activity.active)}</span>
+              </div>
             </div>
             <div className="flex-1 rounded-xl border border-line bg-card px-3 py-2.5">
               <div className="flex items-baseline gap-2">
@@ -55,7 +60,9 @@ export default function FcCharts({
                   {activity.vacation}
                 </span>
               </div>
-              <div className="text-xs text-muted">On vacation</div>
+              <div className="text-xs text-muted">
+                On vacation <span className="text-muted/70">· {share(activity.vacation)}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -79,6 +86,7 @@ export default function FcCharts({
               <span key={s.name} className="inline-flex items-center gap-1">
                 <span className="size-2 rounded-full" style={{ background: s.color }} />
                 {s.name} {s.value}
+                <span className="opacity-70">({share(s.value)})</span>
               </span>
             ))}
           </div>
@@ -107,6 +115,7 @@ export default function FcCharts({
                   <span key={s.name} className="inline-flex items-center gap-1">
                     <span className="size-2 rounded-full" style={{ background: s.color }} />
                     {s.name} {s.value}
+                    <span className="opacity-70">({share(s.value, racedTotal)})</span>
                   </span>
                 ))}
               </div>
@@ -157,7 +166,9 @@ export default function FcCharts({
               <div key={p.label}>
                 <div className="mb-0.5 flex justify-between font-data text-[12px]">
                   <span className="text-ink">{p.label}</span>
-                  <span className="text-muted">{p.cleared}/{total} cleared</span>
+                  <span className="text-muted">
+                    {p.cleared}/{total} cleared · {share(p.cleared)}
+                  </span>
                 </div>
                 <div className="h-2.5 overflow-hidden rounded-full bg-card">
                   <div
