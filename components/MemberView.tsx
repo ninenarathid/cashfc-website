@@ -7,6 +7,7 @@ import type { Member, MemberRaids, Overlay, RaidZone } from "@/lib/types";
 import { LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday } from "@/lib/types";
 import { computeBadges, percentile, topN } from "@/lib/badges";
 import JobBreakdown from "@/components/JobBreakdown";
+import RareAchievements, { type AchievementInfo } from "@/components/RareAchievements";
 import { createClient } from "@/lib/supabase/client";
 
 function parseColor(p: number | null | undefined): string {
@@ -23,10 +24,11 @@ function parseColor(p: number | null | undefined): string {
 const DEFAULT_BANNER = "linear-gradient(135deg,#241b10,#3a2c14)";
 
 export default function MemberView({
-  m, raids, tierLabels, agg, fc,
+  m, raids, tierLabels, agg, fc, rareAchievements = [],
 }: {
   m: Member;
   raids: MemberRaids | null;
+  rareAchievements?: AchievementInfo[];
   tierLabels: string[];
   agg: { mounts: (number | null)[]; minions: (number | null)[]; rare: (number | null)[] };
   fc: { name: string; world: string; region: string };
@@ -303,6 +305,8 @@ export default function MemberView({
       </section>
 
       <JobBreakdown raids={raids} />
+
+      <RareAchievements items={rareAchievements} />
 
       {/* ── Extreme trials of the current patch ── */}
       {(raids?.extremes?.length ?? 0) > 0 && (

@@ -56,6 +56,7 @@ CONFIG = {
 
     # Tag thresholds
     "rare_pct": 10.0,
+    "rare_show": 24,           # rarest achievements kept per member for their profile
     "collector_rare_min": 5,
     "collector_mounts_min": 300,
     "crafter_achv_min": 120,
@@ -555,7 +556,16 @@ def collect_rarity_map() -> dict[int, dict]:
             pct = float(str(a.get("owned", "")).replace("%", ""))
         except ValueError:
             pct = None
-        out[a["id"]] = {"pct": pct, "type": (a.get("type") or {}).get("name")}
+        out[a["id"]] = {
+            "pct": pct,
+            "type": (a.get("type") or {}).get("name"),
+            "name": a.get("name"),
+            "icon": a.get("icon"),
+            "category": (a.get("category") or {}).get("name"),
+            "patch": a.get("patch"),
+            "points": a.get("points"),
+            "title": ((a.get("reward") or {}).get("title") or {}).get("name"),
+        }
     log(f"FFXIV Collect — achievement reference list: {len(out)} entries")
     return out
 
@@ -580,17 +590,24 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float) -> N
             ids = ach.get("ids") or []
             if m["ach_public"] and ids:
                 rare = craft = pvp = 0
+                rarest: list[tuple[float, int]] = []
                 for aid in ids:
                     info = rarity.get(aid)
                     if not info:
                         continue
                     if info["pct"] is not None and info["pct"] <= CONFIG["rare_pct"]:
                         rare += 1
+                        rarest.append((info["pct"], aid))
                     if info["type"] == "Crafting & Gathering":
                         craft += 1
                     elif info["type"] == "PvP":
                         pvp += 1
                 m["rare_achv"], m["craft_achv"], m["pvp_achv"] = rare, craft, pvp
+                # Rarest first, capped: a member can hold hundreds under 10%, and the
+                # profile page only shows a shelf of them. Underscore-prefixed so it
+                # is dropped before members.json is written.
+                rarest.sort()
+                m["_rare_ids"] = [aid for _, aid in rarest[: CONFIG["rare_show"]]]
         except Exception as ex:
             log(f"Collect error @ {m['name']}: {ex}")
         if i % 50 == 0:
@@ -690,6 +707,40 @@ def run_lalachievements(members: list[dict], extra: dict) -> None:
 # ──────────────────────────────────────────────────────────────────────────────
 # 4) Tags
 # ──────────────────────────────────────────────────────────────────────────────
+def build_achievements(members: list[dict], rarity: dict[int, dict]) -> None:
+    """Write the rarest achievements per member, plus a catalog of just those.
+
+    Split into its own file because only /member/[id] renders it; members.json stays
+    the light payload the board loads. The catalog holds only referenced ids rather
+    than all ~3,950, which keeps it to a fraction of the full list.
+    """
+    per: dict[str, list[int]] = {}
+    used: set[int] = set()
+    for m in members:
+        ids = m.pop("_rare_ids", None)
+        if ids:
+            per[str(m["id"])] = ids
+            used.update(ids)
+
+    if not per:
+        # --skip-collect, or Collect was unreachable. Keep the previous file rather
+        # than replacing real data with an empty one.
+        log("Rare achievements — nothing collected this run, keeping the existing file")
+        return
+
+    catalog = {}
+    for aid in sorted(used):
+        info = rarity.get(aid) or {}
+        catalog[str(aid)] = {
+            "name": info.get("name"), "pct": info.get("pct"),
+            "icon": info.get("icon"), "category": info.get("category"),
+            "type": info.get("type"), "patch": info.get("patch"),
+            "points": info.get("points"), "title": info.get("title"),
+        }
+    save_json("achv.json", {"catalog": catalog, "members": per})
+    log(f"Rare achievements — {len(per)} members, {len(catalog)} distinct achievements")
+
+
 def _all_extreme_names(raids: dict) -> set[str]:
     """Every current-patch extreme FFLogs reported, cleared by anyone or not."""
     out = set()
@@ -1035,13 +1086,16 @@ def main() -> None:
         summarize_raids(m, raids)
     save_json("raids.json", raids)
 
+    rarity: dict[int, dict] = {}
     if args.skip_collect:
         for m in members:
             m.update({"mounts": None, "minions": None, "rare_achv": None,
                       "craft_achv": None, "pvp_achv": None,
                       "ach_public": None, "portrait": None})
     else:
-        run_collect(members, collect_rarity_map(), args.collect_delay)
+        rarity = collect_rarity_map()
+        run_collect(members, rarity, args.collect_delay)
+    build_achievements(members, rarity)
 
     build_character_extras(members, args.nameday_batch, args.full_extras)
 

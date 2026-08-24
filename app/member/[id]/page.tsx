@@ -1,11 +1,18 @@
 import { notFound } from "next/navigation";
 import raw from "@/data/members.json";
 import raidsRaw from "@/data/raids.json";
+import achvRaw from "@/data/achv.json";
 import MemberView from "@/components/MemberView";
+import type { AchievementInfo } from "@/components/RareAchievements";
 import type { BoardData, MemberRaids } from "@/lib/types";
 
 const data = raw as unknown as BoardData;
 const raids = raidsRaw as unknown as Record<string, MemberRaids>;
+// Loaded here rather than in members.json: only this page renders it.
+const achv = achvRaw as unknown as {
+  catalog: Record<string, AchievementInfo>;
+  members: Record<string, number[]>;
+};
 
 export function generateStaticParams() {
   return data.members.map((m) => ({ id: String(m.id) }));
@@ -35,10 +42,15 @@ export default async function Page(
     minions: data.members.map((x) => x.minions),
     rare: data.members.map((x) => x.rare_achv),
   };
+  const rareAchievements = (achv.members[id] ?? [])
+    .map((aid) => achv.catalog[String(aid)])
+    .filter(Boolean);
+
   return (
     <MemberView
       m={m}
       raids={raids[id] ?? null}
+      rareAchievements={rareAchievements}
       tierLabels={data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"]}
       agg={agg}
       fc={{ name: data.fc.name, world: data.fc.world, region: data.fc.region ?? "JP" }}
