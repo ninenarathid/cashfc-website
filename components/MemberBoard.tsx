@@ -43,7 +43,6 @@ const TAG_CLASS: Record<string, string> = {
   unknown: "border-dashed border-line text-muted",
 };
 
-const JOBS = ["PLD","WAR","DRK","GNB","WHM","SCH","AST","SGE","MNK","DRG","NIN","SAM","RPR","VPR","BRD","MCH","DNC","BLM","SMN","RDM","PCT","BLU"];
 const ACTIVITY_OPTIONS = [
   { key: "active", label: "Active" },
   { key: "vacation", label: "On vacation" },
@@ -104,7 +103,7 @@ function PresenceDot({ m, size = 11 }: { m: Member; size?: number }) {
 }
 
 interface Adv {
-  lfg: string; job: string; rank: string;
+  lfg: string; rank: string;
   boss: number[]; lvMin: string; race: string; activity: string;
   /** Extreme trials that must all be cleared, by boss name. */
   ex: string[];
@@ -112,7 +111,7 @@ interface Adv {
   seen: string;
 }
 const ADV_EMPTY: Adv = {
-  lfg: "", job: "", rank: "", boss: [], lvMin: "",
+  lfg: "", rank: "", boss: [], lvMin: "",
   race: "", activity: "", ex: [], seen: "",
 };
 
@@ -142,12 +141,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const boss = (p.get("boss") ?? "").split(",").filter(Boolean).map(Number);
     const ex = (p.get("ex") ?? "").split(",").filter(Boolean);
     setAdv({
-      lfg: p.get("lfg") ?? "", job: p.get("job") ?? "", rank: p.get("rank") ?? "",
+      lfg: p.get("lfg") ?? "", rank: p.get("rank") ?? "",
       boss,
       lvMin: p.get("lv") ?? "", race: p.get("race") ?? "",
       activity: p.get("act") ?? "", ex, seen: p.get("seen") ?? "",
     });
-    if (p.get("lfg") || p.get("job") || p.get("rank") ||
+    if (p.get("lfg") || p.get("rank") ||
         boss.length || ex.length || p.get("lv") || p.get("race") ||
         p.get("act") || p.get("seen")) setAdvOpen(true);
     inited.current = true;
@@ -162,7 +161,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (sortBy !== "name") p.set("sort", sortBy);
     if (view === "kitchen") p.set("view", "kitchen");
     if (adv.lfg) p.set("lfg", adv.lfg);
-    if (adv.job) p.set("job", adv.job);
     if (adv.rank) p.set("rank", adv.rank);
     if (adv.boss.length) p.set("boss", adv.boss.join(","));
     if (adv.ex.length) p.set("ex", adv.ex.join(","));
@@ -179,20 +177,32 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   useEffect(() => {
     const supabase = createClient();
     if (!supabase) return;
-    supabase.from("profiles")
-      .select("character_id, bio, favorite_job, accent_color, discord_username, lfg, banner")
-      .not("character_id", "is", null)
-      .then(({ data: rows }) => {
-        const map: Record<number, Overlay> = {};
-        for (const r of rows ?? []) {
-          if (r.character_id == null) continue;
-          map[r.character_id as number] = {
-            bio: r.bio, job: r.favorite_job, accent: r.accent_color,
-            discord: r.discord_username, lfg: r.lfg ?? [], banner: r.banner,
-          };
-        }
-        setOverlays(map);
-      });
+    const BASE = "character_id, bio, accent_color, discord_username, lfg, banner";
+    const V3 = `${BASE}, nickname, birth_month, birth_day`;
+    // Selecting a column that does not exist fails the whole query, which would blank
+    // every profile overlay on the board. Fall back to the pre-v3 column list so the
+    // board still works on a database where migration_v3.sql has not been run yet.
+    const load = (cols: string) =>
+      supabase.from("profiles").select(cols).not("character_id", "is", null);
+
+    load(V3).then(async ({ data, error }) => {
+      const rows = error ? (await load(BASE)).data : data;
+      const map: Record<number, Overlay> = {};
+      for (const r of (rows ?? []) as unknown as Record<string, unknown>[]) {
+        const id = r.character_id as number | null;
+        if (id == null) continue;
+        map[id] = {
+          bio: r.bio as string | null,
+          accent: r.accent_color as string | null,
+          discord: r.discord_username as string | null,
+          lfg: (r.lfg as string[] | null) ?? [], banner: r.banner as string | null,
+          nickname: (r.nickname as string | null) ?? null,
+          birthMonth: (r.birth_month as number | null) ?? null,
+          birthDay: (r.birth_day as number | null) ?? null,
+        };
+      }
+      setOverlays(map);
+    });
     supabase.from("member_overrides").select("character_id").eq("hidden", true)
       .then(({ data: rows }) =>
         setHiddenIds(new Set((rows ?? []).map((r) => r.character_id as number))));
@@ -241,7 +251,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         (f) => f && f.toLowerCase().includes(q))) return false;
       const ov = overlays[m.id];
       if (adv.lfg && !(ov?.lfg ?? []).includes(adv.lfg)) return false;
-      if (adv.job && ov?.job !== adv.job) return false;
       if (adv.rank && m.rank !== adv.rank) return false;
       if (adv.race && m.race !== adv.race) return false;
       if (adv.activity === "active" && isOnVacation(m)) return false;
@@ -265,11 +274,15 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       : sortBy === "parse" ? (m.parse ?? -1)
       : sortBy === "mounts" ? (m.mounts ?? -1)
       : (m.rare_achv ?? -1);
+    // Active members always sort above the ~320 marked On vacation, whatever the
+    // chosen order is. Otherwise the first screen of the board is mostly people who
+    // are not playing, which is nobody's reason for opening it.
     return [...filtered].sort((a, b) =>
-      sortBy === "name" ? a.name.localeCompare(b.name) : val(b) - val(a));
+      (isOnVacation(a) ? 1 : 0) - (isOnVacation(b) ? 1 : 0) ||
+      (sortBy === "name" ? a.name.localeCompare(b.name) : val(b) - val(a)));
   }, [visible, overlays, tag, query, sortBy, adv]);
 
-  const advCount = (adv.lfg ? 1 : 0) + (adv.job ? 1 : 0) + (adv.rank ? 1 : 0) +
+  const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
     (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) + (adv.activity ? 1 : 0) +
     (adv.seen ? 1 : 0);
@@ -353,11 +366,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     className={selCls} aria-label="Looking-for status">
               <option value="">Looking for: any</option>
               {LFG_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
-            </select>
-            <select value={adv.job} onChange={(e) => setAdv({ ...adv, job: e.target.value })}
-                    className={selCls} aria-label="Favourite job">
-              <option value="">Favourite job: any</option>
-              {JOBS.map((j) => <option key={j} value={j}>{j}</option>)}
             </select>
             <select value={adv.rank} onChange={(e) => setAdv({ ...adv, rank: e.target.value })}
                     className={selCls} aria-label="FC rank">
@@ -519,7 +527,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               const accent = ov?.accent ?? "#e8a33d";
               const meta = [m.rank ?? "—", `Lv ${m.level ?? "—"}`];
               if (m.race) meta.push(m.race);
-              if (ov?.job) meta.push(ov.job);
               if (m.mounts != null) meta.push(`${m.mounts} mounts`);
               if (m.rare_achv != null) meta.push(`${m.rare_achv} rare achv`);
               return (

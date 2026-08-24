@@ -84,8 +84,24 @@ export interface HistoryRow {
   collector: number; unknown: number; final_boss: number;
 }
 export interface Overlay {
-  bio: string | null; job: string | null; accent: string | null;
+  // No self-declared job: FF Logs reports the job behind each parse, which stays
+  // honest for members who play several.
+  bio: string | null; accent: string | null;
   discord: string | null; lfg?: string[] | null; banner?: string | null;
+  nickname?: string | null;
+  /** Real-world birthday. Day and month only — no year is ever collected. */
+  birthMonth?: number | null; birthDay?: number | null;
+}
+
+export const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+/** "14 August" — never includes a year, because none is stored. */
+export function formatBirthday(month?: number | null, day?: number | null): string | null {
+  if (!month || !day) return null;
+  return `${day} ${MONTH_NAMES[month - 1] ?? ""}`.trim();
 }
 
 export const LFG_OPTIONS = [

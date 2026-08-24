@@ -108,6 +108,23 @@ NON_TIER_SAVAGE = ["deep dungeons", "criterion", "delubrum", "forked tower"]
 # listed at Normal difficulty, rather than a difficulty of some trial zone.
 EXTREME_PATTERN = "(extreme)"
 
+# FC rank meaning "not playing at the moment".
+ON_VACATION_RANK = "On vacation"
+
+
+def active_first(members: list[dict]) -> list[dict]:
+    """Same members, active ones first.
+
+    Every remote stage here can be cut short — by the hourly FFLogs budget, by the
+    step timeout, by an API having a bad day. Whatever gets dropped should be the
+    people nobody is looking up, so process the active roster before the 300-odd
+    members marked On vacation. These are the same dict objects, so writes still
+    land in the caller's list.
+    """
+    on = [m for m in members if m.get("rank") != ON_VACATION_RANK]
+    off = [m for m in members if m.get("rank") == ON_VACATION_RANK]
+    return on + off
+
 UA = {"User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 "
                      "fc-member-board (personal FC tool)")}
@@ -357,9 +374,10 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
     ex_ids = {z["id"] for z in cur_extremes}
     zmeta = {z["id"]: z for z in zones}
     bs = CONFIG["fflogs_batch_size"]
+    queue = active_first(members)
 
-    for start in range(0, len(members), bs):
-        chunk = members[start:start + bs]
+    for start in range(0, len(queue), bs):
+        chunk = queue[start:start + bs]
         try:
             payload = fflogs_query(token, build_char_query(chunk, zones))
         except Exception as ex:
@@ -469,15 +487,15 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             # not reached keep whatever their previous run stored.
             save_json("raids.json", raids)
             log(f"FFLogs quota nearly spent ({spent:.0f}/{limit}) after "
-                f"{min(start + bs, len(members))}/{len(members)} members — "
+                f"{min(start + bs, len(queue))}/{len(queue)} members — "
                 "stopping here; the next run picks up the rest")
-            for rest in members[start + bs:]:
+            for rest in queue[start + bs:]:
                 rest["fflogs"] = raids.get(str(rest["id"]), {}).get("_status", "pending")
             break
 
-        done = min(start + bs, len(members))
+        done = min(start + bs, len(queue))
         if done % 50 < bs:
-            log(f"FFLogs — {done}/{len(members)} members")
+            log(f"FFLogs — {done}/{len(queue)} members")
             save_json("raids.json", raids)   # checkpoint: a timeout keeps this much
         time.sleep(0.3)
 
@@ -543,7 +561,7 @@ def collect_rarity_map() -> dict[int, dict]:
 
 
 def run_collect(members: list[dict], rarity: dict[int, dict], delay: float) -> None:
-    for i, m in enumerate(members, 1):
+    for i, m in enumerate(active_first(members), 1):
         m.update({"mounts": None, "minions": None, "rare_achv": None,
                   "craft_achv": None, "pvp_achv": None,
                   "ach_public": None, "portrait": None})
@@ -619,7 +637,7 @@ def lala_summary(d: dict) -> dict:
 def run_lalachievements(members: list[dict], extra: dict) -> None:
     store = extra.setdefault("lala", {})
     delay = CONFIG["lala_delay"]
-    pending = [m for m in members]
+    pending = active_first(members)
     stats = {"ok": 0, "adding": 0, "failed": 0}
 
     for pass_no in range(1, CONFIG["lala_passes"] + 1):
@@ -933,7 +951,7 @@ def build_character_extras(members: list[dict], batch: int, full: bool) -> None:
     extra = load_json("extra.json", {"nameday": {}})
     namedays = extra.setdefault("nameday", {})
     charas = extra.setdefault("chara", {})
-    todo = [m for m in members
+    todo = [m for m in active_first(members)
             if str(m["id"]) not in namedays or str(m["id"]) not in charas]
     if not full:
         todo = todo[:batch]

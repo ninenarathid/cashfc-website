@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import type { Member, MemberRaids, Overlay, RaidZone } from "@/lib/types";
-import { LFG_OPTIONS, ON_VACATION_RANK, isOnVacation } from "@/lib/types";
+import { LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday } from "@/lib/types";
 import { computeBadges, percentile, topN } from "@/lib/badges";
+import JobBreakdown from "@/components/JobBreakdown";
 import { createClient } from "@/lib/supabase/client";
 
 function parseColor(p: number | null | undefined): string {
@@ -40,14 +41,27 @@ export default function MemberView({
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.from("profiles")
-      .select("bio, favorite_job, accent_color, discord_username, lfg, banner, character_id")
-      .eq("character_id", m.id).maybeSingle()
-      .then(({ data }) => {
-        if (data)
-          setOv({ bio: data.bio, job: data.favorite_job, accent: data.accent_color,
-                  discord: data.discord_username, lfg: data.lfg ?? [], banner: data.banner });
+    const BASE = "bio, accent_color, discord_username, lfg, banner, character_id";
+    const V3 = `${BASE}, nickname, birth_month, birth_day`;
+    // Same fallback as the board: an unknown column fails the whole select, and the
+    // page should still show the profile on a database without migration_v3.sql.
+    const load = (cols: string) =>
+      supabase.from("profiles").select(cols).eq("character_id", m.id).maybeSingle();
+
+    load(V3).then(async ({ data, error }) => {
+      const row = (error ? (await load(BASE)).data : data) as
+        Record<string, unknown> | null;
+      if (!row) return;
+      setOv({
+        bio: row.bio as string | null,
+        accent: row.accent_color as string | null,
+        discord: row.discord_username as string | null,
+        lfg: (row.lfg as string[] | null) ?? [], banner: row.banner as string | null,
+        nickname: (row.nickname as string | null) ?? null,
+        birthMonth: (row.birth_month as number | null) ?? null,
+        birthDay: (row.birth_day as number | null) ?? null,
       });
+    });
     supabase.from("kudos")
       .select("*", { count: "exact", head: true })
       .eq("receiver_character_id", m.id)
@@ -81,6 +95,12 @@ export default function MemberView({
 
   const accent = ov?.accent ?? "#e8a33d";
   const onVacation = isOnVacation(m);
+  const birthday = formatBirthday(ov?.birthMonth, ov?.birthDay);
+  // Compared in the viewer's own timezone, which is what "is it their birthday
+  // today" means to the person looking at the page.
+  const now = new Date();
+  const isBirthdayToday = !!ov?.birthMonth && !!ov?.birthDay &&
+    ov.birthMonth === now.getMonth() + 1 && ov.birthDay === now.getDate();
   const badges = useMemo(
     () => computeBadges(m, raids, {
       mountsTop10: topN(agg.mounts, 10),
@@ -154,13 +174,22 @@ export default function MemberView({
                 </span>
               )}
             </h1>
+            {ov?.nickname && (
+              <div className="text-[15px] font-medium" style={{ color: accent }}>
+                &ldquo;{ov.nickname}&rdquo;
+              </div>
+            )}
             <div className="mt-1 text-[13px] text-ink/70">
               Lv {m.level ?? "—"}
               {m.race && (
                 <> · {m.race}{m.clan ? ` (${m.clan})` : ""}</>
               )}
-              {ov?.job && <> · main <b className="font-data">{ov.job}</b></>}
-              {m.nameday?.text && <> · 🎂 {m.nameday.text}</>}
+              {/* Two different dates, so both say which they are: the real-world
+                  birthday the member entered, and the in-game Eorzean nameday. */}
+              {birthday && (
+                <> · 🎂 {birthday}{isBirthdayToday ? " — today!" : ""}</>
+              )}
+              {m.nameday?.text && <> · nameday {m.nameday.text}</>}
             </div>
             {m.last_active && (
               // Never shown on its own: this can only be as fresh as the last time
@@ -272,6 +301,8 @@ export default function MemberView({
           </div>
         )}
       </section>
+
+      <JobBreakdown raids={raids} />
 
       {/* ── Extreme trials of the current patch ── */}
       {(raids?.extremes?.length ?? 0) > 0 && (

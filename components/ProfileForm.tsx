@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import { LFG_OPTIONS } from "@/lib/types";
+import { LFG_OPTIONS, MONTH_NAMES } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 
 interface Option { id: number; name: string }
@@ -15,14 +15,15 @@ interface ProfileRow {
   character_id: number | null;
   character_name: string | null;
   bio: string | null;
-  favorite_job: string | null;
   accent_color: string | null;
   lfg: string[] | null;
   banner: string | null;
+  nickname: string | null;
+  birth_month: number | null;
+  birth_day: number | null;
   is_admin: boolean;
 }
 
-const JOBS = ["PLD","WAR","DRK","GNB","WHM","SCH","AST","SGE","MNK","DRG","NIN","SAM","RPR","VPR","BRD","MCH","DNC","BLM","SMN","RDM","PCT","BLU"];
 const COLORS = ["#e8a33d","#d14b3a","#e5cc80","#4fb8a8","#c98a5b","#7ea6c9","#e268a8","#a335ee"];
 const BANNERS = [
   "linear-gradient(135deg,#241b10,#3a2c14)",
@@ -49,8 +50,10 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
   const [charId, setCharId] = useState<number | null>(null);
   const [charName, setCharName] = useState<string | null>(null);
+  const [nickname, setNickname] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthDay, setBirthDay] = useState("");
   const [bio, setBio] = useState("");
-  const [job, setJob] = useState("");
   const [color, setColor] = useState("");
   const [banner, setBanner] = useState("");
   const [lfg, setLfg] = useState<string[]>([]);
@@ -72,8 +75,10 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         setProfile(p);
         setCharId(p.character_id);
         setCharName(p.character_name);
+        setNickname(p.nickname ?? "");
+        setBirthMonth(p.birth_month ? String(p.birth_month) : "");
+        setBirthDay(p.birth_day ? String(p.birth_day) : "");
         setBio(p.bio ?? "");
-        setJob(p.favorite_job ?? "");
         setColor(p.accent_color ?? "");
         setBanner(p.banner ?? "");
         setLfg(p.lfg ?? []);
@@ -103,8 +108,11 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       .update({
         character_id: charId,
         character_name: charName,
+        nickname: nickname.trim() || null,
+        // Both or neither: half a date is not a birthday.
+        birth_month: birthMonth && birthDay ? Number(birthMonth) : null,
+        birth_day: birthMonth && birthDay ? Number(birthDay) : null,
         bio: bio.trim() || null,
-        favorite_job: job || null,
         accent_color: color || null,
         banner: banner || null,
         lfg,
@@ -244,6 +252,47 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">Customise profile</div>
 
+        <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-4">
+          <label className="block text-[13px] text-muted">
+            Nickname
+            <input value={nickname}
+                   onChange={(e) => setNickname(e.target.value.slice(0, 24))}
+                   placeholder="What people call you"
+                   className="mt-1 block w-52 rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted" />
+          </label>
+
+          {/* Day and month only. The site just needs to know when to say happy
+              birthday, so there is no year field to fill in. */}
+          <div className="text-[13px] text-muted">
+            Birthday <span className="text-muted/70">(day and month only)</span>
+            <div className="mt-1 flex gap-2">
+              <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)}
+                      aria-label="Birthday day"
+                      className="rounded-lg border border-line bg-card px-3 py-2 text-ink">
+                <option value="">Day</option>
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+              <select value={birthMonth} onChange={(e) => setBirthMonth(e.target.value)}
+                      aria-label="Birthday month"
+                      className="rounded-lg border border-line bg-card px-3 py-2 text-ink">
+                <option value="">Month</option>
+                {MONTH_NAMES.map((name, i) => (
+                  <option key={name} value={i + 1}>{name}</option>
+                ))}
+              </select>
+              {(birthDay || birthMonth) && (
+                <button type="button"
+                        onClick={() => { setBirthDay(""); setBirthMonth(""); }}
+                        className="text-[12.5px] text-muted underline hover:text-ink">
+                  clear
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         <label className="mt-3 block text-[13px] text-muted">
           Bio / status (200 characters max)
           <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 200))}
@@ -253,14 +302,6 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         </label>
 
         <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-4">
-          <label className="block text-[13px] text-muted">
-            Main job
-            <select value={job} onChange={(e) => setJob(e.target.value)}
-                    className="mt-1 block rounded-lg border border-line bg-card px-3 py-2 text-ink">
-              <option value="">— not set —</option>
-              {JOBS.map((j) => <option key={j} value={j}>{j}</option>)}
-            </select>
-          </label>
 
           <div className="text-[13px] text-muted">
             Accent colour
