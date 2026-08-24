@@ -73,6 +73,14 @@ CONFIG = {
         "fan festival", "expansion",
     ],
     "nameday_batch": 80,       # character pages per run (cycles until everyone is covered)
+
+    # Lalachievements enrichment. Their API only knows characters someone has added to
+    # the site — roughly one in eight of this FC right now — and answers 500 for the
+    # rest, so this is best-effort: results accumulate across runs and requesting an
+    # unknown character queues it ("adding") for a later run to pick up.
+    "lala_delay": 0.6,
+    "lala_passes": 2,          # retry sweeps per run for ids that errored
+    "lala_active_days": 90,    # "did something in the last N days" = active
 }
 
 # Boss labels for older tiers: matched on zone name (substring) -> (prefix, first number)
@@ -90,6 +98,16 @@ ULTIMATE_PATTERNS = [
     "future's rewritten",
 ]
 
+# Zones that expose a "Savage" difficulty without being a four-boss savage raid tier.
+# They have to be excluded explicitly: the newest of them (currently "The Forked
+# Tower: Magic") otherwise wins the "highest savage zone id" test and gets treated as
+# the current tier, and every one of them gets swept during a legacy backfill.
+NON_TIER_SAVAGE = ["deep dungeons", "criterion", "delubrum", "forked tower"]
+
+# Extreme trials are their own zones — "Trials I (Extreme)", "Trials (Extreme)", … —
+# listed at Normal difficulty, rather than a difficulty of some trial zone.
+EXTREME_PATTERN = "(extreme)"
+
 UA = {"User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36 "
                      "fc-member-board (personal FC tool)")}
@@ -97,6 +115,7 @@ UA = {"User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
 FFLOGS_TOKEN_URL = "https://www.fflogs.com/oauth/token"
 FFLOGS_API_URL = "https://www.fflogs.com/api/v2/client"
 COLLECT_API = "https://ffxivcollect.com/api"
+LALA_API = "https://lalachievements.com/api"
 
 DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
 
@@ -192,26 +211,33 @@ def fflogs_query(token: str, query: str, retries: int = 3) -> dict:
 
 
 def fflogs_zones(token: str) -> tuple[list[dict], list[dict]]:
-    """Return (savage_zones newest->oldest, ultimate_zones newest->oldest)."""
+    """Return (savage_tiers, ultimates, extremes), each newest -> oldest.
+
+    Getting the classification right matters twice over: the newest savage tier is
+    what the site calls "the current tier", and anything wrongly counted as a tier
+    also gets swept during a legacy backfill, which the free API budget cannot afford.
+    """
     q = ("{ worldData { zones { id name "
          "expansion { name } difficulties { id name } } } }")
     zones = fflogs_query(token, q)["data"]["worldData"]["zones"] or []
-    ults, savages = [], []
+    ults, tiers, extremes = [], [], []
     for z in zones:
         name_l = (z["name"] or "").lower()
         diffs = z.get("difficulties") or []
-        exp = (z.get("expansion") or {}).get("name")
+        base = {"id": z["id"], "name": z["name"],
+                "expansion": (z.get("expansion") or {}).get("name")}
         if any(p in name_l for p in ULTIMATE_PATTERNS):
-            ults.append({"id": z["id"], "name": z["name"],
-                         "expansion": exp, "difficulty": None})
+            ults.append({**base, "difficulty": None})
+        elif EXTREME_PATTERN in name_l:
+            extremes.append({**base, "difficulty": None})
         elif any((d.get("name") or "").lower() == "savage" for d in diffs):
-            sav = next(d["id"] for d in diffs
-                       if (d.get("name") or "").lower() == "savage")
-            savages.append({"id": z["id"], "name": z["name"],
-                            "expansion": exp, "difficulty": sav})
-    savages.sort(key=lambda z: z["id"], reverse=True)
-    ults.sort(key=lambda z: z["id"], reverse=True)
-    return savages, ults
+            if any(p in name_l for p in NON_TIER_SAVAGE):
+                continue
+            tiers.append({**base, "difficulty": next(
+                d["id"] for d in diffs if (d.get("name") or "").lower() == "savage")})
+    for lst in (tiers, ults, extremes):
+        lst.sort(key=lambda z: z["id"], reverse=True)
+    return tiers, ults, extremes
 
 
 def zone_labels(zone_name: str, is_current: bool) -> list[str] | None:
@@ -244,20 +270,35 @@ def build_char_query(chunk: list[dict], zones: list[dict]) -> str:
 
 
 def encounters_from_blob(blob: dict, labels: list[str] | None) -> tuple[list[dict], list[bool]]:
-    """Convert zoneRankings -> (encounters that have data, one clear flag per slot)."""
+    """Convert zoneRankings -> (encounters that have data, one clear flag per label).
+
+    FFLogs splits a two-part final boss into two encounters — AAC Heavyweight reports
+    Lindwurm and Lindwurm II, Anabaseios reports Athena and Pallas Athena — so a
+    four-boss tier comes back with five rows. Mapping rows to labels positionally
+    would therefore credit the tier clear to part one. Both extra rows belong to the
+    final label, and the later one decides whether the tier is actually cleared.
+    """
     rankings = blob.get("rankings") or []
+    if labels and len(rankings) == len(labels) + 1:
+        slots = list(range(len(labels) - 1)) + [len(labels) - 1, len(labels) - 1]
+    else:
+        slots = list(range(len(rankings)))
     clears = [False] * (len(labels) if labels else len(rankings))
     out = []
     for i, rk in enumerate(rankings):
+        slot = slots[i] if i < len(slots) else None
         kills = rk.get("totalKills") or 0
         pct = rk.get("rankPercent")
         med = rk.get("medianPercent")
-        if i < len(clears):
-            clears[i] = kills > 0
+        if slot is not None and slot < len(clears):
+            # A later row for the same slot overwrites deliberately: for a split boss
+            # the final part is the one that counts.
+            clears[slot] = kills > 0
         if kills <= 0 and pct is None:
             continue
         out.append({
-            "label": labels[i] if labels and i < len(labels) else None,
+            "label": (labels[slot] if labels and slot is not None
+                      and slot < len(labels) else None),
             "name": (rk.get("encounter") or {}).get("name"),
             "best": round(pct) if pct is not None else None,
             "median": round(med) if med is not None else None,
@@ -275,18 +316,45 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             m["fflogs"] = raids.get(str(m["id"]), {}).get("_status", "skipped")
         return None
 
-    savages, ults = fflogs_zones(token)
-    if not savages:
-        log("FFLogs: no savage zone found — skipping")
+    tiers, ults, extremes = fflogs_zones(token)
+    if not tiers:
+        log("FFLogs: no savage tier found — skipping")
         return None
-    current = savages[0]
-    scan_savages = savages if full_history else [current]
-    zones = scan_savages + ults
-    log(f"FFLogs current tier: {current['name']} ({current['id']})")
-    log(f"FFLogs zones scanned this run: {len(zones)} zones"
-        + (" [FULL HISTORY]" if full_history else ""))
+    current = tiers[0]
+
+    # Everything from the current patch, every run: the tier itself, every ultimate,
+    # and every extreme trial of the current expansion. That is what the site filters
+    # on, and it comfortably fits the free hourly point budget.
+    cur_extremes = [z for z in extremes if z["expansion"] == current["expansion"]]
+    zones = [current] + ults + cur_extremes
+
+    # Older savage tiers are the expensive part — sweeping all of them at once burns
+    # the whole hourly budget and finishes nothing. Take one per run instead, rotating,
+    # so the backlog fills in over a couple of weeks and each run still completes.
+    older = tiers[1:]
+    extra = load_json("extra.json", {})
+    state = extra.setdefault("pipeline", {})
+    if older:
+        if full_history:
+            zones += older
+            log(f"FFLogs [FULL HISTORY] — adding all {len(older)} older tiers; "
+                "this can exceed the hourly point budget")
+        else:
+            cursor = int(state.get("legacy_cursor", 0)) % len(older)
+            pick = older[cursor]
+            zones.append(pick)
+            state["legacy_cursor"] = (cursor + 1) % len(older)
+            save_json("extra.json", extra)
+            log(f"FFLogs legacy backfill {cursor + 1}/{len(older)}: {pick['name']}")
+
+    log(f"FFLogs current tier: {current['name']} ({current['id']}) "
+        f"[{current['expansion']}]")
+    log(f"FFLogs zones this run: {len(zones)} "
+        f"(1 tier + {len(ults)} ultimate + {len(cur_extremes)} extreme"
+        f"{' + ' + str(len(older)) + ' legacy' if full_history and older else ' + 1 legacy' if older else ''})")
 
     ult_ids = {z["id"] for z in ults}
+    ex_ids = {z["id"] for z in cur_extremes}
     zmeta = {z["id"]: z for z in zones}
     bs = CONFIG["fflogs_batch_size"]
 
@@ -316,6 +384,8 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
 
             new_ults = entry.get("ultimates", [])
             new_ults = [u for u in new_ults if u.get("zone_id") not in ult_ids]
+            new_ex = entry.get("extremes", [])
+            new_ex = [e for e in new_ex if e.get("zone_id") not in ex_ids]
             legacy = entry.get("legacy", [])
             has_any = False
 
@@ -324,7 +394,20 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                     continue
                 zid = int(key[1:])
                 z = zmeta[zid]
-                if zid in ult_ids:
+                if zid in ex_ids:
+                    # Extreme trials: no tier labels, one row per trial. Kept per
+                    # encounter so the board can filter on individual fights.
+                    encs, _ = encounters_from_blob(zblob, None)
+                    for e in encs:
+                        has_any = True
+                        new_ex.append({
+                            "zone": z["name"], "zone_id": zid,
+                            "expansion": z.get("expansion"),
+                            "name": e["name"], "best": e["best"],
+                            "kills": e["kills"], "job": e["job"],
+                            "cleared": e["kills"] > 0,
+                        })
+                elif zid in ult_ids:
                     encs, _ = encounters_from_blob(zblob, None)
                     best = max((e["best"] for e in encs if e["best"] is not None),
                                default=None)
@@ -369,25 +452,38 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                 entry.pop("current", None)
 
             new_ults.sort(key=lambda u: u["zone_id"], reverse=True)
+            new_ex.sort(key=lambda e: (-e["zone_id"], e["name"] or ""))
             legacy.sort(key=lambda lz: lz["zone_id"], reverse=True)
             entry["ultimates"] = new_ults
+            entry["extremes"] = new_ex
             entry["legacy"] = legacy
             entry["_status"] = "ok" if (has_any or entry.get("current", {}).get("encounters")
-                                       or new_ults or legacy) else "none"
+                                       or new_ults or new_ex or legacy) else "none"
             m["fflogs"] = entry["_status"]
 
         rl = payload["data"].get("rateLimitData") or {}
         spent, limit = rl.get("pointsSpentThisHour", 0), rl.get("limitPerHour", 3600)
         if limit and spent > limit * 0.85:
-            wait = int(rl.get("pointsResetIn", 300)) + 10
-            log(f"FFLogs quota nearly spent ({spent:.0f}/{limit}) — sleeping {wait}s")
-            time.sleep(wait)
+            # Sleeping out the reset can burn an hour per stall and still not finish, so
+            # bank what we have and let the next scheduled run continue instead. Members
+            # not reached keep whatever their previous run stored.
+            save_json("raids.json", raids)
+            log(f"FFLogs quota nearly spent ({spent:.0f}/{limit}) after "
+                f"{min(start + bs, len(members))}/{len(members)} members — "
+                "stopping here; the next run picks up the rest")
+            for rest in members[start + bs:]:
+                rest["fflogs"] = raids.get(str(rest["id"]), {}).get("_status", "pending")
+            break
+
         done = min(start + bs, len(members))
         if done % 50 < bs:
             log(f"FFLogs — {done}/{len(members)} members")
+            save_json("raids.json", raids)   # checkpoint: a timeout keeps this much
         time.sleep(0.3)
 
-    return {"current_zone": current, "ultimate_zones": ults}
+    save_json("raids.json", raids)
+    return {"current_zone": current, "ultimate_zones": ults,
+            "extreme_zones": cur_extremes}
 
 
 def summarize_raids(m: dict, raids: dict) -> None:
@@ -405,10 +501,27 @@ def summarize_raids(m: dict, raids: dict) -> None:
         for e in lz.get("encounters", []):
             if e.get("best") is not None:
                 best = max(best or 0, e["best"])
+    for e in entry.get("extremes", []):
+        if e.get("best") is not None:
+            best = max(best or 0, e["best"])
     m["parse"] = best
     m["savage_kills"] = sum(1 for c in cur.get("clears", []) if c)
     m["ult_clears"] = sum(1 for u in entry.get("ultimates", []) if u.get("cleared"))
     m["current_clears"] = cur.get("clears") or None
+
+    # Extreme trials of the current patch: the board filters on individual fights, so
+    # keep the cleared names as well as the count.
+    # Only the cleared names and total kills. A per-member "out of N" would be wrong
+    # here: this list holds the trials FFLogs had data for, not every trial in the
+    # patch. The board compares against board.extremes for the real denominator.
+    ex = entry.get("extremes", [])
+    m["ex_cleared"] = sorted(e["name"] for e in ex if e.get("cleared") and e.get("name"))
+    m["ex_kills"] = sum(e.get("kills") or 0 for e in ex)
+
+    # Separates "raided in an older expansion" from "raiding now", which the tags need.
+    m["legacy_clears"] = sum(
+        1 for lz in entry.get("legacy", [])
+        for e in lz.get("encounters", []) if (e.get("kills") or 0) > 0)
     m.setdefault("fflogs", entry.get("_status", "skipped"))
 
 
@@ -468,26 +581,170 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float) -> N
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# 3b) Lalachievements — real acquisition dates
+# ──────────────────────────────────────────────────────────────────────────────
+def _last_date(items: list[dict]) -> int | None:
+    xs = [x.get("date") for x in items or [] if x.get("date")]
+    return max(xs) if xs else None
+
+
+def lala_summary(d: dict) -> dict:
+    """Boil a character payload down to the few fields worth storing.
+
+    Every item carries a `date`. Anything the character already owned when the site
+    first indexed them is stamped with that index date, so the earliest dates are not
+    real; the *latest* date is, which is the one we want. Achievements are the best
+    signal of the three because Lodestone publishes their true completion dates going
+    back years — but they are absent entirely when the player hides achievements.
+    """
+    lm, lmi = _last_date(d.get("mounts")), _last_date(d.get("minions"))
+    la = _last_date(d.get("achievements"))
+    return {
+        "last_mount": lm, "last_minion": lmi, "last_achv": la,
+        "last_active": max([x for x in (lm, lmi, la) if x], default=None),
+        "mounts": len(d.get("mounts") or []),
+        "minions": len(d.get("minions") or []),
+        "achievements": len(d.get("achievements") or []),
+        "achv_private": bool(d.get("achievementsPrivate")),
+        "mount_rank": d.get("mountRank"), "minion_rank": d.get("minionRank"),
+        "achv_rank": d.get("achievementRank"),
+        "race": d.get("raceName"), "tribe": d.get("tribeName"),
+        # When the site last re-read this character from Lodestone. last_active can
+        # never be fresher than this, so the frontend has to show it for context.
+        "synced": (d.get("updatedAt") or 0) // 1000 or None,
+        "indexed": (d.get("createdAt") or 0) // 1000 or None,
+    }
+
+
+def run_lalachievements(members: list[dict], extra: dict) -> None:
+    store = extra.setdefault("lala", {})
+    delay = CONFIG["lala_delay"]
+    pending = [m for m in members]
+    stats = {"ok": 0, "adding": 0, "failed": 0}
+
+    for pass_no in range(1, CONFIG["lala_passes"] + 1):
+        if not pending:
+            break
+        still = []
+        for i, m in enumerate(pending, 1):
+            try:
+                r = requests.get(f"{LALA_API}/char/{m['id']}/", headers=UA, timeout=30)
+                if r.status_code != 200:
+                    still.append(m)
+                else:
+                    d = r.json()
+                    if isinstance(d, dict) and set(d.keys()) == {"status"}:
+                        # Not indexed yet; the request itself queues them for later.
+                        if pass_no == 1:
+                            stats["adding"] += 1
+                        still.append(m)
+                    else:
+                        store[str(m["id"])] = lala_summary(d)
+                        stats["ok"] += 1
+            except Exception:
+                still.append(m)
+            if i % 100 == 0:
+                log(f"Lalachievements pass {pass_no} — {i}/{len(pending)}")
+            time.sleep(delay)
+        pending = still
+    stats["failed"] = len(pending)
+
+    save_json("extra.json", extra)
+    log(f"Lalachievements — {stats['ok']} fetched this run, "
+        f"{stats['adding']} queued for indexing, {stats['failed']} unavailable; "
+        f"{len(store)}/{len(members)} known in total")
+
+    # Inject onto members. Kept even for characters this run could not reach, because
+    # a previous run may have stored them.
+    for m in members:
+        s = store.get(str(m["id"])) or {}
+        m["last_active"] = (time.strftime("%Y-%m-%d", time.gmtime(s["last_active"]))
+                            if s.get("last_active") else None)
+        m["lala_synced"] = (time.strftime("%Y-%m-%d", time.gmtime(s["synced"]))
+                            if s.get("synced") else None)
+        m["mount_rank"] = s.get("mount_rank")
+        m["minion_rank"] = s.get("minion_rank")
+        if not m.get("race") and s.get("race"):
+            m["race"] = s["race"]          # fallback only; Lodestone is authoritative
+            m["clan"] = m.get("clan") or s.get("tribe")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # 4) Tags
 # ──────────────────────────────────────────────────────────────────────────────
-def assign_tags(m: dict) -> None:
-    tags = []
-    if m.get("ult_clears", 0) > 0:
-        tags += ["ultimate", "raider"]
-    elif m.get("savage_kills", 0) > 0 or m.get("parse") is not None:
-        tags.append("raider")
-    if (m.get("rare_achv") or 0) >= CONFIG["collector_rare_min"]:
-        tags.append("collector")
-    elif (m.get("mounts") or 0) >= CONFIG["collector_mounts_min"]:
-        tags.append("collector")
-    if (m.get("craft_achv") or 0) >= CONFIG["crafter_achv_min"]:
-        tags.append("crafter")
-    if (m.get("pvp_achv") or 0) >= CONFIG["pvp_achv_min"]:
-        tags.append("pvp")
-    if not tags:
-        no_logs = m.get("fflogs") in ("hidden", "none", "skipped", "error", "pending")
-        tags.append("unknown" if (no_logs and not m.get("ach_public")) else "casual")
-    m["tags"] = list(dict.fromkeys(tags))
+def _all_extreme_names(raids: dict) -> set[str]:
+    """Every current-patch extreme FFLogs reported, cleared by anyone or not."""
+    out = set()
+    for entry in raids.values():
+        if not isinstance(entry, dict):
+            continue
+        for e in entry.get("extremes") or []:
+            if e.get("name"):
+                out.add(e["name"])
+    return out
+
+
+def _cut(values: list, pct: float) -> float:
+    """Value at the given percentile of whatever the FC actually has."""
+    xs = sorted(x for x in values if x)
+    if not xs:
+        return float("inf")
+    return xs[min(len(xs) - 1, int(len(xs) * pct / 100))]
+
+
+def assign_tags(members: list[dict]) -> None:
+    """Tag the roster against how this FC actually looks, not fixed numbers.
+
+    The old rules read as wrong on real data. Absolute cutoffs (300 mounts, 120
+    crafting achievements) describe some other FC, "raider" covered anyone with a
+    single kill years ago, and everyone whose logs and achievements are both private
+    collapsed into one big "unknown" bucket even when their extreme-trial record was
+    sitting right there.
+    """
+    mount_cut = _cut([m.get("mounts") for m in members], 80)
+    minion_cut = _cut([m.get("minions") for m in members], 80)
+    rare_cut = _cut([m.get("rare_achv") for m in members], 80)
+    craft_cut = _cut([m.get("craft_achv") for m in members], 90)
+    pvp_cut = _cut([m.get("pvp_achv") for m in members], 90)
+    log(f"Tag cutoffs from this roster — mounts>={mount_cut} rare>={rare_cut} "
+        f"craft>={craft_cut} pvp>={pvp_cut}")
+
+    for m in members:
+        tags = []
+        clears = m.get("current_clears") or []
+        cleared_n = sum(1 for c in clears if c)
+
+        if m.get("ult_clears", 0) > 0:
+            tags.append("ultimate")
+
+        # One state per member, newest evidence wins: raiding this tier beats having
+        # raided years ago. Without the chain someone could read as both at once.
+        if clears and cleared_n == len(clears):
+            tags += ["raider", "tier-clear"]         # current tier fully cleared
+        elif cleared_n > 0:
+            tags += ["raider", "prog"]               # partway through the current tier
+        elif m.get("savage_kills", 0) > 0:
+            tags.append("raider")
+        elif m.get("legacy_clears", 0) > 0 or m.get("ult_clears", 0) > 0:
+            tags.append("veteran")                   # cleared before, not this tier
+
+        if m.get("ex_cleared"):
+            tags.append("extreme")
+
+        if (m.get("mounts") or 0) >= mount_cut or (m.get("minions") or 0) >= minion_cut:
+            tags.append("collector")
+        if (m.get("rare_achv") or 0) >= rare_cut:
+            tags.append("achiever")
+        if (m.get("craft_achv") or 0) >= craft_cut:
+            tags.append("crafter")
+        if (m.get("pvp_achv") or 0) >= pvp_cut:
+            tags.append("pvp")
+
+        if not tags:
+            blind = (m.get("fflogs") in ("hidden", "none", "skipped", "error", "pending")
+                     and not m.get("ach_public") and not m.get("mounts"))
+            tags.append("unknown" if blind else "casual")
+        m["tags"] = list(dict.fromkeys(tags))
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -718,6 +975,8 @@ def main() -> None:
     ap.add_argument("--skip-fflogs", action="store_true")
     ap.add_argument("--skip-collect", action="store_true")
     ap.add_argument("--skip-news", action="store_true")
+    ap.add_argument("--skip-lala", action="store_true",
+                    help="skip the Lalachievements enrichment pass")
     ap.add_argument("--full-history", action="store_true",
                     help="sweep every savage tier ever released (weekly run)")
     ap.add_argument("--full-extras", action="store_true",
@@ -766,12 +1025,16 @@ def main() -> None:
     else:
         run_collect(members, collect_rarity_map(), args.collect_delay)
 
-    for m in members:
-        assign_tags(m)
+    build_character_extras(members, args.nameday_batch, args.full_extras)
+
+    if not args.skip_lala:
+        run_lalachievements(members, load_json("extra.json", {}))
+
+    # After every source has reported, so the cutoffs see the real distribution.
+    assign_tags(members)
 
     if not args.skip_news:
         build_news()
-    build_character_extras(members, args.nameday_batch, args.full_extras)
     build_feed(members, today)
     build_history(members, today)
 
@@ -784,6 +1047,10 @@ def main() -> None:
             "labels": CONFIG["current_tier_labels"],
             "zone": (zone_info or {}).get("current_zone"),
         },
+        # Every extreme trial of the current patch, in FFLogs order, so the board can
+        # offer one filter chip per fight without hardcoding the list.
+        "extremes": sorted({name for m in members for name in (m.get("ex_cleared") or [])}
+                           | {e for e in _all_extreme_names(raids)}),
         "members": members,
     }
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
