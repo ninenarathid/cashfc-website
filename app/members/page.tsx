@@ -65,6 +65,14 @@ export default function MembersPage() {
     .sort((a, b) => (RACE_ORDER.indexOf(a[0]) + 99) - (RACE_ORDER.indexOf(b[0]) + 99))
     .map(([name, value]) => ({ name, value, color: RACE_COLORS[name] ?? "#7a7a7a" }));
 
+  // Race comes from scraping each character page, and a handful always fail — the
+  // gap belongs in the chart rather than being quietly rounded away, so the shares
+  // are shares of the whole FC and not of "whoever we managed to read".
+  const raceUnknown = data.members.length - Object.values(raceTally).reduce((a, b) => a + b, 0);
+  if (raceUnknown > 0) {
+    raceCounts.push({ name: "No data", value: raceUnknown, color: "#55493a" });
+  }
+
   const vacation = data.members.filter(isOnVacation).length;
   const activity = { active: data.members.length - vacation, vacation };
 

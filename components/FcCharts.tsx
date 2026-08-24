@@ -94,9 +94,7 @@ export default function FcCharts({
 
         {/* Race breakdown */}
         <div>
-          <div className="mb-1 text-[13px] font-medium text-muted">
-            Races{racedTotal ? ` (${racedTotal} known)` : ""}
-          </div>
+          <div className="mb-1 text-[13px] font-medium text-muted">Races</div>
           {racedTotal ? (
             <>
               <div className="h-52">
@@ -115,7 +113,7 @@ export default function FcCharts({
                   <span key={s.name} className="inline-flex items-center gap-1">
                     <span className="size-2 rounded-full" style={{ background: s.color }} />
                     {s.name} {s.value}
-                    <span className="opacity-70">({share(s.value, racedTotal)})</span>
+                    <span className="opacity-70">({share(s.value)})</span>
                   </span>
                 ))}
               </div>

@@ -9,6 +9,7 @@ import {
 } from "@/lib/types";
 import { computeBadges, percentile, topN } from "@/lib/badges";
 import JobBreakdown from "@/components/JobBreakdown";
+import JobIcon from "@/components/JobIcon";
 import MemberTags from "@/components/MemberTags";
 import RareAchievements, { type AchievementInfo } from "@/components/RareAchievements";
 import { createClient } from "@/lib/supabase/client";
@@ -306,7 +307,12 @@ export default function MemberView({
                   {enc?.best ?? "—"}
                 </div>
                 <div className="text-[11px] text-muted">
-                  {enc ? `${enc.kills} kills${enc.job ? ` · ${enc.job}` : ""}` : "\u00A0"}
+                  {enc ? (
+                    <span className="inline-flex items-center gap-1">
+                      {enc.kills} kills
+                      {enc.job && <> · <JobIcon job={enc.job} size={14} /> {enc.job}</>}
+                    </span>
+                  ) : "\u00A0"}
                 </div>
               </div>
             ))}
@@ -336,7 +342,11 @@ export default function MemberView({
                   <div className="truncate font-data text-[13.5px] text-ink">{e.name}</div>
                   <div className="text-[11.5px] text-muted">
                     {e.cleared ? `${e.kills} kills` : "no log"}
-                    {e.job ? ` · ${e.job}` : ""}
+                    {e.job && (
+                      <span className="inline-flex items-center gap-1">
+                        {" · "}<JobIcon job={e.job} size={14} /> {e.job}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="font-data text-lg font-semibold"
@@ -346,6 +356,35 @@ export default function MemberView({
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* Ultimates nobody logged. FF Logs is opt-in, so a clear can be real and
+          invisible there; the Lodestone achievement still proves it happened. */}
+      {(m.ult_achv_only?.length ?? 0) > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-2 font-display text-lg font-semibold">
+            Ultimates{" "}
+            <span className="text-[13px] font-normal text-muted">
+              (from achievements — no FF Logs record)
+            </span>
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {m.ult_achv_only!.map((name) => (
+              <span key={name}
+                    className="inline-flex items-center gap-2 rounded-xl border border-gold/40 bg-gold/8 px-3.5 py-2 text-[13.5px]">
+                <span className="rounded-md border border-gold/40 bg-gold/10 px-1.5 py-[1px] font-data text-[12px] font-bold text-gold">
+                  {ultimateAbbr(name)}
+                </span>
+                <span className="font-data text-ink">{name}</span>
+                <span className="text-[11px] text-gold">🏆 Legend</span>
+              </span>
+            ))}
+          </div>
+          <p className="mt-1.5 text-[12px] text-muted">
+            Cleared according to Lodestone. Parse and kill counts need an uploaded
+            log, so there are none to show.
+          </p>
         </section>
       )}
 
@@ -378,7 +417,12 @@ export default function MemberView({
                       </span>
                     )}
                     <div className="text-[11.5px] text-muted">
-                      {u.kills} kills{u.job ? ` · ${u.job}` : ""}
+                      {u.kills} kills
+                      {u.job && (
+                        <span className="inline-flex items-center gap-1">
+                          {" · "}<JobIcon job={u.job} size={14} /> {u.job}
+                        </span>
+                      )}
                       {u.expansion ? ` · ${u.expansion}` : ""}
                     </div>
                   </div>

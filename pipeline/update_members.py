@@ -102,8 +102,23 @@ LEGACY_LABELS = [
 ULTIMATE_PATTERNS = [
     "ultimate", "unending coil", "weapon's refrain", "weapons refrain",
     "epic of alexander", "dragonsong", "omega protocol", "futures rewritten",
-    "future's rewritten",
+    "future's rewritten", "dancing mad",
 ]
+
+# Ultimate clears also show up as achievements, which matters because FF Logs is
+# opt-in: a member who never uploaded a log, or who hides their profile, still has
+# the achievement on Lodestone. Ids and duty names read off the FFXIV Collect
+# catalogue. "Alternative Destiny" is the odd one out — it is the Futures Rewritten
+# clear but its description never says "(Ultimate)", so it cannot be matched by text.
+ULTIMATE_ACHV: dict[int, str] = {
+    1993: "The Unending Coil of Bahamut",
+    2107: "The Weapon's Refrain",
+    2444: "The Epic of Alexander",
+    3074: "Dragonsong's Reprise",
+    3162: "The Omega Protocol",
+    3617: "Futures Rewritten",
+    4069: "Dancing Mad",
+}
 
 # Zones that expose a "Savage" difficulty without being a four-boss savage raid tier.
 # They have to be excluded explicitly: the newest of them (currently "The Forked
@@ -709,7 +724,30 @@ def collect_rarity_map() -> dict[int, dict]:
 
 
 COLLECT_FIELDS = ("mounts", "minions", "rare_achv", "craft_achv", "pvp_achv",
-                  "ach_public", "portrait")
+                  "ach_public", "portrait", "ult_achv")
+
+
+def merge_ultimates(members: list[dict]) -> None:
+    """Union the FF Logs ultimates with the ones proved by achievements.
+
+    FF Logs only knows about fights somebody uploaded, so a member can hold the
+    clear achievement and still show nothing there. Counting both means the board
+    stops calling those members "no data" when Lodestone says otherwise.
+    """
+    gained = 0
+    for m in members:
+        from_logs = set(m.get("ult_cleared") or [])
+        from_achv = set(m.get("ult_achv") or [])
+        merged = sorted(from_logs | from_achv)
+        if from_achv - from_logs:
+            gained += 1
+        m["ult_cleared"] = merged
+        m["ult_clears"] = len(merged)
+        # Which ones only the achievement vouches for, so the page can say so
+        # rather than implying there is a log to go and read.
+        m["ult_achv_only"] = sorted(from_achv - from_logs)
+    log(f"Ultimates — achievements added clears for {gained} members "
+        "that FF Logs did not have")
 
 
 def hydrate_collect(members: list[dict], cache: dict) -> int:
@@ -754,6 +792,9 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
             ach = d.get("achievements") or {}
             m["ach_public"] = ach.get("public")
             ids = ach.get("ids") or []
+            # Independent of FF Logs on purpose — this is the evidence for members
+            # who never uploaded a log or who hide their profile there.
+            m["ult_achv"] = sorted({ULTIMATE_ACHV[a] for a in ids if a in ULTIMATE_ACHV})
             if m["ach_public"] and ids:
                 rare = craft = pvp = 0
                 buckets: dict[str, dict] = {}
@@ -1335,6 +1376,9 @@ def main() -> None:
     else:
         inject_lala(members, extra.get("lala") or {})
         log(f"Lalachievements — reused {len(extra.get('lala') or {})} cached entries")
+
+    # After Collect, because that is where the achievement evidence comes from.
+    merge_ultimates(members)
 
     # Grades are a share of everything rare in each playstyle, so the ceilings have to
     # survive runs that read FFXIV Collect from cache and never see the catalogue.

@@ -1,6 +1,7 @@
 "use client";
 
 import type { MemberRaids } from "@/lib/types";
+import JobIcon from "@/components/JobIcon";
 
 /** FFLogs' standard parse colours. */
 function parseColor(p: number | null | undefined): string {
@@ -71,9 +72,10 @@ export default function JobBreakdown({ raids }: { raids: MemberRaids | null }) {
       </h2>
       <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-4">
         {rows.map((r) => (
-          <div key={r.job} className="grid grid-cols-[68px_1fr_auto] items-center gap-3">
-            <span className="truncate font-data text-[13px] text-ink" title={r.job}>
-              {r.job}
+          <div key={r.job} className="grid grid-cols-[104px_1fr_auto] items-center gap-3">
+            <span className="flex min-w-0 items-center gap-1.5" title={r.job}>
+              <JobIcon job={r.job} size={18} />
+              <span className="truncate font-data text-[13px] text-ink">{r.job}</span>
             </span>
             <span className="flex items-center gap-2">
               {/* Bar length is how often they play it; colour is how well it parses,

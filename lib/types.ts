@@ -27,8 +27,13 @@ export interface Member {
   last_change?: string | null;
   /** Current-patch extreme trials this member has cleared, by boss name. */
   ex_cleared?: string[] | null;
-  /** Ultimates cleared, by full encounter name — abbreviate with ultimateAbbr(). */
+  /**
+   * Ultimates cleared, by full encounter name — abbreviate with ultimateAbbr().
+   * The union of FF Logs and the clear achievements, because FF Logs is opt-in.
+   */
   ult_cleared?: string[] | null;
+  /** Of those, the ones only the achievement proves — there is no log to link to. */
+  ult_achv_only?: string[] | null;
   /**
    * Per playstyle: how many rare achievements, the rarest one's ownership %, and the
    * rarity-weighted score the leaderboards and grades both rank on.
@@ -153,6 +158,7 @@ export const ULTIMATE_ABBR: Record<string, string> = {
   "Dragonsong's Reprise": "DSR",
   "The Omega Protocol": "TOP",
   "Futures Rewritten": "FRU",
+  "Dancing Mad": "DMU",
 };
 
 export const ultimateAbbr = (name: string): string =>
