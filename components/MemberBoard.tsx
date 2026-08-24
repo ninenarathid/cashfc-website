@@ -11,10 +11,15 @@ import MemberTags, { TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 import TagLegend from "@/components/TagLegend";
 
 
+// Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
+// opening on the whole list mostly shows people who are not playing — the wrong
+// answer to "who is around?", which is why anyone opens this page.
 const ACTIVITY_OPTIONS = [
   { key: "active", label: "Active" },
   { key: "vacation", label: "On vacation" },
+  { key: "all", label: "Everyone" },
 ];
+const ACTIVITY_DEFAULT = "active";
 // Filters on the real acquisition dates from Lalachievements. Kept separate from the
 // rank-based Active filter above on purpose: that one covers everyone, this one only
 // covers members the site has actually indexed, so merging them would quietly drop
@@ -80,7 +85,7 @@ interface Adv {
 }
 const ADV_EMPTY: Adv = {
   lfg: "", rank: "", boss: [], lvMin: "",
-  race: "", activity: "", ex: [], seen: "",
+  race: "", activity: ACTIVITY_DEFAULT, ex: [], seen: "",
 };
 
 const daysSince = (iso: string): number =>
@@ -112,7 +117,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       lfg: p.get("lfg") ?? "", rank: p.get("rank") ?? "",
       boss,
       lvMin: p.get("lv") ?? "", race: p.get("race") ?? "",
-      activity: p.get("act") ?? "", ex, seen: p.get("seen") ?? "",
+      activity: p.get("act") ?? ACTIVITY_DEFAULT, ex, seen: p.get("seen") ?? "",
     });
     if (p.get("lfg") || p.get("rank") ||
         boss.length || ex.length || p.get("lv") || p.get("race") ||
@@ -134,7 +139,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.ex.length) p.set("ex", adv.ex.join(","));
     if (adv.lvMin) p.set("lv", adv.lvMin);
     if (adv.race) p.set("race", adv.race);
-    if (adv.activity) p.set("act", adv.activity);
+    if (adv.activity !== ACTIVITY_DEFAULT) p.set("act", adv.activity);
     if (adv.seen) p.set("seen", adv.seen);
     const qs = p.toString();
     window.history.replaceState(null, "",
@@ -251,7 +256,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
-    (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) + (adv.activity ? 1 : 0) +
+    (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) +
     (adv.seen ? 1 : 0);
 
   // How many members we actually have acquisition dates for. Shown next to the
@@ -294,6 +299,32 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       </header>
 
       <div className="flex flex-col gap-3">
+        {/* Top level, not tucked inside the advanced panel: on a roster where most
+            people are on vacation, this is the first cut almost everyone wants. */}
+        <div className="inline-flex self-start rounded-lg border border-line bg-surface p-0.5"
+             role="group" aria-label="Filter by activity">
+          {ACTIVITY_OPTIONS.map((o) => {
+            const on = adv.activity === o.key;
+            const n = o.key === "active" ? activityCounts.active
+              : o.key === "vacation" ? activityCounts.vacation
+              : visible.length;
+            return (
+              <button key={o.key} onClick={() => setAdv({ ...adv, activity: o.key })}
+                      aria-pressed={on}
+                      className={`rounded-md px-3.5 py-1.5 text-[13.5px] transition-colors ${
+                        on ? "bg-amber/15 text-amber"
+                           : "text-muted hover:text-ink"}`}>
+                {o.key !== "all" && (
+                  <span className={`mr-1.5 inline-block size-2 rounded-full align-middle ${
+                    o.key === "active" ? "bg-[#43b581]" : "bg-[#747f8d]"}`} />
+                )}
+                {o.label}
+                <small className="ml-1.5 font-data opacity-70">{n}</small>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="flex flex-wrap gap-2.5">
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)}
                  placeholder="Search character name…" aria-label="Search character name"
@@ -337,16 +368,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     className={selCls} aria-label="FC rank">
               <option value="">Rank: any</option>
               {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
-            <select value={adv.activity}
-                    onChange={(e) => setAdv({ ...adv, activity: e.target.value })}
-                    className={selCls} aria-label="Activity status">
-              <option value="">Activity: any</option>
-              {ACTIVITY_OPTIONS.map((o) => (
-                <option key={o.key} value={o.key}>
-                  {o.label} ({activityCounts[o.key as "active" | "vacation"]})
-                </option>
-              ))}
             </select>
             {races.length > 0 && (
               <select value={adv.race}
@@ -448,7 +469,25 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         </div>
 
         <div className="text-[13px] text-muted">
-          Showing {list.length} of {visible.length} members
+          {/* Names the activity scope rather than only the raw numbers: with Active
+              as the default, "179 of 502" on its own reads like something is broken. */}
+          Showing {list.length}
+          {adv.activity === "active" && " active"}
+          {adv.activity === "vacation" && " on-vacation"}
+          {" of "}
+          {adv.activity === "active" ? activityCounts.active
+            : adv.activity === "vacation" ? activityCounts.vacation
+            : visible.length}
+          {" members"}
+          {adv.activity !== "all" && (
+            <>
+              {" · "}
+              <button onClick={() => setAdv({ ...adv, activity: "all" })}
+                      className="underline hover:text-ink">
+                show everyone
+              </button>
+            </>
+          )}
         </div>
 
         <TagLegend />

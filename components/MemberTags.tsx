@@ -2,7 +2,7 @@
 
 import type { Member } from "@/lib/types";
 import { ACHV_TIER_HELP, ACHV_TIER_LABEL, ultimateAbbr } from "@/lib/types";
-import JobIcon from "@/components/JobIcon";
+import JobIcon, { jobTierStyle } from "@/components/JobIcon";
 
 /**
  * Shared so the board and the member page cannot drift apart: the same member has to
@@ -90,21 +90,29 @@ export default function MemberTags(
   const tiers = m.achv_tiers ?? {};
   const ults = m.ult_cleared ?? [];
   const pad = size === "md" ? "px-3 py-1 text-[12.5px]" : "px-2.5 py-[3px] text-[11.5px]";
-  const job = m.job_top;
+
+  // Every job that reached a grade, not just the best one: plenty of people are a
+  // Legendary Reaper *and* a Master Dancer, and collapsing that to one loses the
+  // second job somebody might want to ask about.
+  const jobs = Object.entries(m.job_scores ?? {})
+    .filter(([, s]) => s.tier)
+    .sort((a, b) => b[1].score - a[1].score);
 
   return (
     <>
       {/* Deliberately understated: useful for finding someone who could teach a
           newcomer, not a ranking anyone should be playing for. Only shown from
           Expert up, because below that the answer to "could they teach this?" is no. */}
-      {job?.tier && (
+      {jobs.map(([job, s]) => (
         <span
-          title={`${job.parse} average best parse over ${job.kills} kills across ${job.fights} fights — good person to ask about ${job.job}`}
-          className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-card font-medium text-muted ${pad}`}>
-          <JobIcon job={job.job} size={size === "md" ? 15 : 13} />
-          {ACHV_TIER_LABEL[job.tier]} {job.job}
+          key={job}
+          title={`${s.parse} average best parse over ${s.kills} kills across ${s.fights} fights — good person to ask about ${job}`}
+          style={jobTierStyle(job, s.tier)}
+          className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad}`}>
+          <JobIcon job={job} size={size === "md" ? 15 : 13} />
+          {ACHV_TIER_LABEL[s.tier!]} {job}
         </span>
-      )}
+      ))}
       {m.tags.map((t) => {
         const tier = tiers[t];
         // Which Ultimates, not just that there were some — UCOB and FRU are worlds

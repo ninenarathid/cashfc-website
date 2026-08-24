@@ -2,7 +2,7 @@
 
 import type { JobScore, MemberRaids } from "@/lib/types";
 import { ACHV_TIER_LABEL } from "@/lib/types";
-import JobIcon from "@/components/JobIcon";
+import JobIcon, { jobTierStyle } from "@/components/JobIcon";
 
 /** FFLogs' standard parse colours. */
 function parseColor(p: number | null | undefined): string {
@@ -101,7 +101,8 @@ export default function JobBreakdown(
               {jobScores?.[r.job]?.tier && (
                 <span
                   title={`${jobScores[r.job].parse} average best parse over ${jobScores[r.job].kills} kills across ${jobScores[r.job].fights} fights`}
-                  className="whitespace-nowrap rounded-full border border-line bg-card px-2 py-[2px] text-[10.5px] text-muted">
+                  style={jobTierStyle(r.job, jobScores[r.job].tier)}
+                  className="whitespace-nowrap rounded-full border px-2 py-[2px] text-[10.5px]">
                   {ACHV_TIER_LABEL[jobScores[r.job].tier!]}
                 </span>
               )}
