@@ -338,10 +338,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           </div>
         </div>
         <div className="flex gap-2">
-          <Link href="/compare"
-                className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted no-underline hover:border-amber hover:text-amber">
-            ⚖️ Compare two
-          </Link>
           <button
             onClick={() => setView(view === "list" ? "kitchen" : "list")}
             className={`rounded-lg border px-3.5 py-1.5 text-[13px] ${

@@ -111,11 +111,11 @@ export default function MemberView({
   const isBirthdayToday = !!ov?.birthMonth && !!ov?.birthDay &&
     ov.birthMonth === now.getMonth() + 1 && ov.birthDay === now.getDate();
   const badges = useMemo(
-    () => computeBadges(m, raids, {
+    () => computeBadges(m, {
       mountsTop10: topN(agg.mounts, 10),
       rareTop10: topN(agg.rare, 10),
-    }, !!ov),
-    [m, raids, agg, ov]);
+    }),
+    [m, agg]);
 
   const legacyGroups = useMemo(() => {
     const g: Record<string, RaidZone[]> = {};
@@ -407,7 +407,6 @@ export default function MemberView({
                   {ultimateAbbr(name)}
                 </span>
                 <span className="font-data text-ink">{name}</span>
-                <span className="text-[11px] text-gold">🏆 Legend</span>
               </span>
             ))}
           </div>
@@ -441,11 +440,6 @@ export default function MemberView({
                     <span className="font-data text-[14px] font-semibold text-ink">
                       {title}
                     </span>
-                    {u.cleared && (
-                      <span className="ml-2 rounded-full border border-gold/50 bg-gold/10 px-2 py-[2px] text-[11px] text-gold">
-                        🏆 Legend
-                      </span>
-                    )}
                     <div className="text-[11.5px] text-muted">
                       {u.kills} kills
                       {u.job && (

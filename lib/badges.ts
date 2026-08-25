@@ -1,4 +1,4 @@
-import type { Member, MemberRaids } from "@/lib/types";
+import type { Member } from "@/lib/types";
 
 export interface Badge { icon: string; name: string; desc: string }
 
@@ -8,24 +8,8 @@ export interface FcAgg {
 }
 
 /** Automatic restaurant-themed badges — tweak the thresholds here. */
-export function computeBadges(
-  m: Member, raids: MemberRaids | null, agg: FcAgg, claimed: boolean,
-): Badge[] {
+export function computeBadges(m: Member, agg: FcAgg): Badge[] {
   const out: Badge[] = [];
-
-  const currentBest = Math.max(
-    -1, ...(raids?.current?.encounters ?? []).map((e) => e.best ?? -1));
-  if (currentBest >= 99)
-    out.push({ icon: "⭐⭐⭐", name: "Three Michelin Stars",
-               desc: `parse ${currentBest} in the current tier` });
-  else if (currentBest >= 95)
-    out.push({ icon: "⭐⭐", name: "Two Michelin Stars",
-               desc: `parse ${currentBest} in the current tier` });
-
-  for (const u of raids?.ultimates ?? [])
-    if (u.cleared)
-      out.push({ icon: "🏆", name: `Legend — ${u.zone}`,
-                 desc: "Ultimate cleared" });
 
   if ((m.mounts ?? 0) >= agg.mountsTop10 && (m.mounts ?? 0) > 0)
     out.push({ icon: "🐎", name: "Head Chef of Collecting",
@@ -34,9 +18,6 @@ export function computeBadges(
   if ((m.rare_achv ?? 0) >= agg.rareTop10 && (m.rare_achv ?? 0) > 0)
     out.push({ icon: "🥔", name: "Popoto King",
                desc: `${m.rare_achv} rare achievements — FC top 10` });
-
-  if (claimed)
-    out.push({ icon: "🍲", name: "Regular", desc: "Verified via Discord" });
 
   return out;
 }

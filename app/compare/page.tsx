@@ -1,15 +1,8 @@
-import raw from "@/data/members.json";
-import CompareClient from "@/components/CompareClient";
-import type { BoardData } from "@/lib/types";
+import { notFound } from "next/navigation";
 
-export const metadata = { title: "Compare members — Cafe And SHabu" };
-
+// Parked alongside events and minigames: unlinked from the roster and 404 by design
+// so an unfinished page is never publicly reachable. The working version is in git
+// history, and components/CompareClient.tsx is untouched.
 export default function ComparePage() {
-  const data = raw as unknown as BoardData;
-  const slim = data.members.map((m) => ({
-    id: m.id, name: m.name, avatar: m.avatar, rank: m.rank, level: m.level,
-    parse: m.parse, tags: m.tags, mounts: m.mounts, minions: m.minions,
-    rare_achv: m.rare_achv, ult_clears: m.ult_clears,
-  }));
-  return <CompareClient options={slim} />;
+  notFound();
 }
