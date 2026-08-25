@@ -26,17 +26,6 @@ const ACTIVITY_OPTIONS = [
   { key: "all", label: "Everyone" },
 ];
 const ACTIVITY_DEFAULT = "active";
-// Filters on the real acquisition dates from Lalachievements. Kept separate from the
-// rank-based Active filter above on purpose: that one covers everyone, this one only
-// covers members the site has actually indexed, so merging them would quietly drop
-// people from results for a reason nobody could see.
-const SEEN_OPTIONS = [
-  { key: "30", label: "Last 30 days", days: 30 },
-  { key: "90", label: "Last 90 days", days: 90 },
-  { key: "180", label: "Last 6 months", days: 180 },
-  { key: "old", label: "Over 6 months ago", days: -180 },
-];
-
 type SortKey = "name" | "mounts" | "rare";
 
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("");
@@ -92,14 +81,12 @@ interface Adv {
   ex: string[];
   /** Tags a member must have *all* of. The chip row above picks one; this narrows. */
   tags: string[];
-  /** "Last seen collecting" window, from SEEN_OPTIONS. */
-  seen: string;
   /** Lowest grade a member must hold — scoped by the job and tag filters. */
   grade: string;
 }
 const ADV_EMPTY: Adv = {
   lfg: "", rank: "", boss: [],
-  race: "", activity: ACTIVITY_DEFAULT, ex: [], seen: "", role: "", job: "",
+  race: "", activity: ACTIVITY_DEFAULT, ex: [], role: "", job: "",
   tags: [], grade: "",
 };
 
@@ -122,9 +109,6 @@ const roleMatches = (job: string, sel: string) =>
   sel.startsWith(GROUP_PREFIX)
     ? jobRoleGroup(job) === sel.slice(GROUP_PREFIX.length)
     : jobRole(job) === sel;
-
-const daysSince = (iso: string): number =>
-  Math.floor((Date.now() - new Date(`${iso}T00:00:00Z`).getTime()) / 86_400_000);
 
 export default function MemberBoard({ data }: { data: BoardData }) {
   const labels = data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"];
@@ -154,7 +138,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       lfg: p.get("lfg") ?? "", rank: p.get("rank") ?? "",
       boss,
       race: p.get("race") ?? "",
-      activity: p.get("act") ?? ACTIVITY_DEFAULT, ex, seen: p.get("seen") ?? "",
+      activity: p.get("act") ?? ACTIVITY_DEFAULT, ex,
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
       grade: p.get("grade") ?? "",
     });
@@ -174,7 +158,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.ex.length) p.set("ex", adv.ex.join(","));
     if (adv.race) p.set("race", adv.race);
     if (adv.activity !== ACTIVITY_DEFAULT) p.set("act", adv.activity);
-    if (adv.seen) p.set("seen", adv.seen);
     if (adv.role) p.set("role", adv.role);
     if (adv.job) p.set("job", adv.job);
     if (adv.tags.length) p.set("tags", adv.tags.join(","));
@@ -350,15 +333,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       }
       if (adv.activity === "active" && isOnVacation(m)) return false;
       if (adv.activity === "vacation" && !isOnVacation(m)) return false;
-      if (adv.seen) {
-        // Members with no acquisition data can't satisfy a "last seen" window, so
-        // they drop out rather than being silently counted as recently active.
-        if (!m.last_active) return false;
-        const d = daysSince(m.last_active);
-        const want = SEEN_OPTIONS.find((o) => o.key === adv.seen);
-        if (!want) return false;
-        if (want.days > 0 ? d > want.days : d <= -want.days) return false;
-      }
       for (const i of adv.boss) if (!m.current_clears?.[i]) return false;
       for (const name of adv.ex) if (!m.ex_cleared?.includes(name)) return false;
       return true;
@@ -378,14 +352,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     adv.boss.length + adv.ex.length +
     (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
     (adv.grade ? 1 : 0) +
-    adv.tags.length +
-    (adv.seen ? 1 : 0);
+    adv.tags.length;
 
   // How many members we actually have acquisition dates for. Shown next to the
   // "last seen" filter so a small result set reads as missing data, not inactivity.
-  const seenKnown = useMemo(
-    () => inScope.filter((m) => m.last_active).length, [inScope]);
-
   // How many members cleared each extreme, so the chips can show what is worth picking.
   const exCounts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -544,17 +514,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               <option value="">Race: any ({racedCount})</option>
               {races.map(([r, n]) => (
                 <option key={r} value={r}>{r} ({n})</option>
-              ))}
-            </select>
-          )}
-          {seenKnown > 0 && (
-            <select value={adv.seen}
-                    onChange={(e) => setAdv({ ...adv, seen: e.target.value })}
-                    className={selCls} aria-label="Last seen collecting"
-                    title={`Based on mount, minion and achievement dates — known for ${seenKnown} of ${inScope.length} members`}>
-              <option value="">Last seen: any ({seenKnown} known)</option>
-              {SEEN_OPTIONS.map((o) => (
-                <option key={o.key} value={o.key}>{o.label}</option>
               ))}
             </select>
           )}

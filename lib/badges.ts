@@ -1,34 +1,16 @@
-import type { Member } from "@/lib/types";
-
-export interface Badge { icon: string; name: string; desc: string }
-
-export interface FcAgg {
-  mountsTop10: number;   // lowest mount count still inside the FC top 10
-  rareTop10: number;     // lowest rare-achievement count still inside the FC top 10
-}
-
-/** Automatic restaurant-themed badges — tweak the thresholds here. */
-export function computeBadges(m: Member, agg: FcAgg): Badge[] {
-  const out: Badge[] = [];
-
-  if ((m.mounts ?? 0) >= agg.mountsTop10 && (m.mounts ?? 0) > 0)
-    out.push({ icon: "🐎", name: "Head Chef of Collecting",
-               desc: `${m.mounts} mounts — FC top 10` });
-
-  if ((m.rare_achv ?? 0) >= agg.rareTop10 && (m.rare_achv ?? 0) > 0)
-    out.push({ icon: "🥔", name: "Popoto King",
-               desc: `${m.rare_achv} rare achievements — FC top 10` });
-
-  return out;
-}
-
-export function topN(values: (number | null | undefined)[], n: number): number {
-  const v = values.filter((x): x is number => x != null && x > 0)
-                  .sort((a, b) => b - a);
-  return v.length ? v[Math.min(n, v.length) - 1] : Number.POSITIVE_INFINITY;
-}
-
-export function percentile(values: (number | null | undefined)[], me: number | null | undefined): number | null {
+/**
+ * Where a member sits against the rest of the FC on a given stat, for the bars under
+ * the collection tiles.
+ *
+ * This file used to also hand out restaurant-themed badges — Head Chef of
+ * Collecting, Popoto King and so on. They were retired because the playstyle and job
+ * chips already say what somebody is known for, in a way that is earned against the
+ * whole game rather than against whoever happens to be in the FC this week.
+ */
+export function percentile(
+  values: (number | null | undefined)[],
+  me: number | null | undefined,
+): number | null {
   if (me == null) return null;
   const v = values.filter((x): x is number => x != null);
   if (!v.length) return null;

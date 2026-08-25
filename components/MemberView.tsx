@@ -8,7 +8,7 @@ import {
   BOARD_QUERY_KEY, LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday,
   ultimateAbbr,
 } from "@/lib/types";
-import { computeBadges, percentile, topN } from "@/lib/badges";
+import { percentile } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
 import JobBreakdown from "@/components/JobBreakdown";
 import JobIcon from "@/components/JobIcon";
@@ -111,13 +111,6 @@ export default function MemberView({
   const now = new Date();
   const isBirthdayToday = !!ov?.birthMonth && !!ov?.birthDay &&
     ov.birthMonth === now.getMonth() + 1 && ov.birthDay === now.getDate();
-  const badges = useMemo(
-    () => computeBadges(m, {
-      mountsTop10: topN(agg.mounts, 10),
-      rareTop10: topN(agg.rare, 10),
-    }),
-    [m, agg]);
-
   const legacyGroups = useMemo(() => {
     const g: Record<string, RaidZone[]> = {};
     for (const z of raids?.legacy ?? [])
@@ -301,18 +294,6 @@ export default function MemberView({
       <section className="mt-4 flex flex-wrap gap-2">
         <MemberTags m={m} extremeTotal={extremeTotal} size="md" />
       </section>
-
-      {/* ── Badges ── */}
-      {badges.length > 0 && (
-        <section className="mt-3 flex flex-wrap gap-2">
-          {badges.map((b) => (
-            <span key={b.name} title={b.desc}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/8 px-3 py-1.5 text-[12.5px] text-gold">
-              <span>{b.icon}</span> {b.name}
-            </span>
-          ))}
-        </section>
-      )}
 
       {/* Ahead of the raid tier: for most of this FC the achievements are the
           interesting part, and plenty of members have no raid data at all. */}
