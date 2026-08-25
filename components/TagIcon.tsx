@@ -3,16 +3,22 @@
 import { useState } from "react";
 
 /**
- * The game's own art for each playstyle, served by XIVAPI the same way JobIcon
- * serves job symbols — no third-party or invented iconography anywhere on the board.
+ * The game's own art for each tag, served by XIVAPI the same way JobIcon serves job
+ * symbols — no third-party or invented iconography anywhere on the board.
  *
- * Every path below was picked by looking at the rendered image, not by guessing from
- * a filename: each one is an object rather than character art, because a portrait
- * turns to mush at 14px while a pickaxe still reads as a pickaxe. Where a playstyle
- * had no obvious single object, the icon is the one the game itself uses most often
- * on achievements in that category.
+ * Every path below was picked by rendering the image and looking at it, not by
+ * guessing from a filename, and each is an object rather than character art: the
+ * icon the game uses most often on gathering achievements is a portrait holding a
+ * pickaxe, which is mush at 13px, while the pickaxe item icon still reads as one.
+ *
+ * They are drawn as circles. FFXIV bakes an opaque plate into every category and
+ * item icon — the only transparent art in the game is the 42 class symbols, which
+ * have nothing to say about treasure maps or seasonal events — so a square tile
+ * inside a rounded chip always read as a sticker stuck on top of it. Cropping to a
+ * circle loses the corners of the plate and nothing else.
  */
 const TAG_ICON: Record<string, { path: string; alt: string }> = {
+  // Playstyles, from rare achievements.
   crafter:    { path: "035000/035106", alt: "blacksmith's hammer" },
   gatherer:   { path: "038000/038011", alt: "pickaxe" },
   relic:      { path: "036000/036572", alt: "relic weapon" },
@@ -22,6 +28,20 @@ const TAG_ICON: Record<string, { path: string; alt: string }> = {
   seasonal:   { path: "026000/026107", alt: "wrapped gift" },
   pvp:        { path: "000000/000210", alt: "raised fist" },
   oldtimer:   { path: "062000/062916", alt: "quill" },
+
+  // Raiding, from FF Logs. Tier cleared and Progging share an icon deliberately —
+  // they are the same tier, one finished and one not, and the chip already says
+  // which by its label and its dashed border. No member can hold both.
+  "tier-clear": { path: "064000/064848", alt: "savage raid" },
+  prog:         { path: "064000/064848", alt: "savage raid" },
+  extreme:      { path: "062000/062969", alt: "trials" },
+  // The icon the game itself puts on every Ultimate clear achievement, from
+  // Unending Coil through Dancing Mad — it draws no distinction between them either.
+  ultimate:     { path: "000000/000317", alt: "ultimate raid" },
+  veteran:      { path: "002000/002669", alt: "past raids" },
+
+  // Casual and No data get nothing on purpose: an icon would dress up the absence
+  // of information as a thing somebody achieved.
 };
 
 export const hasTagIcon = (tag: string) => tag in TAG_ICON;
@@ -32,8 +52,8 @@ export default function TagIcon(
 ) {
   const [broken, setBroken] = useState(false);
   const icon = TAG_ICON[tag];
-  // No placeholder square: unlike a job, a tag always carries its name right beside
-  // it, so a missing icon should simply leave the chip as it was.
+  // No placeholder: unlike a job, a tag always carries its name right beside it, so
+  // a missing icon should simply leave the chip looking the way it did before.
   if (!icon || broken) return null;
 
   return (
@@ -46,7 +66,7 @@ export default function TagIcon(
       height={size}
       loading="lazy"
       onError={() => setBroken(true)}
-      className={`inline-block shrink-0 ${className}`}
+      className={`inline-block shrink-0 rounded-full object-cover ring-1 ring-black/25 ${className}`}
     />
   );
 }
