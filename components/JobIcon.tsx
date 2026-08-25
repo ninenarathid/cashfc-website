@@ -21,30 +21,52 @@ const JOBS: Record<string, { id: number; abbr: string; role: Role; color: string
   Warrior:      { id: 21, abbr: "WAR", role: "tank",   color: "#d33a30" },
   DarkKnight:   { id: 32, abbr: "DRK", role: "tank",   color: "#bc4f63" },
   Gunbreaker:   { id: 37, abbr: "GNB", role: "tank",   color: "#b3a04a" },
-  WhiteMage:    { id: 24, abbr: "WHM", role: "healer", color: "#efe4cf" },
-  Scholar:      { id: 28, abbr: "SCH", role: "healer", color: "#5f5fd4" },
-  Astrologian:  { id: 33, abbr: "AST", role: "healer", color: "#dd8a2e" },
-  Sage:         { id: 40, abbr: "SGE", role: "healer", color: "#cfdde3" },
-  Monk:         { id: 20, abbr: "MNK", role: "dps",    color: "#d9a520" },
-  Dragoon:      { id: 22, abbr: "DRG", role: "dps",    color: "#3f6ad0" },
-  Ninja:        { id: 30, abbr: "NIN", role: "dps",    color: "#c84e5e" },
-  Samurai:      { id: 34, abbr: "SAM", role: "dps",    color: "#e0d2ae" },
-  Reaper:       { id: 39, abbr: "RPR", role: "dps",    color: "#a89060" },
-  Viper:        { id: 41, abbr: "VPR", role: "dps",    color: "#c8443a" },
-  Bard:         { id: 23, abbr: "BRD", role: "dps",    color: "#9cbe4a" },
-  Machinist:    { id: 31, abbr: "MCH", role: "dps",    color: "#7fdcd6" },
-  Dancer:       { id: 38, abbr: "DNC", role: "dps",    color: "#e6c9b8" },
-  BlackMage:    { id: 25, abbr: "BLM", role: "dps",    color: "#8a5ac8" },
-  Summoner:     { id: 27, abbr: "SMN", role: "dps",    color: "#46a862" },
-  RedMage:      { id: 35, abbr: "RDM", role: "dps",    color: "#d8476a" },
-  Pictomancer:  { id: 42, abbr: "PCT", role: "dps",    color: "#f0c53f" },
-  BlueMage:     { id: 36, abbr: "BLU", role: "dps",    color: "#52a8dd" },
+  WhiteMage:    { id: 24, abbr: "WHM", role: "pure",    color: "#efe4cf" },
+  Astrologian:  { id: 33, abbr: "AST", role: "pure",    color: "#dd8a2e" },
+  Scholar:      { id: 28, abbr: "SCH", role: "barrier", color: "#5f5fd4" },
+  Sage:         { id: 40, abbr: "SGE", role: "barrier", color: "#cfdde3" },
+  Monk:         { id: 20, abbr: "MNK", role: "melee",   color: "#d9a520" },
+  Dragoon:      { id: 22, abbr: "DRG", role: "melee",   color: "#3f6ad0" },
+  Ninja:        { id: 30, abbr: "NIN", role: "melee",   color: "#c84e5e" },
+  Samurai:      { id: 34, abbr: "SAM", role: "melee",   color: "#e0d2ae" },
+  Reaper:       { id: 39, abbr: "RPR", role: "melee",   color: "#a89060" },
+  Viper:        { id: 41, abbr: "VPR", role: "melee",   color: "#c8443a" },
+  Bard:         { id: 23, abbr: "BRD", role: "pranged", color: "#9cbe4a" },
+  Machinist:    { id: 31, abbr: "MCH", role: "pranged", color: "#7fdcd6" },
+  Dancer:       { id: 38, abbr: "DNC", role: "pranged", color: "#e6c9b8" },
+  BlackMage:    { id: 25, abbr: "BLM", role: "mranged", color: "#8a5ac8" },
+  Summoner:     { id: 27, abbr: "SMN", role: "mranged", color: "#46a862" },
+  RedMage:      { id: 35, abbr: "RDM", role: "mranged", color: "#d8476a" },
+  Pictomancer:  { id: 42, abbr: "PCT", role: "mranged", color: "#f0c53f" },
+  BlueMage:     { id: 36, abbr: "BLU", role: "mranged", color: "#52a8dd" },
 };
 
-type Role = "tank" | "healer" | "dps";
+/**
+ * The roles the game actually recruits by. "Healer" and "DPS" are too coarse to
+ * answer the questions people ask a roster: a group short a shield healer is not
+ * helped by a White Mage, and "we need a caster" is a different ask from "we need a
+ * melee". Tank stays whole because its four jobs are interchangeable in a way the
+ * others are not.
+ */
+type Role = "tank" | "pure" | "barrier" | "melee" | "pranged" | "mranged";
 
+/** Party-list order, so every menu and count reads the way the game does. */
+export const ROLE_ORDER: Role[] = [
+  "tank", "pure", "barrier", "melee", "pranged", "mranged",
+];
+
+/** The three broad roles, for grouping the finer ones under a familiar heading. */
+export const ROLE_GROUP: Record<Role, "Tanks" | "Healers" | "DPS"> = {
+  tank: "Tanks", pure: "Healers", barrier: "Healers",
+  melee: "DPS", pranged: "DPS", mranged: "DPS",
+};
+
+// Healers keep two shades of green and DPS three warm-to-violet shades, so the
+// broad role is still readable at a glance before you read the label.
 const ROLE_COLOR: Record<Role, string> = {
-  tank: "#7ea6c9", healer: "#6aa84f", dps: "#d14b3a",
+  tank: "#7ea6c9",
+  pure: "#6aa84f", barrier: "#4fb8a8",
+  melee: "#d14b3a", pranged: "#d98b3a", mranged: "#a87fd8",
 };
 
 /**
@@ -76,7 +98,9 @@ export function jobInfo(name?: string | null) {
 }
 
 export const ROLE_LABEL: Record<Role, string> = {
-  tank: "Tank", healer: "Healer", dps: "DPS",
+  tank: "Tank",
+  pure: "Pure Healer", barrier: "Barrier Healer",
+  melee: "Melee", pranged: "Physical Ranged", mranged: "Magical Ranged",
 };
 
 /** FF Logs reports "RedMage", "DarkKnight", "BlackMage" with no space. */
@@ -90,7 +114,8 @@ export function jobRole(name?: string | null): Role | null {
 /** Every job FF Logs might report, for filter dropdowns. */
 export const ALL_JOBS = Object.entries(JOBS)
   .map(([k, v]) => ({ name: k.replace(/([a-z])([A-Z])/g, "$1 $2"), ...v }))
-  .sort((a, b) => a.role.localeCompare(b.role) || a.abbr.localeCompare(b.abbr));
+  .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role)
+    || a.abbr.localeCompare(b.abbr));
 
 export function jobAbbr(name?: string | null): string | null {
   return jobInfo(name)?.abbr ?? name ?? null;

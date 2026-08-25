@@ -10,7 +10,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
-import JobIcon, { ALL_JOBS, ROLE_LABEL, jobRole } from "@/components/JobIcon";
+import JobIcon, { ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobRole } from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
 
 
@@ -239,7 +239,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   // Who plays what, from any recorded score rather than only graded ones — someone
   // can play a job perfectly well without being teaching material.
   const roleCounts = useMemo(() => {
-    const c = { tank: 0, healer: 0, dps: 0, total: 0 };
+    const c: Record<string, number> = { total: 0 };
+    for (const r of ROLE_ORDER) c[r] = 0;
     for (const m of inScope) {
       const roles = new Set(Object.keys(m.job_scores ?? {}).map(jobRole));
       if (roles.size) c.total += 1;
@@ -429,10 +430,14 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       onChange={(e) => setAdv({ ...adv, role: e.target.value, job: "" })}
                       className={selCls} aria-label="Role played">
                 <option value="">Role: any</option>
-                {(["tank", "healer", "dps"] as const).map((r) => (
-                  <option key={r} value={r} disabled={!roleCounts[r]}>
-                    {ROLE_LABEL[r]} ({roleCounts[r]})
-                  </option>
+                {["Tanks", "Healers", "DPS"].map((group) => (
+                  <optgroup key={group} label={group}>
+                    {ROLE_ORDER.filter((r) => ROLE_GROUP[r] === group).map((r) => (
+                      <option key={r} value={r} disabled={!roleCounts[r]}>
+                        {ROLE_LABEL[r]} ({roleCounts[r]})
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             )}
