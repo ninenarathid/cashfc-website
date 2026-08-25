@@ -31,15 +31,15 @@ export const TAG_HELP: Record<string, string> = {
   ultimate: "Has cleared at least one Ultimate",
   veteran: "Cleared savage or Ultimate content, but not this tier",
   extreme: "Cleared at least one extreme trial this patch",
-  crafter: "Rare crafting achievements — top 30% of everyone who has any",
-  gatherer: "Rare fishing, mining and botany achievements — top 30%",
-  relic: "Rare relic weapon and tool achievements — top 30%",
-  explorer: "Rare Eureka, Bozja and exploration achievements — top 30%",
-  treasure: "Rare treasure map and hunt achievements — top 30%",
-  goldsaucer: "Rare Gold Saucer achievements — top 30%",
-  seasonal: "Rare seasonal event achievements — top 30%",
-  pvp: "Rare PvP achievements — top 30%",
-  oldtimer: "Rare legacy achievements from the game's early years — top 30%",
+  crafter: "Collects rare crafting achievements — one of the top 30% in this FC for them",
+  gatherer: "Collects rare fishing, mining and botany achievements — top 30% in this FC",
+  relic: "Collects rare relic weapon and tool achievements — top 30% in this FC",
+  explorer: "Collects rare Eureka, Bozja and exploration achievements — top 30% in this FC",
+  treasure: "Collects rare treasure map and hunt achievements — top 30% in this FC",
+  goldsaucer: "Collects rare Gold Saucer achievements — top 30% in this FC",
+  seasonal: "Collects rare seasonal event achievements — top 30% in this FC",
+  pvp: "Collects rare PvP achievements — top 30% in this FC",
+  oldtimer: "Collects rare achievements from the game's early years — top 30% in this FC",
   casual: "No standout stats, but some data is public",
   unknown: "Logs and achievements are both private",
 };
@@ -55,15 +55,15 @@ export const TAG_HELP_TH: Record<string, string> = {
   ultimate: "เคลียร์ Ultimate มาแล้วอย่างน้อย 1 ตัว",
   veteran: "เคยเคลียร์ savage หรือ Ultimate มาก่อน แต่ไม่ใช่ tier นี้",
   extreme: "เคลียร์ extreme trial ของ patch นี้อย่างน้อย 1 ตัว",
-  crafter: "มี achievement สาย craft หายาก — อยู่ใน 30% แรกของคนที่มีสายนี้",
-  gatherer: "มี achievement สายตกปลา เหมือง และเก็บของป่าหายาก — 30% แรก",
-  relic: "มี achievement สายทำ relic weapon กับ tool หายาก — 30% แรก",
-  explorer: "มี achievement สาย Eureka, Bozja และสายสำรวจหายาก — 30% แรก",
-  treasure: "มี achievement สายแผนที่สมบัติกับล่าหัวหายาก — 30% แรก",
-  goldsaucer: "มี achievement สาย Gold Saucer หายาก — 30% แรก",
-  seasonal: "มี achievement จากอีเวนต์ตามเทศกาลหายาก — 30% แรก",
-  pvp: "มี achievement สาย PvP หายาก — 30% แรก",
-  oldtimer: "มี achievement เก่าจากยุคแรกๆ ของเกมที่หายาก — 30% แรก",
+  crafter: "เก็บ achievement สาย craft หายาก — อยู่ใน 30% แรกของ FC นี้",
+  gatherer: "เก็บ achievement สายตกปลา เหมือง เก็บของป่า หายาก — 30% แรกของ FC นี้",
+  relic: "เก็บ achievement สายทำ relic weapon กับ tool หายาก — 30% แรกของ FC นี้",
+  explorer: "เก็บ achievement สาย Eureka, Bozja และสายสำรวจ หายาก — 30% แรกของ FC นี้",
+  treasure: "เก็บ achievement สายแผนที่สมบัติกับล่าหัว หายาก — 30% แรกของ FC นี้",
+  goldsaucer: "เก็บ achievement สาย Gold Saucer หายาก — 30% แรกของ FC นี้",
+  seasonal: "เก็บ achievement จากอีเวนต์ตามเทศกาล หายาก — 30% แรกของ FC นี้",
+  pvp: "เก็บ achievement สาย PvP หายาก — 30% แรกของ FC นี้",
+  oldtimer: "เก็บ achievement เก่าจากยุคแรกๆ ของเกม หายาก — 30% แรกของ FC นี้",
   casual: "ยังไม่มีสถิติอะไรโดดเด่น แต่เปิดข้อมูลบางส่วนไว้",
   unknown: "ปิดทั้ง log และ achievement ไว้ทั้งคู่",
 };
@@ -75,6 +75,19 @@ export const TAG_HELP_TH: Record<string, string> = {
  */
 export function tagHelp(tag: string, lang: Lang): string {
   return (lang === "th" ? TAG_HELP_TH[tag] : TAG_HELP[tag]) ?? TAG_HELP[tag] ?? "";
+}
+
+/**
+ * The rarest achievement somebody holds in a playstyle, as a share of everyone
+ * who plays the game. The other numbers in these tooltips are about this FC or
+ * about the game's catalogue; this is the only one that says how you compare to
+ * other players, which is what people actually want to know.
+ */
+export function rarestLine(min: number | null | undefined, lang: Lang): string {
+  if (min == null) return "";
+  return lang === "th"
+    ? `อันที่หายากที่สุดที่ถืออยู่ มีผู้เล่นทั้งโลกแค่ ${min}% ที่มี`
+    : `rarest one they hold is owned by ${min}% of all players`;
 }
 
 export function gradeHelp(tier: string, lang: Lang): string {
@@ -128,6 +141,7 @@ export default function MemberTags(
 ) {
   const { lang } = useLang();
   const tiers = m.achv_tiers ?? {};
+  const buckets = m.achv_buckets ?? {};
   const ults = m.ult_cleared ?? [];
   const pad = size === "md" ? "px-3 py-1 text-[12.5px]" : "px-2.5 py-[3px] text-[11.5px]";
 
@@ -166,8 +180,10 @@ export default function MemberTags(
           <span key={t}
                 title={abbr
                   ? `${lang === "th" ? "เคลียร์แล้ว" : "Cleared"}: ${ults.join(", ")}`
-                  : tier ? `${tagHelp(t, lang)} — ${gradeHelp(tier, lang)}`
-                  : tagHelp(t, lang)}
+                  : [tagHelp(t, lang),
+                     tier && gradeHelp(tier, lang),
+                     rarestLine(buckets[t]?.min, lang)]
+                    .filter(Boolean).join(lang === "th" ? " · " : " · ")}
                 className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
                   TAG_CLASS[t] ?? "border-line text-muted"}`}>
             <TagIcon tag={t} size={size === "md" ? 15 : 13} />

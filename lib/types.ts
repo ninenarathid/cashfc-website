@@ -214,16 +214,19 @@ export const ACHV_TIER_LABEL: Record<string, string> = {
   expert: "Expert",
 };
 
+// Says what the number is a share *of*, because the tag help beside it carries a
+// percentage too and the two measure different things — that one is a rank inside
+// this FC, this one is a share of the game's own catalogue.
 export const ACHV_TIER_HELP: Record<string, string> = {
-  legendary: "holds 25% or more of everything rare in this playstyle",
-  master: "holds 12% or more of everything rare in this playstyle",
-  expert: "holds 5% or more of everything rare in this playstyle",
+  legendary: "has 25% or more of all the rare achievements this playstyle offers in the game",
+  master: "has 12% or more of all the rare achievements this playstyle offers in the game",
+  expert: "has 5% or more of all the rare achievements this playstyle offers in the game",
 };
 
 export const ACHV_TIER_HELP_TH: Record<string, string> = {
-  legendary: "ถือของหายากในสายนี้ตั้งแต่ 25% ขึ้นไป",
-  master: "ถือของหายากในสายนี้ตั้งแต่ 12% ขึ้นไป",
-  expert: "ถือของหายากในสายนี้ตั้งแต่ 5% ขึ้นไป",
+  legendary: "เก็บของหายากสายนี้ที่มีในเกมไปแล้ว 25% ขึ้นไป",
+  master: "เก็บของหายากสายนี้ที่มีในเกมไปแล้ว 12% ขึ้นไป",
+  expert: "เก็บของหายากสายนี้ที่มีในเกมไปแล้ว 5% ขึ้นไป",
 };
 
 /** Playable races, in the order Lodestone lists them. */

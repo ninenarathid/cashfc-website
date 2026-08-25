@@ -111,8 +111,27 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
                   ฉายานี้ไม่ใช่การแข่งกัน ใครถึงเกณฑ์ก็ได้หมด ไม่มีการโดนถอดเพราะมีคนใหม่เก่งกว่าเข้ามา
                   และการวัดเป็น % ทำให้เทียบกันได้ข้ามสาย เพราะแต่ละสายมีของหายากไม่เท่ากันเลย
                 </p>
+                <div className="mt-2 rounded-lg border border-line/70 bg-card/50 px-2.5 py-2 text-[12.5px] leading-[1.8] text-muted">
+                  <b className="text-ink">ระวังสับสน — ในเว็บนี้มี % อยู่ 3 แบบ</b>
+                  <ul className="mt-1 flex flex-col gap-1">
+                    <li>
+                      <b className="text-ink">30% แรกของ FC</b> — ใช้ตัดสินว่าจะได้ tag ไหม
+                      เทียบกับเพื่อนใน FC นี้เท่านั้น ไม่เกี่ยวกับผู้เล่นทั้งโลก
+                    </li>
+                    <li>
+                      <b className="text-ink">25 / 12 / 5%</b> — ใช้ตัดสินฉายา
+                      นับว่าเก็บของหายากสายนั้น<b className="text-ink">ที่มีอยู่ในเกม</b>ไปแล้วกี่ %
+                      ไม่ได้แข่งกับใคร
+                    </li>
+                    <li>
+                      <b className="text-ink">% ต่อ achievement</b> (เช่น 0.4%) — อันนี้แหละคือ
+                      &ldquo;หายากแค่ไหนในระดับโลก&rdquo; = มีผู้เล่นทั้งเกมกี่ % ที่ถืออันนั้น
+                      ยิ่งเลขน้อยยิ่งหายาก ดูได้ในหัวข้อ Rarest achievements ของแต่ละคน
+                    </li>
+                  </ul>
+                </div>
                 <ul className="mt-2 flex flex-col gap-1 text-[12.5px] text-muted">
-                  <li><b className="text-ink">Legendary</b> — ถือของหายากในสายนั้นได้ตั้งแต่ 25% ขึ้นไป</li>
+                  <li><b className="text-ink">Legendary</b> — เก็บของหายากสายนั้นที่มีในเกมไปแล้ว 25% ขึ้นไป</li>
                   <li><b className="text-ink">Master</b> — ตั้งแต่ 12% ขึ้นไป</li>
                   <li><b className="text-ink">Expert</b> — ตั้งแต่ 5% ขึ้นไป</li>
                   <li>ทุกระดับต้องมี achievement อย่างน้อย 3 อันหนุน ฟลุกได้ของหายากอันเดียวยังไม่นับ</li>
@@ -183,8 +202,28 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
                   measure also keeps it fair between playstyles, which hold wildly
                   different amounts of rare content.
                 </p>
+                <div className="mt-2 rounded-lg border border-line/70 bg-card/50 px-2.5 py-2 text-[12.5px] leading-relaxed text-muted">
+                  <b className="text-ink">Three different percentages live on this site</b>
+                  <ul className="mt-1 flex flex-col gap-1">
+                    <li>
+                      <b className="text-ink">Top 30% of this FC</b> — decides whether you
+                      get the tag at all. Measured against your Free Company, nobody else.
+                    </li>
+                    <li>
+                      <b className="text-ink">25 / 12 / 5%</b> — decides the grade. How much
+                      of what that playstyle offers <b className="text-ink">in the game</b>{" "}
+                      you have collected. Not a race against anyone.
+                    </li>
+                    <li>
+                      <b className="text-ink">Per-achievement %</b> (0.4%, say) — this is the
+                      one that means rare in the world: the share of all players who own it.
+                      Smaller is rarer, and you can read them under Rarest achievements on
+                      anybody&rsquo;s page.
+                    </li>
+                  </ul>
+                </div>
                 <ul className="mt-2 flex flex-col gap-1 text-[12.5px] text-muted">
-                  <li><b className="text-ink">Legendary</b> — holding 25% or more of that playstyle&rsquo;s rare achievements</li>
+                  <li><b className="text-ink">Legendary</b> — has 25% or more of all the rare achievements that playstyle offers in the game</li>
                   <li><b className="text-ink">Master</b> — 12% or more</li>
                   <li><b className="text-ink">Expert</b> — 5% or more</li>
                   <li>Any grade needs at least three achievements behind it, so a single
