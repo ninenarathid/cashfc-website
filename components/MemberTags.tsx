@@ -3,6 +3,7 @@
 import type { Member } from "@/lib/types";
 import { ACHV_TIER_HELP, ACHV_TIER_LABEL, CONTENT_LABEL, ultimateAbbr } from "@/lib/types";
 import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
+import TagIcon from "@/components/TagIcon";
 
 /**
  * Shared so the board and the member page cannot drift apart: the same member has to
@@ -146,8 +147,9 @@ export default function MemberTags(
                 title={abbr ? `Cleared: ${ults.join(", ")}`
                   : tier ? `${TAG_HELP[t] ?? t} — ${ACHV_TIER_HELP[tier]}`
                   : (TAG_HELP[t] ?? "")}
-                className={`whitespace-nowrap rounded-full border font-medium ${pad} ${
+                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
                   TAG_CLASS[t] ?? "border-line text-muted"}`}>
+            <TagIcon tag={t} size={size === "md" ? 15 : 13} />
             {tagText(t, tier)}
             {abbr && <span className="font-normal opacity-80">: {abbr}</span>}
             {exCount > 0 && (

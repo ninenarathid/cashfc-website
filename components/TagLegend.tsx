@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TAG_CLASS, TAG_HELP, TAG_HELP_TH, TAG_LABELS } from "@/components/MemberTags";
+import TagIcon from "@/components/TagIcon";
 
 const RAID_TAGS = ["tier-clear", "prog", "extreme", "ultimate", "veteran"];
 const PLAY_TAGS = ["crafter", "gatherer", "relic", "explorer", "treasure",
@@ -18,8 +19,9 @@ const GROUP_TITLE: Record<string, { en: string; th: string }> = {
 
 function Chip({ t }: { t: string }) {
   return (
-    <span className={`whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium ${
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium ${
       TAG_CLASS[t] ?? "border-line text-muted"}`}>
+      <TagIcon tag={t} size={13} />
       {TAG_LABELS[t] ?? t}
     </span>
   );

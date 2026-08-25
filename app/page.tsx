@@ -10,6 +10,7 @@ import ShowYourData from "@/components/home/ShowYourData";
 import type { BoardData, FeedEvent, NewsItem } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
 import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import TagIcon from "@/components/TagIcon";
 
 const FEED_ICON: Record<string, string> = {
   parse_up: "📈", boss_clear: "⚔️", ult_clear: "🏆", mounts_up: "🐎",
@@ -87,6 +88,7 @@ export default function Home() {
                     title={TAG_HELP[tag] ?? ""}
                     className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium no-underline transition-opacity hover:opacity-80 ${
                       TAG_CLASS[tag] ?? "border-line text-muted"}`}>
+                <TagIcon tag={tag} size={14} />
                 {TAG_LABELS[tag] ?? tag}
                 <small className="font-data opacity-75">{n}</small>
               </Link>

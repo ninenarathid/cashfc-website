@@ -3,6 +3,7 @@ import raw from "@/data/members.json";
 import type { BoardData, Member } from "@/lib/types";
 import { ACHV_TIER_LABEL, isOnVacation } from "@/lib/types";
 import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import TagIcon from "@/components/TagIcon";
 
 export const metadata = { title: "Leaderboards — Cafe And SHabu" };
 
@@ -61,8 +62,9 @@ export default function LeaderboardsPage() {
           {boards.map(({ key, rows }) => (
             <section key={key} className="rounded-xl border border-line bg-surface p-4">
               <div className="flex flex-wrap items-baseline gap-2">
-                <span className={`rounded-full border px-2.5 py-[3px] text-[12px] font-medium ${
+                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[12px] font-medium ${
                   TAG_CLASS[key] ?? "border-line text-muted"}`}>
+                  <TagIcon tag={key} size={14} />
                   {TAG_LABELS[key] ?? key}
                 </span>
                 <span className="text-[11.5px] text-muted">{TAG_HELP[key]}</span>

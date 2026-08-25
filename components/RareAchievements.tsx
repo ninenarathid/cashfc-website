@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TAG_CLASS, TAG_LABELS } from "@/components/MemberTags";
+import TagIcon from "@/components/TagIcon";
 
 export interface AchievementInfo {
   name: string | null;
@@ -69,8 +70,9 @@ export default function RareAchievements(
                 {a.bucket && (
                   // Names the playstyle tag this one feeds, so the connection between
                   // "Legendary relic grinder" and the achievements behind it is visible.
-                  <span className={`rounded-full border px-1.5 py-[1px] text-[10px] ${
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-[1px] text-[10px] ${
                     TAG_CLASS[a.bucket] ?? "border-line text-muted"}`}>
+                    <TagIcon tag={a.bucket} size={11} />
                     {TAG_LABELS[a.bucket] ?? a.bucket}
                   </span>
                 )}

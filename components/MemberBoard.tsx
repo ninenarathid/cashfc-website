@@ -8,6 +8,7 @@ import {
 } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import TagIcon from "@/components/TagIcon";
 import JobIcon, { ALL_JOBS, ROLE_LABEL, jobRole } from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
 
@@ -489,9 +490,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         tags: on ? adv.tags.filter((x) => x !== t) : [...adv.tags, t] })}
                       aria-pressed={on}
                       title={TAG_HELP[t] ?? ""}
-                      className={`rounded-full border px-2.5 py-[3px] text-[11.5px] ${
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
                         on ? TAG_CLASS[t] ?? "border-amber bg-amber/15 text-amber"
                            : "border-line text-muted hover:border-muted"}`}>
+                      <TagIcon tag={t} size={13} />
                       {TAG_LABELS[t]}
                       <small className="ml-1 opacity-70">{counts[t]}</small>
                     </button>
