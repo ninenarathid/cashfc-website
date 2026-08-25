@@ -11,7 +11,9 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
-import JobIcon, { ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobRole } from "@/components/JobIcon";
+import JobIcon, {
+  ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobRole, jobRoleGroup,
+} from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
 
 
@@ -107,6 +109,19 @@ const ADV_EMPTY: Adv = {
  */
 const GRADE_RANK: Record<string, number> = { expert: 1, master: 2, legendary: 3 };
 const GRADES = ["legendary", "master", "expert"] as const;
+
+/**
+ * The role filter takes either one precise role or a whole group. Splitting Healer
+ * into Pure and Barrier made "find me a healer" cost two searches, which is the
+ * wrong trade — the split is meant to let you be specific, not to stop you being
+ * general.
+ */
+const GROUP_PREFIX = "group:";
+const roleGroups = ["Tanks", "Healers", "DPS"] as const;
+const roleMatches = (job: string, sel: string) =>
+  sel.startsWith(GROUP_PREFIX)
+    ? jobRoleGroup(job) === sel.slice(GROUP_PREFIX.length)
+    : jobRole(job) === sel;
 
 const daysSince = (iso: string): number =>
   Math.floor((Date.now() - new Date(`${iso}T00:00:00Z`).getTime()) / 86_400_000);
@@ -254,10 +269,15 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   const roleCounts = useMemo(() => {
     const c: Record<string, number> = { total: 0 };
     for (const r of ROLE_ORDER) c[r] = 0;
+    for (const g of roleGroups) c[GROUP_PREFIX + g] = 0;
     for (const m of inScope) {
       const roles = new Set(Object.keys(m.job_scores ?? {}).map(jobRole));
       if (roles.size) c.total += 1;
       for (const r of roles) if (r) c[r] += 1;
+      // Counted once per member, not once per job, so somebody who plays both a
+      // Pure and a Barrier healer is one healer rather than two.
+      for (const g of new Set([...roles].map((r) => r && ROLE_GROUP[r])))
+        if (g) c[GROUP_PREFIX + g] += 1;
     }
     return c;
   }, [inScope]);
@@ -310,7 +330,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       if (adv.role || adv.job) {
         const played = Object.keys(m.job_scores ?? {});
         if (adv.job && !played.includes(adv.job)) return false;
-        if (adv.role && !played.some((j) => jobRole(j) === adv.role)) return false;
+        if (adv.role && !played.some((j) => roleMatches(j, adv.role))) return false;
       }
       if (adv.grade) {
         const min = GRADE_RANK[adv.grade] ?? 0;
@@ -323,7 +343,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         // would leave almost nobody once two tags are picked.
         const names = Object.keys(jobs);
         const scopedJobs = adv.job ? names.filter((j) => j === adv.job)
-          : adv.role ? names.filter((j) => jobRole(j) === adv.role)
+          : adv.role ? names.filter((j) => roleMatches(j, adv.role))
           : null;
         const scopedTags = adv.tags.length ? adv.tags : null;
         if (scopedJobs || scopedTags) {
@@ -482,15 +502,28 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       onChange={(e) => setAdv({ ...adv, role: e.target.value, job: "" })}
                       className={selCls} aria-label="Role played">
                 <option value="">Role: any</option>
-                {["Tanks", "Healers", "DPS"].map((group) => (
-                  <optgroup key={group} label={group}>
-                    {ROLE_ORDER.filter((r) => ROLE_GROUP[r] === group).map((r) => (
-                      <option key={r} value={r} disabled={!roleCounts[r]}>
-                        {ROLE_LABEL[r]} ({roleCounts[r]})
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
+                {roleGroups.map((group) => {
+                  const fine = ROLE_ORDER.filter((r) => ROLE_GROUP[r] === group);
+                  const all = GROUP_PREFIX + group;
+                  return (
+                    <optgroup key={group} label={group}>
+                      {/* An optgroup label cannot be selected, so the whole group
+                          gets its own entry. Skipped where the group holds a single
+                          role, which would just be the same option twice. */}
+                      {fine.length > 1 && (
+                        <option value={all} disabled={!roleCounts[all]}>
+                          {group === "DPS" ? "Any DPS" : `Any ${group.slice(0, -1).toLowerCase()}`}
+                          {" "}({roleCounts[all]})
+                        </option>
+                      )}
+                      {fine.map((r) => (
+                        <option key={r} value={r} disabled={!roleCounts[r]}>
+                          {fine.length > 1 ? " " : ""}{ROLE_LABEL[r]} ({roleCounts[r]})
+                        </option>
+                      ))}
+                    </optgroup>
+                  );
+                })}
               </select>
             )}
             {jobsPlayed.length > 0 && (

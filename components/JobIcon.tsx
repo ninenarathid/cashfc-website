@@ -111,6 +111,12 @@ export function jobRole(name?: string | null): Role | null {
   return jobInfo(name)?.role ?? null;
 }
 
+/** The broad role a job belongs to — Tanks, Healers or DPS. */
+export function jobRoleGroup(name?: string | null): string | null {
+  const r = jobRole(name);
+  return r ? ROLE_GROUP[r] : null;
+}
+
 /** Every job FF Logs might report, for filter dropdowns. */
 export const ALL_JOBS = Object.entries(JOBS)
   .map(([k, v]) => ({ name: k.replace(/([a-z])([A-Z])/g, "$1 $2"), ...v }))
