@@ -7,6 +7,8 @@ import { LFG_OPTIONS, MONTH_NAMES } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import CharacterClaim from "@/components/CharacterClaim";
 import { LANGS, useLang } from "@/lib/i18n";
+import AvailabilityGrid from "@/components/AvailabilityGrid";
+import { EMPTY } from "@/lib/availability";
 import SignIn, { PROVIDERS } from "@/components/SignIn";
 
 interface Option { id: number; name: string }
@@ -19,6 +21,7 @@ interface ProfileRow {
   character_name: string | null;
   /** Set by the verify route only — see supabase/migration_v4.sql. */
   character_verified_at: string | null;
+  availability: string | null;
   /** What to call somebody who has no character linked. */
   display_name: string | null;
   bio: string | null;
@@ -67,6 +70,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   const [color, setColor] = useState("");
   const [banner, setBanner] = useState("");
   const [lfg, setLfg] = useState<string[]>([]);
+  const [availability, setAvailability] = useState<string | null>(null);
   const [linking, setLinking] = useState<string | null>(null);
   const [linkErr, setLinkErr] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -94,6 +98,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         setColor(p.accent_color ?? "");
         setBanner(p.banner ?? "");
         setLfg(p.lfg ?? []);
+        setAvailability(p.availability ?? null);
       }
       setPhase("ready");
     }
@@ -119,6 +124,9 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         accent_color: color || null,
         banner: banner || null,
         lfg,
+        // All-empty means "not filled in" rather than "never free", so it is
+        // stored as null and the member page simply leaves the section out.
+        availability: /^0*$/.test(availability ?? "") ? null : availability,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
@@ -185,6 +193,24 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           Sign out
         </button>
       </div>
+
+      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div className="font-display font-semibold">{t("profile.availability")}</div>
+          {availability && !/^0*$/.test(availability) && (
+            <button onClick={() => setAvailability(EMPTY)}
+                    className="text-[12.5px] text-muted underline hover:text-ink">
+              {t("profile.availabilityClear")}
+            </button>
+          )}
+        </div>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+          {t("profile.availabilityHint")}
+        </p>
+        <div className="mt-2.5">
+          <AvailabilityGrid value={availability} onChange={setAvailability} />
+        </div>
+      </section>
 
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">{t("profile.language")}</div>

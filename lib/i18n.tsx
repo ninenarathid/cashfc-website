@@ -138,6 +138,14 @@ const DICT = {
   "profile.accent": { en: "Accent colour", th: "สีประจำตัว" },
   "profile.banner": { en: "Profile banner", th: "แบนเนอร์โปรไฟล์" },
   "profile.lookingFor": { en: "Looking for", th: "กำลังมองหา" },
+  "profile.availability": { en: "When I usually play", th: "ช่วงที่ปกติว่างเล่น" },
+  "profile.availabilityHint": {
+    en: "Tap the blocks you are usually around for. Times are Thai time. Tap a day or a block heading to fill the whole row or column at once — nothing here is a promise, it just saves everybody asking.",
+    th: "กดเลือกช่วงที่ปกติว่าง เวลาไทย กดที่ชื่อวันหรือชื่อช่วงเพื่อเลือกทั้งแถวหรือทั้งคอลัมน์ทีเดียว ไม่ใช่การนัดหมาย แค่ให้คนอื่นไม่ต้องมาถามทีละคน",
+  },
+  "profile.availabilityClear": { en: "Clear all", th: "ล้างทั้งหมด" },
+  "member.availability": { en: "Usually around", th: "ปกติว่างช่วงนี้" },
+  "member.availabilityNote": { en: "Thai time", th: "เวลาไทย" },
   "profile.save": { en: "Save", th: "บันทึก" },
   "profile.saving": { en: "Saving…", th: "กำลังบันทึก…" },
   "profile.saved": {

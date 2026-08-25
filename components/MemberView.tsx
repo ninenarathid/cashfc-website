@@ -11,6 +11,7 @@ import {
 import { percentile } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
 import { useLang } from "@/lib/i18n";
+import AvailabilityGrid from "@/components/AvailabilityGrid";
 import JobBreakdown from "@/components/JobBreakdown";
 import JobIcon from "@/components/JobIcon";
 import MemberTags from "@/components/MemberTags";
@@ -55,14 +56,20 @@ export default function MemberView({
     if (!supabase) return;
     const BASE = "bio, accent_color, discord_username, lfg, banner, character_id";
     const V3 = `${BASE}, nickname, birth_month, birth_day`;
-    // Same fallback as the board: an unknown column fails the whole select, and the
-    // page should still show the profile on a database without migration_v3.sql.
+    const V7 = `${V3}, availability`;
+    // Same fallback as the board, one step longer: an unknown column fails the
+    // whole select, so each migration this page reads gets a rung to fall back to
+    // rather than blanking every field because one is missing.
     const load = (cols: string) =>
       supabase.from("profiles").select(cols).eq("character_id", m.id).maybeSingle();
 
-    load(V3).then(async ({ data, error }) => {
-      const row = (error ? (await load(BASE)).data : data) as
-        Record<string, unknown> | null;
+    load(V7).then(async ({ data, error }) => {
+      let row = (error ? null : data) as Record<string, unknown> | null;
+      if (error) {
+        const v3 = await load(V3);
+        row = (v3.error ? (await load(BASE)).data : v3.data) as
+          Record<string, unknown> | null;
+      }
       if (!row) return;
       setOv({
         bio: row.bio as string | null,
@@ -72,6 +79,7 @@ export default function MemberView({
         nickname: (row.nickname as string | null) ?? null,
         birthMonth: (row.birth_month as number | null) ?? null,
         birthDay: (row.birth_day as number | null) ?? null,
+        availability: (row.availability as string | null) ?? null,
       });
     });
     supabase.from("kudos")
@@ -511,6 +519,22 @@ export default function MemberView({
                 </div>
               </details>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* Shown only when somebody actually filled it in — an empty grid would
+          read as "never free" rather than "never answered". */}
+      {ov?.availability && !/^0*$/.test(ov.availability) && (
+        <section className="mt-6">
+          <h2 className="mb-2 font-display text-lg font-semibold">
+            {t("member.availability")}{" "}
+            <span className="text-[13px] font-normal text-muted">
+              ({t("member.availabilityNote")})
+            </span>
+          </h2>
+          <div className="rounded-xl border border-line bg-surface p-3.5">
+            <AvailabilityGrid value={ov.availability} />
           </div>
         </section>
       )}

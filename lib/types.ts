@@ -139,6 +139,8 @@ export interface Overlay {
   nickname?: string | null;
   /** When the owner proved the character is theirs. Null means an unverified claim. */
   verifiedAt?: string | null;
+  /** 28 chars of '0'/'1' — see lib/availability.ts. */
+  availability?: string | null;
   /** Real-world birthday. Day and month only — no year is ever collected. */
   birthMonth?: number | null; birthDay?: number | null;
 }
