@@ -85,42 +85,9 @@ export default function CharacterClaim(
     onChange();
   }
 
-  // ── Already linked ─────────────────────────────────────────────────────
-  if (characterId) {
-    const mark = !verifiedAt ? null : inRoster
-      ? { sym: "✦", text: "Verified FC member", cls: "text-amber" }
-      : { sym: "◇", text: "Verified guest — this character is not in the FC roster",
-          cls: "text-steel" };
-    return (
-      <div className="mt-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="font-data text-[15px] font-semibold text-ink">
-            {characterName ?? `#${characterId}`}
-            {mark && (
-              <span className={`ml-1.5 ${mark.cls}`} title={mark.text}>{mark.sym}</span>
-            )}
-          </span>
-          {inRoster && (
-            <Link href={`/member/${characterId}`}
-                  className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted no-underline hover:border-amber hover:text-amber">
-              View my page
-            </Link>
-          )}
-          <button onClick={unlink} disabled={busy}
-                  className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:border-muted hover:text-ink disabled:opacity-40">
-            Unlink
-          </button>
-        </div>
-        <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
-          {verifiedAt
-            ? mark?.text
-            : "Claimed before verification existed, so it carries no ✦ yet. Unlink and claim it again to verify — it takes a minute."}
-        </p>
-      </div>
-    );
-  }
-
   // ── Step 2: code issued, waiting for the member to paste it ────────────
+  // Checked before the linked branch so verifying a character you already hold
+  // shows the code rather than bouncing back to its summary.
   if (token && target) {
     return (
       <div className="mt-2">
@@ -165,6 +132,54 @@ export default function CharacterClaim(
           </button>
         </div>
         {err && <p className="mt-2 text-[12.5px] leading-relaxed text-chili">{err}</p>}
+      </div>
+    );
+  }
+
+  // ── Already linked ─────────────────────────────────────────────────────
+  if (characterId) {
+    const mark = !verifiedAt ? null : inRoster
+      ? { sym: "✦", text: "Verified FC member", cls: "text-amber" }
+      : { sym: "◇", text: "Verified guest — this character is not in the FC roster",
+          cls: "text-steel" };
+    return (
+      <div className="mt-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="font-data text-[15px] font-semibold text-ink">
+            {characterName ?? `#${characterId}`}
+            {mark && (
+              <span className={`ml-1.5 ${mark.cls}`} title={mark.text}>{mark.sym}</span>
+            )}
+          </span>
+          {inRoster && (
+            <Link href={`/member/${characterId}`}
+                  className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted no-underline hover:border-amber hover:text-amber">
+              View my page
+            </Link>
+          )}
+          <button onClick={unlink} disabled={busy}
+                  className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:border-muted hover:text-ink disabled:opacity-40">
+            Unlink
+          </button>
+        </div>
+        {verifiedAt ? (
+          <p className="mt-2 text-[12.5px] leading-relaxed text-muted">{mark?.text}</p>
+        ) : (
+          <div className="mt-2.5 rounded-lg border border-amber/35 bg-amber/5 px-3 py-2.5">
+            <p className="text-[12.5px] leading-relaxed text-muted">
+              <b className="text-ink">Not verified yet.</b> This was claimed before
+              verification existed, so nothing has proved the character is yours and
+              it carries no ✦. Proving it takes a minute, and you keep the claim
+              either way.
+            </p>
+            <button onClick={() => start({ id: characterId, name: characterName ?? `#${characterId}` })}
+                    disabled={busy}
+                    className="mt-2 rounded-lg border border-amber bg-amber/15 px-3.5 py-1.5 text-[12.5px] text-amber hover:bg-amber/25 disabled:opacity-40">
+              {busy ? "Starting…" : "Verify this character"}
+            </button>
+            {err && <p className="mt-2 text-[12.5px] leading-relaxed text-chili">{err}</p>}
+          </div>
+        )}
       </div>
     );
   }
