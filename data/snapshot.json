@@ -3829,7 +3829,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -3892,7 +3892,7 @@
   "mounts": 27,
   "minions": 103,
   "rare": null,
-  "level": 89,
+  "level": 90,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -4406,7 +4406,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": null,
-  "level": 63,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4729,7 +4729,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 94,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -4755,7 +4755,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 60,
+  "level": 33,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -5189,7 +5189,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 67,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -5201,7 +5201,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -5210,14 +5210,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 74,
+  "level": 75,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-25"
  },
  "61758559": {
   "name": "Lree Thai",
@@ -10098,7 +10098,7 @@
  },
  "30714243": {
   "name": "Moona Freed",
-  "parse": null,
+  "parse": 75,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -10115,7 +10115,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "10807425": {
   "name": "Mulata Shogo",
@@ -10245,7 +10245,7 @@
  },
  "17723972": {
   "name": "Naruga Vagrant",
-  "parse": 78,
+  "parse": 82,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -10259,13 +10259,15 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "BlackMage": "expert"
+  },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "29128390": {
   "name": "Naskdin Ykorn",
@@ -10899,7 +10901,7 @@
  },
  "24313144": {
   "name": "Oxyy Genn",
-  "parse": 93,
+  "parse": 95,
   "ult": 1,
   "mounts": null,
   "minions": null,
@@ -10915,7 +10917,7 @@
   "tiers": {},
   "jobs": {
    "Bard": "expert",
-   "Pictomancer": "master",
+   "Pictomancer": "legendary",
    "Summoner": "expert"
   },
   "ex": [
@@ -10928,7 +10930,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "53019673": {
   "name": "Pallas Raindance",
@@ -11045,7 +11047,7 @@
  },
  "36151779": {
   "name": "Percival Heisenberg",
-  "parse": 68,
+  "parse": 75,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -11067,7 +11069,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "718420": {
   "name": "Phantasm Gloria",
@@ -11631,6 +11633,7 @@
   "tiers": {},
   "jobs": {
    "Monk": "expert",
+   "Pictomancer": "expert",
    "Ninja": "expert"
   },
   "ex": [

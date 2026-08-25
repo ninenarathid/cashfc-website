@@ -33,8 +33,8 @@
     "extreme": 137,
     "ultimate": 71,
     "tier-clear": 43,
-    "veteran": 37,
-    "unknown": 302,
+    "veteran": 41,
+    "unknown": 301,
     "gatherer": 5,
     "crafter": 7,
     "relic": 10,
@@ -49,7 +49,7 @@
    "raider": 66,
    "ultimate": 71,
    "extreme": 137,
-   "unknown": 302,
+   "unknown": 301,
    "final_boss": 43
   }
  ]

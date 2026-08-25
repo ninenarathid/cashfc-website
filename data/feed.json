@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-08-25",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 30714243,
+   "name": "Moona Freed",
+   "text": "set a new best parse: 75"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 17723972,
+   "name": "Naruga Vagrant",
+   "text": "set a new best parse: 82"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "job_up",
+   "id": 17723972,
+   "name": "Naruga Vagrant",
+   "text": "is now a Expert Black Mage"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "set a new best parse: 95"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Legendary Pictomancer"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "set a new best parse: 75"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "job_up",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "is now a Expert Pictomancer"
+  },
+  {
+   "date": "2026-08-25",
    "type": "rare_up",
    "id": 29918404,
    "name": "Zarass Gierlos",
@@ -1343,62 +1399,6 @@
    "id": 40389196,
    "name": "Dontae Luciano",
    "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 47540663,
-   "name": "Edel Meither",
-   "text": "set a new best parse: 99"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47540663,
-   "name": "Edel Meither",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47540663,
-   "name": "Edel Meither",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47540663,
-   "name": "Edel Meither",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47540663,
-   "name": "Edel Meither",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "set a new best parse: 93"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "cleared M9S for the first time 🎉"
   }
  ]
 }
