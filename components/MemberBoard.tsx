@@ -103,7 +103,6 @@ const daysSince = (iso: string): number =>
 export default function MemberBoard({ data }: { data: BoardData }) {
   const labels = data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"];
   const extremes = data.extremes ?? [];
-  const [tag, setTag] = useState("all");
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortKey>("name");
   const [view, setView] = useState<"list" | "kitchen">("list");
@@ -116,13 +115,16 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   // Read filters back out of the URL on mount, so a filtered link can be shared
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
-    if (p.get("tag")) setTag(p.get("tag")!);
     if (p.get("q")) setQuery(p.get("q")!);
     if (p.get("sort")) setSortBy(p.get("sort") as SortKey);
     if (p.get("view") === "kitchen") setView("kitchen");
     const boss = (p.get("boss") ?? "").split(",").filter(Boolean).map(Number);
     const ex = (p.get("ex") ?? "").split(",").filter(Boolean);
-    const tags = (p.get("tags") ?? "").split(",").filter(Boolean);
+    const single = p.get("tag");
+    const tags = [...new Set([
+      ...(single && single !== "all" ? [single] : []),
+      ...(p.get("tags") ?? "").split(",").filter(Boolean),
+    ])];
     setAdv({
       lfg: p.get("lfg") ?? "", rank: p.get("rank") ?? "",
       boss,
@@ -130,7 +132,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       activity: p.get("act") ?? ACTIVITY_DEFAULT, ex, seen: p.get("seen") ?? "",
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
     });
-    if (p.get("lfg") || p.get("rank") ||
+    if (single || p.get("lfg") || p.get("rank") ||
         boss.length || ex.length || p.get("lv") || p.get("race") ||
         p.get("act") || p.get("seen") || p.get("role") || p.get("job") ||
         tags.length) setAdvOpen(true);
@@ -141,7 +143,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   useEffect(() => {
     if (!inited.current) return;
     const p = new URLSearchParams();
-    if (tag !== "all") p.set("tag", tag);
     if (query) p.set("q", query);
     if (sortBy !== "name") p.set("sort", sortBy);
     if (view === "kitchen") p.set("view", "kitchen");
@@ -159,7 +160,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const qs = p.toString();
     window.history.replaceState(null, "",
       qs ? `?${qs}` : window.location.pathname);
-  }, [tag, query, sortBy, view, adv]);
+  }, [query, sortBy, view, adv]);
 
   // Profiles + overrides from Supabase
   useEffect(() => {
@@ -262,7 +263,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const q = query.trim().toLowerCase();
     const lv = Number(adv.lvMin) || null;
     const filtered = visible.filter((m) => {
-      if (tag !== "all" && !m.tags.includes(tag)) return false;
       // AND, not OR: "Crafter and Gatherer" should mean someone who is both.
       for (const t of adv.tags) if (!m.tags.includes(t)) return false;
       const ov = overlays[m.id];
@@ -307,7 +307,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     return [...filtered].sort((a, b) =>
       (isOnVacation(a) ? 1 : 0) - (isOnVacation(b) ? 1 : 0) ||
       (sortBy === "name" ? a.name.localeCompare(b.name) : val(b) - val(a)));
-  }, [visible, overlays, tag, query, sortBy, adv]);
+  }, [visible, overlays, query, sortBy, adv]);
 
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
@@ -473,9 +473,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                    className="w-20 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink placeholder:text-muted" />
             </div>
 
-            {/* Every tag, AND-ed. The chip row above the panel picks a single tag;
-                this is how you ask for a combination, like a crafter who also
-                gathers, or a tier-clear who runs extremes. */}
+            {/* Every tag, AND-ed — the only tag filter on the board. A second row
+                of single-select chips sat below this one saying the same thing with
+                one chip picked, which left two controls disagreeing about what was
+                selected. */}
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
               <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
                 Has all of
@@ -553,25 +554,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             </div>
           </div>
         )}
-
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by tag">
-          {Object.keys(TAG_LABELS).map((key) => {
-            if (key !== "all" && !counts[key]) return null;
-            const on = tag === key;
-            return (
-              <button key={key} onClick={() => setTag(key)} aria-pressed={on}
-                title={TAG_HELP[key] ?? ""}
-                className={`inline-flex items-center gap-2 rounded-md border px-3.5 py-1.5 pl-2.5 text-[13.5px] transition-colors ${
-                  on ? "border-amber bg-amber/10 text-amber"
-                     : "border-line bg-card text-muted hover:border-muted hover:text-ink"}`}>
-                <span className={`size-[5px] rounded-full ${
-                  on ? "bg-amber shadow-[0_0_8px_rgba(232,163,61,0.7)]" : "bg-line"}`} />
-                {TAG_LABELS[key]}
-                <small className="font-data text-[11px] opacity-75">{counts[key] ?? 0}</small>
-              </button>
-            );
-          })}
-        </div>
 
         <div className="text-[13px] text-muted">
           {/* Names the activity scope rather than only the raw numbers: with Active
