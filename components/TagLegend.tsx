@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { TAG_CLASS, TAG_HELP, TAG_HELP_TH, TAG_LABELS } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
+import { useSectionLang } from "@/lib/i18n";
 
 const RAID_TAGS = ["tier-clear", "prog", "extreme", "ultimate", "veteran"];
 const PLAY_TAGS = ["crafter", "gatherer", "relic", "explorer", "treasure",
@@ -59,7 +59,9 @@ function Group({ title, tags, th }:
  * are.
  */
 export default function TagLegend({ present }: { present?: Set<string> }) {
-  const [lang, setLang] = useState<"th" | "en">("th");
+  // Starts wherever the site is set and can still be flipped on its own, which is
+  // how this block already behaved before the site had a language of its own.
+  const [lang, flip] = useSectionLang();
   const th = lang === "th";
 
   // Only explain tags somebody in the FC actually has. A glossary listing badges
@@ -75,7 +77,7 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
       <div className="border-t border-line px-4 py-4">
         <div className="mb-3 flex justify-end">
           <button
-            onClick={() => setLang(th ? "en" : "th")}
+            onClick={flip}
             className="rounded-md border border-line px-2 py-0.5 font-data text-[11px] text-muted hover:border-muted hover:text-ink">
             {th ? "English" : "ภาษาไทย"}
           </button>

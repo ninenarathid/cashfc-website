@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSectionLang } from "@/lib/i18n";
 
 const LODESTONE = "https://na.finalfantasyxiv.com/lodestone/";
 const LODESTONE_SETTINGS = "https://na.finalfantasyxiv.com/lodestone/my/setting/profile/";
@@ -17,7 +17,7 @@ const COLLECT_SEARCH = "https://ffxivcollect.com/characters/search";
 export default function CollectionHelp(
   { state, characterId }: { state: "private" | "unknown"; characterId: number },
 ) {
-  const [lang, setLang] = useState<"th" | "en">("th");
+  const [lang, flip] = useSectionLang();
   const th = lang === "th";
   const unknown = state === "unknown";
 
@@ -143,7 +143,7 @@ export default function CollectionHelp(
                   : "This character keeps achievements hidden")}
         </b>
         <button
-          onClick={() => setLang(th ? "en" : "th")}
+          onClick={flip}
           className="rounded-md border border-line px-2 py-0.5 font-data text-[11px] text-muted hover:border-muted hover:text-ink">
           {th ? "English" : "ภาษาไทย"}
         </button>

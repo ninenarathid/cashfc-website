@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useSectionLang } from "@/lib/i18n";
 
 /** site_settings key an admin flips to retire this notice once it has done its job. */
 export const NOTICE_KEY = "notice_showdata";
@@ -22,7 +23,7 @@ const COLLECT_SEARCH = "https://ffxivcollect.com/characters/search";
 export default function ShowYourData(
   { known, total, publicAchv }: { known: number; total: number; publicAchv: number },
 ) {
-  const [lang, setLang] = useState<"th" | "en">("th");
+  const [lang, flip] = useSectionLang();
   const th = lang === "th";
 
   // Shown unless an admin has turned it off. Defaults to on so the notice works
@@ -64,7 +65,7 @@ export default function ShowYourData(
               : "📣 Want your data on the board?"}
         </div>
         <button
-          onClick={() => setLang(th ? "en" : "th")}
+          onClick={flip}
           className="rounded-md border border-line px-2 py-0.5 font-data text-[11px] text-muted hover:border-muted hover:text-ink">
           {th ? "English" : "ภาษาไทย"}
         </button>

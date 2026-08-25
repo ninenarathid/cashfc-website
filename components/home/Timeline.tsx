@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { NewsItem } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
+import { useLang } from "@/lib/i18n";
 
 interface Item {
   kind: "official" | "fc";
@@ -14,6 +15,7 @@ interface Item {
 }
 
 export default function Timeline({ news }: { news: NewsItem[] }) {
+  const { t, lang } = useLang();
   const [items, setItems] = useState<Item[]>(
     news.map((n) => ({ kind: "official", title: n.title, url: n.url,
                        date: n.date ?? "" })));
@@ -44,10 +46,10 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
   return (
     <section className="mt-6">
       <div className="mb-2 flex items-baseline gap-3">
-        <h2 className="font-display text-lg font-semibold">Update timeline</h2>
+        <h2 className="font-display text-lg font-semibold">{t("home.timeline")}</h2>
         <span className="text-[12px] text-muted">
-          <span className="text-amber">●</span> Official ·{" "}
-          <span className="text-jade">●</span> FC
+          <span className="text-amber">●</span> {t("home.timelineOfficial")} ·{" "}
+          <span className="text-jade">●</span> {t("home.timelineFc")}
         </span>
       </div>
       <div className="flex flex-col gap-0 border-l border-line pl-4">
@@ -59,9 +61,12 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
             />
             <div className="text-[11.5px] font-medium text-muted">
               {it.date &&
-                new Date(it.date + "T00:00:00").toLocaleDateString("en-GB",
+                new Date(it.date + "T00:00:00").toLocaleDateString(
+                  lang === "th" ? "th-TH" : "en-GB",
                   { day: "numeric", month: "short", year: "numeric" })}
-              {it.kind === "fc" && <span className="ml-2 text-jade">Posted by the FC</span>}
+              {it.kind === "fc" && (
+                <span className="ml-2 text-jade">{t("home.postedByFc")}</span>
+              )}
             </div>
             {it.url ? (
               <a href={it.url} target="_blank" rel="noopener noreferrer"

@@ -11,6 +11,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
+import { useLang } from "@/lib/i18n";
 import JobIcon, {
   ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobRole, jobRoleGroup,
 } from "@/components/JobIcon";
@@ -111,6 +112,7 @@ const roleMatches = (job: string, sel: string) =>
     : jobRole(job) === sel;
 
 export default function MemberBoard({ data }: { data: BoardData }) {
+  const { t } = useLang();
   const labels = data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"];
   const extremes = data.extremes ?? [];
   const [query, setQuery] = useState("");
@@ -372,7 +374,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         <div>
           <h1 className="font-display text-3xl font-bold leading-tight">Members</h1>
           <div className="mt-0.5 text-[13.5px] text-muted">
-            ✦ = proved they own the character · click a name for the full profile
+            {t("board.verifiedHint")}
           </div>
         </div>
         <div className="flex gap-2">
@@ -416,14 +418,14 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
         <div className="flex flex-wrap gap-2.5">
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)}
-                 placeholder="Search name, nickname or race…" aria-label="Search by name, nickname or race"
+                 placeholder={t("board.search")} aria-label={t("board.search")}
                  className="min-w-[200px] flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-muted" />
           <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortKey)}
                   aria-label="Sort by"
                   className="rounded-lg border border-line bg-surface px-3 py-2 text-ink">
-            <option value="name">Sort by name</option>
-            <option value="mounts">Sort by mounts</option>
-            <option value="rare">Sort by rare achv</option>
+            <option value="name">{t("board.sortName")}</option>
+            <option value="mounts">{t("board.sortMounts")}</option>
+            <option value="rare">{t("board.sortRare")}</option>
           </select>
         </div>
 
@@ -431,7 +433,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           {advCount > 0 && (
             <button onClick={() => setAdv(ADV_EMPTY)}
                     className="self-end text-[12.5px] text-muted underline hover:text-ink">
-              Clear all {advCount} filter{advCount > 1 ? "s" : ""}
+              {t("board.clearAll", { n: advCount })}
             </button>
           )}
 
@@ -456,7 +458,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             <select value={adv.role}
                     onChange={(e) => setAdv({ ...adv, role: e.target.value, job: "" })}
                     className={selCls} aria-label="Role played">
-              <option value="">Role: any</option>
+              <option value="">{t("board.roleAny")}</option>
               {roleGroups.map((group) => {
                 const fine = ROLE_ORDER.filter((r) => ROLE_GROUP[r] === group);
                 const all = GROUP_PREFIX + group;
@@ -467,7 +469,9 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         role, which would just be the same option twice. */}
                     {fine.length > 1 && (
                       <option value={all} disabled={!roleCounts[all]}>
-                        {group === "DPS" ? "Any DPS" : `Any ${group.slice(0, -1).toLowerCase()}`}
+                        {group === "DPS" ? t("board.anyDps")
+                          : group === "Healers" ? t("board.anyHealer")
+                          : t("board.anyTank")}
                         {" "}({roleCounts[all]})
                       </option>
                     )}
@@ -485,7 +489,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             <select value={adv.job}
                     onChange={(e) => setAdv({ ...adv, job: e.target.value })}
                     className={selCls} aria-label="Job played">
-              <option value="">Job: any</option>
+              <option value="">{t("board.jobAny")}</option>
               {jobsPlayed.map(([job, n]) => (
                 <option key={job} value={job}>{job} ({n})</option>
               ))}
@@ -500,7 +504,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     onChange={(e) => setAdv({ ...adv, grade: e.target.value })}
                     className={selCls} aria-label="Lowest grade held"
                     title="Applies to the job or tag you have selected, if any">
-              <option value="">Grade: any</option>
+              <option value="">{t("board.gradeAny")}</option>
               {GRADES.map((g) => (
                 <option key={g} value={g} disabled={!gradeCounts[g]}>
                   {ACHV_TIER_LABEL[g]}+ ({gradeCounts[g]})
@@ -604,20 +608,19 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         <div className="text-[13px] text-muted">
           {/* Names the activity scope rather than only the raw numbers: with Active
               as the default, "179 of 502" on its own reads like something is broken. */}
-          Showing {list.length}
-          {adv.activity === "active" && " active"}
-          {adv.activity === "vacation" && " on-vacation"}
-          {" of "}
-          {adv.activity === "active" ? activityCounts.active
-            : adv.activity === "vacation" ? activityCounts.vacation
-            : visible.length}
-          {" members"}
+          {t(adv.activity === "active" ? "board.showingActive"
+             : adv.activity === "vacation" ? "board.showingVacation"
+             : "board.showing",
+             { shown: list.length,
+               total: adv.activity === "active" ? activityCounts.active
+                 : adv.activity === "vacation" ? activityCounts.vacation
+                 : visible.length })}
           {adv.activity !== "all" && (
             <>
               {" · "}
               <button onClick={() => setAdv({ ...adv, activity: "all" })}
                       className="underline hover:text-ink">
-                show everyone
+                {t("board.showEveryone")}
               </button>
             </>
           )}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useLang } from "@/lib/i18n";
 
 interface Announcement {
   id: number;
@@ -12,6 +13,7 @@ interface Announcement {
 }
 
 export default function Announcements() {
+  const { t, lang } = useLang();
   const [items, setItems] = useState<Announcement[]>([]);
 
   useEffect(() => {
@@ -30,14 +32,14 @@ export default function Announcements() {
   return (
     <section className="mt-5 flex flex-col gap-2">
       <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">
-        FC announcements
+        {t("home.announcements")}
       </div>
       {items.map((a) => (
         <div key={a.id} className="rounded-xl border border-amber/30 bg-amber/5 px-4 py-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="font-display font-semibold">{a.title}</div>
             <div className="font-data text-[11px] text-muted">
-              {new Date(a.created_at).toLocaleDateString("en-GB", {
+              {new Date(a.created_at).toLocaleDateString(lang === "th" ? "th-TH" : "en-GB", {
                 day: "numeric", month: "short", year: "numeric",
               })}
             </div>

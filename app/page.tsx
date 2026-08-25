@@ -1,4 +1,3 @@
-import Link from "next/link";
 import raw from "@/data/members.json";
 import feedRaw from "@/data/feed.json";
 import newsRaw from "@/data/news.json";
@@ -7,15 +6,10 @@ import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
 import BirthdaysToday from "@/components/home/BirthdaysToday";
 import ShowYourData from "@/components/home/ShowYourData";
+import Hero from "@/components/home/Hero";
+import ActivityFeed from "@/components/home/ActivityFeed";
 import type { BoardData, FeedEvent, NewsItem } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
-import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
-import TagIcon from "@/components/TagIcon";
-
-const FEED_ICON: Record<string, string> = {
-  parse_up: "📈", boss_clear: "⚔️", ult_clear: "🏆", mounts_up: "🐎",
-  rare_up: "💎", level_100: "⬆️", new_member: "🍲", leave: "👋",
-};
 
 export default function Home() {
   const data = raw as unknown as BoardData;
@@ -37,65 +31,7 @@ export default function Home() {
 
   return (
     <main>
-      {/* ── Hero ── */}
-      <header className="pb-6 pt-9 text-center sm:pt-12">
-        <div className="font-data text-[11px] uppercase tracking-[0.24em] text-amber">
-          Free Company · {data.fc.world} [{data.fc.dc}]
-        </div>
-        {/* The wordmark carries the FC name, so the h1 stays for screen readers and
-            search results but is not painted twice. */}
-        <h1 className="sr-only">{data.fc.name}</h1>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt={data.fc.name}
-             className="mx-auto mt-2 w-full max-w-sm sm:max-w-md"
-             width={1000} height={722} />
-        <p className="mx-auto mt-2 max-w-md text-[14.5px] text-muted">
-          Our second home — meet the roster, follow what everyone is up to,
-          and get together in game.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
-          <Link
-            href="/members"
-            className="rounded-lg border border-amber bg-amber/15 px-5 py-2 text-amber no-underline transition-colors hover:bg-amber/25"
-          >
-            Browse all {data.fc.total} members
-          </Link>
-        </div>
-        <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-2.5">
-          <div className="rounded-xl border border-line bg-surface px-3 py-2.5">
-            <div className="font-data text-2xl font-semibold text-ink">
-              {data.fc.total}
-            </div>
-            <div className="text-xs text-muted">Members</div>
-          </div>
-          <div className="rounded-xl border border-line bg-surface px-3 py-2.5">
-            <div className="flex items-baseline justify-center gap-2">
-              <span className="size-2.5 rounded-full bg-[#43b581]" />
-              <span className="font-data text-2xl font-semibold text-ink">
-                {activeCount}
-              </span>
-            </div>
-            <div className="text-xs text-muted">Active</div>
-          </div>
-        </div>
-
-        {/* How the FC actually spends its time. Jobs stay off the front page —
-            that is a question for a member's own profile, not a headline. */}
-        {tagStats.length > 0 && (
-          <div className="mx-auto mt-3 flex max-w-2xl flex-wrap justify-center gap-1.5">
-            {tagStats.map(({ tag, n }) => (
-              <Link key={tag} href={`/members?tag=${tag}`}
-                    title={TAG_HELP[tag] ?? ""}
-                    className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium no-underline transition-opacity hover:opacity-80 ${
-                      TAG_CLASS[tag] ?? "border-line text-muted"}`}>
-                <TagIcon tag={tag} size={14} />
-                {TAG_LABELS[tag] ?? tag}
-                <small className="font-data opacity-75">{n}</small>
-              </Link>
-            ))}
-          </div>
-        )}
-      </header>
+      <Hero fc={data.fc} total={data.fc.total} active={activeCount} tagStats={tagStats} />
 
       <Announcements />
       <DiscordCard />
@@ -108,39 +44,8 @@ export default function Home() {
 
       <BirthdaysToday members={members} />
 
-      {/* ── Activity feed + Timeline ── */}
       <div className="mt-6 grid gap-8 md:grid-cols-2">
-        <section>
-          <h2 className="mb-2 font-display text-lg font-semibold">
-            FC activity
-          </h2>
-          {feed.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] leading-relaxed text-muted">
-              Events start showing up after the next update run. The pipeline diffs
-              the roster day over day, so new best parses, first boss clears and
-              fresh mounts land here automatically.
-            </div>
-          ) : (
-            <div className="flex flex-col gap-1.5">
-              {feed.map((e, i) => (
-                <div key={i} className="flex items-start gap-2.5 rounded-lg border border-line bg-surface px-3 py-2">
-                  <span className="text-base leading-6">{FEED_ICON[e.type] ?? "•"}</span>
-                  <div className="min-w-0 text-[13.5px] leading-relaxed">
-                    <Link href={`/member/${e.id}`} className="font-data font-semibold text-ink no-underline hover:text-amber">
-                      {e.name}
-                    </Link>{" "}
-                    <span className="text-muted">{e.text}</span>
-                    <span className="ml-2 text-[11px] text-muted/70">
-                      {new Date(e.date + "T00:00:00").toLocaleDateString("en-GB",
-                        { day: "numeric", month: "short" })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
+        <ActivityFeed feed={feed} />
         <Timeline news={news} />
       </div>
     </main>

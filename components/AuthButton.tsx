@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useLang } from "@/lib/i18n";
 
 export default function AuthButton() {
+  const { t } = useLang();
   const [supabase] = useState(createClient);
   const [user, setUser] = useState<{ name: string; avatar: string | null } | null>(null);
   const [ready, setReady] = useState(false);
@@ -41,7 +43,7 @@ export default function AuthButton() {
         href="/profile"
         className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-3.5 py-1.5 text-[13.5px] text-[#a5b2ff] no-underline transition-colors hover:bg-[#5865F2]/25"
       >
-        Sign in
+        {t("nav.signIn")}
       </Link>
     );
   }

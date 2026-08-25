@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mitr, Noto_Sans_Thai_Looped, Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import { LangProvider } from "@/lib/i18n";
 
 // This is a Free Company hangout, not a spreadsheet, so all three faces lean warm
 // and all three carry a full Thai set — the FC is Thai and the site is in English,
@@ -46,9 +47,10 @@ export default function RootLayout({
       <body
         className={`${display.variable} ${body.variable} ${data.variable} font-body antialiased`}
       >
-        <div className="mx-auto max-w-5xl px-4 pb-16">
-          <Nav />
-          {children}
+        <LangProvider>
+          <div className="mx-auto max-w-5xl px-4 pb-16">
+            <Nav />
+            {children}
           <footer className="mt-9 border-t border-line pt-4 text-[12.5px] leading-relaxed text-muted">
             Data from{" "}
             <a className="text-amber no-underline" href="https://na.finalfantasyxiv.com/lodestone/" target="_blank" rel="noopener noreferrer">The Lodestone</a>{" "}
@@ -58,8 +60,9 @@ export default function RootLayout({
             <a className="text-amber no-underline" href="https://ffxivcollect.com/" target="_blank" rel="noopener noreferrer">FFXIV Collect</a>{" "}
             (non-commercial) · members with a private profile show as
             &ldquo;No data&rdquo; · refreshed every four hours by GitHub Actions
-          </footer>
-        </div>
+            </footer>
+          </div>
+        </LangProvider>
       </body>
     </html>
   );

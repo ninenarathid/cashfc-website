@@ -6,6 +6,7 @@ import type { User } from "@supabase/supabase-js";
 import { LFG_OPTIONS, MONTH_NAMES } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import CharacterClaim from "@/components/CharacterClaim";
+import { LANGS, useLang } from "@/lib/i18n";
 import SignIn, { PROVIDERS } from "@/components/SignIn";
 
 interface Option { id: number; name: string }
@@ -49,6 +50,7 @@ function Notice({ children }: { children: React.ReactNode }) {
 }
 
 export default function ProfileForm({ memberOptions }: { memberOptions: Option[] }) {
+  const { t, lang, setLang } = useLang();
   const [supabase] = useState(createClient);
   const [phase, setPhase] = useState<"loading" | "no-config" | "logged-out" | "ready">("loading");
   const [user, setUser] = useState<User | null>(null);
@@ -126,7 +128,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       : { ok: true, text: "Saved — your profile and the board update immediately" });
   }
 
-  if (phase === "loading") return <Notice>Loading…</Notice>;
+  if (phase === "loading") return <Notice>{t("common.loading")}</Notice>;
 
   if (phase === "no-config")
     return (
@@ -141,11 +143,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
     return (
       <Notice>
         <div className="mx-auto max-w-sm text-left">
-          <p className="mb-4 text-center">
-            Sign in to verify your character and customise your profile. Coming to an
-            event without being in the FC works too — you do not need a character at
-            all.
-          </p>
+          <p className="mb-4 text-center">{t("profile.signInPrompt")}</p>
           <SignIn supabase={supabase!} />
         </div>
       </Notice>
@@ -153,8 +151,10 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">Profile</div>
-      <h1 className="font-display text-3xl font-bold">My profile</h1>
+      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">
+        {t("nav.profile")}
+      </div>
+      <h1 className="font-display text-3xl font-bold">{t("profile.title")}</h1>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3">
         {profile?.discord_avatar ? (
@@ -168,8 +168,9 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           </div>
           <div className="text-[12px] text-muted">
             {charId
-              ? (inRoster ? "FC member" : "Guest") + (verifiedAt ? " · verified" : " · not verified yet")
-              : "Guest — no character linked"}
+              ? `${inRoster ? t("profile.fcMember") : t("profile.guest")} · ${
+                  verifiedAt ? t("profile.verified") : t("profile.notVerified")}`
+              : t("profile.guestNoChar")}
           </div>
         </div>
         {profile?.is_admin && (
@@ -185,12 +186,30 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         </button>
       </div>
 
+      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
+        <div className="font-display font-semibold">{t("profile.language")}</div>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+          {t("profile.languageHint")}
+        </p>
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {LANGS.map((l) => (
+            <button key={l.key} onClick={() => setLang(l.key)}
+                    aria-pressed={lang === l.key}
+                    className={`rounded-lg border px-3.5 py-1.5 text-[13px] transition-colors ${
+                      lang === l.key
+                        ? "border-amber bg-amber/15 text-amber"
+                        : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* Ways back in, so losing one account does not lose the profile. */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">Ways to sign in</div>
+        <div className="font-display font-semibold">{t("profile.waysToSignIn")}</div>
         <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-          Link a second one and either will get you back to this same profile. Worth
-          doing before you need it.
+          {t("profile.waysHint")}
         </p>
         <div className="mt-2.5 flex flex-wrap gap-2">
           {PROVIDERS.map((prov) => {
@@ -216,7 +235,8 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
                         linked ? "border-jade/40 bg-jade/5 text-jade"
                                : "border-line text-muted hover:border-amber hover:text-amber"} disabled:opacity-50`}>
                 {linked ? `${prov.label} ✓`
-                  : linking === prov.key ? "Opening…" : `Link ${prov.label}`}
+                  : linking === prov.key ? t("common.loading")
+                  : t("profile.link", { name: prov.label })}
               </button>
             );
           })}
@@ -236,7 +256,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
       {/* Character claim */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">My character</div>
+        <div className="font-display font-semibold">{t("profile.myCharacter")}</div>
         <CharacterClaim
           memberOptions={memberOptions}
           characterId={charId}
@@ -250,9 +270,9 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       {/* Guests are named by hand, since there is no character to name them. */}
       {!charId && (
         <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-          <div className="font-display font-semibold">What should we call you?</div>
+          <div className="font-display font-semibold">{t("profile.guestName")}</div>
           <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-            Shown wherever you sign up for something. You can change it whenever.
+            {t("profile.guestNameHint")}
           </p>
           <input value={displayName} onChange={(e) => setDisplayName(e.target.value)}
                  placeholder="A name people will recognise"
@@ -263,7 +283,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
       {/* Profile customisation */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">Customise profile</div>
+        <div className="font-display font-semibold">{t("profile.customise")}</div>
 
         <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-4">
           <label className="block text-[13px] text-muted">
@@ -317,7 +337,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-4">
 
           <div className="text-[13px] text-muted">
-            Accent colour
+            {t("profile.accent")}
             <div className="mt-1.5 flex gap-2">
               {COLORS.map((c) => (
                 <button key={c} onClick={() => setColor(color === c ? "" : c)}
@@ -331,7 +351,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         </div>
 
         <div className="mt-4 text-[13px] text-muted">
-          Profile banner
+          {t("profile.banner")}
           <div className="mt-1.5 flex flex-wrap gap-2">
             {BANNERS.map((bnr) => (
               <button key={bnr} onClick={() => setBanner(banner === bnr ? "" : bnr)}
@@ -365,7 +385,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         <div className="mt-5 flex items-center gap-3">
           <button onClick={save} disabled={saving}
                   className="rounded-lg border border-amber bg-amber/15 px-5 py-2 text-amber transition-colors hover:bg-amber/25 disabled:opacity-50">
-            {saving ? "Saving…" : "Save profile"}
+            {saving ? t("profile.saving") : t("profile.save")}
           </button>
           {msg && (
             <span className={`text-[13px] ${msg.ok ? "text-jade" : "text-chili"}`}>

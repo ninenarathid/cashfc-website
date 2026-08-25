@@ -4,6 +4,7 @@ import type { BoardData, Member } from "@/lib/types";
 import { ACHV_TIER_LABEL, isOnVacation } from "@/lib/types";
 import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
+import LeaderboardIntro from "@/components/LeaderboardIntro";
 
 export const metadata = { title: "Leaderboards — Cafe And SHabu" };
 
@@ -38,19 +39,7 @@ export default function LeaderboardsPage() {
 
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">
-        Leaderboards
-      </div>
-      <h1 className="font-display text-3xl font-bold">Who does what best</h1>
-      <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-        Ranked by rare achievements, where each one is worth as much as it is rare:{" "}
-        <b className="text-ink">10 ÷ % of players who own it</b>. Something 10% of
-        players have scores 1 point, 1% scores 10, and 0.2% scores 50 — holding more
-        of them still adds up, but one genuinely hard achievement outweighs a pile of
-        easy ones. The percentage is how much of everything rare in that playstyle
-        somebody holds, and it is what earns the Legendary, Master and Expert titles.
-        Only members with public achievements can appear here.
-      </p>
+      <LeaderboardIntro />
 
       {boards.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-line p-10 text-center text-[13.5px] leading-relaxed text-muted">

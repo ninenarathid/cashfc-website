@@ -10,6 +10,7 @@ import {
 } from "@/lib/types";
 import { percentile } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
+import { useLang } from "@/lib/i18n";
 import JobBreakdown from "@/components/JobBreakdown";
 import JobIcon from "@/components/JobIcon";
 import MemberTags from "@/components/MemberTags";
@@ -41,6 +42,7 @@ export default function MemberView({
   agg: { mounts: (number | null)[]; minions: (number | null)[]; rare: (number | null)[] };
   fc: { name: string; world: string; region: string };
 }) {
+  const { t } = useLang();
   const [supabase] = useState(createClient);
   const [ov, setOv] = useState<Overlay | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -171,7 +173,7 @@ export default function MemberView({
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-card">
               <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
             </div>
-            <div className="mt-1 text-[11px] text-muted">Higher than {pct}% of the FC</div>
+            <div className="mt-1 text-[11px] text-muted">{t("member.higherThan", { n: pct })}</div>
           </>
         )}
       </div>
@@ -182,7 +184,7 @@ export default function MemberView({
     <main className="pt-5">
       <Link href={backHref}
             className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-muted no-underline transition-colors hover:text-amber">
-        <span aria-hidden>←</span> Back to members
+        <span aria-hidden>←</span> {t("member.back")}
       </Link>
 
       {/* ── Header / banner ── */}
@@ -304,7 +306,7 @@ export default function MemberView({
       {(hasCurrentData || extremes.length > 0) && (
       <section className="mt-6">
         <h2 className="mb-2 font-display text-lg font-semibold">
-          Current patch{" "}
+          {t("member.currentPatch")}{" "}
           <span className="text-[13px] font-normal text-muted">
             {tierLabels[0]}–{tierLabels[tierLabels.length - 1]}
             {raids?.current?.zone ? ` · ${raids.current.zone}` : ""}
@@ -313,7 +315,7 @@ export default function MemberView({
         </h2>
         {raids === null ? (
           <div className="rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-muted">
-            Not linked to FF Logs yet — raid data appears automatically once the API keys are set and the pipeline runs
+            {t("member.notLinked")}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
@@ -324,10 +326,10 @@ export default function MemberView({
                                     : "border-dashed border-line bg-transparent opacity-60"}`}>
                 <div className="flex items-baseline justify-between">
                   <span className="font-data text-[15px] font-semibold text-ink">{label}</span>
-                  {cleared && <span className="text-[11px] text-jade">Cleared</span>}
+                  {cleared && <span className="text-[11px] text-jade">{t("member.cleared")}</span>}
                 </div>
                 <div className="mt-0.5 truncate text-[11.5px] text-muted">
-                  {enc?.name ?? (hasCurrentData ? "No log yet" : "Awaiting data")}
+                  {enc?.name ?? t(hasCurrentData ? "member.noLogYet" : "member.awaitingData")}
                 </div>
                 <div className="mt-2 font-data text-3xl font-semibold"
                      style={{ color: parseColor(enc?.best) }}>
@@ -351,9 +353,12 @@ export default function MemberView({
         {extremes.length > 0 && (
           <>
             <h3 className="mb-2 mt-4 font-display text-[15px] font-semibold">
-              Extreme trials{" "}
+              {t("member.extremeTrials")}{" "}
               <span className="text-[12.5px] font-normal text-muted">
-                ({extremes.filter((e) => e.cleared).length} of {extremes.length} cleared)
+                {t("member.clearedCount", {
+                  done: extremes.filter((e) => e.cleared).length,
+                  total: extremes.length,
+                })}
               </span>
             </h3>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -512,11 +517,11 @@ export default function MemberView({
 
       {/* ── Collection ── */}
       <section className="mt-6">
-        <h2 className="mb-2 font-display text-lg font-semibold">Collection</h2>
+        <h2 className="mb-2 font-display text-lg font-semibold">{t("member.collection")}</h2>
         <div className="grid grid-cols-3 gap-2.5">
-          {pctTile("Mounts", m.mounts, agg.mounts, "#4fb8a8")}
-          {pctTile("Minions", m.minions, agg.minions, "#7ea6c9")}
-          {pctTile("Rare achv", m.rare_achv, agg.rare, "#e5cc80")}
+          {pctTile(t("member.mounts"), m.mounts, agg.mounts, "#4fb8a8")}
+          {pctTile(t("member.minions"), m.minions, agg.minions, "#7ea6c9")}
+          {pctTile(t("member.rareAchv"), m.rare_achv, agg.rare, "#e5cc80")}
         </div>
         {/* Three blank tiles explain nothing, and the two reasons they can be blank
             need different fixes. Nobody chose either state on purpose: The Lodestone
