@@ -556,6 +556,27 @@
   ],
   "chg": "2026-08-25"
  },
+ "43037186": {
+  "name": "Wind-up Whitefrost",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 2,
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-24"
+ },
  "13533056": {
   "name": "Akemi Rei",
   "parse": 98,
@@ -2331,7 +2352,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -2877,11 +2898,13 @@
    3758,
    3762,
    3770,
+   3771,
    3778,
    3784,
    3817,
    3832,
    3842,
+   3843,
    3844,
    3845,
    3846,
@@ -2901,7 +2924,6 @@
    3860,
    3861,
    3862,
-   3874,
    3885,
    3886,
    3887,
@@ -2916,7 +2938,6 @@
    3922,
    3923,
    3924,
-   3925,
    3935,
    3936,
    3937,
@@ -2974,7 +2995,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 86,
+  "level": 68,
   "cc": [
    true,
    true,
@@ -3326,7 +3347,7 @@
   "mounts": 63,
   "minions": 144,
   "rare": 19,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -3360,7 +3381,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "14476396": {
   "name": "Arawn A'nnwn",
@@ -3808,7 +3829,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 85,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3871,7 +3892,7 @@
   "mounts": 27,
   "minions": 103,
   "rare": null,
-  "level": 88,
+  "level": 89,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -4048,7 +4069,7 @@
   "mounts": 35,
   "minions": 105,
   "rare": 2,
-  "level": 35,
+  "level": 40,
   "cc": [
    true,
    true,
@@ -4063,7 +4084,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -4162,14 +4183,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 72,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-25"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -4382,10 +4403,10 @@
   "name": "Marin Elysium",
   "parse": 24,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 66,
+  "minions": 92,
   "rare": null,
-  "level": 100,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -4401,7 +4422,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -4555,7 +4576,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 96,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -4567,7 +4588,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "8113158": {
   "name": "Olivie Brown",
@@ -4708,7 +4729,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -4725,7 +4746,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "60599300": {
   "name": "Rainy Tempestra",
@@ -4734,14 +4755,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 58,
+  "level": 60,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -5205,7 +5226,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 64,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -5217,7 +5238,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "60972300": {
   "name": "Mizuki Sekine",
@@ -5226,14 +5247,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 55,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8546,8 +8567,8 @@
  },
  "40652404": {
   "name": "Jade Solaire",
-  "parse": null,
-  "ult": 0,
+  "parse": 31,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -8562,8 +8583,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-25"
  },
  "33966579": {
   "name": "James Jasper",
@@ -12840,27 +12863,6 @@
   "minions": null,
   "rare": null,
   "level": 83,
-  "cc": [
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
- },
- "43037186": {
-  "name": "Wind-up Whitefrost",
-  "parse": null,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
-  "level": 2,
   "cc": [
    false,
    false,

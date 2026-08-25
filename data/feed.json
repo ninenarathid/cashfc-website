@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-08-25",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Phantom of the Umbra: Star Globe Umbrae — only 4.8% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "level_100",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 40652404,
+   "name": "Jade Solaire",
+   "text": "set a new best parse: 31"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 40652404,
+   "name": "Jade Solaire",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-25",
    "type": "level_100",
    "id": 30667251,
    "name": "Roxas Akatsuki",
@@ -1371,34 +1399,6 @@
    "id": 28950119,
    "name": "Einz Aizerces",
    "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "set a new best parse: 96"
   }
  ]
 }
