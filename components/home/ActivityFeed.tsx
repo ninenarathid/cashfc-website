@@ -5,8 +5,10 @@ import type { FeedEvent } from "@/lib/types";
 import { useLang } from "@/lib/i18n";
 
 const FEED_ICON: Record<string, string> = {
-  parse_up: "📈", boss_clear: "⚔️", ult_clear: "🏆", mounts_up: "🐎",
-  rare_up: "💎", level_100: "⬆️", new_member: "🍲", leave: "👋",
+  parse_up: "📈", boss_clear: "⚔️", ex_clear: "🌪️", ult_clear: "🏆",
+  rare_up: "💎", grade_up: "✨", job_up: "🎓",
+  mounts_up: "🐎", minions_up: "🐣", level_100: "⬆️",
+  new_member: "🍲", leave: "👋",
 };
 
 /**

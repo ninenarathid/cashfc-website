@@ -1234,18 +1234,61 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None)
 TRACKED_STATS = ("parse", "ult", "mounts", "minions", "rare", "level", "cc")
 
 
-def make_snapshot(members: list[dict]) -> dict:
+# What a playstyle is called in a sentence, matching the tag labels on the board.
+BUCKET_LABEL = {
+    "crafter": "Crafter", "gatherer": "Gatherer", "relic": "Relic grinder",
+    "explorer": "Explorer", "treasure": "Treasure hunter",
+    "goldsaucer": "Gold Saucer collector", "seasonal": "Seasonal collector",
+    "pvp": "PvP player", "oldtimer": "Old-timer",
+}
+TIER_LABEL = {"legendary": "Legendary", "master": "Master", "expert": "Expert"}
+TIER_RANK = {"expert": 1, "master": 2, "legendary": 3}
+
+# Round numbers worth remarking on. "+1 mount" every other day is noise; passing
+# 500 of them is not.
+MOUNT_MARKS = (100, 200, 300, 400, 500, 600, 700)
+MINION_MARKS = (200, 300, 400, 500, 600, 700, 800)
+
+# Below this a new personal best says nothing anybody wants read out — the feed
+# was two thirds "set a new best parse: 15" before this existed.
+PARSE_FLOOR = 75
+
+
+def _marks_crossed(before, after, marks) -> int | None:
+    """The highest milestone passed between two counts, if any."""
+    if before is None or after is None:
+        return None
+    hit = [x for x in marks if before < x <= after]
+    return max(hit) if hit else None
+
+
+def make_snapshot(members: list[dict], rare_ids: dict | None = None) -> dict:
+    rare_ids = rare_ids or {}
     return {str(m["id"]): {
         "name": m["name"], "parse": m.get("parse"), "ult": m.get("ult_clears", 0),
         "mounts": m.get("mounts"), "minions": m.get("minions"),
         "rare": m.get("rare_achv"), "level": m.get("level"),
         "cc": m.get("current_clears"),
+        # Kept so the feed can name what somebody actually earned rather than
+        # counting it. A count only ever produces "unlocked 3 rare achievements",
+        # which is the least interesting true thing to say about the event.
+        "rare_ids": sorted(rare_ids.get(str(m["id"])) or []),
+        "tiers": dict(m.get("achv_tiers") or {}),
+        "jobs": {j: v.get("tier") for j, v in (m.get("job_scores") or {}).items()
+                 if v.get("tier")},
+        "ex": sorted(m.get("ex_cleared") or []),
+        "ults": sorted(m.get("ult_cleared") or []),
     } for m in members}
 
 
 def build_feed(members: list[dict], today: str) -> None:
     old = load_json("snapshot.json", {})
-    new = make_snapshot(members)
+    # achv.json is written just before this runs and holds both the per-member
+    # rare achievement ids and the catalogue they index into, so the feed can say
+    # which achievement somebody earned and how rare it is.
+    achv = load_json("achv.json", {})
+    catalog = achv.get("catalog") or {}
+    new = make_snapshot(members, achv.get("members") or {})
     events: list[dict] = []
     labels = CONFIG["current_tier_labels"]
 
@@ -1273,22 +1316,77 @@ def build_feed(members: list[dict], today: str) -> None:
             if o is None:
                 ev("new_member", mid, n["name"], "joined the FC — welcome!")
                 continue
-            if n["parse"] is not None and (o.get("parse") or -1) < n["parse"]:
+            # Only a parse worth mentioning. Every improvement used to qualify,
+            # so the feed filled with single-digit personal bests and buried
+            # everything else.
+            if (n["parse"] is not None and (o.get("parse") or -1) < n["parse"]
+                    and n["parse"] >= PARSE_FLOOR):
                 ev("parse_up", mid, n["name"], f"set a new best parse: {n['parse']}")
             occ, ncc = o.get("cc") or [], n.get("cc") or []
             for i, c in enumerate(ncc):
                 if c and (i >= len(occ) or not occ[i]):
                     lb = labels[i] if i < len(labels) else f"boss {i+1}"
                     ev("boss_clear", mid, n["name"], f"cleared {lb} for the first time 🎉")
-            if n["ult"] > (o.get("ult") or 0):
-                ev("ult_clear", mid, n["name"], "cleared an Ultimate — Legend! 🏆")
-            if n["mounts"] is not None and o.get("mounts") is not None:
-                d = n["mounts"] - o["mounts"]
-                if d > 0:
-                    ev("mounts_up", mid, n["name"], f"picked up {d} new mount(s)")
-            if n["rare"] is not None and o.get("rare") is not None and n["rare"] > o["rare"]:
-                ev("rare_up", mid, n["name"],
-                   f"unlocked {n['rare'] - o['rare']} rare achievement(s)")
+            knows_ults = "ults" in o
+            gained_ult = ([u for u in n["ults"] if u not in (o.get("ults") or [])]
+                          if knows_ults else [])
+            if gained_ult:
+                for u in gained_ult:
+                    ev("ult_clear", mid, n["name"], f"cleared {u} 🏆")
+            elif n["ult"] > (o.get("ult") or 0):
+                # FF Logs saw a clear it cannot name — still worth saying.
+                ev("ult_clear", mid, n["name"], "cleared an Ultimate 🏆")
+
+            if "ex" in o:
+                for x in n["ex"]:
+                    if x not in (o.get("ex") or []):
+                        ev("ex_clear", mid, n["name"], f"cleared {x} (Extreme)")
+
+            # Playstyle and job grades: the milestones people actually talk about,
+            # and the ones the rest of the board is built around.
+            if "tiers" in o:
+                o_tiers = o.get("tiers") or {}
+                for bucket, tier in (n["tiers"] or {}).items():
+                    if TIER_RANK.get(tier, 0) > TIER_RANK.get(o_tiers.get(bucket), 0):
+                        ev("grade_up", mid, n["name"],
+                           f"is now a {TIER_LABEL.get(tier, tier)} "
+                           f"{BUCKET_LABEL.get(bucket, bucket)} ✨")
+            if "jobs" in o:
+                o_jobs = o.get("jobs") or {}
+                for job, tier in (n["jobs"] or {}).items():
+                    if TIER_RANK.get(tier, 0) > TIER_RANK.get(o_jobs.get(job), 0):
+                        ev("job_up", mid, n["name"],
+                           f"is now a {TIER_LABEL.get(tier, tier)} "
+                           f"{re.sub(r'([a-z])([A-Z])', r'\1 \2', job)}")
+            mark = _marks_crossed(o.get("mounts"), n["mounts"], MOUNT_MARKS)
+            if mark:
+                ev("mounts_up", mid, n["name"], f"passed {mark} mounts 🐎")
+            mark = _marks_crossed(o.get("minions"), n["minions"], MINION_MARKS)
+            if mark:
+                ev("minions_up", mid, n["name"], f"passed {mark} minions")
+
+            # Name the rarest of whatever arrived, and say how rare it is —
+            # "0.4% of players have it" is the part that makes it worth reading.
+            gained = ([i for i in n["rare_ids"] if i not in set(o.get("rare_ids") or [])]
+                      if "rare_ids" in o else [])
+            if gained:
+                def _pct(i):
+                    v = (catalog.get(str(i)) or {}).get("pct")
+                    return 999.0 if v is None else float(v)
+                gained.sort(key=_pct)
+                info = catalog.get(str(gained[0])) or {}
+                name = info.get("name")
+                pct = info.get("pct")
+                if name:
+                    text = f"earned {name}"
+                    if pct is not None and pct <= 5:
+                        text += f" — only {pct}% of players have it"
+                    if len(gained) > 1:
+                        text += f", and {len(gained) - 1} more"
+                    ev("rare_up", mid, n["name"], text)
+                elif n["rare"] is not None and (o.get("rare") or 0) < n["rare"]:
+                    ev("rare_up", mid, n["name"],
+                       f"unlocked {n['rare'] - o['rare']} rare achievement(s)")
             if (o.get("level") or 0) < 100 and n["level"] == 100:
                 ev("level_100", mid, n["name"], "reached level 100!")
         if CONFIG["show_leaves"]:
