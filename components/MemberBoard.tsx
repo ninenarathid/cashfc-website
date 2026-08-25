@@ -5,7 +5,8 @@ import Link from "next/link";
 import type { BoardData, Member, Overlay } from "@/lib/types";
 import { BOARD_QUERY_KEY } from "@/lib/types";
 import {
-  LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation, ON_VACATION_RANK,
+  ACHV_TIER_LABEL, LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation,
+  ON_VACATION_RANK,
 } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
@@ -91,12 +92,21 @@ interface Adv {
   tags: string[];
   /** "Last seen collecting" window, from SEEN_OPTIONS. */
   seen: string;
+  /** Lowest grade a member must hold — scoped by the job and tag filters. */
+  grade: string;
 }
 const ADV_EMPTY: Adv = {
   lfg: "", rank: "", boss: [],
   race: "", activity: ACTIVITY_DEFAULT, ex: [], seen: "", role: "", job: "",
-  tags: [],
+  tags: [], grade: "",
 };
+
+/**
+ * Grades are a ladder, so picking one means "this or better": somebody filtering for
+ * Expert crafters does not want the Legendary ones hidden.
+ */
+const GRADE_RANK: Record<string, number> = { expert: 1, master: 2, legendary: 3 };
+const GRADES = ["legendary", "master", "expert"] as const;
 
 const daysSince = (iso: string): number =>
   Math.floor((Date.now() - new Date(`${iso}T00:00:00Z`).getTime()) / 86_400_000);
@@ -132,10 +142,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       race: p.get("race") ?? "",
       activity: p.get("act") ?? ACTIVITY_DEFAULT, ex, seen: p.get("seen") ?? "",
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
+      grade: p.get("grade") ?? "",
     });
     if (single || p.get("lfg") || p.get("rank") ||
         boss.length || ex.length || p.get("race") ||
         p.get("act") || p.get("seen") || p.get("role") || p.get("job") ||
+        p.get("grade") ||
         tags.length) setAdvOpen(true);
     inited.current = true;
   }, []);
@@ -157,6 +169,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.role) p.set("role", adv.role);
     if (adv.job) p.set("job", adv.job);
     if (adv.tags.length) p.set("tags", adv.tags.join(","));
+    if (adv.grade) p.set("grade", adv.grade);
     const qs = p.toString();
     window.history.replaceState(null, "",
       qs ? `?${qs}` : window.location.pathname);
@@ -257,6 +270,22 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     return Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   }, [inScope]);
 
+  const gradeCounts = useMemo(() => {
+    const c: Record<string, number> = { total: 0 };
+    for (const g of GRADES) c[g] = 0;
+    for (const m of inScope) {
+      const held = [
+        ...Object.values(m.achv_tiers ?? {}),
+        ...Object.values(m.job_scores ?? {}).map((j) => j.tier),
+      ].filter(Boolean) as string[];
+      if (!held.length) continue;
+      c.total += 1;
+      const best = Math.max(...held.map((t) => GRADE_RANK[t] ?? 0));
+      for (const g of GRADES) if (best >= GRADE_RANK[g]) c[g] += 1;
+    }
+    return c;
+  }, [inScope]);
+
   const activityCounts = useMemo(() => {
     const vacation = visible.filter(isOnVacation).length;
     return { active: visible.length - vacation, vacation };
@@ -282,6 +311,28 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         const played = Object.keys(m.job_scores ?? {});
         if (adv.job && !played.includes(adv.job)) return false;
         if (adv.role && !played.some((j) => jobRole(j) === adv.role)) return false;
+      }
+      if (adv.grade) {
+        const min = GRADE_RANK[adv.grade] ?? 0;
+        const tiers = m.achv_tiers ?? {};
+        const jobs = m.job_scores ?? {};
+        const ok = (t?: string | null) => !!t && (GRADE_RANK[t] ?? 0) >= min;
+        // Scoped to whatever else is selected, so "Legendary" beside "Crafter" asks
+        // for a Legendary crafter rather than a Legendary anything who also crafts.
+        // Any one of the selected tags counts: requiring the grade in all of them
+        // would leave almost nobody once two tags are picked.
+        const names = Object.keys(jobs);
+        const scopedJobs = adv.job ? names.filter((j) => j === adv.job)
+          : adv.role ? names.filter((j) => jobRole(j) === adv.role)
+          : null;
+        const scopedTags = adv.tags.length ? adv.tags : null;
+        if (scopedJobs || scopedTags) {
+          if (!(scopedJobs ?? []).some((j) => ok(jobs[j]?.tier))
+              && !(scopedTags ?? []).some((t) => ok(tiers[t]))) return false;
+        } else if (!names.some((j) => ok(jobs[j]?.tier))
+                   && !Object.values(tiers).some((t) => ok(t))) {
+          return false;
+        }
       }
       if (adv.activity === "active" && isOnVacation(m)) return false;
       if (adv.activity === "vacation" && !isOnVacation(m)) return false;
@@ -313,6 +364,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
     (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
+    (adv.grade ? 1 : 0) +
     adv.tags.length +
     (adv.seen ? 1 : 0);
 
@@ -448,6 +500,23 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                 <option value="">Job: any</option>
                 {jobsPlayed.map(([job, n]) => (
                   <option key={job} value={job}>{job} ({n})</option>
+                ))}
+              </select>
+            )}
+            {/* Sits after job and before race because it narrows the two filters
+                above it rather than standing alone: with a job or a tag picked it
+                asks for that grade in that thing, and on its own it asks for anyone
+                carrying it. */}
+            {gradeCounts.total > 0 && (
+              <select value={adv.grade}
+                      onChange={(e) => setAdv({ ...adv, grade: e.target.value })}
+                      className={selCls} aria-label="Lowest grade held"
+                      title="Applies to the job or tag you have selected, if any">
+                <option value="">Grade: any</option>
+                {GRADES.map((g) => (
+                  <option key={g} value={g} disabled={!gradeCounts[g]}>
+                    {ACHV_TIER_LABEL[g]}+ ({gradeCounts[g]})
+                  </option>
                 ))}
               </select>
             )}
