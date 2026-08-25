@@ -17763,5 +17763,537 @@
   "extremes": [],
   "legacy": [],
   "_status": "none"
+ },
+ "49712485": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "30088400": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "36427926": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "26634125": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "30504149": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "36315588": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "29881709": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "51060767": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "47423083": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "38841973": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "48152565": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 47,
+    "kills": 10,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 44,
+    "kills": 3,
+    "job": "Warrior",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 23,
+    "kills": 4,
+    "job": "Viper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 89,
+    "kills": 45,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 83,
+    "kills": 32,
+    "job": "Sage",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "42832439": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "693670": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "35629716": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "39850342": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 72,
+     "median": 35,
+     "kills": 6,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M10S",
+     "name": "Red Hot and Deep Blue",
+     "best": 69,
+     "median": 29,
+     "kills": 7,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M11S",
+     "name": "The Tyrant",
+     "best": 49,
+     "median": 41,
+     "kills": 6,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M12S-1",
+     "name": "Lindwurm",
+     "best": 26,
+     "median": 13,
+     "kills": 5,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M12S-2",
+     "name": "Lindwurm II",
+     "best": 8,
+     "median": 8,
+     "kills": 1,
+     "job": "WhiteMage"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 88,
+    "kills": 39,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 80,
+    "kills": 14,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "10926041": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "40669284": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "32102060": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "34172006": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 44,
+    "kills": 3,
+    "job": "Ninja",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 24,
+    "kills": 6,
+    "job": "Ninja",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "44401264": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "42146242": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
+ },
+ "43412434": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
  }
 }

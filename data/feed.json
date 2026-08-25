@@ -1,6 +1,69 @@
 {
  "events": [
   {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "set a new best parse: 89"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "set a new best parse: 88"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "boss_clear",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "boss_clear",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "boss_clear",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "boss_clear",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "cleared M12S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 34172006,
+   "name": "Zion Zoen",
+   "text": "set a new best parse: 44"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 34172006,
+   "name": "Zion Zoen",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
    "date": "2026-08-24",
    "type": "parse_up",
    "id": 24313144,
@@ -1336,69 +1399,6 @@
    "id": 31902843,
    "name": "Lapista Scholares",
    "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "set a new best parse: 95"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared M10S for the first time 🎉"
   }
  ]
 }

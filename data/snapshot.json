@@ -1500,14 +1500,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 76,
+  "level": 80,
   "cc": [
    false,
    false,
    false,
    false
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -1548,9 +1548,9 @@
   "mounts": 27,
   "minions": 103,
   "rare": null,
-  "level": 97,
+  "level": 99,
   "cc": null,
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -7582,8 +7582,13 @@
   "minions": null,
   "rare": null,
   "level": 45,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "30088400": {
   "name": "Winyaan Seirei",
@@ -7593,8 +7598,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "36427926": {
   "name": "Wipa Chawa",
@@ -7604,8 +7614,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "26634125": {
   "name": "Wtdragonus Zenith",
@@ -7615,8 +7630,13 @@
   "minions": 78,
   "rare": null,
   "level": 91,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "30504149": {
   "name": "Xia Qingyue",
@@ -7626,8 +7646,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "36315588": {
   "name": "Xlis Alice",
@@ -7637,8 +7662,13 @@
   "minions": null,
   "rare": null,
   "level": 50,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "29881709": {
   "name": "Y'uki No",
@@ -7648,8 +7678,13 @@
   "minions": null,
   "rare": null,
   "level": 54,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "51060767": {
   "name": "Yatchy Concreategirls",
@@ -7659,8 +7694,13 @@
   "minions": null,
   "rare": null,
   "level": 76,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "47423083": {
   "name": "Yueying Hua",
@@ -7670,8 +7710,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "38841973": {
   "name": "Yujin Narak",
@@ -7681,19 +7726,29 @@
   "minions": null,
   "rare": null,
   "level": 54,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "48152565": {
   "name": "Yuma Miretmoor",
-  "parse": null,
-  "ult": 0,
+  "parse": 89,
+  "ult": 2,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "42832439": {
   "name": "Yume Mukuchi",
@@ -7703,8 +7758,13 @@
   "minions": null,
   "rare": null,
   "level": 65,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "693670": {
   "name": "Zediez Vesarius",
@@ -7714,8 +7774,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "35629716": {
   "name": "Zeldris Ragnarsson",
@@ -7725,19 +7790,29 @@
   "minions": 116,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "39850342": {
   "name": "Zene Neko",
-  "parse": null,
+  "parse": 88,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   true,
+   true,
+   true,
+   true
+  ],
+  "chg": "2026-08-25"
  },
  "10926041": {
   "name": "Zero Einzbern",
@@ -7747,8 +7822,13 @@
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "40669284": {
   "name": "Zewen Naptune",
@@ -7758,8 +7838,13 @@
   "minions": 28,
   "rare": null,
   "level": 99,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "32102060": {
   "name": "Zige Regios",
@@ -7769,19 +7854,29 @@
   "minions": null,
   "rare": null,
   "level": 85,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "34172006": {
   "name": "Zion Zoen",
-  "parse": null,
-  "ult": 0,
+  "parse": 44,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 90,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "44401264": {
   "name": "Zireael Foley",
@@ -7791,8 +7886,13 @@
   "minions": null,
   "rare": null,
   "level": 86,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "42146242": {
   "name": "Zxazi Rowan",
@@ -7802,8 +7902,13 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  },
  "43412434": {
   "name": "Zylith Sweeney",
@@ -7813,7 +7918,12 @@
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
-  "chg": null
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "chg": "2026-08-25"
  }
 }
