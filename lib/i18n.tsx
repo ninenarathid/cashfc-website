@@ -140,8 +140,8 @@ const DICT = {
   "profile.lookingFor": { en: "Looking for", th: "กำลังมองหา" },
   "profile.availability": { en: "When I usually play", th: "ช่วงที่ปกติว่างเล่น" },
   "profile.availabilityHint": {
-    en: "Drag down a day to paint the hours you are usually around for — press on the first hour and pull to the last. Dragging back over what you painted clears it. Tap a day name for the whole day, or an hour for that hour all week. Thai time. Nothing here is a promise; it just saves everybody asking.",
-    th: "ลากลงในคอลัมน์ของวันนั้นเพื่อระบายชั่วโมงที่ปกติว่าง กดค้างที่ชั่วโมงแรกแล้วลากถึงชั่วโมงสุดท้าย ลากย้อนกลับทับที่ระบายไว้คือลบ กดที่ชื่อวันเลือกทั้งวัน กดที่ตัวเลขชั่วโมงเลือกชั่วโมงนั้นทั้งสัปดาห์ เป็นเวลาไทย ไม่ใช่การนัดหมาย แค่ให้คนอื่นไม่ต้องมาถามทีละคน",
+    en: "Drag down a day to paint the hours you are usually around for — press on the first hour and pull to the last. Dragging back over what you painted clears it. Tap a day name for the whole day, or an hour for that hour all week. Thai time.",
+    th: "ลากลงในคอลัมน์ของวันนั้นเพื่อระบายชั่วโมงที่ปกติว่าง กดค้างที่ชั่วโมงแรกแล้วลากถึงชั่วโมงสุดท้าย ลากย้อนกลับทับที่ระบายไว้คือลบ กดที่ชื่อวันเลือกทั้งวัน กดที่ตัวเลขชั่วโมงเลือกชั่วโมงนั้นทั้งสัปดาห์ เป็นเวลาไทย",
   },
   "profile.availabilityClear": { en: "Clear all", th: "ล้างทั้งหมด" },
   "member.availability": { en: "Usually around", th: "ปกติว่างช่วงนี้" },

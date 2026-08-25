@@ -19,6 +19,14 @@ import { useLang } from "@/lib/i18n";
  * touch-action is disabled on the grid or the browser scrolls the page instead
  * of letting the drag through.
  *
+ * The hour labels live *inside* each row rather than in a column beside the
+ * grid. Two parallel columns have to agree on row height to line up, and they
+ * stopped agreeing the moment the cells grew a border — the labels drifted a
+ * fraction of a row each hour and were a row and a half out by the bottom. In
+ * one row they cannot disagree. A label also names the row it sits in rather
+ * than the line above it: this row is 10:00, meaning 10:00 to 11:00, which is
+ * what the summary underneath says too.
+ *
  * The same component renders the read-only view on a member's page, so what
  * somebody filled in and what everybody else sees cannot drift apart.
  */
@@ -75,77 +83,81 @@ export default function AvailabilityGrid(
     emit(next);
   };
 
-  const cell = (day: number, hour: number) => {
-    const on = slots[slotIndex(day, hour)];
-    const base = on ? "bg-jade/35" : "bg-card";
-    // A line every six hours, so the eye can find 06:00 and 18:00 without
-    // counting rows.
-    const rule = hour % 6 === 0 ? "border-t-line" : "border-t-transparent";
-    if (!editable) {
-      return <div key={hour} className={`h-3 border-t ${rule} ${base}`} />;
-    }
-    return (
-      <div
-        key={hour}
-        role="checkbox"
-        aria-checked={on}
-        aria-label={`${dayLabel(day, lang)} ${hourLabel(hour)}`}
-        onPointerDown={(e) => {
-          e.preventDefault();
-          painting.current = !on;
-          setDragging(true);
-          paint(day, hour, !on);
-        }}
-        onPointerEnter={() => {
-          if (painting.current !== null) paint(day, hour, painting.current);
-        }}
-        className={`h-4 cursor-pointer border-t transition-colors ${rule} ${base} ${
-          on ? "hover:bg-jade/50" : "hover:bg-line/60"}`}
-      />
-    );
-  };
-
+  const rowH = editable ? "h-[18px]" : "h-[13px]";
   const anyOn = slots.some(Boolean);
 
   return (
     <div>
-      <div className="flex gap-1 select-none" style={{ touchAction: "none" }}>
-        {/* Hour rail. Every third hour is labelled — enough to navigate by
-            without a wall of numbers beside a grid this fine. */}
-        <div className="w-11 shrink-0 pt-[22px]">
-          {Array.from({ length: HOURS }, (_, h) => (
-            <div key={h} className={editable ? "h-4" : "h-3"}>
-              {h % 3 === 0 && (
-                editable ? (
-                  <button type="button" onClick={() => fillHour(h)}
-                          className="-mt-[7px] block w-full text-right font-data text-[10px] leading-none text-muted transition-colors hover:text-amber">
-                    {hourLabel(h)}
-                  </button>
-                ) : (
-                  <span className="-mt-[6px] block text-right font-data text-[10px] leading-none text-muted">
-                    {hourLabel(h)}
-                  </span>
-                )
+      {/* Day names, over a spacer the same width as the hour column. */}
+      <div className="mb-1 flex gap-1">
+        <div className="w-12 shrink-0" />
+        {DAYS.map((_, d) => (
+          editable ? (
+            <button key={d} type="button" onClick={() => fillDay(d)}
+                    title={dayLabel(d, lang)}
+                    className="min-w-0 flex-1 rounded-md py-0.5 text-center text-[11.5px] text-muted transition-colors hover:bg-card hover:text-amber">
+              {dayShort(d, lang)}
+            </button>
+          ) : (
+            <div key={d} title={dayLabel(d, lang)}
+                 className="min-w-0 flex-1 py-0.5 text-center text-[11.5px] text-muted">
+              {dayShort(d, lang)}
+            </div>
+          )
+        ))}
+      </div>
+
+      <div className="select-none" style={{ touchAction: "none" }}>
+        {Array.from({ length: HOURS }, (_, h) => (
+          <div key={h} className="flex gap-1">
+            <div className={`flex w-12 shrink-0 items-center justify-end pr-1 ${rowH}`}>
+              {editable ? (
+                <button type="button" onClick={() => fillHour(h)}
+                        className={`font-data text-[10px] leading-none transition-colors hover:text-amber ${
+                          h % 3 === 0 ? "text-muted" : "text-muted/45"}`}>
+                  {hourLabel(h)}
+                </button>
+              ) : (
+                <span className={`font-data text-[10px] leading-none ${
+                  h % 3 === 0 ? "text-muted" : "text-muted/45"}`}>
+                  {hourLabel(h)}
+                </span>
               )}
             </div>
-          ))}
-        </div>
 
-        {DAYS.map((_, d) => (
-          <div key={d} className="min-w-0 flex-1">
-            {editable ? (
-              <button type="button" onClick={() => fillDay(d)}
-                      className="mb-1 block w-full rounded-md py-0.5 text-center text-[11.5px] text-muted transition-colors hover:bg-card hover:text-amber">
-                {dayShort(d, lang)}
-              </button>
-            ) : (
-              <div className="mb-1 py-0.5 text-center text-[11.5px] text-muted">
-                {dayShort(d, lang)}
-              </div>
-            )}
-            <div className="overflow-hidden rounded-md border border-line">
-              {Array.from({ length: HOURS }, (_, h) => cell(d, h))}
-            </div>
+            {DAYS.map((_, d) => {
+              const on = slots[slotIndex(d, h)];
+              // A heavier line every six hours, so the eye finds 06:00 and 18:00
+              // without reading every label.
+              const edge = [
+                "border-x border-line",
+                h === 0 ? "border-t rounded-t-md" : "",
+                h === HOURS - 1 ? "border-b rounded-b-md" : "",
+                h % 6 === 0 && h !== 0 ? "border-t border-t-line" : "",
+              ].join(" ");
+              const cls = `min-w-0 flex-1 ${rowH} ${edge} ${
+                on ? "bg-jade/35" : "bg-card"}`;
+              if (!editable) return <div key={d} className={cls} />;
+              return (
+                <div
+                  key={d}
+                  role="checkbox"
+                  aria-checked={on}
+                  aria-label={`${dayLabel(d, lang)} ${hourLabel(h)}`}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    painting.current = !on;
+                    setDragging(true);
+                    paint(d, h, !on);
+                  }}
+                  onPointerEnter={() => {
+                    if (painting.current !== null) paint(d, h, painting.current);
+                  }}
+                  className={`${cls} cursor-pointer transition-colors ${
+                    on ? "hover:bg-jade/50" : "hover:bg-line/60"}`}
+                />
+              );
+            })}
           </div>
         ))}
       </div>
