@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { LFG_OPTIONS, MONTH_NAMES } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
+import CharacterClaim from "@/components/CharacterClaim";
+import SignIn, { PROVIDERS } from "@/components/SignIn";
 
 interface Option { id: number; name: string }
 
@@ -14,6 +16,10 @@ interface ProfileRow {
   discord_avatar: string | null;
   character_id: number | null;
   character_name: string | null;
+  /** Set by the verify route only — see supabase/migration_v4.sql. */
+  character_verified_at: string | null;
+  /** What to call somebody who has no character linked. */
+  display_name: string | null;
   bio: string | null;
   accent_color: string | null;
   lfg: string[] | null;
@@ -50,6 +56,8 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
   const [charId, setCharId] = useState<number | null>(null);
   const [charName, setCharName] = useState<string | null>(null);
+  const [verifiedAt, setVerifiedAt] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
   const [birthMonth, setBirthMonth] = useState("");
   const [birthDay, setBirthDay] = useState("");
@@ -58,13 +66,12 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   const [banner, setBanner] = useState("");
   const [lfg, setLfg] = useState<string[]>([]);
   const [hidden, setHidden] = useState(false);
-  const [pick, setPick] = useState("");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!supabase) { setPhase("no-config"); return; }
-    (async () => {
+    {
       const { data } = await supabase.auth.getUser();
       if (!data.user) { setPhase("logged-out"); return; }
       setUser(data.user);
@@ -75,6 +82,8 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         setProfile(p);
         setCharId(p.character_id);
         setCharName(p.character_name);
+        setVerifiedAt(p.character_verified_at ?? null);
+        setDisplayName(p.display_name ?? "");
         setNickname(p.nickname ?? "");
         setBirthMonth(p.birth_month ? String(p.birth_month) : "");
         setBirthDay(p.birth_day ? String(p.birth_day) : "");
@@ -90,14 +99,12 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         }
       }
       setPhase("ready");
-    })();
+    }
   }, [supabase]);
 
-  const suggestions = useMemo(() => {
-    const q = pick.trim().toLowerCase();
-    if (q.length < 2) return [];
-    return memberOptions.filter((o) => o.name.toLowerCase().includes(q)).slice(0, 8);
-  }, [pick, memberOptions]);
+  useEffect(() => { void load(); }, [load]);
+
+  const inRoster = charId != null && memberOptions.some((o) => o.id === charId);
 
   async function save() {
     if (!supabase || !user) return;
@@ -106,8 +113,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
     const { error } = await supabase
       .from("profiles")
       .update({
-        character_id: charId,
-        character_name: charName,
+        display_name: displayName.trim() || null,
         nickname: nickname.trim() || null,
         // Both or neither: half a date is not a birthday.
         birth_month: birthMonth && birthDay ? Number(birthMonth) : null,
@@ -121,10 +127,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       .eq("id", user.id);
     setSaving(false);
     setMsg(error
-      ? { ok: false,
-          text: error.code === "23505"
-            ? "That character is already claimed by someone else — if it is really yours, ask an admin to release it"
-            : `Could not save: ${error.message}` }
+      ? { ok: false, text: `Could not save: ${error.message}` }
       : { ok: true, text: "Saved — your profile and the board update immediately" });
   }
 
@@ -155,17 +158,13 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   if (phase === "logged-out")
     return (
       <Notice>
-        Sign in with Discord to claim your character and customise your profile
-        <div className="mt-4">
-          <button
-            onClick={() =>
-              supabase!.auth.signInWithOAuth({
-                provider: "discord",
-                options: { redirectTo: `${location.origin}/auth/callback` },
-              })}
-            className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-5 py-2 text-[#a5b2ff] transition-colors hover:bg-[#5865F2]/25">
-            Log in with Discord
-          </button>
+        <div className="mx-auto max-w-sm text-left">
+          <p className="mb-4 text-center">
+            Sign in to verify your character and customise your profile. Coming to an
+            event without being in the FC works too — you do not need a character at
+            all.
+          </p>
+          <SignIn supabase={supabase!} />
         </div>
       </Notice>
     );
@@ -181,17 +180,16 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           <img src={profile.discord_avatar} alt="" className="size-9 rounded-full" />
         ) : null}
         <div className="min-w-0 flex-1">
-          <div className="font-data text-sm font-semibold">
-            {profile?.discord_username ?? "Discord member"}
+          <div className="truncate font-data text-sm font-semibold">
+            {charName ?? profile?.display_name ?? profile?.discord_username
+              ?? user?.email ?? "Signed in"}
           </div>
-          <div className="text-[12px] text-muted">Linked via Discord</div>
+          <div className="text-[12px] text-muted">
+            {charId
+              ? (inRoster ? "FC member" : "Guest") + (verifiedAt ? " · verified" : " · not verified yet")
+              : "Guest — no character linked"}
+          </div>
         </div>
-        {charId && (
-          <Link href={`/member/${charId}`}
-                className="rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted no-underline hover:border-amber hover:text-amber">
-            View my page
-          </Link>
-        )}
         {profile?.is_admin && (
           <Link href="/admin"
                 className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-1.5 text-[13px] text-chili no-underline hover:bg-chili/20">
@@ -205,48 +203,67 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         </button>
       </div>
 
-      {/* Character claim */}
-      <section className="mt-5 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">My character</div>
-        {charId ? (
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <span className="font-data text-[15px] font-semibold"
-                  style={color ? { color } : undefined}>
-              {charName} <span className="text-amber">✦</span>
-            </span>
-            <button onClick={() => { setCharId(null); setCharName(null); }}
-                    className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:border-muted hover:text-ink">
-              Unlink
-            </button>
-            <button onClick={toggleHide}
-                    className={`rounded-lg border px-3 py-1 text-[12.5px] ${
-                      hidden ? "border-jade/50 text-jade hover:bg-jade/10"
-                             : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-              {hidden ? "Show me on the board" : "Hide me from the board"}
-            </button>
-          </div>
-        ) : (
-          <div className="mt-2">
-            <input value={pick} onChange={(e) => setPick(e.target.value)}
-                   placeholder="Type at least 2 characters of your character name…"
-                   className="w-full rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted" />
-            {suggestions.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {suggestions.map((s) => (
-                  <button key={s.id}
-                          onClick={() => { setCharId(s.id); setCharName(s.name); setPick(""); }}
-                          className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink transition-colors hover:border-amber hover:text-amber">
-                    {s.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-        <p className="mt-2 text-[12px] leading-relaxed text-muted">
-          One character can only be claimed by one account — once claimed you get a ✦ on the board and can customise your own page
+      {/* Ways back in, so losing one account does not lose the profile. */}
+      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
+        <div className="font-display font-semibold">Ways to sign in</div>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+          Link a second one and either will get you back to this same profile. Worth
+          doing before you need it.
         </p>
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {PROVIDERS.map((prov) => {
+            const linked = (user?.identities ?? []).some((i) => i.provider === prov.key);
+            return (
+              <button key={prov.key} disabled={linked}
+                      title={linked ? `${prov.label} is already linked` : prov.hint}
+                      onClick={() => supabase!.auth.linkIdentity({
+                        provider: prov.key,
+                        options: { redirectTo: `${location.origin}/auth/callback` },
+                      })}
+                      className={`rounded-lg border px-3.5 py-1.5 text-[12.5px] transition-colors ${
+                        linked ? "border-jade/40 bg-jade/5 text-jade"
+                               : "border-line text-muted hover:border-amber hover:text-amber"}`}>
+                {linked ? `${prov.label} ✓` : `Link ${prov.label}`}
+              </button>
+            );
+          })}
+        </div>
       </section>
+
+      {/* Character claim */}
+      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
+        <div className="font-display font-semibold">My character</div>
+        <CharacterClaim
+          memberOptions={memberOptions}
+          characterId={charId}
+          characterName={charName}
+          verifiedAt={verifiedAt}
+          inRoster={inRoster}
+          onChange={() => { void load(); }}
+        />
+        {charId && inRoster && (
+          <button onClick={toggleHide}
+                  className={`mt-3 rounded-lg border px-3 py-1 text-[12.5px] ${
+                    hidden ? "border-jade/50 text-jade hover:bg-jade/10"
+                           : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+            {hidden ? "Show me on the board" : "Hide me from the board"}
+          </button>
+        )}
+      </section>
+
+      {/* Guests are named by hand, since there is no character to name them. */}
+      {!charId && (
+        <section className="mt-3 rounded-xl border border-line bg-surface p-4">
+          <div className="font-display font-semibold">What should we call you?</div>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+            Shown wherever you sign up for something. You can change it whenever.
+          </p>
+          <input value={displayName} onChange={(e) => setDisplayName(e.target.value)}
+                 placeholder="A name people will recognise"
+                 maxLength={40}
+                 className="mt-2.5 w-full rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted" />
+        </section>
+      )}
 
       {/* Profile customisation */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">

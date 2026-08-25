@@ -174,7 +174,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const supabase = createClient();
     if (!supabase) return;
     const BASE = "character_id, bio, accent_color, discord_username, lfg, banner";
-    const V3 = `${BASE}, nickname, birth_month, birth_day`;
+    const V3 = `${BASE}, nickname, birth_month, birth_day, character_verified_at`;
     // Selecting a column that does not exist fails the whole query, which would blank
     // every profile overlay on the board. Fall back to the pre-v3 column list so the
     // board still works on a database where migration_v3.sql has not been run yet.
@@ -193,6 +193,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           discord: r.discord_username as string | null,
           lfg: (r.lfg as string[] | null) ?? [], banner: r.banner as string | null,
           nickname: (r.nickname as string | null) ?? null,
+          verifiedAt: (r.character_verified_at as string | null) ?? null,
           birthMonth: (r.birth_month as number | null) ?? null,
           birthDay: (r.birth_day as number | null) ?? null,
         };
@@ -371,7 +372,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         <div>
           <h1 className="font-display text-3xl font-bold leading-tight">Members</h1>
           <div className="mt-0.5 text-[13.5px] text-muted">
-            ✦ = verified via Discord · click a name for the full profile
+            ✦ = proved they own the character · click a name for the full profile
           </div>
         </div>
         <div className="flex gap-2">
@@ -682,9 +683,13 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                           ({ov.nickname})
                         </span>
                       )}
-                      {ov && (
+                      {/* Only for a character somebody proved they own. A claim
+                          on its own used to be enough, which made the mark a
+                          decoration rather than a statement. */}
+                      {ov?.verifiedAt && (
                         <span className="ml-1.5" style={{ color: accent }}
-                              title={ov.discord ? `Linked Discord: ${ov.discord}` : "Verified"}>
+                              title={ov.discord
+                                ? `Verified owner · ${ov.discord}` : "Verified owner"}>
                           ✦
                         </span>
                       )}

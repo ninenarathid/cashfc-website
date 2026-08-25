@@ -137,6 +137,8 @@ export interface Overlay {
   bio: string | null; accent: string | null;
   discord: string | null; lfg?: string[] | null; banner?: string | null;
   nickname?: string | null;
+  /** When the owner proved the character is theirs. Null means an unverified claim. */
+  verifiedAt?: string | null;
   /** Real-world birthday. Day and month only — no year is ever collected. */
   birthMonth?: number | null; birthDay?: number | null;
 }

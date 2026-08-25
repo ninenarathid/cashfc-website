@@ -14,16 +14,20 @@ export default function AuthButton() {
     supabase.auth.getUser().then(({ data }) => {
       const u = data.user;
       setUser(u ? {
-        name: (u.user_metadata.full_name ?? u.user_metadata.name ?? "Member") as string,
-        avatar: (u.user_metadata.avatar_url ?? null) as string | null,
+        name: (u.user_metadata.full_name ?? u.user_metadata.name
+               ?? u.email?.split("@")[0] ?? "Member") as string,
+        avatar: (u.user_metadata.avatar_url ?? u.user_metadata.picture
+                 ?? null) as string | null,
       } : null);
       setReady(true);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       const u = session?.user;
       setUser(u ? {
-        name: (u.user_metadata.full_name ?? u.user_metadata.name ?? "Member") as string,
-        avatar: (u.user_metadata.avatar_url ?? null) as string | null,
+        name: (u.user_metadata.full_name ?? u.user_metadata.name
+               ?? u.email?.split("@")[0] ?? "Member") as string,
+        avatar: (u.user_metadata.avatar_url ?? u.user_metadata.picture
+                 ?? null) as string | null,
       } : null);
     });
     return () => sub.subscription.unsubscribe();
@@ -33,17 +37,12 @@ export default function AuthButton() {
 
   if (!user) {
     return (
-      <button
-        onClick={() =>
-          supabase.auth.signInWithOAuth({
-            provider: "discord",
-            options: { redirectTo: `${location.origin}/auth/callback` },
-          })
-        }
-        className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-3.5 py-1.5 text-[13.5px] text-[#a5b2ff] transition-colors hover:bg-[#5865F2]/25"
+      <Link
+        href="/profile"
+        className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-3.5 py-1.5 text-[13.5px] text-[#a5b2ff] no-underline transition-colors hover:bg-[#5865F2]/25"
       >
-        Login Discord
-      </button>
+        Sign in
+      </Link>
     );
   }
 
