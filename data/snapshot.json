@@ -13,6 +13,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "15308846": {
@@ -28,6 +38,24 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Warrior": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -45,6 +73,15 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Enuo",
+   "Queen Eternal",
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "14959902": {
@@ -61,6 +98,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28789661": {
@@ -76,6 +118,23 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Warrior": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -93,6 +152,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "The Epic of Alexander"
+  ],
   "chg": "2026-08-25"
  },
  "57885671": {
@@ -109,6 +175,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "58199536": {
@@ -125,6 +196,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24186600": {
@@ -140,6 +216,22 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Paladin": "master",
+   "Summoner": "master"
+  },
+  "ex": [
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -157,6 +249,25 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Dancer": "legendary",
+   "RedMage": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten"
+  ],
   "chg": "2026-08-24"
  },
  "38041221": {
@@ -173,6 +284,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35634484": {
@@ -189,6 +308,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "22767255": {
@@ -204,6 +331,21 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Reaper": "expert"
+  },
+  "ex": [
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -221,6 +363,128 @@
    false,
    false
   ],
+  "rare_ids": [
+   847,
+   852,
+   853,
+   935,
+   952,
+   1019,
+   1077,
+   1199,
+   1200,
+   1201,
+   1339,
+   1381,
+   1382,
+   1440,
+   1445,
+   1446,
+   1455,
+   1469,
+   1470,
+   1592,
+   1751,
+   1756,
+   1950,
+   2066,
+   2138,
+   2232,
+   2352,
+   2394,
+   2490,
+   2491,
+   2493,
+   2494,
+   2496,
+   2497,
+   2499,
+   2500,
+   2502,
+   2503,
+   2505,
+   2506,
+   2508,
+   2509,
+   2511,
+   2512,
+   2524,
+   2527,
+   2528,
+   2529,
+   2530,
+   2531,
+   2532,
+   2533,
+   2534,
+   2563,
+   2564,
+   2565,
+   2566,
+   2648,
+   2649,
+   2650,
+   2651,
+   2652,
+   2653,
+   2654,
+   2655,
+   2754,
+   2755,
+   2756,
+   2808,
+   2809,
+   2810,
+   2811,
+   2812,
+   2813,
+   2814,
+   2992,
+   2996,
+   3044,
+   3045,
+   3051,
+   3267,
+   3268,
+   3269,
+   3529,
+   3533,
+   3538,
+   3539,
+   3556,
+   3674,
+   3705,
+   3708,
+   3717,
+   3812,
+   3833,
+   3834,
+   3847,
+   3848,
+   3852,
+   3860,
+   3861
+  ],
+  "tiers": {
+   "gatherer": "expert",
+   "crafter": "master",
+   "relic": "legendary",
+   "explorer": "expert",
+   "treasure": "master",
+   "goldsaucer": "master",
+   "pvp": "legendary"
+  },
+  "jobs": {
+   "Sage": "expert",
+   "WhiteMage": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29511615": {
@@ -236,6 +500,24 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Samurai": "master",
+   "WhiteMage": "expert",
+   "Paladin": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Necron",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -253,6 +535,25 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "WhiteMage": "legendary",
+   "Scholar": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander"
+  ],
   "chg": "2026-08-25"
  },
  "13533056": {
@@ -268,6 +569,130 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [
+   328,
+   557,
+   568,
+   569,
+   1320,
+   1335,
+   1337,
+   1391,
+   1392,
+   1393,
+   1444,
+   1453,
+   1463,
+   1464,
+   1704,
+   1717,
+   1750,
+   1854,
+   1857,
+   1907,
+   1949,
+   2054,
+   2083,
+   2144,
+   2281,
+   2282,
+   2283,
+   2351,
+   2388,
+   2504,
+   2513,
+   2514,
+   2516,
+   2522,
+   2523,
+   2542,
+   2545,
+   2551,
+   2555,
+   2562,
+   2563,
+   2564,
+   2566,
+   2663,
+   2671,
+   2693,
+   2750,
+   2754,
+   2756,
+   2759,
+   2764,
+   2765,
+   2769,
+   2772,
+   2773,
+   2774,
+   2775,
+   2776,
+   2777,
+   2779,
+   2780,
+   2783,
+   2784,
+   2787,
+   2788,
+   2789,
+   2790,
+   2791,
+   2792,
+   2793,
+   2845,
+   2857,
+   2858,
+   2859,
+   2861,
+   2862,
+   2863,
+   2864,
+   2865,
+   2866,
+   2867,
+   2868,
+   2869,
+   2872,
+   2873,
+   2883,
+   2929,
+   2930,
+   2933,
+   2939,
+   2991,
+   2995,
+   3074,
+   3194,
+   3195,
+   3196,
+   3197,
+   3198,
+   3348,
+   3349
+  ],
+  "tiers": {
+   "gatherer": "expert",
+   "relic": "expert"
+  },
+  "jobs": {
+   "RedMage": "legendary",
+   "Warrior": "master",
+   "Pictomancer": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -285,6 +710,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "19827594": {
@@ -300,6 +733,27 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Dancer": "master",
+   "Warrior": "expert",
+   "Paladin": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Omega Protocol"
   ],
   "chg": "2026-08-25"
  },
@@ -317,6 +771,22 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Ninja": "master",
+   "Viper": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten"
+  ],
   "chg": "2026-08-24"
  },
  "36248712": {
@@ -333,6 +803,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Machinist": "expert"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "26699926": {
@@ -348,6 +828,27 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "BlackMage": "legendary",
+   "Summoner": "master",
+   "Pictomancer": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -365,6 +866,22 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Samurai": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36261473": {
@@ -380,6 +897,22 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Astrologian": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-25"
  },
@@ -397,6 +930,21 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "BlackMage": "master",
+   "Summoner": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Zelenia"
+  ],
+  "ults": [
+   "The Weapon's Refrain"
+  ],
   "chg": "2026-08-25"
  },
  "28579232": {
@@ -412,6 +960,26 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "master",
+   "Gunbreaker": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -429,6 +997,24 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Monk": "legendary",
+   "Samurai": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten"
+  ],
   "chg": "2026-08-24"
  },
  "39199441": {
@@ -445,6 +1031,20 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Gunbreaker": "master",
+   "Dragoon": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "40389196": {
@@ -461,6 +1061,18 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Astrologian": "master",
+   "Sage": "expert"
+  },
+  "ex": [
+   "Necron",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47540663": {
@@ -476,6 +1088,24 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "legendary",
+   "Dragoon": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-25"
  },
@@ -493,6 +1123,40 @@
    true,
    true
   ],
+  "rare_ids": [
+   1468,
+   1581,
+   2444,
+   2702,
+   2768,
+   2775,
+   2778,
+   2783,
+   2857,
+   2860,
+   2864,
+   2867,
+   2872,
+   3068,
+   3069,
+   3113,
+   3199,
+   3200
+  ],
+  "tiers": {},
+  "jobs": {
+   "Warrior": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
+  ],
   "chg": "2026-08-25"
  },
  "28120733": {
@@ -509,6 +1173,23 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Gunbreaker": "master",
+   "Warrior": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "12478532": {
@@ -524,6 +1205,24 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "master",
+   "Monk": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise"
   ],
   "chg": "2026-08-25"
  },
@@ -541,6 +1240,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42349146": {
@@ -557,6 +1264,21 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Paladin": "master",
+   "DarkKnight": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42021700": {
@@ -573,6 +1295,19 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42948817": {
@@ -589,6 +1324,28 @@
    false,
    false
   ],
+  "rare_ids": [
+   169,
+   1697,
+   1710,
+   1933,
+   2388,
+   2991,
+   2997,
+   3001,
+   3215,
+   3243,
+   3341,
+   3346,
+   3538,
+   3554
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "57375278": {
@@ -605,6 +1362,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "25506828": {
@@ -620,6 +1382,21 @@
    true,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Gunbreaker": "master"
+  },
+  "ex": [
+   "Enuo",
+   "Necron",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten"
   ],
   "chg": "2026-08-24"
  },
@@ -637,6 +1414,49 @@
    true,
    true
   ],
+  "rare_ids": [
+   1659,
+   1660,
+   1705,
+   1718,
+   1952,
+   2036,
+   2054,
+   2055,
+   2083,
+   2144,
+   2213,
+   2417,
+   2444,
+   2765,
+   2766,
+   2775,
+   2997,
+   3001,
+   3178
+  ],
+  "tiers": {},
+  "jobs": {
+   "Warrior": "master",
+   "Dancer": "legendary",
+   "BlackMage": "expert",
+   "Bard": "expert",
+   "Gunbreaker": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander"
+  ],
   "chg": "2026-08-25"
  },
  "31902843": {
@@ -652,6 +1472,55 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [
+   1993,
+   2388,
+   2444,
+   2750,
+   2764,
+   2768,
+   2770,
+   2775,
+   2780,
+   2857,
+   2859,
+   2860,
+   2864,
+   2869,
+   2870,
+   2871,
+   2991,
+   3074,
+   3113,
+   3162,
+   3215,
+   3252
+  ],
+  "tiers": {},
+  "jobs": {
+   "Paladin": "legendary",
+   "Warrior": "legendary",
+   "DarkKnight": "master",
+   "Gunbreaker": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -669,6 +1538,30 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Bard": "legendary",
+   "Dancer": "master",
+   "WhiteMage": "master",
+   "RedMage": "expert",
+   "Pictomancer": "master",
+   "Astrologian": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander"
+  ],
   "chg": "2026-08-25"
  },
  "34509521": {
@@ -684,6 +1577,29 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Scholar": "master",
+   "Sage": "expert",
+   "WhiteMage": "expert",
+   "RedMage": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Omega Protocol"
   ],
   "chg": "2026-08-25"
  },
@@ -701,6 +1617,21 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Dancer": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "22461237": {
@@ -716,6 +1647,129 @@
    true,
    true,
    false
+  ],
+  "rare_ids": [
+   147,
+   153,
+   200,
+   201,
+   202,
+   752,
+   755,
+   758,
+   761,
+   767,
+   846,
+   1302,
+   1303,
+   1304,
+   1307,
+   1313,
+   1314,
+   1315,
+   1316,
+   1318,
+   1319,
+   1320,
+   1322,
+   1323,
+   1327,
+   1328,
+   1329,
+   1330,
+   1333,
+   1335,
+   1353,
+   1439,
+   1459,
+   1663,
+   1666,
+   1750,
+   1849,
+   1851,
+   1853,
+   1856,
+   1934,
+   1938,
+   1968,
+   2034,
+   2083,
+   2144,
+   2213,
+   2228,
+   2229,
+   2290,
+   2292,
+   2388,
+   2455,
+   2456,
+   2513,
+   2514,
+   2516,
+   2517,
+   2551,
+   2552,
+   2727,
+   2766,
+   2767,
+   2773,
+   2858,
+   2862,
+   2866,
+   2886,
+   2929,
+   2930,
+   2932,
+   2933,
+   2938,
+   2940,
+   2991,
+   3074,
+   3155,
+   3185,
+   3256,
+   3266,
+   3338,
+   3348,
+   3349,
+   3467,
+   3469,
+   3470,
+   3472,
+   3475,
+   3476,
+   3477,
+   3479,
+   3630,
+   3631,
+   3642,
+   3667,
+   3668,
+   3677,
+   3752,
+   3998,
+   4002
+  ],
+  "tiers": {
+   "gatherer": "expert",
+   "crafter": "expert",
+   "explorer": "master"
+  },
+  "jobs": {
+   "Warrior": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -733,6 +1787,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "5435582": {
@@ -748,6 +1807,18 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Dancer": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Valigarmanda"
+  ],
+  "ults": [
+   "Futures Rewritten"
   ],
   "chg": "2026-08-24"
  },
@@ -765,6 +1836,25 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Samurai": "legendary",
+   "Monk": "master",
+   "Gunbreaker": "expert",
+   "Viper": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Zelenia"
+  ],
+  "ults": [
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
+  ],
   "chg": "2026-08-25"
  },
  "6173187": {
@@ -781,6 +1871,18 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Dancer": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "51922514": {
@@ -797,6 +1899,20 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36183541": {
@@ -813,6 +1929,19 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Samurai": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "21620195": {
@@ -829,6 +1958,20 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "5644067": {
@@ -844,6 +1987,101 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [
+   170,
+   199,
+   231,
+   232,
+   233,
+   770,
+   846,
+   944,
+   1002,
+   1003,
+   1057,
+   1191,
+   1192,
+   1308,
+   1310,
+   1319,
+   1333,
+   1353,
+   1354,
+   1376,
+   1439,
+   1444,
+   1453,
+   1463,
+   1464,
+   1468,
+   1750,
+   1857,
+   1907,
+   1993,
+   2052,
+   2054,
+   2281,
+   2283,
+   2286,
+   2290,
+   2292,
+   2492,
+   2493,
+   2510,
+   2522,
+   2534,
+   2596,
+   2637,
+   2780,
+   2808,
+   2869,
+   2931,
+   2932,
+   2933,
+   3074,
+   3162,
+   3252,
+   3253,
+   3474,
+   3548,
+   3554,
+   3577,
+   3616,
+   3617,
+   3630,
+   3782,
+   3805,
+   3823,
+   3867,
+   3868,
+   3869,
+   3874,
+   3889,
+   3979
+  ],
+  "tiers": {},
+  "jobs": {
+   "Viper": "master",
+   "Ninja": "expert",
+   "RedMage": "expert",
+   "Reaper": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut"
   ],
   "chg": "2026-08-24"
  },
@@ -861,6 +2099,24 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "BlackMage": "legendary",
+   "Pictomancer": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten"
+  ],
   "chg": "2026-08-24"
  },
  "22425670": {
@@ -877,6 +2133,126 @@
    false,
    false
   ],
+  "rare_ids": [
+   1320,
+   1333,
+   1335,
+   2675,
+   2682,
+   2693,
+   2765,
+   2882,
+   2885,
+   2886,
+   2929,
+   2930,
+   3258,
+   3305,
+   3306,
+   3311,
+   3312,
+   3313,
+   3315,
+   3362,
+   3363,
+   3368,
+   3369,
+   3372,
+   3467,
+   3468,
+   3469,
+   3470,
+   3472,
+   3475,
+   3476,
+   3577,
+   3616,
+   3640,
+   3641,
+   3642,
+   3643,
+   3644,
+   3645,
+   3646,
+   3647,
+   3648,
+   3649,
+   3650,
+   3651,
+   3652,
+   3653,
+   3654,
+   3656,
+   3657,
+   3658,
+   3663,
+   3667,
+   3673,
+   3674,
+   3677,
+   3693,
+   3694,
+   3695,
+   3699,
+   3700,
+   3701,
+   3720,
+   3723,
+   3735,
+   3752,
+   3753,
+   3754,
+   3755,
+   3756,
+   3757,
+   3758,
+   3759,
+   3760,
+   3761,
+   3762,
+   3763,
+   3764,
+   3765,
+   3766,
+   3767,
+   3768,
+   3769,
+   3770,
+   3771,
+   3772,
+   3792,
+   3793,
+   3794,
+   3795,
+   3796,
+   3797,
+   3798,
+   3799,
+   3800,
+   3801,
+   3802,
+   3805,
+   3811,
+   3823
+  ],
+  "tiers": {
+   "relic": "master",
+   "explorer": "master"
+  },
+  "jobs": {
+   "Machinist": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "15912826": {
@@ -892,6 +2268,24 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Paladin": "legendary",
+   "Samurai": "expert",
+   "Monk": "expert"
+  },
+  "ex": [
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -909,6 +2303,25 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Sage": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dancing Mad",
+   "Dragonsong's Reprise",
+   "The Weapon's Refrain"
+  ],
   "chg": "2026-08-25"
  },
  "30667251": {
@@ -925,6 +2338,17 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29325838": {
@@ -940,6 +2364,27 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "legendary",
+   "Samurai": "legendary",
+   "DarkKnight": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -957,6 +2402,21 @@
    true,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Warrior": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Weapon's Refrain"
+  ],
   "chg": "2026-08-25"
  },
  "44133352": {
@@ -973,6 +2433,120 @@
    false,
    false
   ],
+  "rare_ids": [
+   142,
+   152,
+   329,
+   543,
+   544,
+   545,
+   547,
+   548,
+   549,
+   551,
+   552,
+   553,
+   607,
+   1343,
+   1344,
+   1345,
+   1346,
+   1347,
+   1348,
+   1349,
+   1352,
+   1381,
+   1382,
+   1859,
+   1860,
+   1861,
+   1862,
+   1863,
+   1864,
+   1865,
+   1866,
+   1869,
+   2166,
+   2168,
+   2357,
+   2358,
+   2359,
+   2360,
+   2361,
+   2362,
+   2363,
+   2364,
+   2367,
+   2491,
+   2494,
+   2499,
+   2502,
+   2505,
+   2506,
+   2509,
+   2527,
+   2528,
+   2529,
+   2530,
+   2531,
+   2532,
+   2533,
+   2534,
+   2566,
+   2648,
+   2649,
+   2650,
+   2651,
+   2652,
+   2653,
+   2654,
+   2655,
+   2756,
+   2800,
+   2803,
+   2810,
+   2811,
+   2812,
+   2941,
+   2942,
+   2943,
+   2944,
+   2945,
+   2946,
+   2947,
+   2948,
+   2949,
+   2951,
+   3260,
+   3480,
+   3481,
+   3482,
+   3483,
+   3484,
+   3485,
+   3486,
+   3487,
+   3488,
+   3489,
+   3490,
+   3539,
+   3547,
+   3714,
+   3951,
+   3964
+  ],
+  "tiers": {
+   "gatherer": "expert",
+   "crafter": "legendary",
+   "relic": "legendary",
+   "treasure": "expert",
+   "goldsaucer": "legendary"
+  },
+  "jobs": {},
+  "ex": [
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "43864764": {
@@ -984,6 +2558,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "29998658": {
@@ -999,6 +2578,30 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Monk": "legendary",
+   "Warrior": "legendary",
+   "Dancer": "legendary",
+   "RedMage": "master",
+   "Paladin": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dancing Mad",
+   "Futures Rewritten",
+   "The Omega Protocol"
   ],
   "chg": "2026-08-25"
  },
@@ -1016,6 +2619,15 @@
    true,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37648492": {
@@ -1031,6 +2643,20 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "WhiteMage": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten"
   ],
   "chg": "2026-08-25"
  },
@@ -1048,6 +2674,101 @@
    false,
    false
   ],
+  "rare_ids": [
+   560,
+   572,
+   944,
+   945,
+   1031,
+   1124,
+   1444,
+   1458,
+   1463,
+   1468,
+   1933,
+   1934,
+   1938,
+   2043,
+   2095,
+   2156,
+   2637,
+   2653,
+   2699,
+   2764,
+   2765,
+   2768,
+   2825,
+   2870,
+   2871,
+   3265,
+   3376,
+   3412,
+   3472,
+   3597,
+   3598,
+   3599,
+   3616,
+   3640,
+   3662,
+   3676,
+   3691,
+   3692,
+   3693,
+   3694,
+   3695,
+   3696,
+   3697,
+   3698,
+   3699,
+   3700,
+   3701,
+   3717,
+   3729,
+   3735,
+   3736,
+   3741,
+   3754,
+   3777,
+   3792,
+   3793,
+   3794,
+   3795,
+   3796,
+   3797,
+   3798,
+   3799,
+   3800,
+   3801,
+   3802,
+   3823,
+   3867,
+   3877,
+   3878,
+   3879,
+   3880,
+   3881,
+   3882,
+   3883,
+   3884,
+   3885,
+   3886,
+   3887,
+   3889
+  ],
+  "tiers": {
+   "relic": "expert"
+  },
+  "jobs": {
+   "Scholar": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "58202955": {
@@ -1064,6 +2785,15 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "26298391": {
@@ -1079,6 +2809,23 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Paladin": "master",
+   "Machinist": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Zelenia"
+  ],
+  "ults": [
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-25"
  },
@@ -1096,6 +2843,128 @@
    false,
    false
   ],
+  "rare_ids": [
+   935,
+   1077,
+   1227,
+   1328,
+   1335,
+   1339,
+   1370,
+   1475,
+   1603,
+   1604,
+   2066,
+   2137,
+   2389,
+   2393,
+   2481,
+   2991,
+   2992,
+   3529,
+   3555,
+   3600,
+   3667,
+   3680,
+   3683,
+   3684,
+   3702,
+   3703,
+   3726,
+   3729,
+   3736,
+   3757,
+   3758,
+   3762,
+   3770,
+   3778,
+   3784,
+   3817,
+   3832,
+   3842,
+   3844,
+   3845,
+   3846,
+   3847,
+   3848,
+   3849,
+   3850,
+   3851,
+   3852,
+   3853,
+   3854,
+   3855,
+   3856,
+   3857,
+   3858,
+   3859,
+   3860,
+   3861,
+   3862,
+   3874,
+   3885,
+   3886,
+   3887,
+   3914,
+   3915,
+   3916,
+   3917,
+   3918,
+   3919,
+   3920,
+   3921,
+   3922,
+   3923,
+   3924,
+   3925,
+   3935,
+   3936,
+   3937,
+   3938,
+   3939,
+   3949,
+   3950,
+   3951,
+   3952,
+   3954,
+   3956,
+   3957,
+   3962,
+   3999,
+   4000,
+   4003,
+   4004,
+   4005,
+   4006,
+   4007,
+   4008,
+   4014,
+   4015,
+   4017,
+   4018,
+   4022,
+   4074
+  ],
+  "tiers": {
+   "relic": "legendary",
+   "explorer": "legendary",
+   "treasure": "expert",
+   "pvp": "expert"
+  },
+  "jobs": {
+   "DarkKnight": "expert",
+   "Samurai": "expert",
+   "Summoner": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42976317": {
@@ -1112,6 +2981,18 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "24123541": {
@@ -1128,6 +3009,19 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Reaper": "legendary"
+  },
+  "ex": [
+   "Guardian Arkveld",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten"
+  ],
   "chg": "2026-08-24"
  },
  "12058921": {
@@ -1139,6 +3033,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "38335568": {
@@ -1155,6 +3054,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Queen Eternal"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "6951533": {
@@ -1171,6 +3077,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "38802422": {
@@ -1187,6 +3098,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "56108574": {
@@ -1203,6 +3119,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "8836061": {
@@ -1218,6 +3139,122 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   126,
+   127,
+   128,
+   136,
+   138,
+   139,
+   140,
+   141,
+   142,
+   146,
+   147,
+   148,
+   152,
+   153,
+   154,
+   158,
+   159,
+   160,
+   162,
+   163,
+   164,
+   169,
+   181,
+   557,
+   569,
+   613,
+   616,
+   619,
+   634,
+   643,
+   703,
+   706,
+   846,
+   1062,
+   1278,
+   1279,
+   1280,
+   1282,
+   1301,
+   1302,
+   1303,
+   1304,
+   1353,
+   1390,
+   1392,
+   1393,
+   1407,
+   1420,
+   1429,
+   1439,
+   1453,
+   1454,
+   1458,
+   1463,
+   1464,
+   1490,
+   1491,
+   1500,
+   1597,
+   1606,
+   1626,
+   1666,
+   1668,
+   1681,
+   1704,
+   1717,
+   1722,
+   1723,
+   1735,
+   1736,
+   1743,
+   1744,
+   1746,
+   1750,
+   1848,
+   1849,
+   1962,
+   1993,
+   2088,
+   2149,
+   2167,
+   2281,
+   2488,
+   2713,
+   2764,
+   2769,
+   2772,
+   2773,
+   2774,
+   2775,
+   2786,
+   2788,
+   2861,
+   2862,
+   2863,
+   2864,
+   2972,
+   3001,
+   3194,
+   3306
+  ],
+  "tiers": {
+   "crafter": "expert",
+   "relic": "expert",
+   "explorer": "expert",
+   "seasonal": "expert"
+  },
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -1235,6 +3272,22 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Summoner": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29090821": {
@@ -1251,6 +3304,19 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Reaper": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34434658": {
@@ -1266,6 +3332,33 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   1320,
+   1415,
+   1473,
+   1508,
+   1614,
+   1676,
+   2387,
+   2659,
+   2787,
+   3199,
+   3200,
+   3202,
+   3311,
+   3312,
+   3314,
+   3368,
+   3369,
+   3371,
+   3373
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -1283,6 +3376,23 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Gunbreaker": "master",
+   "Paladin": "expert",
+   "Viper": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29339718": {
@@ -1298,6 +3408,116 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   572,
+   573,
+   770,
+   1320,
+   1328,
+   1333,
+   2040,
+   2043,
+   2095,
+   2156,
+   2280,
+   2281,
+   2283,
+   2284,
+   2286,
+   2444,
+   2596,
+   2633,
+   2661,
+   2662,
+   2663,
+   2783,
+   2784,
+   2787,
+   2788,
+   2789,
+   2790,
+   2791,
+   2792,
+   2793,
+   2794,
+   2845,
+   2870,
+   2872,
+   2873,
+   2929,
+   2930,
+   2931,
+   2932,
+   2933,
+   2939,
+   3068,
+   3069,
+   3172,
+   3193,
+   3194,
+   3195,
+   3196,
+   3197,
+   3198,
+   3199,
+   3305,
+   3306,
+   3307,
+   3308,
+   3309,
+   3310,
+   3311,
+   3312,
+   3313,
+   3314,
+   3317,
+   3318,
+   3362,
+   3363,
+   3364,
+   3365,
+   3366,
+   3367,
+   3368,
+   3369,
+   3370,
+   3371,
+   3473,
+   3474,
+   3478,
+   3598,
+   3651,
+   3655,
+   3656,
+   3657,
+   3658,
+   3691,
+   3692,
+   3693,
+   3694,
+   3695,
+   3696,
+   3697,
+   3698,
+   3765,
+   3769,
+   3792,
+   3793,
+   3794,
+   3795,
+   3796,
+   3797,
+   3798,
+   3799
+  ],
+  "tiers": {
+   "relic": "master"
+  },
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-25"
  },
@@ -1315,6 +3535,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42215186": {
@@ -1331,6 +3556,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "2957360": {
@@ -1347,6 +3577,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "4026627": {
@@ -1363,6 +3598,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "44143115": {
@@ -1379,6 +3619,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34376591": {
@@ -1395,6 +3642,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Guardian Arkveld"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "38488824": {
@@ -1411,6 +3665,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34546216": {
@@ -1426,6 +3685,20 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Bard": "expert",
+   "Machinist": "expert"
+  },
+  "ex": [
+   "Necron",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-25"
  },
@@ -1443,6 +3716,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39959181": {
@@ -1459,6 +3737,19 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Dancer": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35601257": {
@@ -1475,6 +3766,18 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29795820": {
@@ -1491,6 +3794,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42053180": {
@@ -1500,13 +3808,18 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "15543487": {
@@ -1523,6 +3836,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "16192933": {
@@ -1539,6 +3857,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47494518": {
@@ -1550,6 +3873,11 @@
   "rare": null,
   "level": 88,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "31899766": {
@@ -1566,6 +3894,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31001697": {
@@ -1582,6 +3915,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29585811": {
@@ -1598,6 +3936,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60619924": {
@@ -1609,6 +3952,11 @@
   "rare": null,
   "level": 85,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39850923": {
@@ -1625,6 +3973,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31001781": {
@@ -1641,6 +3996,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "26844665": {
@@ -1657,6 +4017,28 @@
    false,
    false
   ],
+  "rare_ids": [
+   950,
+   963,
+   1087,
+   1198,
+   1458,
+   2387,
+   2461,
+   2484,
+   2990,
+   3609,
+   3691,
+   3692,
+   3693,
+   3694,
+   3695,
+   3741
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36183378": {
@@ -1673,6 +4055,14 @@
    false,
    false
   ],
+  "rare_ids": [
+   2779,
+   2868
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24114157": {
@@ -1689,6 +4079,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31155521": {
@@ -1705,6 +4100,17 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Enuo",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "46739693": {
@@ -1721,6 +4127,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "53933347": {
@@ -1737,6 +4148,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60852230": {
@@ -1748,6 +4164,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "35854535": {
@@ -1764,6 +4185,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33807451": {
@@ -1780,6 +4206,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "16099244": {
@@ -1795,6 +4226,127 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   770,
+   1333,
+   1334,
+   1337,
+   1407,
+   1415,
+   1500,
+   1508,
+   1582,
+   1583,
+   1588,
+   1606,
+   1614,
+   1663,
+   1666,
+   1668,
+   1676,
+   1696,
+   1697,
+   1701,
+   1704,
+   1709,
+   1710,
+   1714,
+   1717,
+   1916,
+   2036,
+   2037,
+   2039,
+   2040,
+   2043,
+   2052,
+   2083,
+   2084,
+   2088,
+   2144,
+   2145,
+   2149,
+   2214,
+   2286,
+   2351,
+   2387,
+   2388,
+   2389,
+   2392,
+   2393,
+   2444,
+   2454,
+   2455,
+   2456,
+   2457,
+   2458,
+   2459,
+   2460,
+   2461,
+   2462,
+   2463,
+   2464,
+   2465,
+   2466,
+   2467,
+   2468,
+   2469,
+   2470,
+   2471,
+   2472,
+   2473,
+   2474,
+   2475,
+   2476,
+   2596,
+   2637,
+   2665,
+   2729,
+   2730,
+   2731,
+   2732,
+   2733,
+   2734,
+   2735,
+   2764,
+   2769,
+   2770,
+   2779,
+   2858,
+   2859,
+   2868,
+   2883,
+   2991,
+   2992,
+   2993,
+   3074,
+   3113,
+   3162,
+   3252,
+   3348,
+   3577,
+   3616,
+   3617,
+   3630
+  ],
+  "tiers": {
+   "relic": "expert"
+  },
+  "jobs": {
+   "DarkKnight": "master",
+   "Warrior": "legendary"
+  },
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -1812,6 +4364,18 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "46243891": {
@@ -1828,6 +4392,15 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Guardian Arkveld",
+   "Necron",
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34790386": {
@@ -1844,6 +4417,21 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "WhiteMage": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "38796459": {
@@ -1860,6 +4448,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31592995": {
@@ -1876,6 +4474,15 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42215185": {
@@ -1892,6 +4499,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30596644": {
@@ -1908,6 +4520,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31831003": {
@@ -1924,6 +4541,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "7283668": {
@@ -1940,6 +4562,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "8113158": {
@@ -1956,6 +4583,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "2852829": {
@@ -1972,6 +4607,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37061370": {
@@ -1988,6 +4631,74 @@
    false,
    false
   ],
+  "rare_ids": [
+   950,
+   951,
+   963,
+   1473,
+   1562,
+   2007,
+   2094,
+   2155,
+   2224,
+   2596,
+   2748,
+   2784,
+   2873,
+   3001,
+   3113,
+   3548,
+   3554,
+   3555,
+   3577,
+   3616,
+   3638,
+   3639,
+   3640,
+   3645,
+   3650,
+   3654,
+   3655,
+   3656,
+   3658,
+   3662,
+   3673,
+   3676,
+   3679,
+   3683,
+   3691,
+   3692,
+   3697,
+   3741,
+   3754,
+   3759,
+   3764,
+   3768,
+   3769,
+   3772,
+   3777,
+   3778,
+   3782,
+   3792,
+   3793,
+   3798,
+   3811,
+   3823,
+   3824
+  ],
+  "tiers": {},
+  "jobs": {
+   "WhiteMage": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33387937": {
@@ -2004,6 +4715,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "expert"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60599300": {
@@ -2015,6 +4736,11 @@
   "rare": null,
   "level": 58,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29907674": {
@@ -2031,6 +4757,45 @@
    false,
    false
   ],
+  "rare_ids": [
+   262,
+   267,
+   272,
+   917,
+   918,
+   1015,
+   1016,
+   1017,
+   1018,
+   1031,
+   1032,
+   1033,
+   1034,
+   1622,
+   1633,
+   1732,
+   2079,
+   2093,
+   2125,
+   2154,
+   2176,
+   2223,
+   2245,
+   2486,
+   2588,
+   2644,
+   2669,
+   2716,
+   2832,
+   3077,
+   3187
+  ],
+  "tiers": {
+   "gatherer": "expert"
+  },
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35158574": {
@@ -2046,6 +4811,45 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   950,
+   1415,
+   1453,
+   1454,
+   1508,
+   1614,
+   1676,
+   1704,
+   1717,
+   1933,
+   1993,
+   2036,
+   2665,
+   2765,
+   2775,
+   2793,
+   2794,
+   2860,
+   2864,
+   2882,
+   2997,
+   3001,
+   3047,
+   3048,
+   3049
+  ],
+  "tiers": {},
+  "jobs": {
+   "Viper": "master"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -2063,6 +4867,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36363091": {
@@ -2072,12 +4881,31 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 68,
+  "level": 69,
   "cc": [
    true,
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "legendary",
+   "Reaper": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten"
   ],
   "chg": "2026-08-25"
  },
@@ -2095,6 +4923,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30582341": {
@@ -2111,6 +4946,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30253575": {
@@ -2127,6 +4967,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36624109": {
@@ -2143,6 +4988,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "55640987": {
@@ -2159,6 +5009,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29991345": {
@@ -2175,6 +5030,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33608576": {
@@ -2191,6 +5051,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31806535": {
@@ -2207,6 +5072,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42845691": {
@@ -2222,6 +5092,19 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Zelenia"
+  ],
+  "ults": [
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-24"
  },
@@ -2239,6 +5122,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60814172": {
@@ -2250,6 +5138,11 @@
   "rare": 0,
   "level": 32,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "54419512": {
@@ -2261,6 +5154,11 @@
   "rare": null,
   "level": 88,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60873337": {
@@ -2277,6 +5175,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60475540": {
@@ -2288,6 +5191,11 @@
   "rare": null,
   "level": 74,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "61758559": {
@@ -2304,6 +5212,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60972300": {
@@ -2315,6 +5228,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29389419": {
@@ -2331,6 +5249,15 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Enuo",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60933255": {
@@ -2342,6 +5269,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "60854619": {
@@ -2353,6 +5285,11 @@
   "rare": null,
   "level": 54,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "61748681": {
@@ -2364,6 +5301,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "30741737": {
@@ -2380,6 +5322,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60211788": {
@@ -2391,6 +5338,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "31685121": {
@@ -2407,6 +5359,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "57419573": {
@@ -2423,6 +5380,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Guardian Arkveld"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "5034519": {
@@ -2439,6 +5403,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "master"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "25504317": {
@@ -2455,6 +5429,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "5297796": {
@@ -2471,6 +5450,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34505698": {
@@ -2487,6 +5471,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "1623780": {
@@ -2503,6 +5492,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "3256238": {
@@ -2519,6 +5513,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "45150763": {
@@ -2535,6 +5536,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "38018463": {
@@ -2551,6 +5557,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30176379": {
@@ -2567,6 +5578,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35863297": {
@@ -2583,6 +5599,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34873931": {
@@ -2599,6 +5620,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "22164254": {
@@ -2615,6 +5641,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "18538032": {
@@ -2631,6 +5662,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42509107": {
@@ -2647,6 +5683,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28860700": {
@@ -2663,6 +5704,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "41059127": {
@@ -2679,6 +5725,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24770177": {
@@ -2695,6 +5746,27 @@
    false,
    false
   ],
+  "rare_ids": [
+   618,
+   944,
+   1087,
+   1124,
+   1581,
+   2484,
+   2661,
+   2702,
+   2765,
+   2770,
+   2772,
+   2859,
+   2861,
+   3047,
+   3346
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "50267765": {
@@ -2711,6 +5783,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28810440": {
@@ -2727,6 +5804,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "40809430": {
@@ -2743,6 +5825,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30943571": {
@@ -2759,6 +5846,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28213199": {
@@ -2775,6 +5867,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31764639": {
@@ -2791,6 +5888,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "4505633": {
@@ -2807,6 +5909,17 @@
    true,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Necron",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "20400811": {
@@ -2822,6 +5935,112 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   151,
+   157,
+   752,
+   758,
+   761,
+   764,
+   767,
+   770,
+   1090,
+   1091,
+   1094,
+   1098,
+   1301,
+   1313,
+   1315,
+   1316,
+   1317,
+   1318,
+   1319,
+   1333,
+   1468,
+   1473,
+   1474,
+   1475,
+   1481,
+   1512,
+   1603,
+   1604,
+   1701,
+   1713,
+   1714,
+   1848,
+   1850,
+   1851,
+   1852,
+   1853,
+   1854,
+   1855,
+   1856,
+   1933,
+   1934,
+   1943,
+   1964,
+   1968,
+   1983,
+   1984,
+   1993,
+   1996,
+   2052,
+   2053,
+   2077,
+   2093,
+   2103,
+   2154,
+   2193,
+   2280,
+   2281,
+   2282,
+   2283,
+   2284,
+   2286,
+   2351,
+   2452,
+   2461,
+   2462,
+   2463,
+   2466,
+   2471,
+   2472,
+   2473,
+   2474,
+   2475,
+   2476,
+   2486,
+   2487,
+   2488,
+   2510,
+   2511,
+   2512,
+   2522,
+   2534,
+   2588,
+   2596,
+   2644,
+   2713,
+   2716,
+   2727,
+   2928,
+   2930,
+   2931,
+   2932,
+   2933,
+   3001,
+   3002
+  ],
+  "tiers": {
+   "crafter": "expert",
+   "goldsaucer": "expert"
+  },
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -2839,6 +6058,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "15895457": {
@@ -2855,6 +6079,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36159286": {
@@ -2871,6 +6100,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29944592": {
@@ -2887,6 +6121,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "512253": {
@@ -2903,6 +6142,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29918399": {
@@ -2919,6 +6163,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "25620101": {
@@ -2935,6 +6184,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30863840": {
@@ -2951,6 +6205,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "18659677": {
@@ -2967,6 +6226,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34086580": {
@@ -2983,6 +6247,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29479627": {
@@ -2999,6 +6268,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31806958": {
@@ -3015,6 +6289,27 @@
    false,
    false
   ],
+  "rare_ids": [
+   1933,
+   2596,
+   2660,
+   2730,
+   2765,
+   2766,
+   2928,
+   2929,
+   3092,
+   3194,
+   3215,
+   3243,
+   3252,
+   3253,
+   3318
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24211446": {
@@ -3031,6 +6326,19 @@
    false,
    false
   ],
+  "rare_ids": [
+   162,
+   1414,
+   1507,
+   2351,
+   2407,
+   2596,
+   3001
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32147626": {
@@ -3047,6 +6355,17 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Summoner": "expert"
+  },
+  "ex": [
+   "Necron",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "27213488": {
@@ -3063,6 +6382,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30426712": {
@@ -3079,6 +6403,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31010962": {
@@ -3090,6 +6419,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "17473430": {
@@ -3106,6 +6440,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "58199756": {
@@ -3122,6 +6464,17 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Sage": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Necron"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "43423269": {
@@ -3138,6 +6491,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47658617": {
@@ -3154,6 +6517,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "5720080": {
@@ -3170,6 +6538,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33604767": {
@@ -3186,6 +6562,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "21899488": {
@@ -3202,6 +6583,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29734643": {
@@ -3218,6 +6604,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33954541": {
@@ -3234,6 +6625,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "14538982": {
@@ -3250,6 +6646,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "38276690": {
@@ -3266,6 +6667,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36320452": {
@@ -3282,6 +6688,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24104450": {
@@ -3298,6 +6709,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24150396": {
@@ -3314,6 +6730,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31471584": {
@@ -3330,6 +6753,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "46485530": {
@@ -3346,6 +6774,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36609029": {
@@ -3362,6 +6795,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "58160672": {
@@ -3378,6 +6816,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35096411": {
@@ -3394,6 +6837,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "55476354": {
@@ -3410,6 +6858,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "46055730": {
@@ -3426,6 +6881,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "8999658": {
@@ -3442,6 +6902,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "16034463": {
@@ -3458,6 +6923,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24103365": {
@@ -3474,6 +6944,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34228206": {
@@ -3490,6 +6965,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "40990512": {
@@ -3506,6 +6986,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "18578874": {
@@ -3522,6 +7007,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31737067": {
@@ -3538,6 +7028,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36260815": {
@@ -3554,6 +7049,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "54318245": {
@@ -3570,6 +7070,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "46625326": {
@@ -3586,6 +7091,19 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30172592": {
@@ -3602,6 +7120,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "40394823": {
@@ -3618,6 +7141,48 @@
    false,
    false
   ],
+  "rare_ids": [
+   1337,
+   1415,
+   1453,
+   1508,
+   1614,
+   1676,
+   2037,
+   2392,
+   2555,
+   2559,
+   2562,
+   2603,
+   2669,
+   2699,
+   2748,
+   2749,
+   2750,
+   2759,
+   2765,
+   2794,
+   2797,
+   2802,
+   2883,
+   3001,
+   3194,
+   3202,
+   3203,
+   3243,
+   3265,
+   3317,
+   3318
+  ],
+  "tiers": {},
+  "jobs": {
+   "Samurai": "expert"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "9155192": {
@@ -3634,6 +7199,30 @@
    false,
    false
   ],
+  "rare_ids": [
+   189,
+   199,
+   200,
+   231,
+   267,
+   268,
+   1056,
+   1057,
+   1191,
+   1192,
+   1390,
+   1391,
+   1392,
+   1393,
+   1490,
+   1491
+  ],
+  "tiers": {
+   "seasonal": "expert"
+  },
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "52866044": {
@@ -3650,6 +7239,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35250799": {
@@ -3666,6 +7260,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29612903": {
@@ -3682,6 +7281,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34511319": {
@@ -3698,6 +7302,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30053876": {
@@ -3714,6 +7323,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36855080": {
@@ -3730,6 +7344,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34522645": {
@@ -3746,6 +7368,15 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34522644": {
@@ -3762,6 +7393,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Queen Eternal",
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "44409962": {
@@ -3778,6 +7417,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "40910522": {
@@ -3794,6 +7438,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32046284": {
@@ -3809,6 +7458,13 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "The Omega Protocol"
   ],
   "chg": "2026-08-24"
  },
@@ -3826,6 +7482,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "57967682": {
@@ -3842,6 +7503,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "1643244": {
@@ -3857,6 +7523,97 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   564,
+   576,
+   811,
+   812,
+   874,
+   875,
+   876,
+   877,
+   990,
+   1062,
+   1082,
+   1098,
+   1191,
+   1192,
+   1353,
+   1380,
+   1391,
+   1392,
+   1393,
+   1414,
+   1420,
+   1429,
+   1430,
+   1439,
+   1444,
+   1448,
+   1468,
+   1469,
+   1490,
+   1491,
+   1507,
+   1591,
+   1596,
+   1597,
+   1613,
+   1625,
+   1626,
+   1675,
+   1681,
+   1703,
+   1716,
+   1735,
+   1743,
+   1744,
+   1746,
+   1916,
+   1964,
+   1993,
+   1996,
+   2030,
+   2084,
+   2103,
+   2351,
+   2389,
+   2392,
+   2393,
+   2394,
+   2444,
+   2484,
+   2770,
+   2772,
+   2859,
+   2860,
+   2992,
+   2995,
+   2997,
+   3074,
+   3162,
+   3252,
+   3405
+  ],
+  "tiers": {
+   "explorer": "expert",
+   "seasonal": "master"
+  },
+  "jobs": {
+   "Gunbreaker": "master",
+   "DarkKnight": "expert"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -3874,6 +7631,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31519555": {
@@ -3890,6 +7652,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "16397778": {
@@ -3906,6 +7673,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "50103049": {
@@ -3922,6 +7694,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "50120275": {
@@ -3938,6 +7715,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31802544": {
@@ -3954,6 +7736,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29782062": {
@@ -3970,6 +7757,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33859953": {
@@ -3986,6 +7778,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36228998": {
@@ -4002,6 +7799,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30559609": {
@@ -4017,6 +7819,16 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Omega Protocol"
   ],
   "chg": "2026-08-24"
  },
@@ -4034,6 +7846,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47337818": {
@@ -4050,6 +7867,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36168487": {
@@ -4066,6 +7888,24 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Machinist": "legendary",
+   "Dragoon": "master",
+   "Bard": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29863848": {
@@ -4077,6 +7917,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "45101386": {
@@ -4093,6 +7938,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36165070": {
@@ -4109,6 +7959,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "12235132": {
@@ -4125,6 +7980,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37696532": {
@@ -4141,6 +8001,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36183250": {
@@ -4157,6 +8022,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29710631": {
@@ -4173,6 +8043,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "51852387": {
@@ -4189,6 +8064,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36090951": {
@@ -4205,6 +8085,18 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "expert"
+  },
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29498103": {
@@ -4221,6 +8113,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "58725327": {
@@ -4237,6 +8134,14 @@
    true,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Enuo",
+   "Guardian Arkveld"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "13162369": {
@@ -4253,6 +8158,62 @@
    false,
    false
   ],
+  "rare_ids": [
+   157,
+   169,
+   266,
+   267,
+   564,
+   565,
+   576,
+   577,
+   1090,
+   1094,
+   1098,
+   1300,
+   1337,
+   1390,
+   1391,
+   1392,
+   1393,
+   1414,
+   1415,
+   1429,
+   1430,
+   1473,
+   1490,
+   1507,
+   1508,
+   1613,
+   1614,
+   1625,
+   1675,
+   1676,
+   1704,
+   1713,
+   1717,
+   1933,
+   1934,
+   1938,
+   2040,
+   2077,
+   2084,
+   2092,
+   2145,
+   2153,
+   2222,
+   2286,
+   2392,
+   2484,
+   2519,
+   2523,
+   2547,
+   2713
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "25661865": {
@@ -4269,6 +8230,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32857279": {
@@ -4285,6 +8251,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "16173247": {
@@ -4301,6 +8272,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "43335087": {
@@ -4317,6 +8293,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30333493": {
@@ -4333,6 +8314,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28163062": {
@@ -4349,6 +8335,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28931955": {
@@ -4365,6 +8356,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33272037": {
@@ -4381,6 +8377,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "27875326": {
@@ -4397,6 +8398,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39850921": {
@@ -4413,6 +8419,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "2168537": {
@@ -4429,6 +8440,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29542040": {
@@ -4445,6 +8461,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "44925955": {
@@ -4461,6 +8482,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "58508421": {
@@ -4477,6 +8503,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "master"
+  },
+  "ex": [
+   "Guardian Arkveld",
+   "Necron"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36001341": {
@@ -4493,6 +8529,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "40652404": {
@@ -4509,6 +8550,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33966579": {
@@ -4525,6 +8571,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35361599": {
@@ -4541,6 +8592,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60692052": {
@@ -4557,6 +8613,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Enuo"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "23901016": {
@@ -4573,6 +8636,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28127069": {
@@ -4589,6 +8657,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Bard": "expert"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35270049": {
@@ -4605,6 +8683,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42277370": {
@@ -4621,6 +8704,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34290087": {
@@ -4637,6 +8725,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42342468": {
@@ -4653,6 +8746,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "18278635": {
@@ -4669,6 +8767,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "20014912": {
@@ -4685,6 +8788,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Scholar": "master",
+   "Astrologian": "legendary"
+  },
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31012021": {
@@ -4701,6 +8812,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31923628": {
@@ -4717,6 +8833,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "57387464": {
@@ -4733,6 +8854,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "43797998": {
@@ -4749,6 +8875,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34155014": {
@@ -4765,6 +8896,17 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Scholar": "expert"
+  },
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47218599": {
@@ -4781,6 +8923,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28679815": {
@@ -4797,6 +8944,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Zelenia"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "12003402": {
@@ -4813,6 +8967,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "44081209": {
@@ -4829,6 +8988,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "46431057": {
@@ -4845,6 +9009,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "50417039": {
@@ -4861,6 +9030,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39034125": {
@@ -4877,6 +9051,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29899571": {
@@ -4893,6 +9072,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29659200": {
@@ -4909,6 +9093,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "48527875": {
@@ -4925,6 +9114,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28012936": {
@@ -4941,6 +9135,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37881871": {
@@ -4957,6 +9156,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "27905098": {
@@ -4973,6 +9177,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "5761905": {
@@ -4989,6 +9198,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42461214": {
@@ -5005,6 +9219,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34510497": {
@@ -5021,6 +9240,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39907836": {
@@ -5037,6 +9261,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37409022": {
@@ -5053,6 +9282,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "568409": {
@@ -5069,6 +9303,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "19896720": {
@@ -5085,6 +9324,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "18489055": {
@@ -5101,6 +9345,13 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Warrior": "legendary"
+  },
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24747734": {
@@ -5117,6 +9368,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31685046": {
@@ -5133,6 +9389,21 @@
    false,
    false
   ],
+  "rare_ids": [
+   564,
+   703,
+   1078,
+   1124,
+   1280,
+   1723,
+   2168,
+   2664,
+   2792
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30645476": {
@@ -5149,6 +9420,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24300584": {
@@ -5165,6 +9441,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29162543": {
@@ -5181,6 +9462,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "16172034": {
@@ -5192,6 +9478,11 @@
   "rare": null,
   "level": 70,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "24690035": {
@@ -5208,6 +9499,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "16173017": {
@@ -5224,6 +9520,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31211526": {
@@ -5240,6 +9541,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "40160371": {
@@ -5256,6 +9562,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "27412308": {
@@ -5272,6 +9588,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29764422": {
@@ -5288,6 +9609,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30559981": {
@@ -5304,6 +9630,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "44031569": {
@@ -5320,6 +9654,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "59690047": {
@@ -5336,6 +9675,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31655994": {
@@ -5352,6 +9696,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36016570": {
@@ -5368,6 +9717,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32373387": {
@@ -5384,6 +9738,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28380674": {
@@ -5400,6 +9759,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "49891708": {
@@ -5416,6 +9780,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39734861": {
@@ -5432,6 +9801,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "51044792": {
@@ -5448,6 +9822,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37143017": {
@@ -5464,6 +9843,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34507717": {
@@ -5480,6 +9864,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29151949": {
@@ -5496,6 +9885,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34474329": {
@@ -5512,6 +9906,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32793260": {
@@ -5527,6 +9926,13 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -5544,6 +9950,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34184163": {
@@ -5560,6 +9971,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32046109": {
@@ -5576,6 +9992,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31225966": {
@@ -5592,6 +10013,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34611224": {
@@ -5608,6 +10034,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37911500": {
@@ -5624,6 +10055,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30714243": {
@@ -5640,6 +10079,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "10807425": {
@@ -5656,6 +10100,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "35164241": {
@@ -5672,6 +10121,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32023977": {
@@ -5688,6 +10142,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "3902073": {
@@ -5704,6 +10163,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "10638899": {
@@ -5720,6 +10184,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "8234305": {
@@ -5736,6 +10205,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "17723972": {
@@ -5752,6 +10226,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29128390": {
@@ -5768,6 +10250,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30421228": {
@@ -5784,6 +10271,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37815847": {
@@ -5799,6 +10291,23 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   770,
+   950,
+   1320,
+   2444,
+   2995,
+   3113,
+   3154,
+   3155,
+   3178
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "The Epic of Alexander"
   ],
   "chg": "2026-08-24"
  },
@@ -5816,6 +10325,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33766568": {
@@ -5832,6 +10346,14 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33870496": {
@@ -5848,6 +10370,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32150308": {
@@ -5864,6 +10391,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36149590": {
@@ -5880,6 +10412,17 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Warrior": "legendary"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39001402": {
@@ -5896,6 +10439,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "27302476": {
@@ -5912,6 +10460,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "43707810": {
@@ -5928,6 +10481,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42341300": {
@@ -5944,6 +10502,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33931644": {
@@ -5960,6 +10523,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "49891716": {
@@ -5976,6 +10544,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "58314431": {
@@ -5991,6 +10564,16 @@
    true,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld"
+  ],
+  "ults": [
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -6008,6 +10591,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28011817": {
@@ -6024,6 +10612,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30056598": {
@@ -6040,6 +10633,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37731936": {
@@ -6056,6 +10654,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34057749": {
@@ -6072,6 +10675,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "5762434": {
@@ -6088,6 +10696,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32223527": {
@@ -6104,6 +10717,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "27935097": {
@@ -6120,6 +10738,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33825599": {
@@ -6136,6 +10759,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31745191": {
@@ -6152,6 +10780,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "44409828": {
@@ -6168,6 +10801,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42653584": {
@@ -6179,6 +10817,11 @@
   "rare": null,
   "level": 68,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "26433344": {
@@ -6195,6 +10838,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "56143721": {
@@ -6211,6 +10859,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "24313144": {
@@ -6226,6 +10879,23 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Bard": "expert",
+   "Pictomancer": "master",
+   "Summoner": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise"
   ],
   "chg": "2026-08-24"
  },
@@ -6243,6 +10913,19 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Machinist": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37065671": {
@@ -6259,6 +10942,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "45094564": {
@@ -6275,6 +10963,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36162283": {
@@ -6291,6 +10984,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "22689957": {
@@ -6307,6 +11005,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36151779": {
@@ -6323,6 +11026,16 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "expert"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "718420": {
@@ -6339,6 +11052,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "17468497": {
@@ -6350,6 +11068,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "43481858": {
@@ -6366,6 +11089,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "48010347": {
@@ -6382,6 +11110,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "43116127": {
@@ -6398,6 +11131,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "57711304": {
@@ -6414,6 +11152,15 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "44475864": {
@@ -6430,6 +11177,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "25541816": {
@@ -6446,6 +11198,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "60780260": {
@@ -6457,6 +11214,11 @@
   "rare": null,
   "level": 100,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "48050166": {
@@ -6473,6 +11235,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31632996": {
@@ -6489,6 +11256,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "2656352": {
@@ -6505,6 +11277,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "41098683": {
@@ -6521,6 +11298,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "3908109": {
@@ -6537,6 +11319,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "27453486": {
@@ -6553,6 +11340,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47401423": {
@@ -6569,6 +11361,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "53799276": {
@@ -6585,6 +11382,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47585776": {
@@ -6601,6 +11403,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "22164216": {
@@ -6617,6 +11424,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "33487130": {
@@ -6632,6 +11444,13 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "Dragonsong's Reprise"
   ],
   "chg": "2026-08-24"
  },
@@ -6649,6 +11468,34 @@
    false,
    false
   ],
+  "rare_ids": [
+   568,
+   963,
+   1407,
+   1500,
+   1606,
+   1668,
+   1696,
+   1697,
+   1709,
+   1710,
+   1916,
+   2036,
+   2040,
+   2088,
+   2149,
+   2218,
+   2702,
+   2778,
+   2860,
+   2995
+  ],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "The Weapon's Refrain"
+  ],
   "chg": "2026-08-24"
  },
  "29901287": {
@@ -6665,6 +11512,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42646897": {
@@ -6681,6 +11533,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36225854": {
@@ -6697,6 +11554,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30472222": {
@@ -6713,6 +11575,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39961214": {
@@ -6728,6 +11595,19 @@
    true,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Monk": "expert",
+   "Ninja": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal"
+  ],
+  "ults": [
+   "Dragonsong's Reprise"
   ],
   "chg": "2026-08-24"
  },
@@ -6745,6 +11625,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29395299": {
@@ -6760,6 +11645,13 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "Dragonsong's Reprise"
   ],
   "chg": "2026-08-24"
  },
@@ -6777,6 +11669,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "43374218": {
@@ -6793,6 +11690,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42053451": {
@@ -6809,6 +11711,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37924865": {
@@ -6825,6 +11732,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47548993": {
@@ -6840,6 +11752,15 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Enuo"
+  ],
+  "ults": [
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -6857,6 +11778,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "40940579": {
@@ -6873,6 +11799,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29501278": {
@@ -6889,6 +11820,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "10837088": {
@@ -6905,6 +11841,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29351667": {
@@ -6921,6 +11862,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "1607774": {
@@ -6936,6 +11882,89 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   138,
+   236,
+   237,
+   618,
+   621,
+   811,
+   874,
+   875,
+   876,
+   877,
+   1003,
+   1027,
+   1056,
+   1057,
+   1062,
+   1082,
+   1131,
+   1191,
+   1192,
+   1353,
+   1354,
+   1916,
+   1993,
+   2036,
+   2040,
+   2083,
+   2084,
+   2088,
+   2092,
+   2093,
+   2144,
+   2145,
+   2149,
+   2153,
+   2154,
+   2213,
+   2214,
+   2218,
+   2222,
+   2228,
+   2229,
+   2286,
+   2290,
+   2388,
+   2392,
+   2393,
+   2444,
+   2519,
+   2520,
+   2523,
+   2596,
+   2713,
+   2765,
+   2768,
+   2770,
+   2772,
+   2775,
+   2786,
+   2857,
+   2859,
+   2860,
+   2861,
+   2864,
+   2993,
+   2995,
+   3074,
+   3113,
+   3162,
+   3252
+  ],
+  "tiers": {
+   "seasonal": "expert"
+  },
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -6953,6 +11982,18 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Gunbreaker": "master"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Unending Coil of Bahamut"
+  ],
   "chg": "2026-08-24"
  },
  "50131148": {
@@ -6969,6 +12010,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37236539": {
@@ -6985,6 +12031,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "32027062": {
@@ -7001,6 +12052,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "47715909": {
@@ -7017,6 +12073,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "53006949": {
@@ -7033,6 +12094,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31239994": {
@@ -7048,6 +12114,18 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Samurai": "expert"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise"
   ],
   "chg": "2026-08-24"
  },
@@ -7065,6 +12143,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "53247027": {
@@ -7081,6 +12164,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "2801638": {
@@ -7097,6 +12185,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "23767900": {
@@ -7112,6 +12205,28 @@
    true,
    true,
    true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "legendary",
+   "Monk": "expert",
+   "Samurai": "expert",
+   "Machinist": "master",
+   "Bard": "expert",
+   "Ninja": "master"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Futures Rewritten"
   ],
   "chg": "2026-08-24"
  },
@@ -7129,6 +12244,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "45194317": {
@@ -7145,6 +12265,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "42690618": {
@@ -7161,6 +12286,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36164592": {
@@ -7176,6 +12306,13 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "Dragonsong's Reprise"
   ],
   "chg": "2026-08-24"
  },
@@ -7193,6 +12330,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "25619696": {
@@ -7209,6 +12351,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29992221": {
@@ -7225,6 +12372,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "30848420": {
@@ -7241,6 +12393,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39869488": {
@@ -7257,6 +12414,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "15783222": {
@@ -7268,6 +12430,11 @@
   "rare": null,
   "level": 84,
   "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": null
  },
  "34524608": {
@@ -7284,6 +12451,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "39073020": {
@@ -7299,6 +12471,13 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [
+   "Dragonsong's Reprise"
   ],
   "chg": "2026-08-24"
  },
@@ -7316,6 +12495,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "37843804": {
@@ -7332,6 +12516,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "51077689": {
@@ -7348,6 +12537,15 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Necron"
+  ],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "15296154": {
@@ -7364,6 +12562,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "31833183": {
@@ -7380,6 +12583,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34357286": {
@@ -7396,6 +12604,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "34597671": {
@@ -7411,6 +12624,56 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [
+   950,
+   963,
+   1087,
+   1098,
+   1124,
+   1337,
+   1414,
+   1415,
+   1468,
+   1469,
+   1507,
+   1508,
+   1613,
+   1614,
+   1675,
+   1676,
+   1703,
+   1704,
+   1713,
+   1716,
+   1717,
+   1993,
+   2077,
+   2180,
+   2193,
+   2283,
+   2417,
+   2633,
+   2637,
+   2765,
+   2844,
+   2845,
+   2871,
+   3047,
+   3048,
+   3113,
+   3252
+  ],
+  "tiers": {
+   "goldsaucer": "expert"
+  },
+  "jobs": {},
+  "ex": [
+   "Valigarmanda"
+  ],
+  "ults": [
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-24"
  },
@@ -7428,6 +12691,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "23921786": {
@@ -7444,6 +12712,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "50416713": {
@@ -7460,6 +12733,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "36490427": {
@@ -7476,6 +12754,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "28067306": {
@@ -7492,6 +12775,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "51078504": {
@@ -7508,6 +12796,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "51359685": {
@@ -7524,6 +12817,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "27293755": {
@@ -7540,6 +12838,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "43037186": {
@@ -7556,6 +12859,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "29853808": {
@@ -7572,6 +12880,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-24"
  },
  "49712485": {
@@ -7588,6 +12901,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "30088400": {
@@ -7604,6 +12922,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "36427926": {
@@ -7620,6 +12943,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "26634125": {
@@ -7636,6 +12964,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "30504149": {
@@ -7652,6 +12985,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "36315588": {
@@ -7668,6 +13006,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "29881709": {
@@ -7684,6 +13027,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "51060767": {
@@ -7700,6 +13048,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "47423083": {
@@ -7716,6 +13069,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "38841973": {
@@ -7732,6 +13090,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "48152565": {
@@ -7747,6 +13110,20 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Sage": "master"
+  },
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-25"
  },
@@ -7764,6 +13141,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "693670": {
@@ -7780,6 +13162,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "35629716": {
@@ -7796,6 +13183,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "39850342": {
@@ -7812,6 +13204,16 @@
    true,
    true
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "WhiteMage": "master"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "10926041": {
@@ -7828,6 +13230,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "40669284": {
@@ -7844,6 +13251,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "32102060": {
@@ -7860,6 +13272,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "34172006": {
@@ -7875,6 +13292,15 @@
    false,
    false,
    false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda"
+  ],
+  "ults": [
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-25"
  },
@@ -7892,6 +13318,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "42146242": {
@@ -7908,6 +13339,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  },
  "43412434": {
@@ -7924,6 +13360,11 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-25"
  }
 }
