@@ -110,7 +110,7 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
                   และการวัดเป็น % ทำให้เทียบกันได้ข้ามสาย เพราะแต่ละสายมีของหายากไม่เท่ากันเลย
                 </p>
                 <ul className="mt-2 flex flex-col gap-1 text-[12.5px] text-muted">
-                  <li><b className="text-ink">Legendary</b> — ได้ตั้งแต่ 25% ของสายนั้นขึ้นไป</li>
+                  <li><b className="text-ink">Legendary</b> — ถือของหายากในสายนั้นได้ตั้งแต่ 25% ขึ้นไป</li>
                   <li><b className="text-ink">Master</b> — ตั้งแต่ 12% ขึ้นไป</li>
                   <li><b className="text-ink">Expert</b> — ตั้งแต่ 5% ขึ้นไป</li>
                   <li>ทุกระดับต้องมี achievement อย่างน้อย 3 อันหนุน ฟลุกได้ของหายากอันเดียวยังไม่นับ</li>
@@ -126,6 +126,31 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
                   เพราะ parse วัดกับคนที่เล่น content เดียวกันเท่านั้น
                   จากนั้นเอาความช่ำชองในอาชีพนั้นมาคูณอีกที ฟลุกครั้งเดียวเลยไม่ผ่าน
                 </p>
+                <p className="mt-2 text-[12.5px] leading-[1.85] text-muted">
+                  <b className="text-ink">เกณฑ์ฝั่งอาชีพคนละชุดกับข้างบน</b> —
+                  ข้างบนวัดจาก achievement ส่วนอันนี้วัดจาก parse ของ FF Logs
+                  ซึ่ง parse คือ % ของคนที่คุณทำได้ดีกว่า ในบรรดาคนที่อัปโหลด log
+                  ด้วยอาชีพเดียวกันในบอสเดียวกัน
+                </p>
+                <ul className="mt-2 flex flex-col gap-1 text-[12.5px] text-muted">
+                  <li>
+                    <b className="text-ink">Legendary (อาชีพ)</b> — คะแนน 80 ขึ้นไป
+                    เทียบเท่า parse 80 คือ <b className="text-ink">top 20%</b> ของคนเล่นอาชีพนั้น
+                  </li>
+                  <li>
+                    <b className="text-ink">Master (อาชีพ)</b> — คะแนน 65 ขึ้นไป ≈{" "}
+                    <b className="text-ink">top 35%</b>
+                  </li>
+                  <li>
+                    <b className="text-ink">Expert (อาชีพ)</b> — คะแนน 50 ขึ้นไป ≈{" "}
+                    <b className="text-ink">top 50%</b>
+                  </li>
+                  <li>
+                    ตัวเลข top % ข้างบนคือกรณีที่เล่นอาชีพนั้นมาเยอะจนเต็มเพดานแล้ว
+                    ถ้าประวัติยังบาง (ฆ่าไม่กี่ครั้ง หรือลงไม่กี่บอส) ต้องได้ parse
+                    สูงกว่านั้นถึงจะถึงเกณฑ์เดียวกัน
+                  </li>
+                </ul>
                 <p className="mt-2 text-[12.5px] leading-[1.85] text-muted">
                   ทั้งหมดนี้อ่านจากข้อมูลสาธารณะของ Lodestone, FF Logs และ FFXIV Collect
                   คนที่ปิด achievement หรือ log ไว้จะขึ้นเป็น <b className="text-ink">No data</b>{" "}
@@ -157,7 +182,7 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
                   different amounts of rare content.
                 </p>
                 <ul className="mt-2 flex flex-col gap-1 text-[12.5px] text-muted">
-                  <li><b className="text-ink">Legendary</b> — 25% or more of that playstyle</li>
+                  <li><b className="text-ink">Legendary</b> — holding 25% or more of that playstyle&rsquo;s rare achievements</li>
                   <li><b className="text-ink">Master</b> — 12% or more</li>
                   <li><b className="text-ink">Expert</b> — 5% or more</li>
                   <li>Any grade needs at least three achievements behind it, so a single
@@ -174,6 +199,32 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
                   against the people doing that same content. How much someone has played
                   the job then scales the whole thing, so a single lucky pull cannot qualify.
                 </p>
+                <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
+                  <b className="text-ink">Job grades use their own thresholds</b>, not
+                  the achievement ones above. They are read off FF Logs parses, and a
+                  parse is the percentage of people you beat among everybody who
+                  uploaded a log on that job for that fight.
+                </p>
+                <ul className="mt-2 flex flex-col gap-1 text-[12.5px] text-muted">
+                  <li>
+                    <b className="text-ink">Legendary (job)</b> — a score of 80,
+                    equivalent to an 80 parse: the{" "}
+                    <b className="text-ink">top 20%</b> of people playing that job
+                  </li>
+                  <li>
+                    <b className="text-ink">Master (job)</b> — a score of 65, roughly
+                    the <b className="text-ink">top 35%</b>
+                  </li>
+                  <li>
+                    <b className="text-ink">Expert (job)</b> — a score of 50, roughly
+                    the <b className="text-ink">top 50%</b>
+                  </li>
+                  <li>
+                    Those percentages assume a full record on the job. On a thinner
+                    one — few kills, or few fights — the same grade needs a higher
+                    parse than the number suggests.
+                  </li>
+                </ul>
                 <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
                   Everything here is read from public Lodestone, FF Logs and FFXIV Collect
                   data. Members who keep achievements or logs private show as{" "}
