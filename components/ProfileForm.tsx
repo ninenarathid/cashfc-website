@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import CharacterClaim from "@/components/CharacterClaim";
 import { LANGS, useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
-import { EMPTY } from "@/lib/availability";
+import { EMPTY, isEmpty } from "@/lib/availability";
 import SignIn, { PROVIDERS } from "@/components/SignIn";
 
 interface Option { id: number; name: string }
@@ -126,7 +126,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         lfg,
         // All-empty means "not filled in" rather than "never free", so it is
         // stored as null and the member page simply leaves the section out.
-        availability: /^0*$/.test(availability ?? "") ? null : availability,
+        availability: isEmpty(availability) ? null : availability,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
@@ -197,7 +197,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="font-display font-semibold">{t("profile.availability")}</div>
-          {availability && !/^0*$/.test(availability) && (
+          {!isEmpty(availability) && (
             <button onClick={() => setAvailability(EMPTY)}
                     className="text-[12.5px] text-muted underline hover:text-ink">
               {t("profile.availabilityClear")}

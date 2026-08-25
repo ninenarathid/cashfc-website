@@ -12,6 +12,7 @@ import { percentile } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
 import { useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
+import { isEmpty } from "@/lib/availability";
 import JobBreakdown from "@/components/JobBreakdown";
 import JobIcon from "@/components/JobIcon";
 import MemberTags from "@/components/MemberTags";
@@ -525,7 +526,7 @@ export default function MemberView({
 
       {/* Shown only when somebody actually filled it in — an empty grid would
           read as "never free" rather than "never answered". */}
-      {ov?.availability && !/^0*$/.test(ov.availability) && (
+      {!isEmpty(ov?.availability) && (
         <section className="mt-6">
           <h2 className="mb-2 font-display text-lg font-semibold">
             {t("member.availability")}{" "}
@@ -534,7 +535,7 @@ export default function MemberView({
             </span>
           </h2>
           <div className="rounded-xl border border-line bg-surface p-3.5">
-            <AvailabilityGrid value={ov.availability} />
+            <AvailabilityGrid value={ov?.availability ?? null} />
           </div>
         </section>
       )}
