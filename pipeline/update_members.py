@@ -1249,10 +1249,6 @@ TIER_RANK = {"expert": 1, "master": 2, "legendary": 3}
 MOUNT_MARKS = (100, 200, 300, 400, 500, 600, 700)
 MINION_MARKS = (200, 300, 400, 500, 600, 700, 800)
 
-# Below this a new personal best says nothing anybody wants read out — the feed
-# was two thirds "set a new best parse: 15" before this existed.
-PARSE_FLOOR = 75
-
 
 def _marks_crossed(before, after, marks) -> int | None:
     """The highest milestone passed between two counts, if any."""
@@ -1316,11 +1312,10 @@ def build_feed(members: list[dict], today: str) -> None:
             if o is None:
                 ev("new_member", mid, n["name"], "joined the FC — welcome!")
                 continue
-            # Only a parse worth mentioning. Every improvement used to qualify,
-            # so the feed filled with single-digit personal bests and buried
-            # everything else.
-            if (n["parse"] is not None and (o.get("parse") or -1) < n["parse"]
-                    and n["parse"] >= PARSE_FLOOR):
+            # Every improvement counts. A personal best is a personal best, and the
+            # feed no longer drowns in them now that grades, named achievements and
+            # extreme clears sit alongside.
+            if n["parse"] is not None and (o.get("parse") or -1) < n["parse"]:
                 ev("parse_up", mid, n["name"], f"set a new best parse: {n['parse']}")
             occ, ncc = o.get("cc") or [], n.get("cc") or []
             for i, c in enumerate(ncc):
