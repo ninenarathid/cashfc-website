@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import TagIcon from "@/components/TagIcon";
-import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberTags";
 
 /**
  * The front page is a server component so the roster is baked in at build time.
@@ -22,7 +22,7 @@ export default function Hero(
     tagStats: { tag: string; n: number }[];
   },
 ) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   return (
     <header className="pb-6 pt-9 text-center sm:pt-12">
       <div className="font-data text-[11px] uppercase tracking-[0.24em] text-amber">
@@ -64,7 +64,7 @@ export default function Hero(
         <div className="mx-auto mt-3 flex max-w-2xl flex-wrap justify-center gap-1.5">
           {tagStats.map(({ tag, n }) => (
             <Link key={tag} href={`/members?tag=${tag}`}
-                  title={TAG_HELP[tag] ?? ""}
+                  title={tagHelp(tag, lang)}
                   className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium no-underline transition-opacity hover:opacity-80 ${
                     TAG_CLASS[tag] ?? "border-line text-muted"}`}>
               <TagIcon tag={tag} size={14} />

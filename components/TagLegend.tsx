@@ -1,6 +1,6 @@
 "use client";
 
-import { TAG_CLASS, TAG_HELP, TAG_HELP_TH, TAG_LABELS } from "@/components/MemberTags";
+import { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
 import { useSectionLang } from "@/lib/i18n";
 
@@ -40,7 +40,7 @@ function Group({ title, tags, th }:
           <div key={t} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             <dt><Chip t={t} /></dt>
             <dd className="text-[12.5px] leading-relaxed text-muted">
-              {(th ? TAG_HELP_TH[t] : TAG_HELP[t]) ?? TAG_HELP[t]}
+              {tagHelp(t, th ? "th" : "en")}
             </dd>
           </div>
         ))}

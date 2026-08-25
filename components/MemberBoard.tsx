@@ -9,7 +9,7 @@ import {
   ON_VACATION_RANK,
 } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
-import MemberTags, { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import MemberTags, { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
 import { useLang } from "@/lib/i18n";
 import JobIcon, {
@@ -112,7 +112,7 @@ const roleMatches = (job: string, sel: string) =>
     : jobRole(job) === sel;
 
 export default function MemberBoard({ data }: { data: BoardData }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const labels = data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"];
   const extremes = data.extremes ?? [];
   const [query, setQuery] = useState("");
@@ -533,21 +533,21 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               Has all of
             </span>
             {Object.keys(TAG_LABELS)
-              .filter((t) => t !== "all" && counts[t])
-              .map((t) => {
-                const on = adv.tags.includes(t);
+              .filter((tag) => tag !== "all" && counts[tag])
+              .map((tag) => {
+                const on = adv.tags.includes(tag);
                 return (
-                  <button key={t}
+                  <button key={tag}
                     onClick={() => setAdv({ ...adv,
-                      tags: on ? adv.tags.filter((x) => x !== t) : [...adv.tags, t] })}
+                      tags: on ? adv.tags.filter((x) => x !== tag) : [...adv.tags, tag] })}
                     aria-pressed={on}
-                    title={TAG_HELP[t] ?? ""}
+                    title={tagHelp(tag, lang)}
                     className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
-                      on ? TAG_CLASS[t] ?? "border-amber bg-amber/15 text-amber"
+                      on ? TAG_CLASS[tag] ?? "border-amber bg-amber/15 text-amber"
                          : "border-line text-muted hover:border-muted"}`}>
-                    <TagIcon tag={t} size={13} />
-                    {TAG_LABELS[t]}
-                    <small className="ml-1 opacity-70">{counts[t]}</small>
+                    <TagIcon tag={tag} size={13} />
+                    {TAG_LABELS[tag]}
+                    <small className="ml-1 opacity-70">{counts[tag]}</small>
                   </button>
                 );
               })}

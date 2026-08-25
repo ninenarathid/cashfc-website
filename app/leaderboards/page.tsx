@@ -2,7 +2,8 @@ import Link from "next/link";
 import raw from "@/data/members.json";
 import type { BoardData, Member } from "@/lib/types";
 import { ACHV_TIER_LABEL, isOnVacation } from "@/lib/types";
-import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
+import { TAG_CLASS, TAG_LABELS } from "@/components/MemberTags";
+import TagHelpText from "@/components/TagHelpText";
 import TagIcon from "@/components/TagIcon";
 import LeaderboardIntro from "@/components/LeaderboardIntro";
 
@@ -56,7 +57,7 @@ export default function LeaderboardsPage() {
                   <TagIcon tag={key} size={14} />
                   {TAG_LABELS[key] ?? key}
                 </span>
-                <span className="text-[11.5px] text-muted">{TAG_HELP[key]}</span>
+                <TagHelpText tag={key} className="text-[11.5px] text-muted" />
               </div>
               <ol className="mt-3 flex flex-col gap-1">
                 {rows.map((r, i) => (

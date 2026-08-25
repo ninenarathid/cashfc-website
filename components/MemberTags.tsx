@@ -1,7 +1,10 @@
 "use client";
 
 import type { Member } from "@/lib/types";
-import { ACHV_TIER_HELP, ACHV_TIER_LABEL, CONTENT_LABEL, ultimateAbbr } from "@/lib/types";
+import {
+  ACHV_TIER_HELP, ACHV_TIER_HELP_TH, ACHV_TIER_LABEL, CONTENT_LABEL, ultimateAbbr,
+} from "@/lib/types";
+import { useLang, type Lang } from "@/lib/i18n";
 import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
 import TagIcon from "@/components/TagIcon";
 
@@ -65,6 +68,20 @@ export const TAG_HELP_TH: Record<string, string> = {
   unknown: "ปิดทั้ง log และ achievement ไว้ทั้งคู่",
 };
 
+/**
+ * What a tag's tooltip says, in the reader's language. Everything hovering a tag
+ * anywhere on the site goes through here — a badge should not describe itself one
+ * way on the roster and another on the front page.
+ */
+export function tagHelp(tag: string, lang: Lang): string {
+  return (lang === "th" ? TAG_HELP_TH[tag] : TAG_HELP[tag]) ?? TAG_HELP[tag] ?? "";
+}
+
+export function gradeHelp(tier: string, lang: Lang): string {
+  return (lang === "th" ? ACHV_TIER_HELP_TH[tier] : ACHV_TIER_HELP[tier])
+    ?? ACHV_TIER_HELP[tier] ?? "";
+}
+
 export const TAG_CLASS: Record<string, string> = {
   // One colour per kind of content. Savage keeps a single hue across both of its
   // states — they are the same content, and a dashed border reads as unfinished
@@ -109,6 +126,7 @@ export default function MemberTags(
   { m, extremeTotal, size = "sm" }:
   { m: Member; extremeTotal?: number; size?: "sm" | "md" },
 ) {
+  const { lang } = useLang();
   const tiers = m.achv_tiers ?? {};
   const ults = m.ult_cleared ?? [];
   const pad = size === "md" ? "px-3 py-1 text-[12.5px]" : "px-2.5 py-[3px] text-[11.5px]";
@@ -128,7 +146,9 @@ export default function MemberTags(
       {jobs.map(([job, s]) => (
         <span
           key={job}
-          title={`${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights${s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : ""} — good person to ask about ${jobLabel(job)}`}
+          title={lang === "th"
+            ? `parse ${s.parse} (ถ่วงน้ำหนักตามจำนวนครั้งที่ฆ่าและความยาก) จากการฆ่า ${s.kills} ครั้ง ใน ${s.fights} บอส${s.hardest ? `, สูงสุดถึง ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : ""} — เป็นคนที่ควรถามเรื่อง ${jobLabel(job)}`
+            : `${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights${s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : ""} — good person to ask about ${jobLabel(job)}`}
           style={jobTierStyle(job, s.tier)}
           className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad}`}>
           <JobIcon job={job} size={size === "md" ? 15 : 13} />
@@ -144,9 +164,10 @@ export default function MemberTags(
         const exCount = t === "extreme" ? (m.ex_cleared?.length ?? 0) : 0;
         return (
           <span key={t}
-                title={abbr ? `Cleared: ${ults.join(", ")}`
-                  : tier ? `${TAG_HELP[t] ?? t} — ${ACHV_TIER_HELP[tier]}`
-                  : (TAG_HELP[t] ?? "")}
+                title={abbr
+                  ? `${lang === "th" ? "เคลียร์แล้ว" : "Cleared"}: ${ults.join(", ")}`
+                  : tier ? `${tagHelp(t, lang)} — ${gradeHelp(tier, lang)}`
+                  : tagHelp(t, lang)}
                 className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
                   TAG_CLASS[t] ?? "border-line text-muted"}`}>
             <TagIcon tag={t} size={size === "md" ? 15 : 13} />

@@ -220,6 +220,12 @@ export const ACHV_TIER_HELP: Record<string, string> = {
   expert: "holds 5% or more of everything rare in this playstyle",
 };
 
+export const ACHV_TIER_HELP_TH: Record<string, string> = {
+  legendary: "ถือของหายากในสายนี้ตั้งแต่ 25% ขึ้นไป",
+  master: "ถือของหายากในสายนี้ตั้งแต่ 12% ขึ้นไป",
+  expert: "ถือของหายากในสายนี้ตั้งแต่ 5% ขึ้นไป",
+};
+
 /** Playable races, in the order Lodestone lists them. */
 export const RACE_ORDER = [
   "Hyur", "Elezen", "Lalafell", "Miqo'te", "Roegadyn", "Au Ra", "Hrothgar", "Viera",
