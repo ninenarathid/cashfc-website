@@ -10,7 +10,7 @@ const PLAY_TAGS = ["crafter", "gatherer", "relic", "explorer", "treasure",
 const OTHER_TAGS = ["casual", "unknown"];
 
 const GROUP_TITLE: Record<string, { en: string; th: string }> = {
-  raid: { en: "Raiding — from FF Logs", th: "สายเรด — จาก FF Logs" },
+  raid: { en: "Raiding — from FF Logs", th: "สาย Raid — จาก FF Logs" },
   play: { en: "Playstyle — from rare achievements",
           th: "แนวการเล่น — จาก achievement หายาก" },
   other: { en: "Everything else", th: "อื่นๆ" },

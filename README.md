@@ -117,7 +117,7 @@ npm run dev            # http://localhost:3000
 
 ## ข้อจำกัดที่ควรรู้
 
-- FF Logs มีข้อมูลเฉพาะคนที่มีการอัปโหลด log — "ไม่เจอ log" ≠ ไม่ได้เรด
+- FF Logs มีข้อมูลเฉพาะคนที่มีการอัปโหลด log — "ไม่เจอ log" ≠ ไม่ได้ Raid
 - Achievement ดูได้เฉพาะคนเปิด public บน Lodestone
 - FFXIV Collect API และ Vercel Hobby ใช้ได้เฉพาะงาน non-commercial — เว็บชุมชน FC ตรงเงื่อนไข ห้ามนำไปหารายได้
 - การ scrape Lodestone เป็น gray area ของ ToS — สคริปต์ใส่ delay สุภาพ รันวันละครั้ง ใช้ภายใน FC
