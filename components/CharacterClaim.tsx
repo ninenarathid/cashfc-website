@@ -94,11 +94,11 @@ export default function CharacterClaim(
         <div className="text-[13px] text-muted">
           Verifying <b className="text-ink">{target.name}</b>
         </div>
-        <ol className="mt-2 flex list-decimal flex-col gap-2 pl-5 text-[12.5px] leading-relaxed text-muted marker:text-amber/80">
+        <ol className="mt-2 flex list-decimal flex-col gap-2 pl-5 text-[12.5px] leading-relaxed text-muted marker:text-accent/80">
           <li>
             Copy this code:
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              <code className="rounded-md border border-amber/40 bg-amber/10 px-2.5 py-1 font-data text-[13px] text-amber">
+              <code className="rounded-md border border-accent/40 bg-accent/10 px-2.5 py-1 font-data text-[13px] text-accent">
                 {token}
               </code>
               <button
@@ -112,7 +112,7 @@ export default function CharacterClaim(
             Open{" "}
             <a href={`https://na.finalfantasyxiv.com/lodestone/character/${target.id}/`}
                target="_blank" rel="noopener noreferrer"
-               className="text-amber underline decoration-amber/40 underline-offset-2">
+               className="text-accent underline decoration-accent/40 underline-offset-2">
               this character on The Lodestone
             </a>
             , log in as its owner and paste the code anywhere in{" "}
@@ -123,7 +123,7 @@ export default function CharacterClaim(
         </ol>
         <div className="mt-3 flex flex-wrap gap-2">
           <button onClick={check} disabled={busy}
-                  className="rounded-lg border border-amber bg-amber/15 px-4 py-2 text-[13.5px] text-amber hover:bg-amber/25 disabled:opacity-40">
+                  className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-[13.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
             {busy ? "Checking…" : "I have pasted it — check now"}
           </button>
           <button onClick={() => { setToken(null); setTarget(null); setErr(null); }}
@@ -139,7 +139,7 @@ export default function CharacterClaim(
   // ── Already linked ─────────────────────────────────────────────────────
   if (characterId) {
     const mark = !verifiedAt ? null : inRoster
-      ? { sym: "✦", text: "Verified FC member", cls: "text-amber" }
+      ? { sym: "✦", text: "Verified FC member", cls: "text-accent" }
       : { sym: "◇", text: "Verified guest — this character is not in the FC roster",
           cls: "text-steel" };
     return (
@@ -153,7 +153,7 @@ export default function CharacterClaim(
           </span>
           {inRoster && (
             <Link href={`/member/${characterId}`}
-                  className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted no-underline hover:border-amber hover:text-amber">
+                  className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted no-underline hover:border-accent hover:text-accent">
               View my page
             </Link>
           )}
@@ -165,7 +165,7 @@ export default function CharacterClaim(
         {verifiedAt ? (
           <p className="mt-2 text-[12.5px] leading-relaxed text-muted">{mark?.text}</p>
         ) : (
-          <div className="mt-2.5 rounded-lg border border-amber/35 bg-amber/5 px-3 py-2.5">
+          <div className="mt-2.5 rounded-lg border border-accent/35 bg-accent/5 px-3 py-2.5">
             <p className="text-[12.5px] leading-relaxed text-muted">
               <b className="text-ink">Not verified yet.</b> This was claimed before
               verification existed, so nothing has proved the character is yours and
@@ -174,7 +174,7 @@ export default function CharacterClaim(
             </p>
             <button onClick={() => start({ id: characterId, name: characterName ?? `#${characterId}` })}
                     disabled={busy}
-                    className="mt-2 rounded-lg border border-amber bg-amber/15 px-3.5 py-1.5 text-[12.5px] text-amber hover:bg-amber/25 disabled:opacity-40">
+                    className="mt-2 rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[12.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
               {busy ? "Starting…" : "Verify this character"}
             </button>
             {err && <p className="mt-2 text-[12.5px] leading-relaxed text-chili">{err}</p>}
@@ -194,7 +194,7 @@ export default function CharacterClaim(
         <div className="mt-2 flex flex-wrap gap-2">
           {suggestions.map((s) => (
             <button key={s.id} onClick={() => start(s)} disabled={busy}
-                    className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink transition-colors hover:border-amber hover:text-amber disabled:opacity-40">
+                    className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink transition-colors hover:border-accent hover:text-accent disabled:opacity-40">
               {s.name}
             </button>
           ))}
@@ -203,7 +203,7 @@ export default function CharacterClaim(
       {suggestions.length === 0 && pastedId && (
         <button onClick={() => start({ id: pastedId, name: `Character #${pastedId}` })}
                 disabled={busy}
-                className="mt-2 rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink transition-colors hover:border-amber hover:text-amber disabled:opacity-40">
+                className="mt-2 rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink transition-colors hover:border-accent hover:text-accent disabled:opacity-40">
           Verify character #{pastedId}
         </button>
       )}

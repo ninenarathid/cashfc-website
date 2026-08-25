@@ -71,7 +71,7 @@ export default function TagLegend({ present }: { present?: Set<string> }) {
 
   return (
     <details className="mt-3 rounded-xl border border-line bg-surface">
-      <summary className="cursor-pointer select-none px-4 py-2.5 text-[13.5px] font-medium text-muted marker:text-amber">
+      <summary className="cursor-pointer select-none px-4 py-2.5 text-[13.5px] font-medium text-muted marker:text-accent">
         {th ? "แต่ละ tag หมายความว่าอะไร?" : "What do the tags mean?"}
       </summary>
       <div className="border-t border-line px-4 py-4">

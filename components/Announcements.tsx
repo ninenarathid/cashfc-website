@@ -31,11 +31,11 @@ export default function Announcements() {
 
   return (
     <section className="mt-5 flex flex-col gap-2">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">
+      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
         {t("home.announcements")}
       </div>
       {items.map((a) => (
-        <div key={a.id} className="rounded-xl border border-amber/30 bg-amber/5 px-4 py-3">
+        <div key={a.id} className="rounded-xl border border-accent/30 bg-accent/5 px-4 py-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div className="font-display font-semibold">{a.title}</div>
             <div className="font-data text-[11px] text-muted">

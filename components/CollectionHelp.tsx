@@ -23,7 +23,7 @@ export default function CollectionHelp(
 
   const A = ({ href, children }: { href: string; children: React.ReactNode }) => (
     <a href={href} target="_blank" rel="noopener noreferrer"
-       className="text-amber underline decoration-amber/40 underline-offset-2">
+       className="text-accent underline decoration-accent/40 underline-offset-2">
       {children}
     </a>
   );
@@ -197,7 +197,7 @@ export default function CollectionHelp(
         {th ? "ถ้านี่คือตัวละครของคุณ ทำตามนี้ครั้งเดียวจบ:"
             : "If this is your character, do this once and it is done:"}
       </div>
-      <ol className="mt-1.5 flex list-decimal flex-col gap-2 pl-4 marker:font-data marker:text-amber/80">
+      <ol className="mt-1.5 flex list-decimal flex-col gap-2 pl-4 marker:font-data marker:text-accent/80">
         {unknown && (
           <Step title={th ? "ลงทะเบียนตัวละครกับ FFXIV Collect"
                           : "Register the character on FFXIV Collect"}>

@@ -35,7 +35,7 @@ export default function ActivityFeed({ feed }: { feed: FeedEvent[] }) {
               <span className="text-base leading-6">{FEED_ICON[e.type] ?? "•"}</span>
               <div className="min-w-0 text-[13.5px] leading-relaxed">
                 <Link href={`/member/${e.id}`}
-                      className="font-data font-semibold text-ink no-underline hover:text-amber">
+                      className="font-data font-semibold text-ink no-underline hover:text-accent">
                   {e.name}
                 </Link>{" "}
                 <span className="text-muted">{e.text}</span>

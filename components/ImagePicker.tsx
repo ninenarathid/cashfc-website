@@ -66,7 +66,7 @@ export default function ImagePicker(
                  e.target.value = "";
                }} />
         <button type="button" onClick={() => input.current?.click()} disabled={busy}
-                className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted transition-colors hover:border-amber hover:text-amber disabled:opacity-50">
+                className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-50">
           {busy ? "Uploading…" : value ? "Replace image" : "Add an image"}
         </button>
         {value && (

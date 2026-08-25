@@ -31,7 +31,7 @@ export default function Nav() {
     <nav className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5 border-b border-line py-4">
       <Link href="/" className="flex items-center no-underline">
         {logoBroken ? (
-          <span className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">
+          <span className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
             Cafe And SHabu
           </span>
         ) : (
@@ -53,7 +53,7 @@ export default function Nav() {
               href={tab.href}
               className={`rounded-lg border px-3.5 py-1.5 text-[13.5px] no-underline transition-colors ${
                 active
-                  ? "border-amber bg-amber/10 text-amber"
+                  ? "border-accent bg-accent/10 text-accent"
                   : "border-line text-muted hover:border-muted hover:text-ink"
               }`}
             >

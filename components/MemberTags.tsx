@@ -126,7 +126,7 @@ export const TAG_COLOR: Record<string, string> = {
   crafter: "#c98a5b", gatherer: "#6aa84f", relic: "#b07ce8",
   explorer: "#4fa8b8", treasure: "#d9a441", goldsaucer: "#e07bb0",
   seasonal: "#8fa3d9", pvp: "#7ea6c9", oldtimer: "#a58b6a",
-  casual: "#9c8f78", unknown: "#55493a",
+  casual: "#8b97a8", unknown: "#55493a",
 };
 
 /** "Legendary crafter" reads better than "Legendary Crafter" mid-sentence. */

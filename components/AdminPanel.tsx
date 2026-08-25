@@ -110,7 +110,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
     return (
       <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center leading-relaxed text-muted">
         Admins only — if you should be an admin, run the grant statement at the end of{" "}
-        <b className="text-amber">supabase/schema.sql</b> in the SQL Editor first.
+        <b className="text-accent">supabase/schema.sql</b> in the SQL Editor first.
       </div>
     );
 
@@ -140,7 +140,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
               ]);
               flash(error ? "Save failed (has migration_v2.sql been run?)" : "Saved");
             }}
-            className="rounded-lg border border-amber bg-amber/15 px-4 py-2 text-amber hover:bg-amber/25">
+            className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-accent hover:bg-accent/25">
             Save
           </button>
         </div>
@@ -169,7 +169,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                           : next === "on" ? "Notice is showing" : "Notice hidden");
             }}
             className={`rounded-lg border px-4 py-2 ${
-              noticeOn ? "border-amber bg-amber/15 text-amber hover:bg-amber/25"
+              noticeOn ? "border-accent bg-accent/15 text-accent hover:bg-accent/25"
                        : "border-line text-muted hover:border-muted hover:text-ink"}`}>
             {noticeOn ? "Showing on the home page" : "Hidden"}
           </button>
@@ -184,7 +184,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
         <div className="font-display font-semibold">FC announcements (featured card on the home page)</div>
         <div className="mt-3 flex flex-col gap-2">
           {aEditing !== null && (
-            <div className="text-[12.5px] text-amber">Editing an existing announcement</div>
+            <div className="text-[12.5px] text-accent">Editing an existing announcement</div>
           )}
           <input value={aTitle} onChange={(e) => setATitle(e.target.value.slice(0, 120))}
                  placeholder="Announcement title" className={inputCls} />
@@ -209,7 +209,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 await refresh();
                 flash(aEditing !== null ? "Announcement updated" : "Announcement posted");
               }}
-              className="self-start rounded-lg border border-amber bg-amber/15 px-4 py-2 text-amber hover:bg-amber/25">
+              className="self-start rounded-lg border border-accent bg-accent/15 px-4 py-2 text-accent hover:bg-accent/25">
               {aEditing !== null ? "Save changes" : "Post announcement"}
             </button>
             {aEditing !== null && (
@@ -238,7 +238,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                     setAEditing(a.id); setATitle(a.title); setABody(a.body ?? "");
                     setAImage(a.image_url);
                   }}
-                  className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-amber hover:text-amber">
+                  className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
                   Edit
                 </button>
                 <button
@@ -330,7 +330,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                     setPEditing(p.id); setPTitle(p.title); setPBody(p.body ?? "");
                     setPUrl(p.url ?? ""); setPDate(p.posted_at); setPImage(p.image_url);
                   }}
-                  className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-amber hover:text-amber">
+                  className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
                   Edit
                 </button>
                 <button
@@ -365,7 +365,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                         setSelected(s); setPick(s.name);
                         setNote(overrides.find((o) => o.character_id === s.id)?.note ?? "");
                       }}
-                      className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] hover:border-amber hover:text-amber">
+                      className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] hover:border-accent hover:text-accent">
                 {s.name}
               </button>
             ))}

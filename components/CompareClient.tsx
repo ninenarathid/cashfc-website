@@ -23,7 +23,7 @@ function Picker({ label, options, value, onPick }: {
 
   if (value) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-amber/50 bg-surface px-4 py-3">
+      <div className="flex items-center gap-3 rounded-xl border border-accent/50 bg-surface px-4 py-3">
         {value.avatar && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={value.avatar} alt="" className="size-10 rounded-full border border-line" />
@@ -49,7 +49,7 @@ function Picker({ label, options, value, onPick }: {
         <div className="mt-2 flex flex-wrap gap-2">
           {sug.map((s) => (
             <button key={s.id} onClick={() => { onPick(s); setQ(""); }}
-                    className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] hover:border-amber hover:text-amber">
+                    className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] hover:border-accent hover:text-accent">
               {s.name}
             </button>
           ))}
@@ -90,7 +90,7 @@ export default function CompareClient({ options }: { options: Slim[] }) {
 
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">Compare</div>
+      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">Compare</div>
       <h1 className="font-display text-3xl font-bold">Compare two members</h1>
       <p className="mt-1 text-[13.5px] text-muted">
         Put two members side by side — who collects more, who parses higher.
@@ -112,12 +112,12 @@ export default function CompareClient({ options }: { options: Slim[] }) {
                    className={`grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2.5 ${
                      i % 2 ? "bg-surface" : "bg-card/50"}`}>
                 <div className={`font-data text-lg font-semibold ${
-                  winA ? "text-amber" : "text-ink/80"}`}>
+                  winA ? "text-accent" : "text-ink/80"}`}>
                   {va ?? "—"}{winA && " 🏆"}
                 </div>
                 <div className="text-center text-[12px] text-muted">{r.label}</div>
                 <div className={`text-right font-data text-lg font-semibold ${
-                  winB ? "text-amber" : "text-ink/80"}`}>
+                  winB ? "text-accent" : "text-ink/80"}`}>
                   {winB && "🏆 "}{vb ?? "—"}
                 </div>
               </div>
@@ -126,7 +126,7 @@ export default function CompareClient({ options }: { options: Slim[] }) {
           <div className="grid grid-cols-2 border-t border-line">
             {[a, b].map((s) => (
               <Link key={s!.id} href={`/member/${s!.id}`}
-                    className="py-2.5 text-center text-[12.5px] text-muted no-underline hover:text-amber">
+                    className="py-2.5 text-center text-[12.5px] text-muted no-underline hover:text-accent">
                 View {s!.name}&rsquo;s profile →
               </Link>
             ))}

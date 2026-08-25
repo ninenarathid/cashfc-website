@@ -68,11 +68,11 @@ export default function LeaderboardsPage() {
                     </span>
                     <span className="min-w-0 truncate">
                       <Link href={`/member/${r.m.id}`}
-                            className="font-data text-ink no-underline hover:text-amber">
+                            className="font-data text-ink no-underline hover:text-accent">
                         {r.m.name}
                       </Link>
                       {r.tier && (
-                        <span className="ml-1.5 text-[11px] text-amber">
+                        <span className="ml-1.5 text-[11px] text-accent">
                           {ACHV_TIER_LABEL[r.tier]}
                         </span>
                       )}

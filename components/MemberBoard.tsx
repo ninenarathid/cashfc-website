@@ -382,7 +382,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             onClick={() => setView(view === "list" ? "kitchen" : "list")}
             className={`rounded-lg border px-3.5 py-1.5 text-[13px] ${
               view === "kitchen"
-                ? "border-amber bg-amber/10 text-amber"
+                ? "border-accent bg-accent/10 text-accent"
                 : "border-line text-muted hover:border-muted hover:text-ink"}`}>
             🍲 Kitchen view
           </button>
@@ -403,7 +403,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               <button key={o.key} onClick={() => setAdv({ ...adv, activity: o.key })}
                       aria-pressed={on}
                       className={`rounded-md px-3.5 py-1.5 text-[13.5px] transition-colors ${
-                        on ? "bg-amber/15 text-amber"
+                        on ? "bg-accent/15 text-accent"
                            : "text-muted hover:text-ink"}`}>
                 {o.key !== "all" && (
                   <span className={`mr-1.5 inline-block size-2 rounded-full align-middle ${
@@ -543,7 +543,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     aria-pressed={on}
                     title={tagHelp(tag, lang)}
                     className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
-                      on ? TAG_CLASS[tag] ?? "border-amber bg-amber/15 text-amber"
+                      on ? TAG_CLASS[tag] ?? "border-accent bg-accent/15 text-accent"
                          : "border-line text-muted hover:border-muted"}`}>
                     <TagIcon tag={tag} size={13} />
                     {TAG_LABELS[tag]}
@@ -636,18 +636,18 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             if (!group.length) return null;
             return (
               <div key={r}>
-                <div className="mb-2 font-display text-[15px] font-semibold text-amber">
+                <div className="mb-2 font-display text-[15px] font-semibold text-accent">
                   {r} <span className="text-[12px] font-normal text-muted">({group.length})</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                   {group.map((m) => (
                     <Link key={m.id} href={`/member/${m.id}`}
-                          className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-3 py-2 no-underline transition-colors hover:border-amber">
+                          className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-3 py-2 no-underline transition-colors hover:border-accent">
                       <Avatar m={m} size={9} />
                       <span className="min-w-0">
                         <span className="block truncate font-data text-[13px] font-semibold text-ink">
                           {m.name}
-                          {overlays[m.id] && <span className="ml-1 text-amber">✦</span>}
+                          {overlays[m.id] && <span className="ml-1 text-accent">✦</span>}
                         </span>
                       </span>
                     </Link>
@@ -666,7 +666,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           ) : (
             list.map((m) => {
               const ov = overlays[m.id];
-              const accent = ov?.accent ?? "#e8a33d";
+              const accent = ov?.accent ?? "#6aa9e0";
               const meta = [m.rank ?? "—"];
               if (m.race) meta.push(m.race);
               if (m.mounts != null) meta.push(`${m.mounts} mounts`);
@@ -679,7 +679,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   </Link>
                   <div className="min-w-0">
                     <Link href={`/member/${m.id}`}
-                          className="truncate font-data text-[15px] font-semibold tracking-[0.01em] text-ink no-underline hover:text-amber">
+                          className="truncate font-data text-[15px] font-semibold tracking-[0.01em] text-ink no-underline hover:text-accent">
                       {m.name}
                       {ov?.nickname && (
                         <span className="ml-1 font-normal text-muted">
@@ -710,7 +710,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
                       return o ? (
                         <span key={k}
-                              className="whitespace-nowrap rounded-full border border-dashed border-amber/60 px-2.5 py-[3px] text-[11.5px] text-amber">
+                              className="whitespace-nowrap rounded-full border border-dashed border-accent/60 px-2.5 py-[3px] text-[11.5px] text-accent">
                           {o.label}
                         </span>
                       ) : null;

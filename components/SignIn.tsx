@@ -96,7 +96,7 @@ export default function SignIn(
                      placeholder="you@example.com" aria-label="Email address"
                      className="min-w-[200px] flex-1 rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
               <button onClick={magicLink} disabled={busy || !email.includes("@")}
-                      className="rounded-lg border border-line px-4 py-2 text-[13.5px] text-muted transition-colors hover:border-amber hover:text-amber disabled:opacity-40">
+                      className="rounded-lg border border-line px-4 py-2 text-[13.5px] text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40">
                 {busy ? "Sending…" : "Email me a link"}
               </button>
             </div>

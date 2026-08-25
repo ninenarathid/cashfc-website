@@ -34,14 +34,14 @@ interface ProfileRow {
   is_admin: boolean;
 }
 
-const COLORS = ["#e8a33d","#d14b3a","#e5cc80","#4fb8a8","#c98a5b","#7ea6c9","#e268a8","#a335ee"];
+const COLORS = ["#6aa9e0","#d14b3a","#e5cc80","#4fb8a8","#c98a5b","#7ea6c9","#e268a8","#a335ee"];
 const BANNERS = [
-  "linear-gradient(135deg,#241b10,#3a2c14)",
-  "linear-gradient(135deg,#2a130f,#d14b3a33)",
+  "linear-gradient(135deg,#151b25,#22304a)",
+  "linear-gradient(135deg,#241416,#d14b3a33)",
   "linear-gradient(135deg,#0f1f1c,#4fb8a833)",
   "linear-gradient(135deg,#101827,#7ea6c933)",
   "linear-gradient(135deg,#1d1226,#a335ee33)",
-  "linear-gradient(135deg,#261c10,#e5cc8040)",
+  "linear-gradient(135deg,#20222c,#e5cc8040)",
 ];
 
 function Notice({ children }: { children: React.ReactNode }) {
@@ -141,8 +141,8 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   if (phase === "no-config")
     return (
       <Notice>
-        Supabase is not connected yet — set <b className="text-amber">NEXT_PUBLIC_SUPABASE_URL</b> and{" "}
-        <b className="text-amber">NEXT_PUBLIC_SUPABASE_ANON_KEY</b> as described in the README,
+        Supabase is not connected yet — set <b className="text-accent">NEXT_PUBLIC_SUPABASE_URL</b> and{" "}
+        <b className="text-accent">NEXT_PUBLIC_SUPABASE_ANON_KEY</b> as described in the README,
         and this page switches itself on.
       </Notice>
     );
@@ -159,7 +159,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-amber">
+      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
         {t("nav.profile")}
       </div>
       <h1 className="font-display text-3xl font-bold">{t("profile.title")}</h1>
@@ -223,7 +223,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
                     aria-pressed={lang === l.key}
                     className={`rounded-lg border px-3.5 py-1.5 text-[13px] transition-colors ${
                       lang === l.key
-                        ? "border-amber bg-amber/15 text-amber"
+                        ? "border-accent bg-accent/15 text-accent"
                         : "border-line text-muted hover:border-muted hover:text-ink"}`}>
               {l.label}
             </button>
@@ -259,7 +259,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
                       }}
                       className={`rounded-lg border px-3.5 py-1.5 text-[12.5px] transition-colors ${
                         linked ? "border-jade/40 bg-jade/5 text-jade"
-                               : "border-line text-muted hover:border-amber hover:text-amber"} disabled:opacity-50`}>
+                               : "border-line text-muted hover:border-accent hover:text-accent"} disabled:opacity-50`}>
                 {linked ? `${prov.label} ✓`
                   : linking === prov.key ? t("common.loading")
                   : t("profile.link", { name: prov.label })}
@@ -383,7 +383,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
               <button key={bnr} onClick={() => setBanner(banner === bnr ? "" : bnr)}
                       aria-label="Pick banner"
                       className={`h-10 w-20 rounded-lg border-2 transition-transform ${
-                        banner === bnr ? "scale-105 border-amber" : "border-line"}`}
+                        banner === bnr ? "scale-105 border-accent" : "border-line"}`}
                       style={{ background: bnr }} />
             ))}
           </div>
@@ -399,7 +399,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
                         onClick={() => setLfg(on ? lfg.filter((k) => k !== o.key)
                                                : [...lfg, o.key])}
                         className={`rounded-full border px-3.5 py-1.5 text-[13px] ${
-                          on ? "border-amber bg-amber/12 text-amber"
+                          on ? "border-accent bg-accent/12 text-accent"
                              : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   {o.label}
                 </button>
@@ -410,7 +410,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
         <div className="mt-5 flex items-center gap-3">
           <button onClick={save} disabled={saving}
-                  className="rounded-lg border border-amber bg-amber/15 px-5 py-2 text-amber transition-colors hover:bg-amber/25 disabled:opacity-50">
+                  className="rounded-lg border border-accent bg-accent/15 px-5 py-2 text-accent transition-colors hover:bg-accent/25 disabled:opacity-50">
             {saving ? t("profile.saving") : t("profile.save")}
           </button>
           {msg && (

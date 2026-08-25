@@ -95,7 +95,7 @@ export default function AvailabilityGrid(
           editable ? (
             <button key={d} type="button" onClick={() => fillDay(d)}
                     title={dayLabel(d, lang)}
-                    className="min-w-0 flex-1 rounded-md py-0.5 text-center text-[11.5px] text-muted transition-colors hover:bg-card hover:text-amber">
+                    className="min-w-0 flex-1 rounded-md py-0.5 text-center text-[11.5px] text-muted transition-colors hover:bg-card hover:text-accent">
               {dayShort(d, lang)}
             </button>
           ) : (
@@ -113,7 +113,7 @@ export default function AvailabilityGrid(
             <div className={`flex w-12 shrink-0 items-center justify-end pr-1 ${rowH}`}>
               {editable ? (
                 <button type="button" onClick={() => fillHour(h)}
-                        className={`font-data text-[10px] leading-none transition-colors hover:text-amber ${
+                        className={`font-data text-[10px] leading-none transition-colors hover:text-accent ${
                           h % 3 === 0 ? "text-muted" : "text-muted/45"}`}>
                   {hourLabel(h)}
                 </button>

@@ -53,11 +53,11 @@ export default function RootLayout({
             {children}
           <footer className="mt-9 border-t border-line pt-4 text-[12.5px] leading-relaxed text-muted">
             Data from{" "}
-            <a className="text-amber no-underline" href="https://na.finalfantasyxiv.com/lodestone/" target="_blank" rel="noopener noreferrer">The Lodestone</a>{" "}
+            <a className="text-accent no-underline" href="https://na.finalfantasyxiv.com/lodestone/" target="_blank" rel="noopener noreferrer">The Lodestone</a>{" "}
             (© SQUARE ENIX),{" "}
-            <a className="text-amber no-underline" href="https://www.fflogs.com/" target="_blank" rel="noopener noreferrer">FF Logs</a>{" "}
+            <a className="text-accent no-underline" href="https://www.fflogs.com/" target="_blank" rel="noopener noreferrer">FF Logs</a>{" "}
             and{" "}
-            <a className="text-amber no-underline" href="https://ffxivcollect.com/" target="_blank" rel="noopener noreferrer">FFXIV Collect</a>{" "}
+            <a className="text-accent no-underline" href="https://ffxivcollect.com/" target="_blank" rel="noopener noreferrer">FFXIV Collect</a>{" "}
             (non-commercial) · members with a private profile show as
             &ldquo;No data&rdquo; · refreshed every four hours by GitHub Actions
             </footer>

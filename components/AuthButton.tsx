@@ -51,7 +51,7 @@ export default function AuthButton() {
   return (
     <Link
       href="/profile"
-      className="flex items-center gap-2 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink no-underline transition-colors hover:border-amber"
+      className="flex items-center gap-2 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink no-underline transition-colors hover:border-accent"
     >
       {user.avatar ? (
         // eslint-disable-next-line @next/next/no-img-element

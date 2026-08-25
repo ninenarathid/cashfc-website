@@ -39,7 +39,7 @@ export default function ShowYourData(
 
   const A = ({ href, children }: { href: string; children: React.ReactNode }) => (
     <a href={href} target="_blank" rel="noopener noreferrer"
-       className="text-amber underline decoration-amber/40 underline-offset-2">
+       className="text-accent underline decoration-accent/40 underline-offset-2">
       {children}
     </a>
   );
@@ -47,7 +47,7 @@ export default function ShowYourData(
   const Step = ({ n, title, children }:
     { n: number; title: string; children: React.ReactNode }) => (
     <li className="flex gap-3">
-      <span className="mt-[3px] flex size-5 shrink-0 items-center justify-center rounded-full border border-amber/50 font-data text-[11px] text-amber">
+      <span className="mt-[3px] flex size-5 shrink-0 items-center justify-center rounded-full border border-accent/50 font-data text-[11px] text-accent">
         {n}
       </span>
       <div className="min-w-0">
@@ -58,9 +58,9 @@ export default function ShowYourData(
   );
 
   return (
-    <section className="mt-5 rounded-xl border border-amber/35 bg-amber/5 px-4 py-4">
+    <section className="mt-5 rounded-xl border border-accent/35 bg-accent/5 px-4 py-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <div className="font-display text-[17px] font-semibold text-amber">
+        <div className="font-display text-[17px] font-semibold text-accent">
           {th ? "📣 อยากให้ข้อมูลของตัวเองขึ้นบนเว็บนี้ไหม"
               : "📣 Want your data on the board?"}
         </div>
@@ -101,7 +101,7 @@ export default function ShowYourData(
           {th ? (
             <>
               ค่าเริ่มต้นของเกมคือซ่อน achievement ไว้ ต้องไปเปิดเอง ทำครั้งเดียวพอ
-              <ol className="mt-1.5 ml-4 list-decimal space-y-1 marker:text-amber/70">
+              <ol className="mt-1.5 ml-4 list-decimal space-y-1 marker:text-accent/70">
                 <li>
                   เข้า <A href={LODESTONE}>The Lodestone</A> กด <b className="text-ink">Log In</b>{" "}
                   มุมขวาบน แล้วล็อกอินด้วย Square Enix account ตัวเดียวกับที่ใช้เข้าเกม
@@ -131,7 +131,7 @@ export default function ShowYourData(
             <>
               The game hides achievements by default, so this is a switch you have to
               flip yourself. Once is enough.
-              <ol className="mt-1.5 ml-4 list-decimal space-y-1 marker:text-amber/70">
+              <ol className="mt-1.5 ml-4 list-decimal space-y-1 marker:text-accent/70">
                 <li>
                   Open <A href={LODESTONE}>The Lodestone</A>, hit{" "}
                   <b className="text-ink">Log In</b> at the top right and sign in with
@@ -171,7 +171,7 @@ export default function ShowYourData(
             <>
               เว็บนี้ดึงของสะสมผ่าน FFXIV Collect ซึ่งเก็บข้อมูลเฉพาะตัวละคร
               ที่เคยมีคนค้นหาไว้ในเว็บนั้น ถ้าไม่เคยมีใครค้นชื่อคุณเลย ระบบก็จะไม่รู้จัก
-              <ol className="mt-1.5 ml-4 list-decimal space-y-1 marker:text-amber/70">
+              <ol className="mt-1.5 ml-4 list-decimal space-y-1 marker:text-accent/70">
                 <li>เปิด <A href={COLLECT_SEARCH}>ffxivcollect.com</A></li>
                 <li>
                   เลือก Data Center <b className="text-ink">Elemental</b> · World{" "}
@@ -189,7 +189,7 @@ export default function ShowYourData(
               The board reads collections through FFXIV Collect, which only keeps data
               for characters somebody has looked up there. If nobody has ever searched
               your name, it has never heard of you.
-              <ol className="mt-1.5 ml-4 list-decimal space-y-1 marker:text-amber/70">
+              <ol className="mt-1.5 ml-4 list-decimal space-y-1 marker:text-accent/70">
                 <li>Open <A href={COLLECT_SEARCH}>ffxivcollect.com</A></li>
                 <li>
                   Pick Data Center <b className="text-ink">Elemental</b> and world{" "}
@@ -207,7 +207,7 @@ export default function ShowYourData(
         </Step>
       </ol>
 
-      <p className="mt-3.5 border-t border-amber/20 pt-3 text-[12.5px] leading-[1.8] text-muted">
+      <p className="mt-3.5 border-t border-accent/20 pt-3 text-[12.5px] leading-[1.8] text-muted">
         {th ? (
           <>
             เสร็จแล้วรอสัก 1 วัน — Lodestone ใช้เวลาอัปเดตพอสมควร ส่วนเว็บนี้ดึงข้อมูลใหม่ทุก 4 ชั่วโมง

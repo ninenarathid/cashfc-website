@@ -48,7 +48,7 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
       <div className="mb-2 flex items-baseline gap-3">
         <h2 className="font-display text-lg font-semibold">{t("home.timeline")}</h2>
         <span className="text-[12px] text-muted">
-          <span className="text-amber">●</span> {t("home.timelineOfficial")} ·{" "}
+          <span className="text-accent">●</span> {t("home.timelineOfficial")} ·{" "}
           <span className="text-jade">●</span> {t("home.timelineFc")}
         </span>
       </div>
@@ -57,7 +57,7 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
           <div key={i} className="relative pb-3.5">
             <span
               className={`absolute -left-[21.5px] top-1.5 size-2.5 rounded-full ${
-                it.kind === "official" ? "bg-amber" : "bg-jade"}`}
+                it.kind === "official" ? "bg-accent" : "bg-jade"}`}
             />
             <div className="text-[11.5px] font-medium text-muted">
               {it.date &&
@@ -70,7 +70,7 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
             </div>
             {it.url ? (
               <a href={it.url} target="_blank" rel="noopener noreferrer"
-                 className="text-[14px] text-ink no-underline hover:text-amber">
+                 className="text-[14px] text-ink no-underline hover:text-accent">
                 {it.title}
               </a>
             ) : (

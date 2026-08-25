@@ -12,12 +12,12 @@ import {
 interface Slice { name: string; value: number; color: string }
 
 const tooltipStyle = {
-  background: "#262017", border: "1px solid #3a3226", borderRadius: 8,
-  color: "#efe6d3", fontSize: 12.5,
+  background: "#1b212b", border: "1px solid #2b3441", borderRadius: 8,
+  color: "#e3e8ef", fontSize: 12.5,
 };
 
 const RACE_COLORS: Record<string, string> = {
-  Hyur: "#e8a33d", Elezen: "#7ea6c9", Lalafell: "#4fb8a8", "Miqo'te": "#d14b3a",
+  Hyur: "#6aa9e0", Elezen: "#7ea6c9", Lalafell: "#4fb8a8", "Miqo'te": "#d14b3a",
   Roegadyn: "#c98a5b", "Au Ra": "#a37fd1", Hrothgar: "#e5cc80", Viera: "#8fbf6a",
 };
 
@@ -133,7 +133,7 @@ export default function FcCharts({
       onClick={onClick}
       aria-pressed={on}
       className={`flex-1 rounded-xl border px-3 py-2.5 text-left transition-colors ${
-        on ? "border-amber/50 bg-card" : "border-line bg-card/40 opacity-50"}`}>
+        on ? "border-accent/50 bg-card" : "border-line bg-card/40 opacity-50"}`}>
       <div className="flex items-baseline gap-2">
         <span className="size-2.5 rounded-full" style={{ background: dot }} />
         <span className="font-data text-2xl font-semibold text-ink">{n}</span>
@@ -147,7 +147,7 @@ export default function FcCharts({
 
   return (
     <details open className="mt-5 rounded-xl border border-line bg-surface open:pb-4">
-      <summary className="cursor-pointer select-none px-4 py-3 font-display font-semibold marker:text-amber">
+      <summary className="cursor-pointer select-none px-4 py-3 font-display font-semibold marker:text-accent">
         📊 FC overview
       </summary>
 
@@ -260,11 +260,11 @@ export default function FcCharts({
                   <div className="h-56">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={historyRows}>
-                        <XAxis dataKey="date" tick={{ fill: "#9c8f78", fontSize: 10 }}
-                               axisLine={{ stroke: "#3a3226" }} tickLine={false} />
+                        <XAxis dataKey="date" tick={{ fill: "#8b97a8", fontSize: 10 }}
+                               axisLine={{ stroke: "#2b3441" }} tickLine={false} />
                         <YAxis allowDecimals={false} width={28}
-                               tick={{ fill: "#9c8f78", fontSize: 11 }}
-                               axisLine={{ stroke: "#3a3226" }} tickLine={false} />
+                               tick={{ fill: "#8b97a8", fontSize: 11 }}
+                               axisLine={{ stroke: "#2b3441" }} tickLine={false} />
                         <Tooltip contentStyle={tooltipStyle} />
                         {[...series].filter((s) => shownSeries.has(s.key)).map((s) => (
                           <Line key={s.key} type="monotone" dataKey={s.key} name={s.label}
@@ -302,7 +302,7 @@ export default function FcCharts({
                 with raiding, and an overview that leads with parse percentages says
                 otherwise. Open it if you want it. */}
             <details className="rounded-xl border border-line bg-card sm:col-span-2">
-              <summary className="cursor-pointer select-none px-3 py-2 text-[13px] font-medium text-muted marker:text-amber">
+              <summary className="cursor-pointer select-none px-3 py-2 text-[13px] font-medium text-muted marker:text-accent">
                 ⚔️ Raiding — parse distribution and tier progress
               </summary>
               <div className="grid gap-6 px-3 pb-3 pt-1 sm:grid-cols-2">
@@ -314,12 +314,12 @@ export default function FcCharts({
                     <div className="h-52">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={parseDist}>
-                          <XAxis dataKey="name" tick={{ fill: "#9c8f78", fontSize: 11 }}
-                                 axisLine={{ stroke: "#3a3226" }} tickLine={false} />
+                          <XAxis dataKey="name" tick={{ fill: "#8b97a8", fontSize: 11 }}
+                                 axisLine={{ stroke: "#2b3441" }} tickLine={false} />
                           <YAxis allowDecimals={false} width={28}
-                                 tick={{ fill: "#9c8f78", fontSize: 11 }}
-                                 axisLine={{ stroke: "#3a3226" }} tickLine={false} />
-                          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#efe6d30d" }} />
+                                 tick={{ fill: "#8b97a8", fontSize: 11 }}
+                                 axisLine={{ stroke: "#2b3441" }} tickLine={false} />
+                          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#e3e8ef0d" }} />
                           <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                             {parseDist.map((s) => <Cell key={s.name} fill={s.color} />)}
                           </Bar>
@@ -348,7 +348,7 @@ export default function FcCharts({
                         </div>
                         <div className="h-2.5 overflow-hidden rounded-full bg-card">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-chili to-amber transition-[width]"
+                            className="h-full rounded-full bg-gradient-to-r from-chili to-accent transition-[width]"
                             style={{ width: `${total ? Math.round((p.cleared / total) * 100) : 0}%` }}
                           />
                         </div>

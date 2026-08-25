@@ -25,7 +25,7 @@ export default function Hero(
   const { t, lang } = useLang();
   return (
     <header className="pb-6 pt-9 text-center sm:pt-12">
-      <div className="font-data text-[11px] uppercase tracking-[0.24em] text-amber">
+      <div className="font-data text-[11px] uppercase tracking-[0.24em] text-accent">
         {t("home.freeCompany")} · {fc.world} [{fc.dc}]
       </div>
       {/* The wordmark carries the FC name, so the h1 stays for screen readers and
@@ -37,7 +37,7 @@ export default function Hero(
            width={1000} height={722} />
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
         <Link href="/members"
-              className="rounded-lg border border-amber bg-amber/15 px-5 py-2 text-amber no-underline transition-colors hover:bg-amber/25">
+              className="rounded-lg border border-accent bg-accent/15 px-5 py-2 text-accent no-underline transition-colors hover:bg-accent/25">
           {t("home.browseAll", { n: total })}
         </Link>
       </div>

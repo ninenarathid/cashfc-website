@@ -20,7 +20,7 @@ export default function LangToggle() {
                 title={l.label}
                 className={`px-2.5 py-1.5 font-data text-[11.5px] transition-colors ${
                   lang === l.key
-                    ? "bg-amber/15 text-amber"
+                    ? "bg-accent/15 text-accent"
                     : "text-muted hover:bg-card hover:text-ink"}`}>
           {l.short}
         </button>

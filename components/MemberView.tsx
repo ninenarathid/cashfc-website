@@ -30,7 +30,7 @@ function parseColor(p: number | null | undefined): string {
   return "#7a7a7a";
 }
 
-const DEFAULT_BANNER = "linear-gradient(135deg,#241b10,#3a2c14)";
+const DEFAULT_BANNER = "linear-gradient(135deg,#151b25,#22304a)";
 
 export default function MemberView({
   m, raids, tierLabels, agg, fc, rareAchievements = [], extremeTotal,
@@ -114,7 +114,7 @@ export default function MemberView({
     setTimeout(() => setKudosMsg(""), 3000);
   }
 
-  const accent = ov?.accent ?? "#e8a33d";
+  const accent = ov?.accent ?? "#6aa9e0";
   const onVacation = isOnVacation(m);
   const birthday = formatBirthday(ov?.birthMonth, ov?.birthDay);
   // Compared in the viewer's own timezone, which is what "is it their birthday
@@ -192,7 +192,7 @@ export default function MemberView({
   return (
     <main className="pt-5">
       <Link href={backHref}
-            className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-muted no-underline transition-colors hover:text-amber">
+            className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-muted no-underline transition-colors hover:text-accent">
         <span aria-hidden>←</span> {t("member.back")}
       </Link>
 
@@ -262,7 +262,7 @@ export default function MemberView({
               {(ov?.lfg ?? []).map((k) => {
                 const o = LFG_OPTIONS.find((x) => x.key === k);
                 return o ? (
-                  <span key={k} className="rounded-full border border-dashed border-amber/70 bg-bg/40 px-2.5 py-[3px] text-[11.5px] text-amber">
+                  <span key={k} className="rounded-full border border-dashed border-accent/70 bg-bg/40 px-2.5 py-[3px] text-[11.5px] text-accent">
                     {o.label}
                   </span>
                 ) : null;
@@ -275,12 +275,12 @@ export default function MemberView({
                 [`https://ffxivcollect.com/characters/${m.id}`, "COLL"],
               ].map(([href, label]) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
-                   className="rounded-md border border-line bg-bg/40 px-2.5 py-1 font-data text-[10.5px] tracking-[0.06em] text-ink/80 no-underline hover:border-amber hover:text-amber">
+                   className="rounded-md border border-line bg-bg/40 px-2.5 py-1 font-data text-[10.5px] tracking-[0.06em] text-ink/80 no-underline hover:border-accent hover:text-accent">
                   {label}
                 </a>
               ))}
               <button onClick={sendKudos}
-                      className="rounded-md border border-amber/60 bg-bg/40 px-3 py-1 text-[12.5px] text-amber hover:bg-amber/15">
+                      className="rounded-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-accent hover:bg-accent/15">
                 🥔 Send popoto{kudos != null ? ` · ${kudos}` : ""}
               </button>
               <button
@@ -296,7 +296,7 @@ export default function MemberView({
                 </Link>
               )}
             </div>
-            {kudosMsg && <div className="mt-1.5 text-[12.5px] text-amber">{kudosMsg}</div>}
+            {kudosMsg && <div className="mt-1.5 text-[12.5px] text-accent">{kudosMsg}</div>}
           </div>
         </div>
       </section>
@@ -482,7 +482,7 @@ export default function MemberView({
           <div className="flex flex-col gap-2">
             {Object.entries(legacyGroups).map(([exp, zones]) => (
               <details key={exp} className="rounded-xl border border-line bg-surface">
-                <summary className="cursor-pointer select-none px-4 py-2.5 font-display text-[14.5px] font-semibold marker:text-amber">
+                <summary className="cursor-pointer select-none px-4 py-2.5 font-display text-[14.5px] font-semibold marker:text-accent">
                   {exp} <span className="text-[12px] font-normal text-muted">
                     — {zones.length} tier
                   </span>

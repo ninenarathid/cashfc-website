@@ -85,7 +85,7 @@ export function jobTierStyle(job: string, tier?: string | null): React.CSSProper
   return {
     borderColor: `color-mix(in srgb, ${c} ${pct(0.3 + 0.55 * strength)}%, transparent)`,
     background: `color-mix(in srgb, ${c} ${pct(0.05 + 0.13 * strength)}%, transparent)`,
-    color: `color-mix(in srgb, ${c} ${tier === "legendary" ? 88 : 78}%, #efe6d3)`,
+    color: `color-mix(in srgb, ${c} ${tier === "legendary" ? 88 : 78}%, #e3e8ef)`,
   };
 }
 
@@ -129,7 +129,7 @@ export function jobAbbr(name?: string | null): string | null {
 
 export function jobColor(name?: string | null): string {
   const info = jobInfo(name);
-  return info ? ROLE_COLOR[info.role] : "#9c8f78";
+  return info ? ROLE_COLOR[info.role] : "#8b97a8";
 }
 
 /**
