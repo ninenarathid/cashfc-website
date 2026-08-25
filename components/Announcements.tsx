@@ -8,6 +8,7 @@ interface Announcement {
   title: string;
   body: string | null;
   created_at: string;
+  image_url: string | null;
 }
 
 export default function Announcements() {
@@ -18,7 +19,7 @@ export default function Announcements() {
     if (!supabase) return;
     supabase
       .from("announcements")
-      .select("id, title, body, created_at")
+      .select("id, title, body, created_at, image_url")
       .order("created_at", { ascending: false })
       .limit(3)
       .then(({ data }) => setItems(data ?? []));
@@ -46,6 +47,13 @@ export default function Announcements() {
               {a.body}
             </p>
           ) : null}
+          {a.image_url && (
+            // Announcements are usually about something that happened in a
+            // screenshot, so the picture gets real space rather than a thumbnail.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={a.image_url} alt="" loading="lazy"
+                 className="mt-2.5 w-full rounded-lg border border-line object-cover" />
+          )}
         </div>
       ))}
     </section>

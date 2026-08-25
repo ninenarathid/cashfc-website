@@ -10,6 +10,7 @@ interface Item {
   body?: string | null;
   url?: string | null;
   date: string;
+  image?: string | null;
 }
 
 export default function Timeline({ news }: { news: NewsItem[] }) {
@@ -22,13 +23,13 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
     if (!supabase) return;
     supabase
       .from("timeline_posts")
-      .select("title, body, url, posted_at")
+      .select("title, body, url, posted_at, image_url")
       .order("posted_at", { ascending: false })
       .limit(10)
       .then(({ data }) => {
         const fc: Item[] = (data ?? []).map((p) => ({
           kind: "fc", title: p.title, body: p.body, url: p.url,
-          date: p.posted_at as string,
+          date: p.posted_at as string, image: p.image_url as string | null,
         }));
         const merged = [...fc,
           ...news.map((n): Item => ({ kind: "official", title: n.title,
@@ -74,6 +75,13 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
               <p className="mt-0.5 whitespace-pre-wrap text-[12.5px] leading-relaxed text-muted">
                 {it.body}
               </p>
+            )}
+            {it.image && (
+              // Capped rather than full width: the timeline is a column of short
+              // entries, and a full-bleed screenshot would bury the ones around it.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={it.image} alt="" loading="lazy"
+                   className="mt-1.5 max-h-48 w-auto rounded-lg border border-line" />
             )}
           </div>
         ))}

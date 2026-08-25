@@ -3,10 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { NOTICE_KEY } from "@/components/home/ShowYourData";
+import ImagePicker from "@/components/ImagePicker";
 
 interface Option { id: number; name: string }
-interface Announcement { id: number; title: string; body: string | null; created_at: string }
-interface TimelinePost { id: number; title: string; body: string | null; url: string | null; posted_at: string }
+interface Announcement {
+  id: number; title: string; body: string | null; created_at: string;
+  image_url: string | null;
+}
+interface TimelinePost {
+  id: number; title: string; body: string | null; url: string | null;
+  posted_at: string; image_url: string | null;
+}
 interface Override { character_id: number; hidden: boolean; note: string | null }
 interface ClaimedProfile { id: string; discord_username: string | null; character_id: number; character_name: string | null }
 
@@ -17,14 +24,21 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   const [phase, setPhase] = useState<"loading" | "denied" | "ready">("loading");
   const [msg, setMsg] = useState("");
 
+  // One form per section, in one of two modes: writing something new, or editing
+  // the row whose id is held here. Sharing the form keeps the two from drifting
+  // apart the way a separate edit dialog always does.
   const [anns, setAnns] = useState<Announcement[]>([]);
   const [aTitle, setATitle] = useState("");
   const [aBody, setABody] = useState("");
+  const [aImage, setAImage] = useState<string | null>(null);
+  const [aEditing, setAEditing] = useState<number | null>(null);
 
   const [posts, setPosts] = useState<TimelinePost[]>([]);
   const [pTitle, setPTitle] = useState("");
   const [pBody, setPBody] = useState("");
   const [pUrl, setPUrl] = useState("");
+  const [pImage, setPImage] = useState<string | null>(null);
+  const [pEditing, setPEditing] = useState<number | null>(null);
   const [pDate, setPDate] = useState(new Date().toISOString().slice(0, 10));
 
   const [serverId, setServerId] = useState("");
@@ -49,9 +63,9 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   async function refresh() {
     if (!supabase) return;
     const [a, t, s, o, c] = await Promise.all([
-      supabase.from("announcements").select("id, title, body, created_at")
+      supabase.from("announcements").select("id, title, body, created_at, image_url")
         .order("created_at", { ascending: false }),
-      supabase.from("timeline_posts").select("id, title, body, url, posted_at")
+      supabase.from("timeline_posts").select("id, title, body, url, posted_at, image_url")
         .order("posted_at", { ascending: false }),
       supabase.from("site_settings").select("key, value"),
       supabase.from("member_overrides").select("character_id, hidden, note"),
@@ -169,38 +183,76 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">FC announcements (featured card on the home page)</div>
         <div className="mt-3 flex flex-col gap-2">
+          {aEditing !== null && (
+            <div className="text-[12.5px] text-amber">Editing an existing announcement</div>
+          )}
           <input value={aTitle} onChange={(e) => setATitle(e.target.value.slice(0, 120))}
                  placeholder="Announcement title" className={inputCls} />
           <textarea value={aBody} onChange={(e) => setABody(e.target.value.slice(0, 2000))}
                     rows={3} placeholder="Details (optional)" className={inputCls} />
-          <button
-            onClick={async () => {
-              if (!aTitle.trim()) return;
-              const { data: u } = await supabase!.auth.getUser();
-              const { error } = await supabase!.from("announcements")
-                .insert({ title: aTitle.trim(), body: aBody.trim() || null,
-                          created_by: u.user?.id });
-              if (!error) { setATitle(""); setABody(""); await refresh(); flash("Announcement posted"); }
-            }}
-            className="self-start rounded-lg border border-amber bg-amber/15 px-4 py-2 text-amber hover:bg-amber/25">
-            Post announcement
-          </button>
+          <ImagePicker supabase={supabase!} value={aImage} onChange={setAImage} />
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={async () => {
+                if (!aTitle.trim()) return;
+                const fields = {
+                  title: aTitle.trim(), body: aBody.trim() || null, image_url: aImage,
+                };
+                const { error } = aEditing !== null
+                  ? await supabase!.from("announcements").update(fields).eq("id", aEditing)
+                  : await supabase!.from("announcements").insert({
+                      ...fields,
+                      created_by: (await supabase!.auth.getUser()).data.user?.id,
+                    });
+                if (error) { flash(`Save failed: ${error.message}`); return; }
+                setATitle(""); setABody(""); setAImage(null); setAEditing(null);
+                await refresh();
+                flash(aEditing !== null ? "Announcement updated" : "Announcement posted");
+              }}
+              className="self-start rounded-lg border border-amber bg-amber/15 px-4 py-2 text-amber hover:bg-amber/25">
+              {aEditing !== null ? "Save changes" : "Post announcement"}
+            </button>
+            {aEditing !== null && (
+              <button
+                onClick={() => { setAEditing(null); setATitle(""); setABody(""); setAImage(null); }}
+                className="rounded-lg border border-line px-4 py-2 text-muted hover:border-muted hover:text-ink">
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
         <div className="mt-3 flex flex-col gap-2">
           {anns.map((a) => (
             <div key={a.id} className="flex items-start justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2">
-              <div className="min-w-0">
+              {a.image_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={a.image_url} alt="" className="size-10 shrink-0 rounded-md border border-line object-cover" />
+              )}
+              <div className="min-w-0 flex-1">
                 <div className="font-medium">{a.title}</div>
                 {a.body && <div className="truncate text-[12.5px] text-muted">{a.body}</div>}
               </div>
-              <button
-                onClick={async () => {
-                  await supabase!.from("announcements").delete().eq("id", a.id);
-                  await refresh(); flash("Announcement deleted");
-                }}
-                className="shrink-0 rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                Delete
-              </button>
+              <div className="flex shrink-0 gap-1.5">
+                <button
+                  onClick={() => {
+                    setAEditing(a.id); setATitle(a.title); setABody(a.body ?? "");
+                    setAImage(a.image_url);
+                  }}
+                  className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-amber hover:text-amber">
+                  Edit
+                </button>
+                <button
+                  onClick={async () => {
+                    await supabase!.from("announcements").delete().eq("id", a.id);
+                    if (aEditing === a.id) {
+                      setAEditing(null); setATitle(""); setABody(""); setAImage(null);
+                    }
+                    await refresh(); flash("Announcement deleted");
+                  }}
+                  className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
           {anns.length === 0 && <div className="text-[13px] text-muted">No announcements yet</div>}
@@ -224,41 +276,75 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                     rows={2} placeholder="Details (optional)" className={inputCls} />
           <input value={pUrl} onChange={(e) => setPUrl(e.target.value)}
                  placeholder="Link (optional)" className={inputCls} />
-          <button
-            onClick={async () => {
-              if (!pTitle.trim()) return;
-              const { data: u } = await supabase!.auth.getUser();
-              const { error } = await supabase!.from("timeline_posts").insert({
-                title: pTitle.trim(), body: pBody.trim() || null,
-                url: pUrl.trim() || null, posted_at: pDate,
-                created_by: u.user?.id,
-              });
-              if (!error) { setPTitle(""); setPBody(""); setPUrl(""); await refresh();
-                            flash("Posted to the timeline"); }
-              else flash("Post failed (has migration_v2.sql been run?)");
-            }}
-            className="self-start rounded-lg border border-jade bg-jade/15 px-4 py-2 text-jade hover:bg-jade/25">
-            Post to timeline
-          </button>
+          <ImagePicker supabase={supabase!} value={pImage} onChange={setPImage} />
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={async () => {
+                if (!pTitle.trim()) return;
+                const fields = {
+                  title: pTitle.trim(), body: pBody.trim() || null,
+                  url: pUrl.trim() || null, posted_at: pDate, image_url: pImage,
+                };
+                const { error } = pEditing !== null
+                  ? await supabase!.from("timeline_posts").update(fields).eq("id", pEditing)
+                  : await supabase!.from("timeline_posts").insert({
+                      ...fields,
+                      created_by: (await supabase!.auth.getUser()).data.user?.id,
+                    });
+                if (error) { flash(`Save failed: ${error.message}`); return; }
+                setPTitle(""); setPBody(""); setPUrl(""); setPImage(null); setPEditing(null);
+                await refresh();
+                flash(pEditing !== null ? "Post updated" : "Posted to the timeline");
+              }}
+              className="self-start rounded-lg border border-jade bg-jade/15 px-4 py-2 text-jade hover:bg-jade/25">
+              {pEditing !== null ? "Save changes" : "Post to timeline"}
+            </button>
+            {pEditing !== null && (
+              <button
+                onClick={() => {
+                  setPEditing(null); setPTitle(""); setPBody(""); setPUrl(""); setPImage(null);
+                }}
+                className="rounded-lg border border-line px-4 py-2 text-muted hover:border-muted hover:text-ink">
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
         <div className="mt-3 flex flex-col gap-2">
           {posts.map((p) => (
             <div key={p.id} className="flex items-start justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2">
-              <div className="min-w-0">
+              {p.image_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={p.image_url} alt="" className="size-10 shrink-0 rounded-md border border-line object-cover" />
+              )}
+              <div className="min-w-0 flex-1">
                 <div className="font-medium">
                   <span className="mr-2 font-data text-[11.5px] text-muted">{p.posted_at}</span>
                   {p.title}
                 </div>
                 {p.body && <div className="truncate text-[12.5px] text-muted">{p.body}</div>}
               </div>
-              <button
-                onClick={async () => {
-                  await supabase!.from("timeline_posts").delete().eq("id", p.id);
-                  await refresh(); flash("Post deleted");
-                }}
-                className="shrink-0 rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                Delete
-              </button>
+              <div className="flex shrink-0 gap-1.5">
+                <button
+                  onClick={() => {
+                    setPEditing(p.id); setPTitle(p.title); setPBody(p.body ?? "");
+                    setPUrl(p.url ?? ""); setPDate(p.posted_at); setPImage(p.image_url);
+                  }}
+                  className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-amber hover:text-amber">
+                  Edit
+                </button>
+                <button
+                  onClick={async () => {
+                    await supabase!.from("timeline_posts").delete().eq("id", p.id);
+                    if (pEditing === p.id) {
+                      setPEditing(null); setPTitle(""); setPBody(""); setPUrl(""); setPImage(null);
+                    }
+                    await refresh(); flash("Post deleted");
+                  }}
+                  className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
           {posts.length === 0 && <div className="text-[13px] text-muted">No posts yet</div>}
