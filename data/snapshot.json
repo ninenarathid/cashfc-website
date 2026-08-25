@@ -1105,14 +1105,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 86,
   "cc": [
    true,
    true,
    false,
    false
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -1416,7 +1416,7 @@
  "34546216": {
   "name": "Dekkapi Kung",
   "parse": 81,
-  "ult": 0,
+  "ult": 1,
   "mounts": 61,
   "minions": 89,
   "rare": null,
@@ -1427,7 +1427,7 @@
    false,
    false
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "30293847": {
   "name": "Devy Lanta",
@@ -1500,7 +1500,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 81,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -2072,14 +2072,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 68,
   "cc": [
    true,
    true,
    true,
    true
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "49929911": {
   "name": "Sun Prism",

@@ -8308,7 +8308,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 75,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials II (Extreme)",
@@ -8393,7 +8404,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 68,
      "median": 22,
@@ -8401,7 +8412,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 34,
      "median": 16,
@@ -9716,7 +9727,7 @@
      "job": "Viper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 87,
      "median": 54,
@@ -9724,7 +9735,7 @@
      "job": "Viper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 66,
      "median": 50,
@@ -10022,7 +10033,7 @@
      "job": "Pictomancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 19,
      "median": 9,
@@ -10030,7 +10041,7 @@
      "job": "Pictomancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 4,
      "median": 2,

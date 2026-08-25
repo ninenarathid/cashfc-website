@@ -3,6 +3,13 @@
   {
    "date": "2026-08-25",
    "type": "ult_clear",
+   "id": 34546216,
+   "name": "Dekkapi Kung",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
    "id": 15308846,
    "name": "Aqua Eleison",
    "text": "cleared an Ultimate — Legend! 🏆"
@@ -1392,13 +1399,6 @@
    "id": 12478532,
    "name": "Hakuryu Flare",
    "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "cleared M12S for the first time 🎉"
   }
  ]
 }
