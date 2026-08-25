@@ -65,7 +65,8 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   const [color, setColor] = useState("");
   const [banner, setBanner] = useState("");
   const [lfg, setLfg] = useState<string[]>([]);
-  const [hidden, setHidden] = useState(false);
+  const [linking, setLinking] = useState<string | null>(null);
+  const [linkErr, setLinkErr] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -91,12 +92,6 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         setColor(p.accent_color ?? "");
         setBanner(p.banner ?? "");
         setLfg(p.lfg ?? []);
-        if (p.character_id) {
-          const { data: ov } = await supabase
-            .from("member_overrides").select("hidden")
-            .eq("character_id", p.character_id).maybeSingle();
-          setHidden(!!ov?.hidden);
-        }
       }
       setPhase("ready");
     }
@@ -129,19 +124,6 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
     setMsg(error
       ? { ok: false, text: `Could not save: ${error.message}` }
       : { ok: true, text: "Saved — your profile and the board update immediately" });
-  }
-
-  async function toggleHide() {
-    if (!supabase || !charId) return;
-    const next = !hidden;
-    const { error } = await supabase.from("member_overrides").upsert({
-      character_id: charId, hidden: next,
-      updated_at: new Date().toISOString(),
-    });
-    if (!error) setHidden(next);
-    setMsg(error
-      ? { ok: false, text: "Action failed (has migration_v2.sql been run?)" }
-      : { ok: true, text: next ? "You are now hidden from the board" : "You are visible on the board again" });
   }
 
   if (phase === "loading") return <Notice>Loading…</Notice>;
@@ -214,20 +196,42 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           {PROVIDERS.map((prov) => {
             const linked = (user?.identities ?? []).some((i) => i.provider === prov.key);
             return (
-              <button key={prov.key} disabled={linked}
+              <button key={prov.key} disabled={linked || linking === prov.key}
                       title={linked ? `${prov.label} is already linked` : prov.hint}
-                      onClick={() => supabase!.auth.linkIdentity({
-                        provider: prov.key,
-                        options: { redirectTo: `${location.origin}/auth/callback` },
-                      })}
+                      onClick={async () => {
+                        setLinkErr(null);
+                        setLinking(prov.key);
+                        // linkIdentity resolves with an error rather than throwing,
+                        // and swallowing it made the button look like it did nothing
+                        // at all. The most common cause is manual linking being off
+                        // in the Supabase project, which is the default.
+                        const { error } = await supabase!.auth.linkIdentity({
+                          provider: prov.key,
+                          options: { redirectTo: `${location.origin}/auth/callback` },
+                        });
+                        setLinking(null);
+                        if (error) setLinkErr(error.message);
+                      }}
                       className={`rounded-lg border px-3.5 py-1.5 text-[12.5px] transition-colors ${
                         linked ? "border-jade/40 bg-jade/5 text-jade"
-                               : "border-line text-muted hover:border-amber hover:text-amber"}`}>
-                {linked ? `${prov.label} ✓` : `Link ${prov.label}`}
+                               : "border-line text-muted hover:border-amber hover:text-amber"} disabled:opacity-50`}>
+                {linked ? `${prov.label} ✓`
+                  : linking === prov.key ? "Opening…" : `Link ${prov.label}`}
               </button>
             );
           })}
         </div>
+        {linkErr && (
+          <p className="mt-2 text-[12.5px] leading-relaxed text-chili">
+            {linkErr}
+            {/^manual linking/i.test(linkErr) && (
+              <>
+                {" "}— an admin has to switch this on in Supabase under
+                Authentication, then it works for everyone.
+              </>
+            )}
+          </p>
+        )}
       </section>
 
       {/* Character claim */}
@@ -241,14 +245,6 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           inRoster={inRoster}
           onChange={() => { void load(); }}
         />
-        {charId && inRoster && (
-          <button onClick={toggleHide}
-                  className={`mt-3 rounded-lg border px-3 py-1 text-[12.5px] ${
-                    hidden ? "border-jade/50 text-jade hover:bg-jade/10"
-                           : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-            {hidden ? "Show me on the board" : "Hide me from the board"}
-          </button>
-        )}
       </section>
 
       {/* Guests are named by hand, since there is no character to name them. */}
