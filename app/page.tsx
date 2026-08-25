@@ -7,7 +7,7 @@ import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
 import BirthdaysToday from "@/components/home/BirthdaysToday";
 import ShowYourData from "@/components/home/ShowYourData";
-import type { BoardData, FeedEvent, Member, NewsItem } from "@/lib/types";
+import type { BoardData, FeedEvent, NewsItem } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
 import { TAG_CLASS, TAG_HELP, TAG_LABELS } from "@/components/MemberTags";
 
@@ -15,12 +15,6 @@ const FEED_ICON: Record<string, string> = {
   parse_up: "📈", boss_clear: "⚔️", ult_clear: "🏆", mounts_up: "🐎",
   rare_up: "💎", level_100: "⬆️", new_member: "🍲", leave: "👋",
 };
-
-function hashStr(s: string): number {
-  let h = 7;
-  for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 1000003;
-  return h;
-}
 
 export default function Home() {
   const data = raw as unknown as BoardData;
@@ -39,20 +33,6 @@ export default function Home() {
   const tagStats = Object.entries(tally)
     .map(([tag, n]) => ({ tag, n }))
     .sort((a, b) => b.n - a.n);
-
-  // Member of the day. A hash of the date picked at random, so some members came up
-  // twice while others never appeared; walking a fixed shuffle by day number instead
-  // gives every active member exactly one turn before anyone repeats. The shuffle is
-  // seeded from character ids, so the order is stable and everyone sees the same
-  // person on the same day.
-  const dateSeed = (data.generated_at ?? "").slice(0, 10);
-  const dayNumber = Math.floor(Date.parse(`${dateSeed}T00:00:00Z`) / 86_400_000);
-  const rotation = members
-    .filter((m) => !isOnVacation(m))
-    .sort((a, b) => hashStr(String(a.id)) - hashStr(String(b.id)));
-  const spot: Member | undefined = rotation.length
-    ? rotation[((dayNumber % rotation.length) + rotation.length) % rotation.length]
-    : undefined;
 
   return (
     <main>
@@ -159,39 +139,7 @@ export default function Home() {
           )}
         </section>
 
-        <div>
-          <Timeline news={news} />
-
-          {/* ── Member of the day ── */}
-          {spot && (
-            <section className="mt-6">
-              <h2 className="mb-2 font-display text-lg font-semibold">
-                Member of the day
-              </h2>
-              <Link
-                href={`/member/${spot.id}`}
-                className="flex items-center gap-4 rounded-xl border border-line bg-surface p-4 no-underline transition-colors hover:border-amber"
-              >
-                {spot.avatar && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={spot.avatar} alt="" className="size-16 rounded-full border border-line" />
-                )}
-                <div className="min-w-0">
-                  <div className="font-data text-[16px] font-semibold text-ink">
-                    {spot.name}
-                  </div>
-                  <div className="text-[12.5px] text-muted">
-                    {spot.rank ?? "—"} · Lv {spot.level ?? "—"}
-                    {spot.mounts != null && ` · ${spot.mounts} mounts`}
-                  </div>
-                  <div className="mt-1 text-[12px] text-amber">
-                    View profile →
-                  </div>
-                </div>
-              </Link>
-            </section>
-          )}
-        </div>
+        <Timeline news={news} />
       </div>
     </main>
   );
