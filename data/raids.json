@@ -89,7 +89,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 18,
      "median": 13,
@@ -97,7 +97,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 29,
      "median": 23,
@@ -124,30 +124,13 @@
     "cleared": true
    },
    {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 84,
-    "kills": 1,
-    "job": "Warrior",
-    "cleared": true
-   },
-   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
     "best": 65,
     "kills": 3,
     "job": "Warrior",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Stormblood)",
-    "zone_id": 30,
-    "expansion": "Shadowbringers",
-    "best": 9,
-    "kills": 1,
-    "job": "Paladin",
     "cleared": true
    }
   ],
@@ -404,7 +387,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 95,
      "median": 83,
@@ -412,7 +395,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 89,
      "median": 83,
@@ -439,38 +422,12 @@
     "cleared": true
    },
    {
-    "zone": "The Omega Protocol",
-    "zone_id": 53,
-    "expansion": "Endwalker",
-    "best": 97,
-    "kills": 1,
-    "job": "Warrior",
-    "cleared": true
-   },
-   {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 96,
-    "kills": 13,
-    "job": "Warrior",
-    "cleared": true
-   },
-   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
     "best": 100,
     "kills": 51,
-    "job": "Warrior",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Stormblood)",
-    "zone_id": 30,
-    "expansion": "Shadowbringers",
-    "best": 100,
-    "kills": 52,
     "job": "Warrior",
     "cleared": true
    }
@@ -595,38 +552,12 @@
   },
   "ultimates": [
    {
-    "zone": "The Omega Protocol",
-    "zone_id": 53,
-    "expansion": "Endwalker",
-    "best": 47,
-    "kills": 1,
-    "job": "Scholar",
-    "cleared": true
-   },
-   {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 35,
-    "kills": 11,
-    "job": "Scholar",
-    "cleared": true
-   },
-   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
     "best": 10,
     "kills": 17,
-    "job": "Scholar",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Stormblood)",
-    "zone_id": 30,
-    "expansion": "Shadowbringers",
-    "best": 35,
-    "kills": 23,
     "job": "Scholar",
     "cleared": true
    }
@@ -686,38 +617,12 @@
   },
   "ultimates": [
    {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 39,
-    "kills": 9,
-    "job": "WhiteMage",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Legacy)",
-    "zone_id": 43,
-    "expansion": "Endwalker",
-    "best": 75,
-    "kills": 13,
-    "job": "WhiteMage",
-    "cleared": true
-   },
-   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
     "best": 40,
     "kills": 4,
-    "job": "WhiteMage",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Stormblood)",
-    "zone_id": 30,
-    "expansion": "Shadowbringers",
-    "best": 64,
-    "kills": 9,
     "job": "WhiteMage",
     "cleared": true
    }
@@ -840,7 +745,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 83,
      "median": 54,
@@ -848,7 +753,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 89,
      "median": 54,
@@ -1096,6 +1001,7 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
     "best": 39,
     "kills": 2,
     "job": "Dragoon",
@@ -1287,7 +1193,7 @@
      "job": "Scholar"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 3,
      "median": 1,
@@ -1295,7 +1201,7 @@
      "job": "BlackMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 1,
      "median": 1,
@@ -1315,18 +1221,10 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "name": "The Epic of Alexander",
     "best": 72,
     "kills": 9,
     "job": "WhiteMage",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Legacy)",
-    "zone_id": 43,
-    "expansion": "Endwalker",
-    "best": 96,
-    "kills": 18,
-    "job": "Dancer",
     "cleared": true
    }
   ],
@@ -1466,7 +1364,7 @@
      "job": "WhiteMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 69,
      "median": 45,
@@ -1474,7 +1372,7 @@
      "job": "WhiteMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 51,
      "median": 40,
@@ -1501,39 +1399,13 @@
     "cleared": true
    },
    {
-    "zone": "The Omega Protocol",
-    "zone_id": 53,
-    "expansion": "Endwalker",
-    "best": 4,
-    "kills": 1,
-    "job": "WhiteMage",
-    "cleared": true
-   },
-   {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 68,
-    "kills": 11,
-    "job": "WhiteMage",
-    "cleared": true
-   },
-   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
     "best": 56,
     "kills": 32,
     "job": "Scholar",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Stormblood)",
-    "zone_id": 30,
-    "expansion": "Shadowbringers",
-    "best": 39,
-    "kills": 13,
-    "job": "Astrologian",
     "cleared": true
    }
   ],
@@ -1683,7 +1555,7 @@
      "job": "RedMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 85,
      "median": 69,
@@ -1691,7 +1563,7 @@
      "job": "RedMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 82,
      "median": 66,
@@ -1721,27 +1593,10 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "name": "Dragonsong's Reprise",
     "best": 70,
     "kills": 1,
     "job": "Reaper",
-    "cleared": true
-   },
-   {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 60,
-    "kills": 1,
-    "job": "RedMage",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Legacy)",
-    "zone_id": 43,
-    "expansion": "Endwalker",
-    "best": 97,
-    "kills": 15,
-    "job": "RedMage",
     "cleared": true
    }
   ],
@@ -1910,7 +1765,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 83,
      "median": 33,
@@ -1918,7 +1773,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 79,
      "median": 27,
@@ -1948,45 +1803,20 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "name": "The Omega Protocol",
     "best": 30,
     "kills": 1,
     "job": "Dancer",
     "cleared": true
    },
    {
-    "zone": "The Omega Protocol",
-    "zone_id": 53,
-    "expansion": "Endwalker",
-    "best": 47,
-    "kills": 19,
-    "job": "Dancer",
-    "cleared": true
-   },
-   {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 68,
-    "kills": 4,
-    "job": "Astrologian",
-    "cleared": true
-   },
-   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
     "best": 56,
     "kills": 14,
     "job": "Dancer",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Stormblood)",
-    "zone_id": 30,
-    "expansion": "Shadowbringers",
-    "best": 30,
-    "kills": 29,
-    "job": "Bard",
     "cleared": true
    }
   ],
@@ -2136,7 +1966,7 @@
      "job": "Ninja"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 71,
      "median": 48,
@@ -2144,7 +1974,7 @@
      "job": "Ninja"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 66,
      "median": 50,
@@ -2279,26 +2109,7 @@
     false
    ]
   },
-  "ultimates": [
-   {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 51,
-    "kills": 1,
-    "job": "Reaper",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Legacy)",
-    "zone_id": 43,
-    "expansion": "Endwalker",
-    "best": 65,
-    "kills": 7,
-    "job": "Dancer",
-    "cleared": true
-   }
-  ],
+  "ultimates": [],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -2355,7 +2166,7 @@
      "job": "BlackMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 40,
      "median": 11,
@@ -2363,7 +2174,7 @@
      "job": "BlackMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 88,
      "median": 39,
@@ -2390,18 +2201,10 @@
     "cleared": true
    },
    {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 25,
-    "kills": 3,
-    "job": "Summoner",
-    "cleared": true
-   },
-   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
     "best": 40,
     "kills": 6,
     "job": "Summoner",
@@ -2696,7 +2499,7 @@
      "job": "Astrologian"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 82,
      "median": 47,
@@ -2704,7 +2507,7 @@
      "job": "Astrologian"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 70,
      "median": 43,
@@ -2734,35 +2537,9 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
     "best": 68,
     "kills": 1,
-    "job": "Astrologian",
-    "cleared": true
-   },
-   {
-    "zone": "The Omega Protocol",
-    "zone_id": 53,
-    "expansion": "Endwalker",
-    "best": 53,
-    "kills": 19,
-    "job": "Astrologian",
-    "cleared": true
-   },
-   {
-    "zone": "Dragonsong's Reprise",
-    "zone_id": 45,
-    "expansion": "Endwalker",
-    "best": 59,
-    "kills": 5,
-    "job": "Astrologian",
-    "cleared": true
-   },
-   {
-    "zone": "Ultimates (Legacy)",
-    "zone_id": 43,
-    "expansion": "Endwalker",
-    "best": 51,
-    "kills": 4,
     "job": "Astrologian",
     "cleared": true
    }
@@ -2893,7 +2670,7 @@
      "job": "BlackMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 70,
      "median": 40,
@@ -2901,7 +2678,7 @@
      "job": "BlackMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 48,
      "median": 28,
@@ -2921,6 +2698,7 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
     "best": 75,
     "kills": 12,
     "job": "Summoner",
@@ -3043,7 +2821,7 @@
      "job": "Viper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 60,
      "median": 39,
@@ -3051,7 +2829,7 @@
      "job": "Viper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 53,
      "median": 41,
@@ -3074,6 +2852,16 @@
     "name": "Futures Rewritten",
     "best": 10,
     "kills": 4,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 68,
+    "kills": 6,
     "job": "Paladin",
     "cleared": true
    }
@@ -3194,7 +2982,7 @@
      "job": "Monk"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 95,
      "median": 55,
@@ -3202,7 +2990,7 @@
      "job": "Monk"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 79,
      "median": 46,
@@ -3335,7 +3123,7 @@
      "job": "Gunbreaker"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 57,
      "median": 17,
@@ -3343,7 +3131,7 @@
      "job": "Gunbreaker"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 30,
      "median": 14,
@@ -3503,7 +3291,7 @@
      "job": "Viper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 89,
      "median": 43,
@@ -3511,7 +3299,7 @@
      "job": "Viper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 83,
      "median": 33,
@@ -3526,7 +3314,18 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 77,
+    "kills": 12,
+    "job": "Dragoon",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -3633,7 +3432,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 90,
      "median": 66,
@@ -3641,7 +3440,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 65,
      "median": 51,
@@ -3656,7 +3455,28 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 80,
+    "kills": 12,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 21,
+    "kills": 8,
+    "job": "Scholar",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -3733,7 +3553,7 @@
      "job": "Gunbreaker"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 59,
      "median": 34,
@@ -3741,7 +3561,7 @@
      "job": "Gunbreaker"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 83,
      "median": 10,
@@ -3873,7 +3693,7 @@
      "job": "Monk"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 91,
      "median": 22,
@@ -3881,7 +3701,7 @@
      "job": "Monk"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 74,
      "median": 30,
@@ -3896,7 +3716,18 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "Dragonsong's Reprise",
+    "best": 34,
+    "kills": 1,
+    "job": "Monk",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -4059,7 +3890,7 @@
      "job": "Paladin"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 84,
      "median": 58,
@@ -4067,7 +3898,7 @@
      "job": "Paladin"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 50,
      "median": 30,
@@ -4429,7 +4260,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 54,
      "median": 20,
@@ -4437,7 +4268,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 52,
      "median": 45,
@@ -4452,7 +4283,18 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "Dragonsong's Reprise",
+    "best": 33,
+    "kills": 1,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -4569,7 +4411,7 @@
      "job": "Paladin"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 93,
      "median": 10,
@@ -4577,7 +4419,7 @@
      "job": "Paladin"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 92,
      "median": 90,
@@ -4601,6 +4443,36 @@
     "best": 89,
     "kills": 11,
     "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "Dragonsong's Reprise",
+    "best": 17,
+    "kills": 2,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Omega Protocol",
+    "best": 89,
+    "kills": 16,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 32,
+    "kills": 5,
+    "job": "Summoner",
     "cleared": true
    }
   ],
@@ -4720,7 +4592,7 @@
      "job": "Bard"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 91,
      "median": 63,
@@ -4728,7 +4600,7 @@
      "job": "Bard"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 94,
      "median": 73,
@@ -4752,6 +4624,16 @@
     "best": 87,
     "kills": 3,
     "job": "Pictomancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 78,
+    "kills": 7,
+    "job": "Bard",
     "cleared": true
    }
   ],
@@ -4871,7 +4753,7 @@
      "job": "Scholar"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 68,
      "median": 23,
@@ -4879,7 +4761,7 @@
      "job": "Scholar"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 63,
      "median": 27,
@@ -4903,6 +4785,26 @@
     "best": 43,
     "kills": 24,
     "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Epic of Alexander",
+    "best": 29,
+    "kills": 16,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Omega Protocol",
+    "best": 13,
+    "kills": 4,
+    "job": "Scholar",
     "cleared": true
    }
   ],
@@ -5127,7 +5029,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Unending Coil of Bahamut",
+    "best": 60,
+    "kills": 1,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -5232,7 +5145,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 45,
      "median": 19,
@@ -5240,7 +5153,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 7,
      "median": 7,
@@ -5323,7 +5236,7 @@
      "job": "Samurai"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 88,
      "median": 47,
@@ -5331,7 +5244,7 @@
      "job": "Samurai"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 87,
      "median": 58,
@@ -5346,7 +5259,28 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 91,
+    "kills": 12,
+    "job": "Monk",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 84,
+    "kills": 8,
+    "job": "Monk",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -5433,7 +5367,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 78,
      "median": 44,
@@ -5441,7 +5375,7 @@
      "job": "Dancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 53,
      "median": 31,
@@ -5834,7 +5768,7 @@
      "job": "Viper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 69,
      "median": 45,
@@ -5842,7 +5776,7 @@
      "job": "Viper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 68,
      "median": 47,
@@ -5985,7 +5919,7 @@
      "job": "BlackMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 96,
      "median": 91,
@@ -5993,7 +5927,7 @@
      "job": "Pictomancer"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 97,
      "median": 79,
@@ -6226,6 +6160,16 @@
     "kills": 11,
     "job": "Samurai",
     "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 75,
+    "kills": 24,
+    "job": "Monk",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -6314,7 +6258,7 @@
      "job": "Sage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 61,
      "median": 37,
@@ -6322,7 +6266,7 @@
      "job": "Sage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 9,
      "median": 5,
@@ -6337,7 +6281,38 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "name": "Dancing Mad",
+    "best": 74,
+    "kills": 1,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "Dragonsong's Reprise",
+    "best": 28,
+    "kills": 1,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 24,
+    "kills": 1,
+    "job": "RedMage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -6530,7 +6505,7 @@
      "job": "Samurai"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 65,
      "median": 24,
@@ -6538,7 +6513,7 @@
      "job": "Samurai"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 49,
      "median": 39,
@@ -6562,6 +6537,16 @@
     "best": 98,
     "kills": 8,
     "job": "Viper",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 97,
+    "kills": 35,
+    "job": "DarkKnight",
     "cleared": true
    }
   ],
@@ -6681,7 +6666,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 75,
      "median": 69,
@@ -6696,7 +6681,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 25,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -6815,7 +6811,7 @@
      "job": "Monk"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 99,
      "median": 29,
@@ -6823,7 +6819,7 @@
      "job": "Warrior"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 80,
      "median": 33,
@@ -6840,6 +6836,16 @@
   },
   "ultimates": [
    {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "name": "Dancing Mad",
+    "best": 40,
+    "kills": 6,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
     "zone": "Futures Rewritten",
     "zone_id": 65,
     "expansion": "Dawntrail",
@@ -6847,6 +6853,16 @@
     "best": 87,
     "kills": 32,
     "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Omega Protocol",
+    "best": 75,
+    "kills": 12,
+    "job": "Paladin",
     "cleared": true
    }
   ],
@@ -7040,7 +7056,7 @@
      "job": "WhiteMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 84,
      "median": 32,
@@ -7048,7 +7064,7 @@
      "job": "WhiteMage"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 48,
      "median": 38,
@@ -7072,6 +7088,16 @@
     "best": 57,
     "kills": 6,
     "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "Dragonsong's Reprise",
+    "best": 13,
+    "kills": 2,
+    "job": "WhiteMage",
     "cleared": true
    }
   ],
@@ -7285,7 +7311,7 @@
      "job": "Paladin"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 75,
      "median": 30,
@@ -7293,7 +7319,7 @@
      "job": "Paladin"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 70,
      "median": 34,
@@ -7308,7 +7334,28 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 86,
+    "kills": 12,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 10,
+    "kills": 8,
+    "job": "Bard",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -7570,7 +7617,7 @@
      "job": "Reaper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 92,
      "median": 74,
@@ -7578,7 +7625,7 @@
      "job": "Reaper"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 99,
      "median": 82,
@@ -7972,7 +8019,7 @@
      "job": "Gunbreaker"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 78,
      "median": 33,
@@ -7980,7 +8027,7 @@
      "job": "Gunbreaker"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 47,
      "median": 9,
@@ -8084,10 +8131,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 15,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "13860363": {
   "current": {

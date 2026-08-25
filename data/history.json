@@ -31,11 +31,10 @@
    "total": 502,
    "tags": {
     "extreme": 137,
-    "ultimate": 55,
+    "ultimate": 66,
     "tier-clear": 43,
-    "veteran": 30,
+    "veteran": 31,
     "unknown": 303,
-    "casual": 42,
     "gatherer": 5,
     "crafter": 7,
     "relic": 10,
@@ -44,10 +43,11 @@
     "goldsaucer": 4,
     "pvp": 7,
     "prog": 23,
+    "casual": 41,
     "seasonal": 4
    },
    "raider": 66,
-   "ultimate": 55,
+   "ultimate": 66,
    "extreme": 137,
    "unknown": 303,
    "final_boss": 43

@@ -2,6 +2,195 @@
  "events": [
   {
    "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 22767255,
+   "name": "Minami Taira",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 47540663,
+   "name": "Edel Meither",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 28950119,
+   "name": "Einz Aizerces",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 12478532,
+   "name": "Hakuryu Flare",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 38808156,
+   "name": "Kwiyo Ki",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 11950156,
+   "name": "Rothe Happer",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 58455997,
+   "name": "Salmon Sushiroll",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 37648492,
+   "name": "Sunshine Eveningfall",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 26298391,
+   "name": "Yozora Luna",
+   "text": "cleared an Ultimate — Legend! 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "set a new best parse: 15"
+  },
+  {
+   "date": "2026-08-25",
    "type": "parse_up",
    "id": 48152565,
    "name": "Yuma Miretmoor",
@@ -1210,195 +1399,6 @@
    "id": 12478532,
    "name": "Hakuryu Flare",
    "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "set a new best parse: 74"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "set a new best parse: 48"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 42948817,
-   "name": "Karuma Amamiya",
-   "text": "set a new best parse: 21"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "cleared an Ultimate — Legend! 🏆"
   }
  ]
 }
