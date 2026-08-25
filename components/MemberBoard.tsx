@@ -37,7 +37,7 @@ const SEEN_OPTIONS = [
   { key: "old", label: "Over 6 months ago", days: -180 },
 ];
 
-type SortKey = "name" | "parse" | "mounts" | "rare";
+type SortKey = "name" | "mounts" | "rare";
 
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("");
 const hue = (n: string) => [...n].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
@@ -133,7 +133,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   const [sortBy, setSortBy] = useState<SortKey>("name");
   const [view, setView] = useState<"list" | "kitchen">("list");
   const [adv, setAdv] = useState<Adv>(ADV_EMPTY);
-  const [advOpen, setAdvOpen] = useState(false);
   const [overlays, setOverlays] = useState<Record<number, Overlay>>({});
   const [hiddenIds, setHiddenIds] = useState<Set<number>>(new Set());
   const inited = useRef(false);
@@ -159,11 +158,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
       grade: p.get("grade") ?? "",
     });
-    if (single || p.get("lfg") || p.get("rank") ||
-        boss.length || ex.length || p.get("race") ||
-        p.get("act") || p.get("seen") || p.get("role") || p.get("job") ||
-        p.get("grade") ||
-        tags.length) setAdvOpen(true);
     inited.current = true;
   }, []);
 
@@ -370,8 +364,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       return true;
     });
     const val = (m: Member): number =>
-      sortBy === "parse" ? (m.parse ?? -1)
-      : sortBy === "mounts" ? (m.mounts ?? -1)
+      sortBy === "mounts" ? (m.mounts ?? -1)
       : (m.rare_achv ?? -1);
     // Active members always sort above the ~320 marked On vacation, whatever the
     // chosen order is. Otherwise the first screen of the board is mostly people who
@@ -458,205 +451,195 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   aria-label="Sort by"
                   className="rounded-lg border border-line bg-surface px-3 py-2 text-ink">
             <option value="name">Sort by name</option>
-            <option value="parse">Sort by parse</option>
             <option value="mounts">Sort by mounts</option>
             <option value="rare">Sort by rare achv</option>
           </select>
-          <button onClick={() => setAdvOpen(!advOpen)}
-                  className={`rounded-lg border px-3.5 py-2 text-[13.5px] ${
-                    advOpen || advCount
-                      ? "border-amber bg-amber/10 text-amber"
-                      : "border-line bg-surface text-muted hover:border-muted"}`}>
-            Advanced filters{advCount ? ` (${advCount})` : ""}
-          </button>
         </div>
 
-        {advOpen && (
-          <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5">
-            {advCount > 0 && (
-              <button onClick={() => setAdv(ADV_EMPTY)}
-                      className="self-end text-[12.5px] text-muted underline hover:text-ink">
-                Clear all {advCount} filter{advCount > 1 ? "s" : ""}
-              </button>
-            )}
+        <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5">
+          {advCount > 0 && (
+            <button onClick={() => setAdv(ADV_EMPTY)}
+                    className="self-end text-[12.5px] text-muted underline hover:text-ink">
+              Clear all {advCount} filter{advCount > 1 ? "s" : ""}
+            </button>
+          )}
 
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                Who
-              </span>
-            <select value={adv.lfg} onChange={(e) => setAdv({ ...adv, lfg: e.target.value })}
-                    className={selCls} aria-label="Looking-for status">
-              <option value="">Looking for: any</option>
-              {LFG_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              Who
+            </span>
+          <select value={adv.lfg} onChange={(e) => setAdv({ ...adv, lfg: e.target.value })}
+                  className={selCls} aria-label="Looking-for status">
+            <option value="">Looking for: any</option>
+            {LFG_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+          </select>
+          <select value={adv.rank} onChange={(e) => setAdv({ ...adv, rank: e.target.value })}
+                  className={selCls} aria-label="FC rank">
+            <option value="">Rank: any</option>
+            {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
+          </select>
+          {/* Recruiting questions are usually shaped "a tank who is progging", so
+              role sits next to the other who-are-they filters rather than under
+              raiding. Counts come from who has a recorded score on such a job. */}
+          {roleCounts.total > 0 && (
+            <select value={adv.role}
+                    onChange={(e) => setAdv({ ...adv, role: e.target.value, job: "" })}
+                    className={selCls} aria-label="Role played">
+              <option value="">Role: any</option>
+              {roleGroups.map((group) => {
+                const fine = ROLE_ORDER.filter((r) => ROLE_GROUP[r] === group);
+                const all = GROUP_PREFIX + group;
+                return (
+                  <optgroup key={group} label={group}>
+                    {/* An optgroup label cannot be selected, so the whole group
+                        gets its own entry. Skipped where the group holds a single
+                        role, which would just be the same option twice. */}
+                    {fine.length > 1 && (
+                      <option value={all} disabled={!roleCounts[all]}>
+                        {group === "DPS" ? "Any DPS" : `Any ${group.slice(0, -1).toLowerCase()}`}
+                        {" "}({roleCounts[all]})
+                      </option>
+                    )}
+                    {fine.map((r) => (
+                      <option key={r} value={r} disabled={!roleCounts[r]}>
+                        {fine.length > 1 ? " " : ""}{ROLE_LABEL[r]} ({roleCounts[r]})
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
             </select>
-            <select value={adv.rank} onChange={(e) => setAdv({ ...adv, rank: e.target.value })}
-                    className={selCls} aria-label="FC rank">
-              <option value="">Rank: any</option>
-              {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
+          )}
+          {jobsPlayed.length > 0 && (
+            <select value={adv.job}
+                    onChange={(e) => setAdv({ ...adv, job: e.target.value })}
+                    className={selCls} aria-label="Job played">
+              <option value="">Job: any</option>
+              {jobsPlayed.map(([job, n]) => (
+                <option key={job} value={job}>{job} ({n})</option>
+              ))}
             </select>
-            {/* Recruiting questions are usually shaped "a tank who is progging", so
-                role sits next to the other who-are-they filters rather than under
-                raiding. Counts come from who has a recorded score on such a job. */}
-            {roleCounts.total > 0 && (
-              <select value={adv.role}
-                      onChange={(e) => setAdv({ ...adv, role: e.target.value, job: "" })}
-                      className={selCls} aria-label="Role played">
-                <option value="">Role: any</option>
-                {roleGroups.map((group) => {
-                  const fine = ROLE_ORDER.filter((r) => ROLE_GROUP[r] === group);
-                  const all = GROUP_PREFIX + group;
-                  return (
-                    <optgroup key={group} label={group}>
-                      {/* An optgroup label cannot be selected, so the whole group
-                          gets its own entry. Skipped where the group holds a single
-                          role, which would just be the same option twice. */}
-                      {fine.length > 1 && (
-                        <option value={all} disabled={!roleCounts[all]}>
-                          {group === "DPS" ? "Any DPS" : `Any ${group.slice(0, -1).toLowerCase()}`}
-                          {" "}({roleCounts[all]})
-                        </option>
-                      )}
-                      {fine.map((r) => (
-                        <option key={r} value={r} disabled={!roleCounts[r]}>
-                          {fine.length > 1 ? " " : ""}{ROLE_LABEL[r]} ({roleCounts[r]})
-                        </option>
-                      ))}
-                    </optgroup>
-                  );
-                })}
-              </select>
-            )}
-            {jobsPlayed.length > 0 && (
-              <select value={adv.job}
-                      onChange={(e) => setAdv({ ...adv, job: e.target.value })}
-                      className={selCls} aria-label="Job played">
-                <option value="">Job: any</option>
-                {jobsPlayed.map(([job, n]) => (
-                  <option key={job} value={job}>{job} ({n})</option>
-                ))}
-              </select>
-            )}
-            {/* Sits after job and before race because it narrows the two filters
-                above it rather than standing alone: with a job or a tag picked it
-                asks for that grade in that thing, and on its own it asks for anyone
-                carrying it. */}
-            {gradeCounts.total > 0 && (
-              <select value={adv.grade}
-                      onChange={(e) => setAdv({ ...adv, grade: e.target.value })}
-                      className={selCls} aria-label="Lowest grade held"
-                      title="Applies to the job or tag you have selected, if any">
-                <option value="">Grade: any</option>
-                {GRADES.map((g) => (
-                  <option key={g} value={g} disabled={!gradeCounts[g]}>
-                    {ACHV_TIER_LABEL[g]}+ ({gradeCounts[g]})
-                  </option>
-                ))}
-              </select>
-            )}
-            {races.length > 0 && (
-              <select value={adv.race}
-                      onChange={(e) => setAdv({ ...adv, race: e.target.value })}
-                      className={selCls} aria-label="Race">
-                <option value="">Race: any ({racedCount})</option>
-                {races.map(([r, n]) => (
-                  <option key={r} value={r}>{r} ({n})</option>
-                ))}
-              </select>
-            )}
-            {seenKnown > 0 && (
-              <select value={adv.seen}
-                      onChange={(e) => setAdv({ ...adv, seen: e.target.value })}
-                      className={selCls} aria-label="Last seen collecting"
-                      title={`Based on mount, minion and achievement dates — known for ${seenKnown} of ${inScope.length} members`}>
-                <option value="">Last seen: any ({seenKnown} known)</option>
-                {SEEN_OPTIONS.map((o) => (
-                  <option key={o.key} value={o.key}>{o.label}</option>
-                ))}
-              </select>
-            )}
-            </div>
-
-            {/* Every tag, AND-ed — the only tag filter on the board. A second row
-                of single-select chips sat below this one saying the same thing with
-                one chip picked, which left two controls disagreeing about what was
-                selected. */}
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
-              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                Has all of
-              </span>
-              {Object.keys(TAG_LABELS)
-                .filter((t) => t !== "all" && counts[t])
-                .map((t) => {
-                  const on = adv.tags.includes(t);
-                  return (
-                    <button key={t}
-                      onClick={() => setAdv({ ...adv,
-                        tags: on ? adv.tags.filter((x) => x !== t) : [...adv.tags, t] })}
-                      aria-pressed={on}
-                      title={TAG_HELP[t] ?? ""}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
-                        on ? TAG_CLASS[t] ?? "border-amber bg-amber/15 text-amber"
-                           : "border-line text-muted hover:border-muted"}`}>
-                      <TagIcon tag={t} size={13} />
-                      {TAG_LABELS[t]}
-                      <small className="ml-1 opacity-70">{counts[t]}</small>
-                    </button>
-                  );
-                })}
-            </div>
-
-            {/* Current-patch content, one chip per fight. Chips are AND-ed, so picking
-                three bosses finds people who cleared all three. */}
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
-              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                This patch
-              </span>
-
-              <span className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[11.5px] text-muted">Savage</span>
-                {labels.map((lb, i) => {
-                  const on = adv.boss.includes(i);
-                  const n = inScope.filter((m) => m.current_clears?.[i]).length;
-                  return (
-                    <button key={lb}
-                      onClick={() => setAdv({ ...adv,
-                        boss: on ? adv.boss.filter((x) => x !== i) : [...adv.boss, i] })}
-                      aria-pressed={on}
-                      className={`rounded-md border px-2 py-1 font-data text-[11.5px] ${
-                        on ? "border-chili bg-chili/15 text-chili"
-                           : "border-line text-muted hover:border-muted"}`}
-                      title={`Cleared ${lb} — ${n} member${n === 1 ? "" : "s"}`}>
-                      {lb}<small className="ml-1 opacity-70">{n}</small>
-                    </button>
-                  );
-                })}
-              </span>
-
-              {extremes.length > 0 && (
-                <span className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11.5px] text-muted">Extreme</span>
-                  {extremes.map((name) => {
-                    const on = adv.ex.includes(name);
-                    const n = exCounts[name] ?? 0;
-                    return (
-                      <button key={name}
-                        onClick={() => setAdv({ ...adv,
-                          ex: on ? adv.ex.filter((x) => x !== name) : [...adv.ex, name] })}
-                        aria-pressed={on}
-                        className={`rounded-md border px-2 py-1 text-[11.5px] ${
-                          on ? "border-[#c86fd1] bg-[#c86fd1]/15 text-[#d79ade]"
-                             : "border-line text-muted hover:border-muted"}`}
-                        title={`Cleared ${name} — ${n} member${n === 1 ? "" : "s"}`}>
-                        {name}<small className="ml-1 opacity-70">{n}</small>
-                      </button>
-                    );
-                  })}
-                </span>
-              )}
-
-            </div>
+          )}
+          {/* Sits after job and before race because it narrows the two filters
+              above it rather than standing alone: with a job or a tag picked it
+              asks for that grade in that thing, and on its own it asks for anyone
+              carrying it. */}
+          {gradeCounts.total > 0 && (
+            <select value={adv.grade}
+                    onChange={(e) => setAdv({ ...adv, grade: e.target.value })}
+                    className={selCls} aria-label="Lowest grade held"
+                    title="Applies to the job or tag you have selected, if any">
+              <option value="">Grade: any</option>
+              {GRADES.map((g) => (
+                <option key={g} value={g} disabled={!gradeCounts[g]}>
+                  {ACHV_TIER_LABEL[g]}+ ({gradeCounts[g]})
+                </option>
+              ))}
+            </select>
+          )}
+          {races.length > 0 && (
+            <select value={adv.race}
+                    onChange={(e) => setAdv({ ...adv, race: e.target.value })}
+                    className={selCls} aria-label="Race">
+              <option value="">Race: any ({racedCount})</option>
+              {races.map(([r, n]) => (
+                <option key={r} value={r}>{r} ({n})</option>
+              ))}
+            </select>
+          )}
+          {seenKnown > 0 && (
+            <select value={adv.seen}
+                    onChange={(e) => setAdv({ ...adv, seen: e.target.value })}
+                    className={selCls} aria-label="Last seen collecting"
+                    title={`Based on mount, minion and achievement dates — known for ${seenKnown} of ${inScope.length} members`}>
+              <option value="">Last seen: any ({seenKnown} known)</option>
+              {SEEN_OPTIONS.map((o) => (
+                <option key={o.key} value={o.key}>{o.label}</option>
+              ))}
+            </select>
+          )}
           </div>
-        )}
+
+          {/* Every tag, AND-ed — the only tag filter on the board. A second row
+              of single-select chips sat below this one saying the same thing with
+              one chip picked, which left two controls disagreeing about what was
+              selected. */}
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
+            <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              Has all of
+            </span>
+            {Object.keys(TAG_LABELS)
+              .filter((t) => t !== "all" && counts[t])
+              .map((t) => {
+                const on = adv.tags.includes(t);
+                return (
+                  <button key={t}
+                    onClick={() => setAdv({ ...adv,
+                      tags: on ? adv.tags.filter((x) => x !== t) : [...adv.tags, t] })}
+                    aria-pressed={on}
+                    title={TAG_HELP[t] ?? ""}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
+                      on ? TAG_CLASS[t] ?? "border-amber bg-amber/15 text-amber"
+                         : "border-line text-muted hover:border-muted"}`}>
+                    <TagIcon tag={t} size={13} />
+                    {TAG_LABELS[t]}
+                    <small className="ml-1 opacity-70">{counts[t]}</small>
+                  </button>
+                );
+              })}
+          </div>
+
+          {/* Current-patch content, one chip per fight. Chips are AND-ed, so picking
+              three bosses finds people who cleared all three. */}
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
+            <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              This patch
+            </span>
+
+            <span className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[11.5px] text-muted">Savage</span>
+              {labels.map((lb, i) => {
+                const on = adv.boss.includes(i);
+                const n = inScope.filter((m) => m.current_clears?.[i]).length;
+                return (
+                  <button key={lb}
+                    onClick={() => setAdv({ ...adv,
+                      boss: on ? adv.boss.filter((x) => x !== i) : [...adv.boss, i] })}
+                    aria-pressed={on}
+                    className={`rounded-md border px-2 py-1 font-data text-[11.5px] ${
+                      on ? "border-chili bg-chili/15 text-chili"
+                         : "border-line text-muted hover:border-muted"}`}
+                    title={`Cleared ${lb} — ${n} member${n === 1 ? "" : "s"}`}>
+                    {lb}<small className="ml-1 opacity-70">{n}</small>
+                  </button>
+                );
+              })}
+            </span>
+
+            {extremes.length > 0 && (
+              <span className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11.5px] text-muted">Extreme</span>
+                {extremes.map((name) => {
+                  const on = adv.ex.includes(name);
+                  const n = exCounts[name] ?? 0;
+                  return (
+                    <button key={name}
+                      onClick={() => setAdv({ ...adv,
+                        ex: on ? adv.ex.filter((x) => x !== name) : [...adv.ex, name] })}
+                      aria-pressed={on}
+                      className={`rounded-md border px-2 py-1 text-[11.5px] ${
+                        on ? "border-[#c86fd1] bg-[#c86fd1]/15 text-[#d79ade]"
+                           : "border-line text-muted hover:border-muted"}`}
+                      title={`Cleared ${name} — ${n} member${n === 1 ? "" : "s"}`}>
+                      {name}<small className="ml-1 opacity-70">{n}</small>
+                    </button>
+                  );
+                })}
+              </span>
+            )}
+
+          </div>
+        </div>
 
         <div className="text-[13px] text-muted">
           {/* Names the activity scope rather than only the raw numbers: with Active
