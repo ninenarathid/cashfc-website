@@ -38,10 +38,6 @@ const DICT = {
 
   // ── Home ────────────────────────────────────────────────────────────
   "home.freeCompany": { en: "Free Company", th: "Free Company" },
-  "home.tagline": {
-    en: "Our second home — meet the roster, follow what everyone is up to, and get together in game.",
-    th: "บ้านหลังที่สองของเรา — ดูรายชื่อสมาชิก ติดตามว่าใครทำอะไรอยู่ แล้วนัดเจอกันในเกม",
-  },
   "home.browseAll": { en: "Browse all {n} members", th: "ดูสมาชิกทั้งหมด {n} คน" },
   "home.members": { en: "Members", th: "สมาชิก" },
   "home.active": { en: "Active", th: "ยัง Active" },

@@ -35,9 +35,6 @@ export default function Hero(
       <img src="/logo.png" alt={fc.name}
            className="mx-auto mt-2 w-full max-w-sm sm:max-w-md"
            width={1000} height={722} />
-      <p className="mx-auto mt-2 max-w-md text-[14.5px] leading-relaxed text-muted">
-        {t("home.tagline")}
-      </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
         <Link href="/members"
               className="rounded-lg border border-amber bg-amber/15 px-5 py-2 text-amber no-underline transition-colors hover:bg-amber/25">
