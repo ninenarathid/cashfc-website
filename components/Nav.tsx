@@ -7,9 +7,12 @@ import AuthButton from "@/components/AuthButton";
 
 // Events and Minigames are built but unlinked until that phase is picked up again —
 // their routes 404 in the meantime (see app/events, app/games).
-const TABS = [
+const TABS: { href: string; label: string; match?: (p: string) => boolean }[] = [
   { href: "/", label: "Home" },
-  { href: "/members", label: "Members" },
+  // A member's own page belongs to the roster, so the tab stays lit while you read
+  // one. The default prefix test misses it: "/member/123" does not start with
+  // "/members".
+  { href: "/members", label: "Members", match: (p) => p.startsWith("/member") },
   { href: "/leaderboards", label: "Leaderboards" },
 ];
 
@@ -38,7 +41,9 @@ export default function Nav() {
       </Link>
       <div className="flex flex-wrap items-center gap-1.5">
         {TABS.map((t) => {
-          const active = t.href === "/" ? pathname === "/" : pathname.startsWith(t.href);
+          const active = t.match ? t.match(pathname)
+            : t.href === "/" ? pathname === "/"
+            : pathname.startsWith(t.href);
           return (
             <Link
               key={t.href}

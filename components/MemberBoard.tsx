@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { BoardData, Member, Overlay } from "@/lib/types";
+import { BOARD_QUERY_KEY } from "@/lib/types";
 import {
   LFG_OPTIONS, RANK_ORDER, RACE_ORDER, isOnVacation, ON_VACATION_RANK,
 } from "@/lib/types";
@@ -79,7 +80,7 @@ function PresenceDot({ m, size = 11 }: { m: Member; size?: number }) {
 
 interface Adv {
   lfg: string; rank: string;
-  boss: number[]; lvMin: string; race: string; activity: string;
+  boss: number[]; race: string; activity: string;
   /** Any job of this role with a recorded score. */
   role: string;
   /** One specific job with a recorded score. */
@@ -92,7 +93,7 @@ interface Adv {
   seen: string;
 }
 const ADV_EMPTY: Adv = {
-  lfg: "", rank: "", boss: [], lvMin: "",
+  lfg: "", rank: "", boss: [],
   race: "", activity: ACTIVITY_DEFAULT, ex: [], seen: "", role: "", job: "",
   tags: [],
 };
@@ -128,12 +129,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     setAdv({
       lfg: p.get("lfg") ?? "", rank: p.get("rank") ?? "",
       boss,
-      lvMin: p.get("lv") ?? "", race: p.get("race") ?? "",
+      race: p.get("race") ?? "",
       activity: p.get("act") ?? ACTIVITY_DEFAULT, ex, seen: p.get("seen") ?? "",
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
     });
     if (single || p.get("lfg") || p.get("rank") ||
-        boss.length || ex.length || p.get("lv") || p.get("race") ||
+        boss.length || ex.length || p.get("race") ||
         p.get("act") || p.get("seen") || p.get("role") || p.get("job") ||
         tags.length) setAdvOpen(true);
     inited.current = true;
@@ -150,7 +151,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.rank) p.set("rank", adv.rank);
     if (adv.boss.length) p.set("boss", adv.boss.join(","));
     if (adv.ex.length) p.set("ex", adv.ex.join(","));
-    if (adv.lvMin) p.set("lv", adv.lvMin);
     if (adv.race) p.set("race", adv.race);
     if (adv.activity !== ACTIVITY_DEFAULT) p.set("act", adv.activity);
     if (adv.seen) p.set("seen", adv.seen);
@@ -160,6 +160,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const qs = p.toString();
     window.history.replaceState(null, "",
       qs ? `?${qs}` : window.location.pathname);
+    // So a member page can offer a way back to this exact list.
+    try { sessionStorage.setItem(BOARD_QUERY_KEY, qs); } catch { /* private mode */ }
   }, [query, sortBy, view, adv]);
 
   // Profiles + overrides from Supabase
@@ -261,7 +263,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const lv = Number(adv.lvMin) || null;
     const filtered = visible.filter((m) => {
       // AND, not OR: "Crafter and Gatherer" should mean someone who is both.
       for (const t of adv.tags) if (!m.tags.includes(t)) return false;
@@ -294,7 +295,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       }
       for (const i of adv.boss) if (!m.current_clears?.[i]) return false;
       for (const name of adv.ex) if (!m.ex_cleared?.includes(name)) return false;
-      if (lv != null && (m.level ?? 0) < lv) return false;
       return true;
     });
     const val = (m: Member): number =>
@@ -311,7 +311,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
-    (adv.lvMin ? 1 : 0) + (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
+    (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
     adv.tags.length +
     (adv.seen ? 1 : 0);
 
@@ -467,10 +467,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                 ))}
               </select>
             )}
-            <input type="number" min={1} max={100} value={adv.lvMin}
-                   onChange={(e) => setAdv({ ...adv, lvMin: e.target.value })}
-                   placeholder="Lv ≥" aria-label="Minimum level"
-                   className="w-20 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink placeholder:text-muted" />
             </div>
 
             {/* Every tag, AND-ed — the only tag filter on the board. A second row

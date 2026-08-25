@@ -5,7 +5,8 @@ import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import type { Member, MemberRaids, Overlay, RaidEncounter, RaidZone } from "@/lib/types";
 import {
-  LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday, ultimateAbbr,
+  BOARD_QUERY_KEY, LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday,
+  ultimateAbbr,
 } from "@/lib/types";
 import { computeBadges, percentile, topN } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
@@ -153,6 +154,16 @@ export default function MemberView({
     : m.ach_public === false ? "private"
     : "ok";
 
+  // Back to the list you came from, filters and all. Falls back to the plain
+  // roster, which is also what somebody who arrived on a shared link gets.
+  const [backHref, setBackHref] = useState("/members");
+  useEffect(() => {
+    try {
+      const qs = sessionStorage.getItem(BOARD_QUERY_KEY);
+      if (qs) setBackHref(`/members?${qs}`);
+    } catch { /* private mode */ }
+  }, []);
+
   const pctTile = (label: string, value: number | null,
                    values: (number | null)[], color: string) => {
     const pct = percentile(values, value);
@@ -176,6 +187,11 @@ export default function MemberView({
 
   return (
     <main className="pt-5">
+      <Link href={backHref}
+            className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-muted no-underline transition-colors hover:text-amber">
+        <span aria-hidden>←</span> Back to members
+      </Link>
+
       {/* ── Header / banner ── */}
       <section className="overflow-hidden rounded-2xl border border-line"
                style={{ background: ov?.banner ?? DEFAULT_BANNER }}>

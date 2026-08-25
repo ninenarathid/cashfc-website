@@ -171,6 +171,16 @@ export const RANK_ORDER = [
  */
 export const ON_VACATION_RANK = "On vacation";
 
+/**
+ * Where the roster parks its current query string so a member page can send you
+ * back to the list you were actually looking at. Clicking into someone and landing
+ * back on an unfiltered roster loses whatever search got you there.
+ *
+ * sessionStorage rather than the URL: the back link should follow the last list you
+ * saw, not whatever was in the address bar when the page happened to be rendered.
+ */
+export const BOARD_QUERY_KEY = "fc_board_query";
+
 export const isOnVacation = (m: Member): boolean => m.rank === ON_VACATION_RANK;
 
 /**
