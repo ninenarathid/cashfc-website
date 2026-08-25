@@ -2331,7 +2331,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2349,7 +2349,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
@@ -3112,7 +3112,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 74,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -3124,7 +3124,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -3808,7 +3808,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 81,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -4881,7 +4881,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 69,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6479,8 +6479,8 @@
  },
  "43423269": {
   "name": "Bladez Sweeney",
-  "parse": 72,
-  "ult": 0,
+  "parse": 75,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -6500,8 +6500,10 @@
    "Zelenia",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-25"
  },
  "47658617": {
   "name": "Bogotaz Lucaz",
@@ -7513,7 +7515,7 @@
  "1643244": {
   "name": "Epicenter Eorzea",
   "parse": 95,
-  "ult": 5,
+  "ult": 6,
   "mounts": 122,
   "minions": 276,
   "rare": 70,
@@ -7610,12 +7612,13 @@
   ],
   "ults": [
    "Dragonsong's Reprise",
+   "Futures Rewritten",
    "The Epic of Alexander",
    "The Omega Protocol",
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-25"
  },
  "15785511": {
   "name": "Eric Luminous",
@@ -7877,7 +7880,7 @@
  "36168487": {
   "name": "Freki Plumis",
   "parse": 98,
-  "ult": 0,
+  "ult": 1,
   "mounts": 148,
   "minions": 323,
   "rare": null,
@@ -7905,8 +7908,10 @@
    "Zelenia",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise"
+  ],
+  "chg": "2026-08-25"
  },
  "29863848": {
   "name": "Furfur Albadia",
@@ -8074,7 +8079,7 @@
  "36090951": {
   "name": "Guuji Mercedexs",
   "parse": 98,
-  "ult": 0,
+  "ult": 2,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -8096,8 +8101,11 @@
    "Zelenia",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Futures Rewritten",
+   "The Omega Protocol"
+  ],
+  "chg": "2026-08-25"
  },
  "29498103": {
   "name": "Haku Quinu",

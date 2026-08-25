@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-08-25",
+   "type": "level_100",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "level_100",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "parse_up",
+   "id": 43423269,
+   "name": "Bladez Sweeney",
+   "text": "set a new best parse: 75"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 43423269,
+   "name": "Bladez Sweeney",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "cleared Futures Rewritten 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 36090951,
+   "name": "Guuji Mercedexs",
+   "text": "cleared Futures Rewritten 🏆"
+  },
+  {
+   "date": "2026-08-25",
+   "type": "ult_clear",
+   "id": 36090951,
+   "name": "Guuji Mercedexs",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-25",
    "type": "ult_clear",
    "id": 34546216,
    "name": "Dekkapi Kung",
@@ -1343,62 +1399,6 @@
    "id": 28120733,
    "name": "Fukurou Under",
    "text": "set a new best parse: 96"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "cleared M11S for the first time 🎉"
   }
  ]
 }

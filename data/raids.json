@@ -11296,7 +11296,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 75,
+    "kills": 2,
+    "job": "Ninja",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials II (Extreme)",
@@ -12365,6 +12376,16 @@
   },
   "ultimates": [
    {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "name": "Futures Rewritten",
+    "best": 36,
+    "kills": 3,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
@@ -12679,7 +12700,7 @@
      "job": "Machinist"
     },
     {
-     "label": "M12S",
+     "label": "M12S-1",
      "name": "Lindwurm",
      "best": 97,
      "median": 64,
@@ -12687,7 +12708,7 @@
      "job": "Machinist"
     },
     {
-     "label": "M12S",
+     "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 91,
      "median": 75,
@@ -12702,7 +12723,18 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "Dragonsong's Reprise",
+    "best": 76,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -12930,7 +12962,28 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "name": "Futures Rewritten",
+    "best": 30,
+    "kills": 8,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Omega Protocol",
+    "best": 37,
+    "kills": 1,
+    "job": "Scholar",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials II (Extreme)",
