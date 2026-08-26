@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
 import { useLang } from "@/lib/i18n";
+import { ultimateAbbr } from "@/lib/types";
 import JobIcon, {
   ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobRole, jobRoleGroup,
 } from "@/components/JobIcon";
@@ -84,11 +85,13 @@ interface Adv {
   tags: string[];
   /** Lowest grade a member must hold — scoped by the job and tag filters. */
   grade: string;
+  /** One specific Ultimate, offered only once the Ultimate tag is picked. */
+  ult: string;
 }
 const ADV_EMPTY: Adv = {
   lfg: "", rank: "", boss: [],
   race: "", activity: ACTIVITY_DEFAULT, ex: [], role: "", job: "",
-  tags: [], grade: "",
+  tags: [], grade: "", ult: "",
 };
 
 /**
@@ -142,7 +145,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       race: p.get("race") ?? "",
       activity: p.get("act") ?? ACTIVITY_DEFAULT, ex,
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
-      grade: p.get("grade") ?? "",
+      grade: p.get("grade") ?? "", ult: p.get("ult") ?? "",
     });
     inited.current = true;
   }, []);
@@ -164,6 +167,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.job) p.set("job", adv.job);
     if (adv.tags.length) p.set("tags", adv.tags.join(","));
     if (adv.grade) p.set("grade", adv.grade);
+    if (adv.ult) p.set("ult", adv.ult);
     const qs = p.toString();
     window.history.replaceState(null, "",
       qs ? `?${qs}` : window.location.pathname);
@@ -270,6 +274,16 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     return Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   }, [inScope]);
 
+  const ultCounts = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const m of inScope) {
+      for (const u of new Set([...(m.ult_cleared ?? []), ...(m.ult_achv_only ?? [])])) {
+        c[u] = (c[u] ?? 0) + 1;
+      }
+    }
+    return c;
+  }, [inScope]);
+
   const gradeCounts = useMemo(() => {
     const c: Record<string, number> = { total: 0 };
     for (const g of GRADES) c[g] = 0;
@@ -311,6 +325,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         const played = Object.keys(m.job_scores ?? {});
         if (adv.job && !played.includes(adv.job)) return false;
         if (adv.role && !played.some((j) => roleMatches(j, adv.role))) return false;
+      }
+      if (adv.ult) {
+        const cleared = [...(m.ult_cleared ?? []), ...(m.ult_achv_only ?? [])];
+        if (!cleared.includes(adv.ult)) return false;
       }
       if (adv.grade) {
         const min = GRADE_RANK[adv.grade] ?? 0;
@@ -354,7 +372,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
     (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
-    (adv.grade ? 1 : 0) +
+    (adv.grade ? 1 : 0) + (adv.ult ? 1 : 0) +
     adv.tags.length;
 
   // How many members we actually have acquisition dates for. Shown next to the
@@ -495,6 +513,21 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               ))}
             </select>
           )}
+          {adv.tags.includes("ultimate") && Object.keys(ultCounts).length > 0 && (
+            <select value={adv.ult}
+                    onChange={(e) => setAdv({ ...adv, ult: e.target.value })}
+                    className={selCls} aria-label="Which Ultimate">
+              <option value="">{t("board.ultAny")}</option>
+              {Object.entries(ultCounts)
+                .sort((a, b) => b[1] - a[1])
+                .map(([name, n]) => (
+                  <option key={name} value={name}>
+                    {ultimateAbbr(name)} — {name} ({n})
+                  </option>
+                ))}
+            </select>
+          )}
+
           {/* Sits after job and before race because it narrows the two filters
               above it rather than standing alone: with a job or a tag picked it
               asks for that grade in that thing, and on its own it asks for anyone

@@ -14,7 +14,7 @@ import { useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
 import { isEmpty } from "@/lib/availability";
 import JobBreakdown from "@/components/JobBreakdown";
-import JobIcon from "@/components/JobIcon";
+import JobIcon, { jobLabel } from "@/components/JobIcon";
 import MemberTags from "@/components/MemberTags";
 import RareAchievements, { type AchievementInfo } from "@/components/RareAchievements";
 import { createClient } from "@/lib/supabase/client";
@@ -507,10 +507,18 @@ export default function MemberView({
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {z.encounters.map((e, i) => (
-                            <span key={i} title={e.name ?? ""}
-                                  className="rounded-md border border-line bg-card px-2.5 py-1 font-data text-[11.5px]"
-                                  style={{ color: parseColor(e.best) }}>
-                              {e.label ?? e.name} {e.best ?? "✓"}
+                            <span key={i}
+                                  title={[e.name, e.job && jobLabel(e.job),
+                                          e.kills ? t("member.kills", { n: e.kills }) : null]
+                                    .filter(Boolean).join(" · ")}
+                                  className="inline-flex items-center gap-1.5 rounded-md border border-line bg-card px-2.5 py-1 font-data text-[11.5px]">
+                              <span style={{ color: parseColor(e.best) }}>
+                                {e.label ?? e.name} {e.best ?? "✓"}
+                              </span>
+                              {/* The job is already in the data and every other part
+                                  of the page shows it — an old tier was the one place
+                                  that dropped it. */}
+                              {e.job && <JobIcon job={e.job} size={13} />}
                             </span>
                           ))}
                         </div>

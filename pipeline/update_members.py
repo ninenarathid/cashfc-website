@@ -431,11 +431,16 @@ def zone_labels(zone_name: str, is_current: bool) -> list[str] | None:
     return None
 
 
-def build_char_query(chunk: list[dict], zones: list[dict]) -> str:
+def build_char_query(chunk: list[dict], zones_for) -> str:
+    """zones_for(member) -> the zones to ask about for that member.
+
+    Per member rather than per batch so a one-off sweep can cost extra only for
+    the people who still need it.
+    """
     body = []
     for i, m in enumerate(chunk):
         zq = []
-        for z in zones:
+        for z in zones_for(m):
             args = f"zoneID: {z['id']}"
             if z.get("difficulty"):
                 args += f", difficulty: {z['difficulty']}"
@@ -522,13 +527,21 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
     # filters on, so those are the fixed set, and everything else — ultimates, older
     # tiers — takes one rotating slot per run. Each additional zone costs about a
     # fifth of the members a run can reach.
-    # The newest expansion re-lists every older Ultimate under one "Ultimates (Legacy)"
-    # zone, so its three zones cover all seven fights. Rotating through all nine
-    # ultimate zones instead meant a member was asked about one of them per run and
-    # showed a single Ultimate for weeks while holding several.
+    # The newest expansion re-lists every older Ultimate under one "Ultimates
+    # (Legacy)" zone, and this used to assume that zone therefore answered for every
+    # older fight. It does not: FF Logs keeps rankings in the zone of the expansion
+    # the kill was logged in, so somebody who cleared UCOB in Shadowbringers has it
+    # in a Shadowbringers zone and nowhere else. Checked against a member holding
+    # UCOB, TEA and DSR — the current Ultimates (Legacy) zone reported none of them.
+    #
+    # An Ultimate clear never expires, so the fix is to ask every ultimate zone once
+    # per member and then stop. Members not yet swept cost six extra zones, which
+    # slows a run to roughly 23 members instead of 40; once the roster is covered
+    # the extra zones disappear and the pace returns.
     cur_ults = [z for z in ults if z["expansion"] == current["expansion"]]
+    old_ults = [z for z in ults if z not in cur_ults]
     zones = [current] + cur_extremes + cur_ults
-    rotating = older + [z for z in ults if z not in cur_ults]
+    rotating = older + old_ults
     if full_history:
         zones += rotating
         log(f"FFLogs [FULL HISTORY] — adding all {len(rotating)} other zones; "
@@ -541,15 +554,29 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
 
     log(f"FFLogs current tier: {current['name']} ({current['id']}) "
         f"[{current['expansion']}]")
+    # Who still needs the one-off sweep of the older ultimate zones.
+    swept = set(state.get("ult_swept") or [])
+    sweeping: set[str] = set()
+
     log(f"FFLogs zones this run: {len(zones)} — "
         + ", ".join(z["name"] for z in zones))
+    left = len([m for m in members if str(m["id"]) not in swept])
+    if left and not full_history:
+        log(f"FFLogs ultimate sweep — {left}/{len(members)} members still need the "
+            f"{len(old_ults)} older ultimate zones asked once")
 
     # Only the zones actually queried, so a zone left out this run keeps whatever a
     # previous run stored for it instead of being wiped.
+    def zones_for(m: dict) -> list[dict]:
+        if full_history or str(m["id"]) in swept:
+            return zones
+        sweeping.add(str(m["id"]))
+        return zones + [z for z in old_ults if z not in zones]
+
     queried = {z["id"] for z in zones}
-    ult_ids = {z["id"] for z in ults} & queried
     ex_ids = {z["id"] for z in cur_extremes} & queried
-    zmeta = {z["id"]: z for z in zones}
+    # Every zone that could appear in any member's query, so zmeta can resolve it.
+    zmeta = {z["id"]: z for z in zones + old_ults}
     bs = CONFIG["fflogs_batch_size"]
 
     # Members already covered in this pass. A run gets through a fraction of the
@@ -568,6 +595,12 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
     def remember(processed: list[dict]) -> None:
         done_ids.update(str(x["id"]) for x in processed)
         state["fflogs_cycle"] = sorted(done_ids)
+        # Whoever was swept for the older ultimate zones is swept for good — an
+        # Ultimate clear never expires, so asking again would buy nothing. Recorded
+        # alongside the cursor so a run cut short by the quota keeps what it did.
+        ids = {str(x["id"]) for x in processed}
+        swept.update(ids & sweeping)
+        state["ult_swept"] = sorted(swept)
         save_json("extra.json", extra)
 
     save_json("extra.json", extra)
@@ -575,7 +608,7 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
     for start in range(0, len(queue), bs):
         chunk = queue[start:start + bs]
         try:
-            payload = fflogs_query(token, build_char_query(chunk, zones))
+            payload = fflogs_query(token, build_char_query(chunk, zones_for))
         except Exception as ex:
             log(f"FFLogs batch {start} error: {ex}")
             for m in chunk:
@@ -600,8 +633,10 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             # only a zone name, and two different zones are both called "Ultimates
             # (Legacy)", so they cannot be told apart on screen. Better to show
             # nothing for a day or two until the zone rotation refills them.
+            member_zone_ids = {z["id"] for z in zones_for(m)}
+            member_ult_ids = {z["id"] for z in ults} & member_zone_ids
             new_ults = [u for u in entry.get("ultimates", []) if u.get("name")]
-            new_ults = [u for u in new_ults if u.get("zone_id") not in ult_ids]
+            new_ults = [u for u in new_ults if u.get("zone_id") not in member_ult_ids]
             new_ex = entry.get("extremes", [])
             new_ex = [e for e in new_ex if e.get("zone_id") not in ex_ids]
             legacy = entry.get("legacy", [])

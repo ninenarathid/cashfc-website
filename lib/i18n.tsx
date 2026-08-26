@@ -69,6 +69,7 @@ const DICT = {
   "board.roleAny": { en: "Role: any", th: "Role: ทั้งหมด" },
   "board.jobAny": { en: "Job: any", th: "อาชีพ: ทั้งหมด" },
   "board.gradeAny": { en: "Grade: any", th: "ระดับ: ทั้งหมด" },
+  "board.ultAny": { en: "Ultimate: any", th: "Ultimate: ทั้งหมด" },
   "board.raceAny": { en: "Race: any ({n})", th: "เผ่า: ทั้งหมด ({n})" },
   "board.rankAny": { en: "Rank: any", th: "ยศ: ทั้งหมด" },
   "board.lfgAny": { en: "Looking for: any", th: "กำลังหา: ทั้งหมด" },

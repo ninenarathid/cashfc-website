@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import type { Member } from "@/lib/types";
 import {
   ACHV_TIER_HELP, ACHV_TIER_HELP_TH, ACHV_TIER_LABEL, CONTENT_LABEL, ultimateAbbr,
@@ -135,6 +136,9 @@ export function tagText(tag: string, tier?: string): string {
   return tier ? `${ACHV_TIER_LABEL[tier]} ${base.toLowerCase()}` : base;
 }
 
+/** Legendary outranks Master outranks Expert; anything ungraded comes last. */
+const CHIP_RANK: Record<string, number> = { legendary: 3, master: 2, expert: 1 };
+
 export default function MemberTags(
   { m, extremeTotal, size = "sm" }:
   { m: Member; extremeTotal?: number; size?: "sm" | "md" },
@@ -152,14 +156,21 @@ export default function MemberTags(
     .filter(([, s]) => s.tier)
     .sort((a, b) => b[1].score - a[1].score);
 
-  return (
-    <>
-      {/* Deliberately understated: useful for finding someone who could teach a
-          newcomer, not a ranking anyone should be playing for. Only shown from
-          Expert up, because below that the answer to "could they teach this?" is no. */}
-      {jobs.map(([job, s]) => (
+  // Hardest-earned first, whatever kind of thing it is. Raiding chips used to lead
+  // purely because the pipeline listed them first, which buried a Legendary
+  // Crafter under an ungraded Progging. The sort is stable, so within one grade
+  // the original order survives: jobs by score, tags in pipeline order.
+  const chips: { key: string; rank: number; node: React.ReactNode }[] = [];
+
+  for (const [job, s] of jobs) {
+    chips.push({
+      key: `job:${job}`,
+      rank: CHIP_RANK[s.tier!] ?? 0,
+      node: (
+        // Deliberately understated: useful for finding somebody who could show a
+        // newcomer the job, not a ranking anyone should be playing for. Only from
+        // Expert up, because below that the answer to "could they teach this?" is no.
         <span
-          key={job}
           title={lang === "th"
             ? `parse ${s.parse} (ถ่วงน้ำหนักตามจำนวนครั้งที่ฆ่าและความยาก) จากการฆ่า ${s.kills} ครั้ง ใน ${s.fights} บอส${s.hardest ? `, สูงสุดถึง ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : ""} — เป็นคนที่ควรถามเรื่อง ${jobLabel(job)}`
             : `${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights${s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : ""} — good person to ask about ${jobLabel(job)}`}
@@ -168,35 +179,48 @@ export default function MemberTags(
           <JobIcon job={job} size={size === "md" ? 15 : 13} />
           {ACHV_TIER_LABEL[s.tier!]} {jobLabel(job)}
         </span>
-      ))}
-      {m.tags.map((t) => {
-        const tier = tiers[t];
-        // Which Ultimates, not just that there were some — UCOB and FRU are worlds
-        // apart. Still one chip, and no louder than the rest.
-        const abbr = t === "ultimate" && ults.length
-          ? ults.map(ultimateAbbr).join(", ") : null;
-        const exCount = t === "extreme" ? (m.ex_cleared?.length ?? 0) : 0;
-        return (
-          <span key={t}
-                title={abbr
-                  ? `${lang === "th" ? "เคลียร์แล้ว" : "Cleared"}: ${ults.join(", ")}`
-                  : [tagHelp(t, lang),
-                     tier && gradeHelp(tier, lang),
-                     rarestLine(buckets[t]?.min, lang)]
-                    .filter(Boolean).join(lang === "th" ? " · " : " · ")}
-                className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
-                  TAG_CLASS[t] ?? "border-line text-muted"}`}>
-            <TagIcon tag={t} size={size === "md" ? 15 : 13} />
-            {tagText(t, tier)}
-            {abbr && <span className="font-normal opacity-80">: {abbr}</span>}
-            {exCount > 0 && (
-              <small className="ml-1 opacity-75">
-                {exCount}/{extremeTotal || "?"}
-              </small>
-            )}
-          </span>
-        );
-      })}
+      ),
+    });
+  }
+
+  for (const t of m.tags) {
+    const tier = tiers[t];
+    // Which Ultimates, not just that there were some — UCOB and FRU are worlds
+    // apart. Still one chip, and no louder than the rest.
+    const abbr = t === "ultimate" && ults.length
+      ? ults.map(ultimateAbbr).join(", ") : null;
+    const exCount = t === "extreme" ? (m.ex_cleared?.length ?? 0) : 0;
+    chips.push({
+      key: `tag:${t}`,
+      rank: CHIP_RANK[tier] ?? 0,
+      node: (
+        <span
+          title={abbr
+            ? `${lang === "th" ? "เคลียร์แล้ว" : "Cleared"}: ${ults.join(", ")}`
+            : [tagHelp(t, lang),
+               tier && gradeHelp(tier, lang),
+               rarestLine(buckets[t]?.min, lang)]
+              .filter(Boolean).join(" · ")}
+          className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
+            TAG_CLASS[t] ?? "border-line text-muted"}`}>
+          <TagIcon tag={t} size={size === "md" ? 15 : 13} />
+          {tagText(t, tier)}
+          {abbr && <span className="font-normal opacity-80">: {abbr}</span>}
+          {exCount > 0 && (
+            <small className="ml-1 opacity-75">
+              {exCount}/{extremeTotal || "?"}
+            </small>
+          )}
+        </span>
+      ),
+    });
+  }
+
+  chips.sort((a, b) => b.rank - a.rank);
+
+  return (
+    <>
+      {chips.map((c) => <Fragment key={c.key}>{c.node}</Fragment>)}
     </>
   );
 }
