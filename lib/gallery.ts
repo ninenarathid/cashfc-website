@@ -125,9 +125,27 @@ export type Roster = Record<number, { name: string; avatar: string | null }>;
  * until they do the picture stays off their page entirely.
  */
 export interface GalleryTag {
+  id: number;
   post_id: number;
   character_id: number;
   name: string;
   confirmed_at: string | null;
+  /**
+   * Where on the picture they are, as fractions of its width and height.
+   *
+   * Fractions rather than pixels so the pin lands on the same face whatever
+   * size the picture is drawn at — a coordinate in pixels would slide off
+   * somebody's head the moment the lightbox is a different width.
+   *
+   * All three are null together for a tag with no point: a plain name in the
+   * list, which is still a tag and still needs confirming.
+   */
+  image_id: number | null;
+  x: number | null;
+  y: number | null;
   created_at?: string;
 }
+
+/** The columns a tag is read with, in one place so every query agrees. */
+export const TAG_COLUMNS =
+  "id, post_id, character_id, name, confirmed_at, image_id, x, y, created_at";

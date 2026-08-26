@@ -47,7 +47,8 @@ export default function PendingTags() {
 
     const { data: tags } = await supabase.from("gallery_tags")
       .select("post_id").eq("character_id", p.character_id).is("confirmed_at", null);
-    const ids = (tags ?? []).map((r) => (r as { post_id: number }).post_id);
+    // One question per post, however many pins of you it holds.
+    const ids = [...new Set((tags ?? []).map((r) => (r as { post_id: number }).post_id))];
     if (!ids.length) { setRows([]); setReady(true); return; }
 
     const { data: posts } = await supabase.from("gallery_posts")

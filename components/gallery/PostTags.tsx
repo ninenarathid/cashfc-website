@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
@@ -8,49 +8,54 @@ import type { GalleryTag } from "@/lib/gallery";
 import MemberPicker, { type MemberOption } from "@/components/gallery/MemberPicker";
 
 /**
- * Who else is in this picture.
+ * Who is in this picture, written out under it.
  *
- * A group shot belongs to everybody in it, so a tag puts the picture on the
- * tagged member's page alongside their own — eight people in one screenshot
- * should not each have to post their own copy.
+ * The pins on the photograph say where; this says who, and is the part that
+ * works without a mouse, without hovering, and for a member who is in the shot
+ * but not worth pointing at. Both are the same rows underneath.
  *
  * The tag does nothing until the person tagged agrees. Anybody may write your
  * name on a picture; only you decide whether it appears on your page, and until
- * you do the tag sits here marked as waiting and the picture is nowhere near
- * you. An admin can agree on behalf of a member who never signs in, which is the
- * escape hatch for most of the roster — a named person choosing, rather than the
- * tag quietly defaulting to yes.
+ * you do the tag sits here marked as waiting. An admin can agree on behalf of a
+ * member who never signs in — a named person choosing, rather than the tag
+ * quietly defaulting to yes.
  *
- * Tagging yourself needs no such ceremony and takes effect at once; the database
- * confirms it on the way in.
+ * Actions work by person rather than by pin: confirming answers every pin of
+ * yours on this post at once, because being in three pictures of one post is
+ * still one question.
  */
 export default function PostTags(
-  { postId, options, canEdit, isAdmin, myCharacterId, onChanged }: {
+  { postId, tags, options, canEdit, isAdmin, myCharacterId,
+    picking, onPicking, onReload, onChanged }: {
     postId: number;
+    tags: GalleryTag[];
     options: MemberOption[];
     /** The post's author or an admin: whoever may say who is in it. */
     canEdit: boolean;
     isAdmin: boolean;
     /** Only set for a signed-in member holding a verified character. */
     myCharacterId: number | null;
+    picking: boolean;
+    onPicking: (on: boolean) => void;
+    onReload: () => Promise<void> | void;
     onChanged?: () => void;
   },
 ) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
-  const [tags, setTags] = useState<GalleryTag[]>([]);
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!supabase) return;
-    const { data } = await supabase.from("gallery_tags")
-      .select("post_id, character_id, name, confirmed_at, created_at")
-      .eq("post_id", postId).order("created_at", { ascending: true });
-    setTags((data as GalleryTag[]) ?? []);
-  }, [supabase, postId]);
-
-  useEffect(() => { void load(); }, [load]);
+  // One entry per person, however many pins they have here.
+  const people = new Map<number, { name: string; pending: boolean; pins: number }>();
+  for (const g of tags) {
+    const at = people.get(g.character_id);
+    people.set(g.character_id, {
+      name: g.name,
+      pending: (at?.pending ?? false) || !g.confirmed_at,
+      pins: (at?.pins ?? 0) + (g.x != null ? 1 : 0),
+    });
+  }
 
   async function add(o: MemberOption) {
     if (!supabase || busy) return;
@@ -61,7 +66,7 @@ export default function PostTags(
       .insert({ post_id: postId, character_id: o.id, name: o.name });
     setBusy(false);
     setAdding(false);
-    await load();
+    await onReload();
     onChanged?.();
   }
 
@@ -72,7 +77,7 @@ export default function PostTags(
       .update({ confirmed_at: new Date().toISOString() })
       .eq("post_id", postId).eq("character_id", characterId);
     setBusy(false);
-    await load();
+    await onReload();
     onChanged?.();
   }
 
@@ -82,12 +87,12 @@ export default function PostTags(
     await supabase.from("gallery_tags")
       .delete().eq("post_id", postId).eq("character_id", characterId);
     setBusy(false);
-    await load();
+    await onReload();
     onChanged?.();
   }
 
   const canTag = canEdit || myCharacterId != null;
-  if (!tags.length && !canTag) return null;
+  if (!people.size && !canTag) return null;
 
   const waitingOnMe = tags.some(
     (g) => g.character_id === myCharacterId && !g.confirmed_at);
@@ -105,33 +110,35 @@ export default function PostTags(
       )}
 
       <div className="flex flex-wrap items-center gap-1.5">
-        {tags.map((g) => {
-          const pending = !g.confirmed_at;
-          const isMe = g.character_id === myCharacterId;
+        {[...people].map(([characterId, who]) => {
+          const isMe = characterId === myCharacterId;
           // Mine to answer, or an admin answering for somebody who is not here.
-          const canConfirm = pending && (isMe || isAdmin);
+          const canConfirm = who.pending && (isMe || isAdmin);
           const canRemove = canEdit || isMe;
           return (
-            <span key={g.character_id}
+            <span key={characterId}
                   className={`flex items-center gap-1.5 rounded-full border py-0.5 pl-2.5 pr-1.5 text-[12.5px] ${
-                    pending ? "border-dashed border-line text-muted"
-                            : "border-line bg-card text-ink"}`}>
-              <Link href={`/member/${g.character_id}`}
+                    who.pending ? "border-dashed border-line text-muted"
+                                : "border-line bg-card text-ink"}`}>
+              <Link href={`/member/${characterId}`}
                     className="font-data no-underline hover:text-accent">
-                {g.name}
+                {who.name}
               </Link>
-              {pending && (
+              {who.pins > 0 && (
+                <span title={t("gallery.tagPinned")} className="text-[10px]">📍</span>
+              )}
+              {who.pending && (
                 <span className="text-[10.5px] italic">· {t("gallery.tagPending")}</span>
               )}
               {canConfirm && (
-                <button onClick={() => confirm(g.character_id)} disabled={busy}
+                <button onClick={() => confirm(characterId)} disabled={busy}
                         title={isMe ? t("gallery.tagConfirm") : t("gallery.tagConfirmFor")}
                         className="rounded-full border border-jade/50 px-2 text-[11px] text-jade hover:bg-jade/10 disabled:opacity-40">
                   ✓
                 </button>
               )}
               {canRemove && (
-                <button onClick={() => remove(g.character_id)} disabled={busy}
+                <button onClick={() => remove(characterId)} disabled={busy}
                         title={t("gallery.tagRemove")}
                         className="rounded-full border border-line px-1.5 text-[11px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
                   ✕
@@ -141,12 +148,23 @@ export default function PostTags(
           );
         })}
 
-        {!tags.length && (
+        {!people.size && (
           <span className="text-[12.5px] text-muted">{t("gallery.tagNone")}</span>
         )}
 
+        {/* Pointing at a face is the better tag when there is a face to point
+            at, so it is the button offered first. */}
+        {canEdit && (
+          <button onClick={() => { onPicking(!picking); setAdding(false); }}
+                  className={`rounded-full border px-2.5 py-0.5 text-[12.5px] transition-colors ${
+                    picking ? "border-accent bg-accent/15 text-accent"
+                            : "border-dashed border-line text-muted hover:border-accent hover:text-accent"}`}>
+            {picking ? t("common.cancel") : `📍 ${t("gallery.tagOnPhoto")}`}
+          </button>
+        )}
+
         {canTag && !adding && (
-          <button onClick={() => setAdding(true)}
+          <button onClick={() => { setAdding(true); onPicking(false); }}
                   className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
             + {canEdit ? t("gallery.tagAdd") : t("gallery.tagMyself")}
           </button>
@@ -157,7 +175,7 @@ export default function PostTags(
         <div className="rounded-lg border border-line bg-card p-2.5">
           {canEdit ? (
             <MemberPicker options={options} autoFocus
-                          exclude={tags.map((g) => g.character_id)}
+                          exclude={[...people.keys()]}
                           onPick={add} />
           ) : (
             // Not the poster: the only name you may add to somebody else's

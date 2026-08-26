@@ -5,11 +5,13 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import {
-  postPath, uploadOne,
-  type GalleryComment, type GalleryImage, type GalleryPost, type Roster,
+  postPath, uploadOne, TAG_COLUMNS,
+  type GalleryComment, type GalleryImage, type GalleryPost, type GalleryTag,
+  type Roster,
 } from "@/lib/gallery";
 import Carousel from "@/components/gallery/Carousel";
 import PostTags from "@/components/gallery/PostTags";
+import PhotoTagLayer from "@/components/gallery/PhotoTagLayer";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
@@ -56,6 +58,23 @@ export default function PostDetail(
   const [caption, setCaption] = useState(post.caption ?? "");
   const [images, setImages] = useState<GalleryImage[]>([]);
   const addInput = useRef<HTMLInputElement | null>(null);
+  // The tags live here rather than in the list under the picture, because the
+  // pins drawn on the photograph and the names written below it are the same
+  // rows and must never disagree about what is there.
+  const [tags, setTags] = useState<GalleryTag[]>([]);
+  const [picking, setPicking] = useState(false);
+  const [placing, setPlacing] = useState<
+    { imageId: number; x: number; y: number } | null>(null);
+
+  const loadTags = useCallback(async () => {
+    if (!supabase) return;
+    // The read policy decides what comes back: a pin nobody has agreed to
+    // reaches only the poster, an admin, and the person it names.
+    const { data } = await supabase.from("gallery_tags")
+      .select(TAG_COLUMNS).eq("post_id", post.id)
+      .order("created_at", { ascending: true });
+    setTags((data as GalleryTag[]) ?? []);
+  }, [supabase, post.id]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -96,6 +115,7 @@ export default function PostDetail(
   }, [supabase, post.id]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { void loadTags(); }, [loadTags]);
 
   const author = authors[post.author_id];
   // The character this picture belongs to, whether or not its owner has an
@@ -105,11 +125,40 @@ export default function PostDetail(
   const shownName = post.credited_name ?? character?.name ?? author?.name ?? "—";
   const shownAvatar = character?.avatar
     ?? (post.credited_name ? null : author?.avatar ?? null);
+  // Names and faces for the pin cards: the roster passed down, with the picker's
+  // list filling in anybody it does not cover.
+  const faces: Record<number, { name: string; avatar: string | null }> = {};
+  for (const o of memberOptions) faces[o.id] = { name: o.name, avatar: o.avatar ?? null };
+  for (const [id, r] of Object.entries(roster)) faces[Number(id)] = r;
+
   const mine = !!me && me === post.author_id;
   const canDelete = mine || isAdmin;
   // The author owns their words; an admin can fix a caption that has to go
   // without taking the picture down over it.
   const canEditCaption = mine || isAdmin;
+
+  async function placeTag(o: { id: number; name: string }) {
+    if (!supabase || !placing) return;
+    setBusy(true);
+    await supabase.from("gallery_tags").insert({
+      post_id: post.id, character_id: o.id, name: o.name,
+      image_id: placing.imageId, x: placing.x, y: placing.y,
+    });
+    setBusy(false);
+    setPlacing(null);
+    setPicking(false);
+    await loadTags();
+    onChanged?.();
+  }
+
+  async function removeTag(tagId: number) {
+    if (!supabase) return;
+    setBusy(true);
+    await supabase.from("gallery_tags").delete().eq("id", tagId);
+    setBusy(false);
+    await loadTags();
+    onChanged?.();
+  }
 
   async function saveCaption() {
     if (!supabase) return;
@@ -171,6 +220,18 @@ export default function PostDetail(
   return (
     <div className="flex flex-col gap-4">
       <Carousel images={images} canEdit={canEditCaption}
+                picking={picking && canEditCaption}
+                onPickPoint={(img, x, y) => setPlacing({ imageId: img.id, x, y })}
+                overlay={(img) => (
+                  <PhotoTagLayer
+                    tags={tags.filter((g) => g.image_id === img.id && g.x != null)}
+                    faces={faces} options={memberOptions}
+                    placing={placing && placing.imageId === img.id
+                      ? { x: placing.x, y: placing.y } : null}
+                    onPlace={placeTag}
+                    onCancel={() => { setPlacing(null); setPicking(false); }}
+                    onRemove={removeTag} canEdit={canEditCaption} />
+                )}
                 onRemove={async (id) => {
                   if (!supabase || id < 0) return;
                   setBusy(true);
@@ -272,9 +333,14 @@ export default function PostDetail(
 
         {/* Under the caption and above the buttons: it is part of what the
             picture says, not one of the things you can do to it. */}
-        <PostTags postId={post.id} options={memberOptions}
+        <PostTags postId={post.id} tags={tags} options={memberOptions}
                   canEdit={canEditCaption} isAdmin={isAdmin}
-                  myCharacterId={myCharacter} onChanged={onChanged} />
+                  myCharacterId={myCharacter}
+                  picking={picking} onPicking={(on) => {
+                    setPicking(on);
+                    if (!on) setPlacing(null);
+                  }}
+                  onReload={loadTags} onChanged={onChanged} />
 
         <div className="flex flex-wrap gap-2">
           <button onClick={toggleLike} disabled={!me || busy}

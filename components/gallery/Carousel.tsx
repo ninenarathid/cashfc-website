@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLang } from "@/lib/i18n";
 import type { GalleryImage } from "@/lib/gallery";
 
@@ -16,10 +16,15 @@ import type { GalleryImage } from "@/lib/gallery";
  * single-picture post looks exactly as it did before posts could hold several.
  */
 export default function Carousel(
-  { images, onRemove, canEdit = false }: {
+  { images, onRemove, canEdit = false, overlay, picking = false, onPickPoint }: {
     images: GalleryImage[];
     onRemove?: (id: number) => void;
     canEdit?: boolean;
+    /** Drawn on top of the picture, in the picture's own coordinate space. */
+    overlay?: (image: GalleryImage) => ReactNode;
+    /** Waiting for a click on the picture to place a tag. */
+    picking?: boolean;
+    onPickPoint?: (image: GalleryImage, x: number, y: number) => void;
   },
 ) {
   const { t } = useLang();
@@ -47,12 +52,41 @@ export default function Carousel(
 
   const go = (d: number) => setI((n) => (n + d + images.length) % images.length);
 
+  // A click lands somewhere in the frame; a tag has to be somewhere in the
+  // picture. They are the same thing only because the frame is sized to the
+  // picture below — with the image stretched to the full width and letterboxed,
+  // a point clicked on a face would be stored as a point in the empty margin.
+  function place(e: React.MouseEvent<HTMLDivElement>) {
+    if (!picking || !onPickPoint) return;
+    // Only the photograph itself. The arrows and the dots sit inside the same
+    // frame, and a click meant for one of those is not a face.
+    if (!(e.target instanceof HTMLImageElement)) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+    onPickPoint(current, x, y);
+  }
+
   return (
-    <div ref={box} className="relative">
+    <div ref={box} onClick={place}
+         className={`group/photo relative mx-auto w-fit max-w-full ${
+           picking ? "cursor-crosshair" : ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={current.url} alt=""
            width={current.width ?? undefined} height={current.height ?? undefined}
-           className="max-h-[78vh] w-full rounded-xl border border-line bg-bg object-contain" />
+           draggable={false}
+           className="block max-h-[78vh] w-auto max-w-full rounded-xl border border-line bg-bg" />
+
+      {overlay?.(current)}
+
+      {picking && (
+        <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
+          <span className="rounded-full border border-accent bg-bg/85 px-3 py-1 text-[12px] text-accent backdrop-blur">
+            {t("gallery.tagClickFace")}
+          </span>
+        </div>
+      )}
 
       {images.length > 1 && (
         <>

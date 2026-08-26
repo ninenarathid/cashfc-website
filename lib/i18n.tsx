@@ -128,6 +128,13 @@ const DICT = {
     th: "ไม่มีรูปที่รอคุณยืนยัน",
   },
   "gallery.tagDecline": { en: "No thanks", th: "ไม่เอา" },
+  "gallery.tagOnPhoto": { en: "Tag on the photo", th: "แท็กบนรูป" },
+  "gallery.tagClickFace": {
+    en: "Click the person in the picture",
+    th: "คลิกที่ตัวคนในรูป",
+  },
+  "gallery.tagWho": { en: "Who is this?", th: "คนนี้คือใคร?" },
+  "gallery.tagPinned": { en: "Pinned on the picture", th: "ปักหมุดไว้ในรูป" },
   "gallery.postFor": { en: "Post for a member", th: "โพสต์ให้สมาชิกคนอื่น" },
   "gallery.postForHint": {
     en: "Admins only. The picture lands on that member's page and is credited to them, with you recorded as the account that uploaded it.",

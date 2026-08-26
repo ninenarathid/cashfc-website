@@ -47,7 +47,7 @@ export default function MemberView({
   agg: { mounts: (number | null)[]; minions: (number | null)[]; rare: (number | null)[] };
   fc: { name: string; world: string; region: string };
   /** The roster to search when tagging somebody in a gallery picture. */
-  memberOptions?: { id: number; name: string }[];
+  memberOptions?: { id: number; name: string; avatar?: string | null }[];
 }) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
