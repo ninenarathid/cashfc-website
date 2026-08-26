@@ -2,6 +2,139 @@
  "events": [
   {
    "date": "2026-08-26",
+   "type": "level_100",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 5720080,
+   "name": "Bowling Chan",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 5720080,
+   "name": "Bowling Chan",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 5720080,
+   "name": "Bowling Chan",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 24104450,
+   "name": "Cepheus Stellar",
+   "text": "set a new best parse: 45"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 24104450,
+   "name": "Cepheus Stellar",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 24150396,
+   "name": "Chaser Dc",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 31471584,
+   "name": "Chicha Chichi",
+   "text": "set a new best parse: 50"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 31471584,
+   "name": "Chicha Chichi",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 31471584,
+   "name": "Chicha Chichi",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 8999658,
+   "name": "Chzzck Godslayer",
+   "text": "set a new best parse: 87"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 8999658,
+   "name": "Chzzck Godslayer",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 8999658,
+   "name": "Chzzck Godslayer",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 8999658,
+   "name": "Chzzck Godslayer",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 24103365,
+   "name": "Cygnus Stellar",
+   "text": "set a new best parse: 71"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 24103365,
+   "name": "Cygnus Stellar",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 34511319,
+   "name": "Elise Lionheart",
+   "text": "set a new best parse: 29"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34511319,
+   "name": "Elise Lionheart",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
    "type": "parse_up",
    "id": 29389419,
    "name": "Osilit Bloodhood",
@@ -1266,139 +1399,6 @@
    "id": 23767900,
    "name": "Spike Le'granddanois",
    "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 36164592,
-   "name": "Synyster Gionni",
-   "text": "set a new best parse: 17"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 36164592,
-   "name": "Synyster Gionni",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 39073020,
-   "name": "Toasted Bread",
-   "text": "set a new best parse: 24"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 39073020,
-   "name": "Toasted Bread",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 51077689,
-   "name": "Toru Celestial",
-   "text": "set a new best parse: 52"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 34597671,
-   "name": "Valkyries Zearaskia",
-   "text": "set a new best parse: 48"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "level_100",
-   "id": 33387937,
-   "name": "R'bael Senkou",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 34155014,
-   "name": "Karok Yawn",
-   "text": "set a new best parse: 82"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 28679815,
-   "name": "Kazumi Masa",
-   "text": "set a new best parse: 7"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 5761905,
-   "name": "Laura Nessonier",
-   "text": "set a new best parse: 9"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 18489055,
-   "name": "Linda Ing",
-   "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 40160371,
-   "name": "Mantra Crimson",
-   "text": "set a new best parse: 43"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 27412308,
-   "name": "Masahiro Dixon",
-   "text": "set a new best parse: 30"
   }
  ]
 }

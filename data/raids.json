@@ -13490,7 +13490,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 26,
+    "kills": 4,
+    "job": "Warrior",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -13666,7 +13677,38 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 48,
+    "kills": 9,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 31,
+    "kills": 6,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 30,
+    "kills": 6,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -13831,10 +13873,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 45,
+    "kills": 3,
+    "job": "Astrologian",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "24150396": {
   "current": {
@@ -13849,7 +13902,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 12,
+    "kills": 4,
+    "job": "Gunbreaker",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -13878,10 +13942,31 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 50,
+    "kills": 23,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 10,
+    "kills": 1,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "46485530": {
   "current": {
@@ -14015,10 +14100,41 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 66,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 32,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 87,
+    "kills": 4,
+    "job": "Astrologian",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "16034463": {
   "current": {
@@ -14051,10 +14167,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 71,
+    "kills": 3,
+    "job": "Paladin",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "34228206": {
   "current": {
@@ -14392,10 +14519,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 29,
+    "kills": 2,
+    "job": "Gunbreaker",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "30053876": {
   "current": {

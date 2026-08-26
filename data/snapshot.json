@@ -279,7 +279,7 @@
   "mounts": 159,
   "minions": 426,
   "rare": null,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -294,7 +294,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -3766,7 +3766,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 91,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3848,7 +3848,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -6500,7 +6500,7 @@
  "17473430": {
   "name": "Bigon Truesilver",
   "parse": 41,
-  "ult": 0,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -6518,8 +6518,10 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "58199756": {
   "name": "Billy Najah",
@@ -6600,7 +6602,7 @@
  "5720080": {
   "name": "Bowling Chan",
   "parse": 64,
-  "ult": 0,
+  "ult": 3,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -6618,8 +6620,12 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "33604767": {
   "name": "Boyekon Redroof",
@@ -6770,8 +6776,8 @@
  },
  "24104450": {
   "name": "Cepheus Stellar",
-  "parse": null,
-  "ult": 0,
+  "parse": 45,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -6786,13 +6792,15 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise"
+  ],
+  "chg": "2026-08-26"
  },
  "24150396": {
   "name": "Chaser Dc",
   "parse": 23,
-  "ult": 0,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -6809,13 +6817,15 @@
   "ex": [
    "Valigarmanda"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "31471584": {
   "name": "Chicha Chichi",
-  "parse": null,
-  "ult": 0,
+  "parse": 50,
+  "ult": 2,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -6830,8 +6840,11 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "46485530": {
   "name": "Chillin Chu",
@@ -6963,8 +6976,8 @@
  },
  "8999658": {
   "name": "Chzzck Godslayer",
-  "parse": null,
-  "ult": 0,
+  "parse": 87,
+  "ult": 3,
   "mounts": 140,
   "minions": 216,
   "rare": null,
@@ -6979,8 +6992,12 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "16034463": {
   "name": "Cool Piggy",
@@ -7005,8 +7022,8 @@
  },
  "24103365": {
   "name": "Cygnus Stellar",
-  "parse": null,
-  "ult": 0,
+  "parse": 71,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -7021,8 +7038,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise"
+  ],
+  "chg": "2026-08-26"
  },
  "34228206": {
   "name": "Cystal Wingsky",
@@ -7363,8 +7382,8 @@
  },
  "34511319": {
   "name": "Elise Lionheart",
-  "parse": null,
-  "ult": 0,
+  "parse": 29,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -7379,8 +7398,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "30053876": {
   "name": "Elisis Deost",
@@ -12430,7 +12451,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 76,
+  "level": 43,
   "cc": [
    false,
    false,
@@ -12442,7 +12463,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "29992221": {
   "name": "Tem Sulyvhan",
