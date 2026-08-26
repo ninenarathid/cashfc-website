@@ -2493,12 +2493,14 @@
  },
  "pipeline": {
   "legacy_cursor": 1,
-  "zone_cursor": 9,
+  "zone_cursor": 10,
   "fflogs_cycle": [
    "11603711",
    "11950156",
    "12058921",
+   "12235132",
    "12478532",
+   "13162369",
    "13533056",
    "13860363",
    "14476396",
@@ -2506,13 +2508,18 @@
    "14959902",
    "15308846",
    "15543487",
+   "15785511",
    "15895457",
    "15912826",
    "15932791",
    "16034463",
    "16099244",
+   "16168981",
+   "16173247",
    "16192933",
    "1623780",
+   "16397778",
+   "1643244",
    "17473430",
    "18538032",
    "18578874",
@@ -2520,6 +2527,7 @@
    "19827594",
    "20400811",
    "21620195",
+   "2168537",
    "21899488",
    "22164254",
    "22425670",
@@ -2537,18 +2545,22 @@
    "25504317",
    "25506828",
    "25620101",
+   "25661865",
    "26268800",
    "26298391",
    "26699926",
    "26844665",
    "27213488",
+   "27875326",
    "28120733",
+   "28163062",
    "28213199",
    "2852829",
    "28579232",
    "28789661",
    "28810440",
    "28860700",
+   "28931955",
    "28950119",
    "29090821",
    "29152036",
@@ -2556,12 +2568,17 @@
    "29339718",
    "29389419",
    "29479627",
+   "29498103",
    "29511615",
+   "29542040",
    "2957360",
    "29585811",
    "29612903",
+   "29710631",
    "29734643",
+   "29782062",
    "29795820",
+   "29863848",
    "29907674",
    "29918255",
    "29918399",
@@ -2574,7 +2591,9 @@
    "30176379",
    "30253575",
    "30293847",
+   "30333493",
    "30426712",
+   "30559609",
    "30582341",
    "30596644",
    "30667251",
@@ -2589,24 +2608,31 @@
    "31236337",
    "31334257",
    "31471584",
+   "31519555",
    "31592995",
    "31628293",
    "31685121",
    "31737067",
    "31764639",
+   "31802544",
    "31806535",
    "31806958",
    "31831003",
    "31899766",
    "31902843",
+   "32046284",
    "32147626",
    "32147756",
    "3256238",
+   "32857279",
+   "33272037",
    "33387937",
    "33604767",
    "33608576",
    "33807451",
+   "33859953",
    "33954541",
+   "33966579",
    "34086580",
    "34228206",
    "34376591",
@@ -2614,6 +2640,7 @@
    "34505698",
    "34509521",
    "34511319",
+   "34522644",
    "34522645",
    "34546216",
    "34790386",
@@ -2621,14 +2648,21 @@
    "35096411",
    "35158574",
    "35250799",
+   "35361599",
    "35601257",
    "35634484",
    "35854535",
    "35863297",
+   "36001341",
+   "36090951",
    "36130968",
    "36159286",
+   "36165070",
+   "36168487",
+   "36183250",
    "36183378",
    "36183541",
+   "36228998",
    "36248712",
    "36260815",
    "36261473",
@@ -2640,6 +2674,7 @@
    "37056222",
    "37061370",
    "37648492",
+   "37696532",
    "38018463",
    "38041221",
    "38152072",
@@ -2651,12 +2686,15 @@
    "38808156",
    "39199441",
    "3968346",
+   "39850921",
    "39850923",
    "39959181",
    "4026627",
    "40389196",
    "40394823",
+   "40652404",
    "40809430",
+   "40910522",
    "40990512",
    "41059127",
    "42021700",
@@ -2669,13 +2707,17 @@
    "42948817",
    "42976317",
    "43037186",
+   "43335087",
    "43423269",
    "43864764",
    "44133352",
    "44141004",
    "44143115",
+   "44409962",
+   "44925955",
    "44970350",
    "4505633",
+   "45101386",
    "45150763",
    "45938803",
    "46055730",
@@ -2684,14 +2726,19 @@
    "46625326",
    "46739693",
    "47221226",
+   "47337818",
    "47494518",
    "47540663",
+   "47645809",
    "47658617",
    "49929911",
+   "50103049",
+   "50120275",
    "50267765",
    "5034519",
    "50821570",
    "512253",
+   "51852387",
    "51922514",
    "52866044",
    "5294880",
@@ -2708,11 +2755,14 @@
    "57375278",
    "57419573",
    "57885671",
+   "57967682",
    "58160672",
    "58199536",
    "58199756",
    "58202955",
    "58455997",
+   "58508421",
+   "58725327",
    "60211788",
    "60475540",
    "60599300",
@@ -2736,35 +2786,43 @@
    "9155192",
    "9444020"
   ],
-  "collect_at": 1787677925.247102,
-  "lala_at": 1787678699.4840527,
+  "collect_at": 1787751554.8561895,
+  "lala_at": 1787752377.6534672,
   "collect_v": 3,
   "bucket_max": {
-   "explorer": 334.65,
-   "relic": 793.72,
-   "crafter": 992.98,
-   "gatherer": 703.42,
-   "seasonal": 228.86,
+   "explorer": 333.16,
+   "relic": 801.04,
+   "crafter": 989.75,
+   "gatherer": 702.05,
+   "seasonal": 228.77,
    "pvp": 381.49,
-   "goldsaucer": 128.11,
-   "treasure": 319.91,
+   "goldsaucer": 128.09,
+   "treasure": 319.82,
    "oldtimer": 542.02
   },
   "bucket_max_v": 2,
   "ult_swept": [
+   "12235132",
+   "13162369",
    "14538982",
    "15543487",
+   "15785511",
    "15895457",
    "15932791",
    "16034463",
    "16099244",
+   "16168981",
+   "16173247",
    "16192933",
    "1623780",
+   "16397778",
+   "1643244",
    "17473430",
    "18538032",
    "18578874",
    "18659677",
    "20400811",
+   "2168537",
    "21899488",
    "22164254",
    "24103365",
@@ -2775,19 +2833,28 @@
    "24770177",
    "25504317",
    "25620101",
+   "25661865",
    "26844665",
    "27213488",
+   "27875326",
+   "28163062",
    "28213199",
    "2852829",
    "28810440",
    "28860700",
+   "28931955",
    "29389419",
    "29479627",
+   "29498103",
+   "29542040",
    "2957360",
    "29585811",
    "29612903",
+   "29710631",
    "29734643",
+   "29782062",
    "29795820",
+   "29863848",
    "29907674",
    "29918255",
    "29918399",
@@ -2798,7 +2865,9 @@
    "30176379",
    "30253575",
    "30293847",
+   "30333493",
    "30426712",
+   "30559609",
    "30582341",
    "30596644",
    "30741737",
@@ -2810,26 +2879,34 @@
    "31155521",
    "31334257",
    "31471584",
+   "31519555",
    "31592995",
    "31685121",
    "31737067",
    "31764639",
+   "31802544",
    "31806535",
    "31806958",
    "31831003",
    "31899766",
+   "32046284",
    "32147626",
    "3256238",
+   "32857279",
+   "33272037",
    "33387937",
    "33604767",
    "33608576",
    "33807451",
+   "33859953",
    "33954541",
+   "33966579",
    "34086580",
    "34228206",
    "34376591",
    "34505698",
    "34511319",
+   "34522644",
    "34522645",
    "34546216",
    "34790386",
@@ -2837,11 +2914,18 @@
    "35096411",
    "35158574",
    "35250799",
+   "35361599",
    "35601257",
    "35854535",
    "35863297",
+   "36001341",
+   "36090951",
    "36159286",
+   "36165070",
+   "36168487",
+   "36183250",
    "36183378",
+   "36228998",
    "36260815",
    "36320452",
    "36363091",
@@ -2849,36 +2933,49 @@
    "36624109",
    "36855080",
    "37061370",
+   "37696532",
    "38018463",
    "38276690",
    "38488824",
    "38796459",
+   "39850921",
    "39850923",
    "39959181",
    "4026627",
    "40394823",
+   "40652404",
    "40809430",
+   "40910522",
    "40990512",
    "41059127",
    "42053180",
    "42215185",
    "42509107",
    "42845691",
+   "43335087",
    "43423269",
    "44143115",
+   "44409962",
+   "44925955",
    "4505633",
+   "45101386",
    "45150763",
    "46055730",
    "46243891",
    "46485530",
    "46625326",
    "46739693",
+   "47337818",
    "47494518",
+   "47645809",
    "47658617",
    "49929911",
+   "50103049",
+   "50120275",
    "50267765",
    "5034519",
    "512253",
+   "51852387",
    "52866044",
    "5297796",
    "53933347",
@@ -2888,8 +2985,11 @@
    "55640987",
    "5720080",
    "57419573",
+   "57967682",
    "58160672",
    "58199756",
+   "58508421",
+   "58725327",
    "60211788",
    "60475540",
    "60599300",
@@ -2914,469 +3014,547 @@
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
-   "title": null
+   "title": null,
+   "at": 1787751555.4153333
   },
   "15308846": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
-   "title": "The Hand of Creation"
+   "title": "The Hand of Creation",
+   "at": 1787751557.4669304
   },
   "3968346": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
-   "title": "Sky Pirate"
+   "title": "Sky Pirate",
+   "at": 1787751559.373482
   },
   "14959902": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
-   "title": "Lightbringer"
+   "title": "Lightbringer",
+   "at": 1787751561.278486
   },
   "28789661": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
-   "title": "Garo"
+   "title": "Garo",
+   "at": 1787751563.137123
   },
   "31628293": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751565.1428196
   },
   "57885671": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "Icebreaker"
+   "title": "Icebreaker",
+   "at": 1787751566.997404
   },
   "58199536": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "The White"
+   "title": "The White",
+   "at": 1787751568.91601
   },
   "24186600": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
-   "title": null
+   "title": null,
+   "at": 1787751570.7762647
   },
   "29152036": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
-   "title": "Moonwalker"
+   "title": "Moonwalker",
+   "at": 1787751572.7749438
   },
   "38041221": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "Khloe's Best Friend"
+   "title": "Khloe's Best Friend",
+   "at": 1787751574.7198136
   },
   "35634484": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751576.6643095
   },
   "22767255": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "The Red"
+   "title": "The Red",
+   "at": 1787751578.591883
   },
   "29511615": {
    "race": "Hrothgar",
    "clan": "The Lost",
    "gender": "Female",
-   "title": "The Fae-touched"
+   "title": "The Fae-touched",
+   "at": 1787751582.2401314
   },
   "31236337": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
-   "title": "Force of Nature"
+   "title": "Force of Nature",
+   "at": 1787751584.1772997
   },
   "13533056": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751587.9956179
   },
   "44970350": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
-   "title": "Mammeteer"
+   "title": "Mammeteer",
+   "at": 1787751589.9103487
   },
   "19827594": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Female",
-   "title": null
+   "title": "The Hand of Mercy",
+   "at": 1787751591.9346025
   },
   "45938803": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
-   "title": "Ijin Traveler"
+   "title": "Ijin Traveler",
+   "at": 1787751593.8874516
   },
   "36248712": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
-   "title": "The Heavens' Legend"
+   "title": "The Heavens' Legend",
+   "at": 1787751595.7609591
   },
   "26699926": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "Sweet Dreamer"
+   "title": "Sweet Dreamer",
+   "at": 1787751597.619719
   },
   "32147756": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "The Darkest Shadow"
+   "title": "The Darkest Shadow",
+   "at": 1787751599.5028327
   },
   "36261473": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
-   "title": "Distant Stargazer"
+   "title": "Distant Stargazer",
+   "at": 1787751601.381245
   },
   "36130968": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
-   "title": "The Ultimate Legend"
+   "title": "The Ultimate Legend",
+   "at": 1787751603.3206098
   },
   "28579232": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
-   "title": "Genesis of Legends"
+   "title": "Genesis of Legends",
+   "at": 1787751605.21653
   },
   "47221226": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "Bug Girl"
+   "title": "Bug Girl",
+   "at": 1787751607.1128206
   },
   "39199441": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
-   "title": "Practically Pelupelu"
+   "title": "Practically Pelupelu",
+   "at": 1787751609.0951834
   },
   "40389196": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
-   "title": "Of the New Dawn"
+   "title": "Of the New Dawn",
+   "at": 1787751611.1080647
   },
   "47540663": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
-   "title": "Myth Breaker"
+   "title": "Myth Breaker",
+   "at": 1787751613.120335
   },
   "28950119": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
-   "title": "Trailblazer"
+   "title": "Trailblazer",
+   "at": 1787751614.9704232
   },
   "28120733": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
-   "title": null
+   "title": null,
+   "at": 1787751616.8829203
   },
   "12478532": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
-   "title": "Echo of a Fallen Star"
+   "title": "Echo of a Fallen Star",
+   "at": 1787751618.9435582
   },
   "50821570": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
-   "title": "Gembreaker"
+   "title": "Gembreaker",
+   "at": 1787751620.8760252
   },
   "42349146": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
-   "title": "The Heart of the Party"
+   "title": "The Heart of the Party",
+   "at": 1787751622.7308662
   },
   "42021700": {
    "race": "Roegadyn",
    "clan": "Hellsguard",
    "gender": "Male",
-   "title": "The Meat Shield"
+   "title": "The Meat Shield",
+   "at": 1787751624.6123433
   },
   "42948817": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "Arbiter of the Arts"
+   "title": "Arbiter of the Arts",
+   "at": 1787751626.488201
   },
   "57375278": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751628.3387573
   },
   "25506828": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
-   "title": "Genesis of Legends"
+   "title": "Genesis of Legends",
+   "at": 1787751630.2957351
   },
   "38808156": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
-   "title": "The Necromancer"
+   "title": "The Necromancer",
+   "at": 1787751632.1474106
   },
   "31902843": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
-   "title": "Sweet Dreamer"
+   "title": "Sweet Dreamer",
+   "at": 1787751634.1216319
   },
   "30864049": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
-   "title": "The Mourner of Light"
+   "title": "The Mourner of Light",
+   "at": 1787751635.9924977
   },
   "34509521": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
-   "title": "Of the Two Towers"
+   "title": "Of the Two Towers",
+   "at": 1787751637.8550575
   },
   "37056222": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
-   "title": "Queen Bean"
+   "title": "Queen Bean",
+   "at": 1787751639.857324
   },
   "22461237": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Male",
-   "title": "Doom of the Deep"
+   "title": "Doom of the Deep",
+   "at": 1787751641.82287
   },
   "5294880": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "Gentlewoman"
+   "title": "Gentlewoman",
+   "at": 1787751643.6936617
   },
   "5435582": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
-   "title": "Genesis of Legends"
+   "title": "Genesis of Legends",
+   "at": 1787751645.5446866
   },
   "26268800": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751647.4030492
   },
   "6173187": {
    "race": "Hyur",
    "clan": "Highlander",
    "gender": "Male",
-   "title": "Shark Hunter"
+   "title": "Shark Hunter",
+   "at": 1787751649.4033995
   },
   "51922514": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751651.3003283
   },
   "36183541": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "The Fae-touched"
+   "title": "The Fae-touched",
+   "at": 1787751653.1900382
   },
   "21620195": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
-   "title": "Phantom Salvation"
+   "title": "Phantom Salvation",
+   "at": 1787751655.02991
   },
   "5644067": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
-   "title": "The Legend"
+   "title": "The Legend",
+   "at": 1787751656.9364593
   },
   "9444020": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
-   "title": "The Alpha Legend"
+   "title": "The Alpha Legend",
+   "at": 1787751658.8607616
   },
   "22425670": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "Saint of Sorrows"
+   "title": "Saint of Sorrows",
+   "at": 1787751660.708905
   },
   "15912826": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
-   "title": "The Enlightened"
+   "title": "The Enlightened",
+   "at": 1787751662.5815985
   },
   "11950156": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751664.8795094
   },
   "30667251": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
-   "title": "The Professional"
+   "title": "The Professional",
+   "at": 1787751666.7361307
   },
   "29325838": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
-   "title": null
+   "title": null,
+   "at": 1787751668.6011362
   },
   "58455997": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
-   "title": null
+   "title": null,
+   "at": 1787751670.5668585
   },
   "44133352": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
-   "title": "Makai Red Mage"
+   "title": "Makai Red Mage",
+   "at": 1787751672.4216487
   },
   "43864764": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "World-class Troller"
+   "title": "World-class Troller",
+   "at": 1787751674.3465316
   },
   "29998658": {
    "race": "Hrothgar",
    "clan": "Helions",
    "gender": "Male",
-   "title": "Trailblazer"
+   "title": "Trailblazer",
+   "at": 1787751676.273423
   },
   "44141004": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Female",
-   "title": "Makai Bard"
+   "title": "Makai Bard",
+   "at": 1787751678.2815034
   },
   "37648492": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "The New Sun"
+   "title": "The New Sun",
+   "at": 1787751680.4002995
   },
   "11603711": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "Featherfall's Finest Weaver"
+   "title": "Featherfall's Finest Weaver",
+   "at": 1787751682.268763
   },
   "58202955": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": "Barista at the End of the Universe"
+   "title": "Barista at the End of the Universe",
+   "at": 1787751684.133813
   },
   "26298391": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751685.98785
   },
   "29918404": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
-   "title": null
+   "title": null,
+   "at": 1787751687.8936632
   },
   "42976317": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "Zhloe's Friend"
+   "title": "Zhloe's Friend",
+   "at": 1787751689.793802
   },
   "24123541": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751691.6735446
   },
   "12058921": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "Kyubi Tamer"
+   "title": "Kyubi Tamer",
+   "at": 1787751693.7016447
   },
   "38335568": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751695.6243405
   },
   "6951533": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751697.5230465
   },
   "38802422": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751699.4914832
   },
   "56108574": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "The Red"
+   "title": "The Red",
+   "at": 1787751701.355124
   },
   "8836061": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
-   "title": "Gambler"
+   "title": "Gambler",
+   "at": 1787751703.2624116
   },
   "8286372": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
-   "title": null
+   "title": null,
+   "at": 1787751705.1362493
   },
   "29090821": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
-   "title": "Annihilator"
+   "title": "Annihilator",
+   "at": 1787751707.0144017
   },
   "34434658": {
    "race": "Lalafell",
@@ -5758,7 +5936,8 @@
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
-   "title": null
+   "title": null,
+   "at": 1787751586.0134006
   },
   "29853808": {
    "race": "Lalafell",
@@ -5909,7 +6088,7 @@
    "minions": 295,
    "achievements": 0,
    "achv_private": true,
-   "mount_rank": "4677",
+   "mount_rank": "4678",
    "minion_rank": "2092",
    "achv_rank": null,
    "race": null,
@@ -5943,7 +6122,7 @@
    "minions": 269,
    "achievements": 1540,
    "achv_private": false,
-   "mount_rank": "3504",
+   "mount_rank": "3505",
    "minion_rank": "2374",
    "achv_rank": "1223",
    "race": "Viera",
@@ -6154,6 +6333,74 @@
    "tribe": null,
    "synced": 1776137144,
    "indexed": 1610591365
+  },
+  "28579232": {
+   "last_mount": 1775786189,
+   "last_minion": 1774817683,
+   "last_achv": 1774965857,
+   "last_active": 1775786189,
+   "mounts": 99,
+   "minions": 130,
+   "achievements": 1072,
+   "achv_private": false,
+   "mount_rank": "3362",
+   "minion_rank": "5964",
+   "achv_rank": "2460",
+   "race": null,
+   "tribe": null,
+   "synced": 1776019643,
+   "indexed": 1713604361
+  },
+  "39199441": {
+   "last_mount": 1774906866,
+   "last_minion": 1769052391,
+   "last_achv": 1774364561,
+   "last_active": 1774906866,
+   "mounts": 158,
+   "minions": 237,
+   "achievements": 1501,
+   "achv_private": false,
+   "mount_rank": "1303",
+   "minion_rank": "3355",
+   "achv_rank": "1493",
+   "race": null,
+   "tribe": null,
+   "synced": 1776157296,
+   "indexed": 1636095336
+  },
+  "5034519": {
+   "last_mount": 1722689922,
+   "last_minion": 1721393797,
+   "last_achv": null,
+   "last_active": 1722689922,
+   "mounts": 59,
+   "minions": 179,
+   "achievements": 0,
+   "achv_private": true,
+   "mount_rank": "5420",
+   "minion_rank": "4973",
+   "achv_rank": null,
+   "race": "Miqo'te",
+   "tribe": "Seeker of the Sun",
+   "synced": 1776098760,
+   "indexed": 1543917446
+  },
+  "31519555": {
+   "last_mount": 1714844404,
+   "last_minion": 1714844404,
+   "last_achv": null,
+   "last_active": 1714844404,
+   "mounts": 36,
+   "minions": 78,
+   "achievements": 0,
+   "achv_private": true,
+   "mount_rank": "6605",
+   "minion_rank": "7021",
+   "achv_rank": null,
+   "race": null,
+   "tribe": null,
+   "synced": 1775800931,
+   "indexed": 1664235106
   }
  },
  "collect": {
@@ -6320,7 +6567,7 @@
     "crafter": {
      "n": 58,
      "min": 1.4,
-     "score": 229.47
+     "score": 229.41
     },
     "pvp": {
      "n": 53,
@@ -6330,7 +6577,7 @@
     "treasure": {
      "n": 28,
      "min": 1.1,
-     "score": 74.14
+     "score": 74.06
     },
     "goldsaucer": {
      "n": 7,
@@ -6340,7 +6587,7 @@
     "relic": {
      "n": 146,
      "min": 1.2,
-     "score": 272.98
+     "score": 272.82
     },
     "gatherer": {
      "n": 16,
@@ -6407,9 +6654,9 @@
     3074,
     1463,
     1391,
+    2144,
     2388,
     2872,
-    2144,
     2773,
     2863,
     2054,
@@ -6496,7 +6743,7 @@
     "relic": {
      "n": 71,
      "min": 5.7,
-     "score": 84.79
+     "score": 84.81
     },
     "pvp": {
      "n": 5,
@@ -6642,7 +6889,7 @@
     "relic": {
      "n": 8,
      "min": 4.7,
-     "score": 10.28
+     "score": 10.3
     },
     "goldsaucer": {
      "n": 1,
@@ -6796,9 +7043,9 @@
     1938,
     2551,
     3348,
+    1934,
     3998,
     4002,
-    1934,
     3631,
     3472,
     2228,
@@ -6814,8 +7061,8 @@
     3074,
     3470,
     846,
-    2388,
     2144,
+    2388,
     2773,
     1353,
     1439,
@@ -6864,12 +7111,12 @@
     "relic": {
      "n": 23,
      "min": 4.7,
-     "score": 30.05
+     "score": 30.07
     },
     "explorer": {
      "n": 22,
      "min": 1.3,
-     "score": 45.89
+     "score": 45.81
     },
     "treasure": {
      "n": 2,
@@ -6942,23 +7189,23 @@
     3802,
     3363,
     3761,
-    3767,
     3368,
+    3767,
     3768,
     3823,
     3362,
-    3755,
     3764,
-    3801,
     3369,
     3677,
+    3755,
     3772,
+    3801,
     3468,
     3735,
-    3644,
     3800,
     3470,
     3643,
+    3644,
     3754,
     3796,
     3648,
@@ -6996,8 +7243,8 @@
     3312,
     3475,
     3654,
-    3805,
     1333,
+    3805,
     1320,
     3616,
     3650,
@@ -7021,12 +7268,12 @@
     "crafter": {
      "n": 16,
      "min": 3.0,
-     "score": 28.53
+     "score": 28.51
     },
     "relic": {
      "n": 82,
      "min": 4.4,
-     "score": 121.66
+     "score": 121.48
     },
     "explorer": {
      "n": 17,
@@ -7168,7 +7415,7 @@
     "crafter": {
      "n": 103,
      "min": 1.4,
-     "score": 305.59
+     "score": 305.56
     },
     "gatherer": {
      "n": 20,
@@ -7188,22 +7435,22 @@
     "goldsaucer": {
      "n": 18,
      "min": 1.1,
-     "score": 50.09
+     "score": 50.18
     },
     "relic": {
      "n": 145,
      "min": 0.7,
-     "score": 251.5
+     "score": 251.37
     },
     "explorer": {
      "n": 10,
-     "min": 5.0,
-     "score": 13.82
+     "min": 5.1,
+     "score": 13.74
     },
     "seasonal": {
      "n": 1,
-     "min": 4.8,
-     "score": 2.08
+     "min": 5.1,
+     "score": 1.96
     }
    }
   },
@@ -7329,12 +7576,12 @@
     "relic": {
      "n": 42,
      "min": 4.0,
-     "score": 64.78
+     "score": 64.72
     },
     "crafter": {
      "n": 7,
      "min": 1.5,
-     "score": 20.11
+     "score": 20.05
     },
     "explorer": {
      "n": 4,
@@ -7361,11 +7608,11 @@
     3954,
     4008,
     3957,
-    3962,
     4018,
+    3962,
     3952,
-    3680,
     3951,
+    3680,
     3956,
     1339,
     4000,
@@ -7389,32 +7636,32 @@
     3924,
     4004,
     4006,
-    3939,
     3923,
-    3999,
+    3939,
     3847,
     3848,
     3922,
+    3999,
     935,
     1475,
     2066,
     3852,
     3860,
-    3935,
     3729,
     3861,
     3918,
+    3935,
     4014,
     2481,
     3846,
     3916,
     3917,
-    3919,
-    4074,
     3683,
     3853,
     3856,
+    3919,
     3920,
+    4074,
     1328,
     1370,
     3850,
@@ -7422,14 +7669,14 @@
     3915,
     3921,
     2137,
-    3784,
     3857,
     3914,
-    4003,
     2393,
     3726,
+    3784,
     3851,
     3858,
+    4003,
     2991,
     3702,
     3845,
@@ -7453,15 +7700,15 @@
     3770,
     3885,
     3600,
-    3736,
     3771,
-    3843
+    3843,
+    3925
    ],
    "achv_buckets": {
     "crafter": {
      "n": 11,
      "min": 1.6,
-     "score": 24.62
+     "score": 24.56
     },
     "pvp": {
      "n": 18,
@@ -7471,12 +7718,12 @@
     "relic": {
      "n": 149,
      "min": 0.4,
-     "score": 362.66
+     "score": 357.76
     },
     "treasure": {
      "n": 11,
      "min": 3.6,
-     "score": 18.25
+     "score": 18.17
     },
     "gatherer": {
      "n": 8,
@@ -7486,7 +7733,7 @@
     "explorer": {
      "n": 33,
      "min": 0.2,
-     "score": 207.99
+     "score": 206.52
     },
     "goldsaucer": {
      "n": 1,
@@ -7495,8 +7742,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 4.8,
-     "score": 2.08
+     "min": 5.1,
+     "score": 1.96
     }
    }
   },
@@ -7814,7 +8061,7 @@
     "relic": {
      "n": 77,
      "min": 4.0,
-     "score": 104.72
+     "score": 104.69
     },
     "explorer": {
      "n": 1,
@@ -7901,8 +8148,8 @@
     3693,
     3694,
     3741,
-    3609,
     950,
+    3609,
     3692,
     963,
     3691,
@@ -8001,15 +8248,15 @@
     2475,
     2476,
     2472,
-    3617,
     1588,
     2214,
+    3617,
     2473,
     3162,
     2389,
     2474,
-    2463,
     1583,
+    2463,
     2149,
     2471,
     3348,
@@ -8019,10 +8266,10 @@
     2462,
     2088,
     3074,
+    2144,
     2388,
     1696,
     1709,
-    2144,
     3630,
     2084,
     2461,
@@ -8079,7 +8326,7 @@
     "relic": {
      "n": 40,
      "min": 3.7,
-     "score": 54.87
+     "score": 54.94
     },
     "treasure": {
      "n": 2,
@@ -8252,7 +8499,7 @@
     "gatherer": {
      "n": 26,
      "min": 2.7,
-     "score": 54.65
+     "score": 54.68
     },
     "relic": {
      "n": 4,
@@ -8468,9 +8715,9 @@
     1512,
     1855,
     1318,
-    1091,
     1475,
     2511,
+    1091,
     1316,
     2930,
     764,
@@ -8558,7 +8805,7 @@
     "goldsaucer": {
      "n": 5,
      "min": 2.8,
-     "score": 11.34
+     "score": 11.23
     },
     "pvp": {
      "n": 3,
@@ -8830,7 +9077,7 @@
     "seasonal": {
      "n": 10,
      "min": 5.8,
-     "score": 13.08
+     "score": 13.11
     }
    }
   },
@@ -9424,8 +9671,8 @@
     2786,
     2088,
     3074,
-    2388,
     2144,
+    2388,
     1057,
     1353,
     2084,
@@ -9478,7 +9725,7 @@
     "seasonal": {
      "n": 14,
      "min": 4.2,
-     "score": 23.4
+     "score": 23.43
     },
     "treasure": {
      "n": 2,
@@ -9488,7 +9735,7 @@
     "relic": {
      "n": 25,
      "min": 3.2,
-     "score": 39.02
+     "score": 39.05
     },
     "explorer": {
      "n": 3,
@@ -9629,7 +9876,7 @@
    "minions": 137,
    "rare_achv": 70,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/5bd4bc050ebd47be29f780d1a7c163d6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787638180",
+   "portrait": "https://img2.finalfantasyxiv.com/f/5bd4bc050ebd47be29f780d1a7c163d6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787728778",
    "ult_achv": [
     "Dragonsong's Reprise",
     "Futures Rewritten",
@@ -9679,8 +9926,8 @@
     1003,
     2780,
     1002,
-    3805,
     1333,
+    3805,
     3616,
     2281,
     2052,
@@ -9726,8 +9973,8 @@
     },
     "seasonal": {
      "n": 7,
-     "min": 4.8,
-     "score": 9.32
+     "min": 5.1,
+     "score": 9.23
     },
     "relic": {
      "n": 3,
@@ -9750,6 +9997,113 @@
    "ult_achv": [],
    "rare_ids": [],
    "achv_buckets": {}
+  },
+  "47221226": {
+   "mounts": 81,
+   "minions": 104,
+   "rare_achv": 64,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/147eb7afcc44e55f4543205277958909_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787729937",
+   "ult_achv": [
+    "Dancing Mad",
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
+   "rare_ids": [
+    4069,
+    3954,
+    3957,
+    3899,
+    3870,
+    3847,
+    3846,
+    3856,
+    3850,
+    3869,
+    3617,
+    634,
+    3757,
+    3868,
+    3771,
+    3843,
+    3756,
+    3763,
+    3766,
+    3760,
+    3874,
+    3631,
+    3898,
+    3823,
+    3979,
+    3764,
+    3369,
+    3755,
+    3772,
+    3897,
+    3074,
+    3643,
+    3890,
+    3630,
+    3657,
+    3642,
+    3646,
+    3649,
+    3769,
+    3652,
+    3753,
+    3577,
+    3312,
+    3650,
+    3641,
+    3658,
+    3895,
+    3215,
+    3673,
+    3640,
+    3867,
+    3655,
+    3889,
+    3243,
+    3252,
+    3639,
+    3676,
+    2444,
+    266,
+    2392,
+    3200,
+    3202,
+    3373,
+    3662
+   ],
+   "achv_buckets": {
+    "gatherer": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    },
+    "relic": {
+     "n": 34,
+     "min": 0.4,
+     "score": 97.71
+    },
+    "treasure": {
+     "n": 2,
+     "min": 8.2,
+     "score": 2.27
+    },
+    "explorer": {
+     "n": 5,
+     "min": 5.8,
+     "score": 6.57
+    },
+    "seasonal": {
+     "n": 1,
+     "min": 5.1,
+     "score": 1.96
+    }
+   }
   }
  }
 }

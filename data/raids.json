@@ -14739,6 +14739,16 @@
     "kills": 1,
     "job": "Samurai",
     "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 83,
+    "kills": 15,
+    "job": "Machinist",
+    "cleared": true
    }
   ],
   "extremes": [],
@@ -14814,6 +14824,46 @@
     "kills": 19,
     "job": "DarkKnight",
     "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 80,
+    "kills": 8,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 95,
+    "kills": 9,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 85,
+    "kills": 15,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "The Weapon's Refrain",
+    "zone_id": 23,
+    "expansion": "Stormblood",
+    "name": "The Weapon's Refrain",
+    "best": 77,
+    "kills": 3,
+    "job": "Warrior",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -14872,10 +14922,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 50,
+    "kills": 2,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "16397778": {
   "current": {
@@ -14998,10 +15059,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 92,
+    "kills": 15,
+    "job": "Scholar",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "30559609": {
   "current": {
@@ -15025,6 +15097,36 @@
     "best": 30,
     "kills": 12,
     "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 32,
+    "kills": 1,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 53,
+    "kills": 4,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 29,
+    "kills": 2,
+    "job": "Samurai",
     "cleared": true
    }
   ],
@@ -15084,10 +15186,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 19,
+    "kills": 1,
+    "job": "Machinist",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "36168487": {
   "current": {
@@ -15152,6 +15265,16 @@
     "best": 76,
     "kills": 2,
     "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 43,
+    "kills": 2,
+    "job": "Summoner",
     "cleared": true
    }
   ],
@@ -15634,10 +15757,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 67,
+    "kills": 11,
+    "job": "Dragoon",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "28163062": {
   "current": {

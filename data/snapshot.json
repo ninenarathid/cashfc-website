@@ -1013,10 +1013,10 @@
  "47221226": {
   "name": "Destiny Marjory",
   "parse": 99,
-  "ult": 2,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 5,
+  "mounts": 81,
+  "minions": 104,
+  "rare": 64,
   "level": 100,
   "cc": [
    true,
@@ -1024,8 +1024,75 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   266,
+   634,
+   2392,
+   2444,
+   3074,
+   3200,
+   3202,
+   3215,
+   3243,
+   3252,
+   3312,
+   3369,
+   3373,
+   3577,
+   3617,
+   3630,
+   3631,
+   3639,
+   3640,
+   3641,
+   3642,
+   3643,
+   3646,
+   3649,
+   3650,
+   3652,
+   3655,
+   3657,
+   3658,
+   3662,
+   3673,
+   3676,
+   3753,
+   3755,
+   3756,
+   3757,
+   3760,
+   3763,
+   3764,
+   3766,
+   3769,
+   3771,
+   3772,
+   3823,
+   3843,
+   3846,
+   3847,
+   3850,
+   3856,
+   3867,
+   3868,
+   3869,
+   3870,
+   3874,
+   3889,
+   3890,
+   3895,
+   3897,
+   3898,
+   3899,
+   3954,
+   3957,
+   3979,
+   4069
+  ],
+  "tiers": {
+   "relic": "master"
+  },
   "jobs": {
    "Monk": "legendary",
    "Samurai": "legendary"
@@ -1041,7 +1108,10 @@
   ],
   "ults": [
    "Dancing Mad",
-   "Futures Rewritten"
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
   ],
   "chg": "2026-08-26"
  },
@@ -1286,7 +1356,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 63,
+  "level": 65,
   "cc": [
    true,
    true,
@@ -2906,7 +2976,6 @@
    3703,
    3726,
    3729,
-   3736,
    3757,
    3758,
    3762,
@@ -2951,6 +3020,7 @@
    3922,
    3923,
    3924,
+   3925,
    3935,
    3936,
    3937,
@@ -3148,7 +3218,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 66,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -7541,8 +7611,8 @@
  },
  "32046284": {
   "name": "Ene Shy",
-  "parse": 57,
-  "ult": 1,
+  "parse": 83,
+  "ult": 2,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -7555,12 +7625,15 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Machinist": "expert"
+  },
   "ex": [],
   "ults": [
+   "The Epic of Alexander",
    "The Omega Protocol"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "47645809": {
   "name": "Entprise Yakult",
@@ -7695,8 +7768,8 @@
    "seasonal": "master"
   },
   "jobs": {
-   "Gunbreaker": "master",
-   "DarkKnight": "expert"
+   "Gunbreaker": "legendary",
+   "DarkKnight": "master"
   },
   "ex": [
    "Valigarmanda",
@@ -7735,8 +7808,8 @@
  },
  "31519555": {
   "name": "Ernese Gold",
-  "parse": null,
-  "ult": 0,
+  "parse": 50,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -7751,8 +7824,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise"
+  ],
+  "chg": "2026-08-26"
  },
  "16397778": {
   "name": "Eydis Ein",
@@ -7882,8 +7957,8 @@
  },
  "36228998": {
   "name": "Fishstop Moon-osha",
-  "parse": null,
-  "ult": 0,
+  "parse": 92,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -7896,15 +7971,19 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Scholar": "expert"
+  },
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "30559609": {
   "name": "Florice Frostingway",
-  "parse": 30,
-  "ult": 1,
+  "parse": 53,
+  "ult": 4,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -7923,9 +8002,12 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "The Omega Protocol"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "16168981": {
   "name": "Francis Fleuret",
@@ -7950,8 +8032,8 @@
  },
  "47337818": {
   "name": "Freedom Marjory",
-  "parse": null,
-  "ult": 0,
+  "parse": 19,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -7966,13 +8048,15 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "36168487": {
   "name": "Freki Plumis",
   "parse": 98,
-  "ult": 1,
+  "ult": 2,
   "mounts": 148,
   "minions": 323,
   "rare": null,
@@ -8001,9 +8085,10 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "Dragonsong's Reprise"
+   "Dragonsong's Reprise",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "29863848": {
   "name": "Furfur Albadia",
@@ -8402,8 +8487,8 @@
  },
  "30333493": {
   "name": "Haruko Sho",
-  "parse": null,
-  "ult": 0,
+  "parse": 67,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -8418,8 +8503,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-08-26"
  },
  "28163062": {
   "name": "Helga Holybringer",

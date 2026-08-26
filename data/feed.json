@@ -2,6 +2,181 @@
  "events": [
   {
    "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "grade_up",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "is now a Master Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "rare_up",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "earned Son of a... — only 0.3% of players have it, and 63 more"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned The Outer Researches — only 4.8% of players have it"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 32046284,
+   "name": "Ene Shy",
+   "text": "set a new best parse: 83"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 32046284,
+   "name": "Ene Shy",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 32046284,
+   "name": "Ene Shy",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "is now a Master Dark Knight"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 31519555,
+   "name": "Ernese Gold",
+   "text": "set a new best parse: 50"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 31519555,
+   "name": "Ernese Gold",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 36228998,
+   "name": "Fishstop Moon-osha",
+   "text": "set a new best parse: 92"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 36228998,
+   "name": "Fishstop Moon-osha",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 36228998,
+   "name": "Fishstop Moon-osha",
+   "text": "is now a Expert Scholar"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 30559609,
+   "name": "Florice Frostingway",
+   "text": "set a new best parse: 53"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 30559609,
+   "name": "Florice Frostingway",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 30559609,
+   "name": "Florice Frostingway",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 30559609,
+   "name": "Florice Frostingway",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 47337818,
+   "name": "Freedom Marjory",
+   "text": "set a new best parse: 19"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 47337818,
+   "name": "Freedom Marjory",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "set a new best parse: 67"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
    "type": "level_100",
    "id": 39959181,
    "name": "El Blung",
@@ -1224,181 +1399,6 @@
    "id": 24313144,
    "name": "Oxyy Genn",
    "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 53019673,
-   "name": "Pallas Raindance",
-   "text": "set a new best parse: 76"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 36151779,
-   "name": "Percival Heisenberg",
-   "text": "set a new best parse: 68"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 57711304,
-   "name": "Pola Lis",
-   "text": "set a new best parse: 23"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "set a new best parse: 52"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 40624820,
-   "name": "Rin Miyauchi",
-   "text": "set a new best parse: 26"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 40624820,
-   "name": "Rin Miyauchi",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "set a new best parse: 90"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 29395299,
-   "name": "Runie Run",
-   "text": "set a new best parse: 79"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 29395299,
-   "name": "Runie Run",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 47548993,
-   "name": "Sanya Polaali",
-   "text": "set a new best parse: 27"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47548993,
-   "name": "Sanya Polaali",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47548993,
-   "name": "Sanya Polaali",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47548993,
-   "name": "Sanya Polaali",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47548993,
-   "name": "Sanya Polaali",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 47548993,
-   "name": "Sanya Polaali",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 1607774,
-   "name": "Shiomi Shirogane",
-   "text": "set a new best parse: 10"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 44926008,
-   "name": "Shiraishi Shu",
-   "text": "set a new best parse: 93"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 44926008,
-   "name": "Shiraishi Shu",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "set a new best parse: 78"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "set a new best parse: 100"
   }
  ]
 }
