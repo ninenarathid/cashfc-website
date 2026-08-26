@@ -12,6 +12,7 @@ import {
 import Carousel from "@/components/gallery/Carousel";
 import PostTags from "@/components/gallery/PostTags";
 import PhotoTagLayer from "@/components/gallery/PhotoTagLayer";
+import { useAvatarOverrides } from "@/lib/avatars";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
@@ -42,6 +43,7 @@ export default function PostDetail(
   },
 ) {
   const { t, lang } = useLang();
+  const chosen = useAvatarOverrides();
   const [supabase] = useState(createClient);
   const [likes, setLikes] = useState<number | null>(null);
   const [liked, setLiked] = useState(false);
@@ -123,13 +125,18 @@ export default function PostDetail(
   // tied to a character at all — a guest with nothing linked.
   const character = post.character_id ? roster[post.character_id] : undefined;
   const shownName = post.credited_name ?? character?.name ?? author?.name ?? "—";
-  const shownAvatar = character?.avatar
+  const shownAvatar = (post.character_id ? chosen[post.character_id] : null)
+    ?? character?.avatar
     ?? (post.credited_name ? null : author?.avatar ?? null);
   // Names and faces for the pin cards: the roster passed down, with the picker's
   // list filling in anybody it does not cover.
   const faces: Record<number, { name: string; avatar: string | null }> = {};
   for (const o of memberOptions) faces[o.id] = { name: o.name, avatar: o.avatar ?? null };
   for (const [id, r] of Object.entries(roster)) faces[Number(id)] = r;
+  // A picture somebody chose wins over the Lodestone's, here as everywhere.
+  for (const [id, url] of Object.entries(chosen)) {
+    faces[Number(id)] = { name: faces[Number(id)]?.name ?? "—", avatar: url };
+  }
 
   const mine = !!me && me === post.author_id;
   const canDelete = mine || isAdmin;

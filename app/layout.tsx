@@ -3,6 +3,7 @@ import { Mitr, Noto_Sans_Thai_Looped, Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import { LangProvider } from "@/lib/i18n";
+import { AvatarProvider } from "@/lib/avatars";
 
 // This is a Free Company hangout, not a spreadsheet, so all three faces lean warm
 // and all three carry a full Thai set — the FC is Thai and the site is in English,
@@ -48,6 +49,9 @@ export default function RootLayout({
         className={`${display.variable} ${body.variable} ${data.variable} font-body antialiased`}
       >
         <LangProvider>
+          {/* One small query for the faces members chose, shared by the board,
+              their pages, and every byline and tag in the gallery. */}
+          <AvatarProvider>
           <div className="mx-auto max-w-5xl px-4 pb-16">
             <Nav />
             {children}
@@ -62,6 +66,7 @@ export default function RootLayout({
             &ldquo;No data&rdquo; · refreshed every four hours by GitHub Actions
             </footer>
           </div>
+          </AvatarProvider>
         </LangProvider>
       </body>
     </html>

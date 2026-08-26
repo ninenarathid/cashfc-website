@@ -63,18 +63,24 @@ export default function MemberView({
     const BASE = "bio, accent_color, discord_username, lfg, banner, character_id";
     const V3 = `${BASE}, nickname, birth_month, birth_day`;
     const V7 = `${V3}, availability`;
+    const V16 = `${V7}, avatar_url, cover_url`;
     // Same fallback as the board, one step longer: an unknown column fails the
     // whole select, so each migration this page reads gets a rung to fall back to
     // rather than blanking every field because one is missing.
     const load = (cols: string) =>
       supabase.from("profiles").select(cols).eq("character_id", m.id).maybeSingle();
 
-    load(V7).then(async ({ data, error }) => {
+    load(V16).then(async ({ data, error }) => {
       let row = (error ? null : data) as Record<string, unknown> | null;
       if (error) {
-        const v3 = await load(V3);
-        row = (v3.error ? (await load(BASE)).data : v3.data) as
-          Record<string, unknown> | null;
+        const v7 = await load(V7);
+        if (v7.error) {
+          const v3 = await load(V3);
+          row = (v3.error ? (await load(BASE)).data : v3.data) as
+            Record<string, unknown> | null;
+        } else {
+          row = v7.data as Record<string, unknown> | null;
+        }
       }
       if (!row) return;
       setOv({
@@ -86,6 +92,8 @@ export default function MemberView({
         birthMonth: (row.birth_month as number | null) ?? null,
         birthDay: (row.birth_day as number | null) ?? null,
         availability: (row.availability as string | null) ?? null,
+        avatarUrl: (row.avatar_url as string | null) ?? null,
+        coverUrl: (row.cover_url as string | null) ?? null,
       });
     });
     supabase.from("kudos")
@@ -202,13 +210,28 @@ export default function MemberView({
       </Link>
 
       {/* ── Header / banner ── */}
-      <section className="overflow-hidden rounded-2xl border border-line"
+      <section className="relative overflow-hidden rounded-2xl border border-line"
                style={{ background: ov?.banner ?? DEFAULT_BANNER }}>
-        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:p-6">
-          {(m.portrait || m.avatar) && (
+        {/* A cover the member chose, with a wash over it. Without the wash the
+            name and the rank land on whatever happens to be in the picture, and
+            white text on a bright sky is unreadable however good the shot is. */}
+        {ov?.coverUrl && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={ov.coverUrl} alt=""
+                 className="absolute inset-0 size-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/70 to-bg/25" />
+          </>
+        )}
+        <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:p-6">
+          {(ov?.avatarUrl || m.portrait || m.avatar) && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={m.portrait ?? m.avatar ?? ""} alt=""
-                 className="h-44 w-32 shrink-0 rounded-xl border border-line object-cover object-top sm:h-52 sm:w-40" />
+            <img src={ov?.avatarUrl ?? m.portrait ?? m.avatar ?? ""} alt=""
+                 className={`shrink-0 rounded-xl border border-line object-cover object-top ${
+                   // A picture they cropped square is shown square. Forcing it
+                   // into the Lodestone's tall frame would crop their crop.
+                   ov?.avatarUrl ? "size-32 sm:size-40"
+                                 : "h-44 w-32 sm:h-52 sm:w-40"}`} />
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 font-data text-[11px] uppercase tracking-[0.2em] text-ink/60">

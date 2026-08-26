@@ -13,6 +13,7 @@ import MemberTags, { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberT
 import TagIcon from "@/components/TagIcon";
 import ProgressBadge from "@/components/ProgressBadge";
 import { useLang } from "@/lib/i18n";
+import { useAvatar } from "@/lib/avatars";
 import { ultimateAbbr } from "@/lib/types";
 import JobIcon, {
   ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobRole, jobRoleGroup,
@@ -37,7 +38,10 @@ const hue = (n: string) => [...n].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 
 function Avatar({ m, size = 11 }: { m: Member; size?: number }) {
   const [broken, setBroken] = useState(false);
   const cls = size === 11 ? "size-11" : "size-9";
-  const face = (!m.avatar || broken) ? (
+  // What they chose, or what the Lodestone has. Resolved here rather than baked
+  // into members.json, which is written nightly and knows nothing about accounts.
+  const src = useAvatar(m.id, m.avatar);
+  const face = (!src || broken) ? (
     <div className={`${cls} flex items-center justify-center rounded-full border border-line font-data text-[12px] font-semibold text-bg`}
          style={{ background: `hsl(${hue(m.name)} 45% 68%)` }}>
       {initials(m.name)}
@@ -45,7 +49,7 @@ function Avatar({ m, size = 11 }: { m: Member; size?: number }) {
   ) : (
     <div className={`${cls} overflow-hidden rounded-full border border-line bg-card`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={m.avatar} alt="" loading="lazy" className="block size-full object-cover"
+      <img src={src} alt="" loading="lazy" className="block size-full object-cover"
            onError={() => setBroken(true)} />
     </div>
   );

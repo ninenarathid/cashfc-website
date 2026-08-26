@@ -152,6 +152,10 @@ export interface HistoryRow {
   tags?: Record<string, number>;
 }
 export interface Overlay {
+  /** A picture the member chose instead of the Lodestone portrait. */
+  avatarUrl?: string | null;
+  /** A picture behind the top of their own page, and nowhere else. */
+  coverUrl?: string | null;
   // No self-declared job: FF Logs reports the job behind each parse, which stays
   // honest for members who play several.
   bio: string | null; accent: string | null;

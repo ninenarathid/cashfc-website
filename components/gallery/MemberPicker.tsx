@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLang } from "@/lib/i18n";
+import { useAvatarOverrides } from "@/lib/avatars";
 
 export interface MemberOption { id: number; name: string; avatar?: string | null }
 
@@ -25,6 +26,7 @@ export default function MemberPicker(
   },
 ) {
   const { t } = useLang();
+  const faces = useAvatarOverrides();
   const [typed, setTyped] = useState("");
   const q = typed.trim().toLowerCase();
   const hits = q.length >= 2
@@ -42,9 +44,10 @@ export default function MemberPicker(
           {hits.map((o) => (
             <button key={o.id} onClick={() => { onPick(o); setTyped(""); }}
                     className="flex items-center gap-1.5 rounded-md border border-line bg-card py-1 pl-1 pr-2.5 text-[12.5px] text-ink hover:border-accent hover:text-accent">
-              {o.avatar && (
+              {(faces[o.id] ?? o.avatar) && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={o.avatar} alt="" className="size-5 rounded-full object-cover" />
+                <img src={faces[o.id] ?? o.avatar ?? ""} alt=""
+                     className="size-5 rounded-full object-cover" />
               )}
               {o.name}
             </button>

@@ -133,6 +133,37 @@ const DICT = {
   },
   "gallery.tagWho": { en: "Who is this?", th: "คนนี้คือใคร?" },
   "gallery.tagPinned": { en: "Pinned on the picture", th: "ปักหมุดไว้ในรูป" },
+  "profile.pictures": { en: "Your pictures", th: "รูปของคุณ" },
+  "profile.picturesHint": {
+    en: "Your portrait is used everywhere the site names you. Your cover only sits at the top of your own page.",
+    th: "รูปโปรไฟล์จะถูกใช้ทุกที่ที่เว็บแสดงชื่อคุณ ส่วนรูปปกจะขึ้นแค่ด้านบนหน้าตัวเองเท่านั้น",
+  },
+  "profile.picAvatar": { en: "Portrait", th: "รูปโปรไฟล์" },
+  "profile.picCover": { en: "Cover", th: "รูปปก" },
+  "profile.picFromGallery": { en: "From the gallery", th: "เลือกจากแกลเลอรี" },
+  "profile.picUpload": { en: "Upload a file", th: "อัพโหลดไฟล์" },
+  "profile.picRemove": { en: "Take it down", th: "เอาออก" },
+  "profile.picYours": { en: "Yours", th: "รูปที่คุณเลือกเอง" },
+  "profile.picDefault": {
+    en: "The Lodestone's, until you choose one",
+    th: "ใช้รูปจาก Lodestone อยู่ จนกว่าคุณจะเลือกเอง",
+  },
+  "profile.picNone": { en: "None yet", th: "ยังไม่มี" },
+  "profile.picZoom": { en: "Zoom", th: "ย่อ/ขยาย" },
+  "profile.picSaving": { en: "Saving…", th: "กำลังบันทึก…" },
+  "profile.picNoShots": {
+    en: "Nothing in the gallery yet — post a picture first, or upload a file.",
+    th: "ยังไม่มีรูปในแกลเลอรี ลองโพสต์รูปก่อน หรืออัพโหลดไฟล์เอง",
+  },
+  "profile.picFetchFailed": {
+    en: "That picture could not be opened. Try uploading it instead.",
+    th: "เปิดรูปนั้นไม่ได้ ลองอัพโหลดไฟล์แทน",
+  },
+  "profile.shareCard": { en: "Sharing your page", th: "การ์ดตอนแชร์ลิงก์" },
+  "profile.shareCardHint": {
+    en: "This is what Discord shows when somebody pastes a link to your page. It follows your portrait and cover.",
+    th: "นี่คือสิ่งที่ Discord จะแสดงเวลามีคนแปะลิงก์หน้าของคุณ จะเปลี่ยนตามรูปโปรไฟล์และรูปปกที่คุณตั้งไว้",
+  },
   "gallery.postFor": { en: "Post for a member", th: "โพสต์ให้สมาชิกคนอื่น" },
   "gallery.postForHint": {
     en: "Admins only. The picture lands on that member's page and is credited to them, with you recorded as the account that uploaded it.",

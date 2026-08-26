@@ -9,10 +9,11 @@ import CharacterClaim from "@/components/CharacterClaim";
 import { LANGS, useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
 import PendingTags from "@/components/gallery/PendingTags";
+import ProfilePictures from "@/components/ProfilePictures";
 import { EMPTY, isEmpty } from "@/lib/availability";
 import SignIn, { PROVIDERS } from "@/components/SignIn";
 
-interface Option { id: number; name: string }
+interface Option { id: number; name: string; avatar?: string | null }
 
 interface ProfileRow {
   id: string;
@@ -198,6 +199,10 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       {/* Somebody is waiting on an answer, so it goes above the things you
           came here to change. Renders nothing at all when there is nothing. */}
       <PendingTags />
+
+      <ProfilePictures
+        characterId={charId}
+        fallbackAvatar={memberOptions.find((o) => o.id === charId)?.avatar ?? null} />
 
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
