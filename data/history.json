@@ -59,8 +59,8 @@
     "extreme": 137,
     "ultimate": 71,
     "tier-clear": 43,
-    "veteran": 43,
-    "unknown": 299,
+    "veteran": 49,
+    "unknown": 298,
     "gatherer": 5,
     "crafter": 7,
     "relic": 10,
@@ -75,7 +75,7 @@
    "raider": 66,
    "ultimate": 71,
    "extreme": 137,
-   "unknown": 299,
+   "unknown": 298,
    "final_boss": 43
   }
  ]

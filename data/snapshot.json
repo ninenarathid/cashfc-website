@@ -27,7 +27,7 @@
  },
  "15308846": {
   "name": "Aqua Eleison",
-  "parse": 96,
+  "parse": 100,
   "ult": 2,
   "mounts": 255,
   "minions": 463,
@@ -42,7 +42,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Warrior": "expert"
+   "Warrior": "master"
   },
   "ex": [
    "Doomtrain",
@@ -57,7 +57,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -140,7 +140,7 @@
  },
  "31628293": {
   "name": "Aaaaaaa Yaaaaaa",
-  "parse": 10,
+  "parse": 96,
   "ult": 1,
   "mounts": null,
   "minions": null,
@@ -154,12 +154,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Scholar": "master"
+  },
   "ex": [],
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "57885671": {
   "name": "Aisu Kazimira",
@@ -221,7 +223,7 @@
   "tiers": {},
   "jobs": {
    "Paladin": "master",
-   "Summoner": "master"
+   "Summoner": "legendary"
   },
   "ex": [
    "Necron",
@@ -335,7 +337,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Reaper": "expert"
+   "Reaper": "expert",
+   "RedMage": "expert"
   },
   "ex": [
    "Necron",
@@ -523,7 +526,7 @@
  },
  "31236337": {
   "name": "Whitefrost Marionette",
-  "parse": 96,
+  "parse": 98,
   "ult": 2,
   "mounts": null,
   "minions": null,
@@ -554,7 +557,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -579,7 +582,7 @@
  },
  "13533056": {
   "name": "Akemi Rei",
-  "parse": 98,
+  "parse": 100,
   "ult": 4,
   "mounts": 131,
   "minions": 337,
@@ -700,7 +703,8 @@
   "jobs": {
    "RedMage": "legendary",
    "Warrior": "master",
-   "Pictomancer": "expert"
+   "Pictomancer": "expert",
+   "Reaper": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -715,7 +719,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "44970350": {
   "name": "Allen Crist",
@@ -743,7 +747,7 @@
  },
  "19827594": {
   "name": "Aylufa Regolith",
-  "parse": 92,
+  "parse": 95,
   "ult": 3,
   "mounts": null,
   "minions": null,
@@ -776,7 +780,7 @@
    "The Epic of Alexander",
    "The Omega Protocol"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "45938803": {
   "name": "Blue Mana",
@@ -812,7 +816,7 @@
  },
  "36248712": {
   "name": "Boom Astraea",
-  "parse": 68,
+  "parse": 80,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -827,14 +831,15 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Machinist": "expert"
+   "Machinist": "expert",
+   "Sage": "master"
   },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "26699926": {
   "name": "Boonies Princess",
@@ -970,7 +975,7 @@
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
-  "parse": 86,
+  "parse": 97,
   "ult": 2,
   "mounts": null,
   "minions": null,
@@ -986,7 +991,8 @@
   "tiers": {},
   "jobs": {
    "Viper": "master",
-   "Gunbreaker": "expert"
+   "Gunbreaker": "expert",
+   "Warrior": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1002,12 +1008,12 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "47221226": {
   "name": "Destiny Marjory",
   "parse": 99,
-  "ult": 1,
+  "ult": 2,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -1022,7 +1028,7 @@
   "tiers": {},
   "jobs": {
    "Monk": "legendary",
-   "Samurai": "master"
+   "Samurai": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1034,9 +1040,10 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dancing Mad",
    "Futures Rewritten"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "39199441": {
   "name": "Dodoco Chocodoco",
@@ -1055,7 +1062,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Gunbreaker": "master",
+   "Gunbreaker": "expert",
    "Dragoon": "master"
   },
   "ex": [
@@ -1086,7 +1093,8 @@
   "tiers": {},
   "jobs": {
    "Astrologian": "master",
-   "Sage": "expert"
+   "Sage": "expert",
+   "Samurai": "legendary"
   },
   "ex": [
    "Necron",
@@ -1278,7 +1286,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 59,
+  "level": 61,
   "cc": [
    true,
    true,
@@ -1392,7 +1400,7 @@
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
-  "parse": 98,
+  "parse": 99,
   "ult": 1,
   "mounts": null,
   "minions": null,
@@ -1407,7 +1415,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Gunbreaker": "master"
+   "Gunbreaker": "legendary"
   },
   "ex": [
    "Enuo",
@@ -1419,7 +1427,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "38808156": {
   "name": "Kwiyo Ki",
@@ -1523,7 +1531,8 @@
    "Paladin": "legendary",
    "Warrior": "legendary",
    "DarkKnight": "master",
-   "Gunbreaker": "master"
+   "Gunbreaker": "master",
+   "Samurai": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1547,7 +1556,7 @@
  },
  "30864049": {
   "name": "Lay Stardust",
-  "parse": 98,
+  "parse": 100,
   "ult": 2,
   "mounts": null,
   "minions": null,
@@ -1583,7 +1592,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "34509521": {
   "name": "Liliya Quintilis",
@@ -1602,8 +1611,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "master",
-   "Sage": "expert",
+   "Scholar": "expert",
+   "Sage": "master",
    "WhiteMage": "expert",
    "RedMage": "master"
   },
@@ -1796,7 +1805,7 @@
  },
  "5294880": {
   "name": "Mithra Muses",
-  "parse": null,
+  "parse": 69,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -1813,11 +1822,11 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "5435582": {
   "name": "Mog Hikarino",
-  "parse": 77,
+  "parse": 88,
   "ult": 1,
   "mounts": null,
   "minions": null,
@@ -1832,7 +1841,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dancer": "expert"
+   "Dancer": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1841,7 +1850,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "26268800": {
   "name": "Mono Sodium",
@@ -1861,9 +1870,10 @@
   "tiers": {},
   "jobs": {
    "Samurai": "legendary",
-   "Monk": "master",
+   "Monk": "legendary",
    "Gunbreaker": "expert",
-   "Viper": "expert"
+   "Viper": "expert",
+   "Scholar": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1895,7 +1905,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dancer": "legendary"
+   "Dancer": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1997,7 +2007,7 @@
  },
  "5644067": {
   "name": "Ninenine The'phantom",
-  "parse": 96,
+  "parse": 97,
   "ult": 4,
   "mounts": 76,
   "minions": 137,
@@ -2086,7 +2096,8 @@
    "Viper": "master",
    "Ninja": "expert",
    "RedMage": "expert",
-   "Reaper": "legendary"
+   "Reaper": "legendary",
+   "Summoner": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -2104,7 +2115,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -2124,7 +2135,8 @@
   "tiers": {},
   "jobs": {
    "BlackMage": "legendary",
-   "Pictomancer": "legendary"
+   "Pictomancer": "legendary",
+   "RedMage": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -2278,7 +2290,7 @@
  },
  "15912826": {
   "name": "Rin Shiba",
-  "parse": 97,
+  "parse": 99,
   "ult": 2,
   "mounts": 199,
   "minions": 339,
@@ -2294,7 +2306,7 @@
   "tiers": {},
   "jobs": {
    "Paladin": "legendary",
-   "Samurai": "expert",
+   "Samurai": "legendary",
    "Monk": "expert"
   },
   "ex": [
@@ -2308,7 +2320,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "11950156": {
   "name": "Rothe Happer",
@@ -2347,7 +2359,7 @@
  },
  "30667251": {
   "name": "Roxas Akatsuki",
-  "parse": 35,
+  "parse": 55,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -2370,11 +2382,11 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
-  "parse": 99,
+  "parse": 100,
   "ult": 2,
   "mounts": null,
   "minions": null,
@@ -2391,7 +2403,8 @@
   "jobs": {
    "Viper": "legendary",
    "Samurai": "legendary",
-   "DarkKnight": "master"
+   "DarkKnight": "master",
+   "Paladin": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -2407,7 +2420,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "58455997": {
   "name": "Salmon Sushiroll",
@@ -2668,7 +2681,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "master"
+   "WhiteMage": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -2852,7 +2865,7 @@
  },
  "29918404": {
   "name": "Zarass Gierlos",
-  "parse": 83,
+  "parse": 87,
   "ult": 0,
   "mounts": 204,
   "minions": 414,
@@ -2974,8 +2987,9 @@
   },
   "jobs": {
    "DarkKnight": "expert",
-   "Samurai": "expert",
-   "Summoner": "expert"
+   "Samurai": "master",
+   "Summoner": "expert",
+   "Warrior": "master"
   },
   "ex": [
    "Doomtrain",
@@ -2986,7 +3000,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -3033,7 +3047,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Reaper": "legendary"
+   "Reaper": "legendary",
+   "Monk": "legendary"
   },
   "ex": [
    "Guardian Arkveld",
@@ -3328,7 +3343,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Reaper": "master"
+   "Reaper": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -3418,7 +3433,7 @@
  },
  "29339718": {
   "name": "Ashe Fantine",
-  "parse": 15,
+  "parse": 78,
   "ult": 1,
   "mounts": 100,
   "minions": 289,
@@ -3540,7 +3555,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "13860363": {
   "name": "Ayino Kun",

@@ -3,6 +3,293 @@
   {
    "date": "2026-08-26",
    "type": "parse_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "is now a Legendary Summoner"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 22767255,
+   "name": "Minami Taira",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "is now a Legendary Reaper"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "set a new best parse: 95"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "set a new best parse: 80"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "is now a Master Sage"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "is now a Legendary Warrior"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "cleared Dancing Mad 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 31902843,
+   "name": "Lapista Scholares",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "is now a Master Sage"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 5294880,
+   "name": "Mithra Muses",
+   "text": "set a new best parse: 69"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "set a new best parse: 88"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "is now a Master Dancer"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "is now a Legendary Monk"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "is now a Legendary Summoner"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "is now a Legendary Red Mage"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "set a new best parse: 55"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Legendary Paladin"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 37648492,
+   "name": "Sunshine Eveningfall",
+   "text": "is now a Legendary White Mage"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "set a new best parse: 87"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "is now a Master Samurai"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 24123541,
+   "name": "Zeren Dragonia",
+   "text": "is now a Legendary Monk"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "set a new best parse: 78"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
    "id": 1607774,
    "name": "Shiomi Shirogane",
    "text": "set a new best parse: 98"
@@ -1111,293 +1398,6 @@
    "type": "boss_clear",
    "id": 4505633,
    "name": "Arcz Iris",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 4505633,
-   "name": "Arcz Iris",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 32147626,
-   "name": "Bear Boatz",
-   "text": "set a new best parse: 73"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 17473430,
-   "name": "Bigon Truesilver",
-   "text": "set a new best parse: 41"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 58199756,
-   "name": "Billy Najah",
-   "text": "set a new best parse: 64"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 43423269,
-   "name": "Bladez Sweeney",
-   "text": "set a new best parse: 72"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 5720080,
-   "name": "Bowling Chan",
-   "text": "set a new best parse: 64"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 24150396,
-   "name": "Chaser Dc",
-   "text": "set a new best parse: 23"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 55476354,
-   "name": "Chrisyard Mephisto",
-   "text": "set a new best parse: 1"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 46625326,
-   "name": "Draku Majikku",
-   "text": "set a new best parse: 90"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 46625326,
-   "name": "Draku Majikku",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 46625326,
-   "name": "Draku Majikku",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 40394823,
-   "name": "Dummii Amary",
-   "text": "set a new best parse: 80"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 36855080,
-   "name": "Elkronin Ketchupeater",
-   "text": "set a new best parse: 53"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 34522645,
-   "name": "Ellone Chrysler",
-   "text": "set a new best parse: 45"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 34522644,
-   "name": "Elwann Halffu",
-   "text": "set a new best parse: 68"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 32046284,
-   "name": "Ene Shy",
-   "text": "set a new best parse: 57"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 32046284,
-   "name": "Ene Shy",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "set a new best parse: 95"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 30559609,
-   "name": "Florice Frostingway",
-   "text": "set a new best parse: 30"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 30559609,
-   "name": "Florice Frostingway",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 36090951,
-   "name": "Guuji Mercedexs",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 58725327,
-   "name": "Halyn Halora",
-   "text": "set a new best parse: 64"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 58725327,
-   "name": "Halyn Halora",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 58725327,
-   "name": "Halyn Halora",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 58725327,
-   "name": "Halyn Halora",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 58508421,
-   "name": "Ishfhiyrtt Ntr",
-   "text": "set a new best parse: 90"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "set a new best parse: 67"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "set a new best parse: 86"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
    "text": "cleared M10S for the first time 🎉"
   }
  ]
