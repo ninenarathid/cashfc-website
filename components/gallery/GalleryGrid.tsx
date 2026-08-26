@@ -46,8 +46,8 @@ export interface Counts { likes: number; comments: number }
  * Anything within these bounds is shown exactly as it was taken; anything beyond
  * them is framed to the nearest bound, which crops rather than squashes.
  */
-const MIN_RATIO = 0.68;   // tallest allowed, a little narrower than 3:4
-const MAX_RATIO = 2.1;    // widest allowed, about a cinematic panorama
+const MIN_RATIO = 0.66;   // tallest allowed, a little narrower than 2:3
+const MAX_RATIO = 2.4;    // widest allowed, a shade past a cinematic panorama
 
 function tileRatio(w?: number | null, h?: number | null): number | null {
   if (!w || !h) return null;
@@ -163,70 +163,76 @@ export default function GalleryGrid(
 
   return (
     <>
-      {/* Breaks out of the page container: the rest of the site reads better
-          at a fixed measure, but a wall of screenshots wants the whole window.
-          Fewer columns than before, so each picture is roughly twice the size —
-          the point of a gallery is looking at them, not counting them. */}
-      <div className="relative left-1/2 right-1/2 -mx-[50vw] mt-4 w-screen columns-1 gap-3 px-4 sm:columns-2 xl:columns-3 2xl:columns-4">
-        {posts.map((p, idx) => {
-          const c = counts[p.id];
-          const shots = images[p.id] ?? [];
-          const many = (p.image_count ?? 1) > 1;
-          return (
-            <div key={p.id} className="group relative mb-3 break-inside-avoid">
-              <button onClick={() => setOpen(p.id)}
-                      className="block w-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-accent">
-                <TileImage post={p} images={shots} index={idx} />
-              </button>
+      {/* A printed collage rather than a wall: the pictures sit centred on a
+          mat with air around all four edges, which is what gives a mixed set of
+          shapes a shape of its own. Edge to edge across a wide monitor made the
+          same pictures read as a feed that happened to stop somewhere.
 
-              {many && (
-                <span className="pointer-events-none absolute right-2 top-2 rounded-md bg-bg/75 px-1.5 py-0.5 font-data text-[11px] text-ink backdrop-blur">
-                  {t("gallery.morePictures", { n: p.image_count ?? shots.length })}
-                </span>
-              )}
-
-              {/* The caption and the counts, on hover. Both are kept off the
-                  tile until then because the wall is for looking at pictures;
-                  the words are what you read once one has caught your eye. The
-                  caption is clamped to two lines — enough to know what it is,
-                  never enough to cover the picture it describes. Always shown
-                  on touch, where there is no hover to wait for. */}
-              {(p.caption || c?.likes || c?.comments) ? (
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-bg/90 via-bg/70 to-transparent px-3 pb-2.5 pt-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
-                  {p.caption && (
-                    <p className="line-clamp-2 text-[12.5px] leading-snug text-ink">
-                      {p.caption}
-                    </p>
-                  )}
-                  {(c?.likes || c?.comments) ? (
-                    <div className="mt-1 flex gap-2 text-[12px] font-medium text-ink/85">
-                      {c.likes > 0 && <span>🥔 {c.likes}</span>}
-                      {c.comments > 0 && <span>💬 {c.comments}</span>}
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-
-              {/* Restoring is offered on the tile because a hidden picture is
-                  otherwise only reachable by an admin who remembers it exists.
-                  Hiding is not: it lives in the lightbox, where somebody has
-                  actually looked at the picture before taking it down. */}
-              {isAdmin && p.hidden && (
-                <button onClick={() => setHidden(p.id, false)}
-                        title={t("gallery.restore")}
-                        className="absolute right-2 top-2 rounded-md border border-jade/60 bg-bg/85 px-2 py-0.5 text-[11px] text-jade">
-                  {t("gallery.restore")}
+          The mat is held to a measure a little wider than the page text and
+          centred in whatever room is left, so the collage stays the same object
+          on a laptop and on a very wide screen instead of thinning out. */}
+      <div className="mx-auto mt-4 w-full max-w-[1040px] rounded-2xl bg-surface/50 p-3 sm:p-4">
+        <div className="columns-1 gap-3 sm:columns-2 sm:gap-4 lg:columns-3">
+          {posts.map((p, idx) => {
+            const c = counts[p.id];
+            const shots = images[p.id] ?? [];
+            const many = (p.image_count ?? 1) > 1;
+            return (
+              <div key={p.id} className="group relative mb-3 break-inside-avoid sm:mb-4">
+                <button onClick={() => setOpen(p.id)}
+                        className="block w-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-accent">
+                  <TileImage post={p} images={shots} index={idx} />
                 </button>
-              )}
 
-              {p.hidden && (
-                <div className="pointer-events-none absolute left-2 top-2 rounded-md border border-chili/60 bg-bg/85 px-2 py-0.5 text-[11px] text-chili">
-                  {t("gallery.hiddenTag")}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                {many && (
+                  <span className="pointer-events-none absolute right-2 top-2 rounded-md bg-bg/75 px-1.5 py-0.5 font-data text-[11px] text-ink backdrop-blur">
+                    {t("gallery.morePictures", { n: p.image_count ?? shots.length })}
+                  </span>
+                )}
+
+                {/* The caption and the counts, on hover. Both are kept off the
+                    tile until then because the wall is for looking at pictures;
+                    the words are what you read once one has caught your eye. The
+                    caption is clamped to two lines — enough to know what it is,
+                    never enough to cover the picture it describes. Always shown
+                    on touch, where there is no hover to wait for. */}
+                {(p.caption || c?.likes || c?.comments) ? (
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-bg/90 via-bg/70 to-transparent px-3 pb-2.5 pt-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+                    {p.caption && (
+                      <p className="line-clamp-2 text-[12.5px] leading-snug text-ink">
+                        {p.caption}
+                      </p>
+                    )}
+                    {(c?.likes || c?.comments) ? (
+                      <div className="mt-1 flex gap-2 text-[12px] font-medium text-ink/85">
+                        {c.likes > 0 && <span>🥔 {c.likes}</span>}
+                        {c.comments > 0 && <span>💬 {c.comments}</span>}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {/* Restoring is offered on the tile because a hidden picture is
+                    otherwise only reachable by an admin who remembers it exists.
+                    Hiding is not: it lives in the lightbox, where somebody has
+                    actually looked at the picture before taking it down. */}
+                {isAdmin && p.hidden && (
+                  <button onClick={() => setHidden(p.id, false)}
+                          title={t("gallery.restore")}
+                          className="absolute right-2 top-2 rounded-md border border-jade/60 bg-bg/85 px-2 py-0.5 text-[11px] text-jade">
+                    {t("gallery.restore")}
+                  </button>
+                )}
+
+                {p.hidden && (
+                  <div className="pointer-events-none absolute left-2 top-2 rounded-md border border-chili/60 bg-bg/85 px-2 py-0.5 text-[11px] text-chili">
+                    {t("gallery.hiddenTag")}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {current && (
