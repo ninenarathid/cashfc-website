@@ -3,14 +3,17 @@ import { ACHV_TIER_LABEL, type Member } from "@/lib/types";
 /**
  * What to call somebody under their name.
  *
- * The in-game title, which is the label the player chose for themselves. The FC
- * rank stands in only when there is no title, because a blank line under a name
- * is worse than a rank nobody asked for — and the rank stays in the data either
- * way, since the board still groups and filters by it and vacation is read from
- * it.
+ * The in-game title, and nothing if they wear none. The FC rank used to stand in,
+ * which quietly told anybody without a title that their rank was their identity —
+ * and put a word under half the roster that none of them had chosen. Silence says
+ * less and is truer, so every caller is expected to leave the line out rather
+ * than fill it.
+ *
+ * The rank stays in the data regardless: the board still groups and filters by
+ * it, and vacation is read from it.
  */
-export function memberTitle(m: Pick<Member, "title" | "rank">): string | null {
-  return m.title ?? m.rank ?? null;
+export function memberTitle(m: Pick<Member, "title">): string | null {
+  return m.title ?? null;
 }
 
 /**

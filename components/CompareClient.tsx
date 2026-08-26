@@ -6,6 +6,7 @@ import { memberTitle } from "@/lib/tags";
 
 interface Slim {
   id: number; name: string; avatar: string | null; rank: string | null;
+  title: string | null;
   level: number | null; parse: number | null; tags: string[];
   mounts: number | null; minions: number | null; rare_achv: number | null;
   ult_clears: number;
@@ -31,7 +32,9 @@ function Picker({ label, options, value, onPick }: {
         )}
         <div className="min-w-0 flex-1">
           <div className="truncate font-data font-semibold">{value.name}</div>
-          <div className="text-[12px] text-muted">{memberTitle(value) ?? "—"}</div>
+          {memberTitle(value) && (
+            <div className="text-[12px] text-muted">{memberTitle(value)}</div>
+          )}
         </div>
         <button onClick={() => onPick(null)}
                 className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:text-ink">

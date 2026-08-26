@@ -189,6 +189,8 @@ export default async function Image(
     };
   });
   const name = m?.name ?? "FC Member";
+  // Nothing stands in for a title nobody set: the line is simply not there.
+  const title = m ? memberTitle(m) : null;
   // Long names have to give way rather than run off the edge of the card.
   const nameSize = name.length > 26 ? 52 : name.length > 20 ? 60 : 70;
 
@@ -271,16 +273,19 @@ export default async function Image(
                               lineHeight: 1.1, textShadow: SHADOW }}>
                   {name}
                 </div>
-                <div style={{ display: "flex", color: INK, opacity: 0.72, fontSize: 27,
-                              marginTop: 8, textShadow: SHADOW }}>
-                  {m ? memberTitle(m) ?? "Free Company member" : "Free Company member"}
-                </div>
+                {title && (
+                  <div style={{ display: "flex", color: INK, opacity: 0.72, fontSize: 27,
+                                marginTop: 8, textShadow: SHADOW }}>
+                    {title}
+                  </div>
+                )}
 
                 {/* How they play, which is the part worth leading with. Each pill
                     is opaque enough to stand on its own, so a bright cover behind
                     one cannot swallow the word inside it. */}
                 {tags.length > 0 && (
-                  <div style={{ display: "flex", gap: 10, marginTop: 22, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap",
+                                marginTop: title ? 22 : 18 }}>
                     {tags.map((t) => (
                       <div key={t.tag} style={{
                         display: "flex", borderRadius: 999, padding: "7px 20px",

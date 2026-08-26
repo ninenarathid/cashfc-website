@@ -26,7 +26,7 @@ export async function generateMetadata(
   return {
     title: m ? `${m.name} — Cafe And SHabu` : "Member — Cafe And SHabu",
     description: m
-      ? [m.name, m.title ?? m.rank].filter(Boolean).join(" · ")
+      ? [m.name, m.title].filter(Boolean).join(" · ")
       : undefined,
   };
 }

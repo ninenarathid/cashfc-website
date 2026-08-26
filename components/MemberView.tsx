@@ -252,7 +252,8 @@ export default function MemberView({
                 className={`size-2.5 shrink-0 rounded-full ${
                   onVacation ? "bg-[#747f8d]" : "bg-[#43b581]"}`}
               />
-              {fc.name} · {memberTitle(m) ?? "Member"}
+              {fc.name}
+              {memberTitle(m) && ` · ${memberTitle(m)}`}
             </div>
             <h1 className="font-data text-3xl font-bold tracking-tight sm:text-4xl">
               {m.name}

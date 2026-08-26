@@ -706,7 +706,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             list.map((m) => {
               const ov = overlays[m.id];
               const accent = ov?.accent ?? "#6aa9e0";
-              const meta = [memberTitle(m) ?? "—"];
+              // No title means no line, not an em dash standing in for one.
+              const meta = [memberTitle(m)].filter(Boolean) as string[];
               if (m.race) meta.push(m.race);
               if (m.mounts != null) meta.push(`${m.mounts} mounts`);
               if (m.rare_achv != null) meta.push(`${m.rare_achv} rare achv`);
