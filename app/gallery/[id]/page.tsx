@@ -13,6 +13,12 @@ import GalleryPage from "@/components/gallery/GalleryPage";
  * page would hand it. summary_large_image is the card type that gives a
  * screenshot the width it deserves rather than a thumbnail beside a paragraph.
  */
+interface Profile {
+  character_name?: string | null;
+  display_name?: string | null;
+  discord_username?: string | null;
+}
+
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> },
 ): Promise<Metadata> {
@@ -21,32 +27,61 @@ export async function generateMetadata(
   const fallback: Metadata = { title: "Gallery — Cafe And SHabu" };
   if (!supabase) return fallback;
 
+  // The author comes along so the card can be headed by a person rather than
+  // by boilerplate. credited_name wins when an admin posted for somebody.
   const { data } = await supabase
     .from("gallery_posts")
-    .select("image_url, caption, width, height, character_id")
+    .select("image_url, caption, width, height, character_id, credited_name, image_count, profiles(character_name, display_name, discord_username)")
     .eq("id", Number(id) || -1)
     .maybeSingle();
   const post = data as {
     image_url?: string; caption?: string | null;
     width?: number | null; height?: number | null;
+    credited_name?: string | null; image_count?: number | null;
+    profiles?: Profile | Profile[] | null;
   } | null;
   if (!post?.image_url) return fallback;
 
-  const title = post.caption?.trim() || "Cafe And SHabu — Gallery";
+  // An embedded relation comes back as an object or as a one-element array
+  // depending on the PostgREST version, and getting it wrong here would only
+  // show up as a card quietly missing its name.
+  const prof: Profile | null = Array.isArray(post.profiles)
+    ? post.profiles[0] ?? null
+    : post.profiles ?? null;
+  const who = post.credited_name
+    ?? prof?.character_name
+    ?? prof?.display_name
+    ?? prof?.discord_username
+    ?? null;
+
+  // The heading names who it is by; the caption is what they actually wrote and
+  // belongs in the body, where Discord gives it room and does not shorten it to
+  // a single bold line.
+  const title = who ? `${who} · Cafe And SHabu` : "Cafe And SHabu — Gallery";
+  const extra = (post.image_count ?? 1) > 1
+    ? `${post.image_count} pictures` : null;
+  const description = [post.caption?.trim() || null, extra]
+    .filter(Boolean).join(" · ")
+    || "A screenshot from the Cafe And SHabu gallery";
+
   return {
     title,
-    description: "Posted to the Cafe And SHabu gallery",
+    description,
     openGraph: {
       title,
-      description: "Posted to the Cafe And SHabu gallery",
+      description,
+      siteName: "Cafe And SHabu",
       images: [{
         url: post.image_url,
         width: post.width ?? undefined,
         height: post.height ?? undefined,
+        alt: post.caption ?? undefined,
       }],
       type: "article",
     },
-    twitter: { card: "summary_large_image", title, images: [post.image_url] },
+    twitter: {
+      card: "summary_large_image", title, description, images: [post.image_url],
+    },
   };
 }
 
