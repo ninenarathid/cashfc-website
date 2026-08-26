@@ -28,7 +28,9 @@ export async function generateMetadata(
   if (!supabase) return fallback;
 
   // The author comes along so the card can be headed by a person rather than
-  // by boilerplate. credited_name wins when an admin posted for somebody.
+  // by boilerplate. credited_name wins outright when it is set: a picture an
+  // admin put up for somebody is that person's picture, and the uploading
+  // account is a record rather than a byline.
   const { data } = await supabase
     .from("gallery_posts")
     .select("image_url, caption, width, height, character_id, credited_name, image_count, profiles(character_name, display_name, discord_username)")

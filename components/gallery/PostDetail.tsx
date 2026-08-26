@@ -185,7 +185,9 @@ export default function PostDetail(
           comments running the full width of a 1600px screenshot are a chore. */}
       <div className="mx-auto flex w-full max-w-3xl min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          {author?.avatar && (
+          {/* No avatar on a credited post: it would be the uploading admin's,
+              which is the one thing the byline is not about. */}
+          {!post.credited_name && author?.avatar && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={author.avatar} alt="" className="size-8 rounded-full border border-line" />
           )}
@@ -214,12 +216,7 @@ export default function PostDetail(
                 {author?.name ?? "—"}
               </span>
             )}
-            <div className="text-[11.5px] text-muted">
-              {when}
-              {post.credited_name && author?.name && (
-                <> · {t("gallery.uploadedBy", { name: author.name })}</>
-              )}
-            </div>
+            <div className="text-[11.5px] text-muted">{when}</div>
           </div>
         </div>
 

@@ -106,7 +106,6 @@ const DICT = {
   },
   "gallery.postForMe": { en: "Post as myself", th: "โพสต์ในนามตัวเอง" },
   "gallery.findMember": { en: "Type a character name…", th: "พิมพ์ชื่อตัวละคร…" },
-  "gallery.uploadedBy": { en: "posted by {name}", th: "อัปโดย {name}" },
   "gallery.morePictures": { en: "{n} pictures", th: "{n} รูป" },
   "gallery.close": { en: "Close", th: "ปิด" },
   "gallery.addImages": { en: "Add pictures", th: "เพิ่มรูป" },
