@@ -400,14 +400,17 @@ def fflogs_zones(token: str) -> tuple[list[dict], list[dict]]:
     also gets swept during a legacy backfill, which the free API budget cannot afford.
     """
     q = ("{ worldData { zones { id name "
-         "expansion { name } difficulties { id name } } } }")
+         "expansion { name } difficulties { id name } "
+         "encounters { id name } } } }")
     zones = fflogs_query(token, q)["data"]["worldData"]["zones"] or []
     ults, tiers, extremes = [], [], []
     for z in zones:
         name_l = (z["name"] or "").lower()
         diffs = z.get("difficulties") or []
         base = {"id": z["id"], "name": z["name"],
-                "expansion": (z.get("expansion") or {}).get("name")}
+                "expansion": (z.get("expansion") or {}).get("name"),
+                "encounters": [{"id": e["id"], "name": e["name"]}
+                               for e in (z.get("encounters") or [])]}
         if any(p in name_l for p in ULTIMATE_PATTERNS):
             ults.append({**base, "difficulty": None})
         elif EXTREME_PATTERN in name_l:
@@ -502,6 +505,148 @@ def encounters_from_blob(blob: dict, labels: list[str] | None) -> tuple[list[dic
     return out, clears
 
 
+# How many of a character's recent reports to look through. Six covers about six
+# raid nights, which is the window a progress number is still interesting in.
+PROGRESS_REPORTS = 6
+PROGRESS_BATCH = 6
+
+# How recently a pull has to have happened to count as "still learning". Content
+# matters less than freshness here: somebody pulling UCOB last week is progging
+# UCOB, whatever tier the rest of the FC is on. Ten days is a little over a raid
+# week, so missing one night keeps a member on the board and drifting away takes
+# them off it.
+PROGRESS_FRESH_DAYS = 10
+
+
+def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
+                report_cache: dict) -> dict[str, dict]:
+    """Best wipe per in-progress fight for each member in the chunk.
+
+    zoneRankings only knows kills. A fight somebody is still learning is invisible
+    there — bestAmount 0, no ranks, nothing at all — because FF Logs only ranks
+    kills. The pull that reached 0.9% lives in the report instead, so this walks a
+    different and heavier road: the reports a character appears in, then the fights
+    inside each one.
+
+    Reports are cached across the chunk because an FC raids together: eight members
+    usually share the same handful of report codes, and fetching each one once
+    turns the expensive half of this pass into a rounding error.
+
+    Attribution is per player, not per report. A report is a night, and somebody
+    can sit a pull out — friendlyPlayers on each fight says who was actually in it.
+    """
+    aliases = []
+    for i, m in enumerate(chunk):
+        aliases.append(
+            f"c{i}: character(name: {json.dumps(m['name'])}, "
+            f"serverSlug: \"{CONFIG['server_slug']}\", "
+            f"serverRegion: \"{CONFIG['server_region']}\") "
+            f"{{ recentReports(limit: {PROGRESS_REPORTS}) "
+            f"{{ data {{ code startTime }} }} }}")
+    q = "query { characterData { " + " ".join(aliases) + " } }"
+    try:
+        data = (fflogs_query(token, q)["data"]["characterData"] or {})
+    except Exception as ex:
+        log(f"Progress — recent reports failed: {ex}")
+        return {}
+
+    codes_for: dict[str, list[str]] = {}
+    wanted_codes: list[str] = []
+    started: dict[str, float] = {}
+    cutoff = time.time() - PROGRESS_FRESH_DAYS * 86400
+    for i, m in enumerate(chunk):
+        blob = data.get(f"c{i}") or {}
+        rr = ((blob.get("recentReports") or {}).get("data") or [])
+        codes = []
+        for r in rr:
+            code = r.get("code")
+            if not code:
+                continue
+            # startTime is milliseconds. A stale report is skipped before it is
+            # fetched, which is also the cheapest place to skip it.
+            ts = (r.get("startTime") or 0) / 1000.0
+            if ts and ts < cutoff:
+                continue
+            started[code] = ts
+            codes.append(code)
+        codes_for[str(m["id"])] = codes
+        for c in codes:
+            if c not in report_cache and c not in wanted_codes:
+                wanted_codes.append(c)
+
+    for start in range(0, len(wanted_codes), PROGRESS_BATCH):
+        batch = wanted_codes[start:start + PROGRESS_BATCH]
+        parts = [
+            f"r{j}: report(code: {json.dumps(code)}) {{ "
+            "masterData { actors(type: \"Player\") { id name } } "
+            "fights { encounterID kill bossPercentage lastPhase "
+            "friendlyPlayers } }"
+            for j, code in enumerate(batch)
+        ]
+        try:
+            rd = (fflogs_query(token, "query { reportData { " + " ".join(parts)
+                               + " } }")["data"]["reportData"] or {})
+        except Exception as ex:
+            log(f"Progress — report batch failed: {ex}")
+            continue
+        for j, code in enumerate(batch):
+            rep = rd.get(f"r{j}")
+            if not rep:
+                report_cache[code] = {}
+                continue
+            actors = {a["id"]: a["name"]
+                      for a in ((rep.get("masterData") or {}).get("actors") or [])}
+            per_name: dict[str, dict] = {}
+            ts = started.get(code, 0)
+            for f in (rep.get("fights") or []):
+                eid = f.get("encounterID")
+                if eid not in want:
+                    continue
+                killed = bool(f.get("kill"))
+                pct = f.get("bossPercentage")
+                if not killed and pct is None:
+                    continue
+                for aid in (f.get("friendlyPlayers") or []):
+                    nm = actors.get(aid)
+                    if not nm:
+                        continue
+                    cur = per_name.setdefault(nm, {})
+                    prev = cur.get(eid)
+                    if prev is None:
+                        prev = cur[eid] = {"pct": None, "phase": 0, "pulls": 0,
+                                           "ts": ts, "killed_ts": 0}
+                    prev["pulls"] += 1
+                    prev["ts"] = max(prev["ts"], ts)
+                    if killed:
+                        prev["killed_ts"] = max(prev["killed_ts"], ts)
+                    elif pct is not None and (prev["pct"] is None
+                                              or pct < prev["pct"]):
+                        # Lower is further in.
+                        prev["pct"] = pct
+                        prev["phase"] = f.get("lastPhase") or 0
+            report_cache[code] = per_name
+
+    out: dict[str, dict] = {}
+    for m in chunk:
+        best: dict[int, dict] = {}
+        for code in codes_for.get(str(m["id"]), []):
+            for eid, rec in (report_cache.get(code) or {}).get(m["name"], {}).items():
+                cur = best.get(eid)
+                if cur is None:
+                    best[eid] = dict(rec)
+                else:
+                    cur["pulls"] += rec["pulls"]
+                    if rec["pct"] is not None and (cur["pct"] is None
+                                                   or rec["pct"] < cur["pct"]):
+                        cur["pct"], cur["phase"] = rec["pct"], rec["phase"]
+                    cur["ts"] = max(cur.get("ts") or 0, rec.get("ts") or 0)
+                    cur["killed_ts"] = max(cur.get("killed_ts") or 0,
+                                           rec.get("killed_ts") or 0)
+        if best:
+            out[str(m["id"])] = best
+    return out
+
+
 def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | None:
     token = fflogs_token()
     if not token:
@@ -554,6 +699,16 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
 
     log(f"FFLogs current tier: {current['name']} ({current['id']}) "
         f"[{current['expansion']}]")
+    # Every Ultimate plus the current tier. An old Ultimate belongs here because
+    # people still learn them years later; whether it shows is decided by how
+    # recently it was pulled, not by which tier it belongs to.
+    want_encounters: dict[int, str] = {}
+    for e in current.get("encounters") or []:
+        want_encounters[e["id"]] = "savage"
+    for z in ults:
+        for e in z.get("encounters") or []:
+            want_encounters[e["id"]] = "ultimate"
+
     # Who still needs the one-off sweep of the older ultimate zones.
     swept = set(state.get("ult_swept") or [])
     sweeping: set[str] = set()
@@ -577,6 +732,11 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
     ex_ids = {z["id"] for z in cur_extremes} & queried
     # Every zone that could appear in any member's query, so zmeta can resolve it.
     zmeta = {z["id"]: z for z in zones + old_ults}
+    enc_names = {e["id"]: e["name"]
+                 for z in [current, *ults]
+                 for e in (z.get("encounters") or [])}
+    # One report serves everybody who was in it, and an FC raids together.
+    report_cache: dict = {}
     bs = CONFIG["fflogs_batch_size"]
 
     # Members already covered in this pass. A run gets through a fraction of the
@@ -729,6 +889,75 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                 rest["fflogs"] = raids.get(str(rest["id"]), {}).get("_status", "pending")
             break
 
+        # Progress for the members just processed. Kept to whoever has something
+        # unfinished: a cleared fight is complete and says nothing about progress,
+        # and the report walk is the expensive half of this pipeline.
+        pending = []
+        for m in chunk:
+            entry = raids.get(str(m["id"])) or {}
+            cur = entry.get("current") or {}
+            done_names = {e.get("name") for e in (cur.get("encounters") or [])
+                          if (e.get("kills") or 0) > 0}
+            done_names |= {u.get("name") for u in (entry.get("ultimates") or [])
+                           if (u.get("kills") or 0) > 0}
+            unfinished = {eid: kind for eid, kind in want_encounters.items()
+                          if enc_names.get(eid) not in done_names}
+            if unfinished and entry.get("_status") not in ("hidden", "none"):
+                pending.append(m)
+        if pending and not full_history:
+            try:
+                found = _best_pulls(token, pending, want_encounters, report_cache)
+            except Exception as ex:
+                log(f"Progress — pass failed: {ex}")
+                found = {}
+            for m in pending:
+                entry = raids.setdefault(str(m["id"]), {})
+                cur = entry.get("current") or {}
+                done_names = {e.get("name") for e in (cur.get("encounters") or [])
+                              if (e.get("kills") or 0) > 0}
+                done_names |= {u.get("name") for u in (entry.get("ultimates") or [])
+                               if (u.get("kills") or 0) > 0}
+                rows = []
+                for eid, rec in (found.get(str(m["id"])) or {}).items():
+                    name = enc_names.get(eid)
+                    if not name:
+                        continue
+                    killed_ts = rec.get("killed_ts") or 0
+                    ts = rec.get("ts") or 0
+                    if killed_ts:
+                        # Killed in these logs: say so, and drop the best wipe.
+                        # "Was at 0.9%" stops being the story the moment it dies.
+                        rows.append({
+                            "encounter_id": eid, "name": name,
+                            "kind": want_encounters.get(eid), "state": "cleared",
+                            "pct": None, "phase": 0, "pulls": rec["pulls"],
+                            "last": time.strftime("%Y-%m-%d", time.gmtime(killed_ts)),
+                        })
+                        continue
+                    # A kill recorded on an earlier run counts too, even if it is
+                    # not in the reports still on file.
+                    if name in done_names or rec.get("pct") is None:
+                        continue
+                    rows.append({
+                        "encounter_id": eid, "name": name,
+                        "kind": want_encounters.get(eid), "state": "learning",
+                        "pct": round(rec["pct"], 2), "phase": rec["phase"],
+                        "pulls": rec["pulls"],
+                        "last": (time.strftime("%Y-%m-%d", time.gmtime(ts))
+                                 if ts else None),
+                    })
+                # Most recent first, and a fresh kill outranks a wipe on the same
+                # day: the question is what somebody is playing now, and clearing it
+                # is the bigger news.
+                rows.sort(key=lambda r: (r["last"] or "",
+                                         r["state"] == "cleared",
+                                         -(r["pct"] if r["pct"] is not None else 0)),
+                          reverse=True)
+                if rows:
+                    entry["progress"] = rows
+                else:
+                    entry.pop("progress", None)
+
         done = min(start + bs, len(queue))
         if done % 50 < bs:
             log(f"FFLogs — {done}/{len(queue)} members")
@@ -848,6 +1077,11 @@ def summarize_raids(m: dict, raids: dict) -> None:
             best = max(best or 0, e["best"])
     m["parse"] = best
     m["savage_kills"] = sum(1 for c in cur.get("clears", []) if c)
+    # The furthest thing still being learned, for the roster row. Only the best
+    # one: a list of every unfinished boss is a paragraph, and the deepest pull is
+    # the one that answers "how far are they".
+    prog = entry.get("progress") or []
+    m["progress"] = prog[0] if prog else None
     # Any ranked encounter in the current tier, cleared or not — what separates
     # "progging" from "has not touched it".
     m["current_seen"] = bool(cur.get("encounters"))

@@ -10,6 +10,7 @@ import {
 } from "@/lib/types";
 import { percentile } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
+import ProgressBadge from "@/components/ProgressBadge";
 import { useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
 import { isEmpty } from "@/lib/availability";
@@ -355,6 +356,28 @@ export default function MemberView({
               </div>
             ))}
           </div>
+        )}
+
+        {/* What is still being learned. Sits under the cards because it is the
+            answer to the same question they ask, and above the extremes because a
+            fight in progress is more current than one already finished. */}
+        {(raids?.progress?.length ?? 0) > 0 && (
+          <>
+            <h3 className="mb-2 mt-4 font-display text-[15px] font-semibold">
+              {t("member.inProgress")}{" "}
+              <span className="text-[12.5px] font-normal text-muted">
+                ({raids!.progress!.length})
+              </span>
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {raids!.progress!.map((p) => (
+                <ProgressBadge key={p.encounter_id} progress={p} size="md" />
+              ))}
+            </div>
+            <p className="mt-1.5 text-[12px] leading-relaxed text-muted">
+              {t("member.progressHint")}
+            </p>
+          </>
         )}
 
         {/* Same patch, lower difficulty — kept in this section so "what is this

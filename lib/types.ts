@@ -20,6 +20,8 @@ export const CONTENT_LABEL: Record<string, string> = {
 };
 
 export interface Member {
+  /** Deepest unfinished fight, for the roster row. Null once nothing is in progress. */
+  progress?: ProgressRow | null;
   id: number;
   name: string;
   rank: string | null;
@@ -75,6 +77,22 @@ export interface Member {
   minion_rank?: string | null;
 }
 
+/** A boss somebody is still learning: the deepest pull, not a kill. */
+export interface ProgressRow {
+  encounter_id: number;
+  name: string;
+  kind: "savage" | "ultimate" | null;
+  /** Killed it in these logs, or still learning it. */
+  state: "learning" | "cleared";
+  /** Boss HP left on the best pull. Lower is further in. Null once cleared. */
+  pct: number | null;
+  /** 0 when the fight has no phases FF Logs tracks. */
+  phase: number;
+  pulls: number;
+  /** ISO date of the most recent attempt — what makes this current rather than old. */
+  last: string | null;
+}
+
 export interface RaidEncounter {
   label: string | null; name: string | null;
   best: number | null; median: number | null;
@@ -100,6 +118,8 @@ export interface ExtremeEntry {
   job: string | null; cleared: boolean;
 }
 export interface MemberRaids {
+  /** Fights still being learned, most recently attempted first. */
+  progress?: ProgressRow[];
   current?: RaidZone;
   ultimates?: UltimateEntry[];
   /** Extreme trials of the current patch, one row per fight. */

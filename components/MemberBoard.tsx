@@ -11,6 +11,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
+import ProgressBadge from "@/components/ProgressBadge";
 import { useLang } from "@/lib/i18n";
 import { ultimateAbbr } from "@/lib/types";
 import JobIcon, {
@@ -739,6 +740,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   </div>
                   <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-start-auto">
                     <MemberTags m={m} extremeTotal={extremes.length} />
+                    {m.progress && <ProgressBadge progress={m.progress} />}
                     {(ov?.lfg ?? []).map((k) => {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
                       return o ? (
