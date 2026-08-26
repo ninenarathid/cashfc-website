@@ -8,6 +8,7 @@ import BirthdaysToday from "@/components/home/BirthdaysToday";
 import ShowYourData from "@/components/home/ShowYourData";
 import Hero from "@/components/home/Hero";
 import ActivityFeed from "@/components/home/ActivityFeed";
+import HotGallery from "@/components/home/HotGallery";
 import type { BoardData, FeedEvent, NewsItem } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
 
@@ -43,6 +44,8 @@ export default function Home() {
       />
 
       <BirthdaysToday members={members} />
+
+      <HotGallery />
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <ActivityFeed feed={feed} />

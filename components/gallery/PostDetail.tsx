@@ -1,10 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
-import { postPath, type GalleryComment, type GalleryPost } from "@/lib/gallery";
+import {
+  postPath, uploadOne,
+  type GalleryComment, type GalleryImage, type GalleryPost,
+} from "@/lib/gallery";
+import Carousel from "@/components/gallery/Carousel";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
 
@@ -41,6 +45,8 @@ export default function PostDetail(
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [caption, setCaption] = useState(post.caption ?? "");
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const addInput = useRef<HTMLInputElement | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -53,6 +59,16 @@ export default function PostDetail(
     ]);
     const uid = user.user?.id ?? null;
     setMe(uid);
+
+    const { data: imgs } = await supabase.from("gallery_images")
+      .select("id, post_id, url, width, height, position")
+      .eq("post_id", post.id).order("position", { ascending: true });
+    // A post written before pictures had their own table still has its cover, so
+    // fall back to that rather than showing an empty frame.
+    setImages(((imgs ?? []) as GalleryImage[]).length
+      ? (imgs as GalleryImage[])
+      : [{ id: -1, post_id: post.id, url: post.image_url,
+           width: post.width, height: post.height, position: 0 }]);
     const ids = (likeRows.data ?? []).map((r) => r.profile_id as string);
     setLikes(ids.length);
     setLiked(!!uid && ids.includes(uid));
@@ -132,10 +148,38 @@ export default function PostDetail(
 
   return (
     <div className="flex flex-col gap-4">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={post.image_url} alt={post.caption ?? ""}
-           width={post.width ?? undefined} height={post.height ?? undefined}
-           className="max-h-[78vh] w-full rounded-xl border border-line bg-bg object-contain" />
+      <Carousel images={images} canEdit={canEditCaption}
+                onRemove={async (id) => {
+                  if (!supabase || id < 0) return;
+                  setBusy(true);
+                  await supabase.from("gallery_images").delete().eq("id", id);
+                  setBusy(false);
+                  // Removing the last one deletes the post, which the database
+                  // does for us — so the caller has to hear about it either way.
+                  if (images.length === 1) onDeleted?.(post.id);
+                  else { await load(); onChanged?.(); }
+                }} />
+
+      <input ref={addInput} type="file" accept="image/*" multiple className="hidden"
+             onChange={async (e) => {
+               const chosen = [...(e.target.files ?? [])];
+               e.target.value = "";
+               if (!supabase || !me || !chosen.length) return;
+               setBusy(true);
+               const base = images.length
+                 ? Math.max(...images.map((im) => im.position)) + 1 : 0;
+               const rows = [];
+               for (const [n, f] of chosen.entries()) {
+                 const res = await uploadOne(supabase, me, f);
+                 if ("error" in res) continue;
+                 rows.push({ post_id: post.id, url: res.url, width: res.width,
+                             height: res.height, position: base + n });
+               }
+               if (rows.length) await supabase.from("gallery_images").insert(rows);
+               setBusy(false);
+               await load();
+               onChanged?.();
+             }} />
 
       {/* Held to a readable measure under a picture that may be very wide —
           comments running the full width of a 1600px screenshot are a chore. */}
@@ -185,11 +229,17 @@ export default function PostDetail(
               )}
             </p>
             {canEditCaption && (
-              <button onClick={() => setEditing(true)}
-                      title={t("gallery.editCaption")}
-                      className="shrink-0 rounded-md border border-line px-2 py-0.5 text-[11.5px] text-muted hover:border-accent hover:text-accent">
-                {t("common.edit")}
-              </button>
+              <div className="flex shrink-0 gap-1.5">
+                <button onClick={() => setEditing(true)}
+                        title={t("gallery.editCaption")}
+                        className="rounded-md border border-line px-2 py-0.5 text-[11.5px] text-muted hover:border-accent hover:text-accent">
+                  {t("common.edit")}
+                </button>
+                <button onClick={() => addInput.current?.click()} disabled={busy}
+                        className="rounded-md border border-line px-2 py-0.5 text-[11.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+                  + {t("gallery.addImages")}
+                </button>
+              </div>
             )}
           </div>
         )}

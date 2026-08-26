@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
-import { GALLERY_BUCKET, MAX_UPLOAD_BYTES, measure } from "@/lib/gallery";
+import { MAX_UPLOAD_BYTES, uploadOne } from "@/lib/gallery";
 
 /**
  * Posting a screenshot.
@@ -23,8 +23,9 @@ export default function GalleryUpload(
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const input = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [done, setDone] = useState(0);
   const [caption, setCaption] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -48,43 +49,79 @@ export default function GalleryUpload(
     })();
   }, [supabase]);
 
-  function pick(f: File) {
+  function pick(chosen: File[]) {
     setErr(null);
-    if (!f.type.startsWith("image/")) { setErr(t("gallery.notImage")); return; }
-    if (f.size > MAX_UPLOAD_BYTES) { setErr(t("gallery.tooBig")); return; }
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
+    const ok: File[] = [];
+    for (const f of chosen) {
+      if (!f.type.startsWith("image/")) { setErr(t("gallery.notImage")); continue; }
+      if (f.size > MAX_UPLOAD_BYTES) { setErr(t("gallery.tooBig")); continue; }
+      ok.push(f);
+    }
+    if (!ok.length) return;
+    setFiles((prev) => [...prev, ...ok]);
+    setPreviews((prev) => [...prev, ...ok.map((f) => URL.createObjectURL(f))]);
+  }
+
+  function drop(i: number) {
+    setFiles((prev) => prev.filter((_, n) => n !== i));
+    setPreviews((prev) => {
+      URL.revokeObjectURL(prev[i]);
+      return prev.filter((_, n) => n !== i);
+    });
+  }
+
+  function clear() {
+    previews.forEach((u) => URL.revokeObjectURL(u));
+    setFiles([]); setPreviews([]); setErr(null); setDone(0);
   }
 
   async function upload() {
-    if (!supabase || !file || !me) return;
+    if (!supabase || !files.length || !me) return;
     setBusy(true);
     setErr(null);
-    const dims = await measure(file);
-    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
-    // Filed under the uploader's id because the storage policy requires it, and
-    // named by time so two people posting screenshot.png cannot collide.
-    const path = `${me.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const up = await supabase.storage.from(GALLERY_BUCKET)
-      .upload(path, file, { cacheControl: "31536000", upsert: false });
-    if (up.error) {
-      setBusy(false);
-      setErr(up.error.message.includes("Bucket not found")
-        ? t("gallery.noBucket") : up.error.message);
-      return;
+    setDone(0);
+
+    // Every file goes up first. If one fails the post is never created, so a
+    // half-uploaded set does not become a post missing pictures nobody can see
+    // are missing.
+    const uploaded: { url: string; width: number | null; height: number | null }[] = [];
+    for (const f of files) {
+      const res = await uploadOne(supabase, me.id, f);
+      if ("error" in res) {
+        setBusy(false);
+        setErr(res.error === "not-image" ? t("gallery.notImage")
+          : res.error === "too-big" ? t("gallery.tooBig")
+          : res.error.includes("Bucket not found") ? t("gallery.noBucket")
+          : res.error);
+        return;
+      }
+      uploaded.push(res);
+      setDone((n) => n + 1);
     }
-    const { data } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(path);
-    const { error } = await supabase.from("gallery_posts").insert({
+
+    // The cover columns are filled by a trigger from the first image, so they
+    // are seeded here only to satisfy the not-null on image_url.
+    const { data: post, error } = await supabase.from("gallery_posts").insert({
       author_id: me.id,
       character_id: me.characterId,
-      image_url: data.publicUrl,
-      width: dims?.width ?? null,
-      height: dims?.height ?? null,
+      image_url: uploaded[0].url,
+      width: uploaded[0].width,
+      height: uploaded[0].height,
       caption: caption.trim() || null,
-    });
+    }).select("id").single();
+
+    if (error || !post) { setBusy(false); setErr(error?.message ?? "insert failed"); return; }
+
+    const { error: imgErr } = await supabase.from("gallery_images").insert(
+      uploaded.map((u, i) => ({
+        post_id: (post as { id: number }).id,
+        url: u.url, width: u.width, height: u.height, position: i,
+      })));
+
     setBusy(false);
-    if (error) { setErr(error.message); return; }
-    setFile(null); setPreview(null); setCaption("");
+    if (imgErr) { setErr(imgErr.message); return; }
+    clear();
+    setCaption("");
     onPosted();
   }
 
@@ -104,28 +141,49 @@ export default function GalleryUpload(
   return (
     <div className="rounded-xl border border-line bg-surface p-4">
       <div className="font-display font-semibold">{t("gallery.post")}</div>
-      <input ref={input} type="file" accept="image/*" className="hidden"
+      <input ref={input} type="file" accept="image/*" multiple className="hidden"
              onChange={(e) => {
-               const f = e.target.files?.[0];
-               if (f) pick(f);
+               pick([...(e.target.files ?? [])]);
                e.target.value = "";
              }} />
 
-      {preview ? (
+      {previews.length > 0 ? (
         <div className="mt-3 flex flex-col gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt=""
-               className="max-h-[60vh] w-full rounded-lg border border-line object-contain" />
+          <div className="flex flex-wrap gap-2">
+            {previews.map((src, i) => (
+              <div key={src} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt=""
+                     className="h-32 w-auto rounded-lg border border-line object-contain" />
+                <button onClick={() => drop(i)} disabled={busy}
+                        aria-label={t("gallery.removeImage")}
+                        className="absolute right-1 top-1 rounded-md border border-chili/60 bg-bg/85 px-1.5 text-[12px] text-chili disabled:opacity-40">
+                  ✕
+                </button>
+                {i === 0 && previews.length > 1 && (
+                  <span className="absolute bottom-1 left-1 rounded bg-bg/80 px-1.5 py-0.5 text-[10px] text-muted">
+                    {t("gallery.cover")}
+                  </span>
+                )}
+              </div>
+            ))}
+            <button onClick={() => input.current?.click()} disabled={busy}
+                    className="h-32 w-24 rounded-lg border border-dashed border-line text-[12px] text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40">
+              + {t("gallery.addImages")}
+            </button>
+          </div>
           <input value={caption} onChange={(e) => setCaption(e.target.value.slice(0, 300))}
                  placeholder={t("gallery.captionPlaceholder")}
                  className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
           <div className="flex flex-wrap gap-2">
             <button onClick={upload} disabled={busy}
                     className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-[13.5px] text-accent hover:bg-accent/25 disabled:opacity-50">
-              {busy ? t("gallery.posting") : t("gallery.post")}
+              {busy
+                ? `${t("gallery.posting")} ${done}/${files.length}`
+                : `${t("gallery.post")} (${files.length})`}
             </button>
-            <button onClick={() => { setFile(null); setPreview(null); setErr(null); }}
-                    className="rounded-lg border border-line px-4 py-2 text-[13.5px] text-muted hover:border-muted hover:text-ink">
+            <button onClick={clear} disabled={busy}
+                    className="rounded-lg border border-line px-4 py-2 text-[13.5px] text-muted hover:border-muted hover:text-ink disabled:opacity-40">
               {t("common.cancel")}
             </button>
           </div>
@@ -134,7 +192,7 @@ export default function GalleryUpload(
         <div className="mt-2.5 flex flex-wrap items-center gap-2.5">
           <button onClick={() => input.current?.click()}
                   className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
-            {t("gallery.choose")}
+            {t("gallery.chooseMany")}
           </button>
           <span className="text-[11.5px] text-muted">{t("gallery.limits")}</span>
         </div>

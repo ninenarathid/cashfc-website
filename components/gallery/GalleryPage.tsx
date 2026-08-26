@@ -32,8 +32,8 @@ export default function GalleryPage({ openId }: { openId?: number | null }) {
     return () => clearTimeout(id);
   }, [typed]);
 
-  const { posts, authors, counts, isAdmin, ready, hasMore, loading, loadMore, reload } =
-    useGallery({ sort, query });
+  const { posts, authors, counts, images, isAdmin, ready, hasMore, loading,
+          loadMore, reload } = useGallery({ sort, query });
 
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function GalleryPage({ openId }: { openId?: number | null }) {
         ) : (
           <>
             <GalleryGrid posts={posts} authors={authors} counts={counts}
-                         isAdmin={isAdmin} onChanged={reload}
+                         images={images} isAdmin={isAdmin} onChanged={reload}
                          initialOpen={openId ?? null} />
             <LoadMore onVisible={loadMore} active={hasMore && !loading} />
             {loading && (

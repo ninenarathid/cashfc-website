@@ -18,6 +18,42 @@ export interface GalleryPost {
   /** Kept on the row by database triggers so the feed can rank by them. */
   like_count?: number | null;
   comment_count?: number | null;
+  /** How many pictures the post holds, kept on the row by a trigger. */
+  image_count?: number | null;
+}
+
+/**
+ * Puts one chosen file in the gallery bucket and hands back what the row needs.
+ * Shared by posting and by adding to a post that already exists, so both file
+ * uploads the same way and under the same folder rule.
+ */
+export async function uploadOne(
+  supabase: import("@supabase/supabase-js").SupabaseClient,
+  userId: string,
+  file: File,
+): Promise<{ url: string; width: number | null; height: number | null } | { error: string }> {
+  if (!file.type.startsWith("image/")) return { error: "not-image" };
+  if (file.size > MAX_UPLOAD_BYTES) return { error: "too-big" };
+  const dims = await measure(file);
+  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+  // Filed under the uploader's id because the storage policy requires it, and
+  // named by time so two people posting screenshot.png cannot collide.
+  const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const up = await supabase.storage.from(GALLERY_BUCKET)
+    .upload(path, file, { cacheControl: "31536000", upsert: false });
+  if (up.error) return { error: up.error.message };
+  const { data } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(path);
+  return { url: data.publicUrl, width: dims?.width ?? null, height: dims?.height ?? null };
+}
+
+/** One picture inside a post. The post's own image_url mirrors the first. */
+export interface GalleryImage {
+  id: number;
+  post_id: number;
+  url: string;
+  width: number | null;
+  height: number | null;
+  position: number;
 }
 
 export interface GalleryComment {

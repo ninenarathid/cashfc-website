@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
-import type { GalleryPost } from "@/lib/gallery";
+import type { GalleryImage, GalleryPost } from "@/lib/gallery";
 import PostDetail from "@/components/gallery/PostDetail";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
@@ -25,11 +25,73 @@ export interface Counts { likes: number; comments: number }
  * is one somebody has to describe over voice chat, and the back button should
  * close it rather than leave the gallery.
  */
+/**
+ * A tile's picture, which turns over on its own when the post holds several.
+ *
+ * Each tile is given its own offset so the wall does not flip in unison, which
+ * would read as a glitch rather than as motion. Both frames stay mounted and
+ * cross-fade, so the tile never shows a gap while the next one decodes.
+ *
+ * Stops entirely when the reader has asked for less motion, and when the tab is
+ * in the background — a page quietly swapping images nobody is looking at is
+ * just work.
+ */
+function TileImage(
+  { post, images, index }: { post: GalleryPost; images: GalleryImage[]; index: number },
+) {
+  const many = images.length > 1;
+  const [i, setI] = useState(0);
+
+  useEffect(() => {
+    if (!many) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      timer = setInterval(() => setI((n) => (n + 1) % images.length), 4000);
+    };
+    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+    const onVisibility = () => (document.hidden ? stop() : start());
+
+    // Staggered so neighbouring tiles are never in step.
+    const delay = setTimeout(start, (index % 5) * 700);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      clearTimeout(delay);
+      stop();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [many, images.length, index]);
+
+  const shape = post.width && post.height
+    ? { aspectRatio: `${post.width} / ${post.height}` } : undefined;
+
+  if (!many) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={post.image_url} alt={post.caption ?? ""} loading="lazy"
+           width={post.width ?? undefined} height={post.height ?? undefined}
+           style={shape} className="block h-auto w-full" />
+    );
+  }
+
+  return (
+    <div className="relative w-full" style={shape}>
+      {images.map((img, n) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={img.id} src={img.url} alt="" loading="lazy"
+             className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
+               n === i ? "opacity-100" : "opacity-0"}`} />
+      ))}
+    </div>
+  );
+}
+
 export default function GalleryGrid(
-  { posts, authors, counts, onChanged, initialOpen, isAdmin = false }: {
+  { posts, authors, counts, images, onChanged, initialOpen, isAdmin = false }: {
     posts: GalleryPost[];
     authors: Record<string, Author>;
     counts: Record<number, Counts>;
+    images: Record<number, GalleryImage[]>;
     onChanged: () => void;
     initialOpen?: number | null;
     isAdmin?: boolean;
@@ -69,20 +131,27 @@ export default function GalleryGrid(
 
   return (
     <>
-      <div className="mt-4 columns-2 gap-3 sm:columns-3 lg:columns-4">
-        {posts.map((p) => {
+      {/* Breaks out of the page container: the rest of the site reads better
+          at a fixed measure, but a wall of screenshots wants the whole window.
+          Fewer columns than before, so each picture is roughly twice the size —
+          the point of a gallery is looking at them, not counting them. */}
+      <div className="relative left-1/2 right-1/2 -mx-[50vw] mt-4 w-screen columns-1 gap-3 px-4 sm:columns-2 xl:columns-3">
+        {posts.map((p, idx) => {
           const c = counts[p.id];
+          const shots = images[p.id] ?? [];
+          const many = (p.image_count ?? 1) > 1;
           return (
             <div key={p.id} className="group relative mb-3 break-inside-avoid">
               <button onClick={() => setOpen(p.id)}
                       className="block w-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-accent">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.image_url} alt={p.caption ?? ""} loading="lazy"
-                     width={p.width ?? undefined} height={p.height ?? undefined}
-                     style={p.width && p.height
-                       ? { aspectRatio: `${p.width} / ${p.height}` } : undefined}
-                     className="block h-auto w-full" />
+                <TileImage post={p} images={shots} index={idx} />
               </button>
+
+              {many && (
+                <span className="pointer-events-none absolute right-2 top-2 rounded-md bg-bg/75 px-1.5 py-0.5 font-data text-[11px] text-ink backdrop-blur">
+                  {t("gallery.morePictures", { n: p.image_count ?? shots.length })}
+                </span>
+              )}
 
               {/* Counts on hover only, and only when there is something to say —
                   a wall of "0 · 0" would be noise on a page that is about the
@@ -122,12 +191,15 @@ export default function GalleryGrid(
              className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-bg/90 p-2 backdrop-blur-sm sm:p-4">
           <div onClick={(e) => e.stopPropagation()}
                className="relative w-full max-w-[1400px] rounded-2xl border border-line bg-surface p-3 shadow-2xl sm:p-4">
-            {/* Floated over the picture rather than given a row of its own, so
-                the close button costs no height the image could have had. */}
-            <button onClick={() => setOpen(null)} aria-label={t("common.cancel")}
-                    className="absolute right-4 top-4 z-10 rounded-lg border border-line bg-bg/80 px-3 py-1 text-[13px] text-muted backdrop-blur hover:border-muted hover:text-ink">
-              ✕
-            </button>
+            {/* Its own row rather than floated over the picture. Thirty pixels
+                is a cheaper price than a button sitting on somebody's
+                screenshot, which is what everybody opened this to look at. */}
+            <div className="mb-2 flex items-center justify-end">
+              <button onClick={() => setOpen(null)} aria-label={t("gallery.close")}
+                      className="rounded-lg border border-line px-3 py-1 text-[13px] text-muted transition-colors hover:border-muted hover:text-ink">
+                ✕ {t("gallery.close")}
+              </button>
+            </div>
             <PostDetail post={current} authors={authors}
                         onDeleted={() => { setOpen(null); onChanged(); }}
                         onChanged={onChanged} />
@@ -162,6 +234,7 @@ export function useGallery(
   const [supabase] = useState(createClient);
   const [posts, setPosts] = useState<GalleryPost[]>([]);
   const [authors, setAuthors] = useState<Record<string, Author>>({});
+  const [images, setImages] = useState<Record<number, GalleryImage[]>>({});
   const [isAdmin, setIsAdmin] = useState(false);
   const [ready, setReady] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -197,6 +270,23 @@ export function useGallery(
       return [...prev, ...rows.filter((r) => !seen.has(r.id))];
     });
     setHasMore(rows.length === PAGE);
+
+    // Only the posts that actually hold several: a single-picture post already
+    // carries everything the tile needs on its own row.
+    const multi = rows.filter((r) => (r.image_count ?? 1) > 1).map((r) => r.id);
+    if (multi.length) {
+      const { data: imgs } = await supabase.from("gallery_images")
+        .select("id, post_id, url, width, height, position")
+        .in("post_id", multi)
+        .order("position", { ascending: true });
+      const grouped: Record<number, GalleryImage[]> = {};
+      for (const im of ((imgs ?? []) as GalleryImage[])) {
+        (grouped[im.post_id] ??= []).push(im);
+      }
+      setImages((prev) => (replace ? grouped : { ...prev, ...grouped }));
+    } else if (replace) {
+      setImages({});
+    }
 
     const authorIds = [...new Set(rows.map((r) => r.author_id))];
     if (authorIds.length) {
@@ -259,7 +349,8 @@ export function useGallery(
     return out;
   }, [posts]);
 
-  return { posts, authors, counts, isAdmin, ready, hasMore, loading, loadMore, reload };
+  return { posts, authors, counts, images, isAdmin, ready, hasMore, loading,
+           loadMore, reload };
 }
 
 /**

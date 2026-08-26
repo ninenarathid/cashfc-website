@@ -17,8 +17,8 @@ import GalleryGrid, { LoadMore, useGallery } from "@/components/gallery/GalleryG
 export default function MemberGallery({ characterId }: { characterId: number }) {
   const { t } = useLang();
   const [visible, setVisible] = useState(false);
-  const { posts, authors, counts, isAdmin, ready, hasMore, loading, loadMore, reload } =
-    useGallery({ characterId });
+  const { posts, authors, counts, images, isAdmin, ready, hasMore, loading,
+          loadMore, reload } = useGallery({ characterId });
 
   useEffect(() => {
     const supabase = createClient();
@@ -47,7 +47,7 @@ export default function MemberGallery({ characterId }: { characterId: number }) 
         </Link>
       </h2>
       <GalleryGrid posts={posts} authors={authors} counts={counts}
-                   isAdmin={isAdmin} onChanged={reload} />
+                   images={images} isAdmin={isAdmin} onChanged={reload} />
       <LoadMore onVisible={loadMore} active={hasMore && !loading} />
     </section>
   );
