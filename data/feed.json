@@ -2,6 +2,125 @@
  "events": [
   {
    "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 30559981,
+   "name": "Maverick Flourite",
+   "text": "set a new best parse: 49"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 30559981,
+   "name": "Maverick Flourite",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "set a new best parse: 88"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "is now a Master Reaper"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 34184163,
+   "name": "Moji Momiji",
+   "text": "set a new best parse: 1"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34184163,
+   "name": "Moji Momiji",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 34611224,
+   "name": "Momose Hochizora",
+   "text": "set a new best parse: 55"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34611224,
+   "name": "Momose Hochizora",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 37815847,
+   "name": "Necro Himawari",
+   "text": "set a new best parse: 48"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 36149590,
+   "name": "Neo Anderson",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 37731936,
+   "name": "Null Skyrage",
+   "text": "set a new best parse: 73"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 37731936,
+   "name": "Null Skyrage",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 37731936,
+   "name": "Null Skyrage",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 37731936,
+   "name": "Null Skyrage",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-08-26",
    "type": "level_100",
    "id": 24228478,
    "name": "Pyrozus Helison",
@@ -1280,125 +1399,6 @@
    "id": 40652404,
    "name": "Jade Solaire",
    "text": "set a new best parse: 31"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 40652404,
-   "name": "Jade Solaire",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "level_100",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "level_100",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 43423269,
-   "name": "Bladez Sweeney",
-   "text": "set a new best parse: 75"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 43423269,
-   "name": "Bladez Sweeney",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "cleared Futures Rewritten 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 36090951,
-   "name": "Guuji Mercedexs",
-   "text": "cleared Futures Rewritten 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 36090951,
-   "name": "Guuji Mercedexs",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 34546216,
-   "name": "Dekkapi Kung",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 28789661,
-   "name": "Zuma Zerk",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 22767255,
-   "name": "Minami Taira",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 29511615,
-   "name": "Whitefang Dimmoon",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "cleared an Ultimate — Legend! 🏆"
   }
  ]
 }

@@ -17358,7 +17358,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 49,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -17577,10 +17588,41 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 88,
+    "kills": 17,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 43,
+    "kills": 15,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 75,
+    "kills": 17,
+    "job": "Reaper",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "29151949": {
   "current": {
@@ -17678,10 +17720,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 1,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "32046109": {
   "current": {
@@ -17732,10 +17785,31 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 38,
+    "kills": 4,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 55,
+    "kills": 2,
+    "job": "Scholar",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "37911500": {
   "current": {
@@ -18062,10 +18136,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 48,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "16385554": {
   "current": {
@@ -18173,7 +18258,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 5,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials II (Extreme)",
@@ -18491,10 +18587,31 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 44,
+    "kills": 17,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 73,
+    "kills": 15,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "34057749": {
   "current": {

@@ -1356,7 +1356,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 69,
   "cc": [
    true,
    true,
@@ -3918,7 +3918,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -4165,7 +4165,7 @@
   "mounts": 35,
   "minions": 105,
   "rare": 2,
-  "level": 100,
+  "level": 88,
   "cc": [
    true,
    true,
@@ -4503,7 +4503,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": null,
-  "level": 71,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -5380,14 +5380,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 75,
+  "level": 76,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "61758559": {
   "name": "Lree Thai",
@@ -9896,8 +9896,8 @@
  },
  "30559981": {
   "name": "Maverick Flourite",
-  "parse": 11,
-  "ult": 0,
+  "parse": 49,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -9915,8 +9915,10 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Unending Coil of Bahamut"
+  ],
+  "chg": "2026-08-26"
  },
  "44031569": {
   "name": "Maya Smith",
@@ -10130,8 +10132,8 @@
  },
  "34507717": {
   "name": "Mira Lionheart",
-  "parse": null,
-  "ult": 0,
+  "parse": 88,
+  "ult": 3,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -10144,10 +10146,16 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Reaper": "master"
+  },
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "29151949": {
   "name": "Mirai Haname",
@@ -10237,8 +10245,8 @@
  },
  "34184163": {
   "name": "Moji Momiji",
-  "parse": null,
-  "ult": 0,
+  "parse": 1,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -10253,8 +10261,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise"
+  ],
+  "chg": "2026-08-26"
  },
  "32046109": {
   "name": "Mojito Crush",
@@ -10300,8 +10310,8 @@
  },
  "34611224": {
   "name": "Momose Hochizora",
-  "parse": null,
-  "ult": 0,
+  "parse": 55,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -10316,8 +10326,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "37911500": {
   "name": "Monandaeg Deliciosus",
@@ -10560,7 +10572,7 @@
  },
  "37815847": {
   "name": "Necro Himawari",
-  "parse": null,
+  "parse": 48,
   "ult": 1,
   "mounts": 66,
   "minions": 123,
@@ -10589,7 +10601,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "16385554": {
   "name": "Neko Sehkerla",
@@ -10681,7 +10693,7 @@
  "36149590": {
   "name": "Neo Anderson",
   "parse": 92,
-  "ult": 0,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -10702,8 +10714,10 @@
    "Zelenia",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "39001402": {
   "name": "Nes Brio",
@@ -10922,8 +10936,8 @@
  },
  "37731936": {
   "name": "Null Skyrage",
-  "parse": null,
-  "ult": 0,
+  "parse": 73,
+  "ult": 2,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -10936,10 +10950,15 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Summoner": "expert"
+  },
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut"
+  ],
+  "chg": "2026-08-26"
  },
  "34057749": {
   "name": "Nuna Ghiza",
