@@ -910,6 +910,11 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             except Exception as ex:
                 log(f"Progress — pass failed: {ex}")
                 found = {}
+            # Logged either way: without this, a pass that never ran and one that
+            # ran and found nothing look identical from the outside.
+            log(f"Progress — read logs for {len(pending)} member(s), "
+                f"{len(found)} with something recent "
+                f"({len(report_cache)} reports cached)")
             for m in pending:
                 entry = raids.setdefault(str(m["id"]), {})
                 cur = entry.get("current") or {}
