@@ -1,6 +1,111 @@
 {
  "events": [
   {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 1607774,
+   "name": "Shiomi Shirogane",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 1607774,
+   "name": "Shiomi Shirogane",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 44926008,
+   "name": "Shiraishi Shu",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 47715909,
+   "name": "Sleepless Pierrot",
+   "text": "set a new best parse: 23"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 34597671,
+   "name": "Valkyries Zearaskia",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 34597671,
+   "name": "Valkyries Zearaskia",
+   "text": "is now a Legendary Sage"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 47423083,
+   "name": "Yueying Hua",
+   "text": "set a new best parse: 45"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "is now a Expert Dark Knight"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "set a new best parse: 90"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 34172006,
+   "name": "Zion Zoen",
+   "text": "set a new best parse: 81"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 34172006,
+   "name": "Zion Zoen",
+   "text": "is now a Master White Mage"
+  },
+  {
    "date": "2026-08-25",
    "type": "level_100",
    "id": 46243891,
@@ -1294,111 +1399,6 @@
    "id": 28579232,
    "name": "Dessiny Valkyrie",
    "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "set a new best parse: 99"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "set a new best parse: 91"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "set a new best parse: 97"
   }
  ]
 }

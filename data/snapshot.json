@@ -1278,7 +1278,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 100,
+  "level": 59,
   "cc": [
    true,
    true,
@@ -1300,7 +1300,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -3751,7 +3751,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 100,
+  "level": 91,
   "cc": [
    true,
    true,
@@ -3771,7 +3771,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "35601257": {
   "name": "Elaina Celestial",
@@ -3829,7 +3829,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 88,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -3841,7 +3841,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -11905,7 +11905,7 @@
  },
  "1607774": {
   "name": "Shiomi Shirogane",
-  "parse": 10,
+  "parse": 98,
   "ult": 5,
   "mounts": 149,
   "minions": 186,
@@ -11991,7 +11991,9 @@
   "tiers": {
    "seasonal": "expert"
   },
-  "jobs": {},
+  "jobs": {
+   "Gunbreaker": "legendary"
+  },
   "ex": [],
   "ults": [
    "Dragonsong's Reprise",
@@ -12000,7 +12002,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "44926008": {
   "name": "Shiraishi Shu",
@@ -12019,7 +12021,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Gunbreaker": "master"
+   "Gunbreaker": "legendary"
   },
   "ex": [
    "Valigarmanda",
@@ -12095,7 +12097,7 @@
  },
  "47715909": {
   "name": "Sleepless Pierrot",
-  "parse": null,
+  "parse": 23,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -12112,7 +12114,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "53006949": {
   "name": "Snow Wit",
@@ -12137,7 +12139,7 @@
  },
  "31239994": {
   "name": "Sopier Kit",
-  "parse": 78,
+  "parse": 96,
   "ult": 1,
   "mounts": null,
   "minions": null,
@@ -12152,7 +12154,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Samurai": "expert"
+   "Samurai": "legendary"
   },
   "ex": [
    "Valigarmanda",
@@ -12161,7 +12163,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "35361791": {
   "name": "Soraacg Mikazuki",
@@ -12245,7 +12247,7 @@
   "jobs": {
    "Viper": "legendary",
    "Monk": "expert",
-   "Samurai": "expert",
+   "Samurai": "legendary",
    "Machinist": "master",
    "Bard": "expert",
    "Ninja": "master"
@@ -12647,7 +12649,7 @@
  },
  "34597671": {
   "name": "Valkyries Zearaskia",
-  "parse": 48,
+  "parse": 96,
   "ult": 2,
   "mounts": 114,
   "minions": 233,
@@ -12701,7 +12703,9 @@
   "tiers": {
    "goldsaucer": "expert"
   },
-  "jobs": {},
+  "jobs": {
+   "Sage": "legendary"
+  },
   "ex": [
    "Valigarmanda"
   ],
@@ -12709,7 +12713,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "41073949": {
   "name": "Vanir Arkwright",
@@ -13070,7 +13074,7 @@
  },
  "47423083": {
   "name": "Yueying Hua",
-  "parse": null,
+  "parse": 45,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -13087,7 +13091,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "38841973": {
   "name": "Yujin Narak",
@@ -13127,7 +13131,9 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Sage": "master"
+   "Sage": "master",
+   "DarkKnight": "expert",
+   "Gunbreaker": "expert"
   },
   "ex": [
    "Queen Eternal",
@@ -13205,7 +13211,7 @@
  },
  "39850342": {
   "name": "Zene Neko",
-  "parse": 88,
+  "parse": 90,
   "ult": 0,
   "mounts": null,
   "minions": null,
@@ -13227,7 +13233,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "10926041": {
   "name": "Zero Einzbern",
@@ -13294,7 +13300,7 @@
  },
  "34172006": {
   "name": "Zion Zoen",
-  "parse": 44,
+  "parse": 81,
   "ult": 1,
   "mounts": null,
   "minions": null,
@@ -13308,14 +13314,16 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "WhiteMage": "master"
+  },
   "ex": [
    "Valigarmanda"
   ],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "44401264": {
   "name": "Zireael Foley",

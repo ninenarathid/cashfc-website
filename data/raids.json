@@ -17218,7 +17218,55 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 97,
+      "median": 63,
+      "kills": 12,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 97,
+      "median": 68,
+      "kills": 15,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 82,
+      "median": 55,
+      "kills": 14,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 98,
+      "median": 54,
+      "kills": 20,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 86,
+      "median": 31,
+      "kills": 8,
+      "job": "Gunbreaker"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "44926008": {
@@ -17268,7 +17316,55 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 47,
+      "median": 47,
+      "kills": 4,
+      "job": "Sage"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 59,
+      "median": 39,
+      "kills": 6,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 42,
+      "median": 23,
+      "kills": 3,
+      "job": "Summoner"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 38,
+      "median": 38,
+      "kills": 5,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 34,
+      "median": 31,
+      "kills": 3,
+      "job": "Sage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "50131148": {
@@ -17340,8 +17436,40 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 4,
+      "median": 3,
+      "kills": 2,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 3,
+      "median": 3,
+      "kills": 2,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 23,
+      "median": 23,
+      "kills": 2,
+      "job": "Warrior"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "53006949": {
   "current": {
@@ -17408,7 +17536,55 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 95,
+      "median": 68,
+      "kills": 9,
+      "job": "Samurai"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 86,
+      "median": 62,
+      "kills": 8,
+      "job": "Samurai"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 96,
+      "median": 74,
+      "kills": 8,
+      "job": "Samurai"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 71,
+      "median": 12,
+      "kills": 9,
+      "job": "Samurai"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 56,
+      "median": 44,
+      "kills": 3,
+      "job": "Samurai"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "35361791": {
@@ -17603,7 +17779,39 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 96,
+      "median": 63,
+      "kills": 10,
+      "job": "Samurai"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 85,
+      "median": 70,
+      "kills": 10,
+      "job": "Samurai"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 87,
+      "median": 79,
+      "kills": 4,
+      "job": "Samurai"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "38971737": {
@@ -17994,7 +18202,55 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 59,
+      "median": 48,
+      "kills": 5,
+      "job": "Sage"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 81,
+      "median": 49,
+      "kills": 8,
+      "job": "Sage"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 79,
+      "median": 67,
+      "kills": 9,
+      "job": "Sage"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 96,
+      "median": 73,
+      "kills": 39,
+      "job": "Sage"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 85,
+      "median": 77,
+      "kills": 5,
+      "job": "Sage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "41073949": {
@@ -18336,8 +18592,40 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 45,
+      "median": 19,
+      "kills": 11,
+      "job": "Samurai"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 44,
+      "median": 15,
+      "kills": 13,
+      "job": "Samurai"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 27,
+      "median": 13,
+      "kills": 11,
+      "job": "Samurai"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "38841973": {
   "current": {
@@ -18424,7 +18712,55 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 87,
+      "median": 87,
+      "kills": 18,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 71,
+      "median": 11,
+      "kills": 14,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 71,
+      "median": 21,
+      "kills": 18,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 34,
+      "median": 11,
+      "kills": 16,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 34,
+      "median": 16,
+      "kills": 4,
+      "job": "DarkKnight"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "42832439": {
@@ -18558,7 +18894,47 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 85,
+      "median": 22,
+      "kills": 10,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 66,
+      "median": 51,
+      "kills": 12,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 73,
+      "median": 62,
+      "kills": 12,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 90,
+      "median": 49,
+      "kills": 19,
+      "job": "WhiteMage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "10926041": {
@@ -18652,7 +19028,55 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 56,
+      "median": 39,
+      "kills": 4,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 58,
+      "median": 29,
+      "kills": 7,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 44,
+      "median": 21,
+      "kills": 8,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 81,
+      "median": 41,
+      "kills": 40,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 73,
+      "median": 59,
+      "kills": 5,
+      "job": "WhiteMage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "44401264": {
