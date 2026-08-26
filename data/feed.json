@@ -2,6 +2,132 @@
  "events": [
   {
    "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 31001697,
+   "name": "Flora Neuenmuller",
+   "text": "set a new best parse: 86"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 31001697,
+   "name": "Flora Neuenmuller",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 31001697,
+   "name": "Flora Neuenmuller",
+   "text": "is now a Master Dancer"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 31001781,
+   "name": "Ician Wyra'li",
+   "text": "set a new best parse: 33"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 31001781,
+   "name": "Ician Wyra'li",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 31001781,
+   "name": "Ician Wyra'li",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "set a new best parse: 21"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "boss_clear",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 16099244,
+   "name": "Luna Froggo",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "set a new best parse: 81"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 33387937,
+   "name": "R'bael Senkou",
+   "text": "set a new best parse: 81"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 33387937,
+   "name": "R'bael Senkou",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
    "type": "parse_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1273,132 +1399,6 @@
    "id": 29339718,
    "name": "Ashe Fantine",
    "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 16099244,
-   "name": "Luna Froggo",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 35158574,
-   "name": "Rikka Haulia",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 20400811,
-   "name": "Ariadne Ilsildar",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 20014912,
-   "name": "Kaede Chan",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 37815847,
-   "name": "Necro Himawari",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 1607774,
-   "name": "Shiomi Shirogane",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 34597671,
-   "name": "Valkyries Zearaskia",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "set a new best parse: 84"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 60692052,
-   "name": "Jedos Darkflamemaster",
-   "text": "set a new best parse: 1"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 29389419,
-   "name": "Osilit Bloodhood",
-   "text": "set a new best parse: 20"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 57419573,
-   "name": "A'kane Dorothy",
-   "text": "set a new best parse: 45"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 5034519,
-   "name": "Acerola Orion",
-   "text": "set a new best parse: 84"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 3256238,
-   "name": "Ai Tsukuyomi",
-   "text": "set a new best parse: 7"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 4505633,
-   "name": "Arcz Iris",
-   "text": "set a new best parse: 35"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 4505633,
-   "name": "Arcz Iris",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 4505633,
-   "name": "Arcz Iris",
-   "text": "cleared M10S for the first time 🎉"
   }
  ]
 }

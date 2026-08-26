@@ -10158,6 +10158,16 @@
     "kills": 2,
     "job": "Machinist",
     "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 36,
+    "kills": 6,
+    "job": "Machinist",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -10267,7 +10277,38 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 19,
+    "kills": 9,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 46,
+    "kills": 15,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 41,
+    "kills": 17,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -10517,10 +10558,69 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 71,
+    "kills": 14,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "name": "Cloud of Darkness",
+      "best": 86,
+      "median": 56,
+      "kills": 13,
+      "job": "Dancer"
+     },
+     {
+      "label": "E10S",
+      "name": "Shadowkeeper",
+      "best": 84,
+      "median": 47,
+      "kills": 15,
+      "job": "Dancer"
+     },
+     {
+      "label": "E11S",
+      "name": "Fatebreaker",
+      "best": 75,
+      "median": 40,
+      "kills": 13,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S-1",
+      "name": "Eden's Promise",
+      "best": 70,
+      "median": 38,
+      "kills": 12,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S-2",
+      "name": "Oracle of Darkness",
+      "best": 39,
+      "median": 35,
+      "kills": 8,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "29585811": {
   "current": {
@@ -10585,10 +10685,31 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 28,
+    "kills": 9,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 33,
+    "kills": 14,
+    "job": "Scholar",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "26844665": {
   "current": {
@@ -10617,9 +10738,9 @@
     {
      "label": "M9S",
      "name": "Vamp Fatale",
-     "best": 19,
-     "median": 6,
-     "kills": 3,
+     "best": 21,
+     "median": 12,
+     "kills": 4,
      "job": "BlackMage"
     },
     {
@@ -10666,9 +10787,18 @@
    "zone": "AAC Heavyweight",
    "zone_id": 73,
    "expansion": "Dawntrail",
-   "encounters": [],
+   "encounters": [
+    {
+     "label": "M9S",
+     "name": "Vamp Fatale",
+     "best": 18,
+     "median": 18,
+     "kills": 1,
+     "job": "DarkKnight"
+    }
+   ],
    "clears": [
-    false,
+    true,
     false,
     false,
     false
@@ -10828,6 +10958,46 @@
     "kills": 7,
     "job": "DarkKnight",
     "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 97,
+    "kills": 3,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 58,
+    "kills": 2,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 36,
+    "kills": 1,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 95,
+    "kills": 12,
+    "job": "Gunbreaker",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -10862,7 +11032,55 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "name": "Cloud of Darkness",
+      "best": 96,
+      "median": 88,
+      "kills": 25,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E10S",
+      "name": "Shadowkeeper",
+      "best": 97,
+      "median": 75,
+      "kills": 29,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E11S",
+      "name": "Fatebreaker",
+      "best": 97,
+      "median": 81,
+      "kills": 42,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E12S-1",
+      "name": "Eden's Promise",
+      "best": 97,
+      "median": 68,
+      "kills": 31,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E12S-2",
+      "name": "Oracle of Darkness",
+      "best": 97,
+      "median": 63,
+      "kills": 9,
+      "job": "Gunbreaker"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "29918255": {
@@ -11239,10 +11457,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 81,
+    "kills": 5,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "7283668": {
   "current": {
@@ -11432,7 +11661,18 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 81,
+    "kills": 1,
+    "job": "RedMage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",

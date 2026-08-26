@@ -1286,7 +1286,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 61,
+  "level": 63,
   "cc": [
    true,
    true,
@@ -3148,7 +3148,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 75,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -3160,7 +3160,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -3762,7 +3762,7 @@
  "39959181": {
   "name": "El Blung",
   "parse": 80,
-  "ult": 0,
+  "ult": 3,
   "mounts": 103,
   "minions": 161,
   "rare": null,
@@ -3776,7 +3776,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dancer": "master"
+   "Dancer": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -3785,7 +3785,11 @@
    "Queen Eternal",
    "Valigarmanda"
   ],
-  "ults": [],
+  "ults": [
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
   "chg": "2026-08-26"
  },
  "35601257": {
@@ -3844,7 +3848,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 92,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3939,8 +3943,8 @@
  },
  "31001697": {
   "name": "Flora Neuenmuller",
-  "parse": null,
-  "ult": 0,
+  "parse": 86,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -3953,10 +3957,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Dancer": "master"
+  },
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-08-26"
  },
  "29585811": {
   "name": "Frey Ichinose",
@@ -4020,8 +4028,8 @@
  },
  "31001781": {
   "name": "Ician Wyra'li",
-  "parse": null,
-  "ult": 0,
+  "parse": 33,
+  "ult": 2,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -4036,8 +4044,11 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut"
+  ],
+  "chg": "2026-08-26"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -4079,7 +4090,7 @@
  },
  "36183378": {
   "name": "K' Potassium",
-  "parse": 19,
+  "parse": 21,
   "ult": 0,
   "mounts": 35,
   "minions": 105,
@@ -4099,7 +4110,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -4131,7 +4142,7 @@
   "rare": null,
   "level": 100,
   "cc": [
-   false,
+   true,
    false,
    false,
    false
@@ -4147,7 +4158,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -4198,14 +4209,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 72,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -4370,7 +4381,8 @@
   },
   "jobs": {
    "DarkKnight": "master",
-   "Warrior": "legendary"
+   "Warrior": "legendary",
+   "Gunbreaker": "legendary"
   },
   "ex": [
    "Queen Eternal",
@@ -4565,8 +4577,8 @@
  },
  "31831003": {
   "name": "North Nostafari",
-  "parse": null,
-  "ult": 0,
+  "parse": 81,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -4581,8 +4593,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -4739,8 +4753,8 @@
  },
  "33387937": {
   "name": "R'bael Senkou",
-  "parse": 67,
-  "ult": 0,
+  "parse": 81,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -4760,8 +4774,10 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-25"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-08-26"
  },
  "60599300": {
   "name": "Rainy Tempestra",
