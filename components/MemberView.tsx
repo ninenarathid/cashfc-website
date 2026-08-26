@@ -213,7 +213,15 @@ export default function MemberView({
   };
 
   return (
-    <main className="pt-5">
+    // The one colour they picked, standing in for the site's own for the length
+    // of their page. Every accent utility below — headings, links, the buttons,
+    // the focus ring, the gallery underneath — reads the same variable, so this
+    // one line is the whole feature and nothing on the page can be left behind
+    // wearing the site blue. The header and footer sit outside it and stay the
+    // site's, which is what keeps a member page feeling like a room in this
+    // building rather than a different website.
+    <main className="pt-5"
+          style={{ "--color-accent": accent } as React.CSSProperties}>
       <Link href={backHref}
             className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-muted no-underline transition-colors hover:text-accent">
         <span aria-hidden>←</span> {t("member.back")}

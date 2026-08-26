@@ -42,18 +42,26 @@ interface ProfileRow {
  *
  * There used to be two pickers — an accent and a separate banner — which asked
  * everybody to make the same decision twice and then get it wrong in two
- * directions. The banner is now drawn from the accent, so there is one thing to
- * pick and nothing on the page can disagree with it.
+ * directions. The banner is drawn from the accent now, and so is everything else
+ * on their page: headings, links, buttons, the wash behind their name. It is the
+ * one thing they pick and it is the whole look of the page.
  *
- * All sixteen are chosen to read as a colour against the site's dark ground.
- * Anything much darker turns into a smudge on the board and a black line on
- * somebody's page.
+ * A full turn round the wheel, three rows of eight, so picking is scanning a
+ * spectrum rather than hunting a list. Every one is chosen to read as a colour
+ * against the site's dark ground — anything much darker turns into a smudge on
+ * the board and a black line on somebody's page, which is the reason this is a
+ * palette at all rather than a free colour input.
  */
 const COLORS = [
-  "#6aa9e0", "#4f8fd8", "#7b7ce8", "#a335ee",
-  "#c07be8", "#e268a8", "#e0607f", "#d14b3a",
-  "#e08a4a", "#c98a5b", "#e5cc80", "#b8cf6a",
-  "#6aa84f", "#4fb8a8", "#4fa8b8", "#a58b6a",
+  // cool
+  "#6aa9e0", "#4f8fd8", "#5b7fe0", "#7b7ce8",
+  "#9a7ce8", "#a335ee", "#c07be8", "#e07be0",
+  // warm
+  "#e268a8", "#e0607f", "#d14b3a", "#e0703f",
+  "#e08a4a", "#c98a5b", "#d9a441", "#e5cc80",
+  // green through to blue again
+  "#c9cf6a", "#b8cf6a", "#8fc76a", "#6aa84f",
+  "#4fb8a8", "#4fc7c7", "#4fa8b8", "#7ea6c9",
 ];
 
 function Notice({ children }: { children: React.ReactNode }) {
