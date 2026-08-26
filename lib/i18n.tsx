@@ -166,6 +166,11 @@ const DICT = {
     th: "เปิดรูปนั้นไม่ได้ ลองอัพโหลดไฟล์แทน",
   },
   "profile.shareCard": { en: "Sharing your page", th: "การ์ดตอนแชร์ลิงก์" },
+  "profile.shareFresh": { en: "Copy a fresh link", th: "ก็อปลิงก์ใหม่" },
+  "profile.shareFreshHint": {
+    en: "Discord remembers links it has already shown. This one it has not seen, so it will fetch your card again.",
+    th: "Discord จำลิงก์ที่เคยแสดงไปแล้ว ลิงก์นี้มันยังไม่เคยเห็น เลยจะไปดึงการ์ดของคุณมาใหม่",
+  },
   "profile.shareOwn": {
     en: "Using its own picture",
     th: "ใช้รูปของการ์ดนี้เอง",

@@ -53,13 +53,17 @@ import { memberTitle, TAG_COLOR, tagText } from "@/lib/tags";
  * is never drawn — which is exactly what happened: the covers rendered full
  * bleed and every wash over them silently did nothing.
  *
- * The cache header is set here on purpose. Next hands these routes a year of
- * immutable caching, which is right for a card built only from the build's own
- * data and wrong for this one: it reads the member's chosen portrait and cover
- * from the database, so a member who changed their picture would keep serving
- * the old card until the next deploy. Minutes at the edge instead, with a day of
- * stale-while-revalidate so the common case is still served instantly from
- * cache. What Discord does with its own copy afterwards is Discord's business.
+ * Nothing about this card is cached, on purpose. Next hands these routes a year
+ * of immutable caching, which is right for a card built only from the build's own
+ * data and wrong for this one: it reads the member's portrait, cover and colour
+ * from the database, so any caching at all means somebody changes their picture,
+ * pastes the link, and watches the old card come back.
+ *
+ * The cost is a render per unfurl — a database read and two image fetches, about
+ * a second. For a Free Company of five hundred sharing a handful of links a day
+ * that is nothing, and it buys the only behaviour worth having: change it, share
+ * it, see it. What Discord does with its own copy afterwards is Discord's
+ * business, and the profile page offers a one-off link for getting past that.
  */
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -315,10 +319,7 @@ export default async function Image(
     ),
     {
       ...size,
-      headers: {
-        "cache-control":
-          "public, max-age=60, s-maxage=300, stale-while-revalidate=86400",
-      },
+      headers: { "cache-control": "no-store, max-age=0, must-revalidate" },
     },
   );
 }

@@ -62,6 +62,7 @@ export default function ProfilePictures(
   // member who just changed their portrait is exactly the person who must not be
   // shown the version from before they changed it.
   const [stamp, setStamp] = useState(() => Date.now());
+  const [copied, setCopied] = useState(false);
 
   // What is being changed, and where the picture for it is coming from.
   const [kind, setKind] = useState<Kind | null>(null);
@@ -339,6 +340,29 @@ export default function ProfilePictures(
                 <img src={`/member/${characterId}/opengraph-image?v=${stamp}`}
                      alt="" className="mt-2 w-full rounded-md border border-line" />
               </div>
+              {/* Discord remembers a link it has already unfurled, and our
+                  side cannot reach into that. A link it has never seen before
+                  can: the same page with a throwaway query on the end, which
+                  changes nothing about where it goes and everything about
+                  whether Discord bothers to look again. */}
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={async () => {
+                          const url = `${location.origin}/member/${characterId}?v=${
+                            Date.now().toString(36)}`;
+                          try {
+                            await navigator.clipboard.writeText(url);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2500);
+                          } catch { /* clipboard refused; nothing useful to say */ }
+                        }}
+                        className="rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-[12.5px] text-accent hover:bg-accent/25">
+                  {copied ? t("gallery.copied") : t("profile.shareFresh")}
+                </button>
+                <span className="text-[12px] leading-relaxed text-muted">
+                  {t("profile.shareFreshHint")}
+                </span>
+              </div>
+
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[12px] text-muted">
                   {share ? t("profile.shareOwn") : t("profile.shareFromCover")}
