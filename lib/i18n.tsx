@@ -132,6 +132,7 @@ const DICT = {
     th: "คลิกที่ตัวคนในรูป",
   },
   "gallery.tagWho": { en: "Who is this?", th: "คนนี้คือใคร?" },
+  "gallery.tagDone": { en: "Done", th: "เสร็จแล้ว" },
   "gallery.tagPinned": { en: "Pinned on the picture", th: "ปักหมุดไว้ในรูป" },
   "gallery.tagShowAll": { en: "Show everyone", th: "แสดงแท็กทั้งหมด" },
   "gallery.tagHideAll": { en: "Hide the tags", th: "ซ่อนแท็ก" },

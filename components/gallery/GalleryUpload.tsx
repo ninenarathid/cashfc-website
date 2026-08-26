@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { MAX_UPLOAD_BYTES, uploadOne } from "@/lib/gallery";
+import DraftTagger, { type DraftTag } from "@/components/gallery/DraftTagger";
 
 /**
  * Posting a screenshot.
@@ -40,6 +41,11 @@ export default function GalleryUpload(
   // Who the picture is by, when that is not the person uploading it.
   const [creditPick, setCreditPick] = useState("");
   const [credited, setCredited] = useState<Option | null>(null);
+  // Who is in each picture, keyed by its place in the set — written the instant
+  // the post exists, because the moment anybody remembers who is in a shot is
+  // while they are looking at it, not after they have posted it and moved on.
+  const [draft, setDraft] = useState<Record<number, DraftTag[]>>({});
+  const [tagging, setTagging] = useState<number | null>(null);
 
   // A real effect, not a useState initialiser doing side effects: React is free
   // to call an initialiser twice, which would have meant two auth round-trips.
@@ -83,11 +89,24 @@ export default function GalleryUpload(
       URL.revokeObjectURL(prev[i]);
       return prev.filter((_, n) => n !== i);
     });
+    // The pins are keyed by position, so removing a picture from the middle has
+    // to close the gap or everything after it would carry the wrong faces.
+    setDraft((prev) => {
+      const next: Record<number, DraftTag[]> = {};
+      for (const [k, v] of Object.entries(prev)) {
+        const n = Number(k);
+        if (n < i) next[n] = v;
+        else if (n > i) next[n - 1] = v;
+      }
+      return next;
+    });
+    setTagging(null);
   }
 
   function clear() {
     previews.forEach((u) => URL.revokeObjectURL(u));
     setFiles([]); setPreviews([]); setErr(null); setDone(0);
+    setDraft({}); setTagging(null);
   }
 
   async function upload() {
@@ -130,14 +149,33 @@ export default function GalleryUpload(
 
     if (error || !post) { setBusy(false); setErr(error?.message ?? "insert failed"); return; }
 
-    const { error: imgErr } = await supabase.from("gallery_images").insert(
+    // The ids come back so a pin placed on the third preview lands on the third
+    // picture rather than on whichever one the database happened to write first.
+    const { data: rows, error: imgErr } = await supabase.from("gallery_images").insert(
       uploaded.map((u, i) => ({
         post_id: (post as { id: number }).id,
         url: u.url, width: u.width, height: u.height, position: i,
-      })));
+      }))).select("id, position");
+
+    if (imgErr) { setBusy(false); setErr(imgErr.message); return; }
+
+    const byPosition = new Map<number, number>();
+    for (const r of (rows ?? []) as { id: number; position: number }[]) {
+      byPosition.set(r.position, r.id);
+    }
+    const pins = Object.entries(draft).flatMap(([i, list]) => {
+      const imageId = byPosition.get(Number(i));
+      return imageId == null ? [] : list.map((g) => ({
+        post_id: (post as { id: number }).id,
+        character_id: g.id, name: g.name,
+        image_id: imageId, x: g.x, y: g.y,
+      }));
+    });
+    // Allowed to fail quietly: the picture is up either way, and losing a post
+    // over a name that can be pinned again from the lightbox is the worse trade.
+    if (pins.length) await supabase.from("gallery_tags").insert(pins);
 
     setBusy(false);
-    if (imgErr) { setErr(imgErr.message); return; }
     clear();
     setCaption("");
     setCredited(null);
@@ -223,6 +261,16 @@ export default function GalleryUpload(
                     {t("gallery.cover")}
                   </span>
                 )}
+                {/* A pin and a count, because the label would not fit: a portrait
+                    preview is barely wider than the words "Tag on the photo". */}
+                <button onClick={() => setTagging(tagging === i ? null : i)}
+                        disabled={busy} title={t("gallery.tagOnPhoto")}
+                        className={`absolute bottom-1 right-1 rounded-md border px-1.5 py-0.5 text-[10.5px] backdrop-blur disabled:opacity-40 ${
+                          draft[i]?.length
+                            ? "border-accent bg-bg/85 text-accent"
+                            : "border-line bg-bg/75 text-muted hover:border-accent hover:text-accent"}`}>
+                  📍{draft[i]?.length ? ` ${draft[i].length}` : ""}
+                </button>
               </div>
             ))}
             <button onClick={() => input.current?.click()} disabled={busy}
@@ -230,6 +278,14 @@ export default function GalleryUpload(
               + {t("gallery.addImages")}
             </button>
           </div>
+          {tagging != null && previews[tagging] && (
+            <DraftTagger src={previews[tagging]}
+                         tags={draft[tagging] ?? []}
+                         options={memberOptions}
+                         onChange={(list) => setDraft((p) => ({ ...p, [tagging]: list }))}
+                         onClose={() => setTagging(null)} />
+          )}
+
           <input value={caption} onChange={(e) => setCaption(e.target.value.slice(0, 300))}
                  placeholder={t("gallery.captionPlaceholder")}
                  className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
