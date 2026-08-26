@@ -1,4 +1,17 @@
-import { ACHV_TIER_LABEL } from "@/lib/types";
+import { ACHV_TIER_LABEL, type Member } from "@/lib/types";
+
+/**
+ * What to call somebody under their name.
+ *
+ * The in-game title, which is the label the player chose for themselves. The FC
+ * rank stands in only when there is no title, because a blank line under a name
+ * is worse than a rank nobody asked for — and the rank stays in the data either
+ * way, since the board still groups and filters by it and vacation is read from
+ * it.
+ */
+export function memberTitle(m: Pick<Member, "title" | "rank">): string | null {
+  return m.title ?? m.rank ?? null;
+}
 
 /**
  * What a tag is called and what colour it wears.

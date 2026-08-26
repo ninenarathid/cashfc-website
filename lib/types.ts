@@ -42,6 +42,8 @@ export interface Member {
   /** Race / clan scraped from Lodestone. Absent until the pipeline has covered them. */
   race?: string | null;
   clan?: string | null;
+  /** The title worn in game. Null for the many characters who wear none. */
+  title?: string | null;
   /** Last date any tracked stat moved (YYYY-MM-DD). Null until enough history exists. */
   last_change?: string | null;
   /** Current-patch extreme trials this member has cleared, by boss name. */

@@ -10,6 +10,7 @@ import {
 } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import MemberTags, { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberTags";
+import { memberTitle } from "@/lib/tags";
 import TagIcon from "@/components/TagIcon";
 import ProgressBadge from "@/components/ProgressBadge";
 import { useLang } from "@/lib/i18n";
@@ -705,7 +706,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             list.map((m) => {
               const ov = overlays[m.id];
               const accent = ov?.accent ?? "#6aa9e0";
-              const meta = [m.rank ?? "—"];
+              const meta = [memberTitle(m) ?? "—"];
               if (m.race) meta.push(m.race);
               if (m.mounts != null) meta.push(`${m.mounts} mounts`);
               if (m.rare_achv != null) meta.push(`${m.rare_achv} rare achv`);

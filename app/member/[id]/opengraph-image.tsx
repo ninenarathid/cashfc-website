@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import raw from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
-import { TAG_COLOR, tagText } from "@/lib/tags";
+import { memberTitle, TAG_COLOR, tagText } from "@/lib/tags";
 
 /**
  * The card Discord draws when somebody pastes a link to a member.
@@ -25,6 +25,13 @@ import { TAG_COLOR, tagText } from "@/lib/tags";
  * the tags that say how they play. A best-parse number used to sit in the corner
  * in enormous type, which made every shared link an argument about performance —
  * the wrong first impression for a link somebody pastes to introduce themselves.
+ *
+ * The card wears the member's own colour, and calls them by the title they wear
+ * in game rather than by their rank in this Free Company. A rank says where
+ * somebody sits in one guild's hierarchy; a title is the label they picked for
+ * themselves, and it is the more interesting half of an introduction. Their level
+ * is gone from the line entirely — everybody who matters here is at the cap, so
+ * it said nothing and took the place of something that does.
  *
  * The tags are the board's tags: the same wording and the same colour per kind of
  * content, so somebody who has seen the member list recognises them instantly.
@@ -87,7 +94,8 @@ const SHADOW = "0 2px 14px rgba(0,0,0,0.9)";
 
 const INK = "#e3e8ef";
 const MUTED = "#98a4b5";
-const ACCENT = "#6aa9e0";
+/** Used when a member has never picked one, and the site's own accent besides. */
+const DEFAULT_ACCENT = "#6aa9e0";
 
 async function inline(url: string | null | undefined): Promise<string | null> {
   if (!url) return null;
@@ -115,7 +123,7 @@ async function inline(url: string | null | undefined): Promise<string | null> {
  * ladder the member page climbs, one rung long.
  */
 async function chosen(characterId: string) {
-  const none = { avatar: null, cover: null };
+  const none = { avatar: null, cover: null, accent: DEFAULT_ACCENT };
   if (!supabaseConfigured) return none;
   const ask = (columns: string) => fetch(
     `${SUPABASE_URL}/rest/v1/profiles?character_id=eq.${characterId}` +
@@ -126,16 +134,23 @@ async function chosen(characterId: string) {
     },
   );
   try {
-    let res = await ask("avatar_url,cover_url,share_url");
-    if (!res.ok) res = await ask("avatar_url,cover_url");
+    let res = await ask("avatar_url,cover_url,share_url,accent_color");
+    if (!res.ok) res = await ask("avatar_url,cover_url,accent_color");
     if (!res.ok) return none;
     const rows = await res.json() as {
       avatar_url?: string; cover_url?: string; share_url?: string;
+      accent_color?: string;
     }[];
+    // Only a hex colour, and only from this list of characters: it is written
+    // straight into a style, and a value from the database has no business
+    // deciding what the rest of that style says.
+    const accent = /^#[0-9a-fA-F]{6}$/.test(rows[0]?.accent_color ?? "")
+      ? rows[0]!.accent_color! : DEFAULT_ACCENT;
     return {
       avatar: rows[0]?.avatar_url ?? null,
       // Cut for this shape if they bothered; their banner if they did not.
       cover: rows[0]?.share_url ?? rows[0]?.cover_url ?? null,
+      accent,
     };
   } catch {
     return none;
@@ -150,6 +165,7 @@ export default async function Image(
   const m = data.members.find((x) => String(x.id) === id);
 
   const mine = await chosen(id);
+  const accent = mine.accent;
   // Their choice first, then the Lodestone — the same order the site uses
   // everywhere else, so the card matches the page it points at.
   const [face, cover] = await Promise.all([
@@ -222,8 +238,8 @@ export default async function Image(
               padding: "9px 22px 9px 18px",
             }}>
               <div style={{ display: "flex", width: 11, height: 11, borderRadius: 999,
-                            background: ACCENT }} />
-              <div style={{ display: "flex", color: ACCENT, letterSpacing: 6, fontSize: 20 }}>
+                            background: accent }} />
+              <div style={{ display: "flex", color: accent, letterSpacing: 6, fontSize: 20 }}>
                 CAFE AND SHABU
               </div>
               <div style={{ display: "flex", color: MUTED, letterSpacing: 6, fontSize: 20 }}>
@@ -238,7 +254,7 @@ export default async function Image(
               {face && (
                 <div style={{
                   display: "flex", padding: 5, borderRadius: 34,
-                  background: "rgba(227,232,239,0.16)",
+                  background: mix(accent, "#0b0f15", 0.45),
                 }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={face} alt="" width={252} height={252}
@@ -257,7 +273,7 @@ export default async function Image(
                 </div>
                 <div style={{ display: "flex", color: INK, opacity: 0.72, fontSize: 27,
                               marginTop: 8, textShadow: SHADOW }}>
-                  {(m?.rank ?? "Member") + "  ·  Lv " + (m?.level ?? "-")}
+                  {m ? memberTitle(m) ?? "Free Company member" : "Free Company member"}
                 </div>
 
                 {/* How they play, which is the part worth leading with. Each pill
@@ -282,7 +298,7 @@ export default async function Image(
             {/* ── Where it lives ── */}
             <div style={{ display: "flex", alignItems: "center", gap: 15, marginTop: 30 }}>
               <div style={{ display: "flex", width: 58, height: 2,
-                            background: "rgba(227,232,239,0.3)" }} />
+                            background: mix(accent, "#0b0f15", 0.75) }} />
               <div style={{ display: "flex", color: MUTED, fontSize: 19, letterSpacing: 2,
                             textShadow: SHADOW }}>
                 cashfc-website.vercel.app

@@ -37,14 +37,23 @@ interface ProfileRow {
   is_admin: boolean;
 }
 
-const COLORS = ["#6aa9e0","#d14b3a","#e5cc80","#4fb8a8","#c98a5b","#7ea6c9","#e268a8","#a335ee"];
-const BANNERS = [
-  "linear-gradient(135deg,#151b25,#22304a)",
-  "linear-gradient(135deg,#241416,#d14b3a33)",
-  "linear-gradient(135deg,#0f1f1c,#4fb8a833)",
-  "linear-gradient(135deg,#101827,#7ea6c933)",
-  "linear-gradient(135deg,#1d1226,#a335ee33)",
-  "linear-gradient(135deg,#20222c,#e5cc8040)",
+/**
+ * One colour per member, and enough of them that the choice feels like one.
+ *
+ * There used to be two pickers — an accent and a separate banner — which asked
+ * everybody to make the same decision twice and then get it wrong in two
+ * directions. The banner is now drawn from the accent, so there is one thing to
+ * pick and nothing on the page can disagree with it.
+ *
+ * All sixteen are chosen to read as a colour against the site's dark ground.
+ * Anything much darker turns into a smudge on the board and a black line on
+ * somebody's page.
+ */
+const COLORS = [
+  "#6aa9e0", "#4f8fd8", "#7b7ce8", "#a335ee",
+  "#c07be8", "#e268a8", "#e0607f", "#d14b3a",
+  "#e08a4a", "#c98a5b", "#e5cc80", "#b8cf6a",
+  "#6aa84f", "#4fb8a8", "#4fa8b8", "#a58b6a",
 ];
 
 function Notice({ children }: { children: React.ReactNode }) {
@@ -71,7 +80,6 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   const [birthDay, setBirthDay] = useState("");
   const [bio, setBio] = useState("");
   const [color, setColor] = useState("");
-  const [banner, setBanner] = useState("");
   const [lfg, setLfg] = useState<string[]>([]);
   const [availability, setAvailability] = useState<string | null>(null);
   const [linking, setLinking] = useState<string | null>(null);
@@ -99,7 +107,6 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         setBirthDay(p.birth_day ? String(p.birth_day) : "");
         setBio(p.bio ?? "");
         setColor(p.accent_color ?? "");
-        setBanner(p.banner ?? "");
         setLfg(p.lfg ?? []);
         setAvailability(p.availability ?? null);
       }
@@ -126,7 +133,6 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         birth_day: birthMonth && birthDay ? Number(birthDay) : null,
         bio: bio.trim() || null,
         accent_color: color || null,
-        banner: banner || null,
         lfg,
         // All-empty means "not filled in" rather than "never free", so it is
         // stored as null and the member page simply leaves the section out.
@@ -388,19 +394,6 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
                         style={{ background: c }} />
               ))}
             </div>
-          </div>
-        </div>
-
-        <div className="mt-4 text-[13px] text-muted">
-          {t("profile.banner")}
-          <div className="mt-1.5 flex flex-wrap gap-2">
-            {BANNERS.map((bnr) => (
-              <button key={bnr} onClick={() => setBanner(banner === bnr ? "" : bnr)}
-                      aria-label="Pick banner"
-                      className={`h-10 w-20 rounded-lg border-2 transition-transform ${
-                        banner === bnr ? "scale-105 border-accent" : "border-line"}`}
-                      style={{ background: bnr }} />
-            ))}
           </div>
         </div>
 

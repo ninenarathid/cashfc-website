@@ -1748,6 +1748,20 @@ def parse_nameday(soup) -> dict:
     return {"text": text, "month": month, "day": day}
 
 
+def parse_title(soup) -> str | None:
+    """The title the character is actually wearing in game.
+
+    Sits above the name in the Lodestone header and is the label the player chose
+    for themselves, which is why the site shows it in place of the FC rank: the
+    rank says where somebody sits in this Free Company's hierarchy, the title says
+    who they decided to be. Plenty of characters have none, so the caller has to
+    cope with null.
+    """
+    el = soup.select_one("p.frame__chara__title")
+    text = el.get_text(strip=True) if el else ""
+    return text or None
+
+
 def parse_race_clan(soup) -> dict:
     """Pull Race / Clan / Gender out of a Lodestone character page.
 
@@ -1788,8 +1802,12 @@ def build_character_extras(members: list[dict], batch: int, full: bool) -> None:
     extra = load_json("extra.json", {"nameday": {}})
     namedays = extra.setdefault("nameday", {})
     charas = extra.setdefault("chara", {})
+    # Anybody whose cached entry predates a field is fetched again — keyed on the
+    # key being absent rather than on its value, so a character who genuinely has
+    # no title is not re-asked every single run for the rest of time.
     todo = [m for m in active_first(members)
-            if str(m["id"]) not in namedays or str(m["id"]) not in charas]
+            if str(m["id"]) not in namedays
+            or "title" not in (charas.get(str(m["id"])) or {})]
     if not full:
         todo = todo[:batch]
     host = CONFIG["lodestone_host"]
@@ -1804,7 +1822,8 @@ def build_character_extras(members: list[dict], batch: int, full: bool) -> None:
             r.raise_for_status()
             soup = BeautifulSoup(r.text, "html.parser")
             namedays[str(m["id"])] = parse_nameday(soup)
-            charas[str(m["id"])] = parse_race_clan(soup)
+            charas[str(m["id"])] = {**parse_race_clan(soup),
+                                    "title": parse_title(soup)}
         except Exception as ex:
             log(f"Character extras error @ {m['name']}: {ex}")
         if i % 20 == 0:
@@ -1812,14 +1831,16 @@ def build_character_extras(members: list[dict], batch: int, full: bool) -> None:
         time.sleep(CONFIG["delay_lodestone"])
     save_json("extra.json", extra)
     with_race = sum(1 for v in charas.values() if v.get("race"))
+    with_title = sum(1 for v in charas.values() if v.get("title"))
     log(f"Character extras — nameday {len(namedays)}/{len(members)}, "
-        f"race {with_race}/{len(members)}")
+        f"race {with_race}/{len(members)}, title {with_title}/{len(members)}")
     # inject into members
     for m in members:
         c = charas.get(str(m["id"])) or {}
         m["nameday"] = namedays.get(str(m["id"]))
         m["race"] = c.get("race")
         m["clan"] = c.get("clan")
+        m["title"] = c.get("title")
 
 
 # ──────────────────────────────────────────────────────────────────────────────

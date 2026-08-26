@@ -20,6 +20,7 @@ import JobIcon, { jobLabel } from "@/components/JobIcon";
 import MemberTags from "@/components/MemberTags";
 import RareAchievements, { type AchievementInfo } from "@/components/RareAchievements";
 import { createClient } from "@/lib/supabase/client";
+import { memberTitle } from "@/lib/tags";
 
 function parseColor(p: number | null | undefined): string {
   if (p == null) return "#7a7a7a";
@@ -32,7 +33,16 @@ function parseColor(p: number | null | undefined): string {
   return "#7a7a7a";
 }
 
-const DEFAULT_BANNER = "linear-gradient(135deg,#151b25,#22304a)";
+/**
+ * The wash behind a member's name, built from the one colour they picked.
+ *
+ * It used to be a separate choice from its own palette of six, which meant two
+ * pickers for one decision and a page whose banner could contradict its own
+ * accent. Derived instead: the accent at a low opacity over the site's ground,
+ * which is what every one of those six presets was doing by hand anyway.
+ */
+const bannerFor = (accent: string) =>
+  `linear-gradient(135deg,#151b25,${accent}38)`;
 
 export default function MemberView({
   m, raids, tierLabels, agg, fc, rareAchievements = [], extremeTotal,
@@ -211,7 +221,7 @@ export default function MemberView({
 
       {/* ── Header / banner ── */}
       <section className="relative overflow-hidden rounded-2xl border border-line"
-               style={{ background: ov?.banner ?? DEFAULT_BANNER }}>
+               style={{ background: bannerFor(accent) }}>
         {/* A cover the member chose, with a wash over it. Without the wash the
             name and the rank land on whatever happens to be in the picture, and
             white text on a bright sky is unreadable however good the shot is. */}
@@ -242,7 +252,7 @@ export default function MemberView({
                 className={`size-2.5 shrink-0 rounded-full ${
                   onVacation ? "bg-[#747f8d]" : "bg-[#43b581]"}`}
               />
-              {fc.name} · {m.rank ?? "Member"}
+              {fc.name} · {memberTitle(m) ?? "Member"}
             </div>
             <h1 className="font-data text-3xl font-bold tracking-tight sm:text-4xl">
               {m.name}

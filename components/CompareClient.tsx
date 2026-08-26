@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { memberTitle } from "@/lib/tags";
 
 interface Slim {
   id: number; name: string; avatar: string | null; rank: string | null;
@@ -30,7 +31,7 @@ function Picker({ label, options, value, onPick }: {
         )}
         <div className="min-w-0 flex-1">
           <div className="truncate font-data font-semibold">{value.name}</div>
-          <div className="text-[12px] text-muted">{value.rank ?? "—"}</div>
+          <div className="text-[12px] text-muted">{memberTitle(value) ?? "—"}</div>
         </div>
         <button onClick={() => onPick(null)}
                 className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:text-ink">
