@@ -83,6 +83,31 @@ const DICT = {
   },
   "gallery.byMember": { en: "Screenshots", th: "รูปที่โพสต์ไว้" },
   "gallery.hide": { en: "Hide", th: "ซ่อน" },
+  "gallery.hideThisOne": { en: "Hide this picture", th: "ซ่อนรูปนี้" },
+  "gallery.confirmHidePost": {
+    en: "Hide this post? It comes off the gallery and off the member page, and you can put it back whenever you like.",
+    th: "ซ่อนโพสต์นี้ไหม? มันจะหายไปจากแกลเลอรีและหน้าสมาชิก แต่เอากลับมาเมื่อไหร่ก็ได้",
+  },
+  "gallery.confirmHideImage": {
+    en: "Hide this picture? The rest of the post stays where it is.",
+    th: "ซ่อนรูปนี้ไหม? รูปอื่นในโพสต์ยังอยู่เหมือนเดิม",
+  },
+  "gallery.confirmDeletePost": {
+    en: "Delete this post for good? The pictures, the popoto and the comments all go with it, and none of it comes back.",
+    th: "ลบโพสต์นี้ถาวรไหม? รูป popoto และคอมเมนต์จะหายไปทั้งหมด และเอากลับมาไม่ได้",
+  },
+  "gallery.confirmDeleteImage": {
+    en: "Delete this picture for good? Hiding it instead keeps it, and you can put it back later.",
+    th: "ลบรูปนี้ถาวรไหม? ถ้าเลือกซ่อนแทน รูปจะยังอยู่และเอากลับมาได้ทีหลัง",
+  },
+  "gallery.hiddenByAdmin": {
+    en: "An admin took this down. Only an admin can put it back.",
+    th: "แอดมินเอาโพสต์นี้ลง มีแต่แอดมินที่เอากลับมาได้",
+  },
+  "gallery.hiddenByYou": {
+    en: "Only you can see this. Restore it to put it back on the wall.",
+    th: "ตอนนี้มีแค่คุณที่เห็น กด \"เอากลับมา\" เพื่อให้มันกลับไปอยู่บนหน้าแกลเลอรี",
+  },
   "gallery.restore": { en: "Restore", th: "เอากลับมา" },
   "gallery.hiddenTag": { en: "Hidden", th: "ซ่อนอยู่" },
   "gallery.editCaption": { en: "Edit caption", th: "แก้คำบรรยาย" },

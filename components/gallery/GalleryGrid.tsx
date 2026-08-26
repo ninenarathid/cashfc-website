@@ -149,6 +149,9 @@ export default function GalleryGrid(
 
   async function setHidden(id: number, hidden: boolean) {
     if (!supabase) return;
+    // Restoring from the tile is an admin's control, so it lifts an admin's
+    // takedown. A member's own is lifted from inside the picture, where they
+    // have actually looked at what they are putting back.
     await supabase.from("gallery_posts").update({ hidden }).eq("id", id);
     onChanged();
   }
@@ -216,7 +219,7 @@ export default function GalleryGrid(
                     otherwise only reachable by an admin who remembers it exists.
                     Hiding is not: it lives in the lightbox, where somebody has
                     actually looked at the picture before taking it down. */}
-                {isAdmin && p.hidden && (
+                {isAdmin && (p.hidden || p.owner_hidden) && (
                   <button onClick={() => setHidden(p.id, false)}
                           title={t("gallery.restore")}
                           className="absolute right-2 top-2 rounded-md border border-jade/60 bg-bg/85 px-2 py-0.5 text-[11px] text-jade">
@@ -224,7 +227,7 @@ export default function GalleryGrid(
                   </button>
                 )}
 
-                {p.hidden && (
+                {(p.hidden || p.owner_hidden) && (
                   <div className="pointer-events-none absolute left-2 top-2 rounded-md border border-chili/60 bg-bg/85 px-2 py-0.5 text-[11px] text-chili">
                     {t("gallery.hiddenTag")}
                   </div>

@@ -13,6 +13,7 @@ import Carousel from "@/components/gallery/Carousel";
 import PostTags from "@/components/gallery/PostTags";
 import PhotoTagLayer from "@/components/gallery/PhotoTagLayer";
 import { useAvatarOverrides } from "@/lib/avatars";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
@@ -66,6 +67,11 @@ export default function PostDetail(
   const [tags, setTags] = useState<GalleryTag[]>([]);
   const [picking, setPicking] = useState(false);
   const [revealAll, setRevealAll] = useState(false);
+  // Anything that takes a picture off the wall asks first. Held here rather than
+  // at each button so there is one dialog on the page and one place that decides
+  // what it says.
+  const [ask, setAsk] = useState<
+    { message: string; label: string; danger?: boolean; run: () => void } | null>(null);
   const [placing, setPlacing] = useState<
     { imageId: number; x: number; y: number } | null>(null);
 
@@ -139,8 +145,18 @@ export default function PostDetail(
     faces[Number(id)] = { name: faces[Number(id)]?.name ?? "—", avatar: url };
   }
 
-  const mine = !!me && me === post.author_id;
+  // The uploading account is not always the person the picture is of: an admin
+  // posts for a member who never signs in, and that member owns their own
+  // photograph as much as the account that carried it here does.
+  const credited = post.character_id != null && post.character_id === myCharacter;
+  const mine = (!!me && me === post.author_id) || credited;
   const canDelete = mine || isAdmin;
+  // An admin hiding is a takedown and only an admin lifts it; anybody else's is
+  // their own and theirs to lift. One button either way — whichever flag the
+  // person pressing it actually controls.
+  const hiddenFlag = isAdmin ? "hidden" : "owner_hidden";
+  const isHidden = !!post.hidden || !!post.owner_hidden;
+  const lockedByAdmin = !!post.hidden && !isAdmin;
   // The author owns their words; an admin can fix a caption that has to go
   // without taking the picture down over it.
   const canEditCaption = mine || isAdmin;
@@ -221,6 +237,24 @@ export default function PostDetail(
     if (!error) onDeleted?.(post.id);
   }
 
+  async function setPostHidden(next: boolean) {
+    if (!supabase) return;
+    setBusy(true);
+    await supabase.from("gallery_posts")
+      .update({ [hiddenFlag]: next }).eq("id", post.id);
+    setBusy(false);
+    onChanged?.();
+  }
+
+  async function setImageHidden(id: number, next: boolean) {
+    if (!supabase) return;
+    setBusy(true);
+    await supabase.from("gallery_images").update({ hidden: next }).eq("id", id);
+    setBusy(false);
+    await load();
+    onChanged?.();
+  }
+
   const when = new Date(post.created_at).toLocaleDateString(
     lang === "th" ? "th-TH" : "en-GB",
     { day: "numeric", month: "short", year: "numeric" });
@@ -228,6 +262,14 @@ export default function PostDetail(
   return (
     <div className="flex flex-col gap-4">
       <Carousel images={images} canEdit={canEditCaption}
+                onToggleHidden={(id, next) => {
+                  if (!next) { void setImageHidden(id, false); return; }
+                  setAsk({
+                    message: t("gallery.confirmHideImage"),
+                    label: t("gallery.hide"),
+                    run: () => void setImageHidden(id, true),
+                  });
+                }}
                 picking={picking && canEditCaption}
                 onPickPoint={(img, x, y) => setPlacing({ imageId: img.id, x, y })}
                 overlay={(img) => (
@@ -241,15 +283,24 @@ export default function PostDetail(
                     onCancel={() => { setPlacing(null); setPicking(false); }}
                     onRemove={removeTag} canEdit={canEditCaption} />
                 )}
-                onRemove={async (id) => {
+                onRemove={(id) => {
                   if (!supabase || id < 0) return;
-                  setBusy(true);
-                  await supabase.from("gallery_images").delete().eq("id", id);
-                  setBusy(false);
-                  // Removing the last one deletes the post, which the database
-                  // does for us — so the caller has to hear about it either way.
-                  if (images.length === 1) onDeleted?.(post.id);
-                  else { await load(); onChanged?.(); }
+                  const last = images.length === 1;
+                  setAsk({
+                    message: last ? t("gallery.removeLast") : t("gallery.confirmDeleteImage"),
+                    label: t("common.delete"),
+                    danger: true,
+                    run: async () => {
+                      setBusy(true);
+                      await supabase.from("gallery_images").delete().eq("id", id);
+                      setBusy(false);
+                      // Removing the last one deletes the post, which the
+                      // database does for us — so the caller hears about it
+                      // either way.
+                      if (last) onDeleted?.(post.id);
+                      else { await load(); onChanged?.(); }
+                    },
+                  });
                 }} />
 
       <input ref={addInput} type="file" accept="image/*" multiple className="hidden"
@@ -340,6 +391,12 @@ export default function PostDetail(
           </div>
         )}
 
+        {isHidden && (
+          <p className="rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-ink/85">
+            {post.hidden ? t("gallery.hiddenByAdmin") : t("gallery.hiddenByYou")}
+          </p>
+        )}
+
         {/* Under the caption and above the buttons: it is part of what the
             picture says, not one of the things you can do to it. */}
         <PostTags postId={post.id} tags={tags}
@@ -367,22 +424,31 @@ export default function PostDetail(
           {/* Hiding first, because it is almost always the right one: the
               picture comes off the site now and nothing is destroyed while
               somebody talks to whoever posted it. */}
-          {isAdmin && (
-            <button onClick={async () => {
-                      if (!supabase) return;
-                      setBusy(true);
-                      await supabase.from("gallery_posts")
-                        .update({ hidden: !post.hidden }).eq("id", post.id);
-                      setBusy(false);
-                      onChanged?.();
+          {canDelete && (
+            <button onClick={() => {
+                      const on = isAdmin ? post.hidden : post.owner_hidden;
+                      if (on) { void setPostHidden(false); return; }
+                      setAsk({
+                        message: t("gallery.confirmHidePost"),
+                        label: t("gallery.hide"),
+                        run: () => void setPostHidden(true),
+                      });
                     }}
-                    disabled={busy}
+                    disabled={busy || lockedByAdmin}
+                    title={lockedByAdmin ? t("gallery.hiddenByAdmin") : undefined}
                     className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
-              {post.hidden ? t("gallery.restore") : t("gallery.hide")}
+              {(isAdmin ? post.hidden : post.owner_hidden)
+                ? t("gallery.restore") : t("gallery.hide")}
             </button>
           )}
           {canDelete && (
-            <button onClick={remove} disabled={busy}
+            <button onClick={() => setAsk({
+                      message: t("gallery.confirmDeletePost"),
+                      label: t("common.delete"),
+                      danger: true,
+                      run: () => void remove(),
+                    })}
+                    disabled={busy}
                     className="rounded-lg border border-chili/50 px-3.5 py-1.5 text-[13px] text-chili hover:bg-chili/10 disabled:opacity-50">
               {t("common.delete")}
             </button>
@@ -428,6 +494,13 @@ export default function PostDetail(
           )}
         </div>
       </div>
+
+      {ask && (
+        <ConfirmDialog message={ask.message} confirmLabel={ask.label}
+                       danger={ask.danger}
+                       onConfirm={() => { ask.run(); setAsk(null); }}
+                       onCancel={() => setAsk(null)} />
+      )}
     </div>
   );
 }

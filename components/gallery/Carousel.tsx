@@ -16,9 +16,12 @@ import type { GalleryImage } from "@/lib/gallery";
  * single-picture post looks exactly as it did before posts could hold several.
  */
 export default function Carousel(
-  { images, onRemove, canEdit = false, overlay, picking = false, onPickPoint }: {
+  { images, onRemove, onToggleHidden, canEdit = false, overlay,
+    picking = false, onPickPoint }: {
     images: GalleryImage[];
     onRemove?: (id: number) => void;
+    /** Put this one picture away, or take it back. Owners and admins only. */
+    onToggleHidden?: (id: number, hidden: boolean) => void;
     canEdit?: boolean;
     /** Drawn on top of the picture, in the picture's own coordinate space. */
     overlay?: (image: GalleryImage) => ReactNode;
@@ -112,12 +115,25 @@ export default function Carousel(
         </>
       )}
 
+      {/* A hidden picture is still in the set for the people it belongs to,
+          and dimmed so it is obvious which one is not on the wall. Nobody else
+          is sent the row at all, so nobody else sees any of this. */}
+      {current.hidden && (
+        <div className="pointer-events-none absolute inset-0 rounded-xl bg-bg/65" />
+      )}
+      {canEdit && onToggleHidden && (
+        <button onClick={() => onToggleHidden(current.id, !current.hidden)}
+                className={`absolute left-2 top-2 rounded-lg border px-2.5 py-1 text-[12px] backdrop-blur ${
+                  current.hidden
+                    ? "border-jade/60 bg-bg/85 text-jade hover:bg-jade/15"
+                    : "border-line bg-bg/80 text-muted hover:border-chili hover:text-chili"}`}>
+          {current.hidden ? t("gallery.restore") : t("gallery.hideThisOne")}
+        </button>
+      )}
+
       {canEdit && onRemove && (
         <button
-          onClick={() => {
-            if (images.length === 1 && !confirm(t("gallery.removeLast"))) return;
-            onRemove(current.id);
-          }}
+          onClick={() => onRemove(current.id)}
           title={t("gallery.removeImage")}
           className="absolute right-2 top-2 rounded-lg border border-chili/60 bg-bg/80 px-2.5 py-1 text-[12px] text-chili backdrop-blur hover:bg-chili/15">
           {t("gallery.removeImage")}

@@ -13,8 +13,17 @@ export interface GalleryPost {
   height: number | null;
   caption: string | null;
   created_at: string;
-  /** Taken down by an admin. Non-admins never receive these rows at all. */
+  /**
+   * Taken down by an admin. Nobody but an admin can clear it, and nobody but an
+   * admin and the people the post belongs to ever receives the row.
+   */
   hidden?: boolean | null;
+  /**
+   * Put away by whoever the post belongs to. A separate flag from the admin's on
+   * purpose: one shared between them would let an author restore what an admin
+   * had just taken down, which is the one case hiding exists for.
+   */
+  owner_hidden?: boolean | null;
   /** Kept on the row by database triggers so the feed can rank by them. */
   like_count?: number | null;
   comment_count?: number | null;
@@ -56,6 +65,12 @@ export interface GalleryImage {
   width: number | null;
   height: number | null;
   position: number;
+  /**
+   * One picture out of a set, put away without touching the rest. Only the
+   * people the post belongs to are sent these rows at all, so a viewer's
+   * carousel simply has one fewer picture in it.
+   */
+  hidden?: boolean | null;
 }
 
 export interface GalleryComment {
