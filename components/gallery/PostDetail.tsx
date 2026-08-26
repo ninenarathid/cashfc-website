@@ -234,9 +234,16 @@ export default function PostDetail(
    * and applications, on top of the picture, over a button that says Copy link.
    * The button now does what it says. Anybody who wants the sheet has one in
    * their browser already.
+   *
+   * The throwaway query on the end is the same trick the member pages use.
+   * Discord keeps what it has already unfurled, keyed by URL, so a link it has
+   * seen before shows the card it saw then — a caption since edited, a picture
+   * since added, a set of three where there is now a set of five. This one it
+   * has not seen, which changes nothing about where it goes and everything
+   * about whether it looks again.
    */
   async function share() {
-    const url = `${location.origin}${postPath(post.id)}`;
+    const url = `${location.origin}${postPath(post.id)}?v=${Date.now().toString(36)}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
