@@ -107,8 +107,6 @@ const DICT = {
     en: "A picture you are tagged in appears on your page too — once you agree to it.",
     th: "รูปที่คุณถูกแท็กจะไปขึ้นที่หน้าของคุณด้วย หลังจากคุณกดยืนยันแล้ว",
   },
-  "gallery.tagAdd": { en: "Tag a member", th: "แท็กสมาชิก" },
-  "gallery.tagMyself": { en: "Tag myself", th: "แท็กตัวเอง" },
   "gallery.tagPending": { en: "waiting", th: "รอยืนยัน" },
   "gallery.tagConfirm": { en: "Confirm", th: "ยืนยัน" },
   "gallery.tagConfirmFor": { en: "Agree for them", th: "ยืนยันให้" },

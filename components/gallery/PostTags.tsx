@@ -5,14 +5,17 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import type { GalleryTag } from "@/lib/gallery";
-import MemberPicker, { type MemberOption } from "@/components/gallery/MemberPicker";
 
 /**
  * Who is in this picture, written out under it.
  *
  * The pins on the photograph say where; this says who, and is the part that
- * works without a mouse, without hovering, and for a member who is in the shot
- * but not worth pointing at. Both are the same rows underneath.
+ * works without a mouse, without hovering, and on a phone. Both are the same
+ * rows underneath, so a name here is a point there.
+ *
+ * Adding is only ever done by pointing at the picture. A second way in — a name
+ * typed into a box, with no point attached — produced tags that could be read
+ * but never found, and two answers to "how do I tag somebody" where one will do.
  *
  * The tag does nothing until the person tagged agrees. Anybody may write your
  * name on a picture; only you decide whether it appears on your page, and until
@@ -25,11 +28,10 @@ import MemberPicker, { type MemberOption } from "@/components/gallery/MemberPick
  * still one question.
  */
 export default function PostTags(
-  { postId, tags, options, canEdit, isAdmin, myCharacterId,
+  { postId, tags, canEdit, isAdmin, myCharacterId,
     picking, onPicking, onReload, onChanged }: {
     postId: number;
     tags: GalleryTag[];
-    options: MemberOption[];
     /** The post's author or an admin: whoever may say who is in it. */
     canEdit: boolean;
     isAdmin: boolean;
@@ -43,7 +45,6 @@ export default function PostTags(
 ) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
-  const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
 
   // One entry per person, however many pins they have here.
@@ -55,19 +56,6 @@ export default function PostTags(
       pending: (at?.pending ?? false) || !g.confirmed_at,
       pins: (at?.pins ?? 0) + (g.x != null ? 1 : 0),
     });
-  }
-
-  async function add(o: MemberOption) {
-    if (!supabase || busy) return;
-    setBusy(true);
-    // The row may come back already confirmed — the database does that for a
-    // member tagging themselves — so read the truth back rather than guessing.
-    await supabase.from("gallery_tags")
-      .insert({ post_id: postId, character_id: o.id, name: o.name });
-    setBusy(false);
-    setAdding(false);
-    await onReload();
-    onChanged?.();
   }
 
   async function confirm(characterId: number) {
@@ -91,8 +79,7 @@ export default function PostTags(
     onChanged?.();
   }
 
-  const canTag = canEdit || myCharacterId != null;
-  if (!people.size && !canTag) return null;
+  if (!people.size && !canEdit) return null;
 
   const waitingOnMe = tags.some(
     (g) => g.character_id === myCharacterId && !g.confirmed_at);
@@ -152,49 +139,17 @@ export default function PostTags(
           <span className="text-[12.5px] text-muted">{t("gallery.tagNone")}</span>
         )}
 
-        {/* Pointing at a face is the better tag when there is a face to point
-            at, so it is the button offered first. */}
+        {/* The one way in. Tagging starts on the picture, because a tag is a
+            place before it is a name. */}
         {canEdit && (
-          <button onClick={() => { onPicking(!picking); setAdding(false); }}
+          <button onClick={() => onPicking(!picking)}
                   className={`rounded-full border px-2.5 py-0.5 text-[12.5px] transition-colors ${
                     picking ? "border-accent bg-accent/15 text-accent"
                             : "border-dashed border-line text-muted hover:border-accent hover:text-accent"}`}>
             {picking ? t("common.cancel") : `📍 ${t("gallery.tagOnPhoto")}`}
           </button>
         )}
-
-        {canTag && !adding && (
-          <button onClick={() => { setAdding(true); onPicking(false); }}
-                  className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
-            + {canEdit ? t("gallery.tagAdd") : t("gallery.tagMyself")}
-          </button>
-        )}
       </div>
-
-      {adding && (
-        <div className="rounded-lg border border-line bg-card p-2.5">
-          {canEdit ? (
-            <MemberPicker options={options} autoFocus
-                          exclude={[...people.keys()]}
-                          onPick={add} />
-          ) : (
-            // Not the poster: the only name you may add to somebody else's
-            // picture is your own.
-            <button onClick={() => {
-                      const me = options.find((o) => o.id === myCharacterId);
-                      if (me) void add(me);
-                    }}
-                    disabled={busy}
-                    className="rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-50">
-              {t("gallery.tagMyself")}
-            </button>
-          )}
-          <button onClick={() => setAdding(false)}
-                  className="mt-2 text-[12px] text-muted hover:text-ink">
-            {t("common.cancel")}
-          </button>
-        </div>
-      )}
 
       {canEdit && (
         <p className="text-[11.5px] leading-relaxed text-muted">{t("gallery.tagHint")}</p>

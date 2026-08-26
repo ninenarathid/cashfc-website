@@ -7,15 +7,28 @@ import type { GalleryTag } from "@/lib/gallery";
 import MemberPicker, { type MemberOption } from "@/components/gallery/MemberPicker";
 
 /**
- * The pins drawn on top of a picture, and the card each one opens.
+ * The tags on a picture: nothing to see until you go looking.
  *
- * Kept out of the way until asked for: the markers appear when the pointer is
- * over the picture and the card only when the pointer is over a marker. A
- * gallery is for looking at screenshots, and a permanent scatter of dots across
- * somebody's GPose shot would be the site talking over the picture.
+ * There is no marker drawn on the photograph. A scatter of rings across
+ * somebody's GPose shot is the site talking over the picture, and the picture is
+ * the entire reason anybody opened it. What exists is an invisible catch around
+ * each point; move the pointer onto a face that has been tagged and the ring
+ * fades up under the cursor with the name beside it, and moving away takes it
+ * away again. The screenshot is never covered by anything nobody asked for.
  *
- * Where there is no hover — a phone — the markers are always faintly visible,
- * because a pin nobody can discover is a pin nobody will ever tap.
+ * Hovering and clicking mean different things. A hover is a glance — it shows
+ * the card and takes it back when you leave. A click is a decision, so the card
+ * stays put and its name can be walked to and clicked through to the member's
+ * page; a card that vanished as the pointer travelled to the link would make
+ * that trip impossible. Clicking anywhere else on the picture puts it away.
+ *
+ * The catches are deliberately larger than the rings they reveal — a face in a
+ * group shot is a small target, and a tag you cannot land on may as well not be
+ * there. Nothing is drawn for them, so their size costs the picture nothing.
+ *
+ * The names are also written out under the picture, which is how somebody on a
+ * phone, or on a keyboard, or reading with a screen reader finds out who is in
+ * it without hunting the photograph for hotspots.
  *
  * Everything is positioned in fractions of the picture, so the layer needs no
  * measurements and nothing to recalculate when the window changes size.
@@ -28,7 +41,7 @@ export default function PhotoTagLayer(
   { tags, faces, placing, options, onPlace, onCancel, onRemove, canEdit }: {
     /** Only the tags belonging to the picture underneath. */
     tags: GalleryTag[];
-    /** Character faces by id, for the card a pin opens. */
+    /** Character faces by id, for the card a tag opens. */
     faces: Record<number, { name: string; avatar: string | null }>;
     placing: Placing | null;
     options: MemberOption[];
@@ -39,35 +52,50 @@ export default function PhotoTagLayer(
   },
 ) {
   const { t } = useLang();
-  const [openPin, setOpenPin] = useState<number | null>(null);
+  // A glance and a decision, kept apart: leaving with the pointer clears the
+  // first and has no business clearing the second.
+  const [hover, setHover] = useState<number | null>(null);
+  const [held, setHeld] = useState<number | null>(null);
 
   return (
     <div className="pointer-events-none absolute inset-0">
+      {/* While a card is held open, the rest of the picture is the way out of
+          it. Rendered before the tags so it never sits on top of one. */}
+      {held != null && !placing && (
+        <div className="pointer-events-auto absolute inset-0"
+             onClick={() => setHeld(null)} />
+      )}
+
       {tags.map((g) => {
         const face = faces[g.character_id];
         const pending = !g.confirmed_at;
-        const open = openPin === g.id;
+        const open = held === g.id || hover === g.id;
         return (
-          <div key={g.id}
-               className="pointer-events-auto absolute"
+          <div key={g.id} className="absolute"
                style={{ left: `${(g.x ?? 0) * 100}%`, top: `${(g.y ?? 0) * 100}%` }}>
-            {/* The marker itself, centred on the point rather than hanging from
-                it — the coordinate is where the person is, not where a corner
-                of a box goes. */}
-            <button onClick={() => setOpenPin(open ? null : g.id)}
-                    onMouseEnter={() => setOpenPin(g.id)}
-                    onMouseLeave={() => setOpenPin((n) => (n === g.id ? null : n))}
+            {/* The catch: a generous, entirely invisible target centred on the
+                point. The ring inside it is the only thing ever drawn, and only
+                while somebody is pointing at it. */}
+            <button onMouseEnter={() => setHover(g.id)}
+                    onMouseLeave={() => setHover((n) => (n === g.id ? null : n))}
+                    onFocus={() => setHover(g.id)}
+                    onBlur={() => setHover((n) => (n === g.id ? null : n))}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setHeld((n) => (n === g.id ? null : g.id));
+                    }}
                     aria-label={g.name}
-                    className={`-translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-bg/40 backdrop-blur-[1px] transition-all duration-200 ${
-                      open ? "size-9 border-accent" : "size-7 border-ink/70"} ${
-                      pending ? "border-dashed" : ""} ${
-                      // Faint until the picture is hovered, then legible.
-                      "opacity-45 group-hover/photo:opacity-100 [@media(hover:none)]:opacity-70"}`} />
+                    className="pointer-events-auto absolute left-0 top-0 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full">
+              <span className={`size-9 rounded-full border-2 shadow-[0_0_0_1px_rgba(0,0,0,0.35)] transition-opacity duration-200 ${
+                open ? "opacity-100" : "opacity-0"} ${
+                pending ? "border-dashed border-accent" : "border-ink/85"}`} />
+            </button>
 
             {open && (
-              // Above the marker, and never clipped to the picture: a face near
-              // the top edge would otherwise open its card off-screen.
-              <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2">
+              // Above the point, so the ring somebody is pointing at is never
+              // the thing the card covers.
+              <div onClick={(e) => e.stopPropagation()}
+                   className="pointer-events-auto absolute bottom-0 left-0 z-10 mb-7 -translate-x-1/2">
                 <div className="flex items-center gap-2 rounded-xl border border-line bg-surface/95 py-1.5 pl-1.5 pr-2.5 shadow-xl backdrop-blur">
                   {face?.avatar && (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -76,7 +104,7 @@ export default function PhotoTagLayer(
                   )}
                   <div className="min-w-0">
                     <Link href={`/member/${g.character_id}`}
-                          className="block whitespace-nowrap font-data text-[13px] font-semibold text-ink no-underline hover:text-accent">
+                          className="block whitespace-nowrap font-data text-[13px] font-semibold text-ink no-underline hover:text-accent hover:underline">
                       {face?.name ?? g.name}
                     </Link>
                     {pending && (
@@ -99,13 +127,13 @@ export default function PhotoTagLayer(
         );
       })}
 
-      {/* A point has been clicked and is waiting for a name. The picker sits at
-          the point so it is obvious which face is being named. */}
+      {/* A point has been clicked and is waiting for a name. This one is drawn,
+          because it is the only moment when the marker is the subject. */}
       {placing && (
         <div className="pointer-events-auto absolute z-20"
              style={{ left: `${placing.x * 100}%`, top: `${placing.y * 100}%` }}>
-          <div className="size-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-accent/20" />
-          <div className="absolute left-1/2 top-4 w-64 max-w-[70vw] -translate-x-1/2 rounded-xl border border-line bg-surface p-2.5 shadow-2xl">
+          <div className="size-9 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-accent/20" />
+          <div className="absolute left-1/2 top-5 w-64 max-w-[70vw] -translate-x-1/2 rounded-xl border border-line bg-surface p-2.5 shadow-2xl">
             <MemberPicker options={options} autoFocus
                           placeholder={t("gallery.tagWho")}
                           onPick={onPlace} />

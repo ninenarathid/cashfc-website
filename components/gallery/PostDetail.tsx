@@ -333,7 +333,7 @@ export default function PostDetail(
 
         {/* Under the caption and above the buttons: it is part of what the
             picture says, not one of the things you can do to it. */}
-        <PostTags postId={post.id} tags={tags} options={memberOptions}
+        <PostTags postId={post.id} tags={tags}
                   canEdit={canEditCaption} isAdmin={isAdmin}
                   myCharacterId={myCharacter}
                   picking={picking} onPicking={(on) => {
