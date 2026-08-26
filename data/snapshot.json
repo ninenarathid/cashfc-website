@@ -4853,7 +4853,7 @@
  "35158574": {
   "name": "Rikka Haulia",
   "parse": 90,
-  "ult": 2,
+  "ult": 3,
   "mounts": 59,
   "minions": 154,
   "rare": 25,
@@ -4900,14 +4900,15 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "The Epic of Alexander",
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "8713004": {
   "name": "Shoe Bite",
-  "parse": null,
+  "parse": 9,
   "ult": 0,
   "mounts": 75,
   "minions": 107,
@@ -4924,12 +4925,12 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "36363091": {
   "name": "Snow Winsfield",
   "parse": 98,
-  "ult": 1,
+  "ult": 3,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -4944,7 +4945,8 @@
   "tiers": {},
   "jobs": {
    "Viper": "legendary",
-   "Reaper": "legendary"
+   "Reaper": "legendary",
+   "Gunbreaker": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -4957,9 +4959,11 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "Futures Rewritten"
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -4986,8 +4990,8 @@
  },
  "30582341": {
   "name": "Sweetpea Swp",
-  "parse": null,
-  "ult": 0,
+  "parse": 95,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -5002,8 +5006,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "30253575": {
   "name": "Syndra Gal",

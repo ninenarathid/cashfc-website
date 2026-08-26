@@ -11732,7 +11732,38 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 33,
+    "kills": 6,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 30,
+    "kills": 3,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 68,
+    "kills": 8,
+    "job": "Dragoon",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -11773,8 +11804,24 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "name": "Ramuh",
+      "best": 9,
+      "median": 9,
+      "kills": 1,
+      "job": "Machinist"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "36363091": {
   "current": {
@@ -11839,6 +11886,26 @@
     "best": 62,
     "kills": 8,
     "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 46,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 77,
+    "kills": 11,
+    "job": "Gunbreaker",
     "cleared": true
    }
   ],
@@ -11969,10 +12036,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 95,
+    "kills": 4,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "30253575": {
   "current": {

@@ -3,6 +3,55 @@
   {
    "date": "2026-08-26",
    "type": "ult_clear",
+   "id": 35158574,
+   "name": "Rikka Haulia",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 8713004,
+   "name": "Shoe Bite",
+   "text": "set a new best parse: 9"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 30582341,
+   "name": "Sweetpea Swp",
+   "text": "set a new best parse: 95"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 30582341,
+   "name": "Sweetpea Swp",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
    "id": 39959181,
    "name": "El Blung",
    "text": "cleared The Epic of Alexander 🏆"
@@ -1349,55 +1398,6 @@
    "type": "ult_clear",
    "id": 13533056,
    "name": "Akemi Rei",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 8836061,
-   "name": "Allusia Heartfilia",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 34434658,
-   "name": "Araiva Leonhart",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 29339718,
-   "name": "Ashe Fantine",
    "text": "cleared an Ultimate — Legend! 🏆"
   }
  ]
