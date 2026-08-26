@@ -52,9 +52,13 @@ export default function AuthButton() {
     );
   }
 
+  // Your own page, not the form for editing it. Clicking your face should show
+  // you what everybody else sees; editing is a thing you occasionally want, and
+  // it has its own button there. A guest with no character has no page to go to,
+  // so for them this stays the profile.
   return (
     <Link
-      href="/profile"
+      href={me.characterId ? `/member/${me.characterId}` : "/profile"}
       className="flex items-center gap-2 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink no-underline transition-colors hover:border-accent"
     >
       {(me.avatar ?? user.avatar) ? (
