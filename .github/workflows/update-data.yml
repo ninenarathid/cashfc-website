@@ -8,6 +8,13 @@ on:
     # stopped, and the slower-moving sources (FFXIV Collect, Lalachievements) refresh
     # about once a day from cache rather than on every run.
     - cron: "30 */4 * * *"
+    # Once a day, the same run also sweeps every character page. Titles, race and
+    # nameday come from a page the roster listing does not carry, so they are
+    # fetched a batch at a time the rest of the day; this is the pass that makes
+    # sure somebody who changed their title in game is not described by last
+    # month's one forever. Deliberately off the four-hour beat so the two
+    # schedules never collide inside the concurrency group.
+    - cron: "05 18 * * *"
   workflow_dispatch:
     inputs:
       full_history:
@@ -60,8 +67,9 @@ jobs:
           if [ "${{ inputs.full_history }}" = "true" ]; then
             FLAGS="$FLAGS --full-history"
           fi
-          # full_extras ticked -> fetch race/clan + nameday for the whole roster at once
-          if [ "${{ inputs.full_extras }}" = "true" ]; then
+          # Ticked by hand, or the once-a-day schedule -> fetch title, race/clan and
+          # nameday for the whole roster in one pass instead of a batch at a time.
+          if [ "${{ inputs.full_extras }}" = "true" ] || [ "${{ github.event.schedule }}" = "05 18 * * *" ]; then
             FLAGS="$FLAGS --full-extras"
           fi
           python pipeline/update_members.py $FLAGS

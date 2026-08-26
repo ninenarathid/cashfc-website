@@ -71,6 +71,11 @@ CONFIG = {
         "fan festival", "expansion",
     ],
     "nameday_batch": 80,       # character pages per run (cycles until everyone is covered)
+    # How long a cached character page stays good for. Titles change whenever
+    # somebody feels like it, so "fetched once, kept forever" would describe half
+    # the roster by last month's choices. Twenty hours rather than twenty-four so
+    # the daily sweep always finds everybody due rather than racing its own clock.
+    "extras_max_age_h": 20,
 
     # Lalachievements enrichment. Their API only knows characters someone has added to
     # the site — roughly one in eight of this FC right now — and answers 500 for the
@@ -1794,20 +1799,33 @@ def parse_race_clan(soup) -> dict:
 def build_character_extras(members: list[dict], batch: int, full: bool) -> None:
     """Scrape per-character detail (title, nameday, race/clan) from Lodestone.
 
-    A single page request covers both, so this stays exactly as gentle on Lodestone
-    as the old nameday-only pass. Normally it works through 'batch' characters per
-    run and cycles until everyone is covered; --full-extras sweeps the whole roster
-    in one go instead (used for the initial backfill).
+    A single page request covers all of it, so this stays exactly as gentle on
+    Lodestone as the old nameday-only pass. Normally it works through 'batch'
+    characters per run and cycles until everyone is covered; --full-extras sweeps
+    the whole roster in one go instead, which is what the once-a-day schedule
+    does and what the initial backfill did.
+
+    Entries expire. None of this is fixed for life — a title in particular is
+    changed whenever somebody feels like it — so a cache that only ever filled in
+    blanks would have frozen half the roster at whatever they happened to be
+    wearing the first time this ran.
     """
     extra = load_json("extra.json", {"nameday": {}})
     namedays = extra.setdefault("nameday", {})
     charas = extra.setdefault("chara", {})
-    # Anybody whose cached entry predates a field is fetched again — keyed on the
-    # key being absent rather than on its value, so a character who genuinely has
-    # no title is not re-asked every single run for the rest of time.
-    todo = [m for m in active_first(members)
-            if str(m["id"]) not in namedays
-            or "title" not in (charas.get(str(m["id"])) or {})]
+    # Due if never fetched, if the cached entry predates a field, or if it has
+    # simply gone stale. The middle case is keyed on the key being absent rather
+    # than on its value, so a character who genuinely wears no title is not
+    # mistaken for one who has never been asked.
+    cutoff = time.time() - CONFIG["extras_max_age_h"] * 3600
+    def due(m: dict) -> bool:
+        c = charas.get(str(m["id"]))
+        if c is None or str(m["id"]) not in namedays:
+            return True
+        if "title" not in c:
+            return True
+        return float(c.get("at") or 0) < cutoff
+    todo = [m for m in active_first(members) if due(m)]
     if not full:
         todo = todo[:batch]
     host = CONFIG["lodestone_host"]
@@ -1823,7 +1841,8 @@ def build_character_extras(members: list[dict], batch: int, full: bool) -> None:
             soup = BeautifulSoup(r.text, "html.parser")
             namedays[str(m["id"])] = parse_nameday(soup)
             charas[str(m["id"])] = {**parse_race_clan(soup),
-                                    "title": parse_title(soup)}
+                                    "title": parse_title(soup),
+                                    "at": time.time()}
         except Exception as ex:
             log(f"Character extras error @ {m['name']}: {ex}")
         if i % 20 == 0:
