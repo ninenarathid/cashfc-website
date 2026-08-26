@@ -660,7 +660,7 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                             "kills": e["kills"], "job": e["job"],
                             "cleared": e["kills"] > 0,
                         })
-                elif zid in ult_ids:
+                elif zid in member_ult_ids:
                     # One row per ultimate, not per zone: "Ultimates (Legacy)" holds
                     # five separate fights, and rolling them into a single entry threw
                     # away which ones a member had actually cleared.
