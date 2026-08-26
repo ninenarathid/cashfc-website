@@ -10,6 +10,7 @@ import { LANGS, useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
 import PendingTags from "@/components/gallery/PendingTags";
 import ProfilePictures from "@/components/ProfilePictures";
+import AdminSwitch from "@/components/AdminSwitch";
 import { useMyFace } from "@/lib/avatars";
 import { EMPTY, isEmpty } from "@/lib/availability";
 import SignIn, { PROVIDERS } from "@/components/SignIn";
@@ -218,6 +219,11 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       {/* Somebody is waiting on an answer, so it goes above the things you
           came here to change. Renders nothing at all when there is nothing. */}
       <PendingTags />
+
+      {/* Renders nothing for anybody who is not an admin, so it can simply sit
+          here. This is the page that is always reachable, which matters: with the
+          powers off, the way back to them must not be one of the things hidden. */}
+      <AdminSwitch />
 
       <ProfilePictures
         characterId={charId}

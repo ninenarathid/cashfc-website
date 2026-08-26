@@ -30,7 +30,11 @@ export default function GalleryPage(
   }, [memberOptions]);
   const { t } = useLang();
   const [supabase] = useState(createClient);
-  const [allowed, setAllowed] = useState<boolean | null>(null);
+  // The site setting, separately from whether this particular reader gets in.
+  // Kept apart because the switch that decides the second arrives a moment after
+  // the first: folding them together in an effect would have settled the answer
+  // while the admin flag was still false and never revisited it.
+  const [open, setOpen] = useState<boolean | null>(null);
   // The poster starts folded away. Somebody arriving here is far more likely
   // to be looking than posting, and a form above the fold pushes the pictures —
   // the entire reason for the page — below it.
@@ -52,18 +56,15 @@ export default function GalleryPage(
 
   useEffect(() => {
     void (async () => {
-      if (!supabase) { setAllowed(false); return; }
+      if (!supabase) { setOpen(false); return; }
       const { data: setting } = await supabase
         .from("site_settings").select("value").eq("key", GALLERY_PUBLIC_KEY).maybeSingle();
-      if ((setting as { value?: string } | null)?.value !== "off") { setAllowed(true); return; }
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) { setAllowed(false); return; }
-      const { data: prof } = await supabase
-        .from("profiles").select("is_admin").eq("id", data.user.id).maybeSingle();
-      setAllowed(!!(prof as { is_admin?: boolean } | null)?.is_admin);
+      setOpen((setting as { value?: string } | null)?.value !== "off");
     })();
   }, [supabase]);
 
+  // The site setting or the reader's own standing; either lets them in.
+  const allowed = open === null ? null : (open || isAdmin);
   if (allowed === null) {
     return <main className="pt-7 text-muted">{t("common.loading")}</main>;
   }

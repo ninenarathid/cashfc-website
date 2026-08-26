@@ -8,6 +8,7 @@ import LangToggle from "@/components/LangToggle";
 import { useLang, type Key } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { GALLERY_PUBLIC_KEY } from "@/lib/gallery";
+import { useAdmin } from "@/lib/admin";
 
 // Events and Minigames are built but unlinked until that phase is picked up again —
 // their routes 404 in the meantime (see app/events, app/games).
@@ -29,22 +30,20 @@ export default function Nav() {
   const { t } = useLang();
 
   // Asked rather than assumed: while the gallery is admins only, everybody else
-  // would be offered a tab that answers 404.
-  const [showGallery, setShowGallery] = useState(false);
+  // would be offered a tab that answers 404. An admin with their powers switched
+  // off is, for this purpose, everybody else — which is the point of the switch.
+  const { isAdmin } = useAdmin();
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     const supabase = createClient();
     if (!supabase) return;
     void (async () => {
       const { data: setting } = await supabase
         .from("site_settings").select("value").eq("key", GALLERY_PUBLIC_KEY).maybeSingle();
-      if ((setting as { value?: string } | null)?.value !== "off") { setShowGallery(true); return; }
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) return;
-      const { data: prof } = await supabase
-        .from("profiles").select("is_admin").eq("id", data.user.id).maybeSingle();
-      setShowGallery(!!(prof as { is_admin?: boolean } | null)?.is_admin);
+      setOpen((setting as { value?: string } | null)?.value !== "off");
     })();
   }, []);
+  const showGallery = open || isAdmin;
 
   const tabs = showGallery ? [...TABS, GALLERY_TAB] : TABS;
   // The header takes its own artwork, since a mark that works at 56px in a nav bar is

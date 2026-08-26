@@ -19,6 +19,7 @@ interface Override { character_id: number; hidden: boolean; note: string | null 
 interface ClaimedProfile { id: string; discord_username: string | null; character_id: number; character_name: string | null }
 
 const inputCls = "rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted";
+import AdminSwitch from "@/components/AdminSwitch";
 
 export default function AdminPanel({ memberOptions }: { memberOptions: Option[] }) {
   const [supabase] = useState(createClient);
@@ -123,6 +124,10 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       <div className="font-data text-[11px] uppercase tracking-[0.22em] text-chili">Admin</div>
       <h1 className="font-display text-3xl font-bold">Site admin</h1>
       {msg && <div className="mt-2 text-[13px] text-jade">{msg}</div>}
+
+      {/* The panel itself follows the real flag rather than the switch: locking
+          yourself out of the room the switch lives in would be a poor trick. */}
+      <AdminSwitch />
 
       {/* ── Discord settings ── */}
       <section className="mt-5 rounded-xl border border-line bg-surface p-4">

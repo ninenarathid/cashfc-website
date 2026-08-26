@@ -14,6 +14,7 @@ import PostTags from "@/components/gallery/PostTags";
 import PhotoTagLayer from "@/components/gallery/PhotoTagLayer";
 import { useAvatarOverrides } from "@/lib/avatars";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { useAdmin } from "@/lib/admin";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
@@ -51,7 +52,7 @@ export default function PostDetail(
   const [comments, setComments] = useState<GalleryComment[]>([]);
   const [draft, setDraft] = useState("");
   const [me, setMe] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAdmin } = useAdmin();
   // Only a verified character counts here: confirming a tag is a statement that
   // you are that person, so an unproven claim to the name cannot make it.
   const [myCharacter, setMyCharacter] = useState<number | null>(null);
@@ -112,13 +113,11 @@ export default function PostDetail(
     setComments((commentRows.data as GalleryComment[]) ?? []);
     if (uid) {
       const { data: prof } = await supabase.from("profiles")
-        .select("is_admin, character_id, character_verified_at")
+        .select("character_id, character_verified_at")
         .eq("id", uid).maybeSingle();
       const row = prof as {
-        is_admin?: boolean; character_id?: number | null;
-        character_verified_at?: string | null;
+        character_id?: number | null; character_verified_at?: string | null;
       } | null;
-      setIsAdmin(!!row?.is_admin);
       setMyCharacter(row?.character_verified_at ? row.character_id ?? null : null);
     }
   }, [supabase, post.id]);

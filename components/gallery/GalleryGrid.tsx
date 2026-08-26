@@ -6,6 +6,7 @@ import { useLang } from "@/lib/i18n";
 import type { GalleryImage, GalleryPost, Roster } from "@/lib/gallery";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import PostDetail from "@/components/gallery/PostDetail";
+import { useAdmin } from "@/lib/admin";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
 export interface Counts { likes: number; comments: number }
@@ -286,10 +287,12 @@ export function useGallery(
   { characterId?: number; sort?: Sort; query?: string } = {},
 ) {
   const [supabase] = useState(createClient);
+  // Not asked of the database here any more: whether admin controls are drawn is
+  // a switch the admin holds, and one answer has to serve the whole page.
+  const { isAdmin } = useAdmin();
   const [posts, setPosts] = useState<GalleryPost[]>([]);
   const [authors, setAuthors] = useState<Record<string, Author>>({});
   const [images, setImages] = useState<Record<number, GalleryImage[]>>({});
-  const [isAdmin, setIsAdmin] = useState(false);
   const [ready, setReady] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -377,17 +380,6 @@ export function useGallery(
     if (!hasMore || busy.current) return;
     void fetchPage(posts.length, false);
   }, [hasMore, posts.length, fetchPage]);
-
-  useEffect(() => {
-    void (async () => {
-      if (!supabase) return;
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) return;
-      const { data: prof } = await supabase
-        .from("profiles").select("is_admin").eq("id", user.user.id).maybeSingle();
-      setIsAdmin(!!(prof as { is_admin?: boolean } | null)?.is_admin);
-    })();
-  }, [supabase]);
 
   // Sort and search are part of fetchPage's identity, so this restarts the list
   // whenever either changes.

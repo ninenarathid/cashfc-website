@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import { LangProvider } from "@/lib/i18n";
 import { AvatarProvider } from "@/lib/avatars";
+import { AdminProvider } from "@/lib/admin";
 
 // This is a Free Company hangout, not a spreadsheet, so all three faces lean warm
 // and all three carry a full Thai set — the FC is Thai and the site is in English,
@@ -51,6 +52,7 @@ export default function RootLayout({
         <LangProvider>
           {/* One small query for the faces members chose, shared by the board,
               their pages, and every byline and tag in the gallery. */}
+          <AdminProvider>
           <AvatarProvider>
           <div className="mx-auto max-w-5xl px-4 pb-16">
             <Nav />
@@ -67,6 +69,7 @@ export default function RootLayout({
             </footer>
           </div>
           </AvatarProvider>
+          </AdminProvider>
         </LangProvider>
       </body>
     </html>

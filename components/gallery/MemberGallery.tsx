@@ -22,7 +22,7 @@ export default function MemberGallery(
     memberOptions?: MemberOption[] },
 ) {
   const { t } = useLang();
-  const [visible, setVisible] = useState(false);
+  const [open, setOpen] = useState(false);
   const { posts, authors, counts, images, isAdmin, ready, hasMore, loading,
           loadMore, reload } = useGallery({ characterId });
   // Only one member appears on this page, so the roster it needs is one entry.
@@ -35,16 +35,13 @@ export default function MemberGallery(
     void (async () => {
       const { data: setting } = await supabase
         .from("site_settings").select("value").eq("key", GALLERY_PUBLIC_KEY).maybeSingle();
-      if ((setting as { value?: string } | null)?.value !== "off") { setVisible(true); return; }
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) return;
-      const { data: prof } = await supabase
-        .from("profiles").select("is_admin").eq("id", data.user.id).maybeSingle();
-      setVisible(!!(prof as { is_admin?: boolean } | null)?.is_admin);
+      setOpen((setting as { value?: string } | null)?.value !== "off");
     })();
   }, []);
 
-  if (!visible || !ready || posts.length === 0) return null;
+  // Read at render rather than settled in the effect: the admin switch resolves
+  // a moment later, and an effect with no dependencies would never hear about it.
+  if (!(open || isAdmin) || !ready || posts.length === 0) return null;
 
   return (
     <section className="mt-6">

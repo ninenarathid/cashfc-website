@@ -161,6 +161,13 @@ const DICT = {
   "gallery.tagPinned": { en: "Pinned on the picture", th: "ปักหมุดไว้ในรูป" },
   "gallery.tagShowAll": { en: "Show everyone", th: "แสดงแท็กทั้งหมด" },
   "gallery.tagHideAll": { en: "Hide the tags", th: "ซ่อนแท็ก" },
+  "admin.modeTitle": { en: "Admin powers", th: "สิทธิ์แอดมิน" },
+  "admin.modeHint": {
+    en: "Turn them off to browse as an ordinary member — no hide buttons, no posting for other people, and a gallery that is only open if it is open to everyone. Nothing about your account changes.",
+    th: "ปิดไว้เพื่อดูเว็บแบบสมาชิกทั่วไป — ไม่มีปุ่มซ่อน ไม่มีการโพสต์แทนคนอื่น และแกลเลอรีจะเปิดก็ต่อเมื่อมันเปิดให้ทุกคน สิทธิ์ในบัญชีของคุณไม่ได้เปลี่ยนไปไหน",
+  },
+  "admin.modeOn": { en: "Admin powers on", th: "เปิดสิทธิ์แอดมินอยู่" },
+  "admin.modeOff": { en: "Browsing as a member", th: "กำลังดูแบบสมาชิกทั่วไป" },
   "profile.pictures": { en: "Your pictures", th: "รูปของคุณ" },
   "profile.picturesHint": {
     en: "Your portrait is used everywhere the site names you. Your cover only sits at the top of your own page.",

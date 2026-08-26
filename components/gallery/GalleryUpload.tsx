@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { MAX_UPLOAD_BYTES, uploadOne } from "@/lib/gallery";
 import DraftTagger, { type DraftTag } from "@/components/gallery/DraftTagger";
+import { useAdmin } from "@/lib/admin";
 
 /**
  * Posting a screenshot.
@@ -37,7 +38,10 @@ export default function GalleryUpload(
   // Loaded once by the page and handed down, so the gate is decided in one place.
   const [gate, setGate] = useState<"loading" | "anon" | "unverified" | "ok">("loading");
   const [me, setMe] = useState<{ id: string; characterId: number | null } | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  // The switch decides whether the "post for a member" box is offered. Whether
+  // an admin may post at all is not a power they should be able to turn off by
+  // accident, so the gate below still reads the profile.
+  const { isAdmin } = useAdmin();
   // Who the picture is by, when that is not the person uploading it.
   const [creditPick, setCreditPick] = useState("");
   const [credited, setCredited] = useState<Option | null>(null);
@@ -62,7 +66,6 @@ export default function GalleryUpload(
         is_admin?: boolean;
       } | null;
       setMe({ id: data.user.id, characterId: row?.character_id ?? null });
-      setIsAdmin(!!row?.is_admin);
       // An admin posts for other people, so a character of their own is not
       // what stands between them and the form.
       setGate(row?.is_admin || (row?.character_id && row?.character_verified_at)
