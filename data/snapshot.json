@@ -5295,8 +5295,8 @@
  },
  "29389419": {
   "name": "Osilit Bloodhood",
-  "parse": 20,
-  "ult": 0,
+  "parse": 56,
+  "ult": 2,
   "mounts": 127,
   "minions": 218,
   "rare": null,
@@ -5315,8 +5315,11 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "60933255": {
   "name": "Priya Heartfilia",
@@ -5792,8 +5795,8 @@
  },
  "24770177": {
   "name": "Alteria Ferron",
-  "parse": null,
-  "ult": 0,
+  "parse": 14,
+  "ult": 1,
   "mounts": 135,
   "minions": 321,
   "rare": 15,
@@ -5824,8 +5827,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise"
+  ],
+  "chg": "2026-08-26"
  },
  "50267765": {
   "name": "Alternative Zero",
@@ -5982,7 +5987,7 @@
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
-  "parse": null,
+  "parse": 81,
   "ult": 2,
   "mounts": 116,
   "minions": 293,
@@ -6094,13 +6099,15 @@
    "crafter": "expert",
    "goldsaucer": "expert"
   },
-  "jobs": {},
+  "jobs": {
+   "Bard": "master"
+  },
   "ex": [],
   "ults": [
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "31334257": {
   "name": "Arichii Marilouay",
@@ -6188,8 +6195,8 @@
  },
  "512253": {
   "name": "Ashelia White",
-  "parse": null,
-  "ult": 0,
+  "parse": 88,
+  "ult": 3,
   "mounts": 32,
   "minions": 112,
   "rare": null,
@@ -6202,10 +6209,16 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "DarkKnight": "legendary"
+  },
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "29918399": {
   "name": "Athaliah Aylin",

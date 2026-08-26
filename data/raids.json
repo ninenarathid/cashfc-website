@@ -12360,7 +12360,28 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 56,
+    "kills": 3,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 1,
+    "kills": 1,
+    "job": "Sage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -12806,10 +12827,21 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 14,
+    "kills": 2,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "50267765": {
   "current": {
@@ -13026,10 +13058,71 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 50,
+    "kills": 14,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 21,
+    "kills": 8,
+    "job": "Bard",
+    "cleared": true
+   }
+  ],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "name": "Eden Prime",
+      "best": 81,
+      "median": 65,
+      "kills": 23,
+      "job": "Bard"
+     },
+     {
+      "label": "E2S",
+      "name": "Voidwalker",
+      "best": 81,
+      "median": 62,
+      "kills": 27,
+      "job": "Bard"
+     },
+     {
+      "label": "E3S",
+      "name": "Leviathan",
+      "best": 81,
+      "median": 50,
+      "kills": 14,
+      "job": "Bard"
+     },
+     {
+      "label": "E4S",
+      "name": "Titan",
+      "best": 56,
+      "median": 24,
+      "kills": 17,
+      "job": "Bard"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "31334257": {
   "current": {
@@ -13116,10 +13209,41 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 88,
+    "kills": 17,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 87,
+    "kills": 15,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 73,
+    "kills": 17,
+    "job": "DarkKnight",
+    "cleared": true
+   }
+  ],
   "extremes": [],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "29918399": {
   "current": {

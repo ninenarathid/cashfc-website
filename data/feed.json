@@ -2,6 +2,90 @@
  "events": [
   {
    "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 29389419,
+   "name": "Osilit Bloodhood",
+   "text": "set a new best parse: 56"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 29389419,
+   "name": "Osilit Bloodhood",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 29389419,
+   "name": "Osilit Bloodhood",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 24770177,
+   "name": "Alteria Ferron",
+   "text": "set a new best parse: 14"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 24770177,
+   "name": "Alteria Ferron",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 20400811,
+   "name": "Ariadne Ilsildar",
+   "text": "set a new best parse: 81"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 20400811,
+   "name": "Ariadne Ilsildar",
+   "text": "is now a Master Bard"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 512253,
+   "name": "Ashelia White",
+   "text": "set a new best parse: 88"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 512253,
+   "name": "Ashelia White",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 512253,
+   "name": "Ashelia White",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 512253,
+   "name": "Ashelia White",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 512253,
+   "name": "Ashelia White",
+   "text": "is now a Legendary Dark Knight"
+  },
+  {
+   "date": "2026-08-26",
    "type": "ult_clear",
    "id": 35158574,
    "name": "Rikka Haulia",
@@ -1315,90 +1399,6 @@
    "id": 27412308,
    "name": "Masahiro Dixon",
    "text": "set a new best parse: 30"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 30559981,
-   "name": "Maverick Flourite",
-   "text": "set a new best parse: 11"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 32793260,
-   "name": "Mizuki Mizuhiki",
-   "text": "set a new best parse: 64"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 32793260,
-   "name": "Mizuki Mizuhiki",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 37911500,
-   "name": "Monandaeg Deliciosus",
-   "text": "set a new best parse: 14"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 17723972,
-   "name": "Naruga Vagrant",
-   "text": "set a new best parse: 78"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 33766568,
-   "name": "Nell Weasley",
-   "text": "set a new best parse: 67"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 36149590,
-   "name": "Neo Anderson",
-   "text": "set a new best parse: 92"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 58314431,
-   "name": "No Mushroomgame",
-   "text": "set a new best parse: 76"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 58314431,
-   "name": "No Mushroomgame",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 58314431,
-   "name": "No Mushroomgame",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 58314431,
-   "name": "No Mushroomgame",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 13533056,
-   "name": "Akemi Rei",
-   "text": "cleared an Ultimate — Legend! 🏆"
   }
  ]
 }
