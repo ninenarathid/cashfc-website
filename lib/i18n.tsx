@@ -152,6 +152,10 @@ const DICT = {
   },
   "profile.picNone": { en: "None yet", th: "ยังไม่มี" },
   "profile.picZoom": { en: "Zoom", th: "ย่อ/ขยาย" },
+  "profile.picSmall": {
+    en: "This picture is smaller than the size the site uses, so it will look soft. A larger screenshot will come out sharper.",
+    th: "รูปนี้เล็กกว่าขนาดที่เว็บใช้ ภาพจะดูเบลอนิดหน่อย ถ้าใช้ภาพที่ใหญ่กว่านี้จะคมกว่า",
+  },
   "profile.picSaving": { en: "Saving…", th: "กำลังบันทึก…" },
   "profile.picNoShots": {
     en: "Nothing in the gallery yet — post a picture first, or upload a file.",
