@@ -17,7 +17,7 @@ import GalleryGrid, { useGallery } from "@/components/gallery/GalleryGrid";
 export default function MemberGallery({ characterId }: { characterId: number }) {
   const { t } = useLang();
   const [visible, setVisible] = useState(false);
-  const { posts, authors, ready, reload } = useGallery(characterId);
+  const { posts, authors, counts, isAdmin, ready, reload } = useGallery(characterId);
 
   useEffect(() => {
     const supabase = createClient();
@@ -25,7 +25,7 @@ export default function MemberGallery({ characterId }: { characterId: number }) 
     void (async () => {
       const { data: setting } = await supabase
         .from("site_settings").select("value").eq("key", GALLERY_PUBLIC_KEY).maybeSingle();
-      if ((setting as { value?: string } | null)?.value === "on") { setVisible(true); return; }
+      if ((setting as { value?: string } | null)?.value !== "off") { setVisible(true); return; }
       const { data } = await supabase.auth.getUser();
       if (!data.user) return;
       const { data: prof } = await supabase
@@ -45,7 +45,8 @@ export default function MemberGallery({ characterId }: { characterId: number }) 
           {t("nav.gallery")} →
         </Link>
       </h2>
-      <GalleryGrid posts={posts} authors={authors} onChanged={reload} />
+      <GalleryGrid posts={posts} authors={authors} counts={counts}
+                   isAdmin={isAdmin} onChanged={reload} />
     </section>
   );
 }

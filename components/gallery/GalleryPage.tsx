@@ -9,27 +9,26 @@ import GalleryGrid, { useGallery } from "@/components/gallery/GalleryGrid";
 import GalleryUpload from "@/components/gallery/GalleryUpload";
 
 /**
- * The gallery, while it is still admins only.
+ * The gallery.
  *
- * The gate is a site setting rather than a rule in the database: everybody may
- * read the rows, and whether the page is linked and reachable is a decision the
- * FC can reverse from /admin without a migration. That does mean somebody who
- * guesses the URL and knows a post id could read one — these are screenshots
- * people chose to publish to their own FC, not secrets, and treating them as
- * secrets would have meant giving up the shareable link that is half the point.
+ * Open to the FC unless an admin closes it, which is a site setting rather than
+ * a rule in the database: whether a page is linked and reachable is a product
+ * decision the FC can reverse from /admin without a migration. Individual
+ * pictures are a different matter — a hidden one is enforced in the read policy,
+ * so it does not leave the database for anybody but an admin.
  */
 export default function GalleryPage({ openId }: { openId?: number | null }) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const [allowed, setAllowed] = useState<boolean | null>(null);
-  const { posts, authors, ready, reload } = useGallery();
+  const { posts, authors, counts, isAdmin, ready, reload } = useGallery();
 
   useEffect(() => {
     void (async () => {
       if (!supabase) { setAllowed(false); return; }
       const { data: setting } = await supabase
         .from("site_settings").select("value").eq("key", GALLERY_PUBLIC_KEY).maybeSingle();
-      if ((setting as { value?: string } | null)?.value === "on") { setAllowed(true); return; }
+      if ((setting as { value?: string } | null)?.value !== "off") { setAllowed(true); return; }
       const { data } = await supabase.auth.getUser();
       if (!data.user) { setAllowed(false); return; }
       const { data: prof } = await supabase
@@ -49,16 +48,14 @@ export default function GalleryPage({ openId }: { openId?: number | null }) {
         {t("gallery.eyebrow")}
       </div>
       <h1 className="font-display text-3xl font-bold">{t("gallery.title")}</h1>
-      <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-muted">
-        {t("gallery.intro")}
-      </p>
 
       <div className="mt-5">
         <GalleryUpload onPosted={reload} />
       </div>
 
       {ready && (
-        <GalleryGrid posts={posts} authors={authors} onChanged={reload}
+        <GalleryGrid posts={posts} authors={authors} counts={counts}
+                     isAdmin={isAdmin} onChanged={reload}
                      initialOpen={openId ?? null} />
       )}
     </main>

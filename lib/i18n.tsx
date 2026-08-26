@@ -82,6 +82,12 @@ const DICT = {
     th: "เข้าสู่ระบบเพื่อให้ popoto หรือคอมเมนต์",
   },
   "gallery.byMember": { en: "Screenshots", th: "รูปที่โพสต์ไว้" },
+  "gallery.hide": { en: "Hide", th: "ซ่อน" },
+  "gallery.restore": { en: "Restore", th: "เอากลับมา" },
+  "gallery.hiddenTag": { en: "Hidden", th: "ซ่อนอยู่" },
+  "gallery.editCaption": { en: "Edit caption", th: "แก้คำบรรยาย" },
+  "gallery.save": { en: "Save", th: "บันทึก" },
+  "gallery.noCaption": { en: "No caption", th: "ยังไม่มีคำบรรยาย" },
 
   // ── Home ────────────────────────────────────────────────────────────
   "home.freeCompany": { en: "Free Company", th: "Free Company" },

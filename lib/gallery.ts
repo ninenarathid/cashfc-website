@@ -13,6 +13,8 @@ export interface GalleryPost {
   height: number | null;
   caption: string | null;
   created_at: string;
+  /** Taken down by an admin. Non-admins never receive these rows at all. */
+  hidden?: boolean | null;
 }
 
 export interface GalleryComment {
@@ -24,19 +26,20 @@ export interface GalleryComment {
 }
 
 /**
- * Whether the gallery is open to everybody yet.
+ * Whether the gallery is open to everybody.
  *
- * Unset means admins only, which is where it starts: the FC wanted to look at it
- * before the whole roster could. An admin flips it from /admin. This is a
- * product decision rather than a security one, so it lives in a setting instead
- * of in row-level security, where undoing it would have needed a migration.
+ * Open unless an admin has closed it — it spent its first day admins-only while
+ * the FC looked at it, and now the default is the other way round. Still a
+ * setting rather than row-level security, because who is shown a page is a
+ * product decision and undoing it in RLS would have needed a migration.
  */
 export async function galleryIsPublic(supabase: SupabaseClient): Promise<boolean> {
   const { data } = await supabase
     .from("site_settings").select("value").eq("key", GALLERY_PUBLIC_KEY)
     .maybeSingle();
-  return (data as { value?: string } | null)?.value === "on";
+  return (data as { value?: string } | null)?.value !== "off";
 }
+
 
 /**
  * Reads a picture's real dimensions before upload so the grid can reserve the

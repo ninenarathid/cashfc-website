@@ -21,10 +21,11 @@ interface Author { id: string; name: string; characterId: number | null; avatar:
  * enforced by the table's primary key rather than by the button.
  */
 export default function PostDetail(
-  { post, authors, onDeleted, compact = false }: {
+  { post, authors, onDeleted, onChanged, compact = false }: {
     post: GalleryPost;
     authors: Record<string, Author>;
     onDeleted?: (id: number) => void;
+    onChanged?: () => void;
     compact?: boolean;
   },
 ) {
@@ -38,6 +39,8 @@ export default function PostDetail(
   const [isAdmin, setIsAdmin] = useState(false);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [caption, setCaption] = useState(post.caption ?? "");
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -64,7 +67,21 @@ export default function PostDetail(
   useEffect(() => { void load(); }, [load]);
 
   const author = authors[post.author_id];
-  const canDelete = !!me && (me === post.author_id || isAdmin);
+  const mine = !!me && me === post.author_id;
+  const canDelete = mine || isAdmin;
+  // The author owns their words; an admin can fix a caption that has to go
+  // without taking the picture down over it.
+  const canEditCaption = mine || isAdmin;
+
+  async function saveCaption() {
+    if (!supabase) return;
+    setBusy(true);
+    const next = caption.trim().slice(0, 300);
+    const { error } = await supabase.from("gallery_posts")
+      .update({ caption: next || null }).eq("id", post.id);
+    setBusy(false);
+    if (!error) { setEditing(false); onChanged?.(); }
+  }
 
   async function toggleLike() {
     if (!supabase || !me || busy) return;
@@ -143,10 +160,38 @@ export default function PostDetail(
           </div>
         </div>
 
-        {post.caption && (
-          <p className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink/85">
-            {post.caption}
-          </p>
+        {editing ? (
+          <div className="flex flex-col gap-2">
+            <textarea value={caption} rows={3}
+                      onChange={(e) => setCaption(e.target.value.slice(0, 300))}
+                      placeholder={t("gallery.captionPlaceholder")}
+                      className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
+            <div className="flex flex-wrap gap-2">
+              <button onClick={saveCaption} disabled={busy}
+                      className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-50">
+                {t("gallery.save")}
+              </button>
+              <button onClick={() => { setCaption(post.caption ?? ""); setEditing(false); }}
+                      className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-muted hover:text-ink">
+                {t("common.cancel")}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2">
+            <p className="min-w-0 flex-1 whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink/85">
+              {post.caption || (
+                <span className="text-muted">{t("gallery.noCaption")}</span>
+              )}
+            </p>
+            {canEditCaption && (
+              <button onClick={() => setEditing(true)}
+                      title={t("gallery.editCaption")}
+                      className="shrink-0 rounded-md border border-line px-2 py-0.5 text-[11.5px] text-muted hover:border-accent hover:text-accent">
+                {t("common.edit")}
+              </button>
+            )}
+          </div>
         )}
 
         <div className="flex flex-wrap gap-2">
@@ -161,6 +206,23 @@ export default function PostDetail(
                   className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
             {copied ? t("gallery.copied") : t("gallery.share")}
           </button>
+          {/* Hiding first, because it is almost always the right one: the
+              picture comes off the site now and nothing is destroyed while
+              somebody talks to whoever posted it. */}
+          {isAdmin && (
+            <button onClick={async () => {
+                      if (!supabase) return;
+                      setBusy(true);
+                      await supabase.from("gallery_posts")
+                        .update({ hidden: !post.hidden }).eq("id", post.id);
+                      setBusy(false);
+                      onChanged?.();
+                    }}
+                    disabled={busy}
+                    className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
+              {post.hidden ? t("gallery.restore") : t("gallery.hide")}
+            </button>
+          )}
           {canDelete && (
             <button onClick={remove} disabled={busy}
                     className="rounded-lg border border-chili/50 px-3.5 py-1.5 text-[13px] text-chili hover:bg-chili/10 disabled:opacity-50">

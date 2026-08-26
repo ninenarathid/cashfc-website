@@ -37,7 +37,7 @@ export default function Nav() {
     void (async () => {
       const { data: setting } = await supabase
         .from("site_settings").select("value").eq("key", GALLERY_PUBLIC_KEY).maybeSingle();
-      if ((setting as { value?: string } | null)?.value === "on") { setShowGallery(true); return; }
+      if ((setting as { value?: string } | null)?.value !== "off") { setShowGallery(true); return; }
       const { data } = await supabase.auth.getUser();
       if (!data.user) return;
       const { data: prof } = await supabase

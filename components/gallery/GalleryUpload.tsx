@@ -114,7 +114,8 @@ export default function GalleryUpload(
       {preview ? (
         <div className="mt-3 flex flex-col gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="" className="max-h-72 w-auto rounded-lg border border-line" />
+          <img src={preview} alt=""
+               className="max-h-[60vh] w-full rounded-lg border border-line object-contain" />
           <input value={caption} onChange={(e) => setCaption(e.target.value.slice(0, 300))}
                  placeholder={t("gallery.captionPlaceholder")}
                  className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />

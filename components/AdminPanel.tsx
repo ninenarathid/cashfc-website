@@ -47,7 +47,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   // Defaults to on, matching the notice itself: no row means nobody has retired it yet.
   const [noticeOn, setNoticeOn] = useState(true);
   // Starts closed: the gallery goes to the whole FC when an admin says so.
-  const [galleryOn, setGalleryOn] = useState(false);
+  const [galleryOn, setGalleryOn] = useState(true);
 
   const [overrides, setOverrides] = useState<Override[]>([]);
   const [pick, setPick] = useState("");
@@ -81,7 +81,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       if (r.key === "discord_server_id") setServerId(r.value ?? "");
       if (r.key === "discord_invite_url") setInvite(r.value ?? "");
       if (r.key === NOTICE_KEY) setNoticeOn(r.value !== "off");
-      if (r.key === GALLERY_PUBLIC_KEY) setGalleryOn(r.value === "on");
+      if (r.key === GALLERY_PUBLIC_KEY) setGalleryOn(r.value !== "off");
     }
     setOverrides((o.data as Override[]) ?? []);
     setClaims((c.data as ClaimedProfile[]) ?? []);
