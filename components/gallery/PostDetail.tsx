@@ -148,7 +148,15 @@ export default function PostDetail(
   // posts for a member who never signs in, and that member owns their own
   // photograph as much as the account that carried it here does.
   const credited = post.character_id != null && post.character_id === myCharacter;
-  const mine = (!!me && me === post.author_id) || credited;
+  // credited_name is set only when an admin posted on somebody else's behalf, and
+  // it is the line between two very different claims. Having uploaded your own
+  // picture makes it yours. Having uploaded somebody else's makes you the person
+  // who carried it here, which is a job, not a claim — so it comes with the admin
+  // powers and goes away with them. Switch them off and the picture is theirs
+  // alone, which is what the switch is supposed to show you.
+  const onBehalf = !!post.credited_name;
+  const uploaded = !!me && me === post.author_id && !onBehalf;
+  const mine = uploaded || credited;
   const canDelete = mine || isAdmin;
   // An admin hiding is a takedown and only an admin lifts it; anybody else's is
   // their own and theirs to lift. One button either way — whichever flag the
