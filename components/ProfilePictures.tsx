@@ -74,14 +74,31 @@ export default function ProfilePictures(
   // Object URLs outlive the component unless they are let go of.
   useEffect(() => () => { if (source) URL.revokeObjectURL(source); }, [source]);
 
+  /**
+   * The pictures this character is in — the same set their own member page
+   * shows, which is theirs plus every group shot they agreed to be tagged in.
+   *
+   * Asked of gallery_feed rather than assembled here, so "in the picture" means
+   * exactly one thing across the whole site. Uploading a shot on somebody else's
+   * behalf does not put their face in it, which is why the poster is not part of
+   * the question; a guest with no character has only what they uploaded, because
+   * there is no character for a tag to point at.
+   */
   async function openGallery(which: Kind) {
     setKind(which); setBrowsing(true); setErr(null);
     if (shots || !supabase || !me) return;
-    const or = characterId
-      ? `author_id.eq.${me},character_id.eq.${characterId}`
-      : `author_id.eq.${me}`;
-    const { data: posts } = await supabase.from("gallery_posts").select("id").or(or);
-    const ids = (posts ?? []).map((r) => (r as { id: number }).id);
+    let ids: number[] = [];
+    if (characterId) {
+      const { data } = await supabase.rpc("gallery_feed", {
+        p_sort: "new", p_query: null, p_limit: 60, p_offset: 0,
+        p_character: characterId,
+      });
+      ids = ((data ?? []) as { id: number }[]).map((r) => r.id);
+    } else {
+      const { data } = await supabase.from("gallery_posts")
+        .select("id").eq("author_id", me).limit(60);
+      ids = ((data ?? []) as { id: number }[]).map((r) => r.id);
+    }
     if (!ids.length) { setShots([]); return; }
     const { data: imgs } = await supabase.from("gallery_images")
       .select("id, url").in("post_id", ids).limit(60);

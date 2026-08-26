@@ -65,6 +65,7 @@ export default function PostDetail(
   // rows and must never disagree about what is there.
   const [tags, setTags] = useState<GalleryTag[]>([]);
   const [picking, setPicking] = useState(false);
+  const [revealAll, setRevealAll] = useState(false);
   const [placing, setPlacing] = useState<
     { imageId: number; x: number; y: number } | null>(null);
 
@@ -235,6 +236,7 @@ export default function PostDetail(
                     faces={faces} options={memberOptions}
                     placing={placing && placing.imageId === img.id
                       ? { x: placing.x, y: placing.y } : null}
+                    revealAll={revealAll}
                     onPlace={placeTag}
                     onCancel={() => { setPlacing(null); setPicking(false); }}
                     onRemove={removeTag} canEdit={canEditCaption} />
@@ -347,6 +349,7 @@ export default function PostDetail(
                     setPicking(on);
                     if (!on) setPlacing(null);
                   }}
+                  revealAll={revealAll} onReveal={setRevealAll}
                   onReload={loadTags} onChanged={onChanged} />
 
         <div className="flex flex-wrap gap-2">

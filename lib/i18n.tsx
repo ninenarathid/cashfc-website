@@ -133,6 +133,8 @@ const DICT = {
   },
   "gallery.tagWho": { en: "Who is this?", th: "คนนี้คือใคร?" },
   "gallery.tagPinned": { en: "Pinned on the picture", th: "ปักหมุดไว้ในรูป" },
+  "gallery.tagShowAll": { en: "Show everyone", th: "แสดงแท็กทั้งหมด" },
+  "gallery.tagHideAll": { en: "Hide the tags", th: "ซ่อนแท็ก" },
   "profile.pictures": { en: "Your pictures", th: "รูปของคุณ" },
   "profile.picturesHint": {
     en: "Your portrait is used everywhere the site names you. Your cover only sits at the top of your own page.",

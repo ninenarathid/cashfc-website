@@ -4,12 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
+import { useMyFace } from "@/lib/avatars";
 
 export default function AuthButton() {
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const [user, setUser] = useState<{ name: string; avatar: string | null } | null>(null);
   const [ready, setReady] = useState(false);
+  // The character, not the account: the same name and face the rest of the site
+  // uses for this member. The account's own details only stand in for a guest.
+  const me = useMyFace();
 
   useEffect(() => {
     if (!supabase) { setReady(true); return; }
@@ -53,11 +57,12 @@ export default function AuthButton() {
       href="/profile"
       className="flex items-center gap-2 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink no-underline transition-colors hover:border-accent"
     >
-      {user.avatar ? (
+      {(me.avatar ?? user.avatar) ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={user.avatar} alt="" className="size-5 rounded-full" />
+        <img src={me.avatar ?? user.avatar ?? ""} alt=""
+             className="size-5 rounded-full object-cover" />
       ) : null}
-      <span className="max-w-28 truncate">{user.name}</span>
+      <span className="max-w-28 truncate">{me.name ?? user.name}</span>
     </Link>
   );
 }

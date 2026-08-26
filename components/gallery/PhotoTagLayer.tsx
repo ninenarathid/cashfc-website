@@ -28,7 +28,10 @@ import MemberPicker, { type MemberOption } from "@/components/gallery/MemberPick
  *
  * The names are also written out under the picture, which is how somebody on a
  * phone, or on a keyboard, or reading with a screen reader finds out who is in
- * it without hunting the photograph for hotspots.
+ * it without hunting the photograph for hotspots. And since hidden rings give no
+ * way to see the whole cast at once, a button below draws every one of them with
+ * its name in place — a chip each rather than a card each, because eight cards
+ * in a group shot would cover the group.
  *
  * Everything is positioned in fractions of the picture, so the layer needs no
  * measurements and nothing to recalculate when the window changes size.
@@ -38,13 +41,16 @@ import MemberPicker, { type MemberOption } from "@/components/gallery/MemberPick
 export interface Placing { x: number; y: number }
 
 export default function PhotoTagLayer(
-  { tags, faces, placing, options, onPlace, onCancel, onRemove, canEdit }: {
+  { tags, faces, placing, options, revealAll = false,
+    onPlace, onCancel, onRemove, canEdit }: {
     /** Only the tags belonging to the picture underneath. */
     tags: GalleryTag[];
     /** Character faces by id, for the card a tag opens. */
     faces: Record<number, { name: string; avatar: string | null }>;
     placing: Placing | null;
     options: MemberOption[];
+    /** Somebody asked to see everyone at once, so every ring is drawn and named. */
+    revealAll?: boolean;
     onPlace: (o: MemberOption) => void;
     onCancel: () => void;
     onRemove: (tagId: number) => void;
@@ -87,9 +93,17 @@ export default function PhotoTagLayer(
                     aria-label={g.name}
                     className="pointer-events-auto absolute left-0 top-0 grid size-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full">
               <span className={`size-9 rounded-full border-2 shadow-[0_0_0_1px_rgba(0,0,0,0.35)] transition-opacity duration-200 ${
-                open ? "opacity-100" : "opacity-0"} ${
+                open || revealAll ? "opacity-100" : "opacity-0"} ${
                 pending ? "border-dashed border-accent" : "border-ink/85"}`} />
             </button>
+
+            {/* Named in place while everyone is showing. A chip rather than the
+                full card: eight cards in a group shot would cover the group. */}
+            {revealAll && !open && (
+              <div className="pointer-events-none absolute left-0 top-5 max-w-[40vw] -translate-x-1/2 truncate rounded-full border border-line bg-bg/85 px-2 py-0.5 font-data text-[11.5px] text-ink backdrop-blur">
+                {face?.name ?? g.name}
+              </div>
+            )}
 
             {open && (
               // Above the point, so the ring somebody is pointing at is never

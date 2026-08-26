@@ -10,6 +10,7 @@ import { LANGS, useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
 import PendingTags from "@/components/gallery/PendingTags";
 import ProfilePictures from "@/components/ProfilePictures";
+import { useMyFace } from "@/lib/avatars";
 import { EMPTY, isEmpty } from "@/lib/availability";
 import SignIn, { PROVIDERS } from "@/components/SignIn";
 
@@ -109,6 +110,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   useEffect(() => { void load(); }, [load]);
 
   const inRoster = charId != null && memberOptions.some((o) => o.id === charId);
+  const myFace = useMyFace();
 
   async function save() {
     if (!supabase || !user) return;
@@ -167,9 +169,12 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       <h1 className="font-display text-3xl font-bold">{t("profile.title")}</h1>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3">
-        {profile?.discord_avatar ? (
+        {/* The same picture the header shows, and the same one the board shows.
+            One face per member, resolved in one place. */}
+        {(myFace.avatar ?? profile?.discord_avatar) ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={profile.discord_avatar} alt="" className="size-9 rounded-full" />
+          <img src={myFace.avatar ?? profile?.discord_avatar ?? ""} alt=""
+               className="size-9 rounded-full object-cover" />
         ) : null}
         <div className="min-w-0 flex-1">
           <div className="truncate font-data text-sm font-semibold">

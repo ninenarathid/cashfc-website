@@ -29,7 +29,7 @@ import type { GalleryTag } from "@/lib/gallery";
  */
 export default function PostTags(
   { postId, tags, canEdit, isAdmin, myCharacterId,
-    picking, onPicking, onReload, onChanged }: {
+    picking, onPicking, revealAll, onReveal, onReload, onChanged }: {
     postId: number;
     tags: GalleryTag[];
     /** The post's author or an admin: whoever may say who is in it. */
@@ -39,6 +39,8 @@ export default function PostTags(
     myCharacterId: number | null;
     picking: boolean;
     onPicking: (on: boolean) => void;
+    revealAll: boolean;
+    onReveal: (on: boolean) => void;
     onReload: () => Promise<void> | void;
     onChanged?: () => void;
   },
@@ -79,6 +81,7 @@ export default function PostTags(
     onChanged?.();
   }
 
+  const pinned = tags.filter((g) => g.x != null).length;
   if (!people.size && !canEdit) return null;
 
   const waitingOnMe = tags.some(
@@ -137,6 +140,19 @@ export default function PostTags(
 
         {!people.size && (
           <span className="text-[12.5px] text-muted">{t("gallery.tagNone")}</span>
+        )}
+
+        {/* The pins stay hidden until somebody points at one, which keeps the
+            picture clean but gives no way to see the whole cast at once. This is
+            that way: every ring drawn, every name in place, until it is turned
+            off again. */}
+        {pinned > 0 && (
+          <button onClick={() => onReveal(!revealAll)}
+                  className={`rounded-full border px-2.5 py-0.5 text-[12.5px] transition-colors ${
+                    revealAll ? "border-accent bg-accent/15 text-accent"
+                              : "border-line text-muted hover:border-accent hover:text-accent"}`}>
+            {revealAll ? t("gallery.tagHideAll") : t("gallery.tagShowAll")}
+          </button>
         )}
 
         {/* The one way in. Tagging starts on the picture, because a tag is a
