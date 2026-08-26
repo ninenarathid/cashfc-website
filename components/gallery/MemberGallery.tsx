@@ -18,7 +18,7 @@ export default function MemberGallery({ characterId }: { characterId: number }) 
   const { t } = useLang();
   const [visible, setVisible] = useState(false);
   const { posts, authors, counts, isAdmin, ready, hasMore, loading, loadMore, reload } =
-    useGallery(characterId);
+    useGallery({ characterId });
 
   useEffect(() => {
     const supabase = createClient();

@@ -131,15 +131,15 @@ export default function PostDetail(
     { day: "numeric", month: "short", year: "numeric" });
 
   return (
-    <div className={compact ? "" : "grid gap-4 md:grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)]"}>
-      <div className="min-w-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={post.image_url} alt={post.caption ?? ""}
-             width={post.width ?? undefined} height={post.height ?? undefined}
-             className="max-h-[70vh] w-full rounded-xl border border-line object-contain" />
-      </div>
+    <div className="flex flex-col gap-4">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={post.image_url} alt={post.caption ?? ""}
+           width={post.width ?? undefined} height={post.height ?? undefined}
+           className="max-h-[78vh] w-full rounded-xl border border-line bg-bg object-contain" />
 
-      <div className="flex min-w-0 flex-col gap-3">
+      {/* Held to a readable measure under a picture that may be very wide —
+          comments running the full width of a 1600px screenshot are a chore. */}
+      <div className="mx-auto flex w-full max-w-3xl min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
           {author?.avatar && (
             // eslint-disable-next-line @next/next/no-img-element

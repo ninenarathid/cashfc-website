@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import type { GalleryPost } from "@/lib/gallery";
@@ -94,13 +94,15 @@ export default function GalleryGrid(
                 </div>
               ) : null}
 
-              {isAdmin && (
-                <button onClick={() => setHidden(p.id, !p.hidden)}
-                        title={p.hidden ? t("gallery.restore") : t("gallery.hide")}
-                        className={`absolute right-2 top-2 rounded-md border px-2 py-0.5 text-[11px] opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100 ${
-                          p.hidden ? "border-jade/60 bg-bg/85 text-jade"
-                                   : "border-chili/60 bg-bg/85 text-chili"}`}>
-                  {p.hidden ? t("gallery.restore") : t("gallery.hide")}
+              {/* Restoring is offered on the tile because a hidden picture is
+                  otherwise only reachable by an admin who remembers it exists.
+                  Hiding is not: it lives in the lightbox, where somebody has
+                  actually looked at the picture before taking it down. */}
+              {isAdmin && p.hidden && (
+                <button onClick={() => setHidden(p.id, false)}
+                        title={t("gallery.restore")}
+                        className="absolute right-2 top-2 rounded-md border border-jade/60 bg-bg/85 px-2 py-0.5 text-[11px] text-jade">
+                  {t("gallery.restore")}
                 </button>
               )}
 
@@ -117,15 +119,15 @@ export default function GalleryGrid(
       {current && (
         <div role="dialog" aria-modal="true"
              onClick={() => setOpen(null)}
-             className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-bg/85 p-4 backdrop-blur-sm sm:items-center">
+             className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-bg/90 p-2 backdrop-blur-sm sm:p-4">
           <div onClick={(e) => e.stopPropagation()}
-               className="w-full max-w-5xl rounded-2xl border border-line bg-surface p-4 shadow-2xl">
-            <div className="mb-3 flex justify-end">
-              <button onClick={() => setOpen(null)} aria-label={t("common.cancel")}
-                      className="rounded-lg border border-line px-3 py-1 text-[13px] text-muted hover:border-muted hover:text-ink">
-                ✕
-              </button>
-            </div>
+               className="relative w-full max-w-[1400px] rounded-2xl border border-line bg-surface p-3 shadow-2xl sm:p-4">
+            {/* Floated over the picture rather than given a row of its own, so
+                the close button costs no height the image could have had. */}
+            <button onClick={() => setOpen(null)} aria-label={t("common.cancel")}
+                    className="absolute right-4 top-4 z-10 rounded-lg border border-line bg-bg/80 px-3 py-1 text-[13px] text-muted backdrop-blur hover:border-muted hover:text-ink">
+              ✕
+            </button>
             <PostDetail post={current} authors={authors}
                         onDeleted={() => { setOpen(null); onChanged(); }}
                         onChanged={onChanged} />
@@ -139,69 +141,65 @@ export default function GalleryGrid(
 /** Pictures per fetch. Small enough that the first screen arrives quickly. */
 const PAGE = 24;
 
+export type Sort = "hot" | "new" | "top";
+
 /**
- * Everything the gallery needs, a page at a time.
+ * Everything the gallery needs, a page at a time, ordered and searched in the
+ * database.
  *
- * The list is fetched newest first and grows as you reach the bottom, rather
- * than arriving as one enormous request that stalls the first paint. Reactions
- * are counted for each page as it lands — one request for the page instead of
- * one per tile, which is the difference between two requests and twenty-four.
+ * Both used to happen here, over whatever had been scrolled into memory — which
+ * quietly meant "the newest few dozen", so a search could miss a picture that
+ * existed and Top could name the wrong winner. gallery_feed does the work where
+ * the whole table is, and this asks it for one page at a time.
  *
- * Searching and the hot and top orderings work on what has been loaded, and
- * scrolling brings more into range. For a gallery of a few hundred pictures
- * that is the whole set within a few screens; doing it server-side would have
- * meant a materialised view to rank by decayed reactions, which is a lot of
- * machinery for a wall of screenshots.
+ * Changing the sort or the search starts the list again from the top, because
+ * page four of one ordering has nothing to do with page four of another.
  */
-export function useGallery(characterId?: number) {
+export function useGallery(
+  { characterId, sort = "hot", query = "" }:
+  { characterId?: number; sort?: Sort; query?: string } = {},
+) {
   const [supabase] = useState(createClient);
   const [posts, setPosts] = useState<GalleryPost[]>([]);
   const [authors, setAuthors] = useState<Record<string, Author>>({});
-  const [counts, setCounts] = useState<Record<number, Counts>>({});
   const [isAdmin, setIsAdmin] = useState(false);
   const [ready, setReady] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  // Held in a ref as well as in state: two scroll events can fire before React
+  // In a ref as well as in state: two scroll events can fire before React
   // re-renders, and without this the same page is fetched twice.
   const busy = useRef(false);
+  // Every fetch carries the query it belongs to, so a slow first page cannot
+  // land after a faster second one and overwrite it.
+  const run = useRef(0);
 
   const fetchPage = useCallback(async (from: number, replace: boolean) => {
     if (!supabase) { setReady(true); setHasMore(false); return; }
     if (busy.current) return;
     busy.current = true;
     setLoading(true);
+    const ticket = replace ? ++run.current : run.current;
 
-    let q = supabase.from("gallery_posts")
-      .select("id, author_id, character_id, image_url, width, height, caption, created_at, hidden")
-      .order("created_at", { ascending: false })
-      .range(from, from + PAGE - 1);
-    if (characterId != null) q = q.eq("character_id", characterId);
-    const { data } = await q;
-    const rows = (data as GalleryPost[]) ?? [];
+    const { data, error } = await supabase.rpc("gallery_feed", {
+      p_sort: sort,
+      p_query: query.trim() || null,
+      p_limit: PAGE,
+      p_offset: from,
+      p_character: characterId ?? null,
+    });
 
+    if (ticket !== run.current) { busy.current = false; return; }
+
+    const rows = (error ? [] : (data as GalleryPost[])) ?? [];
     setPosts((prev) => {
       if (replace) return rows;
-      // Guards against a row shifting between pages — a picture posted while
-      // somebody is scrolling would otherwise appear twice.
       const seen = new Set(prev.map((x) => x.id));
       return [...prev, ...rows.filter((r) => !seen.has(r.id))];
     });
     setHasMore(rows.length === PAGE);
 
-    const ids = rows.map((r) => r.id);
-    if (ids.length) {
-      const [likeRows, commentRows] = await Promise.all([
-        supabase.from("gallery_likes").select("post_id").in("post_id", ids),
-        supabase.from("gallery_comments").select("post_id").in("post_id", ids),
-      ]);
-      const tally: Record<number, Counts> = {};
-      for (const id of ids) tally[id] = { likes: 0, comments: 0 };
-      for (const r of (likeRows.data ?? []) as { post_id: number }[]) tally[r.post_id].likes++;
-      for (const r of (commentRows.data ?? []) as { post_id: number }[]) tally[r.post_id].comments++;
-      setCounts((prev) => (replace ? tally : { ...prev, ...tally }));
-
-      const authorIds = [...new Set(rows.map((r) => r.author_id))];
+    const authorIds = [...new Set(rows.map((r) => r.author_id))];
+    if (authorIds.length) {
       const { data: profs } = await supabase.from("profiles")
         .select("id, character_id, character_name, display_name, discord_username, discord_avatar")
         .in("id", authorIds);
@@ -218,14 +216,13 @@ export function useGallery(characterId?: number) {
       }
       setAuthors((prev) => (replace ? map : { ...prev, ...map }));
     } else if (replace) {
-      setCounts({});
       setAuthors({});
     }
 
     setReady(true);
     setLoading(false);
     busy.current = false;
-  }, [supabase, characterId]);
+  }, [supabase, sort, query, characterId]);
 
   const reload = useCallback(async () => {
     setHasMore(true);
@@ -248,7 +245,19 @@ export function useGallery(characterId?: number) {
     })();
   }, [supabase]);
 
+  // Sort and search are part of fetchPage's identity, so this restarts the list
+  // whenever either changes.
   useEffect(() => { void fetchPage(0, true); }, [fetchPage]);
+
+  // The counts now travel on the row itself, kept by database triggers, so the
+  // grid no longer needs a second query to know them.
+  const counts = useMemo(() => {
+    const out: Record<number, Counts> = {};
+    for (const p of posts) {
+      out[p.id] = { likes: p.like_count ?? 0, comments: p.comment_count ?? 0 };
+    }
+    return out;
+  }, [posts]);
 
   return { posts, authors, counts, isAdmin, ready, hasMore, loading, loadMore, reload };
 }

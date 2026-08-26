@@ -15,6 +15,9 @@ export interface GalleryPost {
   created_at: string;
   /** Taken down by an admin. Non-admins never receive these rows at all. */
   hidden?: boolean | null;
+  /** Kept on the row by database triggers so the feed can rank by them. */
+  like_count?: number | null;
+  comment_count?: number | null;
 }
 
 export interface GalleryComment {
