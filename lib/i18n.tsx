@@ -166,6 +166,14 @@ const DICT = {
     th: "เปิดรูปนั้นไม่ได้ ลองอัพโหลดไฟล์แทน",
   },
   "profile.shareCard": { en: "Sharing your page", th: "การ์ดตอนแชร์ลิงก์" },
+  "profile.shareOwn": {
+    en: "Using its own picture",
+    th: "ใช้รูปของการ์ดนี้เอง",
+  },
+  "profile.shareFromCover": {
+    en: "Using your cover — set one cut for this shape if the edges get lost",
+    th: "ใช้รูปปกอยู่ — ถ้าขอบภาพโดนตัดหาย ตั้งรูปเฉพาะของการ์ดนี้ได้",
+  },
   "profile.shareCardHint": {
     en: "This is what Discord shows when somebody pastes a link to your page. It follows your portrait and cover.",
     th: "นี่คือสิ่งที่ Discord จะแสดงเวลามีคนแปะลิงก์หน้าของคุณ จะเปลี่ยนตามรูปโปรไฟล์และรูปปกที่คุณตั้งไว้",

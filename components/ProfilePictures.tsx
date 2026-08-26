@@ -22,6 +22,12 @@ import ImageCropper from "@/components/ImageCropper";
  * Taking one down is a first-class option rather than an afterthought. It puts
  * the Lodestone portrait back, which means nobody can end up stuck with a
  * picture they regret and no way back to the default.
+ *
+ * The share card gets a third picture because it is a third shape. A banner is
+ * wide and short; a share card is nearly square beside it, so using the banner
+ * for both kept the middle three fifths and lost whoever was standing at the
+ * edges of a group shot. It is optional and falls back to the cover — most
+ * people will never set it, and the ones who do are the ones who noticed.
  */
 
 /** The site draws avatars at 40–96px; 512 keeps them sharp on a retina screen
@@ -30,8 +36,11 @@ const AVATAR = { w: 512, h: 512 };
 /** Wide and short, so it reads as a banner behind the name rather than as a
  *  second picture competing with the portrait in front of it. */
 const COVER = { w: 1600, h: 500 };
+/** The shape every link unfurler settled on, so the card is cut for its frame
+ *  rather than squeezed out of one meant for something else. */
+const SHARE = { w: 1200, h: 630 };
 
-type Kind = "avatar" | "cover";
+type Kind = "avatar" | "cover" | "share";
 interface Shot { id: number; url: string }
 
 export default function ProfilePictures(
@@ -46,6 +55,7 @@ export default function ProfilePictures(
   const [me, setMe] = useState<string | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [cover, setCover] = useState<string | null>(null);
+  const [share, setShare] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   // Stamped on mount as well as on every change: the card is cached, and a
@@ -60,16 +70,34 @@ export default function ProfilePictures(
   const [shots, setShots] = useState<Shot[] | null>(null);
   const file = useRef<HTMLInputElement | null>(null);
 
+  // Three pictures, one set of controls. Naming the column and the setter once
+  // each keeps a third picture from meaning a third copy of every branch.
+  const COLUMN: Record<Kind, string> = {
+    avatar: "avatar_url", cover: "cover_url", share: "share_url",
+  };
+  const SETTER: Record<Kind, (v: string | null) => void> = {
+    avatar: setAvatar, cover: setCover, share: setShare,
+  };
+
   const load = useCallback(async () => {
     if (!supabase) return;
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) return;
     setMe(user.user.id);
-    const { data } = await supabase.from("profiles")
-      .select("avatar_url, cover_url").eq("id", user.user.id).maybeSingle();
-    const p = data as { avatar_url?: string | null; cover_url?: string | null } | null;
+    // One rung of fallback: share_url arrives with a migration, and an unknown
+    // column fails the whole select rather than just that field.
+    let { data } = await supabase.from("profiles")
+      .select("avatar_url, cover_url, share_url").eq("id", user.user.id).maybeSingle();
+    if (!data) {
+      ({ data } = await supabase.from("profiles")
+        .select("avatar_url, cover_url").eq("id", user.user.id).maybeSingle());
+    }
+    const p = data as {
+      avatar_url?: string | null; cover_url?: string | null; share_url?: string | null;
+    } | null;
     setAvatar(p?.avatar_url ?? null);
     setCover(p?.cover_url ?? null);
+    setShare(p?.share_url ?? null);
   }, [supabase]);
 
   useEffect(() => { void load(); }, [load]);
@@ -151,12 +179,11 @@ export default function ProfilePictures(
       .upload(path, blob, { cacheControl: "31536000", upsert: false, contentType: "image/jpeg" });
     if (up.error) { setBusy(false); setErr(up.error.message); return; }
     const { data: pub } = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(path);
-    const column = kind === "avatar" ? "avatar_url" : "cover_url";
     const { error } = await supabase.from("profiles")
-      .update({ [column]: pub.publicUrl }).eq("id", me);
+      .update({ [COLUMN[kind]]: pub.publicUrl }).eq("id", me);
     setBusy(false);
     if (error) { setErr(error.message); return; }
-    if (kind === "avatar") setAvatar(pub.publicUrl); else setCover(pub.publicUrl);
+    SETTER[kind](pub.publicUrl);
     if (source) { URL.revokeObjectURL(source); setSource(null); }
     setKind(null);
     setStamp(Date.now());
@@ -165,16 +192,15 @@ export default function ProfilePictures(
   async function clear(which: Kind) {
     if (!supabase || !me) return;
     setBusy(true);
-    const column = which === "avatar" ? "avatar_url" : "cover_url";
-    await supabase.from("profiles").update({ [column]: null }).eq("id", me);
+    await supabase.from("profiles").update({ [COLUMN[which]]: null }).eq("id", me);
     setBusy(false);
-    if (which === "avatar") setAvatar(null); else setCover(null);
+    SETTER[which](null);
     setStamp(Date.now());
   }
 
   if (!me) return null;
 
-  const shown = kind === "avatar" ? AVATAR : COVER;
+  const shown = kind === "avatar" ? AVATAR : kind === "share" ? SHARE : COVER;
 
   return (
     <section className="mt-3 rounded-xl border border-line bg-surface p-4">
@@ -190,7 +216,8 @@ export default function ProfilePictures(
       {source && kind ? (
         <div className="mt-3">
           <div className="mb-2 font-data text-[11px] uppercase tracking-[0.14em] text-accent">
-            {kind === "avatar" ? t("profile.picAvatar") : t("profile.picCover")}
+            {kind === "avatar" ? t("profile.picAvatar")
+              : kind === "share" ? t("profile.shareCard") : t("profile.picCover")}
           </div>
           <ImageCropper src={source} outWidth={shown.w} outHeight={shown.h}
                         round={kind === "avatar"} busy={busy}
@@ -311,6 +338,26 @@ export default function ProfilePictures(
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/member/${characterId}/opengraph-image?v=${stamp}`}
                      alt="" className="mt-2 w-full rounded-md border border-line" />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[12px] text-muted">
+                  {share ? t("profile.shareOwn") : t("profile.shareFromCover")}
+                </span>
+                <button onClick={() => openGallery("share")} disabled={busy}
+                        className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+                  {t("profile.picFromGallery")}
+                </button>
+                <button onClick={() => { setKind("share"); file.current?.click(); }}
+                        disabled={busy}
+                        className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+                  {t("profile.picUpload")}
+                </button>
+                {share && (
+                  <button onClick={() => clear("share")} disabled={busy}
+                          className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
+                    {t("profile.picRemove")}
+                  </button>
+                )}
               </div>
             </div>
           )}

@@ -6,6 +6,11 @@ import {
   ACHV_TIER_HELP, ACHV_TIER_HELP_TH, ACHV_TIER_LABEL, CONTENT_LABEL, ultimateAbbr,
 } from "@/lib/types";
 import { useLang, type Lang } from "@/lib/i18n";
+// Moved out so the share-card renderer, which runs on the server, can name and
+// colour a tag the same way the board does. Re-exported because every caller
+// already reaches for them here, and the two lists must never disagree.
+import { TAG_COLOR, TAG_LABELS, tagText } from "@/lib/tags";
+export { TAG_COLOR, TAG_LABELS, tagText };
 import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
 import TagIcon from "@/components/TagIcon";
 
@@ -16,15 +21,6 @@ import TagIcon from "@/components/TagIcon";
  * Order matters — raid standing first, then the playstyles derived from rare
  * achievements. This game is not only raiding and the tags should not imply it is.
  */
-export const TAG_LABELS: Record<string, string> = {
-  all: "All",
-  "tier-clear": "Tier cleared", prog: "Progging",
-  ultimate: "Ultimate", veteran: "Veteran", extreme: "Extreme",
-  crafter: "Crafter", gatherer: "Gatherer", relic: "Relic grinder",
-  explorer: "Explorer", treasure: "Treasure hunter", goldsaucer: "Gold Saucer",
-  seasonal: "Seasonal", pvp: "PvP", oldtimer: "Old-timer",
-  casual: "Casual", unknown: "No data",
-};
 
 export const TAG_HELP: Record<string, string> = {
   "tier-clear": "Cleared every boss of the current savage tier",
@@ -120,21 +116,7 @@ export const TAG_CLASS: Record<string, string> = {
   unknown: "border-dashed border-line text-muted",
 };
 
-/** The same palette as TAG_CLASS, as hex, for charts that cannot use classes. */
-export const TAG_COLOR: Record<string, string> = {
-  "tier-clear": "#d14b3a", prog: "#a8483c",
-  ultimate: "#e5cc80", veteran: "#a05a5a", extreme: "#a87fd8",
-  crafter: "#c98a5b", gatherer: "#6aa84f", relic: "#b07ce8",
-  explorer: "#4fa8b8", treasure: "#d9a441", goldsaucer: "#e07bb0",
-  seasonal: "#8fa3d9", pvp: "#7ea6c9", oldtimer: "#a58b6a",
-  casual: "#8b97a8", unknown: "#55493a",
-};
 
-/** "Legendary crafter" reads better than "Legendary Crafter" mid-sentence. */
-export function tagText(tag: string, tier?: string): string {
-  const base = TAG_LABELS[tag] ?? tag;
-  return tier ? `${ACHV_TIER_LABEL[tier]} ${base.toLowerCase()}` : base;
-}
 
 /** Legendary outranks Master outranks Expert; anything ungraded comes last. */
 const CHIP_RANK: Record<string, number> = { legendary: 3, master: 2, expert: 1 };
