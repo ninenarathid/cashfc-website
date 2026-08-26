@@ -54,6 +54,9 @@ export default async function Page(
       extremeTotal={(data.extremes ?? []).length}
       tierLabels={data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"]}
       agg={agg}
+      // Names only — enough to search when tagging somebody in a picture, and a
+      // fraction of the size of shipping the roster with its avatars.
+      memberOptions={data.members.map((x) => ({ id: x.id, name: x.name }))}
       fc={{ name: data.fc.name, world: data.fc.world, region: data.fc.region ?? "JP" }}
     />
   );

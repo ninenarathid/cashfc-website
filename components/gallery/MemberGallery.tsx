@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { GALLERY_PUBLIC_KEY } from "@/lib/gallery";
 import GalleryGrid, { LoadMore, useGallery } from "@/components/gallery/GalleryGrid";
+import type { Roster } from "@/lib/gallery";
+import type { MemberOption } from "@/components/gallery/MemberPicker";
 
 /**
  * Somebody's own pictures, on their own page.
@@ -14,11 +16,18 @@ import GalleryGrid, { LoadMore, useGallery } from "@/components/gallery/GalleryG
  * posted nothing — an empty "Screenshots" heading on four hundred member pages
  * would be worse than the feature not existing.
  */
-export default function MemberGallery({ characterId }: { characterId: number }) {
+export default function MemberGallery(
+  { characterId, name, avatar, memberOptions = [] }:
+  { characterId: number; name?: string; avatar?: string | null;
+    memberOptions?: MemberOption[] },
+) {
   const { t } = useLang();
   const [visible, setVisible] = useState(false);
   const { posts, authors, counts, images, isAdmin, ready, hasMore, loading,
           loadMore, reload } = useGallery({ characterId });
+  // Only one member appears on this page, so the roster it needs is one entry.
+  const roster: Roster = name
+    ? { [characterId]: { name, avatar: avatar ?? null } } : {};
 
   useEffect(() => {
     const supabase = createClient();
@@ -47,7 +56,8 @@ export default function MemberGallery({ characterId }: { characterId: number }) 
         </Link>
       </h2>
       <GalleryGrid posts={posts} authors={authors} counts={counts}
-                   images={images} isAdmin={isAdmin} onChanged={reload} />
+                   images={images} roster={roster} memberOptions={memberOptions}
+                   isAdmin={isAdmin} onChanged={reload} />
       <LoadMore onVisible={loadMore} active={hasMore && !loading} />
     </section>
   );

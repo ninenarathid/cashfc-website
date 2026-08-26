@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { MAX_UPLOAD_BYTES, uploadOne } from "@/lib/gallery";
+import MemberPicker from "@/components/gallery/MemberPicker";
 
 /**
  * Posting a screenshot.
@@ -17,7 +18,7 @@ import { MAX_UPLOAD_BYTES, uploadOne } from "@/lib/gallery";
  * The storage policy files uploads under the uploader's own id, so the database
  * would refuse a forged one regardless of what this component believes.
  */
-interface Option { id: number; name: string }
+interface Option { id: number; name: string; avatar?: string | null }
 
 export default function GalleryUpload(
   { onPosted, memberOptions = [] }:
@@ -40,6 +41,10 @@ export default function GalleryUpload(
   // Who the picture is by, when that is not the person uploading it.
   const [creditPick, setCreditPick] = useState("");
   const [credited, setCredited] = useState<Option | null>(null);
+  // Everybody else in the shot. Written after the post exists, since a tag has
+  // to point at a post id — and each one only reaches the tagged member's page
+  // after they agree to it.
+  const [tags, setTags] = useState<Option[]>([]);
 
   // A real effect, not a useState initialiser doing side effects: React is free
   // to call an initialiser twice, which would have meant two auth round-trips.
@@ -130,11 +135,21 @@ export default function GalleryUpload(
 
     if (error || !post) { setBusy(false); setErr(error?.message ?? "insert failed"); return; }
 
+    const postId = (post as { id: number }).id;
     const { error: imgErr } = await supabase.from("gallery_images").insert(
       uploaded.map((u, i) => ({
-        post_id: (post as { id: number }).id,
+        post_id: postId,
         url: u.url, width: u.width, height: u.height, position: i,
       })));
+
+    // Tags are the one part allowed to fail quietly: the picture is up either
+    // way, and losing a post over a name that can be added again from the
+    // lightbox would be the worse trade.
+    if (tags.length) {
+      await supabase.from("gallery_tags").insert(tags.map((o) => ({
+        post_id: postId, character_id: o.id, name: o.name,
+      })));
+    }
 
     setBusy(false);
     if (imgErr) { setErr(imgErr.message); return; }
@@ -142,8 +157,14 @@ export default function GalleryUpload(
     setCaption("");
     setCredited(null);
     setCreditPick("");
+    setTags([]);
     onPosted();
   }
+
+  // The uploader's own character, when they have one, for the one-tap self tag.
+  const myself = me?.characterId
+    ? memberOptions.find((o) => o.id === me.characterId) ?? null
+    : null;
 
   if (gate === "loading") return null;
 
@@ -233,6 +254,47 @@ export default function GalleryUpload(
           <input value={caption} onChange={(e) => setCaption(e.target.value.slice(0, 300))}
                  placeholder={t("gallery.captionPlaceholder")}
                  className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
+
+          {/* Who else is in it. A group shot belongs to everybody in it, and a
+              tag puts the picture on their page as well as this one — but only
+              once they have agreed to it. */}
+          <div className="rounded-lg border border-line bg-card p-3">
+            <div className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              {t("gallery.tagTitle")}
+            </div>
+            {tags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {tags.map((o) => (
+                  <span key={o.id}
+                        className="flex items-center gap-1.5 rounded-full border border-line bg-surface py-0.5 pl-2.5 pr-1.5 font-data text-[12.5px] text-ink">
+                    {o.name}
+                    <button onClick={() => setTags((v) => v.filter((x) => x.id !== o.id))}
+                            aria-label={t("gallery.tagRemove")}
+                            className="rounded-full border border-line px-1.5 text-[11px] text-muted hover:border-chili hover:text-chili">
+                      ✕
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mt-2">
+              <MemberPicker options={memberOptions}
+                            exclude={tags.map((o) => o.id)}
+                            placeholder={t("gallery.tagAdd")}
+                            onPick={(o) => setTags((v) => [...v, o])} />
+            </div>
+            {/* Tagging yourself is its own consent, so it counts straight away
+                — worth one button rather than typing your own name. */}
+            {myself && !tags.some((o) => o.id === myself.id) && (
+              <button onClick={() => setTags((v) => [...v, myself])}
+                      className="mt-2 rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
+                + {t("gallery.tagMyself")}
+              </button>
+            )}
+            <p className="mt-2 text-[11.5px] leading-relaxed text-muted">
+              {t("gallery.tagHint")}
+            </p>
+          </div>
           <div className="flex flex-wrap gap-2">
             <button onClick={upload} disabled={busy}
                     className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-[13.5px] text-accent hover:bg-accent/25 disabled:opacity-50">

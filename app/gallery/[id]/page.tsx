@@ -97,7 +97,7 @@ export default async function Page(
   return (
     <GalleryPage
       openId={Number(id) || null}
-      memberOptions={data.members.map((m) => ({ id: m.id, name: m.name }))}
+      memberOptions={data.members.map((m) => ({ id: m.id, name: m.name, avatar: m.avatar ?? null }))}
     />
   );
 }

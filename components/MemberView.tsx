@@ -36,6 +36,7 @@ const DEFAULT_BANNER = "linear-gradient(135deg,#151b25,#22304a)";
 
 export default function MemberView({
   m, raids, tierLabels, agg, fc, rareAchievements = [], extremeTotal,
+  memberOptions = [],
 }: {
   m: Member;
   raids: MemberRaids | null;
@@ -45,6 +46,8 @@ export default function MemberView({
   tierLabels: string[];
   agg: { mounts: (number | null)[]; minions: (number | null)[]; rare: (number | null)[] };
   fc: { name: string; world: string; region: string };
+  /** The roster to search when tagging somebody in a gallery picture. */
+  memberOptions?: { id: number; name: string }[];
 }) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
@@ -556,8 +559,6 @@ export default function MemberView({
         </section>
       )}
 
-      <MemberGallery characterId={m.id} />
-
       {/* Shown only when somebody actually filled it in — an empty grid would
           read as "never free" rather than "never answered". */}
       {!isEmpty(ov?.availability) && (
@@ -590,6 +591,12 @@ export default function MemberView({
           <CollectionHelp state={collectState} characterId={m.id} />
         )}
       </section>
+      {/* Last on the page on purpose: somebody with a lot of screenshots
+          should be able to reach them and keep scrolling, rather than having
+          the rest of their profile appear underneath the pictures. */}
+      <MemberGallery characterId={m.id} name={m.name} avatar={m.avatar ?? null}
+                     memberOptions={memberOptions} />
+
     </main>
   );
 }

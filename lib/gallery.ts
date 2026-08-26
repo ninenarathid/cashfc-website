@@ -102,3 +102,32 @@ export function measure(file: File): Promise<{ width: number; height: number } |
 
 /** Where one picture lives, for sharing and for the Discord embed. */
 export const postPath = (id: number) => `/gallery/${id}`;
+
+/**
+ * The roster, keyed by character, for putting a face and a name to a picture.
+ *
+ * Read from the Lodestone rather than from the poster's account, so a member who
+ * has never signed in — or signed in but not verified — still appears as their
+ * character rather than as a blank circle. It is the picture of them that
+ * everybody in the FC would recognise, which is the whole job of the byline.
+ */
+export type Roster = Record<number, { name: string; avatar: string | null }>;
+
+/**
+ * Somebody else who is in the picture.
+ *
+ * Points at a character rather than an account, because most of the people in a
+ * group shot have never signed in here — a tag that only worked for members with
+ * accounts would miss most of the FC.
+ *
+ * The confirmation is the whole point of the row: a null confirmed_at means the
+ * name has been written on the picture but the person has not agreed to it, and
+ * until they do the picture stays off their page entirely.
+ */
+export interface GalleryTag {
+  post_id: number;
+  character_id: number;
+  name: string;
+  confirmed_at: string | null;
+  created_at?: string;
+}

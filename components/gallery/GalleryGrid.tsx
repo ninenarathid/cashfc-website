@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
-import type { GalleryImage, GalleryPost } from "@/lib/gallery";
+import type { GalleryImage, GalleryPost, Roster } from "@/lib/gallery";
+import type { MemberOption } from "@/components/gallery/MemberPicker";
 import PostDetail from "@/components/gallery/PostDetail";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
@@ -36,11 +37,31 @@ export interface Counts { likes: number; comments: number }
  * in the background — a page quietly swapping images nobody is looking at is
  * just work.
  */
+/**
+ * How far from square a tile is allowed to get.
+ *
+ * Letting every picture keep its exact shape sounded right and looked wrong: one
+ * portrait shot four times taller than it is wide swallowed an entire column and
+ * pushed everything under it off the screen, leaving the column beside it empty.
+ * Anything within these bounds is shown exactly as it was taken; anything beyond
+ * them is framed to the nearest bound, which crops rather than squashes.
+ */
+const MIN_RATIO = 0.68;   // tallest allowed, a little narrower than 3:4
+const MAX_RATIO = 2.1;    // widest allowed, about a cinematic panorama
+
+function tileRatio(w?: number | null, h?: number | null): number | null {
+  if (!w || !h) return null;
+  return Math.min(MAX_RATIO, Math.max(MIN_RATIO, w / h));
+}
+
 function TileImage(
   { post, images, index }: { post: GalleryPost; images: GalleryImage[]; index: number },
 ) {
   const many = images.length > 1;
   const [i, setI] = useState(0);
+  // The space is already reserved, so a picture arriving can fade in rather
+  // than snapping into a hole — which is what makes a long scroll feel calm.
+  const [shown, setShown] = useState(false);
 
   useEffect(() => {
     if (!many) return;
@@ -62,15 +83,23 @@ function TileImage(
     };
   }, [many, images.length, index]);
 
-  const shape = post.width && post.height
-    ? { aspectRatio: `${post.width} / ${post.height}` } : undefined;
+  const ratio = tileRatio(post.width, post.height);
+  const natural = post.width && post.height ? post.width / post.height : null;
+  // Only the extremes are cropped; everything in between keeps its own shape.
+  const cropped = ratio != null && natural != null
+    && Math.abs(ratio - natural) > 0.001;
+  const shape = ratio ? { aspectRatio: String(ratio) } : undefined;
 
   if (!many) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img src={post.image_url} alt={post.caption ?? ""} loading="lazy"
            width={post.width ?? undefined} height={post.height ?? undefined}
-           style={shape} className="block h-auto w-full" />
+           style={shape}
+           onLoad={() => setShown(true)}
+           className={`block w-full transition-opacity duration-500 ${
+             shown ? "opacity-100" : "opacity-0"} ${
+             cropped ? "size-full object-cover" : "h-auto"}`} />
     );
   }
 
@@ -87,11 +116,14 @@ function TileImage(
 }
 
 export default function GalleryGrid(
-  { posts, authors, counts, images, onChanged, initialOpen, isAdmin = false }: {
+  { posts, authors, counts, images, roster = {}, memberOptions = [],
+    onChanged, initialOpen, isAdmin = false }: {
     posts: GalleryPost[];
     authors: Record<string, Author>;
     counts: Record<number, Counts>;
     images: Record<number, GalleryImage[]>;
+    roster?: Roster;
+    memberOptions?: MemberOption[];
     onChanged: () => void;
     initialOpen?: number | null;
     isAdmin?: boolean;
@@ -135,7 +167,7 @@ export default function GalleryGrid(
           at a fixed measure, but a wall of screenshots wants the whole window.
           Fewer columns than before, so each picture is roughly twice the size —
           the point of a gallery is looking at them, not counting them. */}
-      <div className="relative left-1/2 right-1/2 -mx-[50vw] mt-4 w-screen columns-1 gap-3 px-4 sm:columns-2 xl:columns-3">
+      <div className="relative left-1/2 right-1/2 -mx-[50vw] mt-4 w-screen columns-1 gap-3 px-4 sm:columns-2 xl:columns-3 2xl:columns-4">
         {posts.map((p, idx) => {
           const c = counts[p.id];
           const shots = images[p.id] ?? [];
@@ -212,7 +244,8 @@ export default function GalleryGrid(
                 ✕ {t("gallery.close")}
               </button>
             </div>
-            <PostDetail post={current} authors={authors}
+            <PostDetail post={current} authors={authors} roster={roster}
+                        memberOptions={memberOptions}
                         onDeleted={() => { setOpen(null); onChanged(); }}
                         onChanged={onChanged} />
           </div>

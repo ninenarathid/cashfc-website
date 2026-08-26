@@ -6,9 +6,11 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import {
   postPath, uploadOne,
-  type GalleryComment, type GalleryImage, type GalleryPost,
+  type GalleryComment, type GalleryImage, type GalleryPost, type Roster,
 } from "@/lib/gallery";
 import Carousel from "@/components/gallery/Carousel";
+import PostTags from "@/components/gallery/PostTags";
+import type { MemberOption } from "@/components/gallery/MemberPicker";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
 
@@ -25,9 +27,13 @@ interface Author { id: string; name: string; characterId: number | null; avatar:
  * enforced by the table's primary key rather than by the button.
  */
 export default function PostDetail(
-  { post, authors, onDeleted, onChanged, compact = false }: {
+  { post, authors, roster = {}, memberOptions = [],
+    onDeleted, onChanged, compact = false }: {
     post: GalleryPost;
     authors: Record<string, Author>;
+    roster?: Roster;
+    /** The roster to search when tagging. Empty where tagging is not offered. */
+    memberOptions?: MemberOption[];
     onDeleted?: (id: number) => void;
     onChanged?: () => void;
     compact?: boolean;
@@ -41,6 +47,9 @@ export default function PostDetail(
   const [draft, setDraft] = useState("");
   const [me, setMe] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  // Only a verified character counts here: confirming a tag is a statement that
+  // you are that person, so an unproven claim to the name cannot make it.
+  const [myCharacter, setMyCharacter] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -74,15 +83,28 @@ export default function PostDetail(
     setLiked(!!uid && ids.includes(uid));
     setComments((commentRows.data as GalleryComment[]) ?? []);
     if (uid) {
-      const { data: prof } = await supabase
-        .from("profiles").select("is_admin").eq("id", uid).maybeSingle();
-      setIsAdmin(!!(prof as { is_admin?: boolean } | null)?.is_admin);
+      const { data: prof } = await supabase.from("profiles")
+        .select("is_admin, character_id, character_verified_at")
+        .eq("id", uid).maybeSingle();
+      const row = prof as {
+        is_admin?: boolean; character_id?: number | null;
+        character_verified_at?: string | null;
+      } | null;
+      setIsAdmin(!!row?.is_admin);
+      setMyCharacter(row?.character_verified_at ? row.character_id ?? null : null);
     }
   }, [supabase, post.id]);
 
   useEffect(() => { void load(); }, [load]);
 
   const author = authors[post.author_id];
+  // The character this picture belongs to, whether or not its owner has an
+  // account here. Falls back to the uploading account only when the post is not
+  // tied to a character at all — a guest with nothing linked.
+  const character = post.character_id ? roster[post.character_id] : undefined;
+  const shownName = post.credited_name ?? character?.name ?? author?.name ?? "—";
+  const shownAvatar = character?.avatar
+    ?? (post.credited_name ? null : author?.avatar ?? null);
   const mine = !!me && me === post.author_id;
   const canDelete = mine || isAdmin;
   // The author owns their words; an admin can fix a caption that has to go
@@ -185,35 +207,23 @@ export default function PostDetail(
           comments running the full width of a 1600px screenshot are a chore. */}
       <div className="mx-auto flex w-full max-w-3xl min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* No avatar on a credited post: it would be the uploading admin's,
-              which is the one thing the byline is not about. */}
-          {!post.credited_name && author?.avatar && (
+          {shownAvatar && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={author.avatar} alt="" className="size-8 rounded-full border border-line" />
+            <img src={shownAvatar} alt=""
+                 className="size-8 rounded-full border border-line object-cover" />
           )}
           <div className="min-w-0 flex-1">
             {/* Credited to whoever the picture is of, which is not always the
                 account that uploaded it — an admin can post for a member who
                 never signs in. */}
-            {post.credited_name ? (
-              post.character_id ? (
-                <Link href={`/member/${post.character_id}`}
-                      className="font-data text-[13.5px] font-semibold text-ink no-underline hover:text-accent">
-                  {post.credited_name}
-                </Link>
-              ) : (
-                <span className="font-data text-[13.5px] font-semibold text-ink">
-                  {post.credited_name}
-                </span>
-              )
-            ) : author?.characterId ? (
-              <Link href={`/member/${author.characterId}`}
+            {post.character_id ? (
+              <Link href={`/member/${post.character_id}`}
                     className="font-data text-[13.5px] font-semibold text-ink no-underline hover:text-accent">
-                {author.name}
+                {shownName}
               </Link>
             ) : (
               <span className="font-data text-[13.5px] font-semibold text-ink">
-                {author?.name ?? "—"}
+                {shownName}
               </span>
             )}
             <div className="text-[11.5px] text-muted">{when}</div>
@@ -259,6 +269,12 @@ export default function PostDetail(
             )}
           </div>
         )}
+
+        {/* Under the caption and above the buttons: it is part of what the
+            picture says, not one of the things you can do to it. */}
+        <PostTags postId={post.id} options={memberOptions}
+                  canEdit={canEditCaption} isAdmin={isAdmin}
+                  myCharacterId={myCharacter} onChanged={onChanged} />
 
         <div className="flex flex-wrap gap-2">
           <button onClick={toggleLike} disabled={!me || busy}
