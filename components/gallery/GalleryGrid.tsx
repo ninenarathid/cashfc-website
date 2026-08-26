@@ -247,11 +247,18 @@ export default function GalleryGrid(
                className="relative w-full max-w-[1400px] rounded-2xl border border-line bg-surface p-3 shadow-2xl sm:p-4">
             {/* Its own row rather than floated over the picture. Thirty pixels
                 is a cheaper price than a button sitting on somebody's
-                screenshot, which is what everybody opened this to look at. */}
-            <div className="mb-2 flex items-center justify-end">
+                screenshot, which is what everybody opened this to look at.
+                A cross and nothing else: a frame and a word around it were two
+                more things drawn next to a photograph that wanted the room. */}
+            <div className="mb-1 flex items-center justify-end">
               <button onClick={() => setOpen(null)} aria-label={t("gallery.close")}
-                      className="rounded-lg border border-line px-3 py-1 text-[13px] text-muted transition-colors hover:border-muted hover:text-ink">
-                ✕ {t("gallery.close")}
+                      title={t("gallery.close")}
+                      className="grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-card hover:text-ink">
+                <svg viewBox="0 0 24 24" aria-hidden width="19" height="19"
+                     fill="none" stroke="currentColor" strokeWidth="1.9"
+                     strokeLinecap="round">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
               </button>
             </div>
             <PostDetail post={current} authors={authors} roster={roster}

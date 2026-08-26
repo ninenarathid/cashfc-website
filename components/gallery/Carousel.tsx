@@ -15,6 +15,25 @@ import type { GalleryImage } from "@/lib/gallery";
  * anybody tries. The counter is only drawn when there is more than one, so a
  * single-picture post looks exactly as it did before posts could hold several.
  */
+/**
+ * A chevron, drawn.
+ *
+ * The arrows were the characters ‹ and ›, which are punctuation: they inherit a
+ * text font, sit on a baseline rather than in the middle of the button, and come
+ * out a different weight in every face the site might load. A stroked path is the
+ * same shape at every size and centres properly.
+ */
+function Chevron({ back = false }: { back?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden width="22" height="22"
+         fill="none" stroke="currentColor" strokeWidth="2"
+         strokeLinecap="round" strokeLinejoin="round"
+         style={back ? undefined : { transform: "rotate(180deg)" }}>
+      <path d="M15 5l-7 7 7 7" />
+    </svg>
+  );
+}
+
 export default function Carousel(
   { images, onRemove, onToggleHidden, canEdit = false, overlay,
     picking = false, onPickPoint }: {
@@ -33,6 +52,17 @@ export default function Carousel(
   const { t } = useLang();
   const [i, setI] = useState(0);
   const box = useRef<HTMLDivElement | null>(null);
+  // Pictures used to be swapped on the spot, which read as a flicker rather than
+  // as a change. The old one fades out, the new one is put in place while nothing
+  // is visible — which also hides the frame resizing between two different
+  // shapes — and it fades back in once it has actually loaded.
+  const [shown, setShown] = useState(true);
+  const swapping = useRef(false);
+  // The key handler is bound once and must not close over a stale swap; it asks
+  // this for whatever the current one is.
+  const showRef = useRef<(n: number) => void>(() => {});
+  const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (settle.current) clearTimeout(settle.current); }, []);
 
   // Removing the picture you are looking at should not leave the viewer past
   // the end of the list.
@@ -43,8 +73,10 @@ export default function Carousel(
   useEffect(() => {
     if (images.length < 2) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") setI((n) => (n - 1 + images.length) % images.length);
-      if (e.key === "ArrowRight") setI((n) => (n + 1) % images.length);
+      // Through the same path as the arrows, so the keyboard fades too rather
+      // than snapping while the mouse does not.
+      if (e.key === "ArrowLeft") showRef.current(-1);
+      if (e.key === "ArrowRight") showRef.current(1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -53,7 +85,24 @@ export default function Carousel(
   const current = images[i];
   if (!current) return null;
 
-  const go = (d: number) => setI((n) => (n + d + images.length) % images.length);
+  function show(next: number) {
+    if (next === i || swapping.current) return;
+    const still = typeof window !== "undefined"
+      && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (still) { setI(next); return; }
+    swapping.current = true;
+    setShown(false);
+    settle.current = setTimeout(() => {
+      setI(next);
+      // Normally the picture's own onLoad brings it back. This is the promise
+      // that it comes back anyway — a file that never loads should leave an empty
+      // frame, not an empty carousel nobody can get out of.
+      settle.current = setTimeout(() => { setShown(true); swapping.current = false; }, 900);
+    }, 170);
+  }
+
+  const go = (d: number) => show((i + d + images.length) % images.length);
+  showRef.current = go;
 
   // A click lands somewhere in the frame; a tag has to be somewhere in the
   // picture. They are the same thing only because the frame is sized to the
@@ -76,10 +125,16 @@ export default function Carousel(
          className={`group/photo relative mx-auto w-fit max-w-full ${
            picking ? "cursor-crosshair" : ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={current.url} alt=""
+      <img key={current.url} src={current.url} alt=""
            width={current.width ?? undefined} height={current.height ?? undefined}
            draggable={false}
-           className="block max-h-[78vh] w-auto max-w-full rounded-xl border border-line bg-bg" />
+           onLoad={() => {
+             if (settle.current) { clearTimeout(settle.current); settle.current = null; }
+             setShown(true);
+             swapping.current = false;
+           }}
+           className={`block max-h-[78vh] w-auto max-w-full rounded-xl border border-line bg-bg transition-opacity duration-300 ${
+             shown ? "opacity-100" : "opacity-0"}`} />
 
       {overlay?.(current)}
 
@@ -93,23 +148,26 @@ export default function Carousel(
 
       {images.length > 1 && (
         <>
+          {/* Quiet until the pointer is over the picture, and never quite
+              invisible on a touch screen where there is no hover to wait for.
+              A round target big enough to hit without aiming. */}
           <button onClick={() => go(-1)} aria-label={t("gallery.prev")}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-line bg-bg/75 px-3 py-2 text-ink backdrop-blur transition-colors hover:bg-bg">
-            ‹
+                  className="absolute left-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-bg/45 text-ink/85 opacity-0 shadow-lg backdrop-blur-sm transition-all duration-200 hover:bg-bg/80 hover:text-ink group-hover/photo:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100">
+            <Chevron back />
           </button>
           <button onClick={() => go(1)} aria-label={t("gallery.next")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-line bg-bg/75 px-3 py-2 text-ink backdrop-blur transition-colors hover:bg-bg">
-            ›
+                  className="absolute right-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-bg/45 text-ink/85 opacity-0 shadow-lg backdrop-blur-sm transition-all duration-200 hover:bg-bg/80 hover:text-ink group-hover/photo:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100">
+            <Chevron />
           </button>
-          <div className="absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-bg/75 px-2.5 py-1 font-data text-[11.5px] text-ink backdrop-blur">
+          <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-bg/55 px-2.5 py-1 font-data text-[11.5px] text-ink/90 opacity-0 backdrop-blur transition-opacity duration-200 group-hover/photo:opacity-100 [@media(hover:none)]:opacity-100">
             {t("gallery.imageOf", { n: i + 1, total: images.length })}
           </div>
           <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
             {images.map((img, n) => (
-              <button key={img.id} onClick={() => setI(n)}
+              <button key={img.id} onClick={() => show(n)}
                       aria-label={t("gallery.imageOf", { n: n + 1, total: images.length })}
-                      className={`size-2 rounded-full transition-colors ${
-                        n === i ? "bg-accent" : "bg-ink/40 hover:bg-ink/70"}`} />
+                      className={`rounded-full shadow transition-all duration-200 ${
+                        n === i ? "size-2.5 bg-accent" : "size-2 bg-ink/45 hover:bg-ink/80"}`} />
             ))}
           </div>
         </>
