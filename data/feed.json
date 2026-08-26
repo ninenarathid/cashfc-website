@@ -2,6 +2,251 @@
  "events": [
   {
    "date": "2026-08-26",
+   "type": "level_100",
+   "id": 24228478,
+   "name": "Pyrozus Helison",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 42349146,
+   "name": "Henzski Celestial",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 47494518,
+   "name": "Farcia Soluna",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 7283668,
+   "name": "Nowhere Man",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 33387937,
+   "name": "R'bael Senkou",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 25619696,
+   "name": "Taro Yeon",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 28127069,
+   "name": "Jim Carried",
+   "text": "set a new best parse: 94"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 28127069,
+   "name": "Jim Carried",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 28127069,
+   "name": "Jim Carried",
+   "text": "is now a Expert Black Mage"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 20014912,
+   "name": "Kaede Chan",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 20014912,
+   "name": "Kaede Chan",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 20014912,
+   "name": "Kaede Chan",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 20014912,
+   "name": "Kaede Chan",
+   "text": "is now a Legendary Scholar"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34155014,
+   "name": "Karok Yawn",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34155014,
+   "name": "Karok Yawn",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34155014,
+   "name": "Karok Yawn",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "set a new best parse: 38"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 50417039,
+   "name": "King's Tarotto",
+   "text": "set a new best parse: 11"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 50417039,
+   "name": "King's Tarotto",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 39034125,
+   "name": "Kirin Rin",
+   "text": "set a new best parse: 75"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 39034125,
+   "name": "Kirin Rin",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 48527875,
+   "name": "Kotetsu Bardly",
+   "text": "set a new best parse: 40"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 48527875,
+   "name": "Kotetsu Bardly",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 48527875,
+   "name": "Kotetsu Bardly",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "set a new best parse: 90"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "is now a Expert Warrior"
+  },
+  {
+   "date": "2026-08-26",
    "type": "ult_clear",
    "id": 47221226,
    "name": "Destiny Marjory",
@@ -1153,251 +1398,6 @@
    "type": "ult_clear",
    "id": 31236337,
    "name": "Whitefrost Marionette",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 36261473,
-   "name": "Cheryl Klenovich",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 47540663,
-   "name": "Edel Meither",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 11950156,
-   "name": "Rothe Happer",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 58455997,
-   "name": "Salmon Sushiroll",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 26298391,
-   "name": "Yozora Luna",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "set a new best parse: 15"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 48152565,
-   "name": "Yuma Miretmoor",
-   "text": "set a new best parse: 89"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 48152565,
-   "name": "Yuma Miretmoor",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "set a new best parse: 88"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "boss_clear",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "boss_clear",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "boss_clear",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "boss_clear",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 34172006,
-   "name": "Zion Zoen",
-   "text": "set a new best parse: 44"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "ult_clear",
-   "id": 34172006,
-   "name": "Zion Zoen",
-   "text": "cleared an Ultimate — Legend! 🏆"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "parse_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "set a new best parse: 93"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "cleared M10S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "boss_clear",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "cleared M12S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-24",
-   "type": "ult_clear",
-   "id": 24313144,
-   "name": "Oxyy Genn",
    "text": "cleared an Ultimate — Legend! 🏆"
   }
  ]
