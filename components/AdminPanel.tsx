@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { NOTICE_KEY } from "@/components/home/ShowYourData";
+import { GALLERY_PUBLIC_KEY } from "@/lib/gallery";
 import ImagePicker from "@/components/ImagePicker";
 
 interface Option { id: number; name: string }
@@ -45,6 +46,8 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   const [invite, setInvite] = useState("");
   // Defaults to on, matching the notice itself: no row means nobody has retired it yet.
   const [noticeOn, setNoticeOn] = useState(true);
+  // Starts closed: the gallery goes to the whole FC when an admin says so.
+  const [galleryOn, setGalleryOn] = useState(false);
 
   const [overrides, setOverrides] = useState<Override[]>([]);
   const [pick, setPick] = useState("");
@@ -78,6 +81,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       if (r.key === "discord_server_id") setServerId(r.value ?? "");
       if (r.key === "discord_invite_url") setInvite(r.value ?? "");
       if (r.key === NOTICE_KEY) setNoticeOn(r.value !== "off");
+      if (r.key === GALLERY_PUBLIC_KEY) setGalleryOn(r.value === "on");
     }
     setOverrides((o.data as Override[]) ?? []);
     setClaims((c.data as ClaimedProfile[]) ?? []);
@@ -175,6 +179,36 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           </button>
           <span className="text-[12.5px] text-muted">
             {noticeOn ? "Click to hide it" : "Click to show it again"}
+          </span>
+        </div>
+      </section>
+
+      {/* ── Gallery visibility ── */}
+      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
+        <div className="font-display font-semibold">Gallery</div>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+          Members post screenshots to /gallery and they appear on their own member
+          page too. Closed means admins only — the rows are readable either way, so
+          this is about who is shown the page, not about hiding the pictures.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={async () => {
+              const next = galleryOn ? "off" : "on";
+              const { error } = await supabase!.from("site_settings").upsert([
+                { key: GALLERY_PUBLIC_KEY, value: next, updated_at: new Date().toISOString() },
+              ]);
+              if (!error) setGalleryOn(!galleryOn);
+              flash(error ? "Save failed (has migration_v9.sql been run?)"
+                          : next === "on" ? "Gallery is open to everyone" : "Gallery is admins only");
+            }}
+            className={`rounded-lg border px-4 py-2 ${
+              galleryOn ? "border-jade bg-jade/15 text-jade hover:bg-jade/25"
+                        : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+            {galleryOn ? "Open to everyone" : "Admins only"}
+          </button>
+          <span className="text-[12.5px] text-muted">
+            {galleryOn ? "Click to close it again" : "Click to open it to the FC"}
           </span>
         </div>
       </section>

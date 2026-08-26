@@ -35,6 +35,53 @@ const DICT = {
   "nav.profile": { en: "My profile", th: "โปรไฟล์ของฉัน" },
   "nav.admin": { en: "Admin panel", th: "หน้าผู้ดูแล" },
   "nav.language": { en: "Language", th: "ภาษา" },
+  "nav.gallery": { en: "Gallery", th: "แกลเลอรี" },
+
+  // ── Gallery ─────────────────────────────────────────────────────────
+  "gallery.eyebrow": { en: "Gallery", th: "แกลเลอรี" },
+  "gallery.title": { en: "Screenshots", th: "รูปจากสมาชิก" },
+  "gallery.intro": {
+    en: "GPose shots and anything else worth showing. Click a picture to open it, leave a popoto or a comment, or copy a link to send to somebody.",
+    th: "รูป GPose หรืออะไรก็ตามที่อยากอวด กดที่รูปเพื่อเปิดดู แล้วให้ popoto คอมเมนต์ หรือก็อปลิงก์ไปส่งให้คนอื่นดูได้",
+  },
+  "gallery.empty": {
+    en: "Nothing here yet — be the first to post something.",
+    th: "ยังไม่มีรูปเลย เป็นคนแรกก็ได้นะ",
+  },
+  "gallery.post": { en: "Post a picture", th: "โพสต์รูป" },
+  "gallery.posting": { en: "Posting…", th: "กำลังโพสต์…" },
+  "gallery.choose": { en: "Choose a picture", th: "เลือกรูป" },
+  "gallery.limits": { en: "PNG or JPG, up to 8MB", th: "PNG หรือ JPG ไม่เกิน 8MB" },
+  "gallery.captionPlaceholder": {
+    en: "Say something about it (optional)",
+    th: "เขียนอะไรสักหน่อยก็ได้ (ไม่ใส่ก็ได้)",
+  },
+  "gallery.notImage": { en: "That is not an image", th: "ไฟล์นี้ไม่ใช่รูป" },
+  "gallery.tooBig": { en: "Too big — the limit is 8MB", th: "ไฟล์ใหญ่เกิน จำกัดที่ 8MB" },
+  "gallery.noBucket": {
+    en: "Storage is not set up yet — run supabase/migration_v9.sql",
+    th: "ยังไม่ได้ตั้งค่าที่เก็บไฟล์ — ต้องรัน supabase/migration_v9.sql ก่อน",
+  },
+  "gallery.gateAnon": {
+    en: "Sign in to post a picture.",
+    th: "ต้องเข้าสู่ระบบก่อนถึงจะโพสต์รูปได้",
+  },
+  "gallery.gateUnverified": {
+    en: "Posting needs a character you have verified as yours — it takes a minute.",
+    th: "การโพสต์ต้องยืนยันตัวละครของตัวเองก่อน ใช้เวลาแป๊บเดียว",
+  },
+  "gallery.popoto": { en: "Popoto", th: "Popoto" },
+  "gallery.share": { en: "Copy link", th: "ก็อปลิงก์" },
+  "gallery.copied": { en: "Link copied", th: "ก็อปแล้ว" },
+  "gallery.comments": { en: "Comments", th: "คอมเมนต์" },
+  "gallery.noComments": { en: "No comments yet", th: "ยังไม่มีคอมเมนต์" },
+  "gallery.writeComment": { en: "Write a comment…", th: "เขียนคอมเมนต์…" },
+  "gallery.send": { en: "Send", th: "ส่ง" },
+  "gallery.signInToReact": {
+    en: "Sign in to leave a popoto or a comment",
+    th: "เข้าสู่ระบบเพื่อให้ popoto หรือคอมเมนต์",
+  },
+  "gallery.byMember": { en: "Screenshots", th: "รูปที่โพสต์ไว้" },
 
   // ── Home ────────────────────────────────────────────────────────────
   "home.freeCompany": { en: "Free Company", th: "Free Company" },

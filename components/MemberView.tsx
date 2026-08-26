@@ -11,6 +11,7 @@ import {
 import { percentile } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
 import ProgressBadge from "@/components/ProgressBadge";
+import MemberGallery from "@/components/gallery/MemberGallery";
 import { useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
 import { isEmpty } from "@/lib/availability";
@@ -554,6 +555,8 @@ export default function MemberView({
           </div>
         </section>
       )}
+
+      <MemberGallery characterId={m.id} />
 
       {/* Shown only when somebody actually filled it in — an empty grid would
           read as "never free" rather than "never answered". */}
