@@ -15,7 +15,7 @@ on:
         type: boolean
         default: false
       full_extras:
-        description: "Fetch nameday + race/clan for the whole roster in one run"
+        description: "Fetch title + nameday + race/clan for the whole roster in one run"
         type: boolean
         default: false
 

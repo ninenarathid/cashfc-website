@@ -1792,7 +1792,7 @@ def parse_race_clan(soup) -> dict:
 
 
 def build_character_extras(members: list[dict], batch: int, full: bool) -> None:
-    """Scrape per-character detail (nameday + race/clan) from Lodestone.
+    """Scrape per-character detail (title, nameday, race/clan) from Lodestone.
 
     A single page request covers both, so this stays exactly as gentle on Lodestone
     as the old nameday-only pass. Normally it works through 'batch' characters per
@@ -1856,7 +1856,7 @@ def main() -> None:
     ap.add_argument("--full-history", action="store_true",
                     help="sweep every savage tier ever released (weekly run)")
     ap.add_argument("--full-extras", action="store_true",
-                    help="fetch nameday + race/clan for the whole roster in one run")
+                    help="fetch title + nameday + race/clan for the whole roster in one run")
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--nameday-batch", type=int, default=CONFIG["nameday_batch"])
     ap.add_argument("--collect-delay", type=float, default=CONFIG["delay_collect"])
