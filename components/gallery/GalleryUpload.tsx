@@ -17,8 +17,11 @@ import { MAX_UPLOAD_BYTES, uploadOne } from "@/lib/gallery";
  * The storage policy files uploads under the uploader's own id, so the database
  * would refuse a forged one regardless of what this component believes.
  */
+interface Option { id: number; name: string }
+
 export default function GalleryUpload(
-  { onPosted }: { onPosted: () => void },
+  { onPosted, memberOptions = [] }:
+  { onPosted: () => void; memberOptions?: Option[] },
 ) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
@@ -33,6 +36,10 @@ export default function GalleryUpload(
   // Loaded once by the page and handed down, so the gate is decided in one place.
   const [gate, setGate] = useState<"loading" | "anon" | "unverified" | "ok">("loading");
   const [me, setMe] = useState<{ id: string; characterId: number | null } | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  // Who the picture is by, when that is not the person uploading it.
+  const [creditPick, setCreditPick] = useState("");
+  const [credited, setCredited] = useState<Option | null>(null);
 
   // A real effect, not a useState initialiser doing side effects: React is free
   // to call an initialiser twice, which would have meant two auth round-trips.
@@ -42,10 +49,18 @@ export default function GalleryUpload(
       const { data } = await supabase.auth.getUser();
       if (!data.user) { setGate("anon"); return; }
       const { data: p } = await supabase.from("profiles")
-        .select("character_id, character_verified_at").eq("id", data.user.id).maybeSingle();
-      const row = p as { character_id?: number | null; character_verified_at?: string | null } | null;
+        .select("character_id, character_verified_at, is_admin")
+        .eq("id", data.user.id).maybeSingle();
+      const row = p as {
+        character_id?: number | null; character_verified_at?: string | null;
+        is_admin?: boolean;
+      } | null;
       setMe({ id: data.user.id, characterId: row?.character_id ?? null });
-      setGate(row?.character_id && row?.character_verified_at ? "ok" : "unverified");
+      setIsAdmin(!!row?.is_admin);
+      // An admin posts for other people, so a character of their own is not
+      // what stands between them and the form.
+      setGate(row?.is_admin || (row?.character_id && row?.character_verified_at)
+        ? "ok" : "unverified");
     })();
   }, [supabase]);
 
@@ -103,7 +118,10 @@ export default function GalleryUpload(
     // are seeded here only to satisfy the not-null on image_url.
     const { data: post, error } = await supabase.from("gallery_posts").insert({
       author_id: me.id,
-      character_id: me.characterId,
+      // Whose page it belongs on: the credited member if an admin picked one,
+      // otherwise the uploader's own.
+      character_id: credited?.id ?? me.characterId,
+      credited_name: credited?.name ?? null,
       image_url: uploaded[0].url,
       width: uploaded[0].width,
       height: uploaded[0].height,
@@ -122,6 +140,8 @@ export default function GalleryUpload(
     if (imgErr) { setErr(imgErr.message); return; }
     clear();
     setCaption("");
+    setCredited(null);
+    setCreditPick("");
     onPosted();
   }
 
@@ -141,6 +161,44 @@ export default function GalleryUpload(
   return (
     <div className="rounded-xl border border-line bg-surface p-4">
       <div className="font-display font-semibold">{t("gallery.post")}</div>
+
+      {isAdmin && (
+        <div className="mt-2.5 rounded-lg border border-chili/30 bg-chili/5 px-3 py-2.5">
+          <div className="text-[12.5px] font-medium text-ink">{t("gallery.postFor")}</div>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-muted">
+            {t("gallery.postForHint")}
+          </p>
+          {credited ? (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="font-data text-[13px] text-ink">{credited.name}</span>
+              <button onClick={() => { setCredited(null); setCreditPick(""); }}
+                      className="rounded-md border border-line px-2 py-0.5 text-[11.5px] text-muted hover:border-muted hover:text-ink">
+                {t("gallery.postForMe")}
+              </button>
+            </div>
+          ) : (
+            <div className="mt-2">
+              <input value={creditPick} onChange={(e) => setCreditPick(e.target.value)}
+                     placeholder={t("gallery.findMember")}
+                     className="w-full rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink placeholder:text-muted" />
+              {creditPick.trim().length >= 2 && (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {memberOptions
+                    .filter((o) => o.name.toLowerCase()
+                      .includes(creditPick.trim().toLowerCase()))
+                    .slice(0, 8)
+                    .map((o) => (
+                      <button key={o.id} onClick={() => { setCredited(o); setCreditPick(""); }}
+                              className="rounded-md border border-line bg-card px-2.5 py-1 text-[12.5px] text-ink hover:border-accent hover:text-accent">
+                        {o.name}
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       <input ref={input} type="file" accept="image/*" multiple className="hidden"
              onChange={(e) => {
                pick([...(e.target.files ?? [])]);

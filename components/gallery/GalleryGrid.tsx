@@ -153,13 +153,25 @@ export default function GalleryGrid(
                 </span>
               )}
 
-              {/* Counts on hover only, and only when there is something to say —
-                  a wall of "0 · 0" would be noise on a page that is about the
-                  pictures. Always visible on touch, where there is no hover. */}
-              {(c?.likes || c?.comments) ? (
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end gap-2 rounded-b-xl bg-gradient-to-t from-bg/85 to-transparent px-2.5 pb-2 pt-6 text-[12px] font-medium text-ink opacity-0 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100">
-                  {c.likes > 0 && <span>🥔 {c.likes}</span>}
-                  {c.comments > 0 && <span>💬 {c.comments}</span>}
+              {/* The caption and the counts, on hover. Both are kept off the
+                  tile until then because the wall is for looking at pictures;
+                  the words are what you read once one has caught your eye. The
+                  caption is clamped to two lines — enough to know what it is,
+                  never enough to cover the picture it describes. Always shown
+                  on touch, where there is no hover to wait for. */}
+              {(p.caption || c?.likes || c?.comments) ? (
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-bg/90 via-bg/70 to-transparent px-3 pb-2.5 pt-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+                  {p.caption && (
+                    <p className="line-clamp-2 text-[12.5px] leading-snug text-ink">
+                      {p.caption}
+                    </p>
+                  )}
+                  {(c?.likes || c?.comments) ? (
+                    <div className="mt-1 flex gap-2 text-[12px] font-medium text-ink/85">
+                      {c.likes > 0 && <span>🥔 {c.likes}</span>}
+                      {c.comments > 0 && <span>💬 {c.comments}</span>}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 

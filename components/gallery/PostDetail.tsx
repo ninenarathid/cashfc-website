@@ -190,7 +190,21 @@ export default function PostDetail(
             <img src={author.avatar} alt="" className="size-8 rounded-full border border-line" />
           )}
           <div className="min-w-0 flex-1">
-            {author?.characterId ? (
+            {/* Credited to whoever the picture is of, which is not always the
+                account that uploaded it — an admin can post for a member who
+                never signs in. */}
+            {post.credited_name ? (
+              post.character_id ? (
+                <Link href={`/member/${post.character_id}`}
+                      className="font-data text-[13.5px] font-semibold text-ink no-underline hover:text-accent">
+                  {post.credited_name}
+                </Link>
+              ) : (
+                <span className="font-data text-[13.5px] font-semibold text-ink">
+                  {post.credited_name}
+                </span>
+              )
+            ) : author?.characterId ? (
               <Link href={`/member/${author.characterId}`}
                     className="font-data text-[13.5px] font-semibold text-ink no-underline hover:text-accent">
                 {author.name}
@@ -200,7 +214,12 @@ export default function PostDetail(
                 {author?.name ?? "—"}
               </span>
             )}
-            <div className="text-[11.5px] text-muted">{when}</div>
+            <div className="text-[11.5px] text-muted">
+              {when}
+              {post.credited_name && author?.name && (
+                <> · {t("gallery.uploadedBy", { name: author.name })}</>
+              )}
+            </div>
           </div>
         </div>
 

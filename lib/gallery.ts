@@ -20,6 +20,8 @@ export interface GalleryPost {
   comment_count?: number | null;
   /** How many pictures the post holds, kept on the row by a trigger. */
   image_count?: number | null;
+  /** Set when an admin posted on somebody else's behalf. */
+  credited_name?: string | null;
 }
 
 /**

@@ -17,7 +17,12 @@ import GalleryUpload from "@/components/gallery/GalleryUpload";
  * pictures are a different matter — a hidden one is enforced in the read policy,
  * so it does not leave the database for anybody but an admin.
  */
-export default function GalleryPage({ openId }: { openId?: number | null }) {
+interface Option { id: number; name: string }
+
+export default function GalleryPage(
+  { openId, memberOptions = [] }:
+  { openId?: number | null; memberOptions?: Option[] },
+) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const [allowed, setAllowed] = useState<boolean | null>(null);
@@ -63,7 +68,7 @@ export default function GalleryPage({ openId }: { openId?: number | null }) {
       <h1 className="font-display text-3xl font-bold">{t("gallery.title")}</h1>
 
       <div className="mt-5">
-        <GalleryUpload onPosted={reload} />
+        <GalleryUpload onPosted={reload} memberOptions={memberOptions} />
       </div>
 
       {(posts.length > 0 || typed) && (

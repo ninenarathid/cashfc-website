@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import raw from "@/data/members.json";
+import type { BoardData } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import GalleryPage from "@/components/gallery/GalleryPage";
 
@@ -54,5 +56,11 @@ export default async function Page(
   const { id } = await params;
   // The same gallery, opened on this picture — so closing it leaves you
   // somewhere useful rather than on a dead end.
-  return <GalleryPage openId={Number(id) || null} />;
+  const data = raw as unknown as BoardData;
+  return (
+    <GalleryPage
+      openId={Number(id) || null}
+      memberOptions={data.members.map((m) => ({ id: m.id, name: m.name }))}
+    />
+  );
 }
