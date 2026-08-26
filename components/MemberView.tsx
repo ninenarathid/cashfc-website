@@ -322,9 +322,21 @@ export default function MemberView({
                       className="rounded-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-accent hover:bg-accent/15">
                 🥔 Send popoto{kudos != null ? ` · ${kudos}` : ""}
               </button>
+              {/* Copies the page with a throwaway query on the end. Discord keeps
+                  what it has already unfurled, keyed by URL, so a link it has
+                  seen before shows whatever card it saw then — a portrait since
+                  replaced, a cover since set. This one it has not seen, which
+                  changes nothing about where it goes and everything about
+                  whether it looks again. Same button, same name: nobody should
+                  have to know any of that to share their own page. */}
               <button
-                onClick={() => { navigator.clipboard?.writeText(window.location.href);
-                                 setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                onClick={() => {
+                  const url = `${location.origin}${location.pathname}?v=${
+                    Date.now().toString(36)}`;
+                  navigator.clipboard?.writeText(url);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
                 className="rounded-md border border-line bg-bg/40 px-3 py-1 text-[12.5px] text-ink/70 hover:border-muted hover:text-ink">
                 {copied ? "Copied ✓" : "Share link"}
               </button>
