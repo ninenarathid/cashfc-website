@@ -226,14 +226,22 @@ export default function PostDetail(
     if (!error) { setDraft(""); await load(); }
   }
 
+  /**
+   * Puts the link on the clipboard, and does nothing else.
+   *
+   * It used to hand off to navigator.share where the browser offered it, which
+   * on a desktop means the operating system's share sheet: a panel of contacts
+   * and applications, on top of the picture, over a button that says Copy link.
+   * The button now does what it says. Anybody who wants the sheet has one in
+   * their browser already.
+   */
   async function share() {
     const url = `${location.origin}${postPath(post.id)}`;
     try {
-      if (navigator.share) await navigator.share({ url });
-      else await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
-    } catch { /* dismissed the sheet */ }
+    } catch { /* clipboard refused; nothing useful to say about it */ }
   }
 
   async function remove() {
