@@ -7,6 +7,7 @@ import type { GalleryImage, GalleryPost, Roster } from "@/lib/gallery";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import PostDetail from "@/components/gallery/PostDetail";
 import { useAdmin } from "@/lib/admin";
+import { useCycle } from "@/components/gallery/useCycle";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
 export interface Counts { likes: number; comments: number }
@@ -59,30 +60,10 @@ function TileImage(
   { post, images, index }: { post: GalleryPost; images: GalleryImage[]; index: number },
 ) {
   const many = images.length > 1;
-  const [i, setI] = useState(0);
+  const i = useCycle(images.length, index);
   // The space is already reserved, so a picture arriving can fade in rather
   // than snapping into a hole — which is what makes a long scroll feel calm.
   const [shown, setShown] = useState(false);
-
-  useEffect(() => {
-    if (!many) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    let timer: ReturnType<typeof setInterval> | null = null;
-    const start = () => {
-      timer = setInterval(() => setI((n) => (n + 1) % images.length), 4000);
-    };
-    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
-    const onVisibility = () => (document.hidden ? stop() : start());
-
-    // Staggered so neighbouring tiles are never in step.
-    const delay = setTimeout(start, (index % 5) * 700);
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => {
-      clearTimeout(delay);
-      stop();
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, [many, images.length, index]);
 
   const ratio = tileRatio(post.width, post.height);
   const natural = post.width && post.height ? post.width / post.height : null;

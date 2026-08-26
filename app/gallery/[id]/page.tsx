@@ -31,9 +31,16 @@ export async function generateMetadata(
   // by boilerplate. credited_name wins outright when it is set: a picture an
   // admin put up for somebody is that person's picture, and the uploading
   // account is a record rather than a byline.
+  //
+  // The relationship is named in full because there are two of them. A post
+  // reaches profiles directly through author_id, and again through gallery_likes
+  // — everybody who ever pressed popoto on it. PostgREST will not guess between
+  // the two: it answered 300 and the whole select failed, which is why every
+  // gallery link in Discord had lost its picture and was showing the site's own
+  // description instead. Nothing to do with the post; the query never returned.
   const { data } = await supabase
     .from("gallery_posts")
-    .select("image_url, caption, width, height, character_id, credited_name, image_count, profiles(character_name, display_name, discord_username)")
+    .select("image_url, caption, width, height, character_id, credited_name, image_count, profiles!gallery_posts_author_id_fkey(character_name, display_name, discord_username)")
     .eq("id", Number(id) || -1)
     .maybeSingle();
   const post = data as {
@@ -66,6 +73,20 @@ export async function generateMetadata(
     .filter(Boolean).join(" · ")
     || "A screenshot from the Cafe And SHabu gallery";
 
+  // One picture goes as itself: it is larger and sharper than any card drawn
+  // around it, and cropping somebody's screenshot to fit a frame would be a
+  // strange thing to do to the thing they wanted shown. Several go as a collage,
+  // because an embed shows one image and a post of eight deserves better than
+  // its first one standing in for the rest.
+  const many = (post.image_count ?? 1) > 1;
+  const image = many
+    ? { url: `/gallery/${id}/opengraph-image`, width: 1200, height: 630 }
+    : {
+        url: post.image_url,
+        width: post.width ?? undefined,
+        height: post.height ?? undefined,
+      };
+
   return {
     title,
     description,
@@ -73,16 +94,11 @@ export async function generateMetadata(
       title,
       description,
       siteName: "Cafe And SHabu",
-      images: [{
-        url: post.image_url,
-        width: post.width ?? undefined,
-        height: post.height ?? undefined,
-        alt: post.caption ?? undefined,
-      }],
+      images: [{ ...image, alt: post.caption ?? undefined }],
       type: "article",
     },
     twitter: {
-      card: "summary_large_image", title, description, images: [post.image_url],
+      card: "summary_large_image", title, description, images: [image.url],
     },
   };
 }
