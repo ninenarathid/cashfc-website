@@ -53,6 +53,56 @@ $$;
 
 grant execute on function public.gallery_owner(uuid, bigint) to anon, authenticated;
 
+-- ─── A guard that was answering questions it was not asked ───────────────
+--
+-- v13 added a trigger to stop anybody but an admin posting a picture onto
+-- somebody else's page. It checks the caller on every insert *and every update*,
+-- which is broader than the rule it exists to enforce: an update that touches
+-- only a caption, or a hide, or the cover and count the image triggers keep in
+-- step, has nothing to do with whose page the post is on. Any of those from a
+-- context with no signed-in user — the SQL editor, a maintenance statement, a
+-- future job — was refused with "Verify your character before posting", which is
+-- both wrong and confusing, since nobody was posting anything.
+--
+-- Narrowed to what it guards: on an update it steps aside unless the credited
+-- character or name is actually changing. Inserts are unchanged, so posting is
+-- still gated on a verified character exactly as before.
+create or replace function public.gallery_guard_author()
+returns trigger
+language plpgsql security definer set search_path = public
+as $$
+declare
+  own_character bigint;
+  verified      timestamptz;
+begin
+  if public.is_admin() then
+    return new;                    -- an admin may credit anybody
+  end if;
+
+  if tg_op = 'UPDATE'
+     and new.character_id is not distinct from old.character_id
+     and new.credited_name is not distinct from old.credited_name then
+    return new;
+  end if;
+
+  -- Everybody else posts as themselves, onto their own page, and only once
+  -- they have proved the character is theirs.
+  select character_id, character_verified_at into own_character, verified
+    from public.profiles where id = auth.uid();
+
+  if verified is null or own_character is null then
+    raise exception 'Verify your character before posting to the gallery';
+  end if;
+  if new.character_id is distinct from own_character then
+    raise exception 'You can only post pictures to your own page';
+  end if;
+  if new.credited_name is not null then
+    raise exception 'Only an admin may credit a picture to somebody else';
+  end if;
+  return new;
+end;
+$$;
+
 -- ─── The author's own hide, alongside the admin's ────────────────────────
 alter table public.gallery_posts
   add column if not exists owner_hidden boolean not null default false;
@@ -184,10 +234,6 @@ begin
 end;
 $$;
 
--- Both counts are wrong until something touches every post, so settle them now.
-update public.gallery_posts p
-   set image_count = (select count(*) from public.gallery_images i
-                       where i.post_id = p.id and i.hidden = false);
 
 -- ─── Editing, deleting and tagging follow the same definition ────────────
 -- All of these used to say "the uploader, or an admin", which left the member a
@@ -261,3 +307,15 @@ create policy "gallery tags: confirm or move" on public.gallery_tags for update
                  and pr.character_id = gallery_tags.character_id
                  and pr.character_verified_at is not null)
   );
+
+-- ─── Settle the counts ───────────────────────────────────────────────────
+-- Every existing post still carries a count that includes pictures nobody has
+-- hidden yet, which is the right number today and the wrong one the moment
+-- somebody hides their first. Last in the file on purpose: it is an update on
+-- every post, so it needs the corrected author guard above to already be in
+-- place — running it under the old one is what stopped this migration the first
+-- time, with a complaint about verifying a character to post a picture nobody
+-- was posting.
+update public.gallery_posts p
+   set image_count = (select count(*) from public.gallery_images i
+                       where i.post_id = p.id and i.hidden = false);
