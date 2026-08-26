@@ -11,10 +11,12 @@ import { useAdmin } from "@/lib/admin";
  * Who you are, in the header, and where that can take you.
  *
  * The name is a link and goes where clicking your own face should go: your page,
- * as everybody else sees it. The three destinations behind it are different
- * enough to be worth naming — looking at your page, changing it, and running the
- * site are not the same errand — but not important enough to spend three slots
- * of a header on, so they live under a caret beside the name.
+ * as everybody else sees it. The rest are different enough to be worth naming —
+ * looking at your page, changing it, running the site, and leaving are not the
+ * same errand — but not important enough to spend four slots of a header on, so
+ * they live under a caret beside the name. Signing out sits below a rule: it is
+ * the one entry that is not a place to go, and the one nobody wants to hit while
+ * reaching for the one above it.
  *
  * The admin entry follows the powers switch rather than the database. Off means
  * off: an admin browsing as a member should not be looking at a door nobody else
@@ -131,6 +133,19 @@ export default function AuthButton() {
               {t("nav.admin")}
             </Link>
           )}
+          {/* Below a rule, because it is the one entry here that is not a place
+              to go — and the one nobody wants to hit while reaching for the one
+              above it. */}
+          <div className="my-1 border-t border-line" />
+          <button
+            onClick={async () => {
+              setOpen(false);
+              await supabase.auth.signOut();
+              location.href = "/";
+            }}
+            className={`${item} w-full text-left text-muted hover:text-ink`}>
+            {t("nav.signOut")}
+          </button>
         </div>
       )}
     </div>
