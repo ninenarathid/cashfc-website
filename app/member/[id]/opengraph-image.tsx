@@ -24,6 +24,14 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supab
  * the tags that say how they play. A best-parse number used to sit in the corner
  * in enormous type, which made every shared link an argument about performance —
  * the wrong first impression for a link somebody pastes to introduce themselves.
+ *
+ * The cache header is set here on purpose. Next hands these routes a year of
+ * immutable caching, which is right for a card built only from the build's own
+ * data and wrong for this one: it reads the member's chosen portrait and cover
+ * from the database, so a member who changed their picture would keep serving
+ * the old card until the next deploy. Minutes at the edge instead, with a day of
+ * stale-while-revalidate so the common case is still served instantly from
+ * cache. What Discord does with its own copy afterwards is Discord's business.
  */
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -192,6 +200,12 @@ export default async function Image(
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      headers: {
+        "cache-control":
+          "public, max-age=60, s-maxage=300, stale-while-revalidate=86400",
+      },
+    },
   );
 }

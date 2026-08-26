@@ -48,7 +48,10 @@ export default function ProfilePictures(
   const [cover, setCover] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [stamp, setStamp] = useState(0);
+  // Stamped on mount as well as on every change: the card is cached, and a
+  // member who just changed their portrait is exactly the person who must not be
+  // shown the version from before they changed it.
+  const [stamp, setStamp] = useState(() => Date.now());
 
   // What is being changed, and where the picture for it is coming from.
   const [kind, setKind] = useState<Kind | null>(null);
