@@ -33,6 +33,8 @@ const DICT = {
   "nav.signIn": { en: "Sign in", th: "เข้าสู่ระบบ" },
   "nav.signOut": { en: "Sign out", th: "ออกจากระบบ" },
   "nav.profile": { en: "My profile", th: "โปรไฟล์ของฉัน" },
+  "nav.myPage": { en: "My page", th: "หน้าของฉัน" },
+  "nav.editProfile": { en: "Edit profile", th: "แก้ไขโปรไฟล์" },
   "nav.admin": { en: "Admin panel", th: "หน้าผู้ดูแล" },
   "nav.language": { en: "Language", th: "ภาษา" },
   "nav.gallery": { en: "Gallery", th: "แกลเลอรี" },

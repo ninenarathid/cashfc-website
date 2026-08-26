@@ -20,11 +20,13 @@ interface ClaimedProfile { id: string; discord_username: string | null; characte
 
 const inputCls = "rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted";
 import AdminSwitch from "@/components/AdminSwitch";
+import { useAdmin } from "@/lib/admin";
 import AdminLog from "@/components/AdminLog";
 
 export default function AdminPanel({ memberOptions }: { memberOptions: Option[] }) {
   const [supabase] = useState(createClient);
   const [phase, setPhase] = useState<"loading" | "denied" | "ready">("loading");
+  const { isAdmin: adminMode } = useAdmin();
   const [msg, setMsg] = useState("");
 
   // One form per section, in one of two modes: writing something new, or editing
@@ -118,6 +120,24 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
         Admins only — if you should be an admin, run the grant statement at the end of{" "}
         <b className="text-accent">supabase/schema.sql</b> in the SQL Editor first.
       </div>
+    );
+
+  // An admin who has switched their powers off is browsing as a member, and this
+  // page is one of the things a member does not have. Said plainly rather than
+  // shown as "admins only", which would be a lie, and with the switch to hand so
+  // the answer is one click and not a hunt.
+  if (!adminMode)
+    return (
+      <main className="pt-7">
+        <div className="font-data text-[11px] uppercase tracking-[0.22em] text-chili">Admin</div>
+        <h1 className="font-display text-3xl font-bold">Site admin</h1>
+        <p className="mt-2 max-w-prose text-[13.5px] leading-relaxed text-muted">
+          Your admin powers are switched off, so you are seeing the site the way
+          the rest of the FC does — and this page is not part of that. Turn them
+          back on to carry on.
+        </p>
+        <AdminSwitch />
+      </main>
     );
 
   return (

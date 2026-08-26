@@ -12,6 +12,7 @@ import PendingTags from "@/components/gallery/PendingTags";
 import ProfilePictures from "@/components/ProfilePictures";
 import AdminSwitch from "@/components/AdminSwitch";
 import { useMyFace } from "@/lib/avatars";
+import { useAdmin } from "@/lib/admin";
 import { EMPTY, isEmpty } from "@/lib/availability";
 import SignIn, { PROVIDERS } from "@/components/SignIn";
 
@@ -127,6 +128,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
   const inRoster = charId != null && memberOptions.some((o) => o.id === charId);
   const myFace = useMyFace();
+  const { isAdmin: adminMode } = useAdmin();
 
   async function save() {
     if (!supabase || !user) return;
@@ -203,7 +205,11 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
               : t("profile.guestNoChar")}
           </div>
         </div>
-        {profile?.is_admin && (
+        {/* Follows the switch rather than the row: with the powers off there
+            should be no door here that an ordinary member cannot see. The switch
+            itself is below and reads the row, so this never hides its own way
+            back. */}
+        {adminMode && (
           <Link href="/admin"
                 className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-1.5 text-[13px] text-chili no-underline hover:bg-chili/20">
             Admin panel
