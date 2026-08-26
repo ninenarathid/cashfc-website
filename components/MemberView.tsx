@@ -631,7 +631,23 @@ export default function MemberView({
 
       {/* ── Collection ── */}
       <section className="mt-6">
-        <h2 className="mb-2 font-display text-lg font-semibold">{t("member.collection")}</h2>
+        <h2 className="mb-2 flex flex-wrap items-baseline gap-2.5 font-display text-lg font-semibold">
+          {t("member.collection")}
+          {/* Said on the heading rather than left to the explanation below it. An
+              empty tile is a question, and the answer here is short enough to be
+              the label: nothing is broken and nothing is missing, this member has
+              their achievements set to private. */}
+          {collectState === "private" && (
+            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
+              {t("member.achvPrivate")}
+            </span>
+          )}
+          {collectState === "unknown" && (
+            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
+              {t("member.collectUnknown")}
+            </span>
+          )}
+        </h2>
         <div className="grid grid-cols-3 gap-2.5">
           {pctTile(t("member.mounts"), m.mounts, agg.mounts, "#4fb8a8")}
           {pctTile(t("member.minions"), m.minions, agg.minions, "#7ea6c9")}

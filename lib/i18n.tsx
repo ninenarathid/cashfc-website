@@ -34,6 +34,14 @@ const DICT = {
   "nav.signOut": { en: "Sign out", th: "ออกจากระบบ" },
   "nav.profile": { en: "My profile", th: "โปรไฟล์ของฉัน" },
   "nav.myPage": { en: "My page", th: "หน้าของฉัน" },
+  "member.achvPrivate": {
+    en: "Achievements private",
+    th: "ตั้ง Achievement เป็นส่วนตัว",
+  },
+  "member.collectUnknown": {
+    en: "Not on FFXIV Collect yet",
+    th: "ยังไม่มีข้อมูลใน FFXIV Collect",
+  },
   "nav.editProfile": { en: "Edit profile", th: "แก้ไขโปรไฟล์" },
   "nav.admin": { en: "Admin panel", th: "หน้าผู้ดูแล" },
   "nav.language": { en: "Language", th: "ภาษา" },
