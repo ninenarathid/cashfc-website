@@ -20,6 +20,7 @@ interface ClaimedProfile { id: string; discord_username: string | null; characte
 
 const inputCls = "rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted";
 import AdminSwitch from "@/components/AdminSwitch";
+import AdminLog from "@/components/AdminLog";
 
 export default function AdminPanel({ memberOptions }: { memberOptions: Option[] }) {
   const [supabase] = useState(createClient);
@@ -487,6 +488,10 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           {claims.length === 0 && <div className="text-[13px] text-muted">Nobody has claimed a character yet</div>}
         </div>
       </section>
+
+      {/* Last, because it is the section you come to with a question rather than
+          with something to change. */}
+      <AdminLog />
     </main>
   );
 }

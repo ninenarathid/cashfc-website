@@ -161,6 +161,23 @@ const DICT = {
   "gallery.tagPinned": { en: "Pinned on the picture", th: "ปักหมุดไว้ในรูป" },
   "gallery.tagShowAll": { en: "Show everyone", th: "แสดงแท็กทั้งหมด" },
   "gallery.tagHideAll": { en: "Hide the tags", th: "ซ่อนแท็ก" },
+  "notif.title": { en: "Notifications", th: "การแจ้งเตือน" },
+  "notif.empty": { en: "Nothing new.", th: "ยังไม่มีอะไรใหม่" },
+  "notif.clear": { en: "Clear", th: "ล้างทั้งหมด" },
+  "notif.open": { en: "Open", th: "เปิดดู" },
+  "notif.look": { en: "Look first", th: "ดูรูปก่อน" },
+  "notif.tagged": {
+    en: "{who} tagged you in a picture.",
+    th: "{who} แท็กคุณในรูป",
+  },
+  "notif.commented": {
+    en: "{who} commented on your picture.",
+    th: "{who} คอมเมนต์รูปของคุณ",
+  },
+  "notif.announced": {
+    en: "There is a new announcement.",
+    th: "มีประกาศใหม่",
+  },
   "admin.modeTitle": { en: "Admin powers", th: "สิทธิ์แอดมิน" },
   "admin.modeHint": {
     en: "Turn them off to browse as an ordinary member — no hide buttons, no posting for other people, and a gallery that is only open if it is open to everyone. Nothing about your account changes.",

@@ -9,6 +9,7 @@ import { useLang, type Key } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { GALLERY_PUBLIC_KEY } from "@/lib/gallery";
 import { useAdmin } from "@/lib/admin";
+import NotificationBell from "@/components/NotificationBell";
 
 // Events and Minigames are built but unlinked until that phase is picked up again —
 // their routes 404 in the meantime (see app/events, app/games).
@@ -87,6 +88,9 @@ export default function Nav() {
           );
         })}
         <LangToggle />
+        {/* Beside the face rather than among the tabs: it is about you, not about
+            where you are going, and it renders nothing at all when signed out. */}
+        <NotificationBell />
         <AuthButton />
       </div>
     </nav>
