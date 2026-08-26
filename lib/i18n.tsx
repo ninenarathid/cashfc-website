@@ -88,6 +88,18 @@ const DICT = {
   "gallery.editCaption": { en: "Edit caption", th: "แก้คำบรรยาย" },
   "gallery.save": { en: "Save", th: "บันทึก" },
   "gallery.noCaption": { en: "No caption", th: "ยังไม่มีคำบรรยาย" },
+  "gallery.search": {
+    en: "Search captions or who posted…",
+    th: "ค้นจากคำบรรยาย หรือชื่อคนโพสต์…",
+  },
+  "gallery.sortHot": { en: "Hot right now", th: "กำลังฮิต" },
+  "gallery.sortNew": { en: "Newest", th: "ใหม่สุด" },
+  "gallery.sortTop": { en: "Most popoto", th: "popoto เยอะสุด" },
+  "gallery.loadingMore": { en: "Loading more…", th: "กำลังโหลดเพิ่ม…" },
+  "gallery.nothingFound": {
+    en: "Nothing matches that",
+    th: "ไม่มีรูปที่ตรงกับที่ค้น",
+  },
 
   // ── Home ────────────────────────────────────────────────────────────
   "home.freeCompany": { en: "Free Company", th: "Free Company" },

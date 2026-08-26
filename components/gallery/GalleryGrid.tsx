@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import type { GalleryPost } from "@/lib/gallery";
@@ -136,14 +136,22 @@ export default function GalleryGrid(
   );
 }
 
+/** Pictures per fetch. Small enough that the first screen arrives quickly. */
+const PAGE = 24;
+
 /**
- * Everything the gallery needs in one place: the pictures, who posted them, and
- * how many reactions each has.
+ * Everything the gallery needs, a page at a time.
  *
- * The counts are fetched once for the whole page rather than per tile — four
- * hundred tiles each asking for their own totals is four hundred requests to
- * render one screen. Authors come from profiles rather than from the roster,
- * because a guest with no character can still post.
+ * The list is fetched newest first and grows as you reach the bottom, rather
+ * than arriving as one enormous request that stalls the first paint. Reactions
+ * are counted for each page as it lands — one request for the page instead of
+ * one per tile, which is the difference between two requests and twenty-four.
+ *
+ * Searching and the hot and top orderings work on what has been loaded, and
+ * scrolling brings more into range. For a gallery of a few hundred pictures
+ * that is the whole set within a few screens; doing it server-side would have
+ * meant a materialised view to rank by decayed reactions, which is a lot of
+ * machinery for a wall of screenshots.
  */
 export function useGallery(characterId?: number) {
   const [supabase] = useState(createClient);
@@ -152,27 +160,36 @@ export function useGallery(characterId?: number) {
   const [counts, setCounts] = useState<Record<number, Counts>>({});
   const [isAdmin, setIsAdmin] = useState(false);
   const [ready, setReady] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  // Held in a ref as well as in state: two scroll events can fire before React
+  // re-renders, and without this the same page is fetched twice.
+  const busy = useRef(false);
 
-  const load = useCallback(async () => {
-    if (!supabase) { setReady(true); return; }
-
-    const { data: user } = await supabase.auth.getUser();
-    if (user.user) {
-      const { data: prof } = await supabase
-        .from("profiles").select("is_admin").eq("id", user.user.id).maybeSingle();
-      setIsAdmin(!!(prof as { is_admin?: boolean } | null)?.is_admin);
-    }
+  const fetchPage = useCallback(async (from: number, replace: boolean) => {
+    if (!supabase) { setReady(true); setHasMore(false); return; }
+    if (busy.current) return;
+    busy.current = true;
+    setLoading(true);
 
     let q = supabase.from("gallery_posts")
       .select("id, author_id, character_id, image_url, width, height, caption, created_at, hidden")
       .order("created_at", { ascending: false })
-      .limit(200);
+      .range(from, from + PAGE - 1);
     if (characterId != null) q = q.eq("character_id", characterId);
     const { data } = await q;
     const rows = (data as GalleryPost[]) ?? [];
-    setPosts(rows);
 
-    const ids = rows.map((p) => p.id);
+    setPosts((prev) => {
+      if (replace) return rows;
+      // Guards against a row shifting between pages — a picture posted while
+      // somebody is scrolling would otherwise appear twice.
+      const seen = new Set(prev.map((x) => x.id));
+      return [...prev, ...rows.filter((r) => !seen.has(r.id))];
+    });
+    setHasMore(rows.length === PAGE);
+
+    const ids = rows.map((r) => r.id);
     if (ids.length) {
       const [likeRows, commentRows] = await Promise.all([
         supabase.from("gallery_likes").select("post_id").in("post_id", ids),
@@ -182,11 +199,9 @@ export function useGallery(characterId?: number) {
       for (const id of ids) tally[id] = { likes: 0, comments: 0 };
       for (const r of (likeRows.data ?? []) as { post_id: number }[]) tally[r.post_id].likes++;
       for (const r of (commentRows.data ?? []) as { post_id: number }[]) tally[r.post_id].comments++;
-      setCounts(tally);
-    }
+      setCounts((prev) => (replace ? tally : { ...prev, ...tally }));
 
-    const authorIds = [...new Set(rows.map((p) => p.author_id))];
-    if (authorIds.length) {
+      const authorIds = [...new Set(rows.map((r) => r.author_id))];
       const { data: profs } = await supabase.from("profiles")
         .select("id, character_id, character_name, display_name, discord_username, discord_avatar")
         .in("id", authorIds);
@@ -201,11 +216,61 @@ export function useGallery(characterId?: number) {
           avatar: (r.discord_avatar as string | null) ?? null,
         };
       }
-      setAuthors(map);
+      setAuthors((prev) => (replace ? map : { ...prev, ...map }));
+    } else if (replace) {
+      setCounts({});
+      setAuthors({});
     }
+
     setReady(true);
+    setLoading(false);
+    busy.current = false;
   }, [supabase, characterId]);
 
-  useEffect(() => { void load(); }, [load]);
-  return { posts, authors, counts, isAdmin, ready, reload: load };
+  const reload = useCallback(async () => {
+    setHasMore(true);
+    await fetchPage(0, true);
+  }, [fetchPage]);
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || busy.current) return;
+    void fetchPage(posts.length, false);
+  }, [hasMore, posts.length, fetchPage]);
+
+  useEffect(() => {
+    void (async () => {
+      if (!supabase) return;
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return;
+      const { data: prof } = await supabase
+        .from("profiles").select("is_admin").eq("id", user.user.id).maybeSingle();
+      setIsAdmin(!!(prof as { is_admin?: boolean } | null)?.is_admin);
+    })();
+  }, [supabase]);
+
+  useEffect(() => { void fetchPage(0, true); }, [fetchPage]);
+
+  return { posts, authors, counts, isAdmin, ready, hasMore, loading, loadMore, reload };
+}
+
+/**
+ * The strip at the end of the list that asks for the next page when it comes
+ * into view. Given room below the fold so the next page is already arriving by
+ * the time somebody reaches the bottom.
+ */
+export function LoadMore(
+  { onVisible, active }: { onVisible: () => void; active: boolean },
+) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !active) return;
+    const io = new IntersectionObserver(
+      (entries) => { if (entries.some((e) => e.isIntersecting)) onVisible(); },
+      { rootMargin: "600px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [onVisible, active]);
+  return <div ref={ref} aria-hidden className="h-4" />;
 }

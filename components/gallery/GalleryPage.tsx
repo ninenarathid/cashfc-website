@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { GALLERY_PUBLIC_KEY } from "@/lib/gallery";
-import GalleryGrid, { useGallery } from "@/components/gallery/GalleryGrid";
+import GalleryGrid, { LoadMore, useGallery } from "@/components/gallery/GalleryGrid";
 import GalleryUpload from "@/components/gallery/GalleryUpload";
 
 /**
@@ -21,7 +21,44 @@ export default function GalleryPage({ openId }: { openId?: number | null }) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const [allowed, setAllowed] = useState<boolean | null>(null);
-  const { posts, authors, counts, isAdmin, ready, reload } = useGallery();
+  const { posts, authors, counts, isAdmin, ready, hasMore, loading, loadMore, reload } =
+    useGallery();
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<"hot" | "new" | "top">("hot");
+
+  const shown = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const rows = q
+      ? posts.filter((p) =>
+          (p.caption ?? "").toLowerCase().includes(q)
+          || (authors[p.author_id]?.name ?? "").toLowerCase().includes(q))
+      : posts;
+
+    // Hot is reactions decayed by age, so a picture from this morning with two
+    // popotos can sit above one from last month with five. Halving every four
+    // days is roughly the pace an FC's attention moves at: a good shot stays up
+    // for a week or so and then makes room. Comments count for less than a
+    // popoto because they are cheaper to leave, and the +1 keeps a brand new
+    // picture with no reactions from scoring zero and sinking on arrival.
+    const HALF_LIFE_H = 96;
+    const hot = (p: (typeof posts)[number]) => {
+      const c = counts[p.id];
+      const weight = (c?.likes ?? 0) * 2 + (c?.comments ?? 0) + 1;
+      const hours = (Date.now() - new Date(p.created_at).getTime()) / 3_600_000;
+      return weight * Math.pow(0.5, hours / HALF_LIFE_H);
+    };
+
+    const out = [...rows];
+    if (sort === "new") {
+      out.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    } else if (sort === "top") {
+      out.sort((a, b) => (counts[b.id]?.likes ?? 0) - (counts[a.id]?.likes ?? 0)
+        || b.created_at.localeCompare(a.created_at));
+    } else {
+      out.sort((a, b) => hot(b) - hot(a));
+    }
+    return out;
+  }, [posts, authors, counts, query, sort]);
 
   useEffect(() => {
     void (async () => {
@@ -53,10 +90,48 @@ export default function GalleryPage({ openId }: { openId?: number | null }) {
         <GalleryUpload onPosted={reload} />
       </div>
 
+      {ready && posts.length > 0 && (
+        <div className="mt-5 flex flex-wrap gap-2.5">
+          <input type="search" value={query} onChange={(e) => setQuery(e.target.value)}
+                 placeholder={t("gallery.search")} aria-label={t("gallery.search")}
+                 className="min-w-[200px] flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-muted" />
+          <div className="flex overflow-hidden rounded-lg border border-line"
+               role="group" aria-label={t("gallery.sortHot")}>
+            {([["hot", "gallery.sortHot"], ["new", "gallery.sortNew"],
+               ["top", "gallery.sortTop"]] as const).map(([key, label]) => (
+              <button key={key} onClick={() => setSort(key)}
+                      aria-pressed={sort === key}
+                      className={`px-3 py-2 text-[13px] transition-colors ${
+                        sort === key ? "bg-accent/15 text-accent"
+                                     : "text-muted hover:bg-card hover:text-ink"}`}>
+                {t(label)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {ready && (
-        <GalleryGrid posts={posts} authors={authors} counts={counts}
-                     isAdmin={isAdmin} onChanged={reload}
-                     initialOpen={openId ?? null} />
+        shown.length === 0 && query ? (
+          <div className="mt-4 rounded-xl border border-dashed border-line p-10 text-center text-[13.5px] text-muted">
+            {t("gallery.nothingFound")}
+          </div>
+        ) : (
+          <>
+            <GalleryGrid posts={shown} authors={authors} counts={counts}
+                         isAdmin={isAdmin} onChanged={reload}
+                         initialOpen={openId ?? null} />
+            {/* Kept out of the way while a search is on: filtering the loaded
+                set is the point of the box, and pulling in more pages behind it
+                would make the result shift under the reader. */}
+            {!query && <LoadMore onVisible={loadMore} active={hasMore && !loading} />}
+            {loading && (
+              <p className="py-4 text-center text-[12.5px] text-muted">
+                {t("gallery.loadingMore")}
+              </p>
+            )}
+          </>
+        )
       )}
     </main>
   );
