@@ -57,10 +57,10 @@
    "total": 502,
    "tags": {
     "extreme": 137,
-    "ultimate": 106,
+    "ultimate": 110,
     "tier-clear": 43,
-    "veteran": 82,
-    "unknown": 277,
+    "veteran": 85,
+    "unknown": 274,
     "gatherer": 6,
     "crafter": 7,
     "relic": 10,
@@ -73,9 +73,9 @@
     "seasonal": 4
    },
    "raider": 67,
-   "ultimate": 106,
+   "ultimate": 110,
    "extreme": 137,
-   "unknown": 277,
+   "unknown": 274,
    "final_boss": 43
   }
  ]

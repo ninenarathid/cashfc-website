@@ -3,6 +3,230 @@
   {
    "date": "2026-08-26",
    "type": "parse_up",
+   "id": 26433344,
+   "name": "Oppa' Pkz",
+   "text": "set a new best parse: 26"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 26433344,
+   "name": "Oppa' Pkz",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Legendary Summoner"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 48010347,
+   "name": "Pineapplepipe Pikachu",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 48010347,
+   "name": "Pineapplepipe Pikachu",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 48010347,
+   "name": "Pineapplepipe Pikachu",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 48010347,
+   "name": "Pineapplepipe Pikachu",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "set a new best parse: 54"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 29901287,
+   "name": "Rishima Garaine",
+   "text": "set a new best parse: 56"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 29901287,
+   "name": "Rishima Garaine",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "is now a Master Ninja"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
+   "id": 44926008,
+   "name": "Shiraishi Shu",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 44926008,
+   "name": "Shiraishi Shu",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "ult_clear",
+   "id": 44926008,
+   "name": "Shiraishi Shu",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "job_up",
+   "id": 44926008,
+   "name": "Shiraishi Shu",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-08-26",
+   "type": "parse_up",
    "id": 30559981,
    "name": "Maverick Flourite",
    "text": "set a new best parse: 49"
@@ -1175,230 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "is now a Legendary Paladin"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "is now a Legendary White Mage"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "set a new best parse: 87"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "is now a Master Samurai"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "is now a Master Warrior"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 24123541,
-   "name": "Zeren Dragonia",
-   "text": "is now a Legendary Monk"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "set a new best parse: 78"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 1607774,
-   "name": "Shiomi Shirogane",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 1607774,
-   "name": "Shiomi Shirogane",
-   "text": "is now a Legendary Gunbreaker"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 44926008,
-   "name": "Shiraishi Shu",
-   "text": "is now a Legendary Gunbreaker"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 47715909,
-   "name": "Sleepless Pierrot",
-   "text": "set a new best parse: 23"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "set a new best parse: 96"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 34597671,
-   "name": "Valkyries Zearaskia",
-   "text": "set a new best parse: 96"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 34597671,
-   "name": "Valkyries Zearaskia",
-   "text": "is now a Legendary Sage"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 47423083,
-   "name": "Yueying Hua",
-   "text": "set a new best parse: 45"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 48152565,
-   "name": "Yuma Miretmoor",
-   "text": "is now a Expert Dark Knight"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 48152565,
-   "name": "Yuma Miretmoor",
-   "text": "is now a Expert Gunbreaker"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "set a new best parse: 90"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 34172006,
-   "name": "Zion Zoen",
-   "text": "set a new best parse: 81"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 34172006,
-   "name": "Zion Zoen",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 30714243,
-   "name": "Moona Freed",
-   "text": "set a new best parse: 75"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 17723972,
-   "name": "Naruga Vagrant",
-   "text": "set a new best parse: 82"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "job_up",
-   "id": 17723972,
-   "name": "Naruga Vagrant",
-   "text": "is now a Expert Black Mage"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "set a new best parse: 95"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "job_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "is now a Legendary Pictomancer"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 36151779,
-   "name": "Percival Heisenberg",
-   "text": "set a new best parse: 75"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "job_up",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "is now a Expert Pictomancer"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Phantom of the Umbra: Star Globe Umbrae — only 4.8% of players have it, and 1 more"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "level_100",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-25",
-   "type": "parse_up",
-   "id": 40652404,
-   "name": "Jade Solaire",
-   "text": "set a new best parse: 31"
   }
  ]
 }

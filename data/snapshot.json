@@ -1356,7 +1356,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 69,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -3918,7 +3918,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 82,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -3981,7 +3981,7 @@
   "mounts": 27,
   "minions": 103,
   "rare": null,
-  "level": 100,
+  "level": 86,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -11125,8 +11125,8 @@
  },
  "26433344": {
   "name": "Oppa' Pkz",
-  "parse": null,
-  "ult": 0,
+  "parse": 26,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -11141,8 +11141,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-08-26"
  },
  "56143721": {
   "name": "Owlz Nithz",
@@ -11167,8 +11169,8 @@
  },
  "24313144": {
   "name": "Oxyy Genn",
-  "parse": 95,
-  "ult": 1,
+  "parse": 99,
+  "ult": 5,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -11184,7 +11186,7 @@
   "jobs": {
    "Bard": "expert",
    "Pictomancer": "legendary",
-   "Summoner": "expert"
+   "Summoner": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -11194,9 +11196,13 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "Dragonsong's Reprise"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-26"
  },
  "53019673": {
   "name": "Pallas Raindance",
@@ -11314,7 +11320,7 @@
  "36151779": {
   "name": "Percival Heisenberg",
   "parse": 75,
-  "ult": 0,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -11334,8 +11340,10 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-25"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "718420": {
   "name": "Phantasm Gloria",
@@ -11397,8 +11405,8 @@
  },
  "48010347": {
   "name": "Pineapplepipe Pikachu",
-  "parse": null,
-  "ult": 0,
+  "parse": 99,
+  "ult": 2,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -11411,10 +11419,15 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Summoner": "expert"
+  },
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-26"
  },
  "57711304": {
   "name": "Pola Lis",
@@ -11711,8 +11724,8 @@
  },
  "33487130": {
   "name": "Rimuru Tempesta",
-  "parse": 52,
-  "ult": 1,
+  "parse": 54,
+  "ult": 5,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -11728,9 +11741,13 @@
   "jobs": {},
   "ex": [],
   "ults": [
-   "Dragonsong's Reprise"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "40624820": {
   "name": "Rin Miyauchi",
@@ -11778,8 +11795,8 @@
  },
  "29901287": {
   "name": "Rishima Garaine",
-  "parse": null,
-  "ult": 0,
+  "parse": 56,
+  "ult": 1,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -11794,8 +11811,10 @@
   "tiers": {},
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-08-26"
  },
  "42646897": {
   "name": "Rising Top",
@@ -11863,7 +11882,7 @@
  "39961214": {
   "name": "Ruby Sugarstar",
   "parse": 90,
-  "ult": 1,
+  "ult": 4,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -11879,16 +11898,19 @@
   "jobs": {
    "Monk": "expert",
    "Pictomancer": "expert",
-   "Ninja": "expert"
+   "Ninja": "master"
   },
   "ex": [
    "Doomtrain",
    "Queen Eternal"
   ],
   "ults": [
-   "Dragonsong's Reprise"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "35863038": {
   "name": "Ruka Aeon",
@@ -11914,7 +11936,7 @@
  "29395299": {
   "name": "Runie Run",
   "parse": 79,
-  "ult": 1,
+  "ult": 4,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -11927,12 +11949,17 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Gunbreaker": "expert"
+  },
   "ex": [],
   "ults": [
-   "Dragonsong's Reprise"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "31710850": {
   "name": "Ryoshi Headhunter",
@@ -12230,8 +12257,8 @@
  },
  "44926008": {
   "name": "Shiraishi Shu",
-  "parse": 93,
-  "ult": 1,
+  "parse": 98,
+  "ult": 3,
   "mounts": null,
   "minions": null,
   "rare": null,
@@ -12245,16 +12272,19 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Gunbreaker": "legendary"
+   "Gunbreaker": "legendary",
+   "Summoner": "expert"
   },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [
-   "The Unending Coil of Bahamut"
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-26"
  },
  "50131148": {
   "name": "Shiryu Shadow",
