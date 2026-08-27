@@ -1,6 +1,692 @@
 {
  "events": [
   {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 3968346,
+   "name": "Panuz Chocobunny",
+   "text": "is now a Expert Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 3968346,
+   "name": "Panuz Chocobunny",
+   "text": "is now a Expert Seasonal collector ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 3968346,
+   "name": "Panuz Chocobunny",
+   "text": "earned Date with Destiny VI — only 1.0% of players have it, and 85 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "earned Savage Queen of Swords II — only 2.5% of players have it, and 17 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "is now a Expert Explorer ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "earned Cut Above the Rest: Twinfangs Occultum — only 1.0% of players have it, and 61 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "is now a Expert PvP player ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "earned Worqor and Peace III — only 0.8% of players have it, and 61 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Expert Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Master Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "earned It's a Blunderful Life III — only 1.2% of players have it, and 79 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 42349146,
+   "name": "Henzski Celestial",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 42349146,
+   "name": "Henzski Celestial",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 42349146,
+   "name": "Henzski Celestial",
+   "text": "earned On Top of the Savage World III — only 2.1% of players have it, and 14 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Master Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned Cut Above the Rest: Harp Bow Occultum — only 0.5% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "is now a Master Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned Tour de Fork I — only 0.3% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 5294880,
+   "name": "Mithra Muses",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 5294880,
+   "name": "Mithra Muses",
+   "text": "is now a Expert Seasonal collector ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 5294880,
+   "name": "Mithra Muses",
+   "text": "earned A Wolf in White Robes III — only 3.1% of players have it, and 38 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "is now a Expert Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "earned Tour de Fork I — only 0.3% of players have it, and 84 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "earned Cut Above the Rest: Cane Occultum — only 1.2% of players have it, and 23 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 29090821,
+   "name": "Amber Levana",
+   "text": "earned Think Global, Quest Local VII — only 1.1% of players have it, and 46 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 13860363,
+   "name": "Ayino Kun",
+   "text": "earned Summertime Drifter, and 1 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "is now a Master Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "is now a Master Explorer ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "is now a Expert Treasure hunter ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "earned Archiving the Arcane — only 0.9% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 30293847,
+   "name": "Devy Lanta",
+   "text": "earned A Wolf in Plate Armor II"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "level_100",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 39850923,
+   "name": "Hiro Hikari",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 39850923,
+   "name": "Hiro Hikari",
+   "text": "earned A Show of Fork IV — only 0.1% of players have it, and 79 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 7283668,
+   "name": "Nowhere Man",
+   "text": "earned Mining Your Own Business: La Noscea IV — only 3.3% of players have it, and 8 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "is now a Expert Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 37696532,
+   "name": "Golden Lancer",
+   "text": "earned Fit for a Queen: Blade's Fealty, and 1 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 28163062,
+   "name": "Helga Holybringer",
+   "text": "earned To Each According to His Need: Twin Adder III, and 1 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 2168537,
+   "name": "Idiosy Glorfindel",
+   "text": "earned Oh My Gourd, and 5 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 28012936,
+   "name": "Kouro Moro",
+   "text": "earned On the Payroll VI, and 3 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 24747734,
+   "name": "Liora Verasch",
+   "text": "earned Sustainable Sourcing III — only 2.0% of players have it, and 39 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 3902073,
+   "name": "Namine Raspberyl",
+   "text": "is now a Expert Seasonal collector ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 3902073,
+   "name": "Namine Raspberyl",
+   "text": "earned Horsing About — only 4.2% of players have it, and 14 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 8234305,
+   "name": "Nara Saurus",
+   "text": "earned Aetherpool Party: Daggers — only 4.1% of players have it, and 5 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 36149590,
+   "name": "Neo Anderson",
+   "text": "earned Tank You, Warrior V — only 3.8% of players have it, and 11 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 27302476,
+   "name": "Nesies Ashwood",
+   "text": "earned Mixing It Up: Exemplar, and 1 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 5762434,
+   "name": "Oakley Ale",
+   "text": "earned With Pick in Hand VI — only 3.7% of players have it, and 18 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 32223527,
+   "name": "Odachi Nameless",
+   "text": "earned A Wolf in Plate Armor II, and 3 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "earned Savage Queen of Swords II — only 2.5% of players have it, and 36 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "grade_up",
+   "id": 718420,
+   "name": "Phantasm Gloria",
+   "text": "is now a Expert Old-timer ✨"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 718420,
+   "name": "Phantasm Gloria",
+   "text": "earned I Survived Camp Drybone — only 0.6% of players have it, and 17 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "parse_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "job_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "is now a Expert Dragoon"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "job_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "is now a Master Bard"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "job_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "is now a Legendary Ninja"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "parse_up",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "set a new best parse: 67"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "job_up",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "is now a Expert Samurai"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "rare_up",
+   "id": 36490427,
+   "name": "Waffle Spike",
+   "text": "earned Dear Leader III — only 3.8% of players have it, and 21 more"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "ult_clear",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
    "date": "2026-08-26",
    "type": "parse_up",
    "id": 26433344,
@@ -713,692 +1399,6 @@
    "id": 30559609,
    "name": "Florice Frostingway",
    "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 30559609,
-   "name": "Florice Frostingway",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 30559609,
-   "name": "Florice Frostingway",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 47337818,
-   "name": "Freedom Marjory",
-   "text": "set a new best parse: 19"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 47337818,
-   "name": "Freedom Marjory",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 30333493,
-   "name": "Haruko Sho",
-   "text": "set a new best parse: 67"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 30333493,
-   "name": "Haruko Sho",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 17473430,
-   "name": "Bigon Truesilver",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 5720080,
-   "name": "Bowling Chan",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 5720080,
-   "name": "Bowling Chan",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 5720080,
-   "name": "Bowling Chan",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 24104450,
-   "name": "Cepheus Stellar",
-   "text": "set a new best parse: 45"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 24104450,
-   "name": "Cepheus Stellar",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 24150396,
-   "name": "Chaser Dc",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 31471584,
-   "name": "Chicha Chichi",
-   "text": "set a new best parse: 50"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 31471584,
-   "name": "Chicha Chichi",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 31471584,
-   "name": "Chicha Chichi",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 8999658,
-   "name": "Chzzck Godslayer",
-   "text": "set a new best parse: 87"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 8999658,
-   "name": "Chzzck Godslayer",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 8999658,
-   "name": "Chzzck Godslayer",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 8999658,
-   "name": "Chzzck Godslayer",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 24103365,
-   "name": "Cygnus Stellar",
-   "text": "set a new best parse: 71"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 24103365,
-   "name": "Cygnus Stellar",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 34511319,
-   "name": "Elise Lionheart",
-   "text": "set a new best parse: 29"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 34511319,
-   "name": "Elise Lionheart",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 29389419,
-   "name": "Osilit Bloodhood",
-   "text": "set a new best parse: 56"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 29389419,
-   "name": "Osilit Bloodhood",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 29389419,
-   "name": "Osilit Bloodhood",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 24770177,
-   "name": "Alteria Ferron",
-   "text": "set a new best parse: 14"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 24770177,
-   "name": "Alteria Ferron",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 20400811,
-   "name": "Ariadne Ilsildar",
-   "text": "set a new best parse: 81"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 20400811,
-   "name": "Ariadne Ilsildar",
-   "text": "is now a Master Bard"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 512253,
-   "name": "Ashelia White",
-   "text": "set a new best parse: 88"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 512253,
-   "name": "Ashelia White",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 512253,
-   "name": "Ashelia White",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 512253,
-   "name": "Ashelia White",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 512253,
-   "name": "Ashelia White",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 35158574,
-   "name": "Rikka Haulia",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 8713004,
-   "name": "Shoe Bite",
-   "text": "set a new best parse: 9"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "is now a Expert Gunbreaker"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 30582341,
-   "name": "Sweetpea Swp",
-   "text": "set a new best parse: 95"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 30582341,
-   "name": "Sweetpea Swp",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 31001697,
-   "name": "Flora Neuenmuller",
-   "text": "set a new best parse: 86"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 31001697,
-   "name": "Flora Neuenmuller",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 31001697,
-   "name": "Flora Neuenmuller",
-   "text": "is now a Master Dancer"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 31001781,
-   "name": "Ician Wyra'li",
-   "text": "set a new best parse: 33"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 31001781,
-   "name": "Ician Wyra'li",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 31001781,
-   "name": "Ician Wyra'li",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "set a new best parse: 21"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "boss_clear",
-   "id": 31155521,
-   "name": "Ketchup Love",
-   "text": "cleared M9S for the first time 🎉"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 16099244,
-   "name": "Luna Froggo",
-   "text": "is now a Legendary Gunbreaker"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "set a new best parse: 81"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 33387937,
-   "name": "R'bael Senkou",
-   "text": "set a new best parse: 81"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 33387937,
-   "name": "R'bael Senkou",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Master Warrior"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "set a new best parse: 96"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "is now a Legendary Summoner"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 22767255,
-   "name": "Minami Taira",
-   "text": "is now a Expert Red Mage"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 13533056,
-   "name": "Akemi Rei",
-   "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 13533056,
-   "name": "Akemi Rei",
-   "text": "is now a Legendary Reaper"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "set a new best parse: 95"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "set a new best parse: 80"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "is now a Master Sage"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "is now a Legendary Warrior"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "set a new best parse: 99"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "is now a Legendary Gunbreaker"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Master Sage"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 5294880,
-   "name": "Mithra Muses",
-   "text": "set a new best parse: 69"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "set a new best parse: 88"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "is now a Master Dancer"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "is now a Legendary Monk"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "is now a Legendary Summoner"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "is now a Legendary Red Mage"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "set a new best parse: 99"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "set a new best parse: 55"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Legendary Paladin"
   }
  ]
 }

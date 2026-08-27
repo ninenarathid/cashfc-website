@@ -20637,12 +20637,52 @@
   },
   "ultimates": [
    {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 22,
+    "kills": 1,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
     "name": "Dragonsong's Reprise",
     "best": 76,
     "kills": 10,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 75,
+    "kills": 28,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 95,
+    "kills": 9,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 97,
+    "kills": 12,
     "job": "Samurai",
     "cleared": true
    }
@@ -20838,6 +20878,46 @@
     "kills": 20,
     "job": "Ninja",
     "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 80,
+    "kills": 2,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 85,
+    "kills": 5,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 97,
+    "kills": 6,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 96,
+    "kills": 5,
+    "job": "Ninja",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -21022,6 +21102,36 @@
     "name": "Dragonsong's Reprise",
     "best": 17,
     "kills": 5,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 9,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 52,
+    "kills": 4,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 67,
+    "kills": 13,
     "job": "Samurai",
     "cleared": true
    }
@@ -21322,7 +21432,28 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 40,
+    "kills": 1,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 91,
+    "kills": 13,
+    "job": "Sage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -21792,6 +21923,16 @@
    ]
   },
   "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 48,
+    "kills": 4,
+    "job": "DarkKnight",
+    "cleared": true
+   },
    {
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,

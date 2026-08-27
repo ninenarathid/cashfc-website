@@ -63,9 +63,9 @@
   "name": "Panuz Chocobunny",
   "parse": 57,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 90,
+  "minions": 272,
+  "rare": 86,
   "level": 100,
   "cc": [
    false,
@@ -73,8 +73,98 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   141,
+   147,
+   151,
+   153,
+   157,
+   162,
+   187,
+   189,
+   200,
+   201,
+   225,
+   231,
+   266,
+   267,
+   755,
+   758,
+   776,
+   811,
+   812,
+   874,
+   876,
+   877,
+   1002,
+   1003,
+   1027,
+   1082,
+   1301,
+   1302,
+   1303,
+   1304,
+   1306,
+   1307,
+   1310,
+   1315,
+   1353,
+   1354,
+   1585,
+   1625,
+   1626,
+   1701,
+   1714,
+   1853,
+   1856,
+   1857,
+   1964,
+   2030,
+   2033,
+   2034,
+   2035,
+   2036,
+   2037,
+   2038,
+   2039,
+   2040,
+   2043,
+   2044,
+   2193,
+   2389,
+   2484,
+   2702,
+   3630,
+   3638,
+   3639,
+   3640,
+   3645,
+   3646,
+   3647,
+   3648,
+   3649,
+   3651,
+   3653,
+   3655,
+   3658,
+   3752,
+   3753,
+   3754,
+   3760,
+   3761,
+   3762,
+   3763,
+   3765,
+   3767,
+   3769,
+   3812,
+   3867,
+   3979
+  ],
+  "tiers": {
+   "relic": "expert",
+   "seasonal": "expert"
+  },
   "jobs": {},
   "ex": [
    "Enuo",
@@ -82,14 +172,14 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "14959902": {
   "name": "Notifire Sky",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 48,
   "rare": null,
   "level": 59,
   "cc": [
@@ -103,14 +193,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "28789661": {
   "name": "Zuma Zerk",
   "parse": 100,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 70,
+  "minions": 151,
   "rare": null,
   "level": 100,
   "cc": [
@@ -136,14 +226,14 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "31628293": {
   "name": "Aaaaaaa Yaaaaaa",
   "parse": 96,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 143,
+  "minions": 287,
   "rare": null,
   "level": 99,
   "cc": [
@@ -161,14 +251,14 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "57885671": {
   "name": "Aisu Kazimira",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 14,
+  "minions": 28,
   "rare": null,
   "level": 100,
   "cc": [
@@ -182,14 +272,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "58199536": {
   "name": "Areeya Lovekin",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 70,
+  "minions": 195,
   "rare": null,
   "level": 100,
   "cc": [
@@ -203,7 +293,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -241,8 +331,8 @@
   "name": "Fluffy Tinytail",
   "parse": 99,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 177,
+  "minions": 289,
   "rare": null,
   "level": 100,
   "cc": [
@@ -270,7 +360,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "38041221": {
   "name": "Kori Kona",
@@ -300,8 +390,8 @@
   "name": "Little Eevee",
   "parse": 39,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 67,
+  "minions": 210,
   "rare": null,
   "level": 100,
   "cc": [
@@ -318,7 +408,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "22767255": {
   "name": "Minami Taira",
@@ -528,8 +618,8 @@
   "name": "Whitefrost Marionette",
   "parse": 98,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 75,
+  "minions": 144,
   "rare": null,
   "level": 100,
   "cc": [
@@ -557,14 +647,14 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 0,
+  "minions": 1,
   "rare": null,
   "level": 2,
   "cc": [
@@ -578,7 +668,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "13533056": {
   "name": "Akemi Rei",
@@ -725,8 +815,8 @@
   "name": "Allen Crist",
   "parse": 18,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 121,
+  "minions": 322,
   "rare": null,
   "level": 100,
   "cc": [
@@ -743,14 +833,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "19827594": {
   "name": "Aylufa Regolith",
   "parse": 95,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 213,
+  "minions": 356,
   "rare": null,
   "level": 100,
   "cc": [
@@ -780,14 +870,14 @@
    "The Epic of Alexander",
    "The Omega Protocol"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "45938803": {
   "name": "Blue Mana",
   "parse": 97,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 59,
+  "minions": 92,
   "rare": null,
   "level": 100,
   "cc": [
@@ -812,15 +902,15 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36248712": {
   "name": "Boom Astraea",
   "parse": 80,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 4,
+  "mounts": 74,
+  "minions": 121,
+  "rare": 18,
   "level": 100,
   "cc": [
    false,
@@ -828,7 +918,26 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   1701,
+   1714,
+   1993,
+   2444,
+   2596,
+   2765,
+   2766,
+   3074,
+   3113,
+   3154,
+   3215,
+   3252,
+   3348,
+   3349,
+   3616,
+   3874,
+   3895,
+   3998
+  ],
   "tiers": {},
   "jobs": {
    "Machinist": "expert",
@@ -838,15 +947,20 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-26"
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-27"
  },
  "26699926": {
   "name": "Boonies Princess",
   "parse": 99,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 155,
+  "minions": 188,
   "rare": null,
   "level": 100,
   "cc": [
@@ -876,14 +990,14 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "32147756": {
   "name": "Bunny Nirawz",
   "parse": 95,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 124,
+  "minions": 233,
   "rare": null,
   "level": 100,
   "cc": [
@@ -908,14 +1022,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36261473": {
   "name": "Cheryl Klenovich",
   "parse": 100,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 87,
+  "minions": 220,
   "rare": null,
   "level": 100,
   "cc": [
@@ -940,14 +1054,14 @@
    "Futures Rewritten",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "36130968": {
   "name": "Chu Celestial",
   "parse": 86,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 33,
+  "minions": 99,
   "rare": null,
   "level": 76,
   "cc": [
@@ -971,15 +1085,15 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
   "parse": 97,
-  "ult": 2,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 5,
+  "mounts": 105,
+  "minions": 135,
+  "rare": 62,
   "level": 100,
   "cc": [
    true,
@@ -987,8 +1101,73 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   618,
+   1124,
+   1993,
+   2084,
+   2145,
+   2214,
+   2387,
+   2444,
+   2461,
+   2462,
+   2463,
+   2471,
+   2472,
+   2473,
+   2474,
+   2475,
+   2476,
+   2596,
+   2637,
+   2699,
+   2765,
+   2766,
+   2767,
+   2768,
+   2769,
+   2773,
+   2857,
+   2858,
+   2862,
+   2990,
+   3074,
+   3113,
+   3154,
+   3252,
+   3253,
+   3412,
+   3577,
+   3616,
+   3617,
+   3630,
+   3631,
+   3638,
+   3645,
+   3651,
+   3658,
+   3662,
+   3752,
+   3759,
+   3805,
+   3823,
+   3824,
+   3849,
+   3867,
+   3868,
+   3869,
+   3874,
+   3889,
+   3956,
+   3979,
+   3998,
+   4002,
+   4014
+  ],
+  "tiers": {
+   "explorer": "expert"
+  },
   "jobs": {
    "Viper": "master",
    "Gunbreaker": "expert",
@@ -1005,10 +1184,13 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
-   "The Epic of Alexander"
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -1091,7 +1273,7 @@
    4069
   ],
   "tiers": {
-   "relic": "master"
+   "relic": "expert"
   },
   "jobs": {
    "Monk": "legendary",
@@ -1118,10 +1300,10 @@
  "39199441": {
   "name": "Dodoco Chocodoco",
   "parse": 91,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 3,
+  "mounts": 159,
+  "minions": 239,
+  "rare": 62,
   "level": 100,
   "cc": [
    true,
@@ -1129,8 +1311,73 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   139,
+   145,
+   151,
+   163,
+   169,
+   181,
+   224,
+   950,
+   951,
+   963,
+   1076,
+   1098,
+   1132,
+   1198,
+   1369,
+   1444,
+   1458,
+   1459,
+   1701,
+   1714,
+   1750,
+   2033,
+   2043,
+   2085,
+   2093,
+   2095,
+   2146,
+   2154,
+   2156,
+   2215,
+   2225,
+   2392,
+   2444,
+   2480,
+   2562,
+   2671,
+   2765,
+   2772,
+   2860,
+   2861,
+   2885,
+   2886,
+   3047,
+   3048,
+   3074,
+   3265,
+   3341,
+   3532,
+   3577,
+   3641,
+   3642,
+   3645,
+   3662,
+   3755,
+   3823,
+   3832,
+   3833,
+   3868,
+   3869,
+   3870,
+   3874,
+   3889
+  ],
+  "tiers": {
+   "pvp": "expert"
+  },
   "jobs": {
    "Gunbreaker": "expert",
    "Dragoon": "master"
@@ -1142,16 +1389,20 @@
    "Zelenia",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-27"
  },
  "40389196": {
   "name": "Dontae Luciano",
   "parse": 97,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 5,
+  "mounts": 176,
+  "minions": 325,
+  "rare": 80,
   "level": 100,
   "cc": [
    true,
@@ -1159,8 +1410,92 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   136,
+   564,
+   565,
+   576,
+   577,
+   846,
+   950,
+   951,
+   1198,
+   1369,
+   1370,
+   1439,
+   1444,
+   1453,
+   1458,
+   1463,
+   1473,
+   1474,
+   1475,
+   1588,
+   1591,
+   1603,
+   1604,
+   1701,
+   1705,
+   1714,
+   1718,
+   1750,
+   1962,
+   1993,
+   2036,
+   2040,
+   2088,
+   2092,
+   2093,
+   2149,
+   2153,
+   2154,
+   2218,
+   2223,
+   2392,
+   2444,
+   2637,
+   2693,
+   2699,
+   2765,
+   2766,
+   2768,
+   2770,
+   2773,
+   2775,
+   2777,
+   2778,
+   2780,
+   2857,
+   2859,
+   2860,
+   2864,
+   2866,
+   2867,
+   2869,
+   2871,
+   2885,
+   3001,
+   3074,
+   3113,
+   3162,
+   3252,
+   3253,
+   3317,
+   3318,
+   3348,
+   3349,
+   3350,
+   3405,
+   3406,
+   3407,
+   3412,
+   3662,
+   3805
+  ],
+  "tiers": {
+   "relic": "expert",
+   "goldsaucer": "master"
+  },
   "jobs": {
    "Astrologian": "master",
    "Sage": "expert",
@@ -1171,15 +1506,21 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-24"
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-27"
  },
  "47540663": {
   "name": "Edel Meither",
   "parse": 99,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 63,
+  "minions": 217,
   "rare": null,
   "level": 100,
   "cc": [
@@ -1206,7 +1547,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "28950119": {
   "name": "Einz Aizerces",
@@ -1262,8 +1603,8 @@
   "name": "Fukurou Under",
   "parse": 96,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 174,
+  "minions": 271,
   "rare": null,
   "level": 4,
   "cc": [
@@ -1289,14 +1630,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "12478532": {
   "name": "Hakuryu Flare",
   "parse": 98,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 49,
+  "minions": 115,
   "rare": null,
   "level": 100,
   "cc": [
@@ -1323,14 +1664,14 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
   "parse": 74,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 98,
   "rare": null,
   "level": 100,
   "cc": [
@@ -1347,23 +1688,39 @@
    "Enuo"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42349146": {
   "name": "Henzski Celestial",
   "parse": 98,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
-  "level": 72,
+  "ult": 2,
+  "mounts": 44,
+  "minions": 80,
+  "rare": 15,
+  "level": 77,
   "cc": [
    true,
    true,
    true,
    true
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   153,
+   618,
+   619,
+   770,
+   2444,
+   3074,
+   3473,
+   3805,
+   3823,
+   3868,
+   3869,
+   3870,
+   3889,
+   3898,
+   3979
+  ],
   "tiers": {},
   "jobs": {
    "Paladin": "master",
@@ -1377,15 +1734,18 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-26"
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-08-27"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
   "parse": 48,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 94,
+  "minions": 206,
   "rare": null,
   "level": 100,
   "cc": [
@@ -1407,7 +1767,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -1451,8 +1811,8 @@
   "name": "Komi Kona",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 42,
+  "minions": 130,
   "rare": null,
   "level": 100,
   "cc": [
@@ -1466,14 +1826,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
   "parse": 99,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 102,
+  "minions": 261,
   "rare": null,
   "level": 100,
   "cc": [
@@ -1497,7 +1857,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "38808156": {
   "name": "Kwiyo Ki",
@@ -1627,10 +1987,10 @@
  "30864049": {
   "name": "Lay Stardust",
   "parse": 100,
-  "ult": 2,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 6,
+  "mounts": 205,
+  "minions": 253,
+  "rare": 235,
   "level": 100,
   "cc": [
    true,
@@ -1638,8 +1998,112 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   1329,
+   1330,
+   1335,
+   1463,
+   1468,
+   1474,
+   1867,
+   2007,
+   2008,
+   2089,
+   2092,
+   2095,
+   2150,
+   2153,
+   2156,
+   2219,
+   2462,
+   2463,
+   2471,
+   2472,
+   2473,
+   2474,
+   2475,
+   2476,
+   2513,
+   2542,
+   2727,
+   2766,
+   2767,
+   2786,
+   2865,
+   2930,
+   2932,
+   2996,
+   3074,
+   3162,
+   3307,
+   3308,
+   3309,
+   3338,
+   3348,
+   3349,
+   3350,
+   3362,
+   3363,
+   3364,
+   3365,
+   3366,
+   3367,
+   3368,
+   3369,
+   3468,
+   3470,
+   3471,
+   3472,
+   3476,
+   3617,
+   3631,
+   3667,
+   3668,
+   3674,
+   3677,
+   3754,
+   3762,
+   3770,
+   3771,
+   3794,
+   3796,
+   3818,
+   3819,
+   3823,
+   3842,
+   3852,
+   3859,
+   3861,
+   3868,
+   3869,
+   3870,
+   3874,
+   3883,
+   3884,
+   3890,
+   3897,
+   3898,
+   3937,
+   3938,
+   3959,
+   3966,
+   3979,
+   3998,
+   3999,
+   4000,
+   4002,
+   4003,
+   4004,
+   4006,
+   4007,
+   4014,
+   4015,
+   4017
+  ],
+  "tiers": {
+   "relic": "master",
+   "explorer": "legendary"
+  },
   "jobs": {
    "Bard": "legendary",
    "Dancer": "master",
@@ -1659,18 +2123,22 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
-   "The Epic of Alexander"
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "34509521": {
   "name": "Liliya Quintilis",
   "parse": 95,
-  "ult": 3,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 6,
+  "mounts": 197,
+  "minions": 416,
+  "rare": 184,
   "level": 100,
   "cc": [
    true,
@@ -1678,8 +2146,112 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   147,
+   761,
+   764,
+   767,
+   1319,
+   1328,
+   1335,
+   1337,
+   1339,
+   1463,
+   2095,
+   2156,
+   2489,
+   2766,
+   2872,
+   2930,
+   2932,
+   3074,
+   3155,
+   3156,
+   3162,
+   3253,
+   3307,
+   3308,
+   3309,
+   3310,
+   3338,
+   3339,
+   3340,
+   3348,
+   3349,
+   3350,
+   3362,
+   3363,
+   3364,
+   3365,
+   3366,
+   3367,
+   3368,
+   3369,
+   3428,
+   3467,
+   3469,
+   3470,
+   3471,
+   3472,
+   3581,
+   3617,
+   3630,
+   3631,
+   3632,
+   3642,
+   3643,
+   3648,
+   3656,
+   3657,
+   3668,
+   3674,
+   3756,
+   3757,
+   3762,
+   3765,
+   3766,
+   3770,
+   3771,
+   3772,
+   3793,
+   3794,
+   3795,
+   3796,
+   3797,
+   3798,
+   3811,
+   3818,
+   3819,
+   3823,
+   3846,
+   3847,
+   3852,
+   3855,
+   3856,
+   3859,
+   3860,
+   3861,
+   3862,
+   3868,
+   3869,
+   3870,
+   3874,
+   3898,
+   3937,
+   3979,
+   3998,
+   3999,
+   4002,
+   4006,
+   4007,
+   4010,
+   4014,
+   4015
+  ],
+  "tiers": {
+   "relic": "master",
+   "explorer": "legendary"
+  },
   "jobs": {
    "Scholar": "expert",
    "Sage": "master",
@@ -1697,11 +2269,14 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
    "The Epic of Alexander",
-   "The Omega Protocol"
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "37056222": {
   "name": "Lucine Nokomis",
@@ -1876,10 +2451,10 @@
  "5294880": {
   "name": "Mithra Muses",
   "parse": 69,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 1,
+  "mounts": 104,
+  "minions": 250,
+  "rare": 39,
   "level": 100,
   "cc": [
    false,
@@ -1887,20 +2462,64 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   162,
+   199,
+   201,
+   328,
+   564,
+   576,
+   709,
+   812,
+   846,
+   874,
+   875,
+   876,
+   877,
+   880,
+   881,
+   882,
+   903,
+   1002,
+   1003,
+   1027,
+   1056,
+   1057,
+   1062,
+   1191,
+   1192,
+   1310,
+   1439,
+   1444,
+   1468,
+   1469,
+   1750,
+   1933,
+   1934,
+   1938,
+   2388,
+   2765,
+   3252,
+   3341,
+   3874
+  ],
+  "tiers": {
+   "seasonal": "expert"
+  },
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-08-26"
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-27"
  },
  "5435582": {
   "name": "Mog Hikarino",
   "parse": 88,
-  "ult": 1,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "ult": 5,
+  "mounts": 129,
+  "minions": 246,
+  "rare": 85,
   "level": 100,
   "cc": [
    true,
@@ -1908,8 +2527,97 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   556,
+   691,
+   812,
+   1993,
+   2053,
+   2054,
+   2444,
+   2637,
+   2765,
+   2766,
+   2768,
+   2778,
+   2780,
+   2783,
+   2857,
+   2867,
+   2869,
+   2872,
+   2883,
+   3001,
+   3002,
+   3074,
+   3113,
+   3154,
+   3155,
+   3178,
+   3180,
+   3215,
+   3243,
+   3346,
+   3348,
+   3349,
+   3616,
+   3617,
+   3630,
+   3631,
+   3640,
+   3641,
+   3643,
+   3644,
+   3646,
+   3647,
+   3648,
+   3649,
+   3650,
+   3657,
+   3658,
+   3659,
+   3662,
+   3667,
+   3668,
+   3676,
+   3677,
+   3679,
+   3683,
+   3741,
+   3754,
+   3755,
+   3757,
+   3758,
+   3760,
+   3763,
+   3771,
+   3772,
+   3811,
+   3812,
+   3814,
+   3824,
+   3861,
+   3867,
+   3868,
+   3869,
+   3874,
+   3889,
+   3937,
+   3998,
+   3999,
+   4002,
+   4003,
+   4004,
+   4006,
+   4010,
+   4014,
+   4017,
+   4074
+  ],
+  "tiers": {
+   "relic": "expert",
+   "explorer": "legendary"
+  },
   "jobs": {
    "Dancer": "master"
   },
@@ -1918,9 +2626,13 @@
    "Valigarmanda"
   ],
   "ults": [
-   "Futures Rewritten"
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "26268800": {
   "name": "Mono Sodium",
@@ -1990,8 +2702,8 @@
   "name": "Mumu Nene",
   "parse": 42,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 27,
+  "minions": 54,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2014,7 +2726,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36183541": {
   "name": "Nagi Amano",
@@ -2049,8 +2761,8 @@
   "name": "Nefe'li Lucias",
   "parse": 61,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 193,
+  "minions": 416,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2073,7 +2785,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "5644067": {
   "name": "Ninenine The'phantom",
@@ -2191,8 +2903,8 @@
   "name": "Non Elemental",
   "parse": 100,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 70,
+  "minions": 149,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2220,7 +2932,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "22425670": {
   "name": "Panjasira Niyajama",
@@ -2396,8 +3108,8 @@
   "name": "Rothe Happer",
   "parse": 83,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 48,
+  "minions": 140,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2425,14 +3137,14 @@
    "Dragonsong's Reprise",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "30667251": {
   "name": "Roxas Akatsuki",
   "parse": 55,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 79,
+  "minions": 70,
   "rare": null,
   "level": 93,
   "cc": [
@@ -2452,14 +3164,14 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
   "parse": 100,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 215,
+  "minions": 404,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2490,14 +3202,14 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "58455997": {
   "name": "Salmon Sushiroll",
   "parse": 97,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 64,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2521,7 +3233,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "44133352": {
   "name": "Seville Beoulve",
@@ -2713,8 +3425,8 @@
   "name": "Soft Stone",
   "parse": 64,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 90,
+  "minions": 178,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2732,14 +3444,14 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37648492": {
   "name": "Sunshine Eveningfall",
   "parse": 90,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 51,
+  "minions": 191,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2762,7 +3474,7 @@
    "Dragonsong's Reprise",
    "Futures Rewritten"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "11603711": {
   "name": "Takamina Aamin",
@@ -2879,8 +3591,8 @@
   "name": "Trevas Aka",
   "parse": 9,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 21,
+  "minions": 65,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2898,14 +3610,14 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "26298391": {
   "name": "Yozora Luna",
   "parse": 89,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 47,
+  "minions": 114,
   "rare": null,
   "level": 100,
   "cc": [
@@ -2931,7 +3643,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "29918404": {
   "name": "Zarass Gierlos",
@@ -3076,17 +3788,42 @@
   "name": "Zeadz Stellar",
   "parse": 62,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
-  "level": 100,
+  "mounts": 50,
+  "minions": 124,
+  "rare": 24,
+  "level": 71,
   "cc": [
    true,
    true,
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   560,
+   1713,
+   3655,
+   3658,
+   3676,
+   3769,
+   3772,
+   3805,
+   3832,
+   3859,
+   3862,
+   3874,
+   3889,
+   3966,
+   3979,
+   3986,
+   3987,
+   3988,
+   3989,
+   3990,
+   3998,
+   4002,
+   4003,
+   4014
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [
@@ -3098,14 +3835,14 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "24123541": {
   "name": "Zeren Dragonia",
   "parse": 99,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 68,
+  "minions": 165,
   "rare": null,
   "level": 100,
   "cc": [
@@ -3128,7 +3865,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "12058921": {
   "name": "Heidi Fox",
@@ -3150,8 +3887,8 @@
   "name": "Vivienne Yhisa",
   "parse": 1,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 55,
+  "minions": 110,
   "rare": null,
   "level": 100,
   "cc": [
@@ -3167,14 +3904,14 @@
    "Queen Eternal"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "6951533": {
   "name": "Aemond Targaryen",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 119,
+  "minions": 243,
   "rare": null,
   "level": 94,
   "cc": [
@@ -3188,14 +3925,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "38802422": {
   "name": "Aimday Yeji",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 40,
+  "minions": 125,
   "rare": null,
   "level": 90,
   "cc": [
@@ -3209,16 +3946,16 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "56108574": {
   "name": "Akina Natsume",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 21,
+  "minions": 94,
   "rare": null,
-  "level": 76,
+  "level": 35,
   "cc": [
    false,
    false,
@@ -3230,7 +3967,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -3368,8 +4105,8 @@
   "name": "Aloha Banana",
   "parse": 72,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 199,
+  "minions": 462,
   "rare": null,
   "level": 100,
   "cc": [
@@ -3394,15 +4131,15 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29090821": {
   "name": "Amber Levana",
   "parse": 80,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 163,
+  "minions": 367,
+  "rare": 47,
   "level": 100,
   "cc": [
    false,
@@ -3410,7 +4147,55 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   1337,
+   1339,
+   1453,
+   1473,
+   1474,
+   1584,
+   1943,
+   1983,
+   2033,
+   2077,
+   2137,
+   2193,
+   2387,
+   2596,
+   2633,
+   2745,
+   2749,
+   2750,
+   2768,
+   2772,
+   2775,
+   2844,
+   2845,
+   2857,
+   2861,
+   2864,
+   3001,
+   3068,
+   3171,
+   3172,
+   3178,
+   3180,
+   3181,
+   3185,
+   3215,
+   3243,
+   3317,
+   3318,
+   3341,
+   3548,
+   3554,
+   3609,
+   3811,
+   3823,
+   3824,
+   3867,
+   3889
+  ],
   "tiers": {},
   "jobs": {
    "Reaper": "expert"
@@ -3423,7 +4208,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34434658": {
   "name": "Araiva Leonhart",
@@ -3472,8 +4257,8 @@
   "name": "Arawn A'nnwn",
   "parse": 90,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 118,
+  "minions": 321,
   "rare": null,
   "level": 100,
   "cc": [
@@ -3499,7 +4284,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29339718": {
   "name": "Ashe Fantine",
@@ -3631,9 +4416,9 @@
   "name": "Ayino Kun",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 31,
+  "minions": 95,
+  "rare": 2,
   "level": 100,
   "cc": [
    false,
@@ -3641,12 +4426,15 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   2699,
+   3874
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42215186": {
   "name": "Azelia Tayta",
@@ -3673,8 +4461,8 @@
   "name": "Break Darkflame",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 147,
+  "minions": 420,
   "rare": null,
   "level": 100,
   "cc": [
@@ -3688,14 +4476,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "4026627": {
   "name": "Brisingamen Raw",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 88,
   "rare": null,
   "level": 97,
   "cc": [
@@ -3709,7 +4497,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "44143115": {
   "name": "Chapton Lola",
@@ -3761,9 +4549,9 @@
   "name": "Daffodil Amary",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 175,
+  "minions": 358,
+  "rare": 173,
   "level": 100,
   "cc": [
    false,
@@ -3771,12 +4559,117 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   634,
+   694,
+   846,
+   939,
+   990,
+   1439,
+   1459,
+   1868,
+   1917,
+   1919,
+   2292,
+   2868,
+   2933,
+   2996,
+   3306,
+   3307,
+   3308,
+   3309,
+   3310,
+   3311,
+   3362,
+   3363,
+   3364,
+   3365,
+   3366,
+   3367,
+   3368,
+   3369,
+   3370,
+   3371,
+   3467,
+   3468,
+   3469,
+   3470,
+   3472,
+   3476,
+   3532,
+   3534,
+   3649,
+   3717,
+   3720,
+   3726,
+   3729,
+   3732,
+   3735,
+   3736,
+   3763,
+   3769,
+   3792,
+   3793,
+   3794,
+   3795,
+   3796,
+   3797,
+   3798,
+   3799,
+   3800,
+   3801,
+   3802,
+   3832,
+   3853,
+   3859,
+   3874,
+   3877,
+   3878,
+   3879,
+   3880,
+   3881,
+   3882,
+   3883,
+   3884,
+   3885,
+   3886,
+   3887,
+   3914,
+   3915,
+   3916,
+   3917,
+   3918,
+   3919,
+   3920,
+   3921,
+   3922,
+   3923,
+   3924,
+   3925,
+   3935,
+   3937,
+   3988,
+   3989,
+   3997,
+   3998,
+   3999,
+   4002,
+   4003,
+   4004,
+   4006,
+   4007,
+   4014,
+   4074
+  ],
+  "tiers": {
+   "relic": "master",
+   "explorer": "master",
+   "treasure": "expert"
+  },
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -3812,9 +4705,9 @@
   "name": "Devy Lanta",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 28,
+  "minions": 69,
+  "rare": 1,
   "level": 100,
   "cc": [
    false,
@@ -3822,12 +4715,14 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   1448
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "39959181": {
   "name": "El Blung",
@@ -3866,8 +4761,8 @@
   "name": "Elaina Celestial",
   "parse": 53,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 97,
+  "minions": 121,
   "rare": null,
   "level": 100,
   "cc": [
@@ -3888,14 +4783,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29795820": {
   "name": "Elle Lauren",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 110,
+  "minions": 267,
   "rare": null,
   "level": 58,
   "cc": [
@@ -3909,56 +4804,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42053180": {
   "name": "Elle'kuro Dean'deluca",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
-  "level": 87,
-  "cc": [
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-26"
- },
- "15543487": {
-  "name": "Evageline Akmacdowell",
-  "parse": null,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
-  "level": 90,
-  "cc": [
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-24"
- },
- "16192933": {
-  "name": "Evangeline Ak-mcdowel",
-  "parse": null,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 59,
+  "minions": 151,
   "rare": null,
   "level": 100,
   "cc": [
@@ -3972,7 +4825,49 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
+ },
+ "15543487": {
+  "name": "Evageline Akmacdowell",
+  "parse": null,
+  "ult": 0,
+  "mounts": 19,
+  "minions": 51,
+  "rare": null,
+  "level": 90,
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-27"
+ },
+ "16192933": {
+  "name": "Evangeline Ak-mcdowel",
+  "parse": null,
+  "ult": 0,
+  "mounts": 119,
+  "minions": 193,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-27"
  },
  "47494518": {
   "name": "Farcia Soluna",
@@ -3994,8 +4889,8 @@
   "name": "Firenna Dragist",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 49,
+  "minions": 87,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4009,14 +4904,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31001697": {
   "name": "Flora Neuenmuller",
   "parse": 86,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 106,
+  "minions": 155,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4034,14 +4929,14 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "29585811": {
   "name": "Frey Ichinose",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 104,
+  "minions": 244,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4055,31 +4950,31 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 33,
   "rare": null,
-  "level": 85,
+  "level": 44,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "39850923": {
   "name": "Hiro Hikari",
   "parse": 7,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 122,
+  "minions": 301,
+  "rare": 80,
   "level": 100,
   "cc": [
    false,
@@ -4087,21 +4982,104 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   618,
+   621,
+   1337,
+   1353,
+   1473,
+   2387,
+   2392,
+   2393,
+   2990,
+   3068,
+   3171,
+   3172,
+   3317,
+   3341,
+   3346,
+   3527,
+   3558,
+   3597,
+   3609,
+   3638,
+   3639,
+   3640,
+   3645,
+   3647,
+   3649,
+   3650,
+   3651,
+   3654,
+   3658,
+   3659,
+   3662,
+   3663,
+   3667,
+   3668,
+   3673,
+   3676,
+   3677,
+   3679,
+   3683,
+   3686,
+   3752,
+   3759,
+   3772,
+   3777,
+   3842,
+   3849,
+   3862,
+   3867,
+   3874,
+   3890,
+   3895,
+   3896,
+   3897,
+   3937,
+   3938,
+   3939,
+   3941,
+   3949,
+   3956,
+   3986,
+   3987,
+   3988,
+   3989,
+   3990,
+   3997,
+   3998,
+   3999,
+   4000,
+   4002,
+   4003,
+   4004,
+   4005,
+   4006,
+   4007,
+   4008,
+   4009,
+   4017,
+   4018,
+   4022,
+   4074
+  ],
+  "tiers": {
+   "explorer": "legendary"
+  },
   "jobs": {},
   "ex": [
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31001781": {
   "name": "Ician Wyra'li",
   "parse": 33,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 61,
+  "minions": 80,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4118,7 +5096,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -4186,8 +5164,8 @@
   "name": "Kapi Nampla",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 48,
+  "minions": 177,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4201,14 +5179,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31155521": {
   "name": "Ketchup Love",
   "parse": 70,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 68,
   "rare": null,
   "level": 79,
   "cc": [
@@ -4228,14 +5206,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "46739693": {
   "name": "Lins Miyuki",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 20,
+  "minions": 83,
   "rare": null,
   "level": 87,
   "cc": [
@@ -4249,14 +5227,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "53933347": {
   "name": "Little Alyss",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 72,
   "rare": null,
   "level": 81,
   "cc": [
@@ -4270,14 +5248,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "60852230": {
   "name": "Lucienvt Yenslayer",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 57,
   "rare": null,
   "level": 72,
   "cc": null,
@@ -4286,14 +5264,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 23,
+  "minions": 27,
   "rare": null,
   "level": 99,
   "cc": [
@@ -4307,14 +5285,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33807451": {
   "name": "Lumus Losgard",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 57,
+  "minions": 194,
   "rare": null,
   "level": 94,
   "cc": [
@@ -4328,7 +5306,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "16099244": {
   "name": "Luna Froggo",
@@ -4472,8 +5450,8 @@
   "name": "Lyndanisse Vymmaith",
   "parse": 62,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 193,
+  "minions": 415,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4494,7 +5472,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -4525,8 +5503,8 @@
   "name": "Mikote Menphina",
   "parse": 75,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 137,
+  "minions": 269,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4550,14 +5528,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "38796459": {
   "name": "Minion Ke",
   "parse": 44,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 33,
+  "minions": 67,
   "rare": null,
   "level": 96,
   "cc": [
@@ -4576,7 +5554,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31592995": {
   "name": "Mizuki Hoshiko",
@@ -4628,8 +5606,8 @@
   "name": "Noelle Eisner",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 178,
+  "minions": 410,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4643,16 +5621,16 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31831003": {
   "name": "North Nostafari",
   "parse": 81,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 146,
+  "minions": 291,
   "rare": null,
-  "level": 85,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -4666,15 +5644,15 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "7283668": {
   "name": "Nowhere Man",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 29,
+  "minions": 83,
+  "rare": 9,
   "level": 100,
   "cc": [
    false,
@@ -4682,19 +5660,29 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   188,
+   194,
+   199,
+   1003,
+   1062,
+   1082,
+   1131,
+   1353,
+   1491
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "8113158": {
   "name": "Olivie Brown",
   "parse": 51,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 100,
+  "minions": 233,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4711,14 +5699,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "2852829": {
   "name": "Papamaru Dj",
   "parse": 7,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 55,
+  "minions": 177,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4735,7 +5723,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37061370": {
   "name": "Peonies Dunieres",
@@ -4825,8 +5813,8 @@
   "name": "Piyo Stellar",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 29,
+  "minions": 121,
   "rare": null,
   "level": 68,
   "cc": [
@@ -4840,14 +5828,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33387937": {
   "name": "R'bael Senkou",
   "parse": 81,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 95,
+  "minions": 206,
   "rare": null,
   "level": 100,
   "cc": [
@@ -4868,14 +5856,14 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "60599300": {
   "name": "Rainy Tempestra",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 15,
   "rare": null,
   "level": 37,
   "cc": null,
@@ -4884,7 +5872,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -5001,8 +5989,8 @@
   "name": "Sakura Stellar",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 24,
+  "minions": 133,
   "rare": null,
   "level": 90,
   "cc": [
@@ -5016,7 +6004,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "8713004": {
   "name": "Shoe Bite",
@@ -5043,8 +6031,8 @@
   "name": "Snow Winsfield",
   "parse": 98,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 109,
+  "minions": 168,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5075,14 +6063,14 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "49929911": {
   "name": "Sun Prism",
   "parse": 8,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 43,
+  "minions": 114,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5098,14 +6086,14 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30582341": {
   "name": "Sweetpea Swp",
   "parse": 95,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 83,
+  "minions": 157,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5121,14 +6109,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "30253575": {
   "name": "Syndra Gal",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 29,
+  "minions": 58,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5142,14 +6130,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36624109": {
   "name": "Tamazon Kitsu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 82,
+  "minions": 224,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5163,14 +6151,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "25619696": {
   "name": "Taro Yeon",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 32,
+  "minions": 47,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5184,14 +6172,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "55640987": {
   "name": "Thuchy Oppa",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 10,
+  "minions": 19,
   "rare": null,
   "level": 87,
   "cc": [
@@ -5205,14 +6193,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29991345": {
   "name": "Transparent Crystal",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 41,
+  "minions": 85,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5226,14 +6214,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33608576": {
   "name": "Verles Eisner",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 165,
+  "minions": 364,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5247,7 +6235,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -5274,8 +6262,8 @@
   "name": "Yuukizuz Akino",
   "parse": 67,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 81,
+  "minions": 155,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5297,14 +6285,14 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 107,
+  "minions": 305,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5318,7 +6306,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "60814172": {
   "name": "Ardthur Greywaters",
@@ -5340,8 +6328,8 @@
   "name": "Film Nio",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 19,
   "rare": null,
   "level": 88,
   "cc": null,
@@ -5350,16 +6338,16 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "60873337": {
   "name": "Imy Kitty",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 16,
+  "minions": 42,
   "rare": null,
-  "level": 68,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -5371,14 +6359,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 15,
   "rare": null,
   "level": 76,
   "cc": null,
@@ -5387,14 +6375,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "61758559": {
   "name": "Lree Thai",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 5,
+  "minions": 21,
   "rare": null,
   "level": 65,
   "cc": [
@@ -5408,14 +6396,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "60972300": {
   "name": "Mizuki Sekine",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 14,
+  "minions": 46,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -5424,7 +6412,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -5458,8 +6446,8 @@
   "name": "Priya Heartfilia",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 27,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -5468,14 +6456,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "60854619": {
   "name": "Quasar Araxelanz",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 10,
+  "minions": 14,
   "rare": null,
   "level": 54,
   "cc": null,
@@ -5484,14 +6472,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "61748681": {
   "name": "Qzarel Lumina",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 17,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -5500,7 +6488,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "30741737": {
   "name": "Samuel Porter",
@@ -5527,8 +6515,8 @@
   "name": "Shikihara Catlover",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 20,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -5537,14 +6525,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "31685121": {
   "name": "Squid Girls",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 46,
+  "minions": 91,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5558,14 +6546,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "57419573": {
   "name": "A'kane Dorothy",
   "parse": 45,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 23,
+  "minions": 81,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5581,14 +6569,14 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "5034519": {
   "name": "Acerola Orion",
   "parse": 84,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 60,
+  "minions": 181,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5607,14 +6595,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "25504317": {
   "name": "Achel Clay",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 69,
   "rare": null,
   "level": 90,
   "cc": [
@@ -5628,14 +6616,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "5297796": {
   "name": "Aem Sejuro",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 65,
   "rare": null,
   "level": 93,
   "cc": [
@@ -5649,14 +6637,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34505698": {
   "name": "Aerithara Elric-",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 20,
+  "minions": 57,
   "rare": null,
   "level": 91,
   "cc": [
@@ -5670,14 +6658,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "1623780": {
   "name": "Agendria Lometta",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 83,
   "rare": null,
   "level": 90,
   "cc": [
@@ -5691,7 +6679,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "3256238": {
   "name": "Ai Tsukuyomi",
@@ -5720,8 +6708,8 @@
   "name": "Aiqing Kumamon",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 26,
+  "minions": 21,
   "rare": null,
   "level": 90,
   "cc": [
@@ -5735,14 +6723,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "38018463": {
   "name": "Aisha Edel'sfiel",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 24,
   "rare": null,
   "level": 80,
   "cc": [
@@ -5756,14 +6744,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30176379": {
   "name": "Akee Littlered",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 26,
+  "minions": 86,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5777,14 +6765,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "35863297": {
   "name": "Aleks Ss",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 29,
+  "minions": 39,
   "rare": null,
   "level": 92,
   "cc": [
@@ -5798,14 +6786,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34873931": {
   "name": "Alexander Lucifer",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 30,
   "rare": null,
   "level": 40,
   "cc": [
@@ -5819,14 +6807,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "22164254": {
   "name": "Alice Auaa",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 66,
   "rare": null,
   "level": 84,
   "cc": [
@@ -5840,14 +6828,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "18538032": {
   "name": "Alice Carrollo",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 63,
+  "minions": 94,
   "rare": null,
   "level": 100,
   "cc": [
@@ -5861,7 +6849,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42509107": {
   "name": "Alicia Bohm",
@@ -5888,8 +6876,8 @@
   "name": "Alicia Silverwalker",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 31,
+  "minions": 85,
   "rare": null,
   "level": 90,
   "cc": [
@@ -5903,14 +6891,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "41059127": {
   "name": "Alt Pira",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 77,
   "rare": null,
   "level": 38,
   "cc": [
@@ -5924,7 +6912,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "24770177": {
   "name": "Alteria Ferron",
@@ -5969,8 +6957,8 @@
   "name": "Alternative Zero",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 1,
+  "minions": 2,
   "rare": null,
   "level": 41,
   "cc": [
@@ -5984,7 +6972,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "28810440": {
   "name": "Amil Aeronril",
@@ -6011,8 +6999,8 @@
   "name": "Ank Drogonewt",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 33,
   "rare": null,
   "level": 85,
   "cc": [
@@ -6026,14 +7014,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30943571": {
   "name": "Anya Takamaki",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 1,
+  "minions": 6,
   "rare": null,
   "level": 53,
   "cc": [
@@ -6047,14 +7035,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "28213199": {
   "name": "Aquilax Xaliuqa",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 21,
+  "minions": 48,
   "rare": null,
   "level": 86,
   "cc": [
@@ -6068,14 +7056,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31764639": {
   "name": "Arctophylax D'arc",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 53,
   "rare": null,
   "level": 63,
   "cc": [
@@ -6089,14 +7077,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "4505633": {
   "name": "Arcz Iris",
   "parse": 35,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 91,
+  "minions": 225,
   "rare": null,
   "level": 100,
   "cc": [
@@ -6116,7 +7104,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -6246,8 +7234,8 @@
   "name": "Arichii Marilouay",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 48,
+  "minions": 99,
   "rare": null,
   "level": 90,
   "cc": [
@@ -6261,14 +7249,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "15895457": {
   "name": "Arik Ageas",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 71,
+  "minions": 107,
   "rare": null,
   "level": 99,
   "cc": [
@@ -6282,14 +7270,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36159286": {
   "name": "Armadillo Girdled",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 34,
+  "minions": 83,
   "rare": null,
   "level": 100,
   "cc": [
@@ -6303,14 +7291,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29944592": {
   "name": "Ascaris Altz'",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 59,
+  "minions": 164,
   "rare": null,
   "level": 57,
   "cc": [
@@ -6324,7 +7312,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "512253": {
   "name": "Ashelia White",
@@ -6357,8 +7345,8 @@
   "name": "Athaliah Aylin",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 96,
+  "minions": 199,
   "rare": null,
   "level": 90,
   "cc": [
@@ -6372,7 +7360,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "25620101": {
   "name": "Athena Leonheart",
@@ -6399,8 +7387,8 @@
   "name": "Aui Aye",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 38,
+  "minions": 118,
   "rare": null,
   "level": 90,
   "cc": [
@@ -6414,14 +7402,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "18659677": {
   "name": "Avoiding Puddle",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 48,
+  "minions": 152,
   "rare": null,
   "level": 90,
   "cc": [
@@ -6435,15 +7423,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34086580": {
   "name": "Baby Bb",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 7,
+  "minions": 26,
+  "rare": 0,
   "level": 80,
   "cc": [
    false,
@@ -6456,14 +7444,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29479627": {
   "name": "Bark Ree",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 15,
   "rare": null,
   "level": 59,
   "cc": [
@@ -6477,7 +7465,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31806958": {
   "name": "Baron Master",
@@ -6549,8 +7537,8 @@
   "name": "Bear Boatz",
   "parse": 73,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 54,
+  "minions": 202,
   "rare": null,
   "level": 100,
   "cc": [
@@ -6570,14 +7558,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "27213488": {
   "name": "Bella Arisu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 50,
+  "minions": 71,
   "rare": null,
   "level": 83,
   "cc": [
@@ -6591,14 +7579,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30426712": {
   "name": "Ben Kao",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 1,
+  "minions": 5,
   "rare": null,
   "level": 55,
   "cc": [
@@ -6612,14 +7600,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31010962": {
   "name": "Bi Bo",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 26,
+  "minions": 52,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -6628,14 +7616,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "17473430": {
   "name": "Bigon Truesilver",
   "parse": 41,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 40,
+  "minions": 59,
   "rare": null,
   "level": 90,
   "cc": [
@@ -6654,14 +7642,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "58199756": {
   "name": "Billy Najah",
   "parse": 64,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 96,
   "rare": null,
   "level": 100,
   "cc": [
@@ -6681,14 +7669,14 @@
    "Necron"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "43423269": {
   "name": "Bladez Sweeney",
   "parse": 75,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 67,
+  "minions": 127,
   "rare": null,
   "level": 100,
   "cc": [
@@ -6709,14 +7697,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "47658617": {
   "name": "Bogotaz Lucaz",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 2,
+  "minions": 9,
   "rare": null,
   "level": 39,
   "cc": [
@@ -6730,14 +7718,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "5720080": {
   "name": "Bowling Chan",
   "parse": 64,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 150,
+  "minions": 326,
   "rare": null,
   "level": 100,
   "cc": [
@@ -6758,14 +7746,14 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "33604767": {
   "name": "Boyekon Redroof",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 40,
   "rare": null,
   "level": 80,
   "cc": [
@@ -6779,14 +7767,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "21899488": {
   "name": "Brightbye Goodboi",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 10,
+  "minions": 35,
   "rare": null,
   "level": 76,
   "cc": [
@@ -6800,14 +7788,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29734643": {
   "name": "Brownie Brown",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 53,
+  "minions": 133,
   "rare": null,
   "level": 90,
   "cc": [
@@ -6821,14 +7809,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33954541": {
   "name": "Bunnypx Wild",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 10,
+  "minions": 18,
   "rare": null,
   "level": 90,
   "cc": [
@@ -6842,14 +7830,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "14538982": {
   "name": "Candy Crush",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 114,
+  "minions": 345,
   "rare": null,
   "level": 94,
   "cc": [
@@ -6863,14 +7851,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "38276690": {
   "name": "Cannes Ferragamo",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 41,
+  "minions": 85,
   "rare": null,
   "level": 90,
   "cc": [
@@ -6884,14 +7872,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36320452": {
   "name": "Cappu Chino",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 3,
+  "minions": 17,
   "rare": null,
   "level": 80,
   "cc": [
@@ -6905,14 +7893,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "24104450": {
   "name": "Cepheus Stellar",
   "parse": 45,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 35,
+  "minions": 81,
   "rare": null,
   "level": 100,
   "cc": [
@@ -6928,14 +7916,14 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "24150396": {
   "name": "Chaser Dc",
   "parse": 23,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 55,
+  "minions": 214,
   "rare": null,
   "level": 85,
   "cc": [
@@ -6953,14 +7941,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "31471584": {
   "name": "Chicha Chichi",
   "parse": 50,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 44,
   "rare": null,
   "level": 80,
   "cc": [
@@ -6977,14 +7965,14 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "46485530": {
   "name": "Chillin Chu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 59,
+  "minions": 165,
   "rare": null,
   "level": 92,
   "cc": [
@@ -6998,14 +7986,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36609029": {
   "name": "Chissa Tofu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 3,
+  "minions": 15,
   "rare": null,
   "level": 51,
   "cc": [
@@ -7019,14 +8007,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "58160672": {
   "name": "Choco Ball",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 3,
   "rare": null,
   "level": 51,
   "cc": [
@@ -7040,14 +8028,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "35096411": {
   "name": "Chocola Meilleure",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 3,
+  "minions": 57,
   "rare": null,
   "level": 51,
   "cc": [
@@ -7061,14 +8049,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "55476354": {
   "name": "Chrisyard Mephisto",
   "parse": 1,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 39,
   "rare": null,
   "level": 87,
   "cc": [
@@ -7084,14 +8072,14 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "46055730": {
   "name": "Chuju Okita",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 26,
+  "minions": 67,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7105,7 +8093,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "8999658": {
   "name": "Chzzck Godslayer",
@@ -7136,8 +8124,8 @@
   "name": "Cool Piggy",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 66,
+  "minions": 181,
   "rare": null,
   "level": 90,
   "cc": [
@@ -7151,14 +8139,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "24103365": {
   "name": "Cygnus Stellar",
   "parse": 71,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 65,
+  "minions": 136,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7174,14 +8162,14 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "34228206": {
   "name": "Cystal Wingsky",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 63,
   "rare": null,
   "level": 90,
   "cc": [
@@ -7195,7 +8183,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "40990512": {
   "name": "Dat Duc",
@@ -7222,8 +8210,8 @@
   "name": "De'lalia Aredhel",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 38,
+  "minions": 104,
   "rare": null,
   "level": 90,
   "cc": [
@@ -7237,14 +8225,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31737067": {
   "name": "Deuce Bigalow",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 35,
+  "minions": 73,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7258,14 +8246,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36260815": {
   "name": "Dlite Belialuin",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 12,
+  "minions": 23,
   "rare": null,
   "level": 76,
   "cc": [
@@ -7279,7 +8267,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "54318245": {
   "name": "Doffy Centuryboy",
@@ -7306,8 +8294,8 @@
   "name": "Draku Majikku",
   "parse": 90,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 37,
+  "minions": 52,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7329,14 +8317,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30172592": {
   "name": "Duke Kaboom",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 53,
+  "minions": 97,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7350,7 +8338,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "40394823": {
   "name": "Dummii Amary",
@@ -7454,8 +8442,8 @@
   "name": "Eidmoth Lion",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 35,
   "rare": null,
   "level": 60,
   "cc": [
@@ -7469,14 +8457,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "35250799": {
   "name": "Eiko Fujiwara",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 28,
+  "minions": 84,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7490,14 +8478,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29612903": {
   "name": "Elenor Light",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 19,
+  "minions": 34,
   "rare": null,
   "level": 53,
   "cc": [
@@ -7511,14 +8499,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34511319": {
   "name": "Elise Lionheart",
   "parse": 29,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 42,
+  "minions": 76,
   "rare": null,
   "level": 90,
   "cc": [
@@ -7534,7 +8522,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "30053876": {
   "name": "Elisis Deost",
@@ -7585,8 +8573,8 @@
   "name": "Ellone Chrysler",
   "parse": 45,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 101,
+  "minions": 185,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7604,14 +8592,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34522644": {
   "name": "Elwann Halffu",
   "parse": 68,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 34,
+  "minions": 59,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7628,7 +8616,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "44409962": {
   "name": "Elynn Faenys",
@@ -7655,8 +8643,8 @@
   "name": "Emi Kamazuki",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 62,
+  "minions": 255,
   "rare": null,
   "level": 90,
   "cc": [
@@ -7670,14 +8658,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "32046284": {
   "name": "Ene Shy",
   "parse": 83,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 50,
+  "minions": 117,
   "rare": null,
   "level": 90,
   "cc": [
@@ -7696,14 +8684,14 @@
    "The Epic of Alexander",
    "The Omega Protocol"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "47645809": {
   "name": "Entprise Yakult",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 40,
   "rare": null,
   "level": 85,
   "cc": [
@@ -7717,14 +8705,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "57967682": {
   "name": "Envynaja T'kob",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 24,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7738,7 +8726,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "1643244": {
   "name": "Epicenter Eorzea",
@@ -7827,7 +8815,7 @@
    3405
   ],
   "tiers": {
-   "explorer": "expert",
+   "goldsaucer": "expert",
    "seasonal": "master"
   },
   "jobs": {
@@ -7852,8 +8840,8 @@
   "name": "Eric Luminous",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 73,
+  "minions": 107,
   "rare": null,
   "level": 80,
   "cc": [
@@ -7867,14 +8855,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31519555": {
   "name": "Ernese Gold",
   "parse": 50,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 36,
+  "minions": 78,
   "rare": null,
   "level": 90,
   "cc": [
@@ -7890,14 +8878,14 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "16397778": {
   "name": "Eydis Ein",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 28,
+  "minions": 72,
   "rare": null,
   "level": 90,
   "cc": [
@@ -7911,7 +8899,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "50103049": {
   "name": "Faelix Frosty",
@@ -7959,8 +8947,8 @@
   "name": "Fafamu Famu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 17,
   "rare": null,
   "level": 65,
   "cc": [
@@ -7974,7 +8962,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29782062": {
   "name": "Farn Yun",
@@ -8001,8 +8989,8 @@
   "name": "Felous Vanish",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 49,
+  "minions": 127,
   "rare": null,
   "level": 98,
   "cc": [
@@ -8016,14 +9004,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36228998": {
   "name": "Fishstop Moon-osha",
   "parse": 92,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 44,
+  "minions": 77,
   "rare": null,
   "level": 86,
   "cc": [
@@ -8041,14 +9029,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "30559609": {
   "name": "Florice Frostingway",
   "parse": 53,
   "ult": 4,
-  "mounts": null,
-  "minions": null,
+  "mounts": 94,
+  "minions": 167,
   "rare": null,
   "level": 100,
   "cc": [
@@ -8070,14 +9058,14 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "16168981": {
   "name": "Francis Fleuret",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 14,
+  "minions": 30,
   "rare": null,
   "level": 57,
   "cc": [
@@ -8091,14 +9079,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "47337818": {
   "name": "Freedom Marjory",
   "parse": 19,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 27,
+  "minions": 79,
   "rare": null,
   "level": 90,
   "cc": [
@@ -8114,7 +9102,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "36168487": {
   "name": "Freki Plumis",
@@ -8173,8 +9161,8 @@
   "name": "Gin Salmon",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 35,
   "rare": null,
   "level": 90,
   "cc": [
@@ -8188,14 +9176,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36165070": {
   "name": "Ginonpu Kudokusega",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 50,
   "rare": null,
   "level": 70,
   "cc": [
@@ -8209,14 +9197,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "12235132": {
   "name": "God King",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 29,
+  "minions": 107,
   "rare": null,
   "level": 79,
   "cc": [
@@ -8230,15 +9218,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37696532": {
   "name": "Golden Lancer",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 46,
+  "minions": 53,
+  "rare": 2,
   "level": 88,
   "cc": [
    false,
@@ -8246,12 +9234,15 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   2775,
+   2864
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36183250": {
   "name": "Gramp Lessgooo",
@@ -8278,8 +9269,8 @@
   "name": "Grimnier Von'colven",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 54,
+  "minions": 57,
   "rare": null,
   "level": 80,
   "cc": [
@@ -8293,7 +9284,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "51852387": {
   "name": "Gunz Fields",
@@ -8320,8 +9311,8 @@
   "name": "Guuji Mercedexs",
   "parse": 98,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 118,
+  "minions": 147,
   "rare": null,
   "level": 100,
   "cc": [
@@ -8345,14 +9336,14 @@
    "Futures Rewritten",
    "The Omega Protocol"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "29498103": {
   "name": "Haku Quinu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 12,
+  "minions": 52,
   "rare": null,
   "level": 83,
   "cc": [
@@ -8366,14 +9357,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "58725327": {
   "name": "Halyn Halora",
   "parse": 64,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 13,
+  "minions": 42,
   "rare": null,
   "level": 100,
   "cc": [
@@ -8390,7 +9381,7 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "13162369": {
   "name": "Hanabira Haruna",
@@ -8468,8 +9459,8 @@
   "name": "Hanami Hunter",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 5,
+  "minions": 16,
   "rare": null,
   "level": 62,
   "cc": [
@@ -8483,14 +9474,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "32857279": {
   "name": "Harp Abel",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 32,
+  "minions": 95,
   "rare": null,
   "level": 90,
   "cc": [
@@ -8504,14 +9495,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "16173247": {
   "name": "Haru Luminous",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 34,
+  "minions": 53,
   "rare": null,
   "level": 80,
   "cc": [
@@ -8525,7 +9516,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "43335087": {
   "name": "Haru Senbonzakura",
@@ -8552,8 +9543,8 @@
   "name": "Haruko Sho",
   "parse": 67,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 81,
+  "minions": 109,
   "rare": null,
   "level": 90,
   "cc": [
@@ -8569,15 +9560,15 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "28163062": {
   "name": "Helga Holybringer",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 13,
+  "minions": 25,
+  "rare": 2,
   "level": 78,
   "cc": [
    false,
@@ -8585,19 +9576,22 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   560,
+   572
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "28931955": {
   "name": "Helotte Phantompray",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 2,
+  "minions": 5,
   "rare": null,
   "level": 54,
   "cc": [
@@ -8611,14 +9605,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33272037": {
   "name": "Hermanita Imouto",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 33,
+  "minions": 65,
   "rare": null,
   "level": 83,
   "cc": [
@@ -8632,14 +9626,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "27875326": {
   "name": "Hez King",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 19,
+  "minions": 49,
   "rare": null,
   "level": 88,
   "cc": [
@@ -8653,14 +9647,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "39850921": {
   "name": "Hoshiko Hikari",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 91,
+  "minions": 319,
   "rare": null,
   "level": 100,
   "cc": [
@@ -8674,15 +9668,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "2168537": {
   "name": "Idiosy Glorfindel",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 36,
+  "minions": 74,
+  "rare": 6,
   "level": 47,
   "cc": [
    false,
@@ -8690,12 +9684,19 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   811,
+   812,
+   2775,
+   2784,
+   2864,
+   2873
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29542040": {
   "name": "Immundus Vitae",
@@ -8722,8 +9723,8 @@
   "name": "Iris Kaoru",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 35,
   "rare": null,
   "level": 83,
   "cc": [
@@ -8737,14 +9738,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "58508421": {
   "name": "Ishfhiyrtt Ntr",
   "parse": 90,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 41,
   "rare": null,
   "level": 100,
   "cc": [
@@ -8763,14 +9764,14 @@
    "Necron"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36001341": {
   "name": "Ixa Vollstandig",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 21,
   "rare": null,
   "level": 23,
   "cc": [
@@ -8784,14 +9785,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "40652404": {
   "name": "Jade Solaire",
   "parse": 31,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 52,
+  "minions": 107,
   "rare": null,
   "level": 90,
   "cc": [
@@ -8807,7 +9808,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "33966579": {
   "name": "James Jasper",
@@ -8834,8 +9835,8 @@
   "name": "Jedi Rider",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 16,
+  "minions": 56,
   "rare": null,
   "level": 60,
   "cc": [
@@ -8849,14 +9850,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "60692052": {
   "name": "Jedos Darkflamemaster",
   "parse": 1,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 23,
+  "minions": 57,
   "rare": null,
   "level": 100,
   "cc": [
@@ -8872,14 +9873,14 @@
    "Enuo"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "23901016": {
   "name": "Jeemoh Jeemomoh",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 22,
+  "minions": 63,
   "rare": null,
   "level": 100,
   "cc": [
@@ -8893,14 +9894,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "28127069": {
   "name": "Jim Carried",
   "parse": 94,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 63,
+  "minions": 140,
   "rare": null,
   "level": 100,
   "cc": [
@@ -8922,14 +9923,14 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "35270049": {
   "name": "Joey Zaa",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 18,
   "rare": null,
   "level": 80,
   "cc": [
@@ -8943,14 +9944,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42277370": {
   "name": "Jorjae Wang",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 23,
   "rare": null,
   "level": 70,
   "cc": [
@@ -8964,14 +9965,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34290087": {
   "name": "Judy Hops",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 35,
   "rare": null,
   "level": 90,
   "cc": [
@@ -8985,14 +9986,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42342468": {
   "name": "Juhara Chiharu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 50,
+  "minions": 136,
   "rare": null,
   "level": 100,
   "cc": [
@@ -9006,14 +10007,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "18278635": {
   "name": "Juicy Oniontear",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 28,
+  "minions": 85,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9027,14 +10028,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "20014912": {
   "name": "Kaede Chan",
   "parse": 98,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 99,
+  "minions": 202,
   "rare": null,
   "level": 80,
   "cc": [
@@ -9055,14 +10056,14 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "31012021": {
   "name": "Kaizerz Heaventh",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 3,
+  "minions": 9,
   "rare": null,
   "level": 54,
   "cc": [
@@ -9076,14 +10077,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31923628": {
   "name": "Kakigori Kyrielight",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 69,
+  "minions": 186,
   "rare": null,
   "level": 95,
   "cc": [
@@ -9097,14 +10098,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "57387464": {
   "name": "Kanao Rin",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 20,
   "rare": null,
   "level": 64,
   "cc": [
@@ -9118,14 +10119,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "43797998": {
   "name": "Kappa Kappayuthz",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 13,
   "rare": null,
   "level": 66,
   "cc": [
@@ -9139,14 +10140,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34155014": {
   "name": "Karok Yawn",
   "parse": 82,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 80,
+  "minions": 142,
   "rare": null,
   "level": 100,
   "cc": [
@@ -9170,14 +10171,14 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "47218599": {
   "name": "Kawa Lynn",
   "parse": 38,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 55,
+  "minions": 109,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9193,15 +10194,15 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "28679815": {
   "name": "Kazumi Masa",
   "parse": 7,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 19,
+  "minions": 40,
+  "rare": 0,
   "level": 82,
   "cc": [
    false,
@@ -9216,14 +10217,14 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "12003402": {
   "name": "Kei Chan",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 23,
+  "minions": 35,
   "rare": null,
   "level": 51,
   "cc": [
@@ -9237,14 +10238,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "44081209": {
   "name": "Kelfa Kalifula",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 10,
+  "minions": 29,
   "rare": null,
   "level": 60,
   "cc": [
@@ -9258,14 +10259,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "46431057": {
   "name": "Kin Grita",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 26,
+  "minions": 58,
   "rare": null,
   "level": 93,
   "cc": [
@@ -9279,14 +10280,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "50417039": {
   "name": "King's Tarotto",
   "parse": 11,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 50,
   "rare": null,
   "level": 79,
   "cc": [
@@ -9302,14 +10303,14 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "39034125": {
   "name": "Kirin Rin",
   "parse": 75,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 22,
+  "minions": 61,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9325,15 +10326,15 @@
   "ults": [
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "29899571": {
   "name": "Kisei Ryusekai",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 24,
+  "minions": 68,
+  "rare": 0,
   "level": 90,
   "cc": [
    false,
@@ -9346,14 +10347,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29659200": {
   "name": "Kleenex Tissue",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 37,
+  "minions": 77,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9367,14 +10368,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "48527875": {
   "name": "Kotetsu Bardly",
   "parse": 40,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 73,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9391,15 +10392,15 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "28012936": {
   "name": "Kouro Moro",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 53,
+  "minions": 103,
+  "rare": 4,
   "level": 15,
   "cc": [
    false,
@@ -9407,19 +10408,24 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   944,
+   1337,
+   1468,
+   3018
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37881871": {
   "name": "Kyaru Momochi",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 29,
+  "minions": 48,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9433,14 +10439,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "27905098": {
   "name": "Kynnir Dragogriff",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 4,
+  "minions": 12,
   "rare": null,
   "level": 68,
   "cc": [
@@ -9454,14 +10460,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "5761905": {
   "name": "Laura Nessonier",
   "parse": 9,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 52,
+  "minions": 155,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9475,14 +10481,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42461214": {
   "name": "Lena Milize",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 49,
+  "minions": 81,
   "rare": null,
   "level": 100,
   "cc": [
@@ -9496,14 +10502,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34510497": {
   "name": "Leonest Lionheart",
   "parse": 90,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 77,
+  "minions": 93,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9523,14 +10529,14 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "39907836": {
   "name": "Leylin Kim",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 19,
   "rare": null,
   "level": 77,
   "cc": [
@@ -9544,14 +10550,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37409022": {
   "name": "Lighto Fukui",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 40,
+  "minions": 125,
   "rare": null,
   "level": 100,
   "cc": [
@@ -9565,14 +10571,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "568409": {
   "name": "Lime Xerxes",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 47,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9586,14 +10592,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "19896720": {
   "name": "Linda Alvina",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 19,
+  "minions": 50,
   "rare": null,
   "level": 92,
   "cc": [
@@ -9607,14 +10613,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "18489055": {
   "name": "Linda Ing",
   "parse": 97,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 61,
+  "minions": 180,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9630,15 +10636,15 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "24747734": {
   "name": "Liora Verasch",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 47,
+  "minions": 240,
+  "rare": 40,
   "level": 100,
   "cc": [
    false,
@@ -9646,12 +10652,53 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   224,
+   718,
+   770,
+   776,
+   1285,
+   1319,
+   1320,
+   1327,
+   1328,
+   1335,
+   1353,
+   1728,
+   1907,
+   2033,
+   2036,
+   2085,
+   2173,
+   2772,
+   2784,
+   2794,
+   2795,
+   2861,
+   2873,
+   2929,
+   2931,
+   2939,
+   3092,
+   3200,
+   3312,
+   3313,
+   3369,
+   3370,
+   3373,
+   3467,
+   3468,
+   3470,
+   3473,
+   3474,
+   3475,
+   3476
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31685046": {
   "name": "Lipwan Superior",
@@ -9688,8 +10735,8 @@
   "name": "Little Sister",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 35,
+  "minions": 65,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9703,14 +10750,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "24300584": {
   "name": "Litty Suta-bakkusu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 25,
   "rare": null,
   "level": 74,
   "cc": [
@@ -9724,15 +10771,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29162543": {
   "name": "Lmoavkei Best",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 37,
+  "minions": 58,
+  "rare": 0,
   "level": 69,
   "cc": [
    false,
@@ -9745,14 +10792,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "16172034": {
   "name": "Lucy Luminous",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 38,
+  "minions": 57,
   "rare": null,
   "level": 70,
   "cc": null,
@@ -9761,7 +10808,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "24690035": {
   "name": "Lynn De'lancelot",
@@ -9788,8 +10835,8 @@
   "name": "Lysette Coreria",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 40,
+  "minions": 91,
   "rare": null,
   "level": 89,
   "cc": [
@@ -9803,15 +10850,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31211526": {
   "name": "Mali Narak",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 29,
+  "minions": 93,
+  "rare": 0,
   "level": 90,
   "cc": [
    false,
@@ -9824,7 +10871,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "40160371": {
   "name": "Mantra Crimson",
@@ -9856,8 +10903,8 @@
   "name": "Masahiro Dixon",
   "parse": 30,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 70,
+  "minions": 130,
   "rare": null,
   "level": 100,
   "cc": [
@@ -9871,14 +10918,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29764422": {
   "name": "Masakujung Crystalys",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 20,
+  "minions": 33,
   "rare": null,
   "level": 84,
   "cc": [
@@ -9892,14 +10939,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30559981": {
   "name": "Maverick Flourite",
   "parse": 49,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 88,
+  "minions": 170,
   "rare": null,
   "level": 100,
   "cc": [
@@ -9918,14 +10965,14 @@
   "ults": [
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "44031569": {
   "name": "Maya Smith",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 28,
   "rare": null,
   "level": 82,
   "cc": [
@@ -9939,14 +10986,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "59690047": {
   "name": "Mayonnaise Chocolate",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 9,
   "rare": null,
   "level": 32,
   "cc": [
@@ -9960,14 +11007,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31655994": {
   "name": "Meki Mekino",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 104,
+  "minions": 186,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9981,14 +11028,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36016570": {
   "name": "Mental Breakdance",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 41,
+  "minions": 125,
   "rare": null,
   "level": 96,
   "cc": [
@@ -10002,14 +11049,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "32373387": {
   "name": "Mewwr Wewr",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 42,
+  "minions": 74,
   "rare": null,
   "level": 100,
   "cc": [
@@ -10023,14 +11070,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "28380674": {
   "name": "Mickey Valentine",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 100,
+  "minions": 269,
   "rare": null,
   "level": 85,
   "cc": [
@@ -10044,14 +11091,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "49891708": {
   "name": "Midas Mirror",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 14,
   "rare": null,
   "level": 86,
   "cc": [
@@ -10065,14 +11112,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "39734861": {
   "name": "Mighty Pui",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 12,
+  "minions": 32,
   "rare": null,
   "level": 23,
   "cc": [
@@ -10086,14 +11133,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "51044792": {
   "name": "Miijinz Inferne",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 43,
   "rare": null,
   "level": 76,
   "cc": [
@@ -10107,14 +11154,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37143017": {
   "name": "Milly Beee",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 73,
+  "minions": 97,
   "rare": null,
   "level": 100,
   "cc": [
@@ -10128,14 +11175,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34507717": {
   "name": "Mira Lionheart",
   "parse": 88,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 80,
+  "minions": 111,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10155,14 +11202,14 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "29151949": {
   "name": "Mirai Haname",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 35,
+  "minions": 106,
   "rare": null,
   "level": 63,
   "cc": [
@@ -10176,14 +11223,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34474329": {
   "name": "Mirea Mimlemel",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 10,
+  "minions": 39,
   "rare": null,
   "level": 85,
   "cc": [
@@ -10197,7 +11244,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "32793260": {
   "name": "Mizuki Mizuhiki",
@@ -10226,8 +11273,8 @@
   "name": "Mocca Lighting",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 15,
   "rare": null,
   "level": 74,
   "cc": [
@@ -10241,14 +11288,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34184163": {
   "name": "Moji Momiji",
   "parse": 1,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 45,
+  "minions": 144,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10264,14 +11311,14 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "32046109": {
   "name": "Mojito Crush",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 16,
+  "minions": 77,
   "rare": null,
   "level": 82,
   "cc": [
@@ -10285,14 +11332,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31225966": {
   "name": "Molepy Walker",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 32,
+  "minions": 117,
   "rare": null,
   "level": 35,
   "cc": [
@@ -10306,14 +11353,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34611224": {
   "name": "Momose Hochizora",
   "parse": 55,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 37,
+  "minions": 61,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10329,14 +11376,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "37911500": {
   "name": "Monandaeg Deliciosus",
   "parse": 14,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 117,
+  "minions": 328,
   "rare": null,
   "level": 100,
   "cc": [
@@ -10353,14 +11400,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30714243": {
   "name": "Moona Freed",
   "parse": 75,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 41,
   "rare": null,
   "level": 100,
   "cc": [
@@ -10374,14 +11421,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "10807425": {
   "name": "Mulata Shogo",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 1,
+  "minions": 6,
   "rare": null,
   "level": 22,
   "cc": [
@@ -10395,14 +11442,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "35164241": {
   "name": "Murgur Murgurgle",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 45,
+  "minions": 105,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10416,7 +11463,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "32023977": {
   "name": "Mystic Hwall",
@@ -10443,9 +11490,9 @@
   "name": "Namine Raspberyl",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 71,
+  "minions": 228,
+  "rare": 15,
   "level": 100,
   "cc": [
    false,
@@ -10453,19 +11500,37 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   811,
+   875,
+   876,
+   877,
+   1131,
+   1591,
+   1597,
+   1625,
+   1933,
+   1934,
+   2388,
+   2484,
+   3215,
+   3243,
+   3252
+  ],
+  "tiers": {
+   "seasonal": "expert"
+  },
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "10638899": {
   "name": "Naomi Misora",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 54,
   "rare": null,
   "level": 60,
   "cc": [
@@ -10479,15 +11544,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "8234305": {
   "name": "Nara Saurus",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 42,
+  "minions": 74,
+  "rare": 6,
   "level": 90,
   "cc": [
    false,
@@ -10495,19 +11560,26 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   138,
+   1583,
+   1588,
+   1964,
+   2772,
+   2861
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "17723972": {
   "name": "Naruga Vagrant",
   "parse": 82,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 55,
+  "minions": 106,
   "rare": null,
   "level": 100,
   "cc": [
@@ -10526,14 +11598,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "29128390": {
   "name": "Naskdin Ykorn",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 56,
+  "minions": 130,
   "rare": null,
   "level": 93,
   "cc": [
@@ -10547,14 +11619,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30421228": {
   "name": "Natsuki Tri",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 29,
+  "minions": 73,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10568,7 +11640,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37815847": {
   "name": "Necro Himawari",
@@ -10607,8 +11679,8 @@
   "name": "Neko Sehkerla",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 3,
+  "minions": 8,
   "rare": null,
   "level": 50,
   "cc": [
@@ -10622,14 +11694,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33766568": {
   "name": "Nell Weasley",
   "parse": 67,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 98,
+  "minions": 174,
   "rare": null,
   "level": 100,
   "cc": [
@@ -10646,14 +11718,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33870496": {
   "name": "Nemoha Chelewae",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 12,
+  "minions": 26,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10667,14 +11739,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "32150308": {
   "name": "Nene Mumu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 19,
+  "minions": 53,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10688,15 +11760,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36149590": {
   "name": "Neo Anderson",
   "parse": 92,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 67,
+  "minions": 98,
+  "rare": 12,
   "level": 100,
   "cc": [
    false,
@@ -10704,7 +11776,20 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   770,
+   1705,
+   1718,
+   2083,
+   2388,
+   2775,
+   2777,
+   2864,
+   2866,
+   2991,
+   3341,
+   3473
+  ],
   "tiers": {},
   "jobs": {
    "Warrior": "legendary"
@@ -10717,14 +11802,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "39001402": {
   "name": "Nes Brio",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 18,
   "rare": null,
   "level": 89,
   "cc": [
@@ -10738,15 +11823,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "27302476": {
   "name": "Nesies Ashwood",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 21,
+  "minions": 65,
+  "rare": 2,
   "level": 100,
   "cc": [
    false,
@@ -10754,12 +11839,15 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   3473,
+   3662
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "43707810": {
   "name": "New Skills",
@@ -10786,8 +11874,8 @@
   "name": "Newpiyaa Razboi",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 48,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10801,14 +11889,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33931644": {
   "name": "Nier Eclipse",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 5,
   "rare": null,
   "level": 31,
   "cc": [
@@ -10822,14 +11910,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "49891716": {
   "name": "Nin Pesnut",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 19,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10843,14 +11931,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "58314431": {
   "name": "No Mushroomgame",
   "parse": 76,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 13,
+  "minions": 25,
   "rare": null,
   "level": 100,
   "cc": [
@@ -10869,14 +11957,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "24991794": {
   "name": "Noel Rosteilo",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 26,
+  "minions": 108,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10890,14 +11978,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "28011817": {
   "name": "Nore Vanessa",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 65,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10911,14 +11999,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30056598": {
   "name": "Norn Noy",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 16,
   "rare": null,
   "level": 71,
   "cc": [
@@ -10932,14 +12020,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37731936": {
   "name": "Null Skyrage",
   "parse": 73,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 94,
+  "minions": 185,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10958,14 +12046,14 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "34057749": {
   "name": "Nuna Ghiza",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 31,
+  "minions": 70,
   "rare": null,
   "level": 90,
   "cc": [
@@ -10979,15 +12067,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "5762434": {
   "name": "Oakley Ale",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 75,
+  "minions": 158,
+  "rare": 19,
   "level": 90,
   "cc": [
    false,
@@ -10995,20 +12083,40 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   560,
+   874,
+   875,
+   1350,
+   1415,
+   1508,
+   1614,
+   1676,
+   1704,
+   1717,
+   1868,
+   1933,
+   1934,
+   1938,
+   2036,
+   2038,
+   2366,
+   2596,
+   2727
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "32223527": {
   "name": "Odachi Nameless",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 44,
+  "minions": 88,
+  "rare": 4,
   "level": 90,
   "cc": [
    false,
@@ -11016,19 +12124,24 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   618,
+   1448,
+   2770,
+   2859
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "27935097": {
   "name": "Ohmo Shiroi",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 12,
+  "minions": 34,
   "rare": null,
   "level": 71,
   "cc": [
@@ -11042,14 +12155,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33825599": {
   "name": "Oishi Allcafe",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 19,
   "rare": null,
   "level": 80,
   "cc": [
@@ -11063,14 +12176,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31745191": {
   "name": "Oivxii Hikari",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 24,
+  "minions": 63,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11084,15 +12197,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "44409828": {
   "name": "Olgar Aurelius",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 47,
+  "minions": 149,
+  "rare": 0,
   "level": 100,
   "cc": [
    false,
@@ -11105,14 +12218,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42653584": {
   "name": "Omare Maki",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 26,
   "rare": null,
   "level": 68,
   "cc": null,
@@ -11121,14 +12234,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "26433344": {
   "name": "Oppa' Pkz",
   "parse": 26,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 73,
+  "minions": 205,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11144,14 +12257,14 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "56143721": {
   "name": "Owlz Nithz",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 2,
+  "minions": 3,
   "rare": null,
   "level": 53,
   "cc": [
@@ -11165,15 +12278,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "24313144": {
   "name": "Oxyy Genn",
   "parse": 99,
   "ult": 5,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 125,
+  "minions": 234,
+  "rare": 37,
   "level": 100,
   "cc": [
    true,
@@ -11181,7 +12294,45 @@
    true,
    true
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   560,
+   561,
+   572,
+   573,
+   618,
+   621,
+   643,
+   1320,
+   1337,
+   1458,
+   1993,
+   2392,
+   2444,
+   2596,
+   2633,
+   2637,
+   2765,
+   2766,
+   2769,
+   2774,
+   2780,
+   2869,
+   3074,
+   3113,
+   3154,
+   3155,
+   3162,
+   3252,
+   3338,
+   3339,
+   3616,
+   3630,
+   3631,
+   3823,
+   3868,
+   3869,
+   3889
+  ],
   "tiers": {},
   "jobs": {
    "Bard": "expert",
@@ -11202,14 +12353,14 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "53019673": {
   "name": "Pallas Raindance",
   "parse": 76,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 118,
+  "minions": 320,
   "rare": null,
   "level": 100,
   "cc": [
@@ -11231,14 +12382,14 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37065671": {
   "name": "Paxis Stone",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 24,
+  "minions": 77,
   "rare": null,
   "level": 63,
   "cc": [
@@ -11252,14 +12403,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "45094564": {
   "name": "Peace Kumamon",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 29,
+  "minions": 40,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11273,14 +12424,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36162283": {
   "name": "Peace Walker",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 10,
   "rare": null,
   "level": 69,
   "cc": [
@@ -11294,14 +12445,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "22689957": {
   "name": "Peko Saku",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 16,
   "rare": null,
   "level": 82,
   "cc": [
@@ -11315,14 +12466,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36151779": {
   "name": "Percival Heisenberg",
   "parse": 75,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 53,
+  "minions": 57,
   "rare": null,
   "level": 91,
   "cc": [
@@ -11343,15 +12494,15 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "718420": {
   "name": "Phantasm Gloria",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 54,
+  "minions": 73,
+  "rare": 18,
   "level": 100,
   "cc": [
    false,
@@ -11359,19 +12510,40 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   120,
+   121,
+   367,
+   369,
+   811,
+   1933,
+   2033,
+   2040,
+   2085,
+   2770,
+   2775,
+   3638,
+   3645,
+   3646,
+   3647,
+   3759,
+   3782,
+   3784
+  ],
+  "tiers": {
+   "oldtimer": "expert"
+  },
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "17468497": {
   "name": "Pheonix Down",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 43,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -11380,14 +12552,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "43481858": {
   "name": "Pika Juni",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 12,
+  "minions": 35,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11401,14 +12573,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "48010347": {
   "name": "Pineapplepipe Pikachu",
   "parse": 99,
   "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "mounts": 34,
+  "minions": 74,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11427,14 +12599,14 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "57711304": {
   "name": "Pola Lis",
   "parse": 23,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 28,
+  "minions": 80,
   "rare": null,
   "level": 100,
   "cc": [
@@ -11452,7 +12624,7 @@
    "Queen Eternal"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "44475864": {
   "name": "Porokon Savant",
@@ -11479,8 +12651,8 @@
   "name": "Presca Burgstalgen",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 35,
+  "minions": 103,
   "rare": null,
   "level": 100,
   "cc": [
@@ -11494,14 +12666,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "60780260": {
   "name": "Priscilla Deusvult",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 15,
+  "minions": 28,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -11510,14 +12682,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "48050166": {
   "name": "Promptpay Legend",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 2,
+  "minions": 0,
   "rare": null,
   "level": 53,
   "cc": [
@@ -11531,14 +12703,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31632996": {
   "name": "Puni Punii",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 46,
+  "minions": 82,
   "rare": null,
   "level": 80,
   "cc": [
@@ -11552,14 +12724,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "2656352": {
   "name": "Puro Purio",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 31,
+  "minions": 116,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11573,14 +12745,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "41098683": {
   "name": "Qxrt Xq",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 1,
+  "minions": 5,
   "rare": null,
   "level": 52,
   "cc": [
@@ -11594,14 +12766,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "3908109": {
   "name": "Rachel Martius",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 29,
+  "minions": 91,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11615,7 +12787,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "27453486": {
   "name": "Rainbow Byvq",
@@ -11642,8 +12814,8 @@
   "name": "Rana Murphy",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 16,
+  "minions": 66,
   "rare": null,
   "level": 61,
   "cc": [
@@ -11657,14 +12829,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "53799276": {
   "name": "Raysen Windsor",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 5,
+  "minions": 23,
   "rare": null,
   "level": 72,
   "cc": [
@@ -11678,14 +12850,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "47585776": {
   "name": "Ren Amamiyaa",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 9,
   "rare": null,
   "level": 53,
   "cc": [
@@ -11699,14 +12871,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "22164216": {
   "name": "Revan Martius",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 54,
+  "minions": 103,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11720,14 +12892,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "33487130": {
   "name": "Rimuru Tempesta",
   "parse": 54,
   "ult": 5,
-  "mounts": null,
-  "minions": null,
+  "mounts": 79,
+  "minions": 111,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11747,7 +12919,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "40624820": {
   "name": "Rin Miyauchi",
@@ -11797,8 +12969,8 @@
   "name": "Rishima Garaine",
   "parse": 56,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 137,
+  "minions": 336,
   "rare": null,
   "level": 80,
   "cc": [
@@ -11814,7 +12986,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "42646897": {
   "name": "Rising Top",
@@ -11841,8 +13013,8 @@
   "name": "Roku Roku",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 82,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11856,14 +13028,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30472222": {
   "name": "Rossete Sacrifar",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 47,
+  "minions": 185,
   "rare": null,
   "level": 100,
   "cc": [
@@ -11877,14 +13049,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "39961214": {
   "name": "Ruby Sugarstar",
   "parse": 90,
   "ult": 4,
-  "mounts": null,
-  "minions": null,
+  "mounts": 23,
+  "minions": 64,
   "rare": null,
   "level": 100,
   "cc": [
@@ -11910,15 +13082,15 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "35863038": {
   "name": "Ruka Aeon",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 11,
+  "minions": 50,
+  "rare": 0,
   "level": 82,
   "cc": [
    false,
@@ -11931,14 +13103,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29395299": {
   "name": "Runie Run",
   "parse": 79,
   "ult": 4,
-  "mounts": null,
-  "minions": null,
+  "mounts": 38,
+  "minions": 83,
   "rare": null,
   "level": 90,
   "cc": [
@@ -11959,14 +13131,14 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "31710850": {
   "name": "Ryoshi Headhunter",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 4,
+  "minions": 27,
   "rare": null,
   "level": 60,
   "cc": [
@@ -11980,15 +13152,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42053451": {
   "name": "Sam Millers",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 11,
+  "minions": 21,
+  "rare": 0,
   "level": 60,
   "cc": [
    false,
@@ -12001,14 +13173,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37924865": {
   "name": "Samosaz Spici",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 33,
+  "minions": 55,
   "rare": null,
   "level": 56,
   "cc": [
@@ -12022,14 +13194,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "47548993": {
   "name": "Sanya Polaali",
   "parse": 27,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 69,
   "rare": null,
   "level": 61,
   "cc": [
@@ -12047,14 +13219,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29864090": {
   "name": "Scylla Melfrey",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 55,
   "rare": null,
   "level": 100,
   "cc": [
@@ -12068,14 +13240,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "40940579": {
   "name": "Seafood Salad",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 25,
   "rare": null,
   "level": 83,
   "cc": [
@@ -12089,14 +13261,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29501278": {
   "name": "Selene Raenia",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 5,
+  "minions": 8,
   "rare": null,
   "level": 64,
   "cc": [
@@ -12110,14 +13282,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "10837088": {
   "name": "Selker Phantom",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 37,
+  "minions": 91,
   "rare": null,
   "level": 97,
   "cc": [
@@ -12131,14 +13303,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29351667": {
   "name": "Sete Lunarstra",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 13,
   "rare": null,
   "level": 72,
   "cc": [
@@ -12152,7 +13324,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "1607774": {
   "name": "Shiomi Shirogane",
@@ -12259,8 +13431,8 @@
   "name": "Shiraishi Shu",
   "parse": 98,
   "ult": 3,
-  "mounts": null,
-  "minions": null,
+  "mounts": 99,
+  "minions": 185,
   "rare": null,
   "level": 100,
   "cc": [
@@ -12284,14 +13456,14 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "50131148": {
   "name": "Shiryu Shadow",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 14,
+  "minions": 30,
   "rare": null,
   "level": 90,
   "cc": [
@@ -12305,14 +13477,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37236539": {
   "name": "Shivan Ryse",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 94,
+  "minions": 207,
   "rare": null,
   "level": 100,
   "cc": [
@@ -12326,14 +13498,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "32027062": {
   "name": "Sir Colaz",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 28,
   "rare": null,
   "level": 76,
   "cc": [
@@ -12347,14 +13519,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "47715909": {
   "name": "Sleepless Pierrot",
   "parse": 23,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 123,
   "rare": null,
   "level": 90,
   "cc": [
@@ -12368,14 +13540,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "53006949": {
   "name": "Snow Wit",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 19,
+  "minions": 70,
   "rare": null,
   "level": 100,
   "cc": [
@@ -12389,14 +13561,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31239994": {
   "name": "Sopier Kit",
-  "parse": 96,
-  "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "parse": 97,
+  "ult": 5,
+  "mounts": 68,
+  "minions": 125,
   "rare": null,
   "level": 92,
   "cc": [
@@ -12415,16 +13587,20 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "Dragonsong's Reprise"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "35361791": {
   "name": "Soraacg Mikazuki",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 50,
+  "minions": 139,
   "rare": null,
   "level": 90,
   "cc": [
@@ -12438,14 +13614,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "53247027": {
   "name": "Sorara Zeric",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 0,
+  "minions": 0,
   "rare": null,
   "level": 28,
   "cc": [
@@ -12459,14 +13635,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "2801638": {
   "name": "Spacer Kirito",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 10,
+  "minions": 31,
   "rare": null,
   "level": 90,
   "cc": [
@@ -12480,14 +13656,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "23767900": {
   "name": "Spike Le'granddanois",
   "parse": 100,
-  "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "ult": 4,
+  "mounts": 84,
+  "minions": 164,
   "rare": null,
   "level": 100,
   "cc": [
@@ -12501,10 +13677,11 @@
   "jobs": {
    "Viper": "legendary",
    "Monk": "expert",
+   "Dragoon": "expert",
    "Samurai": "legendary",
    "Machinist": "master",
-   "Bard": "expert",
-   "Ninja": "master"
+   "Bard": "master",
+   "Ninja": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -12516,16 +13693,19 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "Futures Rewritten"
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "38971737": {
   "name": "Stongar Scene",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 1,
+  "minions": 3,
   "rare": null,
   "level": 40,
   "cc": [
@@ -12539,14 +13719,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "45194317": {
   "name": "Sweet Dango",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 28,
   "rare": null,
   "level": 89,
   "cc": [
@@ -12560,14 +13740,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "42690618": {
   "name": "Syliz Lena",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 11,
+  "minions": 36,
   "rare": null,
   "level": 90,
   "cc": [
@@ -12581,14 +13761,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36164592": {
   "name": "Synyster Gionni",
-  "parse": 17,
-  "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "parse": 67,
+  "ult": 4,
+  "mounts": 34,
+  "minions": 44,
   "rare": null,
   "level": 90,
   "cc": [
@@ -12599,20 +13779,25 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Samurai": "expert"
+  },
   "ex": [],
   "ults": [
-   "Dragonsong's Reprise"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "43282900": {
   "name": "Takumi Yuki",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 31,
+  "minions": 66,
+  "rare": 0,
   "level": 90,
   "cc": [
    false,
@@ -12625,15 +13810,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29992221": {
   "name": "Tem Sulyvhan",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 10,
+  "minions": 15,
+  "rare": 0,
   "level": 57,
   "cc": [
    false,
@@ -12646,14 +13831,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "30848420": {
   "name": "Temuru Tempesto",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 78,
   "rare": null,
   "level": 80,
   "cc": [
@@ -12667,14 +13852,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "39869488": {
   "name": "Thracie Tood",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 15,
+  "minions": 63,
   "rare": null,
   "level": 100,
   "cc": [
@@ -12688,14 +13873,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "15783222": {
   "name": "Tina Luminous",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 47,
+  "minions": 83,
   "rare": null,
   "level": 84,
   "cc": null,
@@ -12704,14 +13889,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-08-27"
  },
  "34524608": {
   "name": "Tinana Titania",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 28,
+  "minions": 80,
   "rare": null,
   "level": 82,
   "cc": [
@@ -12725,7 +13910,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "39073020": {
   "name": "Toasted Bread",
@@ -12754,8 +13939,8 @@
   "name": "Tofu Tofu",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 47,
   "rare": null,
   "level": 80,
   "cc": [
@@ -12769,7 +13954,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "37843804": {
   "name": "Tony Woodsome",
@@ -12796,8 +13981,8 @@
   "name": "Toru Celestial",
   "parse": 52,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 25,
+  "minions": 43,
   "rare": null,
   "level": 100,
   "cc": [
@@ -12815,14 +14000,14 @@
    "Necron"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 27,
+  "minions": 91,
   "rare": null,
   "level": 90,
   "cc": [
@@ -12836,14 +14021,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "31833183": {
   "name": "Ull Sixktraz",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 7,
+  "minions": 39,
   "rare": null,
   "level": 57,
   "cc": [
@@ -12857,14 +14042,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34357286": {
   "name": "Umbra Cereza",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 48,
+  "minions": 76,
   "rare": null,
   "level": 74,
   "cc": [
@@ -12878,7 +14063,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "34597671": {
   "name": "Valkyries Zearaskia",
@@ -12952,8 +14137,8 @@
   "name": "Vanir Arkwright",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 45,
+  "minions": 62,
   "rare": null,
   "level": 87,
   "cc": [
@@ -12967,14 +14152,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "23921786": {
   "name": "Vinera Fennes",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 12,
+  "minions": 33,
   "rare": null,
   "level": 80,
   "cc": [
@@ -12988,14 +14173,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "50416713": {
   "name": "Viperrin Stormrage",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 24,
   "rare": null,
   "level": 89,
   "cc": [
@@ -13009,15 +14194,15 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "36490427": {
   "name": "Waffle Spike",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
+  "mounts": 44,
+  "minions": 135,
+  "rare": 22,
   "level": 90,
   "cc": [
    false,
@@ -13025,19 +14210,42 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   1968,
+   2052,
+   2551,
+   2659,
+   2660,
+   2661,
+   2662,
+   2663,
+   2664,
+   2665,
+   2668,
+   2787,
+   2788,
+   2789,
+   2790,
+   2791,
+   2792,
+   2793,
+   2794,
+   2795,
+   2796,
+   2972
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "28067306": {
   "name": "Warlord Akuma",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 30,
   "rare": null,
   "level": 80,
   "cc": [
@@ -13051,14 +14259,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "51078504": {
   "name": "Wayde Skyrunner",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 2,
+  "minions": 14,
   "rare": null,
   "level": 76,
   "cc": [
@@ -13072,14 +14280,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "51359685": {
   "name": "Whiskerus Purrenius",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 23,
+  "minions": 50,
   "rare": null,
   "level": 100,
   "cc": [
@@ -13093,14 +14301,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "27293755": {
   "name": "Whitebyss Light",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 21,
+  "minions": 81,
   "rare": null,
   "level": 83,
   "cc": [
@@ -13114,14 +14322,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "29853808": {
   "name": "Winner Hamm",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 67,
   "rare": null,
   "level": 63,
   "cc": [
@@ -13135,14 +14343,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-27"
  },
  "49712485": {
   "name": "Winston Tnot",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 15,
+  "minions": 41,
   "rare": null,
   "level": 45,
   "cc": [
@@ -13156,14 +14364,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "30088400": {
   "name": "Winyaan Seirei",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 19,
+  "minions": 51,
   "rare": null,
   "level": 90,
   "cc": [
@@ -13177,14 +14385,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "36427926": {
   "name": "Wipa Chawa",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 60,
+  "minions": 98,
   "rare": null,
   "level": 90,
   "cc": [
@@ -13198,7 +14406,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "26634125": {
   "name": "Wtdragonus Zenith",
@@ -13225,8 +14433,8 @@
   "name": "Xia Qingyue",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 51,
   "rare": null,
   "level": 90,
   "cc": [
@@ -13240,14 +14448,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "36315588": {
   "name": "Xlis Alice",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 44,
   "rare": null,
   "level": 50,
   "cc": [
@@ -13261,14 +14469,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "29881709": {
   "name": "Y'uki No",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 100,
+  "minions": 202,
   "rare": null,
   "level": 54,
   "cc": [
@@ -13282,14 +14490,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "51060767": {
   "name": "Yatchy Concreategirls",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 8,
+  "minions": 18,
   "rare": null,
   "level": 76,
   "cc": [
@@ -13303,14 +14511,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "47423083": {
   "name": "Yueying Hua",
   "parse": 45,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 56,
   "rare": null,
   "level": 90,
   "cc": [
@@ -13324,14 +14532,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "38841973": {
   "name": "Yujin Narak",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 4,
+  "minions": 6,
   "rare": null,
   "level": 54,
   "cc": [
@@ -13345,14 +14553,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "48152565": {
   "name": "Yuma Miretmoor",
   "parse": 89,
-  "ult": 2,
-  "mounts": null,
-  "minions": null,
+  "ult": 3,
+  "mounts": 70,
+  "minions": 119,
   "rare": null,
   "level": 100,
   "cc": [
@@ -13374,17 +14582,18 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "42832439": {
   "name": "Yume Mukuchi",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 18,
+  "minions": 33,
   "rare": null,
   "level": 65,
   "cc": [
@@ -13398,14 +14607,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "693670": {
   "name": "Zediez Vesarius",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 32,
+  "minions": 99,
   "rare": null,
   "level": 100,
   "cc": [
@@ -13419,7 +14628,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "35629716": {
   "name": "Zeldris Ragnarsson",
@@ -13446,8 +14655,8 @@
   "name": "Zene Neko",
   "parse": 90,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 39,
+  "minions": 67,
   "rare": null,
   "level": 100,
   "cc": [
@@ -13466,14 +14675,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "10926041": {
   "name": "Zero Einzbern",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 43,
+  "minions": 84,
   "rare": null,
   "level": 90,
   "cc": [
@@ -13487,7 +14696,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "40669284": {
   "name": "Zewen Naptune",
@@ -13514,8 +14723,8 @@
   "name": "Zige Regios",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 35,
+  "minions": 52,
   "rare": null,
   "level": 85,
   "cc": [
@@ -13529,14 +14738,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "34172006": {
   "name": "Zion Zoen",
   "parse": 81,
   "ult": 1,
-  "mounts": null,
-  "minions": null,
+  "mounts": 51,
+  "minions": 73,
   "rare": null,
   "level": 90,
   "cc": [
@@ -13556,14 +14765,14 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "44401264": {
   "name": "Zireael Foley",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 5,
+  "minions": 12,
   "rare": null,
   "level": 86,
   "cc": [
@@ -13577,14 +14786,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "42146242": {
   "name": "Zxazi Rowan",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 28,
+  "minions": 84,
   "rare": null,
   "level": 100,
   "cc": [
@@ -13598,14 +14807,14 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "43412434": {
   "name": "Zylith Sweeney",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 43,
+  "minions": 173,
   "rare": null,
   "level": 100,
   "cc": [
@@ -13619,6 +14828,6 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  }
 }
