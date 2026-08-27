@@ -2,6 +2,48 @@
  "events": [
   {
    "date": "2026-08-27",
+   "type": "level_100",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "level_100",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "level_100",
+   "id": 34434658,
+   "name": "Araiva Leonhart",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-27",
+   "type": "level_100",
+   "id": 60873337,
+   "name": "Imy Kitty",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-27",
    "type": "grade_up",
    "id": 3968346,
    "name": "Panuz Chocobunny",
@@ -1357,48 +1399,6 @@
    "id": 31519555,
    "name": "Ernese Gold",
    "text": "set a new best parse: 50"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 31519555,
-   "name": "Ernese Gold",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 36228998,
-   "name": "Fishstop Moon-osha",
-   "text": "set a new best parse: 92"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 36228998,
-   "name": "Fishstop Moon-osha",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 36228998,
-   "name": "Fishstop Moon-osha",
-   "text": "is now a Expert Scholar"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 30559609,
-   "name": "Florice Frostingway",
-   "text": "set a new best parse: 53"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 30559609,
-   "name": "Florice Frostingway",
-   "text": "cleared Dragonsong's Reprise 🏆"
   }
  ]
 }

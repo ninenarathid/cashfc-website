@@ -587,7 +587,7 @@
   "mounts": 146,
   "minions": 242,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -612,7 +612,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "31236337": {
   "name": "Whitefrost Marionette",
@@ -1094,7 +1094,7 @@
   "mounts": 105,
   "minions": 135,
   "rare": 62,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -1697,7 +1697,7 @@
   "mounts": 44,
   "minions": 80,
   "rare": 15,
-  "level": 77,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -1814,7 +1814,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -3146,7 +3146,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3791,7 +3791,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 71,
+  "level": 74,
   "cc": [
    true,
    true,
@@ -3955,7 +3955,7 @@
   "mounts": 21,
   "minions": 94,
   "rare": null,
-  "level": 35,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -4217,7 +4217,7 @@
   "mounts": 63,
   "minions": 144,
   "rare": 19,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4251,7 +4251,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-27"
  },
  "14476396": {
   "name": "Arawn A'nnwn",
@@ -4731,7 +4731,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -4755,7 +4755,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "35601257": {
   "name": "Elaina Celestial",
@@ -4813,7 +4813,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 100,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -4876,14 +4876,14 @@
   "mounts": 27,
   "minions": 103,
   "rare": null,
-  "level": 86,
+  "level": 87,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -4959,7 +4959,7 @@
   "mounts": 11,
   "minions": 33,
   "rare": null,
-  "level": 44,
+  "level": 83,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -5143,7 +5143,7 @@
   "mounts": 35,
   "minions": 105,
   "rare": 2,
-  "level": 88,
+  "level": 46,
   "cc": [
    true,
    true,
@@ -5158,7 +5158,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -5257,7 +5257,7 @@
   "mounts": 30,
   "minions": 57,
   "rare": null,
-  "level": 72,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -5481,7 +5481,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": null,
-  "level": 72,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5497,7 +5497,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-26"
+  "chg": "2026-08-27"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -5653,7 +5653,7 @@
   "mounts": 29,
   "minions": 83,
   "rare": 9,
-  "level": 100,
+  "level": 52,
   "cc": [
    false,
    false,
@@ -5837,7 +5837,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 100,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -5865,7 +5865,7 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 37,
+  "level": 61,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -6034,7 +6034,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 100,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -6331,7 +6331,7 @@
   "mounts": 6,
   "minions": 19,
   "rare": null,
-  "level": 88,
+  "level": 89,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -6347,7 +6347,7 @@
   "mounts": 16,
   "minions": 42,
   "rare": null,
-  "level": 69,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6405,7 +6405,7 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 100,
+  "level": 56,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
