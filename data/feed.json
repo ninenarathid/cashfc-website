@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-08-28",
+   "type": "level_100",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "level_100",
+   "id": 47494518,
+   "name": "Farcia Soluna",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "level_100",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 16099244,
+   "name": "Luna Froggo",
+   "text": "is now a Legendary Paladin"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "level_100",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "level_100",
+   "id": 33387937,
+   "name": "R'bael Senkou",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "is now a Master Dark Knight"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "parse_up",
+   "id": 3256238,
+   "name": "Ai Tsukuyomi",
+   "text": "set a new best parse: 17"
+  },
+  {
+   "date": "2026-08-28",
    "type": "ult_clear",
    "id": 6173187,
    "name": "Motochita Muses",
@@ -1329,76 +1399,6 @@
    "id": 23767900,
    "name": "Spike Le'granddanois",
    "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "job_up",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "is now a Expert Dragoon"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "job_up",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "is now a Master Bard"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "job_up",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "is now a Legendary Ninja"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "parse_up",
-   "id": 36164592,
-   "name": "Synyster Gionni",
-   "text": "set a new best parse: 67"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 36164592,
-   "name": "Synyster Gionni",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 36164592,
-   "name": "Synyster Gionni",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 36164592,
-   "name": "Synyster Gionni",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "job_up",
-   "id": 36164592,
-   "name": "Synyster Gionni",
-   "text": "is now a Expert Samurai"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 36490427,
-   "name": "Waffle Spike",
-   "text": "earned Dear Leader III — only 3.8% of players have it, and 21 more"
   }
  ]
 }

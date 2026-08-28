@@ -1124,7 +1124,7 @@
   "mounts": 105,
   "minions": 135,
   "rare": 62,
-  "level": 90,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1221,7 +1221,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -3669,7 +3669,7 @@
   "mounts": 21,
   "minions": 65,
   "rare": null,
-  "level": 100,
+  "level": 63,
   "cc": [
    true,
    true,
@@ -3685,7 +3685,7 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -3866,7 +3866,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 75,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3990,7 +3990,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 94,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -4002,7 +4002,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -4032,7 +4032,7 @@
   "mounts": 21,
   "minions": 94,
   "rare": null,
-  "level": 77,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -4891,7 +4891,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 89,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -4954,7 +4954,7 @@
   "mounts": 27,
   "minions": 103,
   "rare": null,
-  "level": 92,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -5037,7 +5037,7 @@
   "mounts": 11,
   "minions": 33,
   "rare": null,
-  "level": 84,
+  "level": 86,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -5221,7 +5221,7 @@
   "mounts": 35,
   "minions": 105,
   "rare": 2,
-  "level": 46,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -5236,7 +5236,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -5372,7 +5372,7 @@
   "mounts": 57,
   "minions": 194,
   "rare": null,
-  "level": 78,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -5508,7 +5508,8 @@
   "jobs": {
    "DarkKnight": "master",
    "Warrior": "legendary",
-   "Gunbreaker": "legendary"
+   "Gunbreaker": "legendary",
+   "Paladin": "legendary"
   },
   "ex": [
    "Queen Eternal",
@@ -5559,7 +5560,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 100,
+  "level": 46,
   "cc": [
    false,
    false,
@@ -5737,7 +5738,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 86,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5751,7 +5752,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -5760,7 +5761,7 @@
   "mounts": 29,
   "minions": 83,
   "rare": 9,
-  "level": 52,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -5782,7 +5783,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "8113158": {
   "name": "Olivie Brown",
@@ -5944,7 +5945,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5963,7 +5964,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "60599300": {
   "name": "Rainy Tempestra",
@@ -6153,7 +6154,8 @@
   "jobs": {
    "Viper": "legendary",
    "Reaper": "legendary",
-   "Gunbreaker": "expert"
+   "Gunbreaker": "expert",
+   "DarkKnight": "master"
   },
   "ex": [
    "Doomtrain",
@@ -6491,7 +6493,7 @@
   "mounts": 5,
   "minions": 21,
   "rare": null,
-  "level": 66,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -6512,14 +6514,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 56,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -6790,7 +6792,7 @@
  },
  "3256238": {
   "name": "Ai Tsukuyomi",
-  "parse": 7,
+  "parse": 17,
   "ult": 0,
   "mounts": 30,
   "minions": 101,
@@ -6809,7 +6811,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-28"
  },
  "45150763": {
   "name": "Aiqing Kumamon",

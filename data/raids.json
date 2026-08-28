@@ -13542,6 +13542,45 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 75,
+      "median": 35,
+      "kills": 12,
+      "job": "Dancer"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 70,
+      "median": 31,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 80,
+      "median": 35,
+      "kills": 7,
+      "job": "Dancer"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 44,
+      "median": 44,
+      "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -13715,9 +13754,9 @@
     {
      "label": "M10S",
      "name": "Red Hot and Deep Blue",
-     "best": 8,
+     "best": 14,
      "median": 7,
-     "kills": 3,
+     "kills": 4,
      "job": "BlackMage"
     }
    ],
@@ -13731,7 +13770,39 @@
   "ultimates": [],
   "extremes": [],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 22,
+    "last": "2026-08-27"
+   },
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-25"
+   },
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 45.16,
+    "phase": 0,
+    "pulls": 20,
+    "last": "2026-08-20"
+   }
+  ]
  },
  "24114157": {
   "current": {
@@ -13826,8 +13897,36 @@
     "cleared": true
    }
   ],
-  "legacy": [],
-  "_status": "ok"
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 3,
+      "median": 3,
+      "kills": 2,
+      "job": "Paladin"
+     }
+    ]
+   }
+  ],
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 27,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "46739693": {
   "current": {
@@ -14003,6 +14102,53 @@
   ],
   "legacy": [
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 100,
+      "median": 94,
+      "kills": 9,
+      "job": "Paladin"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 100,
+      "median": 96,
+      "kills": 9,
+      "job": "Paladin"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 99,
+      "median": 89,
+      "kills": 9,
+      "job": "Paladin"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 97,
+      "median": 83,
+      "kills": 16,
+      "job": "Paladin"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 90,
+      "median": 81,
+      "kills": 8,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -14128,7 +14274,23 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 28,
+      "median": 19,
+      "kills": 2,
+      "job": "RedMage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "46243891": {
@@ -14960,8 +15122,68 @@
     "cleared": true
    }
   ],
-  "legacy": [],
-  "_status": "ok"
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 86,
+      "median": 57,
+      "kills": 6,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 70,
+      "median": 51,
+      "kills": 8,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 68,
+      "median": 51,
+      "kills": 8,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 91,
+      "median": 66,
+      "kills": 9,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 96,
+      "median": 67,
+      "kills": 6,
+      "job": "DarkKnight"
+     }
+    ]
+   }
+  ],
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 0.57,
+    "phase": 2,
+    "pulls": 139,
+    "last": "2026-08-26"
+   }
+  ]
  },
  "49929911": {
   "current": {
@@ -15247,7 +15469,47 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 50,
+      "median": 15,
+      "kills": 15,
+      "job": "Summoner"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 62,
+      "median": 7,
+      "kills": 12,
+      "job": "Summoner"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 26,
+      "median": 11,
+      "kills": 11,
+      "job": "Summoner"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 14,
+      "median": 13,
+      "kills": 5,
+      "job": "Summoner"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "15932791": {
@@ -15600,7 +15862,55 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "name": "Kokytos",
+      "best": 16,
+      "median": 8,
+      "kills": 5,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P10S",
+      "name": "Pandaemonium",
+      "best": 11,
+      "median": 3,
+      "kills": 8,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P11S",
+      "name": "Themis",
+      "best": 17,
+      "median": 6,
+      "kills": 9,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P12S-1",
+      "name": "Athena",
+      "best": 17,
+      "median": 7,
+      "kills": 39,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P12S-2",
+      "name": "Pallas Athena",
+      "best": 4,
+      "median": 3,
+      "kills": 5,
+      "job": "BlackMage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "45150763": {
