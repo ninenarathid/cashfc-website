@@ -1,6 +1,384 @@
 {
  "events": [
   {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "is now a Expert White Mage"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "is now a Expert Dancer"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "is now a Master Reaper"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "is now a Legendary Dragoon"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Master Sage"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Expert Dark Knight"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 47540663,
+   "name": "Edel Meither",
+   "text": "is now a Legendary Dragoon"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "parse_up",
+   "id": 28950119,
+   "name": "Einz Aizerces",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "is now a Master Dark Knight"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "parse_up",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "set a new best parse: 80"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "parse_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "set a new best parse: 64"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "cleared The Epic of Alexander 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "ult_clear",
+   "id": 38808156,
+   "name": "Kwiyo Ki",
+   "text": "cleared The Unending Coil of Bahamut 🏆"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "parse_up",
+   "id": 31902843,
+   "name": "Lapista Scholares",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Legendary Pictomancer"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "job_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "is now a Master Dancer"
+  },
+  {
+   "date": "2026-08-28",
+   "type": "level_100",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "reached level 100!"
+  },
+  {
    "date": "2026-08-27",
    "type": "level_100",
    "id": 29511615,
@@ -1021,384 +1399,6 @@
    "id": 34611224,
    "name": "Momose Hochizora",
    "text": "set a new best parse: 55"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 34611224,
-   "name": "Momose Hochizora",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 37815847,
-   "name": "Necro Himawari",
-   "text": "set a new best parse: 48"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 36149590,
-   "name": "Neo Anderson",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 37731936,
-   "name": "Null Skyrage",
-   "text": "set a new best parse: 73"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 37731936,
-   "name": "Null Skyrage",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 37731936,
-   "name": "Null Skyrage",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 37731936,
-   "name": "Null Skyrage",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 47494518,
-   "name": "Farcia Soluna",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 7283668,
-   "name": "Nowhere Man",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 33387937,
-   "name": "R'bael Senkou",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 25619696,
-   "name": "Taro Yeon",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "set a new best parse: 94"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "is now a Expert Black Mage"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 20014912,
-   "name": "Kaede Chan",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 20014912,
-   "name": "Kaede Chan",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 20014912,
-   "name": "Kaede Chan",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 20014912,
-   "name": "Kaede Chan",
-   "text": "is now a Legendary Scholar"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 34155014,
-   "name": "Karok Yawn",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 34155014,
-   "name": "Karok Yawn",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 34155014,
-   "name": "Karok Yawn",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "set a new best parse: 38"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 50417039,
-   "name": "King's Tarotto",
-   "text": "set a new best parse: 11"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 50417039,
-   "name": "King's Tarotto",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 39034125,
-   "name": "Kirin Rin",
-   "text": "set a new best parse: 75"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 39034125,
-   "name": "Kirin Rin",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 48527875,
-   "name": "Kotetsu Bardly",
-   "text": "set a new best parse: 40"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 48527875,
-   "name": "Kotetsu Bardly",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 48527875,
-   "name": "Kotetsu Bardly",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "set a new best parse: 90"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "grade_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "rare_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "earned Son of a... — only 0.3% of players have it, and 63 more"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned The Outer Researches — only 4.8% of players have it"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 32046284,
-   "name": "Ene Shy",
-   "text": "set a new best parse: 83"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "ult_clear",
-   "id": 32046284,
-   "name": "Ene Shy",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 32046284,
-   "name": "Ene Shy",
-   "text": "is now a Expert Machinist"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "is now a Legendary Gunbreaker"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "job_up",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "is now a Master Dark Knight"
-  },
-  {
-   "date": "2026-08-26",
-   "type": "parse_up",
-   "id": 31519555,
-   "name": "Ernese Gold",
-   "text": "set a new best parse: 50"
   }
  ]
 }

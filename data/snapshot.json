@@ -28,7 +28,7 @@
  "15308846": {
   "name": "Aqua Eleison",
   "parse": 100,
-  "ult": 2,
+  "ult": 4,
   "mounts": 255,
   "minions": 463,
   "rare": null,
@@ -54,10 +54,12 @@
    "Zelenia"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
-   "The Epic of Alexander"
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-28"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -198,7 +200,7 @@
  "28789661": {
   "name": "Zuma Zerk",
   "parse": 100,
-  "ult": 2,
+  "ult": 6,
   "mounts": 70,
   "minions": 151,
   "rare": null,
@@ -223,15 +225,19 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
-   "The Epic of Alexander"
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "31628293": {
   "name": "Aaaaaaa Yaaaaaa",
   "parse": 96,
-  "ult": 1,
+  "ult": 5,
   "mounts": 143,
   "minions": 287,
   "rare": null,
@@ -245,13 +251,17 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "master"
+   "Scholar": "expert"
   },
   "ex": [],
   "ults": [
-   "The Epic of Alexander"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "57885671": {
   "name": "Aisu Kazimira",
@@ -298,7 +308,7 @@
  "24186600": {
   "name": "Dumb Bunny",
   "parse": 98,
-  "ult": 1,
+  "ult": 4,
   "mounts": 108,
   "minions": 174,
   "rare": null,
@@ -313,7 +323,8 @@
   "tiers": {},
   "jobs": {
    "Paladin": "master",
-   "Summoner": "legendary"
+   "Summoner": "legendary",
+   "WhiteMage": "expert"
   },
   "ex": [
    "Necron",
@@ -323,9 +334,12 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "The Epic of Alexander"
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-28"
  },
  "29152036": {
   "name": "Fluffy Tinytail",
@@ -583,7 +597,7 @@
  "29511615": {
   "name": "Whitefang Dimmoon",
   "parse": 97,
-  "ult": 1,
+  "ult": 2,
   "mounts": 146,
   "minions": 242,
   "rare": null,
@@ -599,6 +613,7 @@
   "jobs": {
    "Samurai": "master",
    "WhiteMage": "expert",
+   "Dancer": "expert",
    "Paladin": "expert"
   },
   "ex": [
@@ -610,14 +625,15 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "The Epic of Alexander"
+   "The Epic of Alexander",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "31236337": {
   "name": "Whitefrost Marionette",
   "parse": 98,
-  "ult": 2,
+  "ult": 6,
   "mounts": 75,
   "minions": 144,
   "rare": null,
@@ -644,10 +660,14 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
-   "The Epic of Alexander"
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -673,7 +693,7 @@
  "13533056": {
   "name": "Akemi Rei",
   "parse": 100,
-  "ult": 4,
+  "ult": 5,
   "mounts": 131,
   "minions": 337,
   "rare": 142,
@@ -794,7 +814,8 @@
    "RedMage": "legendary",
    "Warrior": "master",
    "Pictomancer": "expert",
-   "Reaper": "legendary"
+   "Reaper": "legendary",
+   "Machinist": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -807,9 +828,10 @@
    "Dragonsong's Reprise",
    "Futures Rewritten",
    "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-28"
  },
  "44970350": {
   "name": "Allen Crist",
@@ -838,7 +860,7 @@
  "19827594": {
   "name": "Aylufa Regolith",
   "parse": 95,
-  "ult": 3,
+  "ult": 6,
   "mounts": 213,
   "minions": 356,
   "rare": null,
@@ -866,11 +888,14 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
    "The Epic of Alexander",
-   "The Omega Protocol"
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "45938803": {
   "name": "Blue Mana",
@@ -958,7 +983,7 @@
  "26699926": {
   "name": "Boonies Princess",
   "parse": 99,
-  "ult": 2,
+  "ult": 3,
   "mounts": 155,
   "minions": 188,
   "rare": null,
@@ -987,10 +1012,11 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "32147756": {
   "name": "Bunny Nirawz",
@@ -1027,7 +1053,7 @@
  "36261473": {
   "name": "Cheryl Klenovich",
   "parse": 100,
-  "ult": 2,
+  "ult": 6,
   "mounts": 87,
   "minions": 220,
   "rare": null,
@@ -1051,10 +1077,14 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dragonsong's Reprise",
    "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "36130968": {
   "name": "Chu Celestial",
@@ -1170,8 +1200,9 @@
   },
   "jobs": {
    "Viper": "master",
+   "Reaper": "master",
    "Gunbreaker": "expert",
-   "Warrior": "legendary"
+   "Warrior": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1380,7 +1411,7 @@
   },
   "jobs": {
    "Gunbreaker": "expert",
-   "Dragoon": "master"
+   "Dragoon": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1498,7 +1529,8 @@
   },
   "jobs": {
    "Astrologian": "master",
-   "Sage": "expert",
+   "Sage": "master",
+   "DarkKnight": "expert",
    "Samurai": "legendary"
   },
   "ex": [
@@ -1533,7 +1565,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "legendary",
-   "Dragoon": "master"
+   "Dragoon": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1551,7 +1583,7 @@
  },
  "28950119": {
   "name": "Einz Aizerces",
-  "parse": 93,
+  "parse": 97,
   "ult": 2,
   "mounts": 117,
   "minions": 228,
@@ -1597,12 +1629,12 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-28"
  },
  "28120733": {
   "name": "Fukurou Under",
   "parse": 96,
-  "ult": 0,
+  "ult": 4,
   "mounts": 174,
   "minions": 271,
   "rare": null,
@@ -1617,7 +1649,8 @@
   "tiers": {},
   "jobs": {
    "Gunbreaker": "master",
-   "Warrior": "legendary"
+   "Warrior": "master",
+   "DarkKnight": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1629,8 +1662,13 @@
    "Zelenia",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-08-27"
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-28"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -1668,7 +1706,7 @@
  },
  "50821570": {
   "name": "Haruki Mizumoto",
-  "parse": 74,
+  "parse": 80,
   "ult": 0,
   "mounts": 18,
   "minions": 98,
@@ -1682,13 +1720,15 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Machinist": "expert"
+  },
   "ex": [
    "Doomtrain",
    "Enuo"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "42349146": {
   "name": "Henzski Celestial",
@@ -1697,7 +1737,7 @@
   "mounts": 44,
   "minions": 80,
   "rare": 15,
-  "level": 80,
+  "level": 82,
   "cc": [
    true,
    true,
@@ -1738,11 +1778,11 @@
    "Dragonsong's Reprise",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
-  "parse": 48,
+  "parse": 64,
   "ult": 0,
   "mounts": 94,
   "minions": 206,
@@ -1767,7 +1807,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -1831,7 +1871,7 @@
  "25506828": {
   "name": "Kururuki Tzuzaku",
   "parse": 99,
-  "ult": 1,
+  "ult": 5,
   "mounts": 102,
   "minions": 261,
   "rare": null,
@@ -1855,14 +1895,18 @@
    "Zoraal Ja"
   ],
   "ults": [
-   "Futures Rewritten"
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "38808156": {
   "name": "Kwiyo Ki",
   "parse": 97,
-  "ult": 2,
+  "ult": 3,
   "mounts": 77,
   "minions": 137,
   "rare": 19,
@@ -1914,13 +1958,14 @@
   ],
   "ults": [
    "Dragonsong's Reprise",
-   "The Epic of Alexander"
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-28"
  },
  "31902843": {
   "name": "Lapista Scholares",
-  "parse": 98,
+  "parse": 99,
   "ult": 6,
   "mounts": 113,
   "minions": 177,
@@ -1982,7 +2027,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-28"
  },
  "30864049": {
   "name": "Lay Stardust",
@@ -2109,8 +2154,9 @@
    "Dancer": "master",
    "WhiteMage": "master",
    "RedMage": "expert",
-   "Pictomancer": "master",
-   "Astrologian": "expert"
+   "Pictomancer": "legendary",
+   "Astrologian": "expert",
+   "Summoner": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -2254,7 +2300,7 @@
   },
   "jobs": {
    "Scholar": "expert",
-   "Sage": "master",
+   "Sage": "expert",
    "WhiteMage": "expert",
    "RedMage": "master"
   },
@@ -2295,7 +2341,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dancer": "expert"
+   "Dancer": "master"
   },
   "ex": [
    "Doomtrain",
@@ -4731,7 +4777,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 90,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4755,7 +4801,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "35601257": {
   "name": "Elaina Celestial",
@@ -4813,7 +4859,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 83,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -4825,7 +4871,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-28"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",

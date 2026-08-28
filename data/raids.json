@@ -124,6 +124,16 @@
     "cleared": true
    },
    {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 84,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
@@ -131,6 +141,16 @@
     "best": 65,
     "kills": 3,
     "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 9,
+    "kills": 1,
+    "job": "Paladin",
     "cleared": true
    }
   ],
@@ -469,12 +489,52 @@
     "cleared": true
    },
    {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 97,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 96,
+    "kills": 13,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
     "name": "The Epic of Alexander",
     "best": 100,
     "kills": 51,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 100,
+    "kills": 25,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 98,
+    "kills": 27,
     "job": "Warrior",
     "cleared": true
    }
@@ -629,7 +689,19 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 0.47,
+    "phase": 2,
+    "pulls": 93,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "31628293": {
   "current": {
@@ -646,12 +718,52 @@
   },
   "ultimates": [
    {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 47,
+    "kills": 1,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 35,
+    "kills": 11,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
     "name": "The Epic of Alexander",
     "best": 10,
     "kills": 17,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 35,
+    "kills": 10,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 32,
+    "kills": 13,
     "job": "Scholar",
     "cleared": true
    }
@@ -759,12 +871,42 @@
   },
   "ultimates": [
    {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 39,
+    "kills": 9,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 75,
+    "kills": 13,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
     "name": "The Epic of Alexander",
     "best": 40,
     "kills": 4,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 64,
+    "kills": 9,
     "job": "WhiteMage",
     "cleared": true
    }
@@ -1131,7 +1273,19 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "35634484": {
   "current": {
@@ -1462,6 +1616,16 @@
     "kills": 9,
     "job": "WhiteMage",
     "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 96,
+    "kills": 18,
+    "job": "Dancer",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -1658,6 +1822,26 @@
     "cleared": true
    },
    {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 4,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 68,
+    "kills": 11,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
@@ -1665,6 +1849,26 @@
     "best": 56,
     "kills": 32,
     "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 39,
+    "kills": 10,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 38,
+    "kills": 3,
+    "job": "WhiteMage",
     "cleared": true
    }
   ],
@@ -1828,7 +2032,19 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 0.47,
+    "phase": 2,
+    "pulls": 94,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "13533056": {
   "current": {
@@ -1903,6 +2119,46 @@
     "best": 70,
     "kills": 1,
     "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 60,
+    "kills": 1,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 81,
+    "kills": 8,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 97,
+    "kills": 3,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 72,
+    "kills": 4,
+    "job": "RedMage",
     "cleared": true
    }
   ],
@@ -2163,11 +2419,51 @@
     "cleared": true
    },
    {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 47,
+    "kills": 19,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 68,
+    "kills": 4,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
     "name": "The Epic of Alexander",
     "best": 56,
+    "kills": 14,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 15,
+    "kills": 15,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 30,
     "kills": 14,
     "job": "Dancer",
     "cleared": true
@@ -2333,7 +2629,19 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 1.3,
+    "phase": 3,
+    "pulls": 66,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "45938803": {
   "current": {
@@ -2354,7 +2662,7 @@
      "name": "Red Hot and Deep Blue",
      "best": 87,
      "median": 77,
-     "kills": 7,
+     "kills": 8,
      "job": "Ninja"
     },
     {
@@ -2494,7 +2802,29 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 6,
+    "last": "2026-08-27"
+   },
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "36248712": {
   "current": {
@@ -2509,7 +2839,48 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 51,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 6,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 65,
+    "kills": 1,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 20,
+    "kills": 5,
+    "job": "Sage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -2649,6 +3020,16 @@
     "cleared": true
    },
    {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 25,
+    "kills": 3,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
@@ -2782,7 +3163,19 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 0.47,
+    "phase": 2,
+    "pulls": 93,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "32147756": {
   "current": {
@@ -3037,6 +3430,46 @@
     "kills": 1,
     "job": "Astrologian",
     "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 53,
+    "kills": 19,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 59,
+    "kills": 5,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 51,
+    "kills": 3,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 21,
+    "kills": 1,
+    "job": "Astrologian",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -3179,7 +3612,19 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 2.38,
+    "phase": 3,
+    "pulls": 137,
+    "last": "2026-08-27"
+   }
+  ]
  },
  "36130968": {
   "current": {
@@ -3208,7 +3653,7 @@
      "name": "The Tyrant",
      "best": 82,
      "median": 55,
-     "kills": 10,
+     "kills": 11,
      "job": "BlackMage"
     },
     {
@@ -3216,7 +3661,7 @@
      "name": "Lindwurm",
      "best": 70,
      "median": 40,
-     "kills": 14,
+     "kills": 15,
      "job": "BlackMage"
     },
     {
@@ -3224,7 +3669,7 @@
      "name": "Lindwurm II",
      "best": 48,
      "median": 28,
-     "kills": 5,
+     "kills": 6,
      "job": "BlackMage"
     }
    ],
@@ -3330,7 +3775,59 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 2,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 105,
+    "name": "Lindwurm II",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 4,
+    "last": "2026-08-18"
+   },
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 8,
+    "last": "2026-08-18"
+   }
+  ]
  },
  "28579232": {
   "current": {
@@ -3398,12 +3895,52 @@
     "cleared": true
    },
    {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 27,
+    "kills": 6,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 48,
+    "kills": 4,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
     "name": "The Epic of Alexander",
     "best": 68,
     "kills": 6,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 20,
+    "kills": 7,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 18,
+    "kills": 15,
     "job": "Paladin",
     "cleared": true
    }
@@ -3492,6 +4029,45 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 95,
+      "median": 47,
+      "kills": 15,
+      "job": "Reaper"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 79,
+      "median": 29,
+      "kills": 13,
+      "job": "Reaper"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 50,
+      "median": 17,
+      "kills": 9,
+      "job": "Reaper"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 79,
+      "median": 47,
+      "kills": 7,
+      "job": "Reaper"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -3539,7 +4115,29 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 5,
+    "last": "2026-08-25"
+   },
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 6,
+    "last": "2026-08-19"
+   }
+  ]
  },
  "47221226": {
   "current": {
@@ -3614,6 +4212,36 @@
     "best": 87,
     "kills": 3,
     "job": "Monk",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 23,
+    "kills": 2,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 45,
+    "kills": 3,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 63,
+    "kills": 2,
+    "job": "Samurai",
     "cleared": true
    }
   ],
@@ -3691,6 +4319,45 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 92,
+      "median": 85,
+      "kills": 10,
+      "job": "Monk"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 73,
+      "median": 64,
+      "kills": 6,
+      "job": "Monk"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 72,
+      "median": 45,
+      "kills": 6,
+      "job": "Monk"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 54,
+      "median": 32,
+      "kills": 6,
+      "job": "Monk"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -3706,7 +4373,19 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 62,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "39199441": {
   "current": {
@@ -3762,7 +4441,38 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 5,
+    "kills": 1,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 86,
+    "kills": 11,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 84,
+    "kills": 3,
+    "job": "Dragoon",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -3816,6 +4526,21 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 40,
+      "median": 40,
+      "kills": 1,
+      "job": "Dragoon"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -3880,7 +4605,48 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 90,
+    "kills": 19,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 61,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 95,
+    "kills": 23,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 89,
+    "kills": 16,
+    "job": "Sage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials II (Extreme)",
@@ -3989,25 +4755,25 @@
     {
      "label": "M11S",
      "name": "The Tyrant",
-     "best": 97,
-     "median": 82,
-     "kills": 12,
+     "best": 98,
+     "median": 85,
+     "kills": 13,
      "job": "Viper"
     },
     {
      "label": "M12S-1",
      "name": "Lindwurm",
      "best": 89,
-     "median": 43,
-     "kills": 18,
+     "median": 45,
+     "kills": 19,
      "job": "Viper"
     },
     {
      "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 83,
-     "median": 33,
-     "kills": 6,
+     "median": 29,
+     "kills": 7,
      "job": "Viper"
     }
    ],
@@ -4102,8 +4868,100 @@
     "cleared": true
    }
   ],
-  "legacy": [],
-  "_status": "ok"
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 94,
+      "median": 50,
+      "kills": 19,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 91,
+      "median": 50,
+      "kills": 13,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 51,
+      "median": 40,
+      "kills": 11,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 61,
+      "median": 30,
+      "kills": 6,
+      "job": "Dragoon"
+     }
+    ]
+   }
+  ],
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 2,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 105,
+    "name": "Lindwurm II",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 4,
+    "last": "2026-08-18"
+   },
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 8,
+    "last": "2026-08-18"
+   }
+  ]
  },
  "28950119": {
   "current": {
@@ -4131,24 +4989,24 @@
      "label": "M11S",
      "name": "The Tyrant",
      "best": 93,
-     "median": 68,
-     "kills": 9,
+     "median": 66,
+     "kills": 10,
      "job": "Warrior"
     },
     {
      "label": "M12S-1",
      "name": "Lindwurm",
      "best": 90,
-     "median": 66,
-     "kills": 13,
+     "median": 64,
+     "kills": 14,
      "job": "Warrior"
     },
     {
      "label": "M12S-2",
      "name": "Lindwurm II",
      "best": 65,
-     "median": 51,
-     "kills": 5,
+     "median": 48,
+     "kills": 6,
      "job": "Warrior"
     }
    ],
@@ -4225,6 +5083,45 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 97,
+      "median": 66,
+      "kills": 15,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 80,
+      "median": 41,
+      "kills": 11,
+      "job": "Warrior"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 85,
+      "median": 22,
+      "kills": 11,
+      "job": "Warrior"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 76,
+      "median": 47,
+      "kills": 6,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -4256,7 +5153,69 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.36,
+    "phase": 1,
+    "pulls": 139,
+    "last": "2026-08-27"
+   },
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 2,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 105,
+    "name": "Lindwurm II",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 1,
+    "last": "2026-08-26"
+   },
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 4,
+    "last": "2026-08-18"
+   },
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 8,
+    "last": "2026-08-18"
+   }
+  ]
  },
  "28120733": {
   "current": {
@@ -4312,7 +5271,48 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 40,
+    "kills": 6,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 61,
+    "kills": 6,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 52,
+    "kills": 3,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 15,
+    "kills": 2,
+    "job": "Warrior",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -4396,6 +5396,45 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 80,
+      "median": 74,
+      "kills": 8,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 85,
+      "median": 74,
+      "kills": 8,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 77,
+      "median": 59,
+      "kills": 6,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 85,
+      "median": 51,
+      "kills": 7,
+      "job": "DarkKnight"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -4584,8 +5623,36 @@
     "cleared": true
    }
   ],
-  "legacy": [],
-  "_status": "ok"
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 44,
+      "median": 32,
+      "kills": 3,
+      "job": "Dragoon"
+     }
+    ]
+   }
+  ],
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 0.47,
+    "phase": 2,
+    "pulls": 93,
+    "last": "2026-08-25"
+   }
+  ]
  },
  "50821570": {
   "current": {
@@ -4596,7 +5663,7 @@
     {
      "label": "M9S",
      "name": "Vamp Fatale",
-     "best": 62,
+     "best": 61,
      "median": 26,
      "kills": 7,
      "job": "Machinist"
@@ -4604,9 +5671,9 @@
     {
      "label": "M10S",
      "name": "Red Hot and Deep Blue",
-     "best": 53,
-     "median": 19,
-     "kills": 5,
+     "best": 80,
+     "median": 35,
+     "kills": 6,
      "job": "Machinist"
     }
    ],
@@ -4641,7 +5708,39 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 22,
+    "last": "2026-08-27"
+   },
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 9,
+    "last": "2026-08-25"
+   },
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 45.16,
+    "phase": 0,
+    "pulls": 20,
+    "last": "2026-08-20"
+   }
+  ]
  },
  "42349146": {
   "current": {
@@ -4760,8 +5859,36 @@
     "cleared": true
    }
   ],
-  "legacy": [],
-  "_status": "ok"
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 29,
+      "median": 25,
+      "kills": 3,
+      "job": "DarkKnight"
+     }
+    ]
+   }
+  ],
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 6,
+    "last": "2026-08-19"
+   }
+  ]
  },
  "42021700": {
   "current": {
@@ -4810,9 +5937,9 @@
     "zone_id": 72,
     "expansion": "Dawntrail",
     "name": "Enuo",
-    "best": 44,
-    "kills": 5,
-    "job": "Paladin",
+    "best": 64,
+    "kills": 7,
+    "job": "Gunbreaker",
     "cleared": true
    },
    {
@@ -5004,6 +6131,46 @@
     "kills": 22,
     "job": "Gunbreaker",
     "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 45,
+    "kills": 21,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 70,
+    "kills": 19,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 37,
+    "kills": 2,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 73,
+    "kills": 2,
+    "job": "Gunbreaker",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -5060,6 +6227,45 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 77,
+      "median": 50,
+      "kills": 5,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 52,
+      "median": 9,
+      "kills": 8,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 24,
+      "median": 16,
+      "kills": 4,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 15,
+      "median": 15,
+      "kills": 1,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -5107,7 +6313,39 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 45.16,
+    "phase": 0,
+    "pulls": 20,
+    "last": "2026-08-20"
+   },
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 8,
+    "last": "2026-08-19"
+   },
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 16,
+    "last": "2026-08-19"
+   }
+  ]
  },
  "38808156": {
   "current": {
@@ -5171,6 +6409,26 @@
     "name": "Dragonsong's Reprise",
     "best": 33,
     "kills": 1,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 49,
+    "kills": 8,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 87,
+    "kills": 3,
     "job": "Dancer",
     "cleared": true
    }
@@ -5257,7 +6515,47 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 91,
+      "median": 72,
+      "kills": 6,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 64,
+      "median": 37,
+      "kills": 7,
+      "job": "Dancer"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 86,
+      "median": 48,
+      "kills": 6,
+      "job": "Dancer"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 74,
+      "median": 60,
+      "kills": 5,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "31902843": {
@@ -5354,6 +6652,56 @@
     "kills": 5,
     "job": "Summoner",
     "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 99,
+    "kills": 19,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 83,
+    "kills": 22,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 81,
+    "kills": 25,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 77,
+    "kills": 8,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 88,
+    "kills": 5,
+    "job": "Warrior",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -5439,6 +6787,45 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 99,
+      "median": 80,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 97,
+      "median": 81,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 88,
+      "median": 55,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 84,
+      "median": 45,
+      "kills": 8,
+      "job": "Warrior"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -5555,12 +6942,52 @@
     "cleared": true
    },
    {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 51,
+    "kills": 7,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 83,
+    "kills": 11,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
     "name": "The Epic of Alexander",
     "best": 78,
     "kills": 7,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 88,
+    "kills": 10,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 44,
+    "kills": 10,
     "job": "Bard",
     "cleared": true
    }
@@ -5648,6 +7075,45 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 84,
+      "median": 65,
+      "kills": 9,
+      "job": "Summoner"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 86,
+      "median": 51,
+      "kills": 10,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 63,
+      "median": 42,
+      "kills": 9,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 53,
+      "median": 37,
+      "kills": 8,
+      "job": "Summoner"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -5782,6 +7248,66 @@
     "kills": 4,
     "job": "Scholar",
     "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 22,
+    "kills": 25,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 56,
+    "kills": 21,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 37,
+    "kills": 17,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 49,
+    "kills": 16,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 31,
+    "kills": 17,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 60,
+    "kills": 11,
+    "job": "WhiteMage",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -5867,6 +7393,45 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 75,
+      "median": 60,
+      "kills": 11,
+      "job": "Scholar"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 57,
+      "median": 36,
+      "kills": 9,
+      "job": "Scholar"
+     },
+     {
+      "label": "M7S",
+      "name": "Brute Abombinator",
+      "best": 41,
+      "median": 21,
+      "kills": 11,
+      "job": "Scholar"
+     },
+     {
+      "label": "M8S",
+      "name": "Howling Blade",
+      "best": 36,
+      "median": 36,
+      "kills": 10,
+      "job": "WhiteMage"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -6012,7 +7577,31 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "name": "Dancing Green",
+      "best": 60,
+      "median": 34,
+      "kills": 12,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "name": "Sugar Riot",
+      "best": 37,
+      "median": 26,
+      "kills": 2,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "22461237": {
