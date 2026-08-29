@@ -315,7 +315,7 @@ const DICT = {
   "home.freeCompany": { en: "Free Company", th: "Free Company" },
   "home.browseAll": { en: "Browse all {n} members", th: "ดูสมาชิกทั้งหมด {n} คน" },
   "home.members": { en: "Members", th: "สมาชิก" },
-  "home.active": { en: "Active", th: "ยัง Active" },
+  "home.active": { en: "Active", th: "Active" },
   "home.activity": { en: "FC activity", th: "ความเคลื่อนไหวใน FC" },
   "home.activityEmpty": {
     en: "Events start showing up after the next update run. The pipeline diffs the roster day over day, so new best parses, first boss clears and fresh mounts land here automatically.",
