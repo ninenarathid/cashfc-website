@@ -148,7 +148,11 @@ export interface BoardData {
   generated_at: string;
   fc: { name: string; id: string; world: string; dc: string;
         total: number; region?: string };
-  current_tier?: { labels: string[]; zone?: { name?: string } | null };
+  current_tier?: {
+    labels: string[];
+    /** The zone as FF Logs ranks it: one encounter per label, in the same order. */
+    zone?: { name?: string; encounters?: { id: number; name: string }[] } | null;
+  };
   /** Every extreme trial of the current patch — the denominator for ex_cleared. */
   extremes?: string[];
   members: Member[];

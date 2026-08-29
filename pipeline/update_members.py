@@ -53,7 +53,10 @@ CONFIG = {
     "fflogs_batch_size": 5,
 
     # Boss labels for the current tier, in zone encounter order — change when a new tier lands
-    "current_tier_labels": ["M9S", "M10S", "M11S", "M12S"],
+    # One label per encounter FF Logs ranks, which is why the last boss appears
+    # twice: it is two ranked fights and the board should be able to ask about
+    # each of them.
+    "current_tier_labels": ["M9S", "M10S", "M11S", "M12S-1", "M12S-2"],
 
     # Tag thresholds
     "rare_pct": 10.0,
@@ -477,10 +480,14 @@ def encounters_from_blob(blob: dict, labels: list[str] | None) -> tuple[list[dic
     rankings = blob.get("rankings") or []
     split = bool(labels) and len(rankings) == len(labels) + 1
     if split:
-        slots = list(range(len(labels) - 1)) + [len(labels) - 1, len(labels) - 1]
+        # Each part gets a slot of its own. They were sharing the last one, with
+        # part two overwriting part one, which was right while the board showed a
+        # single M12S chip and wrong the moment it wants to show both: a member
+        # who is through part one and learning part two had nothing to say so.
+        slots = list(range(len(rankings)))
     else:
         slots = list(range(len(rankings)))
-    clears = [False] * (len(labels) if labels else len(rankings))
+    clears = [False] * max(len(labels or []), len(rankings))
     out = []
     for i, rk in enumerate(rankings):
         slot = slots[i] if i < len(slots) else None
@@ -494,13 +501,12 @@ def encounters_from_blob(blob: dict, labels: list[str] | None) -> tuple[list[dic
         # Part one and part two of a split boss get their own labels so the board
         # does not show the same name twice with different parses.
         part = ""
-        if split and slot == len(labels) - 1:
-            part = "-1" if i == len(rankings) - 2 else "-2"
         if kills <= 0 and pct is None:
             continue
         out.append({
             "label": (labels[slot] + part if labels and slot is not None
                       and slot < len(labels) else None),
+            "encounter_id": (rk.get("encounter") or {}).get("id"),
             "name": (rk.get("encounter") or {}).get("name"),
             "best": round(pct) if pct is not None else None,
             "median": round(med) if med is not None else None,

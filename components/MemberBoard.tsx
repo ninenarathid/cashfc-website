@@ -94,8 +94,14 @@ interface Adv {
   tags: string[];
   /** Lowest grade a member must hold — scoped by the job and tag filters. */
   grade: string;
-  /** One specific Ultimate, offered only once the Ultimate tag is picked. */
-  ult: string;
+  /**
+   * Ultimates picked from the chip row, AND-ed the way the boss chips are.
+   *
+   * Replaces the single `ult` this used to carry. An old link with ?ult= still
+   * works — it is read into here on the way in, which also means the thing it
+   * picked can be unpicked, which it could not be before.
+   */
+  ults: string[];
   /**
    * Somebody currently learning a fight, from their own recent logs.
    *
@@ -109,7 +115,7 @@ interface Adv {
 const ADV_EMPTY: Adv = {
   lfg: "", rank: "", boss: [],
   race: "", activity: ACTIVITY_DEFAULT, ex: [], role: "", job: "",
-  tags: [], grade: "", ult: "", progressing: "",
+  tags: [], grade: "", ults: [], progressing: "",
 };
 
 /**
@@ -138,6 +144,30 @@ const progressRows = (m: Member) =>
 /** Party-list order, so a role's jobs read the way the game lists them. */
 const JOB_ORDER = ALL_JOBS.map((j) => j.name.replace(/ /g, ""));
 
+/**
+ * Somebody who is either through a fight or in the middle of it.
+ *
+ * Clicking a boss used to mean "has cleared this", which answers half the
+ * question people actually ask a roster. "Who is on M12S-2" is asked by somebody
+ * looking for a group, and the people worth finding are the ones still learning
+ * it as much as the ones who are done — the second half of that list is who you
+ * would be raiding with.
+ *
+ * Two different sources say so, which is why this is a function rather than a
+ * boolean on the row: the clear comes from FF Logs rankings, and being on it
+ * comes from reading recent reports.
+ */
+const onFight = (m: Member, i: number, names: string[]) => {
+  if (m.current_clears?.[i]) return true;
+  const name = names[i];
+  return !!name && progressRows(m).some((p) => p.name === name);
+};
+
+const onUltimate = (m: Member, name: string) =>
+  (m.ult_cleared ?? []).includes(name)
+  || (m.ult_achv_only ?? []).includes(name)
+  || progressRows(m).some((p) => p.kind === "ultimate" && p.name === name);
+
 const GROUP_PREFIX = "group:";
 const roleGroups = ["Tanks", "Healers", "DPS"] as const;
 const roleMatches = (job: string, sel: string) =>
@@ -148,6 +178,21 @@ const roleMatches = (job: string, sel: string) =>
 export default function MemberBoard({ data }: { data: BoardData }) {
   const { t, lang } = useLang();
   const labels = data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"];
+  // The fight behind each label, so a chip can ask about people learning it and
+  // not only about people who have finished it. Same order as the labels because
+  // both come from the zone as FF Logs ranks it.
+  const tierNames = (data.current_tier?.zone?.encounters ?? []).map((e) => e.name);
+  /** Every Ultimate anybody here has cleared or is learning, hardest-won first. */
+  const allUltimates = useMemo(() => {
+    const c = new Map<string, number>();
+    for (const m of data.members) {
+      for (const u of new Set([
+        ...(m.ult_cleared ?? []), ...(m.ult_achv_only ?? []),
+        ...(m.progress_all ?? []).filter((p) => p.kind === "ultimate").map((p) => p.name),
+      ])) c.set(u, (c.get(u) ?? 0) + 1);
+    }
+    return [...c.keys()].sort();
+  }, [data.members]);
   const extremes = data.extremes ?? [];
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortKey>("name");
@@ -176,8 +221,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       race: p.get("race") ?? "",
       activity: p.get("act") ?? ACTIVITY_DEFAULT, ex,
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
-      grade: p.get("grade") ?? "", ult: p.get("ult") ?? "",
+      grade: p.get("grade") ?? "",
       progressing: p.get("prog") ?? "",
+      ults: [...new Set([
+        ...(p.get("ults") ?? "").split(",").filter(Boolean),
+        ...(p.get("ult") ? [p.get("ult")!] : []),
+      ])],
     });
     inited.current = true;
   }, []);
@@ -198,9 +247,9 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.role) p.set("role", adv.role);
     if (adv.job) p.set("job", adv.job);
     if (adv.progressing) p.set("prog", adv.progressing);
+    if (adv.ults.length) p.set("ults", adv.ults.join(","));
     if (adv.tags.length) p.set("tags", adv.tags.join(","));
     if (adv.grade) p.set("grade", adv.grade);
-    if (adv.ult) p.set("ult", adv.ult);
     const qs = p.toString();
     window.history.replaceState(null, "",
       qs ? `?${qs}` : window.location.pathname);
@@ -382,16 +431,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     return Object.entries(c).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   }, [inScope]);
 
-  const ultCounts = useMemo(() => {
-    const c: Record<string, number> = {};
-    for (const m of inScope) {
-      for (const u of new Set([...(m.ult_cleared ?? []), ...(m.ult_achv_only ?? [])])) {
-        c[u] = (c[u] ?? 0) + 1;
-      }
-    }
-    return c;
-  }, [inScope]);
-
   const gradeCounts = useMemo(() => {
     const c: Record<string, number> = { total: 0 };
     for (const g of GRADES) c[g] = 0;
@@ -441,10 +480,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         if (adv.job && !played.includes(adv.job)) return false;
         if (adv.role && !played.some((j) => roleMatches(j, adv.role))) return false;
       }
-      if (adv.ult) {
-        const cleared = [...(m.ult_cleared ?? []), ...(m.ult_achv_only ?? [])];
-        if (!cleared.includes(adv.ult)) return false;
-      }
       if (adv.progressing) {
         const learning = progressRows(m).filter((p) => p.state === "learning");
         if (!learning.length) return false;
@@ -475,7 +510,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       }
       if (adv.activity === "active" && isOnVacation(m)) return false;
       if (adv.activity === "vacation" && !isOnVacation(m)) return false;
-      for (const i of adv.boss) if (!m.current_clears?.[i]) return false;
+      for (const i of adv.boss) if (!onFight(m, i, tierNames)) return false;
+      for (const name of adv.ults) if (!onUltimate(m, name)) return false;
       for (const name of adv.ex) if (!m.ex_cleared?.includes(name)) return false;
       return true;
     });
@@ -491,10 +527,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   }, [visible, overlays, query, sortBy, adv]);
 
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
-    adv.boss.length + adv.ex.length +
+    adv.boss.length + adv.ex.length + adv.ults.length +
     (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
     (adv.progressing ? 1 : 0) +
-    (adv.grade ? 1 : 0) + (adv.ult ? 1 : 0) +
+    (adv.grade ? 1 : 0) +
     adv.tags.length;
 
   // How many members we actually have acquisition dates for. Shown next to the
@@ -697,20 +733,9 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             </select>
           )}
 
-          {adv.tags.includes("ultimate") && Object.keys(ultCounts).length > 0 && (
-            <select value={adv.ult}
-                    onChange={(e) => setAdv({ ...adv, ult: e.target.value })}
-                    className={selCls} aria-label="Which Ultimate">
-              <option value="">{t("board.ultAny")}</option>
-              {Object.entries(ultCounts)
-                .sort((a, b) => b[1] - a[1])
-                .map(([name, n]) => (
-                  <option key={name} value={name}>
-                    {ultimateAbbr(name)} — {name} ({n})
-                  </option>
-                ))}
-            </select>
-          )}
+          {/* The Ultimate select is gone: the chip row under "This patch" asks the
+              same question better. It only appeared once the Ultimate tag was
+              picked, offered one at a time, and asked about clears alone. */}
 
           {races.length > 0 && (
             <select value={adv.race}
@@ -764,7 +789,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               <span className="text-[11.5px] text-muted">Savage</span>
               {labels.map((lb, i) => {
                 const on = adv.boss.includes(i);
-                const n = inScope.filter((m) => m.current_clears?.[i]).length;
+                const n = inScope.filter((m) => onFight(m, i, tierNames)).length;
                 return (
                   <button key={lb}
                     onClick={() => setAdv({ ...adv,
@@ -773,12 +798,37 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     className={`rounded-md border px-2 py-1 font-data text-[11.5px] ${
                       on ? "border-chili bg-chili/15 text-chili"
                          : "border-line text-muted hover:border-muted"}`}
-                    title={`Cleared ${lb} — ${n} member${n === 1 ? "" : "s"}`}>
+                    title={`On or through ${lb}${
+                      tierNames[i] ? ` (${tierNames[i]})` : ""} — ${n} member${
+                      n === 1 ? "" : "s"}`}>
                     {lb}<small className="ml-1 opacity-70">{n}</small>
                   </button>
                 );
               })}
             </span>
+
+            {allUltimates.length > 0 && (
+              <span className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11.5px] text-muted">Ultimate</span>
+                {allUltimates.map((name) => {
+                  const on = adv.ults.includes(name);
+                  const n = inScope.filter((m) => onUltimate(m, name)).length;
+                  return (
+                    <button key={name}
+                      onClick={() => setAdv({ ...adv,
+                        ults: on ? adv.ults.filter((x) => x !== name)
+                                 : [...adv.ults, name] })}
+                      aria-pressed={on}
+                      className={`rounded-md border px-2 py-1 font-data text-[11.5px] ${
+                        on ? "border-gold bg-gold/15 text-gold"
+                           : "border-line text-muted hover:border-muted"}`}
+                      title={`On or through ${name} — ${n} member${n === 1 ? "" : "s"}`}>
+                      {ultimateAbbr(name)}<small className="ml-1 opacity-70">{n}</small>
+                    </button>
+                  );
+                })}
+              </span>
+            )}
 
             {extremes.length > 0 && (
               <span className="flex flex-wrap items-center gap-1.5">
