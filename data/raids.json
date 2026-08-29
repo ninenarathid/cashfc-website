@@ -19961,7 +19961,47 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 77,
+      "median": 64,
+      "kills": 5,
+      "job": "Scholar"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 77,
+      "median": 57,
+      "kills": 8,
+      "job": "Scholar"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 62,
+      "median": 45,
+      "kills": 9,
+      "job": "Scholar"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 48,
+      "median": 25,
+      "kills": 6,
+      "job": "Scholar"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "28163062": {
@@ -20015,8 +20055,32 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 13,
+      "median": 10,
+      "kills": 3,
+      "job": "Dancer"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 1,
+      "median": 1,
+      "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "27875326": {
   "current": {
@@ -20087,8 +20151,40 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 27,
+      "median": 21,
+      "kills": 8,
+      "job": "Scholar"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 33,
+      "median": 32,
+      "kills": 6,
+      "job": "Scholar"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 53,
+      "median": 41,
+      "kills": 4,
+      "job": "Scholar"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "44925955": {
   "current": {
@@ -20231,7 +20327,47 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 32,
+      "median": 30,
+      "kills": 8,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 28,
+      "median": 17,
+      "kills": 4,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 22,
+      "median": 15,
+      "kills": 5,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 11,
+      "median": 11,
+      "kills": 1,
+      "job": "WhiteMage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "33966579": {
@@ -20364,7 +20500,55 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 98,
+      "median": 92,
+      "kills": 13,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 95,
+      "median": 75,
+      "kills": 13,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 93,
+      "median": 81,
+      "kills": 12,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 90,
+      "median": 64,
+      "kills": 17,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 97,
+      "median": 67,
+      "kills": 10,
+      "job": "BlackMage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "35270049": {
@@ -20579,8 +20763,32 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 37,
+      "median": 24,
+      "kills": 7,
+      "job": "RedMage"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 33,
+      "median": 17,
+      "kills": 10,
+      "job": "RedMage"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "57387464": {
   "current": {
@@ -20695,7 +20903,23 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 41,
+      "median": 41,
+      "kills": 1,
+      "job": "WhiteMage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "47218599": {
@@ -20865,7 +21089,39 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 81,
+      "median": 27,
+      "kills": 4,
+      "job": "Reaper"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 62,
+      "median": 17,
+      "kills": 4,
+      "job": "Reaper"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 29,
+      "median": 28,
+      "kills": 3,
+      "job": "Reaper"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "29899571": {
@@ -20901,8 +21157,56 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 98,
+      "median": 63,
+      "kills": 22,
+      "job": "Summoner"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 97,
+      "median": 34,
+      "kills": 15,
+      "job": "Summoner"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 62,
+      "median": 9,
+      "kills": 15,
+      "job": "Reaper"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 41,
+      "median": 23,
+      "kills": 14,
+      "job": "Reaper"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 58,
+      "median": 17,
+      "kills": 13,
+      "job": "Reaper"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "48527875": {
   "current": {
@@ -20958,8 +21262,32 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 43,
+      "median": 27,
+      "kills": 5,
+      "job": "Machinist"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 28,
+      "median": 28,
+      "kills": 1,
+      "job": "Machinist"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "37881871": {
   "current": {
@@ -21013,6 +21341,53 @@
   "ultimates": [],
   "extremes": [],
   "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 87,
+      "median": 72,
+      "kills": 14,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 87,
+      "median": 63,
+      "kills": 13,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 77,
+      "median": 36,
+      "kills": 12,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 61,
+      "median": 40,
+      "kills": 15,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 35,
+      "median": 15,
+      "kills": 8,
+      "job": "WhiteMage"
+     }
+    ]
+   },
    {
     "zone": "Eden's Gate",
     "zone_id": 29,
@@ -21105,7 +21480,55 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 100,
+      "median": 90,
+      "kills": 88,
+      "job": "Warrior"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 99,
+      "median": 81,
+      "kills": 66,
+      "job": "Warrior"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 99,
+      "median": 80,
+      "kills": 39,
+      "job": "Warrior"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 99,
+      "median": 76,
+      "kills": 91,
+      "job": "Warrior"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 100,
+      "median": 69,
+      "kills": 46,
+      "job": "Warrior"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "39907836": {
@@ -21196,6 +21619,53 @@
   "ultimates": [],
   "extremes": [],
   "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 98,
+      "median": 91,
+      "kills": 12,
+      "job": "Scholar"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 98,
+      "median": 98,
+      "kills": 12,
+      "job": "Sage"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 92,
+      "median": 76,
+      "kills": 12,
+      "job": "Scholar"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 92,
+      "median": 79,
+      "kills": 20,
+      "job": "Scholar"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 88,
+      "median": 78,
+      "kills": 8,
+      "job": "Scholar"
+     }
+    ]
+   },
    {
     "zone": "Eden's Gate",
     "zone_id": 29,
@@ -21325,8 +21795,40 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 65,
+      "median": 53,
+      "kills": 5,
+      "job": "RedMage"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 50,
+      "median": 33,
+      "kills": 4,
+      "job": "RedMage"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 19,
+      "median": 19,
+      "kills": 1,
+      "job": "RedMage"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "16172034": {
   "_status": "none"
@@ -21382,8 +21884,32 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 45,
+      "median": 40,
+      "kills": 6,
+      "job": "Bard"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 30,
+      "median": 30,
+      "kills": 2,
+      "job": "Bard"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "40160371": {
   "current": {
@@ -21454,6 +21980,37 @@
       "median": 14,
       "kills": 4,
       "job": "Paladin"
+     }
+    ]
+   },
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 4,
+      "median": 1,
+      "kills": 6,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 1,
+      "median": 1,
+      "kills": 2,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 1,
+      "median": 1,
+      "kills": 2,
+      "job": "DarkKnight"
      }
     ]
    }
@@ -21637,8 +22194,32 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 8,
+      "median": 8,
+      "kills": 1,
+      "job": "Scholar"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 8,
+      "median": 8,
+      "kills": 1,
+      "job": "Scholar"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "36016570": {
   "current": {
@@ -21763,8 +22344,56 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 94,
+      "median": 52,
+      "kills": 27,
+      "job": "Samurai"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 97,
+      "median": 57,
+      "kills": 24,
+      "job": "Samurai"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 90,
+      "median": 35,
+      "kills": 16,
+      "job": "Samurai"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 80,
+      "median": 43,
+      "kills": 26,
+      "job": "Samurai"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 81,
+      "median": 28,
+      "kills": 16,
+      "job": "Samurai"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "34507717": {
   "current": {
@@ -21812,7 +22441,55 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 96,
+      "median": 72,
+      "kills": 18,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 87,
+      "median": 57,
+      "kills": 18,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 84,
+      "median": 54,
+      "kills": 19,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 73,
+      "median": 25,
+      "kills": 24,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 85,
+      "median": 21,
+      "kills": 18,
+      "job": "DarkKnight"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "29151949": {
@@ -21877,7 +22554,47 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 57,
+      "median": 36,
+      "kills": 7,
+      "job": "Scholar"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 51,
+      "median": 32,
+      "kills": 4,
+      "job": "Scholar"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 57,
+      "median": 33,
+      "kills": 4,
+      "job": "Scholar"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 26,
+      "median": 26,
+      "kills": 1,
+      "job": "Scholar"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "27818479": {
@@ -21924,7 +22641,55 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "name": "Erichthonios",
+      "best": 91,
+      "median": 84,
+      "kills": 20,
+      "job": "Dragoon"
+     },
+     {
+      "label": "P2S",
+      "name": "Hippokampos",
+      "best": 95,
+      "median": 61,
+      "kills": 17,
+      "job": "Reaper"
+     },
+     {
+      "label": "P3S",
+      "name": "Phoinix",
+      "best": 96,
+      "median": 63,
+      "kills": 15,
+      "job": "Reaper"
+     },
+     {
+      "label": "P4S-1",
+      "name": "Hesperos",
+      "best": 76,
+      "median": 39,
+      "kills": 17,
+      "job": "Reaper"
+     },
+     {
+      "label": "P4S-2",
+      "name": "Hesperos II",
+      "best": 58,
+      "median": 48,
+      "kills": 9,
+      "job": "Dragoon"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "32046109": {

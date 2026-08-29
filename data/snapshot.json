@@ -1854,7 +1854,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 94,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -1866,7 +1866,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -4891,7 +4891,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5973,14 +5973,14 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 61,
+  "level": 73,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -9671,7 +9671,7 @@
  },
  "30333493": {
   "name": "Haruko Sho",
-  "parse": 67,
+  "parse": 77,
   "ult": 1,
   "mounts": 81,
   "minions": 109,
@@ -9685,12 +9685,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Scholar": "expert"
+  },
   "ex": [],
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "28163062": {
   "name": "Helga Holybringer",
@@ -9739,7 +9741,7 @@
  },
  "33272037": {
   "name": "Hermanita Imouto",
-  "parse": null,
+  "parse": 13,
   "ult": 0,
   "mounts": 33,
   "minions": 65,
@@ -9756,7 +9758,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "27875326": {
   "name": "Hez King",
@@ -9830,7 +9832,7 @@
  },
  "29542040": {
   "name": "Immundus Vitae",
-  "parse": null,
+  "parse": 53,
   "ult": 0,
   "mounts": 24,
   "minions": 64,
@@ -9847,7 +9849,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-29"
  },
  "44925955": {
   "name": "Iris Kaoru",
@@ -9919,7 +9921,7 @@
  },
  "40652404": {
   "name": "Jade Solaire",
-  "parse": 31,
+  "parse": 32,
   "ult": 1,
   "mounts": 52,
   "minions": 107,
@@ -9938,7 +9940,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "33966579": {
   "name": "James Jasper",
@@ -10028,7 +10030,7 @@
  },
  "28127069": {
   "name": "Jim Carried",
-  "parse": 94,
+  "parse": 98,
   "ult": 1,
   "mounts": 63,
   "minions": 140,
@@ -10044,7 +10046,7 @@
   "tiers": {},
   "jobs": {
    "Bard": "expert",
-   "BlackMage": "expert"
+   "BlackMage": "legendary"
   },
   "ex": [
    "Valigarmanda",
@@ -10053,7 +10055,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "35270049": {
   "name": "Joey Zaa",
@@ -10211,7 +10213,7 @@
  },
  "31923628": {
   "name": "Kakigori Kyrielight",
-  "parse": null,
+  "parse": 37,
   "ult": 0,
   "mounts": 69,
   "minions": 186,
@@ -10228,7 +10230,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "57387464": {
   "name": "Kanao Rin",
@@ -10437,7 +10439,7 @@
  },
  "39034125": {
   "name": "Kirin Rin",
-  "parse": 75,
+  "parse": 81,
   "ult": 1,
   "mounts": 22,
   "minions": 61,
@@ -10456,7 +10458,7 @@
   "ults": [
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "29899571": {
   "name": "Kisei Ryusekai",
@@ -10481,7 +10483,7 @@
  },
  "29659200": {
   "name": "Kleenex Tissue",
-  "parse": null,
+  "parse": 98,
   "ult": 0,
   "mounts": 37,
   "minions": 77,
@@ -10495,10 +10497,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Summoner": "master"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "48527875": {
   "name": "Kotetsu Bardly",
@@ -10526,7 +10530,7 @@
  },
  "28012936": {
   "name": "Kouro Moro",
-  "parse": null,
+  "parse": 43,
   "ult": 0,
   "mounts": 53,
   "minions": 103,
@@ -10548,7 +10552,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "37881871": {
   "name": "Kyaru Momochi",
@@ -10594,7 +10598,7 @@
  },
  "5761905": {
   "name": "Laura Nessonier",
-  "parse": 9,
+  "parse": 87,
   "ult": 0,
   "mounts": 52,
   "minions": 155,
@@ -10608,10 +10612,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "WhiteMage": "master"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "42461214": {
   "name": "Lena Milize",
@@ -10636,7 +10642,7 @@
  },
  "34510497": {
   "name": "Leonest Lionheart",
-  "parse": 90,
+  "parse": 100,
   "ult": 3,
   "mounts": 77,
   "minions": 93,
@@ -10651,7 +10657,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Warrior": "expert"
+   "Warrior": "legendary"
   },
   "ex": [],
   "ults": [
@@ -10659,7 +10665,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "39907836": {
   "name": "Leylin Kim",
@@ -10747,7 +10753,7 @@
  },
  "18489055": {
   "name": "Linda Ing",
-  "parse": 97,
+  "parse": 98,
   "ult": 0,
   "mounts": 61,
   "minions": 180,
@@ -10762,11 +10768,13 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Scholar": "legendary",
+   "Sage": "expert",
    "Warrior": "legendary"
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "24747734": {
   "name": "Liora Verasch",
@@ -10905,7 +10913,7 @@
  },
  "29162543": {
   "name": "Lmoavkei Best",
-  "parse": null,
+  "parse": 65,
   "ult": 0,
   "mounts": 37,
   "minions": 58,
@@ -10922,7 +10930,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "16172034": {
   "name": "Lucy Luminous",
@@ -10984,7 +10992,7 @@
  },
  "31211526": {
   "name": "Mali Narak",
-  "parse": null,
+  "parse": 45,
   "ult": 0,
   "mounts": 29,
   "minions": 93,
@@ -11001,7 +11009,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "40160371": {
   "name": "Mantra Crimson",
@@ -11141,7 +11149,7 @@
  },
  "31655994": {
   "name": "Meki Mekino",
-  "parse": null,
+  "parse": 8,
   "ult": 0,
   "mounts": 104,
   "minions": 186,
@@ -11158,7 +11166,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "36016570": {
   "name": "Mental Breakdance",
@@ -11288,7 +11296,7 @@
  },
  "37143017": {
   "name": "Milly Beee",
-  "parse": null,
+  "parse": 97,
   "ult": 0,
   "mounts": 73,
   "minions": 97,
@@ -11302,14 +11310,16 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Samurai": "legendary"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "34507717": {
   "name": "Mira Lionheart",
-  "parse": 88,
+  "parse": 96,
   "ult": 3,
   "mounts": 80,
   "minions": 111,
@@ -11324,7 +11334,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Reaper": "master"
+   "Reaper": "master",
+   "DarkKnight": "legendary"
   },
   "ex": [],
   "ults": [
@@ -11332,7 +11343,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "29151949": {
   "name": "Mirai Haname",
@@ -11422,7 +11433,7 @@
  },
  "34184163": {
   "name": "Moji Momiji",
-  "parse": 1,
+  "parse": 96,
   "ult": 1,
   "mounts": 45,
   "minions": 144,
@@ -11436,12 +11447,15 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Reaper": "legendary",
+   "Dragoon": "expert"
+  },
   "ex": [],
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "32046109": {
   "name": "Mojito Crush",

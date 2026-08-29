@@ -2,6 +2,223 @@
  "events": [
   {
    "date": "2026-08-29",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "level_100",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "set a new best parse: 77"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "is now a Expert Scholar"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 33272037,
+   "name": "Hermanita Imouto",
+   "text": "set a new best parse: 13"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 29542040,
+   "name": "Immundus Vitae",
+   "text": "set a new best parse: 53"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 40652404,
+   "name": "Jade Solaire",
+   "text": "set a new best parse: 32"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 28127069,
+   "name": "Jim Carried",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 28127069,
+   "name": "Jim Carried",
+   "text": "is now a Legendary Black Mage"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 31923628,
+   "name": "Kakigori Kyrielight",
+   "text": "set a new best parse: 37"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 39034125,
+   "name": "Kirin Rin",
+   "text": "set a new best parse: 81"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 29659200,
+   "name": "Kleenex Tissue",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 29659200,
+   "name": "Kleenex Tissue",
+   "text": "is now a Master Summoner"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 28012936,
+   "name": "Kouro Moro",
+   "text": "set a new best parse: 43"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 5761905,
+   "name": "Laura Nessonier",
+   "text": "set a new best parse: 87"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 5761905,
+   "name": "Laura Nessonier",
+   "text": "is now a Master White Mage"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "is now a Legendary Warrior"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 18489055,
+   "name": "Linda Ing",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 18489055,
+   "name": "Linda Ing",
+   "text": "is now a Legendary Scholar"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 18489055,
+   "name": "Linda Ing",
+   "text": "is now a Expert Sage"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 29162543,
+   "name": "Lmoavkei Best",
+   "text": "set a new best parse: 65"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 31211526,
+   "name": "Mali Narak",
+   "text": "set a new best parse: 45"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 31655994,
+   "name": "Meki Mekino",
+   "text": "set a new best parse: 8"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 37143017,
+   "name": "Milly Beee",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 37143017,
+   "name": "Milly Beee",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "is now a Legendary Dark Knight"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 34184163,
+   "name": "Moji Momiji",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 34184163,
+   "name": "Moji Momiji",
+   "text": "is now a Legendary Reaper"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 34184163,
+   "name": "Moji Momiji",
+   "text": "is now a Expert Dragoon"
+  },
+  {
+   "date": "2026-08-29",
    "type": "parse_up",
    "id": 29918399,
    "name": "Athaliah Aylin",
@@ -1182,223 +1399,6 @@
    "id": 42349146,
    "name": "Henzski Celestial",
    "text": "earned On Top of the Savage World III — only 2.1% of players have it, and 14 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Cut Above the Rest: Harp Bow Occultum — only 0.5% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned Tour de Fork I — only 0.3% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 5294880,
-   "name": "Mithra Muses",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 5294880,
-   "name": "Mithra Muses",
-   "text": "is now a Expert Seasonal collector ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 5294880,
-   "name": "Mithra Muses",
-   "text": "earned A Wolf in White Robes III — only 3.1% of players have it, and 38 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "is now a Expert Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "earned Tour de Fork I — only 0.3% of players have it, and 84 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "earned Cut Above the Rest: Cane Occultum — only 1.2% of players have it, and 23 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 29090821,
-   "name": "Amber Levana",
-   "text": "earned Think Global, Quest Local VII — only 1.1% of players have it, and 46 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 13860363,
-   "name": "Ayino Kun",
-   "text": "earned Summertime Drifter, and 1 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "is now a Master Explorer ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "is now a Expert Treasure hunter ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Archiving the Arcane — only 0.9% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 30293847,
-   "name": "Devy Lanta",
-   "text": "earned A Wolf in Plate Armor II"
   }
  ]
 }
