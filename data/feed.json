@@ -3,6 +3,27 @@
   {
    "date": "2026-08-29",
    "type": "boss_clear",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
    "id": 15308846,
    "name": "Aqua Eleison",
    "text": "cleared M12S-2 for the first time 🎉"
@@ -1377,27 +1398,6 @@
    "type": "ult_clear",
    "id": 31628293,
    "name": "Aaaaaaa Yaaaaaa",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 24186600,
-   "name": "Dumb Bunny",
    "text": "cleared The Unending Coil of Bahamut 🏆"
   }
  ]

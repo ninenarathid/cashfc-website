@@ -274,6 +274,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -496,6 +497,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -551,6 +553,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -784,6 +787,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -893,6 +897,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -1049,6 +1054,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -2148,6 +2154,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -2163,6 +2170,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -2418,6 +2426,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -4437,6 +4446,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -4712,6 +4722,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -4745,6 +4756,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -4997,6 +5009,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -5391,6 +5404,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -6193,6 +6207,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -7289,6 +7304,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -8235,6 +8251,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -8280,6 +8297,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -8557,6 +8575,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -9343,6 +9362,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -10090,6 +10110,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -10736,6 +10757,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -10751,6 +10773,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -11802,6 +11825,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -12300,6 +12324,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -12471,6 +12496,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -12663,6 +12689,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -12678,6 +12705,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -13024,6 +13052,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -13462,6 +13491,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -13480,6 +13510,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -13495,6 +13526,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -13891,6 +13923,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -13917,6 +13950,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -14177,6 +14211,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -14542,6 +14577,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -14557,6 +14593,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -14676,6 +14713,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -14734,6 +14772,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 18,
      "median": 18,
@@ -14743,6 +14782,7 @@
    ],
    "clears": [
     true,
+    false,
     false,
     false,
     false
@@ -14828,7 +14868,8 @@
     "pct": null,
     "phase": 0,
     "pulls": 27,
-    "last": "2026-08-25"
+    "last": "2026-08-25",
+    "last_ts": 1787667941
    }
   ]
  },
@@ -15499,6 +15540,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -15789,6 +15831,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -15916,6 +15959,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -15949,6 +15993,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -15997,6 +16042,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -16981,6 +17027,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -17192,6 +17239,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -17264,6 +17312,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -17750,6 +17799,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -17824,6 +17874,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -18629,6 +18680,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -18853,6 +18905,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -18942,6 +18995,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -18975,6 +19029,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -19287,6 +19342,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -19321,6 +19377,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -20291,6 +20348,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 21,
      "median": 12,
@@ -20299,6 +20357,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 14,
      "median": 7,
@@ -20309,6 +20368,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -20326,7 +20386,8 @@
     "pct": 45.16,
     "phase": 0,
     "pulls": 20,
-    "last": "2026-08-20"
+    "last": "2026-08-20",
+    "last_ts": 1787237372
    }
   ]
  },
@@ -20936,6 +20997,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 85,
      "median": 51,
@@ -20944,6 +21006,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 85,
      "median": 30,
@@ -20952,6 +21015,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 89,
      "median": 55,
@@ -20960,6 +21024,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 87,
      "median": 54,
@@ -20968,6 +21033,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 66,
      "median": 50,
@@ -20976,6 +21042,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -21152,10 +21219,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 0.57,
-    "phase": 2,
-    "pulls": 139,
-    "last": "2026-08-26"
+    "pct": 48.18,
+    "phase": 4,
+    "pulls": 118,
+    "last": "2026-08-26",
+    "last_ts": 1787761340
    }
   ]
  },
@@ -21222,6 +21290,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -21451,6 +21520,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -22100,6 +22170,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -22266,6 +22337,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -22281,6 +22353,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -23110,6 +23183,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -23174,6 +23248,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 68,
      "median": 44,
@@ -23182,6 +23257,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 55,
      "median": 43,
@@ -23190,6 +23266,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 38,
      "median": 13,
@@ -23198,6 +23275,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 68,
      "median": 22,
@@ -23206,6 +23284,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 34,
      "median": 16,
@@ -23214,6 +23293,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -23935,6 +24015,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -24005,6 +24086,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -24173,6 +24255,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -24226,6 +24309,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -24475,6 +24559,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -24551,6 +24636,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 67,
      "median": 32,
@@ -24559,6 +24645,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 37,
      "median": 16,
@@ -24567,6 +24654,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 31,
      "median": 12,
@@ -24575,6 +24663,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 19,
      "median": 9,
@@ -24583,6 +24672,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 4,
      "median": 2,
@@ -24591,6 +24681,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -24923,6 +25014,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -24975,6 +25067,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -25336,6 +25429,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -25654,6 +25748,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -25876,6 +25971,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -26044,6 +26140,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -27114,6 +27211,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -27195,6 +27293,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -27783,6 +27882,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -27848,6 +27948,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -27941,6 +28042,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -28617,6 +28719,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -28641,6 +28744,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
