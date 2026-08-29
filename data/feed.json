@@ -2,6 +2,293 @@
  "events": [
   {
    "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 3968346,
+   "name": "Panuz Chocobunny",
+   "text": "set a new best parse: 64"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 45938803,
+   "name": "Blue Mana",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 47540663,
+   "name": "Edel Meither",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 28950119,
+   "name": "Einz Aizerces",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 12478532,
+   "name": "Hakuryu Flare",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 38808156,
+   "name": "Kwiyo Ki",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 31902843,
+   "name": "Lapista Scholares",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "is now a Legendary Bard"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "is now a Legendary Machinist"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 11950156,
+   "name": "Rothe Happer",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 58455997,
+   "name": "Salmon Sushiroll",
+   "text": "cleared M12S-1 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 37648492,
+   "name": "Sunshine Eveningfall",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 26298391,
+   "name": "Yozora Luna",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 24123541,
+   "name": "Zeren Dragonia",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 14476396,
+   "name": "Arawn A'nnwn",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-29",
    "type": "level_100",
    "id": 42976317,
    "name": "Zeadz Stellar",
@@ -1112,293 +1399,6 @@
    "id": 24186600,
    "name": "Dumb Bunny",
    "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "is now a Expert White Mage"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29511615,
-   "name": "Whitefang Dimmoon",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 29511615,
-   "name": "Whitefang Dimmoon",
-   "text": "is now a Expert Dancer"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 13533056,
-   "name": "Akemi Rei",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 13533056,
-   "name": "Akemi Rei",
-   "text": "is now a Expert Machinist"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 36261473,
-   "name": "Cheryl Klenovich",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 36261473,
-   "name": "Cheryl Klenovich",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 36261473,
-   "name": "Cheryl Klenovich",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 36261473,
-   "name": "Cheryl Klenovich",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "is now a Master Reaper"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "is now a Legendary Dragoon"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Master Sage"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Expert Dark Knight"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 47540663,
-   "name": "Edel Meither",
-   "text": "is now a Legendary Dragoon"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "is now a Master Dark Knight"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "set a new best parse: 80"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "is now a Expert Machinist"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "set a new best parse: 64"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "set a new best parse: 99"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Legendary Pictomancer"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "is now a Master Dancer"
   }
  ]
 }

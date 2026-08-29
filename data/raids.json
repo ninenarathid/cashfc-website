@@ -535,6 +535,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -668,6 +669,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -741,6 +743,31 @@
       "median": 3,
       "kills": 1,
       "job": "Dancer"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 52,
+      "median": 33,
+      "kills": 14,
+      "job": "Bard"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 64,
+      "median": 36,
+      "kills": 15,
+      "job": "Bard"
      }
     ]
    }
@@ -908,6 +935,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -1040,6 +1068,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 77,
      "median": 54,
@@ -1048,6 +1077,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 66,
      "median": 10,
@@ -1056,6 +1086,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 62,
      "median": 33,
@@ -1064,6 +1095,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 45,
      "median": 19,
@@ -1072,6 +1104,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 7,
      "median": 7,
@@ -1080,6 +1113,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -1258,6 +1292,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 96,
      "median": 61,
@@ -1266,6 +1301,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 83,
      "median": 46,
@@ -1274,6 +1310,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 77,
      "median": 73,
@@ -1282,6 +1319,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 69,
      "median": 45,
@@ -1290,6 +1328,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 68,
      "median": 47,
@@ -1298,6 +1337,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -1512,6 +1552,49 @@
       "median": 73,
       "kills": 9,
       "job": "Summoner"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 97,
+      "median": 79,
+      "kills": 25,
+      "job": "Machinist"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 90,
+      "median": 62,
+      "kills": 15,
+      "job": "Machinist"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 82,
+      "median": 76,
+      "kills": 8,
+      "job": "Machinist"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 86,
+      "median": 65,
+      "kills": 8,
+      "job": "Machinist"
      }
     ]
    }
@@ -1797,6 +1880,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 74,
      "median": 58,
@@ -1805,6 +1889,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 89,
      "median": 50,
@@ -1813,6 +1898,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 78,
      "median": 55,
@@ -1821,6 +1907,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 78,
      "median": 44,
@@ -1829,6 +1916,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 53,
      "median": 31,
@@ -1837,6 +1925,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -1983,6 +2072,49 @@
       "job": "Dancer"
      }
     ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 96,
+      "median": 73,
+      "kills": 18,
+      "job": "Bard"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 89,
+      "median": 73,
+      "kills": 16,
+      "job": "Bard"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 86,
+      "median": 68,
+      "kills": 15,
+      "job": "Bard"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 67,
+      "median": 49,
+      "kills": 15,
+      "job": "Bard"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -1994,6 +2126,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -2088,6 +2221,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -2239,6 +2373,40 @@
       "job": "Summoner"
      }
     ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 31,
+      "median": 15,
+      "kills": 3,
+      "job": "BlackMage"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 27,
+      "median": 21,
+      "kills": 6,
+      "job": "BlackMage"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 10,
+      "median": 10,
+      "kills": 3,
+      "job": "BlackMage"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -2284,6 +2452,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -2429,6 +2598,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 97,
      "median": 88,
@@ -2437,6 +2607,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 98,
      "median": 87,
@@ -2445,6 +2616,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 96,
      "median": 82,
@@ -2453,6 +2625,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 96,
      "median": 91,
@@ -2461,6 +2634,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 97,
      "median": 79,
@@ -2469,6 +2643,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -2706,8 +2881,9 @@
     "state": "learning",
     "pct": 1.3,
     "phase": 3,
-    "pulls": 66,
-    "last": "2026-08-25"
+    "pulls": 53,
+    "last": "2026-08-25",
+    "last_ts": 1787677194
    }
   ]
  },
@@ -2795,6 +2971,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 78,
      "median": 20,
@@ -2804,6 +2981,7 @@
    ],
    "clears": [
     true,
+    false,
     false,
     false,
     false
@@ -2960,6 +3138,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 83,
      "median": 69,
@@ -2968,6 +3147,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 61,
      "median": 41,
@@ -2976,6 +3156,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 62,
      "median": 41,
@@ -2984,6 +3165,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 61,
      "median": 37,
@@ -2992,6 +3174,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 9,
      "median": 5,
@@ -3000,6 +3183,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -3159,21 +3343,52 @@
       "job": "Sage"
      }
     ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 34,
+      "median": 20,
+      "kills": 14,
+      "job": "Dragoon"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 37,
+      "median": 24,
+      "kills": 8,
+      "job": "Monk"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 10,
+      "median": 10,
+      "kills": 3,
+      "job": "Monk"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 17,
+      "median": 10,
+      "kills": 14,
+      "job": "Monk"
+     }
+    ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 36,
-    "last": "2026-08-19"
-   }
-  ]
+  "_status": "ok"
  },
  "12003402": {
   "current": {
@@ -3222,6 +3437,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 87,
      "median": 87,
@@ -3230,6 +3446,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 72,
      "median": 48,
@@ -3238,6 +3455,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 80,
      "median": 58,
@@ -3246,6 +3464,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 91,
      "median": 22,
@@ -3254,6 +3473,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 74,
      "median": 30,
@@ -3262,6 +3482,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -3376,10 +3597,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 0.47,
-    "phase": 2,
+    "pct": 53.72,
+    "phase": 4,
     "pulls": 93,
-    "last": "2026-08-25"
+    "last": "2026-08-25",
+    "last_ts": 1787674176
    }
   ]
  },
@@ -3409,6 +3631,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 97,
      "median": 90,
@@ -3417,6 +3640,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 90,
      "median": 71,
@@ -3425,6 +3649,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 93,
      "median": 53,
@@ -3433,6 +3658,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 85,
      "median": 69,
@@ -3441,6 +3667,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 82,
      "median": 66,
@@ -3449,6 +3676,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -3669,6 +3897,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -3685,6 +3914,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 88,
      "median": 54,
@@ -3693,6 +3923,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 76,
      "median": 51,
@@ -3701,6 +3932,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 68,
      "median": 48,
@@ -3709,6 +3941,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 78,
      "median": 33,
@@ -3717,6 +3950,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 47,
      "median": 9,
@@ -3725,6 +3959,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -3843,6 +4078,31 @@
       "job": "Gunbreaker"
      }
     ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 67,
+      "median": 55,
+      "kills": 2,
+      "job": "RedMage"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 9,
+      "median": 9,
+      "kills": 1,
+      "job": "Gunbreaker"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -3872,6 +4132,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -3910,6 +4171,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 71,
      "median": 56,
@@ -3918,6 +4180,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 96,
      "median": 57,
@@ -3926,6 +4189,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 44,
      "median": 32,
@@ -3934,6 +4198,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 18,
      "median": 13,
@@ -3942,6 +4207,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 29,
      "median": 23,
@@ -3950,6 +4216,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -4224,6 +4491,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -5218,6 +5486,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 84,
      "median": 18,
@@ -5226,6 +5495,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 80,
      "median": 39,
@@ -5234,6 +5504,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 60,
      "median": 15,
@@ -5242,6 +5513,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 83,
      "median": 33,
@@ -5250,6 +5522,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 79,
      "median": 27,
@@ -5258,6 +5531,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -5494,6 +5768,49 @@
       "job": "Dancer"
      }
     ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 96,
+      "median": 82,
+      "kills": 6,
+      "job": "Dancer"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 88,
+      "median": 64,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 80,
+      "median": 62,
+      "kills": 7,
+      "job": "Dancer"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 66,
+      "median": 34,
+      "kills": 7,
+      "job": "Dancer"
+     }
+    ]
    }
   ],
   "_status": "ok",
@@ -5505,8 +5822,9 @@
     "state": "learning",
     "pct": 1.3,
     "phase": 3,
-    "pulls": 66,
-    "last": "2026-08-25"
+    "pulls": 53,
+    "last": "2026-08-25",
+    "last_ts": 1787677194
    }
   ]
  },
@@ -5706,6 +6024,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -5893,6 +6212,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 44,
      "median": 22,
@@ -5902,6 +6222,7 @@
    ],
    "clears": [
     true,
+    false,
     false,
     false,
     false
@@ -6056,6 +6377,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 16,
      "median": 4,
@@ -6064,6 +6386,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 5,
      "median": 3,
@@ -6072,6 +6395,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 6,
      "median": 6,
@@ -6083,6 +6407,7 @@
     true,
     true,
     true,
+    false,
     false
    ]
   },
@@ -6309,6 +6634,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -6460,6 +6786,49 @@
       "median": 37,
       "kills": 5,
       "job": "RedMage"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 66,
+      "median": 37,
+      "kills": 9,
+      "job": "Bard"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 63,
+      "median": 49,
+      "kills": 3,
+      "job": "Bard"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 30,
+      "median": 30,
+      "kills": 1,
+      "job": "Bard"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 43,
+      "median": 16,
+      "kills": 6,
+      "job": "Bard"
      }
     ]
    }
@@ -6936,6 +7305,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 96,
      "median": 79,
@@ -6944,6 +7314,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 97,
      "median": 81,
@@ -6952,6 +7323,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 99,
      "median": 81,
@@ -6960,6 +7332,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 92,
      "median": 74,
@@ -6968,6 +7341,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 99,
      "median": 82,
@@ -6976,6 +7350,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -7234,6 +7609,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -7409,6 +7785,31 @@
       "job": "Summoner"
      }
     ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 9,
+      "median": 8,
+      "kills": 2,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 8,
+      "median": 8,
+      "kills": 1,
+      "job": "WhiteMage"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -7438,6 +7839,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -7897,6 +8299,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 6,
      "median": 6,
@@ -7905,6 +8308,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 10,
      "median": 8,
@@ -7915,6 +8319,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -8121,7 +8526,8 @@
     "pct": 45.16,
     "phase": 0,
     "pulls": 20,
-    "last": "2026-08-20"
+    "last": "2026-08-20",
+    "last_ts": 1787237372
    }
   ]
  },
@@ -8254,6 +8660,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 100,
      "median": 71,
@@ -8262,6 +8669,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 97,
      "median": 76,
@@ -8270,6 +8678,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 92,
      "median": 79,
@@ -8278,6 +8687,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 88,
      "median": 47,
@@ -8286,6 +8696,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 87,
      "median": 58,
@@ -8294,6 +8705,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -8430,10 +8842,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 15.36,
-    "phase": 1,
-    "pulls": 139,
-    "last": "2026-08-27"
+    "pct": 4.83,
+    "phase": 2,
+    "pulls": 147,
+    "last": "2026-08-29",
+    "last_ts": 1788023168
    }
   ]
  },
@@ -8445,6 +8858,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 89,
      "median": 54,
@@ -8453,6 +8867,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 83,
      "median": 43,
@@ -8461,6 +8876,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 84,
      "median": 50,
@@ -8469,6 +8885,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 75,
      "median": 30,
@@ -8477,6 +8894,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 70,
      "median": 34,
@@ -8485,6 +8903,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -8692,6 +9111,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 80,
      "median": 37,
@@ -8700,6 +9120,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 93,
      "median": 49,
@@ -8708,6 +9129,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 99,
      "median": 36,
@@ -8716,6 +9138,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 40,
      "median": 11,
@@ -8724,6 +9147,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 88,
      "median": 39,
@@ -8732,6 +9156,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -8900,10 +9325,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 0.47,
-    "phase": 2,
+    "pct": 53.72,
+    "phase": 4,
     "pulls": 93,
-    "last": "2026-08-25"
+    "last": "2026-08-25",
+    "last_ts": 1787674176
    }
   ]
  },
@@ -9272,6 +9698,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 95,
      "median": 52,
@@ -9280,6 +9707,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 85,
      "median": 53,
@@ -9288,6 +9716,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 65,
      "median": 56,
@@ -9296,6 +9725,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 59,
      "median": 34,
@@ -9304,6 +9734,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 83,
      "median": 10,
@@ -9312,6 +9743,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -9692,6 +10124,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 81,
      "median": 47,
@@ -9700,6 +10133,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 84,
      "median": 43,
@@ -9708,6 +10142,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 56,
      "median": 18,
@@ -9716,6 +10151,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 60,
      "median": 39,
@@ -9724,6 +10160,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 53,
      "median": 41,
@@ -9732,6 +10169,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -10009,6 +10447,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 99,
      "median": 88,
@@ -10017,6 +10456,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 99,
      "median": 96,
@@ -10025,6 +10465,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 99,
      "median": 82,
@@ -10033,6 +10474,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 95,
      "median": 83,
@@ -10041,6 +10483,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 89,
      "median": 83,
@@ -10049,6 +10492,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -10274,10 +10718,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 0.47,
-    "phase": 2,
+    "pct": 53.72,
+    "phase": 4,
     "pulls": 93,
-    "last": "2026-08-25"
+    "last": "2026-08-25",
+    "last_ts": 1787674176
    }
   ]
  },
@@ -10343,6 +10788,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 85,
      "median": 67,
@@ -10351,6 +10797,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 85,
      "median": 62,
@@ -10359,6 +10806,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 93,
      "median": 66,
@@ -10367,6 +10815,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 90,
      "median": 64,
@@ -10375,6 +10824,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 65,
      "median": 48,
@@ -10383,6 +10833,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -10532,10 +10983,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 15.36,
-    "phase": 1,
-    "pulls": 139,
-    "last": "2026-08-27"
+    "pct": 4.83,
+    "phase": 2,
+    "pulls": 148,
+    "last": "2026-08-29",
+    "last_ts": 1788023168
    }
   ]
  },
@@ -10546,6 +10998,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -10700,6 +11153,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 91,
      "median": 70,
@@ -10708,6 +11162,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 89,
      "median": 66,
@@ -10716,6 +11171,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 93,
      "median": 63,
@@ -10724,6 +11180,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 83,
      "median": 54,
@@ -10732,6 +11189,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 89,
      "median": 54,
@@ -10740,6 +11198,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -10941,6 +11400,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 95,
      "median": 95,
@@ -10949,6 +11409,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 93,
      "median": 62,
@@ -10957,6 +11418,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 82,
      "median": 28,
@@ -10965,6 +11427,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 65,
      "median": 24,
@@ -10973,6 +11436,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 49,
      "median": 39,
@@ -10981,6 +11445,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -11246,10 +11711,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 0.47,
-    "phase": 2,
+    "pct": 53.72,
+    "phase": 4,
     "pulls": 94,
-    "last": "2026-08-25"
+    "last": "2026-08-25",
+    "last_ts": 1787674176
    }
   ]
  },
@@ -11260,6 +11726,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -11571,6 +12038,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 82,
      "median": 67,
@@ -11579,6 +12047,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 42,
      "median": 27,
@@ -11587,6 +12056,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 3,
      "median": 3,
@@ -11595,6 +12065,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 3,
      "median": 1,
@@ -11603,6 +12074,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 1,
      "median": 1,
@@ -11611,6 +12083,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -12369,6 +12842,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -12588,6 +13062,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 97,
      "median": 46,
@@ -12596,6 +13071,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 92,
      "median": 58,
@@ -12604,6 +13080,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 89,
      "median": 40,
@@ -12612,6 +13089,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 99,
      "median": 29,
@@ -12620,6 +13098,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 80,
      "median": 33,
@@ -12628,6 +13107,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -12640,8 +13120,8 @@
     "zone_id": 76,
     "expansion": "Dawntrail",
     "name": "Dancing Mad",
-    "best": 40,
-    "kills": 6,
+    "best": 41,
+    "kills": 7,
     "job": "Warrior",
     "cleared": true
    },
@@ -13474,6 +13954,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 55,
      "median": 26,
@@ -13482,6 +13963,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 33,
      "median": 19,
@@ -13492,6 +13974,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -13571,7 +14054,8 @@
     "pct": 45.16,
     "phase": 0,
     "pulls": 20,
-    "last": "2026-08-20"
+    "last": "2026-08-20",
+    "last_ts": 1787237372
    }
   ]
  },
@@ -13749,6 +14233,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 95,
      "median": 85,
@@ -13757,6 +14242,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 96,
      "median": 61,
@@ -13765,6 +14251,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 96,
      "median": 87,
@@ -13773,6 +14260,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 91,
      "median": 63,
@@ -13781,6 +14269,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 94,
      "median": 73,
@@ -13789,6 +14278,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -14027,7 +14517,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 53.72,
+    "phase": 4,
+    "pulls": 92,
+    "last": "2026-08-25",
+    "last_ts": 1787674176
+   }
+  ]
  },
  "30943571": {
   "current": {
@@ -14397,6 +14900,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 91,
      "median": 51,
@@ -14405,6 +14909,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 90,
      "median": 65,
@@ -14413,6 +14918,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 81,
      "median": 47,
@@ -14421,6 +14927,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 69,
      "median": 45,
@@ -14429,6 +14936,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 51,
      "median": 40,
@@ -14437,6 +14945,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -14672,10 +15181,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 0.47,
-    "phase": 2,
+    "pct": 53.72,
+    "phase": 4,
     "pulls": 94,
-    "last": "2026-08-25"
+    "last": "2026-08-25",
+    "last_ts": 1787674176
    }
   ]
  },
@@ -15035,6 +15545,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -15505,6 +16016,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 96,
      "median": 86,
@@ -15513,6 +16025,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 84,
      "median": 84,
@@ -15521,6 +16034,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 97,
      "median": 77,
@@ -15529,6 +16043,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 93,
      "median": 10,
@@ -15537,6 +16052,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 92,
      "median": 90,
@@ -15545,6 +16061,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -16060,6 +16577,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 56,
      "median": 31,
@@ -16068,6 +16586,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 47,
      "median": 25,
@@ -16078,6 +16597,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -17259,6 +17779,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -17419,6 +17940,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 91,
      "median": 65,
@@ -17427,6 +17949,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 81,
      "median": 69,
@@ -17435,6 +17958,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 67,
      "median": 33,
@@ -17443,6 +17967,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 68,
      "median": 23,
@@ -17451,6 +17976,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 63,
      "median": 27,
@@ -17459,6 +17985,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -18720,6 +19247,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -18976,6 +19504,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 81,
      "median": 53,
@@ -18984,6 +19513,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 77,
      "median": 53,
@@ -18992,6 +19522,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 82,
      "median": 55,
@@ -19000,6 +19531,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 70,
      "median": 40,
@@ -19008,6 +19540,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 48,
      "median": 28,
@@ -19016,6 +19549,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -19804,6 +20338,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 82,
      "median": 47,
@@ -19812,6 +20347,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 95,
      "median": 67,
@@ -19822,6 +20358,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -19937,6 +20474,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -20084,6 +20622,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 95,
      "median": 63,
@@ -20092,6 +20631,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 91,
      "median": 72,
@@ -20100,6 +20640,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 67,
      "median": 43,
@@ -20108,6 +20649,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 82,
      "median": 47,
@@ -20116,6 +20658,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 70,
      "median": 43,
@@ -20124,6 +20667,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -20339,10 +20883,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 2.38,
-    "phase": 3,
-    "pulls": 137,
-    "last": "2026-08-27"
+    "pct": 39.97,
+    "phase": 4,
+    "pulls": 118,
+    "last": "2026-08-29",
+    "last_ts": 1788023035
    }
   ]
  },
@@ -20783,6 +21328,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 61,
      "median": 37,
@@ -20792,6 +21338,7 @@
    ],
    "clears": [
     true,
+    false,
     false,
     false,
     false
@@ -21106,6 +21653,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 90,
      "median": 65,
@@ -21114,6 +21662,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 82,
      "median": 70,
@@ -21122,6 +21671,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 72,
      "median": 36,
@@ -21130,6 +21680,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 84,
      "median": 32,
@@ -21138,6 +21689,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 48,
      "median": 38,
@@ -21146,6 +21698,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -21565,6 +22118,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -21601,6 +22155,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -21678,6 +22233,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -21787,6 +22343,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -21803,6 +22360,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 82,
      "median": 60,
@@ -21811,6 +22369,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 79,
      "median": 40,
@@ -21819,6 +22378,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 97,
      "median": 97,
@@ -21827,6 +22387,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 54,
      "median": 20,
@@ -21835,6 +22396,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 52,
      "median": 45,
@@ -21843,6 +22405,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -22162,6 +22725,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 83,
      "median": 59,
@@ -22170,6 +22734,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 59,
      "median": 29,
@@ -22178,6 +22743,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 56,
      "median": 36,
@@ -22186,6 +22752,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 57,
      "median": 17,
@@ -22194,6 +22761,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 30,
      "median": 14,
@@ -22202,6 +22770,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -23042,6 +23611,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 4,
      "median": 3,
@@ -23051,6 +23621,7 @@
    ],
    "clears": [
     true,
+    false,
     false,
     false,
     false
@@ -23491,6 +24062,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 43,
      "median": 22,
@@ -23499,6 +24071,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 16,
      "median": 11,
@@ -23509,6 +24082,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -23670,6 +24244,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -24139,6 +24714,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -24214,6 +24790,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 58,
      "median": 24,
@@ -24222,6 +24799,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 72,
      "median": 35,
@@ -24232,6 +24810,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -24310,7 +24889,8 @@
     "pct": 18.06,
     "phase": 0,
     "pulls": 36,
-    "last": "2026-08-23"
+    "last": "2026-08-23",
+    "last_ts": 1787505381
    }
   ]
  },
@@ -24321,6 +24901,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -24647,6 +25228,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -24674,6 +25256,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 28,
      "median": 6,
@@ -24682,6 +25265,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 10,
      "median": 1,
@@ -24690,6 +25274,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 4,
      "median": 3,
@@ -24701,6 +25286,7 @@
     true,
     true,
     true,
+    false,
     false
    ]
   },
@@ -24991,6 +25577,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -25102,6 +25689,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 90,
      "median": 36,
@@ -25110,6 +25698,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 87,
      "median": 77,
@@ -25118,6 +25707,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 81,
      "median": 70,
@@ -25126,6 +25716,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 71,
      "median": 48,
@@ -25134,6 +25725,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 66,
      "median": 50,
@@ -25142,6 +25734,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -25499,6 +26092,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 94,
      "median": 80,
@@ -25507,6 +26101,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 99,
      "median": 85,
@@ -25515,6 +26110,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 84,
      "median": 47,
@@ -25523,6 +26119,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 95,
      "median": 55,
@@ -25531,6 +26128,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 79,
      "median": 46,
@@ -25539,6 +26137,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -25735,7 +26334,8 @@
     "pct": null,
     "phase": 0,
     "pulls": 62,
-    "last": "2026-08-25"
+    "last": "2026-08-25",
+    "last_ts": 1787675183
    }
   ]
  },
@@ -25849,6 +26449,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 90,
      "median": 59,
@@ -25857,6 +26458,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 97,
      "median": 73,
@@ -25865,6 +26467,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 98,
      "median": 85,
@@ -25873,6 +26476,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 89,
      "median": 45,
@@ -25881,6 +26485,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 83,
      "median": 29,
@@ -25889,6 +26494,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -26656,6 +27262,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 61,
      "median": 26,
@@ -26664,6 +27271,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 80,
      "median": 35,
@@ -26674,6 +27282,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -26712,7 +27321,8 @@
     "pct": 45.16,
     "phase": 0,
     "pulls": 20,
-    "last": "2026-08-20"
+    "last": "2026-08-20",
+    "last_ts": 1787237372
    }
   ]
  },
@@ -26867,6 +27477,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 5,
      "median": 4,
@@ -26875,6 +27486,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 12,
      "median": 8,
@@ -26885,6 +27497,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -27256,6 +27869,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -27290,6 +27904,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -27408,6 +28023,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -27459,6 +28075,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -27527,6 +28144,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 1,
      "median": 1,
@@ -27535,6 +28153,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 1,
      "median": 1,
@@ -27545,6 +28164,7 @@
    "clears": [
     true,
     true,
+    false,
     false,
     false
    ]
@@ -27663,6 +28283,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 91,
      "median": 70,
@@ -27671,6 +28292,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 90,
      "median": 73,
@@ -27679,6 +28301,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 89,
      "median": 76,
@@ -27687,6 +28310,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 75,
      "median": 69,
@@ -27695,6 +28319,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
