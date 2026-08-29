@@ -1,6 +1,195 @@
 {
  "events": [
   {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 29918399,
+   "name": "Athaliah Aylin",
+   "text": "set a new best parse: 36"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 25620101,
+   "name": "Athena Leonheart",
+   "text": "set a new best parse: 45"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "set a new best parse: 67"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "is now a Expert Dark Knight"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 43423269,
+   "name": "Bladez Sweeney",
+   "text": "set a new best parse: 87"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 43423269,
+   "name": "Bladez Sweeney",
+   "text": "is now a Master Monk"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 5720080,
+   "name": "Bowling Chan",
+   "text": "set a new best parse: 81"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 5720080,
+   "name": "Bowling Chan",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 24104450,
+   "name": "Cepheus Stellar",
+   "text": "set a new best parse: 95"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 24104450,
+   "name": "Cepheus Stellar",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 24150396,
+   "name": "Chaser Dc",
+   "text": "set a new best parse: 87"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 24150396,
+   "name": "Chaser Dc",
+   "text": "is now a Master Dancer"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 8999658,
+   "name": "Chzzck Godslayer",
+   "text": "is now a Expert Samurai"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 24103365,
+   "name": "Cygnus Stellar",
+   "text": "set a new best parse: 90"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 24103365,
+   "name": "Cygnus Stellar",
+   "text": "is now a Master Dark Knight"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 18578874,
+   "name": "De'lalia Aredhel",
+   "text": "set a new best parse: 72"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 34511319,
+   "name": "Elise Lionheart",
+   "text": "set a new best parse: 93"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 34511319,
+   "name": "Elise Lionheart",
+   "text": "is now a Legendary Summoner"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 36855080,
+   "name": "Elkronin Ketchupeater",
+   "text": "set a new best parse: 79"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 36855080,
+   "name": "Elkronin Ketchupeater",
+   "text": "is now a Expert Dragoon"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 34522645,
+   "name": "Ellone Chrysler",
+   "text": "set a new best parse: 84"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 34522645,
+   "name": "Ellone Chrysler",
+   "text": "is now a Master Sage"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "is now a Legendary Dark Knight"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 31519555,
+   "name": "Ernese Gold",
+   "text": "set a new best parse: 70"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 30559609,
+   "name": "Florice Frostingway",
+   "text": "set a new best parse: 78"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 36090951,
+   "name": "Guuji Mercedexs",
+   "text": "is now a Expert Samurai"
+  },
+  {
    "date": "2026-08-28",
    "type": "level_100",
    "id": 28579232,
@@ -1210,195 +1399,6 @@
    "id": 30293847,
    "name": "Devy Lanta",
    "text": "earned A Wolf in Plate Armor II"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "level_100",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 39850923,
-   "name": "Hiro Hikari",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 39850923,
-   "name": "Hiro Hikari",
-   "text": "earned A Show of Fork IV — only 0.1% of players have it, and 79 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 7283668,
-   "name": "Nowhere Man",
-   "text": "earned Mining Your Own Business: La Noscea IV — only 3.3% of players have it, and 8 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "is now a Expert Gold Saucer collector ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 37696532,
-   "name": "Golden Lancer",
-   "text": "earned Fit for a Queen: Blade's Fealty, and 1 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 28163062,
-   "name": "Helga Holybringer",
-   "text": "earned To Each According to His Need: Twin Adder III, and 1 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 2168537,
-   "name": "Idiosy Glorfindel",
-   "text": "earned Oh My Gourd, and 5 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 28012936,
-   "name": "Kouro Moro",
-   "text": "earned On the Payroll VI, and 3 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 24747734,
-   "name": "Liora Verasch",
-   "text": "earned Sustainable Sourcing III — only 2.0% of players have it, and 39 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 3902073,
-   "name": "Namine Raspberyl",
-   "text": "is now a Expert Seasonal collector ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 3902073,
-   "name": "Namine Raspberyl",
-   "text": "earned Horsing About — only 4.2% of players have it, and 14 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 8234305,
-   "name": "Nara Saurus",
-   "text": "earned Aetherpool Party: Daggers — only 4.1% of players have it, and 5 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 36149590,
-   "name": "Neo Anderson",
-   "text": "earned Tank You, Warrior V — only 3.8% of players have it, and 11 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 27302476,
-   "name": "Nesies Ashwood",
-   "text": "earned Mixing It Up: Exemplar, and 1 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 5762434,
-   "name": "Oakley Ale",
-   "text": "earned With Pick in Hand VI — only 3.7% of players have it, and 18 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 32223527,
-   "name": "Odachi Nameless",
-   "text": "earned A Wolf in Plate Armor II, and 3 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "earned Savage Queen of Swords II — only 2.5% of players have it, and 36 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 718420,
-   "name": "Phantasm Gloria",
-   "text": "is now a Expert Old-timer ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 718420,
-   "name": "Phantasm Gloria",
-   "text": "earned I Survived Camp Drybone — only 0.6% of players have it, and 17 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "parse_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
   }
  ]
 }

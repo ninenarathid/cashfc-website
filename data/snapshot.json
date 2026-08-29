@@ -4891,7 +4891,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 95,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -4903,7 +4903,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-28"
+  "chg": "2026-08-29"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -7452,7 +7452,7 @@
  },
  "29918399": {
   "name": "Athaliah Aylin",
-  "parse": null,
+  "parse": 36,
   "ult": 0,
   "mounts": 96,
   "minions": 199,
@@ -7469,11 +7469,11 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "25620101": {
   "name": "Athena Leonheart",
-  "parse": null,
+  "parse": 45,
   "ult": 0,
   "mounts": 25,
   "minions": 115,
@@ -7490,7 +7490,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-29"
  },
  "30863840": {
   "name": "Aui Aye",
@@ -7729,7 +7729,7 @@
  },
  "17473430": {
   "name": "Bigon Truesilver",
-  "parse": 41,
+  "parse": 67,
   "ult": 1,
   "mounts": 40,
   "minions": 59,
@@ -7743,7 +7743,9 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "DarkKnight": "expert"
+  },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
@@ -7751,7 +7753,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "58199756": {
   "name": "Billy Najah",
@@ -7782,7 +7784,7 @@
  },
  "43423269": {
   "name": "Bladez Sweeney",
-  "parse": 75,
+  "parse": 87,
   "ult": 1,
   "mounts": 67,
   "minions": 127,
@@ -7796,7 +7798,9 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Monk": "master"
+  },
   "ex": [
    "Queen Eternal",
    "Valigarmanda",
@@ -7806,7 +7810,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "47658617": {
   "name": "Bogotaz Lucaz",
@@ -7831,7 +7835,7 @@
  },
  "5720080": {
   "name": "Bowling Chan",
-  "parse": 64,
+  "parse": 81,
   "ult": 3,
   "mounts": 150,
   "minions": 326,
@@ -7845,7 +7849,9 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Gunbreaker": "master"
+  },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
@@ -7855,7 +7861,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "33604767": {
   "name": "Boyekon Redroof",
@@ -8006,7 +8012,7 @@
  },
  "24104450": {
   "name": "Cepheus Stellar",
-  "parse": 45,
+  "parse": 95,
   "ult": 1,
   "mounts": 35,
   "minions": 81,
@@ -8020,16 +8026,18 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Scholar": "master"
+  },
   "ex": [],
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "24150396": {
   "name": "Chaser Dc",
-  "parse": 23,
+  "parse": 87,
   "ult": 1,
   "mounts": 55,
   "minions": 214,
@@ -8043,14 +8051,16 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Dancer": "master"
+  },
   "ex": [
    "Valigarmanda"
   ],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "31471584": {
   "name": "Chicha Chichi",
@@ -8220,7 +8230,9 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Samurai": "expert"
+  },
   "ex": [],
   "ults": [
    "Dragonsong's Reprise",
@@ -8252,7 +8264,7 @@
  },
  "24103365": {
   "name": "Cygnus Stellar",
-  "parse": 71,
+  "parse": 90,
   "ult": 1,
   "mounts": 65,
   "minions": 136,
@@ -8266,12 +8278,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "DarkKnight": "master"
+  },
   "ex": [],
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "34228206": {
   "name": "Cystal Wingsky",
@@ -8317,7 +8331,7 @@
  },
  "18578874": {
   "name": "De'lalia Aredhel",
-  "parse": null,
+  "parse": 72,
   "ult": 0,
   "mounts": 38,
   "minions": 104,
@@ -8334,7 +8348,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "31737067": {
   "name": "Deuce Bigalow",
@@ -8612,7 +8626,7 @@
  },
  "34511319": {
   "name": "Elise Lionheart",
-  "parse": 29,
+  "parse": 93,
   "ult": 1,
   "mounts": 42,
   "minions": 76,
@@ -8626,12 +8640,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Summoner": "legendary"
+  },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "30053876": {
   "name": "Elisis Deost",
@@ -8656,7 +8672,7 @@
  },
  "36855080": {
   "name": "Elkronin Ketchupeater",
-  "parse": 53,
+  "parse": 79,
   "ult": 0,
   "mounts": 59,
   "minions": 149,
@@ -8670,17 +8686,19 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Dragoon": "expert"
+  },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-29"
  },
  "34522645": {
   "name": "Ellone Chrysler",
-  "parse": 45,
+  "parse": 84,
   "ult": 0,
   "mounts": 101,
   "minions": 185,
@@ -8694,14 +8712,16 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Sage": "master"
+  },
   "ex": [
    "Valigarmanda",
    "Zelenia",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "34522644": {
   "name": "Elwann Halffu",
@@ -8839,7 +8859,7 @@
  },
  "1643244": {
   "name": "Epicenter Eorzea",
-  "parse": 95,
+  "parse": 98,
   "ult": 6,
   "mounts": 122,
   "minions": 276,
@@ -8929,7 +8949,7 @@
   },
   "jobs": {
    "Gunbreaker": "legendary",
-   "DarkKnight": "master"
+   "DarkKnight": "legendary"
   },
   "ex": [
    "Valigarmanda",
@@ -8943,7 +8963,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-25"
+  "chg": "2026-08-29"
  },
  "15785511": {
   "name": "Eric Luminous",
@@ -8968,7 +8988,7 @@
  },
  "31519555": {
   "name": "Ernese Gold",
-  "parse": 50,
+  "parse": 70,
   "ult": 1,
   "mounts": 36,
   "minions": 78,
@@ -8987,7 +9007,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "16397778": {
   "name": "Eydis Ein",
@@ -9142,7 +9162,7 @@
  },
  "30559609": {
   "name": "Florice Frostingway",
-  "parse": 53,
+  "parse": 78,
   "ult": 4,
   "mounts": 94,
   "minions": 167,
@@ -9167,7 +9187,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-29"
  },
  "16168981": {
   "name": "Francis Fleuret",
@@ -9433,7 +9453,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "expert"
+   "Viper": "expert",
+   "Samurai": "expert"
   },
   "ex": [
    "Queen Eternal",
