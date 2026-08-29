@@ -134,11 +134,11 @@
   },
   {
    "date": "2026-08-29",
-   "total": 501,
+   "total": 500,
    "tags": {
-    "extreme": 136,
-    "ultimate": 118,
-    "tier-clear": 43,
+    "extreme": 135,
+    "ultimate": 117,
+    "tier-clear": 42,
     "veteran": 111,
     "gatherer": 8,
     "crafter": 13,
@@ -153,11 +153,11 @@
     "prog": 23,
     "oldtimer": 1
    },
-   "raider": 66,
-   "ultimate": 118,
-   "extreme": 136,
+   "raider": 65,
+   "ultimate": 117,
+   "extreme": 135,
    "unknown": 4,
-   "final_boss": 43
+   "final_boss": 42
   }
  ]
 }

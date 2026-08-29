@@ -3,6 +3,41 @@
   {
    "date": "2026-08-29",
    "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "level_100",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "is now a Master Dragoon"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "level_100",
    "id": 36130968,
    "name": "Chu Celestial",
    "text": "reached level 100!"
@@ -1364,41 +1399,6 @@
    "id": 37056222,
    "name": "Lucine Nokomis",
    "text": "is now a Master Dancer"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "level_100",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "level_100",
-   "id": 29511615,
-   "name": "Whitefang Dimmoon",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "level_100",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "level_100",
-   "id": 34434658,
-   "name": "Araiva Leonhart",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100!"
   }
  ]
 }

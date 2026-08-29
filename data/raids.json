@@ -76,6 +76,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -473,6 +474,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -2776,6 +2778,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -3887,6 +3890,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -6470,6 +6474,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 97,
      "median": 83,
@@ -6478,6 +6483,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 86,
      "median": 72,
@@ -6486,6 +6492,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 98,
      "median": 76,
@@ -6494,6 +6501,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 80,
      "median": 58,
@@ -6502,6 +6510,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 98,
      "median": 39,
@@ -6510,6 +6519,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -6671,6 +6681,40 @@
       "job": "Samurai"
      }
     ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 81,
+      "median": 55,
+      "kills": 13,
+      "job": "Dragoon"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 68,
+      "median": 57,
+      "kills": 19,
+      "job": "Dragoon"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 64,
+      "median": 47,
+      "kills": 4,
+      "job": "Dragoon"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -6700,6 +6744,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -8630,6 +8675,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -8904,6 +8950,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -9205,6 +9252,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -11971,6 +12019,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -12008,6 +12057,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -12521,6 +12571,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -12894,6 +12945,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -13159,6 +13211,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -13658,6 +13711,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -14635,6 +14689,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -14756,6 +14811,49 @@
       "best": 56,
       "median": 44,
       "kills": 3,
+      "job": "Samurai"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 96,
+      "median": 40,
+      "kills": 68,
+      "job": "Samurai"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 96,
+      "median": 41,
+      "kills": 65,
+      "job": "Samurai"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 93,
+      "median": 55,
+      "kills": 22,
+      "job": "Samurai"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 91,
+      "median": 36,
+      "kills": 38,
       "job": "Samurai"
      }
     ]
@@ -15372,6 +15470,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -15787,6 +15886,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -15891,6 +15991,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -16908,6 +17009,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -17106,6 +17208,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -17980,6 +18083,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -18081,6 +18185,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -18489,6 +18594,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -18592,6 +18698,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -19344,6 +19451,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -20248,6 +20356,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -20515,6 +20624,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -20530,6 +20640,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -21340,6 +21451,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -21904,6 +22016,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -21919,6 +22032,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -22017,6 +22131,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -22245,6 +22360,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -22279,6 +22395,7 @@
    "encounters": [
     {
      "label": "M9S",
+     "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 72,
      "median": 35,
@@ -22287,6 +22404,7 @@
     },
     {
      "label": "M10S",
+     "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 69,
      "median": 29,
@@ -22295,6 +22413,7 @@
     },
     {
      "label": "M11S",
+     "encounter_id": 103,
      "name": "The Tyrant",
      "best": 49,
      "median": 41,
@@ -22303,6 +22422,7 @@
     },
     {
      "label": "M12S-1",
+     "encounter_id": 104,
      "name": "Lindwurm",
      "best": 26,
      "median": 13,
@@ -22311,6 +22431,7 @@
     },
     {
      "label": "M12S-2",
+     "encounter_id": 105,
      "name": "Lindwurm II",
      "best": 8,
      "median": 8,
@@ -22319,6 +22440,7 @@
     }
    ],
    "clears": [
+    true,
     true,
     true,
     true,
@@ -22445,6 +22567,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -23222,6 +23345,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -23328,6 +23452,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -23508,6 +23633,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -23814,6 +23940,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -23829,6 +23956,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -24232,6 +24360,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -24283,6 +24412,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -24649,6 +24779,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -24951,6 +25082,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -25665,6 +25797,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -26041,6 +26174,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -26147,6 +26281,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -26317,6 +26452,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -26474,6 +26610,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -26607,6 +26744,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -26622,6 +26760,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -26674,6 +26813,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -26689,6 +26829,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -26902,6 +27043,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -26987,6 +27129,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
