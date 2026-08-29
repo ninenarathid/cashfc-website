@@ -30,10 +30,6 @@ export default function GuidesPage() {
         Guides
       </div>
       <h1 className="font-display text-3xl font-bold">ไกด์คอนเทนต์</h1>
-      <p className="mt-1 max-w-prose text-[13px] leading-relaxed text-muted">
-        เลือกตำแหน่งของคุณก่อนอ่าน แผนผังจะแสดงเฉพาะที่ที่คุณต้องยืน
-        และมีโหมดทดสอบให้ลองตอบว่าท่านี้ต้องไปตรงไหน
-      </p>
 
       {EXPANSIONS.map((expansion) => (
         <section key={expansion} className="mt-6">

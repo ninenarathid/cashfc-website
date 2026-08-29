@@ -1,7 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import type { Arena as ArenaShape, Danger, GuideRole, Spot } from "@/lib/guides/types";
+import {
+  ICONS, SLOT_ROLE,
+  type Arena as ArenaShape, type Danger, type GuideRole, type Slot, type Spot,
+} from "@/lib/guides/types";
 
 /**
  * The floor, what is dangerous on it, and who is standing where.
@@ -83,7 +86,23 @@ function dangerPath(d: Danger): string {
   }
 }
 
-export interface Mark { role: GuideRole; at: Spot; you?: boolean }
+export interface Mark { slot: Slot; at: Spot; you?: boolean }
+
+/**
+ * A picture over a drawn marker.
+ *
+ * Both, always, in that order. The shape is rendered first and the image goes on
+ * top, so a file that is missing or slow leaves the diagram complete rather than
+ * leaving a hole where somebody is supposed to be standing. Art is an
+ * improvement here, never a dependency.
+ */
+function Pic({ src, at, size }: { src?: string; at: Spot; size: number }) {
+  if (!src) return null;
+  return (
+    <image href={src} x={at.x - size / 2} y={sy(at.y) - size / 2}
+           width={size} height={size} preserveAspectRatio="xMidYMid meet" />
+  );
+}
 
 export default function Arena(
   { arena, danger = [], marks = [], boss, pick, answer, onPick, tolerance = 2 }: {
@@ -100,6 +119,8 @@ export default function Arena(
   },
 ) {
   const svg = useRef<SVGSVGElement | null>(null);
+  // A guide may bring its own art; most use the shared set.
+  const icons = { ...ICONS, ...(arena.icons ?? {}) };
   const pad = 1.6;
   const span = (R + pad) * 2;
 
@@ -193,6 +214,8 @@ export default function Arena(
           <text x={at.x} y={sy(at.y)} textAnchor="middle" dominantBaseline="central"
                 fill={WAYMARK_COLOR[k] ?? "#8b97a8"} fontSize={1.05}
                 fontWeight={600}>{k}</text>
+          <Pic src={icons.waymarks?.[k as keyof typeof icons.waymarks]}
+               at={at} size={2.2} />
         </g>
       ))}
 
@@ -202,21 +225,32 @@ export default function Arena(
                   className="fill-surface stroke-ink/70" strokeWidth={0.16} />
           <text x={boss.x} y={sy(boss.y)} textAnchor="middle" dominantBaseline="central"
                 className="fill-ink" fontSize={1.1} fontWeight={700}>B</text>
+          <Pic src={icons.boss} at={boss} size={3.4} />
         </g>
       )}
 
-      {marks.map((m, i) => (
-        <g key={i}>
-          <circle cx={m.at.x} cy={sy(m.at.y)} r={m.you ? 1.15 : 0.85}
-                  fill={`${ROLE_COLOR[m.role]}${m.you ? "55" : "22"}`}
-                  stroke={ROLE_COLOR[m.role]} strokeWidth={m.you ? 0.26 : 0.14} />
-          {m.you && (
-            <circle cx={m.at.x} cy={sy(m.at.y)} r={1.9} fill="none"
-                    stroke={ROLE_COLOR[m.role]} strokeWidth={0.12}
-                    strokeDasharray="0.5 0.4" />
-          )}
-        </g>
-      ))}
+      {marks.map((m, i) => {
+        const color = ROLE_COLOR[SLOT_ROLE[m.slot]];
+        return (
+          <g key={i} opacity={m.you ? 1 : 0.75}>
+            <circle cx={m.at.x} cy={sy(m.at.y)} r={m.you ? 1.15 : 0.85}
+                    fill={`${color}${m.you ? "55" : "22"}`}
+                    stroke={color} strokeWidth={m.you ? 0.26 : 0.14} />
+            <Pic src={icons.slots?.[m.slot]} at={m.at} size={m.you ? 2.6 : 1.9} />
+            {/* The seat's name on the marker, so a diagram of eight people can be
+                read without counting colours. */}
+            <text x={m.at.x} y={sy(m.at.y - (m.you ? 1.75 : 1.4))}
+                  textAnchor="middle" dominantBaseline="central"
+                  fill={color} fontSize={m.you ? 1 : 0.8} fontWeight={600}>
+              {m.slot}
+            </text>
+            {m.you && (
+              <circle cx={m.at.x} cy={sy(m.at.y)} r={1.9} fill="none"
+                      stroke={color} strokeWidth={0.12} strokeDasharray="0.5 0.4" />
+            )}
+          </g>
+        );
+      })}
 
       {/* What the reader answered, and how close they had to be. The ring is
           drawn as well as the point, because "you were nearly right" is a

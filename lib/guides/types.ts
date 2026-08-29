@@ -86,16 +86,75 @@ export type Danger =
  * and a right needs both written out — and that, not the code, is where the work
  * in building these guides actually is.
  */
+/**
+ * One beat inside a mechanic.
+ *
+ * A mechanic is rarely a single picture. Ether Letting is "take your marker to
+ * the edge", then "come back to the middle" — two different places to stand,
+ * thirty seconds apart, and drawing only the second is how a guide ends up
+ * technically correct and no use. So a mechanic is a short sequence, and each
+ * beat gets its own diagram.
+ */
+export interface Step {
+  id: string;
+  /** What this beat is. "1 — วางลำแสง", "2 — รวมกลาง". */
+  label: string;
+  /** What is happening, for everybody. */
+  say: string;
+  danger: Danger[];
+  /** Where each seat stands. A seat left out has nowhere special to be. */
+  safe: Partial<Record<Slot, Spot>>;
+  /**
+   * What this particular seat does, in their own words.
+   *
+   * The half a diagram cannot draw. A position says where to stand; it does not
+   * say "swap after this one", "hold your invuln for the second set", "you are
+   * the one who breaks the ball". Written per seat because that is the only
+   * scale at which it is true — and because a reader who has said which seat
+   * they are should be told their job, not the whole party's.
+   */
+  per?: Partial<Record<Slot, string>>;
+  /** Said when somebody answers wrongly — the correction, not just a cross. */
+  wrong?: string;
+}
+
 export interface Variant {
   id: string;
   /** What tells you it is this one. "Left arm glows", "towers spawn north". */
   tell: string;
-  danger: Danger[];
-  /** Where each seat stands. A seat left out has nowhere special to be. */
-  safe: Partial<Record<Slot, Spot>>;
-  /** Said when somebody answers wrongly — the correction, not just a cross. */
-  wrong?: string;
+  steps: Step[];
 }
+
+/**
+ * What kind of thing a skill is, for reading a timeline at a glance.
+ *
+ * A raid does not remember a fight as a list of names. It remembers "the
+ * tankbuster, then the stack, then the one you have to memorise", and a
+ * timeline that says only what each cast is called makes everybody translate
+ * that back every time they look at it.
+ */
+export type MechTag =
+  | "aoe" | "tankbuster" | "spread" | "stack"
+  | "tower" | "cleave" | "adds" | "memo" | "enrage";
+
+export const TAG_LABEL: Record<MechTag, string> = {
+  aoe: "AoE ทั้งสนาม", tankbuster: "Tankbuster", spread: "แยก", stack: "รวม",
+  tower: "หอคอย", cleave: "หลบทิศ", adds: "มอนเสริม",
+  memo: "ต้องจำ", enrage: "Enrage",
+};
+
+/** Chip colours, reusing the palette the rest of the site already reads by. */
+export const TAG_TONE: Record<MechTag, string> = {
+  aoe: "border-chili/50 bg-chili/10 text-chili",
+  tankbuster: "border-steel/50 bg-steel/10 text-steel",
+  spread: "border-copper/50 bg-copper/10 text-copper",
+  stack: "border-jade/50 bg-jade/10 text-jade",
+  tower: "border-gold/50 bg-gold/10 text-gold",
+  cleave: "border-[#a87fd8]/50 bg-[#a87fd8]/10 text-[#c0a2e6]",
+  adds: "border-[#6aa84f]/50 bg-[#6aa84f]/10 text-[#93c47d]",
+  memo: "border-accent/50 bg-accent/10 text-accent",
+  enrage: "border-chili bg-chili/20 text-chili",
+};
 
 export interface Mechanic {
   id: string;
@@ -113,6 +172,8 @@ export interface Mechanic {
    * forgotten what was confusing. Ask somebody who wiped last night.
    */
   dies: string;
+  /** What kind of skill this is, for the timeline. */
+  tags?: MechTag[];
   variants: Variant[];
   /** Six seconds, no sound, one mechanic. Served from /public. */
   clip?: string;
@@ -162,7 +223,41 @@ export interface Arena {
   grid?: number;
   /** Where the marks are put for this fight. Left out means none are used. */
   waymarks?: Partial<Record<Waymark, Spot>>;
+  /** Pictures for the markers, when there are any. See ICONS below. */
+  icons?: Icons;
 }
+
+/**
+ * Pictures to use for the markers instead of the shapes drawn for them.
+ *
+ * Every one is optional and every one falls back: the drawn marker is rendered
+ * first and the picture goes over it, so a file that is missing, slow or
+ * mistyped leaves a diagram that still works rather than a diagram with holes
+ * in it. A guide can override any of them; most will use the defaults.
+ */
+export interface Icons {
+  waymarks?: Partial<Record<Waymark, string>>;
+  boss?: string;
+  slots?: Partial<Record<Slot, string>>;
+}
+
+/**
+ * Where the shared marker art lives.
+ *
+ * Drop a PNG at each of these paths and every guide picks it up. Nothing has to
+ * be edited to turn them on, and nothing breaks while they are missing.
+ */
+export const ICONS: Icons = {
+  waymarks: Object.fromEntries(
+    (["A", "B", "C", "D", "1", "2", "3", "4"] as Waymark[])
+      .map((w) => [w, `/guides/icons/${w}.png`]),
+  ) as Partial<Record<Waymark, string>>,
+  boss: "/guides/icons/boss.png",
+  slots: Object.fromEntries(
+    (["MT", "ST", "H1", "H2", "D1", "D2", "D3", "D4"] as Slot[])
+      .map((s) => [s, `/guides/icons/${s}.png`]),
+  ) as Partial<Record<Slot, string>>,
+};
 
 export interface Guide {
   slug: string;
