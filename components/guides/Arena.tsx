@@ -140,7 +140,10 @@ export default function Arena(
                  clipPath="url(#arena-floor)" preserveAspectRatio="xMidYMid slice"
                  opacity={0.5} />
         )}
-        {arena.grid && arena.grid > 1 && (
+        {/* Only when there is no photograph of the floor. A real arena that is
+            divided into tiles already shows them, and drawing a second set over
+            the first is two grids that will never quite line up. */}
+        {arena.grid && arena.grid > 1 && !arena.image && (
           <g clipPath="url(#arena-floor)" stroke="currentColor" strokeWidth={0.07}
              opacity={0.55}>
             {Array.from({ length: arena.grid - 1 }, (_, i) => {
