@@ -409,8 +409,15 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   }, [inScope]);
 
   const activityCounts = useMemo(() => {
-    const vacation = visible.filter(isOnVacation).length;
-    return { active: visible.length - vacation, vacation };
+    // Guests are none of the three FC states, so they are taken out before the
+    // other two are counted. Left in, they inflated Active — nobody outside the
+    // FC is on vacation from it — and Guests itself was falling through to the
+    // whole roster, which said five hundred people had registered from outside
+    // when nobody had.
+    const guest = visible.filter((m) => m.rank === GUEST_RANK).length;
+    const roster = visible.filter((m) => m.rank !== GUEST_RANK);
+    const vacation = roster.filter(isOnVacation).length;
+    return { active: roster.length - vacation, vacation, guest };
   }, [visible]);
 
   const list = useMemo(() => {
@@ -525,6 +532,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             const on = adv.activity === o.key;
             const n = o.key === "active" ? activityCounts.active
               : o.key === "vacation" ? activityCounts.vacation
+              : o.key === "guest" ? activityCounts.guest
               : visible.length;
             return (
               <button key={o.key} onClick={() => setAdv({ ...adv, activity: o.key })}
@@ -533,8 +541,13 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         on ? "bg-accent/15 text-accent"
                            : "text-muted hover:text-ink"}`}>
                 {o.key !== "all" && (
+                  // A guest is not a dimmed member, so they do not get the
+                  // vacation grey. Hollow, because the dot is a presence light
+                  // for the FC and they are not in it.
                   <span className={`mr-1.5 inline-block size-2 rounded-full align-middle ${
-                    o.key === "active" ? "bg-[#43b581]" : "bg-[#747f8d]"}`} />
+                    o.key === "active" ? "bg-[#43b581]"
+                    : o.key === "guest" ? "border border-muted"
+                    : "bg-[#747f8d]"}`} />
                 )}
                 {o.label}
                 <small className="ml-1.5 font-data opacity-70">{n}</small>
