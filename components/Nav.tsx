@@ -30,6 +30,9 @@ const GALLERY_TAB: (typeof TABS)[number] = { href: "/gallery", label: "nav.galle
 // Signed in only: a feedback thread needs somebody to reply to, and there is
 // nothing on that page for a visitor who has not said who they are.
 const FEEDBACK_TAB: (typeof TABS)[number] = { href: "/feedback", label: "nav.feedback" };
+// Admins only while the guides are being written. A half-finished guide is worse
+// than none, because somebody will stand where it says.
+const GUIDES_TAB: (typeof TABS)[number] = { href: "/guides", label: "nav.guides" };
 
 export default function Nav() {
   const pathname = usePathname();
@@ -65,6 +68,7 @@ export default function Nav() {
     ...TABS,
     ...(showGallery ? [GALLERY_TAB] : []),
     ...(signedIn ? [FEEDBACK_TAB] : []),
+    ...(isAdmin ? [GUIDES_TAB] : []),
   ];
   // The header takes its own artwork, since a mark that works at 56px in a nav bar is
   // rarely the same one that works at 450px on the front page. Falls back to the

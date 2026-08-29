@@ -41,6 +41,7 @@ const DICT = {
     th: "ใครก็ได้ที่กำลังเล่นอยู่ ({n})",
   },
   "nav.feedback": { en: "Feedback", th: "แจ้งเรื่อง" },
+  "nav.guides": { en: "Guides", th: "ไกด์" },
   "feedback.title": { en: "Feedback", th: "แจ้งเรื่องถึงผู้ดูแล" },
   "feedback.intro": {
     en: "Anything the FC should know, or anything on this site that is wrong. It goes to the admins and stays between you and them.",
