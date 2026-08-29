@@ -28,8 +28,11 @@ import TagLegend from "@/components/TagLegend";
 const ACTIVITY_OPTIONS = [
   { key: "active", label: "Active" },
   { key: "vacation", label: "On vacation" },
+  { key: "guest", label: "Guests" },
   { key: "all", label: "Everyone" },
 ];
+/** Not in the FC, and marked so on the row as well as in the filter. */
+const GUEST_RANK = "Guest";
 const ACTIVITY_DEFAULT = "active";
 type SortKey = "name" | "mounts" | "rare";
 
@@ -228,18 +231,71 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         setHiddenIds(new Set((rows ?? []).map((r) => r.character_id as number))));
   }, []);
 
+  /**
+   * People who verified a character that is not on the FC roster.
+   *
+   * Anybody can sign in here and prove a character is theirs — the check reads
+   * The Lodestone and asks nothing about which Free Company it belongs to — so a
+   * static who-plays-with-us page and a roster scraped from the FC page are two
+   * different lists. Friends of the FC, alts on other servers, people who raid
+   * with us on Thursdays: they exist in the database and appeared nowhere.
+   *
+   * What is known about them is only what they typed and what they chose. The
+   * pipeline never looks a non-member up, so there are no mounts, no parse, no
+   * tags — and the tag and grade filters will therefore never match one, which is
+   * correct rather than a gap. They are here to be seen, not ranked.
+   */
+  const [guests, setGuests] = useState<Member[]>([]);
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+    void (async () => {
+      const { data: rows } = await supabase.from("profiles")
+        .select("character_id, character_name, avatar_url")
+        .not("character_id", "is", null)
+        .not("character_verified_at", "is", null);
+      const roster = new Set(data.members.map((m) => m.id));
+      setGuests(((rows ?? []) as {
+        character_id: number; character_name: string | null; avatar_url: string | null;
+      }[])
+        .filter((r) => !roster.has(r.character_id))
+        .map((r) => ({
+          id: r.character_id,
+          name: r.character_name ?? "—",
+          rank: GUEST_RANK,
+          level: null,
+          avatar: r.avatar_url ?? null,
+          tags: [],
+          parse: null,
+          savage_kills: 0,
+          ult_clears: 0,
+          mounts: null,
+          minions: null,
+          rare_achv: null,
+        } as unknown as Member)));
+    })();
+  }, [data.members]);
+
   const visible = useMemo(
-    () => data.members.filter((m) => !hiddenIds.has(m.id)),
-    [data.members, hiddenIds]);
+    () => [...data.members, ...guests].filter((m) => !hiddenIds.has(m.id)),
+    [data.members, guests, hiddenIds]);
 
   // Everything the secondary filters count is counted within the activity selection,
   // so switching to Active re-labels them all. A "Crafter 12" that still says 12
   // after narrowing to the active roster is telling you about people you excluded.
   const inScope = useMemo(
-    () => visible.filter((m) =>
-      adv.activity === "active" ? !isOnVacation(m)
-      : adv.activity === "vacation" ? isOnVacation(m)
-      : true),
+    () => visible.filter((m) => {
+      // A guest is neither active nor on vacation — those are FC ranks, and a
+      // guest has no rank in this FC. They are their own answer to "who is
+      // this", which is why they sit alongside the other two rather than
+      // inside one of them.
+      const guest = m.rank === GUEST_RANK;
+      return adv.activity === "guest" ? guest
+        : guest ? adv.activity === "all"
+        : adv.activity === "active" ? !isOnVacation(m)
+        : adv.activity === "vacation" ? isOnVacation(m)
+        : true;
+    }),
     [visible, adv.activity]);
 
   const counts = useMemo(() => {
