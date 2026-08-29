@@ -125,6 +125,16 @@ const GRADES = ["legendary", "master", "expert"] as const;
  * wrong trade — the split is meant to let you be specific, not to stop you being
  * general.
  */
+/**
+ * What a member is in the middle of, as a list.
+ *
+ * progress_all arrived after progress did, so a members.json written by an older
+ * pipeline still has only the single headline row. Reading both here keeps every
+ * caller from having to remember that.
+ */
+const progressRows = (m: Member) =>
+  m.progress_all ?? (m.progress ? [m.progress] : []);
+
 const GROUP_PREFIX = "group:";
 const roleGroups = ["Tanks", "Healers", "DPS"] as const;
 const roleMatches = (job: string, sel: string) =>
@@ -351,10 +361,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   const progressing = useMemo(() => {
     const c = new Map<string, { n: number; kind: string }>();
     for (const m of inScope) {
-      const p = m.progress;
-      if (!p || p.state !== "learning") continue;
-      const at = c.get(p.name);
-      c.set(p.name, { n: (at?.n ?? 0) + 1, kind: p.kind ?? "savage" });
+      // Counted once per fight per member: somebody learning three bosses is
+      // one person on each of those three lists, not three progressers.
+      for (const p of progressRows(m).filter((x) => x.state === "learning")) {
+        const at = c.get(p.name);
+        c.set(p.name, { n: (at?.n ?? 0) + 1, kind: p.kind ?? "savage" });
+      }
     }
     return [...c].sort((a, b) => b[1].n - a[1].n || a[0].localeCompare(b[0]));
   }, [inScope]);
@@ -424,9 +436,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         if (!cleared.includes(adv.ult)) return false;
       }
       if (adv.progressing) {
-        const p = m.progress;
-        if (!p || p.state !== "learning") return false;
-        if (adv.progressing !== "any" && p.name !== adv.progressing) return false;
+        const learning = progressRows(m).filter((p) => p.state === "learning");
+        if (!learning.length) return false;
+        if (adv.progressing !== "any"
+            && !learning.some((p) => p.name === adv.progressing)) return false;
       }
       if (adv.grade) {
         const min = GRADE_RANK[adv.grade] ?? 0;
@@ -884,9 +897,16 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       is; this says what they were doing on Tuesday, which is a
                       different kind of fact and was getting lost at the end of a
                       row of them. */}
-                  {m.progress && (
-                    <div className="col-start-2 sm:col-span-2">
-                      <ProgressBadge progress={m.progress} />
+                  {progressRows(m).length > 0 && (
+                    <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-span-2">
+                      {/* All of them, not the best one. Somebody can clear two
+                          bosses for the first time in a week and be learning two
+                          more, and picking one of the four to stand for the rest
+                          threw away most of what happened. Four is where a line
+                          of news becomes a list. */}
+                      {progressRows(m).slice(0, 4).map((p) => (
+                        <ProgressBadge key={p.encounter_id} progress={p} />
+                      ))}
                     </div>
                   )}
                 </div>

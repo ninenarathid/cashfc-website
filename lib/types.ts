@@ -22,6 +22,12 @@ export const CONTENT_LABEL: Record<string, string> = {
 export interface Member {
   /** Deepest unfinished fight, for the roster row. Null once nothing is in progress. */
   progress?: ProgressRow | null;
+  /**
+   * Everything they are in the middle of, first clears first.
+   *
+   * `progress` is the first of these and stays for anything that wants one line.
+   */
+  progress_all?: ProgressRow[] | null;
   id: number;
   name: string;
   rank: string | null;

@@ -523,6 +523,28 @@ PROGRESS_BATCH = 6
 PROGRESS_FRESH_DAYS = 10
 
 
+def _further(phase: int, pct: float | None,
+             best_phase: int, best_pct: float | None) -> bool:
+    """Is this pull deeper into the fight than the best one so far?
+
+    Phase first, percentage second, and in that order for a reason: boss health
+    resets when a phase does. A pull that died at 5% in phase one has a lower
+    percentage than one that reached phase four at 60%, and comparing the two
+    numbers alone would call the first pull the better one and report somebody as
+    barely into a fight they are most of the way through.
+
+    Both are held together because they only mean anything together — the
+    percentage is of whatever the boss was doing at the time.
+    """
+    if pct is None:
+        return False
+    if best_pct is None:
+        return True
+    if (phase or 0) != (best_phase or 0):
+        return (phase or 0) > (best_phase or 0)
+    return pct < best_pct
+
+
 def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
                 report_cache: dict) -> dict[str, dict]:
     """Best wipe per in-progress fight for each member in the chunk.
@@ -645,9 +667,8 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
                     prev["ts"] = max(prev["ts"], ts)
                     if killed:
                         prev["killed_ts"] = max(prev["killed_ts"], ts)
-                    elif pct is not None and (prev["pct"] is None
-                                              or pct < prev["pct"]):
-                        # Lower is further in.
+                    elif _further(f.get("lastPhase") or 0, pct,
+                                  prev["phase"], prev["pct"]):
                         prev["pct"] = pct
                         prev["phase"] = f.get("lastPhase") or 0
             report_cache[code] = per_name
@@ -662,8 +683,8 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
                     best[eid] = dict(rec)
                 else:
                     cur["pulls"] += rec["pulls"]
-                    if rec["pct"] is not None and (cur["pct"] is None
-                                                   or rec["pct"] < cur["pct"]):
+                    if _further(rec["phase"], rec["pct"],
+                                cur["phase"], cur["pct"]):
                         cur["pct"], cur["phase"] = rec["pct"], rec["phase"]
                     cur["ts"] = max(cur.get("ts") or 0, rec.get("ts") or 0)
                     cur["killed_ts"] = max(cur.get("killed_ts") or 0,
@@ -962,13 +983,20 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                         # Killed in these logs: say so, and drop the best wipe.
                         # "Was at 0.9%" stops being the story the moment it dies.
                         #
-                        # Only the first one, though. Somebody who cleared the
-                        # tier months ago and went back in to help a friend was
-                        # being announced as having Just cleared it, which is
-                        # both wrong and the opposite of the news — they are the
-                        # veteran in that party, not the one who got there. Two
-                        # or more kills on record means this was not the night.
-                        if kill_count.get(name, 0) > 1:
+                        # Only the first one, and only when that can be shown.
+                        # Somebody who cleared the tier months ago and went back
+                        # in to help a friend was being announced as having Just
+                        # cleared it, which is both wrong and the opposite of the
+                        # news — they are the veteran in that party, not the one
+                        # who finally got there.
+                        #
+                        # Exactly one kill on record is the whole test. More than
+                        # one and this was not the first; none at all and we
+                        # cannot tell, which is a reason to say nothing rather
+                        # than a reason to guess. A first clear that goes
+                        # unmentioned is a smaller failure than a veteran
+                        # congratulated for arriving.
+                        if kill_count.get(name, 0) != 1:
                             continue
                         rows.append({
                             "encounter_id": eid, "name": name,
@@ -1132,7 +1160,11 @@ def summarize_raids(m: dict, raids: dict) -> None:
     # one: a list of every unfinished boss is a paragraph, and the deepest pull is
     # the one that answers "how far are they".
     prog = entry.get("progress") or []
+    # The headline and the whole list. Somebody can clear two bosses for the
+    # first time in one week and be learning two more, and picking one of those
+    # four to represent the others was throwing away most of what happened.
     m["progress"] = prog[0] if prog else None
+    m["progress_all"] = prog or None
     # Any ranked encounter in the current tier, cleared or not — what separates
     # "progging" from "has not touched it".
     m["current_seen"] = bool(cur.get("encounters"))
