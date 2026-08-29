@@ -64,6 +64,30 @@ const DICT = {
   "guide.dies": { en: "People die by", th: "ตายเพราะ" },
   "guide.variants": { en: "Which one", th: "รูปแบบ" },
   "guide.scored": { en: "{r}/{a} right", th: "{r}/{a} ถูก" },
+  "guide.title": { en: "Guides", th: "ไกด์คอนเทนต์" },
+  "guide.all": { en: "All guides", th: "ไกด์ทั้งหมด" },
+  "guide.none": { en: "Nothing yet", th: "ยังไม่มี" },
+  "guide.draftTag": { en: "draft", th: "ร่าง" },
+  "guide.closed": {
+    en: "Still being written — it opens to the FC when the first one is finished.",
+    th: "กำลังเขียนอยู่ครับ — จะเปิดให้ทุกคนอ่านเมื่อไกด์แรกเสร็จ",
+  },
+  "guide.closedOne": {
+    en: "Still being written — it opens to the FC when this one is finished.",
+    th: "กำลังเขียนอยู่ครับ — จะเปิดให้ทุกคนอ่านเมื่อไกด์นี้เสร็จ",
+  },
+  "guide.credit": {
+    en: "Based on {name} — the skill names and their order come from there, with thanks.",
+    th: "อ้างอิงจาก {name} — ชื่อท่าและลำดับมาจากที่นั่น ขอบคุณครับ",
+  },
+  "guide.draftTitle": {
+    en: "Still a draft — do not trust the positions yet",
+    th: "ยังเป็นร่าง — อย่าเพิ่งเชื่อตำแหน่ง",
+  },
+  "guide.draftBody": {
+    en: "The skill names and the order are right. The exact spots are a reconstruction and have not been checked against a pull, so read it for the shape of the fight rather than standing where it says.",
+    th: "ชื่อท่าและลำดับถูกต้องตามต้นทาง แต่พิกัดที่ยืนยังเป็นการกะเอา ยังไม่ได้ตรวจกับการลงจริง ใช้ดูโครงว่าไฟต์เป็นยังไงได้ แต่อย่าเอาไปยืนตาม",
+  },
   "guide.unwritten": {
     en: "The strategy for this one is not written yet — the skill and its timing are here, the rest is coming.",
     th: "ท่านี้ยังไม่ได้เขียนวิธีเล่น — มีแค่ชื่อกับเวลาไว้ก่อน เดี๋ยวมาเติม",

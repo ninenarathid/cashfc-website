@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAdmin } from "@/lib/admin";
+import { useLang } from "@/lib/i18n";
 import { CATEGORIES, CATEGORY_LABEL, EXPANSIONS, guidesIn } from "@/lib/guides";
 
 /**
@@ -12,13 +13,14 @@ import { CATEGORIES, CATEGORY_LABEL, EXPANSIONS, guidesIn } from "@/lib/guides";
  * stand where it says. It opens to the FC when the first one is finished.
  */
 export default function GuidesPage() {
+  const { t } = useLang();
   const { isAdmin, ready } = useAdmin();
   if (!ready) return null;
   if (!isAdmin) {
     return (
       <main className="pt-7">
         <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center leading-relaxed text-muted">
-          กำลังเขียนอยู่ครับ — จะเปิดให้ทุกคนอ่านเมื่อไกด์แรกเสร็จ
+          {t("guide.closed")}
         </div>
       </main>
     );
@@ -29,7 +31,7 @@ export default function GuidesPage() {
       <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
         Guides
       </div>
-      <h1 className="font-display text-3xl font-bold">ไกด์คอนเทนต์</h1>
+      <h1 className="font-display text-3xl font-bold">{t("guide.title")}</h1>
 
       {EXPANSIONS.map((expansion) => (
         <section key={expansion} className="mt-6">
@@ -53,13 +55,13 @@ export default function GuidesPage() {
                         )}
                         {g.draft && (
                           <span className="ml-1.5 rounded-full border border-line px-1.5 text-[10.5px] text-muted">
-                            ร่าง
+                            {t("guide.draftTag")}
                           </span>
                         )}
                       </Link>
                     ))}
                     {rows.length === 0 && (
-                      <span className="text-[12.5px] text-muted">ยังไม่มี</span>
+                      <span className="text-[12.5px] text-muted">{t("guide.none")}</span>
                     )}
                   </div>
                 </div>
