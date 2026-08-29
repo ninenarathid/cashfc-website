@@ -87,6 +87,10 @@ const DICT = {
   "nav.admin": { en: "Admin panel", th: "หน้าผู้ดูแล" },
   "nav.language": { en: "Language", th: "ภาษา" },
   "nav.gallery": { en: "Gallery", th: "แกลเลอรี" },
+  /* The header tab only. The page is still called the gallery everywhere it is
+     linked to from inside the site; this is the one place that has to warn
+     somebody before they arrive. */
+  "nav.galleryWip": { en: "Gallery (WIP)", th: "แกลเลอรี (WIP)" },
 
   // ── Gallery ─────────────────────────────────────────────────────────
   "gallery.eyebrow": { en: "Gallery", th: "แกลเลอรี" },

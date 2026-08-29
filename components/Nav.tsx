@@ -23,8 +23,10 @@ const TABS: { href: string; label: Key; match?: (p: string) => boolean }[] = [
 ];
 
 // Shown only to whoever the gallery is open to, so the header never offers a
-// tab that answers with a 404.
-const GALLERY_TAB: (typeof TABS)[number] = { href: "/gallery", label: "nav.gallery" };
+// tab that answers with a 404. Marked as unfinished here and only here: the tab
+// is how most people will first walk into it, and it is the one place worth
+// saying so before they do.
+const GALLERY_TAB: (typeof TABS)[number] = { href: "/gallery", label: "nav.galleryWip" };
 // Signed in only: a feedback thread needs somebody to reply to, and there is
 // nothing on that page for a visitor who has not said who they are.
 const FEEDBACK_TAB: (typeof TABS)[number] = { href: "/feedback", label: "nav.feedback" };
