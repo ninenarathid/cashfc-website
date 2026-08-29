@@ -28,6 +28,26 @@ export type Slot = "MT" | "ST" | "H1" | "H2" | "D1" | "D2" | "D3" | "D4";
 
 export const SLOTS: Slot[] = ["MT", "ST", "H1", "H2", "D1", "D2", "D3", "D4"];
 
+/**
+ * A piece of guide text, in one language or both.
+ *
+ * A bare string is the same in either — a cast name, a waymark letter, "MT" —
+ * and stays a bare string so the common case costs nothing to write. Anything a
+ * reader actually has to understand takes a pair.
+ *
+ * Missing halves fall back rather than showing a blank: a guide half translated
+ * is more useful than a guide that hides the sentences nobody has got to yet,
+ * and an English reader seeing one Thai line knows what to do about it in a way
+ * that an empty box does not tell them.
+ */
+export type Text = string | { th?: string; en?: string };
+
+export function say(t: Text | undefined, lang: "th" | "en"): string {
+  if (t == null) return "";
+  if (typeof t === "string") return t;
+  return t[lang] ?? t.en ?? t.th ?? "";
+}
+
 /** The roles the site already recruits by, so a guide speaks the board's language. */
 export type GuideRole = "tank" | "pure" | "barrier" | "melee" | "pranged" | "mranged";
 
@@ -97,10 +117,10 @@ export type Danger =
  */
 export interface Step {
   id: string;
-  /** What this beat is. "1 — วางลำแสง", "2 — รวมกลาง". */
-  label: string;
+  /** What this beat is. "1 — place", "2 — regroup". */
+  label: Text;
   /** What is happening, for everybody. */
-  say: string;
+  say: Text;
   danger: Danger[];
   /** Where each seat stands. A seat left out has nowhere special to be. */
   safe: Partial<Record<Slot, Spot>>;
@@ -113,15 +133,15 @@ export interface Step {
    * scale at which it is true — and because a reader who has said which seat
    * they are should be told their job, not the whole party's.
    */
-  per?: Partial<Record<Slot, string>>;
+  per?: Partial<Record<Slot, Text>>;
   /** Said when somebody answers wrongly — the correction, not just a cross. */
-  wrong?: string;
+  wrong?: Text;
 }
 
 export interface Variant {
   id: string;
   /** What tells you it is this one. "Left arm glows", "towers spawn north". */
-  tell: string;
+  tell: Text;
   steps: Step[];
 }
 
@@ -163,7 +183,7 @@ export interface Mechanic {
   /** Roughly when, for finding it against a video or a log. */
   at?: string;
   /** What to do, in one or two lines. */
-  what: string;
+  what: Text;
   /**
    * Why people die here.
    *
@@ -171,7 +191,7 @@ export interface Mechanic {
    * because the person writing it has already stopped dying to this and has
    * forgotten what was confusing. Ask somebody who wiped last night.
    */
-  dies: string;
+  dies: Text;
   /** What kind of skill this is, for the timeline. */
   tags?: MechTag[];
   variants: Variant[];
@@ -182,10 +202,10 @@ export interface Mechanic {
 
 export interface Phase {
   id: string;
-  name: string;
+  name: Text;
   /** What moves the fight into it: a percentage, a cast, a timer. */
-  enter?: string;
-  note?: string;
+  enter?: Text;
+  note?: Text;
   mechanics: Mechanic[];
 }
 

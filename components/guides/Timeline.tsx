@@ -1,6 +1,7 @@
 "use client";
 
-import { TAG_LABEL, TAG_TONE, type Guide, type MechTag } from "@/lib/guides/types";
+import { useLang } from "@/lib/i18n";
+import { TAG_LABEL, TAG_TONE, say, type Guide, type MechTag } from "@/lib/guides/types";
 
 /**
  * The whole fight on one line, start to finish.
@@ -22,6 +23,7 @@ export default function Timeline(
     onPick: (i: number) => void;
   },
 ) {
+  const { lang } = useLang();
   let i = -1;
   return (
     <div className="flex flex-col gap-2">
@@ -29,10 +31,10 @@ export default function Timeline(
         <div key={p.id} className="flex flex-wrap items-start gap-x-2 gap-y-1.5">
           <div className="w-full shrink-0 sm:w-36">
             <div className="font-data text-[10.5px] uppercase tracking-[0.14em] text-accent">
-              {p.name}
+              {say(p.name, lang)}
             </div>
             {p.enter && (
-              <div className="text-[10.5px] text-muted">{p.enter}</div>
+              <div className="text-[10.5px] text-muted">{say(p.enter, lang)}</div>
             )}
           </div>
 

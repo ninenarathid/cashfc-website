@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Arena, { type Mark } from "@/components/guides/Arena";
 import Timeline from "@/components/guides/Timeline";
+import { useLang } from "@/lib/i18n";
 import {
-  SLOTS, SLOT_LABEL, TAG_LABEL, TAG_TONE, slotGroup,
+  SLOTS, SLOT_LABEL, TAG_LABEL, TAG_TONE, say, slotGroup,
   type Guide, type Mechanic, type Slot, type Spot, type Step, type Variant,
 } from "@/lib/guides/types";
 
@@ -36,6 +37,7 @@ const TOLERANCE = 2;
 const dist = (a: Spot, b: Spot) => Math.hypot(a.x - b.x, a.y - b.y);
 
 export default function GuideView({ guide }: { guide: Guide }) {
+  const { t, lang } = useLang();
   const [slot, setSlot] = useState<Slot>("MT");
   const [mode, setMode] = useState<"read" | "quiz">("read");
   const [at, setAt] = useState(0);
@@ -128,12 +130,12 @@ export default function GuideView({ guide }: { guide: Guide }) {
       {/* ── Who you are, and what you are here for ── */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 rounded-xl border border-line bg-surface p-3">
         <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-          ตำแหน่ง
+          {t("guide.slot")}
         </span>
         <div className="flex flex-wrap gap-1.5">
           {SLOTS.map((s) => (
             <button key={s} onClick={() => chooseSlot(s)} aria-pressed={s === slot}
-                    title={`กลุ่ม ${slotGroup(s)}`}
+                    title={t("guide.group", { g: slotGroup(s) })}
                     className={`rounded-md border px-2.5 py-1 font-data text-[12px] transition-colors ${
                       s === slot ? "border-accent bg-accent/15 text-accent"
                                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
@@ -142,7 +144,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
           ))}
         </div>
         <span className="font-data text-[11px] text-muted">
-          กลุ่ม {slotGroup(slot)}
+          {t("guide.group", { g: slotGroup(slot) })}
         </span>
 
         <div className="ml-auto flex items-center gap-1.5">
@@ -151,7 +153,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
                     className={`rounded-md border px-3 py-1 text-[12.5px] transition-colors ${
                       mode === m ? "border-accent bg-accent/15 text-accent"
                                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-              {m === "read" ? "อ่าน" : "ทดสอบ"}
+              {t(m === "read" ? "guide.read" : "guide.quiz")}
             </button>
           ))}
         </div>
@@ -180,7 +182,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
                         className={`rounded-md border px-2.5 py-1 text-[11.5px] transition-colors disabled:opacity-40 ${
                           i === beat ? "border-accent bg-accent/15 text-accent"
                                      : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                  {st.label}
+                  {say(st.label, lang)}
                 </button>
               ))}
             </div>
@@ -188,10 +190,10 @@ export default function GuideView({ guide }: { guide: Guide }) {
 
           {mode === "quiz" && (
             <p className="mt-1.5 text-center text-[12px] text-muted">
-              {!answer ? "ท่านี้ไม่มีตำแหน่งเฉพาะสำหรับ " + SLOT_LABEL[slot]
-                : correct ? "ถูกต้อง"
-                : reveal ? "นี่คือตำแหน่งที่ถูก"
-                : `คลิกตำแหน่งที่ ${SLOT_LABEL[slot]} ต้องยืน`}
+              {!answer ? t("guide.noSpot", { slot: SLOT_LABEL[slot] })
+                : correct ? t("guide.right")
+                : reveal ? t("guide.shown")
+                : t("guide.ask", { slot: SLOT_LABEL[slot] })}
             </p>
           )}
         </div>
@@ -205,7 +207,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
                 <span className="font-data text-[11.5px] text-muted">{mech.at}</span>
               )}
             </div>
-            <div className="mt-0.5 text-[11.5px] text-muted">{here.phase.name}</div>
+            <div className="mt-0.5 text-[11.5px] text-muted">{say(here.phase.name, lang)}</div>
             {(mech.tags?.length ?? 0) > 0 && (
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {mech.tags!.map((t) => (
@@ -217,19 +219,19 @@ export default function GuideView({ guide }: { guide: Guide }) {
             )}
 
             {mode === "read" && (
-              <p className="mt-2 text-[13.5px] leading-relaxed text-ink/90">{mech.what}</p>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-ink/90">{say(mech.what, lang)}</p>
             )}
 
             {/* The beat: what is happening, then what this seat does about it. */}
             {(mode === "read" || showAnswers) && (
               <div className="mt-2 rounded-lg border border-line bg-card px-3 py-2">
                 <div className="font-data text-[10.5px] uppercase tracking-[0.14em] text-accent">
-                  {step.label}
+                  {say(step.label, lang)}
                 </div>
-                <p className="mt-1 text-[13px] leading-relaxed text-ink/90">{step.say}</p>
+                <p className="mt-1 text-[13px] leading-relaxed text-ink/90">{say(step.say, lang)}</p>
                 {step.per?.[slot] && (
                   <p className="mt-2 rounded-md border border-accent/40 bg-accent/5 px-2.5 py-1.5 text-[13px] leading-relaxed text-ink">
-                    <b className="text-accent">{SLOT_LABEL[slot]}</b> — {step.per[slot]}
+                    <b className="text-accent">{SLOT_LABEL[slot]}</b> — {say(step.per[slot], lang)}
                   </p>
                 )}
               </div>
@@ -238,22 +240,22 @@ export default function GuideView({ guide }: { guide: Guide }) {
             {mode === "quiz" && (
               <>
                 <p className="mt-2 text-[13.5px] leading-relaxed text-ink/90">
-                  {variant.tell}
+                  {say(variant.tell, lang)}
                 </p>
                 {!showAnswers && (
                   <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted">
-                    {step.label}
+                    {say(step.label, lang)}
                   </p>
                 )}
                 {pick && !correct && !reveal && (
                   <p className="mt-2 rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-chili">
-                    {step.wrong ?? "ยังไม่ใช่ตรงนั้น"}
+                    {say(step.wrong, lang) || t("guide.notThere")}
                   </p>
                 )}
                 {tries >= 2 && !correct && !reveal && (
                   <button onClick={() => { setReveal(true); setScore((s) => ({ ...s, asked: s.asked + 1 })); }}
                           className="mt-2 rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
-                    ยอมแพ้ ขอดูคำตอบ
+                    {t("guide.giveUp")}
                   </button>
                 )}
               </>
@@ -261,14 +263,14 @@ export default function GuideView({ guide }: { guide: Guide }) {
 
             {(mode === "read" || showAnswers) && lastBeat && (
               <p className="mt-2 rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-ink/85">
-                <b className="text-chili">ตายเพราะ</b> {mech.dies}
+                <b className="text-chili">{t("guide.dies")}</b> {say(mech.dies, lang)}
               </p>
             )}
 
             {mode === "read" && mech.variants.length > 1 && (
               <div className="mt-2.5 flex flex-col gap-1.5">
                 <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                  รูปแบบ
+                  {t("guide.variants")}
                 </span>
                 {mech.variants.map((v) => (
                   <button key={v.id} onClick={() => { setVariantId(v.id); setBeat(0); }}
@@ -276,7 +278,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
                             v.id === variant.id
                               ? "border-accent bg-accent/10 text-ink"
                               : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                    {v.tell}
+                    {say(v.tell, lang)}
                   </button>
                 ))}
               </div>
@@ -296,13 +298,13 @@ export default function GuideView({ guide }: { guide: Guide }) {
           <div className="flex flex-wrap items-center gap-2">
             <button onClick={prev} disabled={at === 0 && beat === 0}
                     className="rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
-              ← ก่อนหน้า
+              {t("guide.prev")}
             </button>
             <button onClick={next}
                     disabled={(lastBeat && at >= steps.length - 1) || blocked}
-                    title={blocked ? "ตอบให้ถูกก่อนถึงจะไปต่อได้" : undefined}
+                    title={blocked ? t("guide.gate") : undefined}
                     className="rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
-              ถัดไป →
+              {t("guide.next")}
             </button>
             <span className="font-data text-[11.5px] text-muted">
               {at + 1}/{steps.length}
@@ -310,7 +312,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
             </span>
             {mode === "quiz" && (
               <span className="ml-auto font-data text-[11.5px] text-muted">
-                {score.right}/{score.asked} ถูก
+                {t("guide.scored", { r: score.right, a: score.asked })}
               </span>
             )}
           </div>
