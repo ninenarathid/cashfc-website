@@ -581,16 +581,33 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
               Who
             </span>
-          <select value={adv.lfg} onChange={(e) => setAdv({ ...adv, lfg: e.target.value })}
-                  className={selCls} aria-label="Looking-for status">
-            <option value="">Looking for: any</option>
-            {LFG_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
-          </select>
+          {/* The looking-for filter is hidden for now. The statuses are still
+              set on profiles and still shown as chips on a member's row; it is
+              only the control that is put away, so nothing has to be unpicked
+              to bring it back. */}
           <select value={adv.rank} onChange={(e) => setAdv({ ...adv, rank: e.target.value })}
                   className={selCls} aria-label="FC rank">
             <option value="">Rank: any</option>
             {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
+          {/* Before role and job rather than after, because it reads as an
+              adjective on them: "Legendary" then "Reaper" is the order somebody
+              says it in, and the grade picked first narrows the counts in the
+              control that follows. */}
+          {gradeCounts.total > 0 && (
+            <select value={adv.grade}
+                    onChange={(e) => setAdv({ ...adv, grade: e.target.value })}
+                    className={selCls} aria-label="Lowest grade held"
+                    title="Applies to the job or tag you have selected, if any">
+              <option value="">{t("board.gradeAny")}</option>
+              {GRADES.map((g) => (
+                <option key={g} value={g} disabled={!gradeCounts[g]}>
+                  {ACHV_TIER_LABEL[g]}+ ({gradeCounts[g]})
+                </option>
+              ))}
+            </select>
+          )}
+
           {/* Role and job in one control. They were two selects that could
               only ever disagree — picking a job cleared the role and picking a
               role cleared the job — which is two questions for one answer. A job
@@ -695,23 +712,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             </select>
           )}
 
-          {/* Sits after job and before race because it narrows the two filters
-              above it rather than standing alone: with a job or a tag picked it
-              asks for that grade in that thing, and on its own it asks for anyone
-              carrying it. */}
-          {gradeCounts.total > 0 && (
-            <select value={adv.grade}
-                    onChange={(e) => setAdv({ ...adv, grade: e.target.value })}
-                    className={selCls} aria-label="Lowest grade held"
-                    title="Applies to the job or tag you have selected, if any">
-              <option value="">{t("board.gradeAny")}</option>
-              {GRADES.map((g) => (
-                <option key={g} value={g} disabled={!gradeCounts[g]}>
-                  {ACHV_TIER_LABEL[g]}+ ({gradeCounts[g]})
-                </option>
-              ))}
-            </select>
-          )}
           {races.length > 0 && (
             <select value={adv.race}
                     onChange={(e) => setAdv({ ...adv, race: e.target.value })}
