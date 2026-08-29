@@ -151,6 +151,15 @@ export interface Arena {
    * translating the diagram and start reading it.
    */
   image?: string;
+  /**
+   * Tiles across, when the floor is visibly divided into them.
+   *
+   * Drawn faintly under everything else, because on an arena like this the tiles
+   * are what a party actually calls out — "north-west tile", "two in from the
+   * corner" — and a diagram that hides the grid makes people translate
+   * coordinates back into it in their heads.
+   */
+  grid?: number;
   /** Where the marks are put for this fight. Left out means none are used. */
   waymarks?: Partial<Record<Waymark, Spot>>;
 }

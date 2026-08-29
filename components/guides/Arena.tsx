@@ -127,23 +127,35 @@ export default function Arena(
         <clipPath id="arena-floor">{floor}</clipPath>
       </defs>
 
-      <g className="text-line">{
-        // The floor itself: a picture of the real room when there is one, and a
-        // plain shape when there is not. Never required — the mechanics are
-        // coordinates, and the picture is only there to be recognised.
-        arena.image ? (
-          <>
-            <image href={arena.image} x={-R} y={-R} width={R * 2} height={R * 2}
-                   clipPath="url(#arena-floor)" preserveAspectRatio="xMidYMid slice"
-                   opacity={0.55} />
-            <g fill="none" stroke="currentColor" strokeWidth={0.16}>{floor}</g>
-          </>
-        ) : (
-          <g fill="var(--color-card)" stroke="currentColor" strokeWidth={0.16}>
-            {floor}
+      <g className="text-line">
+        {/* The floor is always drawn. A picture of the real room goes over it
+            when there is one — and if that file is missing or slow, what is left
+            is the plain shape rather than a hole, because the mechanics are
+            coordinates and never needed the picture. */}
+        <g fill="var(--color-card)" stroke="currentColor" strokeWidth={0.16}>
+          {floor}
+        </g>
+        {arena.image && (
+          <image href={arena.image} x={-R} y={-R} width={R * 2} height={R * 2}
+                 clipPath="url(#arena-floor)" preserveAspectRatio="xMidYMid slice"
+                 opacity={0.5} />
+        )}
+        {arena.grid && arena.grid > 1 && (
+          <g clipPath="url(#arena-floor)" stroke="currentColor" strokeWidth={0.07}
+             opacity={0.55}>
+            {Array.from({ length: arena.grid - 1 }, (_, i) => {
+              const at = -R + ((i + 1) * (R * 2)) / arena.grid!;
+              return (
+                <g key={i}>
+                  <line x1={at} y1={-R} x2={at} y2={R} />
+                  <line x1={-R} y1={at} x2={R} y2={at} />
+                </g>
+              );
+            })}
           </g>
-        )
-      }</g>
+        )}
+        <g fill="none" stroke="currentColor" strokeWidth={0.16}>{floor}</g>
+      </g>
 
       {/* North, so nobody has to guess which way the diagram is facing. */}
       <text x={0} y={sy(R + 0.9)} textAnchor="middle" dominantBaseline="middle"

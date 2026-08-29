@@ -23,15 +23,20 @@ export const m9s: Guide = {
   draft: true,
   source: { name: "Game8", url: "https://game8.jp/ff14/754895" },
   arena: {
-    shape: "circle",
-    // The eight-way set Game8 describes for Ether Letting: the marks sit where
-    // the fan attacks meet the wall, which is why they are on the edge rather
-    // than at the usual middle distance.
+    // Square, and visibly four tiles across — the grid is what a party calls
+    // positions by, so the diagram draws it rather than making people hold it
+    // in their heads.
+    shape: "square",
+    grid: 4,
+    image: "/guides/m9s/arena.jpg",
+    // Cardinals on the walls, corners on the grid intersections one tile in.
+    // The eight-way set Game8 describes for Ether Letting needs the fan attacks
+    // to meet the wall between marks, which is why these sit where they do.
     waymarks: {
       A: { x: 0, y: 8.6 }, B: { x: 8.6, y: 0 },
       C: { x: 0, y: -8.6 }, D: { x: -8.6, y: 0 },
-      "1": { x: 6.1, y: 6.1 }, "2": { x: 6.1, y: -6.1 },
-      "3": { x: -6.1, y: -6.1 }, "4": { x: -6.1, y: 6.1 },
+      "1": { x: 5, y: 5 }, "2": { x: 5, y: -5 },
+      "3": { x: -5, y: -5 }, "4": { x: -5, y: 5 },
     },
   },
 
@@ -174,9 +179,9 @@ export const m9s: Guide = {
                 { kind: "rect", at: { x: -5, y: 0 }, w: 2, h: 10, facing: 270 },
               ],
               safe: {
-                MT: { x: 4.3, y: 4.3 }, H1: { x: -4.3, y: 4.3 },
-                H2: { x: 4.3, y: -4.3 }, D1: { x: -4.3, y: -4.3 },
-                D3: { x: 6.1, y: 6.1 }, D4: { x: -6.1, y: -6.1 },
+                MT: { x: 5, y: 5 }, H1: { x: -5, y: 5 },
+                H2: { x: 5, y: -5 }, D1: { x: -5, y: -5 },
+                D3: { x: 7.5, y: 7.5 }, D4: { x: -7.5, y: -7.5 },
                 ST: { x: 3.1, y: 4.3 }, D2: { x: -3.1, y: -5.3 },
               },
               wrong: "ยืนบนเส้นลำแสง — ที่ปลอดภัยคือช่องว่างระหว่างสองเส้น ไม่ใช่บนตัว waymark",
