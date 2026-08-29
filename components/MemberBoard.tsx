@@ -93,11 +93,20 @@ interface Adv {
   grade: string;
   /** One specific Ultimate, offered only once the Ultimate tag is picked. */
   ult: string;
+  /**
+   * Somebody currently learning a fight, from their own recent logs.
+   *
+   * "" is everybody; "any" is anybody progressing anything; otherwise the name
+   * of one fight. A separate axis from the tags: the prog tag says somebody has
+   * logged in the current tier without finishing it, which stays true for months
+   * after they stopped, and this says what they were pulling last week.
+   */
+  progressing: string;
 }
 const ADV_EMPTY: Adv = {
   lfg: "", rank: "", boss: [],
   race: "", activity: ACTIVITY_DEFAULT, ex: [], role: "", job: "",
-  tags: [], grade: "", ult: "",
+  tags: [], grade: "", ult: "", progressing: "",
 };
 
 /**
@@ -152,6 +161,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       activity: p.get("act") ?? ACTIVITY_DEFAULT, ex,
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
       grade: p.get("grade") ?? "", ult: p.get("ult") ?? "",
+      progressing: p.get("prog") ?? "",
     });
     inited.current = true;
   }, []);
@@ -171,6 +181,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.activity !== ACTIVITY_DEFAULT) p.set("act", adv.activity);
     if (adv.role) p.set("role", adv.role);
     if (adv.job) p.set("job", adv.job);
+    if (adv.progressing) p.set("prog", adv.progressing);
     if (adv.tags.length) p.set("tags", adv.tags.join(","));
     if (adv.grade) p.set("grade", adv.grade);
     if (adv.ult) p.set("ult", adv.ult);
@@ -272,6 +283,26 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     return c;
   }, [inScope]);
 
+  /**
+   * The fights somebody in scope is currently learning, with a head count.
+   *
+   * Built from what members are actually pulling rather than from the whole
+   * catalogue: the pipeline only tracks Ultimates and the current savage tier, so
+   * this is that list minus everything nobody has touched — and a dropdown of
+   * twenty fights at zero apiece is a worse answer than the four with people
+   * behind them.
+   */
+  const progressing = useMemo(() => {
+    const c = new Map<string, { n: number; kind: string }>();
+    for (const m of inScope) {
+      const p = m.progress;
+      if (!p || p.state !== "learning") continue;
+      const at = c.get(p.name);
+      c.set(p.name, { n: (at?.n ?? 0) + 1, kind: p.kind ?? "savage" });
+    }
+    return [...c].sort((a, b) => b[1].n - a[1].n || a[0].localeCompare(b[0]));
+  }, [inScope]);
+
   const jobsPlayed = useMemo(() => {
     const c: Record<string, number> = {};
     for (const m of inScope) {
@@ -336,6 +367,11 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         const cleared = [...(m.ult_cleared ?? []), ...(m.ult_achv_only ?? [])];
         if (!cleared.includes(adv.ult)) return false;
       }
+      if (adv.progressing) {
+        const p = m.progress;
+        if (!p || p.state !== "learning") return false;
+        if (adv.progressing !== "any" && p.name !== adv.progressing) return false;
+      }
       if (adv.grade) {
         const min = GRADE_RANK[adv.grade] ?? 0;
         const tiers = m.achv_tiers ?? {};
@@ -378,6 +414,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length +
     (adv.race ? 1 : 0) + (adv.role ? 1 : 0) + (adv.job ? 1 : 0) +
+    (adv.progressing ? 1 : 0) +
     (adv.grade ? 1 : 0) + (adv.ult ? 1 : 0) +
     adv.tags.length;
 
@@ -401,16 +438,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             {t("board.verifiedHint")}
           </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setView(view === "list" ? "kitchen" : "list")}
-            className={`rounded-lg border px-3.5 py-1.5 text-[13px] ${
-              view === "kitchen"
-                ? "border-accent bg-accent/10 text-accent"
-                : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-            🍲 Kitchen view
-          </button>
-        </div>
+        {/* The kitchen view — the roster grouped by FC rank — is still here and
+            still reachable with ?view=kitchen, but it is not offered. It answers
+            a question about the hierarchy, and the board is opened to answer
+            questions about people. */}
       </header>
 
       <div className="flex flex-col gap-3">
@@ -475,24 +506,36 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             <option value="">Rank: any</option>
             {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
-          {/* Recruiting questions are usually shaped "a tank who is progging", so
-              role sits next to the other who-are-they filters rather than under
-              raiding. Counts come from who has a recorded score on such a job. */}
-          {roleCounts.total > 0 && (
-            <select value={adv.role}
-                    onChange={(e) => setAdv({ ...adv, role: e.target.value, job: "" })}
-                    className={selCls} aria-label="Role played">
+          {/* Role and job in one control. They were two selects that could
+              only ever disagree — picking a job cleared the role and picking a
+              role cleared the job — which is two questions for one answer. A job
+              belongs to a role, so the roles are the headings and the jobs sit
+              under the one they belong to. */}
+          {(roleCounts.total > 0 || jobsPlayed.length > 0) && (
+            <select
+              value={adv.job ? `job:${adv.job}` : adv.role ? `role:${adv.role}` : ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                setAdv({
+                  ...adv,
+                  role: v.startsWith("role:") ? v.slice(5) : "",
+                  job: v.startsWith("job:") ? v.slice(4) : "",
+                });
+              }}
+              className={selCls} aria-label="Role or job played">
               <option value="">{t("board.roleAny")}</option>
               {roleGroups.map((group) => {
                 const fine = ROLE_ORDER.filter((r) => ROLE_GROUP[r] === group);
                 const all = GROUP_PREFIX + group;
+                const jobs = jobsPlayed.filter(([j]) => jobRoleGroup(j) === group);
+                if (!roleCounts[all] && !jobs.length) return null;
                 return (
                   <optgroup key={group} label={group}>
                     {/* An optgroup label cannot be selected, so the whole group
                         gets its own entry. Skipped where the group holds a single
                         role, which would just be the same option twice. */}
                     {fine.length > 1 && (
-                      <option value={all} disabled={!roleCounts[all]}>
+                      <option value={`role:${all}`} disabled={!roleCounts[all]}>
                         {group === "DPS" ? t("board.anyDps")
                           : group === "Healers" ? t("board.anyHealer")
                           : t("board.anyTank")}
@@ -500,8 +543,13 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       </option>
                     )}
                     {fine.map((r) => (
-                      <option key={r} value={r} disabled={!roleCounts[r]}>
+                      <option key={r} value={`role:${r}`} disabled={!roleCounts[r]}>
                         {fine.length > 1 ? " " : ""}{ROLE_LABEL[r]} ({roleCounts[r]})
+                      </option>
+                    ))}
+                    {jobs.map(([job, n]) => (
+                      <option key={job} value={`job:${job}`}>
+                        {"  "}{job} ({n})
                       </option>
                     ))}
                   </optgroup>
@@ -509,16 +557,35 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               })}
             </select>
           )}
-          {jobsPlayed.length > 0 && (
-            <select value={adv.job}
-                    onChange={(e) => setAdv({ ...adv, job: e.target.value })}
-                    className={selCls} aria-label="Job played">
-              <option value="">{t("board.jobAny")}</option>
-              {jobsPlayed.map(([job, n]) => (
-                <option key={job} value={job}>{job} ({n})</option>
-              ))}
+
+          {/* Who is pulling something right now. Its own control rather than a
+              tag, because the tags describe what somebody is and this describes
+              what they are in the middle of. */}
+          {progressing.length > 0 && (
+            <select value={adv.progressing}
+                    onChange={(e) => setAdv({ ...adv, progressing: e.target.value })}
+                    className={selCls} aria-label="Currently progressing">
+              <option value="">{t("board.progAny")}</option>
+              <option value="any">
+                {t("board.progressingAny", {
+                  n: progressing.reduce((sum, [, v]) => sum + v.n, 0),
+                })}
+              </option>
+              {(["ultimate", "savage"] as const).map((kind) => {
+                const rows = progressing.filter(([, v]) => v.kind === kind);
+                if (!rows.length) return null;
+                return (
+                  <optgroup key={kind}
+                            label={kind === "ultimate" ? "Ultimate" : "Savage"}>
+                    {rows.map(([name, v]) => (
+                      <option key={name} value={name}>{name} ({v.n})</option>
+                    ))}
+                  </optgroup>
+                );
+              })}
             </select>
           )}
+
           {adv.tags.includes("ultimate") && Object.keys(ultCounts).length > 0 && (
             <select value={adv.ult}
                     onChange={(e) => setAdv({ ...adv, ult: e.target.value })}

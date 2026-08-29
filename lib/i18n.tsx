@@ -35,6 +35,11 @@ const DICT = {
   "nav.profile": { en: "My profile", th: "โปรไฟล์ของฉัน" },
   "member.kindSavage": { en: "Savage", th: "Savage" },
   "member.kindUltimate": { en: "Ultimate", th: "Ultimate" },
+  "board.progAny": { en: "Progressing: any", th: "กำลังตี: ทั้งหมด" },
+  "board.progressingAny": {
+    en: "Anyone progressing ({n})",
+    th: "ใครก็ได้ที่กำลังตีอยู่ ({n})",
+  },
   "nav.feedback": { en: "Feedback", th: "แจ้งเรื่อง" },
   "feedback.title": { en: "Feedback", th: "แจ้งเรื่องถึงผู้ดูแล" },
   "feedback.intro": {
