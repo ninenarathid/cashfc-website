@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { BoardData, Member, Overlay } from "@/lib/types";
 import { BOARD_QUERY_KEY } from "@/lib/types";
@@ -17,7 +17,7 @@ import { useLang } from "@/lib/i18n";
 import { useAvatar } from "@/lib/avatars";
 import { ultimateAbbr } from "@/lib/types";
 import JobIcon, {
-  ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobRole, jobRoleGroup,
+  ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobLabel, jobRole, jobRoleGroup,
 } from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
 
@@ -134,6 +134,9 @@ const GRADES = ["legendary", "master", "expert"] as const;
  */
 const progressRows = (m: Member) =>
   m.progress_all ?? (m.progress ? [m.progress] : []);
+
+/** Party-list order, so a role's jobs read the way the game lists them. */
+const JOB_ORDER = ALL_JOBS.map((j) => j.name.replace(/ /g, ""));
 
 const GROUP_PREFIX = "group:";
 const roleGroups = ["Tanks", "Healers", "DPS"] as const;
@@ -596,7 +599,9 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               {roleGroups.map((group) => {
                 const fine = ROLE_ORDER.filter((r) => ROLE_GROUP[r] === group);
                 const all = GROUP_PREFIX + group;
-                const jobs = jobsPlayed.filter(([j]) => jobRoleGroup(j) === group);
+                const jobs = jobsPlayed
+                  .filter(([j]) => jobRoleGroup(j) === group)
+                  .sort((a, b) => JOB_ORDER.indexOf(a[0]) - JOB_ORDER.indexOf(b[0]));
                 if (!roleCounts[all] && !jobs.length) return null;
                 return (
                   <optgroup key={group} label={group}>
@@ -611,15 +616,22 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         {" "}({roleCounts[all]})
                       </option>
                     )}
+                    {/* Each role followed by the jobs that are it, rather than
+                        every role and then every job. "Barrier healer" and then
+                        Sage and Scholar reads as one answer with two spellings;
+                        the same names at the bottom of the group read as a
+                        second, unrelated list. */}
                     {fine.map((r) => (
-                      <option key={r} value={`role:${r}`} disabled={!roleCounts[r]}>
-                        {fine.length > 1 ? " " : ""}{ROLE_LABEL[r]} ({roleCounts[r]})
-                      </option>
-                    ))}
-                    {jobs.map(([job, n]) => (
-                      <option key={job} value={`job:${job}`}>
-                        {"  "}{job} ({n})
-                      </option>
+                      <Fragment key={r}>
+                        <option value={`role:${r}`} disabled={!roleCounts[r]}>
+                          {fine.length > 1 ? " " : ""}{ROLE_LABEL[r]} ({roleCounts[r]})
+                        </option>
+                        {jobs.filter(([j]) => jobRole(j) === r).map(([job, n]) => (
+                          <option key={job} value={`job:${job}`}>
+                            {"  "}{jobLabel(job)} ({n})
+                          </option>
+                        ))}
+                      </Fragment>
                     ))}
                   </optgroup>
                 );
