@@ -3,6 +3,223 @@
   {
    "date": "2026-08-29",
    "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "level_100",
+   "id": 29907674,
+   "name": "Ranjoe Tp'",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 30714243,
+   "name": "Moona Freed",
+   "text": "set a new best parse: 87"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 30714243,
+   "name": "Moona Freed",
+   "text": "is now a Expert Warrior"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 30714243,
+   "name": "Moona Freed",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 17723972,
+   "name": "Naruga Vagrant",
+   "text": "is now a Expert White Mage"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 30421228,
+   "name": "Natsuki Tri",
+   "text": "set a new best parse: 79"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 30421228,
+   "name": "Natsuki Tri",
+   "text": "is now a Master White Mage"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 32150308,
+   "name": "Nene Mumu",
+   "text": "set a new best parse: 10"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 36149590,
+   "name": "Neo Anderson",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 28011817,
+   "name": "Nore Vanessa",
+   "text": "set a new best parse: 48"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 5762434,
+   "name": "Oakley Ale",
+   "text": "set a new best parse: 89"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 5762434,
+   "name": "Oakley Ale",
+   "text": "is now a Master Samurai"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 31745191,
+   "name": "Oivxii Hikari",
+   "text": "set a new best parse: 10"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 26433344,
+   "name": "Oppa' Pkz",
+   "text": "set a new best parse: 92"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 26433344,
+   "name": "Oppa' Pkz",
+   "text": "is now a Expert White Mage"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Master Bard"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "is now a Master Dark Knight"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 31632996,
+   "name": "Puni Punii",
+   "text": "set a new best parse: 53"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 22164216,
+   "name": "Revan Martius",
+   "text": "set a new best parse: 54"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "set a new best parse: 95"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 29901287,
+   "name": "Rishima Garaine",
+   "text": "set a new best parse: 59"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "parse_up",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "job_up",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "is now a Legendary Paladin"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "boss_clear",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-08-29",
+   "type": "level_100",
    "id": 57375278,
    "name": "Komi Kona",
    "text": "reached level 100!"
@@ -1182,223 +1399,6 @@
    "id": 60852230,
    "name": "Lucienvt Yenslayer",
    "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "level_100",
-   "id": 60873337,
-   "name": "Imy Kitty",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 3968346,
-   "name": "Panuz Chocobunny",
-   "text": "is now a Expert Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 3968346,
-   "name": "Panuz Chocobunny",
-   "text": "is now a Expert Seasonal collector ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 3968346,
-   "name": "Panuz Chocobunny",
-   "text": "earned Date with Destiny VI — only 1.0% of players have it, and 85 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "earned Savage Queen of Swords II — only 2.5% of players have it, and 17 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "is now a Expert Explorer ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "earned Cut Above the Rest: Twinfangs Occultum — only 1.0% of players have it, and 61 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "is now a Expert PvP player ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "earned Worqor and Peace III — only 0.8% of players have it, and 61 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Expert Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "grade_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Master Gold Saucer collector ✨"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "earned It's a Blunderful Life III — only 1.2% of players have it, and 79 more"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "ult_clear",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-27",
-   "type": "rare_up",
-   "id": 42349146,
-   "name": "Henzski Celestial",
-   "text": "earned On Top of the Savage World III — only 2.1% of players have it, and 14 more"
   }
  ]
 }
