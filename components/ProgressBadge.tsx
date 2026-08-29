@@ -51,7 +51,7 @@ export default function ProgressBadge(
         ? `เคลียร์ครั้งแรก ${p.name}${stamp ? ` เมื่อ ${stamp}` : ""} จาก ${p.pulls} ครั้งที่ลงในช่วงนี้`
         : `First clear of ${p.name}${stamp ? ` at ${stamp}` : ""}, across ${p.pulls} pulls in these logs`)
     : (lang === "th"
-        ? `กำลังตี ${p.name} — ครั้งที่ดีที่สุดเหลือเลือดบอส ${p.pct}%${
+        ? `กำลังเล่น ${p.name} — ครั้งที่ดีที่สุดเหลือเลือดบอส ${p.pct}%${
             p.phase > 0 ? ` ที่ Phase ${p.phase}` : ""} จาก ${p.pulls} ครั้งที่ลง${
             when ? ` ล่าสุด ${when}` : ""}`
         : `Learning ${p.name} — best attempt left the boss at ${p.pct}%${
