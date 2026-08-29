@@ -600,7 +600,7 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
             f"r{j}: report(code: {json.dumps(code)}) {{ "
             "masterData { actors(type: \"Player\") { id name } } "
             "fights { encounterID kill bossPercentage lastPhase "
-            "friendlyPlayers } }"
+            "endTime friendlyPlayers } }"
             for j, code in enumerate(batch)
         ]
         try:
@@ -617,11 +617,17 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
             actors = {a["id"]: a["name"]
                       for a in ((rep.get("masterData") or {}).get("actors") or [])}
             per_name: dict[str, dict] = {}
-            ts = started.get(code, 0)
+            report_start = started.get(code, 0)
             for f in (rep.get("fights") or []):
                 eid = f.get("encounterID")
                 if eid not in want:
                     continue
+                # A fight's endTime is milliseconds from the start of the report,
+                # so this is the moment the pull actually finished rather than the
+                # evening it belonged to. Worth the arithmetic: "cleared at 23:41"
+                # is a thing that happened, and "cleared on Tuesday" is a filing
+                # date.
+                ts = report_start + (f.get("endTime") or 0) / 1000.0
                 killed = bool(f.get("kill"))
                 pct = f.get("bossPercentage")
                 if not killed and pct is None:
@@ -969,6 +975,7 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                             "kind": want_encounters.get(eid), "state": "cleared",
                             "pct": None, "phase": 0, "pulls": rec["pulls"],
                             "last": time.strftime("%Y-%m-%d", time.gmtime(killed_ts)),
+                            "last_ts": int(killed_ts),
                         })
                         continue
                     # A kill recorded on an earlier run counts too, even if it is
@@ -982,6 +989,7 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                         "pulls": rec["pulls"],
                         "last": (time.strftime("%Y-%m-%d", time.gmtime(ts))
                                  if ts else None),
+                        "last_ts": int(ts) if ts else None,
                     })
                 # A first clear leads, because it is the bigger news. Otherwise
                 # the furthest they have got: deepest phase, then lowest boss

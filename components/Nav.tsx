@@ -25,6 +25,9 @@ const TABS: { href: string; label: Key; match?: (p: string) => boolean }[] = [
 // Shown only to whoever the gallery is open to, so the header never offers a
 // tab that answers with a 404.
 const GALLERY_TAB: (typeof TABS)[number] = { href: "/gallery", label: "nav.gallery" };
+// Signed in only: a feedback thread needs somebody to reply to, and there is
+// nothing on that page for a visitor who has not said who they are.
+const FEEDBACK_TAB: (typeof TABS)[number] = { href: "/feedback", label: "nav.feedback" };
 
 export default function Nav() {
   const pathname = usePathname();
@@ -46,7 +49,21 @@ export default function Nav() {
   }, []);
   const showGallery = open || isAdmin;
 
-  const tabs = showGallery ? [...TABS, GALLERY_TAB] : TABS;
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+    void supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    const { data: sub } = supabase.auth.onAuthStateChange(
+      (_e, session) => setSignedIn(!!session?.user));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const tabs = [
+    ...TABS,
+    ...(showGallery ? [GALLERY_TAB] : []),
+    ...(signedIn ? [FEEDBACK_TAB] : []),
+  ];
   // The header takes its own artwork, since a mark that works at 56px in a nav bar is
   // rarely the same one that works at 450px on the front page. Falls back to the
   // shared logo, then to the text wordmark, so the header is never a broken image

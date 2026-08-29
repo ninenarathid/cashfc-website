@@ -746,7 +746,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   </div>
                   <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-start-auto">
                     <MemberTags m={m} extremeTotal={extremes.length} />
-                    {m.progress && <ProgressBadge progress={m.progress} />}
                     {(ov?.lfg ?? []).map((k) => {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
                       return o ? (
@@ -757,6 +756,16 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       ) : null;
                     })}
                   </div>
+
+                  {/* On a line of its own, last. The tags above say what somebody
+                      is; this says what they were doing on Tuesday, which is a
+                      different kind of fact and was getting lost at the end of a
+                      row of them. */}
+                  {m.progress && (
+                    <div className="col-start-2 sm:col-span-2">
+                      <ProgressBadge progress={m.progress} />
+                    </div>
+                  )}
                 </div>
               );
             })

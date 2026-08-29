@@ -32,15 +32,24 @@ export default function ProgressBadge(
   const pad = size === "md" ? "px-3 py-1 text-[12.5px]" : "px-2.5 py-[3px] text-[11.5px]";
   const cleared = p.state === "cleared";
 
+  const locale = lang === "th" ? "th-TH" : "en-GB";
   const when = p.last
     ? new Date(`${p.last}T00:00:00`).toLocaleDateString(
-        lang === "th" ? "th-TH" : "en-GB", { day: "numeric", month: "short" })
+        locale, { day: "numeric", month: "short" })
     : null;
+
+  // A clear happened at a time, and saying so is most of what makes it news
+  // rather than a record. Falls back to the day for rows written before the
+  // pipeline kept the minute.
+  const stamp = cleared && p.last_ts
+    ? new Date(p.last_ts * 1000).toLocaleString(
+        locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+    : cleared ? when : null;
 
   const detail = cleared
     ? (lang === "th"
-        ? `เพิ่งเคลียร์ ${p.name}${when ? ` เมื่อ ${when}` : ""} จาก ${p.pulls} ครั้งที่ลงในช่วงนี้`
-        : `Cleared ${p.name}${when ? ` on ${when}` : ""}, across ${p.pulls} pulls in these logs`)
+        ? `เคลียร์ครั้งแรก ${p.name}${stamp ? ` เมื่อ ${stamp}` : ""} จาก ${p.pulls} ครั้งที่ลงในช่วงนี้`
+        : `First clear of ${p.name}${stamp ? ` at ${stamp}` : ""}, across ${p.pulls} pulls in these logs`)
     : (lang === "th"
         ? `กำลังตี ${p.name} — ครั้งที่ดีที่สุดเหลือเลือดบอส ${p.pct}%${
             p.phase > 0 ? ` ที่ Phase ${p.phase}` : ""} จาก ${p.pulls} ครั้งที่ลง${
@@ -59,7 +68,15 @@ export default function ProgressBadge(
       <span className="opacity-75">
         {t(cleared ? "member.justCleared" : "member.progressing")}
       </span>
+      {/* Which kind of content, then which fight. "Vamp Fatale" means nothing to
+          somebody who does not raid this tier; "Savage · Vamp Fatale" places it
+          for everybody, and the two Ultimates a week apart stop looking like the
+          same news as a savage boss. */}
+      <span className="opacity-60">
+        {t(p.kind === "ultimate" ? "member.kindUltimate" : "member.kindSavage")} ·
+      </span>
       <span className="font-data">{progressLabel(p)}</span>
+      {stamp && <span className="font-data opacity-70">· {stamp}</span>}
     </span>
   );
 }

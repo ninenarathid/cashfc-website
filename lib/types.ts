@@ -93,6 +93,14 @@ export interface ProgressRow {
   pulls: number;
   /** ISO date of the most recent attempt — what makes this current rather than old. */
   last: string | null;
+  /**
+   * The same moment to the second, as a Unix timestamp.
+   *
+   * A clear is worth reporting to the minute — it happened at a time, on a
+   * night, and "cleared at 23:41" is that rather than a filing date. Optional
+   * because rows written before this existed have only the day.
+   */
+  last_ts?: number | null;
 }
 
 export interface RaidEncounter {
