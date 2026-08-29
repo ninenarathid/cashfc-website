@@ -559,9 +559,16 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
     wanted_codes: list[str] = []
     started: dict[str, float] = {}
     cutoff = time.time() - PROGRESS_FRESH_DAYS * 86400
+    # Two very different silences look the same from the outside: FF Logs
+    # returning no reports for anybody, and returning plenty that are all older
+    # than the window. The first is a broken query and the second is an FC that
+    # has not raided lately, and only one of them is worth fixing.
+    raw = stale = 0
+    newest = 0.0
     for i, m in enumerate(chunk):
         blob = data.get(f"c{i}") or {}
         rr = ((blob.get("recentReports") or {}).get("data") or [])
+        raw += len(rr)
         codes = []
         for r in rr:
             code = r.get("code")
@@ -570,7 +577,9 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
             # startTime is milliseconds. A stale report is skipped before it is
             # fetched, which is also the cheapest place to skip it.
             ts = (r.get("startTime") or 0) / 1000.0
+            newest = max(newest, ts)
             if ts and ts < cutoff:
+                stale += 1
                 continue
             started[code] = ts
             codes.append(code)
@@ -578,6 +587,12 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
         for c in codes:
             if c not in report_cache and c not in wanted_codes:
                 wanted_codes.append(c)
+
+    if not wanted_codes:
+        log(f"Progress — {raw} recent report(s) offered for {len(chunk)} member(s), "
+            + (f"all {stale} older than {PROGRESS_FRESH_DAYS} days"
+               f" (newest {time.strftime('%Y-%m-%d', time.gmtime(newest))})"
+               if raw else "none at all — FF Logs has no recent uploads for them"))
 
     for start in range(0, len(wanted_codes), PROGRESS_BATCH):
         batch = wanted_codes[start:start + PROGRESS_BATCH]
@@ -923,10 +938,13 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             for m in pending:
                 entry = raids.setdefault(str(m["id"]), {})
                 cur = entry.get("current") or {}
-                done_names = {e.get("name") for e in (cur.get("encounters") or [])
-                              if (e.get("kills") or 0) > 0}
-                done_names |= {u.get("name") for u in (entry.get("ultimates") or [])
-                               if (u.get("kills") or 0) > 0}
+                # How many times each fight has ever been killed, which is what
+                # separates a first clear from a Tuesday.
+                kill_count: dict[str, int] = {}
+                for e in (cur.get("encounters") or []) + (entry.get("ultimates") or []):
+                    if e.get("name"):
+                        kill_count[e["name"]] = e.get("kills") or 0
+                done_names = {n for n, k in kill_count.items() if k > 0}
                 rows = []
                 for eid, rec in (found.get(str(m["id"])) or {}).items():
                     name = enc_names.get(eid)
@@ -937,6 +955,15 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                     if killed_ts:
                         # Killed in these logs: say so, and drop the best wipe.
                         # "Was at 0.9%" stops being the story the moment it dies.
+                        #
+                        # Only the first one, though. Somebody who cleared the
+                        # tier months ago and went back in to help a friend was
+                        # being announced as having Just cleared it, which is
+                        # both wrong and the opposite of the news — they are the
+                        # veteran in that party, not the one who got there. Two
+                        # or more kills on record means this was not the night.
+                        if kill_count.get(name, 0) > 1:
+                            continue
                         rows.append({
                             "encounter_id": eid, "name": name,
                             "kind": want_encounters.get(eid), "state": "cleared",
@@ -956,13 +983,19 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                         "last": (time.strftime("%Y-%m-%d", time.gmtime(ts))
                                  if ts else None),
                     })
-                # Most recent first, and a fresh kill outranks a wipe on the same
-                # day: the question is what somebody is playing now, and clearing it
-                # is the bigger news.
-                rows.sort(key=lambda r: (r["last"] or "",
-                                         r["state"] == "cleared",
-                                         -(r["pct"] if r["pct"] is not None else 0)),
-                          reverse=True)
+                # A first clear leads, because it is the bigger news. Otherwise
+                # the furthest they have got: deepest phase, then lowest boss
+                # percentage. Sorting wipes by date instead put last night's
+                # first-pull reset above the 0.9% from the night before, which
+                # is the wrong end of the story — "how far are they" is the
+                # question, and the answer does not get smaller because a week
+                # went badly.
+                rows.sort(key=lambda r: (
+                    r["state"] == "cleared",
+                    r["phase"] or 0,
+                    -(r["pct"] if r["pct"] is not None else 100.0),
+                    r["last"] or "",
+                ), reverse=True)
                 if rows:
                     entry["progress"] = rows
                 else:
