@@ -148,152 +148,145 @@ export const m9s: Guide = {
           at: "0:50",
           tags: ["adds", "spread", "stack", "memo"],
           what: {
-            th: "ค้างคาวเกิดในสี่ช่องกลางเป็นหนึ่งใน 4 แพทเทิร์น แล้ววงแหวนสีขาวแผ่ออกจากบอส "
-              + "โดนค้างคาวก็เกิดวงระเบิด โดนคนก็เกิดวงระเบิดติดตัวคนนั้น "
-              + "melee โดนก่อนแล้วเข้ากลาง ranged โดนทีหลังที่มุม ปิดท้ายด้วย Brutal Rain รวมรับ",
-            en: "Bats spawn on the inner four tiles in one of four patterns, then a white ring "
-              + "spreads out from the boss. It makes a circle where it touches a bat, and a "
-              + "circle on any player it touches. Melee are hit first and move to the centre; "
-              + "ranged are hit after, out in the corners. Brutal Rain closes it as a stack.",
+            th: "ค้างคาวเกิดในช่องกลางเป็นหนึ่งใน 4 แพทเทิร์น แล้ววงแหวนสีขาวแผ่ออกจากบอส "
+              + "โดนค้างคาวก็เกิดวงระเบิด โดนคนก็ติดวงไปกับตัว "
+              + "melee เข้ากลางหลังค้างคาวรอบแรก ranged เข้าหลังรอบสอง ปิดท้ายด้วย Brutal Rain",
+            en: "Bats spawn on the inner tiles in one of four patterns, then a white ring "
+              + "spreads from the boss: it makes a circle where it touches a bat, and puts one "
+              + "on any player it touches. Melee come to the centre after the first bat wave, "
+              + "ranged after the second, and Brutal Rain closes it.",
           },
           dies: {
-            th: "วงที่ติดตัวไปทับกับของคนอื่น — อันนี้ตายทันที ไม่ใช่แค่เจ็บ "
-              + "melee ที่ไม่เข้ากลางหลังวงติดตัว คือสาเหตุที่พบบ่อยที่สุด",
+            th: "วงที่ติดตัวไปทับกับของคนอื่น — ตายทันที ไม่ใช่แค่เจ็บ "
+              + "สาเหตุที่พบบ่อยสุดคือ melee กด gap close เข้ากลาง เลยไปโผล่ทับคนอื่น",
             en: "Two players' circles overlapping, which is an instant kill rather than damage. "
-              + "The usual cause is a melee staying on their tile instead of moving to the "
-              + "centre once the ring has hit them.",
+              + "The usual cause is a melee using a gap closer to get to the centre and "
+              + "arriving on top of somebody.",
           },
           variants: [
             {
               id: "vertical",
-              tell: {
-                th: "ค้างคาวสองตัวเรียงแนวตั้ง (เหนือ–ใต้) ในสี่ช่องกลาง",
-                en: "The two bats line up vertically, north and south, on the inner tiles",
-              },
+              tell: { th: "ค้างคาวสองตัวเรียงแนวตั้ง เหนือ–ใต้", en: "The two bats line up vertically, north and south" },
               steps: [
                 {
                   id: "set",
                   label: { th: "1 — เข้าที่", en: "1 — take position" },
                   say: {
-                    th: "วงแหวนสีขาวจะแผ่ออกจากบอส melee ยืนกากบาทในสี่ช่องกลาง "
-                      + "เลี่ยงช่องที่มีค้างคาว ranged รอที่สี่มุม",
-                    en: "A white ring spreads out from the boss. Melee stand in a cross "
-                      + "on the inner four tiles, off the ones the bats are on; ranged wait "
-                      + "in the four corners.",
+                    th: "melee ยืนกากบาทสี่ทิศในช่องกลาง ranged ยืนกากบาทเฉียงที่สี่มุม "
+                      + "ตำแหน่งคงที่ทุกรอบ ไม่ขึ้นกับว่าค้างคาวออกแพทเทิร์นไหน",
+                    en: "Melee take the four cardinal inner tiles, ranged the four corners. "
+                      + "The spots are the same every time — the bat pattern does not move them.",
                   },
-                  danger: [
-                    { kind: "circle", at: { x: 0, y: 2.5 }, r: 3.2 },
-                    { kind: "circle", at: { x: 0, y: -2.5 }, r: 3.2 },
-                  ],
+                  danger: [],
                   safe: {
-                    MT: { x: -2.5, y: 0 }, D1: { x: 2.5, y: 0 },
-                    ST: { x: 0, y: 0 },
-                    D2: { x: 0, y: 0 },
-                    H1: { x: -7.5, y: 7.5 }, H2: { x: 7.5, y: 7.5 },
-                    D3: { x: -7.5, y: -7.5 }, D4: { x: 7.5, y: -7.5 },
+                    MT: { x: 0, y: 2.5 }, ST: { x: 0, y: -2.5 },
+                    D1: { x: -2.5, y: 0 }, D2: { x: 2.5, y: 0 },
+                    D3: { x: -7.5, y: 7.5 }, D4: { x: 7.5, y: 7.5 },
+                    H1: { x: -7.5, y: -7.5 }, H2: { x: 7.5, y: -7.5 },
                   },
                   per: {
-                    MT: { th: "ยืนช่องกลางที่ว่างจากค้างคาว รอวงแหวนมาโดน",
-                          en: "Take an inner tile the bats are not on and wait for the ring." },
-                    ST: { th: "อยู่กลางกับ melee เตรียมกิน mitigation",
-                          en: "Stay centre with the melee." },
-                    D1: { th: "ยืนช่องกลางอีกช่องที่ว่าง อย่าทับกับ MT",
-                          en: "Take the other free inner tile — not the same one as MT." },
-                    D2: { th: "อยู่กลาง อย่าออกไปมุม",
-                          en: "Stay centre; the corners are for the ranged." },
-                    H1: { th: "มุมตะวันตกเฉียงเหนือ รอวงแหวนมาโดนทีหลัง",
-                          en: "North-west corner. Your turn with the ring comes later." },
-                    H2: { th: "มุมตะวันออกเฉียงเหนือ",
-                          en: "North-east corner." },
-                    D3: { th: "มุมตะวันตกเฉียงใต้",
-                          en: "South-west corner." },
-                    D4: { th: "มุมตะวันออกเฉียงใต้",
-                          en: "South-east corner." },
+                    MT: { th: "ช่องกลางทิศเหนือ", en: "Inner tile, north." },
+                    ST: { th: "ช่องกลางทิศใต้", en: "Inner tile, south." },
+                    D1: { th: "ช่องกลางทิศตะวันตก", en: "Inner tile, west." },
+                    D2: { th: "ช่องกลางทิศตะวันออก", en: "Inner tile, east." },
+                    D3: { th: "มุมซ้ายบน (ตะวันตกเฉียงเหนือ)", en: "Top-left corner, north-west." },
+                    D4: { th: "มุมขวาบน (ตะวันออกเฉียงเหนือ)", en: "Top-right corner, north-east." },
+                    H1: { th: "มุมซ้ายล่าง (ตะวันตกเฉียงใต้)", en: "Bottom-left corner, south-west." },
+                    H2: { th: "มุมขวาล่าง (ตะวันออกเฉียงใต้)", en: "Bottom-right corner, south-east." },
                   },
                   wrong: {
-                    th: "ตรงนั้นมีค้างคาว — melee ต้องอยู่ช่องกลางที่ว่าง ranged อยู่มุม",
-                    en: "A bat is there. Melee take a free inner tile, ranged take a corner.",
+                    th: "melee กากบาทสี่ทิศในช่องกลาง (MT เหนือ ST ใต้ D1 ตะวันตก D2 ตะวันออก) "
+                      + "ranged กากบาทเฉียงที่มุม (D3 ซ้ายบน D4 ขวาบน H1 ซ้ายล่าง H2 ขวาล่าง)",
+                    en: "Melee on the cardinal inner tiles — MT north, ST south, D1 west, "
+                      + "D2 east — and ranged on the corners: D3 top-left, D4 top-right, "
+                      + "H1 bottom-left, H2 bottom-right.",
                   },
                 },
                 {
-                  id: "melee-pop",
-                  label: { th: "2 — melee โดนวง แล้วเข้ากลาง",
-                           en: "2 — melee take the ring, then centre" },
+                  id: "melee-in",
+                  label: { th: "2 — หลบค้างคาวรอบแรก แล้ว melee เข้ากลาง",
+                           en: "2 — dodge the first bat wave, melee come in" },
                   say: {
-                    th: "พอวงแหวนแตะสี่ช่องกลาง melee จะโดนก่อน แล้วมีวงระเบิดติดตัว "
-                      + "พอวงเริ่มทำงานให้รีบเข้ากลางทันที เพื่อไม่ให้ไปทับวงของ ranged "
-                      + "หรือวงของค้างคาว",
-                    en: "The ring reaches the inner tiles first, so melee are hit first and "
-                      + "carry a circle. The moment it starts, move to the centre so it does "
-                      + "not overlap the ranged circles or the bats'.",
+                    th: "วงแหวนสีขาวโดนค้างคาว ทำให้เกิดวงระเบิดรอบแรก "
+                      + "melee หลบวงนั้นก่อน แล้ววิ่งเข้ากลาง — ห้ามใช้ gap close",
+                    en: "The white ring reaches the bats and their first circles go off. "
+                      + "Melee dodge those, then run to the centre — on foot, no gap closer.",
                   },
                   danger: [
                     { kind: "circle", at: { x: 0, y: 2.5 }, r: 3.2 },
                     { kind: "circle", at: { x: 0, y: -2.5 }, r: 3.2 },
                   ],
                   safe: {
-                    MT: { x: -1, y: 1 }, ST: { x: 1, y: 1 },
-                    D1: { x: -1, y: -1 }, D2: { x: 1, y: -1 },
-                    H1: { x: -7.5, y: 7.5 }, H2: { x: 7.5, y: 7.5 },
-                    D3: { x: -7.5, y: -7.5 }, D4: { x: 7.5, y: -7.5 },
+                    MT: { x: 0, y: 1 }, ST: { x: 0, y: -1 },
+                    D1: { x: -1, y: 0 }, D2: { x: 1, y: 0 },
+                    D3: { x: -7.5, y: 7.5 }, D4: { x: 7.5, y: 7.5 },
+                    H1: { x: -7.5, y: -7.5 }, H2: { x: 7.5, y: -7.5 },
                   },
                   per: {
-                    MT: { th: "วงติดตัวแล้วเข้ากลางทันที อย่าค้างที่ช่องเดิม",
-                          en: "Once your circle is on, come to the centre — do not linger." },
-                    D1: { th: "เข้ากลางพร้อม MT แต่แยกกันพอไม่ให้วงทับ",
-                          en: "Come in with MT, but not on top of them." },
-                    H1: { th: "ยังอยู่มุม ยังไม่ถึงตาคุณ",
-                          en: "Stay in your corner; your turn is next." },
+                    MT: { th: "วิ่งเข้ากลางด้วยเท้า ห้ามกด gap close เด็ดขาด — "
+                             + "มันจะพาไปไกลเกินและวางวงผิดที่",
+                          en: "Walk in. No gap closer: it overshoots and puts your circle in "
+                             + "the wrong place." },
+                    ST: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D1: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D2: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D3: { th: "ยังอยู่มุม ยังไม่ถึงตา", en: "Stay in your corner; not yet." },
+                    H1: { th: "ยังอยู่มุม ยังไม่ถึงตา", en: "Stay in your corner; not yet." },
                   },
                   wrong: {
-                    th: "melee ต้องเข้ากลางหลังวงติดตัว ไม่ใช่ค้างอยู่ช่องเดิม",
-                    en: "Melee move to the centre once the circle is on them.",
+                    th: "หลบวงค้างคาวแล้วต้องเข้ากลาง ไม่ใช่ค้างอยู่ช่องเดิม",
+                    en: "Dodge the bat circle and come to the centre, do not stay on your tile.",
                   },
                 },
                 {
-                  id: "ranged-pop",
-                  label: { th: "3 — ranged โดนวงที่มุม",
-                           en: "3 — ranged take the ring in the corners" },
+                  id: "ranged-in",
+                  label: { th: "3 — หลังค้างคาวรอบสอง ranged เข้ากลาง",
+                           en: "3 — after the second bat wave, ranged come in" },
                   say: {
-                    th: "วงแหวนวิ่งต่อไปถึงมุม ranged โดนแล้ววางวงไว้ที่มุมของตัวเอง "
-                      + "ระวังอย่าเดินไปโดนวงของค้างคาวระหว่างนั้น",
-                    en: "The ring carries on to the corners. Ranged take it there and leave "
-                      + "their circle in their own corner, keeping clear of the bats' circles "
-                      + "on the way.",
+                    th: "ค้างคาวออกวงรอบสอง ranged รอให้จบก่อนแล้วค่อยเข้ากลาง "
+                      + "ระวังอย่าเข้าเร็วจนวงตัวเองไปทับ melee ที่อยู่กลางแล้ว",
+                    en: "The bats put out a second set of circles. Ranged wait for those, then "
+                      + "come in — not so early that their own circle lands on the melee who "
+                      + "are already there.",
                   },
                   danger: [
-                    { kind: "circle", at: { x: 0, y: 2.5 }, r: 3.2 },
-                    { kind: "circle", at: { x: 0, y: -2.5 }, r: 3.2 },
+                    { kind: "circle", at: { x: 0, y: 2.5 }, r: 2.6 },
+                    { kind: "circle", at: { x: 0, y: -2.5 }, r: 2.6 },
                   ],
                   safe: {
-                    H1: { x: -8, y: 8 }, H2: { x: 8, y: 8 },
-                    D3: { x: -8, y: -8 }, D4: { x: 8, y: -8 },
-                    MT: { x: -1, y: 1 }, ST: { x: 1, y: 1 },
-                    D1: { x: -1, y: -1 }, D2: { x: 1, y: -1 },
+                    D3: { x: -1.5, y: 1.5 }, D4: { x: 1.5, y: 1.5 },
+                    H1: { x: -1.5, y: -1.5 }, H2: { x: 1.5, y: -1.5 },
+                    MT: { x: 0, y: 1 }, ST: { x: 0, y: -1 },
+                    D1: { x: -1, y: 0 }, D2: { x: 1, y: 0 },
                   },
                   per: {
-                    H1: { th: "อยู่มุมตัวเอง ปล่อยให้วงระเบิดตรงนั้น",
-                          en: "Stay in your corner and let your circle go off there." },
-                    H2: { th: "อยู่มุมตัวเอง อย่าเดินเข้าหาใคร",
-                          en: "Stay in your corner; do not drift towards anybody." },
-                    D3: { th: "อยู่มุมตัวเอง", en: "Stay in your corner." },
-                    D4: { th: "อยู่มุมตัวเอง", en: "Stay in your corner." },
-                    MT: { th: "อยู่กลาง ห่างจากมุมให้พอ",
-                          en: "Stay centre, clear of the corners." },
+                    D3: { th: "รอวงรอบสองจบ แล้วเข้ากลางฝั่งของตัวเอง",
+                          en: "Wait out the second set, then come in on your own side." },
+                    D4: { th: "รอวงรอบสองจบ แล้วเข้ากลาง",
+                          en: "Wait out the second set, then come in." },
+                    H1: { th: "รอวงรอบสองจบ แล้วเข้ากลาง เตรียม heal ต่อทันที",
+                          en: "Wait it out, come in, and be ready to heal straight away." },
+                    H2: { th: "รอวงรอบสองจบ แล้วเข้ากลาง เตรียมโล่",
+                          en: "Wait it out, come in, shields up." },
+                    MT: { th: "อยู่กลางแล้ว เว้นที่ให้ ranged เข้ามา",
+                          en: "Already in. Leave room for the ranged." },
                   },
                   wrong: {
-                    th: "ranged ต้องอยู่มุมของตัวเอง วงจะได้ไม่ไปทับใคร",
-                    en: "Ranged stay in their own corner so the circle lands on nobody.",
+                    th: "ranged เข้ากลางหลังวงค้างคาวรอบสองจบ ไม่ใช่พร้อม melee",
+                    en: "Ranged come in after the second bat wave, not together with the melee.",
                   },
                 },
                 {
                   id: "stack",
                   label: { th: "4 — Brutal Rain รวมรับ", en: "4 — stack for Brutal Rain" },
                   say: {
-                    th: "ปิดท้ายด้วย Brutal Rain ที่พุ่งใส่ healer เป็นเป้า ทุกคนรวมกันรับ "
-                      + "รอบแรกโดน 3 ครั้ง (รอบหลังๆ จะเพิ่มตาม stack ของบอส)",
-                    en: "Brutal Rain finishes it, aimed at a healer. Everybody gathers to "
-                      + "share it — three hits the first time, more later as the boss stacks.",
+                    th: "Brutal Rain สุ่มเป้า แล้วแชร์ดาเมจทั้งปาร์ตี้ — ต้องรวมกันครบ 8 คน "
+                      + "จำนวนครั้งเพิ่มขึ้นทีละ 1 ทุกครั้งที่บอสร่ายซ้ำ (Game8 ว่ารอบแรก 3 ครั้ง) "
+                      + "เพราะฉะนั้นรอบหลังๆ ต้องใส่ mitigation หนักขึ้นเรื่อยๆ",
+                    en: "Brutal Rain picks a random target and is shared by the whole party, so "
+                      + "all eight gather. It gains a hit every time the boss casts it again — "
+                      + "Game8 gives three for the first — so later ones need steadily more "
+                      + "mitigation than the first.",
                   },
                   danger: [],
                   safe: {
@@ -303,12 +296,13 @@ export const m9s: Guide = {
                     D3: { x: 0, y: -1.5 }, D4: { x: 1, y: 1 },
                   },
                   per: {
-                    H1: { th: "อาจเป็นเป้า — ยืนกลางไว้ อย่าลากออกไป heal ใครที่ขอบ",
-                          en: "You may be the target: stay centre rather than running out to heal." },
-                    H2: { th: "โล่ก่อนครั้งแรก แล้ว heal ตามครั้งที่ 2–3",
-                          en: "Shield before the first hit, heal through the second and third." },
-                    MT: { th: "กิน mitigation กลุ่ม รอบแรกโดนแค่ 3 ครั้ง ไม่ต้องใส่หนัก",
-                          en: "Group mitigation, but the first one is only three hits — do not spend everything." },
+                    MT: { th: "mitigation กลุ่ม รอบหลังๆ ต้องใส่หนักกว่ารอบแรก",
+                          en: "Group mitigation, and more of it each time round." },
+                    ST: { th: "แบ่ง mitigation กับ MT ให้ครอบคลุมรอบถัดๆ ไปด้วย",
+                          en: "Split cooldowns with MT so the later casts are covered too." },
+                    H1: { th: "เป้าสุ่ม ไม่ใช่ healer เสมอ — heal ทั้งตี้ไว้ก่อน",
+                          en: "The target is random, so heal the party rather than one person." },
+                    H2: { th: "โล่ก่อนร่ายจบ", en: "Shields before the cast lands." },
                   },
                   wrong: {
                     th: "ท่านี้แชร์ ต้องรวมกันครบ 8 คน ไม่ใช่หลบ",
@@ -319,134 +313,127 @@ export const m9s: Guide = {
             },
             {
               id: "horizontal",
-              tell: {
-                th: "ค้างคาวสองตัวเรียงแนวนอน (ตะวันตก–ตะวันออก)",
-                en: "The two bats line up horizontally, west and east",
-              },
+              tell: { th: "ค้างคาวสองตัวเรียงแนวนอน ตะวันตก–ตะวันออก", en: "The two bats line up horizontally, west and east" },
               steps: [
                 {
                   id: "set",
                   label: { th: "1 — เข้าที่", en: "1 — take position" },
                   say: {
-                    th: "วงแหวนสีขาวจะแผ่ออกจากบอส melee ยืนกากบาทในสี่ช่องกลาง "
-                      + "เลี่ยงช่องที่มีค้างคาว ranged รอที่สี่มุม",
-                    en: "A white ring spreads out from the boss. Melee stand in a cross "
-                      + "on the inner four tiles, off the ones the bats are on; ranged wait "
-                      + "in the four corners.",
+                    th: "melee ยืนกากบาทสี่ทิศในช่องกลาง ranged ยืนกากบาทเฉียงที่สี่มุม "
+                      + "ตำแหน่งคงที่ทุกรอบ ไม่ขึ้นกับว่าค้างคาวออกแพทเทิร์นไหน",
+                    en: "Melee take the four cardinal inner tiles, ranged the four corners. "
+                      + "The spots are the same every time — the bat pattern does not move them.",
                   },
-                  danger: [
-                    { kind: "circle", at: { x: -2.5, y: 0 }, r: 3.2 },
-                    { kind: "circle", at: { x: 2.5, y: 0 }, r: 3.2 },
-                  ],
+                  danger: [],
                   safe: {
-                    MT: { x: 0, y: 2.5 }, D1: { x: 0, y: -2.5 },
-                    ST: { x: 0, y: 0 },
-                    D2: { x: 0, y: 0 },
-                    H1: { x: -7.5, y: 7.5 }, H2: { x: 7.5, y: 7.5 },
-                    D3: { x: -7.5, y: -7.5 }, D4: { x: 7.5, y: -7.5 },
+                    MT: { x: 0, y: 2.5 }, ST: { x: 0, y: -2.5 },
+                    D1: { x: -2.5, y: 0 }, D2: { x: 2.5, y: 0 },
+                    D3: { x: -7.5, y: 7.5 }, D4: { x: 7.5, y: 7.5 },
+                    H1: { x: -7.5, y: -7.5 }, H2: { x: 7.5, y: -7.5 },
                   },
                   per: {
-                    MT: { th: "ยืนช่องกลางที่ว่างจากค้างคาว รอวงแหวนมาโดน",
-                          en: "Take an inner tile the bats are not on and wait for the ring." },
-                    ST: { th: "อยู่กลางกับ melee เตรียมกิน mitigation",
-                          en: "Stay centre with the melee." },
-                    D1: { th: "ยืนช่องกลางอีกช่องที่ว่าง อย่าทับกับ MT",
-                          en: "Take the other free inner tile — not the same one as MT." },
-                    D2: { th: "อยู่กลาง อย่าออกไปมุม",
-                          en: "Stay centre; the corners are for the ranged." },
-                    H1: { th: "มุมตะวันตกเฉียงเหนือ รอวงแหวนมาโดนทีหลัง",
-                          en: "North-west corner. Your turn with the ring comes later." },
-                    H2: { th: "มุมตะวันออกเฉียงเหนือ",
-                          en: "North-east corner." },
-                    D3: { th: "มุมตะวันตกเฉียงใต้",
-                          en: "South-west corner." },
-                    D4: { th: "มุมตะวันออกเฉียงใต้",
-                          en: "South-east corner." },
+                    MT: { th: "ช่องกลางทิศเหนือ", en: "Inner tile, north." },
+                    ST: { th: "ช่องกลางทิศใต้", en: "Inner tile, south." },
+                    D1: { th: "ช่องกลางทิศตะวันตก", en: "Inner tile, west." },
+                    D2: { th: "ช่องกลางทิศตะวันออก", en: "Inner tile, east." },
+                    D3: { th: "มุมซ้ายบน (ตะวันตกเฉียงเหนือ)", en: "Top-left corner, north-west." },
+                    D4: { th: "มุมขวาบน (ตะวันออกเฉียงเหนือ)", en: "Top-right corner, north-east." },
+                    H1: { th: "มุมซ้ายล่าง (ตะวันตกเฉียงใต้)", en: "Bottom-left corner, south-west." },
+                    H2: { th: "มุมขวาล่าง (ตะวันออกเฉียงใต้)", en: "Bottom-right corner, south-east." },
                   },
                   wrong: {
-                    th: "ตรงนั้นมีค้างคาว — melee ต้องอยู่ช่องกลางที่ว่าง ranged อยู่มุม",
-                    en: "A bat is there. Melee take a free inner tile, ranged take a corner.",
+                    th: "melee กากบาทสี่ทิศในช่องกลาง (MT เหนือ ST ใต้ D1 ตะวันตก D2 ตะวันออก) "
+                      + "ranged กากบาทเฉียงที่มุม (D3 ซ้ายบน D4 ขวาบน H1 ซ้ายล่าง H2 ขวาล่าง)",
+                    en: "Melee on the cardinal inner tiles — MT north, ST south, D1 west, "
+                      + "D2 east — and ranged on the corners: D3 top-left, D4 top-right, "
+                      + "H1 bottom-left, H2 bottom-right.",
                   },
                 },
                 {
-                  id: "melee-pop",
-                  label: { th: "2 — melee โดนวง แล้วเข้ากลาง",
-                           en: "2 — melee take the ring, then centre" },
+                  id: "melee-in",
+                  label: { th: "2 — หลบค้างคาวรอบแรก แล้ว melee เข้ากลาง",
+                           en: "2 — dodge the first bat wave, melee come in" },
                   say: {
-                    th: "พอวงแหวนแตะสี่ช่องกลาง melee จะโดนก่อน แล้วมีวงระเบิดติดตัว "
-                      + "พอวงเริ่มทำงานให้รีบเข้ากลางทันที เพื่อไม่ให้ไปทับวงของ ranged "
-                      + "หรือวงของค้างคาว",
-                    en: "The ring reaches the inner tiles first, so melee are hit first and "
-                      + "carry a circle. The moment it starts, move to the centre so it does "
-                      + "not overlap the ranged circles or the bats'.",
+                    th: "วงแหวนสีขาวโดนค้างคาว ทำให้เกิดวงระเบิดรอบแรก "
+                      + "melee หลบวงนั้นก่อน แล้ววิ่งเข้ากลาง — ห้ามใช้ gap close",
+                    en: "The white ring reaches the bats and their first circles go off. "
+                      + "Melee dodge those, then run to the centre — on foot, no gap closer.",
                   },
                   danger: [
                     { kind: "circle", at: { x: -2.5, y: 0 }, r: 3.2 },
                     { kind: "circle", at: { x: 2.5, y: 0 }, r: 3.2 },
                   ],
                   safe: {
-                    MT: { x: -1, y: 1 }, ST: { x: 1, y: 1 },
-                    D1: { x: -1, y: -1 }, D2: { x: 1, y: -1 },
-                    H1: { x: -7.5, y: 7.5 }, H2: { x: 7.5, y: 7.5 },
-                    D3: { x: -7.5, y: -7.5 }, D4: { x: 7.5, y: -7.5 },
+                    MT: { x: 0, y: 1 }, ST: { x: 0, y: -1 },
+                    D1: { x: -1, y: 0 }, D2: { x: 1, y: 0 },
+                    D3: { x: -7.5, y: 7.5 }, D4: { x: 7.5, y: 7.5 },
+                    H1: { x: -7.5, y: -7.5 }, H2: { x: 7.5, y: -7.5 },
                   },
                   per: {
-                    MT: { th: "วงติดตัวแล้วเข้ากลางทันที อย่าค้างที่ช่องเดิม",
-                          en: "Once your circle is on, come to the centre — do not linger." },
-                    D1: { th: "เข้ากลางพร้อม MT แต่แยกกันพอไม่ให้วงทับ",
-                          en: "Come in with MT, but not on top of them." },
-                    H1: { th: "ยังอยู่มุม ยังไม่ถึงตาคุณ",
-                          en: "Stay in your corner; your turn is next." },
+                    MT: { th: "วิ่งเข้ากลางด้วยเท้า ห้ามกด gap close เด็ดขาด — "
+                             + "มันจะพาไปไกลเกินและวางวงผิดที่",
+                          en: "Walk in. No gap closer: it overshoots and puts your circle in "
+                             + "the wrong place." },
+                    ST: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D1: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D2: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D3: { th: "ยังอยู่มุม ยังไม่ถึงตา", en: "Stay in your corner; not yet." },
+                    H1: { th: "ยังอยู่มุม ยังไม่ถึงตา", en: "Stay in your corner; not yet." },
                   },
                   wrong: {
-                    th: "melee ต้องเข้ากลางหลังวงติดตัว ไม่ใช่ค้างอยู่ช่องเดิม",
-                    en: "Melee move to the centre once the circle is on them.",
+                    th: "หลบวงค้างคาวแล้วต้องเข้ากลาง ไม่ใช่ค้างอยู่ช่องเดิม",
+                    en: "Dodge the bat circle and come to the centre, do not stay on your tile.",
                   },
                 },
                 {
-                  id: "ranged-pop",
-                  label: { th: "3 — ranged โดนวงที่มุม",
-                           en: "3 — ranged take the ring in the corners" },
+                  id: "ranged-in",
+                  label: { th: "3 — หลังค้างคาวรอบสอง ranged เข้ากลาง",
+                           en: "3 — after the second bat wave, ranged come in" },
                   say: {
-                    th: "วงแหวนวิ่งต่อไปถึงมุม ranged โดนแล้ววางวงไว้ที่มุมของตัวเอง "
-                      + "ระวังอย่าเดินไปโดนวงของค้างคาวระหว่างนั้น",
-                    en: "The ring carries on to the corners. Ranged take it there and leave "
-                      + "their circle in their own corner, keeping clear of the bats' circles "
-                      + "on the way.",
+                    th: "ค้างคาวออกวงรอบสอง ranged รอให้จบก่อนแล้วค่อยเข้ากลาง "
+                      + "ระวังอย่าเข้าเร็วจนวงตัวเองไปทับ melee ที่อยู่กลางแล้ว",
+                    en: "The bats put out a second set of circles. Ranged wait for those, then "
+                      + "come in — not so early that their own circle lands on the melee who "
+                      + "are already there.",
                   },
                   danger: [
-                    { kind: "circle", at: { x: -2.5, y: 0 }, r: 3.2 },
-                    { kind: "circle", at: { x: 2.5, y: 0 }, r: 3.2 },
+                    { kind: "circle", at: { x: -2.5, y: 0 }, r: 2.6 },
+                    { kind: "circle", at: { x: 2.5, y: 0 }, r: 2.6 },
                   ],
                   safe: {
-                    H1: { x: -8, y: 8 }, H2: { x: 8, y: 8 },
-                    D3: { x: -8, y: -8 }, D4: { x: 8, y: -8 },
-                    MT: { x: -1, y: 1 }, ST: { x: 1, y: 1 },
-                    D1: { x: -1, y: -1 }, D2: { x: 1, y: -1 },
+                    D3: { x: -1.5, y: 1.5 }, D4: { x: 1.5, y: 1.5 },
+                    H1: { x: -1.5, y: -1.5 }, H2: { x: 1.5, y: -1.5 },
+                    MT: { x: 0, y: 1 }, ST: { x: 0, y: -1 },
+                    D1: { x: -1, y: 0 }, D2: { x: 1, y: 0 },
                   },
                   per: {
-                    H1: { th: "อยู่มุมตัวเอง ปล่อยให้วงระเบิดตรงนั้น",
-                          en: "Stay in your corner and let your circle go off there." },
-                    H2: { th: "อยู่มุมตัวเอง อย่าเดินเข้าหาใคร",
-                          en: "Stay in your corner; do not drift towards anybody." },
-                    D3: { th: "อยู่มุมตัวเอง", en: "Stay in your corner." },
-                    D4: { th: "อยู่มุมตัวเอง", en: "Stay in your corner." },
-                    MT: { th: "อยู่กลาง ห่างจากมุมให้พอ",
-                          en: "Stay centre, clear of the corners." },
+                    D3: { th: "รอวงรอบสองจบ แล้วเข้ากลางฝั่งของตัวเอง",
+                          en: "Wait out the second set, then come in on your own side." },
+                    D4: { th: "รอวงรอบสองจบ แล้วเข้ากลาง",
+                          en: "Wait out the second set, then come in." },
+                    H1: { th: "รอวงรอบสองจบ แล้วเข้ากลาง เตรียม heal ต่อทันที",
+                          en: "Wait it out, come in, and be ready to heal straight away." },
+                    H2: { th: "รอวงรอบสองจบ แล้วเข้ากลาง เตรียมโล่",
+                          en: "Wait it out, come in, shields up." },
+                    MT: { th: "อยู่กลางแล้ว เว้นที่ให้ ranged เข้ามา",
+                          en: "Already in. Leave room for the ranged." },
                   },
                   wrong: {
-                    th: "ranged ต้องอยู่มุมของตัวเอง วงจะได้ไม่ไปทับใคร",
-                    en: "Ranged stay in their own corner so the circle lands on nobody.",
+                    th: "ranged เข้ากลางหลังวงค้างคาวรอบสองจบ ไม่ใช่พร้อม melee",
+                    en: "Ranged come in after the second bat wave, not together with the melee.",
                   },
                 },
                 {
                   id: "stack",
                   label: { th: "4 — Brutal Rain รวมรับ", en: "4 — stack for Brutal Rain" },
                   say: {
-                    th: "ปิดท้ายด้วย Brutal Rain ที่พุ่งใส่ healer เป็นเป้า ทุกคนรวมกันรับ "
-                      + "รอบแรกโดน 3 ครั้ง (รอบหลังๆ จะเพิ่มตาม stack ของบอส)",
-                    en: "Brutal Rain finishes it, aimed at a healer. Everybody gathers to "
-                      + "share it — three hits the first time, more later as the boss stacks.",
+                    th: "Brutal Rain สุ่มเป้า แล้วแชร์ดาเมจทั้งปาร์ตี้ — ต้องรวมกันครบ 8 คน "
+                      + "จำนวนครั้งเพิ่มขึ้นทีละ 1 ทุกครั้งที่บอสร่ายซ้ำ (Game8 ว่ารอบแรก 3 ครั้ง) "
+                      + "เพราะฉะนั้นรอบหลังๆ ต้องใส่ mitigation หนักขึ้นเรื่อยๆ",
+                    en: "Brutal Rain picks a random target and is shared by the whole party, so "
+                      + "all eight gather. It gains a hit every time the boss casts it again — "
+                      + "Game8 gives three for the first — so later ones need steadily more "
+                      + "mitigation than the first.",
                   },
                   danger: [],
                   safe: {
@@ -456,12 +443,13 @@ export const m9s: Guide = {
                     D3: { x: 0, y: -1.5 }, D4: { x: 1, y: 1 },
                   },
                   per: {
-                    H1: { th: "อาจเป็นเป้า — ยืนกลางไว้ อย่าลากออกไป heal ใครที่ขอบ",
-                          en: "You may be the target: stay centre rather than running out to heal." },
-                    H2: { th: "โล่ก่อนครั้งแรก แล้ว heal ตามครั้งที่ 2–3",
-                          en: "Shield before the first hit, heal through the second and third." },
-                    MT: { th: "กิน mitigation กลุ่ม รอบแรกโดนแค่ 3 ครั้ง ไม่ต้องใส่หนัก",
-                          en: "Group mitigation, but the first one is only three hits — do not spend everything." },
+                    MT: { th: "mitigation กลุ่ม รอบหลังๆ ต้องใส่หนักกว่ารอบแรก",
+                          en: "Group mitigation, and more of it each time round." },
+                    ST: { th: "แบ่ง mitigation กับ MT ให้ครอบคลุมรอบถัดๆ ไปด้วย",
+                          en: "Split cooldowns with MT so the later casts are covered too." },
+                    H1: { th: "เป้าสุ่ม ไม่ใช่ healer เสมอ — heal ทั้งตี้ไว้ก่อน",
+                          en: "The target is random, so heal the party rather than one person." },
+                    H2: { th: "โล่ก่อนร่ายจบ", en: "Shields before the cast lands." },
                   },
                   wrong: {
                     th: "ท่านี้แชร์ ต้องรวมกันครบ 8 คน ไม่ใช่หลบ",
@@ -472,134 +460,127 @@ export const m9s: Guide = {
             },
             {
               id: "diag-a",
-              tell: {
-                th: "ค้างคาวเรียงแนวเฉียง — ตะวันตกเฉียงเหนือ กับ ตะวันออกเฉียงใต้",
-                en: "The bats sit on a diagonal — north-west and south-east",
-              },
+              tell: { th: "ค้างคาวเรียงเฉียง ตะวันตกเฉียงเหนือ กับ ตะวันออกเฉียงใต้", en: "The bats sit on a diagonal, north-west and south-east" },
               steps: [
                 {
                   id: "set",
                   label: { th: "1 — เข้าที่", en: "1 — take position" },
                   say: {
-                    th: "วงแหวนสีขาวจะแผ่ออกจากบอส melee ยืนกากบาทในสี่ช่องกลาง "
-                      + "เลี่ยงช่องที่มีค้างคาว ranged รอที่สี่มุม",
-                    en: "A white ring spreads out from the boss. Melee stand in a cross "
-                      + "on the inner four tiles, off the ones the bats are on; ranged wait "
-                      + "in the four corners.",
+                    th: "melee ยืนกากบาทสี่ทิศในช่องกลาง ranged ยืนกากบาทเฉียงที่สี่มุม "
+                      + "ตำแหน่งคงที่ทุกรอบ ไม่ขึ้นกับว่าค้างคาวออกแพทเทิร์นไหน",
+                    en: "Melee take the four cardinal inner tiles, ranged the four corners. "
+                      + "The spots are the same every time — the bat pattern does not move them.",
                   },
-                  danger: [
-                    { kind: "circle", at: { x: -2.5, y: 2.5 }, r: 3.2 },
-                    { kind: "circle", at: { x: 2.5, y: -2.5 }, r: 3.2 },
-                  ],
+                  danger: [],
                   safe: {
-                    MT: { x: 0, y: 2.5 }, D1: { x: 0, y: -2.5 },
-                    ST: { x: 0, y: 0 },
-                    D2: { x: 0, y: 0 },
-                    H1: { x: -7.5, y: 7.5 }, H2: { x: 7.5, y: 7.5 },
-                    D3: { x: -7.5, y: -7.5 }, D4: { x: 7.5, y: -7.5 },
+                    MT: { x: 0, y: 2.5 }, ST: { x: 0, y: -2.5 },
+                    D1: { x: -2.5, y: 0 }, D2: { x: 2.5, y: 0 },
+                    D3: { x: -7.5, y: 7.5 }, D4: { x: 7.5, y: 7.5 },
+                    H1: { x: -7.5, y: -7.5 }, H2: { x: 7.5, y: -7.5 },
                   },
                   per: {
-                    MT: { th: "ยืนช่องกลางที่ว่างจากค้างคาว รอวงแหวนมาโดน",
-                          en: "Take an inner tile the bats are not on and wait for the ring." },
-                    ST: { th: "อยู่กลางกับ melee เตรียมกิน mitigation",
-                          en: "Stay centre with the melee." },
-                    D1: { th: "ยืนช่องกลางอีกช่องที่ว่าง อย่าทับกับ MT",
-                          en: "Take the other free inner tile — not the same one as MT." },
-                    D2: { th: "อยู่กลาง อย่าออกไปมุม",
-                          en: "Stay centre; the corners are for the ranged." },
-                    H1: { th: "มุมตะวันตกเฉียงเหนือ รอวงแหวนมาโดนทีหลัง",
-                          en: "North-west corner. Your turn with the ring comes later." },
-                    H2: { th: "มุมตะวันออกเฉียงเหนือ",
-                          en: "North-east corner." },
-                    D3: { th: "มุมตะวันตกเฉียงใต้",
-                          en: "South-west corner." },
-                    D4: { th: "มุมตะวันออกเฉียงใต้",
-                          en: "South-east corner." },
+                    MT: { th: "ช่องกลางทิศเหนือ", en: "Inner tile, north." },
+                    ST: { th: "ช่องกลางทิศใต้", en: "Inner tile, south." },
+                    D1: { th: "ช่องกลางทิศตะวันตก", en: "Inner tile, west." },
+                    D2: { th: "ช่องกลางทิศตะวันออก", en: "Inner tile, east." },
+                    D3: { th: "มุมซ้ายบน (ตะวันตกเฉียงเหนือ)", en: "Top-left corner, north-west." },
+                    D4: { th: "มุมขวาบน (ตะวันออกเฉียงเหนือ)", en: "Top-right corner, north-east." },
+                    H1: { th: "มุมซ้ายล่าง (ตะวันตกเฉียงใต้)", en: "Bottom-left corner, south-west." },
+                    H2: { th: "มุมขวาล่าง (ตะวันออกเฉียงใต้)", en: "Bottom-right corner, south-east." },
                   },
                   wrong: {
-                    th: "ตรงนั้นมีค้างคาว — melee ต้องอยู่ช่องกลางที่ว่าง ranged อยู่มุม",
-                    en: "A bat is there. Melee take a free inner tile, ranged take a corner.",
+                    th: "melee กากบาทสี่ทิศในช่องกลาง (MT เหนือ ST ใต้ D1 ตะวันตก D2 ตะวันออก) "
+                      + "ranged กากบาทเฉียงที่มุม (D3 ซ้ายบน D4 ขวาบน H1 ซ้ายล่าง H2 ขวาล่าง)",
+                    en: "Melee on the cardinal inner tiles — MT north, ST south, D1 west, "
+                      + "D2 east — and ranged on the corners: D3 top-left, D4 top-right, "
+                      + "H1 bottom-left, H2 bottom-right.",
                   },
                 },
                 {
-                  id: "melee-pop",
-                  label: { th: "2 — melee โดนวง แล้วเข้ากลาง",
-                           en: "2 — melee take the ring, then centre" },
+                  id: "melee-in",
+                  label: { th: "2 — หลบค้างคาวรอบแรก แล้ว melee เข้ากลาง",
+                           en: "2 — dodge the first bat wave, melee come in" },
                   say: {
-                    th: "พอวงแหวนแตะสี่ช่องกลาง melee จะโดนก่อน แล้วมีวงระเบิดติดตัว "
-                      + "พอวงเริ่มทำงานให้รีบเข้ากลางทันที เพื่อไม่ให้ไปทับวงของ ranged "
-                      + "หรือวงของค้างคาว",
-                    en: "The ring reaches the inner tiles first, so melee are hit first and "
-                      + "carry a circle. The moment it starts, move to the centre so it does "
-                      + "not overlap the ranged circles or the bats'.",
+                    th: "วงแหวนสีขาวโดนค้างคาว ทำให้เกิดวงระเบิดรอบแรก "
+                      + "melee หลบวงนั้นก่อน แล้ววิ่งเข้ากลาง — ห้ามใช้ gap close",
+                    en: "The white ring reaches the bats and their first circles go off. "
+                      + "Melee dodge those, then run to the centre — on foot, no gap closer.",
                   },
                   danger: [
                     { kind: "circle", at: { x: -2.5, y: 2.5 }, r: 3.2 },
                     { kind: "circle", at: { x: 2.5, y: -2.5 }, r: 3.2 },
                   ],
                   safe: {
-                    MT: { x: -1, y: 1 }, ST: { x: 1, y: 1 },
-                    D1: { x: -1, y: -1 }, D2: { x: 1, y: -1 },
-                    H1: { x: -7.5, y: 7.5 }, H2: { x: 7.5, y: 7.5 },
-                    D3: { x: -7.5, y: -7.5 }, D4: { x: 7.5, y: -7.5 },
+                    MT: { x: 0, y: 1 }, ST: { x: 0, y: -1 },
+                    D1: { x: -1, y: 0 }, D2: { x: 1, y: 0 },
+                    D3: { x: -7.5, y: 7.5 }, D4: { x: 7.5, y: 7.5 },
+                    H1: { x: -7.5, y: -7.5 }, H2: { x: 7.5, y: -7.5 },
                   },
                   per: {
-                    MT: { th: "วงติดตัวแล้วเข้ากลางทันที อย่าค้างที่ช่องเดิม",
-                          en: "Once your circle is on, come to the centre — do not linger." },
-                    D1: { th: "เข้ากลางพร้อม MT แต่แยกกันพอไม่ให้วงทับ",
-                          en: "Come in with MT, but not on top of them." },
-                    H1: { th: "ยังอยู่มุม ยังไม่ถึงตาคุณ",
-                          en: "Stay in your corner; your turn is next." },
+                    MT: { th: "วิ่งเข้ากลางด้วยเท้า ห้ามกด gap close เด็ดขาด — "
+                             + "มันจะพาไปไกลเกินและวางวงผิดที่",
+                          en: "Walk in. No gap closer: it overshoots and puts your circle in "
+                             + "the wrong place." },
+                    ST: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D1: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D2: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D3: { th: "ยังอยู่มุม ยังไม่ถึงตา", en: "Stay in your corner; not yet." },
+                    H1: { th: "ยังอยู่มุม ยังไม่ถึงตา", en: "Stay in your corner; not yet." },
                   },
                   wrong: {
-                    th: "melee ต้องเข้ากลางหลังวงติดตัว ไม่ใช่ค้างอยู่ช่องเดิม",
-                    en: "Melee move to the centre once the circle is on them.",
+                    th: "หลบวงค้างคาวแล้วต้องเข้ากลาง ไม่ใช่ค้างอยู่ช่องเดิม",
+                    en: "Dodge the bat circle and come to the centre, do not stay on your tile.",
                   },
                 },
                 {
-                  id: "ranged-pop",
-                  label: { th: "3 — ranged โดนวงที่มุม",
-                           en: "3 — ranged take the ring in the corners" },
+                  id: "ranged-in",
+                  label: { th: "3 — หลังค้างคาวรอบสอง ranged เข้ากลาง",
+                           en: "3 — after the second bat wave, ranged come in" },
                   say: {
-                    th: "วงแหวนวิ่งต่อไปถึงมุม ranged โดนแล้ววางวงไว้ที่มุมของตัวเอง "
-                      + "ระวังอย่าเดินไปโดนวงของค้างคาวระหว่างนั้น",
-                    en: "The ring carries on to the corners. Ranged take it there and leave "
-                      + "their circle in their own corner, keeping clear of the bats' circles "
-                      + "on the way.",
+                    th: "ค้างคาวออกวงรอบสอง ranged รอให้จบก่อนแล้วค่อยเข้ากลาง "
+                      + "ระวังอย่าเข้าเร็วจนวงตัวเองไปทับ melee ที่อยู่กลางแล้ว",
+                    en: "The bats put out a second set of circles. Ranged wait for those, then "
+                      + "come in — not so early that their own circle lands on the melee who "
+                      + "are already there.",
                   },
                   danger: [
-                    { kind: "circle", at: { x: -2.5, y: 2.5 }, r: 3.2 },
-                    { kind: "circle", at: { x: 2.5, y: -2.5 }, r: 3.2 },
+                    { kind: "circle", at: { x: -2.5, y: 2.5 }, r: 2.6 },
+                    { kind: "circle", at: { x: 2.5, y: -2.5 }, r: 2.6 },
                   ],
                   safe: {
-                    H1: { x: -8, y: 8 }, H2: { x: 8, y: 8 },
-                    D3: { x: -8, y: -8 }, D4: { x: 8, y: -8 },
-                    MT: { x: -1, y: 1 }, ST: { x: 1, y: 1 },
-                    D1: { x: -1, y: -1 }, D2: { x: 1, y: -1 },
+                    D3: { x: -1.5, y: 1.5 }, D4: { x: 1.5, y: 1.5 },
+                    H1: { x: -1.5, y: -1.5 }, H2: { x: 1.5, y: -1.5 },
+                    MT: { x: 0, y: 1 }, ST: { x: 0, y: -1 },
+                    D1: { x: -1, y: 0 }, D2: { x: 1, y: 0 },
                   },
                   per: {
-                    H1: { th: "อยู่มุมตัวเอง ปล่อยให้วงระเบิดตรงนั้น",
-                          en: "Stay in your corner and let your circle go off there." },
-                    H2: { th: "อยู่มุมตัวเอง อย่าเดินเข้าหาใคร",
-                          en: "Stay in your corner; do not drift towards anybody." },
-                    D3: { th: "อยู่มุมตัวเอง", en: "Stay in your corner." },
-                    D4: { th: "อยู่มุมตัวเอง", en: "Stay in your corner." },
-                    MT: { th: "อยู่กลาง ห่างจากมุมให้พอ",
-                          en: "Stay centre, clear of the corners." },
+                    D3: { th: "รอวงรอบสองจบ แล้วเข้ากลางฝั่งของตัวเอง",
+                          en: "Wait out the second set, then come in on your own side." },
+                    D4: { th: "รอวงรอบสองจบ แล้วเข้ากลาง",
+                          en: "Wait out the second set, then come in." },
+                    H1: { th: "รอวงรอบสองจบ แล้วเข้ากลาง เตรียม heal ต่อทันที",
+                          en: "Wait it out, come in, and be ready to heal straight away." },
+                    H2: { th: "รอวงรอบสองจบ แล้วเข้ากลาง เตรียมโล่",
+                          en: "Wait it out, come in, shields up." },
+                    MT: { th: "อยู่กลางแล้ว เว้นที่ให้ ranged เข้ามา",
+                          en: "Already in. Leave room for the ranged." },
                   },
                   wrong: {
-                    th: "ranged ต้องอยู่มุมของตัวเอง วงจะได้ไม่ไปทับใคร",
-                    en: "Ranged stay in their own corner so the circle lands on nobody.",
+                    th: "ranged เข้ากลางหลังวงค้างคาวรอบสองจบ ไม่ใช่พร้อม melee",
+                    en: "Ranged come in after the second bat wave, not together with the melee.",
                   },
                 },
                 {
                   id: "stack",
                   label: { th: "4 — Brutal Rain รวมรับ", en: "4 — stack for Brutal Rain" },
                   say: {
-                    th: "ปิดท้ายด้วย Brutal Rain ที่พุ่งใส่ healer เป็นเป้า ทุกคนรวมกันรับ "
-                      + "รอบแรกโดน 3 ครั้ง (รอบหลังๆ จะเพิ่มตาม stack ของบอส)",
-                    en: "Brutal Rain finishes it, aimed at a healer. Everybody gathers to "
-                      + "share it — three hits the first time, more later as the boss stacks.",
+                    th: "Brutal Rain สุ่มเป้า แล้วแชร์ดาเมจทั้งปาร์ตี้ — ต้องรวมกันครบ 8 คน "
+                      + "จำนวนครั้งเพิ่มขึ้นทีละ 1 ทุกครั้งที่บอสร่ายซ้ำ (Game8 ว่ารอบแรก 3 ครั้ง) "
+                      + "เพราะฉะนั้นรอบหลังๆ ต้องใส่ mitigation หนักขึ้นเรื่อยๆ",
+                    en: "Brutal Rain picks a random target and is shared by the whole party, so "
+                      + "all eight gather. It gains a hit every time the boss casts it again — "
+                      + "Game8 gives three for the first — so later ones need steadily more "
+                      + "mitigation than the first.",
                   },
                   danger: [],
                   safe: {
@@ -609,12 +590,13 @@ export const m9s: Guide = {
                     D3: { x: 0, y: -1.5 }, D4: { x: 1, y: 1 },
                   },
                   per: {
-                    H1: { th: "อาจเป็นเป้า — ยืนกลางไว้ อย่าลากออกไป heal ใครที่ขอบ",
-                          en: "You may be the target: stay centre rather than running out to heal." },
-                    H2: { th: "โล่ก่อนครั้งแรก แล้ว heal ตามครั้งที่ 2–3",
-                          en: "Shield before the first hit, heal through the second and third." },
-                    MT: { th: "กิน mitigation กลุ่ม รอบแรกโดนแค่ 3 ครั้ง ไม่ต้องใส่หนัก",
-                          en: "Group mitigation, but the first one is only three hits — do not spend everything." },
+                    MT: { th: "mitigation กลุ่ม รอบหลังๆ ต้องใส่หนักกว่ารอบแรก",
+                          en: "Group mitigation, and more of it each time round." },
+                    ST: { th: "แบ่ง mitigation กับ MT ให้ครอบคลุมรอบถัดๆ ไปด้วย",
+                          en: "Split cooldowns with MT so the later casts are covered too." },
+                    H1: { th: "เป้าสุ่ม ไม่ใช่ healer เสมอ — heal ทั้งตี้ไว้ก่อน",
+                          en: "The target is random, so heal the party rather than one person." },
+                    H2: { th: "โล่ก่อนร่ายจบ", en: "Shields before the cast lands." },
                   },
                   wrong: {
                     th: "ท่านี้แชร์ ต้องรวมกันครบ 8 คน ไม่ใช่หลบ",
@@ -625,134 +607,127 @@ export const m9s: Guide = {
             },
             {
               id: "diag-b",
-              tell: {
-                th: "ค้างคาวเรียงแนวเฉียง — ตะวันออกเฉียงเหนือ กับ ตะวันตกเฉียงใต้",
-                en: "The bats sit on a diagonal — north-east and south-west",
-              },
+              tell: { th: "ค้างคาวเรียงเฉียง ตะวันออกเฉียงเหนือ กับ ตะวันตกเฉียงใต้", en: "The bats sit on a diagonal, north-east and south-west" },
               steps: [
                 {
                   id: "set",
                   label: { th: "1 — เข้าที่", en: "1 — take position" },
                   say: {
-                    th: "วงแหวนสีขาวจะแผ่ออกจากบอส melee ยืนกากบาทในสี่ช่องกลาง "
-                      + "เลี่ยงช่องที่มีค้างคาว ranged รอที่สี่มุม",
-                    en: "A white ring spreads out from the boss. Melee stand in a cross "
-                      + "on the inner four tiles, off the ones the bats are on; ranged wait "
-                      + "in the four corners.",
+                    th: "melee ยืนกากบาทสี่ทิศในช่องกลาง ranged ยืนกากบาทเฉียงที่สี่มุม "
+                      + "ตำแหน่งคงที่ทุกรอบ ไม่ขึ้นกับว่าค้างคาวออกแพทเทิร์นไหน",
+                    en: "Melee take the four cardinal inner tiles, ranged the four corners. "
+                      + "The spots are the same every time — the bat pattern does not move them.",
                   },
-                  danger: [
-                    { kind: "circle", at: { x: 2.5, y: 2.5 }, r: 3.2 },
-                    { kind: "circle", at: { x: -2.5, y: -2.5 }, r: 3.2 },
-                  ],
+                  danger: [],
                   safe: {
-                    MT: { x: 0, y: 2.5 }, D1: { x: 0, y: -2.5 },
-                    ST: { x: 0, y: 0 },
-                    D2: { x: 0, y: 0 },
-                    H1: { x: -7.5, y: 7.5 }, H2: { x: 7.5, y: 7.5 },
-                    D3: { x: -7.5, y: -7.5 }, D4: { x: 7.5, y: -7.5 },
+                    MT: { x: 0, y: 2.5 }, ST: { x: 0, y: -2.5 },
+                    D1: { x: -2.5, y: 0 }, D2: { x: 2.5, y: 0 },
+                    D3: { x: -7.5, y: 7.5 }, D4: { x: 7.5, y: 7.5 },
+                    H1: { x: -7.5, y: -7.5 }, H2: { x: 7.5, y: -7.5 },
                   },
                   per: {
-                    MT: { th: "ยืนช่องกลางที่ว่างจากค้างคาว รอวงแหวนมาโดน",
-                          en: "Take an inner tile the bats are not on and wait for the ring." },
-                    ST: { th: "อยู่กลางกับ melee เตรียมกิน mitigation",
-                          en: "Stay centre with the melee." },
-                    D1: { th: "ยืนช่องกลางอีกช่องที่ว่าง อย่าทับกับ MT",
-                          en: "Take the other free inner tile — not the same one as MT." },
-                    D2: { th: "อยู่กลาง อย่าออกไปมุม",
-                          en: "Stay centre; the corners are for the ranged." },
-                    H1: { th: "มุมตะวันตกเฉียงเหนือ รอวงแหวนมาโดนทีหลัง",
-                          en: "North-west corner. Your turn with the ring comes later." },
-                    H2: { th: "มุมตะวันออกเฉียงเหนือ",
-                          en: "North-east corner." },
-                    D3: { th: "มุมตะวันตกเฉียงใต้",
-                          en: "South-west corner." },
-                    D4: { th: "มุมตะวันออกเฉียงใต้",
-                          en: "South-east corner." },
+                    MT: { th: "ช่องกลางทิศเหนือ", en: "Inner tile, north." },
+                    ST: { th: "ช่องกลางทิศใต้", en: "Inner tile, south." },
+                    D1: { th: "ช่องกลางทิศตะวันตก", en: "Inner tile, west." },
+                    D2: { th: "ช่องกลางทิศตะวันออก", en: "Inner tile, east." },
+                    D3: { th: "มุมซ้ายบน (ตะวันตกเฉียงเหนือ)", en: "Top-left corner, north-west." },
+                    D4: { th: "มุมขวาบน (ตะวันออกเฉียงเหนือ)", en: "Top-right corner, north-east." },
+                    H1: { th: "มุมซ้ายล่าง (ตะวันตกเฉียงใต้)", en: "Bottom-left corner, south-west." },
+                    H2: { th: "มุมขวาล่าง (ตะวันออกเฉียงใต้)", en: "Bottom-right corner, south-east." },
                   },
                   wrong: {
-                    th: "ตรงนั้นมีค้างคาว — melee ต้องอยู่ช่องกลางที่ว่าง ranged อยู่มุม",
-                    en: "A bat is there. Melee take a free inner tile, ranged take a corner.",
+                    th: "melee กากบาทสี่ทิศในช่องกลาง (MT เหนือ ST ใต้ D1 ตะวันตก D2 ตะวันออก) "
+                      + "ranged กากบาทเฉียงที่มุม (D3 ซ้ายบน D4 ขวาบน H1 ซ้ายล่าง H2 ขวาล่าง)",
+                    en: "Melee on the cardinal inner tiles — MT north, ST south, D1 west, "
+                      + "D2 east — and ranged on the corners: D3 top-left, D4 top-right, "
+                      + "H1 bottom-left, H2 bottom-right.",
                   },
                 },
                 {
-                  id: "melee-pop",
-                  label: { th: "2 — melee โดนวง แล้วเข้ากลาง",
-                           en: "2 — melee take the ring, then centre" },
+                  id: "melee-in",
+                  label: { th: "2 — หลบค้างคาวรอบแรก แล้ว melee เข้ากลาง",
+                           en: "2 — dodge the first bat wave, melee come in" },
                   say: {
-                    th: "พอวงแหวนแตะสี่ช่องกลาง melee จะโดนก่อน แล้วมีวงระเบิดติดตัว "
-                      + "พอวงเริ่มทำงานให้รีบเข้ากลางทันที เพื่อไม่ให้ไปทับวงของ ranged "
-                      + "หรือวงของค้างคาว",
-                    en: "The ring reaches the inner tiles first, so melee are hit first and "
-                      + "carry a circle. The moment it starts, move to the centre so it does "
-                      + "not overlap the ranged circles or the bats'.",
+                    th: "วงแหวนสีขาวโดนค้างคาว ทำให้เกิดวงระเบิดรอบแรก "
+                      + "melee หลบวงนั้นก่อน แล้ววิ่งเข้ากลาง — ห้ามใช้ gap close",
+                    en: "The white ring reaches the bats and their first circles go off. "
+                      + "Melee dodge those, then run to the centre — on foot, no gap closer.",
                   },
                   danger: [
                     { kind: "circle", at: { x: 2.5, y: 2.5 }, r: 3.2 },
                     { kind: "circle", at: { x: -2.5, y: -2.5 }, r: 3.2 },
                   ],
                   safe: {
-                    MT: { x: -1, y: 1 }, ST: { x: 1, y: 1 },
-                    D1: { x: -1, y: -1 }, D2: { x: 1, y: -1 },
-                    H1: { x: -7.5, y: 7.5 }, H2: { x: 7.5, y: 7.5 },
-                    D3: { x: -7.5, y: -7.5 }, D4: { x: 7.5, y: -7.5 },
+                    MT: { x: 0, y: 1 }, ST: { x: 0, y: -1 },
+                    D1: { x: -1, y: 0 }, D2: { x: 1, y: 0 },
+                    D3: { x: -7.5, y: 7.5 }, D4: { x: 7.5, y: 7.5 },
+                    H1: { x: -7.5, y: -7.5 }, H2: { x: 7.5, y: -7.5 },
                   },
                   per: {
-                    MT: { th: "วงติดตัวแล้วเข้ากลางทันที อย่าค้างที่ช่องเดิม",
-                          en: "Once your circle is on, come to the centre — do not linger." },
-                    D1: { th: "เข้ากลางพร้อม MT แต่แยกกันพอไม่ให้วงทับ",
-                          en: "Come in with MT, but not on top of them." },
-                    H1: { th: "ยังอยู่มุม ยังไม่ถึงตาคุณ",
-                          en: "Stay in your corner; your turn is next." },
+                    MT: { th: "วิ่งเข้ากลางด้วยเท้า ห้ามกด gap close เด็ดขาด — "
+                             + "มันจะพาไปไกลเกินและวางวงผิดที่",
+                          en: "Walk in. No gap closer: it overshoots and puts your circle in "
+                             + "the wrong place." },
+                    ST: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D1: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D2: { th: "วิ่งเข้ากลาง ห้าม gap close", en: "Walk in. No gap closer." },
+                    D3: { th: "ยังอยู่มุม ยังไม่ถึงตา", en: "Stay in your corner; not yet." },
+                    H1: { th: "ยังอยู่มุม ยังไม่ถึงตา", en: "Stay in your corner; not yet." },
                   },
                   wrong: {
-                    th: "melee ต้องเข้ากลางหลังวงติดตัว ไม่ใช่ค้างอยู่ช่องเดิม",
-                    en: "Melee move to the centre once the circle is on them.",
+                    th: "หลบวงค้างคาวแล้วต้องเข้ากลาง ไม่ใช่ค้างอยู่ช่องเดิม",
+                    en: "Dodge the bat circle and come to the centre, do not stay on your tile.",
                   },
                 },
                 {
-                  id: "ranged-pop",
-                  label: { th: "3 — ranged โดนวงที่มุม",
-                           en: "3 — ranged take the ring in the corners" },
+                  id: "ranged-in",
+                  label: { th: "3 — หลังค้างคาวรอบสอง ranged เข้ากลาง",
+                           en: "3 — after the second bat wave, ranged come in" },
                   say: {
-                    th: "วงแหวนวิ่งต่อไปถึงมุม ranged โดนแล้ววางวงไว้ที่มุมของตัวเอง "
-                      + "ระวังอย่าเดินไปโดนวงของค้างคาวระหว่างนั้น",
-                    en: "The ring carries on to the corners. Ranged take it there and leave "
-                      + "their circle in their own corner, keeping clear of the bats' circles "
-                      + "on the way.",
+                    th: "ค้างคาวออกวงรอบสอง ranged รอให้จบก่อนแล้วค่อยเข้ากลาง "
+                      + "ระวังอย่าเข้าเร็วจนวงตัวเองไปทับ melee ที่อยู่กลางแล้ว",
+                    en: "The bats put out a second set of circles. Ranged wait for those, then "
+                      + "come in — not so early that their own circle lands on the melee who "
+                      + "are already there.",
                   },
                   danger: [
-                    { kind: "circle", at: { x: 2.5, y: 2.5 }, r: 3.2 },
-                    { kind: "circle", at: { x: -2.5, y: -2.5 }, r: 3.2 },
+                    { kind: "circle", at: { x: 2.5, y: 2.5 }, r: 2.6 },
+                    { kind: "circle", at: { x: -2.5, y: -2.5 }, r: 2.6 },
                   ],
                   safe: {
-                    H1: { x: -8, y: 8 }, H2: { x: 8, y: 8 },
-                    D3: { x: -8, y: -8 }, D4: { x: 8, y: -8 },
-                    MT: { x: -1, y: 1 }, ST: { x: 1, y: 1 },
-                    D1: { x: -1, y: -1 }, D2: { x: 1, y: -1 },
+                    D3: { x: -1.5, y: 1.5 }, D4: { x: 1.5, y: 1.5 },
+                    H1: { x: -1.5, y: -1.5 }, H2: { x: 1.5, y: -1.5 },
+                    MT: { x: 0, y: 1 }, ST: { x: 0, y: -1 },
+                    D1: { x: -1, y: 0 }, D2: { x: 1, y: 0 },
                   },
                   per: {
-                    H1: { th: "อยู่มุมตัวเอง ปล่อยให้วงระเบิดตรงนั้น",
-                          en: "Stay in your corner and let your circle go off there." },
-                    H2: { th: "อยู่มุมตัวเอง อย่าเดินเข้าหาใคร",
-                          en: "Stay in your corner; do not drift towards anybody." },
-                    D3: { th: "อยู่มุมตัวเอง", en: "Stay in your corner." },
-                    D4: { th: "อยู่มุมตัวเอง", en: "Stay in your corner." },
-                    MT: { th: "อยู่กลาง ห่างจากมุมให้พอ",
-                          en: "Stay centre, clear of the corners." },
+                    D3: { th: "รอวงรอบสองจบ แล้วเข้ากลางฝั่งของตัวเอง",
+                          en: "Wait out the second set, then come in on your own side." },
+                    D4: { th: "รอวงรอบสองจบ แล้วเข้ากลาง",
+                          en: "Wait out the second set, then come in." },
+                    H1: { th: "รอวงรอบสองจบ แล้วเข้ากลาง เตรียม heal ต่อทันที",
+                          en: "Wait it out, come in, and be ready to heal straight away." },
+                    H2: { th: "รอวงรอบสองจบ แล้วเข้ากลาง เตรียมโล่",
+                          en: "Wait it out, come in, shields up." },
+                    MT: { th: "อยู่กลางแล้ว เว้นที่ให้ ranged เข้ามา",
+                          en: "Already in. Leave room for the ranged." },
                   },
                   wrong: {
-                    th: "ranged ต้องอยู่มุมของตัวเอง วงจะได้ไม่ไปทับใคร",
-                    en: "Ranged stay in their own corner so the circle lands on nobody.",
+                    th: "ranged เข้ากลางหลังวงค้างคาวรอบสองจบ ไม่ใช่พร้อม melee",
+                    en: "Ranged come in after the second bat wave, not together with the melee.",
                   },
                 },
                 {
                   id: "stack",
                   label: { th: "4 — Brutal Rain รวมรับ", en: "4 — stack for Brutal Rain" },
                   say: {
-                    th: "ปิดท้ายด้วย Brutal Rain ที่พุ่งใส่ healer เป็นเป้า ทุกคนรวมกันรับ "
-                      + "รอบแรกโดน 3 ครั้ง (รอบหลังๆ จะเพิ่มตาม stack ของบอส)",
-                    en: "Brutal Rain finishes it, aimed at a healer. Everybody gathers to "
-                      + "share it — three hits the first time, more later as the boss stacks.",
+                    th: "Brutal Rain สุ่มเป้า แล้วแชร์ดาเมจทั้งปาร์ตี้ — ต้องรวมกันครบ 8 คน "
+                      + "จำนวนครั้งเพิ่มขึ้นทีละ 1 ทุกครั้งที่บอสร่ายซ้ำ (Game8 ว่ารอบแรก 3 ครั้ง) "
+                      + "เพราะฉะนั้นรอบหลังๆ ต้องใส่ mitigation หนักขึ้นเรื่อยๆ",
+                    en: "Brutal Rain picks a random target and is shared by the whole party, so "
+                      + "all eight gather. It gains a hit every time the boss casts it again — "
+                      + "Game8 gives three for the first — so later ones need steadily more "
+                      + "mitigation than the first.",
                   },
                   danger: [],
                   safe: {
@@ -762,12 +737,13 @@ export const m9s: Guide = {
                     D3: { x: 0, y: -1.5 }, D4: { x: 1, y: 1 },
                   },
                   per: {
-                    H1: { th: "อาจเป็นเป้า — ยืนกลางไว้ อย่าลากออกไป heal ใครที่ขอบ",
-                          en: "You may be the target: stay centre rather than running out to heal." },
-                    H2: { th: "โล่ก่อนครั้งแรก แล้ว heal ตามครั้งที่ 2–3",
-                          en: "Shield before the first hit, heal through the second and third." },
-                    MT: { th: "กิน mitigation กลุ่ม รอบแรกโดนแค่ 3 ครั้ง ไม่ต้องใส่หนัก",
-                          en: "Group mitigation, but the first one is only three hits — do not spend everything." },
+                    MT: { th: "mitigation กลุ่ม รอบหลังๆ ต้องใส่หนักกว่ารอบแรก",
+                          en: "Group mitigation, and more of it each time round." },
+                    ST: { th: "แบ่ง mitigation กับ MT ให้ครอบคลุมรอบถัดๆ ไปด้วย",
+                          en: "Split cooldowns with MT so the later casts are covered too." },
+                    H1: { th: "เป้าสุ่ม ไม่ใช่ healer เสมอ — heal ทั้งตี้ไว้ก่อน",
+                          en: "The target is random, so heal the party rather than one person." },
+                    H2: { th: "โล่ก่อนร่ายจบ", en: "Shields before the cast lands." },
                   },
                   wrong: {
                     th: "ท่านี้แชร์ ต้องรวมกันครบ 8 คน ไม่ใช่หลบ",

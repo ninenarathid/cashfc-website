@@ -68,15 +68,19 @@ export default function GuideView({ guide }: { guide: Guide }) {
   const here = steps[Math.min(at, steps.length - 1)];
   const mech: Mechanic | undefined = here?.m;
 
+  // A mechanic may be on the timeline with nothing written under it yet, in
+  // which case there is no variant, no diagram and nothing to ask.
   const variant: Variant | undefined = useMemo(() => {
-    if (!mech) return undefined;
-    return mech.variants.find((v) => v.id === variantId) ?? mech.variants[0];
+    const vs = mech?.variants;
+    if (!vs?.length) return undefined;
+    return vs.find((v) => v.id === variantId) ?? vs[0];
   }, [mech, variantId]);
 
   const step: Step | undefined = variant?.steps[Math.min(beat, variant.steps.length - 1)];
 
   const roll = useCallback((m: Mechanic) => {
-    const one = m.variants[Math.floor(Math.random() * m.variants.length)];
+    const vs = m.variants ?? [];
+    const one = vs[Math.floor(Math.random() * vs.length)];
     setVariantId(one?.id ?? null);
     setBeat(0); setPick(null); setTries(0); setReveal(false);
   }, []);
@@ -91,13 +95,13 @@ export default function GuideView({ guide }: { guide: Guide }) {
   // Each beat is its own question, so answering one clears the last answer.
   useEffect(() => { setPick(null); setTries(0); setReveal(false); }, [beat]);
 
-  if (!mech || !variant || !step || !here) return null;
+  if (!mech || !here) return null;
 
-  const answer = step.safe[slot] ?? null;
+  const answer = step?.safe[slot] ?? null;
   const correct = !!pick && !!answer && dist(pick, answer) <= TOLERANCE;
   const showAnswers = mode === "read" || correct || reveal || !answer;
 
-  const marks: Mark[] = showAnswers
+  const marks: Mark[] = showAnswers && step
     ? SLOTS.flatMap((s) => {
         const spot = step.safe[s];
         return spot ? [{ slot: s, at: spot, you: s === slot }] : [];
@@ -113,8 +117,9 @@ export default function GuideView({ guide }: { guide: Guide }) {
     }
   }
 
-  const lastBeat = beat >= variant.steps.length - 1;
-  const nextBeat = () => setBeat((n) => Math.min(n + 1, variant.steps.length - 1));
+  const beats = variant?.steps.length ?? 0;
+  const lastBeat = beat >= beats - 1;
+  const nextBeat = () => setBeat((n) => Math.min(n + 1, beats - 1));
   const next = () => {
     if (!lastBeat) { nextBeat(); return; }
     setAt((n) => Math.min(n + 1, steps.length - 1));
@@ -164,7 +169,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,23rem)]">
         {/* ── The floor ── */}
         <div className="rounded-xl border border-line bg-surface p-3">
-          <Arena arena={guide.arena} danger={step.danger} marks={marks}
+          <Arena arena={guide.arena} danger={step?.danger ?? []} marks={marks}
                  boss={{ x: 0, y: 0 }}
                  pick={mode === "quiz" ? pick : null}
                  answer={mode === "quiz" && showAnswers ? answer : null}
@@ -172,7 +177,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
                  onPick={mode === "quiz" && answer ? answered : undefined} />
 
           {/* ── The beats of this one mechanic ── */}
-          {variant.steps.length > 1 && (
+          {beats > 1 && variant && (
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {variant.steps.map((st, i) => (
                 <button key={st.id}
@@ -188,7 +193,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
             </div>
           )}
 
-          {mode === "quiz" && (
+          {mode === "quiz" && step && (
             <p className="mt-1.5 text-center text-[12px] text-muted">
               {!answer ? t("guide.noSpot", { slot: SLOT_LABEL[slot] })
                 : correct ? t("guide.right")
@@ -218,12 +223,21 @@ export default function GuideView({ guide }: { guide: Guide }) {
               </div>
             )}
 
-            {mode === "read" && (
+            {mode === "read" && mech.what && (
               <p className="mt-2 text-[13.5px] leading-relaxed text-ink/90">{say(mech.what, lang)}</p>
             )}
 
+            {/* Known skill, unwritten strategy. Said plainly rather than left as
+                an empty panel, because a reader has to be able to tell "nothing
+                happens here" from "nobody has written this down yet". */}
+            {!variant && (
+              <p className="mt-2 rounded-lg border border-dashed border-line px-3 py-2.5 text-[12.5px] leading-relaxed text-muted">
+                {t("guide.unwritten")}
+              </p>
+            )}
+
             {/* The beat: what is happening, then what this seat does about it. */}
-            {(mode === "read" || showAnswers) && (
+            {(mode === "read" || showAnswers) && step && (
               <div className="mt-2 rounded-lg border border-line bg-card px-3 py-2">
                 <div className="font-data text-[10.5px] uppercase tracking-[0.14em] text-accent">
                   {say(step.label, lang)}
@@ -237,7 +251,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
               </div>
             )}
 
-            {mode === "quiz" && (
+            {mode === "quiz" && variant && step && (
               <>
                 <p className="mt-2 text-[13.5px] leading-relaxed text-ink/90">
                   {say(variant.tell, lang)}
@@ -261,18 +275,18 @@ export default function GuideView({ guide }: { guide: Guide }) {
               </>
             )}
 
-            {(mode === "read" || showAnswers) && lastBeat && (
+            {(mode === "read" || showAnswers) && lastBeat && mech.dies && (
               <p className="mt-2 rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-ink/85">
                 <b className="text-chili">{t("guide.dies")}</b> {say(mech.dies, lang)}
               </p>
             )}
 
-            {mode === "read" && mech.variants.length > 1 && (
+            {mode === "read" && (mech.variants?.length ?? 0) > 1 && variant && (
               <div className="mt-2.5 flex flex-col gap-1.5">
                 <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
                   {t("guide.variants")}
                 </span>
-                {mech.variants.map((v) => (
+                {mech.variants!.map((v) => (
                   <button key={v.id} onClick={() => { setVariantId(v.id); setBeat(0); }}
                           className={`rounded-lg border px-2.5 py-1.5 text-left text-[12.5px] transition-colors ${
                             v.id === variant.id
@@ -308,7 +322,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
             </button>
             <span className="font-data text-[11.5px] text-muted">
               {at + 1}/{steps.length}
-              {variant.steps.length > 1 && ` · ${beat + 1}/${variant.steps.length}`}
+              {beats > 1 && ` · ${beat + 1}/${beats}`}
             </span>
             {mode === "quiz" && (
               <span className="ml-auto font-data text-[11.5px] text-muted">

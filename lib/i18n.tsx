@@ -64,6 +64,10 @@ const DICT = {
   "guide.dies": { en: "People die by", th: "ตายเพราะ" },
   "guide.variants": { en: "Which one", th: "รูปแบบ" },
   "guide.scored": { en: "{r}/{a} right", th: "{r}/{a} ถูก" },
+  "guide.unwritten": {
+    en: "The strategy for this one is not written yet — the skill and its timing are here, the rest is coming.",
+    th: "ท่านี้ยังไม่ได้เขียนวิธีเล่น — มีแค่ชื่อกับเวลาไว้ก่อน เดี๋ยวมาเติม",
+  },
   "feedback.title": { en: "Feedback", th: "แจ้งเรื่องถึงผู้ดูแล" },
   "feedback.intro": {
     en: "Anything the FC should know, or anything on this site that is wrong. It goes to the admins and stays between you and them.",

@@ -182,8 +182,15 @@ export interface Mechanic {
   name: string;
   /** Roughly when, for finding it against a video or a log. */
   at?: string;
-  /** What to do, in one or two lines. */
-  what: Text;
+  /**
+   * What to do, in one or two lines.
+   *
+   * Left out while the mechanic is only on the timeline. Plenty of a fight is
+   * "an AoE lands, mitigate it" and needs no more than its name and its time;
+   * the rest wants somebody who has actually done it to say how, and until they
+   * have, an empty entry is more honest than an invented one.
+   */
+  what?: Text;
   /**
    * Why people die here.
    *
@@ -191,10 +198,19 @@ export interface Mechanic {
    * because the person writing it has already stopped dying to this and has
    * forgotten what was confusing. Ask somebody who wiped last night.
    */
-  dies: Text;
+  dies?: Text;
   /** What kind of skill this is, for the timeline. */
   tags?: MechTag[];
-  variants: Variant[];
+  /**
+   * How it is resolved, if anybody has written that down yet.
+   *
+   * Absent means the skill is known and its strategy is not: it takes its place
+   * on the timeline with its name, its time and its kind, and says plainly that
+   * the detail is still to come. A fight can be laid out completely this way and
+   * filled in mechanic by mechanic, which is the order the knowledge actually
+   * arrives in.
+   */
+  variants?: Variant[];
   /** Six seconds, no sound, one mechanic. Served from /public. */
   clip?: string;
   image?: string;
