@@ -168,6 +168,28 @@ const onUltimate = (m: Member, name: string) =>
   || (m.ult_achv_only ?? []).includes(name)
   || progressRows(m).some((p) => p.kind === "ultimate" && p.name === name);
 
+/**
+ * Whether somebody belongs to the chosen slice of the roster.
+ *
+ * A guest is neither active nor on vacation — those are FC ranks and a guest has
+ * no rank in this FC — so they sit alongside the other two rather than inside
+ * one of them.
+ *
+ * One function because there were two copies of this rule: one deciding what the
+ * counts said and one deciding what the list showed. They agreed until Guests
+ * was added to the first and not the second, and picking a category with nobody
+ * in it showed everybody. A rule written twice is a rule that will disagree with
+ * itself eventually; this one did it immediately.
+ */
+const inActivity = (m: Member, activity: string) => {
+  const guest = m.rank === GUEST_RANK;
+  return activity === "guest" ? guest
+    : guest ? activity === "all"
+    : activity === "active" ? !isOnVacation(m)
+    : activity === "vacation" ? isOnVacation(m)
+    : true;
+};
+
 const GROUP_PREFIX = "group:";
 const roleGroups = ["Tanks", "Healers", "DPS"] as const;
 const roleMatches = (job: string, sel: string) =>
@@ -346,18 +368,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   // so switching to Active re-labels them all. A "Crafter 12" that still says 12
   // after narrowing to the active roster is telling you about people you excluded.
   const inScope = useMemo(
-    () => visible.filter((m) => {
-      // A guest is neither active nor on vacation — those are FC ranks, and a
-      // guest has no rank in this FC. They are their own answer to "who is
-      // this", which is why they sit alongside the other two rather than
-      // inside one of them.
-      const guest = m.rank === GUEST_RANK;
-      return adv.activity === "guest" ? guest
-        : guest ? adv.activity === "all"
-        : adv.activity === "active" ? !isOnVacation(m)
-        : adv.activity === "vacation" ? isOnVacation(m)
-        : true;
-    }),
+    () => visible.filter((m) => inActivity(m, adv.activity)),
     [visible, adv.activity]);
 
   const counts = useMemo(() => {
@@ -508,8 +519,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           return false;
         }
       }
-      if (adv.activity === "active" && isOnVacation(m)) return false;
-      if (adv.activity === "vacation" && !isOnVacation(m)) return false;
+      if (!inActivity(m, adv.activity)) return false;
       for (const i of adv.boss) if (!onFight(m, i, tierNames)) return false;
       for (const name of adv.ults) if (!onUltimate(m, name)) return false;
       for (const name of adv.ex) if (!m.ex_cleared?.includes(name)) return false;
