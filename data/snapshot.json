@@ -1118,7 +1118,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 79,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1361,7 +1361,7 @@
   "mounts": 159,
   "minions": 239,
   "rare": 62,
-  "level": 88,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1452,7 +1452,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "47540663": {
   "name": "Edel Meither",
@@ -3057,143 +3057,6 @@
   ],
   "chg": "2026-08-29"
  },
- "22425670": {
-  "name": "Panjasira Niyajama",
-  "parse": 99,
-  "ult": 0,
-  "mounts": 103,
-  "minions": 274,
-  "rare": 131,
-  "level": 100,
-  "cc": [
-   true,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [
-   1320,
-   1333,
-   1335,
-   2675,
-   2682,
-   2693,
-   2765,
-   2882,
-   2885,
-   2886,
-   2929,
-   2930,
-   3258,
-   3305,
-   3306,
-   3311,
-   3312,
-   3313,
-   3315,
-   3362,
-   3363,
-   3368,
-   3369,
-   3372,
-   3467,
-   3468,
-   3469,
-   3470,
-   3472,
-   3475,
-   3476,
-   3577,
-   3616,
-   3640,
-   3641,
-   3642,
-   3643,
-   3644,
-   3645,
-   3646,
-   3647,
-   3648,
-   3649,
-   3650,
-   3651,
-   3652,
-   3653,
-   3654,
-   3656,
-   3657,
-   3658,
-   3663,
-   3667,
-   3673,
-   3674,
-   3677,
-   3693,
-   3694,
-   3695,
-   3699,
-   3700,
-   3701,
-   3720,
-   3723,
-   3735,
-   3752,
-   3753,
-   3754,
-   3755,
-   3756,
-   3757,
-   3758,
-   3759,
-   3760,
-   3761,
-   3762,
-   3763,
-   3764,
-   3765,
-   3766,
-   3767,
-   3768,
-   3769,
-   3770,
-   3771,
-   3772,
-   3792,
-   3793,
-   3794,
-   3795,
-   3796,
-   3797,
-   3798,
-   3799,
-   3800,
-   3801,
-   3802,
-   3805,
-   3811,
-   3823
-  ],
-  "tiers": {
-   "relic": "master",
-   "explorer": "master"
-  },
-  "jobs": {
-   "Machinist": "legendary"
-  },
-  "ex": [
-   "Doomtrain",
-   "Enuo",
-   "Guardian Arkveld",
-   "Necron",
-   "Queen Eternal",
-   "Valigarmanda",
-   "Zelenia",
-   "Zoraal Ja"
-  ],
-  "ults": [],
-  "chg": "2026-08-30"
- },
  "15912826": {
   "name": "Rin Shiba",
   "parse": 99,
@@ -3644,6 +3507,143 @@
   ],
   "chg": "2026-08-30"
  },
+ "22425670": {
+  "name": "Shizuna-pan Misurugi",
+  "parse": 99,
+  "ult": 0,
+  "mounts": 103,
+  "minions": 274,
+  "rare": 131,
+  "level": 100,
+  "cc": [
+   true,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [
+   1320,
+   1333,
+   1335,
+   2675,
+   2682,
+   2693,
+   2765,
+   2882,
+   2885,
+   2886,
+   2929,
+   2930,
+   3258,
+   3305,
+   3306,
+   3311,
+   3312,
+   3313,
+   3315,
+   3362,
+   3363,
+   3368,
+   3369,
+   3372,
+   3467,
+   3468,
+   3469,
+   3470,
+   3472,
+   3475,
+   3476,
+   3577,
+   3616,
+   3640,
+   3641,
+   3642,
+   3643,
+   3644,
+   3645,
+   3646,
+   3647,
+   3648,
+   3649,
+   3650,
+   3651,
+   3652,
+   3653,
+   3654,
+   3656,
+   3657,
+   3658,
+   3663,
+   3667,
+   3673,
+   3674,
+   3677,
+   3693,
+   3694,
+   3695,
+   3699,
+   3700,
+   3701,
+   3720,
+   3723,
+   3735,
+   3752,
+   3753,
+   3754,
+   3755,
+   3756,
+   3757,
+   3758,
+   3759,
+   3760,
+   3761,
+   3762,
+   3763,
+   3764,
+   3765,
+   3766,
+   3767,
+   3768,
+   3769,
+   3770,
+   3771,
+   3772,
+   3792,
+   3793,
+   3794,
+   3795,
+   3796,
+   3797,
+   3798,
+   3799,
+   3800,
+   3801,
+   3802,
+   3805,
+   3811,
+   3823
+  ],
+  "tiers": {
+   "relic": "master",
+   "explorer": "master"
+  },
+  "jobs": {
+   "Machinist": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [],
+  "chg": "2026-08-30"
+ },
  "11603711": {
   "name": "Takamina Aamin",
   "parse": 87,
@@ -3963,7 +3963,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 100,
+  "level": 82,
   "cc": [
    true,
    true,
@@ -4008,7 +4008,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -4134,7 +4134,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 67,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -4885,7 +4885,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 83,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -5015,7 +5015,7 @@
   "mounts": 11,
   "minions": 33,
   "rare": null,
-  "level": 52,
+  "level": 86,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -5359,7 +5359,7 @@
   "mounts": 57,
   "minions": 194,
   "rare": null,
-  "level": 94,
+  "level": 74,
   "cc": [
    false,
    false,
@@ -5372,7 +5372,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "16099244": {
   "name": "Luna Froggo",
@@ -5550,7 +5550,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 86,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -5774,7 +5774,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 100,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -5789,7 +5789,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -6041,7 +6041,7 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 62,
+  "level": 64,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -6647,6 +6647,22 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-29"
+ },
+ "28679378": {
+  "name": "Tong Topspeed",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 91,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-30"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -10022,7 +10038,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 91,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -11769,6 +11785,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -11783,7 +11800,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "29151949": {
   "name": "Mirai Haname",
@@ -11797,6 +11814,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -11804,7 +11822,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "34474329": {
   "name": "Mirea Mimlemel",
@@ -11818,6 +11836,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -11825,7 +11844,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "32793260": {
   "name": "Mizuki Mizuhiki",
@@ -11839,6 +11858,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -11848,7 +11868,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "27818479": {
   "name": "Mocca Lighting",
@@ -11862,6 +11882,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -11869,7 +11890,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "34184163": {
   "name": "Moji Momiji",
@@ -11880,6 +11901,7 @@
   "rare": null,
   "level": 90,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -11895,7 +11917,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "32046109": {
   "name": "Mojito Crush",
@@ -11909,6 +11931,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -11916,7 +11939,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "31225966": {
   "name": "Molepy Walker",
@@ -11930,6 +11953,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -11937,7 +11961,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "34611224": {
   "name": "Momose Hochizora",
@@ -11951,6 +11975,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -11960,7 +11985,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "37911500": {
   "name": "Monandaeg Deliciosus",

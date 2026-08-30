@@ -3,6 +3,27 @@
   {
    "date": "2026-08-30",
    "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "level_100",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "new_member",
+   "id": 28679378,
+   "name": "Tong Topspeed",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "level_100",
    "id": 28579232,
    "name": "Dessiny Valkyrie",
    "text": "reached level 100!"
@@ -1378,27 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Expert Warrior"
   }
  ]
 }

@@ -9558,6 +9558,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -11209,6 +11210,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -15000,6 +15002,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -16553,6 +16556,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -16983,6 +16987,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -17763,6 +17768,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -17957,6 +17963,7 @@
     false,
     false,
     false,
+    false,
     false
    ]
   },
@@ -17991,6 +17998,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -18965,6 +18973,7 @@
    "expansion": "Dawntrail",
    "encounters": [],
    "clears": [
+    false,
     false,
     false,
     false,
@@ -28933,6 +28942,9 @@
   "ultimates": [],
   "extremes": [],
   "legacy": [],
+  "_status": "none"
+ },
+ "28679378": {
   "_status": "none"
  }
 }

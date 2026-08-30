@@ -161,7 +161,7 @@
   },
   {
    "date": "2026-08-30",
-   "total": 500,
+   "total": 501,
    "tags": {
     "extreme": 135,
     "ultimate": 117,
@@ -176,14 +176,14 @@
     "treasure": 12,
     "goldsaucer": 8,
     "pvp": 12,
-    "unknown": 4,
+    "unknown": 5,
     "prog": 23,
     "oldtimer": 1
    },
    "raider": 65,
    "ultimate": 117,
    "extreme": 135,
-   "unknown": 4,
+   "unknown": 5,
    "final_boss": 42
   }
  ]
