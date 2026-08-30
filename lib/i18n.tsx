@@ -64,6 +64,8 @@ const DICT = {
   "guide.dies": { en: "People die by", th: "ตายเพราะ" },
   "guide.variants": { en: "Which one", th: "รูปแบบ" },
   "guide.plan": { en: "Waymarks", th: "แผนมาร์ค" },
+  "guide.nth": { en: "{n} of {of}", th: "ครั้งที่ {n} จาก {of}" },
+  "guide.alsoAt": { en: "Also at", th: "ครั้งอื่น" },
   "guide.scored": { en: "{r}/{a} right", th: "{r}/{a} ถูก" },
   "guide.title": { en: "Guides", th: "ไกด์คอนเทนต์" },
   "guide.all": { en: "All guides", th: "ไกด์ทั้งหมด" },

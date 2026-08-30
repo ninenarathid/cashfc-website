@@ -5,7 +5,7 @@ import Arena, { type Mark } from "@/components/guides/Arena";
 import Timeline from "@/components/guides/Timeline";
 import { useLang } from "@/lib/i18n";
 import {
-  SLOTS, SLOT_LABEL, TAG_LABEL, TAG_TONE, planMarks, say, slotGroup,
+  SLOTS, SLOT_LABEL, TAG_LABEL, TAG_TONE, planMarks, say, slotGroup, timeline,
   type Guide, type Mechanic, type Slot, type Spot, type Step, type Variant,
 } from "@/lib/guides/types";
 
@@ -85,12 +85,13 @@ export default function GuideView({ guide }: { guide: Guide }) {
     () => planMarks(guide.arena, planId), [guide.arena, planId]);
   const shownPlan = plans.find((p) => p.id === planId) ?? plans[0];
 
-  const steps = useMemo(
-    () => guide.phases.flatMap((p) => p.mechanics.map((m) => ({ phase: p, m }))),
-    [guide]);
+  // Every occurrence in order, each paired with the one page that explains it.
+  // Two casts of the same skill land on the same page, which is why reading the
+  // fight end to end is shorter than the fight is.
+  const steps = useMemo(() => timeline(guide), [guide]);
 
   const here = steps[Math.min(at, steps.length - 1)];
-  const mech: Mechanic | undefined = here?.m;
+  const mech: Mechanic | undefined = here?.mech;
 
   // A mechanic may be on the timeline with nothing written under it yet, in
   // which case there is no variant, no diagram and nothing to ask.
@@ -141,6 +142,10 @@ export default function GuideView({ guide }: { guide: Guide }) {
     }
   }
 
+  // Every occurrence of the skill being read, so the panel can say "2 of 4"
+  // and jump between them without going back to the strip.
+  const sameSkill = steps.flatMap((s, i) => (s.mech.id === mech.id ? [i] : []));
+
   const beats = variant?.steps.length ?? 0;
   const lastBeat = beat >= beats - 1;
   const nextBeat = () => setBeat((n) => Math.min(n + 1, beats - 1));
@@ -188,7 +193,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
         </div>
       </div>
 
-      <Timeline guide={guide} at={at} onPick={(i) => { setAt(i); setBeat(0); }} />
+      <Timeline beats={steps} at={at} onPick={(i) => { setAt(i); setBeat(0); }} />
 
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,23rem)]">
         {/* ── The floor ── */}
@@ -257,14 +262,25 @@ export default function GuideView({ guide }: { guide: Guide }) {
           <div className="rounded-xl border border-line bg-surface p-3.5">
             <div className="flex flex-wrap items-baseline gap-2">
               <h2 className="font-display text-[15px] font-semibold">{mech.name}</h2>
-              {(mech.cast || mech.at) && (
-                <span className="font-data text-[11.5px] text-muted">
-                  {mech.cast && <span className="opacity-70">{mech.cast} → </span>}
-                  {mech.at}
-                </span>
+              {/* This occurrence's clock, not the skill's — the skill has no
+                  single time, which is the entire reason it is written once. */}
+              <span className="font-data text-[11.5px] text-muted">
+                {here.cue.cast && <span className="opacity-70">{here.cue.cast} → </span>}
+                {here.cue.at}
+                {here.cue.until && <span className="opacity-70"> → {here.cue.until}</span>}
+              </span>
+            </div>
+            <div className="mt-0.5 text-[11.5px] text-muted">
+              {say(here.phase.name, lang)}
+              {sameSkill.length > 1 && (
+                <> · {t("guide.nth", { n: sameSkill.indexOf(at) + 1, of: sameSkill.length })}</>
               )}
             </div>
-            <div className="mt-0.5 text-[11.5px] text-muted">{say(here.phase.name, lang)}</div>
+            {here.cue.note && (
+              <p className="mt-1 text-[12px] leading-relaxed text-muted">
+                {say(here.cue.note, lang)}
+              </p>
+            )}
             {(mech.tags?.length ?? 0) > 0 && (
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {mech.tags!.map((t) => (
@@ -372,6 +388,22 @@ export default function GuideView({ guide }: { guide: Guide }) {
                     className="rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
               {t("guide.next")}
             </button>
+            {sameSkill.length > 1 && (
+              <span className="flex flex-wrap items-center gap-1">
+                <span className="font-data text-[11px] text-muted">
+                  {t("guide.alsoAt")}
+                </span>
+                {sameSkill.map((i, n) => (
+                  <button key={i} onClick={() => { setAt(i); setBeat(0); }}
+                          aria-current={i === at}
+                          className={`rounded-md border px-1.5 py-0.5 font-data text-[11px] transition-colors ${
+                            i === at ? "border-accent bg-accent/15 text-accent"
+                                     : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                    {n + 1}
+                  </button>
+                ))}
+              </span>
+            )}
             <span className="font-data text-[11.5px] text-muted">
               {at + 1}/{steps.length}
               {beats > 1 && ` · ${beat + 1}/${beats}`}

@@ -188,20 +188,22 @@ export const TAG_COLOR: Record<MechTag, string> = {
   pattern: "#98c379", targeted: "#61afef", adds: "#c678dd",
 };
 
+/**
+ * A skill, explained once.
+ *
+ * Once, however many times the fight casts it. The raidwide at 0:10 and the
+ * raidwide at 5:05 are the same skill and the same instruction, and writing
+ * them out twice means maintaining them twice and eventually contradicting
+ * yourself — so a mechanic holds no time at all. When it happens is a Cue's
+ * business, and a mechanic that fires six times is six cues pointing here.
+ *
+ * The exception proves it: when a name is reused for a genuinely different
+ * mechanic, that is two entries, and they say so in their names.
+ */
 export interface Mechanic {
   id: string;
   /** The name on the cast bar, which is what people search for. */
   name: string;
-  /**
-   * When it resolves, for finding it against a video or a log.
-   *
-   * Separate from the cast because those are different moments and a raid calls
-   * both: "the cast is at 0:05" is when to press mitigation, "it lands at 0:10"
-   * is when to already be standing somewhere.
-   */
-  at?: string;
-  /** When the cast begins, where there is one. */
-  cast?: string;
   /**
    * What to do, in one or two lines.
    *
@@ -236,13 +238,81 @@ export interface Mechanic {
   image?: string;
 }
 
+/**
+ * One moment a mechanic happens, on the clock.
+ *
+ * Three times rather than one, because a mechanic is not an instant. The cast
+ * is when to press a cooldown; `at` is when to already be standing somewhere;
+ * `until` is for the ones that run — a sequence of cones, an add walking the
+ * arena, a pair of cleaves — which the timeline draws as the bar they are
+ * instead of as two unexplained entries called Start and End.
+ */
+export interface Cue {
+  /** The mechanic this is an occurrence of, by id. */
+  of: string;
+  /** When the cast bar starts, where there is one. */
+  cast?: string;
+  /** When it resolves. mm:ss from the pull. */
+  at: string;
+  /** When it finishes, for a mechanic that lasts. */
+  until?: string;
+  /** True of this occurrence only: "with Coffinfiller", "second set is doubled". */
+  note?: Text;
+}
+
 export interface Phase {
   id: string;
   name: Text;
   /** What moves the fight into it: a percentage, a cast, a timer. */
   enter?: Text;
   note?: Text;
-  mechanics: Mechanic[];
+  /** Everything that happens, in order. */
+  cues: Cue[];
+}
+
+/** "2:18" to 138. A timeline is arithmetic, and mm:ss is how a raid writes it. */
+export function secs(t: string | undefined): number | undefined {
+  if (!t) return undefined;
+  const parts = t.split(":").map(Number);
+  if (parts.length !== 2 || parts.some(Number.isNaN)) return undefined;
+  return parts[0] * 60 + parts[1];
+}
+
+/** And back again, for a ruler. */
+export function clock(s: number): string {
+  const m = Math.floor(s / 60);
+  return `${m}:${String(Math.round(s - m * 60)).padStart(2, "0")}`;
+}
+
+/** Where a cue starts and ends on the clock, in seconds. */
+export function cueSpan(c: Cue): { from: number; to: number } {
+  const at = secs(c.at) ?? 0;
+  return { from: secs(c.cast) ?? at, to: secs(c.until) ?? at };
+}
+
+export interface Beat {
+  phase: Phase;
+  cue: Cue;
+  mech: Mechanic;
+}
+
+/**
+ * The whole fight in order: every occurrence, paired with what explains it.
+ *
+ * The one list both the timeline and the reader walk. Two cues of the same
+ * mechanic land on the same explanation, which is the point — clicking the
+ * second raidwide should not open a second page saying the same thing.
+ *
+ * A cue naming a mechanic that does not exist is dropped rather than drawn as
+ * a blank, which only happens while a guide is being written.
+ */
+export function timeline(guide: Guide): Beat[] {
+  const by = new Map(guide.mechanics.map((m) => [m.id, m]));
+  return guide.phases.flatMap((phase) =>
+    phase.cues.flatMap((cue) => {
+      const mech = by.get(cue.of);
+      return mech ? [{ phase, cue, mech }] : [];
+    }));
 }
 
 /** The eight marks, in the order the game lists them. */
@@ -437,5 +507,8 @@ export interface Guide {
   source: { name: string; url: string };
   /** True while the mechanics are scaffolding rather than the real fight. */
   draft?: boolean;
+  /** Every skill in the fight, each explained once. */
+  mechanics: Mechanic[];
+  /** When each of them happens. */
   phases: Phase[];
 }
