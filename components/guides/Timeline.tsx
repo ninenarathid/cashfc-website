@@ -52,8 +52,15 @@ export default function Timeline(
                     <span className={`text-[12px] ${on ? "text-accent" : "text-ink/85"}`}>
                       {m.name.split(" (")[0]}
                     </span>
-                    {m.at && (
-                      <span className="font-data text-[10.5px] text-muted">{m.at}</span>
+                    {/* Cast, then resolve. Both, because a raid calls both: one
+                        is when to press a cooldown, the other when to already
+                        be standing somewhere. A skill with no cast bar shows
+                        only the moment it lands. */}
+                    {(m.cast || m.at) && (
+                      <span className="font-data text-[10.5px] text-muted">
+                        {m.cast && <span className="opacity-70">{m.cast} → </span>}
+                        {m.at}
+                      </span>
                     )}
                   </span>
                   {(m.tags?.length ?? 0) > 0 && (

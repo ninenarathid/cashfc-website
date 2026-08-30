@@ -2,8 +2,9 @@
 
 import { useRef } from "react";
 import {
-  ICONS, SLOT_ROLE,
+  ARENA_R, ICONS, SLOT_ROLE,
   type Arena as ArenaShape, type Danger, type GuideRole, type Slot, type Spot,
+  type Waymark,
 } from "@/lib/guides/types";
 
 /**
@@ -21,7 +22,7 @@ import {
  */
 
 /** Half the arena across. Everything is authored against this and nothing else. */
-const R = 10;
+const R = ARENA_R;
 
 const ROLE_COLOR: Record<GuideRole, string> = {
   tank: "#7ea6c9",
@@ -105,11 +106,14 @@ function Pic({ src, at, size }: { src?: string; at: Spot; size: number }) {
 }
 
 export default function Arena(
-  { arena, danger = [], marks = [], boss, pick, answer, onPick, tolerance = 2 }: {
+  { arena, danger = [], marks = [], boss, waymarks, pick, answer, onPick,
+    tolerance = 2 }: {
     arena: ArenaShape;
     danger?: Danger[];
     marks?: Mark[];
     boss?: Spot | null;
+    /** The marks to draw, when a plan has been chosen. Falls back to the arena's. */
+    waymarks?: Partial<Record<Waymark, Spot>>;
     /** Where the reader clicked, while they are being asked. */
     pick?: Spot | null;
     /** The spot they were being asked for, once it is time to show it. */
@@ -206,16 +210,19 @@ export default function Arena(
         ))}
       </g>
 
-      {Object.entries(arena.waymarks ?? {}).map(([k, at]) => (
+      {/* Small on purpose. A mark is a point on the floor, and a marker wide
+          enough to cover the tile it sits on cannot say which tile that is —
+          which is the whole question a reader brings to a preset. */}
+      {Object.entries(waymarks ?? arena.waymarks ?? {}).map(([k, at]) => (
         <g key={k}>
-          <circle cx={at.x} cy={sy(at.y)} r={0.85}
+          <circle cx={at.x} cy={sy(at.y)} r={0.55}
                   fill={`${WAYMARK_COLOR[k] ?? "#8b97a8"}33`}
-                  stroke={WAYMARK_COLOR[k] ?? "#8b97a8"} strokeWidth={0.14} />
+                  stroke={WAYMARK_COLOR[k] ?? "#8b97a8"} strokeWidth={0.11} />
           <text x={at.x} y={sy(at.y)} textAnchor="middle" dominantBaseline="central"
-                fill={WAYMARK_COLOR[k] ?? "#8b97a8"} fontSize={1.05}
+                fill={WAYMARK_COLOR[k] ?? "#8b97a8"} fontSize={0.72}
                 fontWeight={600}>{k}</text>
           <Pic src={icons.waymarks?.[k as keyof typeof icons.waymarks]}
-               at={at} size={2.2} />
+               at={at} size={1.4} />
         </g>
       ))}
 
@@ -233,20 +240,22 @@ export default function Arena(
         const color = ROLE_COLOR[SLOT_ROLE[m.slot]];
         return (
           <g key={i} opacity={m.you ? 1 : 0.75}>
-            <circle cx={m.at.x} cy={sy(m.at.y)} r={m.you ? 1.15 : 0.85}
+            <circle cx={m.at.x} cy={sy(m.at.y)} r={m.you ? 0.78 : 0.58}
                     fill={`${color}${m.you ? "55" : "22"}`}
-                    stroke={color} strokeWidth={m.you ? 0.26 : 0.14} />
-            <Pic src={icons.slots?.[m.slot]} at={m.at} size={m.you ? 2.6 : 1.9} />
+                    stroke={color} strokeWidth={m.you ? 0.18 : 0.11} />
+            <Pic src={icons.slots?.[m.slot]} at={m.at} size={m.you ? 1.7 : 1.3} />
             {/* The seat's name on the marker, so a diagram of eight people can be
                 read without counting colours. */}
-            <text x={m.at.x} y={sy(m.at.y - (m.you ? 1.75 : 1.4))}
+            <text x={m.at.x} y={sy(m.at.y - (m.you ? 1.25 : 1.0))}
                   textAnchor="middle" dominantBaseline="central"
-                  fill={color} fontSize={m.you ? 1 : 0.8} fontWeight={600}>
+                  fill={color} fontSize={m.you ? 0.8 : 0.66} fontWeight={600}>
               {m.slot}
             </text>
+            {/* Your own ring is the one thing kept generous: it is not marking a
+                spot, it is finding you on a floor with seven other people. */}
             {m.you && (
-              <circle cx={m.at.x} cy={sy(m.at.y)} r={1.9} fill="none"
-                      stroke={color} strokeWidth={0.12} strokeDasharray="0.5 0.4" />
+              <circle cx={m.at.x} cy={sy(m.at.y)} r={1.4} fill="none"
+                      stroke={color} strokeWidth={0.1} strokeDasharray="0.45 0.35" />
             )}
           </g>
         );

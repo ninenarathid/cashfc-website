@@ -26,6 +26,9 @@
  */
 export type Slot = "MT" | "ST" | "H1" | "H2" | "D1" | "D2" | "D3" | "D4";
 
+/** Half the arena across, in the units everything here is authored in. */
+export const ARENA_R = 10;
+
 export const SLOTS: Slot[] = ["MT", "ST", "H1", "H2", "D1", "D2", "D3", "D4"];
 
 /**
@@ -153,35 +156,52 @@ export interface Variant {
  * timeline that says only what each cast is called makes everybody translate
  * that back every time they look at it.
  */
+/**
+ * What kind of skill this is, in the categories the raid tools use.
+ *
+ * Six colours rather than a description each, because a timeline is read at a
+ * glance and a raid already thinks in them: this one is raidwide, that one is
+ * aimed at somebody, this one is adds. The names and the palette follow the
+ * timeline this guide was built from, so anybody holding both sees the same
+ * fight in the same colours.
+ */
 export type MechTag =
-  | "aoe" | "tankbuster" | "spread" | "stack"
-  | "tower" | "cleave" | "adds" | "memo" | "enrage";
+  | "raid" | "tank" | "shared" | "pattern" | "targeted" | "adds";
 
 export const TAG_LABEL: Record<MechTag, string> = {
-  aoe: "AoE ทั้งสนาม", tankbuster: "Tankbuster", spread: "แยก", stack: "รวม",
-  tower: "หอคอย", cleave: "หลบทิศ", adds: "มอนเสริม",
-  memo: "ต้องจำ", enrage: "Enrage",
+  raid: "Raid damage", tank: "Tank damage", shared: "Shared damage",
+  pattern: "Pattern AoE", targeted: "Targeted AoE", adds: "Adds",
 };
 
-/** Chip colours, reusing the palette the rest of the site already reads by. */
 export const TAG_TONE: Record<MechTag, string> = {
-  aoe: "border-chili/50 bg-chili/10 text-chili",
-  tankbuster: "border-steel/50 bg-steel/10 text-steel",
-  spread: "border-copper/50 bg-copper/10 text-copper",
-  stack: "border-jade/50 bg-jade/10 text-jade",
-  tower: "border-gold/50 bg-gold/10 text-gold",
-  cleave: "border-[#a87fd8]/50 bg-[#a87fd8]/10 text-[#c0a2e6]",
-  adds: "border-[#6aa84f]/50 bg-[#6aa84f]/10 text-[#93c47d]",
-  memo: "border-accent/50 bg-accent/10 text-accent",
-  enrage: "border-chili bg-chili/20 text-chili",
+  raid: "border-[#e06c75]/50 bg-[#e06c75]/10 text-[#e06c75]",
+  tank: "border-[#d19a66]/50 bg-[#d19a66]/10 text-[#d19a66]",
+  shared: "border-[#e5c07b]/50 bg-[#e5c07b]/10 text-[#e5c07b]",
+  pattern: "border-[#98c379]/50 bg-[#98c379]/10 text-[#98c379]",
+  targeted: "border-[#61afef]/50 bg-[#61afef]/10 text-[#61afef]",
+  adds: "border-[#c678dd]/50 bg-[#c678dd]/10 text-[#c678dd]",
+};
+
+/** The same six as plain colours, for anything that cannot take a class. */
+export const TAG_COLOR: Record<MechTag, string> = {
+  raid: "#e06c75", tank: "#d19a66", shared: "#e5c07b",
+  pattern: "#98c379", targeted: "#61afef", adds: "#c678dd",
 };
 
 export interface Mechanic {
   id: string;
   /** The name on the cast bar, which is what people search for. */
   name: string;
-  /** Roughly when, for finding it against a video or a log. */
+  /**
+   * When it resolves, for finding it against a video or a log.
+   *
+   * Separate from the cast because those are different moments and a raid calls
+   * both: "the cast is at 0:05" is when to press mitigation, "it lands at 0:10"
+   * is when to already be standing somewhere.
+   */
   at?: string;
+  /** When the cast begins, where there is one. */
+  cast?: string;
   /**
    * What to do, in one or two lines.
    *
@@ -257,10 +277,114 @@ export interface Arena {
    * coordinates back into it in their heads.
    */
   grid?: number;
+  /**
+   * Half the floor across, in the game's own units.
+   *
+   * Only needed to read a preset. The game writes marks as absolute map
+   * coordinates and this is the one number that turns them into the arena's
+   * own — measure it once by standing in the middle and walking to the wall.
+   */
+  radius?: number;
+  /** Where the middle of the floor sits on the map, if not the usual 100, 100. */
+  center?: { x: number; z: number };
   /** Where the marks are put for this fight. Left out means none are used. */
   waymarks?: Partial<Record<Waymark, Spot>>;
+  /**
+   * The sets a party might actually use.
+   *
+   * More than one because a fight rarely has only one: a group brings the
+   * preset its strategy was written for, and a guide that draws somebody
+   * else's marks is a guide that quietly moves every position in it. When
+   * there is more than one the reader picks, and the diagram follows.
+   */
+  plans?: Plan[];
   /** Pictures for the markers, when there are any. See ICONS below. */
   icons?: Icons;
+}
+
+/** One mark of a preset, as the game writes it out. */
+export interface PresetPoint {
+  X: number;
+  /** Height. Ignored: these diagrams are a floor plan. */
+  Y?: number;
+  Z: number;
+  ID?: number;
+  Active?: boolean;
+}
+
+/**
+ * A waymark preset, in the shape the game's own exporters hand you.
+ *
+ * Taken verbatim on purpose. Somebody who has a set they like already has this
+ * text in their clipboard, and asking them to convert eight pairs of numbers by
+ * hand is asking them to make a mistake — the conversion is arithmetic, so the
+ * computer does it. Field names are the game's: `One` through `Four` rather
+ * than `1` through `4`, and `Active` marks the ones actually placed.
+ */
+export interface WaymarkPreset {
+  Name?: string;
+  MapID?: number;
+  A?: PresetPoint; B?: PresetPoint; C?: PresetPoint; D?: PresetPoint;
+  One?: PresetPoint; Two?: PresetPoint; Three?: PresetPoint; Four?: PresetPoint;
+}
+
+const PRESET_KEYS: [keyof WaymarkPreset, Waymark][] = [
+  ["A", "A"], ["B", "B"], ["C", "C"], ["D", "D"],
+  ["One", "1"], ["Two", "2"], ["Three", "3"], ["Four", "4"],
+];
+
+/**
+ * Game coordinates in, arena coordinates out.
+ *
+ * Two things are happening. The map's origin is somewhere off in the zone, so
+ * the arena's middle is subtracted off; and the game's Z grows southward while
+ * these diagrams have y growing north, so that axis flips. The scale is
+ * whatever makes the wall land at ten.
+ *
+ * Marks that are switched off are left out rather than drawn at the origin,
+ * which is where an unplaced mark's coordinates otherwise put it.
+ */
+export function fromPreset(
+  preset: WaymarkPreset,
+  arena: Pick<Arena, "radius" | "center">,
+): Partial<Record<Waymark, Spot>> {
+  const half = arena.radius ?? 20;
+  const cx = arena.center?.x ?? 100;
+  const cz = arena.center?.z ?? 100;
+  const scale = ARENA_R / half;
+  const out: Partial<Record<Waymark, Spot>> = {};
+  for (const [field, mark] of PRESET_KEYS) {
+    const p = preset[field] as PresetPoint | undefined;
+    if (!p || typeof p !== "object" || p.Active === false) continue;
+    out[mark] = {
+      x: Math.round((p.X - cx) * scale * 100) / 100,
+      y: Math.round((cz - p.Z) * scale * 100) / 100,
+    };
+  }
+  return out;
+}
+
+/** One named set of marks a party might play with. */
+export interface Plan {
+  id: string;
+  name: Text;
+  /** Who uses it, or what it is for. */
+  note?: Text;
+  /** The preset, pasted in as the game exported it. */
+  preset: WaymarkPreset;
+}
+
+/**
+ * The marks to draw: the chosen plan, else the first one, else whatever the
+ * arena spells out by hand. An arena with neither draws none, which is correct
+ * for the fights that use none.
+ */
+export function planMarks(
+  arena: Arena, planId?: string | null,
+): Partial<Record<Waymark, Spot>> {
+  const plans = arena.plans ?? [];
+  const plan = plans.find((p) => p.id === planId) ?? plans[0];
+  return plan ? fromPreset(plan.preset, arena) : (arena.waymarks ?? {});
 }
 
 /**

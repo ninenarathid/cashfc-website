@@ -5,7 +5,7 @@ import Arena, { type Mark } from "@/components/guides/Arena";
 import Timeline from "@/components/guides/Timeline";
 import { useLang } from "@/lib/i18n";
 import {
-  SLOTS, SLOT_LABEL, TAG_LABEL, TAG_TONE, say, slotGroup,
+  SLOTS, SLOT_LABEL, TAG_LABEL, TAG_TONE, planMarks, say, slotGroup,
   type Guide, type Mechanic, type Slot, type Spot, type Step, type Variant,
 } from "@/lib/guides/types";
 
@@ -30,6 +30,8 @@ import {
  */
 
 const KEY = "cashfc_guide_slot";
+/** Which preset, remembered per fight: a group plays the same one every week. */
+const PLAN_KEY = (slug: string) => `cashfc_guide_plan_${slug}`;
 /** How close counts. Two units of a twenty-unit arena — generous on purpose:
  *  the question is whether somebody knows where to be, not whether they can aim. */
 const TOLERANCE = 2;
@@ -43,6 +45,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
   const [at, setAt] = useState(0);
   const [beat, setBeat] = useState(0);
   const [variantId, setVariantId] = useState<string | null>(null);
+  const [planId, setPlanId] = useState<string | null>(null);
   const [pick, setPick] = useState<Spot | null>(null);
   const [tries, setTries] = useState(0);
   const [reveal, setReveal] = useState(false);
@@ -60,6 +63,27 @@ export default function GuideView({ guide }: { guide: Guide }) {
     setSlot(s);
     try { window.localStorage.setItem(KEY, s); } catch { /* ignore */ }
   };
+
+  // Remembered per fight rather than globally: a group brings one preset to
+  // M9S and a different one to the next boss, and being asked again every
+  // visit is how a reader ends up reading positions off the wrong marks.
+  const plans = guide.arena.plans ?? [];
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(PLAN_KEY(guide.slug));
+      if (saved) setPlanId(saved);
+    } catch { /* private window; the first plan it is */ }
+  }, [guide.slug]);
+  const choosePlan = (id: string) => {
+    setPlanId(id);
+    try { window.localStorage.setItem(PLAN_KEY(guide.slug), id); } catch { /* ignore */ }
+  };
+
+  // The marks the diagram draws. A preset is converted here rather than by
+  // hand, so a set can be pasted in exactly as the game exported it.
+  const waymarks = useMemo(
+    () => planMarks(guide.arena, planId), [guide.arena, planId]);
+  const shownPlan = plans.find((p) => p.id === planId) ?? plans[0];
 
   const steps = useMemo(
     () => guide.phases.flatMap((p) => p.mechanics.map((m) => ({ phase: p, m }))),
@@ -169,8 +193,33 @@ export default function GuideView({ guide }: { guide: Guide }) {
       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,23rem)]">
         {/* ── The floor ── */}
         <div className="rounded-xl border border-line bg-surface p-3">
+          {/* Which set of marks the diagram is drawn on. Only asked when the
+              fight actually has more than one, because a choice of one is not
+              a choice — it is a row of chrome above every guide. */}
+          {plans.length > 1 && (
+            <div className="mb-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+                {t("guide.plan")}
+              </span>
+              {plans.map((p) => (
+                <button key={p.id} onClick={() => choosePlan(p.id)}
+                        aria-pressed={p.id === shownPlan?.id}
+                        title={p.note ? say(p.note, lang) : undefined}
+                        className={`rounded-md border px-2.5 py-1 text-[12px] transition-colors ${
+                          p.id === shownPlan?.id
+                            ? "border-accent bg-accent/15 text-accent"
+                            : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                  {say(p.name, lang)}
+                </button>
+              ))}
+              {shownPlan?.note && (
+                <span className="text-[11.5px] text-muted">{say(shownPlan.note, lang)}</span>
+              )}
+            </div>
+          )}
+
           <Arena arena={guide.arena} danger={step?.danger ?? []} marks={marks}
-                 boss={{ x: 0, y: 0 }}
+                 boss={{ x: 0, y: 0 }} waymarks={waymarks}
                  pick={mode === "quiz" ? pick : null}
                  answer={mode === "quiz" && showAnswers ? answer : null}
                  tolerance={TOLERANCE}
@@ -208,8 +257,11 @@ export default function GuideView({ guide }: { guide: Guide }) {
           <div className="rounded-xl border border-line bg-surface p-3.5">
             <div className="flex flex-wrap items-baseline gap-2">
               <h2 className="font-display text-[15px] font-semibold">{mech.name}</h2>
-              {mech.at && (
-                <span className="font-data text-[11.5px] text-muted">{mech.at}</span>
+              {(mech.cast || mech.at) && (
+                <span className="font-data text-[11.5px] text-muted">
+                  {mech.cast && <span className="opacity-70">{mech.cast} → </span>}
+                  {mech.at}
+                </span>
               )}
             </div>
             <div className="mt-0.5 text-[11.5px] text-muted">{say(here.phase.name, lang)}</div>
