@@ -1456,127 +1456,6 @@
   ],
   "chg": "2026-08-29"
  },
- "40389196": {
-  "name": "Dontae Luciano",
-  "parse": 97,
-  "ult": 5,
-  "mounts": 176,
-  "minions": 325,
-  "rare": 80,
-  "level": 100,
-  "cc": [
-   true,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [
-   136,
-   564,
-   565,
-   576,
-   577,
-   846,
-   950,
-   951,
-   1198,
-   1369,
-   1370,
-   1439,
-   1444,
-   1453,
-   1458,
-   1463,
-   1473,
-   1474,
-   1475,
-   1588,
-   1591,
-   1603,
-   1604,
-   1701,
-   1705,
-   1714,
-   1718,
-   1750,
-   1962,
-   1993,
-   2036,
-   2040,
-   2088,
-   2092,
-   2093,
-   2149,
-   2153,
-   2154,
-   2218,
-   2223,
-   2392,
-   2444,
-   2637,
-   2693,
-   2699,
-   2765,
-   2766,
-   2768,
-   2770,
-   2773,
-   2775,
-   2777,
-   2778,
-   2780,
-   2857,
-   2859,
-   2860,
-   2864,
-   2866,
-   2867,
-   2869,
-   2871,
-   2885,
-   3001,
-   3074,
-   3113,
-   3162,
-   3252,
-   3253,
-   3317,
-   3318,
-   3348,
-   3349,
-   3350,
-   3405,
-   3406,
-   3407,
-   3412,
-   3662,
-   3805
-  ],
-  "tiers": {
-   "relic": "expert",
-   "goldsaucer": "master"
-  },
-  "jobs": {
-   "Astrologian": "master",
-   "Sage": "master",
-   "DarkKnight": "expert",
-   "Samurai": "legendary"
-  },
-  "ex": [
-   "Necron",
-   "Valigarmanda",
-   "Zoraal Ja"
-  ],
-  "ults": [
-   "Dragonsong's Reprise",
-   "The Epic of Alexander",
-   "The Omega Protocol",
-   "The Unending Coil of Bahamut",
-   "The Weapon's Refrain"
-  ],
-  "chg": "2026-08-29"
- },
  "47540663": {
   "name": "Edel Meither",
   "parse": 99,
@@ -1841,7 +1720,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -1854,7 +1733,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -3283,38 +3162,6 @@
   ],
   "chg": "2026-08-29"
  },
- "58455997": {
-  "name": "Salmon Sushiroll",
-  "parse": 97,
-  "ult": 1,
-  "mounts": 30,
-  "minions": 64,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   true,
-   true,
-   true,
-   true,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {
-   "Warrior": "legendary"
-  },
-  "ex": [
-   "Doomtrain",
-   "Enuo",
-   "Guardian Arkveld",
-   "Necron",
-   "Zoraal Ja"
-  ],
-  "ults": [
-   "The Weapon's Refrain"
-  ],
-  "chg": "2026-08-29"
- },
  "44133352": {
   "name": "Seville Beoulve",
   "parse": 1,
@@ -3502,66 +3349,6 @@
    "Futures Rewritten",
    "The Epic of Alexander",
    "The Omega Protocol",
-   "The Unending Coil of Bahamut",
-   "The Weapon's Refrain"
-  ],
-  "chg": "2026-08-29"
- },
- "44141004": {
-  "name": "Soft Stone",
-  "parse": 64,
-  "ult": 0,
-  "mounts": 90,
-  "minions": 178,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   true,
-   true,
-   true,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [
-   "Doomtrain",
-   "Queen Eternal",
-   "Zelenia"
-  ],
-  "ults": [],
-  "chg": "2026-08-29"
- },
- "37648492": {
-  "name": "Sunshine Eveningfall",
-  "parse": 92,
-  "ult": 5,
-  "mounts": 51,
-  "minions": 191,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   true,
-   true,
-   true,
-   true,
-   true
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {
-   "WhiteMage": "legendary"
-  },
-  "ex": [
-   "Doomtrain",
-   "Valigarmanda",
-   "Zoraal Ja"
-  ],
-  "ults": [
-   "Dragonsong's Reprise",
-   "Futures Rewritten",
-   "The Epic of Alexander",
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
@@ -4239,84 +4026,6 @@
   "ults": [],
   "chg": "2026-08-29"
  },
- "29090821": {
-  "name": "Amber Levana",
-  "parse": 80,
-  "ult": 0,
-  "mounts": 163,
-  "minions": 367,
-  "rare": 47,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [
-   1337,
-   1339,
-   1453,
-   1473,
-   1474,
-   1584,
-   1943,
-   1983,
-   2033,
-   2077,
-   2137,
-   2193,
-   2387,
-   2596,
-   2633,
-   2745,
-   2749,
-   2750,
-   2768,
-   2772,
-   2775,
-   2844,
-   2845,
-   2857,
-   2861,
-   2864,
-   3001,
-   3068,
-   3171,
-   3172,
-   3178,
-   3180,
-   3181,
-   3185,
-   3215,
-   3243,
-   3317,
-   3318,
-   3341,
-   3548,
-   3554,
-   3609,
-   3811,
-   3823,
-   3824,
-   3867,
-   3889
-  ],
-  "tiers": {},
-  "jobs": {
-   "Reaper": "expert"
-  },
-  "ex": [
-   "Doomtrain",
-   "Guardian Arkveld",
-   "Queen Eternal",
-   "Valigarmanda",
-   "Zoraal Ja"
-  ],
-  "ults": [],
-  "chg": "2026-08-29"
- },
  "34434658": {
   "name": "Araiva Leonhart",
   "parse": 17,
@@ -4577,28 +4286,6 @@
   "minions": 420,
   "rare": null,
   "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-29"
- },
- "4026627": {
-  "name": "Brisingamen Raw",
-  "parse": null,
-  "ult": 0,
-  "mounts": 17,
-  "minions": 88,
-  "rare": null,
-  "level": 97,
   "cc": [
    false,
    false,
@@ -4906,7 +4593,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 95,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4919,7 +4606,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -5027,28 +4714,6 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-29"
- },
- "29585811": {
-  "name": "Frey Ichinose",
-  "parse": null,
-  "ult": 0,
-  "mounts": 104,
-  "minions": 244,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
   "chg": "2026-08-29"
  },
  "60619924": {
@@ -5748,6 +5413,46 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "3902073": {
+  "name": "Namine Raspberyl",
+  "parse": null,
+  "ult": 0,
+  "mounts": 71,
+  "minions": 228,
+  "rare": 15,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [
+   811,
+   875,
+   876,
+   877,
+   1131,
+   1591,
+   1597,
+   1625,
+   1933,
+   1934,
+   2388,
+   2484,
+   3215,
+   3243,
+   3252
+  ],
+  "tiers": {
+   "seasonal": "expert"
+  },
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-29"
+ },
  "30596644": {
   "name": "Noelle Eisner",
   "parse": null,
@@ -5832,31 +5537,6 @@
   "ult": 0,
   "mounts": 100,
   "minions": 233,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [
-   "Valigarmanda",
-   "Zoraal Ja"
-  ],
-  "ults": [],
-  "chg": "2026-08-29"
- },
- "2852829": {
-  "name": "Papamaru Dj",
-  "parse": 7,
-  "ult": 0,
-  "mounts": 55,
-  "minions": 177,
   "rare": null,
   "level": 100,
   "cc": [
@@ -6273,28 +5953,6 @@
   ],
   "chg": "2026-08-29"
  },
- "30253575": {
-  "name": "Syndra Gal",
-  "parse": null,
-  "ult": 0,
-  "mounts": 29,
-  "minions": 58,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-29"
- },
  "36624109": {
   "name": "Tamazon Kitsu",
   "parse": null,
@@ -6347,28 +6005,6 @@
   "minions": 19,
   "rare": null,
   "level": 87,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-29"
- },
- "29991345": {
-  "name": "Transparent Crystal",
-  "parse": null,
-  "ult": 0,
-  "mounts": 41,
-  "minions": 85,
-  "rare": null,
-  "level": 100,
   "cc": [
    false,
    false,
@@ -6478,22 +6114,6 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-29"
- },
- "60814172": {
-  "name": "Ardthur Greywaters",
-  "parse": null,
-  "ult": 0,
-  "mounts": 2,
-  "minions": 2,
-  "rare": 0,
-  "level": 32,
-  "cc": null,
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": null
  },
  "54419512": {
   "name": "Film Nio",
@@ -6616,22 +6236,6 @@
   ],
   "chg": "2026-08-29"
  },
- "60933255": {
-  "name": "Priya Heartfilia",
-  "parse": null,
-  "ult": 0,
-  "mounts": 8,
-  "minions": 27,
-  "rare": null,
-  "level": 100,
-  "cc": null,
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-27"
- },
  "60854619": {
   "name": "Quasar Araxelanz",
   "parse": null,
@@ -6663,28 +6267,6 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-27"
- },
- "30741737": {
-  "name": "Samuel Porter",
-  "parse": null,
-  "ult": 0,
-  "mounts": null,
-  "minions": null,
-  "rare": null,
-  "level": 54,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-29"
  },
  "60211788": {
   "name": "Shikihara Catlover",
@@ -7169,6 +6751,84 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "29090821": {
+  "name": "Amber Levana",
+  "parse": 80,
+  "ult": 0,
+  "mounts": 163,
+  "minions": 367,
+  "rare": 47,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [
+   1337,
+   1339,
+   1453,
+   1473,
+   1474,
+   1584,
+   1943,
+   1983,
+   2033,
+   2077,
+   2137,
+   2193,
+   2387,
+   2596,
+   2633,
+   2745,
+   2749,
+   2750,
+   2768,
+   2772,
+   2775,
+   2844,
+   2845,
+   2857,
+   2861,
+   2864,
+   3001,
+   3068,
+   3171,
+   3172,
+   3178,
+   3180,
+   3181,
+   3185,
+   3215,
+   3243,
+   3317,
+   3318,
+   3341,
+   3548,
+   3554,
+   3609,
+   3811,
+   3823,
+   3824,
+   3867,
+   3889
+  ],
+  "tiers": {},
+  "jobs": {
+   "Reaper": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Guardian Arkveld",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
+  "chg": "2026-08-29"
+ },
  "28810440": {
   "name": "Amil Aeronril",
   "parse": null,
@@ -7269,6 +6929,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7276,7 +6937,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "4505633": {
   "name": "Arcz Iris",
@@ -7290,6 +6951,7 @@
    true,
    true,
    true,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7303,7 +6965,23 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
+ },
+ "60814172": {
+  "name": "Ardthur Greywaters",
+  "parse": null,
+  "ult": 0,
+  "mounts": 2,
+  "minions": 2,
+  "rare": 0,
+  "level": 32,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": null
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -7314,6 +6992,7 @@
   "rare": 94,
   "level": 90,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -7427,7 +7106,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-30"
  },
  "31334257": {
   "name": "Arichii Marilouay",
@@ -7441,6 +7120,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7448,7 +7128,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "15895457": {
   "name": "Arik Ageas",
@@ -7462,6 +7142,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7469,7 +7150,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "36159286": {
   "name": "Armadillo Girdled",
@@ -7483,6 +7164,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7490,7 +7172,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "29944592": {
   "name": "Ascaris Altz'",
@@ -7504,6 +7186,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7511,7 +7194,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "512253": {
   "name": "Ashelia White",
@@ -7522,6 +7205,7 @@
   "rare": null,
   "level": 90,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -7538,7 +7222,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-30"
  },
  "29918399": {
   "name": "Athaliah Aylin",
@@ -7552,6 +7236,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7559,7 +7244,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "25620101": {
   "name": "Athena Leonheart",
@@ -7573,6 +7258,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7580,7 +7266,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "30863840": {
   "name": "Aui Aye",
@@ -7594,6 +7280,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7601,7 +7288,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "18659677": {
   "name": "Avoiding Puddle",
@@ -7615,6 +7302,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7622,7 +7310,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "34086580": {
   "name": "Baby Bb",
@@ -7636,6 +7324,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7643,7 +7332,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "29479627": {
   "name": "Bark Ree",
@@ -7657,6 +7346,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7664,7 +7354,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "31806958": {
   "name": "Baron Master",
@@ -7675,6 +7365,7 @@
   "rare": 15,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -7701,7 +7392,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "24211446": {
   "name": "Beammess Dose",
@@ -7712,6 +7403,7 @@
   "rare": 7,
   "level": 98,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -7730,7 +7422,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "32147626": {
   "name": "Bear Boatz",
@@ -7741,6 +7433,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -7757,7 +7450,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "27213488": {
   "name": "Bella Arisu",
@@ -7771,6 +7464,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7778,7 +7472,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "30426712": {
   "name": "Ben Kao",
@@ -7792,6 +7486,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7799,7 +7494,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "31010962": {
   "name": "Bi Bo",
@@ -7829,6 +7524,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7843,7 +7539,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "58199756": {
   "name": "Billy Najah",
@@ -7854,6 +7550,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -7870,7 +7567,7 @@
    "Necron"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "43423269": {
   "name": "Bladez Sweeney",
@@ -7881,6 +7578,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -7900,7 +7598,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "47658617": {
   "name": "Bogotaz Lucaz",
@@ -7914,6 +7612,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7921,7 +7620,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "5720080": {
   "name": "Bowling Chan",
@@ -7932,6 +7631,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -7951,7 +7651,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "33604767": {
   "name": "Boyekon Redroof",
@@ -7965,6 +7665,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7972,7 +7673,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "21899488": {
   "name": "Brightbye Goodboi",
@@ -7986,6 +7687,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -7993,7 +7695,29 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
+ },
+ "4026627": {
+  "name": "Brisingamen Raw",
+  "parse": null,
+  "ult": 0,
+  "mounts": 17,
+  "minions": 88,
+  "rare": null,
+  "level": 97,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-29"
  },
  "29734643": {
   "name": "Brownie Brown",
@@ -8007,6 +7731,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8014,7 +7739,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "33954541": {
   "name": "Bunnypx Wild",
@@ -8028,6 +7753,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8035,7 +7761,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "14538982": {
   "name": "Candy Crush",
@@ -8049,6 +7775,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8056,7 +7783,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "38276690": {
   "name": "Cannes Ferragamo",
@@ -8070,6 +7797,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8077,7 +7805,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "36320452": {
   "name": "Cappu Chino",
@@ -8091,6 +7819,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8098,7 +7827,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "24104450": {
   "name": "Cepheus Stellar",
@@ -8109,6 +7838,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8123,7 +7853,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "24150396": {
   "name": "Chaser Dc",
@@ -8134,6 +7864,7 @@
   "rare": null,
   "level": 85,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8150,7 +7881,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "31471584": {
   "name": "Chicha Chichi",
@@ -8164,6 +7895,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8174,7 +7906,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "46485530": {
   "name": "Chillin Chu",
@@ -8188,6 +7920,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8195,7 +7928,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "36609029": {
   "name": "Chissa Tofu",
@@ -8209,6 +7942,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8216,7 +7950,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "58160672": {
   "name": "Choco Ball",
@@ -8230,6 +7964,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8237,7 +7972,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "35096411": {
   "name": "Chocola Meilleure",
@@ -8251,6 +7986,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8258,7 +7994,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "55476354": {
   "name": "Chrisyard Mephisto",
@@ -8272,6 +8008,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8281,7 +8018,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "46055730": {
   "name": "Chuju Okita",
@@ -8295,6 +8032,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8302,7 +8040,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "8999658": {
   "name": "Chzzck Godslayer",
@@ -8313,6 +8051,7 @@
   "rare": null,
   "level": 90,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8329,7 +8068,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-30"
  },
  "16034463": {
   "name": "Cool Piggy",
@@ -8343,6 +8082,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8350,7 +8090,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "24103365": {
   "name": "Cygnus Stellar",
@@ -8361,6 +8101,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8375,7 +8116,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "34228206": {
   "name": "Cystal Wingsky",
@@ -8389,6 +8130,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8396,7 +8138,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "40990512": {
   "name": "Dat Duc",
@@ -8410,6 +8152,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8417,7 +8160,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "18578874": {
   "name": "De'lalia Aredhel",
@@ -8431,6 +8174,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8438,7 +8182,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "31737067": {
   "name": "Deuce Bigalow",
@@ -8452,6 +8196,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8459,7 +8204,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "36260815": {
   "name": "Dlite Belialuin",
@@ -8473,6 +8218,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8480,7 +8226,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "54318245": {
   "name": "Doffy Centuryboy",
@@ -8494,6 +8240,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8501,7 +8248,128 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
+ },
+ "40389196": {
+  "name": "Dontae Luciano",
+  "parse": 97,
+  "ult": 5,
+  "mounts": 176,
+  "minions": 325,
+  "rare": 80,
+  "level": 100,
+  "cc": [
+   true,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [
+   136,
+   564,
+   565,
+   576,
+   577,
+   846,
+   950,
+   951,
+   1198,
+   1369,
+   1370,
+   1439,
+   1444,
+   1453,
+   1458,
+   1463,
+   1473,
+   1474,
+   1475,
+   1588,
+   1591,
+   1603,
+   1604,
+   1701,
+   1705,
+   1714,
+   1718,
+   1750,
+   1962,
+   1993,
+   2036,
+   2040,
+   2088,
+   2092,
+   2093,
+   2149,
+   2153,
+   2154,
+   2218,
+   2223,
+   2392,
+   2444,
+   2637,
+   2693,
+   2699,
+   2765,
+   2766,
+   2768,
+   2770,
+   2773,
+   2775,
+   2777,
+   2778,
+   2780,
+   2857,
+   2859,
+   2860,
+   2864,
+   2866,
+   2867,
+   2869,
+   2871,
+   2885,
+   3001,
+   3074,
+   3113,
+   3162,
+   3252,
+   3253,
+   3317,
+   3318,
+   3348,
+   3349,
+   3350,
+   3405,
+   3406,
+   3407,
+   3412,
+   3662,
+   3805
+  ],
+  "tiers": {
+   "relic": "expert",
+   "goldsaucer": "master"
+  },
+  "jobs": {
+   "Astrologian": "master",
+   "Sage": "master",
+   "DarkKnight": "expert",
+   "Samurai": "legendary"
+  },
+  "ex": [
+   "Necron",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-29"
  },
  "46625326": {
   "name": "Draku Majikku",
@@ -8514,6 +8382,7 @@
   "cc": [
    true,
    true,
+   false,
    false,
    false
   ],
@@ -8530,7 +8399,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "30172592": {
   "name": "Duke Kaboom",
@@ -8544,6 +8413,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8551,7 +8421,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "40394823": {
   "name": "Dummii Amary",
@@ -8562,6 +8432,7 @@
   "rare": 31,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8609,7 +8480,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "9155192": {
   "name": "E'stelle Blanc",
@@ -8620,6 +8491,7 @@
   "rare": 16,
   "level": 70,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8649,7 +8521,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "52866044": {
   "name": "Eidmoth Lion",
@@ -8663,6 +8535,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8670,7 +8543,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "35250799": {
   "name": "Eiko Fujiwara",
@@ -8684,6 +8557,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8691,7 +8565,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "29612903": {
   "name": "Elenor Light",
@@ -8705,6 +8579,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8712,7 +8587,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "34511319": {
   "name": "Elise Lionheart",
@@ -8723,6 +8598,7 @@
   "rare": null,
   "level": 90,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8737,7 +8613,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "30053876": {
   "name": "Elisis Deost",
@@ -8751,6 +8627,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8758,7 +8635,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "36855080": {
   "name": "Elkronin Ketchupeater",
@@ -8769,6 +8646,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8784,7 +8662,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "34522645": {
   "name": "Ellone Chrysler",
@@ -8795,6 +8673,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8811,7 +8690,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "34522644": {
   "name": "Elwann Halffu",
@@ -8825,6 +8704,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8835,7 +8715,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "44409962": {
   "name": "Elynn Faenys",
@@ -8849,6 +8729,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8856,7 +8737,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "40910522": {
   "name": "Emi Kamazuki",
@@ -8870,6 +8751,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8877,7 +8759,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "32046284": {
   "name": "Ene Shy",
@@ -8888,6 +8770,7 @@
   "rare": null,
   "level": 90,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -8903,7 +8786,7 @@
    "The Epic of Alexander",
    "The Omega Protocol"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "47645809": {
   "name": "Entprise Yakult",
@@ -8917,6 +8800,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8924,7 +8808,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "57967682": {
   "name": "Envynaja T'kob",
@@ -8938,6 +8822,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -8945,7 +8830,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "1643244": {
   "name": "Epicenter Eorzea",
@@ -8956,6 +8841,7 @@
   "rare": 70,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -9053,7 +8939,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "15785511": {
   "name": "Eric Luminous",
@@ -9067,6 +8953,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9074,7 +8961,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "31519555": {
   "name": "Ernese Gold",
@@ -9088,6 +8975,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9097,7 +8985,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "16397778": {
   "name": "Eydis Ein",
@@ -9111,6 +8999,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9118,7 +9007,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "50103049": {
   "name": "Faelix Frosty",
@@ -9132,6 +9021,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9139,7 +9029,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "50120275": {
   "name": "Faerina Frosty",
@@ -9153,6 +9043,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9160,7 +9051,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "31802544": {
   "name": "Fafamu Famu",
@@ -9174,6 +9065,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9181,7 +9073,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "29782062": {
   "name": "Farn Yun",
@@ -9195,6 +9087,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9202,7 +9095,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-24"
+  "chg": "2026-08-30"
  },
  "33859953": {
   "name": "Felous Vanish",
@@ -9216,6 +9109,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9223,7 +9117,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "36228998": {
   "name": "Fishstop Moon-osha",
@@ -9234,6 +9128,7 @@
   "rare": null,
   "level": 86,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -9248,7 +9143,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "30559609": {
   "name": "Florice Frostingway",
@@ -9259,6 +9154,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   false,
    false,
    false,
    false,
@@ -9277,7 +9173,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "16168981": {
   "name": "Francis Fleuret",
@@ -9291,6 +9187,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9298,7 +9195,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "47337818": {
   "name": "Freedom Marjory",
@@ -9312,6 +9209,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9321,7 +9219,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "36168487": {
   "name": "Freki Plumis",
@@ -9332,6 +9230,7 @@
   "rare": null,
   "level": 100,
   "cc": [
+   true,
    true,
    true,
    true,
@@ -9358,7 +9257,29 @@
    "Dragonsong's Reprise",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-26"
+  "chg": "2026-08-30"
+ },
+ "29585811": {
+  "name": "Frey Ichinose",
+  "parse": null,
+  "ult": 0,
+  "mounts": 104,
+  "minions": 244,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-29"
  },
  "29863848": {
   "name": "Furfur Albadia",
@@ -9388,6 +9309,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9395,7 +9317,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "36165070": {
   "name": "Ginonpu Kudokusega",
@@ -9409,6 +9331,7 @@
    false,
    false,
    false,
+   false,
    false
   ],
   "rare_ids": [],
@@ -9416,7 +9339,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-08-30"
  },
  "12235132": {
   "name": "God King",
@@ -11728,46 +11651,6 @@
   "ults": [],
   "chg": "2026-08-29"
  },
- "3902073": {
-  "name": "Namine Raspberyl",
-  "parse": null,
-  "ult": 0,
-  "mounts": 71,
-  "minions": 228,
-  "rare": 15,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [
-   811,
-   875,
-   876,
-   877,
-   1131,
-   1591,
-   1597,
-   1625,
-   1933,
-   1934,
-   2388,
-   2484,
-   3215,
-   3243,
-   3252
-  ],
-  "tiers": {
-   "seasonal": "expert"
-  },
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-29"
- },
  "10638899": {
   "name": "Naomi Misora",
   "parse": null,
@@ -12668,6 +12551,31 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "2852829": {
+  "name": "Papamaru Dj",
+  "parse": 7,
+  "ult": 0,
+  "mounts": 55,
+  "minions": 177,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
+  "chg": "2026-08-29"
+ },
  "37065671": {
   "name": "Paxis Stone",
   "parse": null,
@@ -12971,6 +12879,22 @@
   "ult": 0,
   "mounts": 15,
   "minions": 28,
+  "rare": null,
+  "level": 100,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-27"
+ },
+ "60933255": {
+  "name": "Priya Heartfilia",
+  "parse": null,
+  "ult": 0,
+  "mounts": 8,
+  "minions": 27,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -13475,6 +13399,38 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "58455997": {
+  "name": "Salmon Sushiroll",
+  "parse": 97,
+  "ult": 1,
+  "mounts": 30,
+  "minions": 64,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   true,
+   true,
+   true,
+   true,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Warrior": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-29"
+ },
  "42053451": {
   "name": "Sam Millers",
   "parse": null,
@@ -13505,6 +13461,28 @@
   "minions": 55,
   "rare": null,
   "level": 56,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-29"
+ },
+ "30741737": {
+  "name": "Samuel Porter",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 54,
   "cc": [
    false,
    false,
@@ -13899,6 +13877,32 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "44141004": {
+  "name": "Soft Stone",
+  "parse": 64,
+  "ult": 0,
+  "mounts": 90,
+  "minions": 178,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   true,
+   true,
+   true,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Doomtrain",
+   "Queen Eternal",
+   "Zelenia"
+  ],
+  "ults": [],
+  "chg": "2026-08-29"
+ },
  "31239994": {
   "name": "Sopier Kit",
   "parse": 97,
@@ -14063,6 +14067,40 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "37648492": {
+  "name": "Sunshine Eveningfall",
+  "parse": 92,
+  "ult": 5,
+  "mounts": 51,
+  "minions": 191,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "WhiteMage": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-29"
+ },
  "45194317": {
   "name": "Sweet Dango",
   "parse": null,
@@ -14093,6 +14131,28 @@
   "minions": 36,
   "rare": null,
   "level": 90,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-29"
+ },
+ "30253575": {
+  "name": "Syndra Gal",
+  "parse": null,
+  "ult": 0,
+  "mounts": 29,
+  "minions": 58,
+  "rare": null,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -14353,6 +14413,28 @@
    "Guardian Arkveld",
    "Necron"
   ],
+  "ults": [],
+  "chg": "2026-08-29"
+ },
+ "29991345": {
+  "name": "Transparent Crystal",
+  "parse": null,
+  "ult": 0,
+  "mounts": 41,
+  "minions": 85,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
   "ults": [],
   "chg": "2026-08-29"
  },

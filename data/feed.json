@@ -1,6 +1,27 @@
 {
  "events": [
   {
+   "date": "2026-08-30",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "level_100",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "boss_clear",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
    "date": "2026-08-29",
    "type": "boss_clear",
    "id": 39959181,
@@ -1378,27 +1399,6 @@
    "id": 28789661,
    "name": "Zuma Zerk",
    "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
   }
  ]
 }
