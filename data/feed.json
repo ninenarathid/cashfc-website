@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-08-30",
+   "type": "boss_clear",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-08-30",
    "type": "level_100",
    "id": 42976317,
    "name": "Zeadz Stellar",
@@ -1392,13 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "cleared The Omega Protocol 🏆"
   }
  ]
 }

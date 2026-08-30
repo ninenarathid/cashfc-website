@@ -3967,7 +3967,7 @@
   "cc": [
    true,
    true,
-   false,
+   true,
    false,
    false
   ],
@@ -4885,7 +4885,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 89,
+  "level": 91,
   "cc": [
    false,
    false,

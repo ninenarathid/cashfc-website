@@ -1319,7 +1319,7 @@
      "name": "Red Hot and Deep Blue",
      "best": 83,
      "median": 46,
-     "kills": 9,
+     "kills": 10,
      "job": "Viper"
     },
     {
@@ -1613,7 +1613,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 56,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
+   }
+  ]
  },
  "5720080": {
   "current": {
@@ -2902,9 +2915,9 @@
     "state": "learning",
     "pct": 1.3,
     "phase": 3,
-    "pulls": 53,
-    "last": "2026-08-25",
-    "last_ts": 1787677194
+    "pulls": 55,
+    "last": "2026-08-29",
+    "last_ts": 1788022803
    }
   ]
  },
@@ -3171,8 +3184,8 @@
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 61,
-     "median": 41,
-     "kills": 16,
+     "median": 40,
+     "kills": 17,
      "job": "Sage"
     },
     {
@@ -3622,7 +3635,7 @@
     "state": "learning",
     "pct": 53.72,
     "phase": 4,
-    "pulls": 93,
+    "pulls": 72,
     "last": "2026-08-25",
     "last_ts": 1787674176
    }
@@ -5864,9 +5877,9 @@
     "state": "learning",
     "pct": 1.3,
     "phase": 3,
-    "pulls": 53,
-    "last": "2026-08-25",
-    "last_ts": 1787677194
+    "pulls": 55,
+    "last": "2026-08-29",
+    "last_ts": 1788022803
    }
   ]
  },
@@ -6414,7 +6427,7 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "none"
  },
  "22461237": {
   "current": {
@@ -8574,20 +8587,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 45.16,
-    "phase": 0,
-    "pulls": 20,
-    "last": "2026-08-20",
-    "last_ts": 1787237372
-   }
-  ]
+  "_status": "ok"
  },
  "25541816": {
   "current": {
@@ -8905,7 +8905,7 @@
     "state": "learning",
     "pct": 4.83,
     "phase": 2,
-    "pulls": 147,
+    "pulls": 115,
     "last": "2026-08-29",
     "last_ts": 1788023168
    }
@@ -9388,7 +9388,7 @@
     "state": "learning",
     "pct": 53.72,
     "phase": 4,
-    "pulls": 93,
+    "pulls": 72,
     "last": "2026-08-25",
     "last_ts": 1787674176
    }
@@ -10793,7 +10793,7 @@
     "state": "learning",
     "pct": 53.72,
     "phase": 4,
-    "pulls": 93,
+    "pulls": 72,
     "last": "2026-08-25",
     "last_ts": 1787674176
    }
@@ -11791,7 +11791,7 @@
     "state": "learning",
     "pct": 53.72,
     "phase": 4,
-    "pulls": 94,
+    "pulls": 73,
     "last": "2026-08-25",
     "last_ts": 1787674176
    }
@@ -14074,8 +14074,8 @@
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 33,
-     "median": 19,
-     "kills": 7,
+     "median": 18,
+     "kills": 8,
      "job": "Warrior"
     }
    ],
@@ -14155,15 +14155,26 @@
   "_status": "ok",
   "progress": [
    {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 18,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
+   },
+   {
     "encounter_id": 103,
     "name": "The Tyrant",
     "kind": "savage",
     "state": "learning",
-    "pct": 45.16,
+    "pct": 18.72,
     "phase": 0,
-    "pulls": 20,
-    "last": "2026-08-20",
-    "last_ts": 1787237372
+    "pulls": 11,
+    "last": "2026-08-30",
+    "last_ts": 1788101975
    }
   ]
  },
@@ -14636,7 +14647,7 @@
     "state": "learning",
     "pct": 53.72,
     "phase": 4,
-    "pulls": 92,
+    "pulls": 71,
     "last": "2026-08-25",
     "last_ts": 1787674176
    }
@@ -15302,7 +15313,7 @@
     "state": "learning",
     "pct": 53.72,
     "phase": 4,
-    "pulls": 94,
+    "pulls": 73,
     "last": "2026-08-25",
     "last_ts": 1787674176
    }
@@ -20538,8 +20549,8 @@
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 95,
-     "median": 67,
-     "kills": 7,
+     "median": 69,
+     "kills": 8,
      "job": "Samurai"
     }
    ],
@@ -20605,7 +20616,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 18.72,
+    "phase": 0,
+    "pulls": 11,
+    "last": "2026-08-30",
+    "last_ts": 1788101975
+   }
+  ]
  },
  "36225854": {
   "current": {
@@ -24303,7 +24327,7 @@
      "name": "Red Hot and Deep Blue",
      "best": 16,
      "median": 11,
-     "kills": 2,
+     "kills": 3,
      "job": "Paladin"
     }
    ],
@@ -24389,7 +24413,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 56,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
+   }
+  ]
  },
  "42053180": {
   "current": {
@@ -25042,15 +25079,24 @@
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 72,
-     "median": 35,
-     "kills": 7,
+     "median": 37,
+     "kills": 8,
+     "job": "WhiteMage"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 9,
+     "median": 9,
+     "kills": 1,
      "job": "WhiteMage"
     }
    ],
    "clears": [
     true,
     true,
-    false,
+    true,
     false,
     false
    ]
@@ -25125,12 +25171,23 @@
     "encounter_id": 103,
     "name": "The Tyrant",
     "kind": "savage",
-    "state": "learning",
-    "pct": 18.06,
+    "state": "cleared",
+    "pct": null,
     "phase": 0,
-    "pulls": 36,
-    "last": "2026-08-23",
-    "last_ts": 1787505381
+    "pulls": 19,
+    "last": "2026-08-30",
+    "last_ts": 1788104937
+   },
+   {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 56,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
    }
   ]
  },
@@ -26594,7 +26651,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 62,
+    "pulls": 49,
     "last": "2026-08-25",
     "last_ts": 1787675183
    }
@@ -27545,8 +27602,8 @@
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 80,
-     "median": 35,
-     "kills": 6,
+     "median": 19,
+     "kills": 7,
      "job": "Machinist"
     }
    ],
@@ -27585,15 +27642,26 @@
   "_status": "ok",
   "progress": [
    {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 56,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
+   },
+   {
     "encounter_id": 103,
     "name": "The Tyrant",
     "kind": "savage",
     "state": "learning",
-    "pct": 45.16,
+    "pct": 18.72,
     "phase": 0,
-    "pulls": 20,
-    "last": "2026-08-20",
-    "last_ts": 1787237372
+    "pulls": 11,
+    "last": "2026-08-30",
+    "last_ts": 1788101975
    }
   ]
  },
