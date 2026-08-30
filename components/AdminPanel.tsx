@@ -19,6 +19,46 @@ interface Override { character_id: number; hidden: boolean; note: string | null 
 interface ClaimedProfile { id: string; discord_username: string | null; character_id: number; character_name: string | null }
 
 const inputCls = "rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted";
+
+/** Longer than this and a body is worth folding away until somebody asks. */
+const LONG = 150;
+
+/**
+ * What was actually written, rather than the first line of it.
+ *
+ * These lists used to truncate to a single line, which made them a list of
+ * titles: the one place an admin can go to read back what the FC was told, and
+ * it showed everything except the message. The notification that brings people
+ * here carries only the title too, so if the panel does not have the words,
+ * nothing does.
+ *
+ * Long ones fold, because a page of announcements is also something you scan.
+ * Newlines survive — an announcement written as three bullet points was meant
+ * to be read as three bullet points.
+ */
+function Body({ text, id, open, toggle }: {
+  text: string;
+  id: string;
+  open: Set<string>;
+  toggle: (id: string) => void;
+}) {
+  const long = text.length > LONG || text.includes("\n");
+  const shown = open.has(id);
+  return (
+    <div className="mt-0.5">
+      <p className={`whitespace-pre-wrap text-[12.5px] leading-relaxed text-muted ${
+        long && !shown ? "line-clamp-2" : ""}`}>
+        {text}
+      </p>
+      {long && (
+        <button onClick={() => toggle(id)}
+                className="mt-0.5 text-[11.5px] text-accent hover:underline">
+          {shown ? "Show less" : "Show all"}
+        </button>
+      )}
+    </div>
+  );
+}
 import AdminSwitch from "@/components/AdminSwitch";
 import { useAdmin } from "@/lib/admin";
 import AdminLog from "@/components/AdminLog";
@@ -59,6 +99,14 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   const [note, setNote] = useState("");
 
   const [claims, setClaims] = useState<ClaimedProfile[]>([]);
+
+  // Which bodies are unfolded. One set for both lists: the key says which.
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => setOpen((v) => {
+    const next = new Set(v);
+    if (!next.delete(id)) next.add(id);
+    return next;
+  });
 
   const nameOf = useMemo(() => {
     const m = new Map(memberOptions.map((o) => [o.id, o.name]));
@@ -285,12 +333,28 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           {anns.map((a) => (
             <div key={a.id} className="flex items-start justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2">
               {a.image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={a.image_url} alt="" className="size-10 shrink-0 rounded-md border border-line object-cover" />
+                // The thumbnail opens the full picture, because "which
+                // screenshot was that" is the other half of "what did it say".
+                <a href={a.image_url} target="_blank" rel="noopener noreferrer"
+                   className="shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={a.image_url} alt=""
+                       className="size-10 rounded-md border border-line object-cover" />
+                </a>
               )}
               <div className="min-w-0 flex-1">
-                <div className="font-medium">{a.title}</div>
-                {a.body && <div className="truncate text-[12.5px] text-muted">{a.body}</div>}
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-medium">{a.title}</span>
+                  {/* The date the notification quoted, so an admin holding one
+                      can tell which announcement it was about. */}
+                  <span className="font-data text-[11px] text-muted">
+                    {new Date(a.created_at).toLocaleString("en-GB", {
+                      day: "numeric", month: "short", year: "numeric",
+                      hour: "2-digit", minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+                {a.body && <Body text={a.body} id={`a:${a.id}`} open={open} toggle={toggle} />}
               </div>
               <div className="flex shrink-0 gap-1.5">
                 <button
@@ -374,15 +438,25 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           {posts.map((p) => (
             <div key={p.id} className="flex items-start justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2">
               {p.image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.image_url} alt="" className="size-10 shrink-0 rounded-md border border-line object-cover" />
+                <a href={p.image_url} target="_blank" rel="noopener noreferrer"
+                   className="shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.image_url} alt=""
+                       className="size-10 rounded-md border border-line object-cover" />
+                </a>
               )}
               <div className="min-w-0 flex-1">
                 <div className="font-medium">
                   <span className="mr-2 font-data text-[11.5px] text-muted">{p.posted_at}</span>
                   {p.title}
                 </div>
-                {p.body && <div className="truncate text-[12.5px] text-muted">{p.body}</div>}
+                {p.body && <Body text={p.body} id={`p:${p.id}`} open={open} toggle={toggle} />}
+                {p.url && (
+                  <a href={p.url} target="_blank" rel="noopener noreferrer"
+                     className="mt-0.5 block truncate text-[11.5px] text-accent hover:underline">
+                    {p.url}
+                  </a>
+                )}
               </div>
               <div className="flex shrink-0 gap-1.5">
                 <button
