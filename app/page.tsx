@@ -4,7 +4,7 @@ import newsRaw from "@/data/news.json";
 import Announcements from "@/components/Announcements";
 import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
-import BirthdaysToday from "@/components/home/BirthdaysToday";
+import Birthdays from "@/components/home/Birthdays";
 import ShowYourData from "@/components/home/ShowYourData";
 import Hero from "@/components/home/Hero";
 import ActivityFeed from "@/components/home/ActivityFeed";
@@ -43,7 +43,7 @@ export default function Home() {
         publicAchv={members.filter((m) => m.ach_public === true).length}
       />
 
-      <BirthdaysToday members={members} />
+      <Birthdays members={members} />
 
       <HotGallery />
 
