@@ -3,6 +3,188 @@
   {
    "date": "2026-08-30",
    "type": "level_100",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "is now a Master Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "earned A Show of Fork IV — only 0.1% of players have it, and 77 more"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned Phantom of the Umbra: Crook Umbrae"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "is now a Master Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "is now a Master Explorer ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "is now a Master Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "is now a Legendary PvP player ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "earned Worqor and Peace V — only 0.2% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "is now a Legendary Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "is now a Expert PvP player ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "mounts_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "passed 200 mounts 🐎"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "minions_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "passed 300 minions"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned Occult Enlightenment IV — only 0.2% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "level_100",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Cut Above the Rest: Spear Occultum — only 0.7% of players have it, and 3 more"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "level_100",
+   "id": 6951533,
+   "name": "Aemond Targaryen",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 56108574,
+   "name": "Akina Natsume",
+   "text": "earned Summertime Drifter"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 34434658,
+   "name": "Araiva Leonhart",
+   "text": "earned Splendid: Crystalline Pickaxe"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "is now a Master Relic grinder ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "grade_up",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "earned In Pot Pursuit III — only 0.4% of players have it, and 56 more"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "rare_up",
+   "id": 24747734,
+   "name": "Liora Verasch",
+   "text": "earned Splendid: Crystalline Pickaxe"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "level_100",
    "id": 57375278,
    "name": "Komi Kona",
    "text": "reached level 100!"
@@ -1217,188 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Expert White Mage"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "set a new best parse: 92"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "set a new best parse: 94"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "is now a Master Dark Knight"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned An Eye for Detail: Carpenter III — only 4.9% of players have it"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "set a new best parse: 72"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 24123541,
-   "name": "Zeren Dragonia",
-   "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 24123541,
-   "name": "Zeren Dragonia",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "is now a Expert Dancer"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 34434658,
-   "name": "Araiva Leonhart",
-   "text": "set a new best parse: 17"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "rare_up",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "earned Cut Above the Rest: War Scythe Occultum — only 0.8% of players have it, and 27 more"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 28789661,
-   "name": "Zuma Zerk",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 28789661,
-   "name": "Zuma Zerk",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 28789661,
-   "name": "Zuma Zerk",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 28789661,
-   "name": "Zuma Zerk",
-   "text": "cleared The Weapon's Refrain 🏆"
   }
  ]
 }
