@@ -3963,7 +3963,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 82,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4885,7 +4885,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 88,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -5550,7 +5550,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 62,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5774,7 +5774,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 89,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -6057,7 +6057,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 31,
-  "level": 100,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6104,7 +6104,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-30"
  },
  "35158574": {
   "name": "Rikka Haulia",

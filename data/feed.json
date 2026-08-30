@@ -3,6 +3,13 @@
   {
    "date": "2026-08-30",
    "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-30",
+   "type": "level_100",
    "id": 36130968,
    "name": "Chu Celestial",
    "text": "reached level 100!"
@@ -1392,13 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
   }
  ]
 }
