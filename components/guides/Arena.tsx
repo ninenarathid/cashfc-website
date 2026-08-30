@@ -37,6 +37,11 @@ const WAYMARK_COLOR: Record<string, string> = {
 
 /** Maths coordinates in, screen coordinates out: y points up for the author. */
 const sy = (y: number) => -y;
+/** A unit vector pointing from the middle of the floor towards a spot. */
+const away = (at: Spot) => {
+  const d = Math.hypot(at.x, at.y);
+  return d < 0.5 ? { x: 0, y: -1 } : { x: at.x / d, y: at.y / d };
+};
 /** A heading in degrees clockwise from north, as a unit vector in author space. */
 const dir = (deg: number) => {
   const r = (deg * Math.PI) / 180;
@@ -226,13 +231,16 @@ export default function Arena(
         </g>
       ))}
 
+      {/* Bigger than a player and no bigger than that. The boss is a landmark,
+          not the subject: a marker that swallows the middle tile hides the
+          people standing on it, which on this fight is most of them. */}
       {boss && (
         <g>
-          <circle cx={boss.x} cy={sy(boss.y)} r={1.5}
-                  className="fill-surface stroke-ink/70" strokeWidth={0.16} />
+          <circle cx={boss.x} cy={sy(boss.y)} r={1.0}
+                  className="fill-surface stroke-ink/70" strokeWidth={0.13} />
           <text x={boss.x} y={sy(boss.y)} textAnchor="middle" dominantBaseline="central"
-                className="fill-ink" fontSize={1.1} fontWeight={700}>B</text>
-          <Pic src={icons.boss} at={boss} size={3.4} />
+                className="fill-ink" fontSize={0.85} fontWeight={700}>B</text>
+          <Pic src={icons.boss} at={boss} size={2.2} />
         </g>
       )}
 
@@ -244,9 +252,13 @@ export default function Arena(
                     fill={`${color}${m.you ? "55" : "22"}`}
                     stroke={color} strokeWidth={m.you ? 0.18 : 0.11} />
             <Pic src={icons.slots?.[m.slot]} at={m.at} size={m.you ? 1.7 : 1.3} />
-            {/* The seat's name on the marker, so a diagram of eight people can be
-                read without counting colours. */}
-            <text x={m.at.x} y={sy(m.at.y - (m.you ? 1.25 : 1.0))}
+            {/* The seat's name, put on the far side from the middle.
+                The middle is where the boss stands and where a party converges,
+                so a label that always sits below its marker is a label that
+                lands on the boss for anybody standing north of it. Away from
+                the centre is empty floor by definition. */}
+            <text x={m.at.x + away(m.at).x * (m.you ? 1.3 : 1.05)}
+                  y={sy(m.at.y + away(m.at).y * (m.you ? 1.3 : 1.05))}
                   textAnchor="middle" dominantBaseline="central"
                   fill={color} fontSize={m.you ? 0.8 : 0.66} fontWeight={600}>
               {m.slot}
