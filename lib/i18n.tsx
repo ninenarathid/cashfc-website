@@ -385,17 +385,7 @@ const DICT = {
   "bday.soon": { en: "Coming up in the next {n} days", th: "ใน {n} วันข้างหน้า" },
   "bday.tomorrow": { en: "tomorrow", th: "พรุ่งนี้" },
   "bday.inDays": { en: "in {n} days", th: "อีก {n} วัน" },
-  "bday.birthday": { en: "birthday", th: "วันเกิด" },
-  /* The character's day, from the Lodestone. Kept apart from a real birthday
-     rather than folded in with it: everybody has one of these and hardly
-     anybody has told us the other, and calling them the same thing would be a
-     small untruth repeated five hundred times. */
-  "bday.nameday": { en: "nameday", th: "วันเนมเดย์" },
   "bday.wish": { en: "go wish them well!", th: "ไปอวยพรกันหน่อย!" },
-  "bday.namedayNote": {
-    en: "Namedays unless marked otherwise — a character's day, from the Lodestone.",
-    th: "ถ้าไม่ได้ระบุไว้คือวันเนมเดย์ของตัวละคร ดึงมาจาก Lodestone",
-  },
   "home.activity": { en: "FC activity", th: "ความเคลื่อนไหวใน FC" },
   "home.activityEmpty": {
     en: "Events start showing up after the next update run. The pipeline diffs the roster day over day, so new best parses, first boss clears and fresh mounts land here automatically.",
