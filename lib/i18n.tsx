@@ -125,8 +125,8 @@ const DICT = {
   "feedback.adminSide": { en: "Admin", th: "ผู้ดูแล" },
   "feedback.you": { en: "you", th: "คุณ" },
   "notif.feedback": {
-    en: "There is a reply on your feedback.",
-    th: "มีการตอบกลับในเรื่องที่คุณส่ง",
+    en: "New message in feedback.",
+    th: "มีข้อความใหม่ในหน้า Feedback",
   },
   "nav.myPage": { en: "My page", th: "หน้าของฉัน" },
   "member.achvPrivate": {
@@ -286,6 +286,13 @@ const DICT = {
   "notif.announced": {
     en: "There is a new announcement.",
     th: "มีประกาศใหม่",
+  },
+  /* Said when a notification arrives of a kind this version does not know.
+     Vague on purpose: claiming it is an announcement sends people looking
+     through the announcements for something that is not in them. */
+  "notif.something": {
+    en: "Something happened.",
+    th: "มีความเคลื่อนไหวใหม่",
   },
   "admin.modeTitle": { en: "Admin powers", th: "สิทธิ์แอดมิน" },
   "admin.modeHint": {

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { useLang } from "@/lib/i18n";
+import { useLang, type Key } from "@/lib/i18n";
 import { postPath } from "@/lib/gallery";
 
 interface Note {
@@ -18,6 +18,23 @@ interface Note {
 
 /** Enough to be worth scrolling, few enough to arrive instantly. */
 const SHOW = 20;
+
+/**
+ * Where each kind of notification leads, and what it looks like.
+ *
+ * Named rather than chained, because the chain that used to do this ended in
+ * "there is a new announcement" and so every kind nobody had added a branch for
+ * -- feedback among them -- announced itself as an announcement and linked
+ * nowhere. Somebody then went looking through the announcements for a message
+ * that was never there. An unknown kind now says only that something happened,
+ * which is true, and a new kind is one row here.
+ */
+const KIND: Record<string, { say: Key; icon: string; href: string }> = {
+  tag: { say: "notif.tagged", icon: "🏷️", href: "" },
+  comment: { say: "notif.commented", icon: "💬", href: "" },
+  announcement: { say: "notif.announced", icon: "📣", href: "/" },
+  feedback: { say: "notif.feedback", icon: "✉️", href: "/feedback" },
+};
 /** A bell nobody is looking at can afford to be a minute and a half behind. */
 const POLL_MS = 90_000;
 
@@ -188,13 +205,17 @@ export default function NotificationBell() {
 
             {notes.map((n) => {
               const cover = n.post_id ? covers[n.post_id] : null;
-              const href = n.post_id ? postPath(n.post_id) : "/";
+              const kind = KIND[n.kind];
+              // A picture is its own address; everything else has one written
+              // down, and a kind nobody has taught this has none rather than a
+              // link to the front page that pretends to be an answer.
+              const href = n.post_id ? postPath(n.post_id) : (kind?.href || null);
               const asking = n.kind === "tag" && character != null;
               return (
                 <div key={n.id}
                      className={`flex gap-2.5 border-b border-line px-3.5 py-2.5 last:border-0 ${
                        n.read_at ? "" : "bg-accent/5"}`}>
-                  {cover ? (
+                  {cover && href ? (
                     <Link href={href} onClick={() => setOpen(false)} className="shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={cover} alt=""
@@ -202,17 +223,14 @@ export default function NotificationBell() {
                     </Link>
                   ) : (
                     <span className="grid size-12 shrink-0 place-items-center rounded-md border border-line text-[15px]">
-                      📣
+                      {kind?.icon ?? "🔔"}
                     </span>
                   )}
 
                   <div className="min-w-0 flex-1">
                     <p className="text-[12.5px] leading-snug text-ink/90">
-                      {n.kind === "tag"
-                        ? t("notif.tagged", { who: n.actor_name ?? "—" })
-                        : n.kind === "comment"
-                          ? t("notif.commented", { who: n.actor_name ?? "—" })
-                          : t("notif.announced")}
+                      {kind ? t(kind.say, { who: n.actor_name ?? "—" })
+                            : t("notif.something")}
                     </p>
                     {n.body && (
                       <p className="mt-0.5 line-clamp-2 text-[12px] leading-snug text-muted">
@@ -221,7 +239,10 @@ export default function NotificationBell() {
                     )}
                     <div className="mt-1 flex flex-wrap items-center gap-2">
                       <span className="text-[11px] text-muted">{when(n.created_at)}</span>
-                      {!asking && n.post_id && (
+                      {/* Not only for pictures. A notification that names a
+                          thing and then leaves you to find it is the reason
+                          somebody went hunting through the wrong page. */}
+                      {!asking && href && (
                         <Link href={href} onClick={() => setOpen(false)}
                               className="text-[11.5px] text-accent no-underline hover:underline">
                           {t("notif.open")}
@@ -239,10 +260,12 @@ export default function NotificationBell() {
                                 className="rounded-md border border-line px-2.5 py-0.5 text-[12px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
                           {t("gallery.tagDecline")}
                         </button>
-                        <Link href={href} onClick={() => setOpen(false)}
-                              className="px-1 py-0.5 text-[12px] text-accent no-underline hover:underline">
-                          {t("notif.look")}
-                        </Link>
+                        {href && (
+                          <Link href={href} onClick={() => setOpen(false)}
+                                className="px-1 py-0.5 text-[12px] text-accent no-underline hover:underline">
+                            {t("notif.look")}
+                          </Link>
+                        )}
                       </div>
                     )}
                   </div>
