@@ -185,6 +185,33 @@
    "extreme": 135,
    "unknown": 5,
    "final_boss": 42
+  },
+  {
+   "date": "2026-08-31",
+   "total": 501,
+   "tags": {
+    "extreme": 135,
+    "ultimate": 117,
+    "tier-clear": 42,
+    "veteran": 111,
+    "gatherer": 9,
+    "crafter": 13,
+    "relic": 19,
+    "seasonal": 12,
+    "casual": 282,
+    "explorer": 13,
+    "treasure": 12,
+    "goldsaucer": 8,
+    "pvp": 12,
+    "unknown": 5,
+    "prog": 23,
+    "oldtimer": 1
+   },
+   "raider": 65,
+   "ultimate": 117,
+   "extreme": 135,
+   "unknown": 5,
+   "final_boss": 42
   }
  ]
 }

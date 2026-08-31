@@ -20497,9 +20497,9 @@
      "label": "M10S",
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
-     "best": 14,
-     "median": 7,
-     "kills": 4,
+     "best": 20,
+     "median": 8,
+     "kills": 5,
      "job": "BlackMage"
     }
    ],
@@ -20521,11 +20521,11 @@
     "name": "The Tyrant",
     "kind": "savage",
     "state": "learning",
-    "pct": 45.16,
+    "pct": 18.72,
     "phase": 0,
-    "pulls": 20,
-    "last": "2026-08-20",
-    "last_ts": 1787237372
+    "pulls": 11,
+    "last": "2026-08-30",
+    "last_ts": 1788101975
    }
   ]
  },

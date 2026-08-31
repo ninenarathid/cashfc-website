@@ -4134,7 +4134,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 30,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -4149,7 +4149,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -4885,7 +4885,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 91,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -4898,7 +4898,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -5154,6 +5154,28 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
+  "chg": "2026-08-29"
+ },
+ "60873337": {
+  "name": "Imy Kitty",
+  "parse": null,
+  "ult": 0,
+  "mounts": 16,
+  "minions": 42,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
   "chg": "2026-08-29"
  },
  "26844665": {
@@ -6185,6 +6207,22 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "60211788": {
+  "name": "Shikihara Catlover",
+  "parse": null,
+  "ult": 0,
+  "mounts": 11,
+  "minions": 20,
+  "rare": null,
+  "level": 100,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-27"
+ },
  "8713004": {
   "name": "Shoe Bite",
   "parse": 9,
@@ -6473,28 +6511,6 @@
   "ults": [],
   "chg": "2026-08-27"
  },
- "60873337": {
-  "name": "Imy Kitty",
-  "parse": null,
-  "ult": 0,
-  "mounts": 16,
-  "minions": 42,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-29"
- },
  "60475540": {
   "name": "Joaline Auchefornei",
   "parse": null,
@@ -6578,44 +6594,12 @@
   ],
   "chg": "2026-08-29"
  },
- "60854619": {
-  "name": "Quasar Araxelanz",
-  "parse": null,
-  "ult": 0,
-  "mounts": 10,
-  "minions": 14,
-  "rare": null,
-  "level": 54,
-  "cc": null,
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-27"
- },
  "61748681": {
   "name": "Qzarel Lumina",
   "parse": null,
   "ult": 0,
   "mounts": 9,
   "minions": 17,
-  "rare": null,
-  "level": 100,
-  "cc": null,
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-27"
- },
- "60211788": {
-  "name": "Shikihara Catlover",
-  "parse": null,
-  "ult": 0,
-  "mounts": 11,
-  "minions": 20,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -13422,6 +13406,22 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-29"
+ },
+ "60854619": {
+  "name": "Quasar Araxelanz",
+  "parse": null,
+  "ult": 0,
+  "mounts": 10,
+  "minions": 14,
+  "rare": null,
+  "level": 54,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-08-27"
  },
  "41098683": {
   "name": "Qxrt Xq",
