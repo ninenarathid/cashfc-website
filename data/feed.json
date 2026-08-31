@@ -2,6 +2,83 @@
  "events": [
   {
    "date": "2026-08-31",
+   "type": "parse_up",
+   "id": 34611224,
+   "name": "Momose Hochizora",
+   "text": "set a new best parse: 60"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "parse_up",
+   "id": 30714243,
+   "name": "Moona Freed",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 30714243,
+   "name": "Moona Freed",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "parse_up",
+   "id": 37731936,
+   "name": "Null Skyrage",
+   "text": "set a new best parse: 91"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 37731936,
+   "name": "Null Skyrage",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 48010347,
+   "name": "Pineapplepipe Pikachu",
+   "text": "is now a Legendary Reaper"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "parse_up",
+   "id": 47401423,
+   "name": "Rana Murphy",
+   "text": "set a new best parse: 1"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "is now a Master Red Mage"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "parse_up",
+   "id": 40624820,
+   "name": "Rin Miyauchi",
+   "text": "set a new best parse: 35"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "parse_up",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 39961214,
+   "name": "Ruby Sugarstar",
+   "text": "is now a Legendary Bard"
+  },
+  {
+   "date": "2026-08-31",
    "type": "level_100",
    "id": 39199441,
    "name": "Dodoco Chocodoco",
@@ -1322,83 +1399,6 @@
    "id": 42976317,
    "name": "Zeadz Stellar",
    "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "level_100",
-   "id": 47494518,
-   "name": "Farcia Soluna",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "level_100",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 16099244,
-   "name": "Luna Froggo",
-   "text": "is now a Legendary Paladin"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "level_100",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "level_100",
-   "id": 33387937,
-   "name": "R'bael Senkou",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "is now a Master Dark Knight"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 3256238,
-   "name": "Ai Tsukuyomi",
-   "text": "set a new best parse: 17"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "parse_up",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "set a new best parse: 95"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "is now a Master Samurai"
   }
  ]
 }

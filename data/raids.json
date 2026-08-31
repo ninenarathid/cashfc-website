@@ -171,6 +171,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 97,
       "median": 63,
@@ -179,6 +180,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 97,
       "median": 68,
@@ -187,6 +189,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 82,
       "median": 55,
@@ -194,7 +197,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P12S-1",
+      "label": "P12S",
+      "encounter_id": 91,
       "name": "Athena",
       "best": 98,
       "median": 54,
@@ -202,7 +206,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P12S-2",
+      "label": null,
+      "encounter_id": 92,
       "name": "Pallas Athena",
       "best": 86,
       "median": 31,
@@ -8202,6 +8207,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 95,
+      "median": 83,
+      "kills": 12,
+      "job": "Summoner"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 97,
+      "median": 82,
+      "kills": 13,
+      "job": "Summoner"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 95,
+      "median": 80,
+      "kills": 12,
+      "job": "Summoner"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 84,
+      "median": 53,
+      "kills": 18,
+      "job": "Summoner"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 74,
+      "median": 52,
+      "kills": 6,
+      "job": "Summoner"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -14278,6 +14335,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 99,
+      "median": 91,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 95,
+      "median": 79,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 86,
+      "median": 73,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 83,
+      "median": 79,
+      "kills": 6,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 80,
+      "median": 63,
+      "kills": 6,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -17306,6 +17415,58 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 90,
+      "median": 47,
+      "kills": 8,
+      "job": "RedMage"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 82,
+      "median": 70,
+      "kills": 6,
+      "job": "RedMage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 78,
+      "median": 9,
+      "kills": 6,
+      "job": "RedMage"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 65,
+      "median": 24,
+      "kills": 10,
+      "job": "RedMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 40,
+      "median": 17,
+      "kills": 5,
+      "job": "RedMage"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -19150,7 +19311,42 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 60,
+      "median": 30,
+      "kills": 6,
+      "job": "Scholar"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 50,
+      "median": 29,
+      "kills": 4,
+      "job": "Scholar"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 36,
+      "median": 36,
+      "kills": 1,
+      "job": "Scholar"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "34790386": {
@@ -22397,6 +22593,58 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 83,
+      "median": 50,
+      "kills": 12,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 74,
+      "median": 46,
+      "kills": 10,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 91,
+      "median": 62,
+      "kills": 10,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 83,
+      "median": 36,
+      "kills": 14,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 47,
+      "median": 25,
+      "kills": 5,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -23960,6 +24208,58 @@
       "job": "Pictomancer"
      }
     ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 96,
+      "median": 88,
+      "kills": 14,
+      "job": "Bard"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 87,
+      "median": 80,
+      "kills": 19,
+      "job": "Bard"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 86,
+      "median": 70,
+      "kills": 18,
+      "job": "Bard"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 87,
+      "median": 56,
+      "kills": 18,
+      "job": "Bard"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 90,
+      "median": 51,
+      "kills": 6,
+      "job": "Bard"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -24346,7 +24646,24 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 35,
+      "median": 35,
+      "kills": 1,
+      "job": "Reaper"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "40652404": {
@@ -26139,6 +26456,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 47,
       "median": 47,
@@ -26147,6 +26465,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 59,
       "median": 39,
@@ -26155,6 +26474,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 42,
       "median": 23,
@@ -26162,7 +26482,8 @@
       "job": "Summoner"
      },
      {
-      "label": "P12S-1",
+      "label": "P12S",
+      "encounter_id": 91,
       "name": "Athena",
       "best": 38,
       "median": 38,
@@ -26170,7 +26491,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P12S-2",
+      "label": null,
+      "encounter_id": 92,
       "name": "Pallas Athena",
       "best": 34,
       "median": 31,
@@ -27046,8 +27368,25 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 1,
+      "median": 1,
+      "kills": 4,
+      "job": "Monk"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "47423083": {
   "current": {
@@ -27522,7 +27861,60 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 90,
+      "median": 69,
+      "kills": 15,
+      "job": "Reaper"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 87,
+      "median": 54,
+      "kills": 18,
+      "job": "Reaper"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 94,
+      "median": 39,
+      "kills": 12,
+      "job": "Reaper"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 98,
+      "median": 25,
+      "kills": 41,
+      "job": "Reaper"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 95,
+      "median": 56,
+      "kills": 12,
+      "job": "Reaper"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "48050166": {

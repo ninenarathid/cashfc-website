@@ -11955,7 +11955,7 @@
  },
  "34611224": {
   "name": "Momose Hochizora",
-  "parse": 55,
+  "parse": 60,
   "ult": 1,
   "mounts": 37,
   "minions": 61,
@@ -11975,7 +11975,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "37911500": {
   "name": "Monandaeg Deliciosus",
@@ -12004,7 +12004,7 @@
  },
  "30714243": {
   "name": "Moona Freed",
-  "parse": 87,
+  "parse": 99,
   "ult": 0,
   "mounts": 30,
   "minions": 41,
@@ -12020,12 +12020,12 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Warrior": "expert",
+   "Warrior": "master",
    "Gunbreaker": "master"
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "10807425": {
   "name": "Mulata Shogo",
@@ -12617,7 +12617,7 @@
  },
  "37731936": {
   "name": "Null Skyrage",
-  "parse": 73,
+  "parse": 91,
   "ult": 2,
   "mounts": 94,
   "minions": 185,
@@ -12633,14 +12633,15 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Summoner": "expert"
+   "Summoner": "expert",
+   "Gunbreaker": "master"
   },
   "ex": [],
   "ults": [
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "34057749": {
   "name": "Nuna Ghiza",
@@ -13236,7 +13237,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Summoner": "expert"
+   "Summoner": "expert",
+   "Reaper": "legendary"
   },
   "ex": [],
   "ults": [
@@ -13497,7 +13499,7 @@
  },
  "47401423": {
   "name": "Rana Murphy",
-  "parse": null,
+  "parse": 1,
   "ult": 0,
   "mounts": 16,
   "minions": 66,
@@ -13515,7 +13517,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "53799276": {
   "name": "Raysen Windsor",
@@ -13602,7 +13604,8 @@
   "tiers": {},
   "jobs": {
    "Warrior": "master",
-   "Paladin": "master"
+   "Paladin": "master",
+   "RedMage": "master"
   },
   "ex": [],
   "ults": [
@@ -13616,7 +13619,7 @@
  },
  "40624820": {
   "name": "Rin Miyauchi",
-  "parse": 26,
+  "parse": 35,
   "ult": 1,
   "mounts": 91,
   "minions": 152,
@@ -13657,7 +13660,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "29901287": {
   "name": "Rishima Garaine",
@@ -13751,7 +13754,7 @@
  },
  "39961214": {
   "name": "Ruby Sugarstar",
-  "parse": 90,
+  "parse": 96,
   "ult": 4,
   "mounts": 23,
   "minions": 64,
@@ -13769,7 +13772,8 @@
   "jobs": {
    "Monk": "expert",
    "Pictomancer": "expert",
-   "Ninja": "master"
+   "Ninja": "master",
+   "Bard": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -13781,7 +13785,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "35863038": {
   "name": "Ruka Aeon",
