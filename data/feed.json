@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-08-31",
+   "type": "level_100",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 28127069,
+   "name": "Jim Carried",
+   "text": "is now a Master Bard"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 34155014,
+   "name": "Karok Yawn",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-08-31",
    "type": "rare_up",
    "id": 34509521,
    "name": "Liliya Quintilis",
@@ -1378,27 +1399,6 @@
    "id": 36183541,
    "name": "Nagi Amano",
    "text": "is now a Master Samurai"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "is now a Legendary Viper"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared The Epic of Alexander 🏆"
   }
  ]
 }

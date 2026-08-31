@@ -1361,7 +1361,7 @@
   "mounts": 159,
   "minions": 239,
   "rare": 62,
-  "level": 88,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3963,7 +3963,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 100,
+  "level": 86,
   "cc": [
    true,
    true,
@@ -4008,7 +4008,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -4885,7 +4885,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 100,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -5579,7 +5579,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 62,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -6070,14 +6070,14 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 64,
+  "level": 65,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -10436,7 +10436,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Bard": "expert",
+   "Bard": "master",
    "BlackMage": "legendary"
   },
   "ex": [
@@ -10693,7 +10693,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "expert"
+   "Scholar": "master"
   },
   "ex": [
    "Queen Eternal",
