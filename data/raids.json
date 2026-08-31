@@ -18649,6 +18649,31 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 44,
+      "median": 26,
+      "kills": 8,
+      "job": "Summoner"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 8,
+      "median": 4,
+      "kills": 2,
+      "job": "Pictomancer"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -18722,6 +18747,31 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 51,
+      "median": 41,
+      "kills": 6,
+      "job": "Scholar"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 51,
+      "median": 33,
+      "kills": 2,
+      "job": "Scholar"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -19633,6 +19683,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 98,
+      "median": 84,
+      "kills": 18,
+      "job": "Viper"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 87,
+      "median": 72,
+      "kills": 16,
+      "job": "Viper"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 88,
+      "median": 75,
+      "kills": 12,
+      "job": "Viper"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 90,
+      "median": 55,
+      "kills": 9,
+      "job": "Viper"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -20409,6 +20502,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 93,
+      "median": 82,
+      "kills": 12,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 96,
+      "median": 76,
+      "kills": 10,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 86,
+      "median": 67,
+      "kills": 10,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 82,
+      "median": 56,
+      "kills": 8,
+      "job": "Dragoon"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -25375,6 +25511,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 79,
+      "median": 52,
+      "kills": 8,
+      "job": "Ninja"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 87,
+      "median": 53,
+      "kills": 8,
+      "job": "Ninja"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 85,
+      "median": 40,
+      "kills": 8,
+      "job": "Ninja"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 55,
+      "median": 12,
+      "kills": 6,
+      "job": "Ninja"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -26350,7 +26529,42 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 43,
+      "median": 26,
+      "kills": 16,
+      "job": "Viper"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 35,
+      "median": 18,
+      "kills": 13,
+      "job": "Viper"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 19,
+      "median": 6,
+      "kills": 8,
+      "job": "Viper"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "46739693": {
@@ -28484,7 +28698,42 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 21,
+      "median": 9,
+      "kills": 9,
+      "job": "Sage"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 23,
+      "median": 8,
+      "kills": 4,
+      "job": "Sage"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 3,
+      "median": 3,
+      "kills": 1,
+      "job": "Sage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "58202955": {
@@ -28889,7 +29138,24 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 18,
+      "median": 9,
+      "kills": 2,
+      "job": "Reaper"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "59690047": {

@@ -246,7 +246,7 @@
   "mounts": 143,
   "minions": 287,
   "rare": null,
-  "level": 90,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -267,7 +267,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "57885671": {
   "name": "Aisu Kazimira",
@@ -1361,7 +1361,7 @@
   "mounts": 159,
   "minions": 239,
   "rare": 62,
-  "level": 100,
+  "level": 88,
   "cc": [
    true,
    true,
@@ -1452,7 +1452,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "47540663": {
   "name": "Edel Meither",
@@ -2208,10 +2208,10 @@
    3762,
    3765,
    3766,
-   3769,
    3770,
    3771,
    3772,
+   3793,
    3794,
    3795,
    3796,
@@ -3432,6 +3432,7 @@
    3868,
    3869,
    3870,
+   3878,
    3879,
    3880,
    3881,
@@ -3461,7 +3462,6 @@
    3954,
    3990,
    3997,
-   3998,
    3999,
    4003,
    4004,
@@ -3580,7 +3580,6 @@
    3674,
    3677,
    3693,
-   3694,
    3695,
    3699,
    3700,
@@ -3622,7 +3621,8 @@
    3802,
    3805,
    3811,
-   3823
+   3823,
+   3824
   ],
   "tiers": {
    "relic": "master",
@@ -3789,7 +3789,7 @@
   "mounts": 47,
   "minions": 114,
   "rare": null,
-  "level": 100,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -3814,15 +3814,15 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "29918404": {
   "name": "Zarass Gierlos",
   "parse": 94,
   "ult": 0,
   "mounts": 205,
-  "minions": 415,
-  "rare": 305,
+  "minions": 416,
+  "rare": 306,
   "level": 100,
   "cc": [
    false,
@@ -3887,7 +3887,7 @@
    3860,
    3861,
    3862,
-   3885,
+   3875,
    3886,
    3887,
    3914,
@@ -3954,7 +3954,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -4134,7 +4134,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 68,
+  "level": 35,
   "cc": [
    false,
    false,
@@ -4428,7 +4428,6 @@
    2284,
    2286,
    2444,
-   2596,
    2633,
    2661,
    2662,
@@ -4447,6 +4446,7 @@
    2870,
    2872,
    2873,
+   2928,
    2929,
    2930,
    2931,
@@ -4885,7 +4885,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5221,10 +5221,10 @@
   "name": "K' Potassium",
   "parse": 21,
   "ult": 0,
-  "mounts": 35,
-  "minions": 105,
-  "rare": 2,
-  "level": 100,
+  "mounts": 46,
+  "minions": 150,
+  "rare": 9,
+  "level": 53,
   "cc": [
    true,
    true,
@@ -5234,13 +5234,20 @@
   ],
   "rare_ids": [
    2779,
-   2868
+   2868,
+   3651,
+   3765,
+   3874,
+   3986,
+   3987,
+   3998,
+   4002
   ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -5572,7 +5579,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 50,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -5618,7 +5625,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -5796,7 +5803,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -5811,7 +5818,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -5820,7 +5827,7 @@
   "mounts": 29,
   "minions": 83,
   "rare": 9,
-  "level": 56,
+  "level": 58,
   "cc": [
    false,
    false,
@@ -5843,7 +5850,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "8113158": {
   "name": "Olivie Brown",
@@ -5890,6 +5897,7 @@
    951,
    963,
    1369,
+   1473,
    1562,
    2007,
    2094,
@@ -5950,7 +5958,6 @@
    3854,
    3855,
    3859,
-   3867,
    3874,
    3877,
    3878,
@@ -6252,7 +6259,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 77,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6283,7 +6290,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-08-31"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -6556,14 +6563,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 100,
+  "level": 95,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-28"
+  "chg": "2026-08-31"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -6639,14 +6646,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 91,
+  "level": 92,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-08-31"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -7929,6 +7936,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Ninja": "master",
    "Monk": "master"
   },
   "ex": [
@@ -8730,9 +8738,7 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {
-   "Viper": "expert"
-  },
+  "jobs": {},
   "ex": [
    "Doomtrain",
    "Queen Eternal",
@@ -9582,7 +9588,7 @@
   "tiers": {},
   "jobs": {
    "Machinist": "legendary",
-   "Dragoon": "master",
+   "Dragoon": "legendary",
    "Bard": "master"
   },
   "ex": [
@@ -9814,7 +9820,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "expert",
+   "Viper": "legendary",
    "Samurai": "expert"
   },
   "ex": [

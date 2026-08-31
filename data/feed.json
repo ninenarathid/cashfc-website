@@ -1,6 +1,90 @@
 {
  "events": [
   {
+   "date": "2026-08-31",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned R&D: Stellar Cross-pein Hammer"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned R&D: Cross-pein Hyperhammer"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "rare_up",
+   "id": 22425670,
+   "name": "Shizuna-pan Misurugi",
+   "text": "earned Pilgrim's Progress V"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Thankful Thirteen — only 1.4% of players have it"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "rare_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "earned Going with the Grain: Genius"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "level_100",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "rare_up",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "earned Phantom of the Umbra: Staff Umbrae, and 6 more"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "rare_up",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "earned I Hope Mentor Will Notice Me II"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "level_100",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 43423269,
+   "name": "Bladez Sweeney",
+   "text": "is now a Master Ninja"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "is now a Legendary Dragoon"
+  },
+  {
+   "date": "2026-08-31",
+   "type": "job_up",
+   "id": 36090951,
+   "name": "Guuji Mercedexs",
+   "text": "is now a Legendary Viper"
+  },
+  {
    "date": "2026-08-30",
    "type": "boss_clear",
    "id": 42976317,
@@ -1315,90 +1399,6 @@
    "id": 9444020,
    "name": "Non Elemental",
    "text": "cleared The Epic of Alexander 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "cleared Dragonsong's Reprise 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "cleared The Omega Protocol 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "is now a Master Monk"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "job_up",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "is now a Expert Red Mage"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 11950156,
-   "name": "Rothe Happer",
-   "text": "cleared The Unending Coil of Bahamut 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "cleared The Weapon's Refrain 🏆"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "ult_clear",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "cleared Dragonsong's Reprise 🏆"
   }
  ]
 }
