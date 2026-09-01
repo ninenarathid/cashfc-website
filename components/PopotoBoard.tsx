@@ -76,7 +76,7 @@ const BOARDS: Board[] = [
   {
     key: "gallery",
     color: "#4fb8a8",
-    icon: "🖼️",
+    icon: "🥔",
     title: "lb.gallery",
     hint: "lb.galleryHint",
     unit: (n) => `across ${n} picture${n === 1 ? "" : "s"}`,

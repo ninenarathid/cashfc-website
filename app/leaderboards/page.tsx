@@ -1,7 +1,12 @@
 import raw from "@/data/members.json";
 import type { BoardData, Member } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
-import { TAG_COLOR, TAG_LABELS } from "@/components/MemberTags";
+// Straight from lib/tags, not through MemberTags. That file is "use client",
+// and a server component importing data through it gets a client reference
+// rather than the object — every colour came out undefined and every label fell
+// back to the raw key, which the capitalize class then dressed up convincingly
+// enough that eight grey boxes looked like a styling choice.
+import { TAG_COLOR, TAG_LABELS } from "@/lib/tags";
 import TagIcon from "@/components/TagIcon";
 import LeaderboardIntro from "@/components/LeaderboardIntro";
 import LeaderRow from "@/components/LeaderRow";
@@ -98,7 +103,7 @@ export default function LeaderboardsPage() {
                 {/* Lifted towards white so the muted ones — crafter's brown,
                     pvp's slate — still read as a heading rather than as
                     something greyed out. */}
-                <span className="font-display text-[17.5px] font-bold capitalize"
+                <span className="font-display text-[17.5px] font-bold"
                       style={{ color: `color-mix(in srgb, ${
                         TAG_COLOR[key] ?? "#8b97a8"} 78%, #ffffff)` }}>
                   {TAG_LABELS[key] ?? key}

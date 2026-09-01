@@ -55,7 +55,7 @@ export default function LeaderboardIntro() {
           {th ? (
             <>
               <b className="text-gold">🥔 โปโปโต้</b> กับ{" "}
-              <b style={{ color: "#4fb8a8" }}>🖼️ โปโปโต้จากรูป</b>{" "}
+              <b style={{ color: "#4fb8a8" }}>🥔 โปโปโต้จากรูป</b>{" "}
               เป็นสองอันที่ไม่ได้มาจากในเกม แต่มาจากสมาชิกใน FC กดให้กัน{" "}
               <b className="text-ink">และนับแยกกันคนละที่</b>
               <br />
@@ -67,7 +67,7 @@ export default function LeaderboardIntro() {
           ) : (
             <>
               <b className="text-gold">🥔 Popoto</b> and{" "}
-              <b style={{ color: "#4fb8a8" }}>🖼️ Gallery popoto</b> are the two boards
+              <b style={{ color: "#4fb8a8" }}>🥔 Gallery popoto</b> are the two boards
               the game had no hand in — they are members saying something to each
               other — and they are{" "}
               <b className="text-ink">counted entirely separately</b>.
