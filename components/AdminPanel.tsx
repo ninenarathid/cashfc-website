@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { NOTICE_KEY } from "@/components/home/ShowYourData";
 import { GALLERY_PUBLIC_KEY } from "@/lib/gallery";
@@ -16,7 +17,45 @@ interface TimelinePost {
   posted_at: string; image_url: string | null;
 }
 interface Override { character_id: number; hidden: boolean; note: string | null }
-interface ClaimedProfile { id: string; discord_username: string | null; character_id: number; character_name: string | null }
+interface ClaimedProfile {
+  id: string;
+  discord_username: string | null;
+  discord_avatar: string | null;
+  character_id: number;
+  character_name: string | null;
+  auth_provider: string | null;
+  character_verified_at: string | null;
+}
+
+/**
+ * Which service somebody signed in with.
+ *
+ * `auth_provider` is the answer and comes from migration_v21. Before that has
+ * been run every row says null, so the avatar's host is read instead — Discord
+ * and Google serve theirs from their own CDNs. That is a deduction rather than
+ * a record, so it is shown dimmed and says so on hover; a guess presented as a
+ * fact is worse than a blank.
+ */
+function provider(c: ClaimedProfile): { name: string; sure: boolean } | null {
+  if (c.auth_provider) {
+    const known: Record<string, string> = {
+      discord: "Discord", google: "Google", email: "Email",
+    };
+    return { name: known[c.auth_provider] ?? c.auth_provider, sure: true };
+  }
+  const host = c.discord_avatar ?? "";
+  if (host.includes("discordapp.com") || host.includes("discord.com")) {
+    return { name: "Discord", sure: false };
+  }
+  if (host.includes("googleusercontent.com")) return { name: "Google", sure: false };
+  return null;
+}
+
+const PROVIDER_TONE: Record<string, string> = {
+  Discord: "border-[#5865F2]/50 bg-[#5865F2]/10 text-[#8b93f5]",
+  Google: "border-[#ea4335]/50 bg-[#ea4335]/10 text-[#f08379]",
+  Email: "border-line bg-card text-muted",
+};
 
 const inputCls = "rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted";
 
@@ -62,6 +101,29 @@ function Body({ text, id, open, toggle }: {
 import AdminSwitch from "@/components/AdminSwitch";
 import { useAdmin } from "@/lib/admin";
 import AdminLog from "@/components/AdminLog";
+
+/**
+ * The claimed characters, on a database that may or may not have had v21 run.
+ *
+ * Selecting a column that does not exist fails the whole query rather than
+ * dropping that one field, and the section would go blank saying nobody has
+ * claimed anything — which is both wrong and alarming. So the provider is asked
+ * for, and if the database has not heard of it yet the older column list is
+ * used and the badge falls back to a guess.
+ */
+const CLAIM_BASE =
+  "id, discord_username, discord_avatar, character_id, character_name, character_verified_at";
+
+async function claimRows(supabase: NonNullable<ReturnType<typeof createClient>>)
+: Promise<ClaimedProfile[]> {
+  const full = await supabase.from("profiles")
+    .select(`${CLAIM_BASE}, auth_provider`).not("character_id", "is", null);
+  const rows = full.error
+    ? (await supabase.from("profiles").select(CLAIM_BASE)
+        .not("character_id", "is", null)).data
+    : full.data;
+  return ((rows ?? []) as unknown as ClaimedProfile[]);
+}
 
 export default function AdminPanel({ memberOptions }: { memberOptions: Option[] }) {
   const [supabase] = useState(createClient);
@@ -124,8 +186,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
         .order("posted_at", { ascending: false }),
       supabase.from("site_settings").select("key, value"),
       supabase.from("member_overrides").select("character_id, hidden, note"),
-      supabase.from("profiles").select("id, discord_username, character_id, character_name")
-        .not("character_id", "is", null),
+      claimRows(supabase),
     ]);
     setAnns((a.data as Announcement[]) ?? []);
     setPosts((t.data as TimelinePost[]) ?? []);
@@ -136,7 +197,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       if (r.key === GALLERY_PUBLIC_KEY) setGalleryOn(r.value !== "off");
     }
     setOverrides((o.data as Override[]) ?? []);
-    setClaims((c.data as ClaimedProfile[]) ?? []);
+    setClaims(c);
   }
 
   useEffect(() => {
@@ -559,27 +620,84 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       {/* ── Claim management ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">Claimed characters</div>
-        <div className="mt-3 flex flex-col gap-1.5">
-          {claims.map((c) => (
-            <div key={c.id}
-                 className="flex items-center justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2 text-[13px]">
-              <span className="min-w-0 truncate">
-                <b className="font-data">{c.character_name ?? nameOf(c.character_id)}</b>
-                <span className="ml-2 text-muted">← Discord: {c.discord_username ?? "?"}</span>
-              </span>
-              <button
-                onClick={async () => {
-                  await supabase!.from("profiles")
-                    .update({ character_id: null, character_name: null })
-                    .eq("id", c.id);
-                  await refresh(); flash("Claim released");
-                }}
-                className="shrink-0 rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                Release
-              </button>
-            </div>
-          ))}
-          {claims.length === 0 && <div className="text-[13px] text-muted">Nobody has claimed a character yet</div>}
+        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+          Who is behind each character, and which service they signed in with.
+          Releasing a claim frees the character for somebody else to take.
+        </p>
+
+        {/* A table because these are four facts about each of many rows, and a
+            run-on line makes the eye re-find the boundary between them every
+            time. It scrolls inside itself on a narrow screen rather than
+            stretching the page. */}
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[34rem] border-collapse text-[13px]">
+            <thead>
+              <tr className="border-b border-line text-left font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+                <th className="py-1.5 pr-3 font-normal">Character</th>
+                <th className="py-1.5 pr-3 font-normal">Account</th>
+                <th className="py-1.5 pr-3 font-normal">Signed in with</th>
+                <th className="py-1.5 pr-3 font-normal">Claimed</th>
+                <th className="py-1.5 font-normal" />
+              </tr>
+            </thead>
+            <tbody>
+              {[...claims]
+                .sort((a, b) => (a.character_name ?? nameOf(a.character_id))
+                  .localeCompare(b.character_name ?? nameOf(b.character_id)))
+                .map((c) => {
+                  const p = provider(c);
+                  return (
+                    <tr key={c.id} className="border-b border-line/60 last:border-0">
+                      <td className="py-1.5 pr-3">
+                        {/* The name is the link. An admin reading this row is
+                            usually on their way to that member's page. */}
+                        <Link href={`/member/${c.character_id}`}
+                              className="font-data text-ink no-underline hover:text-accent">
+                          {c.character_name ?? nameOf(c.character_id)}
+                        </Link>
+                      </td>
+                      <td className="py-1.5 pr-3 text-muted">
+                        {c.discord_username ?? <span className="opacity-60">no name</span>}
+                      </td>
+                      <td className="py-1.5 pr-3">
+                        {p ? (
+                          <span title={p.sure ? undefined
+                            : "Guessed from the avatar's host — run migration_v21.sql to record it properly"}
+                                className={`rounded-full border px-2 py-0.5 text-[11px] ${
+                                  PROVIDER_TONE[p.name] ?? "border-line text-muted"} ${
+                                  p.sure ? "" : "opacity-60"}`}>
+                            {p.name}{p.sure ? "" : "?"}
+                          </span>
+                        ) : (
+                          <span className="text-muted opacity-60">—</span>
+                        )}
+                      </td>
+                      <td className="py-1.5 pr-3 font-data text-[11.5px] text-muted">
+                        {c.character_verified_at
+                          ? new Date(c.character_verified_at).toLocaleDateString("en-GB",
+                              { day: "numeric", month: "short", year: "numeric" })
+                          : <span className="opacity-60">unverified</span>}
+                      </td>
+                      <td className="py-1.5 text-right">
+                        <button
+                          onClick={async () => {
+                            await supabase!.from("profiles")
+                              .update({ character_id: null, character_name: null })
+                              .eq("id", c.id);
+                            await refresh(); flash("Claim released");
+                          }}
+                          className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                          Release
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+          {claims.length === 0 && (
+            <div className="py-2 text-[13px] text-muted">Nobody has claimed a character yet</div>
+          )}
         </div>
       </section>
 
