@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAvatar } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { TAG_COLOR, TAG_LABELS } from "@/lib/tags";
+import TagIcon from "@/components/TagIcon";
 import type { BucketRow } from "@/lib/leaderboards";
 
 /**
@@ -36,6 +37,8 @@ interface Board {
   key: string;
   label: string;
   color: string;
+  /** The potato boards bring their own; the rest use the game's own tag art. */
+  emoji?: string;
   rows: { id: number; name: string; avatar: string | null }[];
 }
 
@@ -104,13 +107,15 @@ export default function TopThree(
       const profile = count(((kudos.data ?? []) as { receiver_character_id: number }[])
         .map((k) => [k.receiver_character_id, 1]));
       if (profile.length) {
-        made.push({ key: "popoto", label: t("lb.popoto"), color: "#e5cc80", rows: profile });
+        made.push({ key: "popoto", label: t("lb.popoto"), color: "#e5cc80",
+                    emoji: "🥔", rows: profile });
       }
       const gallery = count(((posts.data ?? []) as
         { character_id: number; like_count: number | null }[])
         .map((p) => [p.character_id, p.like_count ?? 0]));
       if (gallery.length) {
-        made.push({ key: "gallery", label: t("lb.gallery"), color: "#4fb8a8", rows: gallery });
+        made.push({ key: "gallery", label: t("lb.gallery"), color: "#4fb8a8",
+                    emoji: "🥔", rows: gallery });
       }
       setPotato(made);
     })();
@@ -140,11 +145,18 @@ export default function TopThree(
       <div className="grid gap-x-6 gap-y-1 rounded-xl border border-line bg-surface p-3.5 md:grid-cols-2">
         {boards.map((b) => (
           <div key={b.key}
-               className="grid grid-cols-[minmax(72px,auto)_1fr] items-center gap-x-3 border-b border-line/40 py-1.5 last:border-0 md:border-0">
+               className="grid grid-cols-[minmax(92px,auto)_1fr] items-center gap-x-3 border-b border-line/40 py-1.5 last:border-0 md:border-0">
+            {/* The tag's own art rather than a coloured dot. A dot only says
+                "these are different"; the icon says which one, which is the
+                whole job of the thing sitting in front of a name. */}
             <span className="flex items-center gap-1.5 truncate text-[12px] font-medium"
                   style={{ color: `color-mix(in srgb, ${b.color} 78%, #ffffff)` }}>
-              <span className="size-2 shrink-0 rounded-full"
-                    style={{ background: b.color }} />
+              <span className="grid size-[18px] shrink-0 place-items-center rounded"
+                    style={{ background: `${b.color}26` }}>
+                {b.emoji
+                  ? <span className="text-[11px] leading-none">{b.emoji}</span>
+                  : <TagIcon tag={b.key} size={13} />}
+              </span>
               {b.label}
             </span>
             {/* Equal columns rather than a flowing row, so the leaders line up
