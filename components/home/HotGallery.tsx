@@ -37,12 +37,12 @@ const SHOW = 18;
 function DriftTile({ post }: { post: GalleryPost }) {
   return (
     <Link href={postPath(post.id)}
-          className="group relative mr-2 block h-full shrink-0 overflow-hidden rounded-lg border border-line no-underline">
+          className="group relative mr-2 h-full shrink-0 overflow-hidden rounded-lg border border-line no-underline">
       {/* Height from the row, width from the picture. This is the whole trick:
           nothing is asked to be a shape it is not. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
-           className="h-full w-auto max-w-none transition-transform duration-300 group-hover:scale-105" />
+           className="block h-full w-auto max-w-none object-contain transition-transform duration-300 group-hover:scale-105" />
       {(post.like_count ?? 0) > 0 && (
         <span className="absolute bottom-1 left-1 rounded bg-bg/75 px-1.5 py-0.5 text-[11px] text-ink">
           🥔 {post.like_count}
@@ -68,7 +68,7 @@ function DriftRow(
   return (
     // A fixed height is what lets every picture keep its own width, and so its
     // own shape. Shorter on a phone, where the strip is competing for a screen.
-    <div className="drift-row h-[88px] overflow-hidden sm:h-[104px]">
+    <div className="drift-row h-[76px] overflow-hidden sm:h-[92px]">
       <div className={`drift ${reverse ? "drift-reverse" : ""}`}
            style={{ "--drift-dur": `${seconds}s` } as React.CSSProperties}>
         {posts.map((p) => <DriftTile key={p.id} post={p} />)}

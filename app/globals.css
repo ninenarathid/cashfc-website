@@ -54,7 +54,13 @@ body {
 
 .drift {
   display: flex;
+  align-items: stretch;
   width: max-content;
+  /* The row's height has to reach the pictures. Without this the track is auto
+     height, every percentage height inside it resolves to nothing, and each
+     picture renders at its natural size and gets clipped by the row — which
+     looks exactly like a hard zoom into one corner of somebody's screenshot. */
+  height: 100%;
   animation: gallery-drift var(--drift-dur, 60s) linear infinite;
 }
 .drift-reverse { animation-direction: reverse; }
