@@ -20,7 +20,7 @@ import JobIcon, {
   ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobLabel, jobRole, jobRoleGroup,
 } from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
-import { GUEST_RANK, useGuests } from "@/lib/guests";
+import { GUEST_RANK, guestHome, useGuests } from "@/lib/guests";
 
 
 // Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
@@ -913,6 +913,14 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               const accent = ov?.accent ?? "#6aa9e0";
               // No title means no line, not an em dash standing in for one.
               const meta = [memberTitle(m)].filter(Boolean) as string[];
+              // Where a guest actually plays. It is the first thing anybody
+              // wants to know about a name that is not on the roster, and the
+              // FC's own members would only ever repeat the same two words.
+              if (m.rank === GUEST_RANK) {
+                const home = guestHome(m.id);
+                if (home?.world) meta.push(home.world);
+                if (home?.fc) meta.push(home.fc);
+              }
               if (m.race) meta.push(m.race);
               if (m.mounts != null) meta.push(`${m.mounts} mounts`);
               if (m.rare_achv != null) meta.push(`${m.rare_achv} rare achv`);

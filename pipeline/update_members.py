@@ -347,10 +347,16 @@ def scrape_members() -> list[dict]:
             link = e.select_one("a.entry__bg")
             cid = int(re.search(r"/character/(\d+)/", link["href"]).group(1))
             avatar_img = e.select_one(".entry__chara__face img")
-            rank, level = None, None
+            rank, level, job_icon = None, None, None
             for li in e.select("ul.entry__freecompany__info li"):
                 span = li.select_one("span")
                 if li.select_one("i.list__ic__class") and span:
+                    # The level shown is the level of the job they are wearing,
+                    # and the icon beside it says which one. The name is not in
+                    # this markup, only the picture — job_icon_name() below is
+                    # what turns one into the other.
+                    icon = li.select_one("i.list__ic__class img")
+                    job_icon = icon["src"] if icon and icon.has_attr("src") else None
                     try:
                         level = int(span.get_text(strip=True))
                     except ValueError:
@@ -360,7 +366,7 @@ def scrape_members() -> list[dict]:
             members.append({
                 "id": cid,
                 "name": e.select_one("p.entry__name").get_text(strip=True),
-                "rank": rank, "level": level,
+                "rank": rank, "level": level, "job_icon": job_icon,
                 "avatar": avatar_img["src"] if avatar_img else None,
             })
         log(f"Lodestone page {page}/{total_pages} — {len(members)} members so far")
@@ -1661,6 +1667,65 @@ def _marks_crossed(before, after, marks) -> int | None:
     return max(hit) if hit else None
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Naming what happened
+# ──────────────────────────────────────────────────────────────────────────────
+def learn_job_icons(extra: dict, character_id: int) -> dict[str, str]:
+    """Read one character's class_job page and learn every icon on it."""
+    cache = extra.setdefault("job_icons", {})
+    host = CONFIG["lodestone_host"]
+    try:
+        r = requests.get(
+            f"https://{host}.finalfantasyxiv.com/lodestone/character/{character_id}/class_job/",
+            headers=UA, timeout=30)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "html.parser")
+        for li in soup.select(".character__job li"):
+            icon = li.select_one(".character__job__icon img")
+            name = li.select_one(".character__job__name")
+            if icon and icon.has_attr("src") and name:
+                cache[icon["src"]] = name.get_text(strip=True)
+    except Exception as ex:
+        log(f"Job icons — could not read class_job for {character_id}: {ex}")
+    return cache
+
+
+def job_of(m: dict, extra: dict) -> str | None:
+    """The job this member is wearing, by name, if we can say."""
+    icon = m.get("job_icon")
+    if not icon:
+        return None
+    cache = extra.setdefault("job_icons", {})
+    if icon not in cache:
+        # One page names every job there is, so a miss is worth one fetch and
+        # then never again.
+        learn_job_icons(extra, m["id"])
+    return cache.get(icon)
+
+
+def best_parse_fight(m: dict, raids: dict) -> tuple[str, str | None] | None:
+    """Which encounter the member's best parse came from, and on what job.
+
+    members.json keeps only the number, because that is all the board shows. The
+    feed wants to say where it happened, and raids.json has kept the per-fight
+    breakdown all along — so the answer is a lookup rather than another request.
+    """
+    entry = raids.get(str(m["id"])) or {}
+    target = m.get("parse")
+    if target is None:
+        return None
+    pools = [(entry.get("current") or {}).get("encounters") or [],
+             entry.get("ultimates") or [],
+             entry.get("extremes") or []]
+    for lz in entry.get("legacy") or []:
+        pools.append(lz.get("encounters") or [])
+    for pool in pools:
+        for e in pool:
+            if e.get("best") == target and e.get("name"):
+                return e["name"], e.get("job")
+    return None
+
+
 def make_snapshot(members: list[dict], rare_ids: dict | None = None) -> dict:
     rare_ids = rare_ids or {}
     return {str(m["id"]): {
@@ -1680,7 +1745,8 @@ def make_snapshot(members: list[dict], rare_ids: dict | None = None) -> dict:
     } for m in members}
 
 
-def build_feed(members: list[dict], today: str) -> None:
+def build_feed(members: list[dict], today: str,
+               raids: dict | None = None, extra: dict | None = None) -> None:
     old = load_json("snapshot.json", {})
     # achv.json is written just before this runs and holds both the per-member
     # rare achievement ids and the catalogue they index into, so the feed can say
@@ -1688,6 +1754,7 @@ def build_feed(members: list[dict], today: str) -> None:
     achv = load_json("achv.json", {})
     catalog = achv.get("catalog") or {}
     new = make_snapshot(members, achv.get("members") or {})
+    by_id = {str(m["id"]): m for m in members}
     events: list[dict] = []
     labels = CONFIG["current_tier_labels"]
 
@@ -1719,7 +1786,17 @@ def build_feed(members: list[dict], today: str) -> None:
             # feed no longer drowns in them now that grades, named achievements and
             # extreme clears sit alongside.
             if n["parse"] is not None and (o.get("parse") or -1) < n["parse"]:
-                ev("parse_up", mid, n["name"], f"set a new best parse: {n['parse']}")
+                # A number on its own is a number. Naming the fight is what
+                # makes it something anybody can react to — 98 on an Ultimate
+                # and 98 on a four-year-old extreme are not the same news.
+                where = best_parse_fight(by_id.get(mid) or {}, raids or {})
+                text = f"set a new best parse: {n['parse']}"
+                if where:
+                    fight, job = where
+                    text += f" on {fight}"
+                    if job:
+                        text += f" as {re.sub(r'([a-z])([A-Z])', r' ', job)}"
+                ev("parse_up", mid, n["name"], text)
             occ, ncc = o.get("cc") or [], n.get("cc") or []
             for i, c in enumerate(ncc):
                 if c and (i >= len(occ) or not occ[i]):
@@ -1786,7 +1863,11 @@ def build_feed(members: list[dict], today: str) -> None:
                     ev("rare_up", mid, n["name"],
                        f"unlocked {n['rare'] - o['rare']} rare achievement(s)")
             if (o.get("level") or 0) < 100 and n["level"] == 100:
-                ev("level_100", mid, n["name"], "reached level 100!")
+                # The level on the roster belongs to whichever job they are
+                # wearing, so that is the one that just capped.
+                job = job_of(by_id.get(mid) or {}, extra) if extra is not None else None
+                ev("level_100", mid, n["name"],
+                   f"reached level 100 on {job}!" if job else "reached level 100!")
         if CONFIG["show_leaves"]:
             for mid, o in old.items():
                 if mid not in new:
@@ -1802,7 +1883,7 @@ def build_feed(members: list[dict], today: str) -> None:
     log(f"Feed — {len(events)} new event(s)")
 
 
-def build_history(members: list[dict], today: str) -> None:
+def build_history(members: list[dict], today: str, guests: int | None = None) -> None:
     hist = load_json("history.json", {"rows": []})
     has = lambda t: sum(1 for m in members if t in m["tags"])  # noqa: E731
     final_boss = sum(1 for m in members
@@ -1814,10 +1895,17 @@ def build_history(members: list[dict], today: str) -> None:
         for t in m["tags"]:
             tag_counts[t] = tag_counts.get(t, 0) + 1
 
+    # How the company itself is doing, rather than what it plays. Recorded from
+    # here on: no row before today has these, because nothing was counting them,
+    # and they cannot be worked out after the fact from anything that was kept.
+    vacation = sum(1 for m in members if m.get("rank") == ON_VACATION_RANK)
     row = {"date": today, "total": len(members), "tags": tag_counts,
            "raider": has("tier-clear") + has("prog"),   # kept: older rows use this key
            "ultimate": has("ultimate"), "extreme": has("extreme"),
-           "unknown": has("unknown"), "final_boss": final_boss}
+           "unknown": has("unknown"), "final_boss": final_boss,
+           "active": len(members) - vacation, "vacation": vacation}
+    if guests is not None:
+        row["guests"] = guests
     hist["rows"] = [r for r in hist["rows"] if r["date"] != today] + [row]
     save_json("history.json", hist)
 
@@ -2112,8 +2200,16 @@ def main() -> None:
 
     if not args.skip_news:
         build_news()
-    build_feed(members, today)
-    build_history(members, today)
+    build_feed(members, today, raids, extra)
+    # The feed may have learned what a job icon is called on its way past, and
+    # that is worth keeping: it is one fetch that names every job in the game.
+    save_json("extra.json", extra)
+    # Guests are not on the roster, so their number comes from the file the
+    # guest pass writes. Absent on a checkout that has never run it, and then
+    # the row simply has no guest count rather than claiming there are none.
+    guest_file = load_json("guests.json", {})
+    build_history(members, today,
+                  guest_file.get("count") if guest_file else None)
 
     out = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

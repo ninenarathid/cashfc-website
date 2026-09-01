@@ -112,13 +112,28 @@ export default function FcCharts({
   const historyRows = useMemo(
     () => history.map((r) => ({ ...r, ...(r.tags ?? {}) })), [history]);
 
+  // The first day anybody counted who was active. Null once every row has it,
+  // which is when the note stops being worth saying.
+  const firstCounted = useMemo(() => {
+    const withIt = history.filter((r) => r.active != null);
+    return withIt.length && withIt.length < history.length ? withIt[0].date : null;
+  }, [history]);
+
   const series = useMemo(() => {
     const seen = new Set<string>();
     for (const r of history) for (const k of Object.keys(r.tags ?? {})) seen.add(k);
     const tagSeries = [...seen]
       .sort((a, b) => (TAG_ORDER.indexOf(a) + 99) - (TAG_ORDER.indexOf(b) + 99))
       .map((k) => ({ key: k, label: TAG_LABELS[k] ?? k, color: TAG_COLOR[k] ?? "#7a7a7a" }));
+    // How big the company is and how much of it is playing. First, because it
+    // is the question this chart is opened with — is the FC growing, and did
+    // people stop logging in at some point — and because the rest are answers
+    // about what the FC plays rather than about the FC.
     return [
+      { key: "total", label: "Whole FC", color: "#d7dae0" },
+      { key: "active", label: "Active", color: "#43b581" },
+      { key: "vacation", label: "On vacation", color: "#747f8d" },
+      { key: "guests", label: "Guests", color: "#a87fd8" },
       { key: "final_boss", label: "Final boss cleared", color: "#4fb8a8" },
       ...tagSeries,
     ];
@@ -127,7 +142,7 @@ export default function FcCharts({
   // Everything at once is unreadable, so start with the few that describe the FC's
   // shape and let people add the rest.
   const [shownSeries, setShownSeries] = useState<Set<string>>(
-    () => new Set(["tier-clear", "prog", "extreme", "ultimate", "final_boss"]));
+    () => new Set(["total", "active", "vacation", "guests"]));
   const toggleSeries = (k: string) =>
     setShownSeries((prev) => {
       const next = new Set(prev);
@@ -287,6 +302,16 @@ export default function FcCharts({
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
+                  {/* These four only started being recorded when the pipeline
+                      learned to count them, and no row before that can be made
+                      to have them — a chart that quietly began mid-line would
+                      look like the FC appeared out of nowhere that day. */}
+                  {firstCounted && (
+                    <p className="mt-1 text-[11px] text-muted/70">
+                      Whole FC, Active, On vacation and Guests are recorded from{" "}
+                      {firstCounted} onwards.
+                    </p>
+                  )}
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11.5px]">
                     {series.map((s) => {
                       const on = shownSeries.has(s.key);

@@ -74,6 +74,23 @@ jobs:
           fi
           python pipeline/update_members.py $FLAGS
 
+      # Guests are the people who registered here and are not in the FC, so the
+      # roster the pipeline works from never mentions them. This reads the claim
+      # list from Supabase with the anon key — the same one already shipped
+      # inside the site's own JavaScript — and only reads, so nothing here is
+      # given permission to write anything. It runs after the roster, because
+      # who counts as a guest is decided by who is on it.
+      #
+      # Failing here must not fail the run: the guest list is a nicety and the
+      # roster behind it is the day's real work.
+      - name: Look up guests
+        continue-on-error: true
+        timeout-minutes: 20
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: python pipeline/update_guests.py
+
       # commit new data -> push -> Vercel redeploys automatically.
       # always(): the pipeline checkpoints its progress to data/ as it goes, so even a
       # timed-out or failed run has partial results worth keeping — and the next run

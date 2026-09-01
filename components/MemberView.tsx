@@ -21,6 +21,7 @@ import MemberTags from "@/components/MemberTags";
 import RareAchievements, { type AchievementInfo } from "@/components/RareAchievements";
 import { createClient } from "@/lib/supabase/client";
 import { memberTitle } from "@/lib/tags";
+import { GUEST_RANK, guestHome } from "@/lib/guest-data";
 
 function parseColor(p: number | null | undefined): string {
   if (p == null) return "#7a7a7a";
@@ -179,6 +180,10 @@ export default function MemberView({
   // "kept" is private-now-but-we-read-it-before. The shelf is not thrown away
   // when somebody closes their profile — a closed profile is not a lost
   // collection — but it stops claiming to be current, and says when it was read.
+  // Where a guest plays. Undefined for an FC member, which is the point: they
+  // are all on the same world in the same company.
+  const home = m.rank === GUEST_RANK ? guestHome(m.id) : undefined;
+
   const collectState: "ok" | "private" | "kept" | "unknown" =
     m.mounts == null && m.minions == null ? "unknown"
     : m.ach_public === false ? (m.rare_achv != null ? "kept" : "private")
@@ -282,6 +287,14 @@ export default function MemberView({
             )}
             <div className="mt-1 text-[13px] text-ink/70">
               Lv {m.level ?? "—"}
+              {/* For somebody outside the FC, the world and the company they
+                  are actually in are the two facts that place them. Every FC
+                  member would only repeat the same pair, so it is said here
+                  only where it says something. */}
+              {home?.world && (
+                <> · {home.world}{home.dc ? ` [${home.dc}]` : ""}</>
+              )}
+              {home?.fc && <> · {home.fc}</>}
               {m.race && (
                 <> · {m.race}{m.clan ? ` (${m.clan})` : ""}</>
               )}

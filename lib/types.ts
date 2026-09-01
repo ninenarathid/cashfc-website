@@ -174,6 +174,14 @@ export interface HistoryRow {
   // "extreme" instead, so both are optional and the chart just skips a missing one.
   collector?: number; extreme?: number; unknown: number; final_boss: number;
   /**
+   * How the company itself was doing that day, rather than what it played.
+   *
+   * Optional because they are only recorded from the run that learned to count
+   * them: nothing kept before that can be made to yield them, so the earliest
+   * rows genuinely do not have an answer rather than having a zero.
+   */
+  active?: number; vacation?: number; guests?: number;
+  /**
    * Count per tag on that day. Absent from rows written before the FC did anything
    * but raid in this chart, which is why every series is drawn defensively.
    */

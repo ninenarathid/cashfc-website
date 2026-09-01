@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { allGuestIds, guestHome, guestMember } from "@/lib/guest-data";
 import raw from "@/data/members.json";
 import raidsRaw from "@/data/raids.json";
 import achvRaw from "@/data/achv.json";
@@ -15,14 +16,27 @@ const achv = achvRaw as unknown as {
 };
 
 export function generateStaticParams() {
-  return data.members.map((m) => ({ id: String(m.id) }));
+  // Guests get a page too. They are not on the roster by definition, so without
+  // this every link to one — from the board, from a tag on a picture — answered
+  // with a 404, which reads as "this person does not exist" rather than "this
+  // person is not in the FC".
+  return [...data.members.map((m) => m.id), ...allGuestIds()]
+    .map((id) => ({ id: String(id) }));
+}
+
+/** The roster first, then the guests. Nobody is in both. */
+function findMember(id: string) {
+  const own = data.members.find((x) => String(x.id) === id);
+  if (own) return own;
+  const home = guestHome(Number(id));
+  return home ? guestMember(Number(id), home) : undefined;
 }
 
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const m = data.members.find((x) => String(x.id) === id);
+  const m = findMember(id);
   return {
     title: m ? `${m.name} — Cafe And SHabu` : "Member — Cafe And SHabu",
     description: m
@@ -35,7 +49,7 @@ export default async function Page(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const m = data.members.find((x) => String(x.id) === id);
+  const m = findMember(id);
   if (!m) notFound();
   const agg = {
     mounts: data.members.map((x) => x.mounts),

@@ -20,7 +20,6 @@ const TABS: { href: string; label: Key; match?: (p: string) => boolean }[] = [
   // "/members".
   { href: "/members", label: "nav.members", match: (p) => p.startsWith("/member") },
   { href: "/leaderboards", label: "nav.leaderboards" },
-  { href: "/updates", label: "nav.updates" },
 ];
 
 // Shown only to whoever the gallery is open to, so the header never offers a

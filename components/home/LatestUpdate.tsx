@@ -1,33 +1,43 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import Changelog from "@/components/Changelog";
 import { CHANGELOG } from "@/lib/changelog";
 
+/** How many days of changes are shown before the rest is folded away. */
+const SHOWN = 2;
+
 /**
- * The newest day of changes, on the front page.
+ * What has changed on the site, on the front page.
  *
- * One day, not the list. Somebody landing on the home page wants to know
- * whether anything is different since they last looked, which is a question the
- * most recent entry answers on its own — and the link is there for the person
- * who has been away longer than that.
+ * On the front page and nowhere else: a changelog behind its own tab is one
+ * nobody visits, because reading it is a thing you have to decide to do. Here
+ * it is in the way of somebody who came for something else, which is the only
+ * moment they will find out the gallery got faster or their birthday now shows.
+ *
+ * Folded after the newest couple of days so it stays a note rather than the
+ * page. The rest is one click away and does not move anybody off the page they
+ * are already on.
  */
 export default function LatestUpdate() {
   const { t } = useLang();
+  const [open, setOpen] = useState(false);
   if (!CHANGELOG.length) return null;
+  const more = CHANGELOG.length > SHOWN;
+
   return (
     <section className="mt-5 rounded-xl border border-line bg-surface p-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-display text-lg font-semibold">{t("log.latest")}</h2>
-        <Link href="/updates"
-              className="text-[12.5px] text-accent no-underline hover:underline">
-          {t("log.all")} →
-        </Link>
-      </div>
+      <h2 className="font-display text-lg font-semibold">{t("log.title")}</h2>
       <div className="mt-2.5">
-        <Changelog limit={1} />
+        <Changelog limit={open ? undefined : SHOWN} />
       </div>
+      {more && (
+        <button onClick={() => setOpen(!open)}
+                className="mt-3 text-[12.5px] text-accent hover:underline">
+          {open ? t("log.less") : t("log.more")} {open ? "↑" : "↓"}
+        </button>
+      )}
     </section>
   );
 }
