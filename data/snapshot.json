@@ -30,9 +30,9 @@
   "name": "Aqua Eleison",
   "parse": 100,
   "ult": 4,
-  "mounts": 255,
-  "minions": 463,
-  "rare": null,
+  "mounts": 280,
+  "minions": 486,
+  "rare": 518,
   "level": 100,
   "cc": [
    true,
@@ -41,8 +41,117 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   1313,
+   1315,
+   1317,
+   1321,
+   1322,
+   1323,
+   1324,
+   1326,
+   1354,
+   1603,
+   1604,
+   1855,
+   1952,
+   2007,
+   2008,
+   2009,
+   2010,
+   2352,
+   2491,
+   2494,
+   2497,
+   2500,
+   2503,
+   2506,
+   2509,
+   2512,
+   2515,
+   2518,
+   2521,
+   2524,
+   2525,
+   2526,
+   2527,
+   2528,
+   2529,
+   2530,
+   2531,
+   2532,
+   2533,
+   2534,
+   2535,
+   2536,
+   2537,
+   2548,
+   2549,
+   2648,
+   2649,
+   2650,
+   2651,
+   2652,
+   2653,
+   2654,
+   2655,
+   2656,
+   2657,
+   2658,
+   2712,
+   2766,
+   2785,
+   2803,
+   2815,
+   2816,
+   2877,
+   2879,
+   3350,
+   3377,
+   3405,
+   3406,
+   3407,
+   3479,
+   3659,
+   3668,
+   3703,
+   3704,
+   3706,
+   3707,
+   3708,
+   3709,
+   3711,
+   3712,
+   3714,
+   3715,
+   3717,
+   3718,
+   3721,
+   3724,
+   3817,
+   3818,
+   3819,
+   3833,
+   3834,
+   3875,
+   3938,
+   3944,
+   3949,
+   3991,
+   4000,
+   4007,
+   4017,
+   4018
+  ],
+  "tiers": {
+   "gatherer": "legendary",
+   "crafter": "legendary",
+   "relic": "master",
+   "explorer": "legendary",
+   "goldsaucer": "legendary",
+   "seasonal": "expert",
+   "pvp": "legendary"
+  },
   "jobs": {
    "Warrior": "master"
   },
@@ -61,7 +170,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -652,7 +761,7 @@
   "mounts": 75,
   "minions": 144,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -683,7 +792,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -1329,9 +1438,7 @@
    3979,
    4069
   ],
-  "tiers": {
-   "relic": "expert"
-  },
+  "tiers": {},
   "jobs": {
    "Monk": "legendary",
    "Samurai": "legendary"
@@ -3963,7 +4070,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 86,
+  "level": 89,
   "cc": [
    true,
    true,
@@ -4008,7 +4115,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -4134,7 +4241,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 69,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -5579,7 +5686,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 50,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -5625,7 +5732,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -5803,7 +5910,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 91,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -5818,7 +5925,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -8698,8 +8805,7 @@
    3805
   ],
   "tiers": {
-   "relic": "expert",
-   "goldsaucer": "master"
+   "relic": "expert"
   },
   "jobs": {
    "Astrologian": "master",
@@ -9268,7 +9374,6 @@
    3405
   ],
   "tiers": {
-   "goldsaucer": "expert",
    "seasonal": "master"
   },
   "jobs": {
@@ -10028,7 +10133,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -10041,7 +10146,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "30333493": {
   "name": "Haruko Sho",

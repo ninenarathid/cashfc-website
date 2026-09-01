@@ -2,6 +2,69 @@
  "events": [
   {
    "date": "2026-09-01",
+   "type": "grade_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Legendary Gatherer ✨"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "grade_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Legendary Crafter ✨"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "grade_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Master Relic grinder ✨"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "grade_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "grade_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Legendary Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "grade_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Expert Seasonal collector ✨"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "grade_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Legendary PvP player ✨"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Pack Man IV — only 0.1% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "level_100",
+   "id": 43335087,
+   "name": "Haru Senbonzakura",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-09-01",
    "type": "level_100",
    "id": 42053180,
    "name": "Elle'kuro Dean'deluca",
@@ -1336,69 +1399,6 @@
    "id": 24150396,
    "name": "Chaser Dc",
    "text": "is now a Master Dancer"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 8999658,
-   "name": "Chzzck Godslayer",
-   "text": "is now a Expert Samurai"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 24103365,
-   "name": "Cygnus Stellar",
-   "text": "set a new best parse: 90"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 24103365,
-   "name": "Cygnus Stellar",
-   "text": "is now a Master Dark Knight"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 18578874,
-   "name": "De'lalia Aredhel",
-   "text": "set a new best parse: 72"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 34511319,
-   "name": "Elise Lionheart",
-   "text": "set a new best parse: 93"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 34511319,
-   "name": "Elise Lionheart",
-   "text": "is now a Legendary Summoner"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 36855080,
-   "name": "Elkronin Ketchupeater",
-   "text": "set a new best parse: 79"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 36855080,
-   "name": "Elkronin Ketchupeater",
-   "text": "is now a Expert Dragoon"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 34522645,
-   "name": "Ellone Chrysler",
-   "text": "set a new best parse: 84"
   }
  ]
 }
