@@ -25,7 +25,7 @@ export default function LeaderboardIntro() {
         <summary className="cursor-pointer select-none px-4 py-2.5 text-[13.5px] font-medium text-muted marker:text-accent">
           {t("lb.howScored")}
         </summary>
-        <p className="px-4 pb-3.5 text-[13.5px] leading-relaxed text-muted">
+        <p className="px-4 pb-3 text-[13.5px] leading-relaxed text-muted">
         {th ? (
           <>
             จัดอันดับจาก achievement หายาก โดยแต่ละอันมีค่าเท่ากับความหายากของมันตรงๆ คือ{" "}
@@ -47,6 +47,34 @@ export default function LeaderboardIntro() {
             achievements can appear here.
           </>
         )}
+        </p>
+
+        {/* The potato board is the one thing here the game had no hand in, and
+            it adds two counters that look separate everywhere else on the site
+            — worth saying so rather than leaving somebody to work out why the
+            number differs from the one on their own profile. */}
+        <p className="border-t border-line px-4 py-3 text-[13.5px] leading-relaxed text-muted">
+          {th ? (
+            <>
+              <b className="text-gold">🥔 โปโปโต้</b> ไม่ได้มาจากในเกม แต่มาจากสมาชิกใน FC
+              กดให้กัน และนับ <b className="text-ink">สองที่รวมกัน</b> — ปุ่ม Send popoto
+              ในหน้าโปรไฟล์ (กดได้วันละครั้งต่อคน) กับโปโปโต้ที่คนกดให้รูปในแกลเลอรี
+              สองอันนี้แยกกันคนละที่ ตัวเลขที่ขึ้นในหน้าโปรไฟล์จึงนับเฉพาะอันแรก
+              ส่วนตรงนี้รวมทั้งคู่ เอาเมาส์ชี้ที่ตัวเลขจะเห็นว่ามาจากไหนเท่าไหร่
+              โปโปโต้ของรูปนับให้ตัวละครที่รูปนั้นสังกัด ไม่ใช่คนที่อัปโหลด
+            </>
+          ) : (
+            <>
+              <b className="text-gold">🥔 Popoto</b> is the one board the game had no
+              hand in — it is members saying something about each other — and it adds{" "}
+              <b className="text-ink">both kinds together</b>: Send popoto on somebody's
+              profile, which is once per person per day, and potatoes left on their
+              pictures in the gallery. Those are separate everywhere else, which is why
+              the number on a profile counts only the first; hover a total here to see
+              the split. A picture's potatoes go to the character it belongs to rather
+              than whoever uploaded it.
+            </>
+          )}
         </p>
       </details>
     </>

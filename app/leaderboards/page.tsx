@@ -1,6 +1,6 @@
 import raw from "@/data/members.json";
 import type { BoardData, Member } from "@/lib/types";
-import { ACHV_TIER_LABEL, isOnVacation } from "@/lib/types";
+import { isOnVacation } from "@/lib/types";
 import { TAG_COLOR, TAG_LABELS } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
 import LeaderboardIntro from "@/components/LeaderboardIntro";
@@ -76,7 +76,7 @@ export default function LeaderboardsPage() {
         </div>
       ) : (
         <div className="mt-5 grid gap-5 md:grid-cols-2">
-          {/* First, because it is the one board on this page that the FC awards
+          {/* First, because it is the one board on this page the FC awards
               rather than the game. */}
           <PopotoBoard names={who} />
 
@@ -109,9 +109,9 @@ export default function LeaderboardsPage() {
                              row={{
                                id: r.m.id, name: r.m.name, avatar: r.m.avatar ?? null,
                                score: r.score, n: r.n,
-                               note: r.tier ? ACHV_TIER_LABEL[r.tier]
-                                 : isOnVacation(r.m) ? "on vacation" : undefined,
-                               noteTone: r.tier ? "accent" : "muted",
+                               tier: r.tier,
+                               note: isOnVacation(r.m) ? "on vacation" : undefined,
+                               noteTone: "muted",
                              }}
                              // Always the share, never the raw score: the two are
                              // on different scales and a column that silently

@@ -267,8 +267,8 @@ const DICT = {
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
   "lb.popoto": { en: "Popoto", th: "โปโปโต้" },
   "lb.popotoHint": {
-    en: "given by the FC, not earned in game",
-    th: "มาจากเพื่อนใน FC ไม่ใช่จากในเกม",
+    en: "on their profile and on their pictures",
+    th: "รวมจากหน้าโปรไฟล์และจากรูปในแกลเลอรี",
   },
   "gallery.cover": { en: "Cover", th: "รูปหน้าปก" },
   "gallery.openPoster": { en: "Post a picture", th: "โพสต์รูป" },

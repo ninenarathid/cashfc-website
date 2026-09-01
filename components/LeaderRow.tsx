@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useAvatar } from "@/lib/avatars";
+import { ACHV_TIER_STYLE } from "@/lib/tags";
+import { ACHV_TIER_LABEL } from "@/lib/types";
 
 /**
  * One line of a leaderboard.
@@ -21,7 +23,9 @@ export interface Leader {
   avatar: string | null;
   score: number;
   n: number;
-  /** Anything to say beside the name — a grade, "on vacation". */
+  /** A grade, drawn as one: legendary | master | expert. */
+  tier?: string;
+  /** Anything else to say beside the name — "on vacation". */
   note?: string;
   noteTone?: "accent" | "muted";
 }
@@ -75,6 +79,18 @@ export default function LeaderRow(
                 top ? "text-[14.5px] font-semibold" : ""}`}>
           {row.name}
         </Link>
+        {/* The grade is the loudest thing on the line after the name, and gets
+            louder the higher it is — a Legendary should not have to be looked
+            for among the Experts. */}
+        {row.tier && ACHV_TIER_STYLE[row.tier] && (
+          <span className="ml-1.5 align-baseline"
+                style={{ color: ACHV_TIER_STYLE[row.tier].color,
+                         fontWeight: ACHV_TIER_STYLE[row.tier].weight,
+                         fontSize: row.tier === "legendary" ? "12.5px"
+                           : row.tier === "master" ? "12px" : "11.5px" }}>
+            {ACHV_TIER_LABEL[row.tier] ?? row.tier}
+          </span>
+        )}
         {row.note && (
           <span className={`ml-1.5 text-[11px] ${
             row.noteTone === "muted" ? "text-muted/70" : "text-accent"}`}>

@@ -45,6 +45,20 @@ export const TAG_COLOR: Record<string, string> = {
   casual: "#8b97a8", unknown: "#55493a",
 };
 
+/**
+ * How a grade is drawn wherever it appears on its own.
+ *
+ * Gold, silver, bronze. A podium is a ladder everybody can already read, so the
+ * order needs no legend and nobody has to remember which of two similar blues
+ * outranks the other. Weight climbs with it, because colour alone is not a rank
+ * to somebody who cannot separate these three hues.
+ */
+export const ACHV_TIER_STYLE: Record<string, { color: string; weight: number }> = {
+  legendary: { color: "#e5cc80", weight: 700 },
+  master: { color: "#c3ccd8", weight: 600 },
+  expert: { color: "#c98a5b", weight: 500 },
+};
+
 /** "Legendary crafter" reads better than "Legendary Crafter" mid-sentence. */
 export function tagText(tag: string, tier?: string): string {
   const base = TAG_LABELS[tag] ?? tag;
