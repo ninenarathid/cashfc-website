@@ -158,11 +158,26 @@ export default function HotGallery() {
   const columns = useMemo(() => pack(posts), [posts]);
   if (!posts.length) return null;
 
-  const arrow = (dir: 1 | -1, disabled: boolean) => (
-    <button onClick={() => nudge(dir)} disabled={disabled}
+  /**
+   * A way on to the next few pictures, at the edge it moves towards.
+   *
+   * Over the strip rather than up in the heading, because that is where the
+   * hand already is and where the movement happens. It fades out at the end it
+   * cannot travel any further towards, and goes untabbable with it: an arrow
+   * that does nothing is worse than no arrow, and one that does nothing but
+   * still takes a tab stop is worse again.
+   */
+  const arrow = (dir: 1 | -1, done: boolean) => (
+    <button onClick={() => nudge(dir)} tabIndex={done ? -1 : 0} aria-hidden={done}
             aria-label={dir === 1 ? "Later pictures" : "Earlier pictures"}
-            className="grid size-7 place-items-center rounded-full border border-line text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted">
-      {dir === 1 ? "›" : "‹"}
+            className={`absolute top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg/80 text-ink shadow-lg backdrop-blur transition-all hover:border-accent hover:text-accent ${
+              dir === 1 ? "right-1" : "left-1"} ${
+              done ? "pointer-events-none opacity-0" : "opacity-90 hover:opacity-100"}`}>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden
+           stroke="currentColor" strokeWidth="2.2"
+           strokeLinecap="round" strokeLinejoin="round">
+        <path d={dir === 1 ? "M9 6l6 6-6 6" : "M15 6l-6 6 6 6"} />
+      </svg>
     </button>
   );
 
@@ -174,18 +189,19 @@ export default function HotGallery() {
               className="text-[12.5px] font-normal text-accent no-underline hover:underline">
           {t("gallery.seeAll")} →
         </Link>
-        <span className="ml-auto flex items-center gap-1.5">
-          {arrow(-1, at.start)}
-          {arrow(1, at.end)}
-        </span>
       </h2>
 
       {/* The two numbers the whole layout is built from, declared once here so
           the tiles can do their arithmetic in CSS and stay right at every
           width. Scrolled natively as well as by the arrows, so a touchscreen
-          swipes it and a trackpad does what a trackpad does. */}
+          swipes it and a trackpad does what a trackpad does — the bar itself is
+          hidden, because the arrows say the same thing and a scrollbar under a
+          row of pictures is a piece of furniture nobody asked for. */}
+      <div className="relative">
+      {arrow(-1, at.start)}
+      {arrow(1, at.end)}
       <div ref={strip} onScroll={measure}
-           className="-mx-1 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 pb-1 [--row-gap:8px] [--row-h:94px] [scrollbar-width:thin] sm:[--row-h:118px]">
+           className="-mx-1 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 [--row-gap:8px] [--row-h:112px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[--row-h:148px]">
         {columns.map((col, i) => (
           <div key={i} className="flex shrink-0 snap-start flex-col gap-2">
             {col.tall && <Tile post={col.tall} rows={2} />}
@@ -193,6 +209,7 @@ export default function HotGallery() {
             {col.bottom && <Tile post={col.bottom} rows={1} />}
           </div>
         ))}
+      </div>
       </div>
     </section>
   );
