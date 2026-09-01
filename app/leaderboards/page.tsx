@@ -86,16 +86,21 @@ export default function LeaderboardsPage() {
             // to navigate; a colour down the side is one you can scroll to.
             <section key={key}
                      style={{ borderTopColor: TAG_COLOR[key] ?? undefined }}
-                     className="overflow-hidden rounded-xl border border-line border-t-[3px] bg-surface">
+                     className="overflow-hidden rounded-xl border border-line border-t-4 bg-surface">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pb-2.5 pt-3"
-                   style={{ background: `${TAG_COLOR[key] ?? "#8b97a8"}14` }}>
-                <span className="grid size-8 shrink-0 place-items-center rounded-lg"
-                      style={{ background: `${TAG_COLOR[key] ?? "#8b97a8"}26`,
-                               border: `1px solid ${TAG_COLOR[key] ?? "#8b97a8"}59` }}>
-                  <TagIcon tag={key} size={20} />
+                   style={{ background: `${TAG_COLOR[key] ?? "#8b97a8"}22`,
+                            borderBottom: `1px solid ${TAG_COLOR[key] ?? "#8b97a8"}33` }}>
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg"
+                      style={{ background: `${TAG_COLOR[key] ?? "#8b97a8"}33`,
+                               border: `1px solid ${TAG_COLOR[key] ?? "#8b97a8"}80` }}>
+                  <TagIcon tag={key} size={22} />
                 </span>
-                <span className="font-display text-[17px] font-semibold capitalize"
-                      style={{ color: TAG_COLOR[key] ?? undefined }}>
+                {/* Lifted towards white so the muted ones — crafter's brown,
+                    pvp's slate — still read as a heading rather than as
+                    something greyed out. */}
+                <span className="font-display text-[17.5px] font-bold capitalize"
+                      style={{ color: `color-mix(in srgb, ${
+                        TAG_COLOR[key] ?? "#8b97a8"} 78%, #ffffff)` }}>
                   {TAG_LABELS[key] ?? key}
                 </span>
                 {/* What this list is, not what the badge means. The tag help

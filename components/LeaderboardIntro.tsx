@@ -49,30 +49,30 @@ export default function LeaderboardIntro() {
         )}
         </p>
 
-        {/* The potato board is the one thing here the game had no hand in, and
-            it adds two counters that look separate everywhere else on the site
-            — worth saying so rather than leaving somebody to work out why the
-            number differs from the one on their own profile. */}
+        {/* The one board the game had no hand in, and the one whose number a
+            reader can check against something else on the site — so it says
+            which number that is, and which one it deliberately leaves out. */}
         <p className="border-t border-line px-4 py-3 text-[13.5px] leading-relaxed text-muted">
           {th ? (
             <>
               <b className="text-gold">🥔 โปโปโต้</b> ไม่ได้มาจากในเกม แต่มาจากสมาชิกใน FC
-              กดให้กัน และนับ <b className="text-ink">สองที่รวมกัน</b> — ปุ่ม Send popoto
-              ในหน้าโปรไฟล์ (กดได้วันละครั้งต่อคน) กับโปโปโต้ที่คนกดให้รูปในแกลเลอรี
-              สองอันนี้แยกกันคนละที่ ตัวเลขที่ขึ้นในหน้าโปรไฟล์จึงนับเฉพาะอันแรก
-              ส่วนตรงนี้รวมทั้งคู่ เอาเมาส์ชี้ที่ตัวเลขจะเห็นว่ามาจากไหนเท่าไหร่
-              โปโปโต้ของรูปนับให้ตัวละครที่รูปนั้นสังกัด ไม่ใช่คนที่อัปโหลด
+              กดให้กัน นับจาก <b className="text-ink">ปุ่ม Send popoto ในหน้าโปรไฟล์</b>{" "}
+              อย่างเดียว กดได้วันละครั้งต่อคน ตัวเลขตรงนี้จึงตรงกับที่ขึ้นในหน้าโปรไฟล์ของคนนั้นเป๊ะๆ
+              <br />
+              โปโปโต้ที่กดให้รูปในแกลเลอรี <b className="text-ink">ไม่ถูกนับรวม</b> —
+              มันพูดถึงรูปนั้น ไม่ได้พูดถึงตัวคน และเก็บอยู่คนละที่กัน
             </>
           ) : (
             <>
               <b className="text-gold">🥔 Popoto</b> is the one board the game had no
-              hand in — it is members saying something about each other — and it adds{" "}
-              <b className="text-ink">both kinds together</b>: Send popoto on somebody's
-              profile, which is once per person per day, and potatoes left on their
-              pictures in the gallery. Those are separate everywhere else, which is why
-              the number on a profile counts only the first; hover a total here to see
-              the split. A picture's potatoes go to the character it belongs to rather
-              than whoever uploaded it.
+              hand in — it is members saying something about each other. It counts{" "}
+              <b className="text-ink">Send popoto on a profile</b> and nothing else,
+              once per person per day, so the total here matches the number on that
+              member&rsquo;s own page exactly.
+              <br />
+              Potatoes left on pictures in the gallery are{" "}
+              <b className="text-ink">not counted</b>: those are about the picture
+              rather than the person, and they are kept somewhere else entirely.
             </>
           )}
         </p>

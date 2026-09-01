@@ -267,8 +267,8 @@ const DICT = {
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
   "lb.popoto": { en: "Popoto", th: "โปโปโต้" },
   "lb.popotoHint": {
-    en: "on their profile and on their pictures",
-    th: "รวมจากหน้าโปรไฟล์และจากรูปในแกลเลอรี",
+    en: "from Send popoto on their profile",
+    th: "จากปุ่ม Send popoto ในหน้าโปรไฟล์",
   },
   "gallery.cover": { en: "Cover", th: "รูปหน้าปก" },
   "gallery.openPoster": { en: "Post a picture", th: "โพสต์รูป" },

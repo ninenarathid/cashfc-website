@@ -55,7 +55,9 @@ export const TAG_COLOR: Record<string, string> = {
  */
 export const ACHV_TIER_STYLE: Record<string, { color: string; weight: number }> = {
   legendary: { color: "#e5cc80", weight: 700 },
-  master: { color: "#c3ccd8", weight: 600 },
+  // Violet rather than silver: silver was the colour of the name beside it, so
+  // the grade read as part of the name instead of as a rank.
+  master: { color: "#b07ce8", weight: 600 },
   expert: { color: "#c98a5b", weight: 500 },
 };
 

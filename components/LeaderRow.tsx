@@ -52,20 +52,20 @@ export default function LeaderRow(
   const face = useAvatar(row.id, row.avatar);
   return (
     <li className={`grid items-center gap-2 ${
-      top ? "grid-cols-[22px_40px_1fr_auto] py-1" : "grid-cols-[22px_1fr_auto]"} text-[13px]`}>
+      top ? "grid-cols-[22px_52px_1fr_auto] py-1.5" : "grid-cols-[22px_1fr_auto]"} text-[13px]`}>
       <span className={`text-right font-data text-[11.5px] ${
         top ? "text-accent" : "text-muted"}`}>
         {place}
       </span>
 
       {top && (
-        <Link href={`/member/${row.id}`} className="block size-10 shrink-0">
+        <Link href={`/member/${row.id}`} className="block size-[52px] shrink-0">
           {face ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={face} alt="" loading="lazy"
-                 className="size-10 rounded-full border border-line object-cover" />
+                 className="size-[52px] rounded-full border border-line object-cover" />
           ) : (
-            <span className="grid size-10 place-items-center rounded-full border border-line font-data text-[12px] text-ink/80"
+            <span className="grid size-[52px] place-items-center rounded-full border border-line font-data text-[14px] text-ink/80"
                   style={{ background: `hsl(${hue(row.name)} 30% 22%)` }}>
               {initials(row.name)}
             </span>
@@ -76,7 +76,7 @@ export default function LeaderRow(
       <span className="min-w-0 truncate">
         <Link href={`/member/${row.id}`}
               className={`font-data text-ink no-underline hover:text-accent ${
-                top ? "text-[14.5px] font-semibold" : ""}`}>
+                top ? "text-[15px] font-semibold" : ""}`}>
           {row.name}
         </Link>
         {/* The grade is the loudest thing on the line after the name, and gets
