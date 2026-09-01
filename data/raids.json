@@ -2089,6 +2089,7 @@
     "encounters": [
      {
       "label": "E1S",
+      "encounter_id": 65,
       "name": "Eden Prime",
       "best": 9,
       "median": 9,
@@ -6223,6 +6224,7 @@
     "encounters": [
      {
       "label": "E1S",
+      "encounter_id": 65,
       "name": "Eden Prime",
       "best": 96,
       "median": 95,
@@ -6231,6 +6233,7 @@
      },
      {
       "label": "E2S",
+      "encounter_id": 66,
       "name": "Voidwalker",
       "best": 95,
       "median": 89,
@@ -6239,6 +6242,7 @@
      },
      {
       "label": "E3S",
+      "encounter_id": 67,
       "name": "Leviathan",
       "best": 97,
       "median": 82,
@@ -6247,6 +6251,7 @@
      },
      {
       "label": "E4S",
+      "encounter_id": 68,
       "name": "Titan",
       "best": 95,
       "median": 72,
@@ -6860,6 +6865,49 @@
       "median": 78,
       "kills": 16,
       "job": "Astrologian"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 98,
+      "median": 86,
+      "kills": 10,
+      "job": "Scholar"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 97,
+      "median": 85,
+      "kills": 14,
+      "job": "Scholar"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 96,
+      "median": 69,
+      "kills": 13,
+      "job": "Scholar"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 89,
+      "median": 60,
+      "kills": 8,
+      "job": "Scholar"
      }
     ]
    }
@@ -10984,6 +11032,7 @@
     "encounters": [
      {
       "label": "E1S",
+      "encounter_id": 65,
       "name": "Eden Prime",
       "best": 10,
       "median": 7,
@@ -10992,6 +11041,7 @@
      },
      {
       "label": "E2S",
+      "encounter_id": 66,
       "name": "Voidwalker",
       "best": 16,
       "median": 8,
@@ -11000,6 +11050,7 @@
      },
      {
       "label": "E3S",
+      "encounter_id": 67,
       "name": "Leviathan",
       "best": 30,
       "median": 11,
@@ -11008,6 +11059,7 @@
      },
      {
       "label": "E4S",
+      "encounter_id": 68,
       "name": "Titan",
       "best": 10,
       "median": 8,
