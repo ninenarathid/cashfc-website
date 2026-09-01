@@ -3,8 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { NOTICE_KEY } from "@/components/home/ShowYourData";
-import { GALLERY_PUBLIC_KEY } from "@/lib/gallery";
 import ImagePicker from "@/components/ImagePicker";
 
 interface Option { id: number; name: string }
@@ -185,10 +183,6 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
   const [serverId, setServerId] = useState("");
   const [invite, setInvite] = useState("");
-  // Defaults to on, matching the notice itself: no row means nobody has retired it yet.
-  const [noticeOn, setNoticeOn] = useState(true);
-  // Starts closed: the gallery goes to the whole FC when an admin says so.
-  const [galleryOn, setGalleryOn] = useState(true);
 
   const [overrides, setOverrides] = useState<Override[]>([]);
   const [pick, setPick] = useState("");
@@ -254,8 +248,6 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
     for (const r of s.data ?? []) {
       if (r.key === "discord_server_id") setServerId(r.value ?? "");
       if (r.key === "discord_invite_url") setInvite(r.value ?? "");
-      if (r.key === NOTICE_KEY) setNoticeOn(r.value !== "off");
-      if (r.key === GALLERY_PUBLIC_KEY) setGalleryOn(r.value !== "off");
     }
     setOverrides((o.data as Override[]) ?? []);
     setClaims(c);
@@ -346,69 +338,6 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
             className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-accent hover:bg-accent/25">
             Save
           </button>
-        </div>
-      </section>
-
-      {/* ── The how-to notice on the front page ── */}
-      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">
-          &ldquo;Want your data on the board?&rdquo; notice
-        </div>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-          The bilingual walkthrough on the home page telling members how to make
-          their achievements public and register on FFXIV Collect. Worth retiring
-          once most of the FC has done it, so the front page is not permanently
-          nagging people who already have.
-        </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={async () => {
-              const next = noticeOn ? "off" : "on";
-              const { error } = await supabase!.from("site_settings").upsert([
-                { key: NOTICE_KEY, value: next, updated_at: new Date().toISOString() },
-              ]);
-              if (!error) setNoticeOn(!noticeOn);
-              flash(error ? "Save failed (has migration_v2.sql been run?)"
-                          : next === "on" ? "Notice is showing" : "Notice hidden");
-            }}
-            className={`rounded-lg border px-4 py-2 ${
-              noticeOn ? "border-accent bg-accent/15 text-accent hover:bg-accent/25"
-                       : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-            {noticeOn ? "Showing on the home page" : "Hidden"}
-          </button>
-          <span className="text-[12.5px] text-muted">
-            {noticeOn ? "Click to hide it" : "Click to show it again"}
-          </span>
-        </div>
-      </section>
-
-      {/* ── Gallery visibility ── */}
-      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">Gallery</div>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-          Members post screenshots to /gallery and they appear on their own member
-          page too. Closed means admins only — the rows are readable either way, so
-          this is about who is shown the page, not about hiding the pictures.
-        </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={async () => {
-              const next = galleryOn ? "off" : "on";
-              const { error } = await supabase!.from("site_settings").upsert([
-                { key: GALLERY_PUBLIC_KEY, value: next, updated_at: new Date().toISOString() },
-              ]);
-              if (!error) setGalleryOn(!galleryOn);
-              flash(error ? "Save failed (has migration_v9.sql been run?)"
-                          : next === "on" ? "Gallery is open to everyone" : "Gallery is admins only");
-            }}
-            className={`rounded-lg border px-4 py-2 ${
-              galleryOn ? "border-jade bg-jade/15 text-jade hover:bg-jade/25"
-                        : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-            {galleryOn ? "Open to everyone" : "Admins only"}
-          </button>
-          <span className="text-[12.5px] text-muted">
-            {galleryOn ? "Click to close it again" : "Click to open it to the FC"}
-          </span>
         </div>
       </section>
 
