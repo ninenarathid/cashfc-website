@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { HistoryRow, Member } from "@/lib/types";
 import { RACE_ORDER, isOnVacation } from "@/lib/types";
+import { useGuests } from "@/lib/guests";
 import { TAG_COLOR, TAG_LABELS } from "@/components/MemberTags";
 import {
   Bar, BarChart, Cell, Line, LineChart, Pie, PieChart,
@@ -48,15 +49,26 @@ export default function FcCharts({
   // actually play" is a different question from "what does the roster look like".
   const [showActive, setShowActive] = useState(true);
   const [showVacation, setShowVacation] = useState(true);
+  // Off to start, unlike the other two. The charts below answer questions about
+  // the Free Company, and somebody who is not in it would change those answers
+  // without being part of what was asked. On, they are a comparison somebody
+  // chose to make.
+  const [showGuests, setShowGuests] = useState(false);
+
+  const rosterIds = useMemo(() => new Set(members.map((m) => m.id)), [members]);
+  const guests = useGuests(rosterIds);
 
   const activity = useMemo(() => {
     const vacation = members.filter(isOnVacation).length;
-    return { active: members.length - vacation, vacation };
-  }, [members]);
+    return { active: members.length - vacation, vacation, guest: guests.length };
+  }, [members, guests]);
 
   const shown = useMemo(
-    () => members.filter((m) => (isOnVacation(m) ? showVacation : showActive)),
-    [members, showActive, showVacation]);
+    () => [
+      ...members.filter((m) => (isOnVacation(m) ? showVacation : showActive)),
+      ...(showGuests ? guests : []),
+    ],
+    [members, guests, showActive, showVacation, showGuests]);
 
   const total = shown.length;
   const share = (n: number, of = total) =>
@@ -164,6 +176,8 @@ export default function FcCharts({
                     () => setShowActive(!showActive))}
             {toggle(showVacation, "#747f8d", activity.vacation, "On vacation",
                     () => setShowVacation(!showVacation))}
+            {toggle(showGuests, "#a87fd8", activity.guest, "Guests",
+                    () => setShowGuests(!showGuests))}
           </div>
           {total === 0 && (
             <p className="mt-2 text-[12.5px] text-muted">
@@ -172,7 +186,7 @@ export default function FcCharts({
           )}
           {total > 0 && (!showActive || !showVacation) && (
             <p className="mt-2 text-[12.5px] text-muted">
-              Showing {total} of {members.length} members
+              Showing {total} of {members.length + guests.length}
               {!showVacation && " — active only"}
               {!showActive && " — on vacation only"}
             </p>

@@ -20,11 +20,18 @@ import JobIcon, {
   ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobLabel, jobRole, jobRoleGroup,
 } from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
+import { GUEST_RANK, useGuests } from "@/lib/guests";
 
 
 // Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
 // opening on the whole list mostly shows people who are not playing — the wrong
 // answer to "who is around?", which is why anyone opens this page.
+//
+// Active counts guests, and Guests still shows them on their own. Somebody who
+// registers here is by definition around, and appearing nowhere until a visitor
+// changes a filter is the worst possible answer to having just signed up.
+// Excluding them was never a decision; it fell out of Active meaning "in the FC
+// and not on vacation", which a guest can never be.
 const ACTIVITY_OPTIONS = [
   { key: "active", label: "Active" },
   { key: "vacation", label: "On vacation" },
@@ -32,7 +39,6 @@ const ACTIVITY_OPTIONS = [
   { key: "all", label: "Everyone" },
 ];
 /** Not in the FC, and marked so on the row as well as in the filter. */
-const GUEST_RANK = "Guest";
 const ACTIVITY_DEFAULT = "active";
 type SortKey = "name" | "mounts" | "rare";
 
@@ -184,7 +190,10 @@ const onUltimate = (m: Member, name: string) =>
 const inActivity = (m: Member, activity: string) => {
   const guest = m.rank === GUEST_RANK;
   return activity === "guest" ? guest
-    : guest ? activity === "all"
+    // A guest is around by definition, so Active includes them. On vacation is
+    // an FC rank and there is no such thing as being on vacation from an FC you
+    // are not in, so that one still leaves them out.
+    : guest ? activity === "all" || activity === "active"
     : activity === "active" ? !isOnVacation(m)
     : activity === "vacation" ? isOnVacation(m)
     : true;
@@ -329,36 +338,9 @@ export default function MemberBoard({ data }: { data: BoardData }) {
    * tags — and the tag and grade filters will therefore never match one, which is
    * correct rather than a gap. They are here to be seen, not ranked.
    */
-  const [guests, setGuests] = useState<Member[]>([]);
-  useEffect(() => {
-    const supabase = createClient();
-    if (!supabase) return;
-    void (async () => {
-      const { data: rows } = await supabase.from("profiles")
-        .select("character_id, character_name, avatar_url")
-        .not("character_id", "is", null)
-        .not("character_verified_at", "is", null);
-      const roster = new Set(data.members.map((m) => m.id));
-      setGuests(((rows ?? []) as {
-        character_id: number; character_name: string | null; avatar_url: string | null;
-      }[])
-        .filter((r) => !roster.has(r.character_id))
-        .map((r) => ({
-          id: r.character_id,
-          name: r.character_name ?? "—",
-          rank: GUEST_RANK,
-          level: null,
-          avatar: r.avatar_url ?? null,
-          tags: [],
-          parse: null,
-          savage_kills: 0,
-          ult_clears: 0,
-          mounts: null,
-          minions: null,
-          rare_achv: null,
-        } as unknown as Member)));
-    })();
-  }, [data.members]);
+  const rosterIds = useMemo(
+    () => new Set(data.members.map((m) => m.id)), [data.members]);
+  const guests = useGuests(rosterIds);
 
   const visible = useMemo(
     () => [...data.members, ...guests].filter((m) => !hiddenIds.has(m.id)),
@@ -467,7 +449,9 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     const guest = visible.filter((m) => m.rank === GUEST_RANK).length;
     const roster = visible.filter((m) => m.rank !== GUEST_RANK);
     const vacation = roster.filter(isOnVacation).length;
-    return { active: roster.length - vacation, vacation, guest };
+    // Active counts the guests it shows. A chip whose number disagrees with the
+    // list it produces is worse than no number at all.
+    return { active: roster.length - vacation + guest, vacation, guest };
   }, [visible]);
 
   const list = useMemo(() => {
