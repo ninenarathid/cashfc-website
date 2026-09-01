@@ -6,7 +6,6 @@ import LatestUpdate from "@/components/home/LatestUpdate";
 import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
 import Birthdays from "@/components/home/Birthdays";
-import ShowYourData from "@/components/home/ShowYourData";
 import Hero from "@/components/home/Hero";
 import ActivityFeed from "@/components/home/ActivityFeed";
 import HotGallery from "@/components/home/HotGallery";
@@ -38,12 +37,6 @@ export default function Home() {
       <Announcements />
       <LatestUpdate />
       <DiscordCard />
-
-      <ShowYourData
-        known={members.filter((m) => m.mounts != null).length}
-        total={members.length}
-        publicAchv={members.filter((m) => m.ach_public === true).length}
-      />
 
       <Birthdays members={members} />
 
