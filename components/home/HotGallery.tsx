@@ -4,48 +4,78 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
-import { GALLERY_PUBLIC_KEY, postPath,
-         imagesForPosts, thumbOf, type GalleryImage, type GalleryPost } from "@/lib/gallery";
-import { useCycle } from "@/components/gallery/useCycle";
-
-const SHOW = 6;
+import { GALLERY_PUBLIC_KEY, postPath, thumbOf,
+         type GalleryPost } from "@/lib/gallery";
 
 /**
- * The pictures the FC is looking at this week, on the front page.
+ * Enough to fill about three columns' worth of masonry without turning the
+ * front page into the gallery. Uncropped pictures pack to different heights, so
+ * this is a count rather than a promise of exactly three rows.
+ */
+const SHOW = 18;
+
+/**
+ * The pictures the FC is looking at this week, drifting past the front page.
  *
  * Ranked by the same decayed score the gallery uses, so this is genuinely
  * "lately" rather than "best ever" — a wall of the same six all-time favourites
  * would stop being worth a glance after the second visit.
  *
- * Each one links straight to its own page rather than opening a lightbox here:
- * the front page is a summary, and the gallery is where you go to browse.
+ * Three rows sliding sideways, alternate rows the other way. That shape is what
+ * lets the pictures keep their own proportions: every row is a fixed height and
+ * each picture takes whatever width its shape asks for, so nothing is cropped
+ * and nothing is letterboxed. A grid of equal boxes can only have one of those
+ * two, and cropping somebody's screenshot to a square throws away the framing
+ * they chose when they took it.
  *
- * A post holding several pictures turns over on the spot, the same way it does
- * on the gallery wall — six squares that never change are a screenshot of the
- * gallery, and the point of this strip is that there is more behind it.
+ * It also means the strip is not limited to what fits. A still row shows six
+ * pictures; this one shows all of them, a few at a time, in the height of one.
+ *
+ * Each links straight to its own page rather than opening a lightbox here: the
+ * front page is a summary, and the gallery is where you go to browse.
  */
-function HotTile(
-  { post, images, index }:
-  { post: GalleryPost; images: GalleryImage[]; index: number },
-) {
-  const i = useCycle(images.length, index);
-  if (images.length < 2) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
-           className="size-full object-cover transition-transform duration-300 group-hover:scale-105" />
-    );
-  }
-  // Both frames stay mounted and cross-fade, so the tile never shows a gap while
-  // the next picture decodes.
+function DriftTile({ post }: { post: GalleryPost }) {
   return (
-    <div className="size-full transition-transform duration-300 group-hover:scale-105">
-      {images.map((img, n) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img key={img.id} src={thumbOf(img)} alt="" loading="lazy"
-             className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
-               n === i ? "opacity-100" : "opacity-0"}`} />
-      ))}
+    <Link href={postPath(post.id)}
+          className="group relative mr-2 block h-full shrink-0 overflow-hidden rounded-lg border border-line no-underline">
+      {/* Height from the row, width from the picture. This is the whole trick:
+          nothing is asked to be a shape it is not. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
+           className="h-full w-auto max-w-none transition-transform duration-300 group-hover:scale-105" />
+      {(post.like_count ?? 0) > 0 && (
+        <span className="absolute bottom-1 left-1 rounded bg-bg/75 px-1.5 py-0.5 text-[11px] text-ink">
+          🥔 {post.like_count}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+/**
+ * One sliding row.
+ *
+ * The pictures are rendered twice. The track travels exactly half its own
+ * width, so at the instant the animation restarts the second copy is sitting
+ * where the first began and the loop has no seam. The duplicate is hidden from
+ * screen readers, which should hear each picture once.
+ */
+function DriftRow(
+  { posts, seconds, reverse }:
+  { posts: GalleryPost[]; seconds: number; reverse?: boolean },
+) {
+  if (!posts.length) return null;
+  return (
+    // A fixed height is what lets every picture keep its own width, and so its
+    // own shape. Shorter on a phone, where the strip is competing for a screen.
+    <div className="drift-row h-[88px] overflow-hidden sm:h-[104px]">
+      <div className={`drift ${reverse ? "drift-reverse" : ""}`}
+           style={{ "--drift-dur": `${seconds}s` } as React.CSSProperties}>
+        {posts.map((p) => <DriftTile key={p.id} post={p} />)}
+        <span aria-hidden className="contents">
+          {posts.map((p) => <DriftTile key={`copy-${p.id}`} post={p} />)}
+        </span>
+      </div>
     </div>
   );
 }
@@ -53,7 +83,6 @@ function HotTile(
 export default function HotGallery() {
   const { t } = useLang();
   const [posts, setPosts] = useState<GalleryPost[]>([]);
-  const [images, setImages] = useState<Record<number, GalleryImage[]>>({});
 
   useEffect(() => {
     const supabase = createClient();
@@ -68,20 +97,15 @@ export default function HotGallery() {
       const rows = ((data as GalleryPost[]) ?? []).filter((p) => p.image_url);
       setPosts(rows);
 
-      // Only the posts that actually hold several: a single-picture post already
-      // carries everything its tile needs on its own row.
-      const multi = rows.filter((p) => (p.image_count ?? 1) > 1).map((p) => p.id);
-      if (!multi.length) return;
-      const imgs = await imagesForPosts(supabase, multi);
-      const grouped: Record<number, GalleryImage[]> = {};
-      for (const im of ((imgs ?? []) as GalleryImage[])) {
-        (grouped[im.post_id] ??= []).push(im);
-      }
-      setImages(grouped);
     })();
   }, []);
 
   if (!posts.length) return null;
+
+  // Dealt across the rows rather than sliced into thirds, so each row holds a
+  // mix of shapes instead of one row getting all the wide ones.
+  const rows: GalleryPost[][] = [[], [], []];
+  posts.forEach((p, n) => rows[n % 3].push(p));
 
   return (
     <section className="mt-6">
@@ -92,19 +116,13 @@ export default function HotGallery() {
           {t("gallery.seeAll")} →
         </Link>
       </h2>
-      {/* A fixed-height strip rather than a masonry: this is a glance, and the
-          row has to stay the same shape however tall the pictures in it are. */}
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-        {posts.map((p, n) => (
-          <Link key={p.id} href={postPath(p.id)}
-                className="group relative aspect-square overflow-hidden rounded-lg border border-line no-underline">
-            <HotTile post={p} images={images[p.id] ?? []} index={n} />
-            {(p.like_count ?? 0) > 0 && (
-              <span className="absolute bottom-1 left-1 rounded bg-bg/75 px-1.5 py-0.5 text-[11px] text-ink">
-                🥔 {p.like_count}
-              </span>
-            )}
-          </Link>
+      {/* Three rows, alternate ones the other way, at speeds that do not divide
+          into each other — otherwise they line up into one moving block and the
+          eye reads it as a single thing sliding past. */}
+      <div className="flex flex-col gap-2">
+        {rows.map((row, n) => (
+          <DriftRow key={n} posts={row} reverse={n % 2 === 1}
+                    seconds={54 + n * 13} />
         ))}
       </div>
     </section>
