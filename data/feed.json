@@ -1,6 +1,62 @@
 {
  "events": [
   {
+   "date": "2026-09-01",
+   "type": "level_100",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "level_100",
+   "id": 29907674,
+   "name": "Ranjoe Tp'",
+   "text": "reached level 100!"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 39073020,
+   "name": "Toasted Bread",
+   "text": "set a new best parse: 96"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 39073020,
+   "name": "Toasted Bread",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 34172006,
+   "name": "Zion Zoen",
+   "text": "set a new best parse: 90"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 34172006,
+   "name": "Zion Zoen",
+   "text": "is now a Master Ninja"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 43412434,
+   "name": "Zylith Sweeney",
+   "text": "set a new best parse: 22"
+  },
+  {
    "date": "2026-08-31",
    "type": "parse_up",
    "id": 34611224,
@@ -1343,62 +1399,6 @@
    "id": 34522645,
    "name": "Ellone Chrysler",
    "text": "set a new best parse: 84"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 34522645,
-   "name": "Ellone Chrysler",
-   "text": "is now a Master Sage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 31519555,
-   "name": "Ernese Gold",
-   "text": "set a new best parse: 70"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 30559609,
-   "name": "Florice Frostingway",
-   "text": "set a new best parse: 78"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 36090951,
-   "name": "Guuji Mercedexs",
-   "text": "is now a Expert Samurai"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "level_100",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-28",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100!"
   }
  ]
 }

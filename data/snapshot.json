@@ -4134,7 +4134,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 35,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -4149,7 +4149,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -4885,7 +4885,7 @@
   "mounts": 59,
   "minions": 151,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4898,7 +4898,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -6086,7 +6086,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 31,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6133,7 +6133,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -14367,7 +14367,7 @@
  },
  "31239994": {
   "name": "Sopier Kit",
-  "parse": 97,
+  "parse": 100,
   "ult": 5,
   "mounts": 68,
   "minions": 125,
@@ -14396,7 +14396,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "35361791": {
   "name": "Soraacg Mikazuki",
@@ -14786,7 +14786,7 @@
  },
  "39073020": {
   "name": "Toasted Bread",
-  "parse": 24,
+  "parse": 96,
   "ult": 1,
   "mounts": 56,
   "minions": 146,
@@ -14801,12 +14801,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Gunbreaker": "master"
+  },
   "ex": [],
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "39458429": {
   "name": "Tofu Tofu",
@@ -15671,7 +15673,7 @@
  },
  "34172006": {
   "name": "Zion Zoen",
-  "parse": 81,
+  "parse": 90,
   "ult": 1,
   "mounts": 51,
   "minions": 73,
@@ -15687,6 +15689,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Ninja": "master",
    "WhiteMage": "master"
   },
   "ex": [
@@ -15695,7 +15698,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "44401264": {
   "name": "Zireael Foley",
@@ -15743,7 +15746,7 @@
  },
  "43412434": {
   "name": "Zylith Sweeney",
-  "parse": null,
+  "parse": 22,
   "ult": 0,
   "mounts": 43,
   "minions": 173,
@@ -15761,6 +15764,6 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  }
 }
