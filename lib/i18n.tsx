@@ -265,6 +265,7 @@ const DICT = {
     th: "คะแนนคิดยังไง?",
   },
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
+  "lb.full": { en: "Full leaderboards", th: "ดูอันดับทั้งหมด" },
   "lb.popoto": { en: "Popoto", th: "Popoto" },
   "lb.popotoHint": {
     en: "from Send popoto on their profile",

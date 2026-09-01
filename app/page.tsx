@@ -9,6 +9,9 @@ import Birthdays from "@/components/home/Birthdays";
 import Hero from "@/components/home/Hero";
 import ActivityFeed from "@/components/home/ActivityFeed";
 import HotGallery from "@/components/home/HotGallery";
+import TopThree from "@/components/home/TopThree";
+import { BUCKETS, topOf } from "@/lib/leaderboards";
+import { allGuestIds, guestHome } from "@/lib/guest-data";
 import type { BoardData, FeedEvent, NewsItem } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
 
@@ -41,6 +44,21 @@ export default function Home() {
       <Birthdays members={members} />
 
       <HotGallery />
+
+      <TopThree
+        // Worked out here, at build time, from the same roster the leaderboards
+        // page reads — the two cannot disagree about who is ahead because they
+        // are running the same function over the same file.
+        buckets={BUCKETS.map((key) => ({ key, rows: topOf(members, key, 3) }))}
+        names={{
+          ...Object.fromEntries(allGuestIds().map((id) => {
+            const g = guestHome(id);
+            return [id, { name: g?.name ?? `#${id}`, avatar: null }];
+          })),
+          ...Object.fromEntries(members.map((m) =>
+            [m.id, { name: m.name, avatar: m.avatar ?? null }])),
+        }}
+      />
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <ActivityFeed feed={feed} />

@@ -1,6 +1,7 @@
 import raw from "@/data/members.json";
-import type { BoardData, Member } from "@/lib/types";
+import type { BoardData } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
+import { BUCKETS, topOf } from "@/lib/leaderboards";
 // Straight from lib/tags, not through MemberTags. That file is "use client",
 // and a server component importing data through it gets a client reference
 // rather than the object — every colour came out undefined and every label fell
@@ -25,37 +26,16 @@ export const metadata = { title: "Leaderboards — Cafe And SHabu" };
  */
 const TOP_N = 10;
 
-/**
- * The playstyle buckets, in the pipeline's own order.
- *
- * No oldtimer: it ranked people by how long ago they started, which is not
- * something anybody did.
- */
-const BOARDS = ["crafter", "gatherer", "relic", "explorer", "treasure",
-                "goldsaucer", "seasonal", "pvp"];
-
-interface Row { m: Member; score: number; n: number; share?: number | null; tier?: string }
-
 export default function LeaderboardsPage() {
   const data = raw as unknown as BoardData;
 
-  const boards = BOARDS.map((key) => {
-    const rows: Row[] = data.members
-      .map((m) => {
-        const b = (m.achv_buckets ?? {})[key];
-        return {
-          m,
-          score: b?.score ?? 0,
-          share: b?.share ?? null,
-          n: b?.n ?? 0,
-          tier: (m.achv_tiers ?? {})[key],
-        };
-      })
-      .filter((r) => r.score > 0)
-      .sort((a, b) => b.score - a.score || b.n - a.n)
-      .slice(0, TOP_N);
-    return { key, rows };
-  }).filter((b) => b.rows.length > 0);
+  const boards = BUCKETS
+    .map((key) => ({ key, rows: topOf(data.members, key, TOP_N) }))
+    .filter((b) => b.rows.length > 0);
+
+  // Who is away, by id, so a row built from the shared ranking function does
+  // not have to carry a whole Member around to say so.
+  const vacationers = new Set(data.members.filter(isOnVacation).map((m) => m.id));
 
   // Names and faces for the potato board, which knows character ids and nothing
   // else — it reads likes from the database and the roster lives in this file.
@@ -115,12 +95,11 @@ export default function LeaderboardsPage() {
               </div>
               <ol className="flex flex-col gap-1 px-4 pb-4 pt-3">
                 {rows.map((r, i) => (
-                  <LeaderRow key={r.m.id} place={i + 1}
+                  <LeaderRow key={r.id} place={i + 1}
                              row={{
-                               id: r.m.id, name: r.m.name, avatar: r.m.avatar ?? null,
-                               score: r.score, n: r.n,
-                               tier: r.tier,
-                               note: isOnVacation(r.m) ? "on vacation" : undefined,
+                               id: r.id, name: r.name, avatar: r.avatar,
+                               score: r.score, n: r.n, tier: r.tier,
+                               note: vacationers.has(r.id) ? "on vacation" : undefined,
                                noteTone: "muted",
                              }}
                              // Always the share, never the raw score: the two are
