@@ -13,8 +13,9 @@ import NotificationBell from "@/components/NotificationBell";
 
 // Events and Minigames are built but unlinked until that phase is picked up again —
 // their routes 404 in the meantime (see app/events, app/games).
+// No Home tab: the logo to the left of these is already a link home, and two
+// ways to the same page sitting next to each other is one of them spare.
 const TABS: { href: string; label: Key; match?: (p: string) => boolean }[] = [
-  { href: "/", label: "nav.home" },
   // A member's own page belongs to the roster, so the tab stays lit while you read
   // one. The default prefix test misses it: "/member/123" does not start with
   // "/members".
