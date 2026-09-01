@@ -29,7 +29,7 @@ export default function DiscordCard() {
   if (!loaded || (!serverId && !invite)) return null;
 
   return (
-    <section className="mt-5 overflow-hidden rounded-xl border border-[#5865F2]/40 bg-[#5865F2]/8">
+    <section className="mt-4 overflow-hidden rounded-xl border border-[#5865F2]/40 bg-[#5865F2]/8">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
         <div>
           <div className="font-display font-semibold text-[#a5b2ff]">

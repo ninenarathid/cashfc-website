@@ -24,24 +24,21 @@ export default function Hero(
 ) {
   const { t, lang } = useLang();
   return (
-    <header className="pb-6 pt-9 text-center sm:pt-12">
-      <div className="font-data text-[11px] uppercase tracking-[0.24em] text-accent">
-        {t("home.freeCompany")} · {fc.world} [{fc.dc}]
-      </div>
+    <header className="pb-3 pt-4 text-center sm:pt-6">
       {/* The wordmark carries the FC name, so the h1 stays for screen readers and
           search results but is not painted twice. */}
       <h1 className="sr-only">{fc.name}</h1>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/logo.png" alt={fc.name}
-           className="mx-auto mt-2 w-full max-w-sm sm:max-w-md"
+           className="mx-auto w-full max-w-sm sm:max-w-md"
            width={1000} height={722} />
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-2.5">
         <Link href="/members"
               className="rounded-lg border border-accent bg-accent/15 px-5 py-2 text-accent no-underline transition-colors hover:bg-accent/25">
           {t("home.browseAll", { n: total })}
         </Link>
       </div>
-      <div className="mx-auto mt-6 grid max-w-md grid-cols-2 gap-2.5">
+      <div className="mx-auto mt-4 grid max-w-md grid-cols-2 gap-2.5">
         <div className="rounded-xl border border-line bg-surface px-3 py-2.5">
           <div className="font-data text-2xl font-semibold text-ink">{total}</div>
           <div className="text-xs text-muted">{t("home.members")}</div>

@@ -165,7 +165,7 @@ export default function HotGallery() {
   );
 
   return (
-    <section className="mt-6">
+    <section className="mt-4">
       <h2 className="mb-2 flex flex-wrap items-baseline gap-3 font-display text-lg font-semibold">
         {t("gallery.hotHeading")}
         <Link href="/gallery"

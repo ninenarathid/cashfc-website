@@ -105,7 +105,7 @@ export default function Birthdays({ members }: { members: Member[] }) {
   );
 
   return (
-    <section className="mt-5 rounded-xl border border-gold/40 bg-gold/8 px-4 py-3">
+    <section className="mt-4 rounded-xl border border-gold/40 bg-gold/8 px-4 py-3">
       {today.length > 0 && (
         <p className="leading-relaxed">
           <span className="font-display font-semibold text-gold">

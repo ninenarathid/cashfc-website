@@ -27,7 +27,7 @@ export default function LatestUpdate() {
   const more = CHANGELOG.length > SHOWN;
 
   return (
-    <section className="mt-5 rounded-xl border border-line bg-surface p-4">
+    <section className="mt-4 rounded-xl border border-line bg-surface p-4">
       <h2 className="font-display text-lg font-semibold">{t("log.title")}</h2>
       <div className="mt-2.5">
         <Changelog limit={open ? undefined : SHOWN} />

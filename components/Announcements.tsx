@@ -30,7 +30,7 @@ export default function Announcements() {
   if (!items.length) return null;
 
   return (
-    <section className="mt-5 flex flex-col gap-2">
+    <section className="mt-4 flex flex-col gap-2">
       <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
         {t("home.announcements")}
       </div>
