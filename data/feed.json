@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 31806958,
+   "name": "Baron Master",
+   "text": "set a new best parse: 38 on Ramuh as Samurai"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 24211446,
+   "name": "Beammess Dose",
+   "text": "set a new best parse: 72 on Ifrit and Garuda as Astrologian"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 31471584,
+   "name": "Chicha Chichi",
+   "text": "set a new best parse: 91 on Ifrit and Garuda as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 31471584,
+   "name": "Chicha Chichi",
+   "text": "is now a Master Red Mage"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 32046284,
+   "name": "Ene Shy",
+   "text": "set a new best parse: 94 on Ramuh as Machinist"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 32046284,
+   "name": "Ene Shy",
+   "text": "is now a Legendary Machinist"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "set a new best parse: 99 on Ifrit and Garuda as Gunbreaker"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 16397778,
+   "name": "Eydis Ein",
+   "text": "set a new best parse: 80 on Ramuh as Samurai"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 16397778,
+   "name": "Eydis Ein",
+   "text": "is now a Expert Samurai"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 12235132,
+   "name": "God King",
+   "text": "set a new best parse: 28 on Ramuh as Summoner"
+  },
+  {
+   "date": "2026-09-01",
    "type": "level_100",
    "id": 31236337,
    "name": "Whitefrost Marionette",
@@ -1329,76 +1399,6 @@
    "id": 33487130,
    "name": "Rimuru Tempesta",
    "text": "set a new best parse: 95 on Eden's Promise as Paladin"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "is now a Master Warrior"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 29901287,
-   "name": "Rishima Garaine",
-   "text": "set a new best parse: 59 on Shadowkeeper as Dancer"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 29395299,
-   "name": "Runie Run",
-   "text": "set a new best parse: 98 on Cloud of Darkness as Paladin"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 29395299,
-   "name": "Runie Run",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 29395299,
-   "name": "Runie Run",
-   "text": "is now a Legendary Paladin"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 47548993,
-   "name": "Sanya Polaali",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "level_100",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 30333493,
-   "name": "Haruko Sho",
-   "text": "set a new best parse: 77 on Erichthonios as Scholar"
   }
  ]
 }

@@ -7829,7 +7829,7 @@
  },
  "31806958": {
   "name": "Baron Master",
-  "parse": null,
+  "parse": 38,
   "ult": 0,
   "mounts": 65,
   "minions": 154,
@@ -7863,11 +7863,11 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "24211446": {
   "name": "Beammess Dose",
-  "parse": null,
+  "parse": 72,
   "ult": 0,
   "mounts": 77,
   "minions": 160,
@@ -7893,7 +7893,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "32147626": {
   "name": "Bear Boatz",
@@ -8357,7 +8357,7 @@
  },
  "31471584": {
   "name": "Chicha Chichi",
-  "parse": 50,
+  "parse": 91,
   "ult": 2,
   "mounts": 18,
   "minions": 44,
@@ -8372,13 +8372,15 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "RedMage": "master"
+  },
   "ex": [],
   "ults": [
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "46485530": {
   "name": "Chillin Chu",
@@ -9232,7 +9234,7 @@
  },
  "32046284": {
   "name": "Ene Shy",
-  "parse": 83,
+  "parse": 94,
   "ult": 2,
   "mounts": 50,
   "minions": 117,
@@ -9248,14 +9250,14 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Machinist": "expert"
+   "Machinist": "legendary"
   },
   "ex": [],
   "ults": [
    "The Epic of Alexander",
    "The Omega Protocol"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "47645809": {
   "name": "Entprise Yakult",
@@ -9303,7 +9305,7 @@
  },
  "1643244": {
   "name": "Epicenter Eorzea",
-  "parse": 98,
+  "parse": 99,
   "ult": 6,
   "mounts": 122,
   "minions": 276,
@@ -9407,7 +9409,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "15785511": {
   "name": "Eric Luminous",
@@ -9457,7 +9459,7 @@
  },
  "16397778": {
   "name": "Eydis Ein",
-  "parse": null,
+  "parse": 80,
   "ult": 0,
   "mounts": 28,
   "minions": 72,
@@ -9472,10 +9474,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Samurai": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "50103049": {
   "name": "Faelix Frosty",
@@ -9811,7 +9815,7 @@
  },
  "12235132": {
   "name": "God King",
-  "parse": null,
+  "parse": 28,
   "ult": 0,
   "mounts": 29,
   "minions": 107,
@@ -9829,7 +9833,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "37696532": {
   "name": "Golden Lancer",
