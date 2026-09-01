@@ -337,8 +337,9 @@ export default function PostDetail(
                for (const [n, f] of chosen.entries()) {
                  const res = await uploadOne(supabase, me, f);
                  if ("error" in res) continue;
-                 rows.push({ post_id: post.id, url: res.url, width: res.width,
-                             height: res.height, position: base + n });
+                 rows.push({ post_id: post.id, url: res.url, thumb_url: res.thumb,
+                             width: res.width, height: res.height,
+                             position: base + n });
                }
                if (rows.length) await supabase.from("gallery_images").insert(rows);
                setBusy(false);

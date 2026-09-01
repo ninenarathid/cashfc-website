@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
-import type { GalleryImage, GalleryPost, Roster } from "@/lib/gallery";
+import { imagesForPosts, thumbOf, type GalleryImage, type GalleryPost, type Roster } from "@/lib/gallery";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import PostDetail from "@/components/gallery/PostDetail";
 import { useAdmin } from "@/lib/admin";
@@ -74,8 +74,11 @@ function TileImage(
 
   if (!many) {
     return (
+      // The small copy. This box is about 325 pixels across and the original
+      // can be four thousand; the difference was being paid for by the byte
+      // and thrown away by the browser before anybody saw it.
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={post.image_url} alt={post.caption ?? ""} loading="lazy"
+      <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
            width={post.width ?? undefined} height={post.height ?? undefined}
            style={shape}
            onLoad={() => setShown(true)}
@@ -89,7 +92,7 @@ function TileImage(
     <div className="relative w-full" style={shape}>
       {images.map((img, n) => (
         // eslint-disable-next-line @next/next/no-img-element
-        <img key={img.id} src={img.url} alt="" loading="lazy"
+        <img key={img.id} src={thumbOf(img)} alt="" loading="lazy"
              className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
                n === i ? "opacity-100" : "opacity-0"}`} />
       ))}
@@ -320,10 +323,7 @@ export function useGallery(
     // carries everything the tile needs on its own row.
     const multi = rows.filter((r) => (r.image_count ?? 1) > 1).map((r) => r.id);
     if (multi.length) {
-      const { data: imgs } = await supabase.from("gallery_images")
-        .select("id, post_id, url, width, height, position")
-        .in("post_id", multi)
-        .order("position", { ascending: true });
+      const imgs = await imagesForPosts(supabase, multi);
       const grouped: Record<number, GalleryImage[]> = {};
       for (const im of ((imgs ?? []) as GalleryImage[])) {
         (grouped[im.post_id] ??= []).push(im);

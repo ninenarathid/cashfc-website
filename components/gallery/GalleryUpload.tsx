@@ -121,7 +121,10 @@ export default function GalleryUpload(
     // Every file goes up first. If one fails the post is never created, so a
     // half-uploaded set does not become a post missing pictures nobody can see
     // are missing.
-    const uploaded: { url: string; width: number | null; height: number | null }[] = [];
+    const uploaded: {
+      url: string; thumb: string | null;
+      width: number | null; height: number | null;
+    }[] = [];
     for (const f of files) {
       const res = await uploadOne(supabase, me.id, f);
       if ("error" in res) {
@@ -145,6 +148,7 @@ export default function GalleryUpload(
       character_id: credited?.id ?? me.characterId,
       credited_name: credited?.name ?? null,
       image_url: uploaded[0].url,
+      thumb_url: uploaded[0].thumb,
       width: uploaded[0].width,
       height: uploaded[0].height,
       caption: caption.trim() || null,
@@ -157,7 +161,8 @@ export default function GalleryUpload(
     const { data: rows, error: imgErr } = await supabase.from("gallery_images").insert(
       uploaded.map((u, i) => ({
         post_id: (post as { id: number }).id,
-        url: u.url, width: u.width, height: u.height, position: i,
+        url: u.url, thumb_url: u.thumb,
+        width: u.width, height: u.height, position: i,
       }))).select("id, position");
 
     if (imgErr) { setBusy(false); setErr(imgErr.message); return; }

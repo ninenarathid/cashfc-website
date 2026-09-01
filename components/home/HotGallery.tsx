@@ -5,7 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { GALLERY_PUBLIC_KEY, postPath,
-         type GalleryImage, type GalleryPost } from "@/lib/gallery";
+         imagesForPosts, thumbOf, type GalleryImage, type GalleryPost } from "@/lib/gallery";
 import { useCycle } from "@/components/gallery/useCycle";
 
 const SHOW = 6;
@@ -32,7 +32,7 @@ function HotTile(
   if (images.length < 2) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={post.image_url} alt={post.caption ?? ""} loading="lazy"
+      <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
            className="size-full object-cover transition-transform duration-300 group-hover:scale-105" />
     );
   }
@@ -42,7 +42,7 @@ function HotTile(
     <div className="size-full transition-transform duration-300 group-hover:scale-105">
       {images.map((img, n) => (
         // eslint-disable-next-line @next/next/no-img-element
-        <img key={img.id} src={img.url} alt="" loading="lazy"
+        <img key={img.id} src={thumbOf(img)} alt="" loading="lazy"
              className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
                n === i ? "opacity-100" : "opacity-0"}`} />
       ))}
@@ -72,9 +72,7 @@ export default function HotGallery() {
       // carries everything its tile needs on its own row.
       const multi = rows.filter((p) => (p.image_count ?? 1) > 1).map((p) => p.id);
       if (!multi.length) return;
-      const { data: imgs } = await supabase.from("gallery_images")
-        .select("id, post_id, url, width, height, position")
-        .in("post_id", multi).order("position", { ascending: true });
+      const imgs = await imagesForPosts(supabase, multi);
       const grouped: Record<number, GalleryImage[]> = {};
       for (const im of ((imgs ?? []) as GalleryImage[])) {
         (grouped[im.post_id] ??= []).push(im);
