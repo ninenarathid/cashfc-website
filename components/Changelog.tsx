@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { CHANGELOG, type Change, type ChangeKind, type Release } from "@/lib/changelog";
 
@@ -24,9 +26,56 @@ const KIND_TONE: Record<ChangeKind, string> = {
 
 const KIND_KEY = { new: "log.new", better: "log.better", fix: "log.fix" } as const;
 
+/** Rows as the table stores them, before they are shaped into Releases. */
+interface UpdateRow {
+  id: number;
+  on_date: string;
+  title_th: string | null;
+  title_en: string | null;
+  items: { kind?: string; th?: string; en?: string }[] | null;
+}
+
+/**
+ * The updates an admin has written, or the ones that shipped with the code.
+ *
+ * The database wins whenever it has any. The file is what shows on a database
+ * without migration_v23 and in the moment before the query returns, so the
+ * front page never has a hole where this section is.
+ */
+export function useReleases(): Release[] {
+  const [rows, setRows] = useState<Release[] | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+    void (async () => {
+      const { data, error } = await supabase.from("site_updates")
+        .select("id, on_date, title_th, title_en, items")
+        .order("on_date", { ascending: false }).order("id", { ascending: false });
+      if (error || !data) return;         // no table yet; the file stands
+      setRows((data as unknown as UpdateRow[]).map((r) => ({
+        date: r.on_date,
+        // A day with only one language still says something. Falling back keeps
+        // half an announcement, which beats a blank line.
+        title: r.title_th || r.title_en
+          ? { th: r.title_th || r.title_en || "", en: r.title_en || r.title_th || "" }
+          : undefined,
+        changes: (r.items ?? []).map((i) => ({
+          kind: (i.kind === "new" || i.kind === "better" || i.kind === "fix"
+            ? i.kind : "new") as ChangeKind,
+          what: { th: i.th || i.en || "", en: i.en || i.th || "" },
+        })).filter((c) => c.what.en),
+      })).filter((r) => r.changes.length));
+    })();
+  }, []);
+
+  return rows ?? CHANGELOG;
+}
+
 export default function Changelog({ limit }: { limit?: number }) {
   const { t, lang } = useLang();
-  const releases = limit ? CHANGELOG.slice(0, limit) : CHANGELOG;
+  const all = useReleases();
+  const releases = limit ? all.slice(0, limit) : all;
   if (!releases.length) {
     return <p className="text-[13px] text-muted">{t("log.none")}</p>;
   }

@@ -17,6 +17,13 @@ interface TimelinePost {
   posted_at: string; image_url: string | null;
 }
 interface Override { character_id: number; hidden: boolean; note: string | null }
+interface UpdateItem { kind: "new" | "better" | "fix"; th: string; en: string }
+interface SiteUpdate {
+  id: number; on_date: string;
+  title_th: string | null; title_en: string | null;
+  items: UpdateItem[] | null;
+}
+const UPDATE_KINDS: UpdateItem["kind"][] = ["new", "better", "fix"];
 interface ClaimedProfile {
   id: string;
   discord_username: string | null;
@@ -189,6 +196,21 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   const [note, setNote] = useState("");
 
   const [claims, setClaims] = useState<ClaimedProfile[]>([]);
+
+  // Site updates. The form holds one day at a time: a date, an optional
+  // headline in both languages, and the lines under it.
+  const [updates, setUpdates] = useState<SiteUpdate[]>([]);
+  const [uDate, setUDate] = useState(new Date().toISOString().slice(0, 10));
+  const [uTitleTh, setUTitleTh] = useState("");
+  const [uTitleEn, setUTitleEn] = useState("");
+  const [uItems, setUItems] = useState<UpdateItem[]>([{ kind: "new", th: "", en: "" }]);
+  const [uEditing, setUEditing] = useState<number | null>(null);
+
+  const resetUpdate = () => {
+    setUEditing(null); setUTitleTh(""); setUTitleEn("");
+    setUDate(new Date().toISOString().slice(0, 10));
+    setUItems([{ kind: "new", th: "", en: "" }]);
+  };
   // Which way the claims table is pointing. Newest-first is the useful default
   // for a date and A-to-Z for a name, so a column brings its own direction the
   // first time it is clicked rather than always starting ascending.
@@ -215,7 +237,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
   async function refresh() {
     if (!supabase) return;
-    const [a, t, s, o, c] = await Promise.all([
+    const [a, t, s, o, c, u] = await Promise.all([
       supabase.from("announcements").select("id, title, body, created_at, image_url")
         .order("created_at", { ascending: false }),
       supabase.from("timeline_posts").select("id, title, body, url, posted_at, image_url")
@@ -223,6 +245,9 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       supabase.from("site_settings").select("key, value"),
       supabase.from("member_overrides").select("character_id, hidden, note"),
       claimRows(supabase),
+      supabase.from("site_updates")
+        .select("id, on_date, title_th, title_en, items")
+        .order("on_date", { ascending: false }).order("id", { ascending: false }),
     ]);
     setAnns((a.data as Announcement[]) ?? []);
     setPosts((t.data as TimelinePost[]) ?? []);
@@ -234,6 +259,9 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
     }
     setOverrides((o.data as Override[]) ?? []);
     setClaims(c);
+    // Absent until migration_v23 has been run; the section says so rather than
+    // looking like nobody has ever written an update.
+    setUpdates((u.data as SiteUpdate[]) ?? []);
   }
 
   useEffect(() => {
@@ -381,6 +409,167 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           <span className="text-[12.5px] text-muted">
             {galleryOn ? "Click to close it again" : "Click to open it to the FC"}
           </span>
+        </div>
+      </section>
+
+      {/* ── Site updates ── */}
+      <section className="mt-3 rounded-xl border border-line bg-surface p-4">
+        <div className="font-display font-semibold">
+          Site updates (the box on the home page)
+        </div>
+        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+          One entry per day. Write each line in both languages — a reader sees
+          the one they are reading the site in, and a line with only one side
+          falls back to it rather than showing blank.
+        </p>
+
+        <div className="mt-3 flex flex-col gap-2">
+          {uEditing !== null && (
+            <div className="text-[12.5px] text-accent">Editing an existing day</div>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <input type="date" value={uDate} onChange={(e) => setUDate(e.target.value)}
+                   className={inputCls} aria-label="Date" />
+            <input value={uTitleTh} onChange={(e) => setUTitleTh(e.target.value.slice(0, 120))}
+                   placeholder="หัวข้อของวัน (ไม่ใส่ก็ได้)"
+                   className={`${inputCls} min-w-[180px] flex-1`} />
+            <input value={uTitleEn} onChange={(e) => setUTitleEn(e.target.value.slice(0, 120))}
+                   placeholder="Headline for the day (optional)"
+                   className={`${inputCls} min-w-[180px] flex-1`} />
+          </div>
+
+          {uItems.map((it, i) => (
+            <div key={i} className="rounded-lg border border-line bg-card p-2.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {UPDATE_KINDS.map((k) => (
+                  <button key={k}
+                          onClick={() => setUItems(uItems.map((x, n) =>
+                            n === i ? { ...x, kind: k } : x))}
+                          aria-pressed={it.kind === k}
+                          className={`rounded-md border px-2.5 py-1 text-[12px] transition-colors ${
+                            it.kind === k ? "border-accent bg-accent/15 text-accent"
+                                          : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                    {k}
+                  </button>
+                ))}
+                {uItems.length > 1 && (
+                  <button onClick={() => setUItems(uItems.filter((_, n) => n !== i))}
+                          className="ml-auto rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                    Remove line
+                  </button>
+                )}
+              </div>
+              <textarea value={it.th} rows={2} placeholder="ข้อความภาษาไทย"
+                        onChange={(e) => setUItems(uItems.map((x, n) =>
+                          n === i ? { ...x, th: e.target.value.slice(0, 600) } : x))}
+                        className={`${inputCls} mt-2 w-full`} />
+              <textarea value={it.en} rows={2} placeholder="The same line in English"
+                        onChange={(e) => setUItems(uItems.map((x, n) =>
+                          n === i ? { ...x, en: e.target.value.slice(0, 600) } : x))}
+                        className={`${inputCls} mt-1.5 w-full`} />
+            </div>
+          ))}
+
+          <button onClick={() => setUItems([...uItems, { kind: "new", th: "", en: "" }])}
+                  className="self-start rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+            + Add another line
+          </button>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={async () => {
+                // A day with nothing under it is not an update. Empty lines are
+                // dropped rather than saved as blanks somebody has to find and
+                // delete off the front page later.
+                const items = uItems
+                  .map((i) => ({ ...i, th: i.th.trim(), en: i.en.trim() }))
+                  .filter((i) => i.th || i.en);
+                if (!items.length) { flash("Write at least one line first"); return; }
+                const fields = {
+                  on_date: uDate,
+                  title_th: uTitleTh.trim() || null,
+                  title_en: uTitleEn.trim() || null,
+                  items,
+                  updated_at: new Date().toISOString(),
+                };
+                const { error } = uEditing !== null
+                  ? await supabase!.from("site_updates").update(fields).eq("id", uEditing)
+                  : await supabase!.from("site_updates").insert({
+                      ...fields,
+                      created_by: (await supabase!.auth.getUser()).data.user?.id,
+                    });
+                if (error) {
+                  flash(error.message.includes("site_updates")
+                    ? "Save failed — has migration_v23.sql been run?"
+                    : `Save failed: ${error.message}`);
+                  return;
+                }
+                resetUpdate();
+                await refresh();
+                flash(uEditing !== null ? "Update saved" : "Update posted");
+              }}
+              className="self-start rounded-lg border border-accent bg-accent/15 px-4 py-2 text-accent hover:bg-accent/25">
+              {uEditing !== null ? "Save changes" : "Post update"}
+            </button>
+            {uEditing !== null && (
+              <button onClick={resetUpdate}
+                      className="rounded-lg border border-line px-4 py-2 text-muted hover:border-muted hover:text-ink">
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-col gap-2">
+          {updates.map((u) => (
+            <div key={u.id}
+                 className="flex items-start justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-data text-[11.5px] text-muted">{u.on_date}</span>
+                  <span className="font-medium">{u.title_th || u.title_en || ""}</span>
+                </div>
+                <div className="mt-0.5 text-[12.5px] text-muted">
+                  {(u.items ?? []).length} line{(u.items ?? []).length === 1 ? "" : "s"}
+                  {/* Flagged rather than blocked. Half an announcement is worth
+                      posting; a reminder to come back and finish it is worth
+                      more than a form that refuses to save. */}
+                  {(u.items ?? []).some((i) => !i.th || !i.en) && (
+                    <span className="ml-2 text-gold">· missing a translation</span>
+                  )}
+                </div>
+              </div>
+              <div className="flex shrink-0 gap-1.5">
+                <button
+                  onClick={() => {
+                    setUEditing(u.id); setUDate(u.on_date);
+                    setUTitleTh(u.title_th ?? ""); setUTitleEn(u.title_en ?? "");
+                    setUItems((u.items ?? []).length
+                      ? (u.items ?? []).map((i) => ({
+                          kind: i.kind ?? "new", th: i.th ?? "", en: i.en ?? "" }))
+                      : [{ kind: "new", th: "", en: "" }]);
+                  }}
+                  className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
+                  Edit
+                </button>
+                <button
+                  onClick={async () => {
+                    await supabase!.from("site_updates").delete().eq("id", u.id);
+                    if (uEditing === u.id) resetUpdate();
+                    await refresh(); flash("Update deleted");
+                  }}
+                  className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+          {updates.length === 0 && (
+            <div className="text-[13px] text-muted">
+              Nothing here yet — the home page shows the list that ships with the
+              code until the first one is written.
+            </div>
+          )}
         </div>
       </section>
 

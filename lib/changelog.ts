@@ -1,15 +1,14 @@
 /**
- * What changed on this site, and when.
+ * What changed on this site, and when — the copy that ships with the code.
  *
- * Written here rather than kept in the database on purpose. A change to the
- * site arrives as a deploy, so the note about it belongs in the same commit as
- * the change — that way the two cannot drift apart, and nobody has to remember
- * to go and write the announcement afterwards, which is the step everybody
- * forgets. Editing an entry is editing this file.
+ * The list an admin edits lives in Supabase (migration_v23). This one is the
+ * fallback: it is what the page shows on a database that has not had that
+ * migration run, and what the migration seeds the table from. Adding an entry
+ * here will not put it on the site of anybody whose database already has the
+ * table — write it in the admin panel instead.
  *
- * Both languages on every line. The FC reads Thai and the site is bilingual
- * everywhere else; a changelog that is only in English is a changelog half the
- * FC scrolls past.
+ * Kept rather than deleted because a front page that empties itself when a
+ * query fails is worse than one showing a fortnight-old note.
  *
  * Newest first. Dates are the day the change went live, in YYYY-MM-DD.
  */
@@ -123,5 +122,3 @@ export const CHANGELOG: Release[] = [
   },
 ];
 
-/** The most recent entry, for the card on the home page. */
-export const latestRelease = (): Release | undefined => CHANGELOG[0];
