@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useAvatar } from "@/lib/avatars";
 
 /**
  * One line of a leaderboard.
@@ -39,6 +42,10 @@ export default function LeaderRow(
   },
 ) {
   const top = place <= 3;
+  // What they chose, then what the Lodestone has. The site already has one
+  // answer to "which picture is this person" and this is it — a member who set
+  // a profile picture set it for every page, this one included.
+  const face = useAvatar(row.id, row.avatar);
   return (
     <li className={`grid items-center gap-2 ${
       top ? "grid-cols-[22px_28px_1fr_auto] py-0.5" : "grid-cols-[22px_1fr_auto]"} text-[13px]`}>
@@ -49,9 +56,9 @@ export default function LeaderRow(
 
       {top && (
         <Link href={`/member/${row.id}`} className="block size-7 shrink-0">
-          {row.avatar ? (
+          {face ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={row.avatar} alt="" loading="lazy"
+            <img src={face} alt="" loading="lazy"
                  className="size-7 rounded-full border border-line object-cover" />
           ) : (
             <span className="grid size-7 place-items-center rounded-full border border-line font-data text-[10px] text-ink/80"

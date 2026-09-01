@@ -84,7 +84,8 @@ export default function PopotoBoard(
       <ol className="mt-3 flex flex-col gap-1">
         {rows.map((r, i) => (
           <LeaderRow key={r.id} row={r} place={i + 1}
-                     value={`🥔 ${r.score}`} sub={`${r.n}`} />
+                     value={`🥔 ${r.score}`}
+                     title={`${r.score} across ${r.n} picture${r.n === 1 ? "" : "s"}`} />
         ))}
       </ol>
     </section>

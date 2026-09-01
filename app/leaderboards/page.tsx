@@ -2,11 +2,12 @@ import raw from "@/data/members.json";
 import type { BoardData, Member } from "@/lib/types";
 import { ACHV_TIER_LABEL, isOnVacation } from "@/lib/types";
 import { TAG_CLASS, TAG_LABELS } from "@/components/MemberTags";
-import TagHelpText from "@/components/TagHelpText";
 import TagIcon from "@/components/TagIcon";
 import LeaderboardIntro from "@/components/LeaderboardIntro";
 import LeaderRow from "@/components/LeaderRow";
+import LbTopTen from "@/components/LbTopTen";
 import PopotoBoard from "@/components/PopotoBoard";
+import { allGuestIds, guestHome } from "@/lib/guest-data";
 
 export const metadata = { title: "Leaderboards — Cafe And SHabu" };
 
@@ -53,8 +54,16 @@ export default function LeaderboardsPage() {
 
   // Names and faces for the potato board, which knows character ids and nothing
   // else — it reads likes from the database and the roster lives in this file.
-  const who = Object.fromEntries(data.members.map((m) =>
-    [m.id, { name: m.name, avatar: m.avatar ?? null }]));
+  // Guests are not on the roster, so a potato of theirs used to be credited to
+  // a bare character id. They have a name too.
+  const who: Record<number, { name: string; avatar: string | null }> = {
+    ...Object.fromEntries(allGuestIds().map((id) => {
+      const g = guestHome(id);
+      return [id, { name: g?.name ?? `#${id}`, avatar: null }];
+    })),
+    ...Object.fromEntries(data.members.map((m) =>
+      [m.id, { name: m.name, avatar: m.avatar ?? null }])),
+  };
 
   return (
     <main className="pt-7">
@@ -79,7 +88,10 @@ export default function LeaderboardsPage() {
                   <TagIcon tag={key} size={14} />
                   {TAG_LABELS[key] ?? key}
                 </span>
-                <TagHelpText tag={key} className="text-[11.5px] text-muted" />
+                {/* What this list is, not what the badge means. The tag help
+                    says "top 30% of the FC", which is the rule for wearing the
+                    badge and reads as a contradiction beside a list of ten. */}
+                <LbTopTen />
               </div>
               <ol className="mt-3 flex flex-col gap-1">
                 {rows.map((r, i) => (

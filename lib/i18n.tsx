@@ -264,6 +264,7 @@ const DICT = {
     en: "How is this scored?",
     th: "คะแนนคิดยังไง?",
   },
+  "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
   "lb.popoto": { en: "Popoto", th: "โปโปโต้" },
   "lb.popotoHint": {
     en: "given by the FC, not earned in game",
