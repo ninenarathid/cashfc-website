@@ -38,7 +38,6 @@ export default function Home() {
       <Hero fc={data.fc} total={data.fc.total} active={activeCount} tagStats={tagStats} />
 
       <Announcements />
-      <LatestUpdate />
       <DiscordCard />
 
       <Birthdays members={members} />
@@ -59,6 +58,8 @@ export default function Home() {
             [m.id, { name: m.name, avatar: m.avatar ?? null }])),
         }}
       />
+
+      <LatestUpdate />
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <ActivityFeed feed={feed} />
