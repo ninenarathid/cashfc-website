@@ -12,9 +12,6 @@ export default function LeaderboardIntro() {
   const th = lang === "th";
   return (
     <>
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
-        {t("lb.eyebrow")}
-      </div>
       <h1 className="font-display text-3xl font-bold">{t("lb.title")}</h1>
 
       {/* Folded away. It explains where the numbers come from, which is worth

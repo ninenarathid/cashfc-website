@@ -265,7 +265,7 @@ const DICT = {
     th: "คะแนนคิดยังไง?",
   },
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
-  "lb.full": { en: "Full leaderboards", th: "ดูอันดับทั้งหมด" },
+  "lb.full": { en: "See all", th: "ดูทั้งหมด" },
   "lb.popoto": { en: "Popoto", th: "Popoto" },
   "lb.popotoHint": {
     en: "from Send popoto on their profile",
@@ -558,8 +558,7 @@ const DICT = {
   "profile.notVerified": { en: "not verified yet", th: "ยังไม่ได้ยืนยัน" },
 
   // ── Leaderboards ────────────────────────────────────────────────────
-  "lb.eyebrow": { en: "Leaderboards", th: "อันดับ" },
-  "lb.title": { en: "Who does what best", th: "ใครเก่งด้านไหน" },
+  "lb.title": { en: "Leaderboards", th: "Leaderboards" },
   "lb.empty": {
     en: "Nothing to rank yet. Scores appear once the pipeline has read achievements from FFXIV Collect for members who keep them public.",
     th: "ยังไม่มีข้อมูลให้จัดอันดับ คะแนนจะขึ้นเมื่อระบบอ่าน achievement จาก FFXIV Collect ของคนที่เปิดเป็นสาธารณะได้แล้ว",
