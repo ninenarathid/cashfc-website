@@ -41,7 +41,7 @@ const COVER = { w: 1600, h: 500 };
 const SHARE = { w: 1200, h: 630 };
 
 type Kind = "avatar" | "cover" | "share";
-interface Shot { id: number; url: string }
+interface Shot { id: number; url: string; thumb_url?: string | null }
 
 export default function ProfilePictures(
   { characterId, fallbackAvatar }: {
@@ -132,9 +132,15 @@ export default function ProfilePictures(
       ids = ((data ?? []) as { id: number }[]).map((r) => r.id);
     }
     if (!ids.length) { setShots([]); return; }
-    const { data: imgs } = await supabase.from("gallery_images")
-      .select("id, url").in("post_id", ids).limit(60);
-    setShots((imgs ?? []) as Shot[]);
+    // Sixty pictures at once. Shown as thumbnails, because the browser was
+    // downloading sixty full-size screenshots to draw sixty squares the size of
+    // a postage stamp — and the crop still reads the original, so choosing from
+    // the small copy costs nothing in the picture that comes out.
+    const ask = (cols: string) => supabase.from("gallery_images")
+      .select(cols).in("post_id", ids).limit(60);
+    const full = await ask("id, url, thumb_url");
+    const imgs = (full.error ? (await ask("id, url")).data : full.data) ?? [];
+    setShots(imgs as unknown as Shot[]);
   }
 
   /**
@@ -249,7 +255,7 @@ export default function ProfilePictures(
                 <button key={s.id} onClick={() => useSource(s.url)} disabled={busy}
                         className="overflow-hidden rounded-lg border border-line transition-colors hover:border-accent disabled:opacity-50">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={s.url} alt="" loading="lazy"
+                  <img src={s.thumb_url || s.url} alt="" loading="lazy"
                        className="aspect-square size-full object-cover" />
                 </button>
               ))}
