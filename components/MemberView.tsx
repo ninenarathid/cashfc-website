@@ -176,9 +176,12 @@ export default function MemberView({
   // Why the collection tiles are empty, which decides what this member has to do
   // about it: never looked up on FFXIV Collect at all, or looked up but keeping
   // achievements private on The Lodestone.
-  const collectState: "ok" | "private" | "unknown" =
+  // "kept" is private-now-but-we-read-it-before. The shelf is not thrown away
+  // when somebody closes their profile — a closed profile is not a lost
+  // collection — but it stops claiming to be current, and says when it was read.
+  const collectState: "ok" | "private" | "kept" | "unknown" =
     m.mounts == null && m.minions == null ? "unknown"
-    : m.ach_public === false ? "private"
+    : m.ach_public === false ? (m.rare_achv != null ? "kept" : "private")
     : "ok";
 
   // Back to the list you came from, filters and all. Falls back to the plain
@@ -642,6 +645,13 @@ export default function MemberView({
               {t("member.achvPrivate")}
             </span>
           )}
+          {collectState === "kept" && (
+            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
+              {m.achv_seen_at
+                ? t("member.achvKeptOn", { on: m.achv_seen_at })
+                : t("member.achvKept")}
+            </span>
+          )}
           {collectState === "unknown" && (
             <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
               {t("member.collectUnknown")}
@@ -657,7 +667,7 @@ export default function MemberView({
             need different fixes. Nobody chose either state on purpose: The Lodestone
             hides achievements by default, and FFXIV Collect only knows characters
             somebody has looked up there. */}
-        {collectState !== "ok" && (
+        {(collectState === "private" || collectState === "unknown") && (
           <CollectionHelp state={collectState} characterId={m.id} />
         )}
       </section>

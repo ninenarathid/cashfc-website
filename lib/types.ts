@@ -43,6 +43,14 @@ export interface Member {
   minions: number | null;
   rare_achv: number | null;
   ach_public: boolean | null;
+  /**
+   * When the achievement shelf was last actually readable (YYYY-MM-DD).
+   *
+   * Set only by a reading that could see it. Together with `ach_public` being
+   * false it means the numbers below are kept from before somebody closed their
+   * profile, which is worth saying out loud rather than showing them as current.
+   */
+  achv_seen_at?: string | null;
   fflogs: string;
   nameday?: Nameday | null;
   /** Race / clan scraped from Lodestone. Absent until the pipeline has covered them. */

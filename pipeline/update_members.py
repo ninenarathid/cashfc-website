@@ -1232,7 +1232,7 @@ def collect_rarity_map() -> dict[int, dict]:
 
 
 COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
-                  "ach_public", "portrait", "ult_achv")
+                  "ach_public", "portrait", "ult_achv", "achv_seen_at")
 
 # Bump whenever COLLECT_FIELDS gains something, or whenever achv_points changes.
 # Cached entries written before a new field existed cannot supply it, and because the
@@ -1240,7 +1240,40 @@ COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
 # exactly what happened to ult_achv. Bucket scores are cached the same way, so a new
 # scoring formula that did not bump this would keep serving the old numbers until the
 # cache aged out.
-COLLECT_CACHE_VERSION = 3
+COLLECT_CACHE_VERSION = 4
+
+
+def keep_achievements(m: dict, prev: dict) -> None:
+    """Carry the last readable achievements forward when this reading has none.
+
+    Achievements are readable only while The Lodestone is set to show them, and
+    that switch gets flipped both ways — sometimes on purpose, sometimes by a
+    patch resetting a profile. Without this, one reading taken during a closed
+    window wipes a member's shelf and their playstyle grades, and nothing brings
+    them back until they open it again and somebody notices.
+
+    So a reading that cannot see achievements is treated as no news rather than
+    as bad news. It does not touch `ach_public`, which keeps saying what the
+    profile says right now, and it records when the shelf was last actually
+    read, so a page showing it can say how old it is instead of implying it is
+    current.
+
+    The same reasoning covers a fetch that failed or a character Collect has
+    never heard of. Neither is evidence that anything went away.
+    """
+    if m.get("rare_achv") is not None:
+        return                              # this reading saw them; nothing to keep
+    if prev.get("rare_achv") is None:
+        return                              # nothing was ever known
+    m["rare_achv"] = prev.get("rare_achv")
+    m["achv_buckets"] = dict(prev.get("achv_buckets") or {})
+    if prev.get("rare_ids"):
+        m["_rare_ids"] = list(prev["rare_ids"])
+    # An Ultimate the achievement vouched for stays vouched for. FF Logs may
+    # never have had a log of it, and a closed profile is not a lost clear.
+    if not m.get("ult_achv"):
+        m["ult_achv"] = list(prev.get("ult_achv") or [])
+    m["achv_seen_at"] = prev.get("achv_seen_at")
 
 
 def merge_ultimates(members: list[dict]) -> None:
@@ -1291,59 +1324,71 @@ def hydrate_collect(members: list[dict], cache: dict) -> int:
 
 def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
                 cache: dict) -> None:
+    today = time.strftime("%Y-%m-%d", time.gmtime())
     for i, m in enumerate(active_first(members), 1):
+        # What was known last time. A reading that comes back without
+        # achievements is not allowed to erase them, so the old values have to
+        # be to hand before this one overwrites anything.
+        prev = cache.get(str(m["id"])) or {}
         m.update({"mounts": None, "minions": None, "rare_achv": None,
                   "ach_public": None, "portrait": None})
+        got = False
         try:
             r = requests.get(f"{COLLECT_API}/characters/{m['id']}",
                              params={"ids": "true"}, headers=UA, timeout=30)
-            if r.status_code == 404:
-                continue
-            r.raise_for_status()
-            d = r.json()
-            m["portrait"] = d.get("portrait")
-            m["mounts"] = (d.get("mounts") or {}).get("count")
-            m["minions"] = (d.get("minions") or {}).get("count")
-            ach = d.get("achievements") or {}
-            m["ach_public"] = ach.get("public")
-            ids = ach.get("ids") or []
-            # Independent of FF Logs on purpose — this is the evidence for members
-            # who never uploaded a log or who hide their profile there.
-            m["ult_achv"] = sorted({ULTIMATE_ACHV[a] for a in ids if a in ULTIMATE_ACHV})
-            if m["ach_public"] and ids:
-                rare = 0
-                buckets: dict[str, dict] = {}
-                rarest: list[tuple[float, int]] = []
-                for aid in ids:
-                    info = rarity.get(aid)
-                    if not info:
-                        continue
-                    if info["pct"] is not None and info["pct"] <= CONFIG["rare_pct"]:
-                        rare += 1
-                        rarest.append((info["pct"], aid))
-                        # Playstyle buckets count rare achievements only: everyone
-                        # trips over the common ones, so they say nothing about how
-                        # someone actually spends their time.
-                        b = achv_bucket(info)
-                        if b:
-                            slot = buckets.setdefault(
-                                b, {"n": 0, "min": None, "score": 0.0})
-                            slot["n"] += 1
-                            p = info["pct"]
-                            slot["score"] = round(
-                                slot["score"] + achv_points(p), 2)
-                            if slot["min"] is None or p < slot["min"]:
-                                slot["min"] = p
-                m["rare_achv"] = rare
-                m["achv_buckets"] = buckets
-                # Rarest first, capped: a member can hold hundreds under 10%, and the
-                # profile page only shows a shelf of them. Underscore-prefixed so it
-                # is dropped before members.json is written.
-                rarest.sort()
-                m["_rare_ids"] = [aid for _, aid in rarest[: CONFIG["rare_show"]]]
+            if r.status_code != 404:
+                r.raise_for_status()
+                d = r.json()
+                m["portrait"] = d.get("portrait")
+                m["mounts"] = (d.get("mounts") or {}).get("count")
+                m["minions"] = (d.get("minions") or {}).get("count")
+                ach = d.get("achievements") or {}
+                m["ach_public"] = ach.get("public")
+                ids = ach.get("ids") or []
+                # Independent of FF Logs on purpose — this is the evidence for members
+                # who never uploaded a log or who hide their profile there.
+                m["ult_achv"] = sorted({ULTIMATE_ACHV[a] for a in ids if a in ULTIMATE_ACHV})
+                if m["ach_public"] and ids:
+                    rare = 0
+                    buckets: dict[str, dict] = {}
+                    rarest: list[tuple[float, int]] = []
+                    for aid in ids:
+                        info = rarity.get(aid)
+                        if not info:
+                            continue
+                        if info["pct"] is not None and info["pct"] <= CONFIG["rare_pct"]:
+                            rare += 1
+                            rarest.append((info["pct"], aid))
+                            # Playstyle buckets count rare achievements only: everyone
+                            # trips over the common ones, so they say nothing about how
+                            # someone actually spends their time.
+                            b = achv_bucket(info)
+                            if b:
+                                slot = buckets.setdefault(
+                                    b, {"n": 0, "min": None, "score": 0.0})
+                                slot["n"] += 1
+                                p = info["pct"]
+                                slot["score"] = round(
+                                    slot["score"] + achv_points(p), 2)
+                                if slot["min"] is None or p < slot["min"]:
+                                    slot["min"] = p
+                    m["rare_achv"] = rare
+                    m["achv_buckets"] = buckets
+                    # Rarest first, capped: a member can hold hundreds under 10%, and the
+                    # profile page only shows a shelf of them. Underscore-prefixed so it
+                    # is dropped before members.json is written.
+                    rarest.sort()
+                    m["_rare_ids"] = [aid for _, aid in rarest[: CONFIG["rare_show"]]]
+                    m["achv_seen_at"] = today
+                got = True
         except Exception as ex:
             log(f"Collect error @ {m['name']}: {ex}")
-        else:
+        # A closed profile, a fetch that failed, and a character Collect has
+        # never heard of are all no news rather than bad news. Done before the
+        # cache is written so what is carried forward is carried forward there
+        # too, and not quietly dropped on the next run.
+        keep_achievements(m, prev)
+        if got:
             cache[str(m["id"])] = {**{k: m.get(k) for k in COLLECT_FIELDS},
                                    "rare_ids": m.get("_rare_ids") or [],
                                    "achv_buckets": m.get("achv_buckets") or {}}

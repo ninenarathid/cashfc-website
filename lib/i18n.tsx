@@ -129,6 +129,14 @@ const DICT = {
     th: "มีข้อความใหม่ในหน้า Feedback",
   },
   "nav.myPage": { en: "My page", th: "หน้าของฉัน" },
+  "member.achvKept": {
+    en: "Private now — last read earlier",
+    th: "ตอนนี้ปิดอยู่ — ข้อมูลจากที่อ่านไว้ก่อนหน้า",
+  },
+  "member.achvKeptOn": {
+    en: "Private now — read {on}",
+    th: "ตอนนี้ปิดอยู่ — อ่านไว้เมื่อ {on}",
+  },
   "member.achvPrivate": {
     en: "Achievements private",
     th: "ตั้ง Achievement เป็นส่วนตัว",
