@@ -270,6 +270,11 @@ const DICT = {
     en: "from Send popoto on their profile",
     th: "จากปุ่ม Send popoto ในหน้าโปรไฟล์",
   },
+  "lb.gallery": { en: "Gallery popoto", th: "โปโปโต้จากรูป" },
+  "lb.galleryHint": {
+    en: "added up across all their pictures",
+    th: "รวมจากทุกรูปที่โพสต์ในแกลเลอรี",
+  },
   "gallery.cover": { en: "Cover", th: "รูปหน้าปก" },
   "gallery.openPoster": { en: "Post a picture", th: "โพสต์รูป" },
   "gallery.closePoster": { en: "Not now", th: "ไว้ก่อน" },

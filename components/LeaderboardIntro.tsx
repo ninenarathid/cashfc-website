@@ -49,30 +49,34 @@ export default function LeaderboardIntro() {
         )}
         </p>
 
-        {/* The one board the game had no hand in, and the one whose number a
-            reader can check against something else on the site — so it says
-            which number that is, and which one it deliberately leaves out. */}
+        {/* Two boards, two counters, and the fact that they never mix is the
+            surprising half — which is the half worth writing down. */}
         <p className="border-t border-line px-4 py-3 text-[13.5px] leading-relaxed text-muted">
           {th ? (
             <>
-              <b className="text-gold">🥔 โปโปโต้</b> ไม่ได้มาจากในเกม แต่มาจากสมาชิกใน FC
-              กดให้กัน นับจาก <b className="text-ink">ปุ่ม Send popoto ในหน้าโปรไฟล์</b>{" "}
-              อย่างเดียว กดได้วันละครั้งต่อคน ตัวเลขตรงนี้จึงตรงกับที่ขึ้นในหน้าโปรไฟล์ของคนนั้นเป๊ะๆ
+              <b className="text-gold">🥔 โปโปโต้</b> กับ{" "}
+              <b style={{ color: "#4fb8a8" }}>🖼️ โปโปโต้จากรูป</b>{" "}
+              เป็นสองอันที่ไม่ได้มาจากในเกม แต่มาจากสมาชิกใน FC กดให้กัน{" "}
+              <b className="text-ink">และนับแยกกันคนละที่</b>
               <br />
-              โปโปโต้ที่กดให้รูปในแกลเลอรี <b className="text-ink">ไม่ถูกนับรวม</b> —
-              มันพูดถึงรูปนั้น ไม่ได้พูดถึงตัวคน และเก็บอยู่คนละที่กัน
+              อันแรกนับจากปุ่ม Send popoto ในหน้าโปรไฟล์ กดได้วันละครั้งต่อคน
+              ตัวเลขจึงตรงกับที่ขึ้นในหน้าโปรไฟล์ของคนนั้นเป๊ะๆ ส่วนอันที่สองรวม
+              โปโปโต้จากทุกรูปที่เขาโพสต์ในแกลเลอรี และนับให้ตัวละครที่รูปนั้นสังกัด
+              ไม่ใช่คนที่กดอัปโหลด
             </>
           ) : (
             <>
-              <b className="text-gold">🥔 Popoto</b> is the one board the game had no
-              hand in — it is members saying something about each other. It counts{" "}
-              <b className="text-ink">Send popoto on a profile</b> and nothing else,
-              once per person per day, so the total here matches the number on that
-              member&rsquo;s own page exactly.
+              <b className="text-gold">🥔 Popoto</b> and{" "}
+              <b style={{ color: "#4fb8a8" }}>🖼️ Gallery popoto</b> are the two boards
+              the game had no hand in — they are members saying something to each
+              other — and they are{" "}
+              <b className="text-ink">counted entirely separately</b>.
               <br />
-              Potatoes left on pictures in the gallery are{" "}
-              <b className="text-ink">not counted</b>: those are about the picture
-              rather than the person, and they are kept somewhere else entirely.
+              The first is Send popoto on somebody&rsquo;s profile, once per person per
+              day, so its total matches the number on that member&rsquo;s own page
+              exactly. The second adds up the potatoes on every picture they have
+              posted, credited to the character a picture belongs to rather than
+              whoever uploaded it.
             </>
           )}
         </p>

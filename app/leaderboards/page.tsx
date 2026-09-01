@@ -6,7 +6,7 @@ import TagIcon from "@/components/TagIcon";
 import LeaderboardIntro from "@/components/LeaderboardIntro";
 import LeaderRow from "@/components/LeaderRow";
 import LbTopTen from "@/components/LbTopTen";
-import PopotoBoard from "@/components/PopotoBoard";
+import PopotoBoards from "@/components/PopotoBoard";
 import { allGuestIds, guestHome } from "@/lib/guest-data";
 
 export const metadata = { title: "Leaderboards — Cafe And SHabu" };
@@ -76,9 +76,9 @@ export default function LeaderboardsPage() {
         </div>
       ) : (
         <div className="mt-5 grid gap-5 md:grid-cols-2">
-          {/* First, because it is the one board on this page the FC awards
-              rather than the game. */}
-          <PopotoBoard names={who} />
+          {/* First, because these two are what the FC awards rather than what
+              the game does. */}
+          <PopotoBoards names={who} />
 
           {boards.map(({ key, rows }) => (
             // Each board wears its own colour, on the edge and under the
