@@ -33,13 +33,27 @@ import { GUEST_RANK, guestHome, useGuests } from "@/lib/guests";
 // Excluding them was never a decision; it fell out of Active meaning "in the FC
 // and not on vacation", which a guest can never be.
 const ACTIVITY_OPTIONS = [
-  { key: "active", label: "Active" },
-  { key: "vacation", label: "On vacation" },
+  // Named for the company, because that is what the rank means. "Active" on its
+  // own invited the question of whether a guest counted — and the answer used to
+  // be yes, which made the number disagree with the words.
+  { key: "active", label: "FC active" },
+  { key: "vacation", label: "FC on vacation" },
   { key: "guest", label: "Guests" },
-  { key: "all", label: "Everyone" },
 ];
+
+/**
+ * Which of them somebody is looking at. Several at once, because they are three
+ * separate groups rather than four views of one list, and "the people around"
+ * has always meant the FC who are playing plus whoever came from outside.
+ *
+ * Everyone is all three ticked rather than an option of its own: a fourth
+ * button that silently un-ticks the other three is a checkbox pretending to be
+ * a radio, and nobody can tell from looking which one it is.
+ */
+type Activity = string[];
 /** Not in the FC, and marked so on the row as well as in the filter. */
-const ACTIVITY_DEFAULT = "active";
+const ACTIVITY_DEFAULT: Activity = ["active", "guest"];
+const ALL_ACTIVITY = ACTIVITY_OPTIONS.map((o) => o.key);
 type SortKey = "name" | "mounts" | "rare";
 
 const initials = (n: string) => n.split(" ").map((w) => w[0]).slice(0, 2).join("");
@@ -89,7 +103,7 @@ function PresenceDot({ m, size = 11 }: { m: Member; size?: number }) {
 
 interface Adv {
   lfg: string; rank: string;
-  boss: number[]; race: string; activity: string;
+  boss: number[]; race: string; activity: Activity;
   /** Any job of this role with a recorded score. */
   role: string;
   /** One specific job with a recorded score. */
@@ -187,17 +201,27 @@ const onUltimate = (m: Member, name: string) =>
  * in it showed everybody. A rule written twice is a rule that will disagree with
  * itself eventually; this one did it immediately.
  */
-const inActivity = (m: Member, activity: string) => {
-  const guest = m.rank === GUEST_RANK;
-  return activity === "guest" ? guest
-    // A guest is around by definition, so Active includes them. On vacation is
-    // an FC rank and there is no such thing as being on vacation from an FC you
-    // are not in, so that one still leaves them out.
-    : guest ? activity === "all" || activity === "active"
-    : activity === "active" ? !isOnVacation(m)
-    : activity === "vacation" ? isOnVacation(m)
-    : true;
-};
+/** The one group a member belongs to. Exactly one, always. */
+const activityOf = (m: Member): string =>
+  m.rank === GUEST_RANK ? "guest" : isOnVacation(m) ? "vacation" : "active";
+
+/**
+ * One function because there were two copies of this rule: one deciding what
+ * the counts said and one deciding what the list showed. They agreed until
+ * Guests was added to the first and not the second, and picking a category with
+ * nobody in it showed everybody. A rule written twice is a rule that will
+ * disagree with itself eventually; this one did it immediately.
+ *
+ * Nothing ticked shows nothing, and the row below says so. Silently falling
+ * back to everything would mean the one gesture that clears a filter produces
+ * the largest possible result.
+ */
+const inActivity = (m: Member, activity: Activity) =>
+  activity.includes(activityOf(m));
+
+/** Same members, whatever order they were ticked in. */
+const sameSet = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((k) => b.includes(k));
 
 const GROUP_PREFIX = "group:";
 const roleGroups = ["Tanks", "Healers", "DPS"] as const;
@@ -250,7 +274,14 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       lfg: p.get("lfg") ?? "", rank: p.get("rank") ?? "",
       boss,
       race: p.get("race") ?? "",
-      activity: p.get("act") ?? ACTIVITY_DEFAULT, ex,
+      // A comma-joined list, and "none" for a deliberate empty selection —
+      // without it an empty parameter and a missing one look the same, and a
+      // shared link showing nothing would arrive showing the default.
+      activity: p.has("act")
+        ? (p.get("act") === "none" ? []
+           : p.get("act")!.split(",").filter((k) => ALL_ACTIVITY.includes(k)))
+        : ACTIVITY_DEFAULT,
+      ex,
       role: p.get("role") ?? "", job: p.get("job") ?? "", tags,
       grade: p.get("grade") ?? "",
       progressing: p.get("prog") ?? "",
@@ -274,7 +305,9 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     if (adv.boss.length) p.set("boss", adv.boss.join(","));
     if (adv.ex.length) p.set("ex", adv.ex.join(","));
     if (adv.race) p.set("race", adv.race);
-    if (adv.activity !== ACTIVITY_DEFAULT) p.set("act", adv.activity);
+    if (!sameSet(adv.activity, ACTIVITY_DEFAULT)) {
+      p.set("act", adv.activity.length ? [...adv.activity].sort().join(",") : "none");
+    }
     if (adv.role) p.set("role", adv.role);
     if (adv.job) p.set("job", adv.job);
     if (adv.progressing) p.set("prog", adv.progressing);
@@ -441,17 +474,11 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   }, [inScope]);
 
   const activityCounts = useMemo(() => {
-    // Guests are none of the three FC states, so they are taken out before the
-    // other two are counted. Left in, they inflated Active — nobody outside the
-    // FC is on vacation from it — and Guests itself was falling through to the
-    // whole roster, which said five hundred people had registered from outside
-    // when nobody had.
-    const guest = visible.filter((m) => m.rank === GUEST_RANK).length;
-    const roster = visible.filter((m) => m.rank !== GUEST_RANK);
-    const vacation = roster.filter(isOnVacation).length;
-    // Active counts the guests it shows. A chip whose number disagrees with the
-    // list it produces is worse than no number at all.
-    return { active: roster.length - vacation + guest, vacation, guest };
+    // Every member is in exactly one of the three, so these add up to the whole
+    // board and no chip's number is part of another's.
+    const c: Record<string, number> = { active: 0, vacation: 0, guest: 0 };
+    for (const m of visible) c[activityOf(m)] += 1;
+    return c;
   }, [visible]);
 
   const list = useMemo(() => {
@@ -556,31 +583,35 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       <div className="flex flex-col gap-3">
         {/* Top level, not tucked inside the advanced panel: on a roster where most
             people are on vacation, this is the first cut almost everyone wants. */}
-        <div className="inline-flex self-start rounded-lg border border-line bg-surface p-0.5"
+        <div className="inline-flex flex-wrap self-start rounded-lg border border-line bg-surface p-0.5"
              role="group" aria-label="Filter by activity">
           {ACTIVITY_OPTIONS.map((o) => {
-            const on = adv.activity === o.key;
-            const n = o.key === "active" ? activityCounts.active
-              : o.key === "vacation" ? activityCounts.vacation
-              : o.key === "guest" ? activityCounts.guest
-              : visible.length;
+            const on = adv.activity.includes(o.key);
             return (
-              <button key={o.key} onClick={() => setAdv({ ...adv, activity: o.key })}
-                      aria-pressed={on}
+              <button key={o.key}
+                      onClick={() => setAdv({
+                        ...adv,
+                        activity: on ? adv.activity.filter((k) => k !== o.key)
+                                     : [...adv.activity, o.key],
+                      })}
+                      role="checkbox" aria-checked={on}
                       className={`rounded-md px-3.5 py-1.5 text-[13.5px] transition-colors ${
                         on ? "bg-accent/15 text-accent"
                            : "text-muted hover:text-ink"}`}>
-                {o.key !== "all" && (
-                  // A guest is not a dimmed member, so they do not get the
-                  // vacation grey. Hollow, because the dot is a presence light
-                  // for the FC and they are not in it.
-                  <span className={`mr-1.5 inline-block size-2 rounded-full align-middle ${
-                    o.key === "active" ? "bg-[#43b581]"
-                    : o.key === "guest" ? "border border-muted"
-                    : "bg-[#747f8d]"}`} />
-                )}
+                {/* A guest is not a dimmed member, so they do not get the
+                    vacation grey. Hollow, because the dot is a presence light
+                    for the FC and they are not in it. Unticked, every dot
+                    empties out — the colour is what is being included, not
+                    what the group is. */}
+                <span className={`mr-1.5 inline-block size-2 rounded-full align-middle ${
+                  !on ? "border border-muted/60"
+                  : o.key === "active" ? "bg-[#43b581]"
+                  : o.key === "guest" ? "border border-muted"
+                  : "bg-[#747f8d]"}`} />
                 {o.label}
-                <small className="ml-1.5 font-data opacity-70">{n}</small>
+                <small className="ml-1.5 font-data opacity-70">
+                  {activityCounts[o.key] ?? 0}
+                </small>
               </button>
             );
           })}
@@ -850,19 +881,20 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         </div>
 
         <div className="text-[13px] text-muted">
-          {/* Names the activity scope rather than only the raw numbers: with Active
-              as the default, "179 of 502" on its own reads like something is broken. */}
-          {t(adv.activity === "active" ? "board.showingActive"
-             : adv.activity === "vacation" ? "board.showingVacation"
-             : "board.showing",
-             { shown: list.length,
-               total: adv.activity === "active" ? activityCounts.active
-                 : adv.activity === "vacation" ? activityCounts.vacation
-                 : visible.length })}
-          {adv.activity !== "all" && (
+          {/* Names the scope rather than only the raw numbers: on a default that
+              hides two thirds of the roster, "179 of 502" alone reads like
+              something is broken. */}
+          {adv.activity.length === 0
+            ? t("board.showingNone")
+            : t("board.showing", {
+                shown: list.length,
+                total: adv.activity.reduce(
+                  (n, k) => n + (activityCounts[k] ?? 0), 0),
+              })}
+          {!sameSet(adv.activity, ALL_ACTIVITY) && (
             <>
               {" · "}
-              <button onClick={() => setAdv({ ...adv, activity: "all" })}
+              <button onClick={() => setAdv({ ...adv, activity: ALL_ACTIVITY })}
                       className="underline hover:text-ink">
                 {t("board.showEveryone")}
               </button>

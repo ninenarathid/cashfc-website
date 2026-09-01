@@ -444,13 +444,9 @@ const DICT = {
   "board.anyDps": { en: "Any DPS", th: "DPS ทุกแบบ" },
   "board.anyTank": { en: "Any tank", th: "Tank ทุกแบบ" },
   "board.showing": { en: "Showing {shown} of {total} members", th: "แสดง {shown} จาก {total} คน" },
-  "board.showingActive": {
-    en: "Showing {shown} active of {total} members",
-    th: "แสดง {shown} คนที่ Active จาก {total} คน",
-  },
-  "board.showingVacation": {
-    en: "Showing {shown} on-vacation of {total} members",
-    th: "แสดง {shown} คนที่พักอยู่ จาก {total} คน",
+  "board.showingNone": {
+    en: "Nothing selected — tick one of the three above.",
+    th: "ยังไม่ได้เลือก — ติ๊กอย่างน้อยหนึ่งอันด้านบน",
   },
   "board.showEveryone": { en: "show everyone", th: "แสดงทุกคน" },
   "board.nobody": { en: "Nobody matches that", th: "ไม่มีใครตรงกับที่ค้นหา" },

@@ -201,7 +201,7 @@ export default function HotGallery() {
       {arrow(-1, at.start)}
       {arrow(1, at.end)}
       <div ref={strip} onScroll={measure}
-           className="-mx-1 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 [--row-gap:8px] [--row-h:112px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[--row-h:148px]">
+           className="-mx-1 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 [--row-gap:8px] [--row-h:168px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[--row-h:222px]">
         {columns.map((col, i) => (
           <div key={i} className="flex shrink-0 snap-start flex-col gap-2">
             {col.tall && <Tile post={col.tall} rows={2} />}
