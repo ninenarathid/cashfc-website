@@ -2503,522 +2503,106 @@
  },
  "pipeline": {
   "legacy_cursor": 1,
-  "zone_cursor": 4,
+  "zone_cursor": 5,
   "fflogs_cycle": [
-   "10638899",
-   "10807425",
-   "10837088",
-   "10926041",
    "11603711",
    "11950156",
-   "12003402",
    "12058921",
-   "12235132",
    "12478532",
-   "13162369",
    "13533056",
    "13860363",
    "14476396",
-   "14538982",
    "14959902",
-   "15296154",
    "15308846",
-   "15543487",
-   "15783222",
-   "15785511",
-   "15895457",
    "15912826",
-   "15932791",
-   "16034463",
-   "1607774",
-   "16099244",
-   "16168981",
-   "16172034",
-   "16173017",
-   "16173247",
-   "16192933",
-   "1623780",
-   "16385554",
-   "16397778",
-   "1643244",
-   "17468497",
-   "17473430",
-   "17723972",
-   "18278635",
-   "18489055",
-   "18538032",
-   "18578874",
-   "18659677",
    "19827594",
-   "19896720",
-   "20014912",
-   "20400811",
    "21620195",
-   "2168537",
-   "21899488",
-   "22164216",
-   "22164254",
    "22425670",
    "22461237",
-   "22689957",
    "22767255",
-   "23767900",
-   "23901016",
-   "23921786",
-   "24103365",
-   "24104450",
-   "24114157",
    "24123541",
-   "24150396",
    "24186600",
-   "24211446",
    "24228478",
-   "24300584",
-   "24313144",
-   "24690035",
-   "24747734",
-   "24770177",
-   "24991794",
-   "25504317",
    "25506828",
-   "25541816",
-   "25619696",
-   "25620101",
-   "25661865",
    "26268800",
    "26298391",
-   "26433344",
-   "2656352",
-   "26634125",
    "26699926",
-   "26844665",
-   "27213488",
-   "27293755",
-   "27302476",
-   "27412308",
-   "27453486",
-   "27818479",
-   "27875326",
-   "27905098",
-   "27935097",
-   "28011817",
-   "28012936",
-   "2801638",
-   "28067306",
    "28120733",
-   "28127069",
-   "28163062",
-   "28213199",
-   "28380674",
-   "2852829",
    "28579232",
-   "28679378",
-   "28679815",
    "28789661",
-   "28810440",
-   "28860700",
-   "28931955",
    "28950119",
-   "29090821",
-   "29128390",
-   "29151949",
    "29152036",
-   "29162543",
    "29325838",
    "29339718",
-   "29351667",
-   "29389419",
-   "29395299",
-   "29479627",
-   "29498103",
-   "29501278",
    "29511615",
-   "29542040",
    "2957360",
-   "29585811",
-   "29612903",
-   "29659200",
-   "29710631",
-   "29734643",
-   "29764422",
-   "29782062",
-   "29795820",
-   "29853808",
-   "29863848",
-   "29864090",
-   "29881709",
-   "29899571",
-   "29901287",
-   "29907674",
-   "29918255",
-   "29918399",
    "29918404",
-   "29944592",
-   "29991345",
-   "29992221",
    "29998658",
-   "30053876",
-   "30056598",
-   "30088400",
-   "30172592",
-   "30176379",
-   "30253575",
    "30293847",
-   "30333493",
-   "30421228",
-   "30426712",
-   "30472222",
-   "30504149",
-   "30559609",
-   "30559981",
-   "30582341",
-   "30596644",
-   "30645476",
    "30667251",
-   "30714243",
-   "30741737",
-   "30848420",
-   "30863840",
    "30864049",
-   "30943571",
-   "31001697",
-   "31001781",
-   "31010962",
-   "31012021",
-   "31155521",
-   "31211526",
-   "31225966",
    "31236337",
-   "31239994",
-   "31334257",
-   "31471584",
-   "31519555",
-   "31592995",
    "31628293",
-   "31632996",
-   "31655994",
-   "31685046",
-   "31685121",
-   "31710850",
-   "31737067",
-   "31745191",
-   "31764639",
-   "31802544",
-   "31806535",
-   "31806958",
-   "31831003",
-   "31833183",
-   "31899766",
    "31902843",
-   "31923628",
-   "32023977",
-   "32027062",
-   "32046109",
-   "32046284",
-   "32102060",
-   "32147626",
    "32147756",
-   "32150308",
-   "32223527",
-   "32373387",
-   "3256238",
-   "32793260",
-   "32857279",
-   "33272037",
-   "33387937",
-   "33487130",
-   "33604767",
-   "33608576",
-   "33766568",
-   "33807451",
-   "33825599",
-   "33859953",
-   "33870496",
-   "33931644",
-   "33954541",
-   "33966579",
-   "34057749",
-   "34086580",
-   "34155014",
-   "34172006",
-   "34184163",
-   "34228206",
-   "34290087",
-   "34357286",
    "34376591",
    "34434658",
-   "34474329",
-   "34505698",
-   "34507717",
    "34509521",
-   "34510497",
-   "34511319",
-   "34522644",
-   "34522645",
-   "34524608",
    "34546216",
-   "34597671",
-   "34611224",
-   "34790386",
-   "34873931",
-   "35096411",
-   "35158574",
-   "35164241",
-   "35250799",
-   "35270049",
-   "35361599",
-   "35361791",
-   "35629716",
    "35634484",
-   "35854535",
-   "35863038",
-   "35863297",
-   "36001341",
-   "36016570",
-   "36090951",
    "36130968",
-   "36149590",
-   "36151779",
-   "36159286",
-   "36162283",
-   "36164592",
-   "36165070",
-   "36168487",
-   "36183250",
-   "36183378",
    "36183541",
-   "36225854",
-   "36228998",
    "36248712",
-   "36260815",
    "36261473",
-   "36315588",
-   "36320452",
-   "36363091",
-   "36427926",
-   "36490427",
-   "36609029",
-   "36624109",
-   "36855080",
    "37056222",
-   "37061370",
-   "37065671",
-   "37143017",
-   "37236539",
-   "37409022",
-   "37648492",
-   "37696532",
-   "37731936",
-   "37815847",
-   "37843804",
-   "37881871",
-   "37911500",
-   "37924865",
-   "38018463",
    "38041221",
    "38152072",
-   "38276690",
    "38335568",
    "38488824",
-   "38796459",
    "38802422",
    "38808156",
-   "38841973",
-   "38971737",
-   "39001402",
-   "3902073",
-   "39034125",
-   "39073020",
-   "3908109",
    "39199441",
-   "39458429",
    "3968346",
-   "39734861",
-   "39850342",
-   "39850921",
-   "39850923",
-   "39869488",
-   "39907836",
-   "39959181",
-   "39961214",
-   "40160371",
-   "4026627",
-   "40389196",
-   "40394823",
-   "40624820",
-   "40652404",
-   "40669284",
-   "40809430",
-   "40910522",
-   "40940579",
-   "40990512",
-   "41059127",
-   "41073949",
-   "41098683",
    "42021700",
-   "42053180",
-   "42053451",
-   "42146242",
-   "42215185",
    "42215186",
-   "42277370",
-   "42341300",
-   "42342468",
-   "42461214",
-   "42509107",
-   "42646897",
-   "42653584",
-   "42690618",
-   "42832439",
-   "42845691",
    "42948817",
    "42976317",
    "43037186",
-   "43116127",
-   "43282900",
-   "43335087",
-   "43374218",
-   "43412434",
-   "43423269",
-   "43481858",
-   "43707810",
-   "43797998",
    "43864764",
-   "44031569",
-   "44081209",
    "44133352",
-   "44141004",
    "44143115",
-   "44401264",
-   "44409828",
-   "44409962",
-   "44475864",
-   "44925955",
-   "44926008",
    "44970350",
-   "4505633",
-   "45094564",
-   "45101386",
-   "45150763",
-   "45194317",
    "45938803",
-   "46055730",
-   "46243891",
-   "46431057",
-   "46485530",
-   "46625326",
-   "46739693",
-   "47218599",
    "47221226",
-   "47337818",
-   "47401423",
-   "47423083",
-   "47494518",
    "47540663",
-   "47548993",
-   "47585776",
-   "47645809",
-   "47658617",
-   "47715909",
-   "48010347",
-   "48050166",
-   "48152565",
-   "48527875",
-   "49712485",
-   "49891708",
-   "49891716",
-   "49929911",
-   "50103049",
-   "50120275",
-   "50131148",
-   "50267765",
-   "5034519",
-   "50416713",
-   "50417039",
    "50821570",
-   "51044792",
-   "51060767",
-   "51077689",
-   "51078504",
-   "512253",
-   "51359685",
-   "51852387",
    "51922514",
-   "52866044",
    "5294880",
-   "5297796",
-   "53006949",
-   "53019673",
-   "53247027",
-   "53799276",
-   "53933347",
-   "54318245",
    "5435582",
-   "54419512",
-   "55476354",
-   "55640987",
    "56108574",
-   "56143721",
    "5644067",
-   "568409",
-   "5720080",
    "57375278",
-   "57387464",
-   "57419573",
-   "5761905",
-   "5762434",
-   "57711304",
    "57885671",
-   "57967682",
-   "58160672",
    "58199536",
-   "58199756",
    "58202955",
-   "58314431",
-   "58455997",
-   "58508421",
-   "58725327",
-   "59690047",
-   "60211788",
-   "60475540",
-   "60599300",
-   "60619924",
-   "60692052",
-   "60780260",
-   "60814172",
-   "60852230",
-   "60854619",
-   "60873337",
-   "60933255",
-   "60972300",
    "6173187",
-   "61748681",
-   "61758559",
-   "693670",
    "6951533",
-   "718420",
-   "7283668",
-   "8113158",
-   "8234305",
    "8286372",
-   "8713004",
    "8836061",
-   "8999658",
-   "9155192",
    "9444020"
   ],
-  "collect_at": 1788193761.930256,
-  "lala_at": 1788194675.559149,
-  "collect_v": 3,
+  "collect_at": 1788270456.500949,
+  "lala_at": 1788271169.2986932,
+  "collect_v": 4,
   "bucket_max": {
-   "explorer": 318.4,
-   "relic": 815.38,
-   "seasonal": 235.59,
+   "explorer": 315.89,
+   "relic": 810.14,
+   "seasonal": 234.3,
    "crafter": 982.02,
-   "gatherer": 700.97,
+   "gatherer": 699.42,
    "pvp": 381.43,
    "goldsaucer": 127.91,
-   "treasure": 319.12,
+   "treasure": 319.07,
    "oldtimer": 542.02
   },
   "bucket_max_v": 2,
@@ -7074,9 +6658,9 @@
    "minions": 269,
    "achievements": 1540,
    "achv_private": false,
-   "mount_rank": "3505",
-   "minion_rank": "2374",
-   "achv_rank": "1223",
+   "mount_rank": "3509",
+   "minion_rank": "2376",
+   "achv_rank": "1224",
    "race": "Viera",
    "tribe": "Rava",
    "synced": 1776138349,
@@ -7574,6 +7158,91 @@
    "tribe": null,
    "synced": 1786553639,
    "indexed": 1786553639
+  },
+  "6173187": {
+   "last_mount": 1774970305,
+   "last_minion": 1774106289,
+   "last_achv": null,
+   "last_active": 1774970305,
+   "mounts": 181,
+   "minions": 429,
+   "achievements": 0,
+   "achv_private": true,
+   "mount_rank": "751",
+   "minion_rank": "481",
+   "achv_rank": null,
+   "race": "Miqo'te",
+   "tribe": "Keeper of the Moon",
+   "synced": 1775834464,
+   "indexed": 1543928056
+  },
+  "30582341": {
+   "last_mount": 1700095139,
+   "last_minion": 1710462288,
+   "last_achv": null,
+   "last_active": 1710462288,
+   "mounts": 80,
+   "minions": 155,
+   "achievements": 0,
+   "achv_private": true,
+   "mount_rank": "4079",
+   "minion_rank": "4880",
+   "achv_rank": null,
+   "race": null,
+   "tribe": null,
+   "synced": 1778691703,
+   "indexed": 1599729839
+  },
+  "20014912": {
+   "last_mount": 1618375405,
+   "last_minion": 1610514580,
+   "last_achv": null,
+   "last_active": 1618375405,
+   "mounts": 99,
+   "minions": 202,
+   "achievements": 0,
+   "achv_private": true,
+   "mount_rank": "3378",
+   "minion_rank": "3928",
+   "achv_rank": null,
+   "race": "Au Ra",
+   "tribe": "Raen",
+   "synced": 1775895530,
+   "indexed": 1544050831
+  },
+  "21620195": {
+   "last_mount": 1778527172,
+   "last_minion": 1778527172,
+   "last_achv": null,
+   "last_active": 1778527172,
+   "mounts": 187,
+   "minions": 407,
+   "achievements": 0,
+   "achv_private": true,
+   "mount_rank": "657",
+   "minion_rank": "499",
+   "achv_rank": null,
+   "race": null,
+   "tribe": null,
+   "synced": 1778527172,
+   "indexed": 1599650668
+  },
+  "30053876": {
+   "last_mount": 1643726151,
+   "last_minion": 1643726151,
+   "last_achv": 1641482177,
+   "last_active": 1643726151,
+   "mounts": 54,
+   "minions": 110,
+   "achievements": 856,
+   "achv_private": false,
+   "mount_rank": "5228",
+   "minion_rank": "6477",
+   "achv_rank": "2968",
+   "race": null,
+   "tribe": null,
+   "synced": 1776052909,
+   "indexed": 1593411862
   }
  },
  "collect": {
@@ -7584,6 +7253,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c1cbceeda2b4e6afab854537973f3334_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703729861",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7752,6 +7422,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/58d06d66abe8353d1a8a51e40c9e5df2_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1645103965",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7762,6 +7433,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a641044c4692a7944c97a779b46f0326_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778412230",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7772,6 +7444,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/29e76ca1630d6471068946ffc1a5b643_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1729881178",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7782,6 +7455,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3dc9125badc78221a0e8e18b371b696d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1775383504",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1470,
     1455,
@@ -7862,9 +7536,9 @@
     2505,
     2810,
     2812,
-    3847,
     3848,
     2809,
+    3847,
     935,
     1469,
     2066,
@@ -7875,13 +7549,13 @@
     2808,
     2813,
     2814,
-    3852,
-    1592,
     2490,
     3705,
+    3852,
     3860,
     3861,
     1019,
+    1592,
     2232
    ],
    "achv_buckets": {
@@ -7893,12 +7567,12 @@
     "pvp": {
      "n": 53,
      "min": 0.3,
-     "score": 292.58
+     "score": 292.56
     },
     "treasure": {
      "n": 28,
      "min": 1.1,
-     "score": 73.99
+     "score": 73.95
     },
     "goldsaucer": {
      "n": 7,
@@ -7908,7 +7582,7 @@
     "relic": {
      "n": 146,
      "min": 1.2,
-     "score": 270.64
+     "score": 270.17
     },
     "gatherer": {
      "n": 16,
@@ -7929,6 +7603,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/59b2e567cf6fc54c80405b7bdfdd10ba_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1746969337",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -7943,6 +7618,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2564,
     2563,
@@ -8064,7 +7740,7 @@
     "relic": {
      "n": 72,
      "min": 5.7,
-     "score": 85.85
+     "score": 85.84
     },
     "pvp": {
      "n": 5,
@@ -8092,6 +7768,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1468,
     1581,
@@ -8121,7 +7798,7 @@
     "relic": {
      "n": 13,
      "min": 6.2,
-     "score": 15.34
+     "score": 15.33
     }
    }
   },
@@ -8132,6 +7809,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d2407d7f87f553f69f479a3834e7591_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1732919271",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3538,
     2991,
@@ -8185,6 +7863,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1952,
     2055,
@@ -8242,6 +7921,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2991,
     3162,
@@ -8296,6 +7976,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b9b6001d2b753084e83bb5ffe6db506c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788024581",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3835,
     3834,
@@ -8303,8 +7984,8 @@
     3833,
     3962,
     946,
-    3969,
     3961,
+    3969,
     3406,
     3407,
     4015,
@@ -8334,11 +8015,11 @@
     1563,
     3850,
     3855,
-    4074,
     3784,
     3857,
-    3858,
+    4074,
     3851,
+    3858,
     3845,
     3854,
     3862,
@@ -8358,33 +8039,33 @@
     3765,
     3883,
     3884,
-    3998,
-    4002,
     1132,
     3761,
     3767,
     3823,
     3877,
+    3998,
+    4002,
     3768,
     3979,
-    3764,
     3755,
+    3764,
     3677,
     3772,
     3897,
     1198,
     3754,
-    3874,
     3890,
     2094,
     2054,
     3648,
+    3874,
     3759,
     3798,
     3811,
     2461,
-    3646,
     3799,
+    3646,
     3649,
     3752,
     3769,
@@ -8402,7 +8083,7 @@
     "pvp": {
      "n": 22,
      "min": 0.2,
-     "score": 143.38
+     "score": 143.37
     },
     "goldsaucer": {
      "n": 4,
@@ -8412,7 +8093,7 @@
     "relic": {
      "n": 61,
      "min": 0.8,
-     "score": 140.44
+     "score": 138.86
     },
     "gatherer": {
      "n": 2,
@@ -8427,7 +8108,7 @@
     "explorer": {
      "n": 18,
      "min": 1.2,
-     "score": 46.15
+     "score": 45.9
     },
     "crafter": {
      "n": 2,
@@ -8436,8 +8117,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -8446,13 +8127,14 @@
    "minions": 284,
    "rare_achv": 158,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/7f2cb159bf631180f9d2620d958d7498_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787855342",
+   "portrait": "https://img2.finalfantasyxiv.com/f/7f2cb159bf631180f9d2620d958d7498_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788193742",
    "ult_achv": [
     "Dragonsong's Reprise",
     "The Epic of Alexander",
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1323,
     2767,
@@ -8466,9 +8148,9 @@
     1663,
     1666,
     1318,
-    2940,
     2514,
     2517,
+    2940,
     1327,
     2552,
     2229,
@@ -8509,10 +8191,10 @@
     1934,
     3472,
     3631,
-    3998,
-    4002,
     2228,
     2516,
+    3998,
+    4002,
     201,
     2513,
     2727,
@@ -8533,9 +8215,9 @@
     3630,
     1302,
     1853,
-    2034,
     1319,
     1750,
+    2034,
     3155,
     3467,
     147,
@@ -8574,12 +8256,12 @@
     "relic": {
      "n": 23,
      "min": 4.7,
-     "score": 30.04
+     "score": 30.02
     },
     "explorer": {
      "n": 22,
      "min": 1.3,
-     "score": 45.55
+     "score": 45.49
     },
     "treasure": {
      "n": 2,
@@ -8595,6 +8277,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ba4d3a48327506b032214fd93776e2fd_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1697583214",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -8605,6 +8288,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ec8a555cd5e6d49299e6e6525d945423_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788059971",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -8615,6 +8299,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f28cff515c92ec7b0b57239b0594e705_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788031172",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -8625,6 +8310,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6ce984d46d9d1bf6284f767a5985281f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1765032874",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3663,
     3674,
@@ -8657,9 +8343,9 @@
     3823,
     3362,
     3768,
-    3764,
     3369,
     3755,
+    3764,
     3801,
     3677,
     3772,
@@ -8671,10 +8357,10 @@
     3470,
     3754,
     3796,
-    3794,
     3476,
     3648,
     3656,
+    3794,
     3795,
     3657,
     3759,
@@ -8683,10 +8369,10 @@
     3798,
     3811,
     3642,
-    3646,
     3793,
     3799,
     3306,
+    3646,
     3649,
     3752,
     3769,
@@ -8725,7 +8411,7 @@
     2693,
     2765,
     3693,
-    3824
+    2671
    ],
    "achv_buckets": {
     "crafter": {
@@ -8736,12 +8422,12 @@
     "relic": {
      "n": 83,
      "min": 4.4,
-     "score": 121.7
+     "score": 121.62
     },
     "explorer": {
      "n": 17,
-     "min": 0.8,
-     "score": 43.16
+     "min": 0.9,
+     "score": 41.77
     },
     "gatherer": {
      "n": 4,
@@ -8762,6 +8448,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c945d29a29b8899127ece1422d6012a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1783686886",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -8772,6 +8459,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d8a0ed94d93290089d93b481ec490f76_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1786976074",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     607,
     3964,
@@ -8903,17 +8591,17 @@
     "relic": {
      "n": 146,
      "min": 0.9,
-     "score": 245.82
+     "score": 245.6
     },
     "explorer": {
      "n": 10,
-     "min": 5.4,
-     "score": 13.45
+     "min": 5.5,
+     "score": 13.39
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -8924,6 +8612,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ef87fcf3e51a3d900995b472d2607e3c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1746965233",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -8942,6 +8631,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     4005,
     4010,
@@ -8950,16 +8640,16 @@
     3663,
     3997,
     3899,
-    4022,
     3428,
+    4022,
     3340,
     3949,
     3950,
     3659,
-    4017,
     3156,
     3528,
     3870,
+    4017,
     3350,
     3632,
     3668,
@@ -8969,15 +8659,15 @@
     3924,
     3051,
     3937,
-    3847,
     3923,
     4004,
     4006,
+    3847,
     3922,
     3939,
     1469,
-    3999,
     3705,
+    3999,
     3918,
     3185,
     3846,
@@ -8990,11 +8680,11 @@
     3850,
     3915,
     3921,
-    4074,
     1582,
     2393,
     3726,
     3914,
+    4074,
     2991,
     3702,
     3851,
@@ -9048,7 +8738,7 @@
     "relic": {
      "n": 168,
      "min": 0.5,
-     "score": 298.79
+     "score": 298.52
     },
     "pvp": {
      "n": 17,
@@ -9063,7 +8753,7 @@
     "explorer": {
      "n": 35,
      "min": 0.3,
-     "score": 165.75
+     "score": 163.23
     },
     "crafter": {
      "n": 8,
@@ -9077,8 +8767,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -9089,6 +8779,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f4e3bdfe96f220aed972927474bf792f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1777728935",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2653,
     3717,
@@ -9184,7 +8875,7 @@
     "relic": {
      "n": 42,
      "min": 4.0,
-     "score": 64.18
+     "score": 64.17
     },
     "crafter": {
      "n": 7,
@@ -9210,6 +8901,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2c720b66754800ca6fa7ef80130c8a86_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788161964",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     4005,
     3684,
@@ -9222,58 +8914,58 @@
     3964,
     3680,
     3952,
-    3969,
     1339,
     3951,
+    3969,
     3956,
     4015,
-    4022,
     3936,
     4000,
+    4022,
     1604,
     3529,
-    3875,
     3949,
     1227,
     3703,
     1077,
+    3875,
     3950,
     4007,
     1603,
-    4017,
     3817,
+    4017,
     3938,
     2992,
     3924,
     3941,
     3937,
-    3847,
     3848,
     3923,
     4004,
     4006,
+    3847,
     3922,
     3939,
     935,
     1475,
     2066,
-    3852,
-    3999,
     3729,
+    3852,
     3860,
     3861,
+    3999,
     2481,
     3918,
     3846,
     3856,
     3916,
     3917,
-    3919,
     3935,
     1328,
     1370,
     3683,
     3853,
+    3919,
     3920,
     4014,
     2137,
@@ -9281,16 +8973,16 @@
     3855,
     3915,
     3921,
-    4074,
     2393,
     3726,
     3784,
     3857,
-    3858,
     3914,
+    4074,
     2991,
     3702,
     3851,
+    3858,
     3667,
     3845,
     3555,
@@ -9321,12 +9013,12 @@
     "pvp": {
      "n": 18,
      "min": 1.7,
-     "score": 37.35
+     "score": 37.33
     },
     "relic": {
      "n": 155,
      "min": 0.5,
-     "score": 375.72
+     "score": 373.59
     },
     "treasure": {
      "n": 11,
@@ -9341,7 +9033,7 @@
     "explorer": {
      "n": 33,
      "min": 0.3,
-     "score": 176.43
+     "score": 175.3
     },
     "goldsaucer": {
      "n": 1,
@@ -9350,8 +9042,8 @@
     },
     "seasonal": {
      "n": 2,
-     "min": 1.4,
-     "score": 8.73
+     "min": 1.7,
+     "score": 7.42
     }
    }
   },
@@ -9362,6 +9054,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c9720900b9444d061530d6f7f6bc1bc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701596161",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9376,6 +9069,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1736,
     1744,
@@ -9515,6 +9209,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2387,
     3368,
@@ -9546,7 +9241,7 @@
     "relic": {
      "n": 16,
      "min": 5.5,
-     "score": 19.39
+     "score": 19.38
     }
    }
   },
@@ -9559,6 +9254,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2930,
     1328,
@@ -9581,9 +9277,9 @@
     3309,
     3796,
     3307,
-    3794,
     3308,
     3656,
+    3794,
     3795,
     3657,
     3797,
@@ -9640,14 +9336,14 @@
     3697,
     2661,
     2794,
-    3655,
     2043,
-    3199,
     3474,
+    3655,
     3698,
     2286,
     2633,
     3193,
+    3199,
     3473,
     3691,
     2870,
@@ -9670,7 +9366,7 @@
     "relic": {
      "n": 78,
      "min": 4.0,
-     "score": 105.52
+     "score": 105.46
     },
     "explorer": {
      "n": 1,
@@ -9686,6 +9382,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0340f34a708ad44df16184ba378ceaa4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788020160",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9696,6 +9393,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/08f17a13a92aa4b670684ae41d861017_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1767540606",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9706,6 +9404,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/806d952699df011e61e28f655ee65683_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778738487",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9716,6 +9415,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a3dc0e200e8e2be142e8eaf5bd564e1b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703798971",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9726,6 +9426,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7d8687975fb4b43c5afd5f3bd7865815_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703873054",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9736,6 +9437,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ca364eba596951d9ee115a598810501_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1786500415",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9746,6 +9448,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/39deab8bac4b2a23c0e5dd0c80154f99_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1749238345",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2990,
     2387,
@@ -9768,7 +9471,7 @@
     "pvp": {
      "n": 4,
      "min": 6.0,
-     "score": 5.13
+     "score": 5.11
     },
     "goldsaucer": {
      "n": 1,
@@ -9799,6 +9502,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/87dbd30585808fc1e07bb71baf6de7e1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788106493",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3765,
     3998,
@@ -9818,13 +9522,13 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     },
     "explorer": {
      "n": 2,
-     "min": 5.4,
-     "score": 3.7
+     "min": 5.5,
+     "score": 3.64
     }
    }
   },
@@ -9841,6 +9545,7 @@
     "The Omega Protocol",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2735,
     2731,
@@ -9973,6 +9678,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/490c60be60162be257869667b2e81764_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701596775",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9983,6 +9689,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d0d8abc2bd55031b985037a60aa39b6f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1742908214",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -9993,33 +9700,34 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d9b441ad00a49892f80ef85e6fb589b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788082167",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3684,
     4008,
     3962,
     3961,
     4015,
-    3966,
     4000,
+    3966,
     2007,
     3950,
     4007,
-    4017,
     3817,
+    4017,
     3938,
     3937,
     4004,
     4006,
-    3999,
     3705,
+    3999,
     3935,
     3683,
     4014,
     3855,
     3915,
-    4074,
     3784,
     3914,
+    4074,
     3702,
     2224,
     3555,
@@ -10036,11 +9744,11 @@
     2155,
     3765,
     3878,
-    3998,
-    4002,
     3823,
     3877,
     3896,
+    3998,
+    4002,
     3768,
     3989,
     3764,
@@ -10049,11 +9757,11 @@
     3897,
     3735,
     3754,
-    3874,
     3890,
-    3988,
     2094,
+    3988,
     3656,
+    3874,
     3759,
     3467,
     3798,
@@ -10082,8 +9790,8 @@
     1562,
     3645,
     3001,
-    3824,
     3741,
+    3824,
     950,
     2562,
     3638,
@@ -10092,19 +9800,19 @@
     3692,
     3697,
     963,
-    3655,
-    1473
+    1473,
+    3655
    ],
    "achv_buckets": {
     "pvp": {
      "n": 8,
      "min": 1.5,
-     "score": 15.76
+     "score": 15.75
     },
     "relic": {
      "n": 44,
      "min": 0.8,
-     "score": 100.13
+     "score": 99.53
     },
     "gatherer": {
      "n": 4,
@@ -10124,12 +9832,12 @@
     "explorer": {
      "n": 22,
      "min": 0.4,
-     "score": 102.27
+     "score": 101.78
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -10140,6 +9848,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/930ea37f90bbe277dc0530864ef33dbf_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701594430",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2245,
     3187,
@@ -10196,6 +9905,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2882,
     1454,
@@ -10253,6 +9963,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d38d2e9757b81139881af795bbaa7b3b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703899951",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10263,6 +9974,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ac7dc32e221d492b58e750f21ba4d6c3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1734106408",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10273,6 +9985,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8f17aa186b22e25118b38c79132b48ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778600107",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10283,6 +9996,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5f92d976766c91a44e9029df79687b75_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1737667176",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10293,6 +10007,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/24ef3dda559fcb61bd4725be7763b492_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703571465",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10303,6 +10018,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c5ba690e39670e4184b9ec97b60ede79_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1730631377",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10313,6 +10029,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a11139bf5f4316dc13b69b56e28b1efc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703129642",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1581,
     2861,
@@ -10365,6 +10082,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0e6145c42c527756d9bb54e6f14ce4b7_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703789964",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10378,6 +10096,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2487,
     1604,
@@ -10519,6 +10238,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/750af38da2a99d8584b5bc21539a1e85_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1709281333",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10529,6 +10249,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/33f97cf5f574e278f8efea3590cce8f7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736169820",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10539,6 +10260,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7663d112cd640b3742b69dcae9ffaef8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703865848",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2730,
     3092,
@@ -10591,6 +10313,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18e6c7bc63ee5dd425013a5f12c7666a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704031274",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2407,
     2351,
@@ -10625,6 +10348,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ac0287a5eecd9b2062aeafdc686deb7a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1644734658",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10635,6 +10359,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/322a9dd440f9e963b96017c2f25f8db5_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703582463",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10645,6 +10370,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a411f90cbf358f819ec3da02e27318ac_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1769691671",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10655,6 +10381,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a48e439fdb4d1991f727cf526fa6ea5c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736059605",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2603,
     2802,
@@ -10728,6 +10455,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7410b6dfe82577726d12ffa13933a6c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704037472",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     268,
     189,
@@ -10766,6 +10494,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/797e325f071d5fb1f52b36bee6c3c6ce_8f82f937943b6baf4c565020d5eba0ccfl0_640x873.jpg?1593744816",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10776,6 +10505,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bc065c4481047db81446fc469c6689fd_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702413547",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10786,6 +10516,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b4bef559b5012b3fa3c6be99688d23dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703389003",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10802,6 +10533,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1744,
     3405,
@@ -10914,6 +10646,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b9e09d031bf30a8f0bb8739cc435a0f_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704602215",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10924,6 +10657,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/60822ca9387221b2624115fb247e1b72_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1716470189",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10934,6 +10668,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0ea586542c7661b41ef66ee205543b00_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701595632",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10944,6 +10679,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/11665c02a72e7ac31b031faab4fb9a0b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1732277517",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10954,6 +10690,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0ae1e360ff3e2e23f90343797e495256_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703406304",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10964,6 +10701,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c4844de389cacdf864bbc34add04daa_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1780040965",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10974,6 +10712,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bb9d0163bc8460275e54d7ce1a7f74a3_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1711118975",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -10984,6 +10723,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3e60e109d718755ac3f503d6dee9c348_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1744478373",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     565,
     2222,
@@ -11086,6 +10826,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6dd404c36e4859dff8175166a0c643ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736399680",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11096,6 +10837,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/888cd6d2f1b3d4df706d22a648c0a12f_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704002543",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11106,6 +10848,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7fa870a96d18a8c035d7dcab89da72f3_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702172279",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11116,6 +10859,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/56717a9302e7f2d12879619cc44c79dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701599820",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2168,
     1723,
@@ -11152,6 +10896,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b2f3bcc1b639b83ac35f734ae0dcc610_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703503935",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11162,6 +10907,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/48b1a8154d1081143959589d27686e25_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1769688814",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11172,6 +10918,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c017d8c9c58fc45f2a6459437db861c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703059088",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11182,6 +10929,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3abe7b828bf90116555b80b17abca16c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1630171959",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11194,6 +10942,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3155,
     1320,
@@ -11235,6 +10984,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2893f03b3323a1023e43f15b61f01c2b_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703022588",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11245,6 +10995,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f5d3e22581862abfc57476b27be45cd8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701767696",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11255,6 +11006,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/9dd47d5004832f478f876dcb039f7029_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704038000",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2218,
     2149,
@@ -11280,8 +11032,8 @@
    "achv_buckets": {
     "pvp": {
      "n": 1,
-     "min": 9.3,
-     "score": 1.07
+     "min": 9.4,
+     "score": 1.06
     },
     "relic": {
      "n": 16,
@@ -11302,6 +11054,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0b7986045f63deb60d8eef7bd8a12133_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703879795",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11318,6 +11071,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1354,
     2993,
@@ -11360,8 +11114,8 @@
     1003,
     2083,
     2154,
-    3113,
     1027,
+    3113,
     2864,
     1993,
     2859,
@@ -11403,7 +11157,7 @@
     "seasonal": {
      "n": 14,
      "min": 4.2,
-     "score": 23.43
+     "score": 23.45
     },
     "treasure": {
      "n": 2,
@@ -11429,6 +11183,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6bde8f32b50a8814efefc3cedb3d9459_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701597294",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11439,6 +11194,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1abb5b3bcbaa56195136037bf5f6f62c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1729785167",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11452,6 +11208,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2180,
     1469,
@@ -11471,8 +11228,8 @@
     2765,
     1124,
     950,
-    963,
     1676,
+    963,
     1614,
     2633,
     2637,
@@ -11495,7 +11252,7 @@
     "pvp": {
      "n": 6,
      "min": 3.1,
-     "score": 9.4
+     "score": 9.38
     },
     "goldsaucer": {
      "n": 5,
@@ -11526,6 +11283,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bb3fd4a9af6f7e7d9ef350658e57c73c_410ddb5a66a2fcacf538bec5ea5d0291fl0_640x873.jpg?1699150851",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11536,6 +11294,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/584481d72545532f06096dd0c8b5dcc5_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703889824",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11546,6 +11305,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2fbde07a4390bcc6cd18130e30fac148_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1702170327",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11554,13 +11314,14 @@
    "minions": 137,
    "rare_achv": 70,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/5bd4bc050ebd47be29f780d1a7c163d6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787851178",
+   "portrait": "https://img2.finalfantasyxiv.com/f/5bd4bc050ebd47be29f780d1a7c163d6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788266144",
    "ult_achv": [
     "Dragonsong's Reprise",
     "Futures Rewritten",
     "The Omega Protocol",
     "The Unending Coil of Bahamut"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1354,
     2534,
@@ -11589,12 +11350,12 @@
     846,
     1468,
     1057,
-    3874,
     1353,
     1439,
     2054,
     2869,
     3630,
+    3874,
     1319,
     1750,
     2933,
@@ -11652,7 +11413,7 @@
     "seasonal": {
      "n": 7,
      "min": 6.3,
-     "score": 8.86
+     "score": 8.81
     },
     "relic": {
      "n": 3,
@@ -11673,6 +11434,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ed1b03b9af8dadf730da149667674f5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787837157",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3958,
     3956,
@@ -11712,7 +11474,7 @@
     "relic": {
      "n": 16,
      "min": 0.9,
-     "score": 46.1
+     "score": 45.34
     },
     "explorer": {
      "n": 3,
@@ -11726,8 +11488,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -11744,6 +11506,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     4069,
     3954,
@@ -11769,16 +11532,16 @@
     3823,
     3898,
     3979,
-    3764,
     3369,
     3755,
+    3764,
     3772,
     3897,
     3074,
     3643,
-    3874,
     3890,
     3630,
+    3874,
     3657,
     3642,
     3646,
@@ -11819,7 +11582,7 @@
     "relic": {
      "n": 34,
      "min": 0.5,
-     "score": 87.99
+     "score": 87.8
     },
     "treasure": {
      "n": 2,
@@ -11833,8 +11596,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -11845,6 +11608,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7afd8bb4508eec2fe6757b021a41b60_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787750835",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1354,
     1315,
@@ -11885,9 +11649,9 @@
     1853,
     2034,
     147,
-    3646,
     755,
     1856,
+    3646,
     3649,
     3752,
     3769,
@@ -11914,8 +11678,8 @@
     3645,
     3638,
     162,
-    3655,
     2043,
+    3655,
     3867,
     3639,
     151,
@@ -11947,12 +11711,12 @@
     "seasonal": {
      "n": 13,
      "min": 4.2,
-     "score": 19.74
+     "score": 19.76
     },
     "relic": {
      "n": 38,
      "min": 2.7,
-     "score": 54.85
+     "score": 54.79
     }
    }
   },
@@ -11963,6 +11727,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bff007df39c195668ac1cef50f500af6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753329",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11973,6 +11738,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ffa95caae734c5870b40efc7dc93912_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751881",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11983,6 +11749,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ff3ff5e96aeb81e54ad4739cf063053f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753904",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -11993,6 +11760,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bc199f5e21a698e6949869bdab10c508_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753887",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12003,6 +11771,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d6d18fea85944c4b807aa6d90e56a3dd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753044",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12013,6 +11782,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0fd1a3d454c54f09d5242753c384bd6f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751610",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12023,6 +11793,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b64e4c1fccb26d80979d26251ba8a604_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753907",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12033,6 +11804,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/295e691baaa6d5fa96ee89b11784e553_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753746",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12043,6 +11815,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/127a1169e673fcd13d1601065c285a67_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753719",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12053,6 +11826,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/19bfd54db5888e69b8341514580cbb70_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753727",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12063,6 +11837,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/9c414437fe612a150e9b5ff1e1706763_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751536",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12073,6 +11848,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/afb01dab428cc8430fb60666cc0a7465_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788052012",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12088,6 +11864,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2766,
     3349,
@@ -12117,7 +11894,7 @@
     "explorer": {
      "n": 5,
      "min": 2.5,
-     "score": 10.11
+     "score": 10.08
     },
     "treasure": {
      "n": 1,
@@ -12126,8 +11903,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -12138,6 +11915,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a12749e137dbdaed47aca5b526c134cb_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751881",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12148,6 +11926,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b7f7563bbd13f369ab75c2b4eacf768b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754073",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12158,6 +11937,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/42757ca063a192feb8889f9e0f9aeb8a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751157",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12168,6 +11948,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4bc2f85cca54850d5d6ad591ba9b8d8e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752409",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12184,6 +11965,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3956,
     2767,
@@ -12205,17 +11987,17 @@
     2471,
     2387,
     3631,
-    3998,
-    4002,
     2145,
     3823,
+    3998,
+    4002,
     3979,
     2462,
     2862,
     3074,
     2773,
-    3874,
     3630,
+    3874,
     2084,
     3759,
     2461,
@@ -12233,9 +12015,9 @@
     3645,
     2765,
     2857,
-    3824,
     1124,
     3154,
+    3824,
     3638,
     3867,
     2637,
@@ -12256,18 +12038,18 @@
     },
     "relic": {
      "n": 18,
-     "min": 1.1,
-     "score": 34.06
+     "min": 1.2,
+     "score": 33.3
     },
     "explorer": {
      "n": 8,
      "min": 1.3,
-     "score": 21.51
+     "score": 21.45
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -12282,6 +12064,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3833,
     3870,
@@ -12329,8 +12112,8 @@
     2562,
     3341,
     2093,
-    963,
     1444,
+    963,
     2043,
     3889,
     3047,
@@ -12360,7 +12143,7 @@
     "pvp": {
      "n": 16,
      "min": 0.8,
-     "score": 35.07
+     "score": 35.06
     },
     "goldsaucer": {
      "n": 1,
@@ -12384,8 +12167,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -12402,6 +12185,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3406,
     3407,
@@ -12514,6 +12298,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/77309013aaab3d81e1dfebef1582fae6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751094",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12524,6 +12309,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5cc349bee5c1a1173107a75748318e8f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751424",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12534,6 +12320,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/00a9cfe8629c41f8fe6e0eb70e4fd12f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751810",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12544,6 +12331,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/dc29e74dd4627633c44becf5714a17b6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753264",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12589,6 +12377,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5e473ebb30b60b798355664ba794d153_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788089776",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     4009,
     4005,
@@ -12601,28 +12390,28 @@
     4018,
     3958,
     3952,
-    3969,
     3951,
+    3969,
     4000,
-    3875,
     3949,
+    3875,
     3950,
     4007,
     4017,
     3938,
     3941,
     3937,
-    3847,
     4004,
     4006,
+    3847,
     3852,
     3999,
     3846,
     3856,
     3683,
     4014,
-    4074,
     2393,
+    4074,
     3851,
     3845,
     3509,
@@ -12635,18 +12424,18 @@
     3843,
     3756,
     3766,
-    3998,
-    4002,
     3761,
     3823,
+    3998,
+    4002,
     3979,
     3755,
     3677,
     3772,
     3643,
     3754,
-    3874,
     3648,
+    3874,
     3811,
     3642,
     3752,
@@ -12673,17 +12462,17 @@
     "relic": {
      "n": 40,
      "min": 0.5,
-     "score": 174.23
+     "score": 173.09
     },
     "explorer": {
      "n": 20,
      "min": 0.1,
-     "score": 210.28
+     "score": 209.8
     },
     "seasonal": {
      "n": 2,
-     "min": 1.4,
-     "score": 8.73
+     "min": 1.7,
+     "score": 7.42
     }
    }
   },
@@ -12694,6 +12483,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/68846bb99e92081afd81bb5e20a0cde1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752766",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12704,6 +12494,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/77eb1ed3b8bd41d255d4c1ea845798c5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751955",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -12721,6 +12512,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2008,
     3959,
@@ -12728,12 +12520,12 @@
     3818,
     4015,
     2767,
-    3966,
     4000,
+    3966,
     2007,
     4007,
-    4017,
     3870,
+    4017,
     3350,
     3668,
     3674,
@@ -12745,8 +12537,8 @@
     4004,
     4006,
     3852,
-    3999,
     3861,
+    3999,
     2930,
     4014,
     2150,
@@ -12792,11 +12584,11 @@
     3883,
     3363,
     3884,
-    3998,
-    4002,
     3368,
     3823,
     3898,
+    3998,
+    4002,
     2513,
     3362,
     3979,
@@ -12816,12 +12608,12 @@
     3470,
     3754,
     3796,
-    3874,
     3890,
     3307,
-    3794,
     3308,
-    3476
+    3476,
+    3630,
+    3648
    ],
    "achv_buckets": {
     "gatherer": {
@@ -12837,7 +12629,7 @@
     "relic": {
      "n": 106,
      "min": 0.6,
-     "score": 176.54
+     "score": 175.87
     },
     "pvp": {
      "n": 5,
@@ -12852,12 +12644,12 @@
     "explorer": {
      "n": 29,
      "min": 1.2,
-     "score": 86.46
+     "score": 86.05
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -12875,6 +12667,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     4010,
     3819,
@@ -12892,12 +12685,12 @@
     3674,
     2766,
     3937,
-    3847,
     4006,
+    3847,
     3852,
-    3999,
     3860,
     3861,
+    3999,
     2930,
     3846,
     3856,
@@ -12938,11 +12731,11 @@
     3631,
     3765,
     3363,
-    3998,
-    4002,
     3368,
     3823,
     3898,
+    3998,
+    4002,
     3362,
     3979,
     3369,
@@ -12955,14 +12748,14 @@
     3309,
     3470,
     3796,
-    3874,
     3307,
-    3794,
     3308,
     3630,
     3648,
     3656,
+    3794,
     3795,
+    3874,
     3657,
     3797,
     1319,
@@ -12990,13 +12783,13 @@
     },
     "relic": {
      "n": 79,
-     "min": 2.9,
-     "score": 129.88
+     "min": 3.0,
+     "score": 129.61
     },
     "explorer": {
      "n": 21,
      "min": 0.3,
-     "score": 85.91
+     "score": 85.74
     },
     "gatherer": {
      "n": 2,
@@ -13010,8 +12803,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -13024,6 +12817,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1469,
     903,
@@ -13041,8 +12835,8 @@
     1468,
     2388,
     1057,
-    3874,
     1439,
+    3874,
     1750,
     881,
     1062,
@@ -13051,9 +12845,9 @@
     1002,
     576,
     882,
+    1027,
     564,
     880,
-    1027,
     1933,
     2765,
     3341,
@@ -13079,7 +12873,7 @@
     "seasonal": {
      "n": 15,
      "min": 3.4,
-     "score": 25.86
+     "score": 25.83
     },
     "pvp": {
      "n": 9,
@@ -13111,6 +12905,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     4010,
     3814,
@@ -13123,8 +12918,8 @@
     3180,
     4004,
     4006,
-    3999,
     3861,
+    3999,
     3002,
     3683,
     4014,
@@ -13154,11 +12949,11 @@
     3644,
     2872,
     3754,
-    3874,
     2054,
     2869,
     3630,
     3648,
+    3874,
     3657,
     3155,
     3811,
@@ -13182,9 +12977,9 @@
     2765,
     2857,
     3001,
-    3824,
     3154,
     3741,
+    3824,
     3867,
     2637,
     3243,
@@ -13202,12 +12997,12 @@
     "seasonal": {
      "n": 2,
      "min": 5.4,
-     "score": 3.44
+     "score": 3.39
     },
     "explorer": {
      "n": 23,
      "min": 0.3,
-     "score": 89.21
+     "score": 88.73
     },
     "relic": {
      "n": 32,
@@ -13233,6 +13028,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a9d9b65bd73e9e79c17d48689ef5850f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753352",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13243,6 +13039,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ddf863f831e945e479971574aa2b2a68_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753632",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13253,6 +13050,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/95075111f27389ef4c2a282e64feaf24_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752517",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13263,6 +13061,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/350ab243f47f511df45ac94680eed8e3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751366",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13273,6 +13072,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/96cf271c65c236a5e44ec70d43048195_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751999",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13283,6 +13083,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a96bf94facd5b9cac84a4cc5d3bb69a2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751810",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13293,6 +13094,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/744c792fb99c6ad774eb7ae9e4b61ee5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751456",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13303,6 +13105,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/53ce3a2d020b25854ec4c55e6f75ecb7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753273",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13313,6 +13116,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/eb1010596cf58ad7a1fe381601826f2f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751387",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13323,6 +13127,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a8df6ab092e4c1be1685c9049b7ff5ff_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753315",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13333,6 +13138,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ea0e915c9f4fcac67c1d610b2ff8f110_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751594",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13343,6 +13149,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6b9ae3e083d257de30148980d3084e0b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788020364",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3966,
     4014,
@@ -13356,8 +13163,8 @@
     3979,
     3989,
     3772,
-    3874,
     3988,
+    3874,
     3769,
     3987,
     3805,
@@ -13372,13 +13179,13 @@
    "achv_buckets": {
     "relic": {
      "n": 8,
-     "min": 1.3,
-     "score": 18.84
+     "min": 1.4,
+     "score": 18.27
     },
     "explorer": {
      "n": 5,
      "min": 3.5,
-     "score": 10.06
+     "score": 10.0
     },
     "pvp": {
      "n": 1,
@@ -13387,8 +13194,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -13399,6 +13206,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ae507330c5f2ffb01f63b3098bc919e7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751582",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13409,6 +13217,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d1b8f4c269ec1b8ea0e091d92c99b071_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753770",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13419,6 +13228,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/59d2e4d43b155c0ee6482cb12a96c23f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752990",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13429,6 +13239,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/979ec646bc7323d0ce62db4e2c9acfcb_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751921",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13439,14 +13250,15 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/25d2613da13295bdb3c2aabe908b812e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788022055",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3874
    ],
    "achv_buckets": {
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -13457,6 +13269,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/372c17d7642091d983f1510debce5173_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753694",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13467,6 +13280,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c87700c515bd9621ba07abc8c3badc9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751776",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1339,
     3181,
@@ -13551,6 +13365,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/42f42fd37c584833ba761dbb8fccb35c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752192",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13561,6 +13376,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6d9e3f70133de9016ea094a3a43422d4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753796",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3874,
     2699
@@ -13573,8 +13389,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -13585,6 +13401,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1e45c10e718124533849f5e53f5e136d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787750847",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13595,6 +13412,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/caf91e15bc9efe2ea55ee3de744f7172_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751902",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13605,6 +13423,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b3874b3495247a0d04cfff075481ca1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752497",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3997,
     4007,
@@ -13618,24 +13437,24 @@
     1919,
     3720,
     3922,
-    3999,
     3729,
     3732,
+    3999,
     3918,
     3916,
     3917,
-    3919,
     3935,
     3853,
+    3919,
     3920,
     4014,
     3915,
     3921,
-    4074,
     1459,
     3469,
     3726,
     3914,
+    4074,
     4003,
     634,
     3887,
@@ -13664,10 +13483,10 @@
     3802,
     3878,
     3884,
-    3998,
-    4002,
     3368,
     3877,
+    3998,
+    4002,
     3362,
     3534,
     3989,
@@ -13680,14 +13499,14 @@
     3309,
     3470,
     3796,
-    3874,
-    3988,
     1439,
     3307,
-    3794,
+    3988,
     3308,
     3476,
+    3794,
     3795,
+    3874,
     3797,
     3310,
     3371,
@@ -13721,17 +13540,17 @@
     "treasure": {
      "n": 11,
      "min": 2.7,
-     "score": 19.67
+     "score": 19.63
     },
     "relic": {
      "n": 98,
      "min": 2.7,
-     "score": 160.87
+     "score": 160.74
     },
     "explorer": {
      "n": 14,
      "min": 1.0,
-     "score": 41.85
+     "score": 41.61
     },
     "crafter": {
      "n": 15,
@@ -13740,8 +13559,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -13752,6 +13571,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/910426c38442447d0653ae92d2da3a71_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753650",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1448
    ],
@@ -13780,6 +13600,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e05f42b4e0318c14b5bf08aaf4fde2f5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754209",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13790,6 +13611,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e958e294dda8461009c3cc9afad7bd88_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751241",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13800,6 +13622,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d2d165c9aebae03a69dbd9ca923e1966_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753029",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13810,6 +13633,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fcd36a4a5eca11e0fc8993b9c37b9413_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754184",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13820,6 +13644,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/19abe65bfc64d40e16af279322a188df_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754428",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13830,6 +13655,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/609a79458d740e249d363c17a9038454_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752131",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13840,6 +13666,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/eec65c418e30163ae8a72bf15d51653c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751854",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13850,6 +13677,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e09aa30945afb320f326d8205c9a893e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752633",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13860,17 +13688,18 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c2679701c5ab42ceda12e9d8d2659cdd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752135",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     4009,
     4005,
     4008,
-    3663,
     4018,
+    3663,
     3997,
-    3956,
     3686,
-    4022,
+    3956,
     4000,
+    4022,
     3949,
     3527,
     4007,
@@ -13886,8 +13715,8 @@
     2990,
     3999,
     3683,
-    4074,
     2393,
+    4074,
     3667,
     3862,
     4003,
@@ -13896,17 +13725,17 @@
     2387,
     3990,
     1337,
+    3896,
     3998,
     4002,
-    3896,
     3989,
     3677,
     3772,
     3897,
-    3874,
     3890,
-    3988,
     1353,
+    3988,
+    3874,
     3759,
     3649,
     3752,
@@ -13946,7 +13775,7 @@
     "explorer": {
      "n": 30,
      "min": 0.1,
-     "score": 264.1
+     "score": 261.59
     },
     "goldsaucer": {
      "n": 1,
@@ -13955,13 +13784,13 @@
     },
     "relic": {
      "n": 18,
-     "min": 1.1,
-     "score": 39.86
+     "min": 1.2,
+     "score": 39.1
     },
     "seasonal": {
      "n": 1,
-     "min": 6.3,
-     "score": 1.59
+     "min": 6.5,
+     "score": 1.54
     }
    }
   },
@@ -13972,6 +13801,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5ca04168440838d3859c6bf7d4f95b44_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753253",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13982,6 +13812,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/257f62885d56377ad4d7f33f12f4fded_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754048",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -13992,6 +13823,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e078528f8add8218bb44e7534245d5bd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753529",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14002,6 +13834,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5435b5e2f6089d08a4fbf16f050d0905_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752643",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14012,6 +13845,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0445285b4c9b9e01b72fdab5d35e7d22_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754056",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14022,6 +13856,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/16ffcd6df461e6e2ff138ac3cff57039_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751358",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14032,6 +13867,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/66633448611ff2c6e91c3ea8817a1205_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753493",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14042,6 +13878,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4b56928057fcc6d72ad2ced2f739ae60_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751887",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14052,6 +13889,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7b5c1502b7f130f73fb0880f2bcc9430_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788062753",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14062,6 +13900,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5446bea0ef0a58e4c5ce0e89e2cfe68e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753362",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14072,6 +13911,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/75bbc832c72af70bcb5ce16e6f1804ec_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752797",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14082,6 +13922,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/44910791c3b12cbd5521b905ff6ae5a4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751980",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14092,6 +13933,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/21a398032a4703a6ae2f6b10aeafedb1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754242",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14102,6 +13944,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/20521876a6fdb2e53eaba078b8435fbd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751683",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     188,
     194,
@@ -14133,6 +13976,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/341fa40abf5ac5e659b2ede949561e38_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752391",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14143,6 +13987,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b45d1c0751ee4ef1eddcf7c8be30ed81_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751933",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14153,6 +13998,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e5360911d58253cfb89b3ead79290651_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754968",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14163,6 +14009,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/286a2a5ed2c6a4ec6296808f295cbf82_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751652",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14173,6 +14020,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f729530b5d60cdc133573675c2465350_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752870",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14183,6 +14031,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/686b6716995ea851e88cc0ec403b8a25_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753245",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14193,6 +14042,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5d10a912eeae37ec5f6457cf73a60e78_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752418",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14203,6 +14053,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1890cbbc97f8dcf8ea966366f8def63c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754001",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14213,6 +14064,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b68223b63321d55ce8e8b09b899e0512_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751456",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14223,6 +14075,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ee540389dff59421c5676dfd3f2ff59_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752730",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14233,6 +14086,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/45df2191f2dbf348101997c89d818348_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753302",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14243,6 +14097,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2057f5598e7d84781a8a15ce7a6b4503_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753074",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14253,6 +14108,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3278a9180dabbf6b1ffb228bcb8b3550_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754438",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14263,6 +14119,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/86dc66b29f2b751848c2947cb5e876d0_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753845",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14273,6 +14130,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2859f012b16e8351f66f467c82a90250_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751910",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14283,6 +14141,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/48198d6ab05027a783afbe65f74de24f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753772",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14293,6 +14152,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/609df477c4312dfbe11758a996c7900f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751711",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14303,6 +14163,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/751369d25b4a24035147910164ff2d7b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751329",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14313,6 +14174,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c270197a35577868ee1a22d4e96323ad_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753528",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14323,6 +14185,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fca59d51f7c51ccb26ac63465153c35b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751794",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14333,6 +14196,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d21d5312f60bc6e131801a5cdcb75fc5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752057",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14343,6 +14207,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ed53d3f6e131b03c708cdc930772de80_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751927",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14353,6 +14218,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/435873f118efcfb2377f547442eaa45e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754429",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14363,6 +14229,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e694637c2845fc19644aee6ab801a4b7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752301",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14373,6 +14240,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b5b1010c5909ab91b6ff54510d195aad_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753103",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14383,6 +14251,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f0f9442c1a1578eec5f91749c9a09983_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754311",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14393,6 +14262,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0625729b883f79bc9623a9ce280f8484_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754498",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14403,6 +14273,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/66b7c787f878e673e98d1bd39791c67e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753490",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14413,6 +14284,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f02a5726205bd743f7065338b8c7b02b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752551",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14423,6 +14295,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fe694772398f0ac530f015a1f77cd0f8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752327",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14433,6 +14306,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1003f4cd71839c35363531245fdc545d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753757",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14443,6 +14317,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5209576cc00c70d5ee1c03949945f238_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752713",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14453,6 +14328,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7d5f570da1dcbec5e3f7286647bd3599_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754736",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14463,6 +14339,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d7d71bdfa112045984c426881fe8ff9a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753494",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14473,6 +14350,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b512c69171112c03642978b96e45d8e0_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752073",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14483,6 +14361,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5169db2832475812f6b5350ccb0b7965_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752073",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14493,6 +14372,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/dabf7b441cec171d76aa762f2572cf2f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754170",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14503,6 +14383,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2569211d8722925fa2cbf4f63e9f1216_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751949",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14513,6 +14394,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5cca50a23fbf484f5551bec5b742f5d4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751456",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14523,6 +14405,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/139c62867ca1256c165d3f99a3427ed6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751493",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14533,6 +14416,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b550b6df1f9ededca6a8b0ea9aca167a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751585",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14543,6 +14427,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/21ad0d50ec909b000a77b5230a6537fc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754015",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14553,6 +14438,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/765f778ea9d513f98c167085cbaa3496_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753911",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14563,6 +14449,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2bfd6d6319ae2207b49b3814adeb07a5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752007",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14573,6 +14460,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/396a0a999be508b7229cbeda6e75c54b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754046",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14583,6 +14471,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/53bd739af251a8e13ec3f83d5b04d175_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751586",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14593,6 +14482,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/90aecb02a6806c21b023c8ffd15bb6b2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754412",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14603,6 +14493,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/07c6081821340cfbb8c61bd4cfb67e84_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751897",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14613,6 +14504,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/78c0a6ddc5fde6ebeb64ee8cba7a4096_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753548",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14623,6 +14515,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b047d34d0cb3c3c1a9b96d315e1ec970_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754645",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14633,6 +14526,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fb7dd1dadc1ac385e29377296cb23b5c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752572",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14643,6 +14537,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/85dabf96a0dea0826b60bd5950334682_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14653,6 +14548,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/51fd768b01619e3033614a91e1509be7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754435",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14663,6 +14559,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/78ad127b292e0b5c83175e94ef81bf47_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752961",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14673,6 +14570,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/efe5154869a31e008d71084e1aec9215_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753863",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14683,6 +14581,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f3fb8840b377d8bcddf2d81bfeeb1fd9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752713",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14693,6 +14592,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/503bc668ba29667b4f6182262f0d0b99_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752713",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14703,6 +14603,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/789deb8bcc8df3a7b650a9020619bb4f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751502",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14713,6 +14614,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ece9f16a7f563d4fe185cd698e71b6b1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754945",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14723,6 +14625,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/aeafda013161636ef1883a6720834267_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753321",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14733,6 +14636,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/61d8b59c15aa4fd9c2561183e2862dc7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752634",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14743,6 +14647,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1e168c6bb345243812665a6d2a90e259_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754609",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14753,6 +14658,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bb41a4378844be9e853e42e27bd88cd0_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753776",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14763,6 +14669,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/36d5d5f1a2a5e57a9ca3f6965c9f20f0_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751467",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14773,6 +14680,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/aae677ddedd69d091fd3f8e5ca45a53c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754624",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14783,6 +14691,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ab8498c59ba5ddb5b90e240ae520590e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754841",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14793,6 +14702,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/838d5febf23447f2c981eb4488159380_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753897",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14803,6 +14713,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a34d6d73005756b9515764c3f0d0a379_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755024",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14813,6 +14724,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/cb74baedfcc050289e1fb865f837a4f8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752961",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14823,6 +14735,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/290e9a0afb389fc00e989953f86f508c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753897",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14833,6 +14746,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fb44b11a2f3daa8b5b3703a649de7531_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754346",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14843,6 +14757,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ea29340b30cbc1905a1c26ff1a944d00_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753784",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14853,6 +14768,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/370b2e10a6979e4a4c522d906fe13358_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752631",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14863,6 +14779,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/682851aa95bff17b38bdce707e81bb3c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755044",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14873,6 +14790,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f1eb4a867b5eb8e60c35bd771a42b62a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754753",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14883,6 +14801,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/920c64c912932f8422d1535629dbb9ba_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753921",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14893,6 +14812,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fca84acf3030094ef0aa5b0e83f9dbaf_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752135",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14903,6 +14823,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/29bab47e0e0e067d681fa1cbc31604b3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753228",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14913,6 +14834,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2de5f1f96ee0f56f8d04eaf68683ca3a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752327",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14923,6 +14845,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/90875c0ca869d0e71e3486fc914fe2a6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752589",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14933,6 +14856,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fade9116ec3a976531a04486dbd34228_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752433",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14943,6 +14867,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/dfce0526af3f92765c19ddb998dc3b41_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753008",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14953,6 +14878,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/add6a8cb8163e62fd58489532f4ab10f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753481",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14963,6 +14889,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e5545db973debf156b1036d2ff2f7bd5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753799",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14973,6 +14900,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7cc917b9cd30e6fa70900ff303e1605f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753318",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14983,6 +14911,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/dbe5ccde0b067b088d8104ff6762b97d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755082",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -14993,6 +14922,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/382e5c1bee811687b2cfb1471bd37f46_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752556",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15003,6 +14933,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/dfc9f3b4ae795e6251494592dfc08cd5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754550",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15013,6 +14944,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1d7eea3ebe041265a2dec606adbc55f2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755068",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15023,6 +14955,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7d8a5b9dedf7e35e75a0846576473b92_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753767",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15033,6 +14966,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a8ce0a2109c7f8778f0904baeb37f9f4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752295",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15043,6 +14977,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/05273c808057eba9abba02b51b35b5e6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752779",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15053,6 +14988,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e85844f84204ea35baa820bb0b686d5d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753397",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15063,6 +14999,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/92aa260a91c0dc2de1ca59b32884f97a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752958",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15073,6 +15010,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/27756281f00c9f27c9552d9670ffb89f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754622",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15083,6 +15021,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/220d08b17b1e51e3bd66d15a78b90ef3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754622",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15093,6 +15032,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a0a45162fbe4051a948620d4c7222e4c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752140",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15103,6 +15043,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e2fde1f263a81e7629a4e80dfd220913_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752224",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15113,6 +15054,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d54ad8e04184693b23130333ab58ddb6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753880",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15123,6 +15065,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8e67dea75567ad4cd9bef747af1b77d8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754305",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15133,6 +15076,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4c2372d6e4b2a74377676208ebabd7aa_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753150",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15143,6 +15087,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b03e6905474abd94be3e059b6f8f5898_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751695",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15153,6 +15098,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/92e3a30bcd57cc0dc774dcbc060571ef_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753419",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15163,6 +15109,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1fde7ead864d9f5aa6bd5f8fd845a062_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754036",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15173,6 +15120,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3dcba6f75beebace138a9b978278d251_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753576",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15183,6 +15131,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/597012f376c854518f6a3939fa4774ec_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752748",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15193,6 +15142,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a33f7da823f9a6d7f812be8d866d4c0f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754359",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15203,6 +15153,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a47434719ab74178717207e6d088b8c7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751962",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15213,6 +15164,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/9965566534027d0f5e72dee279bdb866_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755263",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15223,6 +15175,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/05d76f18cffcfcc09fbfe1fef36eb8a8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752837",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15233,6 +15186,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/71ab697a24bf8b3c404938b4f20717bc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754622",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15243,6 +15197,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/84ae337ae8abc59b626eefac16bb085d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755161",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15253,6 +15208,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/de6b91dec987e0812f07c75718a4285f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755205",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2864,
     2775
@@ -15272,6 +15228,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fc2b12108f3979e656ecb88c7495bb8a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15282,6 +15239,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ee4da791d8fc8ab25672e7ea4c6cb616_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751790",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15292,6 +15250,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/20764b076ca2d9437892346e9c091266_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754461",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15302,6 +15261,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ebf27483eb0d86631e7a67c1e5fecc45_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752825",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15312,6 +15272,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/818c0c49bb48cf58d2866ce3d7097f44_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752713",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15322,6 +15283,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/133b72a398b117fa24416d3ae7746ed1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754071",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15332,6 +15294,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d3cf499ade8442f65736637044c57541_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752960",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15342,6 +15305,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fda41f8f260c82264e962ac44ada6573_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753767",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15352,6 +15316,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18612c4e2e3549912194b2b4ee33d619_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753897",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     572,
     560
@@ -15365,6 +15330,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/afab20f698e9aa0d8c17762685a6a1c0_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753897",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15375,6 +15341,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f620205c5309892346f35767bc09c840_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752256",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15385,6 +15352,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c5030f0caeb4c6b6e880b74ba0228186_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752154",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15395,6 +15363,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5286afe6a0d7c50b5ec4dc1ba895d11f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752911",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15405,6 +15374,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/578f8e6890ae70f80f4367a2a5738e53_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753854",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     812,
     811,
@@ -15433,6 +15403,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/779e7c974a707958793443201dddd013_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751968",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15443,6 +15414,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/cb19bd1f515b092e220bd868909414a3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753776",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15453,6 +15425,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2f45a10f916adcfdb5dcedf06f773854_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753054",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15463,6 +15436,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f8a37ce3353b56ab92847116b2afc9cf_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755324",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15473,6 +15447,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b53a50d0b6c6f489de6a4ea48cee7378_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752958",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15483,6 +15458,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/88e4d34aa2d66059aceeaface1460662_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754962",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15493,6 +15469,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/98bc8103ccf7a4eecfbab604479d4a65_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754613",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15503,6 +15480,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4a0db2d1daed98eccf0cf4aba5e2a35d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755056",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15513,6 +15491,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c2bcc232c105bdf6755c479c4ad34e52_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752789",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15523,6 +15502,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7adffa400ecb88ad336bd3ad87191d92_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752963",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15533,6 +15513,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/cc9499f38834e5b6a2514455e0f5d158_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755150",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15543,6 +15524,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/815b8a5cfd5700152e56c623d22907d1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753817",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15553,6 +15535,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d70eb238b1eb11c59cc75373a9dc733_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755336",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15563,6 +15546,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fd4a55456a1aa7fe3eb3c9f5ef104e29_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754210",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15573,6 +15557,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1d7938e51ad61b6e0709798e23d5065f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754419",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15583,6 +15568,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6baa32aa6877192635f3b78dd436d88c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753827",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15593,6 +15579,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b6d02bb336b62102de00ee6d119b1a16_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755169",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15603,6 +15590,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1191aa871c121c8b38ccddb3a03d5dbd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753040",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15613,6 +15601,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/df24ba52d62feaec8de8a100a7143e32_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754075",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15623,6 +15612,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f5dc8561609c614e0be481f0e924046d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755567",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15633,6 +15623,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/932bad7c0c2115522eaae3d1b8143d1b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753730",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15643,6 +15634,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d822a191eb0400ea99108a7c25907d72_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754219",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15653,6 +15645,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/abc6024ca93c0b2774593fc15a805f18_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754218",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15663,6 +15656,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d4a89cf85d9176b9fcd035560740ba9c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754624",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15673,6 +15667,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6f5f9c3a117f6089ba7afdee87aa9ce9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752406",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15683,6 +15678,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/183d627e4a3080e217b6aa013a208703_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753770",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15693,6 +15689,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e39993c216d738e46ac956ef8a6cffb2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15703,6 +15700,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1b3087caf5a6e50802d61308efbd236d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754925",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15713,6 +15711,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3998d8d055d80d41854249c644679f6c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754642",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15723,6 +15722,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a4adc54e9c800c0fe169a728567d0d08_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753602",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1337,
     3018,
@@ -15749,6 +15749,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bd9f2ef2448edc6a14c7d99f37bb7a93_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754513",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15759,6 +15760,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5d5a630b91af35a35ef82025cd2d64dc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755132",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15769,6 +15771,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b89e4a03c0491487dba30ddb2b44dc8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755266",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15779,6 +15782,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5ec444c08bbee29c0d7add9ce8137187_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754709",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15789,6 +15793,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3c9d80cff9ccabee966a2de592991a96_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753784",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15799,6 +15804,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/406f1ff7ebc84e9a06ffe99cf846e9e8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755547",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15809,6 +15815,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/891322ccda010e6bff54efc0e9e11850_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753131",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15819,6 +15826,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a998089a9659b882bf61a1afcc2d767e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753764",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15829,6 +15837,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/87a7dc02dd2057ff265ae4727500d9e5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752818",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15839,6 +15848,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/de164cfff3e817583aeff0b32ab9b121_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754644",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15849,6 +15859,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c0c7c416e3167bce67eb169d89545869_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754805",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3092,
     1327,
@@ -15917,6 +15928,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a825cf9278066c89d52266a6bae68f30_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752961",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15927,6 +15939,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5cb5811d6beb6edf3a7a386927440a74_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754937",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15937,6 +15950,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18f4375049bf126c72270428ebe46c5e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754030",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15947,6 +15961,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a9d37324d05d340feadfe8b3c20d4c1f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752961",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15957,6 +15972,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/9acd86a5bb20ea7fd6becb7afb034ad5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754619",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15967,6 +15983,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2bb5cbe5ce3cd8d6d2d91fdb94df1d6d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754621",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15977,6 +15994,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/81274544d79e7e44323deffc95a71a6d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753765",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15987,6 +16005,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3610d36f70acafb685b4dd709fa149ea_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755111",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -15997,6 +16016,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b5da5e8d9de53af3777d069f13fd601_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753879",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16007,6 +16027,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/136667a0944d1f620e6039005ed3329e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755086",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16017,6 +16038,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c9c9a58b14a4cfb5cbb9fb4bd5d48d4d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755668",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16027,6 +16049,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/58a5c2b5df2c12108401003f5c8eb044_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755057",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16037,6 +16060,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5186e9f76c10e985db34188224a57a8b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754851",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16047,6 +16071,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/39bb175775619434b255f0c0c2305df7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753527",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16057,6 +16082,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3fca7a30bf4c47cfa2f7e06447b22590_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16067,6 +16093,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8c4eef3ce20c69a1d8eec78563465c28_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753664",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16077,6 +16104,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2167d602301e0b2ddf78ab9a8d55c034_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754959",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16087,6 +16115,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b4f5bed4b5c56daf3270870a83be4a38_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753666",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16097,6 +16126,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7f5cc35488c5c9290c67d5cf408ccf04_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752795",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16107,6 +16137,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/458974298f6c4d87365ac377b8f5e25b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754947",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16117,6 +16148,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2faa8dd48e64da6d5e3ed236d6d9f5d3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752389",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16127,6 +16159,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2084508d543cee429d4cd6591324582f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753309",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16137,6 +16170,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/91626d1639600ef34497965e6d2cdcd1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754411",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16147,6 +16181,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8ffa1b76662842a86f006acf2cb19947_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753572",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16157,6 +16192,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8e59d7aac998d047afa9dd9c3e782b04_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754737",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16167,6 +16203,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/01f2d7fc7dc3f41f9b015903a3fa6956_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755572",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16177,6 +16214,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/526e08dda480dd8e31a9d34d870e31b6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752627",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16187,6 +16225,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c7301088a7cc9d9c4995ba715e933012_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754595",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16197,6 +16236,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ceb00ca1015381d0e218d625d0b278fc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753789",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16207,6 +16247,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/46bbac89d3b41ff4e4cdc599b9605328_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752892",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16217,6 +16258,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/daa4d0d45b22746a279155207f988796_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753768",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16227,6 +16269,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4af03ca7db92184417e6f1cb56099a1c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752618",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     875,
     876,
@@ -16274,6 +16317,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8ea9acd954cb18e467a594d25567d21c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754612",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16284,6 +16328,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/9e6201a2d0aac9960d0d8f8c0e24babc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753721",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1588,
     1583,
@@ -16317,6 +16362,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b1fc7c03f622031074614d99dd656421_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755007",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16327,6 +16373,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/71474abcf836851456fc693c2867422a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755243",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16337,6 +16384,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a1dcbbbe60947803608670d54e1593c8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753777",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16347,6 +16395,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/17f324dce8fa13812f938e049d9de03e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755966",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16357,6 +16406,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/153c4fb0d1494efaca0ddd20b7d08f6e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753859",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16367,6 +16417,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/eb036b5b1f86979c4648e4058ecbddfb_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752713",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16377,6 +16428,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6fa541dc6fc0d1c3f67b923689f18662_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754205",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16389,6 +16441,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2991,
     2388,
@@ -16428,6 +16481,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/86ddb9d98b992ad9aed1acb881da2067_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754891",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16438,6 +16492,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/018660522ea2d1ca799090f72d76985b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752524",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     3473,
     3662
@@ -16462,6 +16517,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/454d247966cfa64a85b2cdce600821ce_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753771",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16472,6 +16528,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b7ba3838e01cdc602965d2272b5ccded_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754622",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16482,6 +16539,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f6e605c685fd1af1f301a8693d37a6b7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754104",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16492,6 +16550,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6cd6c701f6b81ed8283ff1208b1b8044_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754626",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16502,6 +16561,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3749c01f986415aca4a69873235dbd90_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753962",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16512,6 +16572,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/fe53c653cd34ba177e548013d5e8ca7d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753725",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16522,6 +16583,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ed465f09d22f4d429bbf357246e9788a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16532,6 +16594,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c638b23040afa95f9e3718905a95f2d7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755589",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16542,6 +16605,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d9d7e31ead6f3cf6e6ccdf2cd26d0ddb_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752713",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16552,6 +16616,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c6d206b51be86e6f52f61f62041caae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755309",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2366,
     874,
@@ -16598,6 +16663,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2ba80d30167b738c23c907f3f9114c2e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755332",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1448,
     2859,
@@ -16624,6 +16690,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5983b7d601e804decf443a4c81e53423_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754738",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16634,6 +16701,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/460b9abab75c501fb49b844b4e263096_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753584",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16644,6 +16712,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/581b360fdcc4360be8c66e7e7c193a47_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754258",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16654,6 +16723,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/13c06ca572d2fd64138ec35532a04f0f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754592",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16664,6 +16734,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/535e2c11accc50bd95e44fe4742f27e9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752881",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16674,6 +16745,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7361e167d74099a52303c910691e899_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753765",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16684,6 +16756,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7cb18843459fff16248839cd9985f758_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753412",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16700,6 +16773,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     2766,
     561,
@@ -16769,6 +16843,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/912102d1f2393e627ad093ef3bca7aa1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755503",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16779,6 +16854,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5ef11a4aad8177d4c3e4d9019e52b428_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755581",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16789,6 +16865,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c5c9a1cc41a40d57f203334d86c4122c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753494",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16799,6 +16876,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e080be284677282582e30a8b1f6ed4fc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753775",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16809,6 +16887,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b799208d2cdb41cb73701c5a0492edf3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752712",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16819,6 +16898,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/85d8729c053ec83a44dda26b69169022_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755346",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16829,6 +16909,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/58571ff1b07d10cfa2a728b107d382f5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753052",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     367,
     369,
@@ -16868,7 +16949,7 @@
     "relic": {
      "n": 10,
      "min": 4.9,
-     "score": 12.92
+     "score": 12.9
     },
     "treasure": {
      "n": 2,
@@ -16884,6 +16965,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/99317ca908ff02aacefbfab3049fd440_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753993",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16894,6 +16976,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/9fe2ff132e9fa7c67d9c7bf05fc89a70_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755192",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16904,6 +16987,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ece3eca336269f667bd4301444391f9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754178",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16914,6 +16998,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5759849b682c513f7d8d34499f424cdb_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755822",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16924,6 +17009,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a24e4cd8e7c5319e71117fefe49eb555_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755342",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16934,6 +17020,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2204def7621046c55b4d2d62e40abacd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754068",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16944,6 +17031,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ee086008c51117ece5ed54d8f2b1f73f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755263",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16954,6 +17042,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/37d39532dd15eec9131ef756ff01f72e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755057",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16964,6 +17053,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/9459a0c89b983f63676d4e3118793e62_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755553",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16974,6 +17064,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/94ca673821f2b518717b0dc51487d55c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753873",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16984,6 +17075,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/41727eb69e8707442551fcf2bc8effda_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754045",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -16994,6 +17086,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/78de49e085d47acf81f86f7ee3359e92_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752960",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17004,6 +17097,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4bf3525da3e4775bc9b1caca45847cf9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755755",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17014,6 +17108,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7a794b7f54945c8eebbe594e0d42a5c9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754592",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17024,6 +17119,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/388c949c73f9c5b58fcce90ffe9c5c43_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755511",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17034,6 +17130,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3a8ace4f8922e32153104cd0cf3127f2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755778",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17044,6 +17141,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/26e78382819807caa8f2212e08f95527_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753859",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17054,6 +17152,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/cbf42b07c96c7ae36db1aa08db8c6601_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753769",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17064,6 +17163,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/05025bd9502726a164a71a20d57437d8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755209",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17074,6 +17174,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/084e4c514ef74421a0a84d82d5bf472d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754624",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17084,6 +17185,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d37ab6da6b55b12fa2b107f59774315b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753046",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17094,6 +17196,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/55e10cbb06f7af5d694ea495dbfd28e0_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753777",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17104,6 +17207,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a9d10b3b4a841abcefe30ff305064ab5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753214",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17114,6 +17218,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ad9a89a9030602f90553d384943f34ec_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755568",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17124,6 +17229,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a05e9887a920e92064c205d181a99b33_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753481",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17134,6 +17240,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c556e6bb473f93f0713d0f51dd7f3a68_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753847",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17144,6 +17251,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2299afe84291b4807391072fd1f3de10_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754321",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17154,6 +17262,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0674b9549441f8eea060a0d7ba5dfe3c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753898",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17164,6 +17273,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/15347c1cdb3ae10d34cf4c1c84607de7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753507",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17174,6 +17284,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3b221f629451a2114aa956ef9c7edd6e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754189",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17184,6 +17295,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/33471979a1b6dd0294d808c370f2cc2d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753409",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17194,6 +17306,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3c712b9f2b308ac3f54eeaddd90f556c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788023887",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17204,6 +17317,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f0ab8f640f8ba9e27837a8f5fc3eda84_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787756315",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17214,6 +17328,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/af0951f779eb2735983538a68bb4fb26_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755156",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17224,6 +17339,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/bd7484e6136ffcefeaf8b3e6b5ffaba4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755928",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17234,6 +17350,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/313f6e5b8cf182827344097ab77213e6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755263",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17244,6 +17361,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4adcf401f12c2732c8ffffdf3523bb9c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754625",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17254,6 +17372,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/7f6a4c23fa42ff958911e96539c673e0_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753767",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17264,6 +17383,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/05baf52dae879e34be1ea2796b81e008_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755034",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17274,6 +17394,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c2a3991d738530ea26ff48128f246571_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787756187",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17284,6 +17405,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b726aeefd616fc690e262495d648da8c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753244",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17294,6 +17416,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d430735d55eb14d24845f5b9dca6e93d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753718",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17304,6 +17427,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/300efefa04ec27386a71b83a42646ae4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755741",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17314,6 +17438,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c1e6e007305663db20d7c6a9bca4882_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754475",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17324,6 +17449,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1e3807ad351020b950c6ef98e15f1f66_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753898",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17334,6 +17460,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4ff0f158228385e6a8dcc79218203225_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755739",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17344,6 +17471,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/dbb36bf852b84d9d891926486e0b2931_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755308",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17354,6 +17482,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d7e6be0a1f840a06573af31d9b281670_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754211",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17364,6 +17493,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3182f6f1040944054ef4aedf6398b5e8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753767",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17374,6 +17504,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/6e94dcafcfe4a812126ea91043f35722_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755927",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17384,6 +17515,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e526b35571092925678ddd6451cffc92_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753761",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17394,6 +17526,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/eefa9cf76e52dbbc9be8dc21005aee7e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787756054",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17404,6 +17537,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3f54a8a5b4d2c286f225c2ab0a30336d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787756314",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17414,6 +17548,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/13270ab801d90633cf44e826a94baa71_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754625",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17424,6 +17559,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/052c6879b2daa428984f99b0be3e1aa4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753969",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17434,6 +17570,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b3f62ed0a863496e729be0405401410e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753805",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17444,6 +17581,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/d93fe1c8008a954193abfb2cccd520fe_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787756542",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17454,6 +17592,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1c3b047a70f64fbc9df6bfd3bdcd4010_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753886",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17464,6 +17603,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/09786aaf2cdb2656f2e0ba95ffabff4e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755898",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17474,6 +17614,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/b5a4bb900d90bc007f91edbc5bfe4d9c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753291",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17484,6 +17625,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/057ce0c62db68d391690fd93e2065a33_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754756",
    "ult_achv": [],
+   "achv_seen_at": "2026-09-01",
    "rare_ids": [
     1968,
     2551,
@@ -17528,6 +17670,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3ec7b211f7443df60adf715ecffd42dd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753897",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17538,6 +17681,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c754c218b303089e8c7da79882f7c43c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754416",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17548,6 +17692,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/f347d4747271a2f1b3e1652feec83c93_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755927",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17558,6 +17703,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ad502554bd15cd17b1f725ab59983183_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754837",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17568,6 +17714,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b81e1d450a0283c86972486f84efb6c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17578,6 +17725,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ee78d4958f5f65a2caad765dfcb9659a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755599",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17588,6 +17736,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/9aef89e17aa9b70c78ec4adac101cc36_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17598,6 +17747,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/945133e2987409ae97bafc9632acba97_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755008",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17608,6 +17758,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/431dcb3073421b7139d4ea5caa793b4b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754549",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17618,6 +17769,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2a576a34bcb629d0e03201e3bc7db1d8_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753302",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17628,6 +17780,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/70ecec8c48a99735015617e62e0a7ed9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753783",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17638,6 +17791,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/12acf1d0a6f8a4dfb2a4e5b1e3a572ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754625",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17648,6 +17802,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/beec292a0c8ada7cc3f1880e1f2142db_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754049",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17658,6 +17813,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/04d83b5c683ef680f0a2d70881525384_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755573",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17668,6 +17824,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/dec9b49788a8cf3f23a1ca8a381ca95a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755730",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17678,6 +17835,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/80bf535e3a71523d2f92d836a3d60ed3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753662",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17688,6 +17846,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/685ad77cb2f329625457720935143048_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755605",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17698,6 +17857,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/12cdbe46d07a3ac1345519a97cfcbc61_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753770",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17708,6 +17868,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c3710dbfca3ecc650b5461e69a91091e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754058",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17718,6 +17879,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/e975c0c5e310e499d98bfd16522cf0a7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755303",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17728,6 +17890,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1a24401d190769b96406786aacb08cd7_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755844",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17738,6 +17901,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4aabe276fbd81fb14047bbf4643ae589_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787756314",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17748,6 +17912,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/2f357d100cc10c159ed82f84d6618864_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755365",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   },
@@ -17758,6 +17923,7 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a7550345ea23fd39d8e108a2c74a6c79_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755890",
    "ult_achv": [],
+   "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {}
   }

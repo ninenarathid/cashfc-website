@@ -2,6 +2,230 @@
  "events": [
   {
    "date": "2026-09-01",
+   "type": "job_up",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "is now a Legendary White Mage"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 35634484,
+   "name": "Little Eevee",
+   "text": "set a new best parse: 44"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "set a new best parse: 98"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "is now a Legendary Summoner"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 32147756,
+   "name": "Bunny Nirawz",
+   "text": "is now a Master Reaper"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "is now a Master Dancer"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "is now a Legendary Dark Knight"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 28950119,
+   "name": "Einz Aizerces",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "is now a Legendary Warrior"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 12478532,
+   "name": "Hakuryu Flare",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "set a new best parse: 100"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned Cruising at the Savage Apex I, and 1 more"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "set a new best parse: 99"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "is now a Master Sage"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "is now a Master White Mage"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 22461237,
+   "name": "Metatron Vtretikh",
+   "text": "is now a Expert Monk"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 5294880,
+   "name": "Mithra Muses",
+   "text": "set a new best parse: 71"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "set a new best parse: 90"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "is now a Master Dragoon"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "is now a Legendary Dark Knight"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Legendary Monk"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "set a new best parse: 87"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "boss_clear",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "rare_up",
+   "id": 22425670,
+   "name": "Shizuna-pan Misurugi",
+   "text": "earned Annals of War"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 11603711,
+   "name": "Takamina Aamin",
+   "text": "is now a Expert Monk"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 6951533,
+   "name": "Aemond Targaryen",
+   "text": "set a new best parse: 11"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "set a new best parse: 97"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "is now a Legendary White Mage"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "is now a Master Dancer"
+  },
+  {
+   "date": "2026-09-01",
    "type": "grade_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1175,230 +1399,6 @@
    "id": 39034125,
    "name": "Kirin Rin",
    "text": "set a new best parse: 81"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 29659200,
-   "name": "Kleenex Tissue",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 29659200,
-   "name": "Kleenex Tissue",
-   "text": "is now a Master Summoner"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 28012936,
-   "name": "Kouro Moro",
-   "text": "set a new best parse: 43"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 5761905,
-   "name": "Laura Nessonier",
-   "text": "set a new best parse: 87"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 5761905,
-   "name": "Laura Nessonier",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "set a new best parse: 100"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "is now a Legendary Warrior"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 18489055,
-   "name": "Linda Ing",
-   "text": "set a new best parse: 98"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 18489055,
-   "name": "Linda Ing",
-   "text": "is now a Legendary Scholar"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 18489055,
-   "name": "Linda Ing",
-   "text": "is now a Expert Sage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 29162543,
-   "name": "Lmoavkei Best",
-   "text": "set a new best parse: 65"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 31211526,
-   "name": "Mali Narak",
-   "text": "set a new best parse: 45"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 31655994,
-   "name": "Meki Mekino",
-   "text": "set a new best parse: 8"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 37143017,
-   "name": "Milly Beee",
-   "text": "set a new best parse: 97"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 37143017,
-   "name": "Milly Beee",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 34507717,
-   "name": "Mira Lionheart",
-   "text": "set a new best parse: 96"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 34507717,
-   "name": "Mira Lionheart",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 34184163,
-   "name": "Moji Momiji",
-   "text": "set a new best parse: 96"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 34184163,
-   "name": "Moji Momiji",
-   "text": "is now a Legendary Reaper"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 34184163,
-   "name": "Moji Momiji",
-   "text": "is now a Expert Dragoon"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 29918399,
-   "name": "Athaliah Aylin",
-   "text": "set a new best parse: 36"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 25620101,
-   "name": "Athena Leonheart",
-   "text": "set a new best parse: 45"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 17473430,
-   "name": "Bigon Truesilver",
-   "text": "set a new best parse: 67"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 17473430,
-   "name": "Bigon Truesilver",
-   "text": "is now a Expert Dark Knight"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 43423269,
-   "name": "Bladez Sweeney",
-   "text": "set a new best parse: 87"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 43423269,
-   "name": "Bladez Sweeney",
-   "text": "is now a Master Monk"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 5720080,
-   "name": "Bowling Chan",
-   "text": "set a new best parse: 81"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 5720080,
-   "name": "Bowling Chan",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 24104450,
-   "name": "Cepheus Stellar",
-   "text": "set a new best parse: 95"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 24104450,
-   "name": "Cepheus Stellar",
-   "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 24150396,
-   "name": "Chaser Dc",
-   "text": "set a new best parse: 87"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 24150396,
-   "name": "Chaser Dc",
-   "text": "is now a Master Dancer"
   }
  ]
 }

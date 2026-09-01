@@ -366,7 +366,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "expert"
+   "Scholar": "master"
   },
   "ex": [],
   "ults": [
@@ -442,7 +442,7 @@
   "jobs": {
    "Paladin": "master",
    "Summoner": "legendary",
-   "WhiteMage": "expert"
+   "WhiteMage": "legendary"
   },
   "ex": [
    "Necron",
@@ -522,7 +522,7 @@
  },
  "35634484": {
   "name": "Little Eevee",
-  "parse": 39,
+  "parse": 44,
   "ult": 0,
   "mounts": 67,
   "minions": 210,
@@ -543,7 +543,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "22767255": {
   "name": "Minami Taira",
@@ -987,7 +987,7 @@
  },
  "19827594": {
   "name": "Aylufa Regolith",
-  "parse": 96,
+  "parse": 98,
   "ult": 6,
   "mounts": 213,
   "minions": 356,
@@ -1024,7 +1024,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "45938803": {
   "name": "Blue Mana",
@@ -1097,7 +1097,7 @@
   "tiers": {},
   "jobs": {
    "Machinist": "expert",
-   "Sage": "master"
+   "Sage": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -1130,7 +1130,7 @@
   "tiers": {},
   "jobs": {
    "BlackMage": "legendary",
-   "Summoner": "master",
+   "Summoner": "legendary",
    "Pictomancer": "expert"
   },
   "ex": [
@@ -1168,7 +1168,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Samurai": "legendary"
+   "Samurai": "legendary",
+   "Reaper": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1201,7 +1202,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Astrologian": "legendary"
+   "Astrologian": "legendary",
+   "Dancer": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1336,7 +1338,8 @@
    "Viper": "master",
    "Reaper": "master",
    "Gunbreaker": "expert",
-   "Warrior": "master"
+   "Warrior": "master",
+   "DarkKnight": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1545,7 +1548,7 @@
   },
   "jobs": {
    "Gunbreaker": "expert",
-   "Dragoon": "legendary"
+   "Dragoon": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1633,7 +1636,8 @@
   ],
   "tiers": {},
   "jobs": {
-   "Warrior": "legendary"
+   "Warrior": "legendary",
+   "Paladin": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1666,7 +1670,7 @@
   "tiers": {},
   "jobs": {
    "Gunbreaker": "master",
-   "Warrior": "master",
+   "Warrior": "legendary",
    "DarkKnight": "master"
   },
   "ex": [
@@ -1706,7 +1710,8 @@
   "tiers": {},
   "jobs": {
    "Viper": "master",
-   "Monk": "legendary"
+   "Monk": "legendary",
+   "Samurai": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1924,7 +1929,7 @@
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
-  "parse": 99,
+  "parse": 100,
   "ult": 5,
   "mounts": 102,
   "minions": 261,
@@ -1956,7 +1961,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "38808156": {
   "name": "Kwiyo Ki",
@@ -2159,7 +2164,9 @@
    3472,
    3476,
    3617,
+   3630,
    3631,
+   3648,
    3667,
    3668,
    3674,
@@ -2168,7 +2175,6 @@
    3762,
    3770,
    3771,
-   3794,
    3796,
    3818,
    3819,
@@ -2180,7 +2186,6 @@
    3868,
    3869,
    3870,
-   3874,
    3883,
    3884,
    3890,
@@ -2238,7 +2243,7 @@
  },
  "34509521": {
   "name": "Liliya Quintilis",
-  "parse": 95,
+  "parse": 99,
   "ult": 6,
   "mounts": 197,
   "minions": 416,
@@ -2359,8 +2364,8 @@
   },
   "jobs": {
    "Scholar": "expert",
-   "Sage": "expert",
-   "WhiteMage": "expert",
+   "Sage": "master",
+   "WhiteMage": "master",
    "RedMage": "master"
   },
   "ex": [
@@ -2381,7 +2386,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "37056222": {
   "name": "Lucine Nokomis",
@@ -2644,7 +2649,8 @@
    "explorer": "master"
   },
   "jobs": {
-   "Warrior": "expert"
+   "Warrior": "expert",
+   "Monk": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -2663,7 +2669,7 @@
  },
  "5294880": {
   "name": "Mithra Muses",
-  "parse": 69,
+  "parse": 71,
   "ult": 1,
   "mounts": 104,
   "minions": 250,
@@ -2725,11 +2731,11 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "5435582": {
   "name": "Mog Hikarino",
-  "parse": 88,
+  "parse": 90,
   "ult": 5,
   "mounts": 129,
   "minions": 246,
@@ -2846,7 +2852,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "26268800": {
   "name": "Mono Sodium",
@@ -2870,7 +2876,8 @@
    "Monk": "legendary",
    "Gunbreaker": "expert",
    "Viper": "expert",
-   "Scholar": "master"
+   "Scholar": "master",
+   "Dragoon": "master"
   },
   "ex": [
    "Doomtrain",
@@ -2904,7 +2911,7 @@
   "tiers": {},
   "jobs": {
    "Dancer": "master",
-   "Bard": "legendary"
+   "Bard": "master"
   },
   "ex": [
    "Doomtrain",
@@ -3103,7 +3110,8 @@
    "RedMage": "expert",
    "Reaper": "legendary",
    "Summoner": "legendary",
-   "Machinist": "legendary"
+   "Machinist": "legendary",
+   "DarkKnight": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -3184,7 +3192,7 @@
   "jobs": {
    "Paladin": "legendary",
    "Samurai": "legendary",
-   "Monk": "master",
+   "Monk": "legendary",
    "RedMage": "expert"
   },
   "ex": [
@@ -3243,7 +3251,7 @@
  },
  "30667251": {
   "name": "Roxas Akatsuki",
-  "parse": 55,
+  "parse": 87,
   "ult": 1,
   "mounts": 79,
   "minions": 70,
@@ -3252,13 +3260,15 @@
   "cc": [
    true,
    true,
-   false,
+   true,
    false,
    false
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Warrior": "master"
+  },
   "ex": [
    "Doomtrain",
    "Enuo",
@@ -3269,7 +3279,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
@@ -3633,6 +3643,7 @@
    1320,
    1333,
    1335,
+   2671,
    2675,
    2682,
    2693,
@@ -3728,8 +3739,7 @@
    3802,
    3805,
    3811,
-   3823,
-   3824
+   3823
   ],
   "tiers": {
    "relic": "master",
@@ -3851,7 +3861,8 @@
    "relic": "expert"
   },
   "jobs": {
-   "Scholar": "master"
+   "Scholar": "master",
+   "Monk": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -4048,7 +4059,7 @@
   },
   "jobs": {
    "DarkKnight": "master",
-   "Samurai": "master",
+   "Samurai": "legendary",
    "Summoner": "expert",
    "Warrior": "master"
   },
@@ -4192,7 +4203,7 @@
  },
  "6951533": {
   "name": "Aemond Targaryen",
-  "parse": null,
+  "parse": 11,
   "ult": 0,
   "mounts": 119,
   "minions": 243,
@@ -4210,7 +4221,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -4505,7 +4516,7 @@
  },
  "29339718": {
   "name": "Ashe Fantine",
-  "parse": 78,
+  "parse": 97,
   "ult": 1,
   "mounts": 100,
   "minions": 289,
@@ -4623,12 +4634,15 @@
   "tiers": {
    "relic": "master"
   },
-  "jobs": {},
+  "jobs": {
+   "WhiteMage": "legendary",
+   "Dancer": "master"
+  },
   "ex": [],
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -4892,8 +4906,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Bard": "expert",
-   "Machinist": "expert"
+   "Bard": "expert"
   },
   "ex": [
    "Necron",
