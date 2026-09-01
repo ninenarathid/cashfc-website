@@ -265,12 +265,12 @@ const DICT = {
     th: "คะแนนคิดยังไง?",
   },
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
-  "lb.popoto": { en: "Popoto", th: "โปโปโต้" },
+  "lb.popoto": { en: "Popoto", th: "Popoto" },
   "lb.popotoHint": {
     en: "from Send popoto on their profile",
     th: "จากปุ่ม Send popoto ในหน้าโปรไฟล์",
   },
-  "lb.gallery": { en: "Gallery popoto", th: "โปโปโต้จากรูป" },
+  "lb.gallery": { en: "Gallery popoto", th: "Popoto จากรูป" },
   "lb.galleryHint": {
     en: "added up across all their pictures",
     th: "รวมจากทุกรูปที่โพสต์ในแกลเลอรี",
