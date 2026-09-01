@@ -1,4 +1,3 @@
-import Link from "next/link";
 import raw from "@/data/members.json";
 import type { BoardData, Member } from "@/lib/types";
 import { ACHV_TIER_LABEL, isOnVacation } from "@/lib/types";
@@ -6,14 +5,28 @@ import { TAG_CLASS, TAG_LABELS } from "@/components/MemberTags";
 import TagHelpText from "@/components/TagHelpText";
 import TagIcon from "@/components/TagIcon";
 import LeaderboardIntro from "@/components/LeaderboardIntro";
+import LeaderRow from "@/components/LeaderRow";
+import PopotoBoard from "@/components/PopotoBoard";
 
 export const metadata = { title: "Leaderboards — Cafe And SHabu" };
 
-const TOP_N = 20;
+/**
+ * Ten, not twenty.
+ *
+ * A leaderboard is read to find out who is at the top, and a second screenful
+ * of it answers a question nobody asked. Everybody's own standing is on their
+ * member page either way.
+ */
+const TOP_N = 10;
 
-// Same order and keys the pipeline uses for its playstyle buckets.
+/**
+ * The playstyle buckets, in the pipeline's own order.
+ *
+ * No oldtimer: it ranked people by how long ago they started, which is not
+ * something anybody did.
+ */
 const BOARDS = ["crafter", "gatherer", "relic", "explorer", "treasure",
-                "goldsaucer", "seasonal", "pvp", "oldtimer"];
+                "goldsaucer", "seasonal", "pvp"];
 
 interface Row { m: Member; score: number; n: number; share?: number | null; tier?: string }
 
@@ -38,6 +51,11 @@ export default function LeaderboardsPage() {
     return { key, rows };
   }).filter((b) => b.rows.length > 0);
 
+  // Names and faces for the potato board, which knows character ids and nothing
+  // else — it reads likes from the database and the roster lives in this file.
+  const who = Object.fromEntries(data.members.map((m) =>
+    [m.id, { name: m.name, avatar: m.avatar ?? null }]));
+
   return (
     <main className="pt-7">
       <LeaderboardIntro />
@@ -49,6 +67,10 @@ export default function LeaderboardsPage() {
         </div>
       ) : (
         <div className="mt-5 grid gap-5 md:grid-cols-2">
+          {/* First, because it is the one board on this page that the FC awards
+              rather than the game. */}
+          <PopotoBoard names={who} />
+
           {boards.map(({ key, rows }) => (
             <section key={key} className="rounded-xl border border-line bg-surface p-4">
               <div className="flex flex-wrap items-baseline gap-2">
@@ -61,36 +83,20 @@ export default function LeaderboardsPage() {
               </div>
               <ol className="mt-3 flex flex-col gap-1">
                 {rows.map((r, i) => (
-                  <li key={r.m.id}
-                      className="grid grid-cols-[22px_1fr_auto] items-baseline gap-2 text-[13px]">
-                    <span className="text-right font-data text-[11.5px] text-muted">
-                      {i + 1}
-                    </span>
-                    <span className="min-w-0 truncate">
-                      <Link href={`/member/${r.m.id}`}
-                            className="font-data text-ink no-underline hover:text-accent">
-                        {r.m.name}
-                      </Link>
-                      {r.tier && (
-                        <span className="ml-1.5 text-[11px] text-accent">
-                          {ACHV_TIER_LABEL[r.tier]}
-                        </span>
-                      )}
-                      {isOnVacation(r.m) && (
-                        <span className="ml-1.5 text-[11px] text-muted/70">
-                          on vacation
-                        </span>
-                      )}
-                    </span>
-                    <span className="text-right font-data text-[12px] text-muted"
-                          title={`${r.n} rare achievements · ${r.score.toFixed(1)} points`}>
-                      {/* Always the share, never the raw score: the two are on
-                          different scales and a column that silently switches
-                          between them ranks nothing. */}
-                      {r.share != null ? `${(r.share * 100).toFixed(1)}%` : "—"}
-                      <small className="ml-1 opacity-60">({r.n})</small>
-                    </span>
-                  </li>
+                  <LeaderRow key={r.m.id} place={i + 1}
+                             row={{
+                               id: r.m.id, name: r.m.name, avatar: r.m.avatar ?? null,
+                               score: r.score, n: r.n,
+                               note: r.tier ? ACHV_TIER_LABEL[r.tier]
+                                 : isOnVacation(r.m) ? "on vacation" : undefined,
+                               noteTone: r.tier ? "accent" : "muted",
+                             }}
+                             // Always the share, never the raw score: the two are
+                             // on different scales and a column that silently
+                             // switches between them ranks nothing.
+                             value={r.share != null ? `${(r.share * 100).toFixed(1)}%` : "—"}
+                             sub={String(r.n)}
+                             title={`${r.n} rare achievements · ${r.score.toFixed(1)} points`} />
                 ))}
               </ol>
             </section>

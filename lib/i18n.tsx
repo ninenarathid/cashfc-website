@@ -260,6 +260,15 @@ const DICT = {
     th: "ภาพจากเพื่อนๆ ใน FC",
   },
   "gallery.seeAll": { en: "See all", th: "ดูทั้งหมด" },
+  "lb.howScored": {
+    en: "How is this scored?",
+    th: "คะแนนคิดยังไง?",
+  },
+  "lb.popoto": { en: "Popoto", th: "โปโปโต้" },
+  "lb.popotoHint": {
+    en: "given by the FC, not earned in game",
+    th: "มาจากเพื่อนใน FC ไม่ใช่จากในเกม",
+  },
   "gallery.cover": { en: "Cover", th: "รูปหน้าปก" },
   "gallery.openPoster": { en: "Post a picture", th: "โพสต์รูป" },
   "gallery.closePoster": { en: "Not now", th: "ไว้ก่อน" },

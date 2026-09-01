@@ -16,7 +16,16 @@ export default function LeaderboardIntro() {
         {t("lb.eyebrow")}
       </div>
       <h1 className="font-display text-3xl font-bold">{t("lb.title")}</h1>
-      <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-muted">
+
+      {/* Folded away. It explains where the numbers come from, which is worth
+          having written down and is not what anybody opened this page to read —
+          they came to see who is at the top, and the answer was below a
+          paragraph about arithmetic. */}
+      <details className="mt-3 max-w-2xl rounded-xl border border-line bg-surface">
+        <summary className="cursor-pointer select-none px-4 py-2.5 text-[13.5px] font-medium text-muted marker:text-accent">
+          {t("lb.howScored")}
+        </summary>
+        <p className="px-4 pb-3.5 text-[13.5px] leading-relaxed text-muted">
         {th ? (
           <>
             จัดอันดับจาก achievement หายาก โดยแต่ละอันมีค่าเท่ากับความหายากของมันตรงๆ คือ{" "}
@@ -38,7 +47,8 @@ export default function LeaderboardIntro() {
             achievements can appear here.
           </>
         )}
-      </p>
+        </p>
+      </details>
     </>
   );
 }
