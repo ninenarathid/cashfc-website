@@ -24,6 +24,9 @@ import LeaderRow, { type Leader } from "@/components/LeaderRow";
  */
 const TOP_N = 10;
 
+/** The site's gold, which is already the potato's colour everywhere else. */
+const GOLD = "#e5cc80";
+
 export default function PopotoBoard(
   { names }: { names: Record<number, { name: string; avatar: string | null }> },
 ) {
@@ -74,14 +77,20 @@ export default function PopotoBoard(
   if (!rows?.length) return null;
 
   return (
-    <section className="rounded-xl border border-line bg-surface p-4">
-      <div className="flex flex-wrap items-baseline gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/50 bg-gold/10 px-2.5 py-[3px] text-[12px] font-medium text-gold">
-          🥔 {t("lb.popoto")}
+    <section style={{ borderTopColor: GOLD }}
+             className="overflow-hidden rounded-xl border border-line border-t-[3px] bg-surface">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pb-2.5 pt-3"
+           style={{ background: `${GOLD}14` }}>
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg text-[17px]"
+              style={{ background: `${GOLD}26`, border: `1px solid ${GOLD}59` }}>
+          🥔
+        </span>
+        <span className="font-display text-[17px] font-semibold" style={{ color: GOLD }}>
+          {t("lb.popoto")}
         </span>
         <span className="text-[11.5px] text-muted">{t("lb.popotoHint")}</span>
       </div>
-      <ol className="mt-3 flex flex-col gap-1">
+      <ol className="flex flex-col gap-1 px-4 pb-4 pt-3">
         {rows.map((r, i) => (
           <LeaderRow key={r.id} row={r} place={i + 1}
                      value={`🥔 ${r.score}`}

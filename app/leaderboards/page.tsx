@@ -1,7 +1,7 @@
 import raw from "@/data/members.json";
 import type { BoardData, Member } from "@/lib/types";
 import { ACHV_TIER_LABEL, isOnVacation } from "@/lib/types";
-import { TAG_CLASS, TAG_LABELS } from "@/components/MemberTags";
+import { TAG_COLOR, TAG_LABELS } from "@/components/MemberTags";
 import TagIcon from "@/components/TagIcon";
 import LeaderboardIntro from "@/components/LeaderboardIntro";
 import LeaderRow from "@/components/LeaderRow";
@@ -81,11 +81,21 @@ export default function LeaderboardsPage() {
           <PopotoBoard names={who} />
 
           {boards.map(({ key, rows }) => (
-            <section key={key} className="rounded-xl border border-line bg-surface p-4">
-              <div className="flex flex-wrap items-baseline gap-2">
-                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[12px] font-medium ${
-                  TAG_CLASS[key] ?? "border-line text-muted"}`}>
-                  <TagIcon tag={key} size={14} />
+            // Each board wears its own colour, on the edge and under the
+            // heading. Eight cards of identical grey is a page you have to read
+            // to navigate; a colour down the side is one you can scroll to.
+            <section key={key}
+                     style={{ borderTopColor: TAG_COLOR[key] ?? undefined }}
+                     className="overflow-hidden rounded-xl border border-line border-t-[3px] bg-surface">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pb-2.5 pt-3"
+                   style={{ background: `${TAG_COLOR[key] ?? "#8b97a8"}14` }}>
+                <span className="grid size-8 shrink-0 place-items-center rounded-lg"
+                      style={{ background: `${TAG_COLOR[key] ?? "#8b97a8"}26`,
+                               border: `1px solid ${TAG_COLOR[key] ?? "#8b97a8"}59` }}>
+                  <TagIcon tag={key} size={20} />
+                </span>
+                <span className="font-display text-[17px] font-semibold capitalize"
+                      style={{ color: TAG_COLOR[key] ?? undefined }}>
                   {TAG_LABELS[key] ?? key}
                 </span>
                 {/* What this list is, not what the badge means. The tag help
@@ -93,7 +103,7 @@ export default function LeaderboardsPage() {
                     badge and reads as a contradiction beside a list of ten. */}
                 <LbTopTen />
               </div>
-              <ol className="mt-3 flex flex-col gap-1">
+              <ol className="flex flex-col gap-1 px-4 pb-4 pt-3">
                 {rows.map((r, i) => (
                   <LeaderRow key={r.m.id} place={i + 1}
                              row={{
