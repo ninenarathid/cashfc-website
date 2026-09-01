@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-09-01",
+   "type": "level_100",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "set a new best parse: 39 on Red Hot and Deep Blue as Blac\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 28860700,
+   "name": "Alicia Silverwalker",
+   "text": "set a new best parse: 12 on Cloud of Darkness as Monk"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 28810440,
+   "name": "Amil Aeronril",
+   "text": "set a new best parse: 82 on Cloud of Darkness as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "job_up",
+   "id": 28810440,
+   "name": "Amil Aeronril",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-09-01",
+   "type": "parse_up",
+   "id": 20400811,
+   "name": "Ariadne Ilsildar",
+   "text": "set a new best parse: 97 on Shadowkeeper as Bard"
+  },
+  {
+   "date": "2026-09-01",
    "type": "job_up",
    "id": 31628293,
    "name": "Aaaaaaa Yaaaaaa",
@@ -1343,62 +1399,6 @@
    "id": 30333493,
    "name": "Haruko Sho",
    "text": "set a new best parse: 77 on Erichthonios as Scholar"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 30333493,
-   "name": "Haruko Sho",
-   "text": "is now a Expert Scholar"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 33272037,
-   "name": "Hermanita Imouto",
-   "text": "set a new best parse: 13 on Erichthonios as Dancer"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 29542040,
-   "name": "Immundus Vitae",
-   "text": "set a new best parse: 53 on Hesperos as Scholar"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 40652404,
-   "name": "Jade Solaire",
-   "text": "set a new best parse: 32 on Erichthonios as Astrologian"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "set a new best parse: 98 on Erichthonios as Black Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "is now a Legendary Black Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 31923628,
-   "name": "Kakigori Kyrielight",
-   "text": "set a new best parse: 37 on Erichthonios as Red Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 39034125,
-   "name": "Kirin Rin",
-   "text": "set a new best parse: 81 on Erichthonios as Reaper"
   }
  ]
 }

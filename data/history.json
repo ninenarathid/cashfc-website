@@ -228,8 +228,8 @@
     "goldsaucer": 6,
     "seasonal": 13,
     "pvp": 13,
-    "veteran": 116,
-    "casual": 279,
+    "veteran": 118,
+    "casual": 277,
     "unknown": 5,
     "prog": 23,
     "oldtimer": 1
@@ -238,7 +238,10 @@
    "ultimate": 117,
    "extreme": 135,
    "unknown": 5,
-   "final_boss": 42
+   "final_boss": 42,
+   "active": 145,
+   "vacation": 356,
+   "guests": 1
   }
  ]
 }

@@ -761,7 +761,7 @@
   "mounts": 75,
   "minions": 144,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4081,7 +4081,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 89,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -5135,14 +5135,14 @@
   "mounts": 11,
   "minions": 33,
   "rare": null,
-  "level": 86,
+  "level": 85,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "39850923": {
   "name": "Hiro Hikari",
@@ -5339,12 +5339,12 @@
  },
  "36183378": {
   "name": "K' Potassium",
-  "parse": 21,
+  "parse": 39,
   "ult": 0,
   "mounts": 46,
   "minions": 150,
   "rare": 9,
-  "level": 53,
+  "level": 54,
   "cc": [
    true,
    true,
@@ -5367,7 +5367,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -5699,7 +5699,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 63,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5947,7 +5947,7 @@
   "mounts": 29,
   "minions": 83,
   "rare": 9,
-  "level": 58,
+  "level": 59,
   "cc": [
    false,
    false,
@@ -5970,7 +5970,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "8113158": {
   "name": "Olivie Brown",
@@ -6190,14 +6190,14 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 65,
+  "level": 66,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -6206,7 +6206,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 31,
-  "level": 100,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -6379,7 +6379,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 100,
+  "level": 78,
   "cc": [
    true,
    true,
@@ -6410,7 +6410,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-31"
+  "chg": "2026-09-01"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -6629,14 +6629,14 @@
   "mounts": 6,
   "minions": 19,
   "rare": null,
-  "level": 89,
+  "level": 77,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-01"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -7116,7 +7116,7 @@
  },
  "28860700": {
   "name": "Alicia Silverwalker",
-  "parse": null,
+  "parse": 12,
   "ult": 0,
   "mounts": 31,
   "minions": 85,
@@ -7134,7 +7134,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "41059127": {
   "name": "Alt Pira",
@@ -7300,7 +7300,7 @@
  },
  "28810440": {
   "name": "Amil Aeronril",
-  "parse": null,
+  "parse": 82,
   "ult": 0,
   "mounts": 44,
   "minions": 98,
@@ -7315,10 +7315,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "RedMage": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-01"
  },
  "40809430": {
   "name": "Ank Drogonewt",
@@ -7454,7 +7456,7 @@
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
-  "parse": 81,
+  "parse": 97,
   "ult": 2,
   "mounts": 116,
   "minions": 293,
@@ -7575,7 +7577,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-01"
  },
  "31334257": {
   "name": "Arichii Marilouay",
@@ -10146,7 +10148,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 100,
+  "level": 96,
   "cc": [
    false,
    false,
