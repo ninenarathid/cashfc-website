@@ -41,40 +41,10 @@ body {
   border-radius: 4px;
 }
 
-/* ── The drifting strip on the front page ──────────────────────────────────
-   A row of pictures at a fixed height, sliding sideways for ever. The list is
-   rendered twice and the track travels exactly half its width, so the second
-   copy is under the cursor at the moment the first runs out and the seam never
-   shows. Kept in CSS rather than driven from JavaScript: the compositor moves
-   it on its own thread, so it stays smooth while React is busy elsewhere. */
-@keyframes gallery-drift {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-.drift {
-  display: flex;
-  align-items: stretch;
-  width: max-content;
-  /* The row's height has to reach the pictures. Without this the track is auto
-     height, every percentage height inside it resolves to nothing, and each
-     picture renders at its natural size and gets clipped by the row — which
-     looks exactly like a hard zoom into one corner of somebody's screenshot. */
-  height: 100%;
-  animation: gallery-drift var(--drift-dur, 60s) linear infinite;
-}
-.drift-reverse { animation-direction: reverse; }
-
-/* Stopping when somebody points at it. These are links, and a link that slides
-   out from under the cursor is a link nobody clicks. */
-.drift-row:hover .drift,
-.drift-row:focus-within .drift { animation-play-state: paused; }
-
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-  /* Nothing moves on its own, and the row becomes an ordinary one somebody can
-     push along by hand — the pictures stay reachable rather than the feature
-     simply going away. */
-  .drift { animation: none; }
-  .drift-row { overflow-x: auto; }
+  /* The front page strip is scrolled by hand, so there is nothing here to
+     stop — but a smooth-scrolled jump is still motion somebody did not ask
+     for, and the arrows work the same without it. */
+  * { scroll-behavior: auto !important; }
 }

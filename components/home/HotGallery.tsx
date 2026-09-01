@@ -1,48 +1,103 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { GALLERY_PUBLIC_KEY, postPath, thumbOf,
          type GalleryPost } from "@/lib/gallery";
 
-/**
- * Enough to fill about three columns' worth of masonry without turning the
- * front page into the gallery. Uncropped pictures pack to different heights, so
- * this is a count rather than a promise of exactly three rows.
- */
-const SHOW = 18;
+/** Enough to be worth scrolling, few enough to arrive at once. */
+const SHOW = 24;
 
 /**
- * The pictures the FC is looking at this week, drifting past the front page.
+ * The pictures the FC is looking at this week, on the front page.
  *
  * Ranked by the same decayed score the gallery uses, so this is genuinely
- * "lately" rather than "best ever" — a wall of the same six all-time favourites
- * would stop being worth a glance after the second visit.
+ * "lately" rather than "best ever" — a wall of the same favourites would stop
+ * being worth a glance after the second visit.
  *
- * Three rows sliding sideways, alternate rows the other way. That shape is what
- * lets the pictures keep their own proportions: every row is a fixed height and
- * each picture takes whatever width its shape asks for, so nothing is cropped
- * and nothing is letterboxed. A grid of equal boxes can only have one of those
- * two, and cropping somebody's screenshot to a square throws away the framing
- * they chose when they took it.
+ * Two rows of small pictures that scroll sideways, and not one of them is
+ * cropped. That combination is the whole design problem: a grid of equal cells
+ * has to either crop a picture to fit or letterbox it with empty space, and
+ * cropping somebody's screenshot throws away the framing they chose when they
+ * took it.
  *
- * It also means the strip is not limited to what fits. A still row shows six
- * pictures; this one shows all of them, a few at a time, in the height of one.
+ * The way out is to fix the height and let the width follow. Every picture is
+ * exactly one row tall — or two, if it is a portrait, which is what gives the
+ * strip its varied shape — and as wide as its own proportions make it. Nothing
+ * is asked to be a shape it is not, and the top and bottom edges still line up,
+ * because those are set by the rows rather than by the pictures.
  *
  * Each links straight to its own page rather than opening a lightbox here: the
  * front page is a summary, and the gallery is where you go to browse.
  */
-function DriftTile({ post }: { post: GalleryPost }) {
+
+/** A picture taller than this much of its width gets a column to itself. */
+const PORTRAIT = 1.1;
+/**
+ * Widest a single picture may be, measured in row heights.
+ *
+ * The box is otherwise built from the picture's own ratio, so it fits exactly
+ * and nothing is cropped. This only comes into play for something wider than
+ * four to one, where one picture would otherwise take the whole strip and the
+ * strip would stop being a row of pictures.
+ */
+const MAX_ASPECT = 4;
+
+const aspectOf = (p: GalleryPost) =>
+  p.width && p.height ? p.width / p.height : 3 / 2;
+
+interface Column {
+  tall?: GalleryPost;
+  top?: GalleryPost;
+  bottom?: GalleryPost;
+}
+
+/**
+ * Deal the pictures into columns of one tall or two stacked.
+ *
+ * Portraits go full height because at one row tall they would be slivers, and
+ * because a strip of nothing but landscapes reads as a filmstrip rather than as
+ * a wall. Everything else pairs up, in the order it arrived, so the ranking
+ * survives the layout.
+ *
+ * An odd one left at the end is dropped rather than left sitting alone in a
+ * half-empty column — with two dozen pictures to choose from, a gap in the row
+ * costs more than the picture does.
+ */
+function pack(posts: GalleryPost[]): Column[] {
+  const columns: Column[] = [];
+  let pending: GalleryPost | null = null;
+  for (const p of posts) {
+    if (aspectOf(p) < 1 / PORTRAIT) {
+      columns.push({ tall: p });
+      continue;
+    }
+    if (pending) {
+      columns.push({ top: pending, bottom: p });
+      pending = null;
+    } else {
+      pending = p;
+    }
+  }
+  return columns;
+}
+
+function Tile({ post, rows }: { post: GalleryPost; rows: 1 | 2 }) {
+  // Height comes from the row, width from the picture's own proportions. Both
+  // are set before it loads, so the strip does not reflow as pictures arrive.
+  const a = Math.min(aspectOf(post), MAX_ASPECT * rows);
+  const h = rows === 2
+    ? "calc(var(--row-h) * 2 + var(--row-gap))"
+    : "var(--row-h)";
   return (
     <Link href={postPath(post.id)}
-          className="group relative mr-2 h-full shrink-0 overflow-hidden rounded-lg border border-line no-underline">
-      {/* Height from the row, width from the picture. This is the whole trick:
-          nothing is asked to be a shape it is not. */}
+          style={{ height: h, width: `calc(${h} * ${a})` }}
+          className="group relative block shrink-0 overflow-hidden rounded-lg border border-line no-underline">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
-           className="block h-full w-auto max-w-none object-contain transition-transform duration-300 group-hover:scale-105" />
+           className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
       {(post.like_count ?? 0) > 0 && (
         <span className="absolute bottom-1 left-1 rounded bg-bg/75 px-1.5 py-0.5 text-[11px] text-ink">
           🥔 {post.like_count}
@@ -52,37 +107,11 @@ function DriftTile({ post }: { post: GalleryPost }) {
   );
 }
 
-/**
- * One sliding row.
- *
- * The pictures are rendered twice. The track travels exactly half its own
- * width, so at the instant the animation restarts the second copy is sitting
- * where the first began and the loop has no seam. The duplicate is hidden from
- * screen readers, which should hear each picture once.
- */
-function DriftRow(
-  { posts, seconds, reverse }:
-  { posts: GalleryPost[]; seconds: number; reverse?: boolean },
-) {
-  if (!posts.length) return null;
-  return (
-    // A fixed height is what lets every picture keep its own width, and so its
-    // own shape. Shorter on a phone, where the strip is competing for a screen.
-    <div className="drift-row h-[76px] overflow-hidden sm:h-[92px]">
-      <div className={`drift ${reverse ? "drift-reverse" : ""}`}
-           style={{ "--drift-dur": `${seconds}s` } as React.CSSProperties}>
-        {posts.map((p) => <DriftTile key={p.id} post={p} />)}
-        <span aria-hidden className="contents">
-          {posts.map((p) => <DriftTile key={`copy-${p.id}`} post={p} />)}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export default function HotGallery() {
   const { t } = useLang();
   const [posts, setPosts] = useState<GalleryPost[]>([]);
+  const strip = useRef<HTMLDivElement | null>(null);
+  const [at, setAt] = useState({ start: true, end: true });
 
   useEffect(() => {
     const supabase = createClient();
@@ -94,18 +123,48 @@ export default function HotGallery() {
       const { data } = await supabase.rpc("gallery_feed", {
         p_sort: "hot", p_query: null, p_limit: SHOW, p_offset: 0, p_character: null,
       });
-      const rows = ((data as GalleryPost[]) ?? []).filter((p) => p.image_url);
-      setPosts(rows);
-
+      setPosts(((data as GalleryPost[]) ?? []).filter((p) => p.image_url));
     })();
   }, []);
 
+  // Which arrows are worth showing. An arrow that cannot move anything is a
+  // button that teaches people the strip is broken.
+  const measure = useCallback(() => {
+    const el = strip.current;
+    if (!el) return;
+    setAt({
+      start: el.scrollLeft <= 2,
+      end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 2,
+    });
+  }, []);
+
+  useEffect(() => {
+    measure();
+    const el = strip.current;
+    if (!el) return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [measure, posts]);
+
+  const nudge = (dir: 1 | -1) => {
+    const el = strip.current;
+    if (!el) return;
+    // Most of a screenful, not all of it: a column left showing is what tells
+    // somebody the strip carried on rather than started again.
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+  };
+
+  const columns = useMemo(() => pack(posts), [posts]);
   if (!posts.length) return null;
 
-  // Dealt across the rows rather than sliced into thirds, so each row holds a
-  // mix of shapes instead of one row getting all the wide ones.
-  const rows: GalleryPost[][] = [[], [], []];
-  posts.forEach((p, n) => rows[n % 3].push(p));
+  const arrow = (dir: 1 | -1, disabled: boolean) => (
+    <button onClick={() => nudge(dir)} disabled={disabled}
+            aria-label={dir === 1 ? "Later pictures" : "Earlier pictures"}
+            className="grid size-7 place-items-center rounded-full border border-line text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted">
+      {dir === 1 ? "›" : "‹"}
+    </button>
+  );
 
   return (
     <section className="mt-6">
@@ -115,14 +174,24 @@ export default function HotGallery() {
               className="text-[12.5px] font-normal text-accent no-underline hover:underline">
           {t("gallery.seeAll")} →
         </Link>
+        <span className="ml-auto flex items-center gap-1.5">
+          {arrow(-1, at.start)}
+          {arrow(1, at.end)}
+        </span>
       </h2>
-      {/* Three rows, alternate ones the other way, at speeds that do not divide
-          into each other — otherwise they line up into one moving block and the
-          eye reads it as a single thing sliding past. */}
-      <div className="flex flex-col gap-2">
-        {rows.map((row, n) => (
-          <DriftRow key={n} posts={row} reverse={n % 2 === 1}
-                    seconds={54 + n * 13} />
+
+      {/* The two numbers the whole layout is built from, declared once here so
+          the tiles can do their arithmetic in CSS and stay right at every
+          width. Scrolled natively as well as by the arrows, so a touchscreen
+          swipes it and a trackpad does what a trackpad does. */}
+      <div ref={strip} onScroll={measure}
+           className="-mx-1 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 pb-1 [--row-gap:8px] [--row-h:94px] [scrollbar-width:thin] sm:[--row-h:118px]">
+        {columns.map((col, i) => (
+          <div key={i} className="flex shrink-0 snap-start flex-col gap-2">
+            {col.tall && <Tile post={col.tall} rows={2} />}
+            {col.top && <Tile post={col.top} rows={1} />}
+            {col.bottom && <Tile post={col.bottom} rows={1} />}
+          </div>
         ))}
       </div>
     </section>

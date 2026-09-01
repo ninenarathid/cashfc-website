@@ -19,14 +19,14 @@
    "type": "parse_up",
    "id": 35634484,
    "name": "Little Eevee",
-   "text": "set a new best parse: 44"
+   "text": "set a new best parse: 44 on Hippokampos as Paladin"
   },
   {
    "date": "2026-09-01",
    "type": "parse_up",
    "id": 19827594,
    "name": "Aylufa Regolith",
-   "text": "set a new best parse: 98"
+   "text": "set a new best parse: 98 on Phoinix as Dancer"
   },
   {
    "date": "2026-09-01",
@@ -82,7 +82,7 @@
    "type": "parse_up",
    "id": 25506828,
    "name": "Kururuki Tzuzaku",
-   "text": "set a new best parse: 100"
+   "text": "set a new best parse: 100 on Hippokampos as Gunbreaker"
   },
   {
    "date": "2026-09-01",
@@ -96,7 +96,7 @@
    "type": "parse_up",
    "id": 34509521,
    "name": "Liliya Quintilis",
-   "text": "set a new best parse: 99"
+   "text": "set a new best parse: 99 on Erichthonios as Sage"
   },
   {
    "date": "2026-09-01",
@@ -124,14 +124,14 @@
    "type": "parse_up",
    "id": 5294880,
    "name": "Mithra Muses",
-   "text": "set a new best parse: 71"
+   "text": "set a new best parse: 71 on Erichthonios as Sage"
   },
   {
    "date": "2026-09-01",
    "type": "parse_up",
    "id": 5435582,
    "name": "Mog Hikarino",
-   "text": "set a new best parse: 90"
+   "text": "set a new best parse: 90 on Hippokampos as Dancer"
   },
   {
    "date": "2026-09-01",
@@ -159,7 +159,7 @@
    "type": "parse_up",
    "id": 30667251,
    "name": "Roxas Akatsuki",
-   "text": "set a new best parse: 87"
+   "text": "set a new best parse: 87 on Phoinix as Warrior"
   },
   {
    "date": "2026-09-01",
@@ -201,14 +201,14 @@
    "type": "parse_up",
    "id": 6951533,
    "name": "Aemond Targaryen",
-   "text": "set a new best parse: 11"
+   "text": "set a new best parse: 11 on Erichthonios as Dragoon"
   },
   {
    "date": "2026-09-01",
    "type": "parse_up",
    "id": 29339718,
    "name": "Ashe Fantine",
-   "text": "set a new best parse: 97"
+   "text": "set a new best parse: 97 on Hippokampos as Dancer"
   },
   {
    "date": "2026-09-01",
@@ -306,14 +306,14 @@
    "type": "parse_up",
    "id": 31239994,
    "name": "Sopier Kit",
-   "text": "set a new best parse: 100"
+   "text": "set a new best parse: 100 on Proto-Carbuncle as Samurai"
   },
   {
    "date": "2026-09-01",
    "type": "parse_up",
    "id": 39073020,
    "name": "Toasted Bread",
-   "text": "set a new best parse: 96"
+   "text": "set a new best parse: 96 on Proto-Carbuncle as Gunbreaker"
   },
   {
    "date": "2026-09-01",
@@ -327,7 +327,7 @@
    "type": "parse_up",
    "id": 34172006,
    "name": "Zion Zoen",
-   "text": "set a new best parse: 90"
+   "text": "set a new best parse: 90 on Agdistis as Ninja"
   },
   {
    "date": "2026-09-01",
@@ -341,21 +341,21 @@
    "type": "parse_up",
    "id": 43412434,
    "name": "Zylith Sweeney",
-   "text": "set a new best parse: 22"
+   "text": "set a new best parse: 22 on Proto-Carbuncle as Sage"
   },
   {
    "date": "2026-08-31",
    "type": "parse_up",
    "id": 34611224,
    "name": "Momose Hochizora",
-   "text": "set a new best parse: 60"
+   "text": "set a new best parse: 60 on Kokytos as Scholar"
   },
   {
    "date": "2026-08-31",
    "type": "parse_up",
    "id": 30714243,
    "name": "Moona Freed",
-   "text": "set a new best parse: 99"
+   "text": "set a new best parse: 99 on Kokytos as Warrior"
   },
   {
    "date": "2026-08-31",
@@ -369,7 +369,7 @@
    "type": "parse_up",
    "id": 37731936,
    "name": "Null Skyrage",
-   "text": "set a new best parse: 91"
+   "text": "set a new best parse: 91 on Themis as Gunbreaker"
   },
   {
    "date": "2026-08-31",
@@ -390,7 +390,7 @@
    "type": "parse_up",
    "id": 47401423,
    "name": "Rana Murphy",
-   "text": "set a new best parse: 1"
+   "text": "set a new best parse: 1 on Kokytos as Monk"
   },
   {
    "date": "2026-08-31",
@@ -404,14 +404,14 @@
    "type": "parse_up",
    "id": 40624820,
    "name": "Rin Miyauchi",
-   "text": "set a new best parse: 35"
+   "text": "set a new best parse: 35 on Kokytos as Reaper"
   },
   {
    "date": "2026-08-31",
    "type": "parse_up",
    "id": 39961214,
    "name": "Ruby Sugarstar",
-   "text": "set a new best parse: 96"
+   "text": "set a new best parse: 96 on Kokytos as Bard"
   },
   {
    "date": "2026-08-31",
@@ -796,7 +796,7 @@
    "type": "parse_up",
    "id": 3968346,
    "name": "Panuz Chocobunny",
-   "text": "set a new best parse: 64"
+   "text": "set a new best parse: 64 on Voidwalker as Bard"
   },
   {
    "date": "2026-08-29",
@@ -838,7 +838,7 @@
    "type": "parse_up",
    "id": 19827594,
    "name": "Aylufa Regolith",
-   "text": "set a new best parse: 96"
+   "text": "set a new best parse: 96 on Eden Prime as Dancer"
   },
   {
    "date": "2026-08-29",
@@ -971,7 +971,7 @@
    "type": "parse_up",
    "id": 6173187,
    "name": "Motochita Muses",
-   "text": "set a new best parse: 96"
+   "text": "set a new best parse: 96 on Eden Prime as Bard"
   },
   {
    "date": "2026-08-29",
@@ -1125,7 +1125,7 @@
    "type": "parse_up",
    "id": 30714243,
    "name": "Moona Freed",
-   "text": "set a new best parse: 87"
+   "text": "set a new best parse: 87 on Shadowkeeper as Warrior"
   },
   {
    "date": "2026-08-29",
@@ -1153,7 +1153,7 @@
    "type": "parse_up",
    "id": 30421228,
    "name": "Natsuki Tri",
-   "text": "set a new best parse: 79"
+   "text": "set a new best parse: 79 on Shadowkeeper as White Mage"
   },
   {
    "date": "2026-08-29",
@@ -1167,7 +1167,7 @@
    "type": "parse_up",
    "id": 32150308,
    "name": "Nene Mumu",
-   "text": "set a new best parse: 10"
+   "text": "set a new best parse: 10 on Fatebreaker as Scholar"
   },
   {
    "date": "2026-08-29",
@@ -1181,14 +1181,14 @@
    "type": "parse_up",
    "id": 28011817,
    "name": "Nore Vanessa",
-   "text": "set a new best parse: 48"
+   "text": "set a new best parse: 48 on Cloud of Darkness as Dancer"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 5762434,
    "name": "Oakley Ale",
-   "text": "set a new best parse: 89"
+   "text": "set a new best parse: 89 on Eden's Promise as Samurai"
   },
   {
    "date": "2026-08-29",
@@ -1202,14 +1202,14 @@
    "type": "parse_up",
    "id": 31745191,
    "name": "Oivxii Hikari",
-   "text": "set a new best parse: 10"
+   "text": "set a new best parse: 10 on Cloud of Darkness as Samurai"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 26433344,
    "name": "Oppa' Pkz",
-   "text": "set a new best parse: 92"
+   "text": "set a new best parse: 92 on Cloud of Darkness as White Mage"
   },
   {
    "date": "2026-08-29",
@@ -1237,7 +1237,7 @@
    "type": "parse_up",
    "id": 36151779,
    "name": "Percival Heisenberg",
-   "text": "set a new best parse: 97"
+   "text": "set a new best parse: 97 on Fatebreaker as Paladin"
   },
   {
    "date": "2026-08-29",
@@ -1258,21 +1258,21 @@
    "type": "parse_up",
    "id": 31632996,
    "name": "Puni Punii",
-   "text": "set a new best parse: 53"
+   "text": "set a new best parse: 53 on Cloud of Darkness as Dancer"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 22164216,
    "name": "Revan Martius",
-   "text": "set a new best parse: 54"
+   "text": "set a new best parse: 54 on Fatebreaker as Red Mage"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 33487130,
    "name": "Rimuru Tempesta",
-   "text": "set a new best parse: 95"
+   "text": "set a new best parse: 95 on Eden's Promise as Paladin"
   },
   {
    "date": "2026-08-29",
@@ -1293,14 +1293,14 @@
    "type": "parse_up",
    "id": 29901287,
    "name": "Rishima Garaine",
-   "text": "set a new best parse: 59"
+   "text": "set a new best parse: 59 on Shadowkeeper as Dancer"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 29395299,
    "name": "Runie Run",
-   "text": "set a new best parse: 98"
+   "text": "set a new best parse: 98 on Cloud of Darkness as Paladin"
   },
   {
    "date": "2026-08-29",
@@ -1342,7 +1342,7 @@
    "type": "parse_up",
    "id": 30333493,
    "name": "Haruko Sho",
-   "text": "set a new best parse: 77"
+   "text": "set a new best parse: 77 on Erichthonios as Scholar"
   },
   {
    "date": "2026-08-29",
@@ -1356,28 +1356,28 @@
    "type": "parse_up",
    "id": 33272037,
    "name": "Hermanita Imouto",
-   "text": "set a new best parse: 13"
+   "text": "set a new best parse: 13 on Erichthonios as Dancer"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 29542040,
    "name": "Immundus Vitae",
-   "text": "set a new best parse: 53"
+   "text": "set a new best parse: 53 on Hesperos as Scholar"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 40652404,
    "name": "Jade Solaire",
-   "text": "set a new best parse: 32"
+   "text": "set a new best parse: 32 on Erichthonios as Astrologian"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 28127069,
    "name": "Jim Carried",
-   "text": "set a new best parse: 98"
+   "text": "set a new best parse: 98 on Erichthonios as Black Mage"
   },
   {
    "date": "2026-08-29",
@@ -1391,14 +1391,14 @@
    "type": "parse_up",
    "id": 31923628,
    "name": "Kakigori Kyrielight",
-   "text": "set a new best parse: 37"
+   "text": "set a new best parse: 37 on Erichthonios as Red Mage"
   },
   {
    "date": "2026-08-29",
    "type": "parse_up",
    "id": 39034125,
    "name": "Kirin Rin",
-   "text": "set a new best parse: 81"
+   "text": "set a new best parse: 81 on Erichthonios as Reaper"
   }
  ]
 }
