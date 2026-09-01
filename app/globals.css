@@ -41,6 +41,19 @@ body {
   border-radius: 4px;
 }
 
+/* Out of the column and across the window.
+   The page is a centred column, and half the empty margin on each side is
+   exactly how far something has to move to reach the edge — which is what
+   `50% - 50vw` is. It is used by the screenshot strip, where a wider window
+   should simply mean more pictures rather than more emptiness beside them.
+   The wrapper clips rather than hides, so the extra width cannot add a
+   horizontal scrollbar and nothing inside loses its ability to stick. */
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
 /* ── The strip of screenshots on the front page ────────────────────────────
    The columns are rendered twice and the track travels exactly half its own
    width, so at the instant the animation restarts the second copy is sitting

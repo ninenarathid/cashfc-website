@@ -182,7 +182,7 @@ export default function HotGallery() {
 
           The two numbers the layout is built from live here, so the tiles can
           do their arithmetic in CSS and stay right at every width. */}
-      <div className="drift-row overflow-hidden [--row-gap:8px] [--row-h:168px] sm:[--row-h:222px]">
+      <div className="drift-row full-bleed overflow-hidden [--row-gap:8px] [--row-h:168px] sm:[--row-h:222px]">
         <div className="drift"
              style={{ ["--drift-dur" as string]: `${columns.length * PACE * 2}s` }}>
           {columns.map((c, i) => column(c, `a${i}`))}
