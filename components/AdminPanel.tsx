@@ -58,6 +58,27 @@ function providers(c: ClaimedProfile): { names: string[]; sure: boolean } | null
   return null;
 }
 
+type ClaimSort = "character" | "account" | "provider" | "claimed";
+
+/**
+ * What each column sorts on, as one comparable value.
+ *
+ * A string for the text columns and a number for the date, with null meaning
+ * "nothing here". Nulls are kept at the bottom whichever way the sort is
+ * pointing: a row with no date is not the oldest claim, it is a claim nobody
+ * has verified, and letting those float to the top on one click would bury the
+ * answer somebody was looking for.
+ */
+function claimKey(c: ClaimedProfile, by: ClaimSort, name: string): string | number | null {
+  switch (by) {
+    case "character": return name.toLowerCase();
+    case "account": return c.discord_username?.toLowerCase() ?? null;
+    case "provider": return providers(c)?.names.join(" ").toLowerCase() ?? null;
+    case "claimed": return c.character_verified_at
+      ? Date.parse(c.character_verified_at) : null;
+  }
+}
+
 const PROVIDER_TONE: Record<string, string> = {
   Discord: "border-[#5865F2]/50 bg-[#5865F2]/10 text-[#8b93f5]",
   Google: "border-[#ea4335]/50 bg-[#ea4335]/10 text-[#f08379]",
@@ -168,6 +189,14 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   const [note, setNote] = useState("");
 
   const [claims, setClaims] = useState<ClaimedProfile[]>([]);
+  // Which way the claims table is pointing. Newest-first is the useful default
+  // for a date and A-to-Z for a name, so a column brings its own direction the
+  // first time it is clicked rather than always starting ascending.
+  const [claimSort, setClaimSort] = useState<{ by: ClaimSort; dir: 1 | -1 }>(
+    { by: "character", dir: 1 });
+  const sortClaims = (by: ClaimSort) => setClaimSort((v) =>
+    v.by === by ? { by, dir: (v.dir === 1 ? -1 : 1) as 1 | -1 }
+                : { by, dir: by === "claimed" ? -1 : 1 });
 
   // Which bodies are unfolded. One set for both lists: the key says which.
   const [open, setOpen] = useState<Set<string>>(new Set());
@@ -640,17 +669,47 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           <table className="w-full min-w-[34rem] border-collapse text-[13px]">
             <thead>
               <tr className="border-b border-line text-left font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                <th className="py-1.5 pr-3 font-normal">Character</th>
-                <th className="py-1.5 pr-3 font-normal">Account</th>
-                <th className="py-1.5 pr-3 font-normal">Signed in with</th>
-                <th className="py-1.5 pr-3 font-normal">Claimed</th>
+                {([["character", "Character"], ["account", "Account"],
+                   ["provider", "Signed in with"], ["claimed", "Claimed"]] as const)
+                  .map(([by, label]) => (
+                    <th key={by} className="py-1.5 pr-3 font-normal"
+                        aria-sort={claimSort.by === by
+                          ? (claimSort.dir === 1 ? "ascending" : "descending")
+                          : "none"}>
+                      <button onClick={() => sortClaims(by)}
+                              className={`inline-flex items-center gap-1 uppercase tracking-[0.14em] transition-colors hover:text-ink ${
+                                claimSort.by === by ? "text-accent" : ""}`}>
+                        {label}
+                        {/* The arrow only on the column doing the sorting. One
+                            on every header is four claims about the order when
+                            only one of them is true. */}
+                        <span aria-hidden className={claimSort.by === by ? "" : "opacity-0"}>
+                          {claimSort.dir === 1 ? "↑" : "↓"}
+                        </span>
+                      </button>
+                    </th>
+                  ))}
                 <th className="py-1.5 font-normal" />
               </tr>
             </thead>
             <tbody>
               {[...claims]
-                .sort((a, b) => (a.character_name ?? nameOf(a.character_id))
-                  .localeCompare(b.character_name ?? nameOf(b.character_id)))
+                .sort((a, b) => {
+                  const an = a.character_name ?? nameOf(a.character_id);
+                  const bn = b.character_name ?? nameOf(b.character_id);
+                  const av = claimKey(a, claimSort.by, an);
+                  const bv = claimKey(b, claimSort.by, bn);
+                  // Empty cells sit at the bottom either way round.
+                  if (av == null || bv == null) {
+                    return av == null && bv == null ? an.localeCompare(bn)
+                      : av == null ? 1 : -1;
+                  }
+                  const d = typeof av === "number" && typeof bv === "number"
+                    ? av - bv : String(av).localeCompare(String(bv));
+                  // The name breaks every tie, so rows never shuffle about
+                  // between renders on a column half of them share.
+                  return d !== 0 ? d * claimSort.dir : an.localeCompare(bn);
+                })
                 .map((c) => {
                   const p = providers(c);
                   return (
