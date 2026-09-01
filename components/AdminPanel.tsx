@@ -23,31 +23,38 @@ interface ClaimedProfile {
   discord_avatar: string | null;
   character_id: number;
   character_name: string | null;
-  auth_provider: string | null;
+  auth_providers: string[] | null;
   character_verified_at: string | null;
 }
 
+const PROVIDER_NAME: Record<string, string> = {
+  discord: "Discord", google: "Google", email: "Email",
+};
+
 /**
- * Which service somebody signed in with.
+ * Which services somebody signed in with. Plural, and that is the point.
  *
- * `auth_provider` is the answer and comes from migration_v21. Before that has
- * been run every row says null, so the avatar's host is read instead — Discord
- * and Google serve theirs from their own CDNs. That is a deduction rather than
- * a record, so it is shown dimmed and says so on hover; a guess presented as a
- * fact is worse than a blank.
+ * An account can have both Discord and Google linked to it, and showing only
+ * one would answer "which door did they come through" with half the truth.
+ *
+ * `auth_providers` is the record and comes from migration_v21. Before that has
+ * been run every row is null, so the avatar's host is read instead — Discord
+ * and Google serve theirs from their own CDNs. That can only ever find the one
+ * that supplied the picture, so it is shown dimmed with a "?" and says on hover
+ * where it came from: a guess presented as a fact is worse than a blank.
  */
-function provider(c: ClaimedProfile): { name: string; sure: boolean } | null {
-  if (c.auth_provider) {
-    const known: Record<string, string> = {
-      discord: "Discord", google: "Google", email: "Email",
+function providers(c: ClaimedProfile): { names: string[]; sure: boolean } | null {
+  if (c.auth_providers?.length) {
+    return {
+      names: c.auth_providers.map((p) => PROVIDER_NAME[p] ?? p),
+      sure: true,
     };
-    return { name: known[c.auth_provider] ?? c.auth_provider, sure: true };
   }
   const host = c.discord_avatar ?? "";
   if (host.includes("discordapp.com") || host.includes("discord.com")) {
-    return { name: "Discord", sure: false };
+    return { names: ["Discord"], sure: false };
   }
-  if (host.includes("googleusercontent.com")) return { name: "Google", sure: false };
+  if (host.includes("googleusercontent.com")) return { names: ["Google"], sure: false };
   return null;
 }
 
@@ -117,7 +124,7 @@ const CLAIM_BASE =
 async function claimRows(supabase: NonNullable<ReturnType<typeof createClient>>)
 : Promise<ClaimedProfile[]> {
   const full = await supabase.from("profiles")
-    .select(`${CLAIM_BASE}, auth_provider`).not("character_id", "is", null);
+    .select(`${CLAIM_BASE}, auth_providers`).not("character_id", "is", null);
   const rows = full.error
     ? (await supabase.from("profiles").select(CLAIM_BASE)
         .not("character_id", "is", null)).data
@@ -645,7 +652,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 .sort((a, b) => (a.character_name ?? nameOf(a.character_id))
                   .localeCompare(b.character_name ?? nameOf(b.character_id)))
                 .map((c) => {
-                  const p = provider(c);
+                  const p = providers(c);
                   return (
                     <tr key={c.id} className="border-b border-line/60 last:border-0">
                       <td className="py-1.5 pr-3">
@@ -661,12 +668,17 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                       </td>
                       <td className="py-1.5 pr-3">
                         {p ? (
-                          <span title={p.sure ? undefined
-                            : "Guessed from the avatar's host — run migration_v21.sql to record it properly"}
-                                className={`rounded-full border px-2 py-0.5 text-[11px] ${
-                                  PROVIDER_TONE[p.name] ?? "border-line text-muted"} ${
-                                  p.sure ? "" : "opacity-60"}`}>
-                            {p.name}{p.sure ? "" : "?"}
+                          <span className="flex flex-wrap gap-1">
+                            {p.names.map((name) => (
+                              <span key={name}
+                                    title={p.sure ? undefined
+                                      : "Guessed from the avatar's host — run migration_v21.sql to record it properly"}
+                                    className={`rounded-full border px-2 py-0.5 text-[11px] ${
+                                      PROVIDER_TONE[name] ?? "border-line text-muted"} ${
+                                      p.sure ? "" : "opacity-60"}`}>
+                                {name}{p.sure ? "" : "?"}
+                              </span>
+                            ))}
                           </span>
                         ) : (
                           <span className="text-muted opacity-60">—</span>
