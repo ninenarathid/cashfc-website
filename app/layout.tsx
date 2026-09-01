@@ -54,11 +54,7 @@ export default function RootLayout({
               their pages, and every byline and tag in the gallery. */}
           <AdminProvider>
           <AvatarProvider>
-          {/* clip, not hidden: a full-bleed child is wider than this column by
-              design, and clip keeps that from adding a horizontal scrollbar
-              without turning the page into a scroll container the way hidden
-              would — which would break anything sticky inside it. */}
-          <div className="mx-auto max-w-5xl overflow-x-clip px-4 pb-16">
+          <div className="mx-auto max-w-5xl px-4 pb-16">
             <Nav />
             {children}
           <footer className="mt-9 border-t border-line pt-4 text-[12.5px] leading-relaxed text-muted">

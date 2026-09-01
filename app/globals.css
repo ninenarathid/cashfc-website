@@ -41,13 +41,19 @@ body {
   border-radius: 4px;
 }
 
+/* The clipping belongs at the root, not on the column.
+   A full-bleed child is wider than the column by design, so clipping there
+   clipped it straight back in — which is what kept the screenshot strip inside
+   the page. Here it only catches the last few pixels where 100vw overshoots the
+   content area by the width of the scrollbar, and clip rather than hidden means
+   the page does not become a scroll container and nothing sticky breaks. */
+body { overflow-x: clip; }
+
 /* Out of the column and across the window.
    The page is a centred column, and half the empty margin on each side is
    exactly how far something has to move to reach the edge — which is what
    `50% - 50vw` is. It is used by the screenshot strip, where a wider window
-   should simply mean more pictures rather than more emptiness beside them.
-   The wrapper clips rather than hides, so the extra width cannot add a
-   horizontal scrollbar and nothing inside loses its ability to stick. */
+   should simply mean more pictures rather than more emptiness beside them. */
 .full-bleed {
   width: 100vw;
   margin-left: calc(50% - 50vw);
