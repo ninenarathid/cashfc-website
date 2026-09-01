@@ -252,7 +252,13 @@ const DICT = {
   "gallery.sortNew": { en: "Newest", th: "ใหม่สุด" },
   "gallery.sortTop": { en: "Most popoto", th: "popoto เยอะสุด" },
   "gallery.loadingMore": { en: "Loading more…", th: "กำลังโหลดเพิ่ม…" },
-  "gallery.hotHeading": { en: "Lately in the gallery", th: "รูปที่กำลังฮิต" },
+  /* Names who took them rather than how they are doing. "What is popular" is a
+     ranking, and a ranking invites people to check where theirs came — which is
+     not what a wall of screenshots from your own FC is for. */
+  "gallery.hotHeading": {
+    en: "Snapshots from the FC",
+    th: "ภาพจากเพื่อนๆ ใน FC",
+  },
   "gallery.seeAll": { en: "See all", th: "ดูทั้งหมด" },
   "gallery.cover": { en: "Cover", th: "รูปหน้าปก" },
   "gallery.openPoster": { en: "Post a picture", th: "โพสต์รูป" },

@@ -1,14 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { GALLERY_PUBLIC_KEY, postPath, thumbOf,
          type GalleryPost } from "@/lib/gallery";
 
-/** Enough to be worth scrolling, few enough to arrive at once. */
-const SHOW = 24;
+/**
+ * How many to put on the strip.
+ *
+ * Every one of these is a thumbnail the browser will fetch — about 95 KB each —
+ * so the number is a bandwidth decision as much as a design one. Thirty is
+ * roughly 2.8 MB for somebody who watches the whole loop go round, against a
+ * budget of about 165 MB a day for the whole site. Fifty would be nearer 4.8 MB
+ * and would put the front page alone within reach of that on a busy day, which
+ * is the thing we have just spent a week climbing out of.
+ *
+ * They load lazily, so a short visit costs only what actually drifted past.
+ */
+const SHOW = 30;
+
+/** Seconds each column takes to cross. Slow: this is scenery, not a carousel. */
+const PACE = 4.2;
 
 /**
  * The pictures the FC is looking at this week, on the front page.
@@ -98,10 +112,24 @@ function Tile({ post, rows }: { post: GalleryPost; rows: 1 | 2 }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
            className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-      {(post.like_count ?? 0) > 0 && (
-        <span className="absolute bottom-1 left-1 rounded bg-bg/75 px-1.5 py-0.5 text-[11px] text-ink">
-          🥔 {post.like_count}
-        </span>
+      {/* The same overlay the gallery wall uses, and hidden the same way: out
+          of sight until somebody looks at one, because a caption on every tile
+          is a wall of text over a wall of pictures. On a touchscreen there is
+          no hover to wait for, so it simply shows. */}
+      {(post.caption || (post.like_count ?? 0) > 0 || (post.comment_count ?? 0) > 0) && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-bg/90 via-bg/70 to-transparent px-2.5 pb-2 pt-8 opacity-0 transition-opacity duration-200 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+          {post.caption && (
+            <p className="line-clamp-2 text-[12px] leading-snug text-ink">
+              {post.caption}
+            </p>
+          )}
+          {((post.like_count ?? 0) > 0 || (post.comment_count ?? 0) > 0) && (
+            <div className="mt-1 flex gap-2 text-[11.5px] font-medium text-ink/85">
+              {(post.like_count ?? 0) > 0 && <span>🥔 {post.like_count}</span>}
+              {(post.comment_count ?? 0) > 0 && <span>💬 {post.comment_count}</span>}
+            </div>
+          )}
+        </div>
       )}
     </Link>
   );
@@ -110,8 +138,6 @@ function Tile({ post, rows }: { post: GalleryPost; rows: 1 | 2 }) {
 export default function HotGallery() {
   const { t } = useLang();
   const [posts, setPosts] = useState<GalleryPost[]>([]);
-  const strip = useRef<HTMLDivElement | null>(null);
-  const [at, setAt] = useState({ start: true, end: true });
 
   useEffect(() => {
     const supabase = createClient();
@@ -127,58 +153,15 @@ export default function HotGallery() {
     })();
   }, []);
 
-  // Which arrows are worth showing. An arrow that cannot move anything is a
-  // button that teaches people the strip is broken.
-  const measure = useCallback(() => {
-    const el = strip.current;
-    if (!el) return;
-    setAt({
-      start: el.scrollLeft <= 2,
-      end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 2,
-    });
-  }, []);
-
-  useEffect(() => {
-    measure();
-    const el = strip.current;
-    if (!el) return;
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [measure, posts]);
-
-  const nudge = (dir: 1 | -1) => {
-    const el = strip.current;
-    if (!el) return;
-    // Most of a screenful, not all of it: a column left showing is what tells
-    // somebody the strip carried on rather than started again.
-    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
-  };
-
   const columns = useMemo(() => pack(posts), [posts]);
   if (!posts.length) return null;
 
-  /**
-   * A way on to the next few pictures, at the edge it moves towards.
-   *
-   * Over the strip rather than up in the heading, because that is where the
-   * hand already is and where the movement happens. It fades out at the end it
-   * cannot travel any further towards, and goes untabbable with it: an arrow
-   * that does nothing is worse than no arrow, and one that does nothing but
-   * still takes a tab stop is worse again.
-   */
-  const arrow = (dir: 1 | -1, done: boolean) => (
-    <button onClick={() => nudge(dir)} tabIndex={done ? -1 : 0} aria-hidden={done}
-            aria-label={dir === 1 ? "Later pictures" : "Earlier pictures"}
-            className={`absolute top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg/80 text-ink shadow-lg backdrop-blur transition-all hover:border-accent hover:text-accent ${
-              dir === 1 ? "right-1" : "left-1"} ${
-              done ? "pointer-events-none opacity-0" : "opacity-90 hover:opacity-100"}`}>
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden
-           stroke="currentColor" strokeWidth="2.2"
-           strokeLinecap="round" strokeLinejoin="round">
-        <path d={dir === 1 ? "M9 6l6 6-6 6" : "M15 6l-6 6 6 6"} />
-      </svg>
-    </button>
+  const column = (col: Column, key: string) => (
+    <div key={key} className="mr-2 flex shrink-0 flex-col gap-2">
+      {col.tall && <Tile post={col.tall} rows={2} />}
+      {col.top && <Tile post={col.top} rows={1} />}
+      {col.bottom && <Tile post={col.bottom} rows={1} />}
+    </div>
   );
 
   return (
@@ -191,25 +174,24 @@ export default function HotGallery() {
         </Link>
       </h2>
 
-      {/* The two numbers the whole layout is built from, declared once here so
-          the tiles can do their arithmetic in CSS and stay right at every
-          width. Scrolled natively as well as by the arrows, so a touchscreen
-          swipes it and a trackpad does what a trackpad does — the bar itself is
-          hidden, because the arrows say the same thing and a scrollbar under a
-          row of pictures is a piece of furniture nobody asked for. */}
-      <div className="relative">
-      {arrow(-1, at.start)}
-      {arrow(1, at.end)}
-      <div ref={strip} onScroll={measure}
-           className="-mx-1 flex snap-x snap-proximity gap-2 overflow-x-auto px-1 [--row-gap:8px] [--row-h:168px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[--row-h:222px]">
-        {columns.map((col, i) => (
-          <div key={i} className="flex shrink-0 snap-start flex-col gap-2">
-            {col.tall && <Tile post={col.tall} rows={2} />}
-            {col.top && <Tile post={col.top} rows={1} />}
-            {col.bottom && <Tile post={col.bottom} rows={1} />}
-          </div>
-        ))}
-      </div>
+      {/* It moves on its own rather than waiting to be pushed. A strip that
+          only scrolls when somebody finds the arrows is a strip most people see
+          the first six pictures of; one that drifts shows the whole wall to
+          anybody who glances at it twice. It pauses under the cursor, because a
+          link that slides away is a link nobody catches.
+
+          The two numbers the layout is built from live here, so the tiles can
+          do their arithmetic in CSS and stay right at every width. */}
+      <div className="drift-row overflow-hidden [--row-gap:8px] [--row-h:168px] sm:[--row-h:222px]">
+        <div className="drift"
+             style={{ ["--drift-dur" as string]: `${columns.length * PACE * 2}s` }}>
+          {columns.map((c, i) => column(c, `a${i}`))}
+          {/* The second pass, for the seam. Hidden from screen readers, which
+              should hear each picture once. */}
+          <span aria-hidden className="contents">
+            {columns.map((c, i) => column(c, `b${i}`))}
+          </span>
+        </div>
       </div>
     </section>
   );
