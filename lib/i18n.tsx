@@ -42,6 +42,20 @@ const DICT = {
   },
   "nav.feedback": { en: "Feedback", th: "แจ้งเรื่อง" },
   "nav.guides": { en: "Guides", th: "ไกด์" },
+  "nav.updates": { en: "Updates", th: "อัพเดท" },
+  "log.title": { en: "Site updates", th: "อัพเดทเว็ป" },
+  "log.intro": {
+    en: "What has changed here, newest first.",
+    th: "มีอะไรเปลี่ยนไปบ้างในเว็ปนี้ ใหม่สุดอยู่บน",
+  },
+  "log.latest": { en: "Latest update", th: "อัพเดทล่าสุด" },
+  "log.all": { en: "All updates", th: "ดูทั้งหมด" },
+  "log.today": { en: "today", th: "วันนี้" },
+  "log.yesterday": { en: "yesterday", th: "เมื่อวาน" },
+  "log.new": { en: "New", th: "ใหม่" },
+  "log.better": { en: "Better", th: "ปรับปรุง" },
+  "log.fix": { en: "Fixed", th: "แก้ไข" },
+  "log.none": { en: "Nothing here yet.", th: "ยังไม่มีอะไร" },
   "guide.read": { en: "Read", th: "อ่าน" },
   "guide.quiz": { en: "Quiz", th: "ทดสอบ" },
   "guide.slot": { en: "Your spot", th: "ตำแหน่ง" },
@@ -152,7 +166,7 @@ const DICT = {
   /* The header tab only. The page is still called the gallery everywhere it is
      linked to from inside the site; this is the one place that has to warn
      somebody before they arrive. */
-  "nav.galleryWip": { en: "Gallery (WIP)", th: "แกลเลอรี (WIP)" },
+  "nav.guidesWip": { en: "Guides (WIP)", th: "ไกด์ (WIP)" },
 
   // ── Gallery ─────────────────────────────────────────────────────────
   "gallery.eyebrow": { en: "Gallery", th: "แกลเลอรี" },
@@ -454,10 +468,6 @@ const DICT = {
   "member.progressing": { en: "Progressing:", th: "กำลังเล่น:" },
   "member.justCleared": { en: "Just cleared:", th: "เพิ่งผ่าน:" },
   "member.inProgress": { en: "Raiding lately", th: "ช่วงนี้กำลังเล่น" },
-  "member.progressHint": {
-    en: "Read from this player's own logs over the last 10 days. A boss still being learned shows how much health was left on the best pull and which phase that was — lower is further in. One that died shows as cleared instead. Content does not matter, only recency: an old Ultimate pulled last week belongs here, and a tier nobody has touched in a fortnight does not.",
-    th: "อ่านจาก log ของคนนั้นเองในช่วง 10 วันล่าสุด บอสที่ยังตีอยู่จะบอกว่าครั้งที่ดีที่สุดเหลือเลือดบอสเท่าไหร่ และอยู่ Phase ไหน — ยิ่งเลขน้อยยิ่งใกล้จบ ส่วนตัวที่ผ่านแล้วจะขึ้นว่าเพิ่งผ่าน ไม่เกี่ยงว่าเป็น content ไหน เกี่ยงแค่ว่าเพิ่งเล่นหรือเปล่า Ultimate เก่าที่เพิ่งลงเมื่ออาทิตย์ที่แล้วก็ขึ้น ส่วน tier ที่ไม่ได้แตะมาสองอาทิตย์ก็ไม่ขึ้น",
-  },
   "member.noLogYet": { en: "No log yet", th: "ยังไม่มี log" },
   "member.awaitingData": { en: "Awaiting data", th: "รอข้อมูล" },
   "member.kills": { en: "{n} kills", th: "ฆ่า {n} ครั้ง" },
@@ -473,10 +483,6 @@ const DICT = {
     th: "ยังไม่ได้เชื่อมกับ FF Logs — ข้อมูล raid จะขึ้นเองเมื่อระบบดึงข้อมูลรอบถัดไป",
   },
   "member.rarest": { en: "Rarest achievements", th: "Achievement ที่หายากที่สุด" },
-  "member.rarestHint": {
-    en: "({n} shown, rarest first · the chip names the playstyle it counts toward)",
-    th: "(แสดง {n} อัน เรียงจากหายากที่สุด · ป้ายสีบอกว่านับเข้าสายไหน)",
-  },
   "member.showAll": { en: "Show all {n}", th: "แสดงทั้งหมด {n} อัน" },
   "member.showFewer": { en: "Show fewer", th: "แสดงน้อยลง" },
 

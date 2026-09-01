@@ -2,6 +2,7 @@ import raw from "@/data/members.json";
 import feedRaw from "@/data/feed.json";
 import newsRaw from "@/data/news.json";
 import Announcements from "@/components/Announcements";
+import LatestUpdate from "@/components/home/LatestUpdate";
 import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
 import Birthdays from "@/components/home/Birthdays";
@@ -35,6 +36,7 @@ export default function Home() {
       <Hero fc={data.fc} total={data.fc.total} active={activeCount} tagStats={tagStats} />
 
       <Announcements />
+      <LatestUpdate />
       <DiscordCard />
 
       <ShowYourData

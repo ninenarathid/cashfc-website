@@ -94,11 +94,7 @@ export default function JobBreakdown(
   return (
     <section className="mt-6">
       <h2 className="mb-2 font-display text-lg font-semibold">
-        Jobs played{" "}
-        <span className="text-[13px] font-normal text-muted">
-          ({rows.length} recorded by FF Logs · bar length is overall proficiency,
-          colour is best parse · open a row for the individual fights)
-        </span>
+        Jobs played
       </h2>
       <div className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4">
         {ordered.map((r) => {

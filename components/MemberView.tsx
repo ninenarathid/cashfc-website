@@ -435,9 +435,6 @@ export default function MemberView({
                 <ProgressBadge key={p.encounter_id} progress={p} size="md" />
               ))}
             </div>
-            <p className="mt-1.5 text-[12px] leading-relaxed text-muted">
-              {t("member.progressHint")}
-            </p>
           </>
         )}
 
@@ -560,8 +557,7 @@ export default function MemberView({
       {Object.keys(legacyGroups).length > 0 && (
         <section className="mt-6">
           <h2 className="mb-2 font-display text-lg font-semibold">
-            Previous savage tiers{" "}
-            <span className="text-[13px] font-normal text-muted">(all kept — expand to view)</span>
+            Previous savage tiers
           </h2>
           <div className="flex flex-col gap-2">
             {Object.entries(legacyGroups).map(([exp, zones]) => (

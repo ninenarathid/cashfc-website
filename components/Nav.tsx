@@ -20,19 +20,20 @@ const TABS: { href: string; label: Key; match?: (p: string) => boolean }[] = [
   // "/members".
   { href: "/members", label: "nav.members", match: (p) => p.startsWith("/member") },
   { href: "/leaderboards", label: "nav.leaderboards" },
+  { href: "/updates", label: "nav.updates" },
 ];
 
 // Shown only to whoever the gallery is open to, so the header never offers a
-// tab that answers with a 404. Marked as unfinished here and only here: the tab
-// is how most people will first walk into it, and it is the one place worth
-// saying so before they do.
-const GALLERY_TAB: (typeof TABS)[number] = { href: "/gallery", label: "nav.galleryWip" };
+// tab that answers with a 404.
+const GALLERY_TAB: (typeof TABS)[number] = { href: "/gallery", label: "nav.gallery" };
 // Signed in only: a feedback thread needs somebody to reply to, and there is
 // nothing on that page for a visitor who has not said who they are.
 const FEEDBACK_TAB: (typeof TABS)[number] = { href: "/feedback", label: "nav.feedback" };
-// Admins only while the guides are being written. A half-finished guide is worse
+// Marked unfinished on the tab, and only there: the tab is how most people will
+// first walk into the guides, and it is the one place worth saying so before
+// they do. Admins only while they are being written. A half-finished guide is worse
 // than none, because somebody will stand where it says.
-const GUIDES_TAB: (typeof TABS)[number] = { href: "/guides", label: "nav.guides" };
+const GUIDES_TAB: (typeof TABS)[number] = { href: "/guides", label: "nav.guidesWip" };
 
 export default function Nav() {
   const pathname = usePathname();

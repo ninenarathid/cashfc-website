@@ -46,10 +46,7 @@ export default function RareAchievements(
   return (
     <section className="mt-6">
       <h2 className="mb-2 font-display text-lg font-semibold">
-        Rarest achievements{" "}
-        <span className="text-[13px] font-normal text-muted">
-          ({items.length} shown, rarest first · the chip names the playstyle it counts toward)
-        </span>
+        Rarest achievements
       </h2>
       <div className="grid gap-2 sm:grid-cols-2">
         {shown.map((a, i) => (
