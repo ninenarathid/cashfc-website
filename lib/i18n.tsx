@@ -652,20 +652,28 @@ const DICT = {
     th: "ยังไม่ผูกตัวละคร",
   },
   "adm.rpPopoto": {
-    en: "Popoto given",
-    th: "popoto ที่ส่งออกไป",
+    en: "Popoto given, day by day",
+    th: "การส่ง popoto รายวัน",
   },
   "adm.rpPopotoNote": {
-    en: "what each person gave away — not what they were given",
-    th: "นับจำนวนที่แต่ละคนส่งให้คนอื่น ไม่ใช่ที่คนอื่นส่งให้",
+    en: "one day of giving is one entry, however many were given that day — and it counts what somebody gave, not what they were given",
+    th: "ส่งในหนึ่งวัน = 1 สิทธิ์ ไม่ว่าวันนั้นจะส่งกี่ครั้ง และนับจากที่ส่งให้คนอื่น ไม่ใช่ที่คนอื่นส่งให้",
   },
   "adm.rpPopotoParts": {
     en: "(given on profiles / given on pictures)",
     th: "(ส่งให้โปรไฟล์ / ส่งให้รูปภาพ)",
   },
   "adm.rpSummary": {
-    en: "{people} people gave {n} popoto between them",
-    th: "{people} คน ส่ง popoto รวม {n} ครั้ง",
+    en: "{entries} entries · {people} people · {n} popoto given",
+    th: "{entries} สิทธิ์ · {people} คน · ส่ง popoto รวม {n} ครั้ง",
+  },
+  "adm.rpDays": {
+    en: "{n} entries",
+    th: "{n} สิทธิ์",
+  },
+  "adm.drawHint": {
+    en: "Each day somebody gave is one entry, so turning up often improves the odds — but nobody can win twice.",
+    th: "ทุกวันที่ส่ง popoto = 1 สิทธิ์ ยิ่งเข้ามาส่งหลายวันยิ่งมีโอกาสมาก แต่คนหนึ่งจะถูกสุ่มได้ครั้งเดียว",
   },
   "adm.rpEmpty": {
     en: "Nobody gave one in these days.",
