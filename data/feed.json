@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-09-02",
+   "type": "parse_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "set a new best parse: 44 on Valigarmanda as Pictomancer"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "parse_up",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "set a new best parse: 85 on Valigarmanda as Machinist"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "parse_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "set a new best parse: 88 on Valigarmanda as Gunbreaker"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "parse_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "set a new best parse: 78 on Red Hot and Deep Blue as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "level_100",
+   "id": 29907674,
+   "name": "Ranjoe Tp'",
+   "text": "reached level 100 on Fisher!"
+  },
+  {
+   "date": "2026-09-02",
    "type": "level_100",
    "id": 7283668,
    "name": "Nowhere Man",
@@ -1329,76 +1399,6 @@
    "id": 31155521,
    "name": "Ketchup Love",
    "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "is now a Master Dragoon"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "level_100",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 30714243,
-   "name": "Moona Freed",
-   "text": "set a new best parse: 87 on Shadowkeeper as Warrior"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 30714243,
-   "name": "Moona Freed",
-   "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 30714243,
-   "name": "Moona Freed",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 17723972,
-   "name": "Naruga Vagrant",
-   "text": "is now a Expert White Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 30421228,
-   "name": "Natsuki Tri",
-   "text": "set a new best parse: 79 on Shadowkeeper as White Mage"
   }
  ]
 }

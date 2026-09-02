@@ -3401,11 +3401,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 80.23,
+    "pct": 69.62,
     "phase": 4,
-    "pulls": 75,
-    "last": "2026-08-31",
-    "last_ts": 1788194960
+    "pulls": 90,
+    "last": "2026-09-01",
+    "last_ts": 1788282006
    }
   ]
  },
@@ -4251,11 +4251,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.72,
+    "pct": 53.36,
     "phase": 4,
-    "pulls": 53,
-    "last": "2026-08-25",
-    "last_ts": 1787674176
+    "pulls": 68,
+    "last": "2026-09-02",
+    "last_ts": 1788367071
    }
   ]
  },
@@ -6754,11 +6754,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 80.23,
+    "pct": 69.62,
     "phase": 4,
-    "pulls": 75,
-    "last": "2026-08-31",
-    "last_ts": 1788194960
+    "pulls": 90,
+    "last": "2026-09-01",
+    "last_ts": 1788282006
    }
   ]
  },
@@ -7330,7 +7330,7 @@
     "expansion": "Dawntrail",
     "name": "Valigarmanda",
     "best": 96,
-    "kills": 53,
+    "kills": 56,
     "job": "Machinist",
     "cleared": true
    },
@@ -7401,7 +7401,7 @@
     ]
    }
   ],
-  "_status": "none"
+  "_status": "ok"
  },
  "22461237": {
   "current": {
@@ -10194,7 +10194,7 @@
     "expansion": "Dawntrail",
     "name": "Enuo",
     "best": 85,
-    "kills": 11,
+    "kills": 12,
     "job": "Samurai",
     "cleared": true
    },
@@ -10337,11 +10337,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 11.56,
+    "pct": 0.25,
     "phase": 2,
-    "pulls": 26,
-    "last": "2026-08-31",
-    "last_ts": 1788193942
+    "pulls": 47,
+    "last": "2026-09-01",
+    "last_ts": 1788282332
    }
   ]
  },
@@ -10924,11 +10924,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.72,
+    "pct": 53.36,
     "phase": 4,
-    "pulls": 53,
-    "last": "2026-08-25",
-    "last_ts": 1787674176
+    "pulls": 68,
+    "last": "2026-09-02",
+    "last_ts": 1788367071
    }
   ]
  },
@@ -11837,7 +11837,7 @@
      "name": "Vamp Fatale",
      "best": 81,
      "median": 47,
-     "kills": 22,
+     "kills": 23,
      "job": "Viper"
     },
     {
@@ -11846,7 +11846,7 @@
      "name": "Red Hot and Deep Blue",
      "best": 84,
      "median": 43,
-     "kills": 20,
+     "kills": 21,
      "job": "Viper"
     },
     {
@@ -12213,7 +12213,7 @@
      "name": "Vamp Fatale",
      "best": 99,
      "median": 88,
-     "kills": 10,
+     "kills": 11,
      "job": "Warrior"
     },
     {
@@ -12222,7 +12222,7 @@
      "name": "Red Hot and Deep Blue",
      "best": 99,
      "median": 96,
-     "kills": 13,
+     "kills": 14,
      "job": "Warrior"
     },
     {
@@ -12532,11 +12532,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.72,
+    "pct": 53.36,
     "phase": 4,
-    "pulls": 53,
-    "last": "2026-08-25",
-    "last_ts": 1787674176
+    "pulls": 32,
+    "last": "2026-09-02",
+    "last_ts": 1788367071
    }
   ]
  },
@@ -12913,11 +12913,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 4.83,
+    "pct": 0.25,
     "phase": 2,
-    "pulls": 142,
-    "last": "2026-08-31",
-    "last_ts": 1788193942
+    "pulls": 163,
+    "last": "2026-09-01",
+    "last_ts": 1788282332
    }
   ]
  },
@@ -13747,11 +13747,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.72,
+    "pct": 53.36,
     "phase": 4,
-    "pulls": 54,
-    "last": "2026-08-25",
-    "last_ts": 1787674176
+    "pulls": 69,
+    "last": "2026-09-02",
+    "last_ts": 1788367071
    }
   ]
  },
@@ -16257,8 +16257,8 @@
      "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 55,
-     "median": 26,
-     "kills": 7,
+     "median": 33,
+     "kills": 8,
      "job": "Warrior"
     },
     {
@@ -16266,8 +16266,8 @@
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 33,
-     "median": 18,
-     "kills": 8,
+     "median": 19,
+     "kills": 9,
      "job": "Warrior"
     },
     {
@@ -16350,6 +16350,16 @@
     "kills": 2,
     "job": "Gunbreaker",
     "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 47,
+    "kills": 1,
+    "job": "Viper",
+    "cleared": true
    }
   ],
   "legacy": [
@@ -16406,31 +16416,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 23,
-    "last": "2026-08-31",
-    "last_ts": 1788193062
-   },
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 18,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
-   }
-  ]
+  "_status": "ok"
  },
  "30714243": {
   "current": {
@@ -17003,11 +16989,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.72,
+    "pct": 53.36,
     "phase": 4,
-    "pulls": 52,
-    "last": "2026-08-25",
-    "last_ts": 1787674176
+    "pulls": 67,
+    "last": "2026-09-02",
+    "last_ts": 1788367071
    }
   ]
  },
@@ -17726,11 +17712,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.72,
+    "pct": 53.36,
     "phase": 4,
-    "pulls": 54,
-    "last": "2026-08-25",
-    "last_ts": 1787674176
+    "pulls": 69,
+    "last": "2026-09-02",
+    "last_ts": 1788367071
    }
   ]
  },
@@ -23784,9 +23770,9 @@
      "label": "M9S",
      "encounter_id": 101,
      "name": "Vamp Fatale",
-     "best": 82,
-     "median": 47,
-     "kills": 7,
+     "best": 83,
+     "median": 49,
+     "kills": 8,
      "job": "Samurai"
     },
     {
@@ -23794,8 +23780,8 @@
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 95,
-     "median": 69,
-     "kills": 8,
+     "median": 67,
+     "kills": 9,
      "job": "Samurai"
     }
    ],
@@ -23870,9 +23856,9 @@
     "state": "learning",
     "pct": 18.72,
     "phase": 0,
-    "pulls": 11,
-    "last": "2026-08-30",
-    "last_ts": 1788101975
+    "pulls": 17,
+    "last": "2026-09-01",
+    "last_ts": 1788274468
    }
   ]
  },
@@ -24446,11 +24432,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.97,
+    "pct": 27.94,
     "phase": 4,
-    "pulls": 109,
-    "last": "2026-08-31",
-    "last_ts": 1788193735
+    "pulls": 96,
+    "last": "2026-09-02",
+    "last_ts": 1788367199
    }
   ]
  },
@@ -27993,17 +27979,17 @@
      "name": "Vamp Fatale",
      "best": 43,
      "median": 22,
-     "kills": 7,
+     "kills": 8,
      "job": "Paladin"
     },
     {
      "label": "M10S",
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
-     "best": 16,
-     "median": 11,
-     "kills": 3,
-     "job": "Paladin"
+     "best": 19,
+     "median": 16,
+     "kills": 4,
+     "job": "Gunbreaker"
     }
    ],
    "clears": [
@@ -28071,8 +28057,8 @@
     "zone_id": 58,
     "expansion": "Dawntrail",
     "name": "Valigarmanda",
-    "best": 21,
-    "kills": 4,
+    "best": 88,
+    "kills": 12,
     "job": "Gunbreaker",
     "cleared": true
    },
@@ -28088,20 +28074,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 56,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
-   }
-  ]
+  "_status": "ok"
  },
  "42053180": {
   "current": {
@@ -28745,17 +28718,17 @@
      "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 58,
-     "median": 24,
-     "kills": 8,
+     "median": 29,
+     "kills": 9,
      "job": "WhiteMage"
     },
     {
      "label": "M10S",
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
-     "best": 72,
-     "median": 37,
-     "kills": 8,
+     "best": 78,
+     "median": 38,
+     "kills": 9,
      "job": "WhiteMage"
     },
     {
@@ -28833,38 +28806,14 @@
     "zone_id": 58,
     "expansion": "Dawntrail",
     "name": "Valigarmanda",
-    "best": 37,
-    "kills": 5,
-    "job": "WhiteMage",
+    "best": 40,
+    "kills": 6,
+    "job": "Scholar",
     "cleared": true
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 19,
-    "last": "2026-08-30",
-    "last_ts": 1788104937
-   },
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 56,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
-   }
-  ]
+  "_status": "ok"
  },
  "43037186": {
   "current": {
@@ -30462,7 +30411,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 37,
+    "pulls": 30,
     "last": "2026-08-25",
     "last_ts": 1787675183
    }
@@ -31474,8 +31423,8 @@
      "encounter_id": 101,
      "name": "Vamp Fatale",
      "best": 61,
-     "median": 26,
-     "kills": 7,
+     "median": 24,
+     "kills": 8,
      "job": "Machinist"
     },
     {
@@ -31483,8 +31432,8 @@
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
      "best": 80,
-     "median": 19,
-     "kills": 7,
+     "median": 35,
+     "kills": 8,
      "job": "Machinist"
     }
    ],
@@ -31517,32 +31466,31 @@
     "kills": 1,
     "job": "Machinist",
     "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 85,
+    "kills": 7,
+    "job": "Machinist",
+    "cleared": true
    }
   ],
   "legacy": [],
   "_status": "ok",
   "progress": [
    {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 56,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
-   },
-   {
     "encounter_id": 103,
     "name": "The Tyrant",
     "kind": "savage",
     "state": "learning",
-    "pct": 18.72,
+    "pct": 33.31,
     "phase": 0,
-    "pulls": 11,
-    "last": "2026-08-30",
-    "last_ts": 1788101975
+    "pulls": 6,
+    "last": "2026-09-01",
+    "last_ts": 1788274468
    }
   ]
  },
@@ -32314,9 +32262,20 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 44,
+    "kills": 7,
+    "job": "Pictomancer",
+    "cleared": true
+   }
+  ],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "58199756": {
   "current": {
@@ -32465,6 +32424,16 @@
     "name": "Guardian Arkveld",
     "best": 9,
     "kills": 19,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 9,
+    "kills": 5,
     "job": "Astrologian",
     "cleared": true
    }

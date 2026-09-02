@@ -402,7 +402,7 @@
  },
  "58199536": {
   "name": "Areeya Lovekin",
-  "parse": null,
+  "parse": 44,
   "ult": 0,
   "mounts": 70,
   "minions": 196,
@@ -521,7 +521,9 @@
    "relic": "legendary"
   },
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
   "chg": "2026-09-02"
  },
@@ -1832,7 +1834,7 @@
  },
  "50821570": {
   "name": "Haruki Mizumoto",
-  "parse": 80,
+  "parse": 85,
   "ult": 0,
   "mounts": 18,
   "minions": 98,
@@ -1852,14 +1854,15 @@
   },
   "ex": [
    "Doomtrain",
-   "Enuo"
+   "Enuo",
+   "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-02"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
-  "parse": 64,
+  "parse": 88,
   "ult": 0,
   "mounts": 97,
   "minions": 208,
@@ -1967,7 +1970,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-02"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -3481,6 +3484,7 @@
    "Enuo",
    "Necron",
    "Queen Eternal",
+   "Valigarmanda",
    "Zelenia"
   ],
   "ults": [
@@ -4102,7 +4106,8 @@
   "ex": [
    "Doomtrain",
    "Enuo",
-   "Guardian Arkveld"
+   "Guardian Arkveld",
+   "Valigarmanda"
   ],
   "ults": [],
   "chg": "2026-08-30"
@@ -4283,7 +4288,7 @@
  },
  "42976317": {
   "name": "Zeadz Stellar",
-  "parse": 72,
+  "parse": 78,
   "ult": 0,
   "mounts": 50,
   "minions": 124,
@@ -5906,7 +5911,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 53,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6413,7 +6418,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 31,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
