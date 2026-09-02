@@ -651,10 +651,6 @@ const DICT = {
     en: "Nobody matches this filter.",
     th: "ไม่มีใครตรงกับตัวกรองนี้",
   },
-  "adm.claimDrawHint": {
-    en: "One entry per person, from whoever the filter leaves — a claim is a claim, so nobody holds more chances than anybody else.",
-    th: "คนละ 1 สิทธิ์ จากคนที่เหลือหลังกรอง — อ้างสิทธิ์แล้วคือแล้ว ทุกคนจึงมีโอกาสเท่ากัน",
-  },
   "adm.guessed": {
     en: "Guessed from the avatar's host — run migration_v21.sql to record it properly",
     th: "เดาจากที่อยู่ของรูปโปรไฟล์ — รัน migration_v21.sql เพื่อบันทึกค่าจริง",
@@ -708,8 +704,8 @@ const DICT = {
     th: "{n} สิทธิ์",
   },
   "adm.drawHint": {
-    en: "Each day somebody gave is one entry, so turning up often improves the odds — but nobody can win twice.",
-    th: "ทุกวันที่ส่ง popoto = 1 สิทธิ์ ยิ่งเข้ามาส่งหลายวันยิ่งมีโอกาสมาก แต่คนหนึ่งจะถูกสุ่มได้ครั้งเดียว",
+    en: "Each day somebody gave is one entry, and nobody can win twice.",
+    th: "ทุกวันที่ส่ง popoto = 1 สิทธิ์ และคนหนึ่งจะถูกสุ่มได้ครั้งเดียว",
   },
   "adm.rpEmpty": {
     en: "Nobody gave one in these days.",

@@ -313,7 +313,6 @@ export default function AdminClaims(
             {t("adm.drawClear")}
           </button>
         )}
-        <span className="w-full text-[11.5px] text-muted">{t("adm.claimDrawHint")}</span>
       </div>
 
       {drawn && (
