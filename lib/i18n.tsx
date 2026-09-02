@@ -623,6 +623,26 @@ const DICT = {
     en: "Guessed from the avatar's host — run migration_v21.sql to record it properly",
     th: "เดาจากที่อยู่ของรูปโปรไฟล์ — รัน migration_v21.sql เพื่อบันทึกค่าจริง",
   },
+  "kudos.signIn": {
+    en: "Log in with Discord first",
+    th: "เข้าสู่ระบบด้วย Discord ก่อน",
+  },
+  "kudos.needCharacter": {
+    en: "Link your character first — go to your profile and claim the one you play.",
+    th: "ผูกตัวละครก่อน — ไปที่หน้าโปรไฟล์แล้วเลือกตัวละครที่คุณเล่น",
+  },
+  "kudos.already": {
+    en: "Already sent to this member today — come back tomorrow",
+    th: "ส่งให้คนนี้ไปแล้ววันนี้ — พรุ่งนี้มาใหม่",
+  },
+  "kudos.failed": {
+    en: "Could not send, try again",
+    th: "ส่งไม่สำเร็จ ลองใหม่อีกครั้ง",
+  },
+  "kudos.sent": {
+    en: "Popoto sent 🥔",
+    th: "ส่ง popoto แล้ว 🥔",
+  },
   "adm.reports": {
     en: "Reports",
     th: "รายงาน",

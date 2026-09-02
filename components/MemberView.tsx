@@ -67,6 +67,8 @@ export default function MemberView({
   const [isOwner, setIsOwner] = useState(false);
   const [kudos, setKudos] = useState<number | null>(null);
   const [kudosMsg, setKudosMsg] = useState("");
+  /** Whether the reader has claimed a character, which giving a popoto needs. */
+  const [iHaveCharacter, setIHaveCharacter] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -117,13 +119,23 @@ export default function MemberView({
         const { data: me } = await supabase.from("profiles")
           .select("character_id").eq("id", data.user.id).single();
         setIsOwner(me?.character_id === m.id);
+        setIHaveCharacter(me?.character_id != null);
       }
     });
   }, [supabase, m.id]);
 
   async function sendKudos() {
     if (!supabase || !user) {
-      setKudosMsg("Log in with Discord first");
+      setKudosMsg(t("kudos.signIn"));
+      return;
+    }
+    // Claim a character first. A potato is the FC saying something about
+    // somebody, and a login with a name nobody can place is not the FC saying
+    // it — the database refuses this too, so the message is here to explain
+    // rather than to enforce.
+    if (!iHaveCharacter) {
+      setKudosMsg(t("kudos.needCharacter"));
+      setTimeout(() => setKudosMsg(""), 5000);
       return;
     }
     const { error } = await supabase.from("kudos")
@@ -133,7 +145,7 @@ export default function MemberView({
         ? "Already sent to this member today — come back tomorrow" : "Could not send, try again");
     } else {
       setKudos((k) => (k ?? 0) + 1);
-      setKudosMsg("Popoto sent 🥔");
+      setKudosMsg(t("kudos.sent"));
     }
     setTimeout(() => setKudosMsg(""), 3000);
   }

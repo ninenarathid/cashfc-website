@@ -52,6 +52,7 @@ export default function PostDetail(
   const [comments, setComments] = useState<GalleryComment[]>([]);
   const [draft, setDraft] = useState("");
   const [me, setMe] = useState<string | null>(null);
+  const [iHaveCharacter, setIHaveCharacter] = useState(false);
   const { isAdmin } = useAdmin();
   // Only a verified character counts here: confirming a tag is a statement that
   // you are that person, so an unproven claim to the name cannot make it.
@@ -97,6 +98,12 @@ export default function PostDetail(
     ]);
     const uid = user.user?.id ?? null;
     setMe(uid);
+    if (uid) {
+      const { data: mine } = await supabase.from("profiles")
+        .select("character_id").eq("id", uid).maybeSingle();
+      setIHaveCharacter((mine as { character_id?: number | null } | null)
+        ?.character_id != null);
+    }
 
     const { data: imgs } = await supabase.from("gallery_images")
       .select("id, post_id, url, width, height, position")
@@ -203,6 +210,10 @@ export default function PostDetail(
 
   async function toggleLike() {
     if (!supabase || !me || busy) return;
+    // Same rule as a popoto on a profile: claim a character first. Taking one
+    // back is always allowed — somebody who gave one before the rule existed
+    // should still be able to change their mind.
+    if (!liked && !iHaveCharacter) return;
     setBusy(true);
     // Moved before the request so the button answers immediately; a failure puts
     // it back rather than leaving a number nobody can trust.
@@ -433,8 +444,12 @@ export default function PostDetail(
                   onReload={loadTags} onChanged={onChanged} />
 
         <div className="flex flex-wrap gap-2">
-          <button onClick={toggleLike} disabled={!me || busy}
-                  title={me ? undefined : t("gallery.signInToReact")}
+          {/* Disabled rather than hidden, with the reason on hover: a button
+              that vanishes leaves somebody wondering what they did wrong. */}
+          <button onClick={toggleLike}
+                  disabled={!me || busy || (!liked && !iHaveCharacter)}
+                  title={!me ? t("gallery.signInToReact")
+                    : !liked && !iHaveCharacter ? t("kudos.needCharacter") : undefined}
                   className={`rounded-lg border px-3.5 py-1.5 text-[13px] transition-colors disabled:opacity-50 ${
                     liked ? "border-accent bg-accent/15 text-accent"
                           : "border-line text-muted hover:border-accent hover:text-accent"}`}>
