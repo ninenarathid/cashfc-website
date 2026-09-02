@@ -159,7 +159,13 @@ async function claimRows(supabase: NonNullable<ReturnType<typeof createClient>>)
   return ((rows ?? []) as unknown as ClaimedProfile[]);
 }
 
-export default function AdminPanel({ memberOptions }: { memberOptions: Option[] }) {
+export default function AdminPanel(
+  { memberOptions, portraits }: {
+    memberOptions: Option[];
+    /** Lodestone portrait per character, for anybody with no chosen picture. */
+    portraits: Record<number, string>;
+  },
+) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const [phase, setPhase] = useState<"loading" | "denied" | "ready">("loading");
@@ -891,7 +897,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           with something to change. */}
       {/* Before the log, because a report answers a question somebody arrived
           with and the log is where they go when the answer surprises them. */}
-      <AdminReports />
+      <AdminReports portraits={portraits} />
 
       <AdminLog nameOf={nameOf} />
     </main>

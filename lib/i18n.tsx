@@ -631,10 +631,6 @@ const DICT = {
     en: "Who sent popoto",
     th: "ใครส่ง popoto บ้าง",
   },
-  "adm.rpPopotoHint": {
-    en: "Everybody who gave a popoto in the chosen days, once each, with how many they gave.",
-    th: "ทุกคนที่ให้ popoto ในช่วงวันที่เลือก คนละหนึ่งบรรทัด พร้อมจำนวนที่ให้",
-  },
   "adm.rpPopotoParts": {
     en: "(on profiles / on pictures)",
     th: "(ที่โปรไฟล์ / ที่รูปภาพ)",

@@ -35,7 +35,6 @@ interface Row {
 interface Report {
   key: string;
   title: Key;
-  hint: Key;
   /** What the bracketed numbers are, in order. */
   partsLabel: Key;
   load: (
@@ -52,7 +51,6 @@ const REPORTS: Report[] = [
   {
     key: "popoto-sent",
     title: "adm.rpPopoto",
-    hint: "adm.rpPopotoHint",
     partsLabel: "adm.rpPopotoParts",
     // Both tables at once, kept apart in the answer: a potato on a profile and
     // a potato on a picture are the same gesture aimed at different things, and
@@ -101,8 +99,19 @@ const SPANS: { label: Key; from: () => string }[] = [
   { label: "adm.span30", from: () => daysAgo(29) },
 ];
 
-function Person({ row, place }: { row: Row; place?: number }) {
-  const face = useAvatar(row.characterId ?? -1, row.avatar);
+function Person(
+  { row, place, portraits }: {
+    row: Row; place?: number; portraits: Record<number, string>;
+  },
+) {
+  // What they chose, then the picture the game has of their character, then
+  // nothing. A grey disc is the answer for somebody with no character claimed;
+  // for everybody else the game already has a portrait and there is no reason
+  // to show a hole instead.
+  const fallback = row.characterId != null
+    ? row.avatar ?? portraits[row.characterId] ?? null
+    : row.avatar;
+  const face = useAvatar(row.characterId ?? -1, fallback);
   const name = row.characterId != null ? (
     <Link href={`/member/${row.characterId}`}
           className="truncate font-data text-ink no-underline hover:text-accent">
@@ -128,7 +137,9 @@ function Person({ row, place }: { row: Row; place?: number }) {
   );
 }
 
-export default function AdminReports() {
+export default function AdminReports(
+  { portraits }: { portraits: Record<number, string> },
+) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const [which, setWhich] = useState(REPORTS[0].key);
@@ -202,7 +213,6 @@ export default function AdminReports() {
   return (
     <section className="mt-3 rounded-xl border border-line bg-surface p-4">
       <div className="font-display font-semibold">{t("adm.reports")}</div>
-      <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{t(report.hint)}</p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {REPORTS.length > 1 && (
@@ -254,7 +264,7 @@ export default function AdminReports() {
           {drawn.map((r, i) => (
             <li key={r.id}
                 className="grid grid-cols-[20px_32px_1fr_auto] items-center gap-2 text-[13.5px]">
-              <Person row={r} place={i + 1} />
+              <Person row={r} place={i + 1} portraits={portraits} />
               <span className="font-data text-[12px] text-muted">🥔 {r.total}</span>
             </li>
           ))}
@@ -277,9 +287,12 @@ export default function AdminReports() {
               {rows.map((r, i) => (
                 <li key={r.id}
                     className="grid grid-cols-[20px_32px_1fr_auto] items-center gap-2 border-b border-line/40 py-1 text-[13.5px] last:border-0">
-                  <Person row={r} place={i + 1} />
+                  <Person row={r} place={i + 1} portraits={portraits} />
+                  {/* The potato in front of the number, the same way the
+                      leaderboards and the profile button carry it, so a total
+                      here is recognisable as the same thing counted. */}
                   <span className="font-data text-[12.5px] text-ink">
-                    {r.total}
+                    🥔 {r.total}
                     <span className="ml-1 text-[11.5px] text-muted">
                       ({r.parts.join("/")})
                     </span>
