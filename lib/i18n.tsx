@@ -619,6 +619,22 @@ const DICT = {
     en: "Nobody has claimed a character yet",
     th: "ยังไม่มีใครอ้างสิทธิ์ตัวละคร",
   },
+  "adm.claimShown": {
+    en: "Showing {n} of {all} claimed characters.",
+    th: "แสดง {n} จาก {all} ตัวละครที่อ้างสิทธิ์แล้ว",
+  },
+  "adm.claimSearch": {
+    en: "Search a character or login…",
+    th: "ค้นหาชื่อตัวละครหรือบัญชี…",
+  },
+  "adm.claimNoMatch": {
+    en: "Nobody matches this filter.",
+    th: "ไม่มีใครตรงกับตัวกรองนี้",
+  },
+  "adm.claimDrawHint": {
+    en: "One entry per person, from whoever the filter leaves — a claim is a claim, so nobody holds more chances than anybody else.",
+    th: "คนละ 1 สิทธิ์ จากคนที่เหลือหลังกรอง — อ้างสิทธิ์แล้วคือแล้ว ทุกคนจึงมีโอกาสเท่ากัน",
+  },
   "adm.guessed": {
     en: "Guessed from the avatar's host — run migration_v21.sql to record it properly",
     th: "เดาจากที่อยู่ของรูปโปรไฟล์ — รัน migration_v21.sql เพื่อบันทึกค่าจริง",
@@ -644,8 +660,8 @@ const DICT = {
     th: "ส่ง popoto แล้ว 🥔",
   },
   "adm.reports": {
-    en: "Reports",
-    th: "รายงาน",
+    en: "Popoto given",
+    th: "การส่ง popoto",
   },
   "adm.noCharacter": {
     en: "no character",

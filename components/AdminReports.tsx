@@ -253,10 +253,10 @@ export default function AdminReports(
 
   const box = "rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink";
 
+  // Bare: the tab it lives in supplies the card and the heading.
   return (
-    <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-      <div className="font-display font-semibold">{t("adm.reports")}</div>
-      <p className="mt-0.5 text-[13px] text-ink/85">
+    <>
+      <p className="text-[13px] text-ink/85">
         {t(report.title)}
         <span className="ml-2 text-[12px] text-muted">{t(report.note)}</span>
       </p>
@@ -361,6 +361,6 @@ export default function AdminReports(
           </>
         )}
       </div>
-    </section>
+    </>
   );
 }
