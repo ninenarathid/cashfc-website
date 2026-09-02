@@ -48,7 +48,7 @@ export default function ImagePicker(
     setBusy(false);
     if (error) {
       setErr(error.message.includes("Bucket not found")
-        ? "Storage is not set up yet — run supabase/migration_v5.sql"
+        ? "Storage is not set up yet — the gallery bucket is missing"
         : `Upload failed: ${error.message}`);
       return;
     }

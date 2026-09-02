@@ -338,7 +338,7 @@ export default function AdminPanel(
                 { key: "discord_server_id", value: serverId.trim() || null, updated_at: now },
                 { key: "discord_invite_url", value: invite.trim() || null, updated_at: now },
               ]);
-              flash(error ? "Save failed (has migration_v2.sql been run?)" : t("adm.saved"));
+              flash(error ? t("adm.saveFailed", { why: error.message }) : t("adm.saved"));
             }}
             className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-accent hover:bg-accent/25">
             {t("adm.save")}
@@ -431,9 +431,7 @@ export default function AdminPanel(
                       created_by: (await supabase!.auth.getUser()).data.user?.id,
                     });
                 if (error) {
-                  flash(error.message.includes("site_updates")
-                    ? "Save failed — has migration_v23.sql been run?"
-                    : `Save failed: ${error.message}`);
+                  flash(t("adm.saveFailed", { why: error.message }));
                   return;
                 }
                 resetUpdate();
@@ -529,7 +527,7 @@ export default function AdminPanel(
                       ...fields,
                       created_by: (await supabase!.auth.getUser()).data.user?.id,
                     });
-                if (error) { flash(`Save failed: ${error.message}`); return; }
+                if (error) { flash(t("adm.saveFailed", { why: error.message })); return; }
                 setATitle(""); setABody(""); setAImage(null); setAEditing(null);
                 await refresh();
                 flash(aEditing !== null ? t("adm.annUpdated") : t("adm.annPosted"));
@@ -632,7 +630,7 @@ export default function AdminPanel(
                       ...fields,
                       created_by: (await supabase!.auth.getUser()).data.user?.id,
                     });
-                if (error) { flash(`Save failed: ${error.message}`); return; }
+                if (error) { flash(t("adm.saveFailed", { why: error.message })); return; }
                 setPTitle(""); setPBody(""); setPUrl(""); setPImage(null); setPEditing(null);
                 await refresh();
                 flash(pEditing !== null ? t("adm.postUpdated") : t("adm.posted"));

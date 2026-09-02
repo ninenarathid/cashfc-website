@@ -375,6 +375,10 @@ const DICT = {
     en: "Save",
     th: "บันทึก",
   },
+  "adm.saveFailed": {
+    en: "Save failed: {why}",
+    th: "บันทึกไม่สำเร็จ: {why}",
+  },
   "adm.saved": {
     en: "Saved",
     th: "บันทึกแล้ว",
