@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { NewsItem } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
+import { fmtDate, fromDay } from "@/lib/dates";
 
 interface Item {
   kind: "official" | "fc";
@@ -15,7 +16,7 @@ interface Item {
 }
 
 export default function Timeline({ news }: { news: NewsItem[] }) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const [items, setItems] = useState<Item[]>(
     news.map((n) => ({ kind: "official", title: n.title, url: n.url,
                        date: n.date ?? "" })));
@@ -61,9 +62,7 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
             />
             <div className="text-[11.5px] font-medium text-muted">
               {it.date &&
-                new Date(it.date + "T00:00:00").toLocaleDateString(
-                  lang === "th" ? "th-TH" : "en-GB",
-                  { day: "numeric", month: "short", year: "numeric" })}
+                fmtDate(fromDay(it.date))}
               {it.kind === "fc" && (
                 <span className="ml-2 text-jade">{t("home.postedByFc")}</span>
               )}

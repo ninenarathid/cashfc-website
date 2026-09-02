@@ -16,6 +16,7 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useAdmin } from "@/lib/admin";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
+import { fmtDate } from "@/lib/dates";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
 
@@ -44,7 +45,7 @@ export default function PostDetail(
     compact?: boolean;
   },
 ) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const chosen = useAvatarOverrides();
   const [supabase] = useState(createClient);
   const [likes, setLikes] = useState<number | null>(null);
@@ -288,9 +289,7 @@ export default function PostDetail(
     onChanged?.();
   }
 
-  const when = new Date(post.created_at).toLocaleDateString(
-    lang === "th" ? "th-TH" : "en-GB",
-    { day: "numeric", month: "short", year: "numeric" });
+  const when = fmtDate(post.created_at);
 
   return (
     <div className="flex flex-col gap-4">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
 import { postPath } from "@/lib/gallery";
+import { fmtDateTime } from "@/lib/dates";
 
 interface Note {
   id: number;
@@ -57,7 +58,7 @@ const POLL_MS = 90_000;
  * to also click "mark as read" is asking them to do the same thing twice.
  */
 export default function NotificationBell() {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const [supabase] = useState(createClient);
   const [me, setMe] = useState<string | null>(null);
   const [character, setCharacter] = useState<number | null>(null);
@@ -159,9 +160,7 @@ export default function NotificationBell() {
 
   if (!supabase || !me) return null;
 
-  const when = (iso: string) => new Date(iso).toLocaleDateString(
-    lang === "th" ? "th-TH" : "en-GB",
-    { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  const when = (iso: string) => fmtDateTime(iso);
 
   return (
     <div ref={box} className="relative">

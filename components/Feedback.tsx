@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { useAdmin } from "@/lib/admin";
+import { fmtDateTime } from "@/lib/dates";
 
 interface Thread {
   id: number;
@@ -43,7 +44,7 @@ interface Message {
  * who reads it later.
  */
 export default function Feedback() {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const [supabase] = useState(createClient);
   const { isAdmin } = useAdmin();
   const [me, setMe] = useState<string | null>(null);
@@ -153,9 +154,7 @@ export default function Feedback() {
   }
 
   const current = threads.find((x) => x.id === openId) ?? null;
-  const when = (iso: string) => new Date(iso).toLocaleString(
-    lang === "th" ? "th-TH" : "en-GB",
-    { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  const when = (iso: string) => fmtDateTime(iso);
 
   /** Unanswered from where you are sitting: something arrived after you last looked. */
   const unread = (x: Thread) => {

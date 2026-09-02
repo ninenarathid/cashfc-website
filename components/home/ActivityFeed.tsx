@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { FeedEvent } from "@/lib/types";
 import { useLang } from "@/lib/i18n";
+import { fmtShort, fromDay } from "@/lib/dates";
 
 const FEED_ICON: Record<string, string> = {
   parse_up: "📈", boss_clear: "⚔️", ex_clear: "🌪️", ult_clear: "🏆",
@@ -19,8 +20,7 @@ const FEED_ICON: Record<string, string> = {
  * would leave a half-English line either way.
  */
 export default function ActivityFeed({ feed }: { feed: FeedEvent[] }) {
-  const { t, lang } = useLang();
-  const locale = lang === "th" ? "th-TH" : "en-GB";
+  const { t } = useLang();
   return (
     <section>
       <h2 className="mb-2 font-display text-lg font-semibold">{t("home.activity")}</h2>
@@ -40,8 +40,7 @@ export default function ActivityFeed({ feed }: { feed: FeedEvent[] }) {
                 </Link>{" "}
                 <span className="text-muted">{e.text}</span>
                 <span className="ml-2 text-[11px] text-muted/70">
-                  {new Date(e.date + "T00:00:00").toLocaleDateString(locale,
-                    { day: "numeric", month: "short" })}
+                  {fmtShort(fromDay(e.date))}
                 </span>
               </div>
             </div>

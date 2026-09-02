@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
 import { postPath } from "@/lib/gallery";
+import { fmtExact } from "@/lib/dates";
 
 interface Line {
   id: number;
@@ -318,9 +319,7 @@ export default function AdminLog(
   }, [fetchPage]);
 
   const when = (iso: string) =>
-    new Date(iso).toLocaleString("en-GB",
-      { day: "2-digit", month: "short", year: "numeric",
-        hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    fmtExact(iso);
 
   return (
     <section className="mt-5 rounded-xl border border-line bg-surface p-4">

@@ -3,6 +3,7 @@
 import type { ProgressRow } from "@/lib/types";
 import { ultimateAbbr } from "@/lib/types";
 import { useLang } from "@/lib/i18n";
+import { fmtDateTime, fmtShort, fromDay } from "@/lib/dates";
 
 /**
  * What somebody is raiding right now, read from their own recent logs.
@@ -32,18 +33,15 @@ export default function ProgressBadge(
   const pad = size === "md" ? "px-3 py-1 text-[12.5px]" : "px-2.5 py-[3px] text-[11.5px]";
   const cleared = p.state === "cleared";
 
-  const locale = lang === "th" ? "th-TH" : "en-GB";
   const when = p.last
-    ? new Date(`${p.last}T00:00:00`).toLocaleDateString(
-        locale, { day: "numeric", month: "short" })
+    ? fmtShort(fromDay(p.last))
     : null;
 
   // A clear happened at a time, and saying so is most of what makes it news
   // rather than a record. Falls back to the day for rows written before the
   // pipeline kept the minute.
   const stamp = cleared && p.last_ts
-    ? new Date(p.last_ts * 1000).toLocaleString(
-        locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+    ? fmtDateTime(p.last_ts * 1000)
     : cleared ? when : null;
 
   const detail = cleared

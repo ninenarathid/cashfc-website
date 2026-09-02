@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { CHANGELOG, type Change, type ChangeKind, type Release } from "@/lib/changelog";
+import { fmtDate } from "@/lib/dates";
 
 /**
  * What changed on the site, day by day.
@@ -91,8 +92,7 @@ export default function Changelog({ limit }: { limit?: number }) {
     const days = Math.round((midnight.getTime() - on.getTime()) / 86_400_000);
     if (days === 0) return t("log.today");
     if (days === 1) return t("log.yesterday");
-    return on.toLocaleDateString(lang === "th" ? "th-TH" : "en-GB",
-      { day: "numeric", month: "short", year: "numeric" });
+    return fmtDate(on);
   };
 
   return (

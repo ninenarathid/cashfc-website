@@ -6,6 +6,7 @@ import type { Member } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
+import { fmtShort } from "@/lib/dates";
 
 /**
  * Whose birthday it is, and whose it is about to be.
@@ -53,7 +54,7 @@ function until(month: number, day: number, from: Date): { inDays: number; on: Da
 }
 
 export default function Birthdays({ members }: { members: Member[] }) {
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const [days, setDays] = useState<Day[]>([]);
   // Today, as the reader's browser reckons it. Deliberately not read during
   // render: this page is prerendered, so a date taken there is the date of the
@@ -95,8 +96,7 @@ export default function Birthdays({ members }: { members: Member[] }) {
 
   const today = days.filter((d) => d.inDays === 0);
   const soon = days.filter((d) => d.inDays > 0);
-  const when = (d: Day) => d.on.toLocaleDateString(lang === "th" ? "th-TH" : "en-GB",
-    { day: "numeric", month: "short" });
+  const when = (d: Day) => fmtShort(d.on);
 
   const Name = ({ d }: { d: Day }) => (
     <Link href={`/member/${d.id}`} className="text-ink no-underline hover:text-gold">

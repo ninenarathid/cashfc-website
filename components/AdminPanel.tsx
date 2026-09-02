@@ -135,6 +135,7 @@ import { useAdmin } from "@/lib/admin";
 import { useLang } from "@/lib/i18n";
 import AdminLog from "@/components/AdminLog";
 import AdminReports from "@/components/AdminReports";
+import { fmtDate, fmtDateTime } from "@/lib/dates";
 
 /**
  * The claimed characters, on a database that may or may not have had v21 run.
@@ -563,10 +564,7 @@ export default function AdminPanel(
                   {/* The date the notification quoted, so an admin holding one
                       can tell which announcement it was about. */}
                   <span className="font-data text-[11px] text-muted">
-                    {new Date(a.created_at).toLocaleString("en-GB", {
-                      day: "numeric", month: "short", year: "numeric",
-                      hour: "2-digit", minute: "2-digit",
-                    })}
+                    {fmtDateTime(a.created_at)}
                   </span>
                 </div>
                 {a.body && <Body text={a.body} id={`a:${a.id}`} open={open} toggle={toggle} />}
@@ -864,8 +862,7 @@ export default function AdminPanel(
                       </td>
                       <td className="py-1.5 pr-3 font-data text-[11.5px] text-muted">
                         {c.character_verified_at
-                          ? new Date(c.character_verified_at).toLocaleDateString("en-GB",
-                              { day: "numeric", month: "short", year: "numeric" })
+                          ? fmtDate(c.character_verified_at)
                           : <span className="opacity-60">{t("adm.unverified")}</span>}
                       </td>
                       <td className="py-1.5 text-right">
