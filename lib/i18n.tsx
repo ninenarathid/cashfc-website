@@ -627,6 +627,10 @@ const DICT = {
     en: "Reports",
     th: "รายงาน",
   },
+  "adm.noCharacter": {
+    en: "no character",
+    th: "ยังไม่ผูกตัวละคร",
+  },
   "adm.rpPopoto": {
     en: "Who sent popoto",
     th: "ใครส่ง popoto บ้าง",

@@ -30,6 +30,8 @@ interface Row {
   avatar: string | null;
   total: number;
   parts: number[];
+  /** Signed in but has never claimed a character. */
+  unclaimed?: boolean;
 }
 
 interface Report {
@@ -104,6 +106,7 @@ function Person(
     row: Row; place?: number; portraits: Record<number, string>;
   },
 ) {
+  const { t } = useLang();
   // What they chose, then the picture the game has of their character, then
   // nothing. A grey disc is the answer for somebody with no character claimed;
   // for everybody else the game already has a portrait and there is no reason
@@ -118,7 +121,12 @@ function Person(
       {row.name}
     </Link>
   ) : (
-    <span className="truncate font-data text-ink">{row.name}</span>
+    <span className="flex min-w-0 items-baseline gap-1.5">
+      <span className="truncate font-data text-ink/80">{row.name}</span>
+      <span className="shrink-0 whitespace-nowrap rounded-full border border-dashed border-line px-1.5 text-[10.5px] text-muted">
+        {t("adm.noCharacter")}
+      </span>
+    </span>
   );
   return (
     <>
@@ -167,16 +175,28 @@ export default function AdminReports(
       display_name: string | null; discord_username: string | null;
       avatar_url: string | null;
     }[]) {
+      // display_name is free text, so an account with no character can be
+      // called anything — including another member's character name, which is
+      // exactly what one of them is called. A row that cannot be told apart
+      // from a real member is worse than an ugly one, so an unclaimed account
+      // is named by the login it signed in with and says that it has none.
+      const claimed = p.character_id != null;
       who.set(p.id, {
         id: p.id,
         characterId: p.character_id,
-        name: p.character_name || p.display_name || p.discord_username || "—",
+        name: claimed
+          ? (p.character_name || p.display_name || p.discord_username || "—")
+          : (p.discord_username || p.display_name || "—"),
         avatar: p.avatar_url,
+        unclaimed: !claimed,
       });
     }
     setRows([...counts.entries()]
       .map(([id, parts]) => ({
-        ...(who.get(id) ?? { id, characterId: null, name: `#${id.slice(0, 8)}`, avatar: null }),
+        ...(who.get(id) ?? {
+          id, characterId: null, name: `#${id.slice(0, 8)}`, avatar: null,
+          unclaimed: true,
+        }),
         total: parts.reduce((a, b) => a + b, 0),
         parts,
       }))
