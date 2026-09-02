@@ -134,6 +134,7 @@ import AdminSwitch from "@/components/AdminSwitch";
 import { useAdmin } from "@/lib/admin";
 import { useLang } from "@/lib/i18n";
 import AdminLog from "@/components/AdminLog";
+import AdminReports from "@/components/AdminReports";
 
 /**
  * The claimed characters, on a database that may or may not have had v21 run.
@@ -888,6 +889,10 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
       {/* Last, because it is the section you come to with a question rather than
           with something to change. */}
+      {/* Before the log, because a report answers a question somebody arrived
+          with and the log is where they go when the answer surprises them. */}
+      <AdminReports />
+
       <AdminLog nameOf={nameOf} />
     </main>
   );

@@ -623,6 +623,54 @@ const DICT = {
     en: "Guessed from the avatar's host — run migration_v21.sql to record it properly",
     th: "เดาจากที่อยู่ของรูปโปรไฟล์ — รัน migration_v21.sql เพื่อบันทึกค่าจริง",
   },
+  "adm.reports": {
+    en: "Reports",
+    th: "รายงาน",
+  },
+  "adm.rpPopoto": {
+    en: "Who sent popoto",
+    th: "ใครส่ง popoto บ้าง",
+  },
+  "adm.rpPopotoHint": {
+    en: "Everybody who gave a popoto in the chosen days, once each, with how many they gave.",
+    th: "ทุกคนที่ให้ popoto ในช่วงวันที่เลือก คนละหนึ่งบรรทัด พร้อมจำนวนที่ให้",
+  },
+  "adm.rpPopotoParts": {
+    en: "(on profiles / on pictures)",
+    th: "(ที่โปรไฟล์ / ที่รูปภาพ)",
+  },
+  "adm.rpSummary": {
+    en: "{people} people · {n} popoto in total",
+    th: "{people} คน · รวม {n} popoto",
+  },
+  "adm.rpEmpty": {
+    en: "Nobody sent one in these days.",
+    th: "ไม่มีใครส่งในช่วงวันนี้",
+  },
+  "adm.drawTitle": {
+    en: "Draw",
+    th: "สุ่มผู้โชคดี",
+  },
+  "adm.drawHowMany": {
+    en: "How many",
+    th: "จำนวนคน",
+  },
+  "adm.drawOf": {
+    en: "of {n}",
+    th: "จาก {n} คน",
+  },
+  "adm.draw": {
+    en: "Draw",
+    th: "สุ่ม",
+  },
+  "adm.drawAgain": {
+    en: "Draw again",
+    th: "สุ่มใหม่",
+  },
+  "adm.drawClear": {
+    en: "Clear",
+    th: "ล้าง",
+  },
   "adm.log": {
     en: "Activity log",
     th: "บันทึกการใช้งาน",
