@@ -1,6 +1,97 @@
 {
  "events": [
   {
+   "date": "2026-09-02",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Skyward Knife II — only 2.8% of players have it"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "grade_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "is now a Legendary Relic grinder ✨"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned Cut Above the Rest: Knives Occultum — only 0.5% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "grade_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "grade_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "is now a Legendary Treasure hunter ✨"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned A Sawbones to Remember — only 0.1% of players have it, and 33 more"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned The Might Phantastick: Codex Penumbrae"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "grade_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "is now a Master Gatherer ✨"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "grade_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "is now a Master Seasonal collector ✨"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "rare_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "earned What Did Sharks Do to You? — only 1.9% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned The Customer Is Always Right: Nitowikwe IV — only 4.8% of players have it"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "rare_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "earned Savage Trouble in Paradise III"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "rare_up",
+   "id": 42146242,
+   "name": "Zxazi Rowan",
+   "text": "earned Viva Vault Oneiron II — only 3.7% of players have it, and 2 more"
+  },
+  {
    "date": "2026-09-01",
    "type": "parse_up",
    "id": 31806958,
@@ -1308,97 +1399,6 @@
    "id": 28011817,
    "name": "Nore Vanessa",
    "text": "set a new best parse: 48 on Cloud of Darkness as Dancer"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 5762434,
-   "name": "Oakley Ale",
-   "text": "set a new best parse: 89 on Eden's Promise as Samurai"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 5762434,
-   "name": "Oakley Ale",
-   "text": "is now a Master Samurai"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 31745191,
-   "name": "Oivxii Hikari",
-   "text": "set a new best parse: 10 on Cloud of Darkness as Samurai"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 26433344,
-   "name": "Oppa' Pkz",
-   "text": "set a new best parse: 92 on Cloud of Darkness as White Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 26433344,
-   "name": "Oppa' Pkz",
-   "text": "is now a Expert White Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "is now a Master Bard"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 36151779,
-   "name": "Percival Heisenberg",
-   "text": "set a new best parse: 97 on Fatebreaker as Paladin"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 36151779,
-   "name": "Percival Heisenberg",
-   "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 36151779,
-   "name": "Percival Heisenberg",
-   "text": "is now a Master Dark Knight"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 31632996,
-   "name": "Puni Punii",
-   "text": "set a new best parse: 53 on Cloud of Darkness as Dancer"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 22164216,
-   "name": "Revan Martius",
-   "text": "set a new best parse: 54 on Fatebreaker as Red Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "set a new best parse: 95 on Eden's Promise as Paladin"
   }
  ]
 }
