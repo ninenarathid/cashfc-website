@@ -63,7 +63,7 @@ function providers(c: ClaimedProfile): { names: string[]; sure: boolean } | null
   return null;
 }
 
-type ClaimSort = "character" | "account" | "provider" | "claimed";
+type ClaimSort = "character" | "provider" | "claimed";
 
 /**
  * What each column sorts on, as one comparable value.
@@ -77,7 +77,6 @@ type ClaimSort = "character" | "account" | "provider" | "claimed";
 function claimKey(c: ClaimedProfile, by: ClaimSort, name: string): string | number | null {
   switch (by) {
     case "character": return name.toLowerCase();
-    case "account": return c.discord_username?.toLowerCase() ?? null;
     case "provider": return providers(c)?.names.join(" ").toLowerCase() ?? null;
     case "claimed": return c.character_verified_at
       ? Date.parse(c.character_verified_at) : null;
@@ -775,8 +774,13 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">Claimed characters</div>
         <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-          Who is behind each character, and which service they signed in with.
-          Releasing a claim frees the character for somebody else to take.
+          {/* The count belongs above the table rather than under it: "how many
+              have claimed a character" is a question about the whole list, and
+              answering it after the list means scrolling to the end to find
+              out. */}
+          <b className="text-ink">{claims.length}</b> character
+          {claims.length === 1 ? " has" : "s have"} been claimed. Releasing one
+          frees it for somebody else to take.
         </p>
 
         {/* A table because these are four facts about each of many rows, and a
@@ -784,10 +788,10 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
             time. It scrolls inside itself on a narrow screen rather than
             stretching the page. */}
         <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[34rem] border-collapse text-[13px]">
+          <table className="w-full min-w-[28rem] border-collapse text-[13px]">
             <thead>
               <tr className="border-b border-line text-left font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                {([["character", "Character"], ["account", "Account"],
+                {([["character", "Character"],
                    ["provider", "Signed in with"], ["claimed", "Claimed"]] as const)
                   .map(([by, label]) => (
                     <th key={by} className="py-1.5 pr-3 font-normal"
@@ -840,9 +844,6 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                           {c.character_name ?? nameOf(c.character_id)}
                         </Link>
                       </td>
-                      <td className="py-1.5 pr-3 text-muted">
-                        {c.discord_username ?? <span className="opacity-60">no name</span>}
-                      </td>
                       <td className="py-1.5 pr-3">
                         {p ? (
                           <span className="flex flex-wrap gap-1">
@@ -892,7 +893,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
       {/* Last, because it is the section you come to with a question rather than
           with something to change. */}
-      <AdminLog />
+      <AdminLog nameOf={nameOf} />
     </main>
   );
 }
