@@ -37,6 +37,8 @@ interface Row {
 interface Report {
   key: string;
   title: Key;
+  /** The thing somebody would otherwise assume, said before they assume it. */
+  note: Key;
   /** What the bracketed numbers are, in order. */
   partsLabel: Key;
   load: (
@@ -53,6 +55,7 @@ const REPORTS: Report[] = [
   {
     key: "popoto-sent",
     title: "adm.rpPopoto",
+    note: "adm.rpPopotoNote",
     partsLabel: "adm.rpPopotoParts",
     // Both tables at once, kept apart in the answer: a potato on a profile and
     // a potato on a picture are the same gesture aimed at different things, and
@@ -233,6 +236,14 @@ export default function AdminReports(
   return (
     <section className="mt-3 rounded-xl border border-line bg-surface p-4">
       <div className="font-display font-semibold">{t("adm.reports")}</div>
+      {/* Which report this is, said whether or not there is a picker. A section
+          headed only "Reports" leaves its numbers to be guessed at, and the
+          guess here is the wrong direction — these are potatoes given away, not
+          potatoes received. */}
+      <p className="mt-0.5 text-[13px] text-ink/85">
+        {t(report.title)}
+        <span className="ml-2 text-[12px] text-muted">{t(report.note)}</span>
+      </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {REPORTS.length > 1 && (

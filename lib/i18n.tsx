@@ -656,20 +656,24 @@ const DICT = {
     th: "ยังไม่ผูกตัวละคร",
   },
   "adm.rpPopoto": {
-    en: "Who sent popoto",
-    th: "ใครส่ง popoto บ้าง",
+    en: "Popoto given",
+    th: "popoto ที่ส่งออกไป",
+  },
+  "adm.rpPopotoNote": {
+    en: "what each person gave away — not what they were given",
+    th: "นับจำนวนที่แต่ละคนส่งให้คนอื่น ไม่ใช่ที่คนอื่นส่งให้",
   },
   "adm.rpPopotoParts": {
-    en: "(on profiles / on pictures)",
-    th: "(ที่โปรไฟล์ / ที่รูปภาพ)",
+    en: "(given on profiles / given on pictures)",
+    th: "(ส่งให้โปรไฟล์ / ส่งให้รูปภาพ)",
   },
   "adm.rpSummary": {
-    en: "{people} people · {n} popoto in total",
-    th: "{people} คน · รวม {n} popoto",
+    en: "{people} people gave {n} popoto between them",
+    th: "{people} คน ส่ง popoto รวม {n} ครั้ง",
   },
   "adm.rpEmpty": {
-    en: "Nobody sent one in these days.",
-    th: "ไม่มีใครส่งในช่วงวันนี้",
+    en: "Nobody gave one in these days.",
+    th: "ไม่มีใครส่ง popoto ในช่วงวันที่เลือก",
   },
   "adm.drawTitle": {
     en: "Draw",
