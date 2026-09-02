@@ -33,10 +33,7 @@ export default function DiscordCard() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
         <div>
           <div className="font-display font-semibold text-[#a5b2ff]">
-            FC Discord
-          </div>
-          <div className="text-[12.5px] text-muted">
-            Chat, organise raids, plan events — this is where everyone hangs out
+            FFXIV : Cafe&rsquo; &amp; Shabu Discord
           </div>
         </div>
         {invite && (
