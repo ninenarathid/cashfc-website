@@ -109,10 +109,34 @@ const FILTERS: { value: string; label: Key; kinds: string[] }[] = [
  * because "which one" is a question a name cannot answer and a thumbnail can.
  */
 function Recipient(
-  { line, nameOf }: { line: Line; nameOf: (id: number) => string },
+  { line, nameOf, profiles }: {
+    line: Line;
+    nameOf: (id: number) => string;
+    profiles: Record<string, Who>;
+  },
 ) {
   const { t } = useLang();
   const d = line.detail ?? {};
+
+  // A profile row is about somebody, and its id is a uuid that says so to
+  // nobody. Named, and linked when the profile holds a character.
+  if (line.target_kind === "profiles") {
+    const who = profiles[String(line.target_id)];
+    if (!who) return null;
+    return (
+      <>
+        <span className="text-muted">{t("adm.ofWhom")}</span>
+        {who.characterId != null ? (
+          <Link href={`/member/${who.characterId}`}
+                className="font-medium text-ink no-underline hover:text-accent">
+            {who.name}
+          </Link>
+        ) : (
+          <span className="font-medium text-ink">{who.name}</span>
+        )}
+      </>
+    );
+  }
   if (line.target_kind === "kudos") {
     const to = Number(d.receiver_character_id);
     if (!Number.isFinite(to)) return null;
@@ -160,10 +184,66 @@ const SPANS = [
   { label: "adm.span30" as Key, from: () => daysAgo(29) },
 ];
 
+/**
+ * Every profile by its row id, so a log line can name the person it is about.
+ *
+ * A profile's id is a uuid, and a line reading "changed a profile
+ * #6805ef04-9a57…" answers nothing anybody was asking. One query for the lot,
+ * shared by every row on the page.
+ */
+function useProfileNames() {
+  const [names, setNames] = useState<Record<string, Who>>({});
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+    void (async () => {
+      const { data } = await supabase.from("profiles")
+        .select("id, character_id, character_name, display_name, discord_username");
+      const out: Record<string, Who> = {};
+      for (const r of (data ?? []) as {
+        id: string; character_id: number | null; character_name: string | null;
+        display_name: string | null; discord_username: string | null;
+      }[]) {
+        const name = r.character_name || r.display_name || r.discord_username;
+        if (name) out[r.id] = { name, characterId: r.character_id };
+      }
+      setNames(out);
+    })();
+  }, []);
+  return names;
+}
+
+interface Who { name: string; characterId: number | null }
+
+/**
+ * Who did it, when the database recorded nobody.
+ *
+ * actor_name comes from the signed-in user, so it is empty for the two things
+ * that happen without one: a profile row created by the signup trigger, and
+ * anything written with the service key from outside the site.
+ *
+ * The first of those has an answer. Nothing but the signup trigger inserts a
+ * profile, so the person a new profile belongs to is the person who signed up —
+ * that is who to name, rather than shrugging at a row that knows perfectly well.
+ * The second genuinely was not a person using the site, and says so instead of
+ * pretending a member is responsible for it.
+ */
+function actorOf(
+  line: Line, profiles: Record<string, Who>, t: (k: Key) => string,
+): string {
+  if (line.actor_name) return line.actor_name;
+  if (line.action === "profiles.insert") {
+    const who = profiles[String(line.target_id)];
+    if (who) return who.name;
+  }
+  return t("adm.system");
+}
+
 export default function AdminLog(
   { nameOf }: { nameOf: (id: number) => string },
 ) {
   const { t } = useLang();
+  const profiles = useProfileNames();
   const [supabase] = useState(createClient);
   const [lines, setLines] = useState<Line[]>([]);
   const [more, setMore] = useState(true);
@@ -172,8 +252,8 @@ export default function AdminLog(
   const [kind, setKind] = useState("");
   // A day each, as the reader's calendar reckons them. Either may stand alone:
   // "since Tuesday" and "up to Tuesday" are both questions somebody has.
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  const [since, setSince] = useState("");
+  const [until, setUntil] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
 
   const fetchPage = useCallback(async (from: number, replace: boolean) => {
@@ -187,8 +267,8 @@ export default function AdminLog(
     // The inputs are local dates and `at` is a timestamp with a zone, so each
     // end is converted from the reader's midnight rather than compared as text
     // — otherwise "today" quietly means whatever today is in UTC.
-    if (from) q = q.gte("at", new Date(`${from}T00:00:00`).toISOString());
-    if (to) q = q.lte("at", new Date(`${to}T23:59:59.999`).toISOString());
+    if (since) q = q.gte("at", new Date(`${since}T00:00:00`).toISOString());
+    if (until) q = q.lte("at", new Date(`${until}T23:59:59.999`).toISOString());
     const kinds = FILTERS.find((f) => f.value === kind)?.kinds ?? [];
     if (kinds.length === 1) q = q.eq("target_kind", kinds[0]);
     else if (kinds.length > 1) q = q.in("target_kind", kinds);
@@ -197,7 +277,7 @@ export default function AdminLog(
     setLines((prev) => (replace ? rows : [...prev, ...rows]));
     setMore(rows.length === PAGE);
     setLoading(false);
-  }, [supabase, who, kind, from, to]);
+  }, [supabase, who, kind, since, until]);
 
   // Typing a name runs ahead of the database, so the query waits for a pause.
   useEffect(() => {
@@ -233,22 +313,22 @@ export default function AdminLog(
         {/* Two ends, either optional. Typing dates is the precise way and
             nobody wants to do it for "what happened today", so the common
             spans are a click. */}
-        <input type="date" value={from} max={to || undefined}
-               onChange={(e) => setFrom(e.target.value)} aria-label={t("adm.from")}
+        <input type="date" value={since} max={until || undefined}
+               onChange={(e) => setSince(e.target.value)} aria-label={t("adm.from")}
                className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink" />
         <span className="self-center text-[12.5px] text-muted">{t("adm.to")}</span>
-        <input type="date" value={to} min={from || undefined}
-               onChange={(e) => setTo(e.target.value)} aria-label={t("adm.to")}
+        <input type="date" value={until} min={since || undefined}
+               onChange={(e) => setUntil(e.target.value)} aria-label={t("adm.to")}
                className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink" />
 
         {SPANS.map((s) => (
-          <button key={s.label} onClick={() => { setFrom(s.from()); setTo(today()); }}
+          <button key={s.label} onClick={() => { setSince(s.from()); setUntil(today()); }}
                   className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
             {t(s.label)}
           </button>
         ))}
-        {(from || to) && (
-          <button onClick={() => { setFrom(""); setTo(""); }}
+        {(since || until) && (
+          <button onClick={() => { setSince(""); setUntil(""); }}
                   className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili">
             {t("adm.anyDate")}
           </button>
@@ -264,14 +344,18 @@ export default function AdminLog(
                  className="rounded-lg border border-line bg-card px-3 py-2 text-[12.5px]">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="font-data text-[11.5px] text-muted">{when(l.at)}</span>
-                <span className="font-medium text-ink">{l.actor_name ?? t("adm.somebody")}</span>
+                <span className="font-medium text-ink">{actorOf(l, profiles, t)}</span>
                 <span className="text-muted">{VERB[op] ? t(VERB[op]) : op}</span>
                 <span className="text-ink/85">
                   {THING[l.target_kind ?? ""]
                     ? t(THING[l.target_kind ?? ""]) : l.target_kind}
                 </span>
-                <Recipient line={l} nameOf={nameOf} />
-                {l.target_id && (
+                <Recipient line={l} nameOf={nameOf} profiles={profiles} />
+                {/* The raw id, unless the line already named who or what it
+                    was — a uuid beside a name is a worse answer to the same
+                    question. */}
+                {l.target_id && l.target_kind !== "profiles"
+                  && l.target_kind !== "kudos" && l.target_kind !== "gallery_likes" && (
                   <span className="font-data text-[11.5px] text-muted">#{l.target_id}</span>
                 )}
                 {l.detail && (

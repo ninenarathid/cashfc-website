@@ -663,6 +663,10 @@ const DICT = {
     en: "Any date",
     th: "ทุกวัน",
   },
+  "adm.system": {
+    en: "the system",
+    th: "ระบบ",
+  },
   "adm.detail": {
     en: "detail",
     th: "รายละเอียด",
@@ -683,10 +687,6 @@ const DICT = {
     en: "Loading…",
     th: "กำลังโหลด…",
   },
-  "adm.somebody": {
-    en: "somebody",
-    th: "บางคน",
-  },
   "adm.opInsert": {
     en: "added",
     th: "เพิ่ม",
@@ -698,6 +698,10 @@ const DICT = {
   "adm.opDelete": {
     en: "removed",
     th: "ลบ",
+  },
+  "adm.ofWhom": {
+    en: "of",
+    th: "ของ",
   },
   "adm.toWhom": {
     en: "to",
