@@ -13933,7 +13933,7 @@
     "expansion": "Dawntrail",
     "name": "Valigarmanda",
     "best": 16,
-    "kills": 11,
+    "kills": 13,
     "job": "Astrologian",
     "cleared": true
    },
@@ -17214,11 +17214,20 @@
      "median": 18,
      "kills": 1,
      "job": "DarkKnight"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 8,
+     "median": 8,
+     "kills": 1,
+     "job": "DarkKnight"
     }
    ],
    "clears": [
     true,
-    false,
+    true,
     false,
     false,
     false
@@ -17296,6 +17305,17 @@
   ],
   "_status": "ok",
   "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 16,
+    "last": "2026-09-02",
+    "last_ts": 1788372743
+   },
    {
     "encounter_id": 101,
     "name": "Vamp Fatale",
@@ -23754,7 +23774,7 @@
     "state": "learning",
     "pct": 18.72,
     "phase": 0,
-    "pulls": 14,
+    "pulls": 17,
     "last": "2026-09-01",
     "last_ts": 1788274468
    }
@@ -24708,11 +24728,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 37.22,
+    "pct": 36.13,
     "phase": 4,
-    "pulls": 140,
-    "last": "2026-09-01",
-    "last_ts": 1788279919
+    "pulls": 135,
+    "last": "2026-09-02",
+    "last_ts": 1788365948
    }
   ]
  },
@@ -28091,9 +28111,20 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 89,
+    "kills": 14,
+    "job": "Summoner",
+    "cleared": true
+   }
+  ],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "42053451": {
   "current": {
@@ -29943,6 +29974,16 @@
     "expansion": "Dawntrail",
     "name": "Zelenia",
     "best": 5,
+    "kills": 1,
+    "job": "Viper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 29,
     "kills": 1,
     "job": "Viper",
     "cleared": true
@@ -32814,7 +32855,34 @@
   "_status": "none"
  },
  "60211788": {
-  "_status": "none"
+  "_status": "ok",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 4,
+    "kills": 5,
+    "job": "Ninja",
+    "cleared": true
+   }
+  ],
+  "legacy": []
  },
  "60475540": {
   "_status": "none"
@@ -32862,7 +32930,34 @@
   "_status": "none"
  },
  "60852230": {
-  "_status": "none"
+  "_status": "ok",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 4,
+    "kills": 14,
+    "job": "DarkKnight",
+    "cleared": true
+   }
+  ],
+  "legacy": []
  },
  "60854619": {
   "_status": "none"
@@ -32882,9 +32977,20 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 54,
+    "kills": 7,
+    "job": "Dragoon",
+    "cleared": true
+   }
+  ],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "60933255": {
   "_status": "none"

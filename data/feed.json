@@ -3,6 +3,90 @@
   {
    "date": "2026-09-02",
    "type": "parse_up",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "set a new best parse: 89 on Valigarmanda as Summoner"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "job_up",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "parse_up",
+   "id": 60873337,
+   "name": "Imy Kitty",
+   "text": "set a new best parse: 54 on Valigarmanda as Dragoon"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 60873337,
+   "name": "Imy Kitty",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "boss_clear",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "parse_up",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "set a new best parse: 4 on Valigarmanda as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "parse_up",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "set a new best parse: 29 on Valigarmanda as Viper"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "parse_up",
+   "id": 60211788,
+   "name": "Shikihara Catlover",
+   "text": "set a new best parse: 4 on Valigarmanda as Ninja"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "ex_clear",
+   "id": 60211788,
+   "name": "Shikihara Catlover",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "parse_up",
    "id": 58199536,
    "name": "Areeya Lovekin",
    "text": "set a new best parse: 44 on Valigarmanda as Pictomancer"
@@ -1315,90 +1399,6 @@
    "id": 5644067,
    "name": "Ninenine The'phantom",
    "text": "is now a Legendary Machinist"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 11950156,
-   "name": "Rothe Happer",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 58455997,
-   "name": "Salmon Sushiroll",
-   "text": "cleared M12S-1 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 26298391,
-   "name": "Yozora Luna",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 24123541,
-   "name": "Zeren Dragonia",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 14476396,
-   "name": "Arawn A'nnwn",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "level_100",
-   "id": 31155521,
-   "name": "Ketchup Love",
-   "text": "reached level 100!"
   }
  ]
 }

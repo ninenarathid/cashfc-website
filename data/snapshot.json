@@ -5212,7 +5212,7 @@
  },
  "42053180": {
   "name": "Elle'kuro Dean'deluca",
-  "parse": null,
+  "parse": 89,
   "ult": 0,
   "mounts": 59,
   "minions": 151,
@@ -5227,10 +5227,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
-  "ex": [],
+  "jobs": {
+   "Summoner": "expert"
+  },
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-02"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -5490,7 +5494,7 @@
  },
  "60873337": {
   "name": "Imy Kitty",
-  "parse": null,
+  "parse": 54,
   "ult": 0,
   "mounts": 16,
   "minions": 42,
@@ -5506,9 +5510,11 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-02"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -5613,7 +5619,7 @@
   "level": 100,
   "cc": [
    true,
-   false,
+   true,
    false,
    false,
    false
@@ -5629,7 +5635,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-02"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -5677,19 +5683,27 @@
  },
  "60852230": {
   "name": "Lucienvt Yenslayer",
-  "parse": null,
+  "parse": 4,
   "ult": 0,
   "mounts": 30,
   "minions": 57,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-02"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -5906,7 +5920,7 @@
  },
  "46243891": {
   "name": "Marin Elysium",
-  "parse": 24,
+  "parse": 29,
   "ult": 0,
   "mounts": 66,
   "minions": 92,
@@ -5954,6 +5968,7 @@
   "ex": [
    "Guardian Arkveld",
    "Necron",
+   "Valigarmanda",
    "Zelenia"
   ],
   "ults": [],
@@ -6548,19 +6563,27 @@
  },
  "60211788": {
   "name": "Shikihara Catlover",
-  "parse": null,
+  "parse": 4,
   "ult": 0,
   "mounts": 11,
   "minions": 20,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-02"
  },
  "8713004": {
   "name": "Shoe Bite",
@@ -10380,7 +10403,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 71,
+  "level": 91,
   "cc": [
    false,
    false,
