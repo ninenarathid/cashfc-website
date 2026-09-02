@@ -1332,7 +1332,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 81,
+  "level": 84,
   "cc": [
    true,
    true,
@@ -1574,7 +1574,7 @@
   "mounts": 159,
   "minions": 239,
   "rare": 62,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -1665,7 +1665,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-31"
+  "chg": "2026-09-02"
  },
  "47540663": {
   "name": "Edel Meither",
@@ -4288,7 +4288,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 100,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -4333,7 +4333,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-02"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -4459,7 +4459,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 72,
+  "level": 73,
   "cc": [
    false,
    false,
@@ -5551,7 +5551,7 @@
   "mounts": 46,
   "minions": 150,
   "rare": 9,
-  "level": 55,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -5906,7 +5906,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 51,
+  "level": 53,
   "cc": [
    false,
    false,
@@ -6130,7 +6130,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 93,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -6145,7 +6145,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-01"
+  "chg": "2026-09-02"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -6154,7 +6154,7 @@
   "mounts": 29,
   "minions": 83,
   "rare": 9,
-  "level": 59,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6177,7 +6177,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-02"
  },
  "8113158": {
   "name": "Olivie Brown",
@@ -6397,14 +6397,14 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 66,
+  "level": 67,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-02"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -6413,7 +6413,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 31,
-  "level": 83,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -6460,7 +6460,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-02"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -6586,7 +6586,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 78,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6617,7 +6617,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-01"
+  "chg": "2026-09-02"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -6784,7 +6784,7 @@
   "mounts": 81,
   "minions": 155,
   "rare": null,
-  "level": 100,
+  "level": 64,
   "cc": [
    true,
    true,
@@ -6805,7 +6805,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-02"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -6836,14 +6836,14 @@
   "mounts": 6,
   "minions": 19,
   "rare": null,
-  "level": 77,
+  "level": 89,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-02"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -6860,6 +6860,22 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-27"
+ },
+ "60994518": {
+  "name": "John Konesarn",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-09-02"
  },
  "61758559": {
   "name": "Lree Thai",
@@ -6890,14 +6906,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 95,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-02"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -10359,7 +10375,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 97,
+  "level": 71,
   "cc": [
    false,
    false,

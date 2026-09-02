@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-09-02",
+   "type": "level_100",
+   "id": 7283668,
+   "name": "Nowhere Man",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "level_100",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "new_member",
+   "id": 60994518,
+   "name": "John Konesarn",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-09-02",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-02",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1371,34 +1399,6 @@
    "id": 30421228,
    "name": "Natsuki Tri",
    "text": "set a new best parse: 79 on Shadowkeeper as White Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 30421228,
-   "name": "Natsuki Tri",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 32150308,
-   "name": "Nene Mumu",
-   "text": "set a new best parse: 10 on Fatebreaker as Scholar"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 36149590,
-   "name": "Neo Anderson",
-   "text": "is now a Expert Machinist"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 28011817,
-   "name": "Nore Vanessa",
-   "text": "set a new best parse: 48 on Cloud of Darkness as Dancer"
   }
  ]
 }

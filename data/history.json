@@ -245,7 +245,7 @@
   },
   {
    "date": "2026-09-02",
-   "total": 501,
+   "total": 502,
    "tags": {
     "extreme": 135,
     "ultimate": 117,
@@ -260,16 +260,16 @@
     "pvp": 13,
     "veteran": 122,
     "casual": 272,
-    "unknown": 5,
+    "unknown": 6,
     "prog": 23,
     "oldtimer": 1
    },
    "raider": 65,
    "ultimate": 117,
    "extreme": 135,
-   "unknown": 5,
+   "unknown": 6,
    "final_boss": 42,
-   "active": 145,
+   "active": 146,
    "vacation": 356,
    "guests": 1
   }
