@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
@@ -215,6 +215,23 @@ function useProfileNames() {
 
 interface Who { name: string; characterId: number | null }
 
+/** The name at the left of a line, linked when it belongs to a character. */
+function Actor({ who }: { who: Who | null }) {
+  const { t } = useLang();
+  // Not a person, so not a link: nothing written with the service key or by a
+  // trigger has a page to go to.
+  if (!who) return <span className="font-medium text-muted">{t("adm.system")}</span>;
+  if (who.characterId == null) {
+    return <span className="font-medium text-ink">{who.name}</span>;
+  }
+  return (
+    <Link href={`/member/${who.characterId}`}
+          className="font-medium text-ink no-underline hover:text-accent">
+      {who.name}
+    </Link>
+  );
+}
+
 /**
  * Who did it, when the database recorded nobody.
  *
@@ -229,14 +246,20 @@ interface Who { name: string; characterId: number | null }
  * pretending a member is responsible for it.
  */
 function actorOf(
-  line: Line, profiles: Record<string, Who>, t: (k: Key) => string,
-): string {
-  if (line.actor_name) return line.actor_name;
+  line: Line, profiles: Record<string, Who>, byName: Record<string, Who | null>,
+): Who | null {
+  // The log stores the actor's name rather than their id, so the way back to a
+  // page is the name — and only when exactly one profile answers to it. Two
+  // members sharing one would make the link a coin toss, and a wrong link to
+  // somebody's page is worse than no link.
+  if (line.actor_name) {
+    return byName[line.actor_name] ?? { name: line.actor_name, characterId: null };
+  }
   if (line.action === "profiles.insert") {
     const who = profiles[String(line.target_id)];
-    if (who) return who.name;
+    if (who) return who;
   }
-  return t("adm.system");
+  return null;
 }
 
 export default function AdminLog(
@@ -244,6 +267,15 @@ export default function AdminLog(
 ) {
   const { t } = useLang();
   const profiles = useProfileNames();
+  // Name back to person, for the actor column. A name two profiles share maps
+  // to null rather than to whichever came first.
+  const byName = useMemo(() => {
+    const out: Record<string, Who | null> = {};
+    for (const who of Object.values(profiles)) {
+      out[who.name] = who.name in out ? null : who;
+    }
+    return out;
+  }, [profiles]);
   const [supabase] = useState(createClient);
   const [lines, setLines] = useState<Line[]>([]);
   const [more, setMore] = useState(true);
@@ -344,7 +376,7 @@ export default function AdminLog(
                  className="rounded-lg border border-line bg-card px-3 py-2 text-[12.5px]">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="font-data text-[11.5px] text-muted">{when(l.at)}</span>
-                <span className="font-medium text-ink">{actorOf(l, profiles, t)}</span>
+                <Actor who={actorOf(l, profiles, byName)} />
                 <span className="text-muted">{VERB[op] ? t(VERB[op]) : op}</span>
                 <span className="text-ink/85">
                   {THING[l.target_kind ?? ""]
