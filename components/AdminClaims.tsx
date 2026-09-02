@@ -66,7 +66,7 @@ function providers(c: ClaimedProfile): { names: string[]; sure: boolean } | null
   return null;
 }
 
-type ClaimSort = "character" | "provider" | "claimed";
+type ClaimSort = "character" | "provider" | "lodestone" | "claimed";
 
 /**
  * What each column sorts on, as one comparable value.
@@ -79,6 +79,10 @@ function claimKey(c: ClaimedProfile, by: ClaimSort, name: string): string | numb
   switch (by) {
     case "character": return name.toLowerCase();
     case "provider": return providers(c)?.names.join(" ").toLowerCase() ?? null;
+    // Not null for the unverified: "no" is an answer here, and belongs in the
+    // order rather than swept to the bottom with the rows that have nothing to
+    // say. Sorting this column is how you gather them up.
+    case "lodestone": return c.character_verified_at ? 1 : 0;
     case "claimed":
       return c.character_verified_at ? Date.parse(c.character_verified_at) : null;
   }
@@ -94,6 +98,23 @@ const daysAgo = (n: number) => {
   d.setDate(d.getDate() - n);
   return asDay(d);
 };
+
+/**
+ * The page an admin would go and look at.
+ *
+ * Spelled out rather than imported from lib/verify: that module derives the
+ * claim token with node's crypto, and pulling it into a client component would
+ * drag the whole thing into the browser bundle for the sake of one string.
+ */
+const lodestoneUrl = (id: number) =>
+  `https://na.finalfantasyxiv.com/lodestone/character/${id}/`;
+
+/** Verified means one thing: the code was found on the Lodestone profile. */
+const LODE: { key: "all" | "yes" | "no"; label: Key }[] = [
+  { key: "all", label: "adm.lodeAll" },
+  { key: "yes", label: "adm.lodeYes" },
+  { key: "no", label: "adm.lodeNo" },
+];
 
 const SPANS: { label: Key; from: () => string }[] = [
   { label: "adm.spanToday", from: () => today() },
@@ -142,12 +163,13 @@ export default function AdminClaims(
     { by: "character", dir: 1 });
   const sortBy = (by: ClaimSort) => setSort((v) =>
     v.by === by ? { by, dir: (v.dir === 1 ? -1 : 1) as 1 | -1 }
-                : { by, dir: by === "claimed" ? -1 : 1 });
+                : { by, dir: by === "character" || by === "provider" ? 1 : -1 });
 
   // Blank, not the last thirty days. Most claims are old, and a report about
   // "who is here" that opens by hiding nearly everybody would be read as an
   // empty database rather than as a filter.
   const [q, setQ] = useState("");
+  const [only, setOnly] = useState<"all" | "yes" | "no">("all");
   const [since, setSince] = useState("");
   const [until, setUntil] = useState("");
   const [howMany, setHowMany] = useState("1");
@@ -163,7 +185,11 @@ export default function AdminClaims(
       .filter(({ c, name }) => {
         if (needle && !name.toLowerCase().includes(needle)
             && !(c.discord_username ?? "").toLowerCase().includes(needle)) return false;
-        if (since || until) {
+        if (only !== "all" && (only === "yes") !== !!c.character_verified_at) return false;
+        // A date range asks when somebody verified, so it can only ever be
+        // about the verified. The inputs are disabled while "not verified" is
+        // picked, rather than quietly returning nothing.
+        if (only !== "no" && (since || until)) {
           // A row with no claim date cannot be inside a range of dates. Saying
           // so by leaving it out beats guessing which side of the range it
           // would have fallen on.
@@ -188,9 +214,11 @@ export default function AdminClaims(
         // renders on a column half of them share.
         return d !== 0 ? d * sort.dir : a.name.localeCompare(b.name);
       });
-  }, [named, q, since, until, sort]);
+  }, [named, q, only, since, until, sort]);
 
-  const filtered = q.trim() !== "" || since !== "" || until !== "";
+  const verified = useMemo(
+    () => named.filter(({ c }) => c.character_verified_at).length, [named]);
+  const filtered = q.trim() !== "" || only !== "all" || since !== "" || until !== "";
   const want = Math.max(1, Math.min(Number(howMany) || 1, Math.max(rows.length, 1)));
 
   const draw = () => {
@@ -218,6 +246,12 @@ export default function AdminClaims(
         {filtered
           ? t("adm.claimShown", { n: rows.length, all: claims.length })
           : t("adm.claimCount", { n: claims.length })}
+        {/* The split, always — a claim nobody has proved is the one an admin
+            is looking for, and a number they have to work out is a number they
+            will not check. */}
+        <span className="ml-2 text-muted/80">
+          {t("adm.claimVerified", { n: verified, m: claims.length - verified })}
+        </span>
       </p>
 
       {/* ── The filter ── */}
@@ -225,22 +259,38 @@ export default function AdminClaims(
         <input value={q} onChange={(e) => setQ(e.target.value)}
                placeholder={t("adm.claimSearch")} aria-label={t("adm.claimSearch")}
                className={`${box} min-w-[180px] flex-1`} />
-        <input type="date" value={since} max={until || undefined}
+        <div className="flex gap-1 rounded-lg border border-line p-0.5">
+          {LODE.map((o) => (
+            <button key={o.key} type="button" onClick={() => setOnly(o.key)}
+                    aria-pressed={only === o.key}
+                    className={`rounded-md px-2.5 py-1 text-[12.5px] transition-colors ${
+                      only === o.key ? "bg-accent/15 text-accent"
+                                     : "text-muted hover:text-ink"}`}>
+              {t(o.label)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={`mt-2 flex flex-wrap gap-2 ${only === "no" ? "opacity-40" : ""}`}>
+        <span className="self-center text-[12.5px] text-muted">{t("adm.colClaimed")}</span>
+        <input type="date" value={since} max={until || undefined} disabled={only === "no"}
                onChange={(e) => setSince(e.target.value)}
                aria-label={t("adm.from")} className={box} />
         <span className="self-center text-[12.5px] text-muted">{t("adm.to")}</span>
-        <input type="date" value={until} min={since || undefined}
+        <input type="date" value={until} min={since || undefined} disabled={only === "no"}
                onChange={(e) => setUntil(e.target.value)}
                aria-label={t("adm.to")} className={box} />
         {SPANS.map((sp) => (
-          <button key={sp.label} type="button"
+          <button key={sp.label} type="button" disabled={only === "no"}
                   onClick={() => { setSince(sp.from()); setUntil(today()); }}
-                  className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+                  className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:hover:border-line disabled:hover:text-muted">
             {t(sp.label)}
           </button>
         ))}
-        <button type="button" onClick={() => { setSince(""); setUntil(""); }}
-                className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+        <button type="button" disabled={only === "no"}
+                onClick={() => { setSince(""); setUntil(""); }}
+                className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:hover:border-line disabled:hover:text-muted">
           {t("adm.anyDate")}
         </button>
       </div>
@@ -284,11 +334,12 @@ export default function AdminClaims(
           time. It scrolls inside itself on a narrow screen rather than
           stretching the page. */}
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[28rem] border-collapse text-[13px]">
+        <table className="w-full min-w-[34rem] border-collapse text-[13px]">
           <thead>
             <tr className="border-b border-line text-left font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
               {([["character", "adm.colCharacter"],
                  ["provider", "adm.colProvider"],
+                 ["lodestone", "adm.colLodestone"],
                  ["claimed", "adm.colClaimed"]] as const)
                 .map(([by, label]) => (
                   <th key={by} className="py-1.5 pr-3 font-normal"
@@ -300,7 +351,7 @@ export default function AdminClaims(
                               sort.by === by ? "text-accent" : ""}`}>
                       {t(label)}
                       {/* The arrow only on the column doing the sorting. One
-                          on every header is three claims about the order when
+                          on every header is four claims about the order when
                           only one of them is true. */}
                       <span aria-hidden className={sort.by === by ? "" : "opacity-0"}>
                         {sort.dir === 1 ? "↑" : "↓"}
@@ -341,10 +392,27 @@ export default function AdminClaims(
                       <span className="text-muted opacity-60">—</span>
                     )}
                   </td>
+                  {/* The answer as a word, not as the presence of a date.
+                      "Has this person proved the character is theirs" was
+                      readable off the Claimed column only if you already knew
+                      that a blank there meant no. The badge is a link, so the
+                      next move — go and look at the profile — is one click. */}
+                  <td className="py-1.5 pr-3">
+                    <a href={lodestoneUrl(c.character_id)}
+                       target="_blank" rel="noopener noreferrer"
+                       title={t("adm.lodeOpen")}
+                       className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] no-underline transition-colors ${
+                         c.character_verified_at
+                           ? "border-jade/50 bg-jade/10 text-jade hover:bg-jade/20"
+                           : "border-dashed border-line text-muted hover:border-muted hover:text-ink"}`}>
+                      <span aria-hidden>{c.character_verified_at ? "✓" : "·"}</span>
+                      {c.character_verified_at ? t("adm.lodeYes") : t("adm.lodeNo")}
+                    </a>
+                  </td>
                   <td className="py-1.5 pr-3 font-data text-[11.5px] text-muted">
                     {c.character_verified_at
                       ? fmtDate(c.character_verified_at)
-                      : <span className="opacity-60">{t("adm.unverified")}</span>}
+                      : <span className="opacity-60">—</span>}
                   </td>
                   <td className="py-1.5 text-right">
                     <button type="button" onClick={() => void onRelease(c.id)}

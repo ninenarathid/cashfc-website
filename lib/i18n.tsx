@@ -603,10 +603,6 @@ const DICT = {
     en: "Claimed",
     th: "วันที่อ้างสิทธิ์",
   },
-  "adm.unverified": {
-    en: "unverified",
-    th: "ยังไม่ยืนยัน",
-  },
   "adm.release": {
     en: "Release",
     th: "ปล่อยสิทธิ์",
@@ -618,6 +614,30 @@ const DICT = {
   "adm.noClaims": {
     en: "Nobody has claimed a character yet",
     th: "ยังไม่มีใครอ้างสิทธิ์ตัวละคร",
+  },
+  "adm.colLodestone": {
+    en: "Lodestone",
+    th: "Lodestone",
+  },
+  "adm.lodeYes": {
+    en: "Verified",
+    th: "ยืนยันแล้ว",
+  },
+  "adm.lodeNo": {
+    en: "Not verified",
+    th: "ยังไม่ยืนยัน",
+  },
+  "adm.lodeAll": {
+    en: "All",
+    th: "ทั้งหมด",
+  },
+  "adm.lodeOpen": {
+    en: "Open this character on The Lodestone",
+    th: "เปิดหน้าตัวละครนี้ใน Lodestone",
+  },
+  "adm.claimVerified": {
+    en: "{n} verified on The Lodestone, {m} not.",
+    th: "ยืนยันบน Lodestone แล้ว {n} · ยังไม่ยืนยัน {m}",
   },
   "adm.claimShown": {
     en: "Showing {n} of {all} claimed characters.",
