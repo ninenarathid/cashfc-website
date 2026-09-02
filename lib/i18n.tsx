@@ -511,10 +511,6 @@ const DICT = {
     en: "Timeline posts (alongside official news)",
     th: "โพสต์ไทม์ไลน์ (แสดงร่วมกับข่าวทางการ)",
   },
-  "adm.postsHint": {
-    en: "e.g. “FC house has moved”, “7.5 group photo meetup” — interleaved with game news by date",
-    th: "เช่น “บ้าน FC ย้ายแล้ว”, “นัดถ่ายรูปหมู่ 7.5” — เรียงสลับกับข่าวเกมตามวันที่",
-  },
   "adm.postTitle": {
     en: "Title",
     th: "หัวข้อ",
@@ -852,10 +848,6 @@ const DICT = {
     th: "อัพเดทเว็บ",
   },
   "admin.modeTitle": { en: "Admin powers", th: "สิทธิ์แอดมิน" },
-  "admin.modeHint": {
-    en: "Turn them off to browse as an ordinary member — no hide buttons, no posting for other people, and a gallery that is only open if it is open to everyone. Nothing about your account changes.",
-    th: "ปิดไว้เพื่อดูเว็บแบบสมาชิกทั่วไป — ไม่มีปุ่มซ่อน ไม่มีการโพสต์แทนคนอื่น และแกลเลอรีจะเปิดก็ต่อเมื่อมันเปิดให้ทุกคน สิทธิ์ในบัญชีของคุณไม่ได้เปลี่ยนไปไหน",
-  },
   "admin.modeOn": { en: "Admin powers on", th: "เปิดสิทธิ์แอดมินอยู่" },
   "admin.modeOff": { en: "Browsing as a member", th: "กำลังดูแบบสมาชิกทั่วไป" },
   "profile.pictures": { en: "Your pictures", th: "รูปของคุณ" },

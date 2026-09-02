@@ -26,9 +26,6 @@ export default function AdminSwitch({ compact = false }: { compact?: boolean }) 
       {!compact && (
         <>
           <div className="font-display font-semibold">{t("admin.modeTitle")}</div>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-            {t("admin.modeHint")}
-          </p>
         </>
       )}
       <button onClick={() => setOn(!on)}

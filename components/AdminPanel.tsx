@@ -599,9 +599,6 @@ export default function AdminPanel(
       {/* ── Timeline posts ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">{t("adm.posts")}</div>
-        <p className="mt-1 text-[12.5px] text-muted">
-          {t("adm.postsHint")}
-        </p>
         <div className="mt-3 flex flex-col gap-2">
           <div className="flex flex-wrap gap-2">
             <input value={pTitle} onChange={(e) => setPTitle(e.target.value.slice(0, 120))}
