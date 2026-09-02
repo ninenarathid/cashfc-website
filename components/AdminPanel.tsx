@@ -132,6 +132,7 @@ function Body({ text, id, open, toggle }: {
 }
 import AdminSwitch from "@/components/AdminSwitch";
 import { useAdmin } from "@/lib/admin";
+import { useLang } from "@/lib/i18n";
 import AdminLog from "@/components/AdminLog";
 
 /**
@@ -158,6 +159,7 @@ async function claimRows(supabase: NonNullable<ReturnType<typeof createClient>>)
 }
 
 export default function AdminPanel({ memberOptions }: { memberOptions: Option[] }) {
+  const { t } = useLang();
   const [supabase] = useState(createClient);
   const [phase, setPhase] = useState<"loading" | "denied" | "ready">("loading");
   const { isAdmin: adminMode } = useAdmin();
@@ -276,13 +278,12 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   }, [pick, memberOptions]);
 
   if (phase === "loading")
-    return <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center text-muted">Checking permissions…</div>;
+    return <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center text-muted">{t("adm.checking")}</div>;
 
   if (phase === "denied")
     return (
       <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center leading-relaxed text-muted">
-        Admins only — if you should be an admin, run the grant statement at the end of{" "}
-        <b className="text-accent">supabase/schema.sql</b> in the SQL Editor first.
+        {t("adm.denied")}
       </div>
     );
 
@@ -294,11 +295,9 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
     return (
       <main className="pt-7">
         <div className="font-data text-[11px] uppercase tracking-[0.22em] text-chili">Admin</div>
-        <h1 className="font-display text-3xl font-bold">Site admin</h1>
+        <h1 className="font-display text-3xl font-bold">{t("adm.title")}</h1>
         <p className="mt-2 max-w-prose text-[13.5px] leading-relaxed text-muted">
-          Your admin powers are switched off, so you are seeing the site the way
-          the rest of the FC does — and this page is not part of that. Turn them
-          back on to carry on.
+          {t("adm.poweredOff")}
         </p>
         <AdminSwitch />
       </main>
@@ -307,7 +306,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
   return (
     <main className="pt-7">
       <div className="font-data text-[11px] uppercase tracking-[0.22em] text-chili">Admin</div>
-      <h1 className="font-display text-3xl font-bold">Site admin</h1>
+      <h1 className="font-display text-3xl font-bold">{t("adm.title")}</h1>
       {msg && <div className="mt-2 text-[13px] text-jade">{msg}</div>}
 
       {/* The panel itself follows the real flag rather than the switch: locking
@@ -316,13 +315,13 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
       {/* ── Discord settings ── */}
       <section className="mt-5 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">FC Discord</div>
+        <div className="font-display font-semibold">{t("adm.discord")}</div>
         <p className="mt-1 text-[12.5px] text-muted">
-          Server ID (enable Server Widget in Discord first) + invite link — powers the widget on the home page
+          {t("adm.discordHint")}
         </p>
         <div className="mt-3 flex flex-wrap gap-2.5">
           <input value={serverId} onChange={(e) => setServerId(e.target.value)}
-                 placeholder="Discord Server ID" className={`${inputCls} min-w-[200px] flex-1`} />
+                 placeholder={t("adm.discordId")} className={`${inputCls} min-w-[200px] flex-1`} />
           <input value={invite} onChange={(e) => setInvite(e.target.value)}
                  placeholder="https://discord.gg/…" className={`${inputCls} min-w-[200px] flex-1`} />
           <button
@@ -332,10 +331,10 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 { key: "discord_server_id", value: serverId.trim() || null, updated_at: now },
                 { key: "discord_invite_url", value: invite.trim() || null, updated_at: now },
               ]);
-              flash(error ? "Save failed (has migration_v2.sql been run?)" : "Saved");
+              flash(error ? "Save failed (has migration_v2.sql been run?)" : t("adm.saved"));
             }}
             className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-accent hover:bg-accent/25">
-            Save
+            {t("adm.save")}
           </button>
         </div>
       </section>
@@ -343,26 +342,24 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
       {/* ── Site updates ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">
-          Site updates (the box on the home page)
+          {t("adm.updates")}
         </div>
         <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-          One entry per day. Write each line in both languages — a reader sees
-          the one they are reading the site in, and a line with only one side
-          falls back to it rather than showing blank.
+          {t("adm.updatesHint")}
         </p>
 
         <div className="mt-3 flex flex-col gap-2">
           {uEditing !== null && (
-            <div className="text-[12.5px] text-accent">Editing an existing day</div>
+            <div className="text-[12.5px] text-accent">{t("adm.editingDay")}</div>
           )}
           <div className="flex flex-wrap gap-2">
             <input type="date" value={uDate} onChange={(e) => setUDate(e.target.value)}
-                   className={inputCls} aria-label="Date" />
+                   className={inputCls} aria-label={t("adm.date")} />
             <input value={uTitleTh} onChange={(e) => setUTitleTh(e.target.value.slice(0, 120))}
-                   placeholder="หัวข้อของวัน (ไม่ใส่ก็ได้)"
+                   placeholder={t("adm.dayTitleTh")}
                    className={`${inputCls} min-w-[180px] flex-1`} />
             <input value={uTitleEn} onChange={(e) => setUTitleEn(e.target.value.slice(0, 120))}
-                   placeholder="Headline for the day (optional)"
+                   placeholder={t("adm.dayTitleEn")}
                    className={`${inputCls} min-w-[180px] flex-1`} />
           </div>
 
@@ -383,15 +380,15 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 {uItems.length > 1 && (
                   <button onClick={() => setUItems(uItems.filter((_, n) => n !== i))}
                           className="ml-auto rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                    Remove line
+                    {t("adm.removeLine")}
                   </button>
                 )}
               </div>
-              <textarea value={it.th} rows={2} placeholder="ข้อความภาษาไทย"
+              <textarea value={it.th} rows={2} placeholder={t("adm.lineTh")}
                         onChange={(e) => setUItems(uItems.map((x, n) =>
                           n === i ? { ...x, th: e.target.value.slice(0, 600) } : x))}
                         className={`${inputCls} mt-2 w-full`} />
-              <textarea value={it.en} rows={2} placeholder="The same line in English"
+              <textarea value={it.en} rows={2} placeholder={t("adm.lineEn")}
                         onChange={(e) => setUItems(uItems.map((x, n) =>
                           n === i ? { ...x, en: e.target.value.slice(0, 600) } : x))}
                         className={`${inputCls} mt-1.5 w-full`} />
@@ -400,7 +397,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
           <button onClick={() => setUItems([...uItems, { kind: "new", th: "", en: "" }])}
                   className="self-start rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
-            + Add another line
+            {t("adm.addLine")}
           </button>
 
           <div className="flex flex-wrap gap-2">
@@ -412,7 +409,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 const items = uItems
                   .map((i) => ({ ...i, th: i.th.trim(), en: i.en.trim() }))
                   .filter((i) => i.th || i.en);
-                if (!items.length) { flash("Write at least one line first"); return; }
+                if (!items.length) { flash(t("adm.needOneLine")); return; }
                 const fields = {
                   on_date: uDate,
                   title_th: uTitleTh.trim() || null,
@@ -434,15 +431,15 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 }
                 resetUpdate();
                 await refresh();
-                flash(uEditing !== null ? "Update saved" : "Update posted");
+                flash(uEditing !== null ? t("adm.updateSaved") : t("adm.updatePosted"));
               }}
               className="self-start rounded-lg border border-accent bg-accent/15 px-4 py-2 text-accent hover:bg-accent/25">
-              {uEditing !== null ? "Save changes" : "Post update"}
+              {uEditing !== null ? t("adm.saveChanges") : t("adm.postUpdate")}
             </button>
             {uEditing !== null && (
               <button onClick={resetUpdate}
                       className="rounded-lg border border-line px-4 py-2 text-muted hover:border-muted hover:text-ink">
-                Cancel
+                {t("adm.cancel")}
               </button>
             )}
           </div>
@@ -458,12 +455,12 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                   <span className="font-medium">{u.title_th || u.title_en || ""}</span>
                 </div>
                 <div className="mt-0.5 text-[12.5px] text-muted">
-                  {(u.items ?? []).length} line{(u.items ?? []).length === 1 ? "" : "s"}
+                  {t("adm.lines", { n: (u.items ?? []).length })}
                   {/* Flagged rather than blocked. Half an announcement is worth
                       posting; a reminder to come back and finish it is worth
                       more than a form that refuses to save. */}
                   {(u.items ?? []).some((i) => !i.th || !i.en) && (
-                    <span className="ml-2 text-gold">· missing a translation</span>
+                    <span className="ml-2 text-gold">{t("adm.noTranslation")}</span>
                   )}
                 </div>
               </div>
@@ -478,24 +475,23 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                       : [{ kind: "new", th: "", en: "" }]);
                   }}
                   className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
-                  Edit
+                  {t("adm.edit")}
                 </button>
                 <button
                   onClick={async () => {
                     await supabase!.from("site_updates").delete().eq("id", u.id);
                     if (uEditing === u.id) resetUpdate();
-                    await refresh(); flash("Update deleted");
+                    await refresh(); flash(t("adm.updateDeleted"));
                   }}
                   className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                  Delete
+                  {t("adm.delete")}
                 </button>
               </div>
             </div>
           ))}
           {updates.length === 0 && (
             <div className="text-[13px] text-muted">
-              Nothing here yet — the home page shows the list that ships with the
-              code until the first one is written.
+              {t("adm.noUpdates")}
             </div>
           )}
         </div>
@@ -503,15 +499,15 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
       {/* ── Announcements ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">FC announcements (featured card on the home page)</div>
+        <div className="font-display font-semibold">{t("adm.anns")}</div>
         <div className="mt-3 flex flex-col gap-2">
           {aEditing !== null && (
-            <div className="text-[12.5px] text-accent">Editing an existing announcement</div>
+            <div className="text-[12.5px] text-accent">{t("adm.editingAnn")}</div>
           )}
           <input value={aTitle} onChange={(e) => setATitle(e.target.value.slice(0, 120))}
-                 placeholder="Announcement title" className={inputCls} />
+                 placeholder={t("adm.annTitle")} className={inputCls} />
           <textarea value={aBody} onChange={(e) => setABody(e.target.value.slice(0, 2000))}
-                    rows={3} placeholder="Details (optional)" className={inputCls} />
+                    rows={3} placeholder={t("adm.details")} className={inputCls} />
           <ImagePicker supabase={supabase!} value={aImage} onChange={setAImage} />
           <div className="flex flex-wrap gap-2">
             <button
@@ -529,16 +525,16 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 if (error) { flash(`Save failed: ${error.message}`); return; }
                 setATitle(""); setABody(""); setAImage(null); setAEditing(null);
                 await refresh();
-                flash(aEditing !== null ? "Announcement updated" : "Announcement posted");
+                flash(aEditing !== null ? t("adm.annUpdated") : t("adm.annPosted"));
               }}
               className="self-start rounded-lg border border-accent bg-accent/15 px-4 py-2 text-accent hover:bg-accent/25">
-              {aEditing !== null ? "Save changes" : "Post announcement"}
+              {aEditing !== null ? t("adm.saveChanges") : t("adm.postAnn")}
             </button>
             {aEditing !== null && (
               <button
                 onClick={() => { setAEditing(null); setATitle(""); setABody(""); setAImage(null); }}
                 className="rounded-lg border border-line px-4 py-2 text-muted hover:border-muted hover:text-ink">
-                Cancel
+                {t("adm.cancel")}
               </button>
             )}
           </div>
@@ -577,7 +573,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                     setAImage(a.image_url);
                   }}
                   className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
-                  Edit
+                  {t("adm.edit")}
                 </button>
                 <button
                   onClick={async () => {
@@ -585,35 +581,35 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                     if (aEditing === a.id) {
                       setAEditing(null); setATitle(""); setABody(""); setAImage(null);
                     }
-                    await refresh(); flash("Announcement deleted");
+                    await refresh(); flash(t("adm.annDeleted"));
                   }}
                   className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                  Delete
+                  {t("adm.delete")}
                 </button>
               </div>
             </div>
           ))}
-          {anns.length === 0 && <div className="text-[13px] text-muted">No announcements yet</div>}
+          {anns.length === 0 && <div className="text-[13px] text-muted">{t("adm.noAnns")}</div>}
         </div>
       </section>
 
       {/* ── Timeline posts ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">Timeline posts (alongside official news)</div>
+        <div className="font-display font-semibold">{t("adm.posts")}</div>
         <p className="mt-1 text-[12.5px] text-muted">
-          e.g. &ldquo;FC house has moved&rdquo;, &ldquo;7.5 group photo meetup&rdquo; — interleaved with game news by date
+          {t("adm.postsHint")}
         </p>
         <div className="mt-3 flex flex-col gap-2">
           <div className="flex flex-wrap gap-2">
             <input value={pTitle} onChange={(e) => setPTitle(e.target.value.slice(0, 120))}
-                   placeholder="Title" className={`${inputCls} min-w-[200px] flex-1`} />
+                   placeholder={t("adm.postTitle")} className={`${inputCls} min-w-[200px] flex-1`} />
             <input type="date" value={pDate} onChange={(e) => setPDate(e.target.value)}
-                   className={inputCls} aria-label="Date" />
+                   className={inputCls} aria-label={t("adm.date")} />
           </div>
           <textarea value={pBody} onChange={(e) => setPBody(e.target.value.slice(0, 1000))}
-                    rows={2} placeholder="Details (optional)" className={inputCls} />
+                    rows={2} placeholder={t("adm.details")} className={inputCls} />
           <input value={pUrl} onChange={(e) => setPUrl(e.target.value)}
-                 placeholder="Link (optional)" className={inputCls} />
+                 placeholder={t("adm.link")} className={inputCls} />
           <ImagePicker supabase={supabase!} value={pImage} onChange={setPImage} />
           <div className="flex flex-wrap gap-2">
             <button
@@ -632,10 +628,10 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                 if (error) { flash(`Save failed: ${error.message}`); return; }
                 setPTitle(""); setPBody(""); setPUrl(""); setPImage(null); setPEditing(null);
                 await refresh();
-                flash(pEditing !== null ? "Post updated" : "Posted to the timeline");
+                flash(pEditing !== null ? t("adm.postUpdated") : t("adm.posted"));
               }}
               className="self-start rounded-lg border border-jade bg-jade/15 px-4 py-2 text-jade hover:bg-jade/25">
-              {pEditing !== null ? "Save changes" : "Post to timeline"}
+              {pEditing !== null ? t("adm.saveChanges") : t("adm.postToTimeline")}
             </button>
             {pEditing !== null && (
               <button
@@ -643,7 +639,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                   setPEditing(null); setPTitle(""); setPBody(""); setPUrl(""); setPImage(null);
                 }}
                 className="rounded-lg border border-line px-4 py-2 text-muted hover:border-muted hover:text-ink">
-                Cancel
+                {t("adm.cancel")}
               </button>
             )}
           </div>
@@ -679,7 +675,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                     setPUrl(p.url ?? ""); setPDate(p.posted_at); setPImage(p.image_url);
                   }}
                   className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
-                  Edit
+                  {t("adm.edit")}
                 </button>
                 <button
                   onClick={async () => {
@@ -687,24 +683,24 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                     if (pEditing === p.id) {
                       setPEditing(null); setPTitle(""); setPBody(""); setPUrl(""); setPImage(null);
                     }
-                    await refresh(); flash("Post deleted");
+                    await refresh(); flash(t("adm.postDeleted"));
                   }}
                   className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                  Delete
+                  {t("adm.delete")}
                 </button>
               </div>
             </div>
           ))}
-          {posts.length === 0 && <div className="text-[13px] text-muted">No posts yet</div>}
+          {posts.length === 0 && <div className="text-[13px] text-muted">{t("adm.noPosts")}</div>}
         </div>
       </section>
 
       {/* ── Hide members / internal notes ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">Member board controls</div>
+        <div className="font-display font-semibold">{t("adm.board")}</div>
         <input value={pick}
                onChange={(e) => { setPick(e.target.value); setSelected(null); }}
-               placeholder="Search member name…" className={`${inputCls} mt-3 w-full`} />
+               placeholder={t("adm.searchMember")} className={`${inputCls} mt-3 w-full`} />
         {suggestions.length > 0 && !selected && (
           <div className="mt-2 flex flex-wrap gap-2">
             {suggestions.map((s) => (
@@ -723,7 +719,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           <div className="mt-3 flex flex-wrap items-center gap-2.5">
             <span className="font-data font-semibold">{selected.name}</span>
             <input value={note} onChange={(e) => setNote(e.target.value.slice(0, 200))}
-                   placeholder="Internal note (optional)"
+                   placeholder={t("adm.note")}
                    className={`${inputCls} min-w-[180px] flex-1 py-1.5 text-[13px]`} />
             {[false, true].map((h) => (
               <button key={String(h)}
@@ -734,35 +730,35 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                           updated_at: new Date().toISOString(),
                         });
                         await refresh();
-                        flash(h ? "Hidden from the board" : "Saved (still visible)");
+                        flash(h ? t("adm.hidden") : t("adm.savedVisible"));
                       }}
                       className={`rounded-lg border px-3 py-1.5 text-[13px] ${
                         h ? "border-chili/50 text-chili hover:bg-chili/10"
                           : "border-jade/50 text-jade hover:bg-jade/10"}`}>
-                {h ? "Hide from board" : "Keep visible + save note"}
+                {h ? t("adm.hideFromBoard") : t("adm.keepVisible")}
               </button>
             ))}
           </div>
         )}
         {overrides.length > 0 && (
           <div className="mt-4 flex flex-col gap-1.5">
-            <div className="text-[12px] uppercase tracking-wider text-muted">Active overrides</div>
+            <div className="text-[12px] uppercase tracking-wider text-muted">{t("adm.overrides")}</div>
             {overrides.map((o) => (
               <div key={o.character_id}
                    className="flex items-center justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2 text-[13px]">
                 <span className="min-w-0 truncate">
                   <b className="font-data">{nameOf(o.character_id)}</b>
-                  {o.hidden && <span className="ml-2 text-chili">hidden</span>}
+                  {o.hidden && <span className="ml-2 text-chili">{t("adm.isHidden")}</span>}
                   {o.note && <span className="ml-2 text-muted">— {o.note}</span>}
                 </span>
                 <button
                   onClick={async () => {
                     await supabase!.from("member_overrides").delete()
                       .eq("character_id", o.character_id);
-                    await refresh(); flash("Override cleared");
+                    await refresh(); flash(t("adm.cleared"));
                   }}
                   className="shrink-0 rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-muted hover:text-ink">
-                  Clear
+                  {t("adm.clear")}
                 </button>
               </div>
             ))}
@@ -772,15 +768,13 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
 
       {/* ── Claim management ── */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
-        <div className="font-display font-semibold">Claimed characters</div>
+        <div className="font-display font-semibold">{t("adm.claims")}</div>
         <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
           {/* The count belongs above the table rather than under it: "how many
               have claimed a character" is a question about the whole list, and
               answering it after the list means scrolling to the end to find
               out. */}
-          <b className="text-ink">{claims.length}</b> character
-          {claims.length === 1 ? " has" : "s have"} been claimed. Releasing one
-          frees it for somebody else to take.
+          {t("adm.claimCount", { n: claims.length })}
         </p>
 
         {/* A table because these are four facts about each of many rows, and a
@@ -791,8 +785,9 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
           <table className="w-full min-w-[28rem] border-collapse text-[13px]">
             <thead>
               <tr className="border-b border-line text-left font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                {([["character", "Character"],
-                   ["provider", "Signed in with"], ["claimed", "Claimed"]] as const)
+                {([["character", "adm.colCharacter"],
+                   ["provider", "adm.colProvider"],
+                   ["claimed", "adm.colClaimed"]] as const)
                   .map(([by, label]) => (
                     <th key={by} className="py-1.5 pr-3 font-normal"
                         aria-sort={claimSort.by === by
@@ -801,7 +796,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                       <button onClick={() => sortClaims(by)}
                               className={`inline-flex items-center gap-1 uppercase tracking-[0.14em] transition-colors hover:text-ink ${
                                 claimSort.by === by ? "text-accent" : ""}`}>
-                        {label}
+                        {t(label)}
                         {/* The arrow only on the column doing the sorting. One
                             on every header is four claims about the order when
                             only one of them is true. */}
@@ -850,7 +845,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                             {p.names.map((name) => (
                               <span key={name}
                                     title={p.sure ? undefined
-                                      : "Guessed from the avatar's host — run migration_v21.sql to record it properly"}
+                                      : t("adm.guessed")}
                                     className={`rounded-full border px-2 py-0.5 text-[11px] ${
                                       PROVIDER_TONE[name] ?? "border-line text-muted"} ${
                                       p.sure ? "" : "opacity-60"}`}>
@@ -866,7 +861,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                         {c.character_verified_at
                           ? new Date(c.character_verified_at).toLocaleDateString("en-GB",
                               { day: "numeric", month: "short", year: "numeric" })
-                          : <span className="opacity-60">unverified</span>}
+                          : <span className="opacity-60">{t("adm.unverified")}</span>}
                       </td>
                       <td className="py-1.5 text-right">
                         <button
@@ -874,10 +869,10 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
                             await supabase!.from("profiles")
                               .update({ character_id: null, character_name: null })
                               .eq("id", c.id);
-                            await refresh(); flash("Claim released");
+                            await refresh(); flash(t("adm.released"));
                           }}
                           className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
-                          Release
+                          {t("adm.release")}
                         </button>
                       </td>
                     </tr>
@@ -886,7 +881,7 @@ export default function AdminPanel({ memberOptions }: { memberOptions: Option[] 
             </tbody>
           </table>
           {claims.length === 0 && (
-            <div className="py-2 text-[13px] text-muted">Nobody has claimed a character yet</div>
+            <div className="py-2 text-[13px] text-muted">{t("adm.noClaims")}</div>
           )}
         </div>
       </section>

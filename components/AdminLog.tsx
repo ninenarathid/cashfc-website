@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useLang, type Key } from "@/lib/i18n";
 import { postPath } from "@/lib/gallery";
 
 interface Line {
@@ -30,22 +31,32 @@ const PAGE = 40;
  * working out what went wrong, it names database tables either way, and a line
  * that says gallery_posts.delete in two languages is not twice as clear.
  */
-const VERB: Record<string, string> = {
-  insert: "added", update: "changed", delete: "removed",
+const VERB: Record<string, Key> = {
+  insert: "adm.opInsert", update: "adm.opUpdate", delete: "adm.opDelete",
 };
 
-const THING: Record<string, string> = {
-  gallery_posts: "a gallery post",
-  gallery_images: "a picture",
-  gallery_tags: "a tag",
-  gallery_comments: "a comment",
-  gallery_likes: "a popoto on a picture",
-  profiles: "a profile",
-  announcements: "an announcement",
-  site_settings: "a site setting",
-  member_overrides: "a member override",
-  timeline_posts: "a timeline post",
-  kudos: "a popoto on a profile",
+/**
+ * What each table is, in words rather than in its own name.
+ *
+ * The raw table name is still the fallback for anything not listed: those are
+ * the database's own words, and a row for a table nobody has named here should
+ * say which table it was rather than nothing at all.
+ */
+const THING: Record<string, Key> = {
+  gallery_posts: "adm.thPost",
+  gallery_images: "adm.thImage",
+  gallery_tags: "adm.thTag",
+  gallery_comments: "adm.thComment",
+  gallery_likes: "adm.thLikes",
+  profiles: "adm.thProfile",
+  announcements: "adm.thAnn",
+  site_settings: "adm.thSetting",
+  member_overrides: "adm.thOverride",
+  timeline_posts: "adm.thTimeline",
+  kudos: "adm.thKudos",
+  feedback_threads: "adm.thThread",
+  feedback_messages: "adm.thMessage",
+  site_updates: "adm.thUpdate",
 };
 
 /** The columns worth naming in a one-line summary of a change. */
@@ -73,10 +84,17 @@ function summarise(line: Line): string | null {
  * somebody will have without caring which. So the list is filters rather than
  * tables: one entry covering both, and one for each on its own.
  */
-const FILTERS: { value: string; label: string; kinds: string[] }[] = [
-  { value: "popoto", label: "a popoto (either kind)",
-    kinds: ["kudos", "gallery_likes"] },
-  ...Object.entries(THING).map(([value, label]) => ({ value, label, kinds: [value] })),
+const POPOTO = ["kudos", "gallery_likes"];
+
+const FILTERS: { value: string; label: Key; kinds: string[] }[] = [
+  // First and together, because a popoto is the thing anybody comes to this log
+  // looking for, and the three ways of asking for one belong side by side
+  // rather than scattered down a list of table names.
+  { value: "popoto", label: "adm.popotoAny", kinds: POPOTO },
+  ...POPOTO.map((k) => ({ value: k, label: THING[k], kinds: [k] })),
+  ...Object.entries(THING)
+    .filter(([k]) => !POPOTO.includes(k))
+    .map(([value, label]) => ({ value, label, kinds: [value] })),
 ];
 
 /**
@@ -93,13 +111,14 @@ const FILTERS: { value: string; label: string; kinds: string[] }[] = [
 function Recipient(
   { line, nameOf }: { line: Line; nameOf: (id: number) => string },
 ) {
+  const { t } = useLang();
   const d = line.detail ?? {};
   if (line.target_kind === "kudos") {
     const to = Number(d.receiver_character_id);
     if (!Number.isFinite(to)) return null;
     return (
       <>
-        <span className="text-muted">to</span>
+        <span className="text-muted">{t("adm.toWhom")}</span>
         <Link href={`/member/${to}`}
               className="font-medium text-ink no-underline hover:text-accent">
           {nameOf(to)}
@@ -112,10 +131,10 @@ function Recipient(
     if (!Number.isFinite(post)) return null;
     return (
       <>
-        <span className="text-muted">on</span>
+        <span className="text-muted">{t("adm.onWhat")}</span>
         <Link href={postPath(post)}
               className="font-medium text-ink no-underline hover:text-accent">
-          picture #{post}
+          {t("adm.picture", { n: post })}
         </Link>
       </>
     );
@@ -136,14 +155,15 @@ const daysAgo = (n: number) => {
 
 /** The spans somebody actually asks a log for. */
 const SPANS = [
-  { label: "Today", from: () => today() },
-  { label: "7 days", from: () => daysAgo(6) },
-  { label: "30 days", from: () => daysAgo(29) },
+  { label: "adm.spanToday" as Key, from: () => today() },
+  { label: "adm.span7" as Key, from: () => daysAgo(6) },
+  { label: "adm.span30" as Key, from: () => daysAgo(29) },
 ];
 
 export default function AdminLog(
   { nameOf }: { nameOf: (id: number) => string },
 ) {
+  const { t } = useLang();
   const [supabase] = useState(createClient);
   const [lines, setLines] = useState<Line[]>([]);
   const [more, setMore] = useState(true);
@@ -192,23 +212,21 @@ export default function AdminLog(
 
   return (
     <section className="mt-5 rounded-xl border border-line bg-surface p-4">
-      <div className="font-display font-semibold">Activity log</div>
+      <div className="font-display font-semibold">{t("adm.log")}</div>
       <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-        Every insert, change and deletion, recorded by the database itself — so it
-        holds what actually happened rather than what the site remembered to
-        mention, and an admin&rsquo;s actions sit in it beside everybody else&rsquo;s.
+        {t("adm.logHint")}
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <input value={who} onChange={(e) => setWho(e.target.value)}
-               placeholder="Who…"
+               placeholder={t("adm.who")}
                className="w-40 rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink placeholder:text-muted" />
         <select value={kind} onChange={(e) => setKind(e.target.value)}
-                aria-label="What kind of thing"
+                aria-label={t("adm.anything")}
                 className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink">
-          <option value="">Anything</option>
+          <option value="">{t("adm.anything")}</option>
           {FILTERS.map((f) => (
-            <option key={f.value} value={f.value}>{f.label}</option>
+            <option key={f.value} value={f.value}>{t(f.label)}</option>
           ))}
         </select>
 
@@ -216,23 +234,23 @@ export default function AdminLog(
             nobody wants to do it for "what happened today", so the common
             spans are a click. */}
         <input type="date" value={from} max={to || undefined}
-               onChange={(e) => setFrom(e.target.value)} aria-label="From"
+               onChange={(e) => setFrom(e.target.value)} aria-label={t("adm.from")}
                className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink" />
-        <span className="self-center text-[12.5px] text-muted">to</span>
+        <span className="self-center text-[12.5px] text-muted">{t("adm.to")}</span>
         <input type="date" value={to} min={from || undefined}
-               onChange={(e) => setTo(e.target.value)} aria-label="To"
+               onChange={(e) => setTo(e.target.value)} aria-label={t("adm.to")}
                className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink" />
 
         {SPANS.map((s) => (
           <button key={s.label} onClick={() => { setFrom(s.from()); setTo(today()); }}
                   className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
-            {s.label}
+            {t(s.label)}
           </button>
         ))}
         {(from || to) && (
           <button onClick={() => { setFrom(""); setTo(""); }}
                   className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili">
-            Any date
+            {t("adm.anyDate")}
           </button>
         )}
       </div>
@@ -246,10 +264,11 @@ export default function AdminLog(
                  className="rounded-lg border border-line bg-card px-3 py-2 text-[12.5px]">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="font-data text-[11.5px] text-muted">{when(l.at)}</span>
-                <span className="font-medium text-ink">{l.actor_name ?? "somebody"}</span>
-                <span className="text-muted">{VERB[op] ?? op}</span>
+                <span className="font-medium text-ink">{l.actor_name ?? t("adm.somebody")}</span>
+                <span className="text-muted">{VERB[op] ? t(VERB[op]) : op}</span>
                 <span className="text-ink/85">
-                  {THING[l.target_kind ?? ""] ?? l.target_kind}
+                  {THING[l.target_kind ?? ""]
+                    ? t(THING[l.target_kind ?? ""]) : l.target_kind}
                 </span>
                 <Recipient line={l} nameOf={nameOf} />
                 {l.target_id && (
@@ -258,7 +277,7 @@ export default function AdminLog(
                 {l.detail && (
                   <button onClick={() => setExpanded(expanded === l.id ? null : l.id)}
                           className="ml-auto text-[11.5px] text-accent underline">
-                    {expanded === l.id ? "less" : "detail"}
+                    {expanded === l.id ? t("adm.less") : t("adm.detail")}
                   </button>
                 )}
               </div>
@@ -275,14 +294,14 @@ export default function AdminLog(
         })}
 
         {lines.length === 0 && !loading && (
-          <p className="py-4 text-center text-[12.5px] text-muted">Nothing recorded yet.</p>
+          <p className="py-4 text-center text-[12.5px] text-muted">{t("adm.nothingLogged")}</p>
         )}
       </div>
 
       {more && (
         <button onClick={() => fetchPage(lines.length, false)} disabled={loading}
                 className="mt-3 rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-accent hover:text-accent disabled:opacity-50">
-          {loading ? "Loading…" : "Load more"}
+          {loading ? t("adm.loading") : t("adm.loadMore")}
         </button>
       )}
     </section>

@@ -338,6 +338,439 @@ const DICT = {
     en: "Something happened.",
     th: "มีความเคลื่อนไหวใหม่",
   },
+  /* ── The admin pages ───────────────────────────────────────────────
+     Translated because the FC is Thai and an admin should not have to
+     read a second language to run their own site. The audit log keeps
+     its raw table names as a fallback: those are the database's words
+     and translating them would make a search for one fail. */
+  "adm.title": {
+    en: "Site admin",
+    th: "หน้าผู้ดูแลระบบ",
+  },
+  "adm.checking": {
+    en: "Checking permissions…",
+    th: "กำลังตรวจสอบสิทธิ์…",
+  },
+  "adm.denied": {
+    en: "Admins only — if you should be an admin, run the grant statement at the end of supabase/schema.sql in the SQL Editor first.",
+    th: "สำหรับผู้ดูแลเท่านั้น — ถ้าคุณควรเป็นผู้ดูแล ให้รันคำสั่ง grant ท้ายไฟล์ supabase/schema.sql ใน SQL Editor ก่อน",
+  },
+  "adm.poweredOff": {
+    en: "Your admin powers are switched off, so you are seeing the site the way the rest of the FC does — and this page is not part of that. Turn them back on to carry on.",
+    th: "ตอนนี้คุณปิดสิทธิ์ผู้ดูแลอยู่ จึงเห็นเว็บแบบเดียวกับสมาชิกทั่วไป — ซึ่งไม่มีหน้านี้ เปิดสิทธิ์กลับมาเพื่อใช้งานต่อ",
+  },
+  "adm.discord": {
+    en: "FC Discord",
+    th: "Discord ของ FC",
+  },
+  "adm.discordHint": {
+    en: "Server ID (enable Server Widget in Discord first) + invite link — powers the widget on the home page",
+    th: "Server ID (เปิด Server Widget ใน Discord ก่อน) และลิงก์เชิญ — ใช้แสดงกล่อง Discord บนหน้าแรก",
+  },
+  "adm.discordId": {
+    en: "Discord Server ID",
+    th: "Discord Server ID",
+  },
+  "adm.save": {
+    en: "Save",
+    th: "บันทึก",
+  },
+  "adm.saved": {
+    en: "Saved",
+    th: "บันทึกแล้ว",
+  },
+  "adm.updates": {
+    en: "Site updates (the box on the home page)",
+    th: "อัพเดทเว็บ (กล่องบนหน้าแรก)",
+  },
+  "adm.updatesHint": {
+    en: "One entry per day. Write each line in both languages — a reader sees the one they are reading the site in, and a line with only one side falls back to it rather than showing blank.",
+    th: "หนึ่งรายการต่อหนึ่งวัน เขียนทุกบรรทัดทั้งสองภาษา — ผู้อ่านจะเห็นภาษาที่ตัวเองใช้อยู่ ถ้าเขียนไว้ภาษาเดียวระบบจะใช้ภาษานั้นแทนที่จะปล่อยว่าง",
+  },
+  "adm.editingDay": {
+    en: "Editing an existing day",
+    th: "กำลังแก้ไขรายการของวันที่มีอยู่แล้ว",
+  },
+  "adm.dayTitleTh": {
+    en: "หัวข้อของวัน (ไม่ใส่ก็ได้)",
+    th: "หัวข้อของวัน (ไม่ใส่ก็ได้)",
+  },
+  "adm.dayTitleEn": {
+    en: "Headline for the day (optional)",
+    th: "หัวข้อภาษาอังกฤษ (ไม่ใส่ก็ได้)",
+  },
+  "adm.lineTh": {
+    en: "ข้อความภาษาไทย",
+    th: "ข้อความภาษาไทย",
+  },
+  "adm.lineEn": {
+    en: "The same line in English",
+    th: "ข้อความเดียวกันเป็นภาษาอังกฤษ",
+  },
+  "adm.removeLine": {
+    en: "Remove line",
+    th: "ลบบรรทัด",
+  },
+  "adm.addLine": {
+    en: "+ Add another line",
+    th: "+ เพิ่มบรรทัด",
+  },
+  "adm.postUpdate": {
+    en: "Post update",
+    th: "โพสต์อัพเดท",
+  },
+  "adm.saveChanges": {
+    en: "Save changes",
+    th: "บันทึกการแก้ไข",
+  },
+  "adm.date": {
+    en: "Date",
+    th: "วันที่",
+  },
+  "adm.edit": {
+    en: "Edit",
+    th: "แก้ไข",
+  },
+  "adm.delete": {
+    en: "Delete",
+    th: "ลบ",
+  },
+  "adm.cancel": {
+    en: "Cancel",
+    th: "ยกเลิก",
+  },
+  "adm.needOneLine": {
+    en: "Write at least one line first",
+    th: "เขียนอย่างน้อยหนึ่งบรรทัดก่อน",
+  },
+  "adm.updateSaved": {
+    en: "Update saved",
+    th: "บันทึกอัพเดทแล้ว",
+  },
+  "adm.updatePosted": {
+    en: "Update posted",
+    th: "โพสต์อัพเดทแล้ว",
+  },
+  "adm.updateDeleted": {
+    en: "Update deleted",
+    th: "ลบอัพเดทแล้ว",
+  },
+  "adm.noTranslation": {
+    en: "· missing a translation",
+    th: "· ยังไม่มีคำแปล",
+  },
+  "adm.lines": {
+    en: "{n} lines",
+    th: "{n} บรรทัด",
+  },
+  "adm.noUpdates": {
+    en: "Nothing here yet — the home page shows the list that ships with the code until the first one is written.",
+    th: "ยังไม่มีอะไร — หน้าแรกจะแสดงรายการที่ติดมากับโค้ดจนกว่าจะมีการเขียนรายการแรก",
+  },
+  "adm.anns": {
+    en: "FC announcements (featured card on the home page)",
+    th: "ประกาศของ FC (กล่องเด่นบนหน้าแรก)",
+  },
+  "adm.editingAnn": {
+    en: "Editing an existing announcement",
+    th: "กำลังแก้ไขประกาศที่มีอยู่แล้ว",
+  },
+  "adm.annTitle": {
+    en: "Announcement title",
+    th: "หัวข้อประกาศ",
+  },
+  "adm.details": {
+    en: "Details (optional)",
+    th: "รายละเอียด (ไม่ใส่ก็ได้)",
+  },
+  "adm.postAnn": {
+    en: "Post announcement",
+    th: "โพสต์ประกาศ",
+  },
+  "adm.annPosted": {
+    en: "Announcement posted",
+    th: "โพสต์ประกาศแล้ว",
+  },
+  "adm.annUpdated": {
+    en: "Announcement updated",
+    th: "แก้ไขประกาศแล้ว",
+  },
+  "adm.annDeleted": {
+    en: "Announcement deleted",
+    th: "ลบประกาศแล้ว",
+  },
+  "adm.noAnns": {
+    en: "No announcements yet",
+    th: "ยังไม่มีประกาศ",
+  },
+  "adm.posts": {
+    en: "Timeline posts (alongside official news)",
+    th: "โพสต์ไทม์ไลน์ (แสดงร่วมกับข่าวทางการ)",
+  },
+  "adm.postsHint": {
+    en: "e.g. “FC house has moved”, “7.5 group photo meetup” — interleaved with game news by date",
+    th: "เช่น “บ้าน FC ย้ายแล้ว”, “นัดถ่ายรูปหมู่ 7.5” — เรียงสลับกับข่าวเกมตามวันที่",
+  },
+  "adm.postTitle": {
+    en: "Title",
+    th: "หัวข้อ",
+  },
+  "adm.link": {
+    en: "Link (optional)",
+    th: "ลิงก์ (ไม่ใส่ก็ได้)",
+  },
+  "adm.postToTimeline": {
+    en: "Post to timeline",
+    th: "โพสต์ลงไทม์ไลน์",
+  },
+  "adm.posted": {
+    en: "Posted to the timeline",
+    th: "โพสต์ลงไทม์ไลน์แล้ว",
+  },
+  "adm.postUpdated": {
+    en: "Post updated",
+    th: "แก้ไขโพสต์แล้ว",
+  },
+  "adm.postDeleted": {
+    en: "Post deleted",
+    th: "ลบโพสต์แล้ว",
+  },
+  "adm.noPosts": {
+    en: "No posts yet",
+    th: "ยังไม่มีโพสต์",
+  },
+  "adm.board": {
+    en: "Member board controls",
+    th: "การจัดการรายชื่อสมาชิก",
+  },
+  "adm.searchMember": {
+    en: "Search member name…",
+    th: "ค้นหาชื่อสมาชิก…",
+  },
+  "adm.note": {
+    en: "Internal note (optional)",
+    th: "หมายเหตุภายใน (ไม่ใส่ก็ได้)",
+  },
+  "adm.hideFromBoard": {
+    en: "Hide from board",
+    th: "ซ่อนจากรายชื่อ",
+  },
+  "adm.keepVisible": {
+    en: "Keep visible + save note",
+    th: "แสดงต่อ + บันทึกหมายเหตุ",
+  },
+  "adm.hidden": {
+    en: "Hidden from the board",
+    th: "ซ่อนจากรายชื่อแล้ว",
+  },
+  "adm.savedVisible": {
+    en: "Saved (still visible)",
+    th: "บันทึกแล้ว (ยังแสดงอยู่)",
+  },
+  "adm.overrides": {
+    en: "Active overrides",
+    th: "รายการที่ตั้งค่าไว้",
+  },
+  "adm.isHidden": {
+    en: "hidden",
+    th: "ซ่อนอยู่",
+  },
+  "adm.clear": {
+    en: "Clear",
+    th: "ล้าง",
+  },
+  "adm.cleared": {
+    en: "Override cleared",
+    th: "ล้างการตั้งค่าแล้ว",
+  },
+  "adm.claims": {
+    en: "Claimed characters",
+    th: "ตัวละครที่อ้างสิทธิ์แล้ว",
+  },
+  "adm.claimCount": {
+    en: "{n} characters have been claimed.",
+    th: "มีตัวละครที่อ้างสิทธิ์แล้ว {n} ตัว",
+  },
+  "adm.colCharacter": {
+    en: "Character",
+    th: "ตัวละคร",
+  },
+  "adm.colProvider": {
+    en: "Signed in with",
+    th: "เข้าสู่ระบบด้วย",
+  },
+  "adm.colClaimed": {
+    en: "Claimed",
+    th: "วันที่อ้างสิทธิ์",
+  },
+  "adm.unverified": {
+    en: "unverified",
+    th: "ยังไม่ยืนยัน",
+  },
+  "adm.release": {
+    en: "Release",
+    th: "ปล่อยสิทธิ์",
+  },
+  "adm.released": {
+    en: "Claim released",
+    th: "ปล่อยสิทธิ์แล้ว",
+  },
+  "adm.noClaims": {
+    en: "Nobody has claimed a character yet",
+    th: "ยังไม่มีใครอ้างสิทธิ์ตัวละคร",
+  },
+  "adm.guessed": {
+    en: "Guessed from the avatar's host — run migration_v21.sql to record it properly",
+    th: "เดาจากที่อยู่ของรูปโปรไฟล์ — รัน migration_v21.sql เพื่อบันทึกค่าจริง",
+  },
+  "adm.log": {
+    en: "Activity log",
+    th: "บันทึกการใช้งาน",
+  },
+  "adm.logHint": {
+    en: "Every insert, change and deletion, recorded by the database itself.",
+    th: "ทุกการเพิ่ม แก้ไข และลบ บันทึกโดยฐานข้อมูลเอง",
+  },
+  "adm.who": {
+    en: "Who…",
+    th: "ใคร…",
+  },
+  "adm.anything": {
+    en: "Anything",
+    th: "ทั้งหมด",
+  },
+  "adm.from": {
+    en: "From",
+    th: "ตั้งแต่",
+  },
+  "adm.to": {
+    en: "to",
+    th: "ถึง",
+  },
+  "adm.spanToday": {
+    en: "Today",
+    th: "วันนี้",
+  },
+  "adm.span7": {
+    en: "7 days",
+    th: "7 วัน",
+  },
+  "adm.span30": {
+    en: "30 days",
+    th: "30 วัน",
+  },
+  "adm.anyDate": {
+    en: "Any date",
+    th: "ทุกวัน",
+  },
+  "adm.detail": {
+    en: "detail",
+    th: "รายละเอียด",
+  },
+  "adm.less": {
+    en: "less",
+    th: "ย่อ",
+  },
+  "adm.nothingLogged": {
+    en: "Nothing recorded yet.",
+    th: "ยังไม่มีบันทึก",
+  },
+  "adm.loadMore": {
+    en: "Load more",
+    th: "โหลดเพิ่ม",
+  },
+  "adm.loading": {
+    en: "Loading…",
+    th: "กำลังโหลด…",
+  },
+  "adm.somebody": {
+    en: "somebody",
+    th: "บางคน",
+  },
+  "adm.opInsert": {
+    en: "added",
+    th: "เพิ่ม",
+  },
+  "adm.opUpdate": {
+    en: "changed",
+    th: "แก้ไข",
+  },
+  "adm.opDelete": {
+    en: "removed",
+    th: "ลบ",
+  },
+  "adm.toWhom": {
+    en: "to",
+    th: "ให้",
+  },
+  "adm.onWhat": {
+    en: "on",
+    th: "ที่",
+  },
+  "adm.picture": {
+    en: "picture #{n}",
+    th: "รูป #{n}",
+  },
+  "adm.popotoAny": {
+    en: "a popoto (either kind)",
+    th: "popoto (ทั้งสองแบบ)",
+  },
+  "adm.thKudos": {
+    en: "a popoto on a profile",
+    th: "popoto ที่หน้าโปรไฟล์",
+  },
+  "adm.thLikes": {
+    en: "a popoto on a picture",
+    th: "popoto ที่รูปภาพ",
+  },
+  "adm.thPost": {
+    en: "a gallery post",
+    th: "โพสต์ในแกลเลอรี",
+  },
+  "adm.thImage": {
+    en: "a picture",
+    th: "รูปภาพ",
+  },
+  "adm.thTag": {
+    en: "a tag",
+    th: "การแท็ก",
+  },
+  "adm.thComment": {
+    en: "a comment",
+    th: "คอมเมนต์",
+  },
+  "adm.thProfile": {
+    en: "a profile",
+    th: "โปรไฟล์",
+  },
+  "adm.thAnn": {
+    en: "an announcement",
+    th: "ประกาศ",
+  },
+  "adm.thSetting": {
+    en: "a site setting",
+    th: "การตั้งค่าเว็บ",
+  },
+  "adm.thOverride": {
+    en: "a member override",
+    th: "การตั้งค่ารายชื่อสมาชิก",
+  },
+  "adm.thTimeline": {
+    en: "a timeline post",
+    th: "โพสต์ไทม์ไลน์",
+  },
+  "adm.thThread": {
+    en: "a feedback thread",
+    th: "เรื่องใน Feedback",
+  },
+  "adm.thMessage": {
+    en: "a feedback message",
+    th: "ข้อความใน Feedback",
+  },
+  "adm.thUpdate": {
+    en: "a site update",
+    th: "อัพเดทเว็บ",
+  },
   "admin.modeTitle": { en: "Admin powers", th: "สิทธิ์แอดมิน" },
   "admin.modeHint": {
     en: "Turn them off to browse as an ordinary member — no hide buttons, no posting for other people, and a gallery that is only open if it is open to everyone. Nothing about your account changes.",
