@@ -39,6 +39,25 @@ export const metadata: Metadata = {
   title: "Cafe And SHabu — Member Board",
   description:
     "Free Company member board: see who raids, collects and crafts at a glance. Updated daily.",
+  // Reachable by link, not by search. This is a board about real people —
+  // names, faces, birthdays, what they play and when they were last online —
+  // put together for the FC, and a member did not agree to be a search result
+  // when they let the pipeline read their Lodestone page.
+  //
+  // Set once here and inherited by every page: no page sets its own `robots`,
+  // and Next merges the field down from the root layout.
+  //
+  // follow stays true on purpose. The pages are already out there and Google
+  // has to fetch each one to learn it should be dropped; letting the crawler
+  // walk the links is how the noindex reaches five hundred member pages
+  // without waiting for it to rediscover each on its own. See app/robots.ts
+  // for why this is not done with a Disallow instead.
+  robots: {
+    index: false,
+    follow: true,
+    noarchive: true,
+    googleBot: { index: false, follow: true, noimageindex: true },
+  },
 };
 
 export default function RootLayout({
