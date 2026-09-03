@@ -15067,7 +15067,7 @@
  },
  "44926008": {
   "name": "Shiraishi Shu",
-  "parse": 98,
+  "parse": 99,
   "ult": 3,
   "mounts": 99,
   "minions": 185,
@@ -15095,7 +15095,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-03"
  },
  "50131148": {
   "name": "Shiryu Shadow",
@@ -15251,6 +15251,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Viper": "master",
    "Samurai": "legendary"
   },
   "ex": [
@@ -15894,6 +15895,7 @@
    "goldsaucer": "expert"
   },
   "jobs": {
+   "Pictomancer": "expert",
    "Sage": "legendary"
   },
   "ex": [
@@ -16348,7 +16350,7 @@
  },
  "48152565": {
   "name": "Yuma Miretmoor",
-  "parse": 89,
+  "parse": 95,
   "ult": 3,
   "mounts": 70,
   "minions": 119,
@@ -16364,7 +16366,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Sage": "master",
+   "Sage": "legendary",
    "DarkKnight": "expert",
    "Gunbreaker": "expert"
   },
@@ -16378,7 +16380,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-03"
  },
  "42832439": {
   "name": "Yume Mukuchi",
@@ -16448,7 +16450,7 @@
  },
  "39850342": {
   "name": "Zene Neko",
-  "parse": 90,
+  "parse": 93,
   "ult": 0,
   "mounts": 39,
   "minions": 67,
@@ -16464,14 +16466,14 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "master"
+   "WhiteMage": "legendary"
   },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-03"
  },
  "10926041": {
   "name": "Zero Einzbern",
@@ -16558,6 +16560,7 @@
   "tiers": {},
   "jobs": {
    "Ninja": "master",
+   "Viper": "expert",
    "WhiteMage": "master"
   },
   "ex": [

@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-09-03",
+   "type": "parse_up",
+   "id": 44926008,
+   "name": "Shiraishi Shu",
+   "text": "set a new best parse: 99 on Honey B. Lovely as Gunbreaker"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "job_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "is now a Master Viper"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "job_up",
+   "id": 34597671,
+   "name": "Valkyries Zearaskia",
+   "text": "is now a Expert Pictomancer"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "parse_up",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "set a new best parse: 95 on Brute Bomber as Sage"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "job_up",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "is now a Legendary Sage"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "parse_up",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "set a new best parse: 93 on Honey B. Lovely as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "job_up",
+   "id": 39850342,
+   "name": "Zene Neko",
+   "text": "is now a Legendary White Mage"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "job_up",
+   "id": 34172006,
+   "name": "Zion Zoen",
+   "text": "is now a Expert Viper"
+  },
+  {
+   "date": "2026-09-03",
    "type": "level_100",
    "id": 43335087,
    "name": "Haru Senbonzakura",
@@ -1343,62 +1399,6 @@
    "id": 37056222,
    "name": "Lucine Nokomis",
    "text": "is now a Legendary PvP player ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned Worqor and Peace V — only 0.2% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "is now a Legendary Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "is now a Expert PvP player ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "mounts_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "passed 200 mounts 🐎"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "minions_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "passed 300 minions"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned Occult Enlightenment IV — only 0.2% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "level_100",
-   "id": 58202955,
-   "name": "Trevas Aka",
-   "text": "reached level 100!"
   }
  ]
 }
