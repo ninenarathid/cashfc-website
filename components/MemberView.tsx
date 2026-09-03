@@ -272,15 +272,21 @@ export default function MemberView({
                                  : "h-44 w-32 sm:h-52 sm:w-40"}`} />
           )}
           <div className="min-w-0 flex-1">
+            {/* Whose company this is. For a member it is this one, and the
+                dot beside it says whether they are about; for a guest it is
+                theirs, and that dot would be a claim about a roster they are
+                not on — so it goes grey and says what they are instead.
+                Somebody in no company at all gets the word Guest, which is
+                then the only true thing there is to put here. */}
             <div className="flex items-center gap-2 font-data text-[11px] uppercase tracking-[0.2em] text-ink/60">
               <span
-                title={onVacation ? ON_VACATION_RANK : "Active"}
-                aria-label={onVacation ? ON_VACATION_RANK : "Active"}
+                title={home ? GUEST_RANK : onVacation ? ON_VACATION_RANK : "Active"}
+                aria-label={home ? GUEST_RANK : onVacation ? ON_VACATION_RANK : "Active"}
                 role="img"
                 className={`size-2.5 shrink-0 rounded-full ${
-                  onVacation ? "bg-[#747f8d]" : "bg-[#43b581]"}`}
+                  home ? "bg-[#8b7fd4]" : onVacation ? "bg-[#747f8d]" : "bg-[#43b581]"}`}
               />
-              {fc.name}
+              {home ? (home.fc || GUEST_RANK) : fc.name}
               {memberTitle(m) && ` · ${memberTitle(m)}`}
             </div>
             <h1 className="font-data text-3xl font-bold tracking-tight sm:text-4xl">
@@ -306,7 +312,6 @@ export default function MemberView({
               {home?.world && (
                 <> · {home.world}{home.dc ? ` [${home.dc}]` : ""}</>
               )}
-              {home?.fc && <> · {home.fc}</>}
               {m.race && (
                 <> · {m.race}{m.clan ? ` (${m.clan})` : ""}</>
               )}

@@ -39,10 +39,13 @@ export async function generateMetadata(
 ) {
   const { id } = await params;
   const m = findMember(id);
+  const home = guestHome(Number(id));
   return {
     title: m ? `${m.name} — Cafe And SHabu` : "Member — Cafe And SHabu",
+    // A guest is placed by the two facts an FC member never needs: which world
+    // they are on, and whose company they are in.
     description: m
-      ? [m.name, m.title].filter(Boolean).join(" · ")
+      ? [m.name, m.title, home?.world, home?.fc].filter(Boolean).join(" · ")
       : undefined,
   };
 }

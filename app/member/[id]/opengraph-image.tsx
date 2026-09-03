@@ -3,6 +3,7 @@ import raw from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 import { memberTitle, TAG_COLOR, tagText } from "@/lib/tags";
+import { GUEST_RANK, guestHome } from "@/lib/guest-data";
 
 /**
  * The card Discord draws when somebody pastes a link to a member.
@@ -127,7 +128,8 @@ async function inline(url: string | null | undefined): Promise<string | null> {
  * ladder the member page climbs, one rung long.
  */
 async function chosen(characterId: string) {
-  const none = { avatar: null, cover: null, accent: DEFAULT_ACCENT };
+  const none = { avatar: null, cover: null, accent: DEFAULT_ACCENT,
+                 name: null as string | null };
   if (!supabaseConfigured) return none;
   const ask = (columns: string) => fetch(
     `${SUPABASE_URL}/rest/v1/profiles?character_id=eq.${characterId}` +
@@ -138,12 +140,12 @@ async function chosen(characterId: string) {
     },
   );
   try {
-    let res = await ask("avatar_url,cover_url,share_url,accent_color");
-    if (!res.ok) res = await ask("avatar_url,cover_url,accent_color");
+    let res = await ask("avatar_url,cover_url,share_url,accent_color,character_name");
+    if (!res.ok) res = await ask("avatar_url,cover_url,accent_color,character_name");
     if (!res.ok) return none;
     const rows = await res.json() as {
       avatar_url?: string; cover_url?: string; share_url?: string;
-      accent_color?: string;
+      accent_color?: string; character_name?: string;
     }[];
     // Only a hex colour, and only from this list of characters: it is written
     // straight into a style, and a value from the database has no business
@@ -155,6 +157,9 @@ async function chosen(characterId: string) {
       // Cut for this shape if they bothered; their banner if they did not.
       cover: rows[0]?.share_url ?? rows[0]?.cover_url ?? null,
       accent,
+      // Verified only — the query says so — so this is a name the Lodestone
+      // agreed with, not one somebody typed.
+      name: rows[0]?.character_name ?? null,
     };
   } catch {
     return none;
@@ -167,6 +172,9 @@ export default async function Image(
   const { id } = await params;
   const data = raw as unknown as BoardData;
   const m = data.members.find((x) => String(x.id) === id);
+  // Not on the roster: a friend, a static-mate, somebody's alt on another
+  // world. The card should say whose company they are actually in.
+  const home = m ? undefined : guestHome(Number(id));
 
   const mine = await chosen(id);
   const accent = mine.accent;
@@ -192,7 +200,12 @@ export default async function Image(
       ink: mix(base, "#ffffff", 0.62),
     };
   });
-  const name = m?.name ?? "FC Member";
+  const name = m?.name ?? home?.name ?? mine.name ?? "FC Member";
+  // The plate at the top: this company for a member, theirs for a guest, and
+  // the world underneath either way.
+  const house = home ? (home.fc || GUEST_RANK).toUpperCase()
+                     : (data.fc.name ?? "Cafe And SHabu").toUpperCase();
+  const world = (home?.world ?? data.fc.world ?? "Tonberry").toUpperCase();
   // Nothing stands in for a title nobody set: the line is simply not there.
   const title = m ? memberTitle(m) : null;
   // Long names have to give way rather than run off the edge of the card.
@@ -246,10 +259,10 @@ export default async function Image(
               <div style={{ display: "flex", width: 11, height: 11, borderRadius: 999,
                             background: accent }} />
               <div style={{ display: "flex", color: accent, letterSpacing: 6, fontSize: 20 }}>
-                CAFE AND SHABU
+                {house}
               </div>
               <div style={{ display: "flex", color: MUTED, letterSpacing: 6, fontSize: 20 }}>
-                · TONBERRY
+                {`\u00b7 ${world}`}
               </div>
             </div>
           </div>
