@@ -1,0 +1,80 @@
+name: Chase missing collections
+
+# Once a day, and only for the people whose Collection tile is empty.
+#
+# The main pipeline asks FFXIV Collect about the whole roster every four hours,
+# which fixes nothing for the two groups this exists for: characters Collect has
+# never heard of, whose every one of those six daily requests is a 404, and
+# guests, who are not on the roster the pipeline works from and so were never
+# asked about at all.
+#
+# Separate from update-data.yml because it answers a different question and has a
+# different shape — six characters and a couple of minutes against five hundred
+# and several hours — and because a failure here should not colour a run that
+# spent four hours on FF Logs. It shares that workflow's concurrency group so the
+# two can never be writing data/ at the same time.
+on:
+  schedule:
+    # 21:45 UTC, in the gap between the four-hourly runs at :30. The group below
+    # is what actually keeps them apart; this only avoids starting a queue.
+    - cron: "45 21 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Say who is missing and why, and change nothing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-fc-data
+  cancel-in-progress: false
+
+jobs:
+  chase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r pipeline/requirements.txt
+
+      - name: Chase missing collections
+        timeout-minutes: 45
+        run: |
+          python pipeline/collect_missing.py \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      # Same rebase strategy as the pipeline: data/ is generated from its
+      # sources, so on a clash this run's copy is the newer read of the same
+      # thing rather than a competing edit.
+      - name: Commit & push if changed
+        if: always()
+        run: |
+          git config user.name "fc-board-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then
+            echo "No collections to add today"
+            exit 0
+          fi
+          git commit -m "data: collections for characters that had none $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase -X theirs origin/main || { git rebase --abort; exit 1; }
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected, retrying (attempt $attempt)"
+          done
+          exit 1

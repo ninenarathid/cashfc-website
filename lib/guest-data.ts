@@ -38,6 +38,21 @@ export interface GuestHome {
   dc?: string | null;
   /** Their own Free Company. Null means they are in none — a real answer. */
   fc?: string | null;
+
+  /**
+   * What FFXIV Collect knows, put here by pipeline/collect_missing.py.
+   *
+   * Guests used to have none of this, and not because it was private: the
+   * pipeline works from the FC roster, so nobody had ever asked Collect about
+   * them. Undefined still means unread — which is why the counts are optional
+   * rather than defaulting to zero.
+   */
+  mounts?: number | null;
+  minions?: number | null;
+  rare_achv?: number | null;
+  ach_public?: boolean | null;
+  /** Their character portrait, for the boards that only had a bare id before. */
+  portrait?: string | null;
 }
 
 const HOMES = (guestData as { guests?: Record<string, GuestHome> }).guests ?? {};
@@ -50,9 +65,13 @@ export const guestHome = (characterId: number): GuestHome | undefined =>
 /**
  * A guest as a Member row, for the pages built from the roster file.
  *
- * Everything the roster supplies and a guest cannot — parses, clears,
- * collection counts — is null rather than zero. Nobody has looked, and a zero
- * reads as "looked, found nothing", which is a different and untrue thing.
+ * What the roster supplies and nothing here can — parses, clears, the tier
+ * board — stays null rather than zero. Nobody has looked, and a zero reads as
+ * "looked, found nothing", which is a different and untrue thing.
+ *
+ * The collection is no longer in that category. It is null until the daily
+ * sweep has read them and their own numbers afterwards, so the same rule still
+ * holds: null is "not looked at yet", and a count is a count.
  */
 export function guestMember(id: number, home: GuestHome): Member {
   return {
@@ -60,14 +79,16 @@ export function guestMember(id: number, home: GuestHome): Member {
     name: home.name ?? "—",
     rank: GUEST_RANK,
     level: null,
-    avatar: null,
+    avatar: home.portrait ?? null,
+    portrait: home.portrait ?? null,
     tags: [],
     parse: null,
     savage_kills: 0,
     ult_clears: 0,
-    mounts: null,
-    minions: null,
-    rare_achv: null,
+    mounts: home.mounts ?? null,
+    minions: home.minions ?? null,
+    rare_achv: home.rare_achv ?? null,
+    ach_public: home.ach_public ?? null,
   } as unknown as Member;
 }
 

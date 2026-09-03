@@ -52,7 +52,7 @@ export default function Home() {
         names={{
           ...Object.fromEntries(allGuestIds().map((id) => {
             const g = guestHome(id);
-            return [id, { name: g?.name ?? `#${id}`, avatar: null }];
+            return [id, { name: g?.name ?? `#${id}`, avatar: g?.portrait ?? null }];
           })),
           ...Object.fromEntries(members.map((m) =>
             [m.id, { name: m.name, avatar: m.avatar ?? null }])),

@@ -5,14 +5,26 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "ChronicleRecords",
-   "seen": "2026-09-02"
+   "seen": "2026-09-02",
+   "mounts": 189,
+   "minions": 364,
+   "rare_achv": 313,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788193173",
+   "collect_seen": "2026-09-03"
   },
   "31441339": {
    "name": "Garnet Rebel",
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Fat Cat",
-   "seen": "2026-09-03"
+   "seen": "2026-09-03",
+   "mounts": 97,
+   "minions": 164,
+   "rare_achv": 128,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788414497",
+   "collect_seen": "2026-09-03"
   }
  },
  "generated_at": "2026-09-03T06:00:03Z",
