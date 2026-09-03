@@ -3,6 +3,34 @@
   {
    "date": "2026-09-03",
    "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned Phantom of the Umbra: Sword & Kite Shield Umbrae"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned With Pick in Hand VII — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Phantom of the Umbra: Codex Umbrae — only 4.8% of players have it"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 8836061,
+   "name": "Allusia Heartfilia",
+   "text": "earned To Each According to His Need: Maelstrom III"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
    "id": 57885671,
    "name": "Aisu Kazimira",
    "text": "earned Thankful Thirteen — only 2.0% of players have it, and 2 more"
@@ -1371,34 +1399,6 @@
    "id": 39959181,
    "name": "El Blung",
    "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 3968346,
-   "name": "Panuz Chocobunny",
-   "text": "set a new best parse: 64 on Voidwalker as Bard"
   }
  ]
 }

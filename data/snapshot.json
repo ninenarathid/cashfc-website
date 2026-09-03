@@ -428,6 +428,7 @@
    3649,
    3656,
    3657,
+   3752,
    3754,
    3755,
    3756,
@@ -452,7 +453,6 @@
    3796,
    3797,
    3798,
-   3799,
    3800,
    3801,
    3823,
@@ -2721,7 +2721,7 @@
   ],
   "tiers": {
    "relic": "master",
-   "explorer": "legendary"
+   "explorer": "master"
   },
   "jobs": {
    "Scholar": "expert",
@@ -3854,7 +3854,6 @@
    2367,
    2491,
    2494,
-   2499,
    2502,
    2505,
    2506,
@@ -3891,6 +3890,7 @@
    2947,
    2948,
    2949,
+   2950,
    2951,
    3260,
    3480,
@@ -4457,11 +4457,11 @@
    3757,
    3758,
    3762,
+   3770,
    3778,
    3784,
    3817,
    3832,
-   3842,
    3844,
    3845,
    3846,
@@ -4785,6 +4785,7 @@
    169,
    181,
    557,
+   568,
    569,
    613,
    616,
@@ -4857,7 +4858,6 @@
    2862,
    2863,
    2864,
-   2972,
    3001,
    3194,
    3306
@@ -5225,6 +5225,67 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "42053180": {
+  "name": "Chu'ny On-duty",
+  "parse": 89,
+  "ult": 0,
+  "mounts": 64,
+  "minions": 160,
+  "rare": 32,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [
+   3655,
+   3656,
+   3657,
+   3673,
+   3676,
+   3677,
+   3679,
+   3769,
+   3770,
+   3771,
+   3859,
+   3860,
+   3861,
+   3867,
+   3874,
+   3875,
+   3935,
+   3937,
+   3938,
+   3966,
+   3967,
+   3968,
+   3998,
+   3999,
+   4000,
+   4002,
+   4003,
+   4004,
+   4006,
+   4007,
+   4014,
+   4017
+  ],
+  "tiers": {
+   "explorer": "master"
+  },
+  "jobs": {
+   "Summoner": "expert"
+  },
+  "ex": [
+   "Valigarmanda"
+  ],
+  "ults": [],
+  "chg": "2026-09-03"
+ },
  "34376591": {
   "name": "Crashbone Noudenet",
   "parse": 1,
@@ -5485,67 +5546,6 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-29"
- },
- "42053180": {
-  "name": "Elle'kuro Dean'deluca",
-  "parse": 89,
-  "ult": 0,
-  "mounts": 64,
-  "minions": 160,
-  "rare": 32,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [
-   3655,
-   3656,
-   3657,
-   3673,
-   3676,
-   3677,
-   3679,
-   3769,
-   3770,
-   3771,
-   3859,
-   3860,
-   3861,
-   3867,
-   3874,
-   3875,
-   3935,
-   3937,
-   3938,
-   3966,
-   3967,
-   3968,
-   3998,
-   3999,
-   4000,
-   4002,
-   4003,
-   4004,
-   4006,
-   4007,
-   4014,
-   4017
-  ],
-  "tiers": {
-   "explorer": "master"
-  },
-  "jobs": {
-   "Summoner": "expert"
-  },
-  "ex": [
-   "Valigarmanda"
-  ],
-  "ults": [],
-  "chg": "2026-09-03"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -7062,7 +7062,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 100,
+  "level": 79,
   "cc": [
    true,
    true,
@@ -7093,7 +7093,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -7275,7 +7275,7 @@
   "mounts": 81,
   "minions": 155,
   "rare": null,
-  "level": 64,
+  "level": 58,
   "cc": [
    true,
    true,
@@ -7296,7 +7296,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -7356,8 +7356,8 @@
   "name": "John Konesarn",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 9,
+  "minions": 27,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -7366,7 +7366,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "61758559": {
   "name": "Lree Thai",
@@ -7477,17 +7477,17 @@
   "name": "Tong Topspeed",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 6,
+  "minions": 16,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-31"
+  "chg": "2026-09-03"
  },
  "57419573": {
   "name": "A'kane Dorothy",
