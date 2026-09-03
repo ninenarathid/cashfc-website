@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-09-03",
+   "type": "parse_up",
+   "id": 44085912,
+   "name": "Mayu Ferguson",
+   "text": "set a new best parse: 20 on Zoraal Ja as Reaper"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "ex_clear",
+   "id": 44085912,
+   "name": "Mayu Ferguson",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "ex_clear",
+   "id": 44085912,
+   "name": "Mayu Ferguson",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "ex_clear",
+   "id": 44085912,
+   "name": "Mayu Ferguson",
+   "text": "cleared Zelenia (Extreme)"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "ex_clear",
+   "id": 44085912,
+   "name": "Mayu Ferguson",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-09-03",
    "type": "level_100",
    "id": 42976317,
    "name": "Zeadz Stellar",
@@ -1364,41 +1399,6 @@
    "id": 6951533,
    "name": "Aemond Targaryen",
    "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 56108574,
-   "name": "Akina Natsume",
-   "text": "earned Summertime Drifter"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 34434658,
-   "name": "Araiva Leonhart",
-   "text": "earned Splendid: Crystalline Pickaxe"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "earned In Pot Pursuit III — only 0.4% of players have it, and 56 more"
   }
  ]
 }

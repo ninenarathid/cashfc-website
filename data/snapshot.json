@@ -6370,7 +6370,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 74,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -6865,14 +6865,14 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 67,
+  "level": 68,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -7062,7 +7062,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 79,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -7392,17 +7392,28 @@
  },
  "44085912": {
   "name": "Mayu Ferguson",
-  "parse": null,
+  "parse": 20,
   "ult": 0,
   "mounts": null,
   "minions": null,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
   "ults": [],
   "chg": "2026-09-03"
  },
