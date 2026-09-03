@@ -639,6 +639,38 @@ const DICT = {
     en: "{n} verified on The Lodestone, {m} not.",
     th: "ยืนยันบน Lodestone แล้ว {n} · ยังไม่ยืนยัน {m}",
   },
+  "pending.character": {
+    en: "Character #{id}",
+    th: "ตัวละคร #{id}",
+  },
+  "pending.badge": {
+    en: "No data yet",
+    th: "ยังไม่มีข้อมูล",
+  },
+  "pending.badgeUnverified": {
+    en: "Claim not verified",
+    th: "ยังไม่ได้ยืนยันตัวละคร",
+  },
+  "pending.body": {
+    en: "This character is not on the Free Company roster, so the board has nothing for them yet. The site reads The Lodestone once a night — their world and Free Company will show up here after the next run.",
+    th: "ตัวละครนี้ไม่ได้อยู่ในรายชื่อ FC เว็ปจึงยังไม่มีข้อมูล ระบบจะอ่านข้อมูลจาก Lodestone คืนละครั้ง โลกและ FC ของเขาจะขึ้นที่หน้านี้หลังรอบถัดไป",
+  },
+  "pending.bodyUnverified": {
+    en: "Somebody has claimed this character but has not proved it is theirs yet. Until the code is on the Lodestone profile the site will not show anything under this name.",
+    th: "มีคนอ้างสิทธิ์ตัวละครนี้ไว้ แต่ยังไม่ได้ยืนยันว่าเป็นของตัวเอง ตราบใดที่ยังไม่ได้วางโค้ดไว้ในหน้า Lodestone เว็ปจะยังไม่แสดงข้อมูลใดๆ ในชื่อนี้",
+  },
+  "pending.lodestone": {
+    en: "View on The Lodestone",
+    th: "ดูใน Lodestone",
+  },
+  "pending.verify": {
+    en: "Verify a character",
+    th: "ไปยืนยันตัวละคร",
+  },
+  "pending.back": {
+    en: "Back to members",
+    th: "กลับไปหน้าสมาชิก",
+  },
   "adm.claimShown": {
     en: "Showing {n} of {all} claimed characters.",
     th: "แสดง {n} จาก {all} ตัวละครที่อ้างสิทธิ์แล้ว",

@@ -4,6 +4,8 @@ import raw from "@/data/members.json";
 import raidsRaw from "@/data/raids.json";
 import achvRaw from "@/data/achv.json";
 import MemberView from "@/components/MemberView";
+import MemberPending from "@/components/MemberPending";
+import { pendingMember } from "@/lib/pending-member";
 import type { AchievementInfo } from "@/components/RareAchievements";
 import type { BoardData, MemberRaids } from "@/lib/types";
 
@@ -50,7 +52,14 @@ export default async function Page(
 ) {
   const { id } = await params;
   const m = findMember(id);
-  if (!m) notFound();
+  if (!m) {
+    // Not on the roster and not in guests.json — which for somebody who
+    // verified this afternoon only means the nightly lookup has not run yet.
+    // The claim in the database is enough to say so on a page of their own.
+    const pending = await pendingMember(Number(id));
+    if (!pending) notFound();
+    return <MemberPending m={pending} />;
+  }
   const agg = {
     mounts: data.members.map((x) => x.mounts),
     minions: data.members.map((x) => x.minions),

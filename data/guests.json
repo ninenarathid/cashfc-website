@@ -6,8 +6,15 @@
    "dc": "Elemental",
    "fc": "ChronicleRecords",
    "seen": "2026-09-02"
+  },
+  "31441339": {
+   "name": "Garnet Rebel",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Fat Cat",
+   "seen": "2026-09-03"
   }
  },
- "generated_at": "2026-09-01T18:03:44Z",
- "count": 1
+ "generated_at": "2026-09-03T06:00:03Z",
+ "count": 2
 }
