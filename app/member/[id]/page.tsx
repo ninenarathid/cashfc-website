@@ -3,10 +3,12 @@ import { allGuestIds, guestHome, guestMember } from "@/lib/guest-data";
 import raw from "@/data/members.json";
 import raidsRaw from "@/data/raids.json";
 import achvRaw from "@/data/achv.json";
+import collRaw from "@/data/collections.json";
 import MemberView from "@/components/MemberView";
+import { dutyArtMap } from "@/lib/duty-server";
 import MemberPending from "@/components/MemberPending";
 import { pendingMember } from "@/lib/pending-member";
-import type { AchievementInfo } from "@/components/RareAchievements";
+import type { AchievementInfo, CollectionItem } from "@/components/RareShelf";
 import type { BoardData, MemberRaids } from "@/lib/types";
 
 const data = raw as unknown as BoardData;
@@ -15,6 +17,12 @@ const raids = raidsRaw as unknown as Record<string, MemberRaids>;
 const achv = achvRaw as unknown as {
   catalog: Record<string, AchievementInfo>;
   members: Record<string, number[]>;
+};
+// Same shape, one level deeper: a catalog and a member list per collection.
+const coll = collRaw as unknown as {
+  patch?: string | null;
+  catalog: Record<string, Record<string, CollectionItem>>;
+  members: Record<string, Record<string, number[]>>;
 };
 
 export function generateStaticParams() {
@@ -72,11 +80,22 @@ export default async function Page(
     .map((aid) => achv.catalog[String(aid)])
     .filter(Boolean);
 
+  // An id with no catalog entry is one the last run dropped out of the rare
+  // slice; filtering rather than rendering a blank keeps the shelf honest.
+  const rareOf = (kind: string): CollectionItem[] =>
+    ((coll.members[id] ?? {})[kind] ?? [])
+      .map((i) => (coll.catalog[kind] ?? {})[String(i)])
+      .filter(Boolean);
+
   return (
     <MemberView
       m={m}
       raids={raids[id] ?? null}
       rareAchievements={rareAchievements}
+      rareMounts={rareOf("mounts")}
+      rareMinions={rareOf("minions")}
+      patch={coll.patch ?? null}
+      art={dutyArtMap()}
       extremeTotal={(data.extremes ?? []).length}
       tierLabels={data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"]}
       agg={agg}

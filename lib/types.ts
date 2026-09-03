@@ -60,6 +60,14 @@ export interface Member {
    */
   lode_achv_public?: boolean | null;
   /**
+   * What share of players wear this member's title, from FFXIV Collect.
+   *
+   * Null when they wear none, or when the catalogue has not been read yet. The
+   * member list colours the title by it: a title is the one thing on that row
+   * somebody chose, and how rare it is is the only interesting thing about it.
+   */
+  title_pct?: number | null;
+  /**
    * When the achievement shelf was last actually readable (YYYY-MM-DD).
    *
    * Set only by a reading that could see it. Together with `ach_public` being

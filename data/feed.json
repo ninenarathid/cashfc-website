@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-09-03",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "level_100",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "level_100",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "new_member",
+   "id": 44085912,
+   "name": "Mayu Ferguson",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-09-03",
    "type": "rare_up",
    "id": 58199536,
    "name": "Areeya Lovekin",
@@ -1364,41 +1399,6 @@
    "id": 37061370,
    "name": "Peonies Dunieres",
    "text": "earned In Pot Pursuit III — only 0.4% of players have it, and 56 more"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 24747734,
-   "name": "Liora Verasch",
-   "text": "earned Splendid: Crystalline Pickaxe"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "level_100",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "boss_clear",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "cleared M12S-2 for the first time 🎉"
   }
  ]
 }

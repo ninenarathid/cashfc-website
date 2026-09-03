@@ -2504,19 +2504,22 @@
    "text": "3rd Sun of the 1st Astral Moon",
    "month": 1,
    "day": 3
+  },
+  "44085912": {
+   "text": "25th Sun of the 6th Astral Moon",
+   "month": 11,
+   "day": 25
   }
  },
  "pipeline": {
   "legacy_cursor": 1,
-  "zone_cursor": 0,
+  "zone_cursor": 14,
   "fflogs_cycle": [
    "11603711",
    "11950156",
-   "12003402",
    "12058921",
    "12235132",
    "12478532",
-   "13162369",
    "13533056",
    "13860363",
    "14476396",
@@ -2531,31 +2534,22 @@
    "16034463",
    "16099244",
    "16168981",
-   "16172034",
-   "16173017",
-   "16173247",
    "16192933",
    "1623780",
    "16397778",
    "1643244",
    "17473430",
-   "18278635",
-   "18489055",
    "18538032",
    "18578874",
    "18659677",
    "19827594",
-   "19896720",
-   "20014912",
    "20400811",
    "21620195",
-   "2168537",
    "21899488",
    "22164254",
    "22425670",
    "22461237",
    "22767255",
-   "23901016",
    "24103365",
    "24104450",
    "24114157",
@@ -2564,59 +2558,38 @@
    "24186600",
    "24211446",
    "24228478",
-   "24300584",
-   "24690035",
-   "24747734",
    "24770177",
    "25504317",
    "25506828",
    "25619696",
    "25620101",
-   "25661865",
    "26268800",
    "26298391",
    "26699926",
    "26844665",
    "27213488",
-   "27412308",
-   "27875326",
-   "27905098",
-   "28012936",
    "28120733",
-   "28127069",
-   "28163062",
    "28213199",
-   "28380674",
    "28579232",
    "28679378",
-   "28679815",
    "28789661",
    "28810440",
    "28860700",
-   "28931955",
    "28950119",
    "29090821",
-   "29151949",
    "29152036",
-   "29162543",
    "29325838",
    "29339718",
    "29389419",
    "29479627",
-   "29498103",
    "29511615",
-   "29542040",
    "2957360",
    "29585811",
    "29612903",
-   "29659200",
-   "29710631",
    "29734643",
-   "29764422",
    "29782062",
    "29795820",
    "29863848",
-   "29899571",
    "29907674",
    "29918255",
    "29918399",
@@ -2627,13 +2600,10 @@
    "30172592",
    "30176379",
    "30293847",
-   "30333493",
    "30426712",
    "30559609",
-   "30559981",
    "30582341",
    "30596644",
-   "30645476",
    "30667251",
    "30863840",
    "30864049",
@@ -2641,17 +2611,13 @@
    "31001697",
    "31001781",
    "31010962",
-   "31012021",
    "31155521",
-   "31211526",
    "31236337",
    "31334257",
    "31471584",
    "31519555",
    "31592995",
    "31628293",
-   "31655994",
-   "31685046",
    "31685121",
    "31737067",
    "31764639",
@@ -2661,31 +2627,22 @@
    "31831003",
    "31899766",
    "31902843",
-   "31923628",
    "32046284",
    "32147626",
    "32147756",
-   "32373387",
    "3256238",
-   "32857279",
-   "33272037",
    "33387937",
    "33604767",
    "33608576",
    "33807451",
    "33859953",
    "33954541",
-   "33966579",
    "34086580",
-   "34155014",
    "34228206",
-   "34290087",
    "34376591",
    "34434658",
    "34505698",
-   "34507717",
    "34509521",
-   "34510497",
    "34511319",
    "34522644",
    "34522645",
@@ -2695,19 +2652,13 @@
    "35096411",
    "35158574",
    "35250799",
-   "35270049",
-   "35361599",
    "35634484",
    "35854535",
    "35863297",
-   "36001341",
-   "36016570",
-   "36090951",
    "36130968",
    "36159286",
    "36165070",
    "36168487",
-   "36183250",
    "36183378",
    "36183541",
    "36228998",
@@ -2721,10 +2672,7 @@
    "36855080",
    "37056222",
    "37061370",
-   "37143017",
-   "37409022",
    "37696532",
-   "37881871",
    "38018463",
    "38041221",
    "38152072",
@@ -2735,19 +2683,13 @@
    "38802422",
    "38808156",
    "3902073",
-   "39034125",
    "39199441",
    "3968346",
-   "39734861",
-   "39850921",
    "39850923",
-   "39907836",
    "39959181",
-   "40160371",
    "4026627",
    "40389196",
    "40394823",
-   "40652404",
    "40809430",
    "40910522",
    "40990512",
@@ -2756,26 +2698,18 @@
    "42053180",
    "42215185",
    "42215186",
-   "42277370",
-   "42342468",
-   "42461214",
    "42509107",
    "42845691",
    "42948817",
    "42976317",
    "43037186",
    "43116127",
-   "43335087",
    "43374218",
    "43423269",
-   "43797998",
    "43864764",
-   "44031569",
-   "44081209",
    "44133352",
    "44143115",
    "44409962",
-   "44925955",
    "44970350",
    "4505633",
    "45101386",
@@ -2783,29 +2717,22 @@
    "45938803",
    "46055730",
    "46243891",
-   "46431057",
    "46485530",
    "46625326",
    "46739693",
-   "47218599",
    "47221226",
    "47337818",
    "47494518",
    "47540663",
    "47645809",
    "47658617",
-   "48527875",
-   "49891708",
    "49929911",
    "50103049",
    "50120275",
    "50267765",
    "5034519",
-   "50417039",
    "50821570",
-   "51044792",
    "512253",
-   "51852387",
    "51922514",
    "52866044",
    "5294880",
@@ -2818,26 +2745,19 @@
    "55640987",
    "56108574",
    "5644067",
-   "568409",
    "5720080",
    "57375278",
-   "57387464",
    "57419573",
-   "5761905",
    "57885671",
    "57967682",
    "58160672",
    "58199536",
    "58199756",
    "58202955",
-   "58508421",
-   "58725327",
-   "59690047",
    "60211788",
    "60475540",
    "60599300",
    "60619924",
-   "60692052",
    "60814172",
    "60852230",
    "60873337",
@@ -2856,9 +2776,9 @@
    "9155192",
    "9444020"
   ],
-  "collect_at": 1788440750.8705547,
-  "lala_at": 1788441603.5570602,
-  "collect_v": 4,
+  "collect_at": 1788434161.5711114,
+  "lala_at": 1788354966.3538775,
+  "collect_v": 6,
   "bucket_max": {
    "explorer": 311.04,
    "relic": 787.64,
@@ -3384,189 +3304,189 @@
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788440751.5766108
+   "at": 1788433223.1186764
   },
   "15308846": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "The Hand of Creation",
-   "at": 1788440753.5621052
+   "at": 1788433225.1287298
   },
   "3968346": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
    "title": "Sky Pirate",
-   "at": 1788440755.4321766
+   "at": 1788433227.0656435
   },
   "14959902": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Lightbringer",
-   "at": 1788440757.5045342
+   "at": 1788433229.0190341
   },
   "28789661": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "Garo",
-   "at": 1788440759.45731
+   "at": 1788433231.0006166
   },
   "31628293": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788440761.3800745
+   "at": 1788433233.0053458
   },
   "57885671": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Icebreaker",
-   "at": 1788440763.2673552
+   "at": 1788433235.07357
   },
   "58199536": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The White",
-   "at": 1788440765.1426122
+   "at": 1788433237.0851507
   },
   "24186600": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": null,
-   "at": 1788440767.1016445
+   "at": 1788433239.2486699
   },
   "29152036": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Moonwalker",
-   "at": 1788440769.075135
+   "at": 1788433241.451114
   },
   "38041221": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Khloe's Best Friend",
-   "at": 1788440770.9514077
+   "at": 1788433243.4929035
   },
   "35634484": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788440772.981296
+   "at": 1788433245.5722754
   },
   "22767255": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "The Red",
-   "at": 1788440774.9078882
+   "at": 1788433247.5940354
   },
   "29511615": {
    "race": "Hrothgar",
    "clan": "The Lost",
    "gender": "Female",
    "title": "The Fae-touched",
-   "at": 1788440778.6793487
+   "at": 1788433251.590077
   },
   "31236337": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Force of Nature",
-   "at": 1788440780.6263433
+   "at": 1788433253.5879395
   },
   "13533056": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1788440784.658261
+   "at": 1788433257.54871
   },
   "44970350": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Mammeteer",
-   "at": 1788440786.625221
+   "at": 1788433259.5806642
   },
   "19827594": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Female",
-   "title": "The Mourner of Light",
-   "at": 1788440788.7115986
+   "title": null,
+   "at": 1788433261.6080115
   },
   "45938803": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Ijin Traveler",
-   "at": 1788440790.5794916
+   "at": 1788433263.5754044
   },
   "36248712": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "The Heavens' Legend",
-   "at": 1788440792.4738953
+   "at": 1788433265.5683646
   },
   "26699926": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Sweet Dreamer",
-   "at": 1788440794.3855941
+   "at": 1788433267.5553775
   },
   "32147756": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The Darkest Shadow",
-   "at": 1788440796.2645102
+   "at": 1788433269.543801
   },
   "36261473": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "Distant Stargazer",
-   "at": 1788440798.16639
+   "at": 1788433271.5843432
   },
   "36130968": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Monster Hunter",
-   "at": 1788440800.1361241
+   "at": 1788433273.5706036
   },
   "28579232": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Genesis of Legends",
-   "at": 1788440802.039715
+   "at": 1788433275.5480816
   },
   "47221226": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Cruel Legend",
-   "at": 1788440803.8878663
+   "at": 1788433277.516938
   },
   "39199441": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Practically Pelupelu",
-   "at": 1788440805.9151611
+   "at": 1788433279.4715657
   },
   "40389196": {
    "race": "Hyur",
@@ -3580,35 +3500,35 @@
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Myth Breaker",
-   "at": 1788440807.839082
+   "at": 1788433281.472838
   },
   "28950119": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
    "title": "Trailblazer",
-   "at": 1788440809.7417989
+   "at": 1788433283.4569042
   },
   "28120733": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788440811.6739984
+   "at": 1788433285.469785
   },
   "12478532": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Echo of a Fallen Star",
-   "at": 1788440813.7494798
+   "at": 1788433287.4359488
   },
   "50821570": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": "Gembreaker",
-   "at": 1788440815.6372304
+   "at": 1788433289.4273076
   },
   "42349146": {
    "race": "Au Ra",
@@ -3622,168 +3542,168 @@
    "clan": "Hellsguard",
    "gender": "Male",
    "title": "The Meat Shield",
-   "at": 1788440817.4980953
+   "at": 1788433291.384715
   },
   "42948817": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Arbiter of the Arts",
-   "at": 1788440819.7889035
+   "at": 1788433293.3675094
   },
   "57375278": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788440821.7038512
+   "at": 1788433295.3246698
   },
   "25506828": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "Genesis of Legends",
-   "at": 1788440823.810001
+   "at": 1788433297.4981904
   },
   "38808156": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "The Necromancer",
-   "at": 1788440826.2167914
+   "at": 1788433299.495772
   },
   "31902843": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Sweet Dreamer",
-   "at": 1788440828.1580496
+   "at": 1788433301.5440078
   },
   "30864049": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "The Mourner of Light",
-   "at": 1788440830.0407498
+   "at": 1788433303.5610847
   },
   "34509521": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "The Seventh Dawn",
-   "at": 1788440831.9476595
+   "at": 1788433305.5526183
   },
   "37056222": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "The Hand of Mercy",
-   "at": 1788440833.818635
+   "at": 1788433307.606155
   },
   "22461237": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Male",
    "title": "Doom of the Deep",
-   "at": 1788440835.7195354
+   "at": 1788433309.579777
   },
   "5294880": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Gentlewoman",
-   "at": 1788440837.644618
+   "at": 1788433311.5453234
   },
   "5435582": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Genesis of Legends",
-   "at": 1788440839.4886816
+   "at": 1788433313.5420032
   },
   "26268800": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788440841.410123
+   "at": 1788433315.5027487
   },
   "6173187": {
    "race": "Hyur",
    "clan": "Highlander",
    "gender": "Male",
    "title": "Shark Hunter",
-   "at": 1788440843.3708117
+   "at": 1788433317.4598417
   },
   "51922514": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788440845.251161
+   "at": 1788433319.4613104
   },
   "36183541": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The Fae-touched",
-   "at": 1788440847.4225006
+   "at": 1788433321.437654
   },
   "21620195": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Phantom Salvation",
-   "at": 1788440849.3718054
+   "at": 1788433323.5538259
   },
   "5644067": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "The Legend",
-   "at": 1788440851.435992
+   "at": 1788433325.5140855
   },
   "9444020": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "The Alpha Legend",
-   "at": 1788440853.3254967
+   "at": 1788433327.4942045
   },
   "22425670": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Knower of Fates",
-   "at": 1788440868.7427413
+   "at": 1788433343.50335
   },
   "15912826": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "The Enlightened",
-   "at": 1788440855.2319214
+   "at": 1788433329.536737
   },
   "11950156": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788440857.2517188
+   "at": 1788433331.501832
   },
   "30667251": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "The Professional",
-   "at": 1788440859.1283872
+   "at": 1788433333.4462855
   },
   "29325838": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1788440861.1612756
+   "at": 1788433335.5294566
   },
   "58455997": {
    "race": "Lalafell",
@@ -3797,21 +3717,21 @@
    "clan": "Raen",
    "gender": "Female",
    "title": "Makai Red Mage",
-   "at": 1788440863.034066
+   "at": 1788433337.5026479
   },
   "43864764": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "World-class Troller",
-   "at": 1788440864.8870778
+   "at": 1788433339.5031924
   },
   "29998658": {
    "race": "Hrothgar",
    "clan": "Helions",
    "gender": "Male",
    "title": "Trailblazer",
-   "at": 1788440866.7903976
+   "at": 1788433341.5068266
   },
   "44141004": {
    "race": "Hyur",
@@ -3832,91 +3752,91 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Featherfall's Finest Weaver",
-   "at": 1788440870.7174516
+   "at": 1788433345.4671352
   },
   "58202955": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Barista at the End of the Universe",
-   "at": 1788440872.7697587
+   "at": 1788433347.5908804
   },
   "26298391": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788440874.6463416
+   "at": 1788433349.7232695
   },
   "29918404": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1788440876.6957576
+   "at": 1788433351.7011046
   },
   "42976317": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Zhloe's Friend",
-   "at": 1788440878.731278
+   "at": 1788433354.0032153
   },
   "24123541": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": null,
-   "at": 1788440880.6631918
+   "at": 1788433356.0882738
   },
   "12058921": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Kyubi Tamer",
-   "at": 1788440882.5603023
+   "at": 1788433358.1356156
   },
   "38335568": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": null,
-   "at": 1788440884.59445
+   "at": 1788433360.1379008
   },
   "6951533": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1788440886.6895874
+   "at": 1788433362.154595
   },
   "38802422": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": null,
-   "at": 1788440888.6967204
+   "at": 1788433364.314666
   },
   "56108574": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "The Red",
-   "at": 1788440890.6309323
+   "at": 1788433366.3813279
   },
   "8836061": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Gambler",
-   "at": 1788440892.8205688
+   "at": 1788433368.399681
   },
   "8286372": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788440894.7396147
+   "at": 1788433370.6174474
   },
   "29090821": {
    "race": "Au Ra",
@@ -3930,42 +3850,42 @@
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "The Ultimate Legend",
-   "at": 1788440896.7581336
+   "at": 1788433372.6404176
   },
   "14476396": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Z",
-   "at": 1788440898.6422536
+   "at": 1788433374.7612698
   },
   "29339718": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Barista at the End of the Universe",
-   "at": 1788440900.5540972
+   "at": 1788433376.9103801
   },
   "13860363": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Female",
    "title": "Kingsglaive",
-   "at": 1788440902.4157002
+   "at": 1788433378.9434898
   },
   "42215186": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Echo of a Fallen Star",
-   "at": 1788440904.384894
+   "at": 1788433381.1613843
   },
   "2957360": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1788440906.325396
+   "at": 1788433383.147678
   },
   "4026627": {
    "race": "Hyur",
@@ -3979,42 +3899,42 @@
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788377282.7165725
+   "at": 1788450107.8847537
   },
   "34376591": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Storm Stalker",
-   "at": 1788377284.6980534
+   "at": 1788450111.9929304
   },
   "38488824": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Of the Longest Hunt",
-   "at": 1788377286.6149943
+   "at": 1788450114.0415223
   },
   "34546216": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788377288.5326362
+   "at": 1788450116.0716934
   },
   "30293847": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Monster Hunter",
-   "at": 1788377290.4233458
+   "at": 1788450118.088419
   },
   "39959181": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": "Echo of a Fallen Star",
-   "at": 1788377292.3393948
+   "at": 1788450120.3558507
   },
   "35601257": {
    "race": "Au Ra",
@@ -4028,49 +3948,49 @@
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788377294.166663
+   "at": 1788450122.475478
   },
   "42053180": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
-   "title": "Under the Moonlight",
-   "at": 1788377295.9873095
+   "title": "The Promise of Tomorrow",
+   "at": 1788450109.9233267
   },
   "15543487": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Polis Raider",
-   "at": 1788377297.83792
+   "at": 1788450124.5698981
   },
   "16192933": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788377299.699269
+   "at": 1788450126.7084074
   },
   "47494518": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "The New Sun",
-   "at": 1788377301.5596557
+   "at": 1788450128.8272333
   },
   "31899766": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Under the Moonlight",
-   "at": 1788377303.4075696
+   "at": 1788450130.9753406
   },
   "31001697": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": "Barista at the End of the Universe",
-   "at": 1788377305.291522
+   "at": 1788450133.2165942
   },
   "29585811": {
    "race": "Miqo'te",
@@ -4084,161 +4004,161 @@
    "clan": "Xaela",
    "gender": "Male",
    "title": "Gambler",
-   "at": 1788377307.176647
+   "at": 1788450135.2624326
   },
   "39850923": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Omniscient Obscurant",
-   "at": 1788377309.0664127
+   "at": 1788450137.2683814
   },
   "31001781": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": null,
-   "at": 1788377310.9094398
+   "at": 1788450139.313796
   },
   "26844665": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Knight of Alexandria",
-   "at": 1788377314.6474302
+   "at": 1788450143.4556196
   },
   "36183378": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Flame Puppy",
-   "at": 1788377316.56905
+   "at": 1788450145.4594727
   },
   "24114157": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Riftdancer",
-   "at": 1788377318.7890265
+   "at": 1788450147.6584916
   },
   "31155521": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "The Meat Shield",
-   "at": 1788377320.7150984
+   "at": 1788450149.8919272
   },
   "46739693": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788377322.6532505
+   "at": 1788450152.2052996
   },
   "53933347": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Skysinger",
-   "at": 1788377324.4749866
+   "at": 1788450154.4441888
   },
   "60852230": {
    "race": "Elezen",
    "clan": "Wildwood",
    "gender": "Male",
    "title": "Shadowbringer",
-   "at": 1788377326.4207973
+   "at": 1788450156.4846032
   },
   "35854535": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": null,
-   "at": 1788377328.26644
+   "at": 1788450158.6918476
   },
   "33807451": {
    "race": "Hrothgar",
    "clan": "Helions",
    "gender": "Male",
    "title": "Barista at the End of the Universe",
-   "at": 1788377330.0862198
+   "at": 1788450160.7275143
   },
   "16099244": {
    "race": "Roegadyn",
    "clan": "Hellsguard",
    "gender": "Male",
    "title": "Genesis of Legends",
-   "at": 1788377331.9207468
+   "at": 1788450162.8151445
   },
   "29918255": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Shepherd to the Stars",
-   "at": 1788377333.908403
+   "at": 1788450165.0165868
   },
   "46243891": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The White Wraith",
-   "at": 1788377335.8718166
+   "at": 1788450167.031751
   },
   "34790386": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Wyrm Whisperer",
-   "at": 1788377337.733069
+   "at": 1788450169.1045074
   },
   "38796459": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788377339.6400716
+   "at": 1788450171.2398272
   },
   "31592995": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Under the Moonlight",
-   "at": 1788377341.4729736
+   "at": 1788450173.2459989
   },
   "42215185": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Tracklayer",
-   "at": 1788377343.3723633
+   "at": 1788450175.282617
   },
   "30596644": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Z",
-   "at": 1788377345.2170475
+   "at": 1788450177.2983365
   },
   "31831003": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "Jack of All Cards",
-   "at": 1788377347.014898
+   "at": 1788450179.5473073
   },
   "7283668": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Z",
-   "at": 1788377348.8422403
+   "at": 1788450181.7572682
   },
   "8113158": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Z",
-   "at": 1788377350.805757
+   "at": 1788450184.0780966
   },
   "2852829": {
    "race": "Hyur",
@@ -4252,63 +4172,63 @@
    "clan": "Veena",
    "gender": "Female",
    "title": "Partner in Teatime",
-   "at": 1788377352.7706852
+   "at": 1788450186.1269603
   },
   "33387937": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788377356.4771821
+   "at": 1788450190.1763265
   },
   "60599300": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": null,
-   "at": 1788377358.3235455
+   "at": 1788450192.4003007
   },
   "29907674": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "The Final Fish",
-   "at": 1788377360.4037418
+   "at": 1788450194.4497051
   },
   "35158574": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "The Perfect Legend",
-   "at": 1788377362.3298047
+   "at": 1788450196.456742
   },
   "8713004": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788377367.9025588
+   "at": 1788450202.7417293
   },
   "36363091": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Genesis of Legends",
-   "at": 1788377369.8047898
+   "at": 1788450204.8256905
   },
   "49929911": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": null,
-   "at": 1788377371.637925
+   "at": 1788450206.9342284
   },
   "30582341": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "The Necromancer",
-   "at": 1788377373.5138593
+   "at": 1788450209.0041323
   },
   "30253575": {
    "race": "Miqo'te",
@@ -4322,14 +4242,14 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The Final Fish",
-   "at": 1788377375.3399646
+   "at": 1788450211.1236725
   },
   "55640987": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1788377379.2432816
+   "at": 1788450215.3352191
   },
   "29991345": {
    "race": "Au Ra",
@@ -4343,28 +4263,28 @@
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Z",
-   "at": 1788377381.1863456
+   "at": 1788450217.4792762
   },
   "31806535": {
    "race": "Hrothgar",
    "clan": "The Lost",
    "gender": "Female",
    "title": "Sworn Protector",
-   "at": 1788377383.1651962
+   "at": 1788450219.4993482
   },
   "42845691": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "Moonwalker",
-   "at": 1788377384.9906428
+   "at": 1788450221.5351639
   },
   "15932791": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": "The Wings of Time",
-   "at": 1788377386.8507106
+   "at": 1788450223.6470525
   },
   "60814172": {
    "race": "Au Ra",
@@ -4378,42 +4298,42 @@
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788377388.669127
+   "at": 1788450225.6723604
   },
   "60873337": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
    "title": "Storm Puppy",
-   "at": 1788377312.794372
+   "at": 1788450141.3492653
   },
   "60475540": {
    "race": "Elezen",
    "clan": "Duskwight",
    "gender": "Female",
    "title": null,
-   "at": 1788377390.6146376
+   "at": 1788450227.702286
   },
   "61758559": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Male",
    "title": null,
-   "at": 1788377394.285993
+   "at": 1788450231.7929857
   },
   "60972300": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Endwalker",
-   "at": 1788377396.1485326
+   "at": 1788450236.11307
   },
   "29389419": {
    "race": "Hyur",
    "clan": "Highlander",
    "gender": "Male",
    "title": "Z",
-   "at": 1788377397.967812
+   "at": 1788450238.1376085
   },
   "60933255": {
    "race": "Lalafell",
@@ -4434,119 +4354,119 @@
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": null,
-   "at": 1788377399.8796113
+   "at": 1788450240.2304115
   },
   "60211788": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Male",
    "title": "Shadowbringer",
-   "at": 1788377366.08048
+   "at": 1788450200.5259721
   },
   "31685121": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Gambler",
-   "at": 1788377401.739345
+   "at": 1788450242.292973
   },
   "57419573": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788377405.4306898
+   "at": 1788450246.4064267
   },
   "5034519": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788377407.4440877
+   "at": 1788450248.4415257
   },
   "25504317": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": null,
-   "at": 1788377409.4477525
+   "at": 1788450250.524067
   },
   "5297796": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Hope's Legacy",
-   "at": 1788377411.281246
+   "at": 1788450252.5751622
   },
   "34505698": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Female",
    "title": "Moonwalker",
-   "at": 1788377413.1093588
+   "at": 1788450254.7817147
   },
   "1623780": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Soul of the Craft",
-   "at": 1788377414.9802766
+   "at": 1788450257.0152824
   },
   "3256238": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Starcaller",
-   "at": 1788377416.8212893
+   "at": 1788450259.124789
   },
   "45150763": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788377418.684563
+   "at": 1788450261.1882536
   },
   "38018463": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": "Mahjong Enthusiast",
-   "at": 1788377420.5230138
+   "at": 1788450263.2277315
   },
   "30176379": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1788377422.3411653
+   "at": 1788450265.3278542
   },
   "35863297": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Gambler",
-   "at": 1788377424.3314135
+   "at": 1788450267.4980764
   },
   "34873931": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": null,
-   "at": 1788377426.1684937
+   "at": 1788450269.6517537
   },
   "22164254": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788377428.005219
+   "at": 1788450271.6862884
   },
   "18538032": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Under the Moonlight",
-   "at": 1788377429.9587862
+   "at": 1788450273.9856653
   },
   "42509107": {
    "race": "Hyur",
@@ -6198,7 +6118,7 @@
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Mammeteer",
-   "at": 1788377354.612797
+   "at": 1788450188.1579816
   },
   "57711304": {
    "race": "Lalafell",
@@ -6366,7 +6286,7 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Mammeteer",
-   "at": 1788377364.2112978
+   "at": 1788450198.471646
   },
   "42053451": {
    "race": "Lalafell",
@@ -6548,7 +6468,7 @@
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788377377.2951891
+   "at": 1788450213.1756072
   },
   "29992221": {
    "race": "Au Ra",
@@ -6702,7 +6622,7 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788440782.5640702
+   "at": 1788433255.555312
   },
   "29853808": {
    "race": "Lalafell",
@@ -6870,21 +6790,28 @@
    "clan": "Highlander",
    "gender": "Male",
    "title": "The Undamaged",
-   "at": 1788440776.792777
+   "at": 1788433249.603623
   },
   "28679378": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788377403.5770252
+   "at": 1788450244.3294346
   },
   "60994518": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1788377392.4670043
+   "at": 1788450229.7552245
+  },
+  "44085912": {
+   "race": "Miqo'te",
+   "clan": "Keeper of the Moon",
+   "gender": "Female",
+   "title": null,
+   "at": 1788450233.837032
   }
  },
  "lala": {
@@ -6914,7 +6841,7 @@
    "minions": 476,
    "achievements": 0,
    "achv_private": true,
-   "mount_rank": "45",
+   "mount_rank": "44",
    "minion_rank": "112",
    "achv_rank": null,
    "race": "Lalafell",
@@ -7186,8 +7113,8 @@
    "minions": 179,
    "achievements": 0,
    "achv_private": true,
-   "mount_rank": "5427",
-   "minion_rank": "4980",
+   "mount_rank": "5420",
+   "minion_rank": "4973",
    "achv_rank": null,
    "race": "Miqo'te",
    "tribe": "Seeker of the Sun",
@@ -7533,57 +7460,6 @@
    "tribe": null,
    "synced": 1779121649,
    "indexed": 1673190021
-  },
-  "6951533": {
-   "last_mount": 1762053115,
-   "last_minion": 1764213333,
-   "last_achv": null,
-   "last_active": 1764213333,
-   "mounts": 118,
-   "minions": 243,
-   "achievements": 0,
-   "achv_private": true,
-   "mount_rank": "2932",
-   "minion_rank": "3292",
-   "achv_rank": null,
-   "race": "Hyur",
-   "tribe": "Midlander",
-   "synced": 1775881435,
-   "indexed": 1543936492
-  },
-  "15895457": {
-   "last_mount": 1677710714,
-   "last_minion": 1721390640,
-   "last_achv": null,
-   "last_active": 1721390640,
-   "mounts": 71,
-   "minions": 107,
-   "achievements": 0,
-   "achv_private": true,
-   "mount_rank": "5178",
-   "minion_rank": "6752",
-   "achv_rank": null,
-   "race": "Hrothgar",
-   "tribe": "Helions",
-   "synced": 1776100564,
-   "indexed": 1544008178
-  },
-  "13162369": {
-   "last_mount": 1705178401,
-   "last_minion": 1643371666,
-   "last_achv": 1703173619,
-   "last_active": 1705178401,
-   "mounts": 84,
-   "minions": 168,
-   "achievements": 1284,
-   "achv_private": true,
-   "mount_rank": "4080",
-   "minion_rank": "4755",
-   "achv_rank": "2142",
-   "race": null,
-   "tribe": null,
-   "synced": 1776143811,
-   "indexed": 1599650716
   }
  },
  "collect": {
@@ -7596,7 +7472,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "15308846": {
    "mounts": 280,
@@ -7754,7 +7632,58 @@
      "min": 0.8,
      "score": 100.76
     }
-   }
+   },
+   "rare_mounts": [
+    420,
+    412,
+    437,
+    444,
+    362,
+    379,
+    83,
+    216,
+    359,
+    395,
+    408,
+    427,
+    273,
+    337,
+    372,
+    399,
+    403,
+    411,
+    316,
+    407,
+    422,
+    342,
+    350
+   ],
+   "rare_minions": [
+    585,
+    537,
+    558,
+    578,
+    535,
+    586,
+    495,
+    502,
+    587,
+    562,
+    396,
+    540,
+    541,
+    542,
+    164,
+    593,
+    452,
+    114,
+    564,
+    566,
+    483,
+    583,
+    584,
+    417
+   ]
   },
   "24186600": {
    "mounts": 180,
@@ -7875,7 +7804,13 @@
      "min": 2.4,
      "score": 4.17
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    387,
+    409,
+    572
+   ]
   },
   "38041221": {
    "mounts": 159,
@@ -7886,7 +7821,36 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    412,
+    427,
+    399,
+    371,
+    342
+   ],
+   "rare_minions": [
+    502,
+    562,
+    540,
+    541,
+    542,
+    564,
+    565,
+    566,
+    483,
+    589,
+    513,
+    563,
+    567,
+    568,
+    552,
+    582,
+    551,
+    462,
+    572,
+    569
+   ]
   },
   "22767255": {
    "mounts": 91,
@@ -7897,7 +7861,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    343
+   ]
   },
   "38152072": {
    "mounts": 264,
@@ -8050,7 +8018,54 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [
+    428,
+    412,
+    437,
+    379,
+    409,
+    359,
+    395,
+    435,
+    408,
+    427,
+    273,
+    337,
+    399,
+    411,
+    316,
+    371,
+    429,
+    342,
+    350
+   ],
+   "rare_minions": [
+    163,
+    585,
+    537,
+    558,
+    578,
+    535,
+    586,
+    495,
+    587,
+    562,
+    465,
+    477,
+    540,
+    541,
+    542,
+    559,
+    295,
+    593,
+    564,
+    565,
+    566,
+    591,
+    483,
+    583
+   ]
   },
   "29511615": {
    "mounts": 146,
@@ -8061,7 +8076,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    83
+   ],
+   "rare_minions": []
   },
   "13533056": {
    "mounts": 131,
@@ -8213,7 +8232,9 @@
      "min": 5.0,
      "score": 7.78
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28950119": {
    "mounts": 117,
@@ -8256,7 +8277,9 @@
      "min": 6.2,
      "score": 15.34
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42948817": {
    "mounts": 115,
@@ -8308,7 +8331,9 @@
      "min": 9.0,
      "score": 1.11
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "38808156": {
    "mounts": 77,
@@ -8362,7 +8387,9 @@
      "min": 9.8,
      "score": 1.02
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31902843": {
    "mounts": 113,
@@ -8423,7 +8450,9 @@
      "min": 8.2,
      "score": 1.22
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37056222": {
    "mounts": 169,
@@ -8576,7 +8605,28 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    428,
+    420,
+    444,
+    435,
+    399,
+    403,
+    407,
+    422
+   ],
+   "rare_minions": [
+    585,
+    586,
+    593,
+    566,
+    589,
+    568,
+    552,
+    551,
+    580
+   ]
   },
   "22461237": {
    "mounts": 160,
@@ -8724,7 +8774,15 @@
      "min": 8.9,
      "score": 2.14
     }
-   }
+   },
+   "rare_mounts": [
+    359,
+    372,
+    399
+   ],
+   "rare_minions": [
+    483
+   ]
   },
   "26268800": {
    "mounts": 72,
@@ -8735,7 +8793,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "6173187": {
    "mounts": 186,
@@ -8890,7 +8950,15 @@
      "min": 3.6,
      "score": 26.77
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    452,
+    583,
+    568,
+    582,
+    551
+   ]
   },
   "36183541": {
    "mounts": 62,
@@ -8901,7 +8969,14 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    407,
+    422
+   ],
+   "rare_minions": [
+    580
+   ]
   },
   "22425670": {
    "mounts": 103,
@@ -9039,7 +9114,9 @@
      "min": 9.0,
      "score": 1.11
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "15912826": {
    "mounts": 199,
@@ -9050,7 +9127,15 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    403
+   ],
+   "rare_minions": [
+    568,
+    552,
+    551
+   ]
   },
   "44133352": {
    "mounts": 173,
@@ -9203,7 +9288,19 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    350
+   ],
+   "rare_minions": [
+    163,
+    164,
+    591,
+    568,
+    165,
+    580,
+    569
+   ]
   },
   "43864764": {
    "mounts": 233,
@@ -9214,7 +9311,29 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    351,
+    190,
+    267,
+    83,
+    216,
+    127,
+    350
+   ],
+   "rare_minions": [
+    527,
+    502,
+    108,
+    396,
+    452,
+    503,
+    417,
+    121,
+    113,
+    376,
+    462
+   ]
   },
   "29998658": {
    "mounts": 201,
@@ -9370,7 +9489,24 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    412,
+    437,
+    435,
+    372,
+    399,
+    407,
+    422
+   ],
+   "rare_minions": [
+    537,
+    552,
+    551,
+    572,
+    580,
+    569
+   ]
   },
   "11603711": {
    "mounts": 164,
@@ -9492,7 +9628,11 @@
      "min": 3.2,
      "score": 5.55
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    569
+   ]
   },
   "29918404": {
    "mounts": 205,
@@ -9645,7 +9785,29 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [
+    409,
+    83,
+    399,
+    403,
+    429
+   ],
+   "rare_minions": [
+    586,
+    587,
+    559,
+    566,
+    591,
+    583,
+    589,
+    567,
+    568,
+    552,
+    551,
+    580,
+    569
+   ]
   },
   "12058921": {
    "mounts": 125,
@@ -9656,7 +9818,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    387
+   ]
   },
   "8836061": {
    "mounts": 128,
@@ -9798,7 +9964,19 @@
      "min": 0.7,
      "score": 35.96
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    107,
+    108,
+    452,
+    251,
+    91,
+    310,
+    401,
+    403,
+    229
+   ]
   },
   "34434658": {
    "mounts": 63,
@@ -9843,7 +10021,9 @@
      "min": 5.5,
      "score": 19.39
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29339718": {
    "mounts": 100,
@@ -9973,7 +10153,11 @@
      "min": 10.0,
      "score": 1.0
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    387
+   ]
   },
   "42215186": {
    "mounts": 36,
@@ -10012,7 +10196,11 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    564
+   ]
   },
   "44143115": {
    "mounts": 33,
@@ -10023,7 +10211,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34376591": {
    "mounts": 65,
@@ -10034,7 +10224,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34546216": {
    "mounts": 61,
@@ -10045,7 +10237,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39959181": {
    "mounts": 103,
@@ -10056,7 +10250,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    251,
+    462
+   ]
   },
   "47494518": {
    "mounts": 28,
@@ -10087,7 +10286,14 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    337
+   ],
+   "rare_minions": [
+    591,
+    572
+   ]
   },
   "26844665": {
    "mounts": 143,
@@ -10141,7 +10347,11 @@
      "min": 8.9,
      "score": 1.12
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    114
+   ]
   },
   "36183378": {
    "mounts": 46,
@@ -10178,7 +10388,12 @@
      "min": 5.6,
      "score": 3.58
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    586,
+    584
+   ]
   },
   "16099244": {
    "mounts": 103,
@@ -10317,7 +10532,11 @@
      "min": 5.0,
      "score": 4.39
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    462
+   ]
   },
   "31592995": {
    "mounts": 107,
@@ -10328,7 +10547,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    465
+   ]
   },
   "42215185": {
    "mounts": 67,
@@ -10339,7 +10562,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37061370": {
    "mounts": 131,
@@ -10487,7 +10712,28 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    437,
+    409,
+    435,
+    399,
+    403
+   ],
+   "rare_minions": [
+    586,
+    562,
+    593,
+    566,
+    591,
+    584,
+    589,
+    568,
+    552,
+    582,
+    551,
+    580
+   ]
   },
   "29907674": {
    "mounts": 42,
@@ -10541,7 +10787,9 @@
      "min": 5.3,
      "score": 5.3
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35158574": {
    "mounts": 59,
@@ -10602,7 +10850,9 @@
      "min": 9.8,
      "score": 1.02
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "8713004": {
    "mounts": 75,
@@ -10613,7 +10863,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    152,
+    155,
+    114
+   ]
   },
   "31806535": {
    "mounts": 74,
@@ -10650,7 +10906,13 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    427
+   ],
+   "rare_minions": [
+    251
+   ]
   },
   "60814172": {
    "mounts": 2,
@@ -10661,7 +10923,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29389419": {
    "mounts": 127,
@@ -10672,7 +10936,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "3256238": {
    "mounts": 30,
@@ -10683,7 +10949,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42509107": {
    "mounts": 59,
@@ -10694,7 +10962,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24770177": {
    "mounts": 135,
@@ -10747,7 +11017,9 @@
      "min": 8.8,
      "score": 1.14
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28810440": {
    "mounts": 44,
@@ -10758,7 +11030,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "20400811": {
    "mounts": 116,
@@ -10903,7 +11177,11 @@
      "min": 8.6,
      "score": 3.16
     }
-   }
+   },
+   "rare_mounts": [
+    83
+   ],
+   "rare_minions": []
   },
   "512253": {
    "mounts": 32,
@@ -10914,7 +11192,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "25620101": {
    "mounts": 25,
@@ -10925,7 +11205,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31806958": {
    "mounts": 65,
@@ -10978,7 +11260,9 @@
      "min": 8.2,
      "score": 2.27
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24211446": {
    "mounts": 77,
@@ -11013,7 +11297,9 @@
      "min": 5.4,
      "score": 3.04
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "8999658": {
    "mounts": 140,
@@ -11024,7 +11310,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    216
+   ],
+   "rare_minions": [
+    387
+   ]
   },
   "40990512": {
    "mounts": 58,
@@ -11035,7 +11327,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    164
+   ]
   },
   "54318245": {
    "mounts": 9,
@@ -11046,7 +11342,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "40394823": {
    "mounts": 112,
@@ -11120,7 +11418,9 @@
      "min": 9.5,
      "score": 1.05
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "9155192": {
    "mounts": 26,
@@ -11159,7 +11459,9 @@
      "min": 5.8,
      "score": 13.13
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30053876": {
    "mounts": 11,
@@ -11170,7 +11472,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36855080": {
    "mounts": 59,
@@ -11181,7 +11485,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "44409962": {
    "mounts": 22,
@@ -11192,7 +11498,11 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    452
+   ]
   },
   "1643244": {
    "mounts": 122,
@@ -11311,7 +11621,11 @@
      "min": 3.1,
      "score": 9.17
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    165
+   ]
   },
   "50103049": {
    "mounts": 37,
@@ -11322,7 +11636,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "50120275": {
    "mounts": 16,
@@ -11333,7 +11649,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29782062": {
    "mounts": 35,
@@ -11344,7 +11662,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36168487": {
    "mounts": 148,
@@ -11355,7 +11675,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29863848": {
    "mounts": 26,
@@ -11366,7 +11688,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36183250": {
    "mounts": 49,
@@ -11377,7 +11701,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "51852387": {
    "mounts": 3,
@@ -11388,7 +11714,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "13162369": {
    "mounts": 84,
@@ -11491,7 +11819,9 @@
      "min": 5.0,
      "score": 5.21
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "43335087": {
    "mounts": 8,
@@ -11502,7 +11832,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29542040": {
    "mounts": 24,
@@ -11513,7 +11845,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33966579": {
    "mounts": 8,
@@ -11524,7 +11858,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31685046": {
    "mounts": 19,
@@ -11561,7 +11897,9 @@
      "min": 8.2,
      "score": 2.22
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24690035": {
    "mounts": 39,
@@ -11572,7 +11910,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "40160371": {
    "mounts": 54,
@@ -11583,7 +11923,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    376
+   ]
   },
   "32793260": {
    "mounts": 42,
@@ -11594,7 +11938,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "32023977": {
    "mounts": 3,
@@ -11605,7 +11951,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37815847": {
    "mounts": 66,
@@ -11649,7 +11997,9 @@
      "min": 8.9,
      "score": 1.12
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "43707810": {
    "mounts": 45,
@@ -11660,7 +12010,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "27453486": {
    "mounts": 39,
@@ -11671,7 +12023,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "40624820": {
    "mounts": 91,
@@ -11719,7 +12073,9 @@
      "min": 8.9,
      "score": 2.14
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42646897": {
    "mounts": 21,
@@ -11730,7 +12086,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    229
+   ]
   },
   "1607774": {
    "mounts": 149,
@@ -11848,7 +12208,9 @@
      "min": 3.3,
      "score": 5.99
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39073020": {
    "mounts": 56,
@@ -11859,7 +12221,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37843804": {
    "mounts": 46,
@@ -11870,7 +12234,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34597671": {
    "mounts": 114,
@@ -11948,7 +12314,9 @@
      "min": 8.8,
      "score": 1.14
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "26634125": {
    "mounts": 26,
@@ -11959,7 +12327,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35629716": {
    "mounts": 57,
@@ -11970,7 +12340,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "40669284": {
    "mounts": 20,
@@ -11981,7 +12353,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "5644067": {
    "mounts": 76,
@@ -12099,7 +12473,14 @@
      "min": 9.0,
      "score": 3.26
     }
-   }
+   },
+   "rare_mounts": [
+    359,
+    399
+   ],
+   "rare_minions": [
+    589
+   ]
   },
   "46243891": {
    "mounts": 66,
@@ -12165,7 +12546,13 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    502,
+    551,
+    580
+   ]
   },
   "47221226": {
    "mounts": 81,
@@ -12273,7 +12660,16 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    412,
+    399
+   ],
+   "rare_minions": [
+    568,
+    552,
+    551
+   ]
   },
   "3968346": {
    "mounts": 90,
@@ -12392,7 +12788,13 @@
      "min": 2.7,
      "score": 54.76
     }
-   }
+   },
+   "rare_mounts": [
+    444
+   ],
+   "rare_minions": [
+    462
+   ]
   },
   "14959902": {
    "mounts": 17,
@@ -12403,7 +12805,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28789661": {
    "mounts": 70,
@@ -12414,7 +12818,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    422
+   ],
+   "rare_minions": []
   },
   "31628293": {
    "mounts": 143,
@@ -12425,7 +12833,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    584,
+    403
+   ]
   },
   "57885671": {
    "mounts": 14,
@@ -12451,7 +12864,11 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    580
+   ]
   },
   "58199536": {
    "mounts": 70,
@@ -12584,7 +13001,29 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [
+    409,
+    427,
+    421
+   ],
+   "rare_minions": [
+    537,
+    575,
+    586,
+    587,
+    593,
+    583,
+    584,
+    589,
+    121,
+    513,
+    567,
+    568,
+    582,
+    572,
+    569
+   ]
   },
   "29152036": {
    "mounts": 177,
@@ -12595,7 +13034,26 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    412,
+    395,
+    435,
+    408,
+    399,
+    403,
+    407,
+    422
+   ],
+   "rare_minions": [
+    565,
+    584,
+    589,
+    567,
+    568,
+    552,
+    551
+   ]
   },
   "35634484": {
    "mounts": 67,
@@ -12606,7 +13064,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    582,
+    569
+   ]
   },
   "31236337": {
    "mounts": 75,
@@ -12617,7 +13080,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    422
+   ],
+   "rare_minions": []
   },
   "43037186": {
    "mounts": 0,
@@ -12628,7 +13095,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "44970350": {
    "mounts": 123,
@@ -12776,7 +13245,38 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [
+    412,
+    437,
+    409,
+    435,
+    399,
+    371
+   ],
+   "rare_minions": [
+    527,
+    585,
+    586,
+    587,
+    562,
+    465,
+    593,
+    591,
+    583,
+    584,
+    589,
+    513,
+    563,
+    567,
+    568,
+    552,
+    582,
+    551,
+    572,
+    580,
+    569
+   ]
   },
   "19827594": {
    "mounts": 213,
@@ -12787,7 +13287,31 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    395,
+    127,
+    372,
+    403,
+    411,
+    407,
+    422
+   ],
+   "rare_minions": [
+    585,
+    586,
+    540,
+    541,
+    542,
+    593,
+    566,
+    387,
+    567,
+    409,
+    552,
+    551,
+    580
+   ]
   },
   "45938803": {
    "mounts": 59,
@@ -12798,7 +13322,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36248712": {
    "mounts": 74,
@@ -12854,7 +13380,11 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    586
+   ]
   },
   "26699926": {
    "mounts": 157,
@@ -12942,7 +13472,19 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    395,
+    399,
+    316,
+    371,
+    407,
+    422
+   ],
+   "rare_minions": [
+    310,
+    582
+   ]
   },
   "32147756": {
    "mounts": 124,
@@ -12953,7 +13495,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    568,
+    551,
+    462
+   ]
   },
   "36261473": {
    "mounts": 87,
@@ -12964,7 +13512,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    591,
+    567,
+    568
+   ]
   },
   "36130968": {
    "mounts": 33,
@@ -12975,7 +13529,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    567,
+    580
+   ]
   },
   "28579232": {
    "mounts": 105,
@@ -13076,7 +13635,17 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    399,
+    421,
+    407,
+    422
+   ],
+   "rare_minions": [
+    584,
+    513
+   ]
   },
   "39199441": {
    "mounts": 159,
@@ -13195,7 +13764,13 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    399
+   ],
+   "rare_minions": [
+    132
+   ]
   },
   "40389196": {
    "mounts": 176,
@@ -13314,7 +13889,15 @@
      "min": 1.2,
      "score": 20.83
     }
-   }
+   },
+   "rare_mounts": [
+    83,
+    411
+   ],
+   "rare_minions": [
+    452,
+    387
+   ]
   },
   "47540663": {
    "mounts": 63,
@@ -13325,7 +13908,16 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    359,
+    407
+   ],
+   "rare_minions": [
+    564,
+    563,
+    582
+   ]
   },
   "28120733": {
    "mounts": 174,
@@ -13336,7 +13928,22 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    372,
+    399,
+    407,
+    422
+   ],
+   "rare_minions": [
+    537,
+    540,
+    541,
+    542,
+    584,
+    552,
+    551
+   ]
   },
   "12478532": {
    "mounts": 49,
@@ -13347,7 +13954,14 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    422
+   ],
+   "rare_minions": [
+    502,
+    589
+   ]
   },
   "50821570": {
    "mounts": 19,
@@ -13403,7 +14017,17 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    435
+   ],
+   "rare_minions": [
+    584,
+    589,
+    567,
+    568,
+    580
+   ]
   },
   "42349146": {
    "mounts": 44,
@@ -13544,7 +14168,26 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [
+    420,
+    444,
+    435,
+    407,
+    422,
+    429
+   ],
+   "rare_minions": [
+    586,
+    587,
+    559,
+    483,
+    584,
+    567,
+    568,
+    582,
+    580
+   ]
   },
   "57375278": {
    "mounts": 42,
@@ -13555,7 +14198,15 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    399
+   ],
+   "rare_minions": [
+    593,
+    580,
+    569
+   ]
   },
   "25506828": {
    "mounts": 102,
@@ -13566,7 +14217,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    584
+   ]
   },
   "30864049": {
    "mounts": 205,
@@ -13721,7 +14376,31 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    359,
+    427,
+    372,
+    399,
+    411,
+    407,
+    422,
+    342
+   ],
+   "rare_minions": [
+    558,
+    535,
+    495,
+    593,
+    483,
+    589,
+    387,
+    409,
+    552,
+    582,
+    551,
+    462
+   ]
   },
   "34509521": {
    "mounts": 197,
@@ -13876,7 +14555,41 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    437,
+    409,
+    408,
+    372,
+    399,
+    407,
+    422
+   ],
+   "rare_minions": [
+    585,
+    578,
+    540,
+    541,
+    542,
+    593,
+    564,
+    565,
+    566,
+    583,
+    584,
+    589,
+    513,
+    563,
+    567,
+    568,
+    552,
+    582,
+    551,
+    462,
+    572,
+    580,
+    569
+   ]
   },
   "5294880": {
    "mounts": 104,
@@ -13960,7 +14673,9 @@
      "min": 8.8,
      "score": 2.25
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "5435582": {
    "mounts": 129,
@@ -14089,7 +14804,15 @@
      "min": 8.9,
      "score": 1.12
     }
-   }
+   },
+   "rare_mounts": [
+    437,
+    372
+   ],
+   "rare_minions": [
+    417,
+    376
+   ]
   },
   "51922514": {
    "mounts": 27,
@@ -14100,7 +14823,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    399
+   ],
+   "rare_minions": []
   },
   "21620195": {
    "mounts": 193,
@@ -14111,7 +14838,23 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    399,
+    407,
+    422
+   ],
+   "rare_minions": [
+    593,
+    591,
+    584,
+    589,
+    552,
+    551,
+    572,
+    580,
+    569
+   ]
   },
   "9444020": {
    "mounts": 70,
@@ -14122,7 +14865,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    422
+   ],
+   "rare_minions": [
+    578
+   ]
   },
   "11950156": {
    "mounts": 48,
@@ -14133,7 +14882,15 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    444
+   ],
+   "rare_minions": [
+    589,
+    568,
+    580
+   ]
   },
   "30667251": {
    "mounts": 79,
@@ -14144,7 +14901,15 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    407
+   ],
+   "rare_minions": [
+    583,
+    584,
+    580
+   ]
   },
   "29325838": {
    "mounts": 215,
@@ -14155,7 +14920,32 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    420,
+    444,
+    359,
+    399,
+    411,
+    407,
+    422
+   ],
+   "rare_minions": [
+    558,
+    535,
+    495,
+    593,
+    566,
+    483,
+    387,
+    568,
+    409,
+    552,
+    551,
+    462,
+    580,
+    569
+   ]
   },
   "58455997": {
    "mounts": 30,
@@ -14166,7 +14956,16 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    408
+   ],
+   "rare_minions": [
+    566,
+    589,
+    552,
+    551
+   ]
   },
   "44141004": {
    "mounts": 90,
@@ -14177,7 +14976,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37648492": {
    "mounts": 51,
@@ -14188,7 +14989,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "58202955": {
    "mounts": 22,
@@ -14214,7 +15017,17 @@
      "min": 6.9,
      "score": 3.66
     }
-   }
+   },
+   "rare_mounts": [
+    408,
+    399
+   ],
+   "rare_minions": [
+    562,
+    589,
+    552,
+    551
+   ]
   },
   "26298391": {
    "mounts": 47,
@@ -14225,7 +15038,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    591,
+    567,
+    582
+   ]
   },
   "42976317": {
    "mounts": 50,
@@ -14282,7 +15101,15 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    407,
+    422
+   ],
+   "rare_minions": [
+    589,
+    580
+   ]
   },
   "24123541": {
    "mounts": 68,
@@ -14293,7 +15120,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "38335568": {
    "mounts": 55,
@@ -14304,7 +15133,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "6951533": {
    "mounts": 119,
@@ -14315,7 +15146,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    273
+   ],
+   "rare_minions": [
+    113
+   ]
   },
   "38802422": {
    "mounts": 40,
@@ -14326,7 +15163,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "56108574": {
    "mounts": 21,
@@ -14345,7 +15184,12 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    584,
+    580
+   ]
   },
   "8286372": {
    "mounts": 199,
@@ -14356,7 +15200,42 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    359,
+    411,
+    371,
+    407,
+    422,
+    429,
+    350
+   ],
+   "rare_minions": [
+    558,
+    535,
+    495,
+    477,
+    540,
+    559,
+    593,
+    565,
+    566,
+    591,
+    483,
+    583,
+    584,
+    589,
+    513,
+    563,
+    387,
+    567,
+    568,
+    409,
+    552,
+    582,
+    551,
+    462
+   ]
   },
   "29090821": {
    "mounts": 163,
@@ -14441,7 +15320,12 @@
      "min": 9.0,
      "score": 1.11
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    552,
+    551
+   ]
   },
   "14476396": {
    "mounts": 118,
@@ -14452,7 +15336,24 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    420,
+    437,
+    444,
+    435,
+    427,
+    407,
+    422,
+    429
+   ],
+   "rare_minions": [
+    585,
+    586,
+    559,
+    593,
+    565
+   ]
   },
   "13860363": {
    "mounts": 31,
@@ -14477,7 +15378,9 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "2957360": {
    "mounts": 147,
@@ -14488,7 +15391,20 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    429
+   ],
+   "rare_minions": [
+    586,
+    559,
+    593,
+    567,
+    568,
+    582,
+    580,
+    569
+   ]
   },
   "4026627": {
    "mounts": 17,
@@ -14499,7 +15415,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "38488824": {
    "mounts": 175,
@@ -14647,7 +15565,37 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    437,
+    409,
+    435,
+    337,
+    371
+   ],
+   "rare_minions": [
+    526,
+    527,
+    501,
+    297,
+    416,
+    343,
+    502,
+    233,
+    430,
+    593,
+    452,
+    591,
+    503,
+    583,
+    584,
+    567,
+    568,
+    582,
+    572,
+    580,
+    569
+   ]
   },
   "30293847": {
    "mounts": 28,
@@ -14666,7 +15614,9 @@
      "min": 5.9,
      "score": 1.7
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35601257": {
    "mounts": 97,
@@ -14687,7 +15637,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    337
+   ],
+   "rare_minions": []
   },
   "42053180": {
    "mounts": 64,
@@ -14747,7 +15701,20 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [
+    427,
+    337
+   ],
+   "rare_minions": [
+    585,
+    586,
+    587,
+    591,
+    589,
+    567,
+    568
+   ]
   },
   "15543487": {
    "mounts": 19,
@@ -14758,7 +15725,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "16192933": {
    "mounts": 119,
@@ -14769,7 +15738,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    580
+   ]
   },
   "31899766": {
    "mounts": 49,
@@ -14780,7 +15753,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31001697": {
    "mounts": 106,
@@ -14791,7 +15766,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29585811": {
    "mounts": 104,
@@ -14802,7 +15779,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "60619924": {
    "mounts": 11,
@@ -14821,7 +15800,11 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    337
+   ],
+   "rare_minions": []
   },
   "39850923": {
    "mounts": 122,
@@ -14934,7 +15917,26 @@
      "min": 6.8,
      "score": 1.47
     }
-   }
+   },
+   "rare_mounts": [
+    437,
+    435,
+    372,
+    429,
+    342
+   ],
+   "rare_minions": [
+    585,
+    586,
+    540,
+    541,
+    542,
+    559,
+    593,
+    567,
+    568,
+    572
+   ]
   },
   "31001781": {
    "mounts": 61,
@@ -14945,7 +15947,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24114157": {
    "mounts": 48,
@@ -14956,7 +15960,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    591,
+    584,
+    589
+   ]
   },
   "31155521": {
    "mounts": 30,
@@ -14967,7 +15977,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "46739693": {
    "mounts": 20,
@@ -14978,7 +15990,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "53933347": {
    "mounts": 18,
@@ -14989,7 +16003,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "60852230": {
    "mounts": 30,
@@ -15000,7 +16016,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35854535": {
    "mounts": 23,
@@ -15011,7 +16029,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33807451": {
    "mounts": 57,
@@ -15022,7 +16042,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29918255": {
    "mounts": 194,
@@ -15170,7 +16192,41 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [
+    437,
+    379,
+    409,
+    435,
+    399,
+    403,
+    371,
+    429
+   ],
+   "rare_minions": [
+    527,
+    585,
+    586,
+    587,
+    559,
+    593,
+    566,
+    591,
+    583,
+    584,
+    589,
+    121,
+    513,
+    567,
+    568,
+    552,
+    582,
+    551,
+    462,
+    572,
+    580,
+    569
+   ]
   },
   "34790386": {
    "mounts": 137,
@@ -15181,7 +16237,14 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    407,
+    422
+   ],
+   "rare_minions": [
+    589
+   ]
   },
   "38796459": {
    "mounts": 33,
@@ -15201,7 +16264,9 @@
      "min": 9.1,
      "score": 1.1
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30596644": {
    "mounts": 178,
@@ -15212,7 +16277,19 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    593,
+    452,
+    591,
+    583,
+    584,
+    563,
+    567,
+    568,
+    569
+   ]
   },
   "31831003": {
    "mounts": 146,
@@ -15223,7 +16300,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    337
+   ],
+   "rare_minions": []
   },
   "7283668": {
    "mounts": 29,
@@ -15255,7 +16336,9 @@
      "min": 5.1,
      "score": 7.83
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "8113158": {
    "mounts": 100,
@@ -15266,7 +16349,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "2852829": {
    "mounts": 55,
@@ -15277,7 +16362,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    589,
+    513,
+    376
+   ]
   },
   "43116127": {
    "mounts": 29,
@@ -15288,7 +16379,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33387937": {
    "mounts": 95,
@@ -15299,7 +16392,16 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    437
+   ],
+   "rare_minions": [
+    586,
+    591,
+    583,
+    580
+   ]
   },
   "60599300": {
    "mounts": 7,
@@ -15310,7 +16412,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "43374218": {
    "mounts": 24,
@@ -15321,7 +16425,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36363091": {
    "mounts": 109,
@@ -15332,7 +16438,17 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    420,
+    444,
+    407,
+    422
+   ],
+   "rare_minions": [
+    591,
+    580
+   ]
   },
   "49929911": {
    "mounts": 43,
@@ -15343,7 +16459,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    563,
+    551
+   ]
   },
   "30582341": {
    "mounts": 83,
@@ -15354,7 +16475,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    591
+   ]
   },
   "30253575": {
    "mounts": 29,
@@ -15365,7 +16490,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36624109": {
    "mounts": 82,
@@ -15376,7 +16503,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    569
+   ]
   },
   "25619696": {
    "mounts": 32,
@@ -15387,7 +16518,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    591
+   ]
   },
   "55640987": {
    "mounts": 10,
@@ -15398,7 +16533,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    388
+   ],
+   "rare_minions": []
   },
   "29991345": {
    "mounts": 41,
@@ -15409,7 +16548,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33608576": {
    "mounts": 165,
@@ -15420,7 +16561,17 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    593,
+    591,
+    583,
+    584,
+    589,
+    563,
+    569
+   ]
   },
   "42845691": {
    "mounts": 81,
@@ -15431,7 +16582,14 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    502,
+    552,
+    551,
+    572
+   ]
   },
   "15932791": {
    "mounts": 107,
@@ -15442,7 +16600,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    582
+   ]
   },
   "54419512": {
    "mounts": 6,
@@ -15453,7 +16615,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "60873337": {
    "mounts": 17,
@@ -15498,7 +16662,17 @@
      "min": 2.4,
      "score": 5.64
     }
-   }
+   },
+   "rare_mounts": [
+    421,
+    429
+   ],
+   "rare_minions": [
+    587,
+    559,
+    593,
+    572
+   ]
   },
   "60475540": {
    "mounts": 6,
@@ -15509,7 +16683,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "61758559": {
    "mounts": 5,
@@ -15520,7 +16696,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "60972300": {
    "mounts": 14,
@@ -15531,7 +16709,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    591,
+    584,
+    580
+   ]
   },
   "60933255": {
    "mounts": 8,
@@ -15542,7 +16726,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "60854619": {
    "mounts": 10,
@@ -15553,7 +16739,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "61748681": {
    "mounts": 9,
@@ -15564,7 +16752,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    421
+   ],
+   "rare_minions": []
   },
   "60211788": {
    "mounts": 11,
@@ -15575,7 +16767,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31685121": {
    "mounts": 46,
@@ -15586,7 +16780,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "57419573": {
    "mounts": 23,
@@ -15597,7 +16793,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    552,
+    551
+   ]
   },
   "5034519": {
    "mounts": 60,
@@ -15608,7 +16809,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "25504317": {
    "mounts": 11,
@@ -15619,7 +16822,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "5297796": {
    "mounts": 18,
@@ -15630,7 +16835,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    91
+   ]
   },
   "34505698": {
    "mounts": 20,
@@ -15641,7 +16850,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "1623780": {
    "mounts": 25,
@@ -15652,7 +16863,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "45150763": {
    "mounts": 26,
@@ -15663,7 +16876,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "38018463": {
    "mounts": 8,
@@ -15674,7 +16889,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30176379": {
    "mounts": 26,
@@ -15685,7 +16902,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35863297": {
    "mounts": 29,
@@ -15696,7 +16915,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34873931": {
    "mounts": 6,
@@ -15707,7 +16928,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "22164254": {
    "mounts": 30,
@@ -15718,7 +16941,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "18538032": {
    "mounts": 63,
@@ -15729,7 +16954,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28860700": {
    "mounts": 31,
@@ -15740,7 +16967,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "41059127": {
    "mounts": 18,
@@ -15751,7 +16980,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "50267765": {
    "mounts": 1,
@@ -15762,7 +16993,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "40809430": {
    "mounts": 17,
@@ -15773,7 +17006,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30943571": {
    "mounts": 1,
@@ -15784,7 +17019,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28213199": {
    "mounts": 21,
@@ -15795,7 +17032,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31764639": {
    "mounts": 9,
@@ -15806,7 +17045,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "4505633": {
    "mounts": 91,
@@ -15817,7 +17058,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31334257": {
    "mounts": 48,
@@ -15828,7 +17071,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "15895457": {
    "mounts": 71,
@@ -15839,7 +17084,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36159286": {
    "mounts": 34,
@@ -15850,7 +17097,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29944592": {
    "mounts": 59,
@@ -15861,7 +17110,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    376
+   ]
   },
   "29918399": {
    "mounts": 96,
@@ -15872,7 +17125,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30863840": {
    "mounts": 38,
@@ -15883,7 +17138,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "18659677": {
    "mounts": 48,
@@ -15894,7 +17151,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34086580": {
    "mounts": 7,
@@ -15905,7 +17164,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29479627": {
    "mounts": 9,
@@ -15916,7 +17177,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "32147626": {
    "mounts": 54,
@@ -15927,7 +17190,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "27213488": {
    "mounts": 50,
@@ -15938,7 +17203,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30426712": {
    "mounts": 1,
@@ -15949,7 +17216,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31010962": {
    "mounts": 26,
@@ -15960,7 +17229,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "17473430": {
    "mounts": 40,
@@ -15971,7 +17242,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "58199756": {
    "mounts": 25,
@@ -15982,7 +17255,15 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    399
+   ],
+   "rare_minions": [
+    565,
+    552,
+    551
+   ]
   },
   "43423269": {
    "mounts": 67,
@@ -15993,7 +17274,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "47658617": {
    "mounts": 2,
@@ -16004,7 +17287,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "5720080": {
    "mounts": 150,
@@ -16015,7 +17300,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33604767": {
    "mounts": 9,
@@ -16026,7 +17313,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "21899488": {
    "mounts": 10,
@@ -16037,7 +17326,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29734643": {
    "mounts": 53,
@@ -16048,7 +17339,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33954541": {
    "mounts": 10,
@@ -16059,7 +17352,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "14538982": {
    "mounts": 114,
@@ -16070,7 +17365,14 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    483,
+    513,
+    563,
+    462
+   ]
   },
   "38276690": {
    "mounts": 41,
@@ -16081,7 +17383,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36320452": {
    "mounts": 3,
@@ -16092,7 +17396,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24104450": {
    "mounts": 35,
@@ -16103,7 +17409,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24150396": {
    "mounts": 55,
@@ -16114,7 +17422,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31471584": {
    "mounts": 18,
@@ -16125,7 +17435,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "46485530": {
    "mounts": 59,
@@ -16136,7 +17448,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36609029": {
    "mounts": 3,
@@ -16147,7 +17461,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "58160672": {
    "mounts": 6,
@@ -16158,7 +17474,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35096411": {
    "mounts": 3,
@@ -16169,7 +17487,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "55476354": {
    "mounts": 17,
@@ -16180,7 +17500,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "46055730": {
    "mounts": 26,
@@ -16191,7 +17513,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "16034463": {
    "mounts": 66,
@@ -16202,7 +17526,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24103365": {
    "mounts": 65,
@@ -16213,7 +17539,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34228206": {
    "mounts": 18,
@@ -16224,7 +17552,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "18578874": {
    "mounts": 38,
@@ -16235,7 +17565,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31737067": {
    "mounts": 35,
@@ -16246,7 +17578,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36260815": {
    "mounts": 12,
@@ -16257,7 +17591,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "46625326": {
    "mounts": 37,
@@ -16268,7 +17604,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30172592": {
    "mounts": 53,
@@ -16279,7 +17617,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "52866044": {
    "mounts": 11,
@@ -16290,7 +17630,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35250799": {
    "mounts": 28,
@@ -16301,7 +17643,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29612903": {
    "mounts": 19,
@@ -16312,7 +17656,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34511319": {
    "mounts": 42,
@@ -16323,7 +17669,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34522645": {
    "mounts": 101,
@@ -16334,7 +17682,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    417
+   ]
   },
   "34522644": {
    "mounts": 34,
@@ -16345,7 +17697,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "40910522": {
    "mounts": 62,
@@ -16356,7 +17710,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    568
+   ]
   },
   "32046284": {
    "mounts": 50,
@@ -16367,7 +17725,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "47645809": {
    "mounts": 6,
@@ -16378,7 +17738,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "57967682": {
    "mounts": 8,
@@ -16389,7 +17751,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "15785511": {
    "mounts": 73,
@@ -16400,7 +17764,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31519555": {
    "mounts": 36,
@@ -16411,7 +17777,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "16397778": {
    "mounts": 28,
@@ -16422,7 +17790,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31802544": {
    "mounts": 7,
@@ -16433,7 +17803,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33859953": {
    "mounts": 49,
@@ -16444,7 +17816,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36228998": {
    "mounts": 44,
@@ -16455,7 +17829,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30559609": {
    "mounts": 94,
@@ -16466,7 +17842,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    462
+   ]
   },
   "16168981": {
    "mounts": 14,
@@ -16477,7 +17857,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "47337818": {
    "mounts": 27,
@@ -16488,7 +17870,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "45101386": {
    "mounts": 25,
@@ -16499,7 +17883,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    387
+   ]
   },
   "36165070": {
    "mounts": 18,
@@ -16510,7 +17898,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "12235132": {
    "mounts": 29,
@@ -16521,7 +17911,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37696532": {
    "mounts": 46,
@@ -16541,7 +17933,9 @@
      "min": 7.9,
      "score": 2.36
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29710631": {
    "mounts": 54,
@@ -16552,7 +17946,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36090951": {
    "mounts": 118,
@@ -16563,7 +17959,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    372,
+    407
+   ],
+   "rare_minions": []
   },
   "29498103": {
    "mounts": 12,
@@ -16574,7 +17975,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "58725327": {
    "mounts": 13,
@@ -16585,7 +17988,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    584,
+    552,
+    551
+   ]
   },
   "25661865": {
    "mounts": 5,
@@ -16596,7 +18005,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "32857279": {
    "mounts": 32,
@@ -16607,7 +18018,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "16173247": {
    "mounts": 34,
@@ -16618,7 +18031,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30333493": {
    "mounts": 81,
@@ -16629,7 +18044,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    407
+   ]
   },
   "28163062": {
    "mounts": 13,
@@ -16643,7 +18062,9 @@
     572,
     560
    ],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28931955": {
    "mounts": 2,
@@ -16654,7 +18075,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33272037": {
    "mounts": 33,
@@ -16665,7 +18088,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    452
+   ]
   },
   "27875326": {
    "mounts": 19,
@@ -16676,7 +18103,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39850921": {
    "mounts": 91,
@@ -16687,7 +18116,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    567
+   ]
   },
   "2168537": {
    "mounts": 36,
@@ -16716,7 +18149,9 @@
      "min": 7.2,
      "score": 4.99
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "44925955": {
    "mounts": 11,
@@ -16727,7 +18162,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "58508421": {
    "mounts": 30,
@@ -16738,7 +18175,14 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    399
+   ],
+   "rare_minions": [
+    552,
+    551
+   ]
   },
   "36001341": {
    "mounts": 9,
@@ -16749,7 +18193,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "40652404": {
    "mounts": 52,
@@ -16760,7 +18206,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35361599": {
    "mounts": 16,
@@ -16771,7 +18219,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "60692052": {
    "mounts": 23,
@@ -16782,7 +18232,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    584
+   ]
   },
   "23901016": {
    "mounts": 22,
@@ -16793,7 +18247,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    121
+   ]
   },
   "28127069": {
    "mounts": 63,
@@ -16804,7 +18262,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35270049": {
    "mounts": 6,
@@ -16815,7 +18275,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42277370": {
    "mounts": 9,
@@ -16826,7 +18288,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34290087": {
    "mounts": 18,
@@ -16837,7 +18301,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42342468": {
    "mounts": 50,
@@ -16848,7 +18314,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "18278635": {
    "mounts": 28,
@@ -16859,7 +18327,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "20014912": {
    "mounts": 99,
@@ -16870,7 +18340,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31012021": {
    "mounts": 3,
@@ -16881,7 +18353,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31923628": {
    "mounts": 69,
@@ -16892,7 +18366,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "57387464": {
    "mounts": 11,
@@ -16903,7 +18379,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "43797998": {
    "mounts": 6,
@@ -16914,7 +18392,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34155014": {
    "mounts": 80,
@@ -16925,7 +18405,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "47218599": {
    "mounts": 55,
@@ -16936,7 +18418,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28679815": {
    "mounts": 19,
@@ -16947,7 +18431,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "12003402": {
    "mounts": 23,
@@ -16958,7 +18444,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "44081209": {
    "mounts": 10,
@@ -16969,7 +18457,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "46431057": {
    "mounts": 26,
@@ -16980,7 +18470,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "50417039": {
    "mounts": 17,
@@ -16991,7 +18483,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39034125": {
    "mounts": 22,
@@ -17002,7 +18496,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29899571": {
    "mounts": 24,
@@ -17013,7 +18509,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29659200": {
    "mounts": 37,
@@ -17024,7 +18522,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "48527875": {
    "mounts": 30,
@@ -17035,7 +18535,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28012936": {
    "mounts": 53,
@@ -17062,7 +18564,9 @@
      "min": 5.7,
      "score": 1.75
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37881871": {
    "mounts": 29,
@@ -17073,7 +18577,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "27905098": {
    "mounts": 4,
@@ -17084,7 +18590,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "5761905": {
    "mounts": 52,
@@ -17095,7 +18603,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    108
+   ]
   },
   "42461214": {
    "mounts": 49,
@@ -17106,7 +18618,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34510497": {
    "mounts": 77,
@@ -17117,7 +18631,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39907836": {
    "mounts": 6,
@@ -17128,7 +18644,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37409022": {
    "mounts": 40,
@@ -17139,7 +18657,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    584,
+    563,
+    582
+   ]
   },
   "568409": {
    "mounts": 17,
@@ -17150,7 +18674,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "19896720": {
    "mounts": 19,
@@ -17161,7 +18687,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "18489055": {
    "mounts": 61,
@@ -17172,7 +18700,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24747734": {
    "mounts": 47,
@@ -17241,7 +18771,9 @@
      "min": 4.9,
      "score": 19.17
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30645476": {
    "mounts": 35,
@@ -17252,7 +18784,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24300584": {
    "mounts": 7,
@@ -17263,7 +18797,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29162543": {
    "mounts": 37,
@@ -17274,7 +18810,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "16172034": {
    "mounts": 38,
@@ -17285,7 +18823,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "16173017": {
    "mounts": 40,
@@ -17296,7 +18836,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    113
+   ]
   },
   "31211526": {
    "mounts": 29,
@@ -17307,7 +18851,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "27412308": {
    "mounts": 70,
@@ -17318,7 +18864,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29764422": {
    "mounts": 20,
@@ -17329,7 +18877,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30559981": {
    "mounts": 88,
@@ -17340,7 +18890,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    462
+   ]
   },
   "44031569": {
    "mounts": 7,
@@ -17351,7 +18905,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "59690047": {
    "mounts": 9,
@@ -17362,7 +18918,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31655994": {
    "mounts": 104,
@@ -17373,7 +18931,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36016570": {
    "mounts": 41,
@@ -17384,7 +18944,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "32373387": {
    "mounts": 42,
@@ -17395,7 +18957,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28380674": {
    "mounts": 100,
@@ -17406,7 +18970,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "49891708": {
    "mounts": 6,
@@ -17417,7 +18983,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39734861": {
    "mounts": 12,
@@ -17428,7 +18996,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "51044792": {
    "mounts": 11,
@@ -17439,7 +19009,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37143017": {
    "mounts": 73,
@@ -17450,7 +19022,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34507717": {
    "mounts": 80,
@@ -17461,7 +19035,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29151949": {
    "mounts": 35,
@@ -17472,7 +19048,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34474329": {
    "mounts": 10,
@@ -17483,7 +19061,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "27818479": {
    "mounts": 9,
@@ -17494,7 +19074,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34184163": {
    "mounts": 45,
@@ -17505,7 +19087,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "32046109": {
    "mounts": 16,
@@ -17516,7 +19100,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31225966": {
    "mounts": 32,
@@ -17527,7 +19113,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34611224": {
    "mounts": 37,
@@ -17538,7 +19126,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37911500": {
    "mounts": 117,
@@ -17549,7 +19139,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    503
+   ]
   },
   "30714243": {
    "mounts": 30,
@@ -17560,7 +19154,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "10807425": {
    "mounts": 1,
@@ -17571,7 +19167,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35164241": {
    "mounts": 45,
@@ -17582,7 +19180,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "3902073": {
    "mounts": 71,
@@ -17630,7 +19230,9 @@
      "min": 8.2,
      "score": 2.27
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "10638899": {
    "mounts": 18,
@@ -17641,7 +19243,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "8234305": {
    "mounts": 42,
@@ -17675,7 +19279,9 @@
      "min": 10.0,
      "score": 1.0
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "17723972": {
    "mounts": 55,
@@ -17686,7 +19292,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29128390": {
    "mounts": 56,
@@ -17697,7 +19305,14 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    417,
+    161,
+    376,
+    229
+   ]
   },
   "30421228": {
    "mounts": 29,
@@ -17708,7 +19323,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    310
+   ]
   },
   "16385554": {
    "mounts": 3,
@@ -17719,7 +19338,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33766568": {
    "mounts": 98,
@@ -17730,7 +19351,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33870496": {
    "mounts": 12,
@@ -17741,7 +19364,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "32150308": {
    "mounts": 19,
@@ -17752,7 +19377,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36149590": {
    "mounts": 67,
@@ -17794,7 +19421,9 @@
      "min": 9.0,
      "score": 1.11
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39001402": {
    "mounts": 8,
@@ -17805,7 +19434,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "27302476": {
    "mounts": 21,
@@ -17830,7 +19461,9 @@
      "min": 10.0,
      "score": 1.0
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42341300": {
    "mounts": 18,
@@ -17841,7 +19474,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33931644": {
    "mounts": 9,
@@ -17852,7 +19487,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "49891716": {
    "mounts": 9,
@@ -17863,7 +19500,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "58314431": {
    "mounts": 13,
@@ -17874,7 +19513,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    562,
+    551
+   ]
   },
   "24991794": {
    "mounts": 26,
@@ -17885,7 +19529,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28011817": {
    "mounts": 30,
@@ -17896,7 +19542,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30056598": {
    "mounts": 7,
@@ -17907,7 +19555,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37731936": {
    "mounts": 94,
@@ -17918,7 +19568,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    483,
+    462
+   ]
   },
   "34057749": {
    "mounts": 31,
@@ -17929,7 +19584,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "5762434": {
    "mounts": 75,
@@ -17976,7 +19633,11 @@
      "min": 5.0,
      "score": 5.21
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    108
+   ]
   },
   "32223527": {
    "mounts": 44,
@@ -18003,7 +19664,9 @@
      "min": 8.3,
      "score": 2.25
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "27935097": {
    "mounts": 12,
@@ -18014,7 +19677,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    121
+   ]
   },
   "33825599": {
    "mounts": 9,
@@ -18025,7 +19692,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31745191": {
    "mounts": 24,
@@ -18036,7 +19705,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "44409828": {
    "mounts": 47,
@@ -18047,7 +19718,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42653584": {
    "mounts": 7,
@@ -18058,7 +19731,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "26433344": {
    "mounts": 73,
@@ -18069,7 +19744,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "56143721": {
    "mounts": 2,
@@ -18080,7 +19757,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "24313144": {
    "mounts": 125,
@@ -18156,7 +19835,12 @@
      "min": 6.5,
      "score": 5.45
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": [
+    387,
+    462
+   ]
   },
   "53019673": {
    "mounts": 118,
@@ -18167,7 +19851,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    444,
+    422
+   ],
+   "rare_minions": []
   },
   "37065671": {
    "mounts": 24,
@@ -18178,7 +19867,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "45094564": {
    "mounts": 29,
@@ -18189,7 +19880,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36162283": {
    "mounts": 7,
@@ -18200,7 +19893,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "22689957": {
    "mounts": 8,
@@ -18211,7 +19906,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36151779": {
    "mounts": 53,
@@ -18222,7 +19919,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "718420": {
    "mounts": 54,
@@ -18278,7 +19977,9 @@
      "min": 3.7,
      "score": 3.81
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "17468497": {
    "mounts": 18,
@@ -18289,7 +19990,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "43481858": {
    "mounts": 12,
@@ -18300,7 +20003,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "48010347": {
    "mounts": 34,
@@ -18311,7 +20016,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "57711304": {
    "mounts": 28,
@@ -18322,7 +20029,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    552,
+    551
+   ]
   },
   "25541816": {
    "mounts": 35,
@@ -18333,7 +20045,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "60780260": {
    "mounts": 15,
@@ -18344,7 +20058,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "48050166": {
    "mounts": 2,
@@ -18355,7 +20071,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31632996": {
    "mounts": 46,
@@ -18366,7 +20084,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "2656352": {
    "mounts": 31,
@@ -18377,7 +20097,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "41098683": {
    "mounts": 1,
@@ -18388,7 +20110,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "3908109": {
    "mounts": 29,
@@ -18399,7 +20123,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    91
+   ]
   },
   "47401423": {
    "mounts": 16,
@@ -18410,7 +20138,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "53799276": {
    "mounts": 5,
@@ -18421,7 +20151,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "47585776": {
    "mounts": 8,
@@ -18432,7 +20164,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "22164216": {
    "mounts": 54,
@@ -18443,7 +20177,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "33487130": {
    "mounts": 79,
@@ -18454,7 +20190,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29901287": {
    "mounts": 137,
@@ -18465,7 +20203,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    407,
+    387,
+    409
+   ]
   },
   "36225854": {
    "mounts": 25,
@@ -18476,7 +20220,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30472222": {
    "mounts": 47,
@@ -18487,7 +20233,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39961214": {
    "mounts": 23,
@@ -18498,7 +20246,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "35863038": {
    "mounts": 11,
@@ -18509,7 +20259,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29395299": {
    "mounts": 38,
@@ -18520,7 +20272,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31710850": {
    "mounts": 4,
@@ -18531,7 +20285,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42053451": {
    "mounts": 11,
@@ -18542,7 +20298,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37924865": {
    "mounts": 33,
@@ -18553,7 +20311,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "47548993": {
    "mounts": 25,
@@ -18564,7 +20324,15 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    422
+   ],
+   "rare_minions": [
+    568,
+    580,
+    569
+   ]
   },
   "29864090": {
    "mounts": 25,
@@ -18575,7 +20343,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "40940579": {
    "mounts": 8,
@@ -18586,7 +20356,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29501278": {
    "mounts": 5,
@@ -18597,7 +20369,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "10837088": {
    "mounts": 37,
@@ -18608,7 +20382,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29351667": {
    "mounts": 7,
@@ -18619,7 +20395,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "44926008": {
    "mounts": 99,
@@ -18630,7 +20408,13 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    465,
+    583,
+    387
+   ]
   },
   "50131148": {
    "mounts": 14,
@@ -18641,7 +20425,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "37236539": {
    "mounts": 94,
@@ -18652,7 +20438,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "32027062": {
    "mounts": 7,
@@ -18663,7 +20451,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "47715909": {
    "mounts": 25,
@@ -18674,7 +20464,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "53006949": {
    "mounts": 19,
@@ -18685,7 +20477,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    565
+   ]
   },
   "31239994": {
    "mounts": 68,
@@ -18696,7 +20492,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    387
+   ]
   },
   "35361791": {
    "mounts": 50,
@@ -18707,7 +20507,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "53247027": {
    "mounts": 0,
@@ -18718,7 +20520,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "2801638": {
    "mounts": 10,
@@ -18729,7 +20533,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "23767900": {
    "mounts": 84,
@@ -18740,7 +20546,16 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [
+    407
+   ],
+   "rare_minions": [
+    567,
+    552,
+    551,
+    572
+   ]
   },
   "38971737": {
    "mounts": 1,
@@ -18751,7 +20566,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "45194317": {
    "mounts": 11,
@@ -18762,7 +20579,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42690618": {
    "mounts": 11,
@@ -18773,7 +20592,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36164592": {
    "mounts": 34,
@@ -18784,7 +20605,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "43282900": {
    "mounts": 31,
@@ -18795,7 +20618,11 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    430
+   ]
   },
   "29992221": {
    "mounts": 10,
@@ -18806,7 +20633,9 @@
    "ult_achv": [],
    "achv_seen_at": "2026-09-03",
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30848420": {
    "mounts": 17,
@@ -18817,7 +20646,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39869488": {
    "mounts": 15,
@@ -18828,7 +20659,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    502,
+    376
+   ]
   },
   "15783222": {
    "mounts": 47,
@@ -18839,7 +20675,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34524608": {
    "mounts": 28,
@@ -18850,7 +20688,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39458429": {
    "mounts": 25,
@@ -18861,7 +20701,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "51077689": {
    "mounts": 25,
@@ -18872,7 +20714,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "15296154": {
    "mounts": 27,
@@ -18883,7 +20727,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "31833183": {
    "mounts": 7,
@@ -18894,7 +20740,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34357286": {
    "mounts": 48,
@@ -18905,7 +20753,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "41073949": {
    "mounts": 45,
@@ -18916,7 +20766,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "23921786": {
    "mounts": 12,
@@ -18927,7 +20779,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "50416713": {
    "mounts": 8,
@@ -18938,7 +20792,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36490427": {
    "mounts": 44,
@@ -18983,7 +20839,9 @@
      "min": 5.0,
      "score": 2.0
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28067306": {
    "mounts": 18,
@@ -18994,7 +20852,11 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    229
+   ]
   },
   "51078504": {
    "mounts": 2,
@@ -19005,7 +20867,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "51359685": {
    "mounts": 23,
@@ -19016,7 +20880,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "27293755": {
    "mounts": 21,
@@ -19027,7 +20893,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29853808": {
    "mounts": 18,
@@ -19038,7 +20906,12 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    113,
+    161
+   ]
   },
   "49712485": {
    "mounts": 15,
@@ -19049,7 +20922,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30088400": {
    "mounts": 19,
@@ -19060,7 +20935,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36427926": {
    "mounts": 60,
@@ -19071,7 +20948,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30504149": {
    "mounts": 17,
@@ -19082,7 +20961,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "36315588": {
    "mounts": 17,
@@ -19093,7 +20974,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "29881709": {
    "mounts": 100,
@@ -19104,7 +20987,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "51060767": {
    "mounts": 8,
@@ -19115,7 +21000,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "47423083": {
    "mounts": 17,
@@ -19126,7 +21013,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "38841973": {
    "mounts": 4,
@@ -19137,7 +21026,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "48152565": {
    "mounts": 70,
@@ -19148,7 +21039,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42832439": {
    "mounts": 18,
@@ -19159,7 +21052,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "693670": {
    "mounts": 32,
@@ -19170,7 +21065,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "39850342": {
    "mounts": 39,
@@ -19181,7 +21078,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "10926041": {
    "mounts": 43,
@@ -19192,7 +21091,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "32102060": {
    "mounts": 35,
@@ -19203,7 +21104,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "34172006": {
    "mounts": 51,
@@ -19214,7 +21117,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "44401264": {
    "mounts": 5,
@@ -19225,7 +21130,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "42146242": {
    "mounts": 28,
@@ -19251,7 +21158,9 @@
      "min": 3.7,
      "score": 3.81
     }
-   }
+   },
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "43412434": {
    "mounts": 43,
@@ -19262,7 +21171,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "30964674": {
    "mounts": 189,
@@ -19579,7 +21490,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   },
   "28679378": {
    "mounts": 6,
@@ -19590,7 +21503,9 @@
    "ult_achv": [],
    "achv_seen_at": null,
    "rare_ids": [],
-   "achv_buckets": {}
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
   }
  },
  "job_icons": {
@@ -21646,5 +23561,851 @@
    "public": true,
    "at": 1788418845.186352
   }
+ },
+ "titles": {
+  "pct": {
+   "of the golden scales": 0.0,
+   "angler eternal": 0.0,
+   "wearer of many hats": 0.8,
+   "phantom salvation": 0.2,
+   "the omnipotent": 0.0,
+   "of the two towers": 0.4,
+   "omniscient obscurant": 0.1,
+   "writer of fates": 0.3,
+   "inescapable encounter": 0.0,
+   "cruel legend": 0.4,
+   "bun-believable": 0.0,
+   "protector of pots": 0.0,
+   "pirate's displeasure": 0.0,
+   "taco hero": 0.0,
+   "aunt tii's treasure": 5.2,
+   "rocket scientist": 5.0,
+   "star-powered fisher": 0.8,
+   "star-powered botanist": 0.9,
+   "star-powered miner": 0.9,
+   "star-powered culinarian": 0.8,
+   "star-powered alchemist": 0.8,
+   "star-powered weaver": 0.8,
+   "star-powered leatherworker": 0.7,
+   "star-powered goldsmith": 0.8,
+   "star-powered armorer": 0.8,
+   "star-powered smith": 0.8,
+   "star-powered carpenter": 0.9,
+   "interstellar ambassador": 0.2,
+   "globe-trotting fisher": 0.7,
+   "globe-trotting botanist": 1.7,
+   "globe-trotting miner": 1.7,
+   "nautical knockout": 0.4,
+   "paleoichthyologist": 0.4,
+   "south sea scourge": 0.4,
+   "sun-winged": 0.7,
+   "trailblazer": 15.0,
+   "of the rising conflict": 0.0,
+   "of the endless conflict": 0.0,
+   "of the final conflict": 0.0,
+   "ccrc 2026 ranker": 0.0,
+   "ccrc 2026 finalist": 0.0,
+   "ccrc 2026 champion": 0.0,
+   "literary cannon": 1.2,
+   "professional protagonist": 5.5,
+   "gravity defier": 0.2,
+   "designer of delight": 0.0,
+   "mistcloak": 20.0,
+   "peak performer": 0.0,
+   "the white wraith": 19.0,
+   "the mourner of light": 0.9,
+   "grief's anointed": 1.0,
+   "the first shadow": 2.1,
+   "curse curator": 0.0,
+   "the enlightened": 0.9,
+   "saint of sorrows": 6.7,
+   "devoted pilgrim": 13.0,
+   "of high spirits": 10.0,
+   "stellar astronomer": 0.2,
+   "living the dream": 0.4,
+   "sleepless in cyberspace": 9.0,
+   "of neon nights": 16.0,
+   "the promise of tomorrow": 25.0,
+   "ultima tier": 0.0,
+   "omega tier": 0.0,
+   "bunny-blessed": 0.0,
+   "persistent pal": 0.0,
+   "king among castaways": 0.0,
+   "queen among castaways": 0.0,
+   "overemployed": 6.0,
+   "dead man's tale": 2.4,
+   "infamy of blood": 0.2,
+   "knower of fates": 3.9,
+   "random encounter": 0.9,
+   "of the shining scale": 12.0,
+   "wisher upon stars": 0.8,
+   "starfinder": 0.7,
+   "starlighter": 0.7,
+   "angler of stars": 0.8,
+   "plucker of stars": 0.8,
+   "excavator of stars": 0.8,
+   "taster of stars": 0.9,
+   "sublimator of stars": 0.9,
+   "weaver of stars": 0.9,
+   "stitcher of stars": 0.8,
+   "caster of stars": 0.9,
+   "forger of stars": 0.9,
+   "temperer of stars": 0.9,
+   "framer of stars": 1.0,
+   "ready for liftoff": 0.3,
+   "seeker of eternity": 30.0,
+   "sweet justice": 11.0,
+   "beader of bonds": 9.0,
+   "transdimensional tycoon": 3.0,
+   "tracklayer": 17.0,
+   "genesis of legends": 4.1,
+   "of neon horizons": 35.0,
+   "tourist wrangler": 22.0,
+   "of resplendent depths": 1.2,
+   "of the brotherhood": 16.0,
+   "of the hidden cenote": 28.0,
+   "practically pelupelu": 19.0,
+   "winged death": 0.7,
+   "of the bright plume": 1.5,
+   "of untarnished lealty": 1.3,
+   "of untarnished principle": 1.4,
+   "of untarnished steel": 2.1,
+   "of untarnished oath": 1.8,
+   "goldheart": 4.0,
+   "of countless catches": 13.0,
+   "of countless treasures": 19.0,
+   "of countless concoctions": 14.0,
+   "of countless crafts": 14.0,
+   "of countless alloys": 14.0,
+   "picto perfect": 21.0,
+   "twinfang": 21.0,
+   "of the new dawn": 45.0,
+   "knight of alexandria": 46.0,
+   "domebreaker": 46.0,
+   "sunforged": 46.0,
+   "herald of peace": 47.0,
+   "on the trail": 48.0,
+   "arbiter of the land": 26.0,
+   "arbiter of the arts": 26.0,
+   "arbiter of magic": 17.0,
+   "arbiter of war": 15.0,
+   "of the twinned star": 41.0,
+   "sunchaser": 53.0,
+   "the final fish": 1.7,
+   "wavewalker": 1.8,
+   "the mandervillous": 39.0,
+   "the first's foremost": 10.0,
+   "epic hero": 1.3,
+   "king bean": 1.2,
+   "queen bean": 1.2,
+   "force of nature": 2.2,
+   "sparrow's harmony": 10.0,
+   "growing light": 57.0,
+   "wyrm whisperer": 7.0,
+   "embraced by gods": 46.0,
+   "count of monte cowrie": 24.0,
+   "countess of monte cowrie": 24.0,
+   "of the irresistible lure": 2.6,
+   "of the keen hatchet": 7.0,
+   "of the relentless sledge": 5.7,
+   "the resourceful": 5.3,
+   "sleepless scholar": 25.0,
+   "ascendant ascetic": 1.5,
+   "reincarnator": 12.0,
+   "forbidden blue": 0.8,
+   "blueblazer": 1.1,
+   "glitterier than goldor": 7.4,
+   "shrimp mariner": 1.3,
+   "squidzure dragoon": 1.4,
+   "sea comber": 1.4,
+   "doom of the deep": 3.4,
+   "wolf of easy street": 16.0,
+   "throneshaker": 61.0,
+   "ccrc 2023 champion": 0.0,
+   "ccrc 2023 finalist": 0.0,
+   "ccrc 2023 ranker": 0.0,
+   "dreaming worker": 33.0,
+   "sovereign hero": 3.4,
+   "the accursed": 0.1,
+   "once and future king": 1.0,
+   "once and future queen": 1.0,
+   "true steel": 7.8,
+   "duskfall": 28.0,
+   "the alpha legend": 4.2,
+   "olympian": 0.8,
+   "gymnasiarch": 20.0,
+   "agonistes": 41.0,
+   "man-maker": 6.4,
+   "leaf whisperer": 33.0,
+   "fiendslayer": 64.0,
+   "infamy of sil'dih": 2.0,
+   "sultana's shadow": 18.0,
+   "barista at the end of the universe": 37.0,
+   "voidbound": 68.0,
+   "cieldalaes connoisseur": 18.0,
+   "trader of paradise": 28.0,
+   "sanctuary seeker": 40.0,
+   "academic advocate": 7.9,
+   "ami d'améliance": 42.0,
+   "amie d'améliance": 42.0,
+   "hippo hero": 43.0,
+   "the heavens' legend": 6.0,
+   "makai sage": 14.0,
+   "makai reaper": 13.0,
+   "makai dancer": 13.0,
+   "makai gunbreaker": 12.0,
+   "makai red mage": 12.0,
+   "makai samurai": 12.0,
+   "blessed relief": 24.0,
+   "newfound adventurer": 71.0,
+   "crystal keeper": 2.8,
+   "diamond bearer": 3.9,
+   "platinum bearer": 5.2,
+   "gold bearer": 7.5,
+   "silver bearer": 9.6,
+   "bronze bearer": 13.0,
+   "the arbiter": 0.6,
+   "lunaire riche": 1.7,
+   "on the hype tron": 27.0,
+   "the excruciatingly excited": 50.0,
+   "patron of the fates": 23.0,
+   "the keen": 1.1,
+   "gleaning machine": 2.7,
+   "of unbreakable lealty": 2.2,
+   "of unbreakable principle": 2.6,
+   "of unbreakable steel": 3.8,
+   "of unbreakable oath": 3.1,
+   "the seventh dawn": 9.3,
+   "honorary academic": 19.0,
+   "erudite angler": 23.0,
+   "erudite seeker": 32.0,
+   "erudite apothecary": 26.0,
+   "erudite artisan": 26.0,
+   "erudite smith": 26.0,
+   "the sagacious": 47.0,
+   "lemures": 54.0,
+   "endwalker": 76.0,
+   "hope's legacy": 76.0,
+   "elpiphoros": 76.0,
+   "vrtra's valiant": 77.0,
+   "lightingway": 77.0,
+   "moonwalker": 77.0,
+   "magus resister": 78.0,
+   "at land's horizon": 46.0,
+   "at art's horizon": 44.0,
+   "at magic's horizon": 33.0,
+   "at war's horizon": 29.0,
+   "queen's elect": 38.0,
+   "the emblazoned": 2.5,
+   "gunnhildr's blade": 1.5,
+   "hero of zadnor": 1.5,
+   "lyon tamer": 1.8,
+   "commander conqueror": 2.0,
+   "the hypertuned": 1.7,
+   "dalriada raider": 2.3,
+   "witness to the dark apocalypse": 21.0,
+   "dawn treader": 81.0,
+   "big fish": 2.3,
+   "lord of far waters": 2.4,
+   "lady of far waters": 2.4,
+   "jack of all cards": 8.8,
+   "lifesaver": 8.6,
+   "charlemend's angel": 33.0,
+   "the indefatigable": 3.1,
+   "speed demon": 21.0,
+   "delubrum delver": 2.5,
+   "the azure and omega": 1.3,
+   "blue ranger": 1.7,
+   "of the truest blue": 5.7,
+   "beatus of the firmament": 4.6,
+   "beata of the firmament": 4.6,
+   "saint of the firmament": 1.0,
+   "the risensung fisher": 3.0,
+   "the risensung botanist": 2.2,
+   "the risensung miner": 2.3,
+   "the risensung culinarian": 3.1,
+   "the risensung alchemist": 3.1,
+   "the risensung weaver": 2.9,
+   "the risensung leatherworker": 2.8,
+   "the risensung goldsmith": 2.9,
+   "the risensung armorer": 3.0,
+   "the risensung blacksmith": 3.1,
+   "the risensung carpenter": 3.3,
+   "master of the sea": 5.0,
+   "gaolbreaker": 0.4,
+   "secret keeper": 22.0,
+   "secret finder": 53.0,
+   "tournament leader": 1.1,
+   "world-class troller": 0.9,
+   "manta maniac": 2.4,
+   "deadliest catcher": 2.0,
+   "balloon catcher": 2.2,
+   "writer of histories": 82.0,
+   "guardian angel": 8.8,
+   "sword of the south": 2.3,
+   "the death of flame": 3.5,
+   "queller of beasts": 2.6,
+   "gabriel's downfall": 3.6,
+   "siege liege": 3.2,
+   "skirmisher": 19.0,
+   "the decisive blow": 2.7,
+   "featherfall's finest fisher": 1.4,
+   "featherfall's finest botanist": 0.9,
+   "featherfall's finest miner": 0.9,
+   "featherfall's finest culinarian": 1.5,
+   "featherfall's finest alchemist": 1.5,
+   "featherfall's finest weaver": 1.5,
+   "featherfall's finest leatherworker": 1.4,
+   "featherfall's finest goldsmith": 1.5,
+   "featherfall's finest armorer": 1.5,
+   "featherfall's finest blacksmith": 1.5,
+   "featherfall's finest carpenter": 1.6,
+   "shepherd to the stars": 83.0,
+   "tank technician": 43.0,
+   "vrai ami": 9.5,
+   "vraie amie": 9.5,
+   "partner in teatime": 26.0,
+   "tinker tutor": 9.5,
+   "a dragon's best friend": 42.0,
+   "fortune's favored kupo": 3.5,
+   "the nest's own fisher": 1.4,
+   "the nest's own botanist": 1.0,
+   "the nest's own miner": 1.0,
+   "the nest's own culinarian": 1.8,
+   "the nest's own alchemist": 1.8,
+   "the nest's own weaver": 1.7,
+   "the nest's own leatherworker": 1.7,
+   "the nest's own goldsmith": 1.8,
+   "the nest's own armorer": 1.7,
+   "the nest's own blacksmith": 1.8,
+   "the nest's own carpenter": 1.9,
+   "divine provider": 1.8,
+   "the hand of creation": 2.3,
+   "rod of the firmament": 2.5,
+   "hatchet of the firmament": 2.1,
+   "pick of the firmament": 2.1,
+   "pan of the firmament": 2.6,
+   "panacea of the firmament": 2.6,
+   "weave of the firmament": 2.5,
+   "knife of the firmament": 2.5,
+   "jewel of the firmament": 2.5,
+   "hammer of the firmament": 2.6,
+   "forge of the firmament": 2.6,
+   "frame of the firmament": 2.7,
+   "ronkan historian": 36.0,
+   "echo of a fallen star": 83.0,
+   "sea dragoon": 2.3,
+   "jellyfish fanatic": 2.4,
+   "shark hunter": 1.9,
+   "octopus traveler": 2.0,
+   "ocean fisher": 9.0,
+   "champion of the blue": 3.9,
+   "the battleforged": 0.5,
+   "blue justice": 3.9,
+   "unbound blue": 4.8,
+   "masked of the round": 2.5,
+   "blue luminary": 3.4,
+   "blue to the bone": 28.0,
+   "the perfect legend": 9.9,
+   "sweet dreamer": 53.0,
+   "honeybee": 12.0,
+   "kai-shirr's best mate": 45.0,
+   "of virtuous deeds": 84.0,
+   "kindred sword": 6.6,
+   "dungeon lord": 1.5,
+   "dungeon lady": 1.5,
+   "dungeon dweller": 24.0,
+   "dungeon raider": 55.0,
+   "of unyielding lealty": 3.7,
+   "of unyielding principle": 4.3,
+   "of unyielding steel": 6.2,
+   "of unyielding oath": 5.1,
+   "the fabulously feral": 1.2,
+   "charming brute": 2.5,
+   "the invisible hand": 20.0,
+   "trusted friend": 15.0,
+   "the multifaceted": 22.0,
+   "otherworld angler": 27.0,
+   "otherworld seeker": 40.0,
+   "otherworld apothecary": 30.0,
+   "otherworld artisan": 31.0,
+   "otherworld smith": 30.0,
+   "riftdancer": 32.0,
+   "wandering vanguard": 33.0,
+   "samurai in a strange land": 29.0,
+   "dualistic duelist": 33.0,
+   "distant stargazer": 27.0,
+   "the shot heard across worlds": 30.0,
+   "the boundless dark": 34.0,
+   "shadow of the other": 27.0,
+   "knower of twin worlds": 29.0,
+   "farcaller": 33.0,
+   "of stranger shadow": 29.0,
+   "firstblessed": 32.0,
+   "the song upon the wind": 30.0,
+   "bolt from the black": 30.0,
+   "worldcleaver": 31.0,
+   "the transcendent": 27.0,
+   "bulwark between worlds": 30.0,
+   "living memory": 36.0,
+   "the heart's beat": 59.0,
+   "sworn protector": 57.0,
+   "shadowbringer": 85.0,
+   "enemy of innocence": 85.0,
+   "of the sunless sea": 85.0,
+   "seeker of hidden truths": 85.0,
+   "the fae-touched": 86.0,
+   "outlander": 86.0,
+   "soul of the harvest": 54.0,
+   "soul of the craft": 51.0,
+   "soul of magic": 40.0,
+   "soul of war": 36.0,
+   "grandmaster caster": 2.7,
+   "kingsglaive": 67.0,
+   "kageyama killer": 31.0,
+   "the soboro": 62.0,
+   "a requiem for heroes": 87.0,
+   "eurekan explorer": 25.0,
+   "lord of the fetch": 24.0,
+   "lady of the fetch": 24.0,
+   "perfect blue": 6.4,
+   "mask of the blue": 27.0,
+   "blue blood": 49.0,
+   "tough customer": 10.0,
+   "little piggy": 39.0,
+   "mahjong master": 0.4,
+   "mahjong enthusiast": 0.8,
+   "kyubi tamer": 41.0,
+   "invoker of gods": 0.4,
+   "the devout": 12.0,
+   "altar boy": 46.0,
+   "altar girl": 46.0,
+   "philanthropist": 46.0,
+   "prelude in violet": 87.0,
+   "frc 2018 champion": 0.0,
+   "frc 2018 finalist": 0.0,
+   "frc 2018 ranker": 0.0,
+   "monster hunter": 72.0,
+   "hoarder": 0.2,
+   "lone hero": 1.2,
+   "true hero": 5.8,
+   "heavenly gate crasher": 13.0,
+   "hiruko hunter": 52.0,
+   "calamatologist": 13.0,
+   "the ultimate legend": 13.0,
+   "under the moonlight": 87.0,
+   "kurenai's partner": 9.9,
+   "kurenai's best friend": 39.0,
+   "vanguard": 3.1,
+   "eorzean ninja warrior": 14.0,
+   "matchmaker": 8.6,
+   "siltwater socialite": 43.0,
+   "snake in the grass": 43.0,
+   "the new sun": 88.0,
+   "eversharp": 0.0,
+   "fashion leader": 57.0,
+   "wings of fire": 0.1,
+   "wings of steel": 0.2,
+   "the legend": 8.3,
+   "of the blue": 42.0,
+   "raubahn's left arm": 88.0,
+   "crimson explorer": 14.0,
+   "the luckiest of lords": 0.1,
+   "the luckiest of ladies": 0.1,
+   "deep canal dweller": 7.6,
+   "deep canal raider": 39.0,
+   "naago's partner": 11.0,
+   "naago's friend": 46.0,
+   "canal lord": 0.5,
+   "canal lady": 0.5,
+   "canal dweller": 11.0,
+   "canal raider": 44.0,
+   "deltascape deleter": 75.0,
+   "the necromancer": 1.1,
+   "ultimate thrillseeker": 0.5,
+   "thrillseeker": 1.9,
+   "of the endless hunt": 0.7,
+   "of the longest hunt": 4.9,
+   "god of the land": 57.0,
+   "goddess of the land": 57.0,
+   "god of the hand": 54.0,
+   "goddess of the hand": 54.0,
+   "god of magic": 44.0,
+   "goddess of magic": 44.0,
+   "god of war": 40.0,
+   "goddess of war": 40.0,
+   "muso": 56.0,
+   "the red": 59.0,
+   "of the eastern skies": 53.0,
+   "the howler": 55.0,
+   "of the swirling abyss": 58.0,
+   "eorzean ninja": 52.0,
+   "keeper of the lilacs": 56.0,
+   "the first caller": 60.0,
+   "gembreaker": 55.0,
+   "padjal protector": 61.0,
+   "of the true autumn": 56.0,
+   "the blood dragoon": 56.0,
+   "loved by the axe": 57.0,
+   "the fistful": 50.0,
+   "ul cup champion": 58.0,
+   "the liberator": 88.0,
+   "lyse's right fist": 89.0,
+   "the returned": 89.0,
+   "steppe warrior": 89.0,
+   "adversary": 89.0,
+   "confederate": 90.0,
+   "ijin traveler": 90.0,
+   "survivor of the song": 90.0,
+   "fatewalker": 91.0,
+   "zhloe's best friend": 14.0,
+   "zhloe's friend": 53.0,
+   "halone's cup bearer": 2.4,
+   "tablesetter": 42.0,
+   "rhalgr's right fist": 0.6,
+   "mortal fist": 33.0,
+   "tamer of the undying flame": 51.0,
+   "gigi's best friend": 66.0,
+   "of the holy body": 33.0,
+   "the finest pupil's ally": 91.0,
+   "moonlifter": 28.0,
+   "makai astrologian": 15.0,
+   "makai machinist": 16.0,
+   "kiba": 15.0,
+   "makai scholar": 15.0,
+   "makai summoner": 15.0,
+   "zero": 15.0,
+   "makai white mage": 17.0,
+   "makai black mage": 15.0,
+   "makai bard": 16.0,
+   "dan": 16.0,
+   "barago": 15.0,
+   "makai monk": 15.0,
+   "garo": 16.0,
+   "makai master": 11.0,
+   "corpse dancer": 39.0,
+   "lonely explorer": 6.6,
+   "lightbringer": 16.0,
+   "hero of gelmorra": 45.0,
+   "of the sixth sense": 2.8,
+   "the lucky": 2.6,
+   "khloe's best friend": 23.0,
+   "khloe's friend": 65.0,
+   "surrenderer of souls": 91.0,
+   "the wings of time": 75.0,
+   "the chief mourner": 60.0,
+   "of the diamond pack": 0.0,
+   "of the platinum pack": 0.0,
+   "of the gold pack": 0.0,
+   "of the silver pack": 0.0,
+   "of the bronze pack": 0.0,
+   "of the hungry pack": 0.0,
+   "of the second pack": 0.0,
+   "of the first pack": 0.0,
+   "diamond wolf": 0.2,
+   "platinum wolf": 0.3,
+   "gold wolf": 0.6,
+   "silver wolf": 0.9,
+   "bronze wolf": 1.0,
+   "hunter wolf": 0.3,
+   "beta wolf": 0.0,
+   "leader of the pack": 0.0,
+   "the knight of glory": 0.6,
+   "pom friend": 41.0,
+   "polis lord": 0.7,
+   "polis lady": 0.7,
+   "polis dweller": 13.0,
+   "polis raider": 49.0,
+   "the dragonsong": 91.0,
+   "the newmind": 39.0,
+   "allthoughts": 78.0,
+   "the gear of change": 91.0,
+   "carrier of the kettle": 16.0,
+   "mentor of mentors": 3.1,
+   "mentor": 9.4,
+   "the undamaged": 0.1,
+   "the unleashed": 0.1,
+   "the unseen": 0.1,
+   "the unrelenting": 0.1,
+   "the unmoving": 0.1,
+   "the devourer": 0.8,
+   "hungry wolf": 2.1,
+   "special advisor": 36.0,
+   "the noumenon": 50.0,
+   "notorious monster slayer": 0.2,
+   "veteran explorer": 18.0,
+   "myth breaker": 69.0,
+   "sundrop dancer": 36.0,
+   "sky pirate": 78.0,
+   "house fortemps knight": 91.0,
+   "lord of verminion": 0.2,
+   "lady of verminion": 0.2,
+   "prince of verminion": 0.4,
+   "princess of verminion": 0.4,
+   "mammeteer": 79.0,
+   "minion master": 67.0,
+   "minion collector": 82.0,
+   "keeper of knowledge": 1.5,
+   "illuminati quencher": 81.0,
+   "good samaritan": 19.0,
+   "the fortunate": 1.0,
+   "master fisher": 3.4,
+   "master botanist": 4.9,
+   "master miner": 4.7,
+   "master culinarian": 3.5,
+   "master alchemist": 3.1,
+   "master weaver": 1.2,
+   "master leatherworker": 0.9,
+   "master goldsmith": 1.4,
+   "master armorer": 1.1,
+   "master blacksmith": 1.6,
+   "master carpenter": 1.2,
+   "business associate": 13.0,
+   "amasser of masterpieces": 14.0,
+   "molder of masterpieces": 43.0,
+   "grandmaster of the land": 61.0,
+   "grandmaster of the hand": 57.0,
+   "of the stalwart sword": 22.0,
+   "dark driver": 29.0,
+   "grandmaster of magic": 49.0,
+   "grandmaster of war": 44.0,
+   "lighter than air": 40.0,
+   "finder of false gods": 70.0,
+   "stargazer": 58.0,
+   "liberator": 59.0,
+   "blackblood": 63.0,
+   "the darkest shadow": 57.0,
+   "nymian marine": 61.0,
+   "dreadspawn": 64.0,
+   "annihilator": 60.0,
+   "pure white": 66.0,
+   "skysinger": 61.0,
+   "the azure dragoon": 62.0,
+   "the mythril heart": 62.0,
+   "of the 14th chakra": 55.0,
+   "the oathkeeper": 63.0,
+   "the end of ascalon": 92.0,
+   "under-archon": 92.0,
+   "imperial nuisance": 92.0,
+   "of the silver fuller": 92.0,
+   "nidhogg slayer": 92.0,
+   "the redeemed": 93.0,
+   "unbeliever": 93.0,
+   "half-boiled hero": 5.3,
+   "half-boiled heroine": 5.3,
+   "postmaster": 26.0,
+   "bearer of the torch": 94.0,
+   "raiser of mountains": 25.0,
+   "moneybags": 8.9,
+   "the fungah": 12.0,
+   "keymaster": 23.0,
+   "gatekeeper": 23.0,
+   "duelist": 6.8,
+   "the trinity": 1.8,
+   "deck hoarder": 71.0,
+   "deck holder": 81.0,
+   "the first across": 1.4,
+   "veteran jockey": 0.4,
+   "senior jockey": 6.5,
+   "bug boy": 55.0,
+   "bug girl": 55.0,
+   "chocobo trainer": 3.1,
+   "chocobo breeder": 19.0,
+   "high roller": 0.6,
+   "gambler": 92.0,
+   "golemancer": 5.1,
+   "z": 28.0,
+   "the light of the land": 7.2,
+   "the light in hand": 7.1,
+   "the hand of mercy": 1.7,
+   "slaughterhouse": 10.0,
+   "the unsevered": 76.0,
+   "tamer of steeds": 66.0,
+   "cupid": 6.9,
+   "gentleman": 73.0,
+   "gentlewoman": 73.0,
+   "of the silver lining": 93.0,
+   "icebreaker": 94.0,
+   "the shadow": 19.0,
+   "master caster": 5.6,
+   "of dragons deep": 9.6,
+   "the final witness": 61.0,
+   "the negotiator": 25.0,
+   "ehcatl blackguard": 32.0,
+   "the postman": 51.0,
+   "the postwoman": 51.0,
+   "defender of eorzea": 94.0,
+   "bearer of the coffer": 3.3,
+   "the disassembler": 16.0,
+   "domitor": 30.0,
+   "domitrix": 30.0,
+   "the avatar": 27.0,
+   "melusine mauler": 27.0,
+   "rafflesia reaper": 30.0,
+   "captain of the hunt": 11.0,
+   "soldier of fortune": 36.0,
+   "bounty hunter": 6.7,
+   "seasoned tracker": 15.0,
+   "seeker of fortune": 17.0,
+   "hunter for hire": 18.0,
+   "heliodrome hero": 24.0,
+   "drone sniper": 39.0,
+   "flame forerunner": 1.0,
+   "serpent forerunner": 1.0,
+   "storm forerunner": 1.4,
+   "frontline forerunner": 15.0,
+   "of the stalwart axe": 24.0,
+   "of the stalwart shield": 23.0,
+   "the meat axe": 30.0,
+   "the meat shield": 30.0,
+   "the ambitious angler": 19.0,
+   "novv clutchmate": 30.0,
+   "789th order champion": 31.0,
+   "treasure hunter": 7.6,
+   "sylph-friend": 32.0,
+   "brother of ash": 33.0,
+   "sister of ash": 33.0,
+   "the heart of the party": 95.0,
+   "the alpha wolf": 0.0,
+   "the ravenous wolf": 0.2,
+   "flame chaser": 11.0,
+   "flame stalker": 16.0,
+   "flame hound": 21.0,
+   "flame growler": 27.0,
+   "flame howler": 33.0,
+   "flame puppy": 35.0,
+   "serpent chaser": 11.0,
+   "serpent stalker": 16.0,
+   "serpent hound": 21.0,
+   "serpent growler": 27.0,
+   "serpent howler": 33.0,
+   "serpent puppy": 36.0,
+   "storm chaser": 14.0,
+   "storm stalker": 20.0,
+   "storm hound": 27.0,
+   "storm growler": 34.0,
+   "storm howler": 39.0,
+   "storm puppy": 41.0,
+   "elite cascadier": 7.0,
+   "tempter of fate": 47.0,
+   "temptress of fate": 47.0,
+   "dungeon master": 82.0,
+   "the reaper": 5.1,
+   "the strategist": 17.0,
+   "green eyes": 18.0,
+   "cavalier": 44.0,
+   "flamebringer": 7.6,
+   "serpentbringer": 8.1,
+   "stormbringer": 9.3,
+   "flamecarrier": 7.8,
+   "serpentcarrier": 8.4,
+   "stormcarrier": 9.6,
+   "the flamesworn": 1.4,
+   "the serpentsworn": 1.4,
+   "the stormsworn": 1.4,
+   "flamelord": 39.0,
+   "flamelady": 39.0,
+   "serpentlord": 40.0,
+   "serpentlady": 40.0,
+   "stormlord": 45.0,
+   "stormlady": 45.0,
+   "the professional": 45.0,
+   "the last resort": 28.0,
+   "lord creator": 27.0,
+   "lady creator": 27.0,
+   "lord protector": 4.8,
+   "lady protector": 4.8,
+   "seeker of bounty": 58.0,
+   "seeker of skill": 49.0,
+   "seeker of truth": 63.0,
+   "seeker of blood": 56.0,
+   "the assimilator": 31.0,
+   "carrier of the cauldron": 23.0,
+   "desertcaster": 2.2,
+   "forestcaster": 2.2,
+   "meadowcaster": 2.7,
+   "desertreaper": 2.1,
+   "forestreaper": 2.7,
+   "meadowreaper": 2.5,
+   "desertbreaker": 3.8,
+   "forestbreaker": 2.4,
+   "meadowbreaker": 2.7,
+   "of the golden ladle": 3.1,
+   "of the golden lead": 3.9,
+   "of the golden needle": 2.6,
+   "of the golden hide": 2.6,
+   "of the golden leaf": 4.4,
+   "of the golden hammer": 5.8,
+   "of the golden anvil": 6.8,
+   "of the golden saw": 4.4,
+   "provider of the realm": 64.0,
+   "builder of the realm": 60.0,
+   "archmage": 58.0,
+   "warmonger": 51.0,
+   "honest gillionaire": 11.0,
+   "the exterminator": 70.0,
+   "starcaller": 21.0,
+   "the white": 25.0,
+   "the godsbow": 22.0,
+   "of the vengeful lance": 25.0,
+   "ironeater": 22.0,
+   "coeurlfist": 16.0,
+   "the true": 26.0,
+   "the insatiable": 9.1,
+   "the wanderer's shadow": 0.3,
+   "lightning": 0.3,
+   "a bo's best friend": 0.0,
+   "featherfoot": 0.2,
+   "crystal bearer": 0.7,
+   "cascadier": 0.5,
+   "dreamseeker": 0.4,
+   "royal seneschal": 0.6,
+   "princess for a day": 0.6,
+   "messenger of love": 0.2,
+   "the winter wyrm": 0.4,
+   "wild thing": 0.5,
+   "the hand of the golden bazaar": 0.0,
+   "the hand of hyrstmill": 0.0,
+   "the hand of aleport": 0.0,
+   "the wind of the golden bazaar": 0.0,
+   "the wind of hyrstmill": 0.0,
+   "the wind of aleport": 0.0,
+   "the guardian of the golden bazaar": 0.0,
+   "the guardian of hyrstmill": 0.0,
+   "the guardian of aleport": 0.0,
+   "an amalj'aa's worst nightmare": 0.4,
+   "an ixal's worst nightmare": 0.4,
+   "a kobold's worst nightmare": 0.4,
+   "stonesplitter": 0.4,
+   "divine crusher": 0.4,
+   "inquisitor": 0.4,
+   "the uncommitted": 0.0,
+   "bearer of the horn": 0.0,
+   "the warden's wall": 0.0,
+   "brother of the broken blade": 0.0,
+   "sister of the broken blade": 0.0,
+   "the shield of eorzea": 0.1,
+   "the shield of thanalan": 0.1,
+   "the shield of the shroud": 0.1,
+   "the shield of la noscea": 0.1,
+   "the sword of eorzea": 0.1,
+   "the sword of thanalan": 0.2,
+   "the sword of the shroud": 0.1,
+   "the sword of la noscea": 0.1,
+   "peacemaker": 0.0,
+   "sidestepper": 0.5,
+   "of the desert pools": 0.0,
+   "of the forest pools": 0.0,
+   "of the meadow pools": 0.0,
+   "of the desert grasses": 0.0,
+   "of the forest grasses": 0.0,
+   "of the meadow grasses": 0.0,
+   "of the desert mines": 0.0,
+   "of the forest mines": 0.0,
+   "of the meadow mines": 0.0,
+   "ruthless gillionaire": 0.0,
+   "notorious monster hunter": 0.6
+  },
+  "at": 1788450280.3826394
  }
 }

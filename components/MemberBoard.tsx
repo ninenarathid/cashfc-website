@@ -28,6 +28,7 @@ import Skeleton from "@/components/ui/Skeleton";
 // are needed at render time, so the package is in the graph either way and the
 // dynamic import only added a chunk to it. 415 KB against 390 KB, measured.
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { rarityColor, rarityLabel } from "@/lib/rarity";
 
 
 // Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
@@ -831,7 +832,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
                         on ? TAG_CLASS[tag] ?? "border-accent bg-accent/15 text-accent"
                            : "border-line text-muted hover:border-muted"}`}>
-                      <TagIcon tag={tag} size={13} />
+                      <TagIcon tag={tag} size={16} />
                       {TAG_LABELS[tag]}
                       <small className="ml-1 opacity-70">{counts[tag]}</small>
                     </button>
@@ -981,19 +982,25 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             {list.map((m, i) => {
               const ov = overlays[m.id];
               const accent = ov?.accent ?? "#6aa9e0";
-              // No title means no line, not an em dash standing in for one.
-              const meta = [memberTitle(m)].filter(Boolean) as string[];
+              // Only the title now, coloured by how few players wear it.
+              //
+              // Race, mount count and rare-achievement count came off this
+              // line. All three were on every row, all three were identical
+              // across most of them, and the numbers repeat what the collection
+              // tiles say on the member's own page — five hundred rows reading
+              // "Au Ra · 131 mounts · 143 rare achv" is five hundred rows of
+              // the same sentence with the digits changed. A title is chosen,
+              // and how rare it is says something no other column does.
+              const title = memberTitle(m);
               // Where a guest actually plays. It is the first thing anybody
               // wants to know about a name that is not on the roster, and the
               // FC's own members would only ever repeat the same two words.
+              const meta: string[] = [];
               if (m.rank === GUEST_RANK) {
                 const home = guestHome(m.id);
                 if (home?.world) meta.push(home.world);
                 if (home?.fc) meta.push(home.fc);
               }
-              if (m.race) meta.push(m.race);
-              if (m.mounts != null) meta.push(`${m.mounts} mounts`);
-              if (m.rare_achv != null) meta.push(`${m.rare_achv} rare achv`);
               return (
                 <motion.div key={m.id}
                      /**
@@ -1064,7 +1071,18 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         </span>
                       )}
                     </Link>
-                    <div className="text-[12.5px] text-muted">{meta.join(" · ")}</div>
+                    <div className="flex flex-wrap items-baseline gap-x-1.5 text-[12.5px]">
+                      {title && (
+                        <span style={{ color: rarityColor(m.title_pct) }}
+                              title={rarityLabel(m.title_pct, lang === "th")}>
+                          {title}
+                        </span>
+                      )}
+                      {title && meta.length > 0 && <span className="text-muted opacity-50">·</span>}
+                      {meta.length > 0 && (
+                        <span className="text-muted">{meta.join(" · ")}</span>
+                      )}
+                    </div>
                     {ov?.bio && (
                       <div className="mt-0.5 truncate text-[12px] italic" style={{ color: accent }}>
                         &ldquo;{ov.bio}&rdquo;

@@ -100,12 +100,23 @@ export const TAG_CLASS: Record<string, string> = {
   // One colour per kind of content. Savage keeps a single hue across both of its
   // states — they are the same content, and a dashed border reads as unfinished
   // far better than a second colour would.
-  "tier-clear": "border-chili/60 bg-chili/15 text-chili",
-  prog: "border-dashed border-chili/45 bg-chili/5 text-chili/85",
-  extreme: "border-[#a87fd8]/50 bg-[#a87fd8]/10 text-[#c0a2e6]",
-  // Deliberately quiet: clearing an Ultimate is a big deal, but on a board where a
-  // fifth of the roster has one it should not shout over everything else.
-  ultimate: "border-gold/35 bg-gold/5 text-gold/85",
+  // Taken from the icon beside it, whose saturated pixels run from #9a4d3c
+  // through #cf8940 to #eed455. Savage was chili red, which stopped working the
+  // day Extreme took the game's own red — two raid tags a member wears at once,
+  // four degrees of hue apart. Orange is the icon's answer and puts the two
+  // difficulties back at arm's length.
+  "tier-clear": "border-[#d4802e]/60 bg-[#d4802e]/15 text-[#e8a05a]",
+  prog: "border-dashed border-[#d4802e]/45 bg-[#d4802e]/5 text-[#e8a05a]/85",
+  // Taken from the icon beside it: its two thousand saturated pixels average
+  // #a93e29, with the fangs at #fff1a5. Lifted a little for the border and
+  // opened up for the text, since the icon's own red is too dark to read at
+  // 11px on this background.
+  extreme: "border-[#b8452c]/55 bg-[#b8452c]/12 text-[#e2825f]",
+  // The icon's violet, whose saturated pixels run #4a0c85 through #ba22dd to
+  // #f16df5. Still the quietest of the three raid tags — a fifth of this roster
+  // has an Ultimate and it should not shout over everything else — but no longer
+  // gold, which it was sharing with the Legendary grade.
+  ultimate: "border-[#c13ae0]/40 bg-[#c13ae0]/8 text-[#d060ea]",
   veteran: "border-[#a05a5a]/45 bg-[#a05a5a]/10 text-[#c08585]",
   crafter: "border-copper/50 bg-copper/10 text-copper",
   gatherer: "border-[#6aa84f]/50 bg-[#6aa84f]/10 text-[#93c47d]",
@@ -162,7 +173,7 @@ export default function MemberTags(
           <span
             style={jobTierStyle(job, s.tier)}
             className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad}`}>
-            <JobIcon job={job} size={size === "md" ? 15 : 13} />
+            <JobIcon job={job} size={size === "md" ? 18 : 16} />
             {ACHV_TIER_LABEL[s.tier!]} {jobLabel(job)}
           </span>
         </JobHoverCard>
@@ -192,7 +203,10 @@ export default function MemberTags(
           <span
             className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
               TAG_CLASS[t] ?? "border-line text-muted"}`}>
-            <TagIcon tag={t} size={size === "md" ? 15 : 13} />
+            {/* Bigger than the text beside it, deliberately. These are the
+                game's own art and they carry most of what a chip says at a
+                glance; at 13px they were a smudge doing nothing. */}
+            <TagIcon tag={t} size={size === "md" ? 18 : 16} />
             {tagText(t, tier)}
             {abbr && <span className="font-normal opacity-80">: {abbr}</span>}
             {exCount > 0 && (

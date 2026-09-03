@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import type { Member, MemberRaids, Overlay, RaidEncounter, RaidZone } from "@/lib/types";
+import type { Member, MemberRaids, Overlay, RaidEncounter, RaidZone, UltimateEntry } from "@/lib/types";
 import {
   BOARD_QUERY_KEY, LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday,
   ultimateAbbr,
@@ -18,21 +18,16 @@ import { isEmpty } from "@/lib/availability";
 import JobBreakdown from "@/components/JobBreakdown";
 import JobIcon, { jobLabel } from "@/components/JobIcon";
 import MemberTags from "@/components/MemberTags";
-import RareAchievements, { type AchievementInfo } from "@/components/RareAchievements";
+import RareShelf, { type AchievementInfo, type CollectionItem } from "@/components/RareShelf";
+import Tabs from "@/components/ui/Tabs";
+import TagIcon from "@/components/TagIcon";
+import DutyCard from "@/components/DutyCard";
+import { artFocus, dutySlug, NO_ART, type DutyArt } from "@/lib/duty";
+import { byReleaseOrder, dutyOf, savageDuty } from "@/lib/duties";
 import { createClient } from "@/lib/supabase/client";
 import { memberTitle } from "@/lib/tags";
 import { GUEST_RANK, guestHome } from "@/lib/guest-data";
-
-function parseColor(p: number | null | undefined): string {
-  if (p == null) return "#7a7a7a";
-  if (p >= 100) return "#e5cc80";
-  if (p >= 99) return "#e268a8";
-  if (p >= 95) return "#ff8000";
-  if (p >= 75) return "#a335ee";
-  if (p >= 50) return "#2f7fd4";
-  if (p >= 25) return "#4caf50";
-  return "#7a7a7a";
-}
+import { parseColor } from "@/lib/parse";
 
 /**
  * The wash behind a member's name, built from the one colour they picked.
@@ -46,12 +41,19 @@ const bannerFor = (accent: string) =>
   `linear-gradient(135deg,#151b25,${accent}38)`;
 
 export default function MemberView({
-  m, raids, tierLabels, agg, fc, rareAchievements = [], extremeTotal,
+  m, raids, tierLabels, agg, fc, rareAchievements = [],
+  rareMounts = [], rareMinions = [], patch = null, art = NO_ART, extremeTotal,
   memberOptions = [],
 }: {
   m: Member;
   raids: MemberRaids | null;
   rareAchievements?: AchievementInfo[];
+  rareMounts?: CollectionItem[];
+  rareMinions?: CollectionItem[];
+  /** Which patch the game is on, worked out by the pipeline. */
+  patch?: string | null;
+  /** Fight slug to picture, from whatever is in public/duty. */
+  art?: DutyArt;
   /** How many extreme trials this patch has, for the "cleared x of y" chip. */
   extremeTotal?: number;
   tierLabels: string[];
@@ -184,7 +186,10 @@ export default function MemberView({
     }));
   });
   const hasCurrentData = !!raids?.current?.encounters?.length;
-  const extremes = raids?.extremes ?? [];
+  // In the order the patches released them, not the order FF Logs happens to
+  // return. "EX1 through EX7" is how this tier is talked about, and a list that
+  // is not in that order has to be read rather than glanced at.
+  const extremes = byReleaseOrder(raids?.extremes ?? []);
 
   // Why the collection tiles are empty, which decides what this member has to do
   // about it: never looked up on FFXIV Collect at all, or looked up but keeping
@@ -410,7 +415,11 @@ export default function MemberView({
 
       {/* Ahead of the raid tier: for most of this FC the achievements are the
           interesting part, and plenty of members have no raid data at all. */}
-      <RareAchievements items={rareAchievements} />
+      {/* One block for all three, rather than beside the collection tiles above:
+          those say how many, and this says which — a different question, and the
+          one people actually want to ask about somebody else's shelf. */}
+      <RareShelf achievements={rareAchievements}
+                 mounts={rareMounts} minions={rareMinions} />
 
       {/* ── Raid: current tier. Hidden entirely when FF Logs has nothing — four
           empty cards saying "Awaiting data" is worse than not asking. ── */}
@@ -418,180 +427,199 @@ export default function MemberView({
       <section className="mt-6">
         <h2 className="mb-2 font-display text-lg font-semibold">
           {t("member.currentPatch")}{" "}
-          <span className="text-[13px] font-normal text-muted">
-            {tierLabels[0]}–{tierLabels[tierLabels.length - 1]}
-            {raids?.current?.zone ? ` · ${raids.current.zone}` : ""}
-            {extremes.length > 0 && ` · ${extremes.length} extreme trials`}
-          </span>
+          {/* The patch number, not the tier's boss list. "M9S–M12S-2 · AAC
+              Heavyweight" named the savage tier in a heading that now covers
+              extremes and Ultimates too, and the tab underneath already says
+              which of the three you are looking at. The number comes from the
+              newest thing in FFXIV Collect's catalogues, so it moves on its own. */}
+          {patch && (
+            <span className="font-data text-[13px] font-normal text-muted">
+              {patch}
+            </span>
+          )}
         </h2>
-        {raids === null ? (
-          <div className="rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-muted">
-            {t("member.notLinked")}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-            {currentCards.map(({ key, label, enc, cleared }) => (
-              <div key={key}
-                   className={`rounded-xl border p-3.5 ${
-                     enc || cleared ? "border-line bg-surface"
-                                    : "border-dashed border-line bg-transparent opacity-60"}`}>
-                <div className="flex items-baseline justify-between">
-                  <span className="font-data text-[15px] font-semibold text-ink">{label}</span>
-                  {cleared && <span className="text-[11px] text-jade">{t("member.cleared")}</span>}
+
+        {/* Three questions about the same patch, and nobody asks two at once.
+            Extremes first because they are what most of this FC actually does;
+            savage second; Ultimates last, being the fewest people and the
+            rarest news. A tab with nothing behind it is not offered. */}
+        <Tabs tabs={[
+          ...(extremes.length > 0 ? [{
+            key: "ex",
+            label: (
+              <>
+                <TagIcon tag="extreme" size={15} />
+                {t("member.extremeTrials")}
+              </>
+            ),
+            hint: `${extremes.filter((e) => e.cleared).length}/${extremes.length}`,
+            body: (
+              <>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {extremes.map((e) => (
+                    <DutyCard key={`${e.zone_id}-${e.name}`}
+                              name={dutyOf(e.name)?.duty ?? e.name}
+                              subtitle={dutyOf(e.name) ? e.name : null}
+                              badge={dutyOf(e.name) && (
+                                <span className="shrink-0 rounded-md border border-[#b8452c]/45 bg-[#b8452c]/12 px-1.5 py-[1px] font-data text-[11px] font-bold text-[#e2825f]">
+                                  {dutyOf(e.name)!.badge}
+                                </span>
+                              )}
+                              cleared={!!e.cleared} kills={e.kills}
+                              jobs={[e.job]} best={e.best} dim={!e.cleared}
+                              art={art.extreme[dutySlug(e.name)]}
+                              focus={artFocus(dutySlug(e.name))} />
+                  ))}
                 </div>
-                <div className="mt-0.5 truncate text-[11.5px] text-muted">
-                  {enc?.name ?? t(hasCurrentData ? "member.noLogYet" : "member.awaitingData")}
-                </div>
-                <div className="mt-2 font-data text-3xl font-semibold"
-                     style={{ color: parseColor(enc?.best) }}>
-                  {enc?.best ?? "—"}
-                </div>
-                <div className="text-[11px] text-muted">
-                  {enc ? (
-                    <span className="inline-flex items-center gap-1">
-                      {enc.kills} kills
-                      {enc.job && <> · <JobIcon job={enc.job} size={14} /> {enc.job}</>}
-                    </span>
-                  ) : "\u00A0"}
-                </div>
+              </>
+            ),
+          }] : []),
+          ...(hasCurrentData || raids === null ? [{
+            key: "savage",
+            label: (
+              <>
+                <TagIcon tag="tier-clear" size={15} />
+                Savage raids
+              </>
+            ),
+            hint: `${(raids?.current?.clears ?? []).filter(Boolean).length}/${tierLabels.length}`,
+            body: (
+              <>
+            {raids === null ? (
+              <div className="rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-muted">
+                {t("member.notLinked")}
               </div>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div className="grid gap-2 sm:grid-cols-2">
+                {currentCards.map(({ key, label, enc, cleared }) => (
+                  // The same card as the extremes and the Ultimates. This was
+                  // four tall tiles with the parse in 30px type, which said the
+                  // number mattered more than the fight — and left nowhere for
+                  // a picture to go.
+                  <DutyCard key={key}
+                            // The duty on top, the boss under it, the same way
+                            // round as the extremes: one is what you queue for
+                            // and the other is what the parse belongs to.
+                            name={savageDuty(label, raids?.current?.zone)
+                                  ?? enc?.name
+                                  ?? t(hasCurrentData ? "member.noLogYet" : "member.awaitingData")}
+                            subtitle={savageDuty(label, raids?.current?.zone)
+                                      ? enc?.name ?? null : null}
+                            badge={
+                              <span className="shrink-0 rounded-md border border-line bg-bg/50 px-1.5 py-[1px] font-data text-[11px] font-bold text-ink/80">
+                                {label}
+                              </span>
+                            }
+                            cleared={!!cleared} kills={enc?.kills} jobs={[enc?.job]}
+                            best={enc?.best} dim={!enc && !cleared}
+                            art={art.savage[dutySlug(enc?.name)]}
+                              focus={artFocus(dutySlug(enc?.name))} />
+                ))}
+              </div>
+            )}
 
-        {/* What is still being learned. Sits under the cards because it is the
-            answer to the same question they ask, and above the extremes because a
-            fight in progress is more current than one already finished. */}
-        {(raids?.progress?.length ?? 0) > 0 && (
-          <>
-            <h3 className="mb-2 mt-4 font-display text-[15px] font-semibold">
-              {t("member.inProgress")}{" "}
-              <span className="text-[12.5px] font-normal text-muted">
-                ({raids!.progress!.length})
-              </span>
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {raids!.progress!.map((p) => (
-                <ProgressBadge key={p.encounter_id} progress={p} size="md" />
-              ))}
-            </div>
-          </>
-        )}
-
-        {/* Same patch, lower difficulty — kept in this section so "what is this
-            person doing right now" is one answer rather than two. */}
-        {extremes.length > 0 && (
-          <>
-            <h3 className="mb-2 mt-4 font-display text-[15px] font-semibold">
-              {t("member.extremeTrials")}{" "}
-              <span className="text-[12.5px] font-normal text-muted">
-                {t("member.clearedCount", {
-                  done: extremes.filter((e) => e.cleared).length,
-                  total: extremes.length,
-                })}
-              </span>
-            </h3>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {extremes.map((e) => (
-                <div key={`${e.zone_id}-${e.name}`}
-                     className={`flex items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5 ${
-                       e.cleared ? "border-line bg-surface" : "border-dashed border-line opacity-60"}`}>
-                  <div className="min-w-0">
-                    <div className="truncate font-data text-[13.5px] text-ink">{e.name}</div>
-                    <div className="text-[11.5px] text-muted">
-                      {e.cleared ? `${e.kills} kills` : "no log"}
-                      {e.job && (
-                        <span className="inline-flex items-center gap-1">
-                          {" · "}<JobIcon job={e.job} size={14} /> {e.job}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="font-data text-lg font-semibold"
-                       style={{ color: parseColor(e.best) }}>
-                    {e.best ?? "—"}
-                  </div>
+            {/* What is still being learned. Sits under the cards because it is the
+                answer to the same question they ask, and above the extremes because a
+                fight in progress is more current than one already finished. */}
+            {(raids?.progress?.length ?? 0) > 0 && (
+              <>
+                <h3 className="mb-2 mt-4 font-display text-[15px] font-semibold">
+                  {t("member.inProgress")}{" "}
+                  <span className="text-[12.5px] font-normal text-muted">
+                    ({raids!.progress!.length})
+                  </span>
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {raids!.progress!.map((p) => (
+                    <ProgressBadge key={p.encounter_id} progress={p} size="md" />
+                  ))}
                 </div>
-              ))}
-            </div>
-          </>
-        )}
+              </>
+            )}
+              </>
+            ),
+          }] : []),
+          ...((raids?.ultimates?.length ?? 0) > 0
+              || (m.ult_achv_only?.length ?? 0) > 0 ? [{
+            key: "ult",
+            label: (
+              <>
+                <TagIcon tag="ultimate" size={15} />
+                Ultimate raids
+              </>
+            ),
+            hint: (raids?.ultimates?.length ?? 0) + (m.ult_achv_only?.length ?? 0),
+            body: (
+              <div className="flex flex-col gap-4">
+        <div className="grid gap-2 sm:grid-cols-2">
+                    {/* One card per fight. FF Logs files the same Ultimate
+                        under its own zone and again under "Ultimates (Legacy)",
+                        so a member who killed it twice on two jobs came out as
+                        two identical cards — same picture, same name, one of
+                        them quietly claiming fewer kills than they have. */}
+                    {Object.values(
+                      (raids!.ultimates!).reduce((acc, u) => {
+                        const key = u.name ?? u.zone ?? String(u.zone_id);
+                        const at = acc[key] ?? {
+                          ...u, kills: 0, best: null as number | null,
+                          jobs: [] as (string | null | undefined)[],
+                        };
+                        at.kills = (at.kills ?? 0) + (u.kills ?? 0);
+                        // The best pull across every zone it was logged in: the
+                        // number belongs to the person, not to FF Logs' filing.
+                        if (u.best != null && (at.best == null || u.best > at.best)) at.best = u.best;
+                        if (u.job && !at.jobs.includes(u.job)) at.jobs.push(u.job);
+                        acc[key] = at;
+                        return acc;
+                      }, {} as Record<string, UltimateEntry
+                                            & { jobs: (string | null | undefined)[] }>),
+                    ).map((u, i) => {
+                      // Prefer the fight name over the zone: FF Logs groups five
+                      // different Ultimates under zones named "Ultimates",
+                      // "Ultimates (Legacy)" and "Ultimates (Stormblood)", which
+                      // say nothing about what was cleared.
+                      const title = u.name ?? u.zone;
+                      const short = u.name ? ultimateAbbr(u.name) : null;
+                      return (
+                        <DutyCard key={`${u.zone_id}-${u.name ?? i}`}
+                                  name={title}
+                                  badge={short ? (
+                                    <span className="shrink-0 rounded-md border border-[#c13ae0]/45 bg-[#c13ae0]/12 px-1.5 py-[1px] font-data text-[11px] font-bold text-[#d060ea]">
+                                      {short}
+                                    </span>
+                                  ) : undefined}
+                                  cleared kills={u.kills} jobs={u.jobs} best={u.best}
+                                  art={art.ultimate[dutySlug(u.name)]}
+                              focus={artFocus(dutySlug(u.name))} />
+                      );
+                    })}
+                  </div>
+        <div className="flex flex-wrap gap-2">
+                    {m.ult_achv_only!.map((name) => (
+                      <span key={name}
+                            className="inline-flex items-center gap-2 rounded-xl border border-[#c13ae0]/40 bg-[#c13ae0]/8 px-3.5 py-2 text-[13.5px]">
+                        {/* The same violet as the logged ones beside them. These
+                            are the clears FF Logs never saw; nothing about them
+                            is a lesser Ultimate, so nothing here says so. */}
+                        <span className="rounded-md border border-[#c13ae0]/45 bg-[#c13ae0]/12 px-1.5 py-[1px] font-data text-[12px] font-bold text-[#d060ea]">
+                          {ultimateAbbr(name)}
+                        </span>
+                        <span className="font-data text-ink">{name}</span>
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-1.5 text-[12px] text-muted">
+                    Cleared according to Lodestone. Parse and kill counts need an uploaded
+                    log, so there are none to show.
+                  </p>
+              </div>
+            ),
+          }] : []),
+        ]} />
       </section>
       )}
 
       <JobBreakdown raids={raids} jobScores={m.job_scores} />
-
-      {/* Ultimates nobody logged. FF Logs is opt-in, so a clear can be real and
-          invisible there; the Lodestone achievement still proves it happened. */}
-      {(m.ult_achv_only?.length ?? 0) > 0 && (
-        <section className="mt-6">
-          <h2 className="mb-2 font-display text-lg font-semibold">
-            Ultimates{" "}
-            <span className="text-[13px] font-normal text-muted">
-              (from achievements — no FF Logs record)
-            </span>
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {m.ult_achv_only!.map((name) => (
-              <span key={name}
-                    className="inline-flex items-center gap-2 rounded-xl border border-gold/40 bg-gold/8 px-3.5 py-2 text-[13.5px]">
-                <span className="rounded-md border border-gold/40 bg-gold/10 px-1.5 py-[1px] font-data text-[12px] font-bold text-gold">
-                  {ultimateAbbr(name)}
-                </span>
-                <span className="font-data text-ink">{name}</span>
-              </span>
-            ))}
-          </div>
-          <p className="mt-1.5 text-[12px] text-muted">
-            Cleared according to Lodestone. Parse and kill counts need an uploaded
-            log, so there are none to show.
-          </p>
-        </section>
-      )}
-
-      {/* ── Raid: Ultimates ── */}
-      {(raids?.ultimates?.length ?? 0) > 0 && (
-        <section className="mt-6">
-          <h2 className="mb-2 font-display text-lg font-semibold">Ultimates</h2>
-          <div className="flex flex-col gap-2">
-            {raids!.ultimates!.map((u, i) => {
-              // Prefer the fight name over the zone: FF Logs groups five different
-              // Ultimates under zones named "Ultimates", "Ultimates (Legacy)" and
-              // "Ultimates (Stormblood)", which say nothing about what was cleared.
-              const title = u.name ?? u.zone;
-              const short = u.name ? ultimateAbbr(u.name) : null;
-              return (
-                <div key={`${u.zone_id}-${u.name ?? i}`}
-                     className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-2.5">
-                  <div className="min-w-0">
-                    {short && (
-                      <span className="mr-2 rounded-md border border-gold/40 bg-gold/10 px-1.5 py-[1px] font-data text-[12px] font-bold text-gold">
-                        {short}
-                      </span>
-                    )}
-                    <span className="font-data text-[14px] font-semibold text-ink">
-                      {title}
-                    </span>
-                    <div className="text-[11.5px] text-muted">
-                      {u.kills} kills
-                      {u.job && (
-                        <span className="inline-flex items-center gap-1">
-                          {" · "}<JobIcon job={u.job} size={14} /> {u.job}
-                        </span>
-                      )}
-                      {u.expansion ? ` · ${u.expansion}` : ""}
-                    </div>
-                  </div>
-                  <div className="font-data text-xl font-semibold"
-                       style={{ color: parseColor(u.best) }}>
-                    {u.best ?? "—"}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
       {/* ── Raid: Legacy ── */}
       {Object.keys(legacyGroups).length > 0 && (

@@ -651,6 +651,10 @@ const DICT = {
     en: "Loading guests…",
     th: "กำลังโหลดรายชื่อแขก…",
   },
+  "adm.annEnOptional": {
+    en: "optional; falls back to the Thai",
+    th: "ไม่ใส่ก็ได้ จะใช้ภาษาไทยแทน",
+  },
   "palette.placeholder": {
     en: "Search a member, or jump to a page…",
     th: "ค้นหาสมาชิก หรือกระโดดไปหน้าอื่น…",

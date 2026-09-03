@@ -62,7 +62,7 @@ export default function Hero(
               <Link href={`/members?tag=${tag}`}
                     className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium no-underline transition-opacity hover:opacity-80 ${
                       TAG_CLASS[tag] ?? "border-line text-muted"}`}>
-                <TagIcon tag={tag} size={14} />
+                <TagIcon tag={tag} size={16} />
                 {TAG_LABELS[tag] ?? tag}
                 <small className="font-data opacity-75">{n}</small>
               </Link>

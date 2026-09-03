@@ -80,7 +80,14 @@ export default function ImagePicker(
 
       {value && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={value} alt="" className="max-h-40 w-auto rounded-lg border border-line" />
+        // self-start, or the flex column stretches it. The parent is a
+        // flex-col, whose default align-items is stretch, so the image was being
+        // pulled to the full width of the form while max-h-40 held its height —
+        // which turned a 1024x1536 poster into a wide smear and made every
+        // upload look badly cropped when nothing was wrong with it. w-auto does
+        // not stop that; only opting out of the stretch does.
+        <img src={value} alt=""
+             className="max-h-52 w-auto self-start rounded-lg border border-line" />
       )}
       {err && <p className="text-[12.5px] text-chili">{err}</p>}
     </div>

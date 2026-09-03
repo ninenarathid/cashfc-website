@@ -61,6 +61,17 @@ CONFIG = {
     # Tag thresholds
     "rare_pct": 10.0,
     "rare_show": 100,          # rarest achievements kept per member for their profile
+    # A mount or minion is "rare" if it sits in the rarest slice of everything
+    # released. Taken as a share of the catalogue rather than as a fixed
+    # percentage of owners: the two collections have very different shapes, and
+    # one threshold that suits mounts leaves minions with almost nothing.
+    # Fifteen rather than five, measured rather than picked. At 5% only 7 of a
+    # sample of 20 members owned anything at all and the whole FC held a single
+    # rare mount between them — a shelf that is empty for most people says
+    # nothing about anybody. At 15% the average member has four or five mounts
+    # and nine minions on it, and the cut is still one player in seven or fewer.
+    "collection_top_pct": 15.0,
+    "collection_show": 24,     # rarest of each kept per member
 
     # Feed
     "feed_max": 200,
@@ -1237,6 +1248,64 @@ def collect_rarity_map() -> dict[int, dict]:
     return out
 
 
+# What Collect calls them, and what this project calls them.
+COLLECTIONS = ("mounts", "minions")
+
+
+def collection_rarity_map() -> dict[str, dict[int, dict]]:
+    """The rarest slice of each collection, by how few players own one.
+
+    FFXIV Collect publishes an `owned` percentage on every catalogue entry, which
+    is the same number Lalachievements builds its rarity pages from — and this
+    project is already asking Collect what each member owns, so both halves of
+    "which of your mounts is rare" come from one source that already agrees with
+    itself.
+
+    Kept as the rarest `collection_top_pct` of each catalogue rather than
+    everything under some fixed ownership figure. Mounts and minions are shaped
+    differently — there are far more common minions than common mounts — and a
+    single cut-off across both would have left one of them nearly empty.
+
+    Nothing is dropped for being at zero. Collect rounds `owned` to one decimal
+    and prints "0%" for anything under about a twentieth of a percent, so a
+    filter on that number throws away precisely the rarest things in the game —
+    which was the first version of this and cut the mount catalogue from 450 to
+    335. Unreleased items sit in the rare slice harmlessly: the only ids that
+    reach the file are ones a member of this FC actually holds, and nobody holds
+    an unreleased mount.
+    """
+    out: dict[str, dict[int, dict]] = {}
+    for kind in COLLECTIONS:
+        r = requests.get(f"{COLLECT_API}/{kind}", headers=UA, timeout=120)
+        r.raise_for_status()
+        rows = []
+        for it in r.json().get("results", []):
+            try:
+                pct = float(str(it.get("owned", "")).replace("%", ""))
+            except ValueError:
+                continue
+            rows.append((pct, it))
+        rows.sort(key=lambda x: x[0])
+        keep = max(1, round(len(rows) * CONFIG["collection_top_pct"] / 100))
+        out[kind] = {
+            it["id"]: {
+                "name": it.get("name"),
+                "pct": pct,
+                "icon": it.get("icon"),
+                "patch": it.get("patch"),
+                # What you had to do for it, which is most of why a rare one is
+                # interesting. First source only: the list runs long and the
+                # first is the one people mean.
+                "source": ((it.get("sources") or [{}])[0] or {}).get("type"),
+            }
+            for pct, it in rows[:keep]
+        }
+        cut = rows[keep - 1][0] if rows else 0
+        log(f"FFXIV Collect — {kind}: {len(rows)} in the catalogue, "
+            f"keeping the rarest {len(out[kind])} (owned by up to {cut}%)")
+    return out
+
+
 COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
                   "ach_public", "portrait", "ult_achv", "achv_seen_at")
 
@@ -1246,7 +1315,7 @@ COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
 # exactly what happened to ult_achv. Bucket scores are cached the same way, so a new
 # scoring formula that did not bump this would keep serving the old numbers until the
 # cache aged out.
-COLLECT_CACHE_VERSION = 4
+COLLECT_CACHE_VERSION = 6
 
 
 def keep_achievements(m: dict, prev: dict) -> None:
@@ -1324,12 +1393,15 @@ def hydrate_collect(members: list[dict], cache: dict) -> int:
         m["achv_buckets"] = dict(c.get("achv_buckets") or {})
         if c.get("rare_ids"):
             m["_rare_ids"] = list(c["rare_ids"])
+        for kind in COLLECTIONS:
+            if c.get(f"rare_{kind}"):
+                m[f"_rare_{kind}"] = list(c[f"rare_{kind}"])
         hit += 1
     return hit
 
 
 def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
-                cache: dict) -> None:
+                cache: dict, collections: dict[str, dict[int, dict]] | None = None) -> None:
     today = time.strftime("%Y-%m-%d", time.gmtime())
     for i, m in enumerate(active_first(members), 1):
         # What was known last time. A reading that comes back without
@@ -1348,6 +1420,17 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
                 m["portrait"] = d.get("portrait")
                 m["mounts"] = (d.get("mounts") or {}).get("count")
                 m["minions"] = (d.get("minions") or {}).get("count")
+                # The same payload already carries which ones, so the rarest of
+                # them cost nothing beyond the intersection. Underscore-prefixed
+                # so they are dropped before members.json is written.
+                for kind in COLLECTIONS:
+                    known = (collections or {}).get(kind)
+                    owned = (d.get(kind) or {}).get("ids") or []
+                    if not known or not owned:
+                        continue
+                    mine = [(known[i]["pct"], i) for i in owned if i in known]
+                    mine.sort()
+                    m[f"_rare_{kind}"] = [i for _, i in mine[: CONFIG["collection_show"]]]
                 ach = d.get("achievements") or {}
                 m["ach_public"] = ach.get("public")
                 ids = ach.get("ids") or []
@@ -1397,7 +1480,9 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
         if got:
             cache[str(m["id"])] = {**{k: m.get(k) for k in COLLECT_FIELDS},
                                    "rare_ids": m.get("_rare_ids") or [],
-                                   "achv_buckets": m.get("achv_buckets") or {}}
+                                   "achv_buckets": m.get("achv_buckets") or {},
+                                   **{f"rare_{k}": m.get(f"_rare_{k}") or []
+                                      for k in COLLECTIONS}}
         if i % 50 == 0:
             log(f"FFXIV Collect — {i}/{len(members)} members")
         time.sleep(delay)
@@ -1536,6 +1621,58 @@ def build_achievements(members: list[dict], rarity: dict[int, dict]) -> None:
         }
     save_json("achv.json", {"catalog": catalog, "members": per})
     log(f"Rare achievements — {len(per)} members, {len(catalog)} distinct achievements")
+
+
+def build_collections(members: list[dict],
+                      known: dict[str, dict[int, dict]] | None) -> None:
+    """Write each member's rarest mounts and minions, and a catalog of just those.
+
+    Its own file for the same reason achv.json is: only /member/[id] renders it,
+    and members.json stays the light payload the board loads. The catalog holds
+    only the ids somebody here actually owns, which is a small fraction of the
+    rare slice, which is itself a small fraction of the game.
+    """
+    per: dict[str, dict[str, list[int]]] = {}
+    used: dict[str, set[int]] = {k: set() for k in COLLECTIONS}
+    for m in members:
+        mine = {}
+        for kind in COLLECTIONS:
+            ids = m.pop(f"_rare_{kind}", None)
+            if ids:
+                mine[kind] = ids
+                used[kind].update(ids)
+        if mine:
+            per[str(m["id"])] = mine
+
+    if not per or not known:
+        # --skip-collect, or Collect was unreachable. Keep the previous file
+        # rather than replacing real data with an empty one.
+        log("Rare collections — nothing collected this run, keeping the existing file")
+        return
+
+    catalog = {
+        kind: {str(i): known[kind][i] for i in sorted(used[kind]) if i in known[kind]}
+        for kind in COLLECTIONS
+    }
+
+    # Which patch the game is on, read off the newest thing in it rather than
+    # written down somewhere to go stale. Every catalogue entry carries the patch
+    # it arrived in, so the highest one across all of them is the live patch —
+    # and it updates itself the day Square Enix adds a mount.
+    def as_parts(v: str) -> tuple:
+        try:
+            return tuple(int(x) for x in str(v).split("."))
+        except ValueError:
+            return (0,)
+
+    patches = [it.get("patch") for kind in COLLECTIONS for it in (known.get(kind) or {}).values()
+               if it.get("patch")]
+    patch = max(patches, key=as_parts) if patches else None
+
+    save_json("collections.json",
+              {"patch": patch, "catalog": catalog, "members": per})
+    log("Rare collections — %d members, %s (game is on patch %s)" % (
+        len(per), ", ".join(f"{len(catalog[k])} {k}" for k in COLLECTIONS), patch))
 
 
 def _all_extreme_names(raids: dict) -> set[str]:
@@ -2055,6 +2192,61 @@ def parse_race_clan(soup) -> dict:
     return {"race": None, "clan": None, "gender": None}
 
 
+def title_rarity_map(extra: dict) -> dict[str, float]:
+    """Normalised title -> the share of players wearing it.
+
+    From FFXIV Collect, whose titles carry an `owned` percentage — the same
+    figure the achievement, mount and minion shelves are ranked by, so one
+    colour ladder covers all four.
+
+    Not from Lalachievements, which publishes a title rarity table and was the
+    obvious choice. Its table is keyed by its own title ids and it exposes no
+    name index, so the ids have to be guessed at from somewhere else — and they
+    do not line up: matched through Collect's ids, Lalachievements put "Phantom
+    Salvation" at 230,747 of 250,137 characters where Collect has it at 0.2%.
+    One of those is wrong and there is no way from here to tell which, so the
+    source that can be checked against a name wins.
+
+    Collect writes the character's name into a title as an ellipsis — "Wearer of
+    Many Hats…", "…Of the Golden Scales" — and The Lodestone does not, which is
+    why matching failed completely until the ellipsis was stripped. With it
+    stripped, all 311 titles worn on this roster match.
+
+    Cached in extra.json: 870 rows that move only when a patch adds a title.
+    """
+    store = extra.setdefault("titles", {})
+    fresh = (time.time() - float(store.get("at") or 0)) < 7 * 24 * 3600
+    if fresh and store.get("pct"):
+        return store["pct"]
+    try:
+        r = requests.get(f"{COLLECT_API}/titles", params={"limit": 2000},
+                         headers=UA, timeout=60)
+        r.raise_for_status()
+        rows = r.json().get("results", [])
+    except Exception as ex:
+        log(f"Titles — could not read the catalogue ({ex}); keeping what is on file")
+        return store.get("pct") or {}
+
+    pct: dict[str, float] = {}
+    for t in rows:
+        try:
+            owned = float(str(t.get("owned", "")).replace("%", ""))
+        except ValueError:
+            continue
+        for name in (t.get("name"), t.get("female_name")):
+            if name:
+                pct[title_key(name)] = owned
+    store["pct"] = pct
+    store["at"] = time.time()
+    log(f"Titles — {len(rows)} in the catalogue, {len(pct)} spellings")
+    return pct
+
+
+def title_key(name: str) -> str:
+    """A title as a key. The ellipsis marks where a name goes; drop it."""
+    return name.replace("…", "").strip().lower()
+
+
 def build_character_extras(members: list[dict], batch: int, full: bool) -> None:
     """Scrape per-character detail (title, nameday, race/clan) from Lodestone.
 
@@ -2189,13 +2381,16 @@ def main() -> None:
         log("FFXIV Collect — cache predates the current field set, refetching")
 
     rarity: dict[int, dict] = {}
+    collections: dict[str, dict[int, dict]] = {}
     if refresh_collect:
         rarity = collect_rarity_map()
-        run_collect(members, rarity, args.collect_delay, collect_cache)
+        collections = collection_rarity_map()
+        run_collect(members, rarity, args.collect_delay, collect_cache, collections)
         state["collect_at"] = time.time()
         state["collect_v"] = COLLECT_CACHE_VERSION
         save_json("extra.json", extra)
         build_achievements(members, rarity)
+        build_collections(members, collections)
     else:
         hit = hydrate_collect(members, collect_cache)
         log(f"FFXIV Collect — reused cached stats for {hit}/{len(members)} members"
@@ -2243,6 +2438,17 @@ def main() -> None:
         log("Playstyle grades skipped — no achievement catalogue available")
 
     # After every source has reported, so the cutoffs see the real distribution.
+    titles = title_rarity_map(extra)
+    if titles:
+        worn = 0
+        for m in members:
+            m["title_pct"] = titles.get(title_key(m.get("title") or ""))
+            if m.get("title"):
+                worn += 1 if m["title_pct"] is not None else 0
+        wearing = sum(1 for m in members if m.get("title"))
+        log(f"Titles — rarity found for {worn}/{wearing} of the titles worn")
+        save_json("extra.json", extra)
+
     checked = inject_lodestone_privacy(members, extra.get("lode_achv") or {})
     log(f"Achievement privacy — {checked}/{len(members)} verified on The Lodestone")
     assign_tags(members, ceilings)

@@ -1,0 +1,2301 @@
+{
+ "patch": "7.55",
+ "catalog": {
+  "mounts": {
+   "83": {
+    "name": "Astrope",
+    "pct": 0.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004061_hr1.tex",
+    "patch": "3.3",
+    "source": "Achievement"
+   },
+   "127": {
+    "name": "Centurio Tiger",
+    "pct": 0.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004095_hr1.tex",
+    "patch": "4.0",
+    "source": "Achievement"
+   },
+   "190": {
+    "name": "Triceratops",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004150_hr1.tex",
+    "patch": "5.0",
+    "source": "Achievement"
+   },
+   "216": {
+    "name": "Pteranodon",
+    "pct": 0.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004169_hr1.tex",
+    "patch": "5.21",
+    "source": "Achievement"
+   },
+   "267": {
+    "name": "Victor",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004220_hr1.tex",
+    "patch": "6.0",
+    "source": "Achievement"
+   },
+   "273": {
+    "name": "Wivre",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004223_hr1.tex",
+    "patch": "6.0",
+    "source": "FATE"
+   },
+   "316": {
+    "name": "Magitek Avenger G1",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004253_hr1.tex",
+    "patch": "6.3",
+    "source": "Purchase"
+   },
+   "337": {
+    "name": "Alsvid",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004277_hr1.tex",
+    "patch": "7.55",
+    "source": "Premium"
+   },
+   "342": {
+    "name": "Ty'aitya",
+    "pct": 1,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004292_hr1.tex",
+    "patch": "7.0",
+    "source": "FATE"
+   },
+   "350": {
+    "name": "Rroneek",
+    "pct": 1,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004288_hr1.tex",
+    "patch": "7.0",
+    "source": "Gathering"
+   },
+   "351": {
+    "name": "Ullr",
+    "pct": 0.2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004289_hr1.tex",
+    "patch": "7.0",
+    "source": "Achievement"
+   },
+   "359": {
+    "name": "Alexandrian Axe Beak",
+    "pct": 0.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004297_hr1.tex",
+    "patch": "7.5",
+    "source": "Wondrous Tails"
+   },
+   "362": {
+    "name": "Hovering Hot Pot",
+    "pct": 0.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004300_hr1.tex",
+    "patch": "7.25",
+    "source": "Premium"
+   },
+   "371": {
+    "name": "Cosmic Countenance",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004330_hr1.tex",
+    "patch": "7.41",
+    "source": "Cosmic Exploration"
+   },
+   "372": {
+    "name": "Demon Haul",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004307_hr1.tex",
+    "patch": "7.25",
+    "source": "Achievement"
+   },
+   "379": {
+    "name": "Pilgrim's Protector",
+    "pct": 0.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004317_hr1.tex",
+    "patch": "7.35",
+    "source": "Deep Dungeon"
+   },
+   "388": {
+    "name": "His Royal Headness on Parade",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004313_hr1.tex",
+    "patch": "7.2",
+    "source": "Premium"
+   },
+   "395": {
+    "name": "Forgiven Mimicry",
+    "pct": 0.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004319_hr1.tex",
+    "patch": "7.35",
+    "source": "Deep Dungeon"
+   },
+   "399": {
+    "name": "Felyne Support Team Cart",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004323_hr1.tex",
+    "patch": "7.35",
+    "source": "Trial"
+   },
+   "403": {
+    "name": "Chandelier of First Light",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004327_hr1.tex",
+    "patch": "7.35",
+    "source": "Achievement"
+   },
+   "407": {
+    "name": "Wings of Death",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004328_hr1.tex",
+    "patch": "7.3",
+    "source": "Trial"
+   },
+   "408": {
+    "name": "Ornamental Shrublet",
+    "pct": 0.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004329_hr1.tex",
+    "patch": "7.35",
+    "source": "Deep Dungeon"
+   },
+   "409": {
+    "name": "Interstellar Leafkin",
+    "pct": 0.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004344_hr1.tex",
+    "patch": "7.51",
+    "source": "Cosmic Exploration"
+   },
+   "411": {
+    "name": "Dynamite",
+    "pct": 0.8,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004332_hr1.tex",
+    "patch": "7.4",
+    "source": "Wondrous Tails"
+   },
+   "412": {
+    "name": "Genie of the Lamp",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004333_hr1.tex",
+    "patch": "7.45",
+    "source": "V&C Dungeon"
+   },
+   "420": {
+    "name": "Wings of Legacy",
+    "pct": 0.2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004346_hr1.tex",
+    "patch": "7.5",
+    "source": "Quest"
+   },
+   "421": {
+    "name": "Hardy-Daytona",
+    "pct": 0.8,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004338_hr1.tex",
+    "patch": "7.45",
+    "source": "Premium"
+   },
+   "422": {
+    "name": "Wings of Mist",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004339_hr1.tex",
+    "patch": "7.4",
+    "source": "Trial"
+   },
+   "427": {
+    "name": "Royal Magicked Carpet",
+    "pct": 0.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004342_hr1.tex",
+    "patch": "7.45",
+    "source": "V&C Dungeon"
+   },
+   "428": {
+    "name": "Turali Snowman",
+    "pct": 0,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004343_hr1.tex",
+    "patch": "7.4",
+    "source": "Achievement"
+   },
+   "429": {
+    "name": "Night Stallion",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004347_hr1.tex",
+    "patch": "7.55",
+    "source": "Quest"
+   },
+   "435": {
+    "name": "Colibri Callado",
+    "pct": 0.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004350_hr1.tex",
+    "patch": "7.55",
+    "source": "Occult Crescent"
+   },
+   "437": {
+    "name": "Duck-billed Porter",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004352_hr1.tex",
+    "patch": "7.55",
+    "source": "Occult Crescent"
+   },
+   "444": {
+    "name": "Wings of Nihility",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004356_hr1.tex",
+    "patch": "7.5",
+    "source": "Trial"
+   }
+  },
+  "minions": {
+   "91": {
+    "name": "Wind-up Y'shtola",
+    "pct": 1.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004500_hr1.tex",
+    "patch": "2.38",
+    "source": "Premium"
+   },
+   "107": {
+    "name": "Wind-up Yda",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004501_hr1.tex",
+    "patch": "2.38",
+    "source": "Premium"
+   },
+   "108": {
+    "name": "Wind-up Papalymo",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004502_hr1.tex",
+    "patch": "2.38",
+    "source": "Premium"
+   },
+   "113": {
+    "name": "Model Enterprise",
+    "pct": 1.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004497_hr1.tex",
+    "patch": "2.38",
+    "source": "Premium"
+   },
+   "114": {
+    "name": "Wind-up Delivery Moogle",
+    "pct": 1.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004498_hr1.tex",
+    "patch": "2.38",
+    "source": "Premium"
+   },
+   "121": {
+    "name": "Doman Magpie",
+    "pct": 1.8,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004556_hr1.tex",
+    "patch": "3.25",
+    "source": "Premium"
+   },
+   "132": {
+    "name": "Wind-up Tataru",
+    "pct": 1.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004526_hr1.tex",
+    "patch": "3.01",
+    "source": "Premium"
+   },
+   "152": {
+    "name": "Heliodor Carbuncle",
+    "pct": 0.8,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004545_hr1.tex",
+    "patch": "3.0",
+    "source": "Premium"
+   },
+   "155": {
+    "name": "Set of Primogs",
+    "pct": 1,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004523_hr1.tex",
+    "patch": "3.0",
+    "source": "Premium"
+   },
+   "161": {
+    "name": "Wind-up Relm",
+    "pct": 2.1,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004561_hr1.tex",
+    "patch": "3.1",
+    "source": "Premium"
+   },
+   "163": {
+    "name": "Shalloweye",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004563_hr1.tex",
+    "patch": "3.1",
+    "source": "Achievement"
+   },
+   "164": {
+    "name": "Penguin Prince",
+    "pct": 1.1,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004564_hr1.tex",
+    "patch": "3.1",
+    "source": "Achievement"
+   },
+   "165": {
+    "name": "Clockwork Twintania",
+    "pct": 2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004565_hr1.tex",
+    "patch": "3.1",
+    "source": "Achievement"
+   },
+   "229": {
+    "name": "Wind-up Hraesvelgr",
+    "pct": 2.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004629_hr1.tex",
+    "patch": "3.55a",
+    "source": "Premium"
+   },
+   "233": {
+    "name": "Wind-up Nidhogg",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004633_hr1.tex",
+    "patch": "3.5",
+    "source": "Premium"
+   },
+   "251": {
+    "name": "Wind-up Yotsuyu",
+    "pct": 1.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004651_hr1.tex",
+    "patch": "4.2",
+    "source": "Premium"
+   },
+   "295": {
+    "name": "Copycat Bulb",
+    "pct": 1.2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004690_hr1.tex",
+    "patch": "4.36",
+    "source": "Eureka"
+   },
+   "297": {
+    "name": "Wind-up Tsukuyomi",
+    "pct": 0.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004699_hr1.tex",
+    "patch": "4.3",
+    "source": "Premium"
+   },
+   "310": {
+    "name": "Wind-up Aerith",
+    "pct": 1.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004710_hr1.tex",
+    "patch": "4.45",
+    "source": "Premium"
+   },
+   "343": {
+    "name": "Wind-up Suzaku",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004743_hr1.tex",
+    "patch": "5.0",
+    "source": "Premium"
+   },
+   "376": {
+    "name": "Wind-up Dulia-Chai",
+    "pct": 2.2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004776_hr1.tex",
+    "patch": "5.2",
+    "source": "Premium"
+   },
+   "387": {
+    "name": "Sand Fox",
+    "pct": 1.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004787_hr1.tex",
+    "patch": "5.3",
+    "source": "Wondrous Tails"
+   },
+   "396": {
+    "name": "Much-coveted Mora",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004796_hr1.tex",
+    "patch": "5.4",
+    "source": "Achievement"
+   },
+   "401": {
+    "name": "Wind-up Edge",
+    "pct": 2.1,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004801_hr1.tex",
+    "patch": "5.5",
+    "source": "Premium"
+   },
+   "403": {
+    "name": "Wind-up Rosa",
+    "pct": 2.2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004803_hr1.tex",
+    "patch": "5.5",
+    "source": "Premium"
+   },
+   "407": {
+    "name": "Golden Beaver",
+    "pct": 0.8,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004807_hr1.tex",
+    "patch": "5.4",
+    "source": "Treasure Hunt"
+   },
+   "409": {
+    "name": "Anteater",
+    "pct": 2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004809_hr1.tex",
+    "patch": "5.5",
+    "source": "Wondrous Tails"
+   },
+   "416": {
+    "name": "Wind-up Lyna",
+    "pct": 0.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004816_hr1.tex",
+    "patch": "5.5",
+    "source": "Premium"
+   },
+   "417": {
+    "name": "Wind-up Runar",
+    "pct": 1.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004817_hr1.tex",
+    "patch": "5.5",
+    "source": "Premium"
+   },
+   "430": {
+    "name": "Wind-up Vrtra",
+    "pct": 1.1,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004830_hr1.tex",
+    "patch": "6.0",
+    "source": "Premium"
+   },
+   "452": {
+    "name": "Wind-up Ragnarok",
+    "pct": 1.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004852_hr1.tex",
+    "patch": "6.1",
+    "source": "Premium"
+   },
+   "462": {
+    "name": "Pterosquirrel",
+    "pct": 2.2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004862_hr1.tex",
+    "patch": "6.2",
+    "source": "Wondrous Tails"
+   },
+   "465": {
+    "name": "Wind-up Philos",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004865_hr1.tex",
+    "patch": "6.3",
+    "source": "Treasure Hunt"
+   },
+   "477": {
+    "name": "Wind-up Aidoneus",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004877_hr1.tex",
+    "patch": "6.3",
+    "source": "Treasure Hunt"
+   },
+   "483": {
+    "name": "Chimpanzee",
+    "pct": 1.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004883_hr1.tex",
+    "patch": "6.4",
+    "source": "Wondrous Tails"
+   },
+   "495": {
+    "name": "Kydonia Strolls",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004895_hr1.tex",
+    "patch": "6.5",
+    "source": "Wondrous Tails"
+   },
+   "501": {
+    "name": "Hydaelyn Idol",
+    "pct": 0.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004901_hr1.tex",
+    "patch": "6.5",
+    "source": "Premium"
+   },
+   "502": {
+    "name": "Zodiark Idol",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004902_hr1.tex",
+    "patch": "6.5",
+    "source": "Premium"
+   },
+   "503": {
+    "name": "Wind-up Fourchenault",
+    "pct": 1.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004903_hr1.tex",
+    "patch": "6.5",
+    "source": "Premium"
+   },
+   "513": {
+    "name": "Quetzal",
+    "pct": 1.8,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004913_hr1.tex",
+    "patch": "7.0",
+    "source": "Venture"
+   },
+   "526": {
+    "name": "Wind-up Zero",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004926_hr1.tex",
+    "patch": "7.0",
+    "source": "Premium"
+   },
+   "527": {
+    "name": "Wind-up Erenville",
+    "pct": 0.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004927_hr1.tex",
+    "patch": "7.1",
+    "source": "Premium"
+   },
+   "535": {
+    "name": "Tin Soldier S3",
+    "pct": 0.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004935_hr1.tex",
+    "patch": "7.1",
+    "source": "Wondrous Tails"
+   },
+   "537": {
+    "name": "Wisp of Darkness",
+    "pct": 0.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004937_hr1.tex",
+    "patch": "7.15",
+    "source": "Chaotic Raid"
+   },
+   "540": {
+    "name": "Psamathe",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004949_hr1.tex",
+    "patch": "7.25",
+    "source": "Occult Crescent"
+   },
+   "541": {
+    "name": "Naiad",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004950_hr1.tex",
+    "patch": "7.25",
+    "source": "Occult Crescent"
+   },
+   "542": {
+    "name": "Deimos",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004951_hr1.tex",
+    "patch": "7.25",
+    "source": "Occult Crescent"
+   },
+   "551": {
+    "name": "Seikret Fledgling",
+    "pct": 2.1,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004954_hr1.tex",
+    "patch": "7.35",
+    "source": "Trial"
+   },
+   "552": {
+    "name": "Vigorwasp",
+    "pct": 2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004955_hr1.tex",
+    "patch": "7.35",
+    "source": "Trial"
+   },
+   "558": {
+    "name": "Rroneek Calf",
+    "pct": 0.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004961_hr1.tex",
+    "patch": "7.3",
+    "source": "Wondrous Tails"
+   },
+   "559": {
+    "name": "Oglop",
+    "pct": 0.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004962_hr1.tex",
+    "patch": "7.55",
+    "source": "Quest"
+   },
+   "562": {
+    "name": "Wind-up Feo Ul",
+    "pct": 0.8,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004965_hr1.tex",
+    "patch": "7.35",
+    "source": "Deep Dungeon"
+   },
+   "563": {
+    "name": "Sunray Ray",
+    "pct": 1.8,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004966_hr1.tex",
+    "patch": "7.3",
+    "source": "Gathering"
+   },
+   "564": {
+    "name": "Mini Yan",
+    "pct": 1.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004946_hr1.tex",
+    "patch": "7.3",
+    "source": "Treasure Hunt"
+   },
+   "565": {
+    "name": "Gimme Kitten",
+    "pct": 1.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004947_hr1.tex",
+    "patch": "7.3",
+    "source": "Treasure Hunt"
+   },
+   "566": {
+    "name": "Sin Beaver",
+    "pct": 1.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004967_hr1.tex",
+    "patch": "7.35",
+    "source": "Deep Dungeon"
+   },
+   "567": {
+    "name": "Little Mermaid",
+    "pct": 1.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004968_hr1.tex",
+    "patch": "7.45",
+    "source": "V&C Dungeon"
+   },
+   "568": {
+    "name": "Magic Lamp",
+    "pct": 1.9,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004969_hr1.tex",
+    "patch": "7.45",
+    "source": "V&C Dungeon"
+   },
+   "569": {
+    "name": "Droningway",
+    "pct": 2.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004970_hr1.tex",
+    "patch": "7.41",
+    "source": "Cosmic Exploration"
+   },
+   "572": {
+    "name": "Gallant Shepherd",
+    "pct": 2.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004973_hr1.tex",
+    "patch": "7.4",
+    "source": "Occult Crescent"
+   },
+   "575": {
+    "name": "Wind-up Red XIII",
+    "pct": 0.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004976_hr1.tex",
+    "patch": "7.45",
+    "source": "Premium"
+   },
+   "578": {
+    "name": "Soothing Sea-beast",
+    "pct": 0.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004980_hr1.tex",
+    "patch": "7.45",
+    "source": "V&C Dungeon"
+   },
+   "580": {
+    "name": "Little Blue Viking",
+    "pct": 2.3,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004981_hr1.tex",
+    "patch": "7.5",
+    "source": "PvP"
+   },
+   "582": {
+    "name": "Junior Jinbei",
+    "pct": 2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004983_hr1.tex",
+    "patch": "7.5",
+    "source": "Gathering"
+   },
+   "583": {
+    "name": "Lite-loader",
+    "pct": 1.5,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004984_hr1.tex",
+    "patch": "7.51",
+    "source": "Cosmic Exploration"
+   },
+   "584": {
+    "name": "Caprino",
+    "pct": 1.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004985_hr1.tex",
+    "patch": "7.5",
+    "source": "Dungeon"
+   },
+   "585": {
+    "name": "Tiny Omniscient",
+    "pct": 0.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004986_hr1.tex",
+    "patch": "7.55",
+    "source": "Occult Crescent"
+   },
+   "586": {
+    "name": "Puny Mage",
+    "pct": 0.6,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004987_hr1.tex",
+    "patch": "7.55",
+    "source": "Occult Crescent"
+   },
+   "587": {
+    "name": "Wind-up Wuk Lamat",
+    "pct": 0.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004988_hr1.tex",
+    "patch": "7.55",
+    "source": "Event"
+   },
+   "589": {
+    "name": "Wind-up Prishe",
+    "pct": 1.7,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004990_hr1.tex",
+    "patch": "7.5",
+    "source": "Raid"
+   },
+   "591": {
+    "name": "Budvi",
+    "pct": 1.4,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004992_hr1.tex",
+    "patch": "7.51",
+    "source": "Quest"
+   },
+   "593": {
+    "name": "Nymian Uolosapa",
+    "pct": 1.2,
+    "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004994_hr1.tex",
+    "patch": "7.55",
+    "source": "Occult Crescent"
+   }
+  }
+ },
+ "members": {
+  "1643244": {
+   "minions": [
+    165
+   ]
+  },
+  "2852829": {
+   "minions": [
+    589,
+    513,
+    376
+   ]
+  },
+  "2957360": {
+   "mounts": [
+    429
+   ],
+   "minions": [
+    586,
+    559,
+    593,
+    567,
+    568,
+    582,
+    580,
+    569
+   ]
+  },
+  "3908109": {
+   "minions": [
+    91
+   ]
+  },
+  "3968346": {
+   "mounts": [
+    444
+   ],
+   "minions": [
+    462
+   ]
+  },
+  "5297796": {
+   "minions": [
+    91
+   ]
+  },
+  "5435582": {
+   "mounts": [
+    437,
+    372
+   ],
+   "minions": [
+    417,
+    376
+   ]
+  },
+  "5644067": {
+   "mounts": [
+    359,
+    399
+   ],
+   "minions": [
+    589
+   ]
+  },
+  "5761905": {
+   "minions": [
+    108
+   ]
+  },
+  "5762434": {
+   "minions": [
+    108
+   ]
+  },
+  "6173187": {
+   "minions": [
+    452,
+    583,
+    568,
+    582,
+    551
+   ]
+  },
+  "6951533": {
+   "mounts": [
+    273
+   ],
+   "minions": [
+    113
+   ]
+  },
+  "8286372": {
+   "mounts": [
+    359,
+    411,
+    371,
+    407,
+    422,
+    429,
+    350
+   ],
+   "minions": [
+    558,
+    535,
+    495,
+    477,
+    540,
+    559,
+    593,
+    565,
+    566,
+    591,
+    483,
+    583,
+    584,
+    589,
+    513,
+    563,
+    387,
+    567,
+    568,
+    409,
+    552,
+    582,
+    551,
+    462
+   ]
+  },
+  "8713004": {
+   "minions": [
+    152,
+    155,
+    114
+   ]
+  },
+  "8836061": {
+   "minions": [
+    107,
+    108,
+    452,
+    251,
+    91,
+    310,
+    401,
+    403,
+    229
+   ]
+  },
+  "8999658": {
+   "mounts": [
+    216
+   ],
+   "minions": [
+    387
+   ]
+  },
+  "9444020": {
+   "mounts": [
+    422
+   ],
+   "minions": [
+    578
+   ]
+  },
+  "11603711": {
+   "minions": [
+    569
+   ]
+  },
+  "11950156": {
+   "mounts": [
+    444
+   ],
+   "minions": [
+    589,
+    568,
+    580
+   ]
+  },
+  "12058921": {
+   "minions": [
+    387
+   ]
+  },
+  "12478532": {
+   "mounts": [
+    422
+   ],
+   "minions": [
+    502,
+    589
+   ]
+  },
+  "14476396": {
+   "mounts": [
+    420,
+    437,
+    444,
+    435,
+    427,
+    407,
+    422,
+    429
+   ],
+   "minions": [
+    585,
+    586,
+    559,
+    593,
+    565
+   ]
+  },
+  "14538982": {
+   "minions": [
+    483,
+    513,
+    563,
+    462
+   ]
+  },
+  "15308846": {
+   "mounts": [
+    420,
+    412,
+    437,
+    444,
+    362,
+    379,
+    83,
+    216,
+    359,
+    395,
+    408,
+    427,
+    273,
+    337,
+    372,
+    399,
+    403,
+    411,
+    316,
+    407,
+    422,
+    342,
+    350
+   ],
+   "minions": [
+    585,
+    537,
+    558,
+    578,
+    535,
+    586,
+    495,
+    502,
+    587,
+    562,
+    396,
+    540,
+    541,
+    542,
+    164,
+    593,
+    452,
+    114,
+    564,
+    566,
+    483,
+    583,
+    584,
+    417
+   ]
+  },
+  "15912826": {
+   "mounts": [
+    403
+   ],
+   "minions": [
+    568,
+    552,
+    551
+   ]
+  },
+  "15932791": {
+   "minions": [
+    582
+   ]
+  },
+  "16099244": {
+   "minions": [
+    462
+   ]
+  },
+  "16173017": {
+   "minions": [
+    113
+   ]
+  },
+  "16192933": {
+   "minions": [
+    580
+   ]
+  },
+  "19827594": {
+   "mounts": [
+    395,
+    127,
+    372,
+    403,
+    411,
+    407,
+    422
+   ],
+   "minions": [
+    585,
+    586,
+    540,
+    541,
+    542,
+    593,
+    566,
+    387,
+    567,
+    409,
+    552,
+    551,
+    580
+   ]
+  },
+  "20400811": {
+   "mounts": [
+    83
+   ]
+  },
+  "21620195": {
+   "mounts": [
+    399,
+    407,
+    422
+   ],
+   "minions": [
+    593,
+    591,
+    584,
+    589,
+    552,
+    551,
+    572,
+    580,
+    569
+   ]
+  },
+  "22461237": {
+   "mounts": [
+    359,
+    372,
+    399
+   ],
+   "minions": [
+    483
+   ]
+  },
+  "22767255": {
+   "minions": [
+    343
+   ]
+  },
+  "23767900": {
+   "mounts": [
+    407
+   ],
+   "minions": [
+    567,
+    552,
+    551,
+    572
+   ]
+  },
+  "23901016": {
+   "minions": [
+    121
+   ]
+  },
+  "24114157": {
+   "minions": [
+    591,
+    584,
+    589
+   ]
+  },
+  "24186600": {
+   "minions": [
+    387,
+    409,
+    572
+   ]
+  },
+  "24313144": {
+   "minions": [
+    387,
+    462
+   ]
+  },
+  "25506828": {
+   "minions": [
+    584
+   ]
+  },
+  "25619696": {
+   "minions": [
+    591
+   ]
+  },
+  "26298391": {
+   "minions": [
+    591,
+    567,
+    582
+   ]
+  },
+  "26699926": {
+   "mounts": [
+    395,
+    399,
+    316,
+    371,
+    407,
+    422
+   ],
+   "minions": [
+    310,
+    582
+   ]
+  },
+  "26844665": {
+   "minions": [
+    114
+   ]
+  },
+  "27935097": {
+   "minions": [
+    121
+   ]
+  },
+  "28067306": {
+   "minions": [
+    229
+   ]
+  },
+  "28120733": {
+   "mounts": [
+    372,
+    399,
+    407,
+    422
+   ],
+   "minions": [
+    537,
+    540,
+    541,
+    542,
+    584,
+    552,
+    551
+   ]
+  },
+  "28579232": {
+   "mounts": [
+    399,
+    421,
+    407,
+    422
+   ],
+   "minions": [
+    584,
+    513
+   ]
+  },
+  "28789661": {
+   "mounts": [
+    422
+   ]
+  },
+  "29090821": {
+   "minions": [
+    552,
+    551
+   ]
+  },
+  "29128390": {
+   "minions": [
+    417,
+    161,
+    376,
+    229
+   ]
+  },
+  "29152036": {
+   "mounts": [
+    412,
+    395,
+    435,
+    408,
+    399,
+    403,
+    407,
+    422
+   ],
+   "minions": [
+    565,
+    584,
+    589,
+    567,
+    568,
+    552,
+    551
+   ]
+  },
+  "29325838": {
+   "mounts": [
+    420,
+    444,
+    359,
+    399,
+    411,
+    407,
+    422
+   ],
+   "minions": [
+    558,
+    535,
+    495,
+    593,
+    566,
+    483,
+    387,
+    568,
+    409,
+    552,
+    551,
+    462,
+    580,
+    569
+   ]
+  },
+  "29339718": {
+   "minions": [
+    387
+   ]
+  },
+  "29511615": {
+   "mounts": [
+    83
+   ]
+  },
+  "29795820": {
+   "mounts": [
+    337
+   ]
+  },
+  "29853808": {
+   "minions": [
+    113,
+    161
+   ]
+  },
+  "29901287": {
+   "minions": [
+    407,
+    387,
+    409
+   ]
+  },
+  "29918255": {
+   "mounts": [
+    437,
+    379,
+    409,
+    435,
+    399,
+    403,
+    371,
+    429
+   ],
+   "minions": [
+    527,
+    585,
+    586,
+    587,
+    559,
+    593,
+    566,
+    591,
+    583,
+    584,
+    589,
+    121,
+    513,
+    567,
+    568,
+    552,
+    582,
+    551,
+    462,
+    572,
+    580,
+    569
+   ]
+  },
+  "29918404": {
+   "mounts": [
+    409,
+    83,
+    399,
+    403,
+    429
+   ],
+   "minions": [
+    586,
+    587,
+    559,
+    566,
+    591,
+    583,
+    589,
+    567,
+    568,
+    552,
+    551,
+    580,
+    569
+   ]
+  },
+  "29944592": {
+   "minions": [
+    376
+   ]
+  },
+  "29998658": {
+   "mounts": [
+    412,
+    437,
+    435,
+    372,
+    399,
+    407,
+    422
+   ],
+   "minions": [
+    537,
+    552,
+    551,
+    572,
+    580,
+    569
+   ]
+  },
+  "30333493": {
+   "minions": [
+    407
+   ]
+  },
+  "30421228": {
+   "minions": [
+    310
+   ]
+  },
+  "30559609": {
+   "minions": [
+    462
+   ]
+  },
+  "30559981": {
+   "minions": [
+    462
+   ]
+  },
+  "30582341": {
+   "minions": [
+    591
+   ]
+  },
+  "30596644": {
+   "minions": [
+    593,
+    452,
+    591,
+    583,
+    584,
+    563,
+    567,
+    568,
+    569
+   ]
+  },
+  "30667251": {
+   "mounts": [
+    407
+   ],
+   "minions": [
+    583,
+    584,
+    580
+   ]
+  },
+  "30864049": {
+   "mounts": [
+    359,
+    427,
+    372,
+    399,
+    411,
+    407,
+    422,
+    342
+   ],
+   "minions": [
+    558,
+    535,
+    495,
+    593,
+    483,
+    589,
+    387,
+    409,
+    552,
+    582,
+    551,
+    462
+   ]
+  },
+  "31236337": {
+   "mounts": [
+    422
+   ]
+  },
+  "31239994": {
+   "minions": [
+    387
+   ]
+  },
+  "31592995": {
+   "minions": [
+    465
+   ]
+  },
+  "31628293": {
+   "minions": [
+    584,
+    403
+   ]
+  },
+  "31806535": {
+   "mounts": [
+    427
+   ],
+   "minions": [
+    251
+   ]
+  },
+  "31831003": {
+   "mounts": [
+    337
+   ]
+  },
+  "32147756": {
+   "minions": [
+    568,
+    551,
+    462
+   ]
+  },
+  "33272037": {
+   "minions": [
+    452
+   ]
+  },
+  "33387937": {
+   "mounts": [
+    437
+   ],
+   "minions": [
+    586,
+    591,
+    583,
+    580
+   ]
+  },
+  "33608576": {
+   "minions": [
+    593,
+    591,
+    583,
+    584,
+    589,
+    563,
+    569
+   ]
+  },
+  "34509521": {
+   "mounts": [
+    437,
+    409,
+    408,
+    372,
+    399,
+    407,
+    422
+   ],
+   "minions": [
+    585,
+    578,
+    540,
+    541,
+    542,
+    593,
+    564,
+    565,
+    566,
+    583,
+    584,
+    589,
+    513,
+    563,
+    567,
+    568,
+    552,
+    582,
+    551,
+    462,
+    572,
+    580,
+    569
+   ]
+  },
+  "34522645": {
+   "minions": [
+    417
+   ]
+  },
+  "34790386": {
+   "mounts": [
+    407,
+    422
+   ],
+   "minions": [
+    589
+   ]
+  },
+  "35634484": {
+   "minions": [
+    582,
+    569
+   ]
+  },
+  "36090951": {
+   "mounts": [
+    372,
+    407
+   ]
+  },
+  "36130968": {
+   "minions": [
+    567,
+    580
+   ]
+  },
+  "36183378": {
+   "minions": [
+    586,
+    584
+   ]
+  },
+  "36183541": {
+   "mounts": [
+    407,
+    422
+   ],
+   "minions": [
+    580
+   ]
+  },
+  "36248712": {
+   "minions": [
+    586
+   ]
+  },
+  "36261473": {
+   "minions": [
+    591,
+    567,
+    568
+   ]
+  },
+  "36363091": {
+   "mounts": [
+    420,
+    444,
+    407,
+    422
+   ],
+   "minions": [
+    591,
+    580
+   ]
+  },
+  "36624109": {
+   "minions": [
+    569
+   ]
+  },
+  "37056222": {
+   "mounts": [
+    428,
+    420,
+    444,
+    435,
+    399,
+    403,
+    407,
+    422
+   ],
+   "minions": [
+    585,
+    586,
+    593,
+    566,
+    589,
+    568,
+    552,
+    551,
+    580
+   ]
+  },
+  "37061370": {
+   "mounts": [
+    437,
+    409,
+    435,
+    399,
+    403
+   ],
+   "minions": [
+    586,
+    562,
+    593,
+    566,
+    591,
+    584,
+    589,
+    568,
+    552,
+    582,
+    551,
+    580
+   ]
+  },
+  "37409022": {
+   "minions": [
+    584,
+    563,
+    582
+   ]
+  },
+  "37731936": {
+   "minions": [
+    483,
+    462
+   ]
+  },
+  "37911500": {
+   "minions": [
+    503
+   ]
+  },
+  "38041221": {
+   "mounts": [
+    412,
+    427,
+    399,
+    371,
+    342
+   ],
+   "minions": [
+    502,
+    562,
+    540,
+    541,
+    542,
+    564,
+    565,
+    566,
+    483,
+    589,
+    513,
+    563,
+    567,
+    568,
+    552,
+    582,
+    551,
+    462,
+    572,
+    569
+   ]
+  },
+  "38152072": {
+   "mounts": [
+    428,
+    412,
+    437,
+    379,
+    409,
+    359,
+    395,
+    435,
+    408,
+    427,
+    273,
+    337,
+    399,
+    411,
+    316,
+    371,
+    429,
+    342,
+    350
+   ],
+   "minions": [
+    163,
+    585,
+    537,
+    558,
+    578,
+    535,
+    586,
+    495,
+    587,
+    562,
+    465,
+    477,
+    540,
+    541,
+    542,
+    559,
+    295,
+    593,
+    564,
+    565,
+    566,
+    591,
+    483,
+    583
+   ]
+  },
+  "38488824": {
+   "mounts": [
+    437,
+    409,
+    435,
+    337,
+    371
+   ],
+   "minions": [
+    526,
+    527,
+    501,
+    297,
+    416,
+    343,
+    502,
+    233,
+    430,
+    593,
+    452,
+    591,
+    503,
+    583,
+    584,
+    567,
+    568,
+    582,
+    572,
+    580,
+    569
+   ]
+  },
+  "39199441": {
+   "mounts": [
+    399
+   ],
+   "minions": [
+    132
+   ]
+  },
+  "39850921": {
+   "minions": [
+    567
+   ]
+  },
+  "39850923": {
+   "mounts": [
+    437,
+    435,
+    372,
+    429,
+    342
+   ],
+   "minions": [
+    585,
+    586,
+    540,
+    541,
+    542,
+    559,
+    593,
+    567,
+    568,
+    572
+   ]
+  },
+  "39869488": {
+   "minions": [
+    502,
+    376
+   ]
+  },
+  "39959181": {
+   "minions": [
+    251,
+    462
+   ]
+  },
+  "40160371": {
+   "minions": [
+    376
+   ]
+  },
+  "40389196": {
+   "mounts": [
+    83,
+    411
+   ],
+   "minions": [
+    452,
+    387
+   ]
+  },
+  "40910522": {
+   "minions": [
+    568
+   ]
+  },
+  "40990512": {
+   "minions": [
+    164
+   ]
+  },
+  "42021700": {
+   "mounts": [
+    420,
+    444,
+    435,
+    407,
+    422,
+    429
+   ],
+   "minions": [
+    586,
+    587,
+    559,
+    483,
+    584,
+    567,
+    568,
+    582,
+    580
+   ]
+  },
+  "42053180": {
+   "mounts": [
+    427,
+    337
+   ],
+   "minions": [
+    585,
+    586,
+    587,
+    591,
+    589,
+    567,
+    568
+   ]
+  },
+  "42215186": {
+   "minions": [
+    564
+   ]
+  },
+  "42646897": {
+   "minions": [
+    229
+   ]
+  },
+  "42845691": {
+   "minions": [
+    502,
+    552,
+    551,
+    572
+   ]
+  },
+  "42976317": {
+   "mounts": [
+    407,
+    422
+   ],
+   "minions": [
+    589,
+    580
+   ]
+  },
+  "43282900": {
+   "minions": [
+    430
+   ]
+  },
+  "43864764": {
+   "mounts": [
+    351,
+    190,
+    267,
+    83,
+    216,
+    127,
+    350
+   ],
+   "minions": [
+    527,
+    502,
+    108,
+    396,
+    452,
+    503,
+    417,
+    121,
+    113,
+    376,
+    462
+   ]
+  },
+  "44133352": {
+   "mounts": [
+    350
+   ],
+   "minions": [
+    163,
+    164,
+    591,
+    568,
+    165,
+    580,
+    569
+   ]
+  },
+  "44409962": {
+   "minions": [
+    452
+   ]
+  },
+  "44926008": {
+   "minions": [
+    465,
+    583,
+    387
+   ]
+  },
+  "44970350": {
+   "mounts": [
+    412,
+    437,
+    409,
+    435,
+    399,
+    371
+   ],
+   "minions": [
+    527,
+    585,
+    586,
+    587,
+    562,
+    465,
+    593,
+    591,
+    583,
+    584,
+    589,
+    513,
+    563,
+    567,
+    568,
+    552,
+    582,
+    551,
+    572,
+    580,
+    569
+   ]
+  },
+  "45101386": {
+   "minions": [
+    387
+   ]
+  },
+  "46243891": {
+   "minions": [
+    502,
+    551,
+    580
+   ]
+  },
+  "47221226": {
+   "mounts": [
+    412,
+    399
+   ],
+   "minions": [
+    568,
+    552,
+    551
+   ]
+  },
+  "47494518": {
+   "mounts": [
+    337
+   ],
+   "minions": [
+    591,
+    572
+   ]
+  },
+  "47540663": {
+   "mounts": [
+    359,
+    407
+   ],
+   "minions": [
+    564,
+    563,
+    582
+   ]
+  },
+  "47548993": {
+   "mounts": [
+    422
+   ],
+   "minions": [
+    568,
+    580,
+    569
+   ]
+  },
+  "49929911": {
+   "minions": [
+    563,
+    551
+   ]
+  },
+  "50821570": {
+   "mounts": [
+    435
+   ],
+   "minions": [
+    584,
+    589,
+    567,
+    568,
+    580
+   ]
+  },
+  "51922514": {
+   "mounts": [
+    399
+   ]
+  },
+  "53006949": {
+   "minions": [
+    565
+   ]
+  },
+  "53019673": {
+   "mounts": [
+    444,
+    422
+   ]
+  },
+  "55640987": {
+   "mounts": [
+    388
+   ]
+  },
+  "56108574": {
+   "minions": [
+    584,
+    580
+   ]
+  },
+  "57375278": {
+   "mounts": [
+    399
+   ],
+   "minions": [
+    593,
+    580,
+    569
+   ]
+  },
+  "57419573": {
+   "minions": [
+    552,
+    551
+   ]
+  },
+  "57711304": {
+   "minions": [
+    552,
+    551
+   ]
+  },
+  "57885671": {
+   "minions": [
+    580
+   ]
+  },
+  "58199536": {
+   "mounts": [
+    409,
+    427,
+    421
+   ],
+   "minions": [
+    537,
+    575,
+    586,
+    587,
+    593,
+    583,
+    584,
+    589,
+    121,
+    513,
+    567,
+    568,
+    582,
+    572,
+    569
+   ]
+  },
+  "58199756": {
+   "mounts": [
+    399
+   ],
+   "minions": [
+    565,
+    552,
+    551
+   ]
+  },
+  "58202955": {
+   "mounts": [
+    408,
+    399
+   ],
+   "minions": [
+    562,
+    589,
+    552,
+    551
+   ]
+  },
+  "58314431": {
+   "minions": [
+    562,
+    551
+   ]
+  },
+  "58455997": {
+   "mounts": [
+    408
+   ],
+   "minions": [
+    566,
+    589,
+    552,
+    551
+   ]
+  },
+  "58508421": {
+   "mounts": [
+    399
+   ],
+   "minions": [
+    552,
+    551
+   ]
+  },
+  "58725327": {
+   "minions": [
+    584,
+    552,
+    551
+   ]
+  },
+  "60619924": {
+   "mounts": [
+    337
+   ]
+  },
+  "60692052": {
+   "minions": [
+    584
+   ]
+  },
+  "60873337": {
+   "mounts": [
+    421,
+    429
+   ],
+   "minions": [
+    587,
+    559,
+    593,
+    572
+   ]
+  },
+  "60972300": {
+   "minions": [
+    591,
+    584,
+    580
+   ]
+  },
+  "61748681": {
+   "mounts": [
+    421
+   ]
+  }
+ }
+}

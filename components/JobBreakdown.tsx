@@ -3,19 +3,9 @@
 import type { JobScore, MemberRaids } from "@/lib/types";
 import { ACHV_TIER_LABEL, CONTENT_LABEL } from "@/lib/types";
 import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
+import { parseColor } from "@/lib/parse";
 
 /** FFLogs' standard parse colours. */
-function parseColor(p: number | null | undefined): string {
-  if (p == null) return "#7a7a7a";
-  if (p >= 100) return "#e5cc80";
-  if (p >= 99) return "#e268a8";
-  if (p >= 95) return "#ff8000";
-  if (p >= 75) return "#a335ee";
-  if (p >= 50) return "#2f7fd4";
-  if (p >= 25) return "#4caf50";
-  return "#7a7a7a";
-}
-
 interface Fight {
   name: string;
   label: string | null;

@@ -37,8 +37,8 @@ export const TAG_LABELS: Record<string, string> = {
 
 /** The same palette as TAG_CLASS, as hex, for charts that cannot use classes. */
 export const TAG_COLOR: Record<string, string> = {
-  "tier-clear": "#d14b3a", prog: "#a8483c",
-  ultimate: "#e5cc80", veteran: "#a05a5a", extreme: "#a87fd8",
+  "tier-clear": "#d4802e", prog: "#b86c26",
+  ultimate: "#c13ae0", veteran: "#a05a5a", extreme: "#b8452c",
   crafter: "#c98a5b", gatherer: "#6aa84f", relic: "#b07ce8",
   explorer: "#4fa8b8", treasure: "#d9a441", goldsaucer: "#e07bb0",
   seasonal: "#8fa3d9", pvp: "#7ea6c9", oldtimer: "#a58b6a",

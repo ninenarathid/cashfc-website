@@ -8,6 +8,7 @@ interface Option { id: number; name: string }
 interface Announcement {
   id: number; title: string; body: string | null; created_at: string;
   image_url: string | null;
+  title_en?: string | null; body_en?: string | null;
 }
 interface TimelinePost {
   id: number; title: string; body: string | null; url: string | null;
@@ -113,6 +114,8 @@ export default function AdminPanel(
   const [anns, setAnns] = useState<Announcement[]>([]);
   const [aTitle, setATitle] = useState("");
   const [aBody, setABody] = useState("");
+  const [aTitleEn, setATitleEn] = useState("");
+  const [aBodyEn, setABodyEn] = useState("");
   const [aImage, setAImage] = useState<string | null>(null);
   const [aEditing, setAEditing] = useState<number | null>(null);
 
@@ -436,9 +439,28 @@ export default function AdminPanel(
               {aEditing !== null && (
                 <div className="text-[12.5px] text-accent">{t("adm.editingAnn")}</div>
               )}
+              {/* Thai first, because that is what gets written first and what
+                  every existing announcement already holds. The English pair
+                  sits under its own label rather than interleaved, so it is
+                  obvious which box is which language at a glance. */}
+              <div className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+                ไทย
+              </div>
               <input value={aTitle} onChange={(e) => setATitle(e.target.value.slice(0, 120))}
                      placeholder={t("adm.annTitle")} className={inputCls} />
               <textarea value={aBody} onChange={(e) => setABody(e.target.value.slice(0, 2000))}
+                        rows={3} placeholder={t("adm.details")} className={inputCls} />
+
+              <div className="mt-1 font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+                English <span className="normal-case tracking-normal opacity-70">
+                  — {t("adm.annEnOptional")}
+                </span>
+              </div>
+              <input value={aTitleEn}
+                     onChange={(e) => setATitleEn(e.target.value.slice(0, 120))}
+                     placeholder={t("adm.annTitle")} className={inputCls} />
+              <textarea value={aBodyEn}
+                        onChange={(e) => setABodyEn(e.target.value.slice(0, 2000))}
                         rows={3} placeholder={t("adm.details")} className={inputCls} />
               <ImagePicker supabase={supabase!} value={aImage} onChange={setAImage} />
               <div className="flex flex-wrap gap-2">
@@ -447,6 +469,8 @@ export default function AdminPanel(
                     if (!aTitle.trim()) return;
                     const fields = {
                       title: aTitle.trim(), body: aBody.trim() || null, image_url: aImage,
+                      title_en: aTitleEn.trim() || null,
+                      body_en: aBodyEn.trim() || null,
                     };
                     const { error } = aEditing !== null
                       ? await supabase!.from("announcements").update(fields).eq("id", aEditing)
@@ -455,7 +479,8 @@ export default function AdminPanel(
                           created_by: (await supabase!.auth.getUser()).data.user?.id,
                         });
                     if (error) { flash(t("adm.saveFailed", { why: error.message })); return; }
-                    setATitle(""); setABody(""); setAImage(null); setAEditing(null);
+                    setATitle(""); setABody(""); setATitleEn(""); setABodyEn("");
+                    setAImage(null); setAEditing(null);
                     await refresh();
                     flash(aEditing !== null ? t("adm.annUpdated") : t("adm.annPosted"));
                   }}
@@ -464,7 +489,10 @@ export default function AdminPanel(
                 </button>
                 {aEditing !== null && (
                   <button
-                    onClick={() => { setAEditing(null); setATitle(""); setABody(""); setAImage(null); }}
+                    onClick={() => {
+                      setAEditing(null); setATitle(""); setABody("");
+                      setATitleEn(""); setABodyEn(""); setAImage(null);
+                    }}
                     className="rounded-lg border border-line px-4 py-2 text-muted hover:border-muted hover:text-ink">
                     {t("adm.cancel")}
                   </button>
@@ -499,6 +527,7 @@ export default function AdminPanel(
                     <button
                       onClick={() => {
                         setAEditing(a.id); setATitle(a.title); setABody(a.body ?? "");
+                        setATitleEn(a.title_en ?? ""); setABodyEn(a.body_en ?? "");
                         setAImage(a.image_url);
                       }}
                       className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">

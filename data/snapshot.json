@@ -4557,7 +4557,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 94,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4602,7 +4602,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -4728,7 +4728,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 73,
+  "level": 74,
   "cc": [
    false,
    false,
@@ -4743,7 +4743,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -5902,7 +5902,7 @@
   "mounts": 46,
   "minions": 150,
   "rare": 9,
-  "level": 92,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -5925,7 +5925,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -6370,7 +6370,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 100,
+  "level": 74,
   "cc": [
    false,
    false,
@@ -6417,7 +6417,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -6598,7 +6598,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6613,7 +6613,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -6622,7 +6622,7 @@
   "mounts": 29,
   "minions": 83,
   "rare": 9,
-  "level": 100,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -6645,7 +6645,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "8113158": {
   "name": "Olivie Brown",
@@ -7275,7 +7275,7 @@
   "mounts": 81,
   "minions": 155,
   "rare": null,
-  "level": 58,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -7390,12 +7390,12 @@
   "ults": [],
   "chg": "2026-08-29"
  },
- "60972300": {
-  "name": "Mizuki Sekine",
+ "44085912": {
+  "name": "Mayu Ferguson",
   "parse": null,
   "ult": 0,
-  "mounts": 14,
-  "minions": 46,
+  "mounts": null,
+  "minions": null,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -7404,7 +7404,23 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
+ },
+ "60972300": {
+  "name": "Mizuki Sekine",
+  "parse": null,
+  "ult": 0,
+  "mounts": 14,
+  "minions": 46,
+  "rare": null,
+  "level": 96,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-09-03"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
