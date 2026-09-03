@@ -1478,11 +1478,23 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
         # too, and not quietly dropped on the next run.
         keep_achievements(m, prev)
         if got:
+            # Carried forward, not blanked, when this run was not given the
+            # catalogues. refresh_member, collect_missing and
+            # verify_achievements all call this for one member at a time to
+            # bring their achievements up to date, and none of them has any
+            # business erasing a rare-mount list the nightly run worked out —
+            # which is exactly what writing `or []` here did to every member
+            # any of them touched.
+            keep = {}
+            for kind in COLLECTIONS:
+                mine = m.get(f"_rare_{kind}")
+                if mine is None and collections is None:
+                    mine = (prev.get(f"rare_{kind}") or [])
+                keep[f"rare_{kind}"] = mine or []
             cache[str(m["id"])] = {**{k: m.get(k) for k in COLLECT_FIELDS},
                                    "rare_ids": m.get("_rare_ids") or [],
                                    "achv_buckets": m.get("achv_buckets") or {},
-                                   **{f"rare_{k}": m.get(f"_rare_{k}") or []
-                                      for k in COLLECTIONS}}
+                                   **keep}
         if i % 50 == 0:
             log(f"FFXIV Collect — {i}/{len(members)} members")
         time.sleep(delay)

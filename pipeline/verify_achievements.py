@@ -226,12 +226,13 @@ def main() -> int:
             log(f"Waiting 45s for Collect to work through {len(pressed)}")
             time.sleep(45)
             rarity = P.collect_rarity_map()
+            collections = P.collection_rarity_map()
             cache = extra.setdefault("collect", {})
             achv = P.load_json("achv.json", {"catalog": {}, "members": {}})
             landed = []
             for p in pressed:
                 one = {"id": p["id"], "name": p["name"], "rank": p["rank"]}
-                P.run_collect([one], rarity, 1.0, cache)
+                P.run_collect([one], rarity, 1.0, cache, collections)
                 if one.get("ach_public"):
                     landed.append(p["name"])
                 ids = one.pop("_rare_ids", None) or []

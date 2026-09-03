@@ -137,8 +137,9 @@ def main() -> None:
     # The pipeline's own Collect stage, run against a party of one. Same
     # thresholds, same scoring, same cache shape — because it is the same code.
     rarity = P.collect_rarity_map()
+    collections = P.collection_rarity_map()
     one = {"id": cid, "name": who["name"], "rank": who.get("rank")}
-    P.run_collect([one], rarity, 0.0, cache)
+    P.run_collect([one], rarity, 0.0, cache, collections)
 
     if one.get("rare_achv") is None and one.get("ach_public") is not True:
         log(f"Achievements are still not readable (ach_public="

@@ -186,6 +186,9 @@ def main() -> int:
     session = requests.Session()
     token = ""
     rarity = P.collect_rarity_map() if not a.dry_run else {}
+    # The mount and minion catalogues too, so a member read here comes away with
+    # their rare ones worked out rather than with the field left empty.
+    collections = P.collection_rarity_map() if not a.dry_run else {}
     extra = P.load_json("extra.json", {})
     cache = extra.setdefault("collect", {})
     achv = P.load_json("achv.json", {"catalog": {}, "members": {}})
@@ -245,7 +248,7 @@ def main() -> int:
         # The pipeline's own Collect stage, run against a party of one: same
         # thresholds, same scoring, same cache shape, because it is the same
         # function. A copy of it here would drift within a month.
-        P.run_collect([one], rarity, 0.0, cache)
+        P.run_collect([one], rarity, 0.0, cache, collections)
 
         if one.get("mounts") is None and one.get("minions") is None:
             still_empty += 1
