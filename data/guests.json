@@ -11,7 +11,62 @@
    "rare_achv": 313,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788193173",
-   "collect_seen": "2026-09-03"
+   "collect_seen": "2026-09-03",
+   "tags": [
+    "ultimate",
+    "veteran",
+    "gatherer",
+    "crafter",
+    "relic",
+    "explorer",
+    "treasure",
+    "pvp"
+   ],
+   "achv_tiers": {
+    "gatherer": "master",
+    "relic": "master",
+    "explorer": "legendary",
+    "treasure": "master",
+    "pvp": "master"
+   },
+   "parse": null,
+   "savage_kills": 0,
+   "ult_clears": 6,
+   "ult_cleared": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv_only": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "legacy_clears": 0,
+   "ex_cleared": [],
+   "ex_kills": 0,
+   "current_clears": null,
+   "current_seen": false,
+   "progress": null,
+   "progress_all": null,
+   "job_top": null,
+   "job_scores": {},
+   "fflogs": "skipped",
+   "stats_seen": "2026-09-03"
   },
   "31441339": {
    "name": "Garnet Rebel",
@@ -24,7 +79,59 @@
    "rare_achv": 128,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788414497",
-   "collect_seen": "2026-09-03"
+   "collect_seen": "2026-09-03",
+   "tags": [
+    "ultimate",
+    "veteran",
+    "explorer",
+    "treasure",
+    "pvp"
+   ],
+   "achv_tiers": {
+    "explorer": "legendary",
+    "pvp": "expert"
+   },
+   "parse": null,
+   "savage_kills": 0,
+   "ult_clears": 7,
+   "ult_cleared": [
+    "Dancing Mad",
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": [
+    "Dancing Mad",
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv_only": [
+    "Dancing Mad",
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "legacy_clears": 0,
+   "ex_cleared": [],
+   "ex_kills": 0,
+   "current_clears": null,
+   "current_seen": false,
+   "progress": null,
+   "progress_all": null,
+   "job_top": null,
+   "job_scores": {},
+   "fflogs": "skipped",
+   "stats_seen": "2026-09-03"
   }
  },
  "generated_at": "2026-09-03T06:00:03Z",

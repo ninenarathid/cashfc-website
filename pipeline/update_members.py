@@ -1558,7 +1558,8 @@ def _cut(values: list, pct: float) -> float:
     return xs[min(len(xs) - 1, int(len(xs) * pct / 100))]
 
 
-def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None) -> None:
+def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None,
+                cut_from: list[dict] | None = None) -> None:
     """Tag the roster against how this FC actually looks, not fixed numbers.
 
     The old rules read as wrong on real data. Absolute cutoffs (300 mounts, 120
@@ -1571,9 +1572,16 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None)
     # kind at all. A shared threshold would be meaningless: 84 rare relic
     # achievements exist against 33 for Gold Saucer, so the same number means very
     # different things depending on the bucket.
+    #
+    # `cut_from` is who the curve is drawn over, and it defaults to the people
+    # being tagged because for the roster they are the same list. Guests pass
+    # the roster here: a playstyle cutoff is a statement about this Free
+    # Company, and somebody who is not in it should be measured against that
+    # statement without altering it.
+    source = cut_from if cut_from is not None else members
     bucket_cut = {
         name: _cut([bucket_count((m.get("achv_buckets") or {}).get(name))
-                    for m in members], 70)
+                    for m in source], 70)
         for name, _ in ACHV_BUCKETS
     }
     log("Tag cutoffs from this roster — "

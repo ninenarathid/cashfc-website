@@ -53,7 +53,36 @@ export interface GuestHome {
   ach_public?: boolean | null;
   /** Their character portrait, for the boards that only had a bare id before. */
   portrait?: string | null;
+
+  /**
+   * How they play, worked out by pipeline/update_guest_stats.py.
+   *
+   * The roster's own stages, run over the guest list: the same FF Logs query,
+   * the same rollup, the same tagging. Graded against the FC's curve without
+   * being counted into it — a guest cannot move the cutoff that decides who
+   * this Free Company calls a Crafter.
+   *
+   * Loosely typed on purpose. These are the member row's own fields under the
+   * member row's own names, and they are spread into a Member below; naming
+   * each here would be a second copy of that shape to keep in step.
+   */
+  tags?: string[];
+  achv_tiers?: Record<string, string>;
+  parse?: number | null;
+  savage_kills?: number;
+  ult_clears?: number;
+  fflogs?: string;
+  [stat: string]: unknown;
 }
+
+/**
+ * Facts about where a guest plays, as opposed to how. Scraped from a Lodestone
+ * page and kept out of the Member row they are spread into: a member has no
+ * "which world" field, because every member is on the same one.
+ */
+const PLACE = new Set([
+  "name", "world", "dc", "fc", "seen", "collect_seen", "stats_seen",
+]);
 
 const HOMES = (guestData as { guests?: Record<string, GuestHome> }).guests ?? {};
 
@@ -65,26 +94,34 @@ export const guestHome = (characterId: number): GuestHome | undefined =>
 /**
  * A guest as a Member row, for the pages built from the roster file.
  *
- * What the roster supplies and nothing here can — parses, clears, the tier
- * board — stays null rather than zero. Nobody has looked, and a zero reads as
- * "looked, found nothing", which is a different and untrue thing.
+ * Everything the daily sweeps have worked out is passed straight through under
+ * the names the member row already uses, which is why they are written that way
+ * rather than translated here — a mapping table between two spellings of
+ * "savage_kills" is a thing to get wrong, not a thing to have.
  *
- * The collection is no longer in that category. It is null until the daily
- * sweep has read them and their own numbers afterwards, so the same rule still
- * holds: null is "not looked at yet", and a count is a count.
+ * What nothing has looked at yet stays null rather than zero. A zero reads as
+ * "looked, found nothing", which is a different and untrue thing — and the
+ * distinction is live here, because the sweeps run on their own schedule and a
+ * guest who registered this morning has been through none of them.
+ *
+ * Level, race and title stay null regardless: they come from a Lodestone
+ * character page that nothing in the guest pipeline fetches.
  */
 export function guestMember(id: number, home: GuestHome): Member {
+  const stats = Object.fromEntries(
+    Object.entries(home).filter(([k]) => !PLACE.has(k)));
   return {
+    ...stats,
     id,
     name: home.name ?? "—",
     rank: GUEST_RANK,
     level: null,
     avatar: home.portrait ?? null,
     portrait: home.portrait ?? null,
-    tags: [],
-    parse: null,
-    savage_kills: 0,
-    ult_clears: 0,
+    tags: home.tags ?? [],
+    parse: home.parse ?? null,
+    savage_kills: home.savage_kills ?? 0,
+    ult_clears: home.ult_clears ?? 0,
     mounts: home.mounts ?? null,
     minions: home.minions ?? null,
     rare_achv: home.rare_achv ?? null,
