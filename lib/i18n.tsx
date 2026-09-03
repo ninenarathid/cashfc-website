@@ -739,6 +739,22 @@ const DICT = {
     en: "{entries} entries · {people} people · {n} popoto given",
     th: "{entries} สิทธิ์ · {people} คน · ส่ง popoto รวม {n} ครั้ง",
   },
+  "adm.scopeFc": {
+    en: "In the FC",
+    th: "อยู่ใน FC",
+  },
+  "adm.scopeOut": {
+    en: "Outside the FC",
+    th: "นอก FC",
+  },
+  "adm.scopeAll": {
+    en: "Everyone",
+    th: "ทั้งหมด",
+  },
+  "adm.rpHidden": {
+    en: "· {n} more from outside the FC, not counted",
+    th: "· อีก {n} สิทธิ์จากคนนอก FC ไม่ถูกนับ",
+  },
   "adm.rpDays": {
     en: "{n} entries",
     th: "{n} สิทธิ์",

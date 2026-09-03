@@ -130,6 +130,21 @@ const daysAgo = (n: number) => {
   return asDate(d);
 };
 
+/**
+ * Who the report is about.
+ *
+ * FC by default, because the thing it feeds is a draw for the Free Company and
+ * a guest holding a winning ticket in it is a surprise nobody wants at the
+ * moment of drawing. The other two settings are there so the exclusion can be
+ * seen rather than merely trusted: "outside" names exactly who the default is
+ * leaving out.
+ */
+const SCOPES: { key: "fc" | "out" | "all"; label: Key }[] = [
+  { key: "fc", label: "adm.scopeFc" },
+  { key: "out", label: "adm.scopeOut" },
+  { key: "all", label: "adm.scopeAll" },
+];
+
 const SPANS: { label: Key; from: () => string }[] = [
   { label: "adm.spanToday", from: () => today() },
   { label: "adm.span7", from: () => daysAgo(6) },
@@ -173,7 +188,11 @@ function Person(
 }
 
 export default function AdminReports(
-  { portraits }: { portraits: Record<number, string> },
+  { portraits, memberIds }: {
+    portraits: Record<number, string>;
+    /** Every character on the FC roster — what "in the FC" means here. */
+    memberIds: number[];
+  },
 ) {
   const { t } = useLang();
   const [supabase] = useState(createClient);
@@ -184,6 +203,7 @@ export default function AdminReports(
   const [loading, setLoading] = useState(false);
   const [howMany, setHowMany] = useState("1");
   const [drawn, setDrawn] = useState<Entry[] | null>(null);
+  const [scope, setScope] = useState<"fc" | "out" | "all">("fc");
 
   const report = REPORTS.find((r) => r.key === which) ?? REPORTS[0];
 
@@ -242,21 +262,33 @@ export default function AdminReports(
 
   useEffect(() => { void run(); }, [run]);
 
+  const roster = useMemo(() => new Set(memberIds), [memberIds]);
+
+  // Filtered here rather than in the query: switching between FC and everybody
+  // is then instant and costs no round trip, and the two counts are always of
+  // the same reading rather than of two moments a few seconds apart.
+  const shown = useMemo(() => (rows ?? []).filter((r) => {
+    if (scope === "all") return true;
+    const fc = r.characterId != null && roster.has(r.characterId);
+    return scope === "fc" ? fc : !fc;
+  }), [rows, scope, roster]);
+
   const people = useMemo(
-    () => new Set((rows ?? []).map((r) => r.profileId)).size, [rows]);
+    () => new Set(shown.map((r) => r.profileId)).size, [shown]);
   const given = useMemo(
-    () => (rows ?? []).reduce((a, r) => a + r.count, 0), [rows]);
+    () => shown.reduce((a, r) => a + r.count, 0), [shown]);
+  const hidden = (rows ?? []).length - shown.length;
 
   const want = Math.max(1, Math.min(Number(howMany) || 1, Math.max(people, 1)));
 
   const draw = () => {
-    if (!rows?.length) return;
+    if (!shown.length) return;
     // Every entry is a ticket, so one day of giving is one chance and five days
     // are five — which is the whole reason days are counted rather than
     // potatoes. Tickets are drawn one at a time and a name already out is
     // passed over, so turning up often improves the odds without letting
     // anybody win twice.
-    const tickets = [...rows];
+    const tickets = [...shown];
     for (let i = tickets.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
       [tickets[i], tickets[j]] = [tickets[j], tickets[i]];
@@ -305,6 +337,17 @@ export default function AdminReports(
             {t(sp.label)}
           </button>
         ))}
+        <div className="flex gap-1 rounded-lg border border-line p-0.5">
+          {SCOPES.map((sc) => (
+            <button key={sc.key} type="button" onClick={() => { setScope(sc.key); setDrawn(null); }}
+                    aria-pressed={scope === sc.key}
+                    className={`rounded-md px-2.5 py-1 text-[12.5px] transition-colors ${
+                      scope === sc.key ? "bg-accent/15 text-accent"
+                                       : "text-muted hover:text-ink"}`}>
+              {t(sc.label)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── The draw ── */}
@@ -339,7 +382,7 @@ export default function AdminReports(
                   against the list rather than taken on faith. */}
               <span className="font-data text-[12px] text-muted">
                 {t("adm.rpDays", {
-                  n: (rows ?? []).filter((x) => x.profileId === r.profileId).length,
+                  n: shown.filter((x) => x.profileId === r.profileId).length,
                 })}
               </span>
             </li>
@@ -350,17 +393,22 @@ export default function AdminReports(
       {/* ── The entries ── */}
       <div className="mt-3">
         {loading && <p className="text-[12.5px] text-muted">{t("adm.loading")}</p>}
-        {!loading && rows && rows.length === 0 && (
+        {!loading && rows && shown.length === 0 && (
           <p className="py-3 text-center text-[12.5px] text-muted">{t("adm.rpEmpty")}</p>
         )}
-        {!loading && rows && rows.length > 0 && (
+        {!loading && rows && shown.length > 0 && (
           <>
             <div className="mb-2 text-[12.5px] text-muted">
-              {t("adm.rpSummary", { entries: rows.length, people, n: given })}
+              {t("adm.rpSummary", { entries: shown.length, people, n: given })}
               <span className="ml-2 opacity-70">{t(report.partsLabel)}</span>
+              {/* Named, not silently dropped: a total that quietly excludes
+                  people is a total somebody will one day try to reconcile. */}
+              {scope !== "all" && hidden > 0 && (
+                <span className="ml-2 opacity-70">{t("adm.rpHidden", { n: hidden })}</span>
+              )}
             </div>
             <ol className="flex flex-col gap-1">
-              {rows.map((r) => (
+              {shown.map((r) => (
                 <li key={r.key}
                     className="grid grid-cols-[76px_32px_1fr_auto] items-center gap-2 border-b border-line/40 py-1 text-[13.5px] last:border-0">
                   {/* The day, because the day is the entry — the same name on

@@ -708,7 +708,8 @@ export default function AdminPanel(
                        }} />
         ) },
         { key: "popoto", label: t("adm.reports"), body: (
-          <AdminReports portraits={portraits} />
+          <AdminReports portraits={portraits}
+                        memberIds={memberOptions.map((o) => o.id)} />
         ) },
       ]} />
 
