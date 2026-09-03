@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { fmtDate } from "@/lib/dates";
@@ -68,17 +69,43 @@ export default function Announcements() {
             </p>
           ) : null}
           {a.image_url && (
-            // Announcements are usually about something that happened in a
-            // screenshot, so the picture gets real space rather than a thumbnail.
-            //
-            // contain, and capped by height rather than stretched to the width.
-            // object-cover was doing nothing here — it needs a height to crop
-            // against — and a full-width portrait poster came out taller than
-            // the screen. Now a wide banner still fills the card and a tall one
-            // sits in the middle at its own shape, whole.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={a.image_url} alt="" loading="lazy"
-                 className="mt-2.5 max-h-[26rem] w-full rounded-lg border border-line bg-card object-contain" />
+            // A poster is meant to be read, and these carry the rules of an
+            // event in small type down one side. Contained rather than cropped,
+            // given most of the height of a screen, and openable at full size —
+            // 26rem was enough to see there was writing and not enough to read
+            // it, which is the worst of both.
+            <Dialog.Root>
+              <Dialog.Trigger asChild>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={a.image_url} alt="" loading="lazy"
+                     className="mt-2.5 max-h-[38rem] w-full cursor-zoom-in rounded-lg border border-line bg-card object-contain transition-opacity hover:opacity-90" />
+              </Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Overlay className="pop-in fixed inset-0 z-[80] bg-bg/90 backdrop-blur-sm" />
+                <Dialog.Content
+                  className="pop-in fixed inset-0 z-[81] flex items-center justify-center p-4 outline-none sm:p-8">
+                  <Dialog.Title className="sr-only">
+                    {(lang === "en" ? a.title_en : null) || a.title}
+                  </Dialog.Title>
+                  {/* The whole backdrop closes it: at this size the picture is
+                      the page, and hunting for a small × in a corner is the
+                      only other way out. Escape works too. */}
+                  <Dialog.Close asChild>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={a.image_url} alt=""
+                         className="max-h-full max-w-full cursor-zoom-out rounded-lg object-contain shadow-2xl shadow-black/60" />
+                  </Dialog.Close>
+                  <Dialog.Close
+                    aria-label={t("common.close")}
+                    className="fixed right-4 top-4 grid size-9 place-items-center rounded-lg border border-line bg-surface/90 text-muted outline-none transition-colors hover:border-accent hover:text-accent">
+                    <svg viewBox="0 0 24 24" aria-hidden width="16" height="16" fill="none"
+                         stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                      <path d="M6 6l12 12M18 6L6 18" />
+                    </svg>
+                  </Dialog.Close>
+                </Dialog.Content>
+              </Dialog.Portal>
+            </Dialog.Root>
           )}
         </div>
       ))}

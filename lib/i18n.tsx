@@ -655,6 +655,10 @@ const DICT = {
     en: "optional; falls back to the Thai",
     th: "ไม่ใส่ก็ได้ จะใช้ภาษาไทยแทน",
   },
+  "common.close": {
+    en: "Close",
+    th: "ปิด",
+  },
   "palette.placeholder": {
     en: "Search a member, or jump to a page…",
     th: "ค้นหาสมาชิก หรือกระโดดไปหน้าอื่น…",
