@@ -1074,7 +1074,11 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     </Link>
                     <div className="flex flex-wrap items-baseline gap-x-1.5 text-[12.5px]">
                       {title && (
-                        <Tooltip content={rarityLabel(m.title_pct, lang === "th")}>
+                        // Below, not above. The title sits directly under the
+                        // member's name, and a tooltip opening upwards covered
+                        // the one thing on the row somebody was reading.
+                        <Tooltip content={rarityLabel(m.title_pct, lang === "th")}
+                                 side="bottom">
                           <span style={{ color: rarityColor(m.title_pct) }}>
                             {title}
                           </span>
