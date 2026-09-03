@@ -7,7 +7,7 @@ import { useSectionLang } from "@/lib/i18n";
 const RAID_TAGS = ["tier-clear", "prog", "extreme", "ultimate", "veteran"];
 const PLAY_TAGS = ["crafter", "gatherer", "relic", "explorer", "treasure",
                    "goldsaucer", "seasonal", "pvp", "oldtimer"];
-const OTHER_TAGS = ["casual", "unknown"];
+const OTHER_TAGS = ["casual", "private", "unknown"];
 
 const GROUP_TITLE: Record<string, { en: string; th: string }> = {
   raid: { en: "Raiding — from FF Logs", th: "สาย Raid — จาก FF Logs" },

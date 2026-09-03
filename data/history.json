@@ -289,19 +289,20 @@
     "seasonal": 14,
     "pvp": 13,
     "veteran": 122,
-    "casual": 268,
-    "unknown": 6,
+    "private": 245,
     "prog": 23,
+    "casual": 25,
+    "unknown": 4,
     "oldtimer": 1
    },
    "raider": 65,
    "ultimate": 117,
    "extreme": 140,
-   "unknown": 6,
+   "unknown": 4,
    "final_boss": 42,
    "active": 146,
    "vacation": 356,
-   "guests": 1
+   "guests": 2
   }
  ]
 }

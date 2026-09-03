@@ -1632,7 +1632,15 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None)
         if not tags:
             blind = (m.get("fflogs") in ("hidden", "none", "skipped", "error", "pending")
                      and not m.get("ach_public") and not m.get("mounts"))
-            tags.append("unknown" if blind else "casual")
+            # Achievements deliberately closed is not the same as nothing to
+            # say. Nearly half the roster was reading as "Casual" — a claim
+            # about how they play — when the only true statement was that we
+            # cannot see. `is False` and not falsy: None means Collect has
+            # never looked, which is the "No data" case below.
+            if m.get("ach_public") is False:
+                tags.append("private")
+            else:
+                tags.append("unknown" if blind else "casual")
         m["tags"] = list(dict.fromkeys(tags))
 
 

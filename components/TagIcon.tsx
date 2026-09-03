@@ -40,8 +40,8 @@ const TAG_ICON: Record<string, { path: string; alt: string }> = {
   ultimate:     { path: "000000/000317", alt: "ultimate raid" },
   veteran:      { path: "002000/002669", alt: "past raids" },
 
-  // Casual and No data get nothing on purpose: an icon would dress up the absence
-  // of information as a thing somebody achieved.
+  // Casual, Achievements private and No data get nothing on purpose: an icon
+  // would dress up the absence of information as a thing somebody achieved.
 };
 
 export const hasTagIcon = (tag: string) => tag in TAG_ICON;

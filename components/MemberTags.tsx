@@ -38,6 +38,7 @@ export const TAG_HELP: Record<string, string> = {
   pvp: "Collects rare PvP achievements — top 30% in this FC",
   oldtimer: "Collects rare achievements from the game's early years — top 30% in this FC",
   casual: "No standout stats, but some data is public",
+  private: "Achievements are set to private on The Lodestone, so nothing can be read from them",
   unknown: "Logs and achievements are both private",
 };
 
@@ -62,6 +63,7 @@ export const TAG_HELP_TH: Record<string, string> = {
   pvp: "เก็บ achievement สาย PvP หายาก — 30% แรกของ FC นี้",
   oldtimer: "เก็บ achievement เก่าจากยุคแรกๆ ของเกม หายาก — 30% แรกของ FC นี้",
   casual: "ยังไม่มีสถิติอะไรโดดเด่น แต่เปิดข้อมูลบางส่วนไว้",
+  private: "ตั้ง achievement เป็นส่วนตัวไว้ใน Lodestone จึงอ่านอะไรจากตรงนั้นไม่ได้",
   unknown: "ปิดทั้ง log และ achievement ไว้ทั้งคู่",
 };
 
@@ -113,6 +115,7 @@ export const TAG_CLASS: Record<string, string> = {
   pvp: "border-steel/45 bg-steel/10 text-steel",
   oldtimer: "border-[#a58b6a]/50 bg-[#a58b6a]/10 text-[#c2ac91]",
   casual: "border-line text-muted",
+  private: "border-dashed border-[#7d7189]/55 bg-[#7d7189]/10 text-[#a396ae]",
   unknown: "border-dashed border-line text-muted",
 };
 

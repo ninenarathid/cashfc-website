@@ -24,7 +24,7 @@ export default function Home() {
 
   // Headline counts per playstyle, biggest first, skipping the buckets that only say
   // what could not be read.
-  const SKIP = new Set(["casual", "unknown"]);
+  const SKIP = new Set(["casual", "private", "unknown"]);
   const tally: Record<string, number> = {};
   for (const m of members) {
     for (const t of m.tags) if (!SKIP.has(t)) tally[t] = (tally[t] ?? 0) + 1;

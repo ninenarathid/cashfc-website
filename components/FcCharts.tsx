@@ -35,7 +35,8 @@ const PARSE_BRACKETS = [
 // Order the donut reads in. Anything not listed still appears, just after these.
 const TAG_ORDER = ["tier-clear", "prog", "raider", "ultimate", "veteran", "extreme",
                    "crafter", "gatherer", "relic", "explorer", "treasure",
-                   "goldsaucer", "seasonal", "pvp", "oldtimer", "casual", "unknown"];
+                   "goldsaucer", "seasonal", "pvp", "oldtimer", "casual", "private",
+                   "unknown"];
 
 export default function FcCharts({
   members, labels, history,

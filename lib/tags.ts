@@ -32,7 +32,7 @@ export const TAG_LABELS: Record<string, string> = {
   crafter: "Crafter", gatherer: "Gatherer", relic: "Relic grinder",
   explorer: "Explorer", treasure: "Treasure hunter", goldsaucer: "Gold Saucer",
   seasonal: "Seasonal", pvp: "PvP", oldtimer: "Old-timer",
-  casual: "Casual", unknown: "No data",
+  casual: "Casual", private: "Achievements private", unknown: "No data",
 };
 
 /** The same palette as TAG_CLASS, as hex, for charts that cannot use classes. */
@@ -42,7 +42,7 @@ export const TAG_COLOR: Record<string, string> = {
   crafter: "#c98a5b", gatherer: "#6aa84f", relic: "#b07ce8",
   explorer: "#4fa8b8", treasure: "#d9a441", goldsaucer: "#e07bb0",
   seasonal: "#8fa3d9", pvp: "#7ea6c9", oldtimer: "#a58b6a",
-  casual: "#8b97a8", unknown: "#55493a",
+  casual: "#8b97a8", private: "#7d7189", unknown: "#55493a",
 };
 
 /**
