@@ -978,7 +978,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             </div>
           ) : (
             <AnimatePresence initial={false} mode="popLayout">
-            {list.map((m) => {
+            {list.map((m, i) => {
               const ov = overlays[m.id];
               const accent = ov?.accent ?? "#6aa9e0";
               // No title means no line, not an em dash standing in for one.
@@ -1014,10 +1014,33 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       * gap at once rather than waiting for the fade to finish.
                       */
                      layout={animateLayout ? "position" : false}
-                     initial={false}
-                     exit={stillMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
-                     transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-                     className="grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors [content-visibility:auto] hover:border-[#55492f] sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4">
+                     /* Arriving is the half that was missing. `initial={false}`
+                        turned it off outright, so a row joining the list simply
+                        appeared and the only thing anyone could see was rows
+                        leaving — which, when a filter cuts five hundred down to
+                        five, looks like the list blinking rather than moving.
+                        AnimatePresence still carries initial={false}, which is a
+                        different switch: it stops the whole board animating
+                        itself in on page load. */
+                     initial={stillMotion ? false : { opacity: 0, y: -10 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     exit={stillMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 4 }}
+                     transition={{
+                       duration: 0.26,
+                       ease: [0.22, 1, 0.36, 1],
+                       /* Down the list, so it reads as filling in from the top
+                          rather than flashing all at once. Capped at ten:
+                          beyond that a stagger stops being rhythm and becomes
+                          the twentieth row waiting its turn. */
+                       delay: animateLayout ? Math.min(i, 10) * 0.022 : 0,
+                     }}
+                     className={`grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors hover:border-[#55492f] sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4 ${
+                       /* content-visibility skips layout for anything off
+                          screen, which is what makes five hundred rows cheap —
+                          and exactly what stops Motion being able to measure a
+                          row it is meant to be moving. Dropped only while the
+                          list is short enough to be animating anyway. */
+                       animateLayout ? "" : "[content-visibility:auto]"}`}>
                   <Link href={`/member/${m.id}`} className="contents">
                     <Avatar m={m} />
                   </Link>
