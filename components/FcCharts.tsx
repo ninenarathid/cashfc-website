@@ -57,7 +57,9 @@ export default function FcCharts({
   const [showGuests, setShowGuests] = useState(false);
 
   const rosterIds = useMemo(() => new Set(members.map((m) => m.id)), [members]);
-  const guests = useGuests(rosterIds);
+  // The loading flag is the board's business, not this one's: a chart with a
+  // slice missing for a second is not worth a placeholder.
+  const { guests } = useGuests(rosterIds);
 
   const activity = useMemo(() => {
     const vacation = members.filter(isOnVacation).length;

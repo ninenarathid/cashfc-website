@@ -92,3 +92,48 @@ body { overflow-x: clip; }
   .drift { animation: none; }
   .drift-row { overflow-x: auto; }
 }
+
+/* ── Popovers, hover cards and menus ──────────────────────────────────────
+   Radix stamps data-state on its content, so the open and closed frames are
+   plain CSS and no animation plugin is involved. Small and quick on purpose: a
+   card that explains a chip should be there almost before you notice asking,
+   and a flourish on something you open twenty times becomes a wait. Respects
+   the reader who has asked for less movement. */
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pop-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: scale(0.97); }
+}
+.pop-in[data-state="open"] { animation: pop-in 110ms ease-out; }
+.pop-in[data-state="closed"] { animation: pop-out 90ms ease-in; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-in[data-state="open"],
+  .pop-in[data-state="closed"] { animation: none; }
+}
+
+/* ── Skeletons ────────────────────────────────────────────────────────────
+   A shimmer rather than a pulse. A block that fades in and out reads as
+   something broken blinking at you; a highlight travelling across it reads as
+   work in progress, which is what it is. */
+@keyframes skeleton-sweep {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+.skeleton {
+  background-image: linear-gradient(
+    90deg,
+    var(--color-card) 0%,
+    color-mix(in oklab, var(--color-line) 70%, var(--color-card)) 50%,
+    var(--color-card) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; background-image: none; background-color: var(--color-card); }
+}

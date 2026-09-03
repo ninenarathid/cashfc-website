@@ -4,6 +4,7 @@ import type { ProgressRow } from "@/lib/types";
 import { ultimateAbbr } from "@/lib/types";
 import { useLang } from "@/lib/i18n";
 import { fmtDateTime, fmtShort, fromDay } from "@/lib/dates";
+import { HoverCard } from "@/components/ui/HoverCard";
 
 /**
  * What somebody is raiding right now, read from their own recent logs.
@@ -61,8 +62,11 @@ export default function ProgressBadge(
     : "border-copper/50 bg-copper/10 text-copper";
 
   return (
-    <span title={detail}
-          className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${tone}`}>
+    // The chip says what happened; the card says how it went. Both belong to the
+    // same row of tags, so it opens the same way they do rather than through a
+    // browser tooltip nobody on a phone can reach.
+    <HoverCard trigger={
+      <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${tone}`}>
       <span className="opacity-75">
         {t(cleared ? "member.justCleared" : "member.progressing")}
       </span>
@@ -75,6 +79,15 @@ export default function ProgressBadge(
       </span>
       <span className="font-data">{progressLabel(p)}</span>
       {stamp && <span className="font-data opacity-70">· {stamp}</span>}
-    </span>
+      </span>
+    }>
+      <div className="flex flex-col gap-1.5">
+        <div className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium ${tone}`}>
+          {t(cleared ? "member.justCleared" : "member.progressing")}
+          <span className="opacity-70">{p.name}</span>
+        </div>
+        <p className="text-ink/85">{detail}</p>
+      </div>
+    </HoverCard>
   );
 }

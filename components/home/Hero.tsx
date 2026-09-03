@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import TagIcon from "@/components/TagIcon";
-import { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberTags";
+import { TAG_CLASS, TAG_LABELS } from "@/components/MemberTags";
+import TagHoverCard from "@/components/TagHoverCard";
 
 /**
  * The front page is a server component so the roster is baked in at build time.
@@ -57,14 +58,15 @@ export default function Hero(
       {tagStats.length > 0 && (
         <div className="mx-auto mt-3 flex max-w-2xl flex-wrap justify-center gap-1.5">
           {tagStats.map(({ tag, n }) => (
-            <Link key={tag} href={`/members?tag=${tag}`}
-                  title={tagHelp(tag, lang)}
-                  className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium no-underline transition-opacity hover:opacity-80 ${
-                    TAG_CLASS[tag] ?? "border-line text-muted"}`}>
-              <TagIcon tag={tag} size={14} />
-              {TAG_LABELS[tag] ?? tag}
-              <small className="font-data opacity-75">{n}</small>
-            </Link>
+            <TagHoverCard key={tag} tag={tag}>
+              <Link href={`/members?tag=${tag}`}
+                    className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium no-underline transition-opacity hover:opacity-80 ${
+                      TAG_CLASS[tag] ?? "border-line text-muted"}`}>
+                <TagIcon tag={tag} size={14} />
+                {TAG_LABELS[tag] ?? tag}
+                <small className="font-data opacity-75">{n}</small>
+              </Link>
+            </TagHoverCard>
           ))}
         </div>
       )}

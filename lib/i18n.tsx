@@ -647,6 +647,30 @@ const DICT = {
     en: "Nothing is hidden here — the board reads achievements through FFXIV Collect, which only re-reads a character when it is asked to, and it is asked once a day. Nothing to do; they will appear.",
     th: "ตัวละครนี้ไม่ได้ปิดอะไรไว้ — เว็ปอ่าน achievement ผ่าน FFXIV Collect ซึ่งจะอ่านใหม่ก็ต่อเมื่อมีคนสั่ง และระบบสั่งให้อ่านวันละครั้งอยู่แล้ว ไม่ต้องทำอะไร เดี๋ยวข้อมูลจะขึ้นเอง",
   },
+  "board.loadingGuests": {
+    en: "Loading guests…",
+    th: "กำลังโหลดรายชื่อแขก…",
+  },
+  "palette.placeholder": {
+    en: "Search a member, or jump to a page…",
+    th: "ค้นหาสมาชิก หรือกระโดดไปหน้าอื่น…",
+  },
+  "palette.empty": {
+    en: "Nobody by that name.",
+    th: "ไม่มีใครชื่อนี้",
+  },
+  "palette.pages": {
+    en: "Go to",
+    th: "ไปที่",
+  },
+  "palette.members": {
+    en: "Members",
+    th: "สมาชิก",
+  },
+  "palette.hint": {
+    en: "Search",
+    th: "ค้นหา",
+  },
   "pending.character": {
     en: "Character #{id}",
     th: "ตัวละคร #{id}",

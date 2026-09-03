@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
@@ -66,7 +67,6 @@ export default function NotificationBell() {
   const [covers, setCovers] = useState<Record<number, string>>({});
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const box = useRef<HTMLDivElement | null>(null);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -108,20 +108,6 @@ export default function NotificationBell() {
 
   // Clicking anywhere else puts it away, which is what everybody expects of a
   // panel hanging off a button.
-  useEffect(() => {
-    if (!open) return;
-    const away = (e: MouseEvent) => {
-      if (box.current && !box.current.contains(e.target as Node)) setOpen(false);
-    };
-    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
-    document.addEventListener("mousedown", away);
-    window.addEventListener("keydown", esc);
-    return () => {
-      document.removeEventListener("mousedown", away);
-      window.removeEventListener("keydown", esc);
-    };
-  }, [open]);
-
   const unread = notes.filter((n) => !n.read_at).length;
 
   async function reveal() {
@@ -163,9 +149,11 @@ export default function NotificationBell() {
   const when = (iso: string) => fmtDateTime(iso);
 
   return (
-    <div ref={box} className="relative">
-      <button onClick={reveal} aria-label={t("notif.title")}
-              aria-expanded={open}
+    // A Popover, not a DropdownMenu: the contents are a list of things to read
+    // with buttons inside them, and a menu's arrow keys would fight the links
+    // and the yes/no buttons on a tag request for control of the same keys.
+    <Popover.Root open={open} onOpenChange={(v) => (v ? reveal() : setOpen(false))}>
+      <Popover.Trigger aria-label={t("notif.title")}
               className={`relative grid size-9 place-items-center rounded-lg border transition-colors ${
                 open ? "border-accent text-accent" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
         <svg viewBox="0 0 24 24" aria-hidden width="18" height="18"
@@ -179,10 +167,11 @@ export default function NotificationBell() {
             {unread > 9 ? "9+" : unread}
           </span>
         )}
-      </button>
+      </Popover.Trigger>
 
-      {open && (
-        <div className="absolute right-0 top-11 z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-line bg-surface shadow-2xl">
+      <Popover.Portal>
+        <Popover.Content align="end" sideOffset={8} collisionPadding={10}
+          className="pop-in z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-line bg-surface shadow-2xl shadow-black/50">
           <div className="flex items-center justify-between border-b border-line px-3.5 py-2.5">
             <span className="font-display text-[13.5px] font-semibold">
               {t("notif.title")}
@@ -272,8 +261,8 @@ export default function NotificationBell() {
               );
             })}
           </div>
-        </div>
-      )}
-    </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   );
 }

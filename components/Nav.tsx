@@ -111,6 +111,19 @@ export default function Nav() {
             </Link>
           );
         })}
+        {/* Slash opens the palette from anywhere, but a shortcut nobody has been
+            told about is a feature only its author has. The key is printed on
+            the button, which is also how people learn it exists. */}
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("palette:open"))}
+          aria-label={t("palette.hint")}
+          className="flex items-center gap-2 rounded-lg border border-line px-2.5 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
+          <svg viewBox="0 0 24 24" aria-hidden width="14" height="14" fill="none"
+               stroke="currentColor" strokeWidth="2.2">
+            <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+          </svg>
+          <kbd className="hidden font-data text-[11px] sm:block">/</kbd>
+        </button>
         <LangToggle />
         {/* Beside the face rather than among the tabs: it is about you, not about
             where you are going, and it renders nothing at all when signed out. */}

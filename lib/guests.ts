@@ -30,12 +30,17 @@ export interface GuestRow {
  * could show eight playstyle tags on their own page and none at all in the list
  * beside it. One definition of what a guest row contains, and it is not here.
  */
-export function useGuests(rosterIds: Set<number>): Member[] {
+export function useGuests(rosterIds: Set<number>)
+: { guests: Member[]; loading: boolean } {
   const [guests, setGuests] = useState<Member[]>([]);
+  // An empty array said both "still asking" and "there are none", and the board
+  // has to tell those apart: one is a row still to come, the other is nothing at
+  // all. Starting true because the request goes out on mount.
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const supabase = createClient();
-    if (!supabase) return;
+    if (!supabase) { setLoading(false); return; }
     void (async () => {
       const { data } = await supabase.from("profiles").select(BASE)
         .not("character_id", "is", null)
@@ -62,11 +67,12 @@ export function useGuests(rosterIds: Set<number>): Member[] {
             avatar: r.avatar_url ?? base.avatar,
           } as Member;
         }));
+      setLoading(false);
     })();
     // The set is rebuilt on every render by its owner; its contents are what
     // matter, and those only change when the roster file does.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rosterIds.size]);
 
-  return guests;
+  return { guests, loading };
 }

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Mitr, Noto_Sans_Thai_Looped, Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import CommandPalette from "@/components/CommandPalette";
+import roster from "@/data/members.json";
+import type { BoardData } from "@/lib/types";
 import { LangProvider } from "@/lib/i18n";
 import { AvatarProvider } from "@/lib/avatars";
 import { AdminProvider } from "@/lib/admin";
@@ -63,6 +66,13 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Names and ids, and nothing else. The import is resolved on the server, so
+  // what crosses to the browser is this array rather than the 800 KB file it
+  // came out of — about 12 KB, which is what a search over five hundred people
+  // costs and is worth paying on every page for.
+  const index = (roster as unknown as BoardData).members
+    .map((m) => ({ id: m.id, name: m.name }));
+
   return (
     <html lang="en">
       <body
@@ -73,6 +83,7 @@ export default function RootLayout({
               their pages, and every byline and tag in the gallery. */}
           <AdminProvider>
           <AvatarProvider>
+          <CommandPalette members={index} />
           <div className="mx-auto max-w-5xl px-4 pb-16">
             <Nav />
             {children}

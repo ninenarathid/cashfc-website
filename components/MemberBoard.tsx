@@ -9,7 +9,8 @@ import {
   ON_VACATION_RANK,
 } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
-import MemberTags, { TAG_CLASS, TAG_LABELS, tagHelp } from "@/components/MemberTags";
+import MemberTags, { TAG_CLASS, TAG_LABELS } from "@/components/MemberTags";
+import TagHoverCard from "@/components/TagHoverCard";
 import { memberTitle } from "@/lib/tags";
 import TagIcon from "@/components/TagIcon";
 import ProgressBadge from "@/components/ProgressBadge";
@@ -20,7 +21,13 @@ import JobIcon, {
   ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobLabel, jobRole, jobRoleGroup,
 } from "@/components/JobIcon";
 import TagLegend from "@/components/TagLegend";
-import { GUEST_RANK, guestHome, useGuests } from "@/lib/guests";
+import { GUEST_RANK, allGuestIds, guestHome, useGuests } from "@/lib/guests";
+import Skeleton from "@/components/ui/Skeleton";
+// Imported directly, having tried not to. LazyMotion with an async `domMax`
+// made this route bigger, not smaller — AnimatePresence and useReducedMotion
+// are needed at render time, so the package is in the graph either way and the
+// dynamic import only added a chunk to it. 415 KB against 390 KB, measured.
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 
 // Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
@@ -373,7 +380,34 @@ export default function MemberBoard({ data }: { data: BoardData }) {
    */
   const rosterIds = useMemo(
     () => new Set(data.members.map((m) => m.id)), [data.members]);
-  const guests = useGuests(rosterIds);
+  const { guests, loading: guestsLoading } = useGuests(rosterIds);
+  const stillMotion = useReducedMotion();
+
+  /**
+   * Whether rows should slide to their new positions.
+   *
+   * Off for the full roster and off for anybody who has asked for less
+   * movement. Motion measures every laid-out element on every frame of a layout
+   * animation, and five hundred of them is a stutter rather than a flourish —
+   * but an unfiltered list is also the one case where nothing has moved, so
+   * there is nothing being given up. The moment a filter narrows it, the list is
+   * small enough to animate and the movement is the whole point.
+   */
+  const LAYOUT_LIMIT = 90;
+
+  /**
+   * How many guest rows are still to come.
+   *
+   * Not a guess: data/guests.json ships with the build and the nightly sweep
+   * keeps it in step with the claims table, so this is the right number on any
+   * day nobody has joined since the last run — and one short on the day somebody
+   * has, which is the correct way round to be wrong.
+   *
+   * The rest of the board needs no skeleton. The roster is a static file that is
+   * already in the page when it renders, and drawing placeholders over content
+   * that never waited would be a costume.
+   */
+  const guestsExpected = useMemo(() => allGuestIds().length, []);
 
   const visible = useMemo(
     () => [...data.members, ...guests].filter((m) => !hiddenIds.has(m.id)),
@@ -546,6 +580,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       (isOnVacation(a) ? 1 : 0) - (isOnVacation(b) ? 1 : 0) ||
       (sortBy === "name" ? a.name.localeCompare(b.name) : val(b) - val(a)));
   }, [visible, overlays, query, sortBy, adv]);
+
+  const animateLayout = !stillMotion && list.length > 0 && list.length <= LAYOUT_LIMIT;
 
   const advCount = (adv.lfg ? 1 : 0) + (adv.rank ? 1 : 0) +
     adv.boss.length + adv.ex.length + adv.ults.length +
@@ -787,18 +823,19 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               .map((tag) => {
                 const on = adv.tags.includes(tag);
                 return (
-                  <button key={tag}
-                    onClick={() => setAdv({ ...adv,
-                      tags: on ? adv.tags.filter((x) => x !== tag) : [...adv.tags, tag] })}
-                    aria-pressed={on}
-                    title={tagHelp(tag, lang)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
-                      on ? TAG_CLASS[tag] ?? "border-accent bg-accent/15 text-accent"
-                         : "border-line text-muted hover:border-muted"}`}>
-                    <TagIcon tag={tag} size={13} />
-                    {TAG_LABELS[tag]}
-                    <small className="ml-1 opacity-70">{counts[tag]}</small>
-                  </button>
+                  <TagHoverCard key={tag} tag={tag}>
+                    <button
+                      onClick={() => setAdv({ ...adv,
+                        tags: on ? adv.tags.filter((x) => x !== tag) : [...adv.tags, tag] })}
+                      aria-pressed={on}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
+                        on ? TAG_CLASS[tag] ?? "border-accent bg-accent/15 text-accent"
+                           : "border-line text-muted hover:border-muted"}`}>
+                      <TagIcon tag={tag} size={13} />
+                      {TAG_LABELS[tag]}
+                      <small className="ml-1 opacity-70">{counts[tag]}</small>
+                    </button>
+                  </TagHoverCard>
                 );
               })}
           </div>
@@ -940,7 +977,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               No members match those filters — try clearing the search or filters
             </div>
           ) : (
-            list.map((m) => {
+            <AnimatePresence initial={false} mode="popLayout">
+            {list.map((m) => {
               const ov = overlays[m.id];
               const accent = ov?.accent ?? "#6aa9e0";
               // No title means no line, not an em dash standing in for one.
@@ -957,7 +995,28 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               if (m.mounts != null) meta.push(`${m.mounts} mounts`);
               if (m.rare_achv != null) meta.push(`${m.rare_achv} rare achv`);
               return (
-                <div key={m.id}
+                <motion.div key={m.id}
+                     /**
+                      * Rows travel to their new place when a filter changes,
+                      * rather than vanishing and leaving the ones below to jump
+                      * up into the gap. Which of the five hundred stayed is then
+                      * something you can watch happen instead of having to
+                      * re-read the list.
+                      *
+                      * `layout` is only switched on once a filter has actually
+                      * narrowed things: it measures every row on every frame, and
+                      * doing that to all five hundred at once janks — while an
+                      * unfiltered list has nothing to animate anyway, since
+                      * nothing moved. `animateLayout` below is that condition.
+                      *
+                      * popLayout on the AnimatePresence takes leaving rows out of
+                      * the flow immediately, so the ones staying start closing the
+                      * gap at once rather than waiting for the fade to finish.
+                      */
+                     layout={animateLayout ? "position" : false}
+                     initial={false}
+                     exit={stillMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97 }}
+                     transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
                      className="grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors [content-visibility:auto] hover:border-[#55492f] sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4">
                   <Link href={`/member/${m.id}`} className="contents">
                     <Avatar m={m} />
@@ -1018,9 +1077,38 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       ))}
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
-            })
+            })}
+            </AnimatePresence>
+          )}
+
+          {/* The guests, before they arrive.
+              Only while the list is still being fetched, only as many rows as
+              the build knows are coming, and only when guests are actually
+              being shown — a skeleton for rows the current filter would hide
+              is a promise of something that will never appear. */}
+          {guestsLoading && guestsExpected > 0
+            && adv.activity.includes("guest") && (
+            <>
+              <span className="sr-only" role="status">{t("board.loadingGuests")}</span>
+              {Array.from({ length: guestsExpected }, (_, i) => (
+                <div key={`skeleton:${i}`}
+                     className="grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4">
+                  <Skeleton className="size-11" rounded="rounded-full" />
+                  <div className="flex min-w-0 flex-col gap-1.5">
+                    <Skeleton className="h-[15px] w-32" />
+                    <Skeleton className="h-3 w-44" />
+                  </div>
+                  {/* Where the tags sit. Two, because that is nearer the truth
+                      than one and cheaper to be wrong about than five. */}
+                  <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-start-3">
+                    <Skeleton className="h-[22px] w-24" rounded="rounded-full" />
+                    <Skeleton className="h-[22px] w-16" rounded="rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </>
           )}
         </div>
       )}

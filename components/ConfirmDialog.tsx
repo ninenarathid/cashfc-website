@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import * as Alert from "@radix-ui/react-alert-dialog";
 import { useLang } from "@/lib/i18n";
 
 /**
@@ -13,8 +13,19 @@ import { useLang } from "@/lib/i18n";
  * "what did I just agree to" is on the thing being clicked rather than in a line
  * of text above it.
  *
- * Escape cancels and the confirming button takes focus, so the whole thing can
- * be answered without reaching for the mouse, and answered wrong only on purpose.
+ * Radix's AlertDialog rather than its Dialog, and rather than the hand-rolled
+ * one this replaces. An alert dialog is the variant for a question that must be
+ * answered: it takes focus on open, keeps Tab inside itself, hides the rest of
+ * the page from screen readers, restores focus to whatever opened it, and
+ * deliberately does not close when you click the backdrop — because dismissing
+ * "delete this picture?" by missing the button is not an answer.
+ *
+ * That last point is a behaviour change. The old one closed on a backdrop click,
+ * which read as Cancel and usually was; Escape still cancels, and Cancel is
+ * still the button focus lands on.
+ *
+ * The dialog is always open while mounted: the caller decides it exists at all,
+ * which is the shape every call site here already used.
  */
 export default function ConfirmDialog(
   { message, confirmLabel, danger = false, onConfirm, onCancel }: {
@@ -27,42 +38,40 @@ export default function ConfirmDialog(
   },
 ) {
   const { t } = useLang();
-  const yes = useRef<HTMLButtonElement | null>(null);
-
-  useEffect(() => {
-    yes.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      // The lightbox underneath also closes on Escape, and answering a question
-      // should not also put away the thing the question was about.
-      e.stopPropagation();
-      onCancel();
-    };
-    window.addEventListener("keydown", onKey, true);
-    return () => window.removeEventListener("keydown", onKey, true);
-  }, [onCancel]);
 
   return (
-    <div role="dialog" aria-modal="true"
-         onClick={onCancel}
-         className="fixed inset-0 z-[60] flex items-center justify-center bg-bg/80 p-4 backdrop-blur-sm">
-      <div onClick={(e) => e.stopPropagation()}
-           className="w-full max-w-sm rounded-2xl border border-line bg-surface p-4 shadow-2xl">
-        <p className="text-[13.5px] leading-relaxed text-ink">{message}</p>
-        <div className="mt-3.5 flex flex-wrap justify-end gap-2">
-          <button onClick={onCancel}
-                  className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted transition-colors hover:border-muted hover:text-ink">
-            {t("common.cancel")}
-          </button>
-          <button ref={yes} onClick={onConfirm}
-                  className={`rounded-lg border px-3.5 py-1.5 text-[13px] transition-colors ${
-                    danger
-                      ? "border-chili bg-chili/15 text-chili hover:bg-chili/25"
-                      : "border-accent bg-accent/15 text-accent hover:bg-accent/25"}`}>
-            {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+    <Alert.Root open onOpenChange={(open) => { if (!open) onCancel(); }}>
+      <Alert.Portal>
+        <Alert.Overlay className="pop-in fixed inset-0 z-[60] bg-bg/80 backdrop-blur-sm" />
+        <Alert.Content
+          // The lightbox underneath also closes on Escape, and answering a
+          // question should not also put away the thing the question was about.
+          onEscapeKeyDown={(e) => e.stopPropagation()}
+          className="pop-in fixed left-1/2 top-1/2 z-[61] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface p-4 shadow-2xl shadow-black/60">
+          <Alert.Description className="text-[13.5px] leading-relaxed text-ink">
+            {message}
+          </Alert.Description>
+          <div className="mt-3.5 flex flex-wrap justify-end gap-2">
+            {/* Cancel takes focus, not the confirm button. The old one focused
+                the confirming button, which put the irreversible answer under
+                the space bar of somebody who opened this by accident. */}
+            <Alert.Cancel asChild>
+              <button className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted outline-none transition-colors hover:border-muted hover:text-ink focus-visible:border-accent">
+                {t("common.cancel")}
+              </button>
+            </Alert.Cancel>
+            <Alert.Action asChild>
+              <button onClick={onConfirm}
+                      className={`rounded-lg border px-3.5 py-1.5 text-[13px] outline-none transition-colors ${
+                        danger
+                          ? "border-chili bg-chili/15 text-chili hover:bg-chili/25"
+                          : "border-accent bg-accent/15 text-accent hover:bg-accent/25"}`}>
+                {confirmLabel}
+              </button>
+            </Alert.Action>
+          </div>
+        </Alert.Content>
+      </Alert.Portal>
+    </Alert.Root>
   );
 }

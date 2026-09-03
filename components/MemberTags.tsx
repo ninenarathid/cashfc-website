@@ -10,6 +10,8 @@ import { useLang, type Lang } from "@/lib/i18n";
 // colour a tag the same way the board does. Re-exported because every caller
 // already reaches for them here, and the two lists must never disagree.
 import { TAG_COLOR, TAG_LABELS, tagText } from "@/lib/tags";
+import TagHoverCard from "@/components/TagHoverCard";
+import JobHoverCard from "@/components/JobHoverCard";
 export { TAG_COLOR, TAG_LABELS, tagText };
 import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
 import TagIcon from "@/components/TagIcon";
@@ -155,15 +157,15 @@ export default function MemberTags(
         // Deliberately understated: useful for finding somebody who could show a
         // newcomer the job, not a ranking anyone should be playing for. Only from
         // Expert up, because below that the answer to "could they teach this?" is no.
-        <span
-          title={lang === "th"
-            ? `parse ${s.parse} (ถ่วงน้ำหนักตามจำนวนครั้งที่ฆ่าและความยาก) จากการฆ่า ${s.kills} ครั้ง ใน ${s.fights} บอส${s.hardest ? `, สูงสุดถึง ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : ""} — เป็นคนที่ควรถามเรื่อง ${jobLabel(job)}`
-            : `${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights${s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : ""} — good person to ask about ${jobLabel(job)}`}
-          style={jobTierStyle(job, s.tier)}
-          className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad}`}>
-          <JobIcon job={job} size={size === "md" ? 15 : 13} />
-          {ACHV_TIER_LABEL[s.tier!]} {jobLabel(job)}
-        </span>
+        <JobHoverCard job={job} tier={s.tier!} parse={s.parse} kills={s.kills}
+                      fights={s.fights} hardest={s.hardest}>
+          <span
+            style={jobTierStyle(job, s.tier)}
+            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad}`}>
+            <JobIcon job={job} size={size === "md" ? 15 : 13} />
+            {ACHV_TIER_LABEL[s.tier!]} {jobLabel(job)}
+          </span>
+        </JobHoverCard>
       ),
     });
   }
@@ -179,24 +181,27 @@ export default function MemberTags(
       key: `tag:${t}`,
       rank: CHIP_RANK[tier] ?? 0,
       node: (
-        <span
-          title={abbr
-            ? `${lang === "th" ? "เคลียร์แล้ว" : "Cleared"}: ${ults.join(", ")}`
-            : [tagHelp(t, lang),
-               tier && gradeHelp(tier, lang),
-               rarestLine(buckets[t]?.min, lang)]
-              .filter(Boolean).join(" · ")}
-          className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
-            TAG_CLASS[t] ?? "border-line text-muted"}`}>
-          <TagIcon tag={t} size={size === "md" ? 15 : 13} />
-          {tagText(t, tier)}
-          {abbr && <span className="font-normal opacity-80">: {abbr}</span>}
-          {exCount > 0 && (
-            <small className="ml-1 opacity-75">
-              {exCount}/{extremeTotal || "?"}
-            </small>
-          )}
-        </span>
+        <TagHoverCard
+          tag={t} tier={tier} rarest={buckets[t]?.min}
+          extra={abbr ? (
+            <p className="border-t border-line/70 pt-2 text-muted">
+              {lang === "th" ? "เคลียร์แล้ว" : "Cleared"}:{" "}
+              <span className="text-ink/85">{ults.join(", ")}</span>
+            </p>
+          ) : undefined}>
+          <span
+            className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
+              TAG_CLASS[t] ?? "border-line text-muted"}`}>
+            <TagIcon tag={t} size={size === "md" ? 15 : 13} />
+            {tagText(t, tier)}
+            {abbr && <span className="font-normal opacity-80">: {abbr}</span>}
+            {exCount > 0 && (
+              <small className="ml-1 opacity-75">
+                {exCount}/{extremeTotal || "?"}
+              </small>
+            )}
+          </span>
+        </TagHoverCard>
       ),
     });
   }
