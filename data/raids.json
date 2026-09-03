@@ -33477,5 +33477,1081 @@
   ],
   "legacy": [],
   "_status": "ok"
+ },
+ "30964674": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 85,
+     "median": 74,
+     "kills": 10,
+     "job": "Machinist"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 69,
+     "median": 41,
+     "kills": 8,
+     "job": "Machinist"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 54,
+     "median": 41,
+     "kills": 8,
+     "job": "Machinist"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 99,
+     "median": 41,
+     "kills": 19,
+     "job": "Machinist"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 86,
+     "median": 38,
+     "kills": 8,
+     "job": "Machinist"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "name": "Futures Rewritten",
+    "best": 34,
+    "kills": 6,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "Dragonsong's Reprise",
+    "best": 46,
+    "kills": 13,
+    "job": "Pictomancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Weapon's Refrain",
+    "best": 43,
+    "kills": 1,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 40,
+    "kills": 10,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 75,
+    "kills": 10,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Unending Coil of Bahamut",
+    "best": 75,
+    "kills": 10,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 68,
+    "kills": 14,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 20,
+    "kills": 11,
+    "job": "Astrologian",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 50,
+    "kills": 4,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 91,
+    "kills": 23,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Guardian Arkveld",
+    "best": 73,
+    "kills": 12,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Necron",
+    "best": 25,
+    "kills": 2,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 39,
+    "kills": 4,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 42,
+    "kills": 6,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 88,
+    "kills": 41,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 91,
+    "kills": 89,
+    "job": "Astrologian",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 62,
+      "median": 47,
+      "kills": 7,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 69,
+      "median": 49,
+      "kills": 11,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 44,
+      "median": 18,
+      "kills": 7,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 11,
+      "median": 9,
+      "kills": 2,
+      "job": "BlackMage"
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 87,
+      "median": 74,
+      "kills": 10,
+      "job": "Scholar"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 75,
+      "median": 49,
+      "kills": 11,
+      "job": "Scholar"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 84,
+      "median": 27,
+      "kills": 11,
+      "job": "Astrologian"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 60,
+      "median": 29,
+      "kills": 10,
+      "job": "Astrologian"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 94,
+      "median": 70,
+      "kills": 16,
+      "job": "Scholar"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 90,
+      "median": 75,
+      "kills": 14,
+      "job": "Scholar"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 92,
+      "median": 70,
+      "kills": 15,
+      "job": "Scholar"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 88,
+      "median": 46,
+      "kills": 29,
+      "job": "Scholar"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 81,
+      "median": 52,
+      "kills": 11,
+      "job": "Scholar"
+     }
+    ]
+   },
+   {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 89,
+      "median": 62,
+      "kills": 17,
+      "job": "Sage"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 92,
+      "median": 47,
+      "kills": 15,
+      "job": "Sage"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 85,
+      "median": 74,
+      "kills": 13,
+      "job": "Sage"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 97,
+      "median": 50,
+      "kills": 51,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 96,
+      "median": 57,
+      "kills": 18,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 80,
+      "median": 60,
+      "kills": 13,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 83,
+      "median": 49,
+      "kills": 12,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 81,
+      "median": 56,
+      "kills": 11,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 73,
+      "median": 34,
+      "kills": 12,
+      "job": "Astrologian"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 64,
+      "median": 33,
+      "kills": 8,
+      "job": "Astrologian"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 8,
+      "median": 8,
+      "kills": 1,
+      "job": "Astrologian"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 9,
+      "median": 9,
+      "kills": 2,
+      "job": "Machinist"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 9,
+      "median": 9,
+      "kills": 1,
+      "job": "Machinist"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "31441339": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 99,
+     "median": 96,
+     "kills": 12,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 92,
+     "median": 81,
+     "kills": 9,
+     "job": "Scholar"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 92,
+     "median": 79,
+     "kills": 8,
+     "job": "BlackMage"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 95,
+     "median": 49,
+     "kills": 18,
+     "job": "Scholar"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 87,
+     "median": 74,
+     "kills": 13,
+     "job": "Scholar"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "name": "Dancing Mad",
+    "best": 84,
+    "kills": 2,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "name": "Futures Rewritten",
+    "best": 88,
+    "kills": 13,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "name": "The Unending Coil of Bahamut",
+    "best": 5,
+    "kills": 1,
+    "job": "Monk",
+    "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "name": "The Omega Protocol",
+    "best": 100,
+    "kills": 21,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "name": "Dragonsong's Reprise",
+    "best": 100,
+    "kills": 24,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Epic of Alexander",
+    "best": 100,
+    "kills": 39,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "name": "The Weapon's Refrain",
+    "best": 89,
+    "kills": 8,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "name": "The Epic of Alexander",
+    "best": 97,
+    "kills": 23,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Unending Coil of Bahamut",
+    "best": 37,
+    "kills": 8,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "name": "The Weapon's Refrain",
+    "best": 96,
+    "kills": 54,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Doomtrain",
+    "best": 53,
+    "kills": 2,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "name": "Enuo",
+    "best": 80,
+    "kills": 2,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "name": "Zelenia",
+    "best": 84,
+    "kills": 3,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Queen Eternal",
+    "best": 47,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Valigarmanda",
+    "best": 100,
+    "kills": 34,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "name": "Zoraal Ja",
+    "best": 100,
+    "kills": 63,
+    "job": "Sage",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 99,
+      "median": 88,
+      "kills": 9,
+      "job": "Sage"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 97,
+      "median": 64,
+      "kills": 10,
+      "job": "Sage"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 97,
+      "median": 79,
+      "kills": 10,
+      "job": "Sage"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 98,
+      "median": 93,
+      "kills": 10,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 100,
+      "median": 99,
+      "kills": 82,
+      "job": "Sage"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 100,
+      "median": 99,
+      "kills": 27,
+      "job": "Sage"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 100,
+      "median": 99,
+      "kills": 27,
+      "job": "Sage"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 100,
+      "median": 100,
+      "kills": 43,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 100,
+      "median": 99,
+      "kills": 21,
+      "job": "Sage"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 100,
+      "median": 86,
+      "kills": 13,
+      "job": "Sage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 100,
+      "median": 99,
+      "kills": 15,
+      "job": "Sage"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 100,
+      "median": 87,
+      "kills": 26,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 100,
+      "median": 87,
+      "kills": 14,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 100,
+      "median": 100,
+      "kills": 49,
+      "job": "Sage"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 100,
+      "median": 100,
+      "kills": 57,
+      "job": "Sage"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 100,
+      "median": 100,
+      "kills": 44,
+      "job": "Sage"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 100,
+      "median": 97,
+      "kills": 34,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 100,
+      "median": 98,
+      "kills": 21,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 100,
+      "median": 99,
+      "kills": 62,
+      "job": "Summoner"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 100,
+      "median": 98,
+      "kills": 57,
+      "job": "RedMage"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 100,
+      "median": 98,
+      "kills": 28,
+      "job": "Summoner"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 100,
+      "median": 88,
+      "kills": 38,
+      "job": "Summoner"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 100,
+      "median": 99,
+      "kills": 25,
+      "job": "Astrologian"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 100,
+      "median": 96,
+      "kills": 77,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 100,
+      "median": 98,
+      "kills": 113,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 99,
+      "median": 96,
+      "kills": 92,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 99,
+      "median": 77,
+      "kills": 66,
+      "job": "Astrologian"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 99,
+      "median": 74,
+      "kills": 41,
+      "job": "Astrologian"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 97,
+      "median": 69,
+      "kills": 22,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 95,
+      "median": 84,
+      "kills": 15,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 93,
+      "median": 78,
+      "kills": 13,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 91,
+      "median": 65,
+      "kills": 12,
+      "job": "WhiteMage"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  }
 }
