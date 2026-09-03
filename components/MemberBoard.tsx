@@ -29,6 +29,7 @@ import Skeleton from "@/components/ui/Skeleton";
 // dynamic import only added a chunk to it. 415 KB against 390 KB, measured.
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { rarityColor, rarityLabel } from "@/lib/rarity";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 
 // Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
@@ -1073,10 +1074,11 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     </Link>
                     <div className="flex flex-wrap items-baseline gap-x-1.5 text-[12.5px]">
                       {title && (
-                        <span style={{ color: rarityColor(m.title_pct) }}
-                              title={rarityLabel(m.title_pct, lang === "th")}>
-                          {title}
-                        </span>
+                        <Tooltip content={rarityLabel(m.title_pct, lang === "th")}>
+                          <span style={{ color: rarityColor(m.title_pct) }}>
+                            {title}
+                          </span>
+                        </Tooltip>
                       )}
                       {title && meta.length > 0 && <span className="text-muted opacity-50">·</span>}
                       {meta.length > 0 && (

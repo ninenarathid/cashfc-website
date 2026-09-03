@@ -3,6 +3,7 @@ import { Mitr, Noto_Sans_Thai_Looped, Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import CommandPalette from "@/components/CommandPalette";
+import { TooltipProvider } from "@/components/ui/Tooltip";
 import roster from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
 import { LangProvider } from "@/lib/i18n";
@@ -83,6 +84,9 @@ export default function RootLayout({
               their pages, and every byline and tag in the gallery. */}
           <AdminProvider>
           <AvatarProvider>
+          {/* Radix shares tooltip timing across everything inside it: the first
+              waits, and moving straight to the next shows it at once. */}
+          <TooltipProvider>
           <CommandPalette members={index} />
           <div className="mx-auto max-w-5xl px-4 pb-16">
             <Nav />
@@ -98,6 +102,7 @@ export default function RootLayout({
             &ldquo;No data&rdquo; · refreshed every four hours by GitHub Actions
             </footer>
           </div>
+          </TooltipProvider>
           </AvatarProvider>
           </AdminProvider>
         </LangProvider>

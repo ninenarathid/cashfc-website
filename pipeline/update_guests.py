@@ -26,11 +26,14 @@ migration are involved: a fact scraped from a public page is not something a
 member owns or edits.
 
 Guests are few and the answers barely move, so a character already on file is
-left alone unless --force says otherwise.
+left alone for a week — long enough that this costs a handful of requests, short
+enough that somebody who transfers server is not described by last month's
+answer forever. --force re-reads everybody now.
 """
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import os
 import sys
@@ -46,6 +49,13 @@ LODESTONE = "https://na.finalfantasyxiv.com/lodestone/character/{cid}/"
 UA = {"User-Agent": ("cashfc-website/1.0 (FFXIV FC member board; "
                      "github.com/ninenarathid/cashfc-website)")}
 DELAY = 1.5
+
+# How long a guest's world and company are taken on trust before being read
+# again. They change when somebody transfers or joins a company, which is rare
+# but not never, and a week of being wrong about which server a friend is on is
+# about as long as anybody would forgive. Seven entries a week is nothing to
+# The Lodestone; re-reading everybody every night for this would be.
+MAX_AGE_DAYS = 7
 
 
 def log(msg: str) -> None:
@@ -161,7 +171,20 @@ def main() -> int:
     out = load("guests.json", {"guests": {}})
     known = out.setdefault("guests", {})
 
-    todo = [cid for cid in guests if a.force or str(cid) not in known]
+    def due(cid: int) -> bool:
+        entry = known.get(str(cid))
+        if entry is None:
+            return True                       # never looked at
+        seen = entry.get("seen")
+        if not seen:
+            return True                       # written before dates were kept
+        try:
+            age = (dt.date.today() - dt.date.fromisoformat(seen)).days
+        except ValueError:
+            return True                       # unreadable date, read them again
+        return age >= MAX_AGE_DAYS
+
+    todo = [cid for cid in guests if a.force or due(cid)]
     if a.dry_run:
         for cid in todo:
             log(f"  would look up {guests[cid] or cid} ({cid})")
@@ -175,7 +198,13 @@ def main() -> int:
             log(f"  ! {cid}: {ex}")
             continue
         if got:
-            known[str(cid)] = {**got, "seen": time.strftime("%Y-%m-%d")}
+            # Merged over what is already there, not written in its place. This
+            # entry is shared: collect_missing.py puts the mount and minion
+            # counts in it and update_guest_stats.py puts the tags and clears,
+            # and a straight assignment here would have deleted both — which it
+            # never did only because until now this never revisited anybody.
+            known[str(cid)] = {**known.get(str(cid), {}), **got,
+                               "seen": time.strftime("%Y-%m-%d")}
         if n % 10 == 0:
             log(f"  {n}/{len(todo)}")
         time.sleep(DELAY)
