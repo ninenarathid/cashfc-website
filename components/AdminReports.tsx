@@ -50,6 +50,8 @@ interface Report {
   load: (
     supabase: NonNullable<ReturnType<typeof createClient>>,
     since: string, until: string,
+    /** Which character each account plays — what "given to yourself" means. */
+    mine: Map<string, number | null>,
   ) => Promise<Map<string, Map<string, number[]>>>;
 }
 
@@ -69,17 +71,24 @@ const REPORTS: Report[] = [
     title: "adm.rpPopoto",
     note: "adm.rpPopotoNote",
     partsLabel: "adm.rpPopotoParts",
-    load: async (supabase, since, until) => {
+    load: async (supabase, since, until, mine) => {
       const range = <T,>(q: T) => {
         let out = q as { gte: (c: string, v: string) => T; lte: (c: string, v: string) => T };
         if (since) out = out.gte("created_at", startOf(since)) as typeof out;
         if (until) out = out.lte("created_at", endOf(until)) as typeof out;
         return out as T;
       };
-      const [kudos, likes] = await Promise.all([
-        range(supabase.from("kudos").select("sender_id, created_at")),
-        range(supabase.from("gallery_likes").select("profile_id, created_at")),
+      const [kudos, likes, posts] = await Promise.all([
+        range(supabase.from("kudos")
+          .select("sender_id, receiver_character_id, created_at")),
+        range(supabase.from("gallery_likes").select("profile_id, post_id, created_at")),
+        // Not date-ranged: a like from last week can land on a picture posted
+        // last year, and the owner is what we came for.
+        supabase.from("gallery_posts").select("id, character_id"),
       ]);
+      const owner = new Map<number, number | null>(
+        ((posts.data ?? []) as { id: number; character_id: number | null }[])
+          .map((row) => [row.id, row.character_id]));
 
       const got = new Map<string, Map<string, number[]>>();
       const bump = (id: string, iso: string, at: 0 | 1) => {
@@ -90,12 +99,21 @@ const REPORTS: Report[] = [
         days.set(day, parts);
         got.set(id, days);
       };
+      // Giving yourself a potato does not count. It is a third of everything
+      // in the table, it costs nothing, and a draw that rewards it is a draw
+      // decided by whoever remembered to click their own profile most days —
+      // which is the opposite of what this report is for.
       for (const k of (kudos.data ?? []) as
-           { sender_id: string; created_at: string }[]) {
+           { sender_id: string; receiver_character_id: number; created_at: string }[]) {
+        if (k.receiver_character_id === mine.get(k.sender_id)) continue;
         bump(k.sender_id, k.created_at, 0);
       }
       for (const l of (likes.data ?? []) as
-           { profile_id: string; created_at: string }[]) {
+           { profile_id: string; post_id: number; created_at: string }[]) {
+        const posted = owner.get(l.post_id);
+        // A picture with nobody credited belongs to nobody, so a like on it
+        // cannot be a like on your own.
+        if (posted != null && posted === mine.get(l.profile_id)) continue;
         bump(l.profile_id, l.created_at, 1);
       }
       return got;
@@ -173,12 +191,12 @@ export default function AdminReports(
     if (!supabase) return;
     setLoading(true);
     setDrawn(null);
-    const perDay = await report.load(supabase, since, until);
     const { data } = await supabase.from("profiles")
       .select("id, character_id, character_name, display_name, discord_username, avatar_url");
 
     const who = new Map<string, Pick<Entry,
       "characterId" | "name" | "avatar" | "unclaimed">>();
+    const mine = new Map<string, number | null>();
     for (const p of (data ?? []) as {
       id: string; character_id: number | null; character_name: string | null;
       display_name: string | null; discord_username: string | null;
@@ -188,6 +206,7 @@ export default function AdminReports(
       // itself anything — including another member's character name. An
       // unclaimed account is named by the login it signed in with.
       const claimed = p.character_id != null;
+      mine.set(p.id, p.character_id);
       who.set(p.id, {
         characterId: p.character_id,
         name: claimed
@@ -197,6 +216,8 @@ export default function AdminReports(
         unclaimed: !claimed,
       });
     }
+
+    const perDay = await report.load(supabase, since, until, mine);
 
     const out: Entry[] = [];
     for (const [profileId, days] of perDay) {

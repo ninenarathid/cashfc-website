@@ -688,12 +688,12 @@ const DICT = {
     th: "การส่ง popoto รายวัน",
   },
   "adm.rpPopotoNote": {
-    en: "one day of giving is one entry, however many were given that day — and it counts what somebody gave, not what they were given",
-    th: "ส่งในหนึ่งวัน = 1 สิทธิ์ ไม่ว่าวันนั้นจะส่งกี่ครั้ง และนับจากที่ส่งให้คนอื่น ไม่ใช่ที่คนอื่นส่งให้",
+    en: "one day of giving is one entry, however many were given that day — it counts only what somebody gave to other people: not what they were given, and not what they gave themselves",
+    th: "ส่งในหนึ่งวัน = 1 สิทธิ์ ไม่ว่าวันนั้นจะส่งกี่ครั้ง — นับเฉพาะที่ส่งให้คนอื่น ไม่นับที่คนอื่นส่งให้ และไม่นับที่ส่งให้ตัวเอง",
   },
   "adm.rpPopotoParts": {
-    en: "(given on profiles / given on pictures)",
-    th: "(ส่งให้โปรไฟล์ / ส่งให้รูปภาพ)",
+    en: "(on other people's profiles / on other people's pictures)",
+    th: "(ให้โปรไฟล์คนอื่น / ให้รูปคนอื่น)",
   },
   "adm.rpSummary": {
     en: "{entries} entries · {people} people · {n} popoto given",
