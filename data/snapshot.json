@@ -1334,7 +1334,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 84,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1357,7 +1357,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",

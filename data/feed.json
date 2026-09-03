@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-09-03",
+   "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100 on Viper!"
+  },
+  {
    "date": "2026-09-02",
    "type": "parse_up",
    "id": 42053180,
@@ -1392,13 +1399,6 @@
    "id": 5644067,
    "name": "Ninenine The'phantom",
    "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "is now a Legendary Machinist"
   }
  ]
 }
