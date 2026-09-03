@@ -2,6 +2,202 @@
  "events": [
   {
    "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 57885671,
+   "name": "Aisu Kazimira",
+   "text": "earned Thankful Thirteen — only 2.0% of players have it, and 2 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "is now a Expert PvP player ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "minions_up",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "passed 200 minions"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "earned Happily Treasure After IV — only 1.5% of players have it, and 62 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "is now a Master Gatherer ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "is now a Master Crafter ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "is now a Legendary Relic grinder ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "is now a Expert Treasure hunter ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned In Pot Pursuit III — only 0.4% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "earned On Top of the Savage World III — only 2.1% of players have it, and 45 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "is now a Expert Relic grinder ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "earned A Show of Fork III — only 0.6% of players have it, and 27 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "earned Guardiansbane, and 7 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 42215186,
+   "name": "Azelia Tayta",
+   "text": "earned Viva Vault Oneiron II — only 3.7% of players have it, and 10 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "is now a Master Explorer ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 42053180,
+   "name": "Elle'kuro Dean'deluca",
+   "text": "earned Cut Above the Rest: Star Globe Occultum — only 0.6% of players have it, and 31 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 47494518,
+   "name": "Farcia Soluna",
+   "text": "earned Witness to the Stars — only 3.4% of players have it, and 7 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 60619924,
+   "name": "Gotnogod Soluna",
+   "text": "earned Summertime Drifter"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 60873337,
+   "name": "Imy Kitty",
+   "text": "earned Cut Above the Rest: Spear Occultum — only 0.7% of players have it, and 16 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "is now a Legendary Relic grinder ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "is now a Master Explorer ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "is now a Expert PvP player ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned A Show of Fork III — only 0.6% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 38796459,
+   "name": "Minion Ke",
+   "text": "earned Cruising at the Savage Apex I, and 1 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "rare_up",
+   "id": 31806535,
+   "name": "Viiska Howl",
+   "text": "earned Summertime Drifter, and 13 more"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Master Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "grade_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "is now a Expert Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-09-03",
    "type": "level_100",
    "id": 36130968,
    "name": "Chu Celestial",
@@ -1203,202 +1399,6 @@
    "id": 3968346,
    "name": "Panuz Chocobunny",
    "text": "set a new best parse: 64 on Voidwalker as Bard"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 28789661,
-   "name": "Zuma Zerk",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 29511615,
-   "name": "Whitefang Dimmoon",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 13533056,
-   "name": "Akemi Rei",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "set a new best parse: 96 on Eden Prime as Dancer"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 45938803,
-   "name": "Blue Mana",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 36261473,
-   "name": "Cheryl Klenovich",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 47540663,
-   "name": "Edel Meither",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "parse_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "set a new best parse: 96 on Eden Prime as Bard"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "cleared M12S-2 for the first time 🎉"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "job_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "is now a Legendary Bard"
-  },
-  {
-   "date": "2026-08-29",
-   "type": "boss_clear",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "cleared M12S-2 for the first time 🎉"
   }
  ]
 }

@@ -8,7 +8,7 @@ export const metadata = { title: "Members — Cafe And SHabu" };
 
 export default function MembersPage() {
   const data = raw as unknown as BoardData;
-  const history = ((historyRaw as { rows?: HistoryRow[] }).rows ?? []);
+  const history = ((historyRaw as unknown as { rows?: HistoryRow[] }).rows ?? []);
 
   // The overview slices its own numbers rather than being handed totals: the activity
   // toggles have to re-cut every chart, which is only possible with the members in
