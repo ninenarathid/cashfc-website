@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-09-03",
+   "type": "level_100",
+   "id": 43335087,
+   "name": "Haru Senbonzakura",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-03",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Expert Black Mage"
+  },
+  {
+   "date": "2026-09-03",
    "type": "parse_up",
    "id": 44085912,
    "name": "Mayu Ferguson",
@@ -1384,20 +1398,6 @@
    "type": "level_100",
    "id": 58202955,
    "name": "Trevas Aka",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Cut Above the Rest: Spear Occultum — only 0.7% of players have it, and 3 more"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "level_100",
-   "id": 6951533,
-   "name": "Aemond Targaryen",
    "text": "reached level 100!"
   }
  ]

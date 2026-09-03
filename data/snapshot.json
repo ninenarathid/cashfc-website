@@ -6028,7 +6028,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -10895,7 +10895,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 91,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -10908,7 +10908,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-03"
  },
  "30333493": {
   "name": "Haruko Sho",
@@ -13812,6 +13812,7 @@
   "tiers": {},
   "jobs": {
    "Bard": "master",
+   "BlackMage": "expert",
    "Pictomancer": "legendary",
    "Summoner": "legendary"
   },

@@ -9441,6 +9441,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 71,
+      "median": 34,
+      "kills": 7,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 57,
+      "median": 49,
+      "kills": 8,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 59,
+      "median": 51,
+      "kills": 6,
+      "job": "BlackMage"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 71,
+      "median": 44,
+      "kills": 7,
+      "job": "BlackMage"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
@@ -32667,7 +32710,51 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 38,
+      "median": 28,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 25,
+      "median": 19,
+      "kills": 5,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 28,
+      "median": 21,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 15,
+      "median": 15,
+      "kills": 1,
+      "job": "Gunbreaker"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "58508421": {
