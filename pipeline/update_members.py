@@ -1558,6 +1558,29 @@ def _cut(values: list, pct: float) -> float:
     return xs[min(len(xs) - 1, int(len(xs) * pct / 100))]
 
 
+def inject_lodestone_privacy(members: list[dict], verdicts: dict) -> int:
+    """Carry what The Lodestone actually said onto each member row.
+
+    Written by pipeline/verify_achievements.py, which reads the character's own
+    achievement page. Separate from `ach_public`, which is FFXIV Collect's view
+    and can be years out of date — the two disagree often enough that collapsing
+    them would lose the disagreement, and the disagreement is the useful part.
+
+    None where no page has given a usable answer yet. That is not "public": it
+    is "nobody has looked", and the tag below is careful about the difference.
+    """
+    seen = 0
+    for m in members:
+        v = verdicts.get(str(m["id"])) or {}
+        # Only the verdict reaches members.json. When it was read stays in
+        # extra.json: 502 float timestamps would be noise in a file the site
+        # ships whole to every visitor.
+        m["lode_achv_public"] = v.get("public")
+        if v.get("public") is not None:
+            seen += 1
+    return seen
+
+
 def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None,
                 cut_from: list[dict] | None = None) -> None:
     """Tag the roster against how this FC actually looks, not fixed numbers.
@@ -1641,11 +1664,19 @@ def assign_tags(members: list[dict], bucket_max: dict[str, float] | None = None,
             blind = (m.get("fflogs") in ("hidden", "none", "skipped", "error", "pending")
                      and not m.get("ach_public") and not m.get("mounts"))
             # Achievements deliberately closed is not the same as nothing to
-            # say. Nearly half the roster was reading as "Casual" — a claim
-            # about how they play — when the only true statement was that we
-            # cannot see. `is False` and not falsy: None means Collect has
-            # never looked, which is the "No data" case below.
-            if m.get("ach_public") is False:
+            # say. Nearly half the roster read as "Casual" — a claim about how
+            # they play — when the only true statement was that we cannot see.
+            #
+            # But only The Lodestone gets to say so. FFXIV Collect's ach_public
+            # is whatever it saw the last time somebody pressed Refresh on that
+            # character, which for some of this roster was 2022; going by it
+            # accused four hundred people of hiding, most of whom were not, and
+            # told them on their own page to change a setting already set.
+            #
+            # `is False` throughout, never falsy: None means no page has
+            # answered yet, and "nobody has looked" is the No data case rather
+            # than an accusation.
+            if m.get("lode_achv_public") is False:
                 tags.append("private")
             else:
                 tags.append("unknown" if blind else "casual")
@@ -2212,6 +2243,8 @@ def main() -> None:
         log("Playstyle grades skipped — no achievement catalogue available")
 
     # After every source has reported, so the cutoffs see the real distribution.
+    checked = inject_lodestone_privacy(members, extra.get("lode_achv") or {})
+    log(f"Achievement privacy — {checked}/{len(members)} verified on The Lodestone")
     assign_tags(members, ceilings)
 
     if not args.skip_news:

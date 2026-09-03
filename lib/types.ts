@@ -42,7 +42,23 @@ export interface Member {
   mounts: number | null;
   minions: number | null;
   rare_achv: number | null;
+  /**
+   * What FFXIV Collect saw the last time it read this character.
+   *
+   * Not the same question as `lode_achv_public`, and not interchangeable with
+   * it: Collect only re-reads when somebody presses Refresh there, so this can
+   * be years old. It says whether the achievement numbers on this row are
+   * usable, never whether the member is hiding anything.
+   */
   ach_public: boolean | null;
+  /**
+   * What The Lodestone itself said, from pipeline/verify_achievements.py.
+   *
+   * The only thing allowed to claim somebody keeps achievements private, and
+   * the only one that is actually about their setting. Null means no page has
+   * given a usable answer yet — which is "nobody has looked", not "public".
+   */
+  lode_achv_public?: boolean | null;
   /**
    * When the achievement shelf was last actually readable (YYYY-MM-DD).
    *

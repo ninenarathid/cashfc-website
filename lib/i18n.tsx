@@ -639,6 +639,14 @@ const DICT = {
     en: "{n} verified on The Lodestone, {m} not.",
     th: "ยืนยันบน Lodestone แล้ว {n} · ยังไม่ยืนยัน {m}",
   },
+  "member.achvPending": {
+    en: "Achievements not read yet",
+    th: "ยังไม่ได้อ่าน achievement",
+  },
+  "member.achvPendingNote": {
+    en: "Nothing is hidden here — the board reads achievements through FFXIV Collect, which only re-reads a character when it is asked to, and it is asked once a day. Nothing to do; they will appear.",
+    th: "ตัวละครนี้ไม่ได้ปิดอะไรไว้ — เว็ปอ่าน achievement ผ่าน FFXIV Collect ซึ่งจะอ่านใหม่ก็ต่อเมื่อมีคนสั่ง และระบบสั่งให้อ่านวันละครั้งอยู่แล้ว ไม่ต้องทำอะไร เดี๋ยวข้อมูลจะขึ้นเอง",
+  },
   "pending.character": {
     en: "Character #{id}",
     th: "ตัวละคร #{id}",

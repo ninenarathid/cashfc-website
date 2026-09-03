@@ -61,7 +61,7 @@ KEEP = (
     "tags", "achv_tiers", "parse", "savage_kills", "ult_clears", "ult_cleared",
     "ult_achv", "ult_achv_only", "legacy_clears", "ex_cleared", "ex_kills",
     "current_clears", "current_seen", "progress", "progress_all",
-    "job_top", "job_scores", "fflogs",
+    "job_top", "job_scores", "fflogs", "lode_achv_public",
 )
 
 
@@ -144,6 +144,12 @@ def main() -> int:
     # correction the roster gets, and the one that matters most for somebody
     # whose logs are private.
     P.merge_ultimates(guests)
+
+    # The same verdict the roster's tags are decided on. Without it a guest who
+    # keeps achievements private would read as Casual, which is the bug this was
+    # fixed for on the roster side.
+    extra = P.load_json("extra.json", {})
+    P.inject_lodestone_privacy(guests, extra.get("lode_achv") or {})
 
     # Graded against the FC's curve, computed from the FC alone.
     rarity = P.collect_rarity_map()

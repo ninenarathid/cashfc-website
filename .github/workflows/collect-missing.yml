@@ -1,18 +1,25 @@
-name: Chase missing collections
+name: Daily guest and privacy sweeps
 
-# Once a day, and only for the people whose Collection tile is empty.
+# Once a day, the three passes the four-hourly pipeline cannot do for itself.
 #
-# The main pipeline asks FFXIV Collect about the whole roster every four hours,
-# which fixes nothing for the two groups this exists for: characters Collect has
-# never heard of, whose every one of those six daily requests is a 404, and
-# guests, who are not on the roster the pipeline works from and so were never
-# asked about at all.
+# The pipeline works from the FC roster and reads FFXIV Collect. That leaves
+# three blind spots, and each of these steps covers one:
 #
-# Separate from update-data.yml because it answers a different question and has a
-# different shape — six characters and a couple of minutes against five hundred
-# and several hours — and because a failure here should not colour a run that
-# spent four hours on FF Logs. It shares that workflow's concurrency group so the
-# two can never be writing data/ at the same time.
+#   1. Characters Collect has never heard of, whose every one of the pipeline's
+#      six daily requests is a 404, and guests, who are not on the roster it
+#      works from and so were never asked about at all.
+#   2. Guests again, for the stages after the fetch: FF Logs, and the playstyle
+#      tags that go with it.
+#   3. Whether "achievements private" is still true. That flag came from Collect,
+#      which only re-reads a character when somebody presses Refresh, so it was
+#      as old as the last press — three weeks for one member, three years for
+#      another. This reads The Lodestone itself.
+#
+# Separate from update-data.yml because these answer different questions and have
+# a different shape — a few hundred pages and half an hour against five hundred
+# members and several hours — and because a failure here should not colour a run
+# that spent four hours on FF Logs. It shares that workflow's concurrency group
+# so the two can never be writing data/ at the same time.
 on:
   schedule:
     # 21:45 UTC, in the gap between the four-hourly runs at :30. The group below
@@ -21,7 +28,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Say who is missing and why, and change nothing"
+        description: "Say what would happen and change nothing"
         type: boolean
         default: false
 
@@ -33,9 +40,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  chase:
+  sweep:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,10 +56,37 @@ jobs:
       - name: Install dependencies
         run: pip install -r pipeline/requirements.txt
 
+      # Each step keeps going if the one before it fails: they are independent
+      # questions, and a bad night on one host should not cost the answers to
+      # the other two. The commit step runs regardless and keeps whatever landed.
       - name: Chase missing collections
-        timeout-minutes: 45
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 30
         run: |
           python pipeline/collect_missing.py \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Guest stats and tags
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 30
+        env:
+          FFLOGS_CLIENT_ID: ${{ secrets.FFLOGS_CLIENT_ID }}
+          FFLOGS_CLIENT_SECRET: ${{ secrets.FFLOGS_CLIENT_SECRET }}
+        run: |
+          python pipeline/update_guest_stats.py \
+            ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      # Last, and the longest: a page per character at the pipeline's own pace.
+      # The tag it decides is only rendered on the pipeline's next run, which is
+      # within four hours either way.
+      - name: Verify achievement privacy on The Lodestone
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 45
+        run: |
+          python pipeline/verify_achievements.py \
             ${{ inputs.dry_run && '--dry-run' || '' }}
 
       # Same rebase strategy as the pipeline: data/ is generated from its
@@ -65,10 +99,10 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add data
           if git diff --cached --quiet; then
-            echo "No collections to add today"
+            echo "Nothing changed today"
             exit 0
           fi
-          git commit -m "data: collections for characters that had none $(date -u +%Y-%m-%d)"
+          git commit -m "data: daily guest and privacy sweeps $(date -u +%Y-%m-%d)"
           for attempt in 1 2 3; do
             git fetch origin main
             git rebase -X theirs origin/main || { git rebase --abort; exit 1; }

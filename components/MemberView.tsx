@@ -196,9 +196,19 @@ export default function MemberView({
   // are all on the same world in the same company.
   const home = m.rank === GUEST_RANK ? guestHome(m.id) : undefined;
 
-  const collectState: "ok" | "private" | "kept" | "unknown" =
+  // Only The Lodestone gets to say "private". `ach_public` is FFXIV Collect's
+  // view, and Collect re-reads a character only when somebody presses Refresh —
+  // so for members whose last press was in 2022 it was reporting a setting from
+  // 2022. This page was telling people to go and make their achievements public
+  // when they already had.
+  //
+  // "pending" is the gap that opens once the two are told apart: nothing is
+  // hidden, the data has simply not been fetched yet. It says so and asks for
+  // nothing, because there is nothing for the member to do.
+  const collectState: "ok" | "private" | "kept" | "unknown" | "pending" =
     m.mounts == null && m.minions == null ? "unknown"
-    : m.ach_public === false ? (m.rare_achv != null ? "kept" : "private")
+    : m.lode_achv_public === false ? (m.rare_achv != null ? "kept" : "private")
+    : m.rare_achv == null && m.ach_public !== true ? "pending"
     : "ok";
 
   // Back to the list you came from, filters and all. Falls back to the plain
@@ -683,6 +693,11 @@ export default function MemberView({
               {t("member.collectUnknown")}
             </span>
           )}
+          {collectState === "pending" && (
+            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
+              {t("member.achvPending")}
+            </span>
+          )}
         </h2>
         <div className="grid grid-cols-3 gap-2.5">
           {pctTile(t("member.mounts"), m.mounts, agg.mounts, "#4fb8a8")}
@@ -695,6 +710,13 @@ export default function MemberView({
             somebody has looked up there. */}
         {(collectState === "private" || collectState === "unknown") && (
           <CollectionHelp state={collectState} characterId={m.id} />
+        )}
+        {/* No steps and no links: the other two states are things a member can
+            fix, and this one is a queue they are already in. */}
+        {collectState === "pending" && (
+          <div className="mt-3 rounded-xl border border-dashed border-line px-4 py-3 text-[12.5px] leading-[1.8] text-muted">
+            {t("member.achvPendingNote")}
+          </div>
         )}
       </section>
       {/* Last on the page on purpose: somebody with a lot of screenshots

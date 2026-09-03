@@ -7621,15 +7621,125 @@
    }
   },
   "24186600": {
-   "mounts": 108,
-   "minions": 174,
-   "rare_achv": null,
-   "ach_public": false,
-   "portrait": "https://img2.finalfantasyxiv.com/f/58d06d66abe8353d1a8a51e40c9e5df2_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1645103965",
-   "ult_achv": [],
-   "achv_seen_at": null,
-   "rare_ids": [],
-   "achv_buckets": {}
+   "mounts": 180,
+   "minions": 261,
+   "rare_achv": 63,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/58d06d66abe8353d1a8a51e40c9e5df2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416496",
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "achv_seen_at": "2026-09-03",
+   "rare_ids": [
+    2408,
+    847,
+    1440,
+    852,
+    1445,
+    3350,
+    1756,
+    3405,
+    2225,
+    1464,
+    1469,
+    2990,
+    1962,
+    2137,
+    2156,
+    3349,
+    2488,
+    3338,
+    2095,
+    2153,
+    1583,
+    1938,
+    3348,
+    1587,
+    1934,
+    2387,
+    1474,
+    1337,
+    2407,
+    2092,
+    3074,
+    1463,
+    846,
+    1468,
+    1439,
+    3874,
+    1750,
+    3155,
+    2035,
+    3318,
+    2154,
+    3805,
+    3113,
+    3616,
+    3178,
+    2052,
+    1933,
+    1993,
+    3154,
+    2093,
+    1444,
+    1473,
+    2043,
+    2286,
+    2637,
+    3047,
+    2444,
+    618,
+    621,
+    1943,
+    2040,
+    2484,
+    2749
+   ],
+   "achv_buckets": {
+    "pvp": {
+     "n": 17,
+     "min": 2.1,
+     "score": 44.56
+    },
+    "relic": {
+     "n": 14,
+     "min": 2.8,
+     "score": 26.05
+    },
+    "treasure": {
+     "n": 4,
+     "min": 1.5,
+     "score": 12.3
+    },
+    "crafter": {
+     "n": 2,
+     "min": 4.6,
+     "score": 3.22
+    },
+    "seasonal": {
+     "n": 2,
+     "min": 6.6,
+     "score": 2.51
+    },
+    "gatherer": {
+     "n": 1,
+     "min": 10.0,
+     "score": 1.0
+    },
+    "explorer": {
+     "n": 3,
+     "min": 4.7,
+     "score": 5.25
+    },
+    "goldsaucer": {
+     "n": 1,
+     "min": 2.4,
+     "score": 4.17
+    }
+   }
   },
   "38041221": {
    "mounts": 159,
@@ -12110,13 +12220,28 @@
   "57885671": {
    "mounts": 14,
    "minions": 28,
-   "rare_achv": null,
-   "ach_public": false,
-   "portrait": "https://img2.finalfantasyxiv.com/f/bc199f5e21a698e6949869bdab10c508_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753887",
+   "rare_achv": 3,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/bc199f5e21a698e6949869bdab10c508_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788417154",
    "ult_achv": [],
-   "achv_seen_at": null,
-   "rare_ids": [],
-   "achv_buckets": {}
+   "achv_seen_at": "2026-09-03",
+   "rare_ids": [
+    3875,
+    3832,
+    3874
+   ],
+   "achv_buckets": {
+    "pvp": {
+     "n": 1,
+     "min": 4.4,
+     "score": 2.27
+    },
+    "seasonal": {
+     "n": 2,
+     "min": 2.0,
+     "score": 6.51
+    }
+   }
   },
   "58199536": {
    "mounts": 70,
@@ -18760,5 +18885,55 @@
   "https://lds-img.finalfantasyxiv.com/h/A/aM2Dd6Vo4HW_UGasK7tLuZ6fu4.png": "Miner",
   "https://lds-img.finalfantasyxiv.com/h/I/jGRnjIlwWridqM-mIPNew6bhHM.png": "Botanist",
   "https://lds-img.finalfantasyxiv.com/h/x/B4Azydbn7Prubxt7OL9p1LZXZ0.png": "Fisher"
+ },
+ "lode_achv": {
+  "24228478": {
+   "public": false,
+   "at": 1788417745.1568446
+  },
+  "15308846": {
+   "public": false,
+   "at": 1788417747.0179696
+  },
+  "3968346": {
+   "public": true,
+   "at": 1788417748.9495766
+  },
+  "14959902": {
+   "public": false,
+   "at": 1788417750.8435183
+  },
+  "28789661": {
+   "public": false,
+   "at": 1788417752.7587757
+  },
+  "31628293": {
+   "public": false,
+   "at": 1788417754.6337311
+  },
+  "57885671": {
+   "public": true,
+   "at": 1788417756.5493994
+  },
+  "58199536": {
+   "public": true,
+   "at": 1788417758.473046
+  },
+  "24186600": {
+   "public": true,
+   "at": 1788417760.374481
+  },
+  "29152036": {
+   "public": false,
+   "at": 1788417762.284321
+  },
+  "38041221": {
+   "public": false,
+   "at": 1788417764.19766
+  },
+  "35634484": {
+   "public": false,
+   "at": 1788417766.1375947
+  }
  }
 }
