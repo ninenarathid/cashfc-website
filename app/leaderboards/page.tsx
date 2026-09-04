@@ -12,6 +12,8 @@ import TagIcon from "@/components/TagIcon";
 import LeaderboardIntro from "@/components/LeaderboardIntro";
 import LeaderRow from "@/components/LeaderRow";
 import LbTopTen from "@/components/LbTopTen";
+import LbRowNote from "@/components/LbRowNote";
+import extraRaw from "@/data/extra.json";
 import PopotoBoards from "@/components/PopotoBoard";
 import { allGuestIds, guestHome } from "@/lib/guest-data";
 
@@ -25,6 +27,26 @@ export const metadata = { title: "Leaderboards — Cafe And SHabu" };
  * member page either way.
  */
 const TOP_N = 10;
+
+// What a dedicated player of each playstyle could realistically hold — the
+// denominator behind every percentage on this page. Written by the pipeline
+// into extra.json; read here so a row can say when somebody is past it.
+const ceilings = ((extraRaw as { pipeline?: { bucket_max?: Record<string, number> } })
+  .pipeline?.bucket_max) ?? {};
+
+// The grades are stored as shares of what a playstyle asks, because the same
+// share means the same thing whether a playstyle is worth 979 points or 128.
+// Nobody is looking at a share, though, so they are turned back into points
+// against each board's own ceiling — a number that can be checked against the
+// column beside it. Kept in step with ACHV_TIERS in the pipeline.
+const TIER_SHARE: [string, number][] = [
+  ["legendary", 0.25], ["master", 0.12], ["expert", 0.05],
+];
+const tiersFor = (key: string) =>
+  ceilings[key] == null ? undefined
+    : TIER_SHARE.map(([tier, share]) => ({
+        tier, points: Math.round(ceilings[key]! * share),
+      }));
 
 export default function LeaderboardsPage() {
   const data = raw as unknown as BoardData;
@@ -52,7 +74,12 @@ export default function LeaderboardsPage() {
 
   return (
     <main className="pt-7">
-      <LeaderboardIntro />
+      <LeaderboardIntro
+        // The point a title starts at, per board — the panel is one panel for
+        // eight boards, so it has to name all eight or none.
+        boards={BUCKETS.filter((k) => ceilings[k] != null).map((k) => ({
+          key: k, label: TAG_LABELS[k] ?? k, tiers: tiersFor(k)!,
+        }))} />
 
       {boards.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-line p-10 text-center text-[13.5px] leading-relaxed text-muted">
@@ -102,12 +129,26 @@ export default function LeaderboardsPage() {
                                note: vacationers.has(r.id) ? "on vacation" : undefined,
                                noteTone: "muted",
                              }}
-                             // Always the share, never the raw score: the two are
-                             // on different scales and a column that silently
-                             // switches between them ranks nothing.
-                             value={r.share != null ? `${(r.share * 100).toFixed(1)}%` : "—"}
+                             // Points, which is also what the list is sorted
+                             // by — so the column and the order finally agree.
+                             // It used to show the share of what a dedicated
+                             // player would hold, and that share is capped at
+                             // one: the points count achievements the ceiling
+                             // deliberately leaves out, the ones so rare that
+                             // dividing by them would put the whole FC on two
+                             // percent. Somebody past the ceiling therefore
+                             // read as a flat 100%, and a member asked the
+                             // obvious question — does that mean they have
+                             // everything? It did not. Points cannot be
+                             // misread that way; the share is on the hover,
+                             // where the grade it decides can be explained
+                             // beside it.
+                             value={Math.round(r.score).toLocaleString()}
                              sub={String(r.n)}
-                             title={`${r.n} rare achievements · ${r.score.toFixed(1)} points`} />
+                             title={<LbRowNote n={r.n} score={r.score}
+                                               share={r.share}
+                                               kind={TAG_LABELS[key] ?? key}
+                                               ceiling={ceilings[key]} />} />
                 ))}
               </ol>
             </section>

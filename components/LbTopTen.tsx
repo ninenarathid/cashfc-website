@@ -8,6 +8,10 @@ import { useLang } from "@/lib/i18n";
  * A component for one line because the leaderboards page is a server component
  * — it reads the roster file at build time — and the only thing on it that
  * needs to know the language is this label and the heading above it.
+ *
+ * How the scoring works is not here. It was, briefly, on a hover per board;
+ * it belongs in the panel at the top of the page that exists to explain the
+ * scoring, and two explanations of one thing is one too many.
  */
 export default function LbTopTen() {
   const { t } = useLang();

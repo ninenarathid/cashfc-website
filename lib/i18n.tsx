@@ -264,6 +264,18 @@ const DICT = {
     en: "How is this scored?",
     th: "คะแนนคิดยังไง?",
   },
+  "lb.rowMeasure": {
+    en: "{p} points from {n} rare achievements",
+    th: "{p} แต้ม จาก achievement หายาก {n} รายการ",
+  },
+  "lb.ofDedicated": {
+    en: "{s}% of holding every rare {k} achievement still worth chasing",
+    th: "คิดเป็น {s}% ของการเก็บ achievement {k} หายากครบทุกอันที่ยังพอเก็บได้",
+  },
+  "lb.pastCeiling": {
+    en: "Past the {c} points that would take.",
+    th: "เกินเพดาน {c} แต้มไปแล้ว",
+  },
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
   "lb.full": { en: "See all", th: "ดูทั้งหมด" },
   "lb.popoto": { en: "Popoto", th: "Popoto" },

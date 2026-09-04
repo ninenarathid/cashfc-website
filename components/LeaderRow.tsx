@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useAvatar } from "@/lib/avatars";
 import { ACHV_TIER_STYLE } from "@/lib/tags";
 import { ACHV_TIER_LABEL } from "@/lib/types";
+import { Tooltip } from "@/components/ui/Tooltip";
+import type { ReactNode } from "react";
 
 /**
  * One line of a leaderboard.
@@ -42,7 +44,8 @@ export default function LeaderRow(
     value: string;
     /** The smaller number in brackets after it. */
     sub?: string;
-    title?: string;
+    /** What the number means, on hover. */
+    title?: ReactNode;
   },
 ) {
   const top = place <= 3;
@@ -99,10 +102,15 @@ export default function LeaderRow(
         )}
       </span>
 
-      <span className="text-right font-data text-[12px] text-muted" title={title}>
-        {value}
-        {sub && <small className="ml-1 opacity-60">({sub})</small>}
-      </span>
+      {/* The site's tooltip rather than the browser's: this one explains what
+          the number is measured against, which is a sentence rather than a
+          label, and the browser's waits a second and wraps where it likes. */}
+      <Tooltip content={title} side="left">
+        <span className="cursor-default text-right font-data text-[12px] text-muted">
+          {value}
+          {sub && <small className="ml-1 opacity-60">({sub})</small>}
+        </span>
+      </Tooltip>
     </li>
   );
 }
