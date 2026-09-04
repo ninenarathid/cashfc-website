@@ -139,25 +139,31 @@ body { overflow-x: clip; }
 }
 
 /* ── The foil on a badge ─────────────────────────────────────────────────
-   A struck plate with a rainbow in the varnish. The rainbow sits still at
-   rest — which is what the plate this is adapted from looks like anyway — and
-   swings towards the pointer when there is one, so nothing here animates on a
-   badge nobody is pointing at.
+   Three things, all of them from the plate this is adapted from.
 
-   --px/--py are written by AwardBadge on pointermove and inherit from the
-   plate, which is why the angle below can be a plain calc. */
-.badge-plate:hover .badge-foil-sheen { opacity: 0.5; }
+   The rainbow is one element that turns, rather than a gradient whose angle
+   changes: turning it sweeps the bands across the plate, where re-angling the
+   gradient only reshuffles the hues in place. How far it turns comes from how
+   far the pointer is from the middle, so the light answers the hand.
 
+   At rest it drifts, slowly, and only on the full plaque — the corner of a
+   member row can hold five hundred of the small ones and a page that never
+   idles is a page whose fans never stop. The drift stops the moment a pointer
+   arrives, because from then on the pointer is driving.
+
+   --px/--py/--sheen/--pscale are written by AwardBadge on pointermove. */
 .badge-foil-sheen {
-  --angle: calc(var(--px) * 150deg + 15deg);
   position: absolute;
-  inset: -45%;
+  inset: -55%;
   opacity: 0.3;
   mix-blend-mode: overlay;
-  transition: opacity 220ms ease-out, background 220ms ease-out;
   pointer-events: none;
+  transform: rotate(var(--sheen, 0deg));
+  transform-origin: center center;
+  transition: transform 200ms ease-out, opacity 220ms ease-out;
+  will-change: transform;
   background: linear-gradient(
-    var(--angle),
+    70deg,
     transparent 6%,
     #ff5f6d 20%,
     #ffb347 31%,
@@ -169,21 +175,41 @@ body { overflow-x: clip; }
   );
 }
 
-/* The tilt, on the full plaque only. Deliberately small: the original swings
-   far enough to lift a corner off the page, which is right for one plaque on a
-   landing page and wrong for a row of them next to somebody's name. */
+.badge-plate:hover .badge-foil-sheen { opacity: 0.55; }
+
+/* The drift is a layer of its own rather than a second transform on the sheen.
+   One element cannot be both driven by keyframes and set by a custom property
+   — whichever is running wins outright — and the version that shared them threw
+   away the rock-back on release, because the keyframes resumed at zero the
+   instant the pointer left and overwrote it. Nested, the two multiply: the
+   wrapper drifts, the sheen inside it answers the pointer.
+
+   Paused, not stopped, while a pointer is on the plate: the drift holds where
+   it was instead of snapping back to the start of its cycle. */
+.badge-foil-drift { position: absolute; inset: 0; pointer-events: none; }
+.badge-foil .badge-foil-drift { animation: badge-foil-drift 5s ease-in-out infinite; }
+.badge-foil:hover .badge-foil-drift { animation-play-state: paused; }
+
+@keyframes badge-foil-drift {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(11deg); }
+}
+
+/* The tilt, on the full plaque only. */
 .badge-foil {
   transform:
     perspective(600px)
-    rotateX(calc((var(--py) - 0.5) * -7deg))
-    rotateY(calc((var(--px) - 0.5) * 10deg));
-  transition: transform 220ms ease-out;
+    rotateX(calc((var(--py) - 0.5) * -12deg))
+    rotateY(calc((var(--px) - 0.5) * 16deg))
+    scale(var(--pscale, 1));
+  transition: transform 200ms ease-out;
   transform-style: preserve-3d;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .badge-foil { transform: none; transition: none; }
   /* The rainbow stays — it is the plate's finish, not an animation — but it
-     stops following the pointer. */
-  .badge-foil-sheen { --angle: 70deg; transition: none; }
+     neither drifts nor follows. */
+  .badge-foil-sheen { transform: rotate(20deg); transition: none; }
+  .badge-foil .badge-foil-drift { animation: none; }
 }

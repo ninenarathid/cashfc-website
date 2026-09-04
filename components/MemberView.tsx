@@ -357,16 +357,6 @@ export default function MemberView({
               </p>
             )}
 
-            {/* What the FC gave them, as opposed to what the game did. Under
-                the bio because it is the same kind of fact — something said
-                about this person rather than measured off their character. */}
-            {badges.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {badges.map((b) => (
-                  <AwardBadge key={b.id} badge={b} />
-                ))}
-              </div>
-            )}
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {(ov?.lfg ?? []).map((k) => {
                 const o = LFG_OPTIONS.find((x) => x.key === k);
@@ -426,6 +416,19 @@ export default function MemberView({
       <section className="mt-4 flex flex-wrap gap-2">
         <MemberTags m={m} extremeTotal={extremeTotal} size="md" />
       </section>
+
+      {/* ── What the FC gave them, as opposed to what the game did ── */}
+      {/* Under the tags rather than up in the header, and for the reason the
+          two are next to each other at all: the chips above are read off the
+          character, and these were decided by a person. Beside the name they
+          were competing with it; here they answer the row above them. */}
+      {badges.length > 0 && (
+        <section className="mt-3 flex flex-wrap gap-2.5">
+          {badges.map((b) => (
+            <AwardBadge key={b.id} badge={b} />
+          ))}
+        </section>
+      )}
 
       {/* Ahead of the raid tier: for most of this FC the achievements are the
           interesting part, and plenty of members have no raid data at all. */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type PointerEvent } from "react";
+import { useEffect, useRef, type PointerEvent } from "react";
 import { badgeShades } from "@/lib/badge-colors";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useLang } from "@/lib/i18n";
@@ -36,10 +36,17 @@ export interface BadgeLike {
  * ref — React renders once, the browser does the rest on the compositor, and a
  * row that is never hovered costs nothing at all.
  *
- * The rainbow was ten blurred SVG polygons rotating permanently — whether or
- * not anybody was looking, which on a page of badges is a page that never
- * idles. This is one gradient. It sits still at rest, which is what the plate
- * looks like in the original anyway, and only swings when a pointer is on it.
+ * The rainbow was ten blurred SVG polygons, each on its own permanent
+ * keyframes. This is one gradient on one, and it runs only on the full plaque:
+ * the corner of a member row can hold five hundred of the small plates, and a
+ * page that never idles is a page whose fans never stop.
+ *
+ * What it does under a pointer is the original's, though, because that is the
+ * part somebody notices. The plate is met with a flick away from the hand
+ * before it settles towards it; the rainbow turns by how far the pointer is
+ * from the middle; and letting go throws both a little past centre before they
+ * come to rest. Without that the plate simply snaps to wherever the pointer is,
+ * which reads as a hover state rather than as a thing being picked up.
  *
  * ── The two sizes ────────────────────────────────────────────────────────
  *
@@ -114,34 +121,92 @@ export default function AwardBadge(
               {label.trim().slice(0, 1).toUpperCase()}
             </span>
           )}
-          <span aria-hidden className="badge-foil-sheen" />
+          <span aria-hidden className="badge-foil-drift"><span className="badge-foil-sheen" /></span>
         </span>
       </Tooltip>
     );
   }
 
-  // Pointer position as two 0–1 numbers, written where CSS can read them. No
-  // state, so no re-render: the values land on the element and the transitions
-  // do the work.
+  // No state anywhere below: every value is written straight onto the element
+  // as a custom property, so React renders once and the browser does the rest
+  // on the compositor.
+  //
+  // Two timers, and both have to be cancellable — leaving and re-entering
+  // quickly would otherwise let the settle from the first pass land in the
+  // middle of the second.
+  const settling = useRef(false);
+  const timers = useRef<number[]>([]);
+  const later = (fn: () => void, ms: number) => {
+    timers.current.push(window.setTimeout(fn, ms));
+  };
+  useEffect(() => () => { timers.current.forEach(clearTimeout); }, []);
+
+  /** Where the pointer is, as two 0–1 numbers across the plate. */
+  const at = (e: PointerEvent<HTMLSpanElement>, el: HTMLSpanElement) => {
+    const r = el.getBoundingClientRect();
+    return {
+      px: (e.clientX - r.left) / r.width,
+      py: (e.clientY - r.top) / r.height,
+      // How far from the middle, in the plate's own units — the original's
+      // (|xc - x| + |yc - y|) / 1.5, which on a plate this shape reaches about
+      // a right angle at the corners.
+      turn: (Math.abs(e.clientX - (r.left + r.right) / 2)
+             + Math.abs(e.clientY - (r.top + r.bottom) / 2)) / 1.5,
+    };
+  };
+
+  const write = (el: HTMLSpanElement, px: number, py: number, turn: number) => {
+    el.style.setProperty("--px", String(px));
+    el.style.setProperty("--py", String(py));
+    el.style.setProperty("--sheen", `${turn}deg`);
+    // Slightly smaller the further out the pointer is, the way a real plate
+    // pushed at one corner sits back into the page.
+    const away = Math.abs(px - 0.5) + Math.abs(py - 0.5);
+    el.style.setProperty("--pscale", String(1 - Math.min(away, 1) * 0.04));
+  };
+
+  const enter = (e: PointerEvent<HTMLSpanElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    const { px, py, turn } = at(e, el);
+    // Away from the hand first. The original calls this its opposite matrix,
+    // and it is what makes the plate feel caught rather than found.
+    write(el, 0.5 - (px - 0.5) * 0.7, 0.5 - (py - 0.5) * 0.7, turn);
+    settling.current = true;
+    later(() => {
+      settling.current = false;
+      if (ref.current) write(ref.current, px, py, turn);
+    }, 170);
+  };
+
   const track = (e: PointerEvent<HTMLSpanElement>) => {
     const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    el.style.setProperty("--px", String((e.clientX - r.left) / r.width));
-    el.style.setProperty("--py", String((e.clientY - r.top) / r.height));
+    if (!el || settling.current) return;
+    const { px, py, turn } = at(e, el);
+    write(el, px, py, turn);
   };
-  const reset = () => {
+
+  const leave = (e: PointerEvent<HTMLSpanElement>) => {
     const el = ref.current;
     if (!el) return;
-    el.style.setProperty("--px", "0.5");
-    el.style.setProperty("--py", "0.5");
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    settling.current = false;
+    const { px, py, turn } = at(e, el);
+    // A quarter of the way past centre, then centre — the plate rocking back
+    // rather than snapping flat.
+    write(el, 0.5 - (px - 0.5) * 0.25, 0.5 - (py - 0.5) * 0.25, -turn / 4);
+    later(() => { if (ref.current) write(ref.current, 0.5, 0.5, 0); }, 200);
   };
 
   return (
     <span
       ref={ref}
+      onPointerEnter={enter}
       onPointerMove={track}
-      onPointerLeave={reset}
+      onPointerLeave={leave}
       style={plate}
       className="badge-foil badge-plate relative inline-flex select-none items-center gap-2.5 overflow-hidden rounded-xl border px-3.5 py-2">
       {badge.icon_url && (
@@ -167,7 +232,7 @@ export default function AwardBadge(
       </span>
       {/* The sheen. Its own element so it can be blended over the plate
           without touching the lettering — see globals.css. */}
-      <span aria-hidden className="badge-foil-sheen" />
+      <span aria-hidden className="badge-foil-drift"><span className="badge-foil-sheen" /></span>
     </span>
   );
 }
