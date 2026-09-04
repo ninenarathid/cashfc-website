@@ -42,12 +42,36 @@ function findMember(id: string) {
   return home ? guestMember(Number(id), home) : undefined;
 }
 
+/**
+ * Reading `v` is what makes this page render per request rather than being
+ * built once, and it is worth the trade.
+ *
+ * Discord keeps two caches, not one. The embed — title, description, which
+ * image to fetch — is keyed by the address of the page, and the Share link
+ * button has always added a `v` to defeat that. The picture is keyed by the
+ * address of the picture, and that never changed: Next names this route's image
+ * after the route's own file, so every member and every share pointed at the
+ * same `opengraph-image?08b02164c71f9fc9`. A member who changed their portrait
+ * and shared their page got a fresh embed around the picture Discord had
+ * already kept, which is exactly the complaint.
+ *
+ * Passing `v` down to the image gives it an address of its own each time, so
+ * the second cache misses too. The cost is that five hundred member pages stop
+ * being prerendered — everything they read is already in memory, so it is a
+ * render rather than a fetch, and this is a Free Company of a few hundred
+ * people rather than a site with traffic to protect.
+ */
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> },
+  { params, searchParams }: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  },
 ) {
   const { id } = await params;
+  const v = (await searchParams).v;
   const m = findMember(id);
   const home = guestHome(Number(id));
+  const stamp = typeof v === "string" && /^[a-z0-9]{1,16}$/i.test(v) ? v : null;
   return {
     title: m ? `${m.name} — Cafe And SHabu` : "Member — Cafe And SHabu",
     // A guest is placed by the two facts an FC member never needs: which world
@@ -55,6 +79,15 @@ export async function generateMetadata(
     description: m
       ? [m.name, m.title, home?.world, home?.fc].filter(Boolean).join(" · ")
       : undefined,
+    openGraph: {
+      // Set by hand rather than left to the file convention, which is what
+      // pins every share to one address. Same route, same picture — only the
+      // name it is asked for by changes.
+      images: [{
+        url: `/member/${id}/opengraph-image${stamp ? `?v=${stamp}` : ""}`,
+        width: 1200, height: 630, alt: "FC member card",
+      }],
+    },
   };
 }
 

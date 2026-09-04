@@ -382,13 +382,21 @@ export default function MemberView({
                       className="rounded-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-accent hover:bg-accent/15">
                 🥔 Send popoto{kudos != null ? ` · ${kudos}` : ""}
               </button>
-              {/* Copies the page with a throwaway query on the end. Discord keeps
-                  what it has already unfurled, keyed by URL, so a link it has
-                  seen before shows whatever card it saw then — a portrait since
-                  replaced, a cover since set. This one it has not seen, which
-                  changes nothing about where it goes and everything about
-                  whether it looks again. Same button, same name: nobody should
-                  have to know any of that to share their own page. */}
+              {/* Copies the page with a throwaway query on the end. Discord
+                  keeps what it has already unfurled, keyed by the address, so a
+                  link it has seen before shows whatever card it saw then — a
+                  portrait since replaced, a cover since set. This one it has
+                  not seen, which changes nothing about where it goes and
+                  everything about whether it looks again.
+
+                  For a while that was only half true, and this comment claimed
+                  the whole of it. Discord caches the picture separately, keyed
+                  by the picture's own address, and that address was the same
+                  for every member and every share — so a fresh embed was drawn
+                  around a stale portrait. generateMetadata now passes this `v`
+                  down to the image, which is what makes the sentence above
+                  correct. Same button, same name: nobody should have to know
+                  any of that to share their own page. */}
               <button
                 onClick={() => {
                   const url = `${location.origin}${location.pathname}?v=${
