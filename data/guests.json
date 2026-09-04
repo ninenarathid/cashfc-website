@@ -434,8 +434,22 @@
    "fflogs": "skipped",
    "lode_achv_public": null,
    "stats_seen": "2026-09-04"
+  },
+  "49339655": {
+   "name": "Kaozuai Xino",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "HebitsuchuS",
+   "seen": "2026-09-04"
+  },
+  "48097900": {
+   "name": "Neyrah's Yvaine",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "TRASTASA",
+   "seen": "2026-09-04"
   }
  },
- "generated_at": "2026-09-04T13:04:42Z",
- "count": 4
+ "generated_at": "2026-09-04T19:20:16Z",
+ "count": 6
 }

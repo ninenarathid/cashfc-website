@@ -358,7 +358,7 @@
   "mounts": 143,
   "minions": 287,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -379,7 +379,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-31"
+  "chg": "2026-09-04"
  },
  "57885671": {
   "name": "Aisu Kazimira",
@@ -1668,7 +1668,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 89,
   "cc": [
    true,
    true,
@@ -1691,7 +1691,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2384,7 +2384,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -2397,7 +2397,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-04"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -4514,7 +4514,7 @@
   "mounts": 47,
   "minions": 114,
   "rare": null,
-  "level": 72,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4539,7 +4539,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-31"
+  "chg": "2026-09-04"
  },
  "29918404": {
   "name": "Zarass Gierlos",
@@ -5953,7 +5953,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 17,
-  "level": 100,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -5986,7 +5986,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -6504,7 +6504,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 76,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6551,7 +6551,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -6730,7 +6730,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -7000,14 +7000,14 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 68,
+  "level": 69,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -7198,7 +7198,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -7229,7 +7229,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -7560,7 +7560,7 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 100,
+  "level": 97,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -7643,14 +7643,14 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 93,
+  "level": 94,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -8613,7 +8613,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Gunbreaker": "master"
+   "Gunbreaker": "master",
+   "DarkKnight": "expert"
   },
   "ex": [],
   "ults": [],
@@ -11045,7 +11046,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -11058,11 +11059,11 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "30333493": {
   "name": "Haruko Sho",
-  "parse": 77,
+  "parse": 98,
   "ult": 1,
   "mounts": 81,
   "minions": 109,
@@ -11078,13 +11079,15 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "expert"
+   "Scholar": "expert",
+   "Warrior": "legendary",
+   "Paladin": "expert"
   },
   "ex": [],
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-04"
  },
  "28163062": {
   "name": "Helga Holybringer",
@@ -11774,7 +11777,7 @@
  },
  "12003402": {
   "name": "Kei Chan",
-  "parse": null,
+  "parse": 92,
   "ult": 0,
   "mounts": 23,
   "minions": 35,
@@ -11789,10 +11792,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "WhiteMage": "master"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-04"
  },
  "44081209": {
   "name": "Kelfa Kalifula",
@@ -12211,6 +12216,7 @@
   "jobs": {
    "Scholar": "legendary",
    "Sage": "expert",
+   "Gunbreaker": "legendary",
    "Warrior": "legendary"
   },
   "ex": [],
@@ -12219,7 +12225,7 @@
  },
  "24747734": {
   "name": "Liora Verasch",
-  "parse": null,
+  "parse": 24,
   "ult": 0,
   "mounts": 47,
   "minions": 240,
@@ -12491,7 +12497,7 @@
  },
  "27412308": {
   "name": "Masahiro Dixon",
-  "parse": 30,
+  "parse": 50,
   "ult": 0,
   "mounts": 70,
   "minions": 130,
@@ -12509,7 +12515,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-04"
  },
  "29764422": {
   "name": "Masakujung Crystalys",
@@ -12606,7 +12612,7 @@
  },
  "31655994": {
   "name": "Meki Mekino",
-  "parse": 8,
+  "parse": 97,
   "ult": 0,
   "mounts": 104,
   "minions": 186,
@@ -12621,10 +12627,13 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Paladin": "master",
+   "DarkKnight": "master"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-04"
  },
  "36016570": {
   "name": "Mental Breakdance",

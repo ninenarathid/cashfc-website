@@ -2,6 +2,118 @@
  "events": [
   {
    "date": "2026-09-04",
+   "type": "level_100",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "reached level 100 on Blacksmith!"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "level_100",
+   "id": 26298391,
+   "name": "Yozora Luna",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "level_100",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 25620101,
+   "name": "Athena Leonheart",
+   "text": "is now a Expert Dark Knight"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "set a new best parse: 98 on Shadowkeeper as Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "is now a Legendary Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "is now a Expert Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 12003402,
+   "name": "Kei Chan",
+   "text": "set a new best parse: 92 on Cloud of Darkness as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 12003402,
+   "name": "Kei Chan",
+   "text": "is now a Master White Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 18489055,
+   "name": "Linda Ing",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 24747734,
+   "name": "Liora Verasch",
+   "text": "set a new best parse: 24 on Cloud of Darkness as Dragoon"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 27412308,
+   "name": "Masahiro Dixon",
+   "text": "set a new best parse: 50 on Fatebreaker as Astrologian"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 31655994,
+   "name": "Meki Mekino",
+   "text": "set a new best parse: 97 on Eden's Promise as Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 31655994,
+   "name": "Meki Mekino",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 31655994,
+   "name": "Meki Mekino",
+   "text": "is now a Master Dark Knight"
+  },
+  {
+   "date": "2026-09-04",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1287,118 +1399,6 @@
    "id": 60211788,
    "name": "Shikihara Catlover",
    "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "parse_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "set a new best parse: 44 on Valigarmanda as Pictomancer"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "ex_clear",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "parse_up",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "set a new best parse: 85 on Valigarmanda as Machinist"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "ex_clear",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "parse_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "set a new best parse: 88 on Valigarmanda as Gunbreaker"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "ex_clear",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "ex_clear",
-   "id": 58202955,
-   "name": "Trevas Aka",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "parse_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "set a new best parse: 78 on Red Hot and Deep Blue as Whit\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100 on Fisher!"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "level_100",
-   "id": 7283668,
-   "name": "Nowhere Man",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "level_100",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "new_member",
-   "id": 60994518,
-   "name": "John Konesarn",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned Skyward Knife II — only 2.8% of players have it"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "grade_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "is now a Legendary Relic grinder ✨"
   }
  ]
 }

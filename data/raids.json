@@ -6921,8 +6921,61 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 92,
+      "median": 48,
+      "kills": 15,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 82,
+      "median": 48,
+      "kills": 11,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 63,
+      "median": 27,
+      "kills": 8,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 55,
+      "median": 9,
+      "kills": 10,
+      "job": "WhiteMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 24,
+      "median": 10,
+      "kills": 6,
+      "job": "WhiteMage"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "12058921": {
   "_status": "none"
@@ -10810,6 +10863,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 96,
+      "median": 81,
+      "kills": 16,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 92,
+      "median": 65,
+      "kills": 20,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 88,
+      "median": 63,
+      "kills": 15,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 86,
+      "median": 43,
+      "kills": 15,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 93,
+      "median": 58,
+      "kills": 8,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Gate",
     "zone_id": 29,
     "expansion": "Shadowbringers",
@@ -10974,7 +11079,13 @@
       "best": 65,
       "median": 47,
       "kills": 10,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 10,
+        "best": 65
+       }
+      }
      },
      {
       "label": "P2S",
@@ -10983,7 +11094,13 @@
       "best": 52,
       "median": 27,
       "kills": 7,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 7,
+        "best": 52
+       }
+      }
      }
     ]
    }
@@ -11789,6 +11906,49 @@
   ],
   "extremes": [],
   "legacy": [
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 15,
+      "median": 15,
+      "kills": 1,
+      "job": "Samurai"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 10,
+      "median": 10,
+      "kills": 1,
+      "job": "Samurai"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 9,
+      "median": 9,
+      "kills": 1,
+      "job": "Samurai"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 9,
+      "median": 9,
+      "kills": 1,
+      "job": "Samurai"
+     }
+    ]
+   },
    {
     "zone": "Eden's Verse",
     "zone_id": 33,
@@ -16860,8 +17020,25 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 24,
+      "median": 24,
+      "kills": 1,
+      "job": "Dragoon"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "24770177": {
   "current": {
@@ -17587,7 +17764,25 @@
       "best": 77,
       "median": 65,
       "kills": 14,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Summoner": {
+        "kills": 2,
+        "best": 15
+       },
+       "DarkKnight": {
+        "kills": 3,
+        "best": 68
+       },
+       "Gunbreaker": {
+        "kills": 7,
+        "best": 77
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 59
+       }
+      }
      },
      {
       "label": "P2S",
@@ -17596,7 +17791,17 @@
       "best": 74,
       "median": 35,
       "kills": 14,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 3,
+        "best": 74
+       },
+       "Gunbreaker": {
+        "kills": 11,
+        "best": 68
+       }
+      }
      },
      {
       "label": "P3S",
@@ -17605,7 +17810,21 @@
       "best": 89,
       "median": 52,
       "kills": 15,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 12,
+        "best": 89
+       },
+       "DarkKnight": {
+        "kills": 2,
+        "best": 76
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 20
+       }
+      }
      },
      {
       "label": "P4S",
@@ -17614,7 +17833,17 @@
       "best": 79,
       "median": 36,
       "kills": 22,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 21,
+        "best": 79
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 58
+       }
+      }
      },
      {
       "label": null,
@@ -17623,7 +17852,17 @@
       "best": 93,
       "median": 54,
       "kills": 8,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 7,
+        "best": 93
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 33
+       }
+      }
      }
     ]
    }
@@ -19266,6 +19505,40 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 42,
+      "median": 29,
+      "kills": 4,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 13,
+      "median": 10,
+      "kills": 3,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 50,
+      "median": 20,
+      "kills": 3,
+      "job": "Astrologian"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Gate",
     "zone_id": 29,
     "expansion": "Shadowbringers",
@@ -20240,12 +20513,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 82,
     "kills": 5,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Bard": {
       "kills": 5,
@@ -20257,12 +20530,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 84,
     "kills": 10,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Bard": {
       "kills": 10,
@@ -20399,6 +20672,22 @@
       "median": 67,
       "kills": 10,
       "job": "BlackMage"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 73,
+      "median": 73,
+      "kills": 1,
+      "job": "Dragoon"
      }
     ]
    }
@@ -21276,12 +21565,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1080,
     "name": "Zelenia",
     "best": 7,
     "kills": 1,
     "job": "Paladin",
-    "cleared": true,
-    "encounter_id": 1080
+    "cleared": true
    }
   ],
   "legacy": [],
@@ -23098,6 +23387,22 @@
       "best": 19,
       "median": 19,
       "kills": 1,
+      "job": "RedMage"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 20,
+      "median": 18,
+      "kills": 2,
       "job": "RedMage"
      }
     ]
@@ -26021,7 +26326,21 @@
       "best": 43,
       "median": 26,
       "kills": 7,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 4,
+        "best": 43
+       },
+       "Samurai": {
+        "kills": 2,
+        "best": 22
+       },
+       "Dancer": {
+        "kills": 1,
+        "best": 16
+       }
+      }
      },
      {
       "label": "P2S",
@@ -26030,7 +26349,29 @@
       "best": 37,
       "median": 20,
       "kills": 16,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Reaper": {
+        "kills": 5,
+        "best": 32
+       },
+       "Samurai": {
+        "kills": 3,
+        "best": 18
+       },
+       "Dancer": {
+        "kills": 1,
+        "best": 25
+       },
+       "Warrior": {
+        "kills": 4,
+        "best": 37
+       },
+       "WhiteMage": {
+        "kills": 3,
+        "best": 24
+       }
+      }
      },
      {
       "label": "P3S",
@@ -26039,7 +26380,17 @@
       "best": 12,
       "median": 12,
       "kills": 9,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 1,
+        "best": 12
+       },
+       "Sage": {
+        "kills": 8,
+        "best": 9
+       }
+      }
      },
      {
       "label": "P4S",
@@ -26048,7 +26399,29 @@
       "best": 15,
       "median": 6,
       "kills": 29,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Reaper": {
+        "kills": 4,
+        "best": 5
+       },
+       "Warrior": {
+        "kills": 6,
+        "best": 9
+       },
+       "Sage": {
+        "kills": 6,
+        "best": 15
+       },
+       "WhiteMage": {
+        "kills": 2,
+        "best": 9
+       },
+       "Scholar": {
+        "kills": 11,
+        "best": 9
+       }
+      }
      },
      {
       "label": null,
@@ -26057,7 +26430,29 @@
       "best": 13,
       "median": 10,
       "kills": 17,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 2,
+        "best": 13
+       },
+       "Warrior": {
+        "kills": 5,
+        "best": 8
+       },
+       "Sage": {
+        "kills": 5,
+        "best": 11
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 8
+       },
+       "Scholar": {
+        "kills": 4,
+        "best": 6
+       }
+      }
      }
     ]
    }
@@ -27589,6 +27984,58 @@
       "job": "Scholar"
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 78,
+      "median": 61,
+      "kills": 27,
+      "job": "Warrior"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 98,
+      "median": 55,
+      "kills": 45,
+      "job": "Warrior"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 77,
+      "median": 69,
+      "kills": 32,
+      "job": "Paladin"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 67,
+      "median": 18,
+      "kills": 28,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 78,
+      "median": 44,
+      "kills": 17,
+      "job": "Warrior"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -28010,23 +28457,23 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 11,
     "kills": 1,
     "job": "Paladin",
-    "cleared": true,
-    "encounter_id": 1071
+    "cleared": true
    },
    {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 10,
     "kills": 7,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Paladin": {
       "kills": 7,
@@ -30371,6 +30818,40 @@
       "job": "Bard"
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 33,
+      "median": 16,
+      "kills": 9,
+      "job": "Scholar"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 36,
+      "median": 9,
+      "kills": 6,
+      "job": "Scholar"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 17,
+      "median": 9,
+      "kills": 5,
+      "job": "Scholar"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -32374,6 +32855,58 @@
       "median": 8,
       "kills": 1,
       "job": "Scholar"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 86,
+      "median": 29,
+      "kills": 18,
+      "job": "Paladin"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 94,
+      "median": 33,
+      "kills": 14,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 69,
+      "median": 46,
+      "kills": 12,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 97,
+      "median": 65,
+      "kills": 18,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 96,
+      "median": 39,
+      "kills": 11,
+      "job": "DarkKnight"
      }
     ]
    }
@@ -35565,23 +36098,23 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 42,
     "kills": 1,
     "job": "Sage",
-    "cleared": true,
-    "encounter_id": 1078
+    "cleared": true
    },
    {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 82,
     "kills": 22,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Summoner": {
       "kills": 1,
@@ -35597,12 +36130,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 74,
     "kills": 18,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Scholar": {
       "kills": 14,
@@ -35711,6 +36244,31 @@
       "median": 41,
       "kills": 1,
       "job": "WhiteMage"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 20,
+      "median": 12,
+      "kills": 3,
+      "job": "Paladin"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 19,
+      "median": 9,
+      "kills": 3,
+      "job": "Paladin"
      }
     ]
    }
@@ -36345,6 +36903,22 @@
       "median": 21,
       "kills": 18,
       "job": "DarkKnight"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 29,
+      "median": 29,
+      "kills": 1,
+      "job": "Samurai"
      }
     ]
    }
@@ -37309,6 +37883,58 @@
       "best": 100,
       "median": 69,
       "kills": 46,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 74,
+      "median": 42,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 82,
+      "median": 34,
+      "kills": 16,
+      "job": "Warrior"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 51,
+      "median": 18,
+      "kills": 13,
+      "job": "Warrior"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 23,
+      "median": 16,
+      "kills": 11,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 16,
+      "median": 14,
+      "kills": 5,
       "job": "Warrior"
      }
     ]
@@ -39370,12 +39996,12 @@
     "zone": "Futures Rewritten",
     "zone_id": 65,
     "expansion": "Dawntrail",
+    "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 30,
     "kills": 8,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1079,
     "job_kills": {
      "Samurai": {
       "kills": 8,
@@ -39387,12 +40013,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "encounter_id": 1077,
     "name": "The Omega Protocol",
     "best": 37,
     "kills": 1,
     "job": "Scholar",
-    "cleared": true,
-    "encounter_id": 1077
+    "cleared": true
    }
   ],
   "extremes": [
@@ -39400,12 +40026,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1080,
     "name": "Zelenia",
     "best": 98,
     "kills": 7,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1080,
     "job_kills": {
      "Viper": {
       "kills": 7,
@@ -39417,12 +40043,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 63,
     "kills": 26,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1078,
     "job_kills": {
      "Viper": {
       "kills": 1,
@@ -39442,12 +40068,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 79,
     "kills": 7,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Viper": {
       "kills": 2,
@@ -39467,12 +40093,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 57,
     "kills": 12,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Samurai": {
       "kills": 12,
@@ -39592,6 +40218,22 @@
       "best": 51,
       "median": 32,
       "kills": 22,
+      "job": "Samurai"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 10,
+      "median": 10,
+      "kills": 1,
       "job": "Samurai"
      }
     ]
@@ -40267,7 +40909,13 @@
       "best": 2,
       "median": 1,
       "kills": 2,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 2,
+        "best": 2
+       }
+      }
      },
      {
       "label": "P2S",
@@ -40276,7 +40924,13 @@
       "best": 3,
       "median": 3,
       "kills": 2,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 2,
+        "best": 3
+       }
+      }
      }
     ]
    }
@@ -45431,6 +46085,22 @@
       "job": "Reaper"
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 64,
+      "median": 64,
+      "kills": 1,
+      "job": "Samurai"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -47175,12 +47845,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1080,
     "name": "Zelenia",
     "best": 43,
     "kills": 7,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1080,
     "job_kills": {
      "Warrior": {
       "kills": 3,
@@ -47200,12 +47870,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 29,
     "kills": 7,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1078,
     "job_kills": {
      "Paladin": {
       "kills": 7,
@@ -47217,12 +47887,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 16,
     "kills": 4,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Paladin": {
       "kills": 4,
@@ -47234,12 +47904,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 14,
     "kills": 6,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Paladin": {
       "kills": 6,
@@ -47861,12 +48531,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "encounter_id": 1074,
     "name": "The Weapon's Refrain",
     "best": 31,
     "kills": 2,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1074,
     "job_kills": {
      "Gunbreaker": {
       "kills": 2,
@@ -54805,12 +55475,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1082,
     "name": "Guardian Arkveld",
     "best": 90,
     "kills": 110,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1082,
     "job_kills": {
      "Viper": {
       "kills": 110,
@@ -54822,12 +55492,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1081,
     "name": "Necron",
     "best": 27,
     "kills": 6,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1081,
     "job_kills": {
      "Viper": {
       "kills": 5,
@@ -54949,23 +55619,23 @@
     "zone": "Trials III (Extreme)",
     "zone_id": 72,
     "expansion": "Dawntrail",
+    "encounter_id": 1084,
     "name": "Enuo",
     "best": 2,
     "kills": 1,
     "job": "Reaper",
-    "cleared": true,
-    "encounter_id": 1084
+    "cleared": true
    },
    {
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1082,
     "name": "Guardian Arkveld",
     "best": 64,
     "kills": 36,
     "job": "Reaper",
     "cleared": true,
-    "encounter_id": 1082,
     "job_kills": {
      "Reaper": {
       "kills": 36,
@@ -55085,12 +55755,12 @@
     "zone": "Trials III (Extreme)",
     "zone_id": 72,
     "expansion": "Dawntrail",
+    "encounter_id": 1084,
     "name": "Enuo",
     "best": 1,
     "kills": 4,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1084,
     "job_kills": {
      "Viper": {
       "kills": 4,
