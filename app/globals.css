@@ -137,3 +137,41 @@ body { overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) {
   .skeleton { animation: none; background-image: none; background-color: var(--color-card); }
 }
+
+/* ── The foil on a custom badge ──────────────────────────────────────────
+   The plaque tilts a little towards the pointer and a band of its own colour
+   travels across it. Both are driven by --px/--py, which AwardBadge writes on
+   pointermove, so nothing here runs on a badge nobody is pointing at.
+
+   The tilt is deliberately small. The original this is adapted from swings far
+   enough to lift a corner off the page, which is right for one plaque on a
+   landing page and wrong for a row of them next to somebody's name. */
+.badge-foil {
+  transform:
+    perspective(600px)
+    rotateX(calc((var(--py) - 0.5) * -7deg))
+    rotateY(calc((var(--px) - 0.5) * 10deg));
+  transition: transform 220ms ease-out;
+  transform-style: preserve-3d;
+}
+
+.badge-foil-sheen {
+  position: absolute;
+  inset: -40%;
+  opacity: 0;
+  mix-blend-mode: overlay;
+  transition: opacity 220ms ease-out;
+  background: linear-gradient(
+    calc(var(--px) * 180deg),
+    transparent 35%,
+    currentColor 50%,
+    transparent 65%
+  );
+}
+
+.badge-foil:hover .badge-foil-sheen { opacity: 0.55; }
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-foil { transform: none; transition: none; }
+  .badge-foil-sheen { display: none; }
+}

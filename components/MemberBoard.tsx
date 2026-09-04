@@ -30,6 +30,8 @@ import Skeleton from "@/components/ui/Skeleton";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { rarityColor, rarityLabel } from "@/lib/rarity";
 import { Tooltip } from "@/components/ui/Tooltip";
+import AwardBadge from "@/components/ui/AwardBadge";
+import { useMemberBadges } from "@/lib/member-badges";
 
 
 // Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
@@ -241,6 +243,8 @@ const roleMatches = (job: string, sel: string) =>
 
 export default function MemberBoard({ data }: { data: BoardData }) {
   const { t, lang } = useLang();
+  // Badges an admin handed out; not in members.json, so fetched alongside.
+  const { byMember: badgesByMember } = useMemberBadges();
   const labels = data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"];
   // The fight behind each label, so a chip can ask about people learning it and
   // not only about people who have finished it. Same order as the labels because
@@ -1095,7 +1099,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       </div>
                     )}
                   </div>
-                  <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-start-auto">
+                  <div className="col-start-2 flex flex-wrap items-center gap-1.5 sm:col-start-auto">
                     <MemberTags m={m} extremeTotal={extremes.length} />
                     {(ov?.lfg ?? []).map((k) => {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
@@ -1106,6 +1110,23 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         </span>
                       ) : null;
                     })}
+                    {/* Last on the row and pushed to its end: a badge is given
+                        by the FC rather than measured off the character, so it
+                        should not sit among the chips that were. Two, then a
+                        count — the row is a summary, and the whole set is on
+                        the member's own page. */}
+                    {(badgesByMember[m.id] ?? []).length > 0 && (
+                      <span className="ml-auto flex flex-wrap items-center gap-1.5">
+                        {(badgesByMember[m.id] ?? []).slice(0, 2).map((b) => (
+                          <AwardBadge key={b.id} size="compact" badge={b} />
+                        ))}
+                        {(badgesByMember[m.id] ?? []).length > 2 && (
+                          <span className="text-[11.5px] text-muted">
+                            +{(badgesByMember[m.id] ?? []).length - 2}
+                          </span>
+                        )}
+                      </span>
+                    )}
                   </div>
 
                   {/* On a line of its own, last. The tags above say what somebody

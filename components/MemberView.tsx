@@ -22,6 +22,8 @@ import RareShelf, { type AchievementInfo, type CollectionItem } from "@/componen
 import Tabs from "@/components/ui/Tabs";
 import TagIcon from "@/components/TagIcon";
 import DutyCard from "@/components/DutyCard";
+import AwardBadge from "@/components/ui/AwardBadge";
+import { useBadgesFor } from "@/lib/member-badges";
 import { artFocus, dutySlug, NO_ART, type DutyArt } from "@/lib/duty";
 import { byReleaseOrder, dutyOf, savageDuty } from "@/lib/duties";
 import { createClient } from "@/lib/supabase/client";
@@ -153,6 +155,7 @@ export default function MemberView({
   }
 
   const accent = ov?.accent ?? "#6aa9e0";
+  const badges = useBadgesFor(m.id);
   const onVacation = isOnVacation(m);
   const birthday = formatBirthday(ov?.birthMonth, ov?.birthDay);
   // Compared in the viewer's own timezone, which is what "is it their birthday
@@ -352,6 +355,17 @@ export default function MemberView({
               <p className="mt-2 text-[14px] italic" style={{ color: accent }}>
                 &ldquo;{ov.bio}&rdquo;
               </p>
+            )}
+
+            {/* What the FC gave them, as opposed to what the game did. Under
+                the bio because it is the same kind of fact — something said
+                about this person rather than measured off their character. */}
+            {badges.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {badges.map((b) => (
+                  <AwardBadge key={b.id} badge={b} />
+                ))}
+              </div>
             )}
             <div className="mt-2.5 flex flex-wrap gap-1.5">
               {(ov?.lfg ?? []).map((k) => {

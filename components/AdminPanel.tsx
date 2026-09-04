@@ -70,6 +70,7 @@ import AdminLog from "@/components/AdminLog";
 import AdminReports from "@/components/AdminReports";
 import AdminClaims, { type ClaimedProfile } from "@/components/AdminClaims";
 import AdminTabs from "@/components/AdminTabs";
+import AdminBadges from "@/components/AdminBadges";
 import { fmtDateTime } from "@/lib/dates";
 
 /**
@@ -739,6 +740,9 @@ export default function AdminPanel(
         { key: "popoto", label: t("adm.reports"), body: (
           <AdminReports portraits={portraits}
                         memberIds={memberOptions.map((o) => o.id)} />
+        ) },
+        { key: "badges", label: t("adm.badges"), body: (
+          <AdminBadges memberOptions={memberOptions} nameOf={nameOf} />
         ) },
       ]} />
 
