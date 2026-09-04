@@ -11,7 +11,7 @@
    "rare_achv": 315,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788457480",
-   "collect_seen": "2026-09-03",
+   "collect_seen": "2026-09-04",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -141,7 +141,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-03",
+   "stats_seen": "2026-09-04",
    "lode_achv_public": true
   },
   "31441339": {
@@ -155,7 +155,7 @@
    "rare_achv": 128,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788414497",
-   "collect_seen": "2026-09-03",
+   "collect_seen": "2026-09-04",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -295,10 +295,147 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-03",
+   "stats_seen": "2026-09-04",
    "lode_achv_public": true
+  },
+  "42349146": {
+   "name": "Henzski Celestial",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": null,
+   "seen": "2026-09-04",
+   "mounts": 44,
+   "minions": 81,
+   "rare_achv": 15,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
+   "collect_seen": "2026-09-04",
+   "tags": [
+    "ultimate",
+    "tier-clear",
+    "extreme"
+   ],
+   "achv_tiers": {},
+   "parse": 98,
+   "savage_kills": 4,
+   "ult_clears": 2,
+   "ult_cleared": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander"
+   ],
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander"
+   ],
+   "ult_achv_only": [
+    "Dragonsong's Reprise",
+    "The Epic of Alexander"
+   ],
+   "legacy_clears": 1,
+   "ex_cleared": [
+    "Doomtrain",
+    "Enuo",
+    "Guardian Arkveld",
+    "Necron",
+    "Valigarmanda",
+    "Zoraal Ja"
+   ],
+   "ex_kills": 112,
+   "current_clears": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "current_seen": true,
+   "progress": null,
+   "progress_all": null,
+   "job_top": {
+    "job": "DarkKnight",
+    "fights": 4,
+    "kills": 78,
+    "parse": 88.3,
+    "score": 85.9,
+    "tier": "legendary",
+    "hardest": "legacy"
+   },
+   "job_scores": {
+    "Paladin": {
+     "fights": 6,
+     "kills": 52,
+     "parse": 78.1,
+     "score": 72.4,
+     "tier": "master",
+     "hardest": "savage"
+    },
+    "DarkKnight": {
+     "fights": 4,
+     "kills": 78,
+     "parse": 88.3,
+     "score": 85.9,
+     "tier": "legendary",
+     "hardest": "legacy"
+    },
+    "Monk": {
+     "fights": 1,
+     "kills": 18,
+     "parse": 69.0,
+     "score": 44.3,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Scholar": {
+     "fights": 1,
+     "kills": 13,
+     "parse": 34.0,
+     "score": 20.6,
+     "tier": null,
+     "hardest": "extreme"
+    }
+   },
+   "fflogs": "ok",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-04"
+  },
+  "27788858": {
+   "name": "Stole Your'cat",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Cult of the Lalafell",
+   "seen": "2026-09-04",
+   "mounts": 69,
+   "minions": 316,
+   "rare_achv": 109,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1753077041",
+   "collect_seen": "2026-09-04",
+   "tags": [
+    "crafter",
+    "treasure"
+   ],
+   "achv_tiers": {
+    "crafter": "legendary"
+   },
+   "parse": null,
+   "savage_kills": 0,
+   "ult_clears": 0,
+   "ult_cleared": [],
+   "ult_achv": [],
+   "ult_achv_only": [],
+   "legacy_clears": 0,
+   "ex_cleared": [],
+   "ex_kills": 0,
+   "current_clears": null,
+   "current_seen": false,
+   "progress": null,
+   "progress_all": null,
+   "job_top": null,
+   "job_scores": {},
+   "fflogs": "skipped",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-04"
   }
  },
- "generated_at": "2026-09-03T06:00:03Z",
- "count": 2
+ "generated_at": "2026-09-04T03:28:26Z",
+ "count": 4
 }

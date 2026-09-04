@@ -148,8 +148,19 @@ def main() -> int:
     if not url or not key:
         log("No Supabase URL/anon key — nothing to read. "
             "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.")
-        # Not a failure: a checkout without the website's env is a normal thing
-        # to run the rest of the pipeline in.
+        # Locally this is fine: a checkout without the website's env is a normal
+        # thing to run the rest of the pipeline in, and the guest list is a
+        # nicety. In CI it is always a misconfiguration, and a silent one — this
+        # exact case hid for two days behind a green tick, because the secrets
+        # existed under the right names and held empty strings, so every nightly
+        # run said "nothing to read" and moved on. The step is allowed to fail
+        # without failing the run; what it must not do is look like it worked.
+        if os.environ.get("CI"):
+            log("Running in CI, where this is a misconfiguration rather than a "
+                "normal state. Check the secrets hold a value and not just a "
+                "name: an empty one prints as blank in the log where a real one "
+                "prints as ***.")
+            return 1
         return 0
 
     board = load("members.json", {})

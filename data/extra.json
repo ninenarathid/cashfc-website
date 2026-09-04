@@ -14483,14 +14483,15 @@
   },
   "42349146": {
    "mounts": 44,
-   "minions": 80,
+   "minions": 81,
    "rare_achv": 15,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753272",
+   "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
    "ult_achv": [
     "Dragonsong's Reprise",
     "The Epic of Alexander"
    ],
+   "achv_seen_at": "2026-09-04",
    "rare_ids": [
     3870,
     3869,
@@ -14514,7 +14515,13 @@
      "min": 5.8,
      "score": 3.77
     }
-   }
+   },
+   "rare_mounts": [
+    399
+   ],
+   "rare_minions": [
+    568
+   ]
   },
   "42021700": {
    "mounts": 97,
@@ -21641,7 +21648,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-03",
+   "achv_seen_at": "2026-09-04",
    "rare_ids": [
     3671,
     3670,
@@ -21829,7 +21836,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-03",
+   "achv_seen_at": "2026-09-04",
    "rare_ids": [
     4012,
     4013,
@@ -21991,6 +21998,161 @@
    "achv_seen_at": null,
    "rare_ids": [],
    "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": []
+  },
+  "44085912": {
+   "mounts": 114,
+   "minions": 254,
+   "rare_achv": null,
+   "ach_public": false,
+   "portrait": "https://img2.finalfantasyxiv.com/f/75c65095d65dad50294f6bf72c6058bd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788476003",
+   "ult_achv": [],
+   "achv_seen_at": null,
+   "rare_ids": [],
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    568
+   ]
+  },
+  "27788858": {
+   "mounts": 69,
+   "minions": 316,
+   "rare_achv": 109,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1753077041",
+   "ult_achv": [],
+   "achv_seen_at": "2026-09-04",
+   "rare_ids": [
+    3716,
+    3707,
+    3710,
+    3719,
+    3725,
+    3704,
+    2712,
+    3715,
+    3709,
+    3712,
+    3718,
+    3721,
+    3706,
+    3724,
+    3733,
+    2654,
+    1322,
+    3703,
+    3714,
+    2509,
+    3708,
+    3711,
+    3717,
+    195,
+    3720,
+    232,
+    1327,
+    2508,
+    3723,
+    3705,
+    3729,
+    3732,
+    140,
+    561,
+    1316,
+    1314,
+    3469,
+    3726,
+    1308,
+    1854,
+    3702,
+    177,
+    1303,
+    2507,
+    3471,
+    141,
+    159,
+    573,
+    2284,
+    752,
+    3736,
+    1306,
+    1307,
+    945,
+    990,
+    3472,
+    2713,
+    1132,
+    201,
+    153,
+    2786,
+    767,
+    3468,
+    3735,
+    3470,
+    1302,
+    1853,
+    139,
+    1319,
+    147,
+    761,
+    881,
+    3467,
+    755,
+    1304,
+    2480,
+    2939,
+    3701,
+    1320,
+    1933,
+    572,
+    2522,
+    3700,
+    560,
+    2351,
+    1562,
+    3695,
+    3699,
+    3693,
+    2995,
+    3694,
+    3741,
+    3696,
+    944,
+    3697,
+    3692,
+    963,
+    3698,
+    2286,
+    3474
+   ],
+   "achv_buckets": {
+    "crafter": {
+     "n": 73,
+     "min": 0.8,
+     "score": 266.59
+    },
+    "gatherer": {
+     "n": 7,
+     "min": 1.4,
+     "score": 24.55
+    },
+    "treasure": {
+     "n": 6,
+     "min": 5.2,
+     "score": 7.74
+    },
+    "pvp": {
+     "n": 7,
+     "min": 5.2,
+     "score": 9.73
+    },
+    "relic": {
+     "n": 11,
+     "min": 7.5,
+     "score": 12.52
+    }
+   },
    "rare_mounts": [],
    "rare_minions": []
   }
