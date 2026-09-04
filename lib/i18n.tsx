@@ -789,6 +789,9 @@ const DICT = {
     th: "เรียก “{label}” คืนจาก {name} ใช่ไหม?",
   },
   "member.badges": { en: "Badges", th: "Badge" },
+  "member.mostPlayed": { en: "Most played", th: "อาชีพที่เล่นบ่อยที่สุด" },
+  "member.killsUnit": { en: "kills", th: "ครั้งที่ฆ่า" },
+  "member.otherJobs": { en: "{n} other jobs", th: "อีก {n} อาชีพ" },
 
   "adm.reports": {
     en: "Popoto given",

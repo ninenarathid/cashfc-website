@@ -8,37 +8,42 @@ import { useState } from "react";
  * abbreviation alongside because that is what people read at a glance.
  */
 /**
- * Colours follow the in-game job stones rather than the parser palettes, so a tag
- * looks like the crystal a player recognises.
+ * The job colours FF Logs uses, which are the game's own — the ones anybody who
+ * has looked at a parse already reads without a legend.
  *
- * Three stones are lifted from their true shade: Dark Knight, Ninja and Reaper are
- * near-black in game, and rendered honestly they would vanish into this background —
- * so each keeps the hue that identifies it (Dark Knight's wine, Ninja's red rune,
- * Reaper's gold) at a lightness that can actually be read.
+ * These replace a set derived from the job stones. That set was written, and
+ * commented at length, and never used: jobColor below returned the role's
+ * colour instead, so every chip naming a job was one of six colours rather than
+ * one of twenty-one. jobTierStyle's own comment says a Legendary Reaper should
+ * read as unmistakably Reaper, which it could not.
+ *
+ * Some of these are dark on this background — Gunbreaker's olive, Ninja's
+ * crimson, Viper's green. jobTierStyle mixes text towards the page's ink for
+ * exactly that reason, and a chart's arcs are broad enough not to need it.
  */
 const JOBS: Record<string, { id: number; abbr: string; role: Role; color: string }> = {
-  Paladin:      { id: 19, abbr: "PLD", role: "tank",   color: "#a8cfe4" },
-  Warrior:      { id: 21, abbr: "WAR", role: "tank",   color: "#d33a30" },
-  DarkKnight:   { id: 32, abbr: "DRK", role: "tank",   color: "#bc4f63" },
-  Gunbreaker:   { id: 37, abbr: "GNB", role: "tank",   color: "#b3a04a" },
-  WhiteMage:    { id: 24, abbr: "WHM", role: "pure",    color: "#efe4cf" },
-  Astrologian:  { id: 33, abbr: "AST", role: "pure",    color: "#dd8a2e" },
-  Scholar:      { id: 28, abbr: "SCH", role: "barrier", color: "#5f5fd4" },
-  Sage:         { id: 40, abbr: "SGE", role: "barrier", color: "#cfdde3" },
-  Monk:         { id: 20, abbr: "MNK", role: "melee",   color: "#d9a520" },
-  Dragoon:      { id: 22, abbr: "DRG", role: "melee",   color: "#3f6ad0" },
-  Ninja:        { id: 30, abbr: "NIN", role: "melee",   color: "#c84e5e" },
-  Samurai:      { id: 34, abbr: "SAM", role: "melee",   color: "#e0d2ae" },
-  Reaper:       { id: 39, abbr: "RPR", role: "melee",   color: "#a89060" },
-  Viper:        { id: 41, abbr: "VPR", role: "melee",   color: "#c8443a" },
-  Bard:         { id: 23, abbr: "BRD", role: "pranged", color: "#9cbe4a" },
-  Machinist:    { id: 31, abbr: "MCH", role: "pranged", color: "#7fdcd6" },
-  Dancer:       { id: 38, abbr: "DNC", role: "pranged", color: "#e6c9b8" },
-  BlackMage:    { id: 25, abbr: "BLM", role: "mranged", color: "#8a5ac8" },
-  Summoner:     { id: 27, abbr: "SMN", role: "mranged", color: "#46a862" },
-  RedMage:      { id: 35, abbr: "RDM", role: "mranged", color: "#d8476a" },
-  Pictomancer:  { id: 42, abbr: "PCT", role: "mranged", color: "#f0c53f" },
-  BlueMage:     { id: 36, abbr: "BLU", role: "mranged", color: "#52a8dd" },
+  Paladin:      { id: 19, abbr: "PLD", role: "tank",   color: "#a8d2e6" },
+  Warrior:      { id: 21, abbr: "WAR", role: "tank",   color: "#cf2621" },
+  DarkKnight:   { id: 32, abbr: "DRK", role: "tank",   color: "#d126cc" },
+  Gunbreaker:   { id: 37, abbr: "GNB", role: "tank",   color: "#796d30" },
+  WhiteMage:    { id: 24, abbr: "WHM", role: "pure",    color: "#fff0dc" },
+  Astrologian:  { id: 33, abbr: "AST", role: "pure",    color: "#ffe74a" },
+  Scholar:      { id: 28, abbr: "SCH", role: "barrier", color: "#8657ff" },
+  Sage:         { id: 40, abbr: "SGE", role: "barrier", color: "#80a0f0" },
+  Monk:         { id: 20, abbr: "MNK", role: "melee",   color: "#d69c00" },
+  Dragoon:      { id: 22, abbr: "DRG", role: "melee",   color: "#4164cd" },
+  Ninja:        { id: 30, abbr: "NIN", role: "melee",   color: "#af1964" },
+  Samurai:      { id: 34, abbr: "SAM", role: "melee",   color: "#e46d04" },
+  Reaper:       { id: 39, abbr: "RPR", role: "melee",   color: "#965a90" },
+  Viper:        { id: 41, abbr: "VPR", role: "melee",   color: "#108210" },
+  Bard:         { id: 23, abbr: "BRD", role: "pranged", color: "#91ba5e" },
+  Machinist:    { id: 31, abbr: "MCH", role: "pranged", color: "#6ee1d6" },
+  Dancer:       { id: 38, abbr: "DNC", role: "pranged", color: "#e2b0af" },
+  BlackMage:    { id: 25, abbr: "BLM", role: "mranged", color: "#a579d6" },
+  Summoner:     { id: 27, abbr: "SMN", role: "mranged", color: "#2d9b78" },
+  RedMage:      { id: 35, abbr: "RDM", role: "mranged", color: "#e87b7b" },
+  Pictomancer:  { id: 42, abbr: "PCT", role: "mranged", color: "#fc92e1" },
+  BlueMage:     { id: 36, abbr: "BLU", role: "mranged", color: "#2459ff" },
 };
 
 /**
@@ -127,7 +132,13 @@ export function jobAbbr(name?: string | null): string | null {
   return jobInfo(name)?.abbr ?? name ?? null;
 }
 
+/** The job's own colour — the one on its arc in a chart and its chip in a list. */
 export function jobColor(name?: string | null): string {
+  return jobInfo(name)?.color ?? "#8b97a8";
+}
+
+/** The colour of the role it belongs to, for anything counting roles. */
+export function roleColor(name?: string | null): string {
   const info = jobInfo(name);
   return info ? ROLE_COLOR[info.role] : "#8b97a8";
 }

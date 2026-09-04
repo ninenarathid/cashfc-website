@@ -2,7 +2,8 @@
 
 import type { JobKills, JobScore, MemberRaids } from "@/lib/types";
 import { ACHV_TIER_LABEL, CONTENT_LABEL } from "@/lib/types";
-import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
+import JobIcon, { jobColor, jobLabel, jobTierStyle } from "@/components/JobIcon";
+import JobDonut from "@/components/JobDonut";
 import { parseColor } from "@/lib/parse";
 
 /** FFLogs' standard parse colours. */
@@ -111,7 +112,11 @@ export default function JobBreakdown(
       <h2 className="mb-2 font-display text-lg font-semibold">
         Jobs played
       </h2>
-      <div className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4">
+      {/* The ring beside the list, not under it. They are two answers to the
+          same subject — what they play, and how well — and side by side each
+          one is read against the other. */}
+      <div className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-4 sm:flex-row sm:items-start sm:gap-5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         {rowsShown.map((r) => {
           const s = jobScores?.[r.job];
           return (
@@ -122,7 +127,10 @@ export default function JobBreakdown(
                     ▶
                   </span>
                   <JobIcon job={r.job} size={18} />
-                  <span className="truncate font-data text-[13px] text-ink">
+                  {/* The same colour as this job's arc in the ring, which is
+                      what lets the two be read together without a legend. */}
+                  <span className="truncate font-data text-[13px]"
+                        style={{ color: `color-mix(in srgb, ${jobColor(r.job)} 78%, #e3e8ef)` }}>
                     {jobLabel(r.job)}
                   </span>
                 </span>
@@ -206,6 +214,11 @@ export default function JobBreakdown(
             </div>
           </details>
         )}
+      </div>
+      {/* Every job, not only the ones on screen: the fold below the list hides
+          rows that are a kill or two, and a ring missing them would not add up
+          to the number in its middle. */}
+      <JobDonut rows={ordered} />
       </div>
     </section>
   );
