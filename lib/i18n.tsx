@@ -758,6 +758,10 @@ const DICT = {
   "adm.badgeDesc": { en: "What it is for, TH (optional)", th: "ให้เพราะอะไร ไทย (ไม่ใส่ก็ได้)" },
   "adm.badgeDescEn": { en: "What it is for, EN (optional)", th: "ให้เพราะอะไร อังกฤษ (ไม่ใส่ก็ได้)" },
   "adm.badgeIcon": { en: "Icon (optional)", th: "ไอคอน (ไม่ใส่ก็ได้)" },
+  "adm.badgeIconHint": {
+    en: "256×256 PNG, square, transparent background. It sits on a light metal plate, so dark artwork reads best. It is drawn at about 30px, so keep the shape simple — fine detail turns to mush. Under 100 KB: it loads on the member list for everyone holding this badge.",
+    th: "PNG 256×256 สี่เหลี่ยมจัตุรัส พื้นหลังโปร่งใส วางอยู่บนแผ่นโลหะสีอ่อน ลายเส้นสีเข้มจะชัดที่สุด แสดงจริงราว 30px ลายควรเรียบๆ ถ้ารายละเอียดเยอะจะเละ ไฟล์ไม่ควรเกิน 100 KB เพราะโหลดในหน้ารายชื่อของทุกคนที่ถือ badge นี้",
+  },
   "adm.badgePreview": { en: "Preview", th: "ตัวอย่าง" },
   "adm.badgeNew": { en: "New badge", th: "สร้าง badge ใหม่" },
   "adm.badgeEditing": { en: "Editing “{label}”", th: "กำลังแก้ไข “{label}”" },

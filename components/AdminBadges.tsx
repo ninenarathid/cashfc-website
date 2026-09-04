@@ -184,9 +184,15 @@ export default function AdminBadges(
             same admin-only storage policy — a second bucket would be a second
             policy to keep in step for no gain. */}
         <div className="mt-3">
-          <div className="mb-1.5 text-[12px] uppercase tracking-wider text-muted">
+          <div className="text-[12px] uppercase tracking-wider text-muted">
             {t("adm.badgeIcon")}
           </div>
+          {/* Beside the picker rather than in the docs. Every one of these is
+              something somebody would otherwise find out by uploading the
+              wrong file and looking at the result. */}
+          <p className="mb-2 mt-1 max-w-prose text-[11.5px] leading-relaxed text-muted">
+            {t("adm.badgeIconHint")}
+          </p>
           <ImagePicker supabase={supabase} value={icon} onChange={setIcon} />
         </div>
 
