@@ -1121,6 +1121,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 72,
+      "median": 33,
+      "kills": 6,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 78,
+      "median": 33,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 69,
+      "median": 17,
+      "kills": 7,
+      "job": "Warrior"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 49,
+      "median": 21,
+      "kills": 13,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 45,
+      "median": 21,
+      "kills": 4,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -1410,6 +1462,31 @@
       "name": "Wicked Thunder",
       "best": 43,
       "median": 14,
+      "kills": 8,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 60,
+      "median": 45,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 61,
+      "median": 35,
       "kills": 8,
       "job": "Dancer"
      }
@@ -1742,6 +1819,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 97,
+      "median": 81,
+      "kills": 10,
+      "job": "Summoner"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 99,
+      "median": 77,
+      "kills": 10,
+      "job": "Summoner"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 85,
+      "median": 24,
+      "kills": 10,
+      "job": "Summoner"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 97,
+      "median": 45,
+      "kills": 15,
+      "job": "Summoner"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 75,
+      "median": 55,
+      "kills": 8,
+      "job": "Summoner"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -1893,7 +2022,7 @@
     "state": "learning",
     "pct": 15.68,
     "phase": 1,
-    "pulls": 56,
+    "pulls": 112,
     "last": "2026-08-30",
     "last_ts": 1788086407
    }
@@ -2328,6 +2457,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 85,
+      "median": 57,
+      "kills": 6,
+      "job": "Dancer"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 86,
+      "median": 45,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 70,
+      "median": 44,
+      "kills": 7,
+      "job": "Dancer"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 82,
+      "median": 44,
+      "kills": 13,
+      "job": "Dancer"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 61,
+      "median": 33,
+      "kills": 4,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -2703,6 +2884,40 @@
       "best": 67,
       "median": 37,
       "kills": 9,
+      "job": "Summoner"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 26,
+      "median": 26,
+      "kills": 1,
+      "job": "Summoner"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 73,
+      "median": 38,
+      "kills": 3,
+      "job": "Summoner"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 19,
+      "median": 11,
+      "kills": 4,
       "job": "Summoner"
      }
     ]
@@ -3295,6 +3510,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 97,
+      "median": 86,
+      "kills": 18,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 99,
+      "median": 80,
+      "kills": 29,
+      "job": "RedMage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 99,
+      "median": 74,
+      "kills": 26,
+      "job": "RedMage"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 98,
+      "median": 55,
+      "kills": 43,
+      "job": "RedMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 94,
+      "median": 79,
+      "kills": 19,
+      "job": "RedMage"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -3401,11 +3668,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 69.62,
+    "pct": 61.33,
     "phase": 4,
-    "pulls": 90,
-    "last": "2026-09-01",
-    "last_ts": 1788282006
+    "pulls": 115,
+    "last": "2026-09-03",
+    "last_ts": 1788454524
    }
   ]
  },
@@ -3598,6 +3865,49 @@
       "best": 67,
       "median": 56,
       "kills": 8,
+      "job": "Scholar"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 85,
+      "median": 51,
+      "kills": 9,
+      "job": "Scholar"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 65,
+      "median": 48,
+      "kills": 7,
+      "job": "Scholar"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 54,
+      "median": 32,
+      "kills": 8,
+      "job": "Scholar"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 31,
+      "median": 20,
+      "kills": 5,
       "job": "Scholar"
      }
     ]
@@ -3914,6 +4224,58 @@
       "best": 40,
       "median": 24,
       "kills": 8,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 39,
+      "median": 19,
+      "kills": 21,
+      "job": "Ninja"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 49,
+      "median": 28,
+      "kills": 31,
+      "job": "Monk"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 45,
+      "median": 28,
+      "kills": 34,
+      "job": "Sage"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 49,
+      "median": 19,
+      "kills": 62,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 57,
+      "median": 33,
+      "kills": 22,
       "job": "Sage"
      }
     ]
@@ -4251,11 +4613,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.36,
+    "pct": 43.2,
     "phase": 4,
-    "pulls": 68,
-    "last": "2026-09-02",
-    "last_ts": 1788367071
+    "pulls": 66,
+    "last": "2026-09-03",
+    "last_ts": 1788452823
    }
   ]
  },
@@ -4489,6 +4851,58 @@
       "median": 37,
       "kills": 6,
       "job": "Warrior"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 97,
+      "median": 83,
+      "kills": 9,
+      "job": "RedMage"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 94,
+      "median": 57,
+      "kills": 9,
+      "job": "RedMage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 88,
+      "median": 69,
+      "kills": 8,
+      "job": "RedMage"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 58,
+      "median": 41,
+      "kills": 13,
+      "job": "RedMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 55,
+      "median": 37,
+      "kills": 5,
+      "job": "RedMage"
      }
     ]
    },
@@ -5086,6 +5500,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 83,
+      "median": 51,
+      "kills": 5,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 74,
+      "median": 51,
+      "kills": 4,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 58,
+      "median": 42,
+      "kills": 4,
+      "job": "Warrior"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 22,
+      "median": 21,
+      "kills": 3,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 21,
+      "median": 17,
+      "kills": 3,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -5411,6 +5877,58 @@
       "best": 84,
       "median": 60,
       "kills": 10,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 91,
+      "median": 69,
+      "kills": 10,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 75,
+      "median": 49,
+      "kills": 9,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 60,
+      "median": 60,
+      "kills": 6,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 95,
+      "median": 49,
+      "kills": 16,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 87,
+      "median": 59,
+      "kills": 6,
       "job": "Paladin"
      }
     ]
@@ -6605,6 +7123,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 96,
+      "median": 76,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 92,
+      "median": 71,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 86,
+      "median": 51,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 91,
+      "median": 21,
+      "kills": 19,
+      "job": "Dancer"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 47,
+      "median": 7,
+      "kills": 9,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -6754,11 +7324,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 69.62,
+    "pct": 61.33,
     "phase": 4,
-    "pulls": 90,
-    "last": "2026-09-01",
-    "last_ts": 1788282006
+    "pulls": 115,
+    "last": "2026-09-03",
+    "last_ts": 1788454524
    }
   ]
  },
@@ -7386,6 +7956,40 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 98,
+      "median": 67,
+      "kills": 28,
+      "job": "Machinist"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 89,
+      "median": 63,
+      "kills": 30,
+      "job": "Machinist"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 87,
+      "median": 65,
+      "kills": 36,
+      "job": "Machinist"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -7585,6 +8189,58 @@
       "best": 50,
       "median": 29,
       "kills": 8,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 81,
+      "median": 56,
+      "kills": 20,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 53,
+      "median": 41,
+      "kills": 20,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 75,
+      "median": 30,
+      "kills": 21,
+      "job": "Warrior"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 27,
+      "median": 15,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 23,
+      "median": 23,
+      "kills": 1,
       "job": "Warrior"
      }
     ]
@@ -8699,6 +9355,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 95,
+      "median": 72,
+      "kills": 14,
+      "job": "Reaper"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 91,
+      "median": 61,
+      "kills": 15,
+      "job": "Reaper"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 97,
+      "median": 82,
+      "kills": 18,
+      "job": "Reaper"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 99,
+      "median": 43,
+      "kills": 45,
+      "job": "Reaper"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 85,
+      "median": 53,
+      "kills": 13,
+      "job": "Reaper"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -9026,6 +9734,40 @@
       "median": 27,
       "kills": 2,
       "job": "Paladin"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 96,
+      "median": 73,
+      "kills": 11,
+      "job": "Summoner"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 79,
+      "median": 65,
+      "kills": 12,
+      "job": "Summoner"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 79,
+      "median": 56,
+      "kills": 7,
+      "job": "Summoner"
      }
     ]
    },
@@ -9956,6 +10698,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 95,
+      "median": 85,
+      "kills": 17,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 89,
+      "median": 77,
+      "kills": 17,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 92,
+      "median": 73,
+      "kills": 21,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 90,
+      "median": 53,
+      "kills": 31,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 91,
+      "median": 73,
+      "kills": 7,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -10423,11 +11217,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 0.25,
-    "phase": 2,
-    "pulls": 47,
-    "last": "2026-09-01",
-    "last_ts": 1788282332
+    "pct": 78.58,
+    "phase": 3,
+    "pulls": 73,
+    "last": "2026-09-03",
+    "last_ts": 1788453877
    }
   ]
  },
@@ -11010,11 +11804,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.36,
+    "pct": 43.2,
     "phase": 4,
-    "pulls": 68,
-    "last": "2026-09-02",
-    "last_ts": 1788367071
+    "pulls": 66,
+    "last": "2026-09-03",
+    "last_ts": 1788452823
    }
   ]
  },
@@ -11611,6 +12405,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 86,
+      "median": 68,
+      "kills": 12,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 87,
+      "median": 58,
+      "kills": 13,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 83,
+      "median": 52,
+      "kills": 12,
+      "job": "Warrior"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 78,
+      "median": 36,
+      "kills": 18,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 73,
+      "median": 50,
+      "kills": 6,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -12156,6 +13002,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 54,
+      "median": 35,
+      "kills": 10,
+      "job": "Monk"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 70,
+      "median": 42,
+      "kills": 12,
+      "job": "Monk"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 63,
+      "median": 19,
+      "kills": 12,
+      "job": "Monk"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 37,
+      "median": 13,
+      "kills": 33,
+      "job": "Monk"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 39,
+      "median": 20,
+      "kills": 8,
+      "job": "Monk"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -12512,6 +13410,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 98,
+      "median": 80,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 98,
+      "median": 94,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 99,
+      "median": 95,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 98,
+      "median": 84,
+      "kills": 10,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 88,
+      "median": 84,
+      "kills": 4,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -12618,11 +13568,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.36,
+    "pct": 43.2,
     "phase": 4,
-    "pulls": 32,
-    "last": "2026-09-02",
-    "last_ts": 1788367071
+    "pulls": 49,
+    "last": "2026-09-03",
+    "last_ts": 1788452823
    }
   ]
  },
@@ -12999,11 +13949,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 0.25,
-    "phase": 2,
-    "pulls": 163,
-    "last": "2026-09-01",
-    "last_ts": 1788282332
+    "pct": 78.58,
+    "phase": 3,
+    "pulls": 190,
+    "last": "2026-09-03",
+    "last_ts": 1788453877
    }
   ]
  },
@@ -13353,6 +14303,40 @@
       "median": 47,
       "kills": 6,
       "job": "Dancer"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 19,
+      "median": 19,
+      "kills": 1,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 33,
+      "median": 33,
+      "kills": 1,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 8,
+      "median": 8,
+      "kills": 1,
+      "job": "WhiteMage"
      }
     ]
    },
@@ -13727,6 +14711,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 99,
+      "median": 97,
+      "kills": 6,
+      "job": "Paladin"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 100,
+      "median": 97,
+      "kills": 4,
+      "job": "Paladin"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 98,
+      "median": 96,
+      "kills": 5,
+      "job": "Paladin"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 98,
+      "median": 87,
+      "kills": 9,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 81,
+      "median": 72,
+      "kills": 4,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -13833,11 +14869,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.36,
+    "pct": 43.2,
     "phase": 4,
-    "pulls": 69,
-    "last": "2026-09-02",
-    "last_ts": 1788367071
+    "pulls": 66,
+    "last": "2026-09-03",
+    "last_ts": 1788452823
    }
   ]
  },
@@ -13869,6 +14905,22 @@
   ],
   "extremes": [],
   "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 46,
+      "median": 31,
+      "kills": 2,
+      "job": "WhiteMage"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -14388,6 +15440,40 @@
       "median": 21,
       "kills": 2,
       "job": "WhiteMage"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 50,
+      "median": 40,
+      "kills": 15,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 55,
+      "median": 55,
+      "kills": 10,
+      "job": "Samurai"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 85,
+      "median": 31,
+      "kills": 7,
+      "job": "Warrior"
      }
     ]
    },
@@ -15165,6 +16251,22 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 39,
+      "median": 22,
+      "kills": 2,
+      "job": "Samurai"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -15390,7 +16492,7 @@
     "expansion": "Dawntrail",
     "name": "Dancing Mad",
     "best": 41,
-    "kills": 7,
+    "kills": 8,
     "job": "Warrior",
     "cleared": true
    },
@@ -15594,6 +16696,58 @@
       "median": 76,
       "kills": 17,
       "job": "Dancer"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 95,
+      "median": 84,
+      "kills": 21,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 97,
+      "median": 81,
+      "kills": 27,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 95,
+      "median": 61,
+      "kills": 21,
+      "job": "Warrior"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 80,
+      "median": 40,
+      "kills": 36,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 64,
+      "median": 35,
+      "kills": 17,
+      "job": "Warrior"
      }
     ]
    },
@@ -16502,7 +17656,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 18,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
+   }
+  ]
  },
  "30714243": {
   "current": {
@@ -16969,6 +18136,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 99,
+      "median": 94,
+      "kills": 16,
+      "job": "Bard"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 98,
+      "median": 92,
+      "kills": 15,
+      "job": "Bard"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 99,
+      "median": 96,
+      "kills": 17,
+      "job": "Bard"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 95,
+      "median": 87,
+      "kills": 11,
+      "job": "Bard"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 92,
+      "median": 87,
+      "kills": 5,
+      "job": "Bard"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -17075,11 +18294,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.36,
+    "pct": 43.2,
     "phase": 4,
-    "pulls": 67,
-    "last": "2026-09-02",
-    "last_ts": 1788367071
+    "pulls": 65,
+    "last": "2026-09-03",
+    "last_ts": 1788452823
    }
   ]
  },
@@ -17712,6 +18931,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 86,
+      "median": 37,
+      "kills": 9,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 88,
+      "median": 79,
+      "kills": 7,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 66,
+      "median": 62,
+      "kills": 8,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 68,
+      "median": 19,
+      "kills": 10,
+      "job": "WhiteMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 47,
+      "median": 18,
+      "kills": 4,
+      "job": "WhiteMage"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -17818,11 +19089,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 53.36,
+    "pct": 43.2,
     "phase": 4,
-    "pulls": 69,
-    "last": "2026-09-02",
-    "last_ts": 1788367071
+    "pulls": 66,
+    "last": "2026-09-03",
+    "last_ts": 1788452823
    }
   ]
  },
@@ -18386,6 +19657,58 @@
   ],
   "extremes": [],
   "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 90,
+      "median": 69,
+      "kills": 8,
+      "job": "Scholar"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 92,
+      "median": 86,
+      "kills": 6,
+      "job": "Scholar"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 84,
+      "median": 66,
+      "kills": 6,
+      "job": "Scholar"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 82,
+      "median": 43,
+      "kills": 11,
+      "job": "Scholar"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 62,
+      "median": 50,
+      "kills": 5,
+      "job": "Scholar"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -19169,6 +20492,40 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 92,
+      "median": 79,
+      "kills": 6,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 73,
+      "median": 72,
+      "kills": 5,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 73,
+      "median": 57,
+      "kills": 4,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -19683,6 +21040,58 @@
       "median": 42,
       "kills": 3,
       "job": "Samurai"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 92,
+      "median": 67,
+      "kills": 6,
+      "job": "Ninja"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 91,
+      "median": 42,
+      "kills": 6,
+      "job": "Ninja"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 79,
+      "median": 72,
+      "kills": 6,
+      "job": "Ninja"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 24,
+      "median": 24,
+      "kills": 3,
+      "job": "Ninja"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 56,
+      "median": 43,
+      "kills": 2,
+      "job": "Ninja"
      }
     ]
    },
@@ -21450,6 +22859,58 @@
       "median": 36,
       "kills": 10,
       "job": "WhiteMage"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 90,
+      "median": 75,
+      "kills": 13,
+      "job": "Sage"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 71,
+      "median": 40,
+      "kills": 14,
+      "job": "Sage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 60,
+      "median": 38,
+      "kills": 20,
+      "job": "Scholar"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 67,
+      "median": 32,
+      "kills": 25,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 51,
+      "median": 41,
+      "kills": 10,
+      "job": "Sage"
      }
     ]
    },
@@ -24089,11 +25550,11 @@
     "name": "The Tyrant",
     "kind": "savage",
     "state": "learning",
-    "pct": 18.72,
+    "pct": 11.51,
     "phase": 0,
-    "pulls": 17,
-    "last": "2026-09-01",
-    "last_ts": 1788274468
+    "pulls": 39,
+    "last": "2026-09-03",
+    "last_ts": 1788447930
    }
   ]
  },
@@ -24225,6 +25686,58 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 55,
+      "median": 37,
+      "kills": 13,
+      "job": "Sage"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 44,
+      "median": 26,
+      "kills": 8,
+      "job": "Sage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 52,
+      "median": 21,
+      "kills": 14,
+      "job": "Sage"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 27,
+      "median": 8,
+      "kills": 20,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 10,
+      "median": 4,
+      "kills": 7,
+      "job": "Sage"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -24561,6 +26074,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 97,
+      "median": 79,
+      "kills": 10,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 90,
+      "median": 66,
+      "kills": 15,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 92,
+      "median": 74,
+      "kills": 12,
+      "job": "Astrologian"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 79,
+      "median": 49,
+      "kills": 20,
+      "job": "Astrologian"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 78,
+      "median": 60,
+      "kills": 7,
+      "job": "Astrologian"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -24667,11 +26232,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 27.94,
-    "phase": 4,
-    "pulls": 96,
-    "last": "2026-09-02",
-    "last_ts": 1788367199
+    "pct": 88.01,
+    "phase": 5,
+    "pulls": 76,
+    "last": "2026-09-03",
+    "last_ts": 1788453261
    }
   ]
  },
@@ -26430,6 +27995,58 @@
       "job": "Dancer"
      }
     ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 75,
+      "median": 33,
+      "kills": 5,
+      "job": "Summoner"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 27,
+      "median": 24,
+      "kills": 3,
+      "job": "Summoner"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 28,
+      "median": 22,
+      "kills": 4,
+      "job": "Summoner"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 79,
+      "median": 30,
+      "kills": 10,
+      "job": "Summoner"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 38,
+      "median": 38,
+      "kills": 1,
+      "job": "Summoner"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -26791,6 +28408,31 @@
       "name": "Dancing Green",
       "best": 40,
       "median": 40,
+      "kills": 1,
+      "job": "Dragoon"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 31,
+      "median": 22,
+      "kills": 10,
+      "job": "Dragoon"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 29,
+      "median": 29,
       "kills": 1,
       "job": "Dragoon"
      }
@@ -28356,7 +29998,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 56,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
+   }
+  ]
  },
  "42053180": {
   "current": {
@@ -28386,7 +30041,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "none"
  },
  "42053451": {
   "current": {
@@ -29099,14 +30754,27 @@
     "zone_id": 58,
     "expansion": "Dawntrail",
     "name": "Valigarmanda",
-    "best": 40,
+    "best": 39,
     "kills": 6,
     "job": "Scholar",
     "cleared": true
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 56,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
+   }
+  ]
  },
  "43037186": {
   "current": {
@@ -30733,6 +32401,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 72,
+      "median": 28,
+      "kills": 25,
+      "job": "Samurai"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 76,
+      "median": 70,
+      "kills": 16,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 95,
+      "median": 29,
+      "kills": 23,
+      "job": "Samurai"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 43,
+      "median": 20,
+      "kills": 16,
+      "job": "Samurai"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 70,
+      "median": 27,
+      "kills": 7,
+      "job": "Samurai"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -30757,7 +32477,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 30,
+    "pulls": 18,
     "last": "2026-08-25",
     "last_ts": 1787675183
    }
@@ -31871,15 +33591,26 @@
   "_status": "ok",
   "progress": [
    {
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 15.68,
+    "phase": 1,
+    "pulls": 56,
+    "last": "2026-08-30",
+    "last_ts": 1788086407
+   },
+   {
     "encounter_id": 103,
     "name": "The Tyrant",
     "kind": "savage",
     "state": "learning",
-    "pct": 33.31,
+    "pct": 11.51,
     "phase": 0,
-    "pulls": 6,
-    "last": "2026-09-01",
-    "last_ts": 1788274468
+    "pulls": 33,
+    "last": "2026-09-03",
+    "last_ts": 1788447930
    }
   ]
  },

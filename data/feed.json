@@ -1,6 +1,97 @@
 {
  "events": [
   {
+   "date": "2026-09-04",
+   "type": "grade_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "is now a Legendary Relic grinder ✨"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "grade_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "is now a Master Explorer ✨"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "earned Cut Above the Rest: Star Globe Occultum — only 0.6% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 32147756,
+   "name": "Bunny Nirawz",
+   "text": "is now a Master Ninja"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "is now a Expert Monk"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 38808156,
+   "name": "Kwiyo Ki",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 22461237,
+   "name": "Metatron Vtretikh",
+   "text": "set a new best parse: 81 on Kokytos as Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 5294880,
+   "name": "Mithra Muses",
+   "text": "set a new best parse: 78 on Pandaemonium as Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 5294880,
+   "name": "Mithra Muses",
+   "text": "is now a Expert Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "set a new best parse: 99 on Pandaemonium as Summoner"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Expert Dark Knight"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "set a new best parse: 73 on Pandaemonium as Summoner"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
    "date": "2026-09-03",
    "type": "parse_up",
    "id": 44926008,
@@ -1308,97 +1399,6 @@
    "id": 42976317,
    "name": "Zeadz Stellar",
    "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "level_100",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "level_100",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "new_member",
-   "id": 28679378,
-   "name": "Tong Topspeed",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "level_100",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "earned A Show of Fork IV — only 0.1% of players have it, and 77 more"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned Phantom of the Umbra: Crook Umbrae"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "is now a Master Explorer ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "is now a Master Gold Saucer collector ✨"
-  },
-  {
-   "date": "2026-08-30",
-   "type": "grade_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "is now a Legendary PvP player ✨"
   }
  ]
 }

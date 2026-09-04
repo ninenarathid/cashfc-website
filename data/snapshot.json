@@ -638,9 +638,9 @@
   "name": "Fluffy Tinytail",
   "parse": 99,
   "ult": 1,
-  "mounts": 177,
-  "minions": 289,
-  "rare": null,
+  "mounts": 178,
+  "minions": 290,
+  "rare": 224,
   "level": 100,
   "cc": [
    true,
@@ -649,8 +649,112 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   1335,
+   1337,
+   1934,
+   1938,
+   2095,
+   2156,
+   2292,
+   2463,
+   2471,
+   2472,
+   2473,
+   2474,
+   2475,
+   2476,
+   2542,
+   2543,
+   2545,
+   2713,
+   3617,
+   3631,
+   3667,
+   3726,
+   3729,
+   3732,
+   3736,
+   3758,
+   3760,
+   3761,
+   3762,
+   3763,
+   3765,
+   3766,
+   3767,
+   3770,
+   3771,
+   3778,
+   3784,
+   3785,
+   3802,
+   3817,
+   3823,
+   3842,
+   3843,
+   3844,
+   3848,
+   3849,
+   3850,
+   3851,
+   3852,
+   3853,
+   3854,
+   3855,
+   3856,
+   3857,
+   3858,
+   3859,
+   3860,
+   3861,
+   3862,
+   3868,
+   3869,
+   3878,
+   3879,
+   3880,
+   3881,
+   3882,
+   3883,
+   3884,
+   3885,
+   3886,
+   3887,
+   3898,
+   3899,
+   3921,
+   3922,
+   3923,
+   3924,
+   3925,
+   3935,
+   3937,
+   3938,
+   3949,
+   3958,
+   3961,
+   3962,
+   3963,
+   3964,
+   3965,
+   3966,
+   3968,
+   3969,
+   3999,
+   4000,
+   4003,
+   4004,
+   4006,
+   4007,
+   4014,
+   4017,
+   4074
+  ],
+  "tiers": {
+   "relic": "legendary",
+   "explorer": "master"
+  },
   "jobs": {
    "Dancer": "legendary",
    "RedMage": "master"
@@ -668,7 +772,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "38041221": {
   "name": "Kori Kona",
@@ -910,7 +1014,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Samurai": "master",
+   "Samurai": "expert",
    "WhiteMage": "expert",
    "Dancer": "expert",
    "Paladin": "expert"
@@ -1498,6 +1602,7 @@
   "tiers": {},
   "jobs": {
    "Samurai": "legendary",
+   "Ninja": "master",
    "Reaper": "master"
   },
   "ex": [
@@ -1668,6 +1773,7 @@
    "Reaper": "master",
    "Gunbreaker": "expert",
    "Warrior": "master",
+   "Monk": "expert",
    "DarkKnight": "legendary"
   },
   "ex": [
@@ -2366,7 +2472,8 @@
    "Dancer": "legendary",
    "BlackMage": "expert",
    "Bard": "expert",
-   "Gunbreaker": "expert"
+   "Gunbreaker": "expert",
+   "Summoner": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -2889,7 +2996,7 @@
  },
  "22461237": {
   "name": "Metatron Vtretikh",
-  "parse": 78,
+  "parse": 81,
   "ult": 4,
   "mounts": 160,
   "minions": 284,
@@ -3026,11 +3133,11 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "5294880": {
   "name": "Mithra Muses",
-  "parse": 71,
+  "parse": 78,
   "ult": 1,
   "mounts": 104,
   "minions": 250,
@@ -3087,12 +3194,14 @@
   "tiers": {
    "seasonal": "expert"
   },
-  "jobs": {},
+  "jobs": {
+   "Warrior": "expert"
+  },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-01"
+  "chg": "2026-09-04"
  },
  "5435582": {
   "name": "Mog Hikarino",
@@ -3483,7 +3592,7 @@
  },
  "5644067": {
   "name": "Ninenine The'phantom",
-  "parse": 97,
+  "parse": 99,
   "ult": 4,
   "mounts": 76,
   "minions": 137,
@@ -3594,7 +3703,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -3658,7 +3767,8 @@
    "Paladin": "legendary",
    "Samurai": "legendary",
    "Monk": "legendary",
-   "RedMage": "expert"
+   "RedMage": "expert",
+   "DarkKnight": "expert"
   },
   "ex": [
    "Guardian Arkveld",
@@ -3695,7 +3805,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Sage": "master"
+   "Sage": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -4879,7 +4989,7 @@
  },
  "8286372": {
   "name": "Aloha Banana",
-  "parse": 72,
+  "parse": 73,
   "ult": 0,
   "mounts": 199,
   "minions": 462,
@@ -4909,7 +5019,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "34434658": {
   "name": "Araiva Leonhart",
@@ -6028,7 +6138,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 65,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6043,7 +6153,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7394,8 +7504,8 @@
   "name": "Mayu Ferguson",
   "parse": 20,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 114,
+  "minions": 254,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7415,7 +7525,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "60972300": {
   "name": "Mizuki Sekine",
