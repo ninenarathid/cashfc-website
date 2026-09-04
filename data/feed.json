@@ -2,6 +2,664 @@
  "events": [
   {
    "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned On a Boat IV — only 2.8% of players have it"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "is now a Legendary Ninja"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "is now a Expert Astrologian"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned Phantom of the Umbra: Crook Umbrae"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 24186600,
+   "name": "Dumb Bunny",
+   "text": "is now a Legendary Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "is now a Master Dancer"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "is now a Expert Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "is now a Expert Astrologian"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "is now a Master Pictomancer"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "earned Mixing It Up: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 32147756,
+   "name": "Bunny Nirawz",
+   "text": "is now a Master Viper"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "is now a Expert Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "is now a Expert Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 38808156,
+   "name": "Kwiyo Ki",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 31902843,
+   "name": "Lapista Scholares",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Expert Scholar"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Master Summoner"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Master Red Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned Threading the Needle: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "is now a Master Viper"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "is now a Legendary Bard"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "is now a Expert Bard"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "earned Mixing It Up: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Expert Black Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Expert Bard"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Expert Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Master Dark Knight"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Master Ninja"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Expert Scholar"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Expert Dancer"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned Skyward Gemstone II — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "is now a Expert White Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 22425670,
+   "name": "Shizuna-pan Misurugi",
+   "text": "is now a Expert Pictomancer"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 22425670,
+   "name": "Shizuna-pan Misurugi",
+   "text": "is now a Master Bard"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 22425670,
+   "name": "Shizuna-pan Misurugi",
+   "text": "is now a Expert Viper"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "is now a Expert Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Cut Above the Rest: Round Brush Occultum — only 0.9% of players have it"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 34434658,
+   "name": "Araiva Leonhart",
+   "text": "earned Mixing It Up: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 34546216,
+   "name": "Dekkapi Kung",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 16099244,
+   "name": "Luna Froggo",
+   "text": "is now a Expert Astrologian"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 16099244,
+   "name": "Luna Froggo",
+   "text": "is now a Expert Black Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned Guardiansbane"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "is now a Master White Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 20400811,
+   "name": "Ariadne Ilsildar",
+   "text": "earned Mixing It Up: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 36159286,
+   "name": "Armadillo Girdled",
+   "text": "set a new best parse: 3 on Hippokampos as Bard"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 29918399,
+   "name": "Athaliah Aylin",
+   "text": "set a new best parse: 43 on Erichthonios as Reaper"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 25620101,
+   "name": "Athena Leonheart",
+   "text": "set a new best parse: 93 on Hesperos II as Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 25620101,
+   "name": "Athena Leonheart",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 24211446,
+   "name": "Beammess Dose",
+   "text": "set a new best parse: 92 on Hesperos as Reaper"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 24211446,
+   "name": "Beammess Dose",
+   "text": "is now a Master Reaper"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "set a new best parse: 71 on Erichthonios as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 5720080,
+   "name": "Bowling Chan",
+   "text": "set a new best parse: 86 on Erichthonios as Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 24104450,
+   "name": "Cepheus Stellar",
+   "text": "is now a Master Astrologian"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 24150396,
+   "name": "Chaser Dc",
+   "text": "set a new best parse: 95 on Hippokampos as Dancer"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 24103365,
+   "name": "Cygnus Stellar",
+   "text": "set a new best parse: 99 on Hesperos as Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 24103365,
+   "name": "Cygnus Stellar",
+   "text": "is now a Legendary Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 34228206,
+   "name": "Cystal Wingsky",
+   "text": "set a new best parse: 14 on Erichthonios as Samurai"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Master Dark Knight"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Legendary Sage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Expert White Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Expert Scholar"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 34511319,
+   "name": "Elise Lionheart",
+   "text": "set a new best parse: 94 on Erichthonios as Summoner"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 36855080,
+   "name": "Elkronin Ketchupeater",
+   "text": "is now a Master Dragoon"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 31519555,
+   "name": "Ernese Gold",
+   "text": "set a new best parse: 91 on Erichthonios as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 31519555,
+   "name": "Ernese Gold",
+   "text": "is now a Master Red Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 36228998,
+   "name": "Fishstop Moon-osha",
+   "text": "is now a Master Bard"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "is now a Master Black Mage"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "is now a Expert Samurai"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 58508421,
+   "name": "Ishfhiyrtt Ntr",
+   "text": "is now a Legendary Viper"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 28012936,
+   "name": "Kouro Moro",
+   "text": "earned Mixing It Up: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 24747734,
+   "name": "Liora Verasch",
+   "text": "earned Mixing It Up: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 30714243,
+   "name": "Moona Freed",
+   "text": "is now a Expert Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 37815847,
+   "name": "Necro Himawari",
+   "text": "earned Mixing It Up: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "rare_up",
+   "id": 36149590,
+   "name": "Neo Anderson",
+   "text": "earned Mixing It Up: Genius"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Expert Ninja"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 48010347,
+   "name": "Pineapplepipe Pikachu",
+   "text": "is now a Expert Ninja"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "is now a Expert Machinist"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "is now a Expert Paladin"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "is now a Expert Pictomancer"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 48152565,
+   "name": "Yuma Miretmoor",
+   "text": "is now a Expert Reaper"
+  },
+  {
+   "date": "2026-09-04",
    "type": "parse_up",
    "id": 39959181,
    "name": "El Blung",
@@ -741,664 +1399,6 @@
    "id": 58199536,
    "name": "Areeya Lovekin",
    "text": "is now a Legendary Relic grinder ✨"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "rare_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "earned Cut Above the Rest: Knives Occultum — only 0.5% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "grade_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "grade_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "is now a Legendary Treasure hunter ✨"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned A Sawbones to Remember — only 0.1% of players have it, and 33 more"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned The Might Phantastick: Codex Penumbrae"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "grade_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "is now a Master Gatherer ✨"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "grade_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "is now a Master Seasonal collector ✨"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "rare_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "earned What Did Sharks Do to You? — only 1.9% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned The Customer Is Always Right: Nitowikwe IV — only 4.8% of players have it"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "rare_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "earned Savage Trouble in Paradise III"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "rare_up",
-   "id": 42146242,
-   "name": "Zxazi Rowan",
-   "text": "earned Viva Vault Oneiron II — only 3.7% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 31806958,
-   "name": "Baron Master",
-   "text": "set a new best parse: 38 on Ramuh as Samurai"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 24211446,
-   "name": "Beammess Dose",
-   "text": "set a new best parse: 72 on Ifrit and Garuda as Astrologian"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 31471584,
-   "name": "Chicha Chichi",
-   "text": "set a new best parse: 91 on Ifrit and Garuda as Re\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 31471584,
-   "name": "Chicha Chichi",
-   "text": "is now a Master Red Mage"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 32046284,
-   "name": "Ene Shy",
-   "text": "set a new best parse: 94 on Ramuh as Machinist"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 32046284,
-   "name": "Ene Shy",
-   "text": "is now a Legendary Machinist"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "set a new best parse: 99 on Ifrit and Garuda as Gunbreaker"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 16397778,
-   "name": "Eydis Ein",
-   "text": "set a new best parse: 80 on Ramuh as Samurai"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 16397778,
-   "name": "Eydis Ein",
-   "text": "is now a Expert Samurai"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 12235132,
-   "name": "God King",
-   "text": "set a new best parse: 28 on Ramuh as Summoner"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "level_100",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "set a new best parse: 39 on Red Hot and Deep Blue as Blac\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 28860700,
-   "name": "Alicia Silverwalker",
-   "text": "set a new best parse: 12 on Cloud of Darkness as Monk"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 28810440,
-   "name": "Amil Aeronril",
-   "text": "set a new best parse: 82 on Cloud of Darkness as Re\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 28810440,
-   "name": "Amil Aeronril",
-   "text": "is now a Expert Red Mage"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 20400811,
-   "name": "Ariadne Ilsildar",
-   "text": "set a new best parse: 97 on Shadowkeeper as Bard"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "is now a Legendary White Mage"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 35634484,
-   "name": "Little Eevee",
-   "text": "set a new best parse: 44 on Hippokampos as Paladin"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "set a new best parse: 98 on Phoinix as Dancer"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "is now a Legendary Summoner"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 32147756,
-   "name": "Bunny Nirawz",
-   "text": "is now a Master Reaper"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 36261473,
-   "name": "Cheryl Klenovich",
-   "text": "is now a Master Dancer"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "is now a Legendary Warrior"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "set a new best parse: 100 on Hippokampos as Gunbreaker"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Cruising at the Savage Apex I, and 1 more"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "set a new best parse: 99 on Erichthonios as Sage"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Master Sage"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "is now a Expert Monk"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 5294880,
-   "name": "Mithra Muses",
-   "text": "set a new best parse: 71 on Erichthonios as Sage"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "set a new best parse: 90 on Hippokampos as Dancer"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "is now a Master Dragoon"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "is now a Legendary Monk"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "set a new best parse: 87 on Phoinix as Warrior"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "boss_clear",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "cleared M11S for the first time 🎉"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "is now a Master Warrior"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "rare_up",
-   "id": 22425670,
-   "name": "Shizuna-pan Misurugi",
-   "text": "earned Annals of War"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 11603711,
-   "name": "Takamina Aamin",
-   "text": "is now a Expert Monk"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 6951533,
-   "name": "Aemond Targaryen",
-   "text": "set a new best parse: 11 on Erichthonios as Dragoon"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "set a new best parse: 97 on Hippokampos as Dancer"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "is now a Legendary White Mage"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "is now a Master Dancer"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "grade_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Legendary Gatherer ✨"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "grade_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Legendary Crafter ✨"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "grade_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "grade_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "grade_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Legendary Gold Saucer collector ✨"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "grade_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Expert Seasonal collector ✨"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "grade_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Legendary PvP player ✨"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned Pack Man IV — only 0.1% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "level_100",
-   "id": 43335087,
-   "name": "Haru Senbonzakura",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "level_100",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "set a new best parse: 100 on Proto-Carbuncle as Samurai"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 39073020,
-   "name": "Toasted Bread",
-   "text": "set a new best parse: 96 on Proto-Carbuncle as Gunbreaker"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 39073020,
-   "name": "Toasted Bread",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 34172006,
-   "name": "Zion Zoen",
-   "text": "set a new best parse: 90 on Agdistis as Ninja"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "job_up",
-   "id": 34172006,
-   "name": "Zion Zoen",
-   "text": "is now a Master Ninja"
-  },
-  {
-   "date": "2026-09-01",
-   "type": "parse_up",
-   "id": 43412434,
-   "name": "Zylith Sweeney",
-   "text": "set a new best parse: 22 on Proto-Carbuncle as Sage"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "parse_up",
-   "id": 34611224,
-   "name": "Momose Hochizora",
-   "text": "set a new best parse: 60 on Kokytos as Scholar"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "parse_up",
-   "id": 30714243,
-   "name": "Moona Freed",
-   "text": "set a new best parse: 99 on Kokytos as Warrior"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "job_up",
-   "id": 30714243,
-   "name": "Moona Freed",
-   "text": "is now a Master Warrior"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "parse_up",
-   "id": 37731936,
-   "name": "Null Skyrage",
-   "text": "set a new best parse: 91 on Themis as Gunbreaker"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "job_up",
-   "id": 37731936,
-   "name": "Null Skyrage",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "job_up",
-   "id": 48010347,
-   "name": "Pineapplepipe Pikachu",
-   "text": "is now a Legendary Reaper"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "parse_up",
-   "id": 47401423,
-   "name": "Rana Murphy",
-   "text": "set a new best parse: 1 on Kokytos as Monk"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "job_up",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "is now a Master Red Mage"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "parse_up",
-   "id": 40624820,
-   "name": "Rin Miyauchi",
-   "text": "set a new best parse: 35 on Kokytos as Reaper"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "parse_up",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "set a new best parse: 96 on Kokytos as Bard"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "job_up",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "is now a Legendary Bard"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "level_100",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "reached level 100!"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "job_up",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "is now a Master Bard"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "job_up",
-   "id": 34155014,
-   "name": "Karok Yawn",
-   "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned R&D: Stellar Cross-pein Hammer"
-  },
-  {
-   "date": "2026-08-31",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned R&D: Cross-pein Hyperhammer"
   }
  ]
 }
