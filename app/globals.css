@@ -138,13 +138,39 @@ body { overflow-x: clip; }
   .skeleton { animation: none; background-image: none; background-color: var(--color-card); }
 }
 
-/* ── The foil on a custom badge ──────────────────────────────────────────
-   The plaque tilts a little towards the pointer and a band of its own colour
-   travels across it. Both are driven by --px/--py, which AwardBadge writes on
-   pointermove, so nothing here runs on a badge nobody is pointing at.
+/* ── The foil on a badge ─────────────────────────────────────────────────
+   A struck plate with a rainbow in the varnish. The rainbow sits still at
+   rest — which is what the plate this is adapted from looks like anyway — and
+   swings towards the pointer when there is one, so nothing here animates on a
+   badge nobody is pointing at.
 
-   The tilt is deliberately small. The original this is adapted from swings far
-   enough to lift a corner off the page, which is right for one plaque on a
+   --px/--py are written by AwardBadge on pointermove and inherit from the
+   plate, which is why the angle below can be a plain calc. */
+.badge-plate:hover .badge-foil-sheen { opacity: 0.5; }
+
+.badge-foil-sheen {
+  --angle: calc(var(--px) * 150deg + 15deg);
+  position: absolute;
+  inset: -45%;
+  opacity: 0.3;
+  mix-blend-mode: overlay;
+  transition: opacity 220ms ease-out, background 220ms ease-out;
+  pointer-events: none;
+  background: linear-gradient(
+    var(--angle),
+    transparent 6%,
+    #ff5f6d 20%,
+    #ffb347 31%,
+    #f7f36b 42%,
+    #5fe3a1 54%,
+    #58a6ff 67%,
+    #c86dd7 80%,
+    transparent 95%
+  );
+}
+
+/* The tilt, on the full plaque only. Deliberately small: the original swings
+   far enough to lift a corner off the page, which is right for one plaque on a
    landing page and wrong for a row of them next to somebody's name. */
 .badge-foil {
   transform:
@@ -155,23 +181,9 @@ body { overflow-x: clip; }
   transform-style: preserve-3d;
 }
 
-.badge-foil-sheen {
-  position: absolute;
-  inset: -40%;
-  opacity: 0;
-  mix-blend-mode: overlay;
-  transition: opacity 220ms ease-out;
-  background: linear-gradient(
-    calc(var(--px) * 180deg),
-    transparent 35%,
-    currentColor 50%,
-    transparent 65%
-  );
-}
-
-.badge-foil:hover .badge-foil-sheen { opacity: 0.55; }
-
 @media (prefers-reduced-motion: reduce) {
   .badge-foil { transform: none; transition: none; }
-  .badge-foil-sheen { display: none; }
+  /* The rainbow stays — it is the plate's finish, not an animation — but it
+     stops following the pointer. */
+  .badge-foil-sheen { --angle: 70deg; transition: none; }
 }

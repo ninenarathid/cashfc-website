@@ -1,57 +1,80 @@
 /**
- * The colours a custom badge can be given.
+ * The metals a badge can be struck in.
  *
- * A fixed palette rather than a colour picker, for the same reason the tag
- * colours are fixed: every one of these was chosen against this theme's surface
- * and checked to stay legible at 11px, which is not something a free hex field
- * can promise. Twelve is enough that two badges are rarely the same colour and
- * few enough to see all at once in the admin picker.
+ * Four, and they are ranks rather than decorations: Platinum, Gold, Silver,
+ * Bronze say where a thing sits against the others, which is what an award is
+ * for. The twelve free-standing hues this replaces said nothing — a violet
+ * badge and a jade one were only two badges, and the admin picking between
+ * them was picking a colour rather than a standing.
  *
- * Five are the theme's own accents, so a badge in one of those looks like part
- * of the site rather than a sticker on it.
+ * Each is a light plate for a dark page, which is the other half of the change.
+ * A tinted transparent pill reads as a chip, and the board already has fifteen
+ * of those; a struck plate with dark lettering reads as something that was
+ * awarded, because that is how one looks.
  */
 export interface BadgeColor {
   key: string;
   /** What the admin picker calls it. */
   label: string;
+  /** One flat colour that stands for the metal — the swatch, and the badge's
+      name where it appears on a dark ground such as a tooltip. */
   hex: string;
+  /** The plate. Light, dark, light, darker: metal is only ever a gradient,
+      and three stops is the fewest that reads as a curved surface. */
+  gradient: string;
+  /** The lettering. Dark, because everything above it is light. */
+  ink: string;
+  /** The rim. A shade under the metal's midpoint, so the plate has an edge
+      rather than bleeding into the card behind it. */
+  edge: string;
 }
 
 export const BADGE_COLORS: BadgeColor[] = [
-  { key: "gold", label: "Gold", hex: "#e5cc80" },
-  { key: "amber", label: "Amber", hex: "#e0a458" },
-  { key: "copper", label: "Copper", hex: "#c98a5b" },
-  { key: "chili", label: "Chili", hex: "#d14b3a" },
-  { key: "rose", label: "Rose", hex: "#e07a9b" },
-  { key: "magenta", label: "Magenta", hex: "#c469d6" },
-  { key: "violet", label: "Violet", hex: "#9b7ae0" },
-  { key: "azure", label: "Azure", hex: "#6aa9e0" },
-  { key: "steel", label: "Steel", hex: "#7ea6c9" },
-  { key: "jade", label: "Jade", hex: "#4fb8a8" },
-  { key: "lime", label: "Lime", hex: "#8fc55a" },
-  { key: "silver", label: "Silver", hex: "#b8c2cf" },
+  {
+    key: "platinum", label: "Platinum", hex: "#dfe6ee",
+    gradient: "linear-gradient(135deg, #fbfdff 0%, #cfd9e6 38%, #f3f7fb 62%, #c5d1e0 100%)",
+    ink: "#2f3742", edge: "#b3c0d0",
+  },
+  {
+    key: "gold", label: "Gold", hex: "#e8c15c",
+    gradient: "linear-gradient(135deg, #fdf3cd 0%, #e6bd54 40%, #fbeaae 62%, #d6a73c 100%)",
+    ink: "#4a3a12", edge: "#c9a23f",
+  },
+  {
+    key: "silver", label: "Silver", hex: "#c9d0d8",
+    gradient: "linear-gradient(135deg, #fafbfc 0%, #c3cbd4 40%, #eef1f4 62%, #b1bac5 100%)",
+    ink: "#333a44", edge: "#a8b2bd",
+  },
+  {
+    key: "bronze", label: "Bronze", hex: "#c98a5b",
+    gradient: "linear-gradient(135deg, #f7ddc4 0%, #c98a5b 42%, #edc9a6 64%, #a96c40 100%)",
+    ink: "#4a2c17", edge: "#a8703f",
+  },
 ];
 
 export const DEFAULT_BADGE_COLOR = "gold";
 
-/** The palette entry for a stored key, falling back rather than rendering nothing. */
+/**
+ * The metal for a stored key.
+ *
+ * Falls back rather than rendering nothing: the twelve hues that came before
+ * are still sitting in any badge made while they existed, and a badge whose
+ * colour was retired should look like a badge, not like a bug.
+ */
 export function badgeColor(key: string | null | undefined): BadgeColor {
   return BADGE_COLORS.find((c) => c.key === key)
     ?? BADGE_COLORS.find((c) => c.key === DEFAULT_BADGE_COLOR)!;
 }
 
-/**
- * The three shades one badge is drawn in.
- *
- * Derived from the single hex rather than stored, so adding a colour to the
- * palette above is one line and cannot leave a badge half-styled.
- */
+/** The plate, ready to hand to a style attribute. */
 export function badgeShades(key: string | null | undefined) {
-  const { hex } = badgeColor(key);
+  const m = badgeColor(key);
   return {
-    text: hex,
-    border: `color-mix(in srgb, ${hex} 45%, transparent)`,
-    background: `color-mix(in srgb, ${hex} 13%, transparent)`,
-    glow: `color-mix(in srgb, ${hex} 30%, transparent)`,
+    /** For a dark ground — a tooltip, a swatch outline. */
+    accent: m.hex,
+    background: m.gradient,
+    border: m.edge,
+    ink: m.ink,
+    glow: `color-mix(in srgb, ${m.hex} 35%, transparent)`,
   };
 }

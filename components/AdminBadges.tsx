@@ -160,21 +160,21 @@ export default function AdminBadges(
                  className={`${inputCls} min-w-[180px] flex-1`} />
         </div>
 
-        {/* The palette, as the colours themselves. A dropdown of colour names
-            asks somebody to imagine what "Copper" looks like on this theme. */}
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        {/* The four metals, struck rather than named. A dropdown reading
+            "Bronze" asks somebody to imagine the plate; this is the plate. */}
+        <div className="mt-3 flex flex-wrap gap-2">
           {BADGE_COLORS.map((c) => {
             const on = c.key === color;
             const sh = badgeShades(c.key);
             return (
-              <button key={c.key} type="button" title={c.label}
+              <button key={c.key} type="button"
                       onClick={() => setColor(c.key)}
-                      aria-pressed={on} aria-label={c.label}
-                      style={{ background: sh.background,
-                               borderColor: on ? c.hex : sh.border }}
-                      className={`flex size-7 items-center justify-center rounded-full border-2 transition-transform ${
-                        on ? "scale-110" : "hover:scale-105"}`}>
-                <span className="block size-3 rounded-full" style={{ background: c.hex }} />
+                      aria-pressed={on}
+                      style={{ background: sh.background, color: sh.ink,
+                               borderColor: on ? "var(--color-ink)" : sh.border }}
+                      className={`rounded-lg border-2 px-3 py-1.5 font-display text-[12.5px] font-bold transition-transform ${
+                        on ? "scale-105" : "opacity-80 hover:scale-105 hover:opacity-100"}`}>
+                {c.label}
               </button>
             );
           })}
