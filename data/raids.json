@@ -2608,13 +2608,13 @@
     "cleared": true,
     "encounter_id": 1080,
     "job_kills": {
-     "Ninja": {
-      "kills": 14,
-      "best": 100
-     },
      "RedMage": {
       "kills": 2,
       "best": 38
+     },
+     "Ninja": {
+      "kills": 9,
+      "best": 77
      }
     }
    },
@@ -4212,7 +4212,7 @@
     "encounter_id": 1084,
     "job_kills": {
      "Summoner": {
-      "kills": 8,
+      "kills": 7,
       "best": 32
      },
      "Dancer": {
@@ -5142,7 +5142,7 @@
       "best": 100
      },
      "BlackMage": {
-      "kills": 12,
+      "kills": 11,
       "best": 100
      },
      "RedMage": {
@@ -8114,7 +8114,7 @@
      "job": "Warrior",
      "job_kills": {
       "Warrior": {
-       "kills": 3,
+       "kills": 2,
        "best": 71
       }
      }
@@ -9499,7 +9499,7 @@
     "encounter_id": 1071,
     "job_kills": {
      "Viper": {
-      "kills": 2,
+      "kills": 1,
       "best": 47
      },
      "Warrior": {
@@ -9507,7 +9507,7 @@
       "best": 100
      },
      "Gunbreaker": {
-      "kills": 20,
+      "kills": 19,
       "best": 91
      },
      "Pictomancer": {
@@ -12263,7 +12263,7 @@
       "best": 53
      },
      "Machinist": {
-      "kills": 24,
+      "kills": 21,
       "best": 96
      },
      "Samurai": {
@@ -12316,7 +12316,7 @@
       "best": 90
      },
      "Machinist": {
-      "kills": 20,
+      "kills": 18,
       "best": 99
      },
      "RedMage": {
@@ -13745,7 +13745,7 @@
       "best": 89
      },
      "Reaper": {
-      "kills": 2,
+      "kills": 1,
       "best": 84
      },
      "Gunbreaker": {
@@ -16618,7 +16618,7 @@
     "encounter_id": 1080,
     "job_kills": {
      "Gunbreaker": {
-      "kills": 13,
+      "kills": 5,
       "best": 76
      },
      "Sage": {
@@ -18108,7 +18108,7 @@
        "best": 80
       },
       "Summoner": {
-       "kills": 2,
+       "kills": 1,
        "best": 72
       }
      }
@@ -19933,7 +19933,7 @@
      "job": "Viper",
      "job_kills": {
       "Viper": {
-       "kills": 12,
+       "kills": 11,
        "best": 81
       },
       "Monk": {
@@ -22065,7 +22065,7 @@
      "job": "Dancer",
      "job_kills": {
       "Dancer": {
-       "kills": 13,
+       "kills": 12,
        "best": 91
       }
      }
@@ -22973,8 +22973,8 @@
       "best": 97
      },
      "Samurai": {
-      "kills": 3,
-      "best": 87
+      "kills": 1,
+      "best": 81
      }
     }
    },
@@ -25611,7 +25611,7 @@
       "best": 54
      },
      "DarkKnight": {
-      "kills": 38,
+      "kills": 37,
       "best": 70
      }
     }
@@ -26331,7 +26331,7 @@
     "encounter_id": 1080,
     "job_kills": {
      "Monk": {
-      "kills": 24,
+      "kills": 21,
       "best": 99
      },
      "Dragoon": {
@@ -26341,14 +26341,6 @@
      "Summoner": {
       "kills": 8,
       "best": 41
-     },
-     "Paladin": {
-      "kills": 3,
-      "best": 100
-     },
-     "Warrior": {
-      "kills": 1,
-      "best": 100
      }
     }
    },
@@ -28567,8 +28559,8 @@
       "best": 55
      },
      "Astrologian": {
-      "kills": 5,
-      "best": 48
+      "kills": 2,
+      "best": 41
      }
     }
    },
@@ -29529,7 +29521,7 @@
     "encounter_id": 1080,
     "job_kills": {
      "Paladin": {
-      "kills": 3,
+      "kills": 2,
       "best": 29
      }
     }
@@ -29782,7 +29774,7 @@
        "best": 91
       },
       "Astrologian": {
-       "kills": 6,
+       "kills": 5,
        "best": 64
       }
      }
@@ -32459,13 +32451,13 @@
       "kills": 2,
       "best": 65
      },
-     "Warrior": {
-      "kills": 7,
-      "best": 50
-     },
      "DarkKnight": {
       "kills": 3,
       "best": 42
+     },
+     "Warrior": {
+      "kills": 1,
+      "best": 15
      },
      "WhiteMage": {
       "kills": 1,
@@ -32493,7 +32485,7 @@
       "best": 87
      },
      "DarkKnight": {
-      "kills": 10,
+      "kills": 9,
       "best": 89
      },
      "Paladin": {
@@ -32653,8 +32645,8 @@
     "encounter_id": 1072,
     "job_kills": {
      "Reaper": {
-      "kills": 4,
-      "best": 84
+      "kills": 1,
+      "best": 59
      },
      "Summoner": {
       "kills": 15,
@@ -34124,7 +34116,7 @@
     "encounter_id": 1072,
     "job_kills": {
      "Viper": {
-      "kills": 48,
+      "kills": 47,
       "best": 66
      },
      "Samurai": {
@@ -35998,7 +35990,7 @@
       "best": 95
      },
      "Scholar": {
-      "kills": 12,
+      "kills": 8,
       "best": 74
      }
     }
@@ -38577,8 +38569,8 @@
     "encounter_id": 1080,
     "job_kills": {
      "Viper": {
-      "kills": 8,
-      "best": 100
+      "kills": 7,
+      "best": 98
      }
     }
    },
@@ -39092,7 +39084,7 @@
       "best": 92
      },
      "Warrior": {
-      "kills": 98,
+      "kills": 96,
       "best": 92
      }
     }
@@ -39260,13 +39252,13 @@
     "cleared": true,
     "encounter_id": 1071,
     "job_kills": {
-     "Viper": {
-      "kills": 3,
-      "best": 46
-     },
      "Samurai": {
       "kills": 9,
       "best": 42
+     },
+     "Viper": {
+      "kills": 2,
+      "best": 8
      }
     }
    },
@@ -39581,7 +39573,7 @@
      "job": "Machinist",
      "job_kills": {
       "Machinist": {
-       "kills": 14,
+       "kills": 13,
        "best": 97
       }
      }
@@ -39596,7 +39588,7 @@
      "job": "Machinist",
      "job_kills": {
       "Machinist": {
-       "kills": 9,
+       "kills": 8,
        "best": 91
       }
      }
@@ -39611,7 +39603,7 @@
      "job": "Machinist",
      "job_kills": {
       "Machinist": {
-       "kills": 17,
+       "kills": 16,
        "best": 97
       }
      }
@@ -39808,7 +39800,7 @@
     "encounter_id": 1081,
     "job_kills": {
      "BlackMage": {
-      "kills": 10,
+      "kills": 9,
       "best": 80
      },
      "Dragoon": {
@@ -39869,7 +39861,7 @@
       "best": 41
      },
      "Machinist": {
-      "kills": 8,
+      "kills": 7,
       "best": 82
      },
      "Bard": {
@@ -41638,7 +41630,7 @@
     "encounter_id": 1084,
     "job_kills": {
      "Viper": {
-      "kills": 21,
+      "kills": 19,
       "best": 98
      },
      "Samurai": {
@@ -44077,7 +44069,7 @@
       "best": 66
      },
      "Gunbreaker": {
-      "kills": 12,
+      "kills": 11,
       "best": 39
      },
      "DarkKnight": {
@@ -44551,7 +44543,7 @@
      "job": "Gunbreaker",
      "job_kills": {
       "Gunbreaker": {
-       "kills": 12,
+       "kills": 11,
        "best": 83
       }
      }
@@ -44566,7 +44558,7 @@
      "job": "Gunbreaker",
      "job_kills": {
       "Gunbreaker": {
-       "kills": 12,
+       "kills": 11,
        "best": 59
       }
      }
@@ -44581,7 +44573,7 @@
      "job": "Gunbreaker",
      "job_kills": {
       "Gunbreaker": {
-       "kills": 9,
+       "kills": 8,
        "best": 56
       }
      }
@@ -44596,7 +44588,7 @@
      "job": "Gunbreaker",
      "job_kills": {
       "Gunbreaker": {
-       "kills": 17,
+       "kills": 16,
        "best": 57
       }
      }
@@ -44611,7 +44603,7 @@
      "job": "Gunbreaker",
      "job_kills": {
       "Gunbreaker": {
-       "kills": 9,
+       "kills": 8,
        "best": 30
       }
      }
@@ -46513,7 +46505,7 @@
       "best": 22
      },
      "Sage": {
-      "kills": 24,
+      "kills": 22,
       "best": 86
      },
      "DarkKnight": {
@@ -46521,11 +46513,11 @@
       "best": 30
      },
      "Astrologian": {
-      "kills": 29,
-      "best": 97
+      "kills": 20,
+      "best": 87
      },
      "Gunbreaker": {
-      "kills": 3,
+      "kills": 2,
       "best": 39
      },
      "Paladin": {
@@ -46558,8 +46550,8 @@
       "best": 83
      },
      "Astrologian": {
-      "kills": 23,
-      "best": 80
+      "kills": 14,
+      "best": 70
      },
      "WhiteMage": {
       "kills": 2,
@@ -48471,7 +48463,7 @@
     "encounter_id": 1071,
     "job_kills": {
      "Viper": {
-      "kills": 19,
+      "kills": 18,
       "best": 72
      }
     }
@@ -50329,7 +50321,7 @@
       "best": 66
      },
      "Dancer": {
-      "kills": 5,
+      "kills": 4,
       "best": 49
      }
     }
@@ -54270,7 +54262,7 @@
      "job": "Machinist",
      "job_kills": {
       "Machinist": {
-       "kills": 8,
+       "kills": 7,
        "best": 54
       }
      }
@@ -54326,10 +54318,6 @@
     "cleared": true,
     "encounter_id": 1079,
     "job_kills": {
-     "Astrologian": {
-      "kills": 1,
-      "best": 9
-     },
      "Scholar": {
       "kills": 5,
       "best": 34
@@ -54520,7 +54508,7 @@
       "best": 91
      },
      "Gunbreaker": {
-      "kills": 13,
+      "kills": 12,
       "best": 51
      }
     }
@@ -55726,7 +55714,7 @@
     "encounter_id": 1080,
     "job_kills": {
      "Sage": {
-      "kills": 6,
+      "kills": 3,
       "best": 84
      }
     }

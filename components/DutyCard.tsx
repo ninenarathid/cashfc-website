@@ -77,14 +77,16 @@ export default function DutyCard(
   const SHOWN = 4;
   const rest = split.slice(SHOWN);
   const shown = split.slice(0, SHOWN);
-  // The breakdown counts each kill by the job that made it. The `kills` on the
-  // row beside it comes from FF Logs' zone summary, which the pipeline reads on
-  // a slower rotation, so it can be a few kills behind its own breakdown — and a
-  // total smaller than the numbers under it reads as a bug rather than as a
-  // stale total. Where there is a breakdown, it is the total.
-  const total = split.length
-    ? split.reduce((n, [, r]) => n + r.kills, 0)
-    : kills;
+  // FF Logs' own count for the fight, not the breakdown's sum.
+  //
+  // This was the other way round for a day, on the reasoning that the breakdown
+  // was never the smaller of the two. It was — but only because the pipeline
+  // was counting parses FF Logs itself throws out, which flattered the total and
+  // the best parse with it. With those gone the breakdown is sometimes a kill or
+  // three short instead, because not every kill is ranked, and the number to
+  // show is the one FF Logs would show: a member checking this against their own
+  // profile is exactly how the miscount was found.
+  const total = kills;
   return (
     <div
       style={art ? {

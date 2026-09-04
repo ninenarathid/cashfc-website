@@ -1149,6 +1149,9 @@ def job_breakdown(er: dict | str | None) -> dict[str, dict] | None:
     times on Paladin and twice on Dark Knight — the second of those being their
     best — was being reported as a Dark Knight with 55 kills.
 
+    Flagged parses are skipped — see below — so the numbers here agree with the
+    ones FF Logs shows for the same character.
+
     Returns None rather than an empty dict when there is nothing to say, so the
     caller can tell "asked and got no ranked kills" from "has a breakdown".
     """
@@ -1162,6 +1165,15 @@ def job_breakdown(er: dict | str | None) -> dict[str, dict] | None:
     for rk in ranks:
         job = rk.get("spec")
         if not job:
+            continue
+        # FF Logs flags some parses — an exploit found in a fight, a report
+        # pulled — and leaves them in `ranks` while leaving them out of its own
+        # totals: a character with sixteen ranked kills, five of them flagged,
+        # reports totalKills 11. Counting them put a job's best parse well above
+        # what FF Logs itself will show for that character, and inflated the
+        # grade built on it. A flagged parse is one the site that made it does
+        # not count, so neither does this.
+        if rk.get("banned") or rk.get("exploit"):
             continue
         r = out.setdefault(job, {"kills": 0, "best": None})
         r["kills"] += 1
