@@ -180,8 +180,25 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 28,
+      "median": 24,
+      "kills": 3,
+      "job": "Dragoon"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "718420": {
   "current": {
@@ -4360,7 +4377,13 @@
       "best": 62,
       "median": 13,
       "kills": 12,
-      "job": "Dragoon"
+      "job": "Dragoon",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 12,
+        "best": 62
+       }
+      }
      },
      {
       "label": "E6S",
@@ -4369,7 +4392,13 @@
       "best": 46,
       "median": 28,
       "kills": 8,
-      "job": "Dragoon"
+      "job": "Dragoon",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 8,
+        "best": 46
+       }
+      }
      }
     ]
    }
@@ -5930,8 +5959,52 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 81,
+      "median": 70,
+      "kills": 7,
+      "job": "Dragoon"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 69,
+      "median": 47,
+      "kills": 6,
+      "job": "Dragoon"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 45,
+      "median": 36,
+      "kills": 6,
+      "job": "Dragoon"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 50,
+      "median": 35,
+      "kills": 2,
+      "job": "Dragoon"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "10926041": {
   "current": {
@@ -8463,8 +8536,25 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 35,
+      "median": 30,
+      "kills": 3,
+      "job": "DarkKnight"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "15308846": {
   "current": {
@@ -14137,12 +14227,12 @@
     "zone": "Futures Rewritten",
     "zone_id": 65,
     "expansion": "Dawntrail",
+    "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 100,
     "kills": 20,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1079,
     "job_kills": {
      "Ninja": {
       "kills": 20,
@@ -14232,12 +14322,12 @@
     "zone": "Trials III (Extreme)",
     "zone_id": 72,
     "expansion": "Dawntrail",
+    "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 26,
     "kills": 4,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1083,
     "job_kills": {
      "Monk": {
       "kills": 2,
@@ -14253,12 +14343,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1082,
     "name": "Guardian Arkveld",
     "best": 87,
     "kills": 11,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1082,
     "job_kills": {
      "Monk": {
       "kills": 7,
@@ -14274,23 +14364,23 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1081,
     "name": "Necron",
     "best": 24,
     "kills": 1,
     "job": "Monk",
-    "cleared": true,
-    "encounter_id": 1081
+    "cleared": true
    },
    {
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1080,
     "name": "Zelenia",
     "best": 89,
     "kills": 3,
     "job": "Dragoon",
     "cleared": true,
-    "encounter_id": 1080,
     "job_kills": {
      "Dragoon": {
       "kills": 1,
@@ -14310,12 +14400,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 93,
     "kills": 20,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1078,
     "job_kills": {
      "Samurai": {
       "kills": 16,
@@ -14335,12 +14425,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 91,
     "kills": 38,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Samurai": {
       "kills": 9,
@@ -14380,12 +14470,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 84,
     "kills": 19,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Viper": {
       "kills": 8,
@@ -17829,7 +17919,13 @@
       "best": 62,
       "median": 46,
       "kills": 13,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 13,
+        "best": 62
+       }
+      }
      },
      {
       "label": "E6S",
@@ -17838,7 +17934,13 @@
       "best": 43,
       "median": 22,
       "kills": 14,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 14,
+        "best": 43
+       }
+      }
      },
      {
       "label": "E7S",
@@ -17847,7 +17949,13 @@
       "best": 36,
       "median": 19,
       "kills": 13,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 13,
+        "best": 36
+       }
+      }
      },
      {
       "label": "E8S",
@@ -17856,7 +17964,13 @@
       "best": 10,
       "median": 10,
       "kills": 5,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 5,
+        "best": 10
+       }
+      }
      }
     ]
    }
@@ -32044,12 +32158,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 78,
     "kills": 6,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Viper": {
       "kills": 6,
@@ -32061,12 +32175,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 65,
     "kills": 10,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Viper": {
       "kills": 10,
@@ -33439,7 +33553,13 @@
       "best": 40,
       "median": 19,
       "kills": 8,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 8,
+        "best": 40
+       }
+      }
      },
      {
       "label": "E6S",
@@ -33448,7 +33568,13 @@
       "best": 22,
       "median": 18,
       "kills": 5,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 5,
+        "best": 22
+       }
+      }
      },
      {
       "label": "E7S",
@@ -36761,12 +36887,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 24,
     "kills": 6,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Ninja": {
       "kills": 5,
@@ -39114,12 +39240,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 48,
     "kills": 10,
     "job": "Pictomancer",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Pictomancer": {
       "kills": 10,
@@ -44933,12 +45059,12 @@
     "zone": "Futures Rewritten",
     "zone_id": 65,
     "expansion": "Dawntrail",
+    "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 57,
     "kills": 6,
     "job": "Dancer",
     "cleared": true,
-    "encounter_id": 1079,
     "job_kills": {
      "Dancer": {
       "kills": 6,
@@ -44950,12 +45076,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "encounter_id": 1076,
     "name": "Dragonsong's Reprise",
     "best": 13,
     "kills": 2,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1076,
     "job_kills": {
      "WhiteMage": {
       "kills": 2,
@@ -45031,12 +45157,12 @@
     "zone": "Trials III (Extreme)",
     "zone_id": 72,
     "expansion": "Dawntrail",
+    "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 70,
     "kills": 2,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1083,
     "job_kills": {
      "WhiteMage": {
       "kills": 2,
@@ -45048,12 +45174,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 90,
     "kills": 14,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "WhiteMage": {
       "kills": 13,
@@ -45069,12 +45195,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 73,
     "kills": 12,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "WhiteMage": {
       "kills": 8,
@@ -47188,12 +47314,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 88,
     "kills": 39,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Reaper": {
       "kills": 1,
@@ -47213,12 +47339,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 80,
     "kills": 14,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "WhiteMage": {
       "kills": 13,
@@ -51016,12 +51142,12 @@
     "zone": "Trials III (Extreme)",
     "zone_id": 72,
     "expansion": "Dawntrail",
+    "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 64,
     "kills": 21,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1083,
     "job_kills": {
      "Warrior": {
       "kills": 21,
@@ -51033,12 +51159,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1080,
     "name": "Zelenia",
     "best": 42,
     "kills": 24,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1080,
     "job_kills": {
      "Warrior": {
       "kills": 24,
@@ -51050,12 +51176,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 5,
     "kills": 7,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1078,
     "job_kills": {
      "Warrior": {
       "kills": 7,
@@ -51212,12 +51338,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "encounter_id": 1073,
     "name": "The Unending Coil of Bahamut",
     "best": 18,
     "kills": 1,
     "job": "Paladin",
-    "cleared": true,
-    "encounter_id": 1073
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -51257,12 +51383,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 93,
     "kills": 49,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Summoner": {
       "kills": 19,
@@ -51290,12 +51416,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 87,
     "kills": 42,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Summoner": {
       "kills": 8,
@@ -53694,12 +53820,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 23,
     "kills": 4,
     "job": "Viper",
     "cleared": true,
-    "encounter_id": 1078,
     "job_kills": {
      "Viper": {
       "kills": 4,
@@ -53711,12 +53837,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
     "kills": 45,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1071,
     "job_kills": {
      "Pictomancer": {
       "kills": 8,
@@ -53748,12 +53874,12 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 83,
     "kills": 32,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1072,
     "job_kills": {
      "Pictomancer": {
       "kills": 3,
@@ -54350,12 +54476,12 @@
     "zone": "Trials III (Extreme)",
     "zone_id": 72,
     "expansion": "Dawntrail",
+    "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 52,
     "kills": 3,
     "job": "Reaper",
     "cleared": true,
-    "encounter_id": 1083,
     "job_kills": {
      "Reaper": {
       "kills": 3,
@@ -54367,12 +54493,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1082,
     "name": "Guardian Arkveld",
     "best": 30,
     "kills": 5,
     "job": "Reaper",
     "cleared": true,
-    "encounter_id": 1082,
     "job_kills": {
      "Reaper": {
       "kills": 5,
@@ -54384,12 +54510,12 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1081,
     "name": "Necron",
     "best": 7,
     "kills": 2,
     "job": "Reaper",
     "cleared": true,
-    "encounter_id": 1081,
     "job_kills": {
      "Reaper": {
       "kills": 2,

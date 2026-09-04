@@ -6088,7 +6088,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -15088,7 +15088,7 @@
  },
  "10837088": {
   "name": "Selker Phantom",
-  "parse": null,
+  "parse": 81,
   "ult": 0,
   "mounts": 37,
   "minions": 91,
@@ -15103,10 +15103,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Dragoon": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "29351667": {
   "name": "Sete Lunarstra",
@@ -15940,7 +15942,7 @@
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
-  "parse": null,
+  "parse": 35,
   "ult": 0,
   "mounts": 27,
   "minions": 91,
@@ -15958,7 +15960,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "31833183": {
   "name": "Ull Sixktraz",
@@ -16575,7 +16577,7 @@
  },
  "693670": {
   "name": "Zediez Vesarius",
-  "parse": null,
+  "parse": 28,
   "ult": 0,
   "mounts": 32,
   "minions": 99,
@@ -16593,7 +16595,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "35629716": {
   "name": "Zeldris Ragnarsson",

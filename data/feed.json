@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-09-04",
+   "type": "level_100",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 10837088,
+   "name": "Selker Phantom",
+   "text": "set a new best parse: 81 on Eden Prime as Dragoon"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "job_up",
+   "id": 10837088,
+   "name": "Selker Phantom",
+   "text": "is now a Expert Dragoon"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 15296154,
+   "name": "Tussuki Yoshikuni",
+   "text": "set a new best parse: 35 on Eden Prime as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-09-04",
+   "type": "parse_up",
+   "id": 693670,
+   "name": "Zediez Vesarius",
+   "text": "set a new best parse: 28 on Eden Prime as Dragoon"
+  },
+  {
+   "date": "2026-09-04",
    "type": "job_up",
    "id": 31655994,
    "name": "Meki Mekino",
@@ -1364,41 +1399,6 @@
    "id": 40389196,
    "name": "Dontae Luciano",
    "text": "is now a Master Gold Saucer collector ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 1643244,
-   "name": "Epicenter Eorzea",
-   "text": "is now a Expert Gold Saucer collector ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "level_100",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "parse_up",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "set a new best parse: 89 on Valigarmanda as Summoner"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "ex_clear",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-09-02",
-   "type": "job_up",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "is now a Expert Summoner"
   }
  ]
 }
