@@ -47412,7 +47412,25 @@
     "kills": 55,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1083
+    "encounter_id": 1083,
+    "job_kills": {
+     "Samurai": {
+      "kills": 8,
+      "best": 41
+     },
+     "Monk": {
+      "kills": 1,
+      "best": 24
+     },
+     "DarkKnight": {
+      "kills": 2,
+      "best": 98
+     },
+     "Paladin": {
+      "kills": 44,
+      "best": 98
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -47423,7 +47441,17 @@
     "kills": 6,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1084
+    "encounter_id": 1084,
+    "job_kills": {
+     "Monk": {
+      "kills": 2,
+      "best": 16
+     },
+     "Paladin": {
+      "kills": 4,
+      "best": 75
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -47434,7 +47462,21 @@
     "kills": 18,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1082
+    "encounter_id": 1082,
+    "job_kills": {
+     "Monk": {
+      "kills": 9,
+      "best": 69
+     },
+     "BlackMage": {
+      "kills": 6,
+      "best": 54
+     },
+     "Paladin": {
+      "kills": 3,
+      "best": 42
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -47445,7 +47487,25 @@
     "kills": 9,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1081
+    "encounter_id": 1081,
+    "job_kills": {
+     "Monk": {
+      "kills": 2,
+      "best": 31
+     },
+     "BlackMage": {
+      "kills": 2,
+      "best": 48
+     },
+     "DarkKnight": {
+      "kills": 3,
+      "best": 67
+     },
+     "Paladin": {
+      "kills": 2,
+      "best": 34
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -47456,7 +47516,21 @@
     "kills": 11,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1071
+    "encounter_id": 1071,
+    "job_kills": {
+     "Monk": {
+      "kills": 1,
+      "best": 24
+     },
+     "DarkKnight": {
+      "kills": 8,
+      "best": 80
+     },
+     "Scholar": {
+      "kills": 2,
+      "best": 20
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -47467,7 +47541,13 @@
     "kills": 13,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1072
+    "encounter_id": 1072,
+    "job_kills": {
+     "Scholar": {
+      "kills": 13,
+      "best": 34
+     }
+    }
    }
   ],
   "legacy": [
@@ -54157,7 +54237,13 @@
      "best": 85,
      "median": 74,
      "kills": 10,
-     "job": "Machinist"
+     "job": "Machinist",
+     "job_kills": {
+      "Machinist": {
+       "kills": 10,
+       "best": 85
+      }
+     }
     },
     {
      "label": "M10S",
@@ -54166,7 +54252,13 @@
      "best": 69,
      "median": 41,
      "kills": 8,
-     "job": "Machinist"
+     "job": "Machinist",
+     "job_kills": {
+      "Machinist": {
+       "kills": 8,
+       "best": 69
+      }
+     }
     },
     {
      "label": "M11S",
@@ -54175,7 +54267,13 @@
      "best": 54,
      "median": 41,
      "kills": 8,
-     "job": "Machinist"
+     "job": "Machinist",
+     "job_kills": {
+      "Machinist": {
+       "kills": 8,
+       "best": 54
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -54184,7 +54282,13 @@
      "best": 99,
      "median": 41,
      "kills": 19,
-     "job": "Machinist"
+     "job": "Machinist",
+     "job_kills": {
+      "Machinist": {
+       "kills": 19,
+       "best": 99
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -54193,7 +54297,13 @@
      "best": 86,
      "median": 38,
      "kills": 8,
-     "job": "Machinist"
+     "job": "Machinist",
+     "job_kills": {
+      "Machinist": {
+       "kills": 8,
+       "best": 86
+      }
+     }
     }
    ],
    "clears": [
@@ -54214,7 +54324,17 @@
     "kills": 6,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1079
+    "encounter_id": 1079,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 1,
+      "best": 9
+     },
+     "Scholar": {
+      "kills": 5,
+      "best": 34
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -54225,7 +54345,21 @@
     "kills": 13,
     "job": "Pictomancer",
     "cleared": true,
-    "encounter_id": 1076
+    "encounter_id": 1076,
+    "job_kills": {
+     "Pictomancer": {
+      "kills": 7,
+      "best": 46
+     },
+     "BlackMage": {
+      "kills": 4,
+      "best": 16
+     },
+     "Viper": {
+      "kills": 2,
+      "best": 23
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -54247,7 +54381,17 @@
     "kills": 10,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1068
+    "encounter_id": 1068,
+    "job_kills": {
+     "Sage": {
+      "kills": 3,
+      "best": 29
+     },
+     "Scholar": {
+      "kills": 7,
+      "best": 40
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -54258,7 +54402,13 @@
     "kills": 10,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1062
+    "encounter_id": 1062,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 10,
+      "best": 75
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -54269,7 +54419,17 @@
     "kills": 10,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1060
+    "encounter_id": 1060,
+    "job_kills": {
+     "Paladin": {
+      "kills": 9,
+      "best": 75
+     },
+     "Warrior": {
+      "kills": 1,
+      "best": 9
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -54280,7 +54440,33 @@
     "kills": 14,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1061
+    "encounter_id": 1061,
+    "job_kills": {
+     "Machinist": {
+      "kills": 1,
+      "best": 68
+     },
+     "Dancer": {
+      "kills": 2,
+      "best": 45
+     },
+     "Warrior": {
+      "kills": 3,
+      "best": 27
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 30
+     },
+     "Sage": {
+      "kills": 4,
+      "best": 53
+     },
+     "Astrologian": {
+      "kills": 3,
+      "best": 55
+     }
+    }
    },
    {
     "zone": "Ultimates",
@@ -54291,7 +54477,13 @@
     "kills": 11,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1050
+    "encounter_id": 1050,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 11,
+      "best": 20
+     }
+    }
    }
   ],
   "extremes": [
@@ -54304,7 +54496,13 @@
     "kills": 4,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1083
+    "encounter_id": 1083,
+    "job_kills": {
+     "Machinist": {
+      "kills": 4,
+      "best": 50
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -54315,7 +54513,17 @@
     "kills": 23,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1084
+    "encounter_id": 1084,
+    "job_kills": {
+     "Machinist": {
+      "kills": 11,
+      "best": 91
+     },
+     "Gunbreaker": {
+      "kills": 13,
+      "best": 51
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -54326,7 +54534,17 @@
     "kills": 12,
     "job": "BlackMage",
     "cleared": true,
-    "encounter_id": 1082
+    "encounter_id": 1082,
+    "job_kills": {
+     "BlackMage": {
+      "kills": 10,
+      "best": 73
+     },
+     "Gunbreaker": {
+      "kills": 2,
+      "best": 30
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -54337,7 +54555,13 @@
     "kills": 2,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1081
+    "encounter_id": 1081,
+    "job_kills": {
+     "Paladin": {
+      "kills": 2,
+      "best": 25
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -54348,7 +54572,17 @@
     "kills": 4,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1080
+    "encounter_id": 1080,
+    "job_kills": {
+     "BlackMage": {
+      "kills": 3,
+      "best": 38
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 39
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -54359,7 +54593,25 @@
     "kills": 6,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1078
+    "encounter_id": 1078,
+    "job_kills": {
+     "Machinist": {
+      "kills": 2,
+      "best": 11
+     },
+     "Viper": {
+      "kills": 1,
+      "best": 4
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 42
+     },
+     "Scholar": {
+      "kills": 2,
+      "best": 37
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -54370,7 +54622,45 @@
     "kills": 41,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1071
+    "encounter_id": 1071,
+    "job_kills": {
+     "Viper": {
+      "kills": 3,
+      "best": 80
+     },
+     "Machinist": {
+      "kills": 6,
+      "best": 67
+     },
+     "Pictomancer": {
+      "kills": 2,
+      "best": 47
+     },
+     "Ninja": {
+      "kills": 2,
+      "best": 31
+     },
+     "Gunbreaker": {
+      "kills": 4,
+      "best": 32
+     },
+     "Paladin": {
+      "kills": 4,
+      "best": 45
+     },
+     "Scholar": {
+      "kills": 4,
+      "best": 88
+     },
+     "Sage": {
+      "kills": 6,
+      "best": 81
+     },
+     "Astrologian": {
+      "kills": 10,
+      "best": 71
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -54381,7 +54671,33 @@
     "kills": 89,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1072
+    "encounter_id": 1072,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 3,
+      "best": 64
+     },
+     "Viper": {
+      "kills": 17,
+      "best": 70
+     },
+     "Machinist": {
+      "kills": 7,
+      "best": 82
+     },
+     "Ninja": {
+      "kills": 1,
+      "best": 33
+     },
+     "Astrologian": {
+      "kills": 51,
+      "best": 91
+     },
+     "Sage": {
+      "kills": 10,
+      "best": 85
+     }
+    }
    }
   ],
   "legacy": [
@@ -54397,7 +54713,17 @@
       "best": 62,
       "median": 47,
       "kills": 7,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 6,
+        "best": 62
+       },
+       "Pictomancer": {
+        "kills": 1,
+        "best": 51
+       }
+      }
      },
      {
       "label": "M6S",
@@ -54406,7 +54732,13 @@
       "best": 69,
       "median": 49,
       "kills": 11,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 11,
+        "best": 69
+       }
+      }
      },
      {
       "label": "M7S",
@@ -54415,7 +54747,13 @@
       "best": 44,
       "median": 18,
       "kills": 7,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 7,
+        "best": 44
+       }
+      }
      },
      {
       "label": "M8S",
@@ -54424,7 +54762,13 @@
       "best": 11,
       "median": 9,
       "kills": 2,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 2,
+        "best": 11
+       }
+      }
      }
     ]
    },
@@ -54440,7 +54784,21 @@
       "best": 87,
       "median": 74,
       "kills": 10,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 6,
+        "best": 71
+       },
+       "Scholar": {
+        "kills": 3,
+        "best": 87
+       },
+       "Sage": {
+        "kills": 1,
+        "best": 36
+       }
+      }
      },
      {
       "label": "M2S",
@@ -54449,7 +54807,25 @@
       "best": 75,
       "median": 49,
       "kills": 11,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Viper": {
+        "kills": 1,
+        "best": 15
+       },
+       "Astrologian": {
+        "kills": 7,
+        "best": 63
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 75
+       },
+       "Sage": {
+        "kills": 1,
+        "best": 25
+       }
+      }
      },
      {
       "label": "M3S",
@@ -54458,7 +54834,25 @@
       "best": 84,
       "median": 27,
       "kills": 11,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Viper": {
+        "kills": 2,
+        "best": 5
+       },
+       "Astrologian": {
+        "kills": 4,
+        "best": 84
+       },
+       "Scholar": {
+        "kills": 4,
+        "best": 76
+       },
+       "Sage": {
+        "kills": 1,
+        "best": 34
+       }
+      }
      },
      {
       "label": "M4S",
@@ -54467,7 +54861,17 @@
       "best": 60,
       "median": 29,
       "kills": 10,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 7,
+        "best": 60
+       },
+       "Scholar": {
+        "kills": 3,
+        "best": 54
+       }
+      }
      }
     ]
    },
@@ -54483,7 +54887,25 @@
       "best": 94,
       "median": 70,
       "kills": 16,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "RedMage": {
+        "kills": 2,
+        "best": 37
+       },
+       "Gunbreaker": {
+        "kills": 1,
+        "best": 27
+       },
+       "Scholar": {
+        "kills": 9,
+        "best": 94
+       },
+       "Astrologian": {
+        "kills": 4,
+        "best": 77
+       }
+      }
      },
      {
       "label": "P10S",
@@ -54492,7 +54914,21 @@
       "best": 90,
       "median": 75,
       "kills": 14,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "RedMage": {
+        "kills": 2,
+        "best": 39
+       },
+       "Scholar": {
+        "kills": 9,
+        "best": 90
+       },
+       "Astrologian": {
+        "kills": 3,
+        "best": 68
+       }
+      }
      },
      {
       "label": "P11S",
@@ -54501,7 +54937,21 @@
       "best": 92,
       "median": 70,
       "kills": 15,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "RedMage": {
+        "kills": 3,
+        "best": 24
+       },
+       "Scholar": {
+        "kills": 9,
+        "best": 92
+       },
+       "Astrologian": {
+        "kills": 3,
+        "best": 62
+       }
+      }
      },
      {
       "label": "P12S",
@@ -54510,7 +54960,25 @@
       "best": 88,
       "median": 46,
       "kills": 29,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "RedMage": {
+        "kills": 4,
+        "best": 32
+       },
+       "Scholar": {
+        "kills": 20,
+        "best": 88
+       },
+       "WhiteMage": {
+        "kills": 2,
+        "best": 59
+       },
+       "Astrologian": {
+        "kills": 3,
+        "best": 45
+       }
+      }
      },
      {
       "label": null,
@@ -54519,7 +54987,25 @@
       "best": 81,
       "median": 52,
       "kills": 11,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "RedMage": {
+        "kills": 3,
+        "best": 12
+       },
+       "Scholar": {
+        "kills": 6,
+        "best": 81
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 44
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 2
+       }
+      }
      }
     ]
    },
@@ -54535,7 +55021,25 @@
       "best": 89,
       "median": 62,
       "kills": 17,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Machinist": {
+        "kills": 1,
+        "best": 23
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 9
+       },
+       "Sage": {
+        "kills": 6,
+        "best": 89
+       },
+       "Astrologian": {
+        "kills": 9,
+        "best": 74
+       }
+      }
      },
      {
       "label": "P6S",
@@ -54544,7 +55048,25 @@
       "best": 92,
       "median": 47,
       "kills": 15,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Machinist": {
+        "kills": 1,
+        "best": 46
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 6
+       },
+       "Sage": {
+        "kills": 6,
+        "best": 92
+       },
+       "Astrologian": {
+        "kills": 7,
+        "best": 61
+       }
+      }
      },
      {
       "label": "P7S",
@@ -54553,7 +55075,25 @@
       "best": 85,
       "median": 74,
       "kills": 13,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Machinist": {
+        "kills": 1,
+        "best": 15
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 3
+       },
+       "Sage": {
+        "kills": 7,
+        "best": 85
+       },
+       "Astrologian": {
+        "kills": 4,
+        "best": 71
+       }
+      }
      },
      {
       "label": "P8S",
@@ -54562,7 +55102,25 @@
       "best": 97,
       "median": 50,
       "kills": 51,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Machinist": {
+        "kills": 2,
+        "best": 30
+       },
+       "Sage": {
+        "kills": 33,
+        "best": 97
+       },
+       "Astrologian": {
+        "kills": 13,
+        "best": 77
+       },
+       "Scholar": {
+        "kills": 3,
+        "best": 9
+       }
+      }
      },
      {
       "label": null,
@@ -54571,7 +55129,25 @@
       "best": 96,
       "median": 57,
       "kills": 18,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Machinist": {
+        "kills": 1,
+        "best": 11
+       },
+       "Sage": {
+        "kills": 10,
+        "best": 96
+       },
+       "Astrologian": {
+        "kills": 5,
+        "best": 66
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 65
+       }
+      }
      }
     ]
    },
@@ -54587,7 +55163,13 @@
       "best": 80,
       "median": 60,
       "kills": 13,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 13,
+        "best": 80
+       }
+      }
      },
      {
       "label": "P2S",
@@ -54596,7 +55178,13 @@
       "best": 83,
       "median": 49,
       "kills": 12,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 12,
+        "best": 83
+       }
+      }
      },
      {
       "label": "P3S",
@@ -54605,7 +55193,13 @@
       "best": 81,
       "median": 56,
       "kills": 11,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 11,
+        "best": 81
+       }
+      }
      },
      {
       "label": "P4S",
@@ -54614,7 +55208,13 @@
       "best": 73,
       "median": 34,
       "kills": 12,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 12,
+        "best": 73
+       }
+      }
      },
      {
       "label": null,
@@ -54623,7 +55223,13 @@
       "best": 64,
       "median": 33,
       "kills": 8,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 8,
+        "best": 64
+       }
+      }
      }
     ]
    },
@@ -54655,7 +55261,13 @@
       "best": 9,
       "median": 9,
       "kills": 2,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Machinist": {
+        "kills": 2,
+        "best": 9
+       }
+      }
      },
      {
       "label": "E6S",
@@ -54684,7 +55296,25 @@
      "best": 99,
      "median": 96,
      "kills": 12,
-     "job": "BlackMage"
+     "job": "BlackMage",
+     "job_kills": {
+      "BlackMage": {
+       "kills": 7,
+       "best": 99
+      },
+      "RedMage": {
+       "kills": 3,
+       "best": 98
+      },
+      "Dragoon": {
+       "kills": 1,
+       "best": 66
+      },
+      "Scholar": {
+       "kills": 1,
+       "best": 64
+      }
+     }
     },
     {
      "label": "M10S",
@@ -54693,7 +55323,25 @@
      "best": 92,
      "median": 81,
      "kills": 9,
-     "job": "Scholar"
+     "job": "Scholar",
+     "job_kills": {
+      "BlackMage": {
+       "kills": 4,
+       "best": 90
+      },
+      "Pictomancer": {
+       "kills": 1,
+       "best": 89
+      },
+      "RedMage": {
+       "kills": 2,
+       "best": 48
+      },
+      "Scholar": {
+       "kills": 2,
+       "best": 92
+      }
+     }
     },
     {
      "label": "M11S",
@@ -54702,7 +55350,25 @@
      "best": 92,
      "median": 79,
      "kills": 8,
-     "job": "BlackMage"
+     "job": "BlackMage",
+     "job_kills": {
+      "BlackMage": {
+       "kills": 4,
+       "best": 92
+      },
+      "RedMage": {
+       "kills": 1,
+       "best": 81
+      },
+      "Pictomancer": {
+       "kills": 2,
+       "best": 69
+      },
+      "Scholar": {
+       "kills": 1,
+       "best": 78
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -54711,7 +55377,25 @@
      "best": 95,
      "median": 49,
      "kills": 18,
-     "job": "Scholar"
+     "job": "Scholar",
+     "job_kills": {
+      "BlackMage": {
+       "kills": 6,
+       "best": 92
+      },
+      "RedMage": {
+       "kills": 4,
+       "best": 82
+      },
+      "Paladin": {
+       "kills": 2,
+       "best": 17
+      },
+      "Scholar": {
+       "kills": 6,
+       "best": 95
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -54720,7 +55404,25 @@
      "best": 87,
      "median": 74,
      "kills": 13,
-     "job": "Scholar"
+     "job": "Scholar",
+     "job_kills": {
+      "BlackMage": {
+       "kills": 4,
+       "best": 78
+      },
+      "RedMage": {
+       "kills": 2,
+       "best": 78
+      },
+      "Paladin": {
+       "kills": 2,
+       "best": 64
+      },
+      "Scholar": {
+       "kills": 5,
+       "best": 87
+      }
+     }
     }
    ],
    "clears": [
@@ -54741,7 +55443,13 @@
     "kills": 2,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1085
+    "encounter_id": 1085,
+    "job_kills": {
+     "Sage": {
+      "kills": 2,
+      "best": 84
+     }
+    }
    },
    {
     "zone": "Futures Rewritten",
@@ -54752,7 +55460,13 @@
     "kills": 13,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1079
+    "encounter_id": 1079,
+    "job_kills": {
+     "Sage": {
+      "kills": 13,
+      "best": 88
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -54774,7 +55488,17 @@
     "kills": 21,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1068
+    "encounter_id": 1068,
+    "job_kills": {
+     "Samurai": {
+      "kills": 1,
+      "best": 10
+     },
+     "Sage": {
+      "kills": 20,
+      "best": 100
+     }
+    }
    },
    {
     "zone": "Dragonsong's Reprise",
@@ -54785,7 +55509,21 @@
     "kills": 24,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1065
+    "encounter_id": 1065,
+    "job_kills": {
+     "Monk": {
+      "kills": 7,
+      "best": 99
+     },
+     "Summoner": {
+      "kills": 4,
+      "best": 100
+     },
+     "Sage": {
+      "kills": 13,
+      "best": 97
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -54796,7 +55534,37 @@
     "kills": 39,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1062
+    "encounter_id": 1062,
+    "job_kills": {
+     "Samurai": {
+      "kills": 15,
+      "best": 94
+     },
+     "Summoner": {
+      "kills": 5,
+      "best": 100
+     },
+     "RedMage": {
+      "kills": 1,
+      "best": 90
+     },
+     "Machinist": {
+      "kills": 1,
+      "best": 50
+     },
+     "Sage": {
+      "kills": 13,
+      "best": 98
+     },
+     "WhiteMage": {
+      "kills": 1,
+      "best": 93
+     },
+     "Warrior": {
+      "kills": 3,
+      "best": 67
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -54807,7 +55575,29 @@
     "kills": 8,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1061
+    "encounter_id": 1061,
+    "job_kills": {
+     "Summoner": {
+      "kills": 1,
+      "best": 77
+     },
+     "Monk": {
+      "kills": 1,
+      "best": 30
+     },
+     "Warrior": {
+      "kills": 1,
+      "best": 34
+     },
+     "Sage": {
+      "kills": 4,
+      "best": 89
+     },
+     "WhiteMage": {
+      "kills": 1,
+      "best": 67
+     }
+    }
    },
    {
     "zone": "Ultimates",
@@ -54818,7 +55608,13 @@
     "kills": 23,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1050
+    "encounter_id": 1050,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 23,
+      "best": 97
+     }
+    }
    },
    {
     "zone": "Ultimates (Stormblood)",
@@ -54829,7 +55625,13 @@
     "kills": 8,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1047
+    "encounter_id": 1047,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 8,
+      "best": 37
+     }
+    }
    },
    {
     "zone": "Ultimates (Stormblood)",
@@ -54840,7 +55642,37 @@
     "kills": 54,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1048
+    "encounter_id": 1048,
+    "job_kills": {
+     "Ninja": {
+      "kills": 6,
+      "best": 83
+     },
+     "Summoner": {
+      "kills": 11,
+      "best": 93
+     },
+     "Samurai": {
+      "kills": 8,
+      "best": 96
+     },
+     "Warrior": {
+      "kills": 8,
+      "best": 96
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 77
+     },
+     "Scholar": {
+      "kills": 14,
+      "best": 75
+     },
+     "WhiteMage": {
+      "kills": 6,
+      "best": 66
+     }
+    }
    }
   ],
   "extremes": [
@@ -54853,7 +55685,17 @@
     "kills": 2,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1083
+    "encounter_id": 1083,
+    "job_kills": {
+     "Pictomancer": {
+      "kills": 1,
+      "best": 52
+     },
+     "Summoner": {
+      "kills": 1,
+      "best": 53
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -54864,7 +55706,13 @@
     "kills": 2,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1084
+    "encounter_id": 1084,
+    "job_kills": {
+     "Scholar": {
+      "kills": 2,
+      "best": 80
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -54875,7 +55723,13 @@
     "kills": 3,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1080
+    "encounter_id": 1080,
+    "job_kills": {
+     "Sage": {
+      "kills": 6,
+      "best": 84
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -54897,7 +55751,41 @@
     "kills": 34,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1071
+    "encounter_id": 1071,
+    "job_kills": {
+     "Pictomancer": {
+      "kills": 7,
+      "best": 90
+     },
+     "Summoner": {
+      "kills": 2,
+      "best": 73
+     },
+     "Warrior": {
+      "kills": 4,
+      "best": 91
+     },
+     "Scholar": {
+      "kills": 4,
+      "best": 99
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 54
+     },
+     "Sage": {
+      "kills": 13,
+      "best": 100
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 97
+     },
+     "WhiteMage": {
+      "kills": 2,
+      "best": 98
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -54908,7 +55796,49 @@
     "kills": 63,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1072
+    "encounter_id": 1072,
+    "job_kills": {
+     "Viper": {
+      "kills": 11,
+      "best": 92
+     },
+     "Monk": {
+      "kills": 1,
+      "best": 80
+     },
+     "Summoner": {
+      "kills": 4,
+      "best": 96
+     },
+     "RedMage": {
+      "kills": 1,
+      "best": 35
+     },
+     "Bard": {
+      "kills": 1,
+      "best": 27
+     },
+     "Warrior": {
+      "kills": 10,
+      "best": 98
+     },
+     "Sage": {
+      "kills": 22,
+      "best": 100
+     },
+     "WhiteMage": {
+      "kills": 1,
+      "best": 100
+     },
+     "Scholar": {
+      "kills": 5,
+      "best": 96
+     },
+     "Astrologian": {
+      "kills": 7,
+      "best": 94
+     }
+    }
    }
   ],
   "legacy": [
@@ -54924,7 +55854,21 @@
       "best": 99,
       "median": 88,
       "kills": 9,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 7,
+        "best": 99
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 97
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 33
+       }
+      }
      },
      {
       "label": "M6S",
@@ -54933,7 +55877,21 @@
       "best": 97,
       "median": 64,
       "kills": 10,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Monk": {
+        "kills": 1,
+        "best": 6
+       },
+       "Sage": {
+        "kills": 8,
+        "best": 97
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 37
+       }
+      }
      },
      {
       "label": "M7S",
@@ -54942,7 +55900,21 @@
       "best": 97,
       "median": 79,
       "kills": 10,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Monk": {
+        "kills": 1,
+        "best": 8
+       },
+       "Sage": {
+        "kills": 8,
+        "best": 97
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 73
+       }
+      }
      },
      {
       "label": "M8S",
@@ -54951,7 +55923,17 @@
       "best": 98,
       "median": 93,
       "kills": 10,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 8,
+        "best": 98
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 86
+       }
+      }
      }
     ]
    },
@@ -54967,7 +55949,29 @@
       "best": 100,
       "median": 99,
       "kills": 82,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 3,
+        "best": 84
+       },
+       "Samurai": {
+        "kills": 2,
+        "best": 70
+       },
+       "Scholar": {
+        "kills": 19,
+        "best": 100
+       },
+       "Sage": {
+        "kills": 57,
+        "best": 100
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 98
+       }
+      }
      },
      {
       "label": "M2S",
@@ -54976,7 +55980,25 @@
       "best": 100,
       "median": 99,
       "kills": 27,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 4,
+        "best": 93
+       },
+       "Sage": {
+        "kills": 20,
+        "best": 100
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 96
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 76
+       }
+      }
      },
      {
       "label": "M3S",
@@ -54985,7 +56007,25 @@
       "best": 100,
       "median": 99,
       "kills": 27,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 4,
+        "best": 96
+       },
+       "Samurai": {
+        "kills": 1,
+        "best": 84
+       },
+       "Sage": {
+        "kills": 21,
+        "best": 100
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 97
+       }
+      }
      },
      {
       "label": "M4S",
@@ -54994,7 +56034,29 @@
       "best": 100,
       "median": 100,
       "kills": 43,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 3,
+        "best": 93
+       },
+       "Samurai": {
+        "kills": 1,
+        "best": 88
+       },
+       "Sage": {
+        "kills": 35,
+        "best": 100
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 99
+       },
+       "Astrologian": {
+        "kills": 2,
+        "best": 85
+       }
+      }
      }
     ]
    },
@@ -55010,7 +56072,45 @@
       "best": 100,
       "median": 99,
       "kills": 21,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Samurai": {
+        "kills": 3,
+        "best": 87
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 56
+       },
+       "Gunbreaker": {
+        "kills": 1,
+        "best": 91
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 85
+       },
+       "Sage": {
+        "kills": 10,
+        "best": 100
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 51
+       },
+       "WhiteMage": {
+        "kills": 2,
+        "best": 99
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 62
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 63
+       }
+      }
      },
      {
       "label": "P10S",
@@ -55019,7 +56119,29 @@
       "best": 100,
       "median": 86,
       "kills": 13,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Samurai": {
+        "kills": 3,
+        "best": 93
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 76
+       },
+       "Sage": {
+        "kills": 7,
+        "best": 100
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 64
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 83
+       }
+      }
      },
      {
       "label": "P11S",
@@ -55028,7 +56150,29 @@
       "best": 100,
       "median": 99,
       "kills": 15,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Samurai": {
+        "kills": 4,
+        "best": 86
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 86
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 95
+       },
+       "Sage": {
+        "kills": 8,
+        "best": 100
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 91
+       }
+      }
      },
      {
       "label": "P12S",
@@ -55037,7 +56181,29 @@
       "best": 100,
       "median": 87,
       "kills": 26,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Monk": {
+        "kills": 5,
+        "best": 80
+       },
+       "Samurai": {
+        "kills": 3,
+        "best": 41
+       },
+       "Summoner": {
+        "kills": 2,
+        "best": 55
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 81
+       },
+       "Sage": {
+        "kills": 14,
+        "best": 100
+       }
+      }
      },
      {
       "label": null,
@@ -55046,7 +56212,25 @@
       "best": 100,
       "median": 87,
       "kills": 14,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Monk": {
+        "kills": 5,
+        "best": 89
+       },
+       "Samurai": {
+        "kills": 2,
+        "best": 79
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 66
+       },
+       "Sage": {
+        "kills": 6,
+        "best": 100
+       }
+      }
      }
     ]
    },
@@ -55062,7 +56246,25 @@
       "best": 100,
       "median": 100,
       "kills": 49,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Monk": {
+        "kills": 1,
+        "best": 71
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 14
+       },
+       "Sage": {
+        "kills": 46,
+        "best": 100
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 89
+       }
+      }
      },
      {
       "label": "P6S",
@@ -55071,7 +56273,17 @@
       "best": 100,
       "median": 100,
       "kills": 57,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 55,
+        "best": 100
+       },
+       "Astrologian": {
+        "kills": 2,
+        "best": 92
+       }
+      }
      },
      {
       "label": "P7S",
@@ -55080,7 +56292,21 @@
       "best": 100,
       "median": 100,
       "kills": 44,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Bard": {
+        "kills": 2,
+        "best": 74
+       },
+       "Sage": {
+        "kills": 41,
+        "best": 100
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 67
+       }
+      }
      },
      {
       "label": "P8S",
@@ -55089,7 +56315,25 @@
       "best": 100,
       "median": 97,
       "kills": 34,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Monk": {
+        "kills": 2,
+        "best": 78
+       },
+       "Bard": {
+        "kills": 2,
+        "best": 56
+       },
+       "Sage": {
+        "kills": 29,
+        "best": 100
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 96
+       }
+      }
      },
      {
       "label": null,
@@ -55098,7 +56342,25 @@
       "best": 100,
       "median": 98,
       "kills": 21,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Monk": {
+        "kills": 2,
+        "best": 97
+       },
+       "Bard": {
+        "kills": 2,
+        "best": 69
+       },
+       "Sage": {
+        "kills": 16,
+        "best": 100
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 99
+       }
+      }
      }
     ]
    },
@@ -55114,7 +56376,33 @@
       "best": 100,
       "median": 99,
       "kills": 62,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 21,
+        "best": 100
+       },
+       "Monk": {
+        "kills": 3,
+        "best": 88
+       },
+       "RedMage": {
+        "kills": 6,
+        "best": 100
+       },
+       "Astrologian": {
+        "kills": 22,
+        "best": 99
+       },
+       "Scholar": {
+        "kills": 7,
+        "best": 98
+       },
+       "Sage": {
+        "kills": 3,
+        "best": 99
+       }
+      }
      },
      {
       "label": "P2S",
@@ -55123,7 +56411,33 @@
       "best": 100,
       "median": 98,
       "kills": 57,
-      "job": "RedMage"
+      "job": "RedMage",
+      "job_kills": {
+       "Monk": {
+        "kills": 3,
+        "best": 94
+       },
+       "Summoner": {
+        "kills": 18,
+        "best": 100
+       },
+       "RedMage": {
+        "kills": 5,
+        "best": 100
+       },
+       "Astrologian": {
+        "kills": 28,
+        "best": 99
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 88
+       },
+       "Sage": {
+        "kills": 1,
+        "best": 76
+       }
+      }
      },
      {
       "label": "P3S",
@@ -55132,7 +56446,29 @@
       "best": 100,
       "median": 98,
       "kills": 28,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 9,
+        "best": 100
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 85
+       },
+       "Astrologian": {
+        "kills": 14,
+        "best": 100
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 74
+       },
+       "Sage": {
+        "kills": 2,
+        "best": 60
+       }
+      }
      },
      {
       "label": "P4S",
@@ -55141,7 +56477,33 @@
       "best": 100,
       "median": 88,
       "kills": 38,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 10,
+        "best": 100
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 96
+       },
+       "Monk": {
+        "kills": 2,
+        "best": 64
+       },
+       "Astrologian": {
+        "kills": 21,
+        "best": 98
+       },
+       "Scholar": {
+        "kills": 3,
+        "best": 83
+       },
+       "Sage": {
+        "kills": 1,
+        "best": 71
+       }
+      }
      },
      {
       "label": null,
@@ -55150,7 +56512,29 @@
       "best": 100,
       "median": 99,
       "kills": 25,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Monk": {
+        "kills": 2,
+        "best": 85
+       },
+       "Summoner": {
+        "kills": 7,
+        "best": 98
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 69
+       },
+       "Astrologian": {
+        "kills": 13,
+        "best": 100
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 90
+       }
+      }
      }
     ]
    },
@@ -55166,7 +56550,29 @@
       "best": 100,
       "median": 96,
       "kills": 77,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Monk": {
+        "kills": 1,
+        "best": 12
+       },
+       "Astrologian": {
+        "kills": 58,
+        "best": 100
+       },
+       "Warrior": {
+        "kills": 11,
+        "best": 99
+       },
+       "Gunbreaker": {
+        "kills": 2,
+        "best": 78
+       },
+       "Scholar": {
+        "kills": 5,
+        "best": 93
+       }
+      }
      },
      {
       "label": "E10S",
@@ -55175,7 +56581,29 @@
       "best": 100,
       "median": 98,
       "kills": 113,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Summoner": {
+        "kills": 2,
+        "best": 51
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 49
+       },
+       "Astrologian": {
+        "kills": 85,
+        "best": 100
+       },
+       "Scholar": {
+        "kills": 17,
+        "best": 97
+       },
+       "Warrior": {
+        "kills": 8,
+        "best": 99
+       }
+      }
      },
      {
       "label": "E11S",
@@ -55184,7 +56612,33 @@
       "best": 99,
       "median": 96,
       "kills": 92,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 3,
+        "best": 90
+       },
+       "Astrologian": {
+        "kills": 67,
+        "best": 99
+       },
+       "Warrior": {
+        "kills": 18,
+        "best": 99
+       },
+       "Gunbreaker": {
+        "kills": 2,
+        "best": 76
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 92
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 75
+       }
+      }
      },
      {
       "label": "E12S",
@@ -55193,7 +56647,25 @@
       "best": 99,
       "median": 77,
       "kills": 66,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Summoner": {
+        "kills": 1,
+        "best": 16
+       },
+       "Astrologian": {
+        "kills": 57,
+        "best": 99
+       },
+       "Warrior": {
+        "kills": 7,
+        "best": 90
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 58
+       }
+      }
      },
      {
       "label": null,
@@ -55202,7 +56674,21 @@
       "best": 99,
       "median": 74,
       "kills": 41,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 38,
+        "best": 99
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 82
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 32
+       }
+      }
      }
     ]
    },
@@ -55218,7 +56704,21 @@
       "best": 97,
       "median": 69,
       "kills": 22,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 8,
+        "best": 78
+       },
+       "WhiteMage": {
+        "kills": 11,
+        "best": 97
+       },
+       "Scholar": {
+        "kills": 3,
+        "best": 97
+       }
+      }
      },
      {
       "label": "E6S",
@@ -55227,7 +56727,21 @@
       "best": 95,
       "median": 84,
       "kills": 15,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 1,
+        "best": 33
+       },
+       "WhiteMage": {
+        "kills": 12,
+        "best": 95
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 90
+       }
+      }
      },
      {
       "label": "E7S",
@@ -55236,7 +56750,17 @@
       "best": 93,
       "median": 78,
       "kills": 13,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 11,
+        "best": 93
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 83
+       }
+      }
      },
      {
       "label": "E8S",
@@ -55245,7 +56769,17 @@
       "best": 91,
       "median": 65,
       "kills": 12,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 11,
+        "best": 91
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 58
+       }
+      }
      }
     ]
    }
