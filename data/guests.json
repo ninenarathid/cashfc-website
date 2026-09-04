@@ -8,7 +8,7 @@
    "seen": "2026-09-02",
    "mounts": 189,
    "minions": 366,
-   "rare_achv": 315,
+   "rare_achv": 316,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788457480",
    "collect_seen": "2026-09-04",
@@ -75,68 +75,124 @@
    "progress_all": null,
    "job_top": {
     "job": "Sage",
-    "fights": 5,
-    "kills": 114,
-    "parse": 96.6,
-    "score": 96.6,
+    "fights": 12,
+    "kills": 88,
+    "parse": 86.9,
+    "score": 85.7,
     "tier": "legendary",
-    "hardest": "legacy"
+    "hardest": "ultimate"
    },
    "job_scores": {
     "Machinist": {
-     "fights": 10,
-     "kills": 97,
-     "parse": 83.0,
-     "score": 82.8,
-     "tier": "legendary",
+     "fights": 18,
+     "kills": 92,
+     "parse": 78.5,
+     "score": 77.9,
+     "tier": "master",
      "hardest": "ultimate"
     },
-    "BlackMage": {
+    "Gunbreaker": {
      "fights": 5,
-     "kills": 39,
-     "parse": 62.5,
-     "score": 56.0,
-     "tier": "expert",
+     "kills": 22,
+     "parse": 46.1,
+     "score": 38.4,
+     "tier": null,
      "hardest": "legacy"
     },
+    "BlackMage": {
+     "fights": 7,
+     "kills": 43,
+     "parse": 54.5,
+     "score": 49.4,
+     "tier": null,
+     "hardest": "ultimate"
+    },
     "Paladin": {
-     "fights": 3,
-     "kills": 13,
-     "parse": 80.7,
-     "score": 58.1,
+     "fights": 5,
+     "kills": 17,
+     "parse": 73.6,
+     "score": 59.2,
      "tier": "expert",
      "hardest": "ultimate"
     },
     "Astrologian": {
-     "fights": 13,
-     "kills": 198,
-     "parse": 76.3,
-     "score": 76.3,
+     "fights": 27,
+     "kills": 220,
+     "parse": 73.3,
+     "score": 73.3,
      "tier": "master",
      "hardest": "ultimate"
     },
-    "Scholar": {
-     "fights": 10,
-     "kills": 163,
-     "parse": 82.2,
-     "score": 82.2,
-     "tier": "legendary",
-     "hardest": "ultimate"
-    },
-    "Pictomancer": {
-     "fights": 1,
-     "kills": 13,
-     "parse": 58.0,
-     "score": 35.2,
+    "Viper": {
+     "fights": 6,
+     "kills": 26,
+     "parse": 53.8,
+     "score": 45.8,
      "tier": null,
      "hardest": "ultimate"
     },
+    "Scholar": {
+     "fights": 15,
+     "kills": 88,
+     "parse": 76.0,
+     "score": 75.0,
+     "tier": "master",
+     "hardest": "ultimate"
+    },
+    "Pictomancer": {
+     "fights": 3,
+     "kills": 10,
+     "parse": 56.9,
+     "score": 39.4,
+     "tier": null,
+     "hardest": "ultimate"
+    },
+    "Ninja": {
+     "fights": 2,
+     "kills": 3,
+     "parse": 31.7,
+     "score": 16.5,
+     "tier": null,
+     "hardest": "extreme"
+    },
     "Sage": {
-     "fights": 5,
-     "kills": 114,
-     "parse": 96.6,
-     "score": 96.6,
+     "fights": 12,
+     "kills": 88,
+     "parse": 86.9,
+     "score": 85.7,
      "tier": "legendary",
+     "hardest": "ultimate"
+    },
+    "Warrior": {
+     "fights": 2,
+     "kills": 4,
+     "parse": 34.5,
+     "score": 18.8,
+     "tier": null,
+     "hardest": "ultimate"
+    },
+    "Dancer": {
+     "fights": 1,
+     "kills": 2,
+     "parse": 57.0,
+     "score": 24.6,
+     "tier": null,
+     "hardest": "ultimate"
+    },
+    "RedMage": {
+     "fights": 8,
+     "kills": 17,
+     "parse": 26.9,
+     "score": 21.6,
+     "tier": null,
+     "hardest": "legacy"
+    },
+    "WhiteMage": {
+     "fights": 2,
+     "kills": 3,
+     "parse": 57.0,
+     "score": 29.7,
+     "tier": null,
      "hardest": "legacy"
     }
    },
@@ -213,84 +269,156 @@
    "progress_all": null,
    "job_top": {
     "job": "Sage",
-    "fights": 25,
-    "kills": 656,
-    "parse": 99.9,
-    "score": 99.9,
+    "fights": 31,
+    "kills": 506,
+    "parse": 99.7,
+    "score": 99.7,
     "tier": "legendary",
     "hardest": "ultimate"
    },
    "job_scores": {
     "BlackMage": {
-     "fights": 2,
-     "kills": 20,
-     "parse": 98.8,
-     "score": 70.1,
-     "tier": "master",
-     "hardest": "savage"
-    },
-    "Scholar": {
-     "fights": 4,
-     "kills": 42,
-     "parse": 96.3,
-     "score": 87.0,
+     "fights": 8,
+     "kills": 37,
+     "parse": 91.3,
+     "score": 81.2,
      "tier": "legendary",
      "hardest": "savage"
     },
+    "RedMage": {
+     "fights": 14,
+     "kills": 30,
+     "parse": 86.3,
+     "score": 74.8,
+     "tier": "master",
+     "hardest": "ultimate"
+    },
+    "Dragoon": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 71.0,
+     "score": 27.4,
+     "tier": null,
+     "hardest": "savage"
+    },
+    "Scholar": {
+     "fights": 31,
+     "kills": 118,
+     "parse": 92.5,
+     "score": 92.5,
+     "tier": "legendary",
+     "hardest": "ultimate"
+    },
+    "Pictomancer": {
+     "fights": 8,
+     "kills": 25,
+     "parse": 90.3,
+     "score": 76.4,
+     "tier": "master",
+     "hardest": "savage"
+    },
+    "Paladin": {
+     "fights": 4,
+     "kills": 6,
+     "parse": 47.5,
+     "score": 33.1,
+     "tier": null,
+     "hardest": "savage"
+    },
     "Summoner": {
-     "fights": 6,
-     "kills": 193,
-     "parse": 99.8,
-     "score": 99.8,
+     "fights": 15,
+     "kills": 98,
+     "parse": 96.9,
+     "score": 96.8,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Sage": {
-     "fights": 25,
-     "kills": 656,
-     "parse": 99.9,
-     "score": 99.9,
+     "fights": 31,
+     "kills": 506,
+     "parse": 99.7,
+     "score": 99.7,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Samurai": {
-     "fights": 2,
-     "kills": 55,
-     "parse": 99.7,
-     "score": 81.9,
+     "fights": 12,
+     "kills": 44,
+     "parse": 91.8,
+     "score": 83.4,
      "tier": "legendary",
      "hardest": "ultimate"
     },
-    "Monk": {
-     "fights": 1,
-     "kills": 1,
-     "parse": 17.0,
-     "score": 6.5,
-     "tier": null,
+    "Warrior": {
+     "fights": 15,
+     "kills": 78,
+     "parse": 94.7,
+     "score": 92.2,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "Astrologian": {
-     "fights": 8,
-     "kills": 445,
-     "parse": 98.3,
-     "score": 98.3,
+     "fights": 24,
+     "kills": 454,
+     "parse": 97.9,
+     "score": 97.9,
      "tier": "legendary",
      "hardest": "ultimate"
     },
-    "RedMage": {
+    "WhiteMage": {
+     "fights": 16,
+     "kills": 64,
+     "parse": 91.8,
+     "score": 87.3,
+     "tier": "legendary",
+     "hardest": "ultimate"
+    },
+    "Viper": {
      "fights": 1,
-     "kills": 57,
-     "parse": 100.0,
-     "score": 76.9,
+     "kills": 11,
+     "parse": 92.0,
+     "score": 54.2,
+     "tier": "expert",
+     "hardest": "extreme"
+    },
+    "Monk": {
+     "fights": 18,
+     "kills": 40,
+     "parse": 80.9,
+     "score": 72.7,
      "tier": "master",
+     "hardest": "ultimate"
+    },
+    "Bard": {
+     "fights": 4,
+     "kills": 7,
+     "parse": 65.1,
+     "score": 46.4,
+     "tier": null,
      "hardest": "legacy"
     },
-    "WhiteMage": {
-     "fights": 4,
-     "kills": 62,
-     "parse": 97.5,
-     "score": 92.4,
-     "tier": "legendary",
+    "Machinist": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 62.0,
+     "score": 23.9,
+     "tier": null,
+     "hardest": "ultimate"
+    },
+    "Ninja": {
+     "fights": 1,
+     "kills": 6,
+     "parse": 95.0,
+     "score": 50.2,
+     "tier": "expert",
+     "hardest": "ultimate"
+    },
+    "Gunbreaker": {
+     "fights": 3,
+     "kills": 5,
+     "parse": 82.8,
+     "score": 51.6,
+     "tier": "expert",
      "hardest": "legacy"
     }
    },
@@ -317,7 +445,7 @@
    ],
    "achv_tiers": {},
    "parse": 98,
-   "savage_kills": 4,
+   "savage_kills": 5,
    "ult_clears": 2,
    "ult_cleared": [
     "Dragonsong's Reprise",
@@ -331,7 +459,7 @@
     "Dragonsong's Reprise",
     "The Epic of Alexander"
    ],
-   "legacy_clears": 1,
+   "legacy_clears": 3,
    "ex_cleared": [
     "Doomtrain",
     "Enuo",
@@ -345,50 +473,67 @@
     true,
     true,
     true,
+    true,
     true
    ],
    "current_seen": true,
    "progress": null,
    "progress_all": null,
    "job_top": {
-    "job": "DarkKnight",
-    "fights": 4,
-    "kills": 78,
-    "parse": 88.3,
-    "score": 85.9,
+    "job": "Paladin",
+    "fights": 11,
+    "kills": 102,
+    "parse": 81.0,
+    "score": 81.0,
     "tier": "legendary",
-    "hardest": "legacy"
+    "hardest": "savage"
    },
    "job_scores": {
     "Paladin": {
-     "fights": 6,
-     "kills": 52,
-     "parse": 78.1,
-     "score": 72.4,
-     "tier": "master",
+     "fights": 11,
+     "kills": 102,
+     "parse": 81.0,
+     "score": 81.0,
+     "tier": "legendary",
      "hardest": "savage"
+    },
+    "Samurai": {
+     "fights": 1,
+     "kills": 8,
+     "parse": 41.0,
+     "score": 22.8,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Monk": {
+     "fights": 5,
+     "kills": 15,
+     "parse": 50.9,
+     "score": 40.3,
+     "tier": null,
+     "hardest": "extreme"
     },
     "DarkKnight": {
      "fights": 4,
-     "kills": 78,
-     "parse": 88.3,
-     "score": 85.9,
-     "tier": "legendary",
+     "kills": 16,
+     "parse": 67.5,
+     "score": 53.9,
+     "tier": "expert",
      "hardest": "legacy"
     },
-    "Monk": {
-     "fights": 1,
-     "kills": 18,
-     "parse": 69.0,
-     "score": 44.3,
+    "BlackMage": {
+     "fights": 2,
+     "kills": 8,
+     "parse": 52.5,
+     "score": 32.2,
      "tier": null,
      "hardest": "extreme"
     },
     "Scholar": {
-     "fights": 1,
-     "kills": 13,
-     "parse": 34.0,
-     "score": 20.6,
+     "fights": 2,
+     "kills": 15,
+     "parse": 32.1,
+     "score": 21.8,
      "tier": null,
      "hardest": "extreme"
     }
@@ -403,35 +548,64 @@
    "dc": "Elemental",
    "fc": "Cult of the Lalafell",
    "seen": "2026-09-04",
-   "mounts": 69,
-   "minions": 316,
-   "rare_achv": 109,
+   "mounts": 84,
+   "minions": 325,
+   "rare_achv": 121,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1753077041",
+   "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788521581",
    "collect_seen": "2026-09-04",
    "tags": [
+    "prog",
+    "extreme",
     "crafter",
-    "treasure"
+    "treasure",
+    "pvp"
    ],
    "achv_tiers": {
-    "crafter": "legendary"
+    "crafter": "legendary",
+    "pvp": "master"
    },
-   "parse": null,
-   "savage_kills": 0,
+   "parse": 82,
+   "savage_kills": 1,
    "ult_clears": 0,
    "ult_cleared": [],
    "ult_achv": [],
    "ult_achv_only": [],
-   "legacy_clears": 0,
-   "ex_cleared": [],
-   "ex_kills": 0,
-   "current_clears": null,
-   "current_seen": false,
+   "legacy_clears": 8,
+   "ex_cleared": [
+    "Doomtrain"
+   ],
+   "ex_kills": 2,
+   "current_clears": [
+    true,
+    false,
+    false,
+    false,
+    false
+   ],
+   "current_seen": true,
    "progress": null,
    "progress_all": null,
    "job_top": null,
-   "job_scores": {},
-   "fflogs": "skipped",
+   "job_scores": {
+    "WhiteMage": {
+     "fights": 9,
+     "kills": 27,
+     "parse": 41.7,
+     "score": 35.6,
+     "tier": null,
+     "hardest": "savage"
+    },
+    "Astrologian": {
+     "fights": 3,
+     "kills": 15,
+     "parse": 56.5,
+     "score": 41.5,
+     "tier": null,
+     "hardest": "legacy"
+    }
+   },
+   "fflogs": "ok",
    "lode_achv_public": null,
    "stats_seen": "2026-09-04"
   },
@@ -440,14 +614,313 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "HebitsuchuS",
-   "seen": "2026-09-04"
+   "seen": "2026-09-04",
+   "mounts": 37,
+   "minions": 59,
+   "rare_achv": null,
+   "ach_public": false,
+   "portrait": "https://img2.finalfantasyxiv.com/f/4203c340e98d92d7d1e82849bb2343dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704542683",
+   "collect_seen": "2026-09-04",
+   "tags": [
+    "ultimate",
+    "tier-clear",
+    "extreme"
+   ],
+   "achv_tiers": {},
+   "parse": 97,
+   "savage_kills": 5,
+   "ult_clears": 4,
+   "ult_cleared": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": [],
+   "ult_achv_only": [],
+   "legacy_clears": 13,
+   "ex_cleared": [
+    "Doomtrain",
+    "Enuo",
+    "Guardian Arkveld",
+    "Necron",
+    "Queen Eternal",
+    "Valigarmanda",
+    "Zelenia",
+    "Zoraal Ja"
+   ],
+   "ex_kills": 89,
+   "current_clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "current_seen": true,
+   "progress": null,
+   "progress_all": null,
+   "job_top": {
+    "job": "DarkKnight",
+    "fights": 14,
+    "kills": 94,
+    "parse": 87.0,
+    "score": 86.5,
+    "tier": "legendary",
+    "hardest": "savage"
+   },
+   "job_scores": {
+    "DarkKnight": {
+     "fights": 14,
+     "kills": 94,
+     "parse": 87.0,
+     "score": 86.5,
+     "tier": "legendary",
+     "hardest": "savage"
+    },
+    "Warrior": {
+     "fights": 24,
+     "kills": 214,
+     "parse": 74.5,
+     "score": 74.5,
+     "tier": "master",
+     "hardest": "ultimate"
+    }
+   },
+   "fflogs": "ok",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-04"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "TRASTASA",
-   "seen": "2026-09-04"
+   "seen": "2026-09-04",
+   "mounts": 153,
+   "minions": 270,
+   "rare_achv": 206,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788561267",
+   "collect_seen": "2026-09-04",
+   "tags": [
+    "ultimate",
+    "tier-clear",
+    "extreme",
+    "crafter",
+    "relic",
+    "explorer",
+    "treasure"
+   ],
+   "achv_tiers": {
+    "crafter": "expert",
+    "relic": "legendary",
+    "explorer": "master"
+   },
+   "parse": 99,
+   "savage_kills": 5,
+   "ult_clears": 4,
+   "ult_cleared": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv_only": [],
+   "legacy_clears": 11,
+   "ex_cleared": [
+    "Doomtrain",
+    "Enuo",
+    "Guardian Arkveld",
+    "Necron",
+    "Queen Eternal",
+    "Valigarmanda",
+    "Zelenia",
+    "Zoraal Ja"
+   ],
+   "ex_kills": 274,
+   "current_clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "current_seen": true,
+   "progress": null,
+   "progress_all": null,
+   "job_top": {
+    "job": "Reaper",
+    "fights": 11,
+    "kills": 100,
+    "parse": 94.4,
+    "score": 94.4,
+    "tier": "legendary",
+    "hardest": "savage"
+   },
+   "job_scores": {
+    "Reaper": {
+     "fights": 11,
+     "kills": 100,
+     "parse": 94.4,
+     "score": 94.4,
+     "tier": "legendary",
+     "hardest": "savage"
+    },
+    "Samurai": {
+     "fights": 10,
+     "kills": 10,
+     "parse": 25.8,
+     "score": 19.3,
+     "tier": null,
+     "hardest": "savage"
+    },
+    "Scholar": {
+     "fights": 18,
+     "kills": 78,
+     "parse": 63.8,
+     "score": 62.1,
+     "tier": "expert",
+     "hardest": "savage"
+    },
+    "RedMage": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 15.0,
+     "score": 5.8,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "WhiteMage": {
+     "fights": 4,
+     "kills": 38,
+     "parse": 90.4,
+     "score": 80.7,
+     "tier": "legendary",
+     "hardest": "extreme"
+    },
+    "Monk": {
+     "fights": 2,
+     "kills": 10,
+     "parse": 79.0,
+     "score": 50.2,
+     "tier": "expert",
+     "hardest": "extreme"
+    },
+    "Machinist": {
+     "fights": 2,
+     "kills": 3,
+     "parse": 31.3,
+     "score": 16.3,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "BlackMage": {
+     "fights": 2,
+     "kills": 6,
+     "parse": 33.7,
+     "score": 19.7,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Bard": {
+     "fights": 2,
+     "kills": 2,
+     "parse": 34.4,
+     "score": 16.8,
+     "tier": null,
+     "hardest": "legacy"
+    },
+    "Paladin": {
+     "fights": 7,
+     "kills": 48,
+     "parse": 84.6,
+     "score": 77.7,
+     "tier": "master",
+     "hardest": "legacy"
+    },
+    "Warrior": {
+     "fights": 4,
+     "kills": 19,
+     "parse": 62.5,
+     "score": 51.0,
+     "tier": "expert",
+     "hardest": "legacy"
+    },
+    "DarkKnight": {
+     "fights": 11,
+     "kills": 29,
+     "parse": 74.4,
+     "score": 64.2,
+     "tier": "expert",
+     "hardest": "ultimate"
+    },
+    "Sage": {
+     "fights": 6,
+     "kills": 38,
+     "parse": 77.5,
+     "score": 69.2,
+     "tier": "master",
+     "hardest": "legacy"
+    },
+    "Astrologian": {
+     "fights": 12,
+     "kills": 78,
+     "parse": 54.7,
+     "score": 53.2,
+     "tier": "expert",
+     "hardest": "ultimate"
+    },
+    "Gunbreaker": {
+     "fights": 1,
+     "kills": 3,
+     "parse": 67.0,
+     "score": 31.1,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Pictomancer": {
+     "fights": 1,
+     "kills": 3,
+     "parse": 51.0,
+     "score": 23.7,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Viper": {
+     "fights": 1,
+     "kills": 6,
+     "parse": 42.0,
+     "score": 22.2,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Dragoon": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 32.0,
+     "score": 12.3,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Dancer": {
+     "fights": 4,
+     "kills": 26,
+     "parse": 57.2,
+     "score": 48.7,
+     "tier": null,
+     "hardest": "legacy"
+    }
+   },
+   "fflogs": "ok",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-04"
   }
  },
  "generated_at": "2026-09-04T22:30:55Z",
