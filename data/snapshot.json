@@ -5603,7 +5603,7 @@
  },
  "39959181": {
   "name": "El Blung",
-  "parse": 80,
+  "parse": 91,
   "ult": 3,
   "mounts": 103,
   "minions": 161,
@@ -5619,7 +5619,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dancer": "expert"
+   "Dancer": "master"
   },
   "ex": [
    "Doomtrain",
@@ -5633,7 +5633,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -5750,7 +5750,7 @@
  },
  "31001697": {
   "name": "Flora Neuenmuller",
-  "parse": 86,
+  "parse": 93,
   "ult": 1,
   "mounts": 106,
   "minions": 155,
@@ -5772,7 +5772,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -6320,7 +6320,7 @@
    "relic": "expert"
   },
   "jobs": {
-   "DarkKnight": "master",
+   "DarkKnight": "legendary",
    "Warrior": "legendary",
    "Gunbreaker": "legendary",
    "Paladin": "legendary"
@@ -6341,7 +6341,7 @@
  },
  "29918255": {
   "name": "Lyndanisse Vymmaith",
-  "parse": 62,
+  "parse": 67,
   "ult": 0,
   "mounts": 194,
   "minions": 418,
@@ -6471,7 +6471,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -6703,7 +6703,7 @@
  },
  "31831003": {
   "name": "North Nostafari",
-  "parse": 81,
+  "parse": 98,
   "ult": 1,
   "mounts": 146,
   "minions": 291,
@@ -6718,12 +6718,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Astrologian": "legendary"
+  },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -7084,7 +7086,8 @@
   ],
   "tiers": {},
   "jobs": {
-   "Viper": "master"
+   "Viper": "master",
+   "Samurai": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -7185,8 +7188,8 @@
   "jobs": {
    "Viper": "legendary",
    "Reaper": "legendary",
-   "Gunbreaker": "expert",
-   "DarkKnight": "master"
+   "Gunbreaker": "master",
+   "DarkKnight": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -7534,14 +7537,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-04"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -7767,7 +7770,7 @@
  },
  "3256238": {
   "name": "Ai Tsukuyomi",
-  "parse": 17,
+  "parse": 25,
   "ult": 0,
   "mounts": 30,
   "minions": 101,
@@ -7787,7 +7790,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "45150763": {
   "name": "Aiqing Kumamon",
