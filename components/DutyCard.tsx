@@ -2,7 +2,9 @@
 
 import type { ReactNode } from "react";
 import JobIcon from "@/components/JobIcon";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { parseColor } from "@/lib/parse";
+import type { JobKills } from "@/lib/types";
 
 /**
  * One fight, on a card with a still from it behind the words.
@@ -31,7 +33,7 @@ import { parseColor } from "@/lib/parse";
  * a mistake rather than as a frame.
  */
 export default function DutyCard(
-  { name, badge, subtitle, cleared, kills, jobs = [], best, art,
+  { name, badge, subtitle, cleared, kills, jobs = [], breakdown, best, art,
     focus = "center top", dim = false }: {
     // Nullable: FF Logs names most fights and occasionally does not, and a row
     // for a kill it will not name is still a kill worth showing.
@@ -45,13 +47,17 @@ export default function DutyCard(
     /**
       * The job their best parse was set on — FF Logs' bestSpec, one per zone.
       *
-      * Not the jobs they killed it on. FF Logs reports a fight's kills as one
-      * all-jobs total and names only the job of the best parse, so "55 kills ·
-      * Dark Knight" was reading as fifty-five kills on Dark Knight when two of
-      * them were: the other fifty-three were Paladin. There is no per-job kill
-      * count in what we ask for, so the card stops implying one.
+      * Not the jobs they killed it on: that is `breakdown`, and where it is
+      * present it replaces this. Kept as the fallback for fights the job-detail
+      * stage has not reached, where all we know is who set the best parse.
       */
     jobs?: (string | null | undefined)[];
+    /**
+      * Who actually did the killing, per job. Costs a request per fight to
+      * learn, so it arrives a few dozen members at a time and this is undefined
+      * until it does.
+      */
+    breakdown?: JobKills | null;
     best?: number | null;
     art?: string | null;
     /** Where to anchor the crop; see artFocus in lib/duty.ts. */
@@ -60,6 +66,9 @@ export default function DutyCard(
     dim?: boolean;
   },
 ) {
+  // Most kills first, which is the order that answers "what do they play here?".
+  const split = Object.entries(breakdown ?? {})
+    .sort((a, b) => b[1].kills - a[1].kills);
   return (
     <div
       style={art ? {
@@ -96,7 +105,25 @@ export default function DutyCard(
             place on the card with room to spare. */}
         <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11.5px] text-muted">
           <span>{cleared && kills != null ? `${kills} kills` : "no log"}</span>
-          {jobs.filter(Boolean).length > 0 && (
+          {split.length > 0 ? (
+            // The real answer: a number against each job, biggest first. The
+            // job names are in the tooltips rather than on the line — four
+            // jobs spelled out is a paragraph, four icons and four numbers is
+            // a glance, and the glance is what somebody scanning a page of
+            // fights is doing.
+            <span className="inline-flex flex-wrap items-center gap-x-1.5">
+              <span className="opacity-50">·</span>
+              {split.map(([job, r]) => (
+                <Tooltip key={job} side="bottom"
+                         content={`${job} — ${r.kills} kill${r.kills === 1 ? "" : "s"}${
+                           r.best != null ? `, best ${r.best}` : ""}`}>
+                  <span className="inline-flex cursor-default items-center gap-1">
+                    <JobIcon job={job} size={14} /> {r.kills}
+                  </span>
+                </Tooltip>
+              ))}
+            </span>
+          ) : jobs.filter(Boolean).length > 0 && (
             <span className="inline-flex flex-wrap items-center gap-x-1.5">
               <span className="opacity-50">·</span>
               <span className="opacity-75">best on</span>

@@ -128,6 +128,11 @@ def main() -> int:
                 "give this the roster's rotation if it stays this way.")
         try:
             P.run_fflogs(guests, raids, full_history=full)
+            # Which job actually killed each fight. Guests are few enough that
+            # the rotation never bites, and the cycle written here is thrown away
+            # with the rest of the roster's state below — so they are re-read
+            # every day, which is what a handful of people costs.
+            P.run_job_detail(guests, raids)
         finally:
             # run_fflogs saves extra.json itself as it checkpoints, so this is
             # restored on disk as well as in memory.

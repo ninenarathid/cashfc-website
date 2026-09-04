@@ -1,6 +1,6 @@
 "use client";
 
-import type { JobScore, MemberRaids } from "@/lib/types";
+import type { JobKills, JobScore, MemberRaids } from "@/lib/types";
 import { ACHV_TIER_LABEL, CONTENT_LABEL } from "@/lib/types";
 import JobIcon, { jobLabel, jobTierStyle } from "@/components/JobIcon";
 import { parseColor } from "@/lib/parse";
@@ -45,19 +45,33 @@ export function jobRows(raids: MemberRaids | null): JobRow[] {
     acc.set(job, row);
   };
 
+  // One fight, split across the jobs that actually fought it. Where the
+  // job-detail stage has not reached a fight yet there is only the job holding
+  // the best parse, and it takes the whole fight — which is what every row here
+  // used to be, and what put fifty-three Paladin kills under Dark Knight.
+  const split = (
+    row: { job: string | null; job_kills?: JobKills | null;
+           best: number | null; kills: number },
+    fight: Omit<Fight, "best" | "kills">,
+  ) => {
+    const per = Object.entries(row.job_kills ?? {});
+    if (per.length) {
+      for (const [job, r] of per)
+        add(job, { ...fight, best: r.best, kills: r.kills });
+    } else {
+      add(row.job, { ...fight, best: row.best, kills: row.kills });
+    }
+  };
+
   for (const e of raids.current?.encounters ?? [])
-    add(e.job, { name: e.name ?? "?", label: e.label, best: e.best,
-                 kills: e.kills, where: "Savage" });
+    split(e, { name: e.name ?? "?", label: e.label, where: "Savage" });
   for (const e of raids.extremes ?? [])
-    add(e.job, { name: e.name ?? "?", label: null, best: e.best,
-                 kills: e.kills, where: "Extreme" });
+    split(e, { name: e.name ?? "?", label: null, where: "Extreme" });
   for (const u of raids.ultimates ?? [])
-    add(u.job, { name: u.name ?? u.zone, label: null, best: u.best,
-                 kills: u.kills, where: "Ultimate" });
+    split(u, { name: u.name ?? u.zone, label: null, where: "Ultimate" });
   for (const z of raids.legacy ?? [])
     for (const e of z.encounters ?? [])
-      add(e.job, { name: e.name ?? "?", label: e.label, best: e.best,
-                   kills: e.kills, where: z.zone });
+      split(e, { name: e.name ?? "?", label: e.label, where: z.zone });
 
   return [...acc.values()].map((r) => ({
     ...r,
@@ -116,17 +130,13 @@ export default function JobBreakdown(
                     />
                   </span>
                   <span className="w-24 shrink-0 text-right text-[11.5px] text-muted">
-                    {/* Fights, not kills. The kill count FF Logs gives is the
-                        fight's total on every job, so summing it under one job
-                        said a Dark Knight had killed something fifty-five times
-                        when fifty-three of those were on Paladin. */}
-                    best on {r.fights} fight{r.fights === 1 ? "" : "s"}
+                    {r.kills} kill{r.kills === 1 ? "" : "s"}{" "}· {r.fights} fight{r.fights === 1 ? "" : "s"}
                   </span>
                 </span>
                 <span className="flex items-center justify-end gap-2">
                   {s?.tier && (
                     <span
-                      title={`Proficiency ${s.score} of 100 — ${s.parse} difficulty- and kill-weighted parse, best on ${s.fights} fights` +
+                      title={`Proficiency ${s.score} of 100 — ${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights` +
                         (s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : "")}
                       style={jobTierStyle(r.job, s.tier)}
                       className="whitespace-nowrap rounded-full border px-2 py-[2px] text-[10.5px]">
@@ -155,7 +165,7 @@ export default function JobBreakdown(
                       <span className="ml-1.5 text-[11px] text-muted/60">{f.where}</span>
                     </span>
                     <span className="text-right text-[11.5px] text-muted">
-                      {f.kills} kill{f.kills === 1 ? "" : "s"} in total
+                      {f.kills} kill{f.kills === 1 ? "" : "s"}
                     </span>
                     <span className="w-9 text-right font-data font-semibold"
                           style={{ color: parseColor(f.best) }}>

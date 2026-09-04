@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import type { Member, MemberRaids, Overlay, RaidEncounter, RaidZone, UltimateEntry } from "@/lib/types";
+import type { JobKills, Member, MemberRaids, Overlay, RaidEncounter, RaidZone, UltimateEntry } from "@/lib/types";
 import {
   BOARD_QUERY_KEY, LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday,
   ultimateAbbr,
@@ -466,7 +466,8 @@ export default function MemberView({
                                 </span>
                               )}
                               cleared={!!e.cleared} kills={e.kills}
-                              jobs={[e.job]} best={e.best} dim={!e.cleared}
+                              jobs={[e.job]} breakdown={e.job_kills}
+                              best={e.best} dim={!e.cleared}
                               art={art.extreme[dutySlug(e.name)]}
                               focus={artFocus(dutySlug(e.name))} />
                   ))}
@@ -511,6 +512,7 @@ export default function MemberView({
                               </span>
                             }
                             cleared={!!cleared} kills={enc?.kills} jobs={[enc?.job]}
+                            breakdown={enc?.job_kills}
                             best={enc?.best} dim={!enc && !cleared}
                             art={art.savage[dutySlug(enc?.name)]}
                               focus={artFocus(dutySlug(enc?.name))} />
@@ -563,8 +565,20 @@ export default function MemberView({
                         const at = acc[key] ?? {
                           ...u, kills: 0, best: null as number | null,
                           jobs: [] as (string | null | undefined)[],
+                          job_kills: {} as JobKills,
                         };
                         at.kills = (at.kills ?? 0) + (u.kills ?? 0);
+                        // Same fight, two filings: add the per-job kills up the
+                        // same way the total is added up, or the card would
+                        // report one zone's worth against everybody's total.
+                        for (const [job, r] of Object.entries(u.job_kills ?? {})) {
+                          const had = at.job_kills[job];
+                          at.job_kills[job] = {
+                            kills: (had?.kills ?? 0) + r.kills,
+                            best: r.best != null && (had?.best == null || r.best > had.best)
+                              ? r.best : had?.best ?? null,
+                          };
+                        }
                         // The best pull across every zone it was logged in: the
                         // number belongs to the person, not to FF Logs' filing.
                         if (u.best != null && (at.best == null || u.best > at.best)) at.best = u.best;
@@ -572,7 +586,8 @@ export default function MemberView({
                         acc[key] = at;
                         return acc;
                       }, {} as Record<string, UltimateEntry
-                                            & { jobs: (string | null | undefined)[] }>),
+                                            & { jobs: (string | null | undefined)[] }
+                                            & { job_kills: JobKills }>),
                     ).map((u, i) => {
                       // Prefer the fight name over the zone: FF Logs groups five
                       // different Ultimates under zones named "Ultimates",
@@ -588,7 +603,8 @@ export default function MemberView({
                                       {short}
                                     </span>
                                   ) : undefined}
-                                  cleared kills={u.kills} jobs={u.jobs} best={u.best}
+                                  cleared kills={u.kills} jobs={u.jobs}
+                                  breakdown={u.job_kills} best={u.best}
                                   art={art.ultimate[dutySlug(u.name)]}
                               focus={artFocus(dutySlug(u.name))} />
                       );

@@ -15,11 +15,13 @@ import { useLang } from "@/lib/i18n";
  * to Ultimate — good person to ask about Red Mage". Four separate facts and a
  * recommendation, and no way to tell at a glance which number was the parse.
  *
- * The kill count is the one to be careful with. FF Logs gives a fight's kills as
- * a single all-jobs total and names only the job of the best parse, so these are
- * the kills on the fights where this job parsed best — not kills on this job. A
- * member queried it: 55 kills on Doomtrain, two of them on the Dark Knight the
- * card was naming.
+ * The kill count used to be the one to be careful with. FF Logs' zone summary
+ * gives a fight's kills as a single all-jobs total and names only the job of the
+ * best parse, so the number here was the kills on the fights where this job
+ * parsed best rather than kills on this job — a member queried it, having killed
+ * Doomtrain 55 times with only two of them on the Dark Knight being named. The
+ * pipeline now reads each kill's own job, so these are what they say they are;
+ * a fight it has not got to yet still falls back to the old attribution.
  *
  * Here the numbers sit in a row of their own and the recommendation is what it
  * always was: the point of the chip. Nothing new is being said — the chip means
@@ -60,8 +62,8 @@ export default function JobHoverCard(
 
         <div className="flex gap-5 border-t border-line/70 pt-2.5">
           {stat(parse, th ? "parse" : "parse")}
-          {stat(fights, th ? "บอสที่พาร์สดีสุด" : fights === 1 ? "best fight" : "best fights")}
-          {stat(kills, th ? "ครั้งที่ฆ่ารวม" : "kills in them")}
+          {stat(kills, th ? "ครั้งที่ฆ่า" : kills === 1 ? "kill" : "kills")}
+          {stat(fights, th ? "บอส" : fights === 1 ? "fight" : "fights")}
         </div>
 
         {/* Said plainly, because a parse number with no qualifier invites the

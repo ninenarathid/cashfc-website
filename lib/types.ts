@@ -141,10 +141,23 @@ export interface ProgressRow {
   last_ts?: number | null;
 }
 
+/**
+ * How many times each job killed one fight, and its best parse there.
+ *
+ * `job` next to this names one job only — the one holding the best parse — and
+ * `kills` counts every job together, which read as "55 kills on Dark Knight"
+ * when two of them were and the other fifty-three were Paladin. Written by the
+ * pipeline's job-detail stage, which works through the roster a few dozen at a
+ * time, so it is absent on fights it has not reached yet.
+ */
+export type JobKills = Record<string, { kills: number; best: number | null }>;
+
 export interface RaidEncounter {
   label: string | null; name: string | null;
   best: number | null; median: number | null;
   kills: number; job: string | null;
+  encounter_id?: number | null;
+  job_kills?: JobKills | null;
 }
 export interface RaidZone {
   zone: string; zone_id: number; expansion?: string | null;
@@ -159,11 +172,15 @@ export interface UltimateEntry {
    */
   name?: string | null;
   best: number | null; kills: number; job: string | null; cleared: boolean;
+  encounter_id?: number | null;
+  job_kills?: JobKills | null;
 }
 export interface ExtremeEntry {
   zone: string; zone_id: number; expansion?: string | null;
   name: string | null; best: number | null; kills: number;
   job: string | null; cleared: boolean;
+  encounter_id?: number | null;
+  job_kills?: JobKills | null;
 }
 export interface MemberRaids {
   /** Fights still being learned, most recently attempted first. */

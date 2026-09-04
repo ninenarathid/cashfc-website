@@ -533,6 +533,21 @@ def encounters_from_blob(blob: dict, labels: list[str] | None) -> tuple[list[dic
     return out, clears
 
 
+def entry_rows(entry: dict) -> list[dict]:
+    """Every fight stored for one member, wherever it sits in the entry.
+
+    The four lists are shaped differently for good reasons — the current tier
+    carries labels and clear flags, extremes and ultimates are flat, legacy is
+    grouped by zone — but anything that works per fight wants them as one list.
+    """
+    rows = list((entry.get("current") or {}).get("encounters") or [])
+    rows += entry.get("extremes") or []
+    rows += entry.get("ultimates") or []
+    for lz in entry.get("legacy") or []:
+        rows += lz.get("encounters") or []
+    return rows
+
+
 # How many of a character's recent reports to look through. Six covers about six
 # raid nights, which is the window a progress number is still interesting in.
 PROGRESS_REPORTS = 6
@@ -871,6 +886,10 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             new_ex = [e for e in new_ex if e.get("zone_id") not in ex_ids]
             legacy = entry.get("legacy", [])
             has_any = False
+            # Keep what the per-job stage found, keyed by fight. The rows below are
+            # rebuilt from the API answer, which does not carry it.
+            kept_jobs = {r["encounter_id"]: r["job_kills"] for r in entry_rows(entry)
+                         if r.get("encounter_id") and r.get("job_kills")}
 
             for key, zblob in blob.items():
                 if not key.startswith("z") or not isinstance(zblob, dict):
@@ -886,6 +905,7 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                         new_ex.append({
                             "zone": z["name"], "zone_id": zid,
                             "expansion": z.get("expansion"),
+                            "encounter_id": e["encounter_id"],
                             "name": e["name"], "best": e["best"],
                             "kills": e["kills"], "job": e["job"],
                             "cleared": e["kills"] > 0,
@@ -900,6 +920,7 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                         new_ults.append({
                             "zone": z["name"], "zone_id": zid,
                             "expansion": z.get("expansion"),
+                            "encounter_id": e["encounter_id"],
                             "name": e["name"], "best": e["best"],
                             "kills": e["kills"], "job": e["job"],
                             "cleared": e["kills"] > 0,
@@ -940,6 +961,13 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
             entry["ultimates"] = new_ults
             entry["extremes"] = new_ex
             entry["legacy"] = legacy
+            for r in entry_rows(entry):
+                # Kills logged since the breakdown was read are not attributed to
+                # any job until the rotation comes back round. Better slightly
+                # behind than thrown away: it is the difference between a whole
+                # fight scored on the wrong job and one scored on a few kills fewer.
+                if not r.get("job_kills") and kept_jobs.get(r.get("encounter_id")):
+                    r["job_kills"] = kept_jobs[r["encounter_id"]]
             entry["_status"] = "ok" if (has_any or entry.get("current", {}).get("encounters")
                                        or new_ults or new_ex or legacy) else "none"
             m["fflogs"] = entry["_status"]
@@ -1094,6 +1122,146 @@ CONTENT_WEIGHT = {"ultimate": 3.0, "savage": 2.0, "legacy": 1.5, "extreme": 1.0}
 CONTENT_BONUS = {"ultimate": 12.0, "savage": 5.0, "legacy": 3.0, "extreme": 0.0}
 
 
+# Measured against the live API: about one point per fight asked about, so eleven
+# points for a typical member and roughly 1,400 for everyone who has killed
+# anything twice. That is a third of the 3,600/hour budget, which is why this is a
+# rotation and not a sweep, and why it runs before run_fflogs rather than after:
+# that stage deliberately spends up to 85% of the hour, so anything queued behind
+# it would find the budget gone and never get a turn.
+#
+# Forty members is about 440 points — an eighth of the hour — and the schedule
+# runs six times a day, so the roster comes round roughly every eight hours. The
+# ceiling below is the real guard: it stops on the absolute points spent this
+# hour, so a run that follows a heavy one gives up after a single batch instead of
+# eating the budget the clear-finding stage needs.
+JOB_DETAIL_MEMBERS = 40
+JOB_DETAIL_BATCH = 4
+JOB_DETAIL_CEILING = 0.20
+
+
+def job_breakdown(er: dict | str | None) -> dict[str, dict] | None:
+    """Turn one encounterRankings answer into {job: {kills, best}}.
+
+    Each entry in `ranks` is a single kill and names the job it was killed on,
+    which is the whole point of asking: the zoneRankings row the rest of the
+    pipeline reads carries one kill total for every job together, and one job
+    name that belongs only to the best parse. A member who killed Doomtrain 44
+    times on Paladin and twice on Dark Knight — the second of those being their
+    best — was being reported as a Dark Knight with 55 kills.
+
+    Returns None rather than an empty dict when there is nothing to say, so the
+    caller can tell "asked and got no ranked kills" from "has a breakdown".
+    """
+    if isinstance(er, str):
+        try:
+            er = json.loads(er)
+        except ValueError:
+            return None
+    ranks = (er or {}).get("ranks") or []
+    out: dict[str, dict] = {}
+    for rk in ranks:
+        job = rk.get("spec")
+        if not job:
+            continue
+        r = out.setdefault(job, {"kills": 0, "best": None})
+        r["kills"] += 1
+        pct = rk.get("rankPercent")
+        if pct is not None and (r["best"] is None or pct > r["best"]):
+            r["best"] = round(pct)
+    return out or None
+
+
+def run_job_detail(members: list[dict], raids: dict) -> None:
+    """Ask, fight by fight, which job actually did the killing.
+
+    Runs after run_fflogs and reads the fights it just stored, so it only ever
+    asks about content a member is known to have logs for. A rotating slice of
+    the roster per run: the answers do not go stale quickly — a fight already
+    killed forty times does not change job much on the forty-first — and
+    spreading it keeps this stage from competing with the stage that finds new
+    clears in the first place.
+    """
+    token = fflogs_token()
+    if not token:
+        return
+
+    # A fight nobody has killed has no ranks to break down, and a fight with one
+    # kill already says which job on the row itself.
+    def wanted(entry: dict) -> list[int]:
+        ids = {r["encounter_id"] for r in entry_rows(entry)
+               if r.get("encounter_id") and (r.get("kills") or 0) > 1}
+        return sorted(ids)
+
+    have = [(m, wanted(raids.get(str(m["id"])) or {})) for m in active_first(members)]
+    have = [(m, ids) for m, ids in have if ids]
+    if not have:
+        log("Job detail — nothing logged to break down yet")
+        return
+
+    extra = load_json("extra.json", {})
+    state = extra.setdefault("pipeline", {})
+    done = set(state.get("job_detail_cycle") or [])
+    queue = [(m, ids) for m, ids in have if str(m["id"]) not in done]
+    if not queue:
+        done = set()
+        queue = have
+        log("Job detail — previous pass covered everyone; starting a new one")
+    queue = queue[:JOB_DETAIL_MEMBERS]
+    log(f"Job detail — {len(queue)} member(s) this run "
+        f"({len(done)}/{len(have)} already covered)")
+
+    covered = 0
+    for start in range(0, len(queue), JOB_DETAIL_BATCH):
+        chunk = queue[start:start + JOB_DETAIL_BATCH]
+        body = []
+        for i, (m, ids) in enumerate(chunk):
+            fields = " ".join(f"e{e}: encounterRankings(encounterID: {e})" for e in ids)
+            body.append(
+                f"c{i}: character(name: {json.dumps(m['name'])}, "
+                f"serverSlug: \"{CONFIG['server_slug']}\", "
+                f"serverRegion: \"{CONFIG['server_region']}\") {{ {fields} }}")
+        q = ("query { rateLimitData { limitPerHour pointsSpentThisHour } "
+             "characterData { " + " ".join(body) + " } }")
+        try:
+            payload = fflogs_query(token, q)
+        except Exception as ex:
+            log(f"Job detail batch {start} error: {ex}")
+            continue
+
+        data = (payload.get("data") or {}).get("characterData") or {}
+        for i, (m, ids) in enumerate(chunk):
+            blob = data.get(f"c{i}")
+            if not isinstance(blob, dict):
+                continue
+            entry = raids.get(str(m["id"])) or {}
+            found = {}
+            for eid in ids:
+                per = job_breakdown(blob.get(f"e{eid}"))
+                if per:
+                    found[eid] = per
+            for r in entry_rows(entry):
+                per = found.get(r.get("encounter_id"))
+                if per:
+                    r["job_kills"] = per
+            if found:
+                covered += 1
+            done.add(str(m["id"]))
+
+        state["job_detail_cycle"] = sorted(done)
+        save_json("extra.json", extra)
+        save_json("raids.json", raids)
+
+        rl = (payload.get("data") or {}).get("rateLimitData") or {}
+        spent, limit = rl.get("pointsSpentThisHour", 0), rl.get("limitPerHour", 3600)
+        if limit and spent > limit * JOB_DETAIL_CEILING:
+            log(f"Job detail — at its share of the hour ({spent:.0f}/{limit}) after "
+                f"{min(start + JOB_DETAIL_BATCH, len(queue))}/{len(queue)} "
+                "members; the next run resumes from the next member")
+            break
+
+    log(f"Job detail — broke down the fights of {covered}/{len(queue)} member(s)")
+
+
 def score_jobs(entry: dict) -> dict[str, dict]:
     """Rate each job this member has logged on, for "who could teach this?".
 
@@ -1130,15 +1298,33 @@ def score_jobs(entry: dict) -> dict[str, dict]:
             weight = max(kills or 0, 1) * CONTENT_WEIGHT[kind]
             r["parses"].append((min(100.0, best + CONTENT_BONUS[kind]), weight, kind))
 
+    def row(e, kind):
+        """One fight, split across whichever jobs actually fought it.
+
+        Where run_job_detail has read the fight, every job that killed it is
+        scored on its own kills and its own best parse. Where it has not yet,
+        the fight falls back to the single job on the row — which names the best
+        parse and claims every kill for it. That fallback was the whole of this
+        function until a member pointed out that his 44 Paladin kills were being
+        reported as Dark Knight, and it is kept only because a fight with no
+        breakdown yet should still count for something.
+        """
+        per = e.get("job_kills")
+        if per:
+            for job, r in per.items():
+                add(job, r.get("best"), r.get("kills"), kind)
+        else:
+            add(e.get("job"), e.get("best"), e.get("kills"), kind)
+
     for e in (entry.get("current") or {}).get("encounters", []):
-        add(e.get("job"), e.get("best"), e.get("kills"), "savage")
+        row(e, "savage")
     for e in entry.get("extremes", []):
-        add(e.get("job"), e.get("best"), e.get("kills"), "extreme")
+        row(e, "extreme")
     for u in entry.get("ultimates", []):
-        add(u.get("job"), u.get("best"), u.get("kills"), "ultimate")
+        row(u, "ultimate")
     for lz in entry.get("legacy", []):
         for e in lz.get("encounters", []):
-            add(e.get("job"), e.get("best"), e.get("kills"), "legacy")
+            row(e, "legacy")
 
     out: dict[str, dict] = {}
     for job, r in acc.items():
@@ -2374,6 +2560,8 @@ def main() -> None:
         for m in members:
             m["fflogs"] = raids.get(str(m["id"]), {}).get("_status", "skipped")
     else:
+        # Before the clear-finding stage, which spends what is left of the hour.
+        run_job_detail(members, raids)
         zone_info = run_fflogs(members, raids, args.full_history)
     for m in members:
         summarize_raids(m, raids)
