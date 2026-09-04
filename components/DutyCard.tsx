@@ -42,7 +42,15 @@ export default function DutyCard(
     subtitle?: string | null;
     cleared: boolean;
     kills?: number | null;
-    /** Every job they killed it on, not just one. */
+    /**
+      * The job their best parse was set on — FF Logs' bestSpec, one per zone.
+      *
+      * Not the jobs they killed it on. FF Logs reports a fight's kills as one
+      * all-jobs total and names only the job of the best parse, so "55 kills ·
+      * Dark Knight" was reading as fifty-five kills on Dark Knight when two of
+      * them were: the other fifty-three were Paladin. There is no per-job kill
+      * count in what we ask for, so the card stops implying one.
+      */
     jobs?: (string | null | undefined)[];
     best?: number | null;
     art?: string | null;
@@ -88,12 +96,17 @@ export default function DutyCard(
             place on the card with room to spare. */}
         <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11.5px] text-muted">
           <span>{cleared && kills != null ? `${kills} kills` : "no log"}</span>
-          {jobs.filter(Boolean).map((j) => (
-            <span key={j} className="inline-flex items-center gap-1">
+          {jobs.filter(Boolean).length > 0 && (
+            <span className="inline-flex flex-wrap items-center gap-x-1.5">
               <span className="opacity-50">·</span>
-              <JobIcon job={j!} size={14} /> {j}
+              <span className="opacity-75">best on</span>
+              {jobs.filter(Boolean).map((j) => (
+                <span key={j} className="inline-flex items-center gap-1">
+                  <JobIcon job={j!} size={14} /> {j}
+                </span>
+              ))}
             </span>
-          ))}
+          )}
         </div>
       </div>
       <div className="shrink-0 font-data text-xl font-semibold"

@@ -116,13 +116,17 @@ export default function JobBreakdown(
                     />
                   </span>
                   <span className="w-24 shrink-0 text-right text-[11.5px] text-muted">
-                    {r.fights} fight{r.fights === 1 ? "" : "s"} · {r.kills} kills
+                    {/* Fights, not kills. The kill count FF Logs gives is the
+                        fight's total on every job, so summing it under one job
+                        said a Dark Knight had killed something fifty-five times
+                        when fifty-three of those were on Paladin. */}
+                    best on {r.fights} fight{r.fights === 1 ? "" : "s"}
                   </span>
                 </span>
                 <span className="flex items-center justify-end gap-2">
                   {s?.tier && (
                     <span
-                      title={`Proficiency ${s.score} of 100 — ${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights` +
+                      title={`Proficiency ${s.score} of 100 — ${s.parse} difficulty- and kill-weighted parse, best on ${s.fights} fights` +
                         (s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : "")}
                       style={jobTierStyle(r.job, s.tier)}
                       className="whitespace-nowrap rounded-full border px-2 py-[2px] text-[10.5px]">
@@ -151,7 +155,7 @@ export default function JobBreakdown(
                       <span className="ml-1.5 text-[11px] text-muted/60">{f.where}</span>
                     </span>
                     <span className="text-right text-[11.5px] text-muted">
-                      {f.kills} kill{f.kills === 1 ? "" : "s"}
+                      {f.kills} kill{f.kills === 1 ? "" : "s"} in total
                     </span>
                     <span className="w-9 text-right font-data font-semibold"
                           style={{ color: parseColor(f.best) }}>
