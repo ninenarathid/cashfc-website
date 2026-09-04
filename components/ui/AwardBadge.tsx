@@ -1,9 +1,28 @@
 "use client";
 
-import { useEffect, useRef, type PointerEvent } from "react";
+import { useEffect, useId, useRef, type PointerEvent } from "react";
 import { badgeShades } from "@/lib/badge-colors";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useLang } from "@/lib/i18n";
+
+/**
+ * The fan, exactly as the plate this is adapted from stacks it: ten hourglass
+ * wedges ten degrees apart, each one flat-coloured, blurred and half opaque.
+ * The two empty slots are the original's — they hold the white one out at
+ * ninety degrees, and taking them out would close the fan.
+ */
+const FOIL_LAYERS: (string | null)[] = [
+  "hsl(358, 100%, 62%)",
+  "hsl(30, 100%, 50%)",
+  "hsl(60, 100%, 50%)",
+  "hsl(96, 100%, 50%)",
+  "hsl(233, 85%, 47%)",
+  "hsl(271, 85%, 47%)",
+  "hsl(300, 20%, 35%)",
+  null,
+  null,
+  "white",
+];
 
 /** Everything one badge needs to draw itself, in either language. */
 export interface BadgeLike {
@@ -36,10 +55,17 @@ export interface BadgeLike {
  * ref — React renders once, the browser does the rest on the compositor, and a
  * row that is never hovered costs nothing at all.
  *
- * The rainbow was ten blurred SVG polygons, each on its own permanent
- * keyframes. This is one gradient on one, and it runs only on the full plaque:
- * the corner of a member row can hold five hundred of the small plates, and a
- * page that never idles is a page whose fans never stop.
+ * The rainbow is the original's, wedge for wedge, after two attempts at
+ * approximating it with a single rotating gradient looked wrong. Rotating a
+ * gradient only re-angles bands that stay where they are; rotating a fan of
+ * hourglasses makes every wedge scissor across the plate and cross the ones
+ * beside it, and the crossing is the whole effect.
+ *
+ * What did not survive is the ten sets of keyframes it uses to move those
+ * layers, which all move together by the same ten degrees — one rotation on
+ * the group does that, and a group can be paused. The fan runs on the full
+ * plaque only: a member row's corner can hold five hundred of the small
+ * plates, and a page that never idles is a page whose fans never stop.
  *
  * What it does under a pointer is the original's, though, because that is the
  * part somebody notices. The plate is met with a flick away from the hand
@@ -56,8 +82,11 @@ export interface BadgeLike {
  * thing you read. That order is the point — the big line has to be the name,
  * because the name is what somebody is being told they hold.
  *
- * `compact` is the same plate shrunk to a square for the corner of a member
+ * `compact` is the same metal shrunk to a square for the corner of a member
  * row, holding the emblem and nothing else, with the name kept for the hover.
+ * No foil on it: at 32px the emblem fills the plate, a sheen underneath is
+ * invisible, and a blurred blended layer on each of five hundred rows is a
+ * real cost for something nobody can see.
  * A row that already carries a name, a title, six playstyle chips and a line of
  * progress has no room for more words, and a plate is read at a glance where a
  * seventh chip is read last or not at all. A badge with no emblem keeps its
@@ -68,6 +97,8 @@ export default function AwardBadge(
   { badge, size = "full" }: { badge: BadgeLike; size?: "full" | "compact" },
 ) {
   const ref = useRef<HTMLSpanElement>(null);
+  // The blur filter is referenced by id, and a page can hold several plaques.
+  const uid = useId().replace(/:/g, "");
   const { lang } = useLang();
   const c = badgeShades(badge.color);
 
@@ -107,7 +138,7 @@ export default function AwardBadge(
     return (
       <Tooltip content={told} side="bottom">
         <span style={plate}
-              className="badge-plate relative inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
+              className="relative inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border">
           {badge.icon_url ? (
             // alt rather than aria-hidden: with the words gone this is the
             // only thing a screen reader has to go on.
@@ -121,7 +152,6 @@ export default function AwardBadge(
               {label.trim().slice(0, 1).toUpperCase()}
             </span>
           )}
-          <span aria-hidden className="badge-foil-drift"><span className="badge-foil-sheen" /></span>
         </span>
       </Tooltip>
     );
@@ -147,18 +177,22 @@ export default function AwardBadge(
     return {
       px: (e.clientX - r.left) / r.width,
       py: (e.clientY - r.top) / r.height,
-      // How far from the middle, in the plate's own units — the original's
-      // (|xc - x| + |yc - y|) / 1.5, which on a plate this shape reaches about
-      // a right angle at the corners.
-      turn: (Math.abs(e.clientX - (r.left + r.right) / 2)
-             + Math.abs(e.clientY - (r.top + r.bottom) / 2)) / 1.5,
     };
   };
 
-  const write = (el: HTMLSpanElement, px: number, py: number, turn: number) => {
+  const write = (el: HTMLSpanElement, px: number, py: number, damp = 1) => {
     el.style.setProperty("--px", String(px));
     el.style.setProperty("--py", String(py));
-    el.style.setProperty("--sheen", `${turn}deg`);
+    // The original's own measure: how far the pointer is from the middle, in
+    // pixels, over 1.5 — which on a plate this shape reaches something near a
+    // right angle at the corners and zero in the centre. It is a distance
+    // rather than a direction, so the two sides of the plate turn the fan the
+    // same way; that is not a bug in it. With a fan of hourglasses, turning
+    // ninety degrees is a different picture at every step of the way, and it
+    // reads as the light finding the hand rather than as a switch.
+    const r = el.getBoundingClientRect();
+    const turn = (Math.abs(px - 0.5) * r.width + Math.abs(py - 0.5) * r.height) / 1.5;
+    el.style.setProperty("--sheen", `${turn * damp}deg`);
     // Slightly smaller the further out the pointer is, the way a real plate
     // pushed at one corner sits back into the page.
     const away = Math.abs(px - 0.5) + Math.abs(py - 0.5);
@@ -170,22 +204,22 @@ export default function AwardBadge(
     if (!el) return;
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    const { px, py, turn } = at(e, el);
+    const { px, py } = at(e, el);
     // Away from the hand first. The original calls this its opposite matrix,
     // and it is what makes the plate feel caught rather than found.
-    write(el, 0.5 - (px - 0.5) * 0.7, 0.5 - (py - 0.5) * 0.7, turn);
+    write(el, 0.5 - (px - 0.5) * 0.7, 0.5 - (py - 0.5) * 0.7);
     settling.current = true;
     later(() => {
       settling.current = false;
-      if (ref.current) write(ref.current, px, py, turn);
+      if (ref.current) write(ref.current, px, py);
     }, 170);
   };
 
   const track = (e: PointerEvent<HTMLSpanElement>) => {
     const el = ref.current;
     if (!el || settling.current) return;
-    const { px, py, turn } = at(e, el);
-    write(el, px, py, turn);
+    const { px, py } = at(e, el);
+    write(el, px, py);
   };
 
   const leave = (e: PointerEvent<HTMLSpanElement>) => {
@@ -194,11 +228,12 @@ export default function AwardBadge(
     timers.current.forEach(clearTimeout);
     timers.current = [];
     settling.current = false;
-    const { px, py, turn } = at(e, el);
+    const { px, py } = at(e, el);
     // A quarter of the way past centre, then centre — the plate rocking back
-    // rather than snapping flat.
-    write(el, 0.5 - (px - 0.5) * 0.25, 0.5 - (py - 0.5) * 0.25, -turn / 4);
-    later(() => { if (ref.current) write(ref.current, 0.5, 0.5, 0); }, 200);
+    // rather than snapping flat. The foil is damped harder than the tilt, so
+    // it settles rather than swinging the whole way over.
+    write(el, 0.5 - (px - 0.5) * 0.25, 0.5 - (py - 0.5) * 0.25, 0.4);
+    later(() => { if (ref.current) write(ref.current, 0.5, 0.5); }, 200);
   };
 
   return (
@@ -208,7 +243,7 @@ export default function AwardBadge(
       onPointerMove={track}
       onPointerLeave={leave}
       style={plate}
-      className="badge-foil badge-plate relative inline-flex select-none items-center gap-2.5 overflow-hidden rounded-xl border px-3.5 py-2">
+      className="badge-foil relative inline-flex select-none items-center gap-2.5 overflow-hidden rounded-xl border px-3.5 py-2">
       {badge.icon_url && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={badge.icon_url} alt="" aria-hidden
@@ -230,9 +265,27 @@ export default function AwardBadge(
           {label}
         </span>
       </span>
-      {/* The sheen. Its own element so it can be blended over the plate
-          without touching the lettering — see globals.css. */}
-      <span aria-hidden className="badge-foil-drift"><span className="badge-foil-sheen" /></span>
+      {/* The foil. Stretched over the plate whatever shape it ended up, which
+          is why the viewBox is the original's 260x54 and the aspect ratio is
+          not preserved: the wedges are meant to fill it. */}
+      <svg aria-hidden viewBox="0 0 260 54" preserveAspectRatio="none"
+           className="pointer-events-none absolute inset-0 size-full">
+        <defs>
+          <filter id={`foil-${uid}`} x="-25%" y="-25%" width="150%" height="150%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+          </filter>
+        </defs>
+        {/* The plate already clips, so the original's mask is not needed. */}
+        <g style={{ mixBlendMode: "overlay" }} className="badge-foil-fan">
+          {FOIL_LAYERS.map((fill, i) => fill && (
+            <g key={i} className="badge-foil-layer"
+               style={{ ["--i" as string]: i }}>
+              <polygon points="0,0 260,54 260,0 0,54" fill={fill}
+                       filter={`url(#foil-${uid})`} opacity="0.5" />
+            </g>
+          ))}
+        </g>
+      </svg>
     </span>
   );
 }

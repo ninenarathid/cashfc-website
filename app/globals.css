@@ -139,60 +139,43 @@ body { overflow-x: clip; }
 }
 
 /* ── The foil on a badge ─────────────────────────────────────────────────
-   Three things, all of them from the plate this is adapted from.
+   A fan of ten blurred hourglass wedges, which is what the plate this is
+   adapted from actually has. Two earlier attempts approximated it with a
+   single rotating gradient and neither looked right, for a reason worth
+   writing down: rotating a gradient only re-angles bands that stay where they
+   are, while rotating a fan of hourglasses makes every wedge scissor across
+   the plate and cross the ones beside it. The crossing is the effect.
 
-   The rainbow is one element that turns, rather than a gradient whose angle
-   changes: turning it sweeps the bands across the plate, where re-angling the
-   gradient only reshuffles the hues in place. How far it turns comes from how
-   far the pointer is from the middle, so the light answers the hand.
+   Each wedge sits ten degrees off the one before, so the fan spans ninety.
+   --sheen, written by AwardBadge on pointermove, turns the whole set.
 
-   At rest it drifts, slowly, and only on the full plaque — the corner of a
-   member row can hold five hundred of the small ones and a page that never
-   idles is a page whose fans never stop. The drift stops the moment a pointer
-   arrives, because from then on the pointer is driving.
-
-   --px/--py/--sheen/--pscale are written by AwardBadge on pointermove. */
-.badge-foil-sheen {
-  position: absolute;
-  inset: -55%;
-  opacity: 0.3;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  transform: rotate(var(--sheen, 0deg));
-  transform-origin: center center;
-  transition: transform 200ms ease-out, opacity 220ms ease-out;
-  will-change: transform;
-  background: linear-gradient(
-    70deg,
-    transparent 6%,
-    #ff5f6d 20%,
-    #ffb347 31%,
-    #f7f36b 42%,
-    #5fe3a1 54%,
-    #58a6ff 67%,
-    #c86dd7 80%,
-    transparent 95%
-  );
+   The original animates all ten layers separately, every one of them from
+   i*10deg to (i+1)*10deg — which is ten keyframe rules to move the fan ten
+   degrees in unison. One rotation on the group they are in does the same
+   thing, and can be paused. */
+.badge-foil-fan {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: badge-foil-drift 5s ease-in-out infinite;
 }
-
-.badge-plate:hover .badge-foil-sheen { opacity: 0.55; }
-
-/* The drift is a layer of its own rather than a second transform on the sheen.
-   One element cannot be both driven by keyframes and set by a custom property
-   — whichever is running wins outright — and the version that shared them threw
-   away the rock-back on release, because the keyframes resumed at zero the
-   instant the pointer left and overwrote it. Nested, the two multiply: the
-   wrapper drifts, the sheen inside it answers the pointer.
-
-   Paused, not stopped, while a pointer is on the plate: the drift holds where
-   it was instead of snapping back to the start of its cycle. */
-.badge-foil-drift { position: absolute; inset: 0; pointer-events: none; }
-.badge-foil .badge-foil-drift { animation: badge-foil-drift 5s ease-in-out infinite; }
-.badge-foil:hover .badge-foil-drift { animation-play-state: paused; }
+/* Paused, not stopped: it holds where it is rather than snapping back to the
+   start of its cycle the moment a pointer arrives. */
+.badge-foil:hover .badge-foil-fan { animation-play-state: paused; }
 
 @keyframes badge-foil-drift {
   0%, 100% { transform: rotate(0deg); }
-  50%      { transform: rotate(11deg); }
+  50%      { transform: rotate(10deg); }
+}
+
+.badge-foil-layer {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(calc(var(--sheen, 0deg) + var(--i) * 10deg));
+  /* Slower than the plate's own tilt, so the light trails the hand instead of
+     arriving with it. The original gets the same lag by setting its overlay
+     angle on a 150ms timer behind every mouse move. */
+  transition: transform 320ms ease-out;
+  will-change: transform;
 }
 
 /* The tilt, on the full plaque only. */
@@ -208,8 +191,8 @@ body { overflow-x: clip; }
 
 @media (prefers-reduced-motion: reduce) {
   .badge-foil { transform: none; transition: none; }
-  /* The rainbow stays — it is the plate's finish, not an animation — but it
+  /* The fan stays — it is the plate's finish, not an animation — but it
      neither drifts nor follows. */
-  .badge-foil-sheen { transform: rotate(20deg); transition: none; }
-  .badge-foil .badge-foil-drift { animation: none; }
+  .badge-foil-fan { animation: none; }
+  .badge-foil-layer { transition: none; transform: rotate(calc(var(--i) * 10deg)); }
 }
