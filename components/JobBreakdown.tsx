@@ -95,13 +95,24 @@ export default function JobBreakdown(
   const maxWeight = Math.max(...rows.map(weight)) || 1;
   const ordered = [...rows].sort((a, b) => weight(b) - weight(a) || b.best - a.best);
 
+  // Reading each kill's own job turned this list from "the jobs they parsed best
+  // on" into "every job they have ever killed anything on", which for the deepest
+  // records is eighteen rows — and most of the new ones are a single kill on a
+  // job somebody was levelling. The record should hold them; the page should not
+  // open on them. Anything graded, or with a real handful of kills behind it,
+  // stays out; the tail folds away.
+  const main = ordered.filter((r) => jobScores?.[r.job]?.tier || r.kills >= 3);
+  const tail = ordered.filter((r) => !main.includes(r));
+  const rowsShown = main.length ? main : ordered;
+  const folded = main.length ? tail : [];
+
   return (
     <section className="mt-6">
       <h2 className="mb-2 font-display text-lg font-semibold">
         Jobs played
       </h2>
       <div className="flex flex-col gap-1 rounded-xl border border-line bg-surface p-4">
-        {ordered.map((r) => {
+        {rowsShown.map((r) => {
           const s = jobScores?.[r.job];
           return (
             <details key={r.job} className="group">
@@ -177,6 +188,24 @@ export default function JobBreakdown(
             </details>
           );
         })}
+        {folded.length > 0 && (
+          <details className="mt-1 border-t border-line/60 pt-1.5">
+            <summary className="cursor-pointer list-none text-[12px] text-muted marker:content-none hover:text-ink">
+              {folded.length} more job{folded.length === 1 ? "" : "s"}, a kill or two each
+            </summary>
+            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-muted">
+              {folded.map((r) => (
+                <span key={r.job} className="inline-flex items-center gap-1.5">
+                  <JobIcon job={r.job} size={14} />
+                  {jobLabel(r.job)}
+                  <span className="text-muted/70">
+                    {r.kills} kill{r.kills === 1 ? "" : "s"}
+                  </span>
+                </span>
+              ))}
+            </div>
+          </details>
+        )}
       </div>
     </section>
   );

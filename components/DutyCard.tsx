@@ -69,6 +69,22 @@ export default function DutyCard(
   // Most kills first, which is the order that answers "what do they play here?".
   const split = Object.entries(breakdown ?? {})
     .sort((a, b) => b[1].kills - a[1].kills);
+  // Four, then a count. Somebody who has farmed a fight for a year has played it
+  // on everything they own — the record here goes to seventeen jobs — and a line
+  // of seventeen icons is not a fact anybody reads, it is a paragraph that
+  // swallows the card it sits on. The four with the most kills say what they
+  // play there; the rest are a number, and the number opens.
+  const SHOWN = 4;
+  const rest = split.slice(SHOWN);
+  const shown = split.slice(0, SHOWN);
+  // The breakdown counts each kill by the job that made it. The `kills` on the
+  // row beside it comes from FF Logs' zone summary, which the pipeline reads on
+  // a slower rotation, so it can be a few kills behind its own breakdown — and a
+  // total smaller than the numbers under it reads as a bug rather than as a
+  // stale total. Where there is a breakdown, it is the total.
+  const total = split.length
+    ? split.reduce((n, [, r]) => n + r.kills, 0)
+    : kills;
   return (
     <div
       style={art ? {
@@ -104,7 +120,7 @@ export default function DutyCard(
             four jobs has earned all four being named, and this line is the only
             place on the card with room to spare. */}
         <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11.5px] text-muted">
-          <span>{cleared && kills != null ? `${kills} kills` : "no log"}</span>
+          <span>{cleared && total != null ? `${total} kills` : "no log"}</span>
           {split.length > 0 ? (
             // The real answer: a number against each job, biggest first. The
             // job names are in the tooltips rather than on the line — four
@@ -113,7 +129,7 @@ export default function DutyCard(
             // fights is doing.
             <span className="inline-flex flex-wrap items-center gap-x-1.5">
               <span className="opacity-50">·</span>
-              {split.map(([job, r]) => (
+              {shown.map(([job, r]) => (
                 <Tooltip key={job} side="bottom"
                          content={`${job} — ${r.kills} kill${r.kills === 1 ? "" : "s"}${
                            r.best != null ? `, best ${r.best}` : ""}`}>
@@ -122,6 +138,14 @@ export default function DutyCard(
                   </span>
                 </Tooltip>
               ))}
+              {rest.length > 0 && (
+                <Tooltip side="bottom"
+                         content={rest.map(([job, r]) => `${job} ${r.kills}`).join(" · ")}>
+                  <span className="cursor-default opacity-75">
+                    +{rest.length}
+                  </span>
+                </Tooltip>
+              )}
             </span>
           ) : jobs.filter(Boolean).length > 0 && (
             <span className="inline-flex flex-wrap items-center gap-x-1.5">
