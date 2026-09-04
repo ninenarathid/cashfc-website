@@ -44,9 +44,17 @@ export interface BadgeLike {
  *
  * `full` is the plaque, for somebody's own page: it has room for the reason it
  * was given, and it is worth looking at because you came to look at them.
- * `compact` is a chip for the member list, where a badge is one fact among a
- * row of them and the sheen and the tilt are both dropped — five hundred rows
- * of foil is a disco, not a board.
+ *
+ * `compact` is for the member list, and where the badge has a picture it is
+ * only the picture — a seal or a wreath pinned to the corner of the row, the
+ * way an award actually appears on a page, with the name kept for the hover.
+ * A row that already carries a name, a title, six playstyle chips and a line
+ * of progress does not have room for more words, and an emblem is read at a
+ * glance where a seventh chip is read last or not at all. Badges with no
+ * picture keep the text chip: an emblem that is not there cannot be hovered.
+ *
+ * The sheen and the tilt are dropped at this size either way — five hundred
+ * rows of foil is a disco, not a board.
  */
 export default function AwardBadge(
   { badge, size = "full" }: { badge: BadgeLike; size?: "full" | "compact" },
@@ -69,20 +77,43 @@ export default function AwardBadge(
   const icon = badge.icon_url ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={badge.icon_url} alt="" aria-hidden
-         className={`shrink-0 object-contain ${
-           size === "compact" ? "size-[15px]" : "size-[22px]"}`} />
+         className="size-[22px] shrink-0 object-contain" />
   ) : null;
 
   if (size === "compact") {
-    const chip = (
-      <span
-        style={{ color: c.text, borderColor: c.border, background: c.background }}
-        className="inline-flex max-w-[11rem] items-center gap-1.5 whitespace-nowrap rounded-full border py-[3px] pl-1.5 pr-2.5 text-[11.5px] font-medium">
-        {icon}
-        <span className="truncate">{label}</span>
-      </span>
+    // Everything the badge says, for the hover — the name has to be here
+    // because on an emblem it is nowhere else.
+    const told = (
+      <>
+        <span className="font-semibold" style={{ color: c.text }}>{label}</span>
+        {reason && <span className="mt-0.5 block text-muted">{reason}</span>}
+      </>
     );
-    return reason ? <Tooltip content={reason} side="bottom">{chip}</Tooltip> : chip;
+
+    if (badge.icon_url) {
+      return (
+        <Tooltip content={told} side="bottom">
+          <span className="inline-flex size-8 items-center justify-center">
+            {/* alt rather than aria-hidden: with the words gone this is the
+                only thing a screen reader has to go on. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={badge.icon_url} alt={label}
+                 className="max-h-full max-w-full object-contain
+                            drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]" />
+          </span>
+        </Tooltip>
+      );
+    }
+
+    return (
+      <Tooltip content={told} side="bottom">
+        <span
+          style={{ color: c.text, borderColor: c.border, background: c.background }}
+          className="inline-flex max-w-[11rem] items-center whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium">
+          <span className="truncate">{label}</span>
+        </span>
+      </Tooltip>
+    );
   }
 
   // Pointer position as two 0–1 numbers, written where CSS can read them. No

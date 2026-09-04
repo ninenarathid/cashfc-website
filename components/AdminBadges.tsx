@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import AwardBadge from "@/components/ui/AwardBadge";
@@ -63,12 +63,39 @@ export default function AdminBadges(
   const [icon, setIcon] = useState<string | null>(null);
   const [color, setColor] = useState(DEFAULT_BADGE_COLOR);
 
+  // The form is one form. Editing a badge fills it in and changes what the
+  // button does, rather than opening a second copy of every field somewhere
+  // else on the page — two forms for one badge is two places to fix a typo.
+  const [editing, setEditing] = useState<number | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+
   // Handing one out.
   const [openId, setOpenId] = useState<number | null>(null);
   const [pick, setPick] = useState("");
   const [note, setNote] = useState("");
 
+  // The reason on one award, while it is being rewritten.
+  const [noteEdit, setNoteEdit] =
+    useState<{ badge: number; member: number } | null>(null);
+  const [noteDraft, setNoteDraft] = useState("");
+
   const flash = (s: string) => { setMsg(s); setTimeout(() => setMsg(""), 2500); };
+
+  const clearForm = () => {
+    setEditing(null);
+    setLabel(""); setLabelEn(""); setDesc(""); setDescEn("");
+    setIcon(null); setColor(DEFAULT_BADGE_COLOR);
+  };
+
+  const loadForEdit = (b: Badge) => {
+    setEditing(b.id);
+    setLabel(b.label); setLabelEn(b.label_en ?? "");
+    setDesc(b.description ?? ""); setDescEn(b.description_en ?? "");
+    setIcon(b.icon_url); setColor(b.color);
+    // The form is above the list, and the badge being edited can be well down
+    // it — without this the button appears to do nothing.
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
 
   const refresh = async () => {
     if (!supabase) return;
@@ -106,8 +133,16 @@ export default function AdminBadges(
         {t("adm.badgesHint")}
       </p>
 
-      {/* ── Making one ── */}
-      <div className="mt-3 rounded-xl border border-line bg-card p-3.5">
+      {/* ── Making one, or changing one ── */}
+      <div ref={formRef}
+           className={`mt-3 rounded-xl border bg-card p-3.5 transition-colors ${
+             editing !== null ? "border-accent/60" : "border-line"}`}>
+        <div className="mb-2.5 text-[12.5px] font-semibold text-accent">
+          {editing !== null
+            ? t("adm.badgeEditing", {
+                label: badges.find((x) => x.id === editing)?.label ?? "" })
+            : t("adm.badgeNew")}
+        </div>
         <div className="flex flex-wrap gap-2">
           <input value={label} onChange={(e) => setLabel(e.target.value.slice(0, 32))}
                  placeholder={t("adm.badgeLabel")}
@@ -169,24 +204,39 @@ export default function AdminBadges(
             description_en: descEn.trim() || null,
             icon_url: icon, color,
           }} />
-          <button
-            disabled={!label.trim()}
-            onClick={async () => {
-              const { error } = await supabase.from("badges").insert({
-                label: label.trim(),
-                label_en: labelEn.trim() || null,
-                description: desc.trim() || null,
-                description_en: descEn.trim() || null,
-                icon_url: icon,
-                color,
-              });
-              if (error) { flash(error.message); return; }
-              setLabel(""); setLabelEn(""); setDesc(""); setDescEn(""); setIcon(null);
-              await refresh(); flash(t("adm.badgeCreated"));
-            }}
-            className="ml-auto rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-[13px] text-accent hover:bg-accent/25 disabled:cursor-not-allowed disabled:opacity-40">
-            {t("adm.badgeCreate")}
-          </button>
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            {editing !== null && (
+              <button onClick={clearForm}
+                      className="rounded-lg border border-line px-3 py-2 text-[13px] text-muted hover:border-muted hover:text-ink">
+                {t("adm.cancel")}
+              </button>
+            )}
+            <button
+              disabled={!label.trim()}
+              onClick={async () => {
+                // Written the same way whichever it is: the row is the same
+                // shape, and the only difference is whether it already exists.
+                const row = {
+                  label: label.trim(),
+                  label_en: labelEn.trim() || null,
+                  description: desc.trim() || null,
+                  description_en: descEn.trim() || null,
+                  icon_url: icon,
+                  color,
+                };
+                const { error } = editing !== null
+                  ? await supabase.from("badges").update(row).eq("id", editing)
+                  : await supabase.from("badges").insert(row);
+                if (error) { flash(error.message); return; }
+                const wasEditing = editing !== null;
+                clearForm();
+                await refresh();
+                flash(t(wasEditing ? "adm.badgeSaved" : "adm.badgeCreated"));
+              }}
+              className="rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-[13px] text-accent hover:bg-accent/25 disabled:cursor-not-allowed disabled:opacity-40">
+              {editing !== null ? t("adm.save") : t("adm.badgeCreate")}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -205,7 +255,15 @@ export default function AdminBadges(
                   <span className="text-[12.5px] text-muted">
                     {t("adm.badgeHolderCount", { n: holders.length })}
                   </span>
-                  <div className="ml-auto flex gap-2">
+                  <div className="ml-auto flex flex-wrap gap-2">
+                    <button
+                      onClick={() => loadForEdit(b)}
+                      className={`rounded-md border px-2.5 py-1 text-[12px] ${
+                        editing === b.id
+                          ? "border-accent text-accent"
+                          : "border-line text-muted hover:border-accent hover:text-accent"}`}>
+                      {t("adm.edit")}
+                    </button>
                     <button
                       onClick={() => { setOpenId(open ? null : b.id); setPick(""); setNote(""); }}
                       className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
@@ -219,6 +277,9 @@ export default function AdminBadges(
                           // The awards go with it: the foreign key cascades, so
                           // nobody is left wearing a badge that no longer exists.
                           await supabase.from("badges").delete().eq("id", b.id);
+                          // Otherwise the form goes on offering to save a badge
+                          // that is no longer there.
+                          if (editing === b.id) clearForm();
                           setConfirm(null);
                           await refresh(); flash(t("adm.badgeDeleted"));
                         },
@@ -267,7 +328,52 @@ export default function AdminBadges(
                       <span key={h.character_id}
                             className="inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-3 pr-1 text-[12.5px]">
                         <span className="font-data">{nameOf(h.character_id)}</span>
-                        {h.note && <span className="text-muted">— {h.note}</span>}
+                        {/* The reason belongs to this award rather than to the
+                            badge, so it is edited here rather than in the form
+                            above — that one is about the badge itself. */}
+                        {noteEdit?.badge === b.id
+                         && noteEdit.member === h.character_id ? (
+                          <>
+                            <input autoFocus value={noteDraft}
+                                   onChange={(e) => setNoteDraft(e.target.value.slice(0, 120))}
+                                   onKeyDown={(e) => {
+                                     if (e.key === "Escape") setNoteEdit(null);
+                                   }}
+                                   placeholder={t("adm.badgeNote")}
+                                   className="w-48 rounded-md border border-line bg-card px-2 py-0.5 text-[12.5px] text-ink placeholder:text-muted" />
+                            <button
+                              onClick={async () => {
+                                const { error } = await supabase.from("member_badges")
+                                  .update({ note: noteDraft.trim() || null })
+                                  .eq("badge_id", b.id)
+                                  .eq("character_id", h.character_id);
+                                if (error) { flash(error.message); return; }
+                                setNoteEdit(null);
+                                await refresh(); flash(t("adm.badgeNoteSaved"));
+                              }}
+                              className="rounded-md border border-accent/60 px-2 py-0.5 text-[11.5px] text-accent hover:bg-accent/15">
+                              {t("adm.save")}
+                            </button>
+                            <button onClick={() => setNoteEdit(null)}
+                                    className="px-1 text-[11.5px] text-muted hover:text-ink">
+                              {t("adm.cancel")}
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {h.note && <span className="text-muted">— {h.note}</span>}
+                            <button
+                              aria-label={t("adm.badgeNoteEdit")}
+                              title={t("adm.badgeNoteEdit")}
+                              onClick={() => {
+                                setNoteEdit({ badge: b.id, member: h.character_id });
+                                setNoteDraft(h.note ?? "");
+                              }}
+                              className="px-1 text-muted hover:text-accent">
+                              ✎
+                            </button>
+                          </>
+                        )}
                         <button
                           aria-label={t("adm.badgeTake")}
                           title={t("adm.badgeTake")}

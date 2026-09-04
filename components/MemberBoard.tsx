@@ -997,6 +997,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               // the same sentence with the digits changed. A title is chosen,
               // and how rare it is says something no other column does.
               const title = memberTitle(m);
+              // Pinned to the corner of the row rather than queued after the
+              // chips: an award is not another measurement of the character,
+              // and a seal in the corner is how one is actually worn.
+              const mBadges = badgesByMember[m.id] ?? [];
               // Where a guest actually plays. It is the first thing anybody
               // wants to know about a name that is not on the roster, and the
               // FC's own members would only ever repeat the same two words.
@@ -1046,7 +1050,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                           the twentieth row waiting its turn. */
                        delay: animateLayout ? Math.min(i, 10) * 0.022 : 0,
                      }}
-                     className={`grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors hover:border-[#55492f] sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4 ${
+                     className={`relative grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors hover:border-[#55492f] sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4 ${
                        /* content-visibility skips layout for anything off
                           screen, which is what makes five hundred rows cheap —
                           and exactly what stops Motion being able to measure a
@@ -1056,7 +1060,19 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   <Link href={`/member/${m.id}`} className="contents">
                     <Avatar m={m} />
                   </Link>
-                  <div className="min-w-0">
+                  {mBadges.length > 0 && (
+                    <span className="absolute right-3 top-2.5 z-10 flex items-center gap-1 sm:right-4">
+                      {mBadges.slice(0, 3).map((b) => (
+                        <AwardBadge key={b.id} size="compact" badge={b} />
+                      ))}
+                      {mBadges.length > 3 && (
+                        <span className="text-[11.5px] text-muted">
+                          +{mBadges.length - 3}
+                        </span>
+                      )}
+                    </span>
+                  )}
+                  <div className={`min-w-0 ${mBadges.length ? "pr-28 sm:pr-0" : ""}`}>
                     <Link href={`/member/${m.id}`}
                           className="truncate font-data text-[15px] font-semibold tracking-[0.01em] text-ink no-underline hover:text-accent">
                       {m.name}
@@ -1099,7 +1115,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       </div>
                     )}
                   </div>
-                  <div className="col-start-2 flex flex-wrap items-center gap-1.5 sm:col-start-auto">
+                  <div className={`col-start-2 flex flex-wrap items-center gap-1.5 sm:col-start-auto ${
+                    mBadges.length ? "sm:pr-28" : ""}`}>
                     <MemberTags m={m} extremeTotal={extremes.length} />
                     {(ov?.lfg ?? []).map((k) => {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
@@ -1110,23 +1127,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         </span>
                       ) : null;
                     })}
-                    {/* Last on the row and pushed to its end: a badge is given
-                        by the FC rather than measured off the character, so it
-                        should not sit among the chips that were. Two, then a
-                        count — the row is a summary, and the whole set is on
-                        the member's own page. */}
-                    {(badgesByMember[m.id] ?? []).length > 0 && (
-                      <span className="ml-auto flex flex-wrap items-center gap-1.5">
-                        {(badgesByMember[m.id] ?? []).slice(0, 2).map((b) => (
-                          <AwardBadge key={b.id} size="compact" badge={b} />
-                        ))}
-                        {(badgesByMember[m.id] ?? []).length > 2 && (
-                          <span className="text-[11.5px] text-muted">
-                            +{(badgesByMember[m.id] ?? []).length - 2}
-                          </span>
-                        )}
-                      </span>
-                    )}
                   </div>
 
                   {/* On a line of its own, last. The tags above say what somebody
