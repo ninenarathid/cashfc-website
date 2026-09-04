@@ -318,10 +318,10 @@
     "goldsaucer": 9,
     "seasonal": 27,
     "pvp": 15,
-    "veteran": 128,
-    "private": 241,
+    "veteran": 130,
+    "private": 240,
     "prog": 23,
-    "casual": 28,
+    "casual": 27,
     "oldtimer": 1
    },
    "raider": 65,
@@ -331,7 +331,7 @@
    "final_boss": 42,
    "active": 147,
    "vacation": 356,
-   "guests": 4
+   "guests": 6
   }
  ]
 }

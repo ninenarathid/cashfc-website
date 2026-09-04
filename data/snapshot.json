@@ -1668,7 +1668,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 89,
+  "level": 91,
   "cc": [
    true,
    true,
@@ -6088,7 +6088,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -6107,7 +6107,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-04"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -12629,7 +12629,7 @@
   "tiers": {},
   "jobs": {
    "Paladin": "master",
-   "DarkKnight": "master"
+   "DarkKnight": "legendary"
   },
   "ex": [],
   "ults": [],
@@ -13146,7 +13146,7 @@
  },
  "8234305": {
   "name": "Nara Saurus",
-  "parse": null,
+  "parse": 62,
   "ult": 0,
   "mounts": 42,
   "minions": 74,
@@ -13171,7 +13171,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "17723972": {
   "name": "Naruga Vagrant",
@@ -13240,7 +13240,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "master"
+   "WhiteMage": "expert"
   },
   "ex": [],
   "ults": [],
@@ -13603,7 +13603,7 @@
  },
  "28011817": {
   "name": "Nore Vanessa",
-  "parse": 48,
+  "parse": 97,
   "ult": 0,
   "mounts": 30,
   "minions": 65,
@@ -13618,10 +13618,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Dancer": "legendary"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "30056598": {
   "name": "Norn Noy",
@@ -13812,7 +13814,7 @@
  },
  "31745191": {
   "name": "Oivxii Hikari",
-  "parse": 10,
+  "parse": 40,
   "ult": 0,
   "mounts": 24,
   "minions": 63,
@@ -13830,7 +13832,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "44409828": {
   "name": "Olgar Aurelius",
@@ -13872,7 +13874,7 @@
  },
  "26433344": {
   "name": "Oppa' Pkz",
-  "parse": 92,
+  "parse": 93,
   "ult": 1,
   "mounts": 73,
   "minions": 205,
@@ -13888,13 +13890,14 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "expert"
+   "Astrologian": "expert",
+   "WhiteMage": "master"
   },
   "ex": [],
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "56143721": {
   "name": "Owlz Nithz",
@@ -14329,7 +14332,7 @@
  },
  "25541816": {
   "name": "Presca Burgstalgen",
-  "parse": null,
+  "parse": 62,
   "ult": 0,
   "mounts": 35,
   "minions": 103,
@@ -14347,7 +14350,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-04"
  },
  "60780260": {
   "name": "Priscilla Deusvult",
