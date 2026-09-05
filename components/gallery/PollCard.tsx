@@ -14,6 +14,12 @@ import { pollOver, usePoll } from "@/lib/poll";
  * Results are held back until you have answered. A running score in front of
  * somebody still making up their mind is a nudge rather than information, and
  * this poll decides a leaderboard.
+ *
+ * Who can see what is not stated on the card, by the FC's choice. Members are
+ * shown totals; an admin screen can list individual answers. Nothing here
+ * claims otherwise — the card makes no promise of secrecy to break — but the
+ * absence is a decision rather than an oversight, which is why it is written
+ * down here where the next person to read this file will find it.
  */
 export default function PollCard() {
   const { t, lang } = useLang();

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
-import { imagesForPosts, thumbOf, type GalleryImage, type GalleryPost, type Roster } from "@/lib/gallery";
+import { THUMB_WIDTH as THUMB_W, fullOf, imagesForPosts, thumbOf, type GalleryImage, type GalleryPost, type Roster } from "@/lib/gallery";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import PostDetail from "@/components/gallery/PostDetail";
 import { useAdmin } from "@/lib/admin";
@@ -91,7 +91,11 @@ function columnsFor(width: number): number {
 }
 
 function TileImage(
-  { post, images, index }: { post: GalleryPost; images: GalleryImage[]; index: number },
+  { post, images, index, width }: {
+    post: GalleryPost; images: GalleryImage[]; index: number;
+    /** How wide this tile will actually be drawn, in CSS pixels. */
+    width: number;
+  },
 ) {
   const many = images.length > 1;
   const i = useCycle(images.length, index);
@@ -106,13 +110,29 @@ function TileImage(
     && Math.abs(ratio - natural) > 0.001;
   const shape = ratio ? { aspectRatio: String(ratio) } : undefined;
 
+  // The thumbnail is 700 pixels across. A tile one column wide is about 325,
+  // so even a screen with two device pixels to each CSS one is covered — but a
+  // wide picture now takes two columns and is drawn at about 666, where the
+  // same screen wants 1332 and the thumbnail is stretched to nearly double.
+  // That is the softness, and it arrived with the two-column change.
+  //
+  // So the bigger copy is offered alongside, and the browser decides. On a
+  // one-to-one monitor nothing changes; a dense screen fetches it only for the
+  // tiles that would otherwise be soft. Nobody downloads more than the picture
+  // they are actually being shown.
+  const big = images[0] ? fullOf(images[0]) : null;
+  const wide = big && width > 500 && post.width && post.width > 900
+    ? { srcSet: `${thumbOf(post)} ${THUMB_W}w, ${big} ${post.width}w`,
+        sizes: `${Math.round(width)}px` }
+    : {};
+
   if (!many) {
     return (
-      // The small copy. This box is about 325 pixels across and the original
-      // can be four thousand; the difference was being paid for by the byte
+      // The small copy by default. This box can be 325 pixels across and the
+      // original four thousand; the difference was being paid for by the byte
       // and thrown away by the browser before anybody saw it.
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
+      <img src={thumbOf(post)} {...wide} alt={post.caption ?? ""} loading="lazy"
            width={post.width ?? undefined} height={post.height ?? undefined}
            style={shape}
            onLoad={() => setShown(true)}
@@ -126,7 +146,10 @@ function TileImage(
     <div className="relative w-full" style={shape}>
       {images.map((img, n) => (
         // eslint-disable-next-line @next/next/no-img-element
-        <img key={img.id} src={thumbOf(img)} alt="" loading="lazy"
+        <img key={img.id} src={thumbOf(img)} loading="lazy" alt=""
+             srcSet={width > 500 && img.width && img.width > 900
+               ? `${thumbOf(img)} ${THUMB_W}w, ${fullOf(img)} ${img.width}w` : undefined}
+             sizes={width > 500 ? `${Math.round(width)}px` : undefined}
              className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
                n === i ? "opacity-100" : "opacity-0"}`} />
       ))}
@@ -214,14 +237,15 @@ export default function GalleryGrid(
    * height, so the first paint is a grid rather than a pile — the real spans
    * land on the frame after.
    */
-  const spanFor = (p: GalleryPost): React.CSSProperties => {
+  const cellOf = (p: GalleryPost) => {
     const r = tileRatio(p.width, p.height) ?? 1;
     const across = Math.min(cols, r >= WIDE_AT ? 2 : 1);
     const width = box
       ? (box - gap * (cols - 1)) / cols * across + gap * (across - 1)
       : 320;
     const rows = Math.max(1, Math.round((width / r + gap) / (ROW + gap)));
-    return { gridColumn: `span ${across}`, gridRow: `span ${rows}` };
+    return { width, style: { gridColumn: `span ${across}`,
+                             gridRow: `span ${rows}` } as React.CSSProperties };
   };
 
   return (
@@ -242,6 +266,7 @@ export default function GalleryGrid(
              // the next tall one rather than left as a hole.
              className="grid [grid-auto-flow:row_dense] gap-3 sm:gap-4">
           {posts.map((p, idx) => {
+            const cell = cellOf(p);
             const c = counts[p.id];
             const shots = images[p.id] ?? [];
             const many = (p.image_count ?? 1) > 1;
@@ -263,11 +288,12 @@ export default function GalleryGrid(
                 : null))
               .filter(Boolean) as { name: string; avatar: string | null }[];
             return (
-              <div key={p.id} style={spanFor(p)}
+              <div key={p.id} style={cell.style}
                    className="group relative overflow-hidden">
                 <button onClick={() => setOpen(p.id)}
                         className="block w-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-accent">
-                  <TileImage post={p} images={shots} index={idx} />
+                  <TileImage post={p} images={shots} index={idx}
+                             width={cell.width} />
                 </button>
 
                 {many && (
@@ -459,11 +485,13 @@ export function useGallery(
     });
     setHasMore(rows.length === PAGE);
 
-    // Only the posts that actually hold several: a single-picture post already
-    // carries everything the tile needs on its own row.
-    const multi = rows.filter((r) => (r.image_count ?? 1) > 1).map((r) => r.id);
-    if (multi.length) {
-      const imgs = await imagesForPosts(supabase, multi);
+    // Every post on the page, not only the ones holding several pictures. A
+    // single-picture post carries its thumbnail on its own row but not the
+    // lighter full-size copy, and a tile two columns wide needs to know where
+    // that is — see TileImage.
+    const ids = rows.map((r) => r.id);
+    if (ids.length) {
+      const imgs = await imagesForPosts(supabase, ids);
       const grouped: Record<number, GalleryImage[]> = {};
       for (const im of ((imgs ?? []) as GalleryImage[])) {
         (grouped[im.post_id] ??= []).push(im);

@@ -782,9 +782,11 @@ const DICT = {
   // ── Polls ──────────────────────────────────────────────────────────
   "adm.poll": { en: "Poll", th: "โหวต" },
   "adm.pollHint": {
-    en: "The question the FC is being asked on the gallery page, and how it is going. Nobody's individual answer is shown here — the totals come from a function that only ever returns counts.",
-    th: "คำถามที่ถาม FC อยู่ในหน้าแกลเลอรี และผลปัจจุบัน ตรงนี้ไม่แสดงว่าใครโหวตอะไร ตัวเลขมาจากฟังก์ชันที่คืนแค่จำนวนเท่านั้น",
+    en: "The question the FC is being asked on the gallery page, and how it is going. Individual answers are folded away below each poll, and the poll card tells members an admin can see them.",
+    th: "คำถามที่ถาม FC อยู่ในหน้าแกลเลอรี และผลปัจจุบัน ส่วนคำตอบรายคนพับเก็บไว้ใต้แต่ละโหวต และการ์ดโหวตบอกสมาชิกไว้แล้วว่าแอดมินดูได้",
   },
+  "adm.pollWhoVoted": { en: "Who voted what", th: "ใครโหวตอะไร" },
+  "adm.pollNoVotes": { en: "Nobody has voted yet.", th: "ยังไม่มีใครโหวต" },
   "adm.pollNone": { en: "No polls.", th: "ยังไม่มีโหวต" },
   "adm.pollOpen": { en: "Open", th: "เปิดอยู่" },
   "adm.pollEnded": { en: "Ended", th: "จบแล้ว" },

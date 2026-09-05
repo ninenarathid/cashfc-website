@@ -7,6 +7,8 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import { fmtDateTime } from "@/lib/dates";
 
 interface Option { key: string; th: string; en: string }
+interface Voter { name: string; choice: string; voted_at: string }
+
 interface Row {
   id: number;
   question: string;
@@ -27,14 +29,19 @@ interface Row {
  * Closing, on the other hand, is needed the moment a poll exists.
  *
  * The totals are read through poll_tally, the same function the gallery card
- * uses, because the votes table shows nobody anybody else's answer — an admin
- * included. How the FC voted is publishable; who voted which way is not.
+ * uses. Who voted which way is a second, deliberate step: it is folded away
+ * behind a summary somebody has to open, and the poll card tells members it
+ * can be seen at all. It was going to be nobody's business, which is a fine
+ * rule right up until you remember the SQL editor ignores row-level security —
+ * a promise that only holds while nobody opens the right tab is not one worth
+ * making, so it is made honestly instead.
  */
 export default function AdminPoll() {
   const { t } = useLang();
   const supabase = useMemo(() => createClient(), []);
   const [rows, setRows] = useState<Row[]>([]);
   const [tally, setTally] = useState<Record<number, Record<string, number>>>({});
+  const [voters, setVoters] = useState<Record<number, Voter[]>>({});
   const [msg, setMsg] = useState("");
   const [ask, setAsk] = useState<{ text: string; run: () => void } | null>(null);
 
@@ -60,6 +67,15 @@ export default function AdminPoll() {
   };
 
   useEffect(() => { void refresh(); }, [supabase]);   // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Only when an admin opens the summary. The names are not part of what the
+  // screen shows by default, and not fetching them until then keeps that true
+  // of the network as well as of the page.
+  const showVoters = async (id: number) => {
+    if (!supabase || voters[id]) return;
+    const { data } = await supabase.rpc("poll_voters", { p_poll: id });
+    setVoters((v) => ({ ...v, [id]: (data ?? []) as Voter[] }));
+  };
 
   if (!supabase) return null;
 
@@ -132,6 +148,31 @@ export default function AdminPoll() {
                     );
                   })}
                 </div>
+
+                {/* Folded, and it says what it holds before it is opened. */}
+                <details className="mt-2.5" onToggle={() => void showVoters(r.id)}>
+                  <summary className="cursor-pointer text-[12px] text-muted hover:text-ink">
+                    {t("adm.pollWhoVoted")}
+                  </summary>
+                  {(voters[r.id]?.length ?? 0) === 0 ? (
+                    <p className="mt-1.5 text-[12px] text-muted">
+                      {voters[r.id] ? t("adm.pollNoVotes") : t("adm.loading")}
+                    </p>
+                  ) : (
+                    <div className="mt-1.5 flex flex-col gap-1">
+                      {voters[r.id].map((v, n) => {
+                        const opt = r.options.find((o) => o.key === v.choice);
+                        return (
+                          <div key={n}
+                               className="flex flex-wrap items-baseline justify-between gap-x-3 rounded-md border border-line bg-surface px-2.5 py-1 text-[12.5px]">
+                            <span className="font-data text-ink/90">{v.name}</span>
+                            <span className="text-muted">{opt?.th ?? v.choice}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </details>
               </div>
             );
           })}
