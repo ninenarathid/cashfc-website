@@ -13,13 +13,13 @@ export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
  * discards before it reaches an eye — which is the entire problem this exists
  * to solve, since it was being paid for by the byte.
  */
-export const THUMB_WIDTH = 700;
+export const THUMB_WIDTH = 1200;
 /**
  * WebP, because it is roughly a third the size of JPEG at a quality nobody can
  * tell apart at this scale, and every browser has read it for years.
  */
 const THUMB_TYPE = "image/webp";
-const THUMB_QUALITY = 0.82;
+const THUMB_QUALITY = 0.85;
 
 /**
  * The full-size copy: same picture, same pixels, a quarter of the weight.
