@@ -89,14 +89,39 @@ const WIDE_AT = 1.25;
 const ROW = 1;
 
 /**
- * How many columns fit, decided from the measured width rather than from the
- * breakpoints — the spans below are worked out in JavaScript and would drift
- * from a CSS breakpoint the first time either was changed alone.
+ * How the wall is divided, and how much of it each shape takes.
+ *
+ * Both together, because they only mean anything together. A landscape shot
+ * given two columns where a portrait gets one is half again as prominent as
+ * the portrait whatever the column count is — three, five and seven all come
+ * out at about 1.6 times the area, because what decides it is the ratio of the
+ * spans and not the number of them. Two to three is the pair that lands near
+ * even: measured against this FC's own pictures it comes to 0.88, a shade in
+ * the portrait's favour and much closer than either alternative.
+ *
+ * Six rather than five, though five was the first thought. Spans of two and
+ * three fill five columns only as 2+3; a row that starts 2+2 has one column
+ * left that nothing can go in. Six takes 3+3 and 2+2+2 as well, and packing
+ * the real gallery fills 87.5% of it against 75.5% for five.
+ *
+ * Decided from the measured width rather than from CSS breakpoints, since the
+ * spans are worked out in JavaScript and would drift from a breakpoint the
+ * first time either was changed alone.
  */
-function columnsFor(width: number): number {
-  if (width < 560) return 1;
-  if (width < 900) return 2;
-  return 3;
+interface Plan { cols: number; portrait: number; landscape: number }
+
+function planFor(width: number): Plan {
+  // One picture at a time, full width. Below this a tile is a postage stamp.
+  if (width < 560) return { cols: 1, portrait: 1, landscape: 1 };
+  // Not the two-to-three pair here: at this width six columns would be 90px
+  // each, and a portrait across two of them still too small to look at.
+  if (width < 1000) return { cols: 3, portrait: 1, landscape: 2 };
+  // More columns as the screen grows, so the pictures stay about the size they
+  // were and more of them fit across instead. Six columns on a very wide
+  // monitor is three pictures with half the screen empty either side; nine is
+  // three or four at the same size, which is what the room is for.
+  if (width < 2100) return { cols: 6, portrait: 2, landscape: 3 };
+  return { cols: 9, portrait: 2, landscape: 3 };
 }
 
 function TileImage(
@@ -235,8 +260,9 @@ export default function GalleryGrid(
     return () => ro.disconnect();
   }, []);
 
-  const cols = columnsFor(box || 1040);
-  const gap = box < 640 ? 12 : 16;      // gap-3 / sm:gap-4
+  const plan = planFor(box || 1344);
+  const cols = plan.cols;
+  const gap = box < 640 ? 12 : 16;      // gap-x-3 / sm:gap-x-4
 
   /**
    * The cell one picture sits in: how many columns across, and how many 8px
@@ -248,7 +274,7 @@ export default function GalleryGrid(
    */
   const cellOf = (p: GalleryPost) => {
     const r = tileRatio(p.width, p.height) ?? 1;
-    const across = Math.min(cols, r >= WIDE_AT ? 2 : 1);
+    const across = Math.min(cols, r >= WIDE_AT ? plan.landscape : plan.portrait);
     const width = box
       ? (box - gap * (cols - 1)) / cols * across + gap * (across - 1)
       : 320;
@@ -293,7 +319,7 @@ export default function GalleryGrid(
           more pictures at the size they were before, which is a different
           thing from showing these ones larger. */}
       <div className="mx-[calc(50%-50vw)] mt-4 w-screen px-2 sm:px-3">
-      <div className="mx-auto w-full max-w-[1360px] rounded-2xl bg-surface/50 p-1.5 sm:p-2">
+      <div className="mx-auto w-full max-w-[2600px] rounded-2xl bg-surface/50 p-1.5 sm:p-2">
         <div ref={mat}
              style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
                       gridAutoRows: `${ROW}px`, rowGap: 0 }}
