@@ -76,8 +76,17 @@ function tileRatio(w?: number | null, h?: number | null): number | null {
  */
 const WIDE_AT = 1.25;
 
-/** Row height and gap in pixels, matching the classes on the container. */
-const ROW = 8;
+/**
+ * One pixel per grid row, and no row gap at all.
+ *
+ * The gap between tiles is padding on the tile instead. That looks like a
+ * detour and is the whole trick: a row of 8px with a 16px gap quantises every
+ * tile to the nearest 24, so a cell rounded up to fit its picture could stand
+ * a full 24 pixels taller than it — which read as tall pictures having more
+ * air above and below them than everything else. At one pixel a row and the
+ * gap moved inside the tile, the error is at most one pixel.
+ */
+const ROW = 1;
 
 /**
  * How many columns fit, decided from the measured width rather than from the
@@ -243,9 +252,18 @@ export default function GalleryGrid(
     const width = box
       ? (box - gap * (cols - 1)) / cols * across + gap * (across - 1)
       : 320;
-    const rows = Math.max(1, Math.round((width / r + gap) / (ROW + gap)));
+    // Rounded up, never to nearest. The picture inside sizes itself from its
+    // own aspect ratio, so a cell rounded down is a few pixels shorter than
+    // what it holds — and the wrapper used to clip that off, which is why some
+    // tiles lost the curve on their bottom corners. Up, the slack falls below
+    // the picture where a masonry wall has gaps anyway.
+    // The picture's own height, plus the border around it, plus the gap that
+    // now belongs to the tile.
+    const tall = width / r + 2 + gap;
+    const rows = Math.max(1, Math.ceil(tall));
     return { width, style: { gridColumn: `span ${across}`,
-                             gridRow: `span ${rows}` } as React.CSSProperties };
+                             gridRow: `span ${rows}`,
+                             paddingBottom: gap } as React.CSSProperties };
   };
 
   return (
@@ -257,14 +275,33 @@ export default function GalleryGrid(
 
           The mat is held to a measure a little wider than the page text and
           centred in whatever room is left, so the collage stays the same object
-          on a laptop and on a very wide screen instead of thinning out. */}
-      <div className="mx-auto mt-4 w-full max-w-[1040px] rounded-2xl bg-surface/50 p-3 sm:p-4">
+          on a laptop and on a very wide screen instead of thinning out.
+
+          Its own padding is thin — enough for the mat to read as a mat and for
+          the pictures not to touch its corners, and no more. Every pixel of it
+          is width taken off three columns of photographs. */}
+      {/* Out of the page's column first, then back to its own measure.
+
+          The mat asked for 1040 and had never once had it: every page here is
+          a column 1024 wide with a gutter either side, so the pictures got 960
+          and the mat's own number meant nothing. Stepping outside that column
+          and re-centring gives the collage a width of its own without widening
+          anything else on the site — and once it could actually have one,
+          1360 was the width worth asking for.
+
+          Still three columns. Four would fit at this measure and would show
+          more pictures at the size they were before, which is a different
+          thing from showing these ones larger. */}
+      <div className="mx-[calc(50%-50vw)] mt-4 w-screen px-2 sm:px-3">
+      <div className="mx-auto w-full max-w-[1360px] rounded-2xl bg-surface/50 p-1.5 sm:p-2">
         <div ref={mat}
              style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                      gridAutoRows: `${ROW}px` }}
+                      gridAutoRows: `${ROW}px`, rowGap: 0 }}
              // dense, so a single column left by a wide picture is filled by
-             // the next tall one rather than left as a hole.
-             className="grid [grid-auto-flow:row_dense] gap-3 sm:gap-4">
+             // the next tall one rather than left as a hole. Only a column gap
+             // here: the space between rows is padding on the tiles, so a tall
+             // picture and a wide one are spaced the same — see ROW.
+             className="grid [grid-auto-flow:row_dense] gap-x-3 sm:gap-x-4">
           {posts.map((p, idx) => {
             const cell = cellOf(p);
             const c = counts[p.id];
@@ -288,8 +325,15 @@ export default function GalleryGrid(
                 : null))
               .filter(Boolean) as { name: string; avatar: string | null }[];
             return (
-              <div key={p.id} style={cell.style}
-                   className="group relative overflow-hidden">
+              // No clipping here: the button inside already rounds and clips
+              // its own picture, and a square-cornered box cropping a rounded
+              // one is exactly how the corners went missing.
+              // The cell is a slot in the grid and is rounded up to whole rows,
+              // so it can stand a few pixels taller than the picture in it. The
+              // caption is positioned against the picture rather than the slot,
+              // or it hangs in that slack below the frame.
+              <div key={p.id} style={cell.style} className="group">
+              <div className="relative">
                 <button onClick={() => setOpen(p.id)}
                         className="block w-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-accent">
                   <TileImage post={p} images={shots} index={idx}
@@ -382,9 +426,11 @@ export default function GalleryGrid(
                   </div>
                 )}
               </div>
+              </div>
             );
           })}
         </div>
+      </div>
       </div>
 
       {current && (
