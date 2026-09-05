@@ -11,7 +11,7 @@
    "rare_achv": 316,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788457480",
-   "collect_seen": "2026-09-04",
+   "collect_seen": "2026-09-05",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -197,7 +197,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-04",
+   "stats_seen": "2026-09-05",
    "lode_achv_public": true
   },
   "31441339": {
@@ -211,7 +211,7 @@
    "rare_achv": 128,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788414497",
-   "collect_seen": "2026-09-04",
+   "collect_seen": "2026-09-05",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -423,7 +423,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-04",
+   "stats_seen": "2026-09-05",
    "lode_achv_public": true
   },
   "42349146": {
@@ -437,7 +437,7 @@
    "rare_achv": 15,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
-   "collect_seen": "2026-09-04",
+   "collect_seen": "2026-09-05",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -539,8 +539,8 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-09-04"
+   "lode_achv_public": true,
+   "stats_seen": "2026-09-05"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -553,7 +553,7 @@
    "rare_achv": 121,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788521581",
-   "collect_seen": "2026-09-04",
+   "collect_seen": "2026-09-05",
    "tags": [
     "prog",
     "extreme",
@@ -606,8 +606,8 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-09-04"
+   "lode_achv_public": true,
+   "stats_seen": "2026-09-05"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -620,7 +620,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4203c340e98d92d7d1e82849bb2343dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704542683",
-   "collect_seen": "2026-09-04",
+   "collect_seen": "2026-09-05",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -688,8 +688,8 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-09-04"
+   "lode_achv_public": false,
+   "stats_seen": "2026-09-05"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -701,8 +701,8 @@
    "minions": 270,
    "rare_achv": 206,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788561267",
-   "collect_seen": "2026-09-04",
+   "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788597267",
+   "collect_seen": "2026-09-05",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -714,7 +714,7 @@
    ],
    "achv_tiers": {
     "crafter": "expert",
-    "relic": "legendary",
+    "relic": "master",
     "explorer": "master"
    },
    "parse": 99,
@@ -919,8 +919,8 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-09-04"
+   "lode_achv_public": true,
+   "stats_seen": "2026-09-05"
   }
  },
  "generated_at": "2026-09-05T22:11:57Z",
