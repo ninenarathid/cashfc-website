@@ -3,6 +3,20 @@
   {
    "date": "2026-09-05",
    "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "level_100",
    "id": 50821570,
    "name": "Haruki Mizumoto",
    "text": "reached level 100 on Machinist!"
@@ -1385,20 +1399,6 @@
    "id": 44970350,
    "name": "Allen Crist",
    "text": "is now a Expert Treasure hunter ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned In Pot Pursuit III — only 0.4% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "earned On Top of the Savage World III — only 2.1% of players have it, and 45 more"
   }
  ]
 }

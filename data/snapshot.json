@@ -2383,7 +2383,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4477,7 +4477,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 100,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -4504,7 +4504,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-05"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -4687,7 +4687,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 100,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -6503,7 +6503,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 78,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7015,7 +7015,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 31,
-  "level": 100,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -7062,7 +7062,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-05"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7410,7 +7410,7 @@
   "mounts": 81,
   "minions": 155,
   "rare": null,
-  "level": 100,
+  "level": 59,
   "cc": [
    true,
    true,
@@ -7431,7 +7431,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-03"
+  "chg": "2026-09-05"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",

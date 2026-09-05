@@ -12089,12 +12089,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 93,
     "kills": 7,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Scholar": {
       "kills": 7,
@@ -28366,12 +28366,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 67,
     "kills": 11,
     "job": "Dragoon",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Dragoon": {
       "kills": 11,
