@@ -127,6 +127,39 @@ async function inline(url: string | null | undefined): Promise<string | null> {
  * portrait and the cover down with the column it had never heard of. The same
  * ladder the member page climbs, one rung long.
  */
+/**
+ * How many potatoes this member has been given.
+ *
+ * Asked for as a count rather than as rows: the number is all the card wants,
+ * and a member with three hundred of them should not have three hundred rows
+ * crossing the wire to be counted here. Zero on any failure, which reads as
+ * "nobody has yet" — the card simply leaves the chip off, and a share is never
+ * held up by a number that is decoration on it.
+ */
+async function potatoes(characterId: string): Promise<number> {
+  if (!supabaseConfigured) return 0;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/kudos?receiver_character_id=eq.${characterId}&select=id`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          // head + exact: the total comes back in a header and no row does.
+          Prefer: "count=exact",
+          Range: "0-0",
+        },
+        method: "HEAD",
+        signal: AbortSignal.timeout(FETCH_MS),
+      },
+    );
+    const range = res.headers.get("content-range") ?? "";
+    return Number(range.split("/")[1]) || 0;
+  } catch {
+    return 0;
+  }
+}
+
 async function chosen(characterId: string) {
   const none = { avatar: null, cover: null, accent: DEFAULT_ACCENT,
                  name: null as string | null };
@@ -176,7 +209,7 @@ export default async function Image(
   // world. The card should say whose company they are actually in.
   const home = m ? undefined : guestHome(Number(id));
 
-  const mine = await chosen(id);
+  const [mine, popoto] = await Promise.all([chosen(id), potatoes(id)]);
   const accent = mine.accent;
   // Their choice first, then the Lodestone — the same order the site uses
   // everywhere else, so the card matches the page it points at.
@@ -300,9 +333,23 @@ export default async function Image(
                 {/* How they play, which is the part worth leading with. Each pill
                     is opaque enough to stand on its own, so a bright cover behind
                     one cannot swallow the word inside it. */}
-                {tags.length > 0 && (
+                {(tags.length > 0 || popoto > 0) && (
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap",
                                 marginTop: title ? 22 : 18 }}>
+                    {/* The potatoes first, because they are the one number on
+                        the card that other people put there. Everything beside
+                        it is a measurement of the character; this is the FC
+                        saying something. */}
+                    {popoto > 0 && (
+                      <div style={{
+                        display: "flex", borderRadius: 999, padding: "7px 20px",
+                        fontSize: 21, color: mix("#e5cc80", "#ffffff", 0.55),
+                        background: mix("#e5cc80", "#0b0f15", 0.22),
+                        border: `1px solid ${mix("#e5cc80", "#0b0f15", 0.62)}`,
+                      }}>
+                        🥔 {popoto}
+                      </div>
+                    )}
                     {tags.map((t) => (
                       <div key={t.tag} style={{
                         display: "flex", borderRadius: 999, padding: "7px 20px",

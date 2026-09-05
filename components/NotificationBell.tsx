@@ -16,6 +16,8 @@ interface Note {
   body: string | null;
   created_at: string;
   read_at: string | null;
+  /** A question that has been answered. It stays; its buttons do not. */
+  answered_at?: string | null;
 }
 
 /** Enough to be worth scrolling, few enough to arrive instantly. */
@@ -34,6 +36,8 @@ const SHOW = 20;
 const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   tag: { say: "notif.tagged", icon: "🏷️", href: "" },
   comment: { say: "notif.commented", icon: "💬", href: "" },
+  popoto: { say: "notif.popoto", icon: "🥔", href: "/profile" },
+  popoto_post: { say: "notif.popotoPost", icon: "🥔", href: "" },
   announcement: { say: "notif.announced", icon: "📣", href: "/" },
   feedback: { say: "notif.feedback", icon: "✉️", href: "/feedback" },
 };
@@ -83,7 +87,7 @@ export default function NotificationBell() {
     setCharacter(p?.character_verified_at ? p.character_id ?? null : null);
 
     const { data } = await supabase.from("notifications")
-      .select("id, kind, actor_name, post_id, body, created_at, read_at")
+      .select("id, kind, actor_name, post_id, body, created_at, read_at, answered_at")
       .order("created_at", { ascending: false }).limit(SHOW);
     const rows = (data as Note[]) ?? [];
     setNotes(rows);
@@ -137,9 +141,11 @@ export default function NotificationBell() {
         .delete().eq("post_id", postId).eq("character_id", character);
     }
     setBusy(false);
-    // The database takes the notification away with the question; this is only
-    // the screen catching up without waiting for a round trip.
-    setNotes((v) => v.filter((n) => !(n.kind === "tag" && n.post_id === postId)));
+    // The database marks it answered; this is only the screen catching up
+    // without waiting for a round trip.
+    const now = new Date().toISOString();
+    setNotes((v) => v.map((n) => (n.kind === "tag" && n.post_id === postId
+      ? { ...n, answered_at: now } : n)));
     void load();
   }
 
@@ -203,7 +209,11 @@ export default function NotificationBell() {
               // down, and a kind nobody has taught this has none rather than a
               // link to the front page that pretends to be an answer.
               const href = n.post_id ? postPath(n.post_id) : (kind?.href || null);
-              const asking = n.kind === "tag" && character != null;
+              // Answered tags keep their line and their picture and lose their
+            // buttons. Taking the whole notification away took the photograph
+            // with it, which is the thing somebody who has just agreed to be
+            // named in one is most likely to want next.
+            const asking = n.kind === "tag" && character != null && !n.answered_at;
               return (
                 <div key={n.id}
                      className={`flex gap-2.5 border-b border-line px-3.5 py-2.5 last:border-0 ${

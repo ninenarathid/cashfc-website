@@ -14,6 +14,7 @@ import PostTags from "@/components/gallery/PostTags";
 import PhotoTagLayer from "@/components/gallery/PhotoTagLayer";
 import { useAvatarOverrides } from "@/lib/avatars";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import PopotoGivers from "@/components/PopotoGivers";
 import { useAdmin } from "@/lib/admin";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import { fmtDate } from "@/lib/dates";
@@ -474,15 +475,29 @@ export default function PostDetail(
         <div className="flex flex-wrap gap-2">
           {/* Disabled rather than hidden, with the reason on hover: a button
               that vanishes leaves somebody wondering what they did wrong. */}
-          <button onClick={toggleLike}
-                  disabled={!me || busy || (!liked && !iHaveCharacter)}
-                  title={!me ? t("gallery.signInToReact")
-                    : !liked && !iHaveCharacter ? t("kudos.needCharacter") : undefined}
-                  className={`rounded-lg border px-3.5 py-1.5 text-[13px] transition-colors disabled:opacity-50 ${
-                    liked ? "border-accent bg-accent/15 text-accent"
-                          : "border-line text-muted hover:border-accent hover:text-accent"}`}>
-            🥔 {t("gallery.popoto")}{likes != null ? ` · ${likes}` : ""}
-          </button>
+          {/* Two halves of one control. Giving a potato and seeing who else
+              did are the same subject, and the count has to be its own button
+              because it opens a list — a control inside a control is neither.
+              Joined at the border, they read as the one thing they are. */}
+          <span className="inline-flex items-stretch">
+            <button onClick={toggleLike}
+                    disabled={!me || busy || (!liked && !iHaveCharacter)}
+                    title={!me ? t("gallery.signInToReact")
+                      : !liked && !iHaveCharacter ? t("kudos.needCharacter") : undefined}
+                    className={`border px-3.5 py-1.5 text-[13px] transition-colors disabled:opacity-50 ${
+                      likes ? "rounded-l-lg" : "rounded-lg"} ${
+                      liked ? "border-accent bg-accent/15 text-accent"
+                            : "border-line text-muted hover:border-accent hover:text-accent"}`}>
+              🥔 {liked ? t("gallery.popotoSent") : t("gallery.popoto")}
+            </button>
+            {!!likes && (
+              <PopotoGivers kind="post" id={post.id} count={likes} className="-ml-px">
+                <span className="rounded-r-lg border border-line px-3 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
+                  {likes}
+                </span>
+              </PopotoGivers>
+            )}
+          </span>
           <button onClick={share}
                   className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
             {copied ? t("gallery.copied") : t("gallery.share")}

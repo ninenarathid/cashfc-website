@@ -201,7 +201,8 @@ const DICT = {
     en: "Posting needs a character you have verified as yours — it takes a minute.",
     th: "การโพสต์ต้องยืนยันตัวละครของตัวเองก่อน ใช้เวลาแป๊บเดียว",
   },
-  "gallery.popoto": { en: "Popoto", th: "Popoto" },
+  "gallery.popoto": { en: "Send popoto", th: "Send popoto" },
+  "gallery.popotoSent": { en: "Popoto sent", th: "ส่ง popoto แล้ว" },
   "gallery.share": { en: "Copy link", th: "ก็อปลิงก์" },
   "gallery.copied": { en: "Link copied", th: "ก็อปแล้ว" },
   "gallery.comments": { en: "Comments", th: "คอมเมนต์" },
@@ -248,9 +249,9 @@ const DICT = {
     en: "Search captions or who posted…",
     th: "ค้นจากคำบรรยาย หรือชื่อคนโพสต์…",
   },
-  "gallery.sortHot": { en: "Hot right now", th: "กำลังฮิต" },
-  "gallery.sortNew": { en: "Newest", th: "ใหม่สุด" },
-  "gallery.sortTop": { en: "Most popoto", th: "popoto เยอะสุด" },
+  "gallery.sortHot": { en: "Hot right now", th: "Hot right now" },
+  "gallery.sortNew": { en: "Newest", th: "Newest" },
+  "gallery.sortTop": { en: "Most popoto", th: "Most popoto" },
   "gallery.loadingMore": { en: "Loading more…", th: "กำลังโหลดเพิ่ม…" },
   /* Names who took them rather than how they are doing. "What is popular" is a
      ranking, and a ranking invites people to check where theirs came — which is
@@ -260,6 +261,10 @@ const DICT = {
     th: "ภาพจากเพื่อนๆ ใน FC",
   },
   "gallery.seeAll": { en: "See all", th: "ดูทั้งหมด" },
+  "gallery.hotHow": {
+    en: "How does Hot right now decide?",
+    th: "Hot right now เรียงยังไง?",
+  },
   "lb.howScored": {
     en: "How is this scored?",
     th: "คะแนนคิดยังไง?",
@@ -295,6 +300,9 @@ const DICT = {
     en: "Claim and verify your character to vote — this decides a leaderboard, so one vote has to mean one member.",
     th: "ต้องอ้างสิทธิ์และยืนยันตัวละครก่อนจึงจะโหวตได้ เพราะผลโหวตมีผลกับ leaderboards หนึ่งเสียงจึงต้องเท่ากับหนึ่งคน",
   },
+  // ── Who gave the potatoes ──────────────────────────────────────────
+  "popoto.whoGave": { en: "{n} potatoes, from", th: "popoto {n} ครั้ง จาก" },
+  "popoto.seeAll": { en: "Click to see all {n}", th: "กดเพื่อดูทั้ง {n} คน" },
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
   "lb.full": { en: "See all", th: "ดูทั้งหมด" },
   "lb.popoto": { en: "Popoto", th: "Popoto" },
@@ -357,6 +365,14 @@ const DICT = {
   "notif.commented": {
     en: "{who} commented on your picture.",
     th: "{who} คอมเมนต์รูปของคุณ",
+  },
+  "notif.popoto": {
+    en: "{who} sent you a popoto.",
+    th: "{who} ส่ง popoto ให้คุณ",
+  },
+  "notif.popotoPost": {
+    en: "{who} sent a popoto to a picture you are in.",
+    th: "{who} ส่ง popoto ให้รูปที่มีคุณอยู่",
   },
   "notif.announced": {
     en: "There is a new announcement.",

@@ -23,6 +23,7 @@ import Tabs from "@/components/ui/Tabs";
 import TagIcon from "@/components/TagIcon";
 import DutyCard from "@/components/DutyCard";
 import AwardBadge from "@/components/ui/AwardBadge";
+import PopotoGivers from "@/components/PopotoGivers";
 import { useBadgesFor } from "@/lib/member-badges";
 import { artFocus, dutySlug, NO_ART, type DutyArt } from "@/lib/duty";
 import { byReleaseOrder, dutyOf, savageDuty } from "@/lib/duties";
@@ -378,10 +379,25 @@ export default function MemberView({
                   {label}
                 </a>
               ))}
-              <button onClick={sendKudos}
-                      className="rounded-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-accent hover:bg-accent/15">
-                🥔 Send popoto{kudos != null ? ` · ${kudos}` : ""}
-              </button>
+              {/* Two halves of one control. Sending a potato and seeing who
+                  else did are the same subject, and the count has to be its own
+                  button because it opens a list — a control inside a control is
+                  neither. Joined at the border, they read as the one thing they
+                  are. */}
+              <span className="inline-flex items-stretch">
+                <button onClick={sendKudos}
+                        className={`border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-accent hover:bg-accent/15 ${
+                          kudos ? "rounded-l-md" : "rounded-md"}`}>
+                  🥔 Send popoto
+                </button>
+                {!!kudos && (
+                  <PopotoGivers kind="profile" id={m.id} count={kudos} className="-ml-px">
+                    <span className="rounded-r-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-accent">
+                      {kudos}
+                    </span>
+                  </PopotoGivers>
+                )}
+              </span>
               {/* Copies the page with a throwaway query on the end. Discord
                   keeps what it has already unfurled, keyed by the address, so a
                   link it has seen before shows whatever card it saw then — a

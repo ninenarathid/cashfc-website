@@ -7,6 +7,7 @@ import { useLang } from "@/lib/i18n";
 import { GALLERY_PUBLIC_KEY, type Roster } from "@/lib/gallery";
 import GalleryGrid, { LoadMore, useGallery, type Sort } from "@/components/gallery/GalleryGrid";
 import PollCard from "@/components/gallery/PollCard";
+import HotExplainer from "@/components/gallery/HotExplainer";
 import GalleryUpload from "@/components/gallery/GalleryUpload";
 
 /**
@@ -134,6 +135,7 @@ export default function GalleryPage(
           </div>
         ) : (
           <>
+            {sort === "hot" && <HotExplainer />}
             <PollCard />
             <GalleryGrid posts={posts} authors={authors} counts={counts}
                          images={images} tagged={tagged} roster={roster} memberOptions={memberOptions}
