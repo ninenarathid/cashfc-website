@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
+import { useAvatarOverrides } from "@/lib/avatars";
 import { GALLERY_PUBLIC_KEY, postPath, thumbOf,
          type GalleryPost } from "@/lib/gallery";
 
@@ -98,16 +99,36 @@ function pack(posts: GalleryPost[]): Column[] {
   return columns;
 }
 
-function Tile({ post, rows }: { post: GalleryPost; rows: 1 | 2 }) {
-  // Height comes from the row, width from the picture's own proportions. Both
-  // are set before it loads, so the strip does not reflow as pictures arrive.
-  const a = Math.min(aspectOf(post), MAX_ASPECT * rows);
-  const h = rows === 2
-    ? "calc(var(--row-h) * 2 + var(--row-gap))"
-    : "var(--row-h)";
+/**
+ * The width two stacked pictures share, in row heights.
+ *
+ * Each was given the row's height and whatever width its own shape implied,
+ * which meant a pair of different shapes came out different widths and the
+ * narrower one sat with a strip of empty page beside it. Nothing was wrong
+ * with either picture; the column was simply two widths wide.
+ *
+ * So the pair is given one width and the split between them moves instead.
+ * For a shared width W the two stand W/a1 and W/a2 tall, and those plus the
+ * gap have to come to the height of two rows and a gap — which leaves
+ * W = 2R / (1/a1 + 1/a2), the harmonic mean of the two aspects. Neither
+ * picture is cropped, neither is padded, and the column has one edge.
+ */
+const pairWidth = (a1: number, a2: number) => 2 / (1 / a1 + 1 / a2);
+
+interface Face { name: string; avatar: string | null }
+
+function Tile(
+  { post, w, h, by, others }: {
+    post: GalleryPost; w: string; h: string;
+    /** Whose picture it is. */
+    by?: Face | null;
+    /** Everybody else confirmed to be in it. */
+    others?: Face[];
+  },
+) {
   return (
     <Link href={postPath(post.id)}
-          style={{ height: h, width: `calc(${h} * ${a})` }}
+          style={{ height: h, width: w }}
           className="group relative block shrink-0 overflow-hidden rounded-lg border border-line no-underline">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={thumbOf(post)} alt={post.caption ?? ""} loading="lazy"
@@ -116,8 +137,46 @@ function Tile({ post, rows }: { post: GalleryPost; rows: 1 | 2 }) {
           of sight until somebody looks at one, because a caption on every tile
           is a wall of text over a wall of pictures. On a touchscreen there is
           no hover to wait for, so it simply shows. */}
-      {(post.caption || (post.like_count ?? 0) > 0 || (post.comment_count ?? 0) > 0) && (
+      {(by || post.caption || (post.like_count ?? 0) > 0 || (post.comment_count ?? 0) > 0) && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-bg/90 via-bg/70 to-transparent px-2.5 pb-2 pt-8 opacity-0 transition-opacity duration-200 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+          {/* Whose it is, and who else is in it — the same line the gallery
+              wall shows, so a picture says the same thing wherever it is seen.
+              A hair smaller here, because these tiles are smaller. */}
+          {by && (
+            <div className="mb-0.5 flex items-center gap-1.5">
+              {by.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={by.avatar} alt="" loading="lazy"
+                     className="size-5 shrink-0 rounded-full border border-line object-cover" />
+              ) : (
+                <span className="size-5 shrink-0 rounded-full border border-line bg-card" />
+              )}
+              <span className="truncate font-data text-[11.5px] font-semibold text-ink">
+                {by.name}
+              </span>
+              {(others?.length ?? 0) > 0 && (
+                <span className="ml-auto flex shrink-0 items-center -space-x-1.5">
+                  {others!.slice(0, 3).map((o, n) => (
+                    o.avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={n} src={o.avatar} alt={o.name} title={o.name} loading="lazy"
+                           className="size-[18px] rounded-full border border-bg object-cover" />
+                    ) : (
+                      <span key={n} title={o.name}
+                            className="grid size-[18px] place-items-center rounded-full border border-bg bg-card font-data text-[8px] text-ink/80">
+                        {o.name.slice(0, 1)}
+                      </span>
+                    )
+                  ))}
+                  {others!.length > 3 && (
+                    <span className="pl-2 font-data text-[10.5px] text-ink/70">
+                      +{others!.length - 3}
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
+          )}
           {post.caption && (
             <p className="line-clamp-2 text-[12px] leading-snug text-ink">
               {post.caption}
@@ -138,6 +197,13 @@ function Tile({ post, rows }: { post: GalleryPost; rows: 1 | 2 }) {
 export default function HotGallery() {
   const { t } = useLang();
   const [posts, setPosts] = useState<GalleryPost[]>([]);
+  /** Confirmed tags per post, for the hover. */
+  const [tagged, setTagged] = useState<Record<number, number[]>>({});
+  /** The name and account face for anybody a picture names. */
+  const [roster, setRoster] = useState<Record<number, Face>>({});
+  // The faces members chose for themselves win over the account ones, the same
+  // way they do everywhere else on the site.
+  const chosen = useAvatarOverrides();
 
   useEffect(() => {
     const supabase = createClient();
@@ -149,20 +215,94 @@ export default function HotGallery() {
       const { data } = await supabase.rpc("gallery_feed", {
         p_sort: "hot", p_query: null, p_limit: SHOW, p_offset: 0, p_character: null,
       });
-      setPosts(((data as GalleryPost[]) ?? []).filter((p) => p.image_url));
+      const rows = ((data as GalleryPost[]) ?? []).filter((p) => p.image_url);
+      setPosts(rows);
+      if (!rows.length) return;
+
+      // Who is in each one. Confirmed tags only: an unconfirmed tag is
+      // somebody's guess, and the front page is not the place to publish one.
+      const { data: tagRows } = await supabase.from("gallery_tags")
+        .select("post_id, character_id")
+        .in("post_id", rows.map((r) => r.id))
+        .not("confirmed_at", "is", null);
+      const seen: Record<number, Set<number>> = {};
+      for (const r of (tagRows ?? []) as { post_id: number; character_id: number }[]) {
+        (seen[r.post_id] ??= new Set()).add(r.character_id);
+      }
+      const byPost: Record<number, number[]> = {};
+      for (const [pid, ids] of Object.entries(seen)) byPost[Number(pid)] = [...ids];
+      setTagged(byPost);
+
+      // Names and faces for everybody either owning one or appearing in one,
+      // asked for by id rather than by pulling the whole roster onto the front
+      // page — which is eight hundred kilobytes for a dozen names.
+      const ids = [...new Set([
+        ...rows.map((r) => r.character_id).filter(Boolean) as number[],
+        ...Object.values(byPost).flat(),
+      ])];
+      if (!ids.length) return;
+      const { data: people } = await supabase.from("profiles")
+        .select("character_id, character_name, display_name, discord_username, discord_avatar")
+        .in("character_id", ids);
+      const map: Record<number, Face> = {};
+      for (const r of (people ?? []) as Record<string, unknown>[]) {
+        map[r.character_id as number] = {
+          name: (r.character_name as string | null)
+            ?? (r.display_name as string | null)
+            ?? (r.discord_username as string | null) ?? "—",
+          avatar: (r.discord_avatar as string | null) ?? null,
+        };
+      }
+      setRoster(map);
     })();
   }, []);
 
+  /** One member as the hover should draw them, chosen face first. */
+  const faceOf = (id: number | null | undefined): Face | null => {
+    if (!id) return null;
+    const r = roster[id];
+    const avatar = chosen[id] ?? r?.avatar ?? null;
+    return r || avatar ? { name: r?.name ?? "—", avatar } : null;
+  };
+
   const columns = useMemo(() => pack(posts), [posts]);
+
+  // Everybody in a picture except whoever it already belongs to — naming them
+  // twice in one line reads as two different people.
+  const othersOf = (p: GalleryPost): Face[] =>
+    (tagged[p.id] ?? [])
+      .filter((id) => id !== p.character_id)
+      .map(faceOf)
+      .filter(Boolean) as Face[];
   if (!posts.length) return null;
 
-  const column = (col: Column, key: string) => (
-    <div key={key} className="mr-2 flex shrink-0 flex-col gap-2">
-      {col.tall && <Tile post={col.tall} rows={2} />}
-      {col.top && <Tile post={col.top} rows={1} />}
-      {col.bottom && <Tile post={col.bottom} rows={1} />}
-    </div>
-  );
+  const column = (col: Column, key: string) => {
+    // A portrait keeps the whole column: its height is the two rows and the gap
+    // between them, and its width follows from its own shape as before.
+    if (col.tall) {
+      const a = Math.min(aspectOf(col.tall), MAX_ASPECT * 2);
+      const h = "calc(var(--row-h) * 2 + var(--row-gap))";
+      return (
+        <div key={key} className="mr-2 flex shrink-0 flex-col gap-2">
+          <Tile post={col.tall} h={h} w={`calc(${h} * ${a})`}
+                by={faceOf(col.tall.character_id)} others={othersOf(col.tall)} />
+        </div>
+      );
+    }
+    if (!col.top || !col.bottom) return null;
+    const a1 = Math.min(aspectOf(col.top), MAX_ASPECT);
+    const a2 = Math.min(aspectOf(col.bottom), MAX_ASPECT);
+    const k = pairWidth(a1, a2);
+    const w = `calc(var(--row-h) * ${k})`;
+    return (
+      <div key={key} className="mr-2 flex shrink-0 flex-col gap-2">
+        <Tile post={col.top} w={w} h={`calc(var(--row-h) * ${k / a1})`}
+              by={faceOf(col.top.character_id)} others={othersOf(col.top)} />
+        <Tile post={col.bottom} w={w} h={`calc(var(--row-h) * ${k / a2})`}
+              by={faceOf(col.bottom.character_id)} others={othersOf(col.bottom)} />
+      </div>
+    );
+  };
 
   return (
     <section className="mt-4">
