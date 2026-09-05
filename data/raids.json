@@ -16758,12 +16758,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 73,
     "kills": 10,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Ninja": {
       "kills": 5,
@@ -16783,12 +16783,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 96,
     "kills": 15,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Summoner": {
       "kills": 10,
@@ -25174,12 +25174,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 71,
     "kills": 10,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Gunbreaker": {
       "kills": 10,
@@ -25191,12 +25191,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 47,
     "kills": 12,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Gunbreaker": {
       "kills": 12,
@@ -36114,12 +36114,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 16,
     "kills": 3,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Gunbreaker": {
       "kills": 3,
@@ -39515,12 +39515,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 55,
     "kills": 2,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Scholar": {
       "kills": 2,
