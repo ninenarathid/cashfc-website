@@ -1,6 +1,41 @@
 {
  "events": [
   {
+   "date": "2026-09-05",
+   "type": "boss_clear",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "boss_clear",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "boss_clear",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "level_100",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
    "date": "2026-09-04",
    "type": "level_100",
    "id": 31155521,
@@ -1364,41 +1399,6 @@
    "id": 29918255,
    "name": "Lyndanisse Vymmaith",
    "text": "is now a Master Explorer ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "is now a Expert PvP player ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned A Show of Fork III — only 0.6% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 38796459,
-   "name": "Minion Ke",
-   "text": "earned Cruising at the Savage Apex I, and 1 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 31806535,
-   "name": "Viiska Howl",
-   "text": "earned Summertime Drifter, and 13 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Master Gold Saucer collector ✨"
   }
  ]
 }

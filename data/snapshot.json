@@ -2180,7 +2180,7 @@
   "cc": [
    true,
    true,
-   false,
+   true,
    false,
    false
   ],
@@ -2224,7 +2224,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-05"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2237,7 +2237,7 @@
   "cc": [
    true,
    true,
-   false,
+   true,
    false,
    false
   ],
@@ -2336,7 +2336,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-05"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -2384,7 +2384,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2397,7 +2397,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-05"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -3547,7 +3547,7 @@
   "cc": [
    true,
    true,
-   false,
+   true,
    false,
    false
   ],
@@ -3564,7 +3564,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-05"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -4688,7 +4688,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -4733,7 +4733,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-05"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -6730,7 +6730,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 92,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6748,7 +6748,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-05"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -10758,9 +10758,9 @@
   "name": "Gramp Lessgooo",
   "parse": null,
   "ult": 0,
-  "mounts": 49,
-  "minions": 71,
-  "rare": null,
+  "mounts": 53,
+  "minions": 84,
+  "rare": 0,
   "level": 100,
   "cc": [
    false,
@@ -10774,7 +10774,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-05"
  },
  "29710631": {
   "name": "Grimnier Von'colven",
