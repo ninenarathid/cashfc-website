@@ -18,12 +18,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 88,
     "kills": 17,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "DarkKnight": {
       "kills": 17,
@@ -35,12 +35,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 87,
     "kills": 15,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "DarkKnight": {
       "kills": 15,
@@ -52,12 +52,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 73,
     "kills": 17,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "DarkKnight": {
       "kills": 17,
@@ -3310,12 +3310,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 48,
     "kills": 9,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Gunbreaker": {
       "kills": 9,
@@ -10710,12 +10710,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 26,
     "kills": 4,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Warrior": {
       "kills": 4,
@@ -15680,12 +15680,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 12,
     "kills": 4,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Gunbreaker": {
       "kills": 4,
@@ -28749,12 +28749,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 53,
     "kills": 4,
     "job": "Reaper",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Reaper": {
       "kills": 4,
@@ -28766,12 +28766,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 29,
     "kills": 2,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Samurai": {
       "kills": 2,
@@ -38560,12 +38560,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 29,
     "kills": 2,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Gunbreaker": {
       "kills": 2,
@@ -41772,12 +41772,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 43,
     "kills": 2,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Summoner": {
       "kills": 1,
@@ -48712,12 +48712,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 61,
     "kills": 2,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Machinist": {
       "kills": 2,
@@ -48729,12 +48729,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 95,
     "kills": 23,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Summoner": {
       "kills": 5,
@@ -48754,12 +48754,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 89,
     "kills": 16,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Gunbreaker": {
       "kills": 3,
@@ -53046,12 +53046,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 19,
     "kills": 1,
     "job": "Machinist",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    }
   ],
   "extremes": [],

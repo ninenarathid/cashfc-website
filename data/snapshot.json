@@ -2175,7 +2175,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 28,
-  "level": 62,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2383,7 +2383,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -4687,7 +4687,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 91,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6087,7 +6087,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 81,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6503,7 +6503,7 @@
   "mounts": 66,
   "minions": 92,
   "rare": 28,
-  "level": 100,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -6550,7 +6550,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-05"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7658,14 +7658,14 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 94,
+  "level": 95,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-05"
  },
  "57419573": {
   "name": "A'kane Dorothy",

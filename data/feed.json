@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-09-05",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "level_100",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-05",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1378,27 +1399,6 @@
    "id": 26699926,
    "name": "Boonies Princess",
    "text": "earned On Top of the Savage World III — only 2.1% of players have it, and 45 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "is now a Expert Relic grinder ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "earned A Show of Fork III — only 0.6% of players have it, and 27 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 58202955,
-   "name": "Trevas Aka",
-   "text": "earned Guardiansbane, and 7 more"
   }
  ]
 }
