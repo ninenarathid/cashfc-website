@@ -76,54 +76,6 @@ function tileRatio(w?: number | null, h?: number | null): number | null {
  */
 const WIDE_AT = 1.25;
 
-/**
- * One pixel per grid row, and no row gap at all.
- *
- * The gap between tiles is padding on the tile instead. That looks like a
- * detour and is the whole trick: a row of 8px with a 16px gap quantises every
- * tile to the nearest 24, so a cell rounded up to fit its picture could stand
- * a full 24 pixels taller than it — which read as tall pictures having more
- * air above and below them than everything else. At one pixel a row and the
- * gap moved inside the tile, the error is at most one pixel.
- */
-const ROW = 1;
-
-/**
- * How the wall is divided, and how much of it each shape takes.
- *
- * Both together, because they only mean anything together. A landscape shot
- * given two columns where a portrait gets one is half again as prominent as
- * the portrait whatever the column count is — three, five and seven all come
- * out at about 1.6 times the area, because what decides it is the ratio of the
- * spans and not the number of them. Two to three is the pair that lands near
- * even: measured against this FC's own pictures it comes to 0.88, a shade in
- * the portrait's favour and much closer than either alternative.
- *
- * Six rather than five, though five was the first thought. Spans of two and
- * three fill five columns only as 2+3; a row that starts 2+2 has one column
- * left that nothing can go in. Six takes 3+3 and 2+2+2 as well, and packing
- * the real gallery fills 87.5% of it against 75.5% for five.
- *
- * Decided from the measured width rather than from CSS breakpoints, since the
- * spans are worked out in JavaScript and would drift from a breakpoint the
- * first time either was changed alone.
- */
-interface Plan { cols: number; portrait: number; landscape: number }
-
-function planFor(width: number): Plan {
-  // One picture at a time, full width. Below this a tile is a postage stamp.
-  if (width < 560) return { cols: 1, portrait: 1, landscape: 1 };
-  // Not the two-to-three pair here: at this width six columns would be 90px
-  // each, and a portrait across two of them still too small to look at.
-  if (width < 1000) return { cols: 3, portrait: 1, landscape: 2 };
-  // More columns as the screen grows, so the pictures stay about the size they
-  // were and more of them fit across instead. Six columns on a very wide
-  // monitor is three pictures with half the screen empty either side; nine is
-  // three or four at the same size, which is what the room is for.
-  if (width < 2100) return { cols: 6, portrait: 2, landscape: 3 };
-  return { cols: 9, portrait: 2, landscape: 3 };
-}
-
 function TileImage(
   { post, images, index, width }: {
     post: GalleryPost; images: GalleryImage[]; index: number;
@@ -260,76 +212,99 @@ export default function GalleryGrid(
     return () => ro.disconnect();
   }, []);
 
-  const plan = planFor(box || 1344);
-  const cols = plan.cols;
-  const gap = box < 640 ? 12 : 16;      // gap-x-3 / sm:gap-x-4
+  const gap = box < 640 ? 12 : 16;
+  const width = box || 1344;
 
   /**
-   * The cell one picture sits in: how many columns across, and how many 8px
-   * rows tall to hold the shape it will be drawn at.
+   * Rows that end exactly where the mat does.
    *
-   * Before the first measurement every tile is one column and a plausible
-   * height, so the first paint is a grid rather than a pile — the real spans
-   * land on the frame after.
+   * The grid this replaces gave a picture two or three of six columns, which
+   * put portraits and landscapes on level terms but could not always fill a
+   * row: a row that came out 2+3 left one column that nothing was ever narrow
+   * enough to go in. Every pair of spans that does tile a row perfectly puts
+   * one shape ahead of the other again — the two wants are not compatible in a
+   * grid of fixed columns, which is what sent this to a different layout.
+   *
+   * Here a row is solved rather than snapped to. Pictures are laid across it
+   * at whatever height makes their widths, plus the gaps, come to exactly the
+   * mat: a picture's width is its height times its own ratio, so the total is
+   * linear in the height and the height falls out of one division. Nothing is
+   * cropped, nothing is padded, and there is no such thing as a leftover.
+   *
+   * The height varies row to row, which is the trade and is what a justified
+   * wall looks like — Flickr and Google Photos both do this.
+   *
+   * ── Why rows come in pairs of bands ──────────────────────────────────
+   *
+   * At one shared height a 16:9 shot is two and a half times the area of a
+   * 9:16 one, which is the imbalance the columns were introduced to fix. So a
+   * row is two bands tall, and holds two kinds of thing: a portrait standing
+   * the full two bands, or two landscapes stacked one band each. The stacked
+   * pair shares a width the same way the front page's strip does —
+   * so the column they make has one edge.
    */
-  const cellOf = (p: GalleryPost) => {
-    const r = tileRatio(p.width, p.height) ?? 1;
-    const across = Math.min(cols, r >= WIDE_AT ? plan.landscape : plan.portrait);
-    const width = box
-      ? (box - gap * (cols - 1)) / cols * across + gap * (across - 1)
-      : 320;
-    // Rounded up, never to nearest. The picture inside sizes itself from its
-    // own aspect ratio, so a cell rounded down is a few pixels shorter than
-    // what it holds — and the wrapper used to clip that off, which is why some
-    // tiles lost the curve on their bottom corners. Up, the slack falls below
-    // the picture where a masonry wall has gaps anyway.
-    // The picture's own height, plus the border around it, plus the gap that
-    // now belongs to the tile.
-    const tall = width / r + 2 + gap;
-    const rows = Math.max(1, Math.ceil(tall));
-    return { width, style: { gridColumn: `span ${across}`,
-                             gridRow: `span ${rows}`,
-                             paddingBottom: gap } as React.CSSProperties };
-  };
+  /**
+   * How tall a band has to have fallen to before a row is closed.
+   *
+   * This, and not the width of the mat, is what decides how big a picture is
+   * drawn. Widening the mat only lets another picture onto the row: at 1040 a
+   * row holds three and solves to a 220px band, and at 1900 it holds four and
+   * solves to 293 — barely different pictures, just more of them. Raising this
+   * closes the row sooner, so what is on it has more room each.
+   */
+  const TARGET_BAND = box < 700 ? 260 : 460;
 
-  return (
-    <>
-      {/* A printed collage rather than a wall: the pictures sit centred on a
-          mat with air around all four edges, which is what gives a mixed set of
-          shapes a shape of its own. Edge to edge across a wide monitor made the
-          same pictures read as a feed that happened to stop somewhere.
+  type Unit =
+    | { kind: "tall"; post: GalleryPost; k: number }
+    | { kind: "stack"; top: GalleryPost; bottom: GalleryPost; k: number };
 
-          The mat is held to a measure a little wider than the page text and
-          centred in whatever room is left, so the collage stays the same object
-          on a laptop and on a very wide screen instead of thinning out.
+  /** A unit's width, per band height. Everything below is linear in this. */
+  const ratioOf = (p: GalleryPost) => tileRatio(p.width, p.height) ?? 1;
 
-          Its own padding is thin — enough for the mat to read as a mat and for
-          the pictures not to touch its corners, and no more. Every pixel of it
-          is width taken off three columns of photographs. */}
-      {/* Out of the page's column first, then back to its own measure.
+  const rows = useMemo(() => {
+    const units: Unit[] = [];
+    let held: GalleryPost | null = null;
+    for (const p of posts) {
+      if (ratioOf(p) < WIDE_AT) {
+        // Two bands tall, so its width is twice a band plus the gap between.
+        units.push({ kind: "tall", post: p, k: 2 * ratioOf(p) });
+      } else if (held) {
+        const a1 = ratioOf(held), a2 = ratioOf(p);
+        // Both at one width, their heights summing to the two bands.
+        units.push({ kind: "stack", top: held, bottom: p, k: 2 / (1 / a1 + 1 / a2) });
+        held = null;
+      } else {
+        held = p;
+      }
+    }
+    // A landscape with nobody to stack with stands alone, one band tall in a
+    // two-band row. It is the only place a gap can appear, and it can only
+    // ever be the last picture on the page.
+    if (held) units.push({ kind: "stack", top: held, bottom: held, k: ratioOf(held) });
 
-          The mat asked for 1040 and had never once had it: every page here is
-          a column 1024 wide with a gutter either side, so the pictures got 960
-          and the mat's own number meant nothing. Stepping outside that column
-          and re-centring gives the collage a width of its own without widening
-          anything else on the site — and once it could actually have one,
-          1360 was the width worth asking for.
+    // Fill a row until the height it solves to drops past the target.
+    const out: { units: Unit[]; band: number }[] = [];
+    let run: Unit[] = [];
+    const solve = (us: Unit[]) => {
+      const k = us.reduce((n, u) => n + u.k, 0);
+      // width = band * k + gaps between units + the gap inside a tall unit
+      const fixed = gap * (us.length - 1)
+        + us.reduce((n, u) => n + (u.kind === "tall" ? u.k / 2 * gap : 0), 0);
+      return (width - fixed) / k;
+    };
+    for (const u of units) {
+      run.push(u);
+      if (solve(run) <= TARGET_BAND) { out.push({ units: run, band: solve(run) }); run = []; }
+    }
+    // The last row is not stretched: one picture left over would fill the mat.
+    if (run.length) out.push({ units: run, band: Math.min(TARGET_BAND, solve(run)) });
+    return out;
+  }, [posts, width, gap, TARGET_BAND]);   // eslint-disable-line react-hooks/exhaustive-deps
 
-          Still three columns. Four would fit at this measure and would show
-          more pictures at the size they were before, which is a different
-          thing from showing these ones larger. */}
-      <div className="mx-[calc(50%-50vw)] mt-4 w-screen px-2 sm:px-3">
-      <div className="mx-auto w-full max-w-[2600px] rounded-2xl bg-surface/50 p-1.5 sm:p-2">
-        <div ref={mat}
-             style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                      gridAutoRows: `${ROW}px`, rowGap: 0 }}
-             // dense, so a single column left by a wide picture is filled by
-             // the next tall one rather than left as a hole. Only a column gap
-             // here: the space between rows is padding on the tiles, so a tall
-             // picture and a wide one are spaced the same — see ROW.
-             className="grid [grid-auto-flow:row_dense] gap-x-3 sm:gap-x-4">
-          {posts.map((p, idx) => {
-            const cell = cellOf(p);
+  // One picture as it is drawn, given the box the row solved for it. Lifted
+  // out of the loop it used to sit in so a row can call it for a portrait
+  // standing two bands tall and for each half of a stacked pair alike.
+  const tile = (p: GalleryPost, w: number, h: number, idx: number) => {
             const c = counts[p.id];
             const shots = images[p.id] ?? [];
             const many = (p.image_count ?? 1) > 1;
@@ -358,12 +333,13 @@ export default function GalleryGrid(
               // so it can stand a few pixels taller than the picture in it. The
               // caption is positioned against the picture rather than the slot,
               // or it hangs in that slack below the frame.
-              <div key={p.id} style={cell.style} className="group">
+              <div key={p.id} style={{ width: w, height: h }}
+                   className="group shrink-0">
               <div className="relative">
                 <button onClick={() => setOpen(p.id)}
                         className="block w-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-accent">
                   <TileImage post={p} images={shots} index={idx}
-                             width={cell.width} />
+                             width={w} />
                 </button>
 
                 {many && (
@@ -454,8 +430,61 @@ export default function GalleryGrid(
               </div>
               </div>
             );
-          })}
-        </div>
+  };
+
+  return (
+    <>
+      {/* A printed collage rather than a wall: the pictures sit centred on a
+          mat with air around all four edges, which is what gives a mixed set of
+          shapes a shape of its own. Edge to edge across a wide monitor made the
+          same pictures read as a feed that happened to stop somewhere.
+
+          The mat is held to a measure a little wider than the page text and
+          centred in whatever room is left, so the collage stays the same object
+          on a laptop and on a very wide screen instead of thinning out.
+
+          Its own padding is thin — enough for the mat to read as a mat and for
+          the pictures not to touch its corners, and no more. Every pixel of it
+          is width taken off three columns of photographs. */}
+      {/* Out of the page's column first, then back to its own measure.
+
+          The mat asked for 1040 and had never once had it: every page here is
+          a column 1024 wide with a gutter either side, so the pictures got 960
+          and the mat's own number meant nothing. Stepping outside that column
+          and re-centring gives it the width it was written for.
+
+          It was widened from there — 1600, then 2600 following the screen —
+          and brought back to a fixed measure. A collage stretched across a very
+          wide monitor stops being an object on a page and becomes a wall, which
+          is the thing the first line of this comment was written to avoid.
+
+          How large a picture is drawn is not set here, though it reads as if it
+          would be: see TARGET_BAND. */}
+      <div className="mx-[calc(50%-50vw)] mt-4 w-screen px-2 sm:px-3">
+      <div className="mx-auto w-full max-w-[1360px] rounded-2xl bg-surface/50 p-1.5 sm:p-2">
+      <div ref={mat} className="flex flex-col gap-3 sm:gap-4">
+        {rows.map((row, ri) => (
+          <div key={ri} className="flex gap-3 sm:gap-4">
+            {row.units.map((u, ui) => {
+              // Both bands and the gap between them, which is what a portrait
+              // stands in and what a stacked pair shares out between them.
+              const tall = row.band * 2 + gap;
+              if (u.kind === "tall") {
+                return tile(u.post, row.band * u.k + gap * (u.k / 2), tall, ri * 10 + ui);
+              }
+              const w = row.band * u.k;
+              const a1 = ratioOf(u.top), a2 = ratioOf(u.bottom);
+              return (
+                <div key={ui} className="flex shrink-0 flex-col gap-3 sm:gap-4"
+                     style={{ width: w }}>
+                  {tile(u.top, w, w / a1, ri * 10 + ui)}
+                  {u.bottom !== u.top && tile(u.bottom, w, w / a2, ri * 10 + ui + 1)}
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
       </div>
       </div>
 
