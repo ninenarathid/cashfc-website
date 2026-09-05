@@ -104,6 +104,7 @@
    2766,
    2785,
    2803,
+   2811,
    2815,
    2816,
    2877,
@@ -133,7 +134,6 @@
    3819,
    3833,
    3834,
-   3875,
    3938,
    3944,
    3949,
@@ -149,7 +149,6 @@
    "relic": "master",
    "explorer": "legendary",
    "goldsaucer": "legendary",
-   "seasonal": "expert",
    "pvp": "legendary"
   },
   "jobs": {
@@ -943,12 +942,12 @@
    3680,
    3686,
    3687,
+   3708,
    3785,
    3820,
    3833,
    3834,
    3835,
-   3875,
    3938,
    3949,
    3950,
@@ -1668,7 +1667,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 91,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1691,7 +1690,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-05"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2176,7 +2175,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 28,
-  "level": 100,
+  "level": 62,
   "cc": [
    true,
    true,
@@ -4688,7 +4687,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 90,
+  "level": 91,
   "cc": [
    true,
    true,
@@ -5153,7 +5152,6 @@
    2284,
    2286,
    2444,
-   2596,
    2633,
    2661,
    2662,
@@ -5172,6 +5170,7 @@
    2870,
    2872,
    2873,
+   2928,
    2929,
    2930,
    2931,
@@ -5488,6 +5487,7 @@
    3369,
    3370,
    3371,
+   3372,
    3467,
    3468,
    3469,
@@ -5520,7 +5520,6 @@
    3832,
    3853,
    3859,
-   3874,
    3877,
    3878,
    3879,
@@ -6038,7 +6037,7 @@
   "cc": [
    true,
    true,
-   false,
+   true,
    false,
    false
   ],
@@ -6057,7 +6056,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-05"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -6088,7 +6087,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 81,
   "cc": [
    true,
    true,
@@ -6107,7 +6106,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-05"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -7472,6 +7471,22 @@
   "ults": [],
   "chg": "2026-09-02"
  },
+ "45513833": {
+  "name": "Isildur One",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 65,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-09-05"
+ },
  "60475540": {
   "name": "Joaline Auchefornei",
   "parse": null,
@@ -7560,14 +7575,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 97,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-05"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -11046,7 +11061,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 92,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -11059,7 +11074,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-05"
  },
  "30333493": {
   "name": "Haruko Sho",
@@ -16458,7 +16473,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 76,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -16471,7 +16486,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-05"
  },
  "47423083": {
   "name": "Yueying Hua",

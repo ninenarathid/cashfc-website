@@ -2513,7 +2513,7 @@
  },
  "pipeline": {
   "legacy_cursor": 1,
-  "zone_cursor": 9,
+  "zone_cursor": 10,
   "fflogs_cycle": [
    "11603711",
    "11950156",
@@ -2524,95 +2524,185 @@
    "14476396",
    "14959902",
    "15308846",
+   "15543487",
    "15912826",
+   "15932791",
+   "16099244",
+   "16192933",
+   "1623780",
+   "18538032",
    "19827594",
    "21620195",
+   "22164254",
    "22425670",
    "22461237",
    "22767255",
+   "24114157",
    "24123541",
    "24186600",
    "24228478",
+   "24770177",
+   "25504317",
    "25506828",
+   "25619696",
    "26268800",
    "26298391",
    "26699926",
+   "26844665",
    "28120733",
+   "28213199",
    "28579232",
+   "28679378",
    "28789661",
+   "28810440",
+   "28860700",
    "28950119",
+   "29090821",
    "29152036",
    "29325838",
    "29339718",
+   "29389419",
    "29511615",
    "2957360",
+   "29795820",
+   "29907674",
+   "29918255",
    "29918404",
    "29998658",
+   "30176379",
+   "30293847",
+   "30582341",
+   "30596644",
    "30667251",
    "30864049",
+   "30943571",
+   "31001697",
+   "31001781",
+   "31155521",
    "31236337",
+   "31592995",
    "31628293",
+   "31685121",
+   "31764639",
+   "31806535",
+   "31831003",
+   "31899766",
    "31902843",
    "32147756",
+   "3256238",
+   "33387937",
+   "33608576",
+   "33807451",
    "34376591",
    "34434658",
+   "34505698",
    "34509521",
    "34546216",
+   "34790386",
+   "34873931",
+   "35158574",
    "35634484",
+   "35854535",
+   "35863297",
    "36130968",
+   "36183378",
    "36183541",
    "36248712",
    "36261473",
+   "36363091",
+   "36624109",
    "37056222",
+   "37061370",
+   "38018463",
    "38041221",
    "38152072",
    "38335568",
    "38488824",
+   "38796459",
    "38802422",
    "38808156",
+   "3902073",
    "39199441",
    "3968346",
+   "39850923",
+   "39959181",
+   "40809430",
+   "41059127",
    "42021700",
    "42053180",
+   "42215185",
    "42215186",
+   "42509107",
+   "42845691",
    "42948817",
    "42976317",
    "43037186",
+   "43116127",
+   "43374218",
    "43864764",
+   "44085912",
    "44133352",
    "44143115",
    "44970350",
+   "4505633",
+   "45150763",
+   "45513833",
    "45938803",
+   "46243891",
+   "46739693",
    "47221226",
+   "47494518",
    "47540663",
+   "49929911",
+   "50267765",
+   "5034519",
    "50821570",
    "51922514",
    "5294880",
+   "5297796",
+   "53933347",
    "5435582",
+   "54419512",
+   "55640987",
    "56108574",
    "5644067",
    "57375278",
+   "57419573",
    "57885671",
    "58199536",
    "58202955",
+   "60211788",
+   "60475540",
+   "60599300",
+   "60619924",
+   "60814172",
+   "60852230",
+   "60873337",
+   "60972300",
+   "60994518",
    "6173187",
+   "61748681",
+   "61758559",
    "6951533",
+   "7283668",
+   "8113158",
    "8286372",
+   "8713004",
    "8836061",
    "9444020"
   ],
-  "collect_at": 1788526924.8018274,
+  "collect_at": 1788609996.7907352,
   "lala_at": 1788549609.7517874,
   "collect_v": 6,
   "bucket_max": {
-   "explorer": 310.06,
-   "relic": 781.65,
-   "seasonal": 232.17,
-   "crafter": 979.83,
-   "gatherer": 698.14,
-   "pvp": 381.43,
-   "goldsaucer": 128.11,
-   "treasure": 319.07,
+   "explorer": 307.42,
+   "relic": 777.92,
+   "seasonal": 231.75,
+   "crafter": 979.66,
+   "gatherer": 696.31,
+   "pvp": 381.41,
+   "goldsaucer": 128.0,
+   "treasure": 318.66,
    "oldtimer": 542.02
   },
   "bucket_max_v": 2,
@@ -3016,6 +3106,7 @@
    "45101386",
    "45150763",
    "45194317",
+   "45513833",
    "45938803",
    "46055730",
    "46243891",
@@ -3337,189 +3428,189 @@
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788526925.240656
+   "at": 1788609997.2337515
   },
   "15308846": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "The Hand of Creation",
-   "at": 1788526927.111499
+   "at": 1788609999.1125097
   },
   "3968346": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
    "title": "Sky Pirate",
-   "at": 1788526928.9864676
+   "at": 1788610000.9502468
   },
   "14959902": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Lightbringer",
-   "at": 1788526930.789305
+   "at": 1788610002.8480854
   },
   "28789661": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "Garo",
-   "at": 1788526932.604766
+   "at": 1788610004.7351518
   },
   "31628293": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788526934.4470456
+   "at": 1788610006.6016586
   },
   "57885671": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Icebreaker",
-   "at": 1788526936.2467885
+   "at": 1788610008.4471023
   },
   "58199536": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The White",
-   "at": 1788526938.0319095
+   "at": 1788610010.3895476
   },
   "24186600": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": null,
-   "at": 1788526939.9610748
+   "at": 1788610012.2619781
   },
   "29152036": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Moonwalker",
-   "at": 1788526941.8344479
+   "at": 1788610014.2924697
   },
   "38041221": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Khloe's Best Friend",
-   "at": 1788526943.7737243
+   "at": 1788610016.2050464
   },
   "35634484": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788526945.5987465
+   "at": 1788610018.1700368
   },
   "22767255": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "The Red",
-   "at": 1788526947.4873142
+   "at": 1788610020.025682
   },
   "29511615": {
    "race": "Hrothgar",
    "clan": "The Lost",
    "gender": "Female",
    "title": "The Fae-touched",
-   "at": 1788526951.1514986
+   "at": 1788610023.7826102
   },
   "31236337": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Force of Nature",
-   "at": 1788526952.944327
+   "at": 1788610025.644963
   },
   "13533056": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1788526956.6441996
+   "at": 1788610029.9456632
   },
   "44970350": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
-   "title": "Mammeteer",
-   "at": 1788526958.4824572
+   "title": null,
+   "at": 1788610031.9023514
   },
   "19827594": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Female",
    "title": null,
-   "at": 1788526960.307931
+   "at": 1788610033.926459
   },
   "45938803": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Ijin Traveler",
-   "at": 1788526962.3154783
+   "at": 1788610035.7923524
   },
   "36248712": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "The Heavens' Legend",
-   "at": 1788526964.1206553
+   "at": 1788610037.6804059
   },
   "26699926": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Sweet Dreamer",
-   "at": 1788526965.9413452
+   "at": 1788610039.5815833
   },
   "32147756": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The Darkest Shadow",
-   "at": 1788526967.7325156
+   "at": 1788610041.4328656
   },
   "36261473": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "Distant Stargazer",
-   "at": 1788526969.520606
+   "at": 1788610043.3475816
   },
   "36130968": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Monster Hunter",
-   "at": 1788526971.3067694
+   "at": 1788610045.2139065
   },
   "28579232": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Genesis of Legends",
-   "at": 1788526973.1068146
+   "at": 1788610047.0726697
   },
   "47221226": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
-   "title": "Cruel Legend",
-   "at": 1788526974.9280229
+   "title": "Bug Girl",
+   "at": 1788610048.9226086
   },
   "39199441": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Practically Pelupelu",
-   "at": 1788526976.7346663
+   "at": 1788610050.8957376
   },
   "40389196": {
    "race": "Hyur",
@@ -3533,35 +3624,35 @@
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Myth Breaker",
-   "at": 1788526978.596375
+   "at": 1788610052.7938468
   },
   "28950119": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
    "title": "Trailblazer",
-   "at": 1788526980.4978554
+   "at": 1788610054.7930171
   },
   "28120733": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788526982.3372567
+   "at": 1788610056.731947
   },
   "12478532": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Echo of a Fallen Star",
-   "at": 1788526984.137457
+   "at": 1788610058.7396188
   },
   "50821570": {
-   "race": "Viera",
-   "clan": "Veena",
+   "race": "Lalafell",
+   "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Gembreaker",
-   "at": 1788526985.960456
+   "at": 1788610060.6528728
   },
   "42349146": {
    "race": "Au Ra",
@@ -3575,168 +3666,168 @@
    "clan": "Hellsguard",
    "gender": "Male",
    "title": "The Meat Shield",
-   "at": 1788526987.7610455
+   "at": 1788610062.4845796
   },
   "42948817": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Arbiter of the Arts",
-   "at": 1788526989.6781573
+   "at": 1788610064.3569598
   },
   "57375278": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788526991.5222883
+   "at": 1788610066.235339
   },
   "25506828": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "Genesis of Legends",
-   "at": 1788526993.4731786
+   "at": 1788610068.0578303
   },
   "38808156": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "The Necromancer",
-   "at": 1788526995.3351586
+   "at": 1788610069.8993583
   },
   "31902843": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Sweet Dreamer",
-   "at": 1788526997.254065
+   "at": 1788610071.8328722
   },
   "30864049": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "The Mourner of Light",
-   "at": 1788526999.536242
+   "at": 1788610073.6798475
   },
   "34509521": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "The Seventh Dawn",
-   "at": 1788527001.5083797
+   "at": 1788610075.5467823
   },
   "37056222": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "The Hand of Mercy",
-   "at": 1788527003.81131
+   "at": 1788610077.454159
   },
   "22461237": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Male",
    "title": "Doom of the Deep",
-   "at": 1788527005.9272592
+   "at": 1788610079.3111694
   },
   "5294880": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Gentlewoman",
-   "at": 1788527008.2616742
+   "at": 1788610081.2488341
   },
   "5435582": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Genesis of Legends",
-   "at": 1788527010.6528618
+   "at": 1788610083.1725335
   },
   "26268800": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788527012.5854414
+   "at": 1788610085.0063393
   },
   "6173187": {
    "race": "Hyur",
    "clan": "Highlander",
    "gender": "Male",
    "title": "Shark Hunter",
-   "at": 1788527015.02933
+   "at": 1788610086.8776405
   },
   "51922514": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788527016.8249545
+   "at": 1788610088.7110963
   },
   "36183541": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The Fae-touched",
-   "at": 1788527019.088595
+   "at": 1788610090.693058
   },
   "21620195": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Phantom Salvation",
-   "at": 1788527022.1974273
+   "at": 1788610092.8913786
   },
   "5644067": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "The Alpha Legend",
-   "at": 1788527023.9788802
+   "at": 1788610094.7578907
   },
   "9444020": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "The Alpha Legend",
-   "at": 1788527025.9713445
+   "at": 1788610096.6060343
   },
   "22425670": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Knower of Fates",
-   "at": 1788527042.6929667
+   "at": 1788610112.0128255
   },
   "15912826": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "The Enlightened",
-   "at": 1788527028.2291093
+   "at": 1788610098.4548101
   },
   "11950156": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1788527030.6714063
+   "at": 1788610100.3348987
   },
   "30667251": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "The Professional",
-   "at": 1788527032.80344
+   "at": 1788610102.2732992
   },
   "29325838": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1788527034.6510093
+   "at": 1788610104.1089737
   },
   "58455997": {
    "race": "Lalafell",
@@ -3750,21 +3841,21 @@
    "clan": "Raen",
    "gender": "Female",
    "title": "Makai Red Mage",
-   "at": 1788527036.5944376
+   "at": 1788610106.2854307
   },
   "43864764": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "World-class Troller",
-   "at": 1788527038.4018097
+   "at": 1788610108.1496434
   },
   "29998658": {
    "race": "Hrothgar",
    "clan": "Helions",
    "gender": "Male",
    "title": "Trailblazer",
-   "at": 1788527040.7075148
+   "at": 1788610110.1287918
   },
   "44141004": {
    "race": "Hyur",
@@ -3785,91 +3876,91 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Featherfall's Finest Weaver",
-   "at": 1788527044.5209644
+   "at": 1788610113.8452485
   },
   "58202955": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Barista at the End of the Universe",
-   "at": 1788527046.4264638
+   "at": 1788610115.6903522
   },
   "26298391": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788527048.7146604
+   "at": 1788610117.6217453
   },
   "29918404": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1788527050.5302305
+   "at": 1788610119.5033326
   },
   "42976317": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Zhloe's Friend",
-   "at": 1788527052.822656
+   "at": 1788610121.3611932
   },
   "24123541": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": null,
-   "at": 1788527054.6926894
+   "at": 1788610123.2237644
   },
   "12058921": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Kyubi Tamer",
-   "at": 1788527056.5073903
+   "at": 1788610125.0906794
   },
   "38335568": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": null,
-   "at": 1788527058.5894437
+   "at": 1788610127.0498686
   },
   "6951533": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1788527060.437165
+   "at": 1788610128.916193
   },
   "38802422": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": null,
-   "at": 1788527062.2532659
+   "at": 1788610130.7601068
   },
   "56108574": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "The Red",
-   "at": 1788527064.0768116
+   "at": 1788610132.5805411
   },
   "8836061": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Gambler",
-   "at": 1788527065.8914278
+   "at": 1788610134.4040005
   },
   "8286372": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1788527067.6782396
+   "at": 1788610136.2260072
   },
   "29090821": {
    "race": "Au Ra",
@@ -3883,42 +3974,42 @@
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "The Ultimate Legend",
-   "at": 1788527069.577945
+   "at": 1788610138.1389816
   },
   "14476396": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Z",
-   "at": 1788527071.3828282
+   "at": 1788610140.0322142
   },
   "29339718": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Barista at the End of the Universe",
-   "at": 1788527073.2176552
+   "at": 1788610141.8888576
   },
   "13860363": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Female",
    "title": "Kingsglaive",
-   "at": 1788527075.3146741
+   "at": 1788610143.7045708
   },
   "42215186": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Echo of a Fallen Star",
-   "at": 1788527077.402757
+   "at": 1788610145.6727006
   },
   "2957360": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1788527079.2162132
+   "at": 1788610147.5226514
   },
   "4026627": {
    "race": "Hyur",
@@ -6655,7 +6746,7 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1788526954.760464
+   "at": 1788610027.9688962
   },
   "29853808": {
    "race": "Lalafell",
@@ -6823,7 +6914,7 @@
    "clan": "Highlander",
    "gender": "Male",
    "title": "The Undamaged",
-   "at": 1788526949.308437
+   "at": 1788610021.927229
   },
   "28679378": {
    "race": "Lalafell",
@@ -7589,7 +7680,7 @@
     "The Epic of Alexander",
     "The Unending Coil of Bahamut"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2010,
     2009,
@@ -7597,11 +7688,11 @@
     2008,
     3944,
     3833,
-    4018,
     2656,
     2657,
     3707,
     3819,
+    4018,
     1354,
     2535,
     2536,
@@ -7655,17 +7746,17 @@
     2879,
     1317,
     2527,
-    4007,
     1603,
     3479,
     3659,
-    3991,
+    4007,
     2515,
     2518,
     3817,
-    4017,
+    3991,
     2816,
     3350,
+    4017,
     1315,
     2524,
     2815,
@@ -7678,35 +7769,35 @@
     2506,
     2521,
     2766,
-    3938,
     1313,
     2494,
     2497,
     2509,
     2512,
     3377,
-    3875,
+    3938,
     2491,
     3708,
     1855,
     2502,
-    2757
+    2757,
+    2811
    ],
    "achv_buckets": {
     "crafter": {
      "n": 153,
      "min": 0.9,
-     "score": 544.06
+     "score": 543.86
     },
     "gatherer": {
      "n": 79,
      "min": 0.9,
-     "score": 239.57
+     "score": 239.6
     },
     "pvp": {
      "n": 23,
      "min": 0.1,
-     "score": 238.46
+     "score": 238.45
     },
     "goldsaucer": {
      "n": 15,
@@ -7715,8 +7806,8 @@
     },
     "seasonal": {
      "n": 8,
-     "min": 2.6,
-     "score": 11.82
+     "min": 2.9,
+     "score": 11.4
     },
     "treasure": {
      "n": 5,
@@ -7730,8 +7821,8 @@
     },
     "explorer": {
      "n": 34,
-     "min": 0.8,
-     "score": 100.43
+     "min": 0.9,
+     "score": 98.35
     }
    },
    "rare_mounts": [
@@ -7748,10 +7839,10 @@
     408,
     427,
     273,
-    337,
     372,
     399,
     403,
+    337,
     411,
     316,
     407,
@@ -7769,11 +7860,11 @@
     495,
     502,
     562,
-    587,
     396,
     540,
     541,
     542,
+    587,
     164,
     593,
     452,
@@ -7798,7 +7889,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2408,
     847,
@@ -7887,8 +7978,8 @@
     },
     "seasonal": {
      "n": 2,
-     "min": 7.0,
-     "score": 2.43
+     "min": 7.1,
+     "score": 2.41
     },
     "gatherer": {
      "n": 1,
@@ -7943,9 +8034,9 @@
     589,
     513,
     563,
-    567,
     568,
     552,
+    567,
     582,
     551,
     462,
@@ -7975,7 +8066,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3dc9125badc78221a0e8e18b371b696d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788293908",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1471,
     3687,
@@ -7988,15 +8079,15 @@
     1751,
     3045,
     3954,
-    3967,
     3968,
     4008,
     853,
     1446,
     3833,
     3953,
-    4018,
+    3967,
     3957,
+    4018,
     952,
     3680,
     3958,
@@ -8006,22 +8097,22 @@
     1382,
     2138,
     3952,
-    3969,
     3997,
     3539,
     3556,
     3686,
-    3951,
     3961,
+    3969,
     3269,
     3785,
+    3951,
     4015,
-    4022,
     2652,
     3267,
     3268,
     3529,
     4000,
+    4022,
     1199,
     2649,
     2650,
@@ -8029,9 +8120,9 @@
     2653,
     2654,
     2655,
-    3533,
     3966,
     2648,
+    3533,
     3949,
     1077,
     2529,
@@ -8043,19 +8134,19 @@
     2530,
     2533,
     2534,
-    3950,
     2527,
     2564,
-    4007,
+    3950,
     2563,
     2755,
-    3991,
+    4007,
     847,
     1440,
-    4017,
+    3991,
     852,
     1445,
     2754,
+    4017,
     2524,
     2566,
     3820,
@@ -8068,21 +8159,21 @@
     2503,
     2506,
     3538,
-    3938,
     2494,
     2497,
     2509,
     2512,
     2992,
-    3875,
+    3938,
     2491,
-    2996
+    2996,
+    3708
    ],
    "achv_buckets": {
     "crafter": {
      "n": 62,
      "min": 1.4,
-     "score": 235.89
+     "score": 235.8
     },
     "pvp": {
      "n": 57,
@@ -8092,7 +8183,7 @@
     "treasure": {
      "n": 33,
      "min": 1.1,
-     "score": 88.59
+     "score": 88.17
     },
     "goldsaucer": {
      "n": 8,
@@ -8102,7 +8193,7 @@
     "relic": {
      "n": 172,
      "min": 0.6,
-     "score": 453.6
+     "score": 449.91
     },
     "gatherer": {
      "n": 18,
@@ -8111,13 +8202,13 @@
     },
     "explorer": {
      "n": 33,
-     "min": 0.1,
-     "score": 263.13
+     "min": 0.2,
+     "score": 210.5
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [
@@ -8132,8 +8223,8 @@
     408,
     427,
     273,
-    337,
     399,
+    337,
     411,
     316,
     371,
@@ -8151,13 +8242,13 @@
     586,
     495,
     562,
-    587,
     465,
     477,
     540,
     541,
     542,
     559,
+    587,
     295,
     593,
     564,
@@ -8194,7 +8285,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2564,
     2563,
@@ -8301,7 +8392,7 @@
     "crafter": {
      "n": 18,
      "min": 3.4,
-     "score": 27.31
+     "score": 27.32
     },
     "gatherer": {
      "n": 16,
@@ -8346,7 +8437,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1468,
     1581,
@@ -8389,7 +8480,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d2407d7f87f553f69f479a3834e7591_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1732919271",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3538,
     2991,
@@ -8445,7 +8536,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1952,
     2055,
@@ -8505,7 +8596,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2991,
     3162,
@@ -8562,7 +8653,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b9b6001d2b753084e83bb5ffe6db506c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788024581",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3835,
     3834,
@@ -8570,10 +8661,10 @@
     3833,
     3962,
     946,
-    3969,
     3406,
     3407,
     3961,
+    3969,
     4015,
     1199,
     3966,
@@ -8599,13 +8690,13 @@
     3856,
     1563,
     3850,
-    3855,
-    4014,
     3784,
+    3855,
     3857,
-    3851,
+    4014,
     3858,
     4074,
+    3851,
     3845,
     3854,
     3862,
@@ -8626,8 +8717,8 @@
     3765,
     3884,
     1132,
-    3761,
     3823,
+    3761,
     3767,
     3768,
     3877,
@@ -8656,8 +8747,8 @@
     3799,
     3652,
     3792,
-    3874,
     2480,
+    3874,
     3651,
     3753,
     3647,
@@ -8669,7 +8760,7 @@
     "pvp": {
      "n": 22,
      "min": 0.2,
-     "score": 143.37
+     "score": 143.35
     },
     "goldsaucer": {
      "n": 4,
@@ -8679,7 +8770,7 @@
     "relic": {
      "n": 61,
      "min": 0.9,
-     "score": 135.56
+     "score": 134.63
     },
     "gatherer": {
      "n": 2,
@@ -8694,7 +8785,7 @@
     "explorer": {
      "n": 18,
      "min": 1.3,
-     "score": 44.0
+     "score": 43.53
     },
     "crafter": {
      "n": 2,
@@ -8703,8 +8794,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -8741,7 +8832,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1323,
     2767,
@@ -8802,9 +8893,9 @@
     2516,
     201,
     2513,
-    3998,
     2727,
     2862,
+    3998,
     4002,
     153,
     200,
@@ -8821,10 +8912,10 @@
     3630,
     1302,
     1853,
-    2034,
     3476,
     1319,
     1750,
+    2034,
     3155,
     147,
     761,
@@ -8848,7 +8939,7 @@
     "crafter": {
      "n": 45,
      "min": 1.1,
-     "score": 98.35
+     "score": 98.26
     },
     "gatherer": {
      "n": 24,
@@ -8863,12 +8954,12 @@
     "relic": {
      "n": 23,
      "min": 4.7,
-     "score": 30.02
+     "score": 29.99
     },
     "explorer": {
      "n": 22,
      "min": 1.3,
-     "score": 45.37
+     "score": 45.33
     },
     "treasure": {
      "n": 2,
@@ -8907,7 +8998,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2564,
     2603,
@@ -8931,10 +9022,10 @@
     1722,
     2125,
     2644,
-    3869,
     1311,
     1858,
     3077,
+    3869,
     577,
     2079,
     3256,
@@ -8968,8 +9059,8 @@
     1034,
     231,
     1033,
-    3979,
     1032,
+    3979,
     1056,
     1284,
     1285,
@@ -8995,8 +9086,8 @@
     3799,
     3370,
     3376,
-    3874,
     3372,
+    3874,
     1079,
     1429,
     1003,
@@ -9014,17 +9105,17 @@
     "gatherer": {
      "n": 53,
      "min": 1.9,
-     "score": 122.87
+     "score": 122.89
     },
     "crafter": {
      "n": 14,
      "min": 3.1,
-     "score": 24.94
+     "score": 24.91
     },
     "seasonal": {
      "n": 21,
      "min": 3.4,
-     "score": 32.33
+     "score": 32.31
     },
     "treasure": {
      "n": 6,
@@ -9086,7 +9177,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6ce984d46d9d1bf6284f767a5985281f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1765032874",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3663,
     3674,
@@ -9114,9 +9205,9 @@
     3765,
     3802,
     3368,
-    3761,
     3823,
     3362,
+    3761,
     3767,
     3768,
     3369,
@@ -9126,9 +9217,9 @@
     3772,
     3468,
     3677,
-    3735,
     3643,
     3644,
+    3735,
     3800,
     3470,
     3754,
@@ -9193,12 +9284,12 @@
     "crafter": {
      "n": 17,
      "min": 3.0,
-     "score": 29.4
+     "score": 29.37
     },
     "relic": {
      "n": 83,
      "min": 4.5,
-     "score": 121.11
+     "score": 121.06
     },
     "explorer": {
      "n": 17,
@@ -9245,7 +9336,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d8a0ed94d93290089d93b481ec490f76_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788441577",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     607,
     545,
@@ -9352,7 +9443,7 @@
     "crafter": {
      "n": 103,
      "min": 1.4,
-     "score": 304.58
+     "score": 304.52
     },
     "gatherer": {
      "n": 20,
@@ -9377,17 +9468,17 @@
     "relic": {
      "n": 146,
      "min": 1.0,
-     "score": 242.87
+     "score": 242.07
     },
     "explorer": {
      "n": 10,
-     "min": 5.6,
-     "score": 13.25
+     "min": 5.7,
+     "score": 13.21
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -9451,7 +9542,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4005,
     4010,
@@ -9469,28 +9560,28 @@
     3156,
     3528,
     3870,
-    4017,
     3350,
     3632,
+    4017,
     3668,
     3674,
     2766,
     3938,
     3051,
     3924,
-    3937,
     3847,
     3923,
+    3937,
     1469,
     3922,
     3939,
     4004,
     4006,
     3705,
-    3999,
     3185,
     3846,
     3918,
+    3999,
     3856,
     3916,
     3917,
@@ -9498,20 +9589,20 @@
     3850,
     3920,
     3921,
-    4014,
     1582,
     2393,
     3726,
     3915,
+    4014,
     2991,
     3702,
-    3851,
     3914,
     4074,
     3050,
     3667,
-    3869,
+    3851,
     3845,
+    3869,
     3339,
     3617,
     3162,
@@ -9558,7 +9649,7 @@
     "relic": {
      "n": 168,
      "min": 0.6,
-     "score": 292.64
+     "score": 292.24
     },
     "pvp": {
      "n": 17,
@@ -9573,12 +9664,12 @@
     "explorer": {
      "n": 35,
      "min": 0.3,
-     "score": 153.04
+     "score": 152.06
     },
     "crafter": {
      "n": 8,
      "min": 3.2,
-     "score": 15.72
+     "score": 15.69
     },
     "treasure": {
      "n": 1,
@@ -9587,8 +9678,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -9616,7 +9707,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f4e3bdfe96f220aed972927474bf792f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1777728935",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2653,
     3717,
@@ -9643,8 +9734,8 @@
     3823,
     3877,
     3801,
-    3735,
     1463,
+    3735,
     3800,
     1468,
     3754,
@@ -9683,9 +9774,9 @@
     3697,
     2043,
     3698,
-    3867,
     2637,
     3691,
+    3867,
     1031,
     2870,
     3889,
@@ -9702,7 +9793,7 @@
     "pvp": {
      "n": 9,
      "min": 5.0,
-     "score": 13.81
+     "score": 13.8
     },
     "goldsaucer": {
      "n": 1,
@@ -9717,7 +9808,7 @@
     "crafter": {
      "n": 7,
      "min": 1.5,
-     "score": 19.9
+     "score": 19.87
     },
     "explorer": {
      "n": 4,
@@ -9742,48 +9833,48 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2c720b66754800ca6fa7ef80130c8a86_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788504467",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4005,
     3684,
     3954,
     4008,
     3953,
-    4018,
     3957,
     3962,
     3965,
+    4018,
     3680,
     3964,
     1339,
     3952,
     3969,
-    3951,
     3936,
+    3951,
     3956,
     4015,
-    4022,
     1604,
     3529,
     4000,
+    4022,
     1227,
     3703,
     3949,
     1077,
     3950,
-    4007,
     1603,
+    4007,
     3817,
     4017,
-    3938,
     2992,
-    3875,
+    3938,
     3924,
+    3875,
     3941,
-    3937,
     3847,
     3848,
     3923,
+    3937,
     935,
     1475,
     2066,
@@ -9796,9 +9887,9 @@
     3860,
     2481,
     3861,
-    3999,
     3846,
     3918,
+    3999,
     1328,
     1370,
     3853,
@@ -9810,22 +9901,22 @@
     2137,
     3683,
     3850,
-    3855,
     3920,
     3921,
-    4014,
     2393,
     3726,
     3784,
+    3855,
     3857,
     3915,
+    4014,
     2991,
     3702,
-    3851,
     3858,
     3914,
     4074,
     3667,
+    3851,
     3555,
     3845,
     3854,
@@ -9849,17 +9940,17 @@
     "crafter": {
      "n": 11,
      "min": 1.6,
-     "score": 24.43
+     "score": 24.4
     },
     "pvp": {
      "n": 18,
      "min": 1.7,
-     "score": 37.33
+     "score": 37.32
     },
     "relic": {
      "n": 156,
      "min": 0.6,
-     "score": 370.49
+     "score": 368.58
     },
     "treasure": {
      "n": 11,
@@ -9874,7 +9965,7 @@
     "explorer": {
      "n": 33,
      "min": 0.3,
-     "score": 170.39
+     "score": 167.76
     },
     "goldsaucer": {
      "n": 1,
@@ -9883,8 +9974,8 @@
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [
@@ -9896,15 +9987,15 @@
    ],
    "rare_minions": [
     586,
-    587,
     559,
+    587,
     566,
     591,
     583,
     589,
-    567,
     568,
     552,
+    567,
     551,
     580,
     569
@@ -9936,7 +10027,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1736,
     1744,
@@ -10088,7 +10179,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2387,
     3368,
@@ -10136,7 +10227,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2930,
     1328,
@@ -10234,16 +10325,16 @@
     3317,
     2931,
     2444,
+    2928,
     770,
     2040,
-    2280,
-    2596
+    2280
    ],
    "achv_buckets": {
     "crafter": {
      "n": 17,
      "min": 3.4,
-     "score": 24.81
+     "score": 24.82
     },
     "relic": {
      "n": 78,
@@ -10268,7 +10359,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/0340f34a708ad44df16184ba378ceaa4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788417607",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3784,
     3844,
@@ -10295,8 +10386,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [],
@@ -10366,7 +10457,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ca364eba596951d9ee115a598810501_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416372",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3935,
     3874,
@@ -10385,8 +10476,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -10404,7 +10495,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/39deab8bac4b2a23c0e5dd0c80154f99_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1749238345",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2990,
     2387,
@@ -10462,13 +10553,13 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/87dbd30585808fc1e07bb71baf6de7e1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788106493",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3765,
     3998,
     4002,
-    3874,
     2868,
+    3874,
     3651,
     3987,
     2779,
@@ -10482,13 +10573,13 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     },
     "explorer": {
      "n": 2,
-     "min": 5.6,
-     "score": 3.54
+     "min": 5.7,
+     "score": 3.5
     }
    },
    "rare_mounts": [],
@@ -10510,7 +10601,7 @@
     "The Omega Protocol",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2735,
     2731,
@@ -10675,7 +10766,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d9b441ad00a49892f80ef85e6fb589b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788082167",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3684,
     4008,
@@ -10697,10 +10788,10 @@
     3999,
     3935,
     3683,
-    3855,
-    4014,
     3784,
+    3855,
     3915,
+    4014,
     3702,
     3914,
     4074,
@@ -10744,8 +10835,8 @@
     3752,
     3769,
     3792,
-    3874,
     2480,
+    3874,
     2873,
     3651,
     3577,
@@ -10787,7 +10878,7 @@
     "relic": {
      "n": 44,
      "min": 0.9,
-     "score": 96.18
+     "score": 95.8
     },
     "gatherer": {
      "n": 4,
@@ -10797,7 +10888,7 @@
     "crafter": {
      "n": 6,
      "min": 3.2,
-     "score": 12.01
+     "score": 11.98
     },
     "treasure": {
      "n": 6,
@@ -10807,12 +10898,12 @@
     "explorer": {
      "n": 22,
      "min": 0.4,
-     "score": 96.87
+     "score": 96.19
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -10844,7 +10935,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/930ea37f90bbe277dc0530864ef33dbf_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701594430",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2245,
     3187,
@@ -10882,7 +10973,7 @@
     "gatherer": {
      "n": 26,
      "min": 2.7,
-     "score": 54.56
+     "score": 54.59
     },
     "relic": {
      "n": 4,
@@ -10903,7 +10994,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2882,
     1454,
@@ -10980,12 +11071,12 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ac7dc32e221d492b58e750f21ba4d6c3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788418553",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3371,
     3370,
-    3874,
     3372,
+    3874,
     3314,
     3315,
     3313,
@@ -11005,8 +11096,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -11023,7 +11114,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8f17aa186b22e25118b38c79132b48ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778600107",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -11075,7 +11166,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a11139bf5f4316dc13b69b56e28b1efc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703129642",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1581,
     2861,
@@ -11096,8 +11187,8 @@
    "achv_buckets": {
     "pvp": {
      "n": 2,
-     "min": 9.2,
-     "score": 2.13
+     "min": 9.3,
+     "score": 2.11
     },
     "goldsaucer": {
      "n": 2,
@@ -11146,7 +11237,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2487,
     1604,
@@ -11162,9 +11253,9 @@
     1512,
     1855,
     1318,
-    1091,
     1475,
     2511,
+    1091,
     2930,
     764,
     1316,
@@ -11227,6 +11318,7 @@
     2286,
     2931,
     2077,
+    2928,
     151,
     157,
     770,
@@ -11241,19 +11333,18 @@
     2280,
     2452,
     2596,
-    2928,
     2934
    ],
    "achv_buckets": {
     "crafter": {
      "n": 42,
      "min": 1.0,
-     "score": 104.19
+     "score": 104.2
     },
     "goldsaucer": {
      "n": 5,
      "min": 2.8,
-     "score": 11.34
+     "score": 11.23
     },
     "pvp": {
      "n": 3,
@@ -11319,7 +11410,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7663d112cd640b3742b69dcae9ffaef8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703865848",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2730,
     3092,
@@ -11333,9 +11424,9 @@
     3194,
     3243,
     3252,
+    2928,
     2596,
-    2660,
-    2928
+    2660
    ],
    "achv_buckets": {
     "pvp": {
@@ -11356,7 +11447,7 @@
     "crafter": {
      "n": 2,
      "min": 7.4,
-     "score": 2.35
+     "score": 2.36
     },
     "treasure": {
      "n": 2,
@@ -11374,7 +11465,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18e6c7bc63ee5dd425013a5f12c7666a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704031274",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2407,
     2351,
@@ -11456,7 +11547,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a48e439fdb4d1991f727cf526fa6ea5c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736059605",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2603,
     2802,
@@ -11532,7 +11623,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7410b6dfe82577726d12ffa13933a6c_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704037472",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     268,
     189,
@@ -11599,7 +11690,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b4bef559b5012b3fa3c6be99688d23dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703389003",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -11620,7 +11711,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1744,
     3405,
@@ -11737,7 +11828,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b9e09d031bf30a8f0bb8739cc435a0f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416340",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -11750,7 +11841,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/60822ca9387221b2624115fb247e1b72_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1716470189",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -11802,7 +11893,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c4844de389cacdf864bbc34add04daa_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788563753",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -11828,7 +11919,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3e60e109d718755ac3f503d6dee9c348_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1744478373",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     565,
     2222,
@@ -11933,7 +12024,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6dd404c36e4859dff8175166a0c643ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736399680",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -11972,7 +12063,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/56717a9302e7f2d12879619cc44c79dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701599820",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2168,
     1723,
@@ -12067,7 +12158,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3155,
     1320,
@@ -12138,7 +12229,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/9dd47d5004832f478f876dcb039f7029_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704038000",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2218,
     2149,
@@ -12209,7 +12300,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1354,
     2993,
@@ -12352,7 +12443,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2180,
     1469,
@@ -12473,7 +12564,7 @@
     "The Omega Protocol",
     "The Unending Coil of Bahamut"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1354,
     2534,
@@ -12484,8 +12575,8 @@
     2808,
     1308,
     2492,
-    3869,
     2510,
+    3869,
     3617,
     3162,
     3253,
@@ -12510,8 +12601,8 @@
     1319,
     1750,
     2933,
-    3874,
     1857,
+    3874,
     1310,
     3577,
     1003,
@@ -12528,14 +12619,14 @@
     2283,
     3782,
     3554,
-    944,
     1453,
+    944,
     1444,
-    3867,
     2286,
     2637,
     3474,
     3548,
+    3867,
     3889,
     2931,
     3252,
@@ -12566,7 +12657,7 @@
     "seasonal": {
      "n": 7,
      "min": 6.3,
-     "score": 8.71
+     "score": 8.69
     },
     "relic": {
      "n": 3,
@@ -12594,7 +12685,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ed1b03b9af8dadf730da149667674f5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787837157",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3958,
     3956,
@@ -12605,8 +12696,8 @@
     3849,
     3758,
     3763,
-    3761,
     3823,
+    3761,
     3644,
     3759,
     3649,
@@ -12619,8 +12710,8 @@
     3645,
     3782,
     2775,
-    3867,
     2637,
+    3867,
     618,
     3662,
     3676
@@ -12634,7 +12725,7 @@
     "relic": {
      "n": 16,
      "min": 1.0,
-     "score": 43.48
+     "score": 43.38
     },
     "explorer": {
      "n": 3,
@@ -12648,8 +12739,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [],
@@ -12672,7 +12763,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4069,
     3954,
@@ -12725,17 +12816,17 @@
     3673,
     3640,
     3655,
-    3867,
     3243,
+    3867,
     3889,
     3252,
     2444,
-    3639,
     266,
     2392,
     3200,
     3202,
     3373,
+    3639,
     3662,
     3676
    ],
@@ -12748,7 +12839,7 @@
     "relic": {
      "n": 34,
      "min": 0.6,
-     "score": 82.79
+     "score": 82.78
     },
     "treasure": {
      "n": 2,
@@ -12762,8 +12853,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -12783,7 +12874,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7afd8bb4508eec2fe6757b021a41b60_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787750835",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1354,
     1315,
@@ -12807,9 +12898,9 @@
     1301,
     812,
     3765,
-    3761,
     201,
     231,
+    3761,
     3767,
     3979,
     153,
@@ -12856,7 +12947,6 @@
     2043,
     3655,
     3867,
-    3639,
     151,
     157,
     266,
@@ -12870,7 +12960,8 @@
     2040,
     2193,
     2484,
-    2702
+    2702,
+    3639
    ],
    "achv_buckets": {
     "crafter": {
@@ -12891,7 +12982,7 @@
     "relic": {
      "n": 38,
      "min": 2.7,
-     "score": 54.67
+     "score": 54.61
     }
    },
    "rare_mounts": [
@@ -12952,7 +13043,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/bc199f5e21a698e6949869bdab10c508_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788417154",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3875,
     3832,
@@ -12966,8 +13057,8 @@
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [],
@@ -12982,14 +13073,14 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d6d18fea85944c4b807aa6d90e56a3dd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788272234",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3954,
     3955,
     3959,
-    3967,
     3968,
     3953,
+    3967,
     3957,
     3962,
     3963,
@@ -12998,9 +13089,9 @@
     3960,
     3964,
     3952,
+    3961,
     3969,
     3951,
-    3961,
     3956,
     3966,
     3949,
@@ -13019,14 +13110,14 @@
     3917,
     3919,
     3850,
-    3855,
     3920,
     3921,
+    3855,
     3857,
     3915,
-    3851,
     3858,
     3914,
+    3851,
     3845,
     3854,
     3862,
@@ -13053,8 +13144,8 @@
     3765,
     3878,
     3884,
-    3761,
     3823,
+    3761,
     3767,
     3768,
     3877,
@@ -13089,12 +13180,12 @@
     "relic": {
      "n": 121,
      "min": 0.6,
-     "score": 412.49
+     "score": 408.79
     },
     "explorer": {
      "n": 3,
-     "min": 5.6,
-     "score": 4.54
+     "min": 5.7,
+     "score": 4.5
     },
     "crafter": {
      "n": 2,
@@ -13103,8 +13194,8 @@
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [
@@ -13123,8 +13214,8 @@
     589,
     121,
     513,
-    567,
     568,
+    567,
     582,
     572,
     569
@@ -13139,7 +13230,7 @@
    "ult_achv": [
     "Futures Rewritten"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3968,
     3962,
@@ -13147,9 +13238,9 @@
     3965,
     3958,
     3964,
-    3969,
     3899,
     3961,
+    3969,
     3785,
     4000,
     3966,
@@ -13159,9 +13250,9 @@
     4017,
     3938,
     3924,
-    3937,
     3848,
     3923,
+    3937,
     2543,
     3922,
     4004,
@@ -13176,22 +13267,22 @@
     3856,
     3935,
     3850,
-    3855,
     3921,
-    4014,
     3726,
     3784,
+    3855,
     3857,
-    3851,
+    4014,
     3858,
     4074,
     2475,
     2476,
     3667,
-    3869,
+    3851,
     2156,
     2472,
     3854,
+    3869,
     3617,
     3862,
     1335,
@@ -13237,9 +13328,9 @@
     3802,
     3878,
     3884,
-    3761,
     3823,
     3898,
+    3761,
     3767
    ],
    "achv_buckets": {
@@ -13256,7 +13347,7 @@
     "relic": {
      "n": 133,
      "min": 0.7,
-     "score": 304.19
+     "score": 303.23
     },
     "gatherer": {
      "n": 7,
@@ -13266,7 +13357,7 @@
     "explorer": {
      "n": 23,
      "min": 1.4,
-     "score": 54.19
+     "score": 53.51
     },
     "treasure": {
      "n": 6,
@@ -13275,8 +13366,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -13294,9 +13385,9 @@
     591,
     584,
     589,
-    567,
     568,
     552,
+    567,
     551
    ]
   },
@@ -13351,7 +13442,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/19bfd54db5888e69b8341514580cbb70_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788417751",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3684,
     3974,
@@ -13359,24 +13450,24 @@
     4008,
     3728,
     3731,
-    3734,
     3742,
     3912,
     3953,
     3971,
-    4018,
+    3734,
     3910,
     3911,
     3965,
+    4018,
     3680,
     3704,
     3960,
-    3969,
     3556,
     3686,
     3715,
     3730,
     3961,
+    3969,
     3709,
     3712,
     3718,
@@ -13384,31 +13475,31 @@
     3727,
     3956,
     4015,
-    4022,
     3706,
     3724,
-    3733,
     4000,
+    4022,
     3477,
+    3733,
     3966,
     3703,
     3949,
     3950,
-    4007,
     3479,
+    4007,
     4017,
     3674,
     3714,
     3938,
-    3875,
     3708,
     3711,
     3717,
     3924,
-    3937,
+    3875,
     2940,
     3720,
     3923,
+    3937,
     3258,
     3723,
     3922,
@@ -13418,10 +13509,10 @@
     3705,
     3729,
     3732,
-    3999,
     3266,
     3846,
     3918,
+    3999,
     1328,
     3853,
     3916,
@@ -13431,11 +13522,11 @@
     3683,
     3920,
     3921,
-    4014,
     3469,
     3726,
     3784,
     3915,
+    4014,
     3702,
     3858,
     3914,
@@ -13458,22 +13549,22 @@
     "crafter": {
      "n": 35,
      "min": 0.7,
-     "score": 151.09
+     "score": 151.06
     },
     "gatherer": {
      "n": 29,
      "min": 0.4,
-     "score": 173.3
+     "score": 171.44
     },
     "pvp": {
      "n": 3,
      "min": 4.4,
-     "score": 4.42
+     "score": 4.4
     },
     "relic": {
      "n": 84,
      "min": 0.8,
-     "score": 214.67
+     "score": 213.61
     },
     "treasure": {
      "n": 8,
@@ -13483,12 +13574,12 @@
     "explorer": {
      "n": 27,
      "min": 0.4,
-     "score": 139.56
+     "score": 136.94
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [
@@ -13504,8 +13595,8 @@
     585,
     586,
     562,
-    587,
     465,
+    587,
     593,
     591,
     583,
@@ -13513,9 +13604,9 @@
     589,
     513,
     563,
-    567,
     568,
     552,
+    567,
     582,
     551,
     572,
@@ -13551,9 +13642,9 @@
     593,
     566,
     387,
-    567,
     409,
     552,
+    567,
     551,
     580
    ]
@@ -13583,7 +13674,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2766,
     3349,
@@ -13613,7 +13704,7 @@
     "explorer": {
      "n": 5,
      "min": 2.5,
-     "score": 10.05
+     "score": 10.01
     },
     "treasure": {
      "n": 1,
@@ -13622,8 +13713,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [],
@@ -13642,7 +13733,7 @@
     "Futures Rewritten",
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3870,
     3350,
@@ -13662,8 +13753,8 @@
     3472,
     3631,
     3823,
-    3979,
     2092,
+    3979,
     1198,
     3074,
     1463,
@@ -13701,7 +13792,7 @@
     "pvp": {
      "n": 4,
      "min": 3.0,
-     "score": 7.73
+     "score": 7.71
     },
     "relic": {
      "n": 6,
@@ -13715,8 +13806,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -13762,8 +13853,8 @@
    "rare_mounts": [],
    "rare_minions": [
     591,
-    567,
-    568
+    568,
+    567
    ]
   },
   "36130968": {
@@ -13795,7 +13886,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2767,
     3956,
@@ -13804,9 +13895,9 @@
     4014,
     2475,
     2476,
-    3869,
     2214,
     2472,
+    3869,
     3617,
     2473,
     3253,
@@ -13819,10 +13910,10 @@
     3631,
     2145,
     3823,
-    3979,
-    3998,
     2462,
     2862,
+    3979,
+    3998,
     4002,
     3074,
     2773,
@@ -13849,8 +13940,8 @@
     3154,
     3824,
     3638,
-    3867,
     2637,
+    3867,
     3889,
     3252,
     2444,
@@ -13874,12 +13965,12 @@
     "explorer": {
      "n": 8,
      "min": 1.3,
-     "score": 21.27
+     "score": 21.15
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -13904,7 +13995,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3833,
     3870,
@@ -13912,8 +14003,8 @@
     2215,
     1459,
     2146,
-    3869,
     2156,
+    3869,
     163,
     181,
     3832,
@@ -13933,8 +14024,8 @@
     3642,
     224,
     2886,
-    3874,
     2480,
+    3874,
     2861,
     3577,
     3048,
@@ -14007,8 +14098,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -14031,7 +14122,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3406,
     3407,
@@ -14216,7 +14307,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/dc29e74dd4627633c44becf5714a17b6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416447",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4008,
     3962,
@@ -14230,8 +14321,8 @@
     3853,
     3683,
     3855,
-    3851,
     4074,
+    3851,
     4003,
     3763,
     3765,
@@ -14251,17 +14342,17 @@
     "relic": {
      "n": 11,
      "min": 0.9,
-     "score": 39.18
+     "score": 39.0
     },
     "explorer": {
      "n": 12,
      "min": 0.7,
-     "score": 42.37
+     "score": 41.98
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -14270,8 +14361,8 @@
    "rare_minions": [
     584,
     589,
-    567,
     568,
+    567,
     580
    ]
   },
@@ -14324,7 +14415,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5e473ebb30b60b798355664ba794d153_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788362456",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4009,
     4005,
@@ -14333,8 +14424,8 @@
     3959,
     4008,
     3953,
-    4018,
     3963,
+    4018,
     3958,
     3952,
     3969,
@@ -14347,19 +14438,19 @@
     3938,
     3875,
     3941,
-    3937,
     3847,
+    3937,
     4004,
     4006,
     3852,
-    3999,
     3846,
+    3999,
     3856,
     3683,
-    4014,
     2393,
-    3851,
+    4014,
     4074,
+    3851,
     3509,
     3845,
     3862,
@@ -14371,8 +14462,8 @@
     3756,
     3843,
     3766,
-    3761,
     3823,
+    3761,
     3979,
     3998,
     4002,
@@ -14399,8 +14490,8 @@
     2972,
     3867,
     3889,
-    3639,
     2392,
+    3639,
     3662,
     3676,
     3679
@@ -14409,17 +14500,17 @@
     "relic": {
      "n": 40,
      "min": 0.6,
-     "score": 160.22
+     "score": 158.41
     },
     "explorer": {
      "n": 20,
      "min": 0.1,
-     "score": 205.55
+     "score": 203.47
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [
@@ -14432,12 +14523,12 @@
    ],
    "rare_minions": [
     586,
-    587,
     559,
+    587,
     483,
     584,
-    567,
     568,
+    567,
     582,
     580
    ]
@@ -14490,7 +14581,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2008,
     3959,
@@ -14503,8 +14594,8 @@
     3966,
     4007,
     3870,
-    4017,
     3350,
+    4017,
     3668,
     3674,
     2766,
@@ -14516,16 +14607,16 @@
     4006,
     3852,
     3861,
-    3999,
     2930,
-    4014,
+    3999,
     2150,
+    4014,
     2475,
     2476,
     3667,
-    3869,
     2156,
     2472,
+    3869,
     3471,
     3617,
     1335,
@@ -14567,11 +14658,11 @@
     3898,
     2513,
     3362,
-    3979,
-    3998,
     2092,
     2462,
     2727,
+    3979,
+    3998,
     4002,
     2786,
     3369,
@@ -14602,7 +14693,7 @@
     "crafter": {
      "n": 25,
      "min": 3.4,
-     "score": 36.27
+     "score": 36.28
     },
     "relic": {
      "n": 106,
@@ -14622,12 +14713,12 @@
     "explorer": {
      "n": 29,
      "min": 1.3,
-     "score": 83.66
+     "score": 82.98
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -14669,7 +14760,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4010,
     3819,
@@ -14686,31 +14777,31 @@
     3668,
     3674,
     2766,
-    3937,
     3847,
+    3937,
     4006,
     3852,
     3860,
     3861,
-    3999,
     2930,
     3846,
+    3999,
     764,
     1328,
     3856,
+    3469,
     3855,
     4014,
-    3469,
-    3869,
     2156,
+    3869,
     3339,
     3471,
     3617,
     3862,
     1335,
-    2489,
     3162,
     3253,
+    2489,
     3349,
     3757,
     2932,
@@ -14776,7 +14867,7 @@
     "crafter": {
      "n": 27,
      "min": 3.4,
-     "score": 43.89
+     "score": 43.85
     },
     "pvp": {
      "n": 2,
@@ -14786,12 +14877,12 @@
     "relic": {
      "n": 79,
      "min": 3.0,
-     "score": 129.06
+     "score": 128.99
     },
     "explorer": {
      "n": 21,
      "min": 0.4,
-     "score": 75.98
+     "score": 75.51
     },
     "gatherer": {
      "n": 2,
@@ -14805,8 +14896,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -14833,9 +14924,9 @@
     589,
     513,
     563,
-    567,
     568,
     552,
+    567,
     582,
     551,
     462,
@@ -14853,7 +14944,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1469,
     903,
@@ -14909,7 +15000,7 @@
     "seasonal": {
      "n": 15,
      "min": 3.4,
-     "score": 25.73
+     "score": 25.71
     },
     "pvp": {
      "n": 9,
@@ -14943,7 +15034,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4010,
     3814,
@@ -14996,9 +15087,9 @@
     3811,
     3646,
     3649,
-    3874,
     691,
     2783,
+    3874,
     2780,
     3647,
     3113,
@@ -15018,9 +15109,9 @@
     3154,
     3741,
     3824,
-    3867,
     2637,
     3243,
+    3867,
     556,
     3889,
     2444,
@@ -15035,12 +15126,12 @@
     "seasonal": {
      "n": 2,
      "min": 5.4,
-     "score": 3.28
+     "score": 3.26
     },
     "explorer": {
      "n": 23,
      "min": 0.4,
-     "score": 79.38
+     "score": 78.96
     },
     "relic": {
      "n": 32,
@@ -15253,7 +15344,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a8df6ab092e4c1be1685c9049b7ff5ff_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788418154",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3823,
     3979,
@@ -15306,7 +15397,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6b9ae3e083d257de30148980d3084e0b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788020364",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3966,
     4014,
@@ -15341,8 +15432,8 @@
     },
     "explorer": {
      "n": 5,
-     "min": 3.6,
-     "score": 9.7
+     "min": 3.7,
+     "score": 9.58
     },
     "pvp": {
      "n": 1,
@@ -15351,8 +15442,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -15427,15 +15518,15 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/25d2613da13295bdb3c2aabe908b812e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788022055",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3874
    ],
    "achv_buckets": {
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [],
@@ -15481,10 +15572,10 @@
     513,
     387,
     563,
-    567,
     568,
     409,
     552,
+    567,
     582,
     551,
     462
@@ -15497,7 +15588,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c87700c515bd9621ba07abc8c3badc9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751776",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1339,
     3181,
@@ -15531,10 +15622,10 @@
     1453,
     2775,
     1473,
-    3867,
     2633,
     3243,
     3548,
+    3867,
     3889,
     3068,
     3317,
@@ -15615,7 +15706,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6d9e3f70133de9016ea094a3a43422d4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753796",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3874,
     2699
@@ -15628,8 +15719,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [],
@@ -15652,8 +15743,8 @@
     586,
     559,
     593,
-    567,
     568,
+    567,
     582,
     580,
     569
@@ -15679,24 +15770,24 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b3874b3495247a0d04cfff075481ca1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752497",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3997,
     4007,
     2996,
     3717,
     3924,
-    3937,
     1919,
     3720,
     3923,
+    3937,
     3922,
     4004,
     4006,
     3729,
     3732,
-    3999,
     3918,
+    3999,
     3853,
     3916,
     3917,
@@ -15704,11 +15795,11 @@
     3935,
     3920,
     3921,
-    4014,
     1459,
     3469,
     3726,
     3915,
+    4014,
     3914,
     4074,
     4003,
@@ -15742,8 +15833,8 @@
     3368,
     3362,
     3877,
-    3998,
     3534,
+    3998,
     4002,
     3369,
     3801,
@@ -15778,9 +15869,9 @@
     3799,
     3370,
     3792,
-    3874,
     2868,
-    3311
+    3311,
+    3372
    ],
    "achv_buckets": {
     "gatherer": {
@@ -15806,17 +15897,17 @@
     "explorer": {
      "n": 14,
      "min": 1.1,
-     "score": 39.49
+     "score": 39.02
     },
     "crafter": {
      "n": 15,
      "min": 2.8,
-     "score": 27.62
+     "score": 27.6
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -15842,8 +15933,8 @@
     503,
     583,
     584,
-    567,
     568,
+    567,
     582,
     572,
     580,
@@ -15857,7 +15948,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/910426c38442447d0653ae92d2da3a71_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753650",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1448
    ],
@@ -15903,10 +15994,10 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e958e294dda8461009c3cc9afad7bd88_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416114",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
-    3967,
     3968,
+    3967,
     4000,
     3966,
     4007,
@@ -15942,17 +16033,17 @@
     "relic": {
      "n": 12,
      "min": 0.7,
-     "score": 53.26
+     "score": 51.47
     },
     "explorer": {
      "n": 14,
      "min": 1.4,
-     "score": 40.23
+     "score": 39.55
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [
@@ -15965,8 +16056,8 @@
     587,
     591,
     589,
-    567,
-    568
+    568,
+    567
    ]
   },
   "15543487": {
@@ -16043,15 +16134,15 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e09aa30945afb320f326d8205c9a893e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416683",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3874
    ],
    "achv_buckets": {
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -16066,22 +16157,22 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c2679701c5ab42ceda12e9d8d2659cdd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752135",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4009,
     4005,
     4008,
-    4018,
     3663,
+    4018,
     3997,
     3686,
     3956,
-    4022,
     4000,
+    4022,
     3949,
     3527,
-    4007,
     3659,
+    4007,
     4017,
     3668,
     3938,
@@ -16137,13 +16228,13 @@
     3867,
     3068,
     3317,
-    3639,
     618,
     621,
     2392,
     3171,
     3346,
     3597,
+    3639,
     3662,
     3676,
     3679,
@@ -16153,7 +16244,7 @@
     "explorer": {
      "n": 30,
      "min": 0.1,
-     "score": 256.48
+     "score": 253.93
     },
     "goldsaucer": {
      "n": 1,
@@ -16163,12 +16254,12 @@
     "relic": {
      "n": 18,
      "min": 1.3,
-     "score": 37.86
+     "score": 37.85
     },
     "seasonal": {
      "n": 1,
-     "min": 7.0,
-     "score": 1.43
+     "min": 7.1,
+     "score": 1.41
     }
    },
    "rare_mounts": [
@@ -16186,8 +16277,8 @@
     542,
     559,
     593,
-    567,
     568,
+    567,
     572
    ]
   },
@@ -16267,7 +16358,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/16ffcd6df461e6e2ff138ac3cff57039_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416844",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -16306,7 +16397,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7b5c1502b7f130f73fb0880f2bcc9430_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788417378",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     4008,
     3957,
@@ -16322,14 +16413,14 @@
     3817,
     4017,
     3938,
-    3875,
     3717,
     3924,
-    3941,
     1201,
-    3937,
+    3875,
+    3941,
     3720,
     3923,
+    3937,
     935,
     2066,
     3723,
@@ -16342,9 +16433,9 @@
     3860,
     2481,
     3861,
-    3999,
     3846,
     3918,
+    3999,
     1370,
     3856,
     3916,
@@ -16353,15 +16444,15 @@
     3935,
     3683,
     3850,
-    3855,
     3920,
     3921,
-    4014,
     3601,
     3726,
     3784,
+    3855,
     3857,
     3915,
+    4014,
     3858,
     3914,
     4074,
@@ -16406,8 +16497,8 @@
     3878,
     3884,
     1132,
-    3761,
-    3823
+    3823,
+    3761
    ],
    "achv_buckets": {
     "pvp": {
@@ -16418,12 +16509,12 @@
     "crafter": {
      "n": 9,
      "min": 2.8,
-     "score": 19.31
+     "score": 19.28
     },
     "relic": {
      "n": 137,
      "min": 0.9,
-     "score": 272.68
+     "score": 271.79
     },
     "gatherer": {
      "n": 8,
@@ -16433,7 +16524,7 @@
     "explorer": {
      "n": 23,
      "min": 0.7,
-     "score": 67.81
+     "score": 67.13
     },
     "treasure": {
      "n": 8,
@@ -16442,8 +16533,8 @@
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [
@@ -16460,8 +16551,8 @@
     527,
     585,
     586,
-    587,
     559,
+    587,
     593,
     566,
     591,
@@ -16470,9 +16561,9 @@
     589,
     121,
     513,
-    567,
     568,
     552,
+    567,
     582,
     551,
     462,
@@ -16506,7 +16597,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/75bbc832c72af70bcb5ce16e6f1804ec_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416415",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3630,
     3554
@@ -16539,8 +16630,8 @@
     583,
     584,
     563,
-    567,
     568,
+    567,
     569
    ]
   },
@@ -16566,7 +16657,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/20521876a6fdb2e53eaba078b8435fbd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751683",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     188,
     194,
@@ -16879,7 +16970,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c270197a35577868ee1a22d4e96323ad_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416446",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3953,
     3938,
@@ -16888,8 +16979,8 @@
     3937,
     4004,
     4006,
-    3999,
     3846,
+    3999,
     4003,
     3756,
     3998,
@@ -16908,12 +16999,12 @@
     "explorer": {
      "n": 7,
      "min": 3.1,
-     "score": 16.41
+     "score": 16.28
     },
     "seasonal": {
      "n": 2,
-     "min": 2.6,
-     "score": 5.28
+     "min": 2.9,
+     "score": 4.86
     }
    },
    "rare_mounts": [
@@ -16921,8 +17012,8 @@
     429
    ],
    "rare_minions": [
-    587,
     559,
+    587,
     593,
     572
    ]
@@ -17415,7 +17506,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f3fb8840b377d8bcddf2d81bfeeb1fd9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752713",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -18175,7 +18266,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/de6b91dec987e0812f07c75718a4285f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755205",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2864,
     2775
@@ -18310,7 +18401,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18612c4e2e3549912194b2b4ee33d619_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753897",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     572,
     560
@@ -18382,7 +18473,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/578f8e6890ae70f80f4367a2a5738e53_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753854",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     812,
     811,
@@ -18682,7 +18773,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/932bad7c0c2115522eaae3d1b8143d1b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753730",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -18760,7 +18851,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e39993c216d738e46ac956ef8a6cffb2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -18799,7 +18890,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a4adc54e9c800c0fe169a728567d0d08_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753602",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1337,
     3018,
@@ -18811,7 +18902,7 @@
     "pvp": {
      "n": 2,
      "min": 6.2,
-     "score": 2.7
+     "score": 2.68
     },
     "crafter": {
      "n": 1,
@@ -18970,7 +19061,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c0c7c416e3167bce67eb169d89545869_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754805",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3092,
     1327,
@@ -19068,7 +19159,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18f4375049bf126c72270428ebe46c5e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754030",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -19109,7 +19200,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2bb5cbe5ce3cd8d6d2d91fdb94df1d6d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754621",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -19451,7 +19542,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4af03ca7db92184417e6f1cb56099a1c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752618",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     875,
     876,
@@ -19514,7 +19605,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/9e6201a2d0aac9960d0d8f8c0e24babc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753721",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1588,
     1583,
@@ -19650,7 +19741,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2991,
     2388,
@@ -19706,7 +19797,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/018660522ea2d1ca799090f72d76985b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752524",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3473,
     3662
@@ -19856,7 +19947,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c6d206b51be86e6f52f61f62041caae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755309",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2366,
     874,
@@ -19907,7 +19998,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2ba80d30167b738c23c907f3f9114c2e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755332",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1448,
     2859,
@@ -19977,7 +20068,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/13c06ca572d2fd64138ec35532a04f0f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754592",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -20035,7 +20126,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     2766,
     561,
@@ -20191,7 +20282,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/58571ff1b07d10cfa2a728b107d382f5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753052",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     367,
     369,
@@ -20518,7 +20609,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d37ab6da6b55b12fa2b107f59774315b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753046",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -20557,7 +20648,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ad9a89a9030602f90553d384943f34ec_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755568",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -20812,8 +20903,8 @@
     407
    ],
    "rare_minions": [
-    567,
     552,
+    567,
     551,
     572
    ]
@@ -20877,7 +20968,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/dbb36bf852b84d9d891926486e0b2931_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755308",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -20892,7 +20983,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d7e6be0a1f840a06573af31d9b281670_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754211",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [],
    "achv_buckets": {},
    "rare_mounts": [],
@@ -21064,7 +21155,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/057ce0c62db68d391690fd93e2065a33_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754756",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     1968,
     2551,
@@ -21402,7 +21493,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2f357d100cc10c159ed82f84d6618864_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788316965",
    "ult_achv": [],
-   "achv_seen_at": "2026-09-04",
+   "achv_seen_at": "2026-09-05",
    "rare_ids": [
     3784,
     3782,

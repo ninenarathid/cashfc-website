@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-09-05",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned An Ode to Leathercraft — only 2.8% of players have it"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned Rocket Forgery I — only 2.7% of players have it"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "rare_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "earned Going with the Grain: Genius"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "rare_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "earned Vrandtastic: Lodestar Fishing Rod"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "boss_clear",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "new_member",
+   "id": 45513833,
+   "name": "Isildur One",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-09-05",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-05",
    "type": "boss_clear",
    "id": 50821570,
    "name": "Haruki Mizumoto",
@@ -1343,62 +1399,6 @@
    "id": 58202955,
    "name": "Trevas Aka",
    "text": "earned Guardiansbane, and 7 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 42215186,
-   "name": "Azelia Tayta",
-   "text": "earned Viva Vault Oneiron II — only 3.7% of players have it, and 10 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "is now a Master Explorer ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 42053180,
-   "name": "Elle'kuro Dean'deluca",
-   "text": "earned Cut Above the Rest: Star Globe Occultum — only 0.6% of players have it, and 31 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 47494518,
-   "name": "Farcia Soluna",
-   "text": "earned Witness to the Stars — only 3.4% of players have it, and 7 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 60619924,
-   "name": "Gotnogod Soluna",
-   "text": "earned Summertime Drifter"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 60873337,
-   "name": "Imy Kitty",
-   "text": "earned Cut Above the Rest: Spear Occultum — only 0.7% of players have it, and 16 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "is now a Legendary Relic grinder ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "is now a Master Explorer ✨"
   }
  ]
 }
