@@ -62,7 +62,28 @@ export default function PostDetail(
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [caption, setCaption] = useState(post.caption ?? "");
-  const [images, setImages] = useState<GalleryImage[]>([]);
+  /**
+   * What the grid already knew, standing in until the real list arrives.
+   *
+   * The pictures of a post live in their own table and are fetched when it
+   * opens, so this began as an empty list — and an empty list is no frame at
+   * all, which is why opening a picture grew the dialog under whatever was
+   * already on screen. The tile that was clicked knows the shape and has the
+   * thumbnail in cache, which is enough to stand the frame up on the first
+   * frame and fill it with something to look at.
+   *
+   * No `url` on purpose: the carousel draws the thumbnail and leaves the big
+   * picture alone until the real row says which file it is, so the original
+   * is never fetched only to be replaced by the lighter copy a moment later.
+   */
+  const seed = useCallback((): GalleryImage[] => (
+    post.thumb_url || post.image_url
+      ? [{ id: -1, post_id: post.id, url: "",
+           thumb_url: post.thumb_url ?? post.image_url ?? null,
+           width: post.width, height: post.height, position: 0 }]
+      : []
+  ), [post.id, post.thumb_url, post.image_url, post.width, post.height]);
+  const [images, setImages] = useState<GalleryImage[]>(seed);
   const addInput = useRef<HTMLInputElement | null>(null);
   // The tags live here rather than in the list under the picture, because the
   // pins drawn on the photograph and the names written below it are the same
@@ -130,6 +151,14 @@ export default function PostDetail(
     }
   }, [supabase, post.id]);
 
+  // Back to the stand-in, once, when the picture being looked at changes.
+  //
+  // This used to sit at the top of `load`, which runs again whenever its own
+  // dependencies change and twice on mount under React's development checks —
+  // so the real picture was torn down and put back moments after it arrived,
+  // which is the single flicker you could see on opening one. Keyed to the
+  // post and nothing else, it happens before the fetch and never again.
+  useEffect(() => { setImages(seed()); }, [post.id]);   // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { void loadTags(); }, [loadTags]);
 

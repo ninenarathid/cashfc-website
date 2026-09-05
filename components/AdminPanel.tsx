@@ -71,6 +71,7 @@ import AdminReports from "@/components/AdminReports";
 import AdminClaims, { type ClaimedProfile } from "@/components/AdminClaims";
 import AdminTabs from "@/components/AdminTabs";
 import AdminBadges from "@/components/AdminBadges";
+import AdminPoll from "@/components/AdminPoll";
 import { fmtDateTime } from "@/lib/dates";
 
 /**
@@ -744,6 +745,7 @@ export default function AdminPanel(
         { key: "badges", label: t("adm.badges"), body: (
           <AdminBadges memberOptions={memberOptions} nameOf={nameOf} />
         ) },
+        { key: "poll", label: t("adm.poll"), body: <AdminPoll /> },
       ]} />
 
       <AdminLog nameOf={nameOf} />

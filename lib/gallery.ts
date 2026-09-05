@@ -22,6 +22,23 @@ const THUMB_TYPE = "image/webp";
 const THUMB_QUALITY = 0.82;
 
 /**
+ * The full-size copy: same picture, same pixels, a quarter of the weight.
+ *
+ * These are FFXIV screenshots, and people save them as PNG. A 1920x1080 one
+ * arrives at three to four megabytes and a 4K one at six, which is what made
+ * opening a picture feel broken. WebP at this quality is indistinguishable
+ * from the PNG at the size it is ever shown — nothing is scaled down, so
+ * there is no softening to notice — and lands four to seven times lighter.
+ *
+ * The saving has to be real to be worth taking. Small PNG art and photographs
+ * already compressed as JPEG sometimes lose to their own original, and
+ * re-encoding one of those buys nothing and costs a generation of quality.
+ */
+const FULL_TYPE = "image/webp";
+const FULL_QUALITY = 0.92;
+const FULL_MIN_SAVING = 0.25;
+
+/**
  * A small copy of a picture, made in the browser before either is uploaded.
  *
  * Made from the file rather than from the uploaded original, so the original is
@@ -33,6 +50,30 @@ const THUMB_QUALITY = 0.82;
  * for anything the browser will not decode. Both mean "just use the original",
  * which is what the site did before this existed.
  */
+export async function makeFull(file: File): Promise<Blob | null> {
+  if (typeof document === "undefined") return null;
+  // Already the format we would convert it to.
+  if (file.type === "image/webp") return null;
+  const src = await loadImage(file);
+  if (!src) return null;
+  const { image, done } = src;
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(image, 0, 0);
+    // Returns null past the browser's canvas limit — about 16 million pixels
+    // on iOS — which is the right answer: keep the original.
+    const blob = await new Promise<Blob | null>((res) =>
+      canvas.toBlob(res, FULL_TYPE, FULL_QUALITY));
+    return blob && blob.size < file.size * (1 - FULL_MIN_SAVING) ? blob : null;
+  } finally {
+    done();
+  }
+}
+
 export async function makeThumb(file: File): Promise<Blob | null> {
   if (typeof document === "undefined") return null;
   const src = await loadImage(file);
@@ -142,12 +183,21 @@ export async function uploadOne(
   if (!file.type.startsWith("image/")) return { error: "not-image" };
   if (file.size > MAX_UPLOAD_BYTES) return { error: "too-big" };
   const dims = await measure(file);
-  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+  // The picture as it will be stored: the same pixels in WebP where that is
+  // markedly lighter, the file itself where it is not.
+  let body: Blob = file;
+  let ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+  let type: string | undefined;
+  try {
+    const lighter = await makeFull(file);
+    if (lighter) { body = lighter; ext = "webp"; type = FULL_TYPE; }
+  } catch { /* the original will do */ }
   // Filed under the uploader's id because the storage policy requires it, and
   // named by time so two people posting screenshot.png cannot collide.
   const stem = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const up = await supabase.storage.from(GALLERY_BUCKET)
-    .upload(`${stem}.${ext}`, file, { cacheControl: "31536000", upsert: false });
+    .upload(`${stem}.${ext}`, body,
+            { cacheControl: "31536000", upsert: false, contentType: type });
   if (up.error) return { error: up.error.message };
   const url = supabase.storage.from(GALLERY_BUCKET)
     .getPublicUrl(`${stem}.${ext}`).data.publicUrl;
@@ -187,10 +237,27 @@ export async function imagesForPosts(
   const BASE = "id, post_id, url, width, height, position";
   const ask = (cols: string) => supabase.from("gallery_images")
     .select(cols).in("post_id", postIds).order("position", { ascending: true });
-  const full = await ask(`${BASE}, thumb_url`);
-  const rows = full.error ? (await ask(BASE)).data : full.data;
+  // Each rung is a column a migration added, so a database that has not had
+  // one yet still answers rather than erroring the gallery away.
+  let got = await ask(`${BASE}, thumb_url, full_url`);
+  if (got.error) got = await ask(`${BASE}, thumb_url`);
+  const rows = got.error ? (await ask(BASE)).data : got.data;
   return ((rows ?? []) as unknown as GalleryImage[]);
 }
+
+/**
+ * The copy to show at full size: the lighter re-encoding if one was made,
+ * otherwise the file as it was uploaded.
+ *
+ * Pictures posted from now on are re-encoded before they are stored, so their
+ * `url` is already the light one and this changes nothing for them. It is the
+ * older ones that need it: their `url` cannot be rewritten — gallery_image_guard
+ * pins it so a picture cannot be swapped out from under the tags and comments
+ * left on it — so the lighter copy sits beside it instead.
+ */
+export const fullOf = (
+  row: { full_url?: string | null; image_url?: string | null; url?: string | null },
+): string => row.full_url || row.image_url || row.url || "";
 
 /** The small copy if there is one, else the picture itself. */
 export const thumbOf = (
@@ -202,6 +269,8 @@ export interface GalleryImage {
   id: number;
   post_id: number;
   url: string;
+  /** A same-resolution, lighter re-encoding of `url`. See fullOf. */
+  full_url?: string | null;
   width: number | null;
   height: number | null;
   position: number;

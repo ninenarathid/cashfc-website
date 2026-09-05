@@ -276,6 +276,25 @@ const DICT = {
     en: "Past the {c} points that would take.",
     th: "เกินเพดาน {c} แต้มไปแล้ว",
   },
+  // ── The poll on the gallery page ───────────────────────────────────
+  "poll.heading": { en: "The FC is deciding", th: "FC กำลังโหวต" },
+  "poll.daysLeft": { en: "{n} days left", th: "เหลืออีก {n} วัน" },
+  "poll.hoursLeft": { en: "{n} hours left", th: "เหลืออีก {n} ชั่วโมง" },
+  "poll.closed": { en: "closed", th: "ปิดโหวตแล้ว" },
+  "poll.oneEach": { en: "One vote each.", th: "โหวตได้คนละ 1 สิทธิ์" },
+  "poll.canChange": {
+    en: "Your answer is in. You can change it until the poll closes.",
+    th: "บันทึกคำตอบแล้ว เปลี่ยนใจได้จนกว่าจะปิดโหวต",
+  },
+  "poll.votes": { en: "{n} votes", th: "{n} เสียง" },
+  "poll.signIn": {
+    en: "Sign in to vote.",
+    th: "เข้าสู่ระบบเพื่อโหวต",
+  },
+  "poll.needCharacter": {
+    en: "Claim and verify your character to vote — this decides a leaderboard, so one vote has to mean one member.",
+    th: "ต้องอ้างสิทธิ์และยืนยันตัวละครก่อนจึงจะโหวตได้ เพราะผลโหวตมีผลกับ leaderboards หนึ่งเสียงจึงต้องเท่ากับหนึ่งคน",
+  },
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
   "lb.full": { en: "See all", th: "ดูทั้งหมด" },
   "lb.popoto": { en: "Popoto", th: "Popoto" },
@@ -760,6 +779,23 @@ const DICT = {
     th: "ส่ง popoto แล้ว 🥔",
   },
   // ── Custom badges ──────────────────────────────────────────────────
+  // ── Polls ──────────────────────────────────────────────────────────
+  "adm.poll": { en: "Poll", th: "โหวต" },
+  "adm.pollHint": {
+    en: "The question the FC is being asked on the gallery page, and how it is going. Nobody's individual answer is shown here — the totals come from a function that only ever returns counts.",
+    th: "คำถามที่ถาม FC อยู่ในหน้าแกลเลอรี และผลปัจจุบัน ตรงนี้ไม่แสดงว่าใครโหวตอะไร ตัวเลขมาจากฟังก์ชันที่คืนแค่จำนวนเท่านั้น",
+  },
+  "adm.pollNone": { en: "No polls.", th: "ยังไม่มีโหวต" },
+  "adm.pollOpen": { en: "Open", th: "เปิดอยู่" },
+  "adm.pollEnded": { en: "Ended", th: "จบแล้ว" },
+  "adm.pollCloses": { en: "closes {when}", th: "ปิด {when}" },
+  "adm.pollVotes": { en: "{n} votes", th: "{n} เสียง" },
+  "adm.pollClose": { en: "End it now", th: "ปิดโหวตเลย" },
+  "adm.pollClosed": { en: "Poll ended", th: "ปิดโหวตแล้ว" },
+  "adm.pollConfirmClose": {
+    en: "End this poll now? The result stays on the gallery page and nobody can change their answer after this.",
+    th: "ปิดโหวตเลยไหม? ผลจะยังอยู่ในหน้าแกลเลอรี และหลังจากนี้จะเปลี่ยนคำตอบไม่ได้แล้ว",
+  },
   "adm.badges": { en: "Badges", th: "Badge" },
   "adm.badgesHint": {
     en: "Make a badge once, then give it to as many members as you like. It shows in full on their own page and as a chip at the end of their row on the member list.",

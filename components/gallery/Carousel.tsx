@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLang } from "@/lib/i18n";
-import type { GalleryImage } from "@/lib/gallery";
+import { fullOf, type GalleryImage } from "@/lib/gallery";
 
 /**
  * The pictures in one post, one at a time.
@@ -56,7 +56,16 @@ export default function Carousel(
   // as a change. The old one fades out, the new one is put in place while nothing
   // is visible — which also hides the frame resizing between two different
   // shapes — and it fades back in once it has actually loaded.
-  const [shown, setShown] = useState(true);
+  // Which picture has actually arrived, rather than a yes/no that outlives the
+  // picture it was answering. This was a boolean starting at true, so the sharp
+  // layer was mounted at full opacity while it was still empty and the pixels,
+  // when they landed, replaced the blurred stand-in in one frame with no
+  // transition at all — the flicker on opening a picture, and the reason the
+  // blur was never seen to resolve. Held as the source that loaded, it cannot
+  // be true for a file that is not there.
+  const [loaded, setLoaded] = useState<string | null>(null);
+  // Only for the fade between pictures, when the arrows are used.
+  const [leaving, setLeaving] = useState(false);
   const swapping = useRef(false);
   // The key handler is bound once and must not close over a stale swap; it asks
   // this for whatever the current one is.
@@ -83,6 +92,11 @@ export default function Carousel(
   }, [images.length]);
 
   const current = images[i];
+  // Named once: the source the sharp layer is asking for, and whether that
+  // exact source is the one that has finished loading.
+  const src = current ? fullOf(current) : "";
+  const here = !!src && loaded === src;
+
   if (!current) return null;
 
   function show(next: number) {
@@ -91,13 +105,18 @@ export default function Carousel(
       && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (still) { setI(next); return; }
     swapping.current = true;
-    setShown(false);
+    setLeaving(true);
     settle.current = setTimeout(() => {
       setI(next);
+      setLeaving(false);
       // Normally the picture's own onLoad brings it back. This is the promise
       // that it comes back anyway — a file that never loads should leave an empty
       // frame, not an empty carousel nobody can get out of.
-      settle.current = setTimeout(() => { setShown(true); swapping.current = false; }, 900);
+      // Whatever happens to the file, the carousel is usable again. It no
+      // longer has to force the picture visible: the blurred stand-in is
+      // underneath, so a file that never loads leaves the picture soft rather
+      // than leaving an empty frame.
+      settle.current = setTimeout(() => { swapping.current = false; }, 900);
     }, 170);
   }
 
@@ -121,20 +140,79 @@ export default function Carousel(
   }
 
   return (
+    // The frame is the picture's own box, worked out from the dimensions on
+    // the row rather than from the file once it arrives. Every picture here
+    // knows its size, so the popup can be the right height from the first
+    // frame — before this it grew to fit whenever a file landed, and opening
+    // one moved everything under it.
+    //
+    // width and aspect-ratio together are what "fit inside 78vh" looks like
+    // without waiting: the width is whatever a picture this shape would be at
+    // that height, or the column, whichever is smaller.
     <div ref={box} onClick={place}
-         className={`group/photo relative mx-auto w-fit max-w-full ${
+         style={current.width && current.height ? {
+           width: `min(100%, calc(78vh * ${current.width / current.height}))`,
+           aspectRatio: `${current.width} / ${current.height}`,
+         } : undefined}
+         className={`group/photo relative mx-auto max-w-full overflow-hidden rounded-xl border border-line bg-bg ${
+           current.width && current.height ? "" : "w-fit"} ${
            picking ? "cursor-crosshair" : ""}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img key={current.url} src={current.url} alt=""
+      {/* The small copy, held under the real one while that arrives.
+      
+          A member said pictures took forever to open, and the measure was
+          worse than it sounded: the originals here are 2-6MB PNG screenshots,
+          up to 3840x2160, shown in a box no taller than 78vh — and the picture
+          was kept at opacity-0 until the whole file had landed, so the wait
+          was a blank rectangle rather than a picture arriving. The thumbnail
+          the grid already uses is 22-69KB, fifty to a hundred times lighter,
+          and was sitting unused two fields away.
+
+          Nothing about the finished picture changes: the original still loads
+          and still covers this completely. Only the wait is different. */}
+      {current.thumb_url && (
+        // Underneath the whole time, and never faded out.
+        //
+        // Fading this away as the sharp one arrived made two half-transparent
+        // layers in the middle of the transition, and two halves over a dark
+        // page do not add up to one picture — it dipped, so what you saw was
+        // blurred, then gone, then sharp. Left opaque, the picture is never
+        // less than fully there: the sharp copy simply comes up over it, and
+        // the blur resolving underneath carries the last of the way.
+        //
+        // Both layers sit in a frame that is already exactly the picture's
+        // shape, so they line up to the pixel. Anything less and the change
+        // reads as a wobble, which is what scaling this one up by three
+        // percent used to cause.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={current.thumb_url} alt="" aria-hidden draggable={false}
+             // Now that a picture is a few hundred kilobytes rather than
+             // several megabytes it arrives almost at once, so the softness has
+             // to take its time or the whole reveal is over before it registers.
+             style={{ filter: `blur(${here ? 0 : 14}px)`,
+                      transition: "filter 1000ms ease-out" }}
+             className="absolute inset-0 size-full object-contain" />
+      )}
+      {/* Only once there is a file to ask for. Until the post's own picture
+          list arrives there is a shape and a blurred stand-in and nothing to
+          download — an empty src would have the browser fetch the page. */}
+      {src && (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img key={src} src={src} alt=""
            width={current.width ?? undefined} height={current.height ?? undefined}
            draggable={false}
+           // Ahead of the grid behind it. Opening a picture straight from a
+           // notification loads the whole gallery on the way, and this was
+           // queueing behind two dozen thumbnails for a file a hundred times
+           // their size.
+           fetchPriority="high"
            onLoad={() => {
              if (settle.current) { clearTimeout(settle.current); settle.current = null; }
-             setShown(true);
+             setLoaded(src);
              swapping.current = false;
            }}
-           className={`block max-h-[78vh] w-auto max-w-full rounded-xl border border-line bg-bg transition-opacity duration-300 ${
-             shown ? "opacity-100" : "opacity-0"}`} />
+           className={`relative block size-full object-contain transition-opacity duration-700 ease-out ${
+             here && !leaving ? "opacity-100" : "opacity-0"}`} />
+      )}
 
       {overlay?.(current)}
 

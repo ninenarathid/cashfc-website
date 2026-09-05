@@ -91,11 +91,16 @@ export default function NotificationBell() {
     // The picture is the answer to "which one?", so it travels with the question.
     const ids = [...new Set(rows.map((n) => n.post_id).filter(Boolean) as number[])];
     if (!ids.length) { setCovers({}); return; }
+    // The small copy, not the picture. These are drawn at 48 pixels square and
+    // were being fetched at full size — four notifications open in a dropdown
+    // pulled about fourteen megabytes of PNG to fill four thumbnails, on the
+    // same connection as whatever the reader clicked next.
     const { data: posts } = await supabase.from("gallery_posts")
-      .select("id, image_url").in("id", ids);
+      .select("id, image_url, thumb_url").in("id", ids);
     const map: Record<number, string> = {};
-    for (const r of (posts ?? []) as { id: number; image_url: string }[]) {
-      map[r.id] = r.image_url;
+    for (const r of (posts ?? []) as
+         { id: number; image_url: string; thumb_url?: string | null }[]) {
+      map[r.id] = r.thumb_url || r.image_url;
     }
     setCovers(map);
   }, [supabase]);

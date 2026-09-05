@@ -23,7 +23,7 @@ export default function MemberGallery(
 ) {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
-  const { posts, authors, counts, images, isAdmin, ready, hasMore, loading,
+  const { posts, authors, counts, images, tagged, isAdmin, ready, hasMore, loading,
           loadMore, reload } = useGallery({ characterId });
   // Only one member appears on this page, so the roster it needs is one entry.
   const roster: Roster = name
@@ -53,7 +53,7 @@ export default function MemberGallery(
         </Link>
       </h2>
       <GalleryGrid posts={posts} authors={authors} counts={counts}
-                   images={images} roster={roster} memberOptions={memberOptions}
+                   images={images} tagged={tagged} roster={roster} memberOptions={memberOptions}
                    isAdmin={isAdmin} onChanged={reload} />
       <LoadMore onVisible={loadMore} active={hasMore && !loading} />
     </section>

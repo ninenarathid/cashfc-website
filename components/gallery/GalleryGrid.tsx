@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
+import { useAvatarOverrides } from "@/lib/avatars";
 import { imagesForPosts, thumbOf, type GalleryImage, type GalleryPost, type Roster } from "@/lib/gallery";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import PostDetail from "@/components/gallery/PostDetail";
@@ -56,6 +57,39 @@ function tileRatio(w?: number | null, h?: number | null): number | null {
   return Math.min(MAX_RATIO, Math.max(MIN_RATIO, w / h));
 }
 
+/**
+ * A wide picture takes two columns, a tall one takes one.
+ *
+ * Columns of equal width make height the only thing that varies, and height is
+ * width over the aspect ratio — so a 2:3 portrait stood one and a half times
+ * the column while a 16:9 shot stood two fifths of it, and the portrait took
+ * three and a half times the area. Members noticed: the tall pictures were the
+ * gallery and the wide ones were trim around them.
+ *
+ * Giving a wide picture two columns is the fix that costs nothing, because it
+ * gives it back the width its shape asks for rather than taking height off a
+ * portrait by cropping it. A 16:9 across two columns and a 2:3 down one land
+ * within a quarter of each other's area.
+ *
+ * The threshold is a shade above square: anything close to square is happier at
+ * one column, where two would make it enormous.
+ */
+const WIDE_AT = 1.25;
+
+/** Row height and gap in pixels, matching the classes on the container. */
+const ROW = 8;
+
+/**
+ * How many columns fit, decided from the measured width rather than from the
+ * breakpoints — the spans below are worked out in JavaScript and would drift
+ * from a CSS breakpoint the first time either was changed alone.
+ */
+function columnsFor(width: number): number {
+  if (width < 560) return 1;
+  if (width < 900) return 2;
+  return 3;
+}
+
 function TileImage(
   { post, images, index }: { post: GalleryPost; images: GalleryImage[]; index: number },
 ) {
@@ -101,12 +135,14 @@ function TileImage(
 }
 
 export default function GalleryGrid(
-  { posts, authors, counts, images, roster = {}, memberOptions = [],
+  { posts, authors, counts, images, tagged = {}, roster = {}, memberOptions = [],
     onChanged, initialOpen, isAdmin = false }: {
     posts: GalleryPost[];
     authors: Record<string, Author>;
     counts: Record<number, Counts>;
     images: Record<number, GalleryImage[]>;
+    /** Confirmed tags per post — who is in the picture. */
+    tagged?: Record<number, number[]>;
     roster?: Roster;
     memberOptions?: MemberOption[];
     onChanged: () => void;
@@ -149,6 +185,45 @@ export default function GalleryGrid(
     );
   }
 
+  // The face a member chose for themselves, which is the one they are known by
+  // everywhere else on the site. Without it a wall of pictures bylines people
+  // with the Lodestone portrait they may have replaced months ago.
+  const chosen = useAvatarOverrides();
+
+  // The mat's inner width, watched rather than guessed: every span below is a
+  // count of 8px rows, and a row count only means anything once the width a
+  // picture will actually be drawn at is known.
+  const mat = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState(0);
+  useEffect(() => {
+    const el = mat.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => setBox(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const cols = columnsFor(box || 1040);
+  const gap = box < 640 ? 12 : 16;      // gap-3 / sm:gap-4
+
+  /**
+   * The cell one picture sits in: how many columns across, and how many 8px
+   * rows tall to hold the shape it will be drawn at.
+   *
+   * Before the first measurement every tile is one column and a plausible
+   * height, so the first paint is a grid rather than a pile — the real spans
+   * land on the frame after.
+   */
+  const spanFor = (p: GalleryPost): React.CSSProperties => {
+    const r = tileRatio(p.width, p.height) ?? 1;
+    const across = Math.min(cols, r >= WIDE_AT ? 2 : 1);
+    const width = box
+      ? (box - gap * (cols - 1)) / cols * across + gap * (across - 1)
+      : 320;
+    const rows = Math.max(1, Math.round((width / r + gap) / (ROW + gap)));
+    return { gridColumn: `span ${across}`, gridRow: `span ${rows}` };
+  };
+
   return (
     <>
       {/* A printed collage rather than a wall: the pictures sit centred on a
@@ -160,13 +235,36 @@ export default function GalleryGrid(
           centred in whatever room is left, so the collage stays the same object
           on a laptop and on a very wide screen instead of thinning out. */}
       <div className="mx-auto mt-4 w-full max-w-[1040px] rounded-2xl bg-surface/50 p-3 sm:p-4">
-        <div className="columns-1 gap-3 sm:columns-2 sm:gap-4 lg:columns-3">
+        <div ref={mat}
+             style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+                      gridAutoRows: `${ROW}px` }}
+             // dense, so a single column left by a wide picture is filled by
+             // the next tall one rather than left as a hole.
+             className="grid [grid-auto-flow:row_dense] gap-3 sm:gap-4">
           {posts.map((p, idx) => {
             const c = counts[p.id];
             const shots = images[p.id] ?? [];
             const many = (p.image_count ?? 1) > 1;
+            // Whose picture it is, worked out the same way the open post does
+            // it: the character it belongs to, then the account that posted it,
+            // and only that far — a picture belongs to whoever is in it, not to
+            // whoever happened to press upload.
+            const who = p.character_id ? roster[p.character_id] : undefined;
+            const byName = p.credited_name ?? who?.name ?? authors[p.author_id]?.name ?? null;
+            const byFace = (p.character_id ? chosen[p.character_id] : null)
+              ?? who?.avatar
+              ?? (p.credited_name ? null : authors[p.author_id]?.avatar ?? null);
+            // Everybody else in it. The owner is already named above, so naming
+            // them again in the same breath reads as two different people.
+            const others = (tagged[p.id] ?? [])
+              .filter((id) => id !== p.character_id)
+              .map((id) => (roster[id]
+                ? { name: roster[id].name, avatar: chosen[id] ?? roster[id].avatar }
+                : null))
+              .filter(Boolean) as { name: string; avatar: string | null }[];
             return (
-              <div key={p.id} className="group relative mb-3 break-inside-avoid sm:mb-4">
+              <div key={p.id} style={spanFor(p)}
+                   className="group relative overflow-hidden">
                 <button onClick={() => setOpen(p.id)}
                         className="block w-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-accent">
                   <TileImage post={p} images={shots} index={idx} />
@@ -184,8 +282,48 @@ export default function GalleryGrid(
                     caption is clamped to two lines — enough to know what it is,
                     never enough to cover the picture it describes. Always shown
                     on touch, where there is no hover to wait for. */}
-                {(p.caption || c?.likes || c?.comments) ? (
+                {(byName || p.caption || c?.likes || c?.comments) ? (
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 rounded-b-xl bg-gradient-to-t from-bg/90 via-bg/70 to-transparent px-3 pb-2.5 pt-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 [@media(hover:none)]:opacity-100">
+                    {byName && (
+                      <div className="mb-1 flex items-center gap-1.5">
+                        {byFace ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={byFace} alt="" loading="lazy"
+                               className="size-6 shrink-0 rounded-full border border-line object-cover" />
+                        ) : (
+                          <span className="size-6 shrink-0 rounded-full border border-line bg-card" />
+                        )}
+                        <span className="truncate font-data text-[12.5px] font-semibold text-ink">
+                          {byName}
+                        </span>
+                        {/* The faces of everybody else in the picture, at the
+                            size a face is still a face. Three, then a count:
+                            the row has one line, and the whole list is on the
+                            picture itself once it is open. */}
+                        {others.length > 0 && (
+                          <span className="ml-auto flex shrink-0 items-center -space-x-1.5">
+                            {others.slice(0, 3).map((o, n) => (
+                              o.avatar ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img key={n} src={o.avatar} alt={o.name} title={o.name}
+                                     loading="lazy"
+                                     className="size-5 rounded-full border border-bg object-cover" />
+                              ) : (
+                                <span key={n} title={o.name}
+                                      className="grid size-5 place-items-center rounded-full border border-bg bg-card font-data text-[9px] text-ink/80">
+                                  {o.name.slice(0, 1)}
+                                </span>
+                              )
+                            ))}
+                            {others.length > 3 && (
+                              <span className="pl-2 font-data text-[11px] text-ink/70">
+                                +{others.length - 3}
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                    )}
                     {p.caption && (
                       <p className="line-clamp-2 text-[12.5px] leading-snug text-ink">
                         {p.caption}
@@ -284,6 +422,8 @@ export function useGallery(
   const [posts, setPosts] = useState<GalleryPost[]>([]);
   const [authors, setAuthors] = useState<Record<string, Author>>({});
   const [images, setImages] = useState<Record<number, GalleryImage[]>>({});
+  /** Confirmed tags per post, for the hover. */
+  const [tagged, setTagged] = useState<Record<number, number[]>>({});
   const [ready, setReady] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -331,6 +471,29 @@ export function useGallery(
       setImages((prev) => (replace ? grouped : { ...prev, ...grouped }));
     } else if (replace) {
       setImages({});
+    }
+
+    // Who is in each picture. One query for the page, and only the tags that
+    // have been confirmed: an unconfirmed tag is somebody's guess, and naming
+    // a member on a wall of pictures on a guess is exactly the thing the
+    // confirm step exists to prevent.
+    if (rows.length) {
+      const { data: tagRows } = await supabase.from("gallery_tags")
+        .select("post_id, character_id")
+        .in("post_id", rows.map((r) => r.id))
+        .not("confirmed_at", "is", null);
+      // Once each. A post holds several pictures and a tag belongs to a
+      // picture, so somebody in three of them comes back three times — and a
+      // row of the same face three times reads as three people.
+      const seen: Record<number, Set<number>> = {};
+      for (const r of (tagRows ?? []) as { post_id: number; character_id: number }[]) {
+        (seen[r.post_id] ??= new Set()).add(r.character_id);
+      }
+      const byPost: Record<number, number[]> = {};
+      for (const [pid, ids] of Object.entries(seen)) byPost[Number(pid)] = [...ids];
+      setTagged((prev) => (replace ? byPost : { ...prev, ...byPost }));
+    } else if (replace) {
+      setTagged({});
     }
 
     const authorIds = [...new Set(rows.map((r) => r.author_id))];
@@ -383,8 +546,8 @@ export function useGallery(
     return out;
   }, [posts]);
 
-  return { posts, authors, counts, images, isAdmin, ready, hasMore, loading,
-           loadMore, reload };
+  return { posts, authors, counts, images, tagged, isAdmin, ready, hasMore,
+           loading, loadMore, reload };
 }
 
 /**
