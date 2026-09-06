@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { GALLERY_BUCKET, MAX_UPLOAD_BYTES } from "@/lib/gallery";
 import ImageCropper from "@/components/ImageCropper";
+import { useDropTarget } from "@/components/ui/DropZone";
 
 /**
  * The two pictures a member chooses for themselves.
@@ -205,6 +206,26 @@ export default function ProfilePictures(
     setStamp(Date.now());
   }
 
+  /**
+   * Each picture is its own target, because each is already on screen.
+   *
+   * The portrait, the cover and the share card are drawn here at the size and
+   * shape they will be — three boxes that say exactly what belongs in them. A
+   * dashed rectangle beside each would be a fourth, fifth and sixth box asking
+   * the same question the picture is already asking, so the picture takes the
+   * drop and the buttons underneath stay for anybody who would rather browse.
+   *
+   * Dropping decides which of the three is being replaced, which is the one
+   * thing the file dialog knew and a drop does not — hence setKind first.
+   */
+  const takeFor = (which: Kind) => (files: File[]) => {
+    setKind(which);
+    pickFile(files[0]);
+  };
+  const avatarDrop = useDropTarget({ onFiles: takeFor("avatar"), disabled: busy });
+  const coverDrop = useDropTarget({ onFiles: takeFor("cover"), disabled: busy });
+  const shareDrop = useDropTarget({ onFiles: takeFor("share"), disabled: busy });
+
   if (!me) return null;
 
   const shown = kind === "avatar" ? AVATAR : kind === "share" ? SHARE : COVER;
@@ -213,7 +234,7 @@ export default function ProfilePictures(
     <section className="mt-3 rounded-xl border border-line bg-surface p-4">
       <div className="font-display font-semibold">{t("profile.pictures")}</div>
       <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
-        {t("profile.picturesHint")}
+        {t("profile.picturesHint")} {t("profile.picDropHint")}
       </p>
 
       <input ref={file} type="file" accept="image/*" className="hidden"
@@ -266,7 +287,10 @@ export default function ProfilePictures(
         <div className="mt-3 flex flex-col gap-4">
           {/* ── The portrait ── */}
           <div className="flex flex-wrap items-center gap-3">
-            <div className="size-20 shrink-0 overflow-hidden rounded-full border border-line bg-card">
+            <div {...avatarDrop.handlers}
+                 title={t("profile.picDropHint")}
+                 className={`size-20 shrink-0 overflow-hidden rounded-full border-2 bg-card transition-colors ${
+                   avatarDrop.over ? "border-dashed border-accent opacity-60" : "border-line"}`}>
               {(avatar ?? fallbackAvatar) && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatar ?? fallbackAvatar ?? ""} alt=""
@@ -306,7 +330,10 @@ export default function ProfilePictures(
                 {cover ? t("profile.picYours") : t("profile.picNone")}
               </div>
             </div>
-            <div className="aspect-[16/5] w-full overflow-hidden rounded-xl border border-line bg-card">
+            <div {...coverDrop.handlers}
+                 title={t("profile.picDropHint")}
+                 className={`aspect-[16/5] w-full overflow-hidden rounded-xl border-2 bg-card transition-colors ${
+                   coverDrop.over ? "border-dashed border-accent opacity-60" : "border-line"}`}>
               {cover && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={cover} alt="" className="size-full object-cover" />
@@ -340,7 +367,10 @@ export default function ProfilePictures(
               </p>
               {/* Dressed as the embed it becomes, because the picture on its own
                   does not tell you what Discord will actually do with it. */}
-              <div className="rounded-lg border-l-[3px] border-l-accent bg-card p-3">
+              <div {...shareDrop.handlers}
+                   title={t("profile.picDropHint")}
+                   className={`rounded-lg border-l-[3px] border-l-accent bg-card p-3 transition-colors ${
+                     shareDrop.over ? "opacity-60 outline outline-2 outline-dashed outline-accent" : ""}`}>
                 <div className="text-[12px] text-muted">Cafe And SHabu</div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/member/${characterId}/opengraph-image?v=${stamp}`}

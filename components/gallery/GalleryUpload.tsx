@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { MAX_UPLOAD_BYTES, uploadOne } from "@/lib/gallery";
 import DraftTagger, { type DraftTag } from "@/components/gallery/DraftTagger";
+import DropZone, { useDropTarget, usePasteImages } from "@/components/ui/DropZone";
 import { useAdmin } from "@/lib/admin";
 
 /**
@@ -92,44 +93,10 @@ export default function GalleryUpload(
     setPreviews((prev) => [...prev, ...ok.map((f) => URL.createObjectURL(f))]);
   }
 
-  /**
-   * Dragging a file over the card, without the flicker.
-   *
-   * dragenter and dragleave fire for every element the pointer crosses inside
-   * the card, so a plain boolean turns off the moment the file passes over the
-   * caption box on its way in. Counting how deep it has gone is what makes the
-   * outline hold still while the file is somewhere over the form.
-   */
-  const depth = useRef(0);
-  const [over, setOver] = useState(false);
-
-  function dropped(e: React.DragEvent) {
-    e.preventDefault();
-    depth.current = 0;
-    setOver(false);
-    if (busy) return;
-    pick([...(e.dataTransfer?.files ?? [])]);
-  }
-
-  // A screenshot on the clipboard is a file that never had to be found on disk
-  // at all. Only while the form is on screen and only when the paste is not
-  // going into something somebody is typing in.
-  useEffect(() => {
-    if (gate !== "ok") return;
-    const onPaste = (e: ClipboardEvent) => {
-      const el = e.target as HTMLElement | null;
-      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA"
-                 || el.isContentEditable)) return;
-      const found = [...(e.clipboardData?.files ?? [])]
-        .filter((f) => f.type.startsWith("image/"));
-      if (!found.length || busy) return;
-      e.preventDefault();
-      pick(found);
-    };
-    window.addEventListener("paste", onPaste);
-    return () => window.removeEventListener("paste", onPaste);
-  });   // Every render: `pick` closes over the current t(), and there is one
-        // listener either way.
+  // The card takes a drop anywhere on it, not only on the zone: once there are
+  // previews the zone is gone, and by then the pointer could be anywhere.
+  const { over, handlers } = useDropTarget({ onFiles: pick, disabled: busy });
+  usePasteImages(pick, gate === "ok" && !busy);
 
   function drop(i: number) {
     setFiles((prev) => prev.filter((_, n) => n !== i));
@@ -250,32 +217,19 @@ export default function GalleryUpload(
   }
 
   return (
-    <div
-      onDragEnter={(e) => {
-        if (!e.dataTransfer?.types?.includes("Files")) return;
-        depth.current += 1;
-        setOver(true);
-      }}
-      // Without this the browser navigates to the file instead of handing it
-      // over, which loses whatever was typed in the caption on the way.
-      onDragOver={(e) => {
-        if (e.dataTransfer?.types?.includes("Files")) e.preventDefault();
-      }}
-      onDragLeave={() => {
-        depth.current = Math.max(0, depth.current - 1);
-        if (!depth.current) setOver(false);
-      }}
-      onDrop={dropped}
+    <div {...handlers}
       className={`relative rounded-xl border bg-surface p-4 transition-colors ${
         over ? "border-accent" : "border-line"}`}>
       <div className="font-display font-semibold">{t("gallery.post")}</div>
 
-      {/* Only while something is being held over the card, and over everything
-          on it: the answer to "will it take this?" has to be visible from
-          wherever the pointer happens to be. */}
-      {over && (
+      {/* Once there are previews the drop zone below has been replaced by them,
+          so this is what answers "will it take this?" — and it covers the whole
+          card, because by then the pointer could be anywhere on it. While the
+          form is still empty the zone itself lights up instead, which is less
+          shouting for the same answer. */}
+      {over && previews.length > 0 && (
         <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-xl border-2 border-dashed border-accent bg-bg/85 text-[13.5px] text-accent">
-          {t("gallery.dropHere")}
+          {t("drop.now")}
         </div>
       )}
 
@@ -382,14 +336,8 @@ export default function GalleryUpload(
           </div>
         </div>
       ) : (
-        <div className="mt-2.5 flex flex-wrap items-center gap-2.5">
-          <button onClick={() => input.current?.click()}
-                  className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
-            {t("gallery.chooseMany")}
-          </button>
-          <span className="text-[11.5px] text-muted">{t("gallery.dropOrPaste")}</span>
-          <span className="text-[11.5px] text-muted">{t("gallery.limits")}</span>
-        </div>
+        <DropZone multiple onFiles={pick} disabled={busy}
+                  title={t("gallery.dropZone")} className="mt-2.5" />
       )}
 
       {err && <p className="mt-2 text-[12.5px] text-chili">{err}</p>}

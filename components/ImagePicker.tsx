@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import DropZone, { useDropTarget } from "@/components/ui/DropZone";
 
 const BUCKET = "post-images";
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -15,6 +16,10 @@ const MAX_BYTES = 5 * 1024 * 1024;
  *
  * Only admins can write to the bucket, enforced by the storage policy rather than
  * by this component — the same rule that already governs the posts themselves.
+ *
+ * Empty, it is the site's drop zone. Once there is a picture the picture is the
+ * target: it is already the right shape and in the right place, and a dashed
+ * rectangle beside it would only be a second box asking the same question.
  */
 export default function ImagePicker(
   { supabase, value, onChange }: {
@@ -23,7 +28,6 @@ export default function ImagePicker(
     onChange: (url: string | null) => void;
   },
 ) {
-  const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -56,39 +60,47 @@ export default function ImagePicker(
     onChange(data.publicUrl);
   }
 
+  // One picture, so only the first of a handful dropped at once is taken.
+  const take = (files: File[]) => { if (files[0]) void upload(files[0]); };
+  // Paste is off: an announcement form has a title and a body in it, and Ctrl+V
+  // in an admin panel means the words far more often than it means a picture.
+  const { over, handlers } = useDropTarget({ onFiles: take, disabled: busy });
+
+  if (!value) {
+    return (
+      <div className="flex flex-col gap-2">
+        <DropZone size="sm" paste={false} onFiles={take} disabled={busy}
+                  title={busy ? "Uploading…" : undefined}
+                  hint="PNG or JPG, up to 5MB" />
+        {err && <p className="text-[12.5px] text-chili">{err}</p>}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-2">
+    <div {...handlers} className="flex flex-col gap-2">
+      {/* self-start, or the flex column stretches it. The parent is a flex-col,
+          whose default align-items is stretch, so the image was being pulled to
+          the full width of the form while max-h-40 held its height — which
+          turned a 1024x1536 poster into a wide smear and made every upload look
+          badly cropped when nothing was wrong with it. w-auto does not stop
+          that; only opting out of the stretch does. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={value} alt=""
+           className={`max-h-52 w-auto self-start rounded-lg border-2 transition-colors ${
+             over ? "border-dashed border-accent opacity-60" : "border-line"}`} />
+
       <div className="flex flex-wrap items-center gap-2">
-        <input ref={input} type="file" accept="image/*" className="hidden"
-               onChange={(e) => {
-                 const f = e.target.files?.[0];
-                 if (f) void upload(f);
-                 e.target.value = "";
-               }} />
-        <button type="button" onClick={() => input.current?.click()} disabled={busy}
-                className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-50">
-          {busy ? "Uploading…" : value ? "Replace image" : "Add an image"}
+        <span className="text-[11.5px] text-muted">
+          {over ? "Drop to replace it" : "Drag a picture onto it to replace it"}
+        </span>
+        <button type="button" onClick={() => { onChange(null); setErr(null); }}
+                disabled={busy}
+                className="rounded-lg border border-chili/50 px-3 py-1.5 text-[12.5px] text-chili hover:bg-chili/10 disabled:opacity-50">
+          Remove
         </button>
-        {value && (
-          <button type="button" onClick={() => { onChange(null); setErr(null); }}
-                  className="rounded-lg border border-chili/50 px-3 py-1.5 text-[12.5px] text-chili hover:bg-chili/10">
-            Remove
-          </button>
-        )}
-        <span className="text-[11.5px] text-muted">PNG or JPG, up to 5MB</span>
       </div>
 
-      {value && (
-        // eslint-disable-next-line @next/next/no-img-element
-        // self-start, or the flex column stretches it. The parent is a
-        // flex-col, whose default align-items is stretch, so the image was being
-        // pulled to the full width of the form while max-h-40 held its height —
-        // which turned a 1024x1536 poster into a wide smear and made every
-        // upload look badly cropped when nothing was wrong with it. w-auto does
-        // not stop that; only opting out of the stretch does.
-        <img src={value} alt=""
-             className="max-h-52 w-auto self-start rounded-lg border border-line" />
-      )}
       {err && <p className="text-[12.5px] text-chili">{err}</p>}
     </div>
   );

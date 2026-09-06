@@ -12,6 +12,7 @@ import {
 import Carousel from "@/components/gallery/Carousel";
 import PostTags from "@/components/gallery/PostTags";
 import PhotoTagLayer from "@/components/gallery/PhotoTagLayer";
+import { useDropTarget } from "@/components/ui/DropZone";
 import { useAvatarOverrides } from "@/lib/avatars";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PopotoGivers from "@/components/PopotoGivers";
@@ -228,6 +229,32 @@ export default function PostDetail(
     onChanged?.();
   }
 
+  /**
+   * More pictures onto a post that already exists.
+   *
+   * Reached from the button and from dropping files anywhere on the post, which
+   * is the same thing the upload form does — one gesture for "here is a
+   * picture", wherever on the site you happen to be standing.
+   */
+  async function addImages(chosen: File[]) {
+    if (!supabase || !me || !chosen.length) return;
+    setBusy(true);
+    const base = images.length
+      ? Math.max(...images.map((im) => im.position)) + 1 : 0;
+    const rows = [];
+    for (const [n, f] of chosen.entries()) {
+      const res = await uploadOne(supabase, me, f);
+      if ("error" in res) continue;
+      rows.push({ post_id: post.id, url: res.url, thumb_url: res.thumb,
+                  width: res.width, height: res.height,
+                  position: base + n });
+    }
+    if (rows.length) await supabase.from("gallery_images").insert(rows);
+    setBusy(false);
+    await load();
+    onChanged?.();
+  }
+
   async function removeTag(tagId: number) {
     if (!supabase) return;
     setBusy(true);
@@ -329,8 +356,23 @@ export default function PostDetail(
 
   const when = fmtDate(post.created_at);
 
+  // Only for somebody who could add a picture through the button anyway. A
+  // reader dragging a file over a post they do not own gets nothing, which is
+  // the honest answer rather than a highlight that leads to a refusal.
+  const { over: dropping, handlers: dropHandlers } = useDropTarget({
+    onFiles: addImages, disabled: busy || !canEditCaption,
+  });
+
   return (
-    <div className="flex flex-col gap-4">
+    <div {...dropHandlers} className="relative flex flex-col gap-4">
+      {dropping && (
+        // Over the whole post rather than one corner of it: the pointer could
+        // be on the picture, on the caption or halfway down the comments, and
+        // the answer to "will it take this?" is the same wherever it is.
+        <div className="pointer-events-none absolute inset-0 z-30 grid place-items-center rounded-xl border-2 border-dashed border-accent bg-bg/85 text-[13.5px] font-semibold text-accent">
+          {t("gallery.dropToAdd")}
+        </div>
+      )}
       <Carousel images={images} canEdit={canEditCaption}
                 onToggleHidden={(id, next) => {
                   if (!next) { void setImageHidden(id, false); return; }
@@ -374,25 +416,10 @@ export default function PostDetail(
                 }} />
 
       <input ref={addInput} type="file" accept="image/*" multiple className="hidden"
-             onChange={async (e) => {
+             onChange={(e) => {
                const chosen = [...(e.target.files ?? [])];
                e.target.value = "";
-               if (!supabase || !me || !chosen.length) return;
-               setBusy(true);
-               const base = images.length
-                 ? Math.max(...images.map((im) => im.position)) + 1 : 0;
-               const rows = [];
-               for (const [n, f] of chosen.entries()) {
-                 const res = await uploadOne(supabase, me, f);
-                 if ("error" in res) continue;
-                 rows.push({ post_id: post.id, url: res.url, thumb_url: res.thumb,
-                             width: res.width, height: res.height,
-                             position: base + n });
-               }
-               if (rows.length) await supabase.from("gallery_images").insert(rows);
-               setBusy(false);
-               await load();
-               onChanged?.();
+               void addImages(chosen);
              }} />
 
       {/* Held to a readable measure under a picture that may be very wide —

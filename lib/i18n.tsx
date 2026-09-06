@@ -121,17 +121,17 @@ const DICT = {
   "feedback.new": { en: "New thread", th: "เปิดเรื่องใหม่" },
   "feedback.subject": { en: "What is this about?", th: "เรื่องอะไร" },
   "feedback.body": { en: "Tell them the rest…", th: "เล่ารายละเอียด…" },
-  "feedback.attachHint": {
-    en: "Drag a screenshot in here, or paste one",
-    th: "ลากรูปมาวางตรงนี้ หรือกด Ctrl+V วางรูปที่ copy ไว้",
+  "feedback.attachTitle": {
+    en: "Drag & drop a screenshot",
+    th: "ลากรูปมาวางเพื่อแนบ",
+  },
+  "feedback.attachLimit": {
+    en: "up to {n} pictures",
+    th: "แนบได้สูงสุด {n} รูป",
   },
   "feedback.attachMore": {
     en: "Drop another",
     th: "วางเพิ่มได้อีก",
-  },
-  "feedback.dropHere": {
-    en: "Drop it here",
-    th: "วางตรงนี้เลย",
   },
   "feedback.tooMany": {
     en: "Up to {n} pictures on one message",
@@ -1123,6 +1123,10 @@ const DICT = {
   "profile.picAvatar": { en: "Portrait", th: "รูปโปรไฟล์" },
   "profile.picCover": { en: "Cover", th: "รูปปก" },
   "profile.picFromGallery": { en: "From the gallery", th: "เลือกจากแกลเลอรี" },
+  "profile.picDropHint": {
+    en: "Drag a picture onto any of them to replace it.",
+    th: "ลากรูปมาวางทับรูปไหนก็ได้เพื่อเปลี่ยนรูปนั้น",
+  },
   "profile.picUpload": { en: "Upload a file", th: "อัพโหลดไฟล์" },
   "profile.picRemove": { en: "Take it down", th: "เอาออก" },
   "profile.picYours": { en: "Yours", th: "รูปที่คุณเลือกเอง" },
@@ -1172,23 +1176,20 @@ const DICT = {
   "gallery.findMember": { en: "Type a character name…", th: "พิมพ์ชื่อตัวละคร…" },
   "gallery.morePictures": { en: "{n} pictures", th: "{n} รูป" },
   "gallery.close": { en: "Close", th: "ปิด" },
+  "gallery.dropToAdd": {
+    en: "Drop to add it to this post",
+    th: "วางเพื่อเพิ่มรูปนี้เข้าโพสต์",
+  },
   "gallery.addImages": { en: "Add pictures", th: "เพิ่มรูป" },
   "gallery.removeImage": { en: "Remove this picture", th: "ลบรูปนี้" },
   "gallery.imageOf": { en: "{n} of {total}", th: "รูปที่ {n} จาก {total}" },
   "gallery.prev": { en: "Previous picture", th: "รูปก่อนหน้า" },
   "gallery.next": { en: "Next picture", th: "รูปถัดไป" },
-  "gallery.dropHere": {
-    en: "Drop the pictures here",
-    th: "วางรูปตรงนี้ได้เลย",
+  "gallery.dropZone": {
+    en: "Drag & drop to post a screenshot",
+    th: "ลากรูปมาวางตรงนี้เพื่อโพสต์",
   },
-  "gallery.dropOrPaste": {
-    en: "or drag them onto this box, or paste one",
-    th: "หรือลากรูปมาวางในกรอบนี้ หรือกด Ctrl+V วางรูปที่ copy ไว้",
-  },
-  "gallery.chooseMany": {
-    en: "Choose pictures — several at once is fine",
-    th: "เลือกรูป จะเลือกทีละหลายรูปก็ได้",
-  },
+  "gallery.browse": { en: "Browse files", th: "เลือกไฟล์" },
   "gallery.removeLast": {
     en: "That is the only picture left, so removing it deletes the post.",
     th: "เหลือรูปเดียวแล้ว ถ้าลบรูปนี้โพสต์จะถูกลบไปด้วย",
@@ -1345,6 +1346,17 @@ const DICT = {
 
   // ── Shared ──────────────────────────────────────────────────────────
   "common.loading": { en: "Loading…", th: "กำลังโหลด…" },
+  "drop.title": {
+    en: "Drag & drop a picture here",
+    th: "ลากรูปมาวางตรงนี้",
+  },
+  "drop.now": { en: "Drop it here", th: "วางตรงนี้เลย" },
+  "drop.browse": { en: "Browse files", th: "เลือกไฟล์" },
+  "drop.paste": {
+    en: "Ctrl+V pastes one",
+    th: "กด Ctrl+V วางรูปที่ copy ไว้ก็ได้",
+  },
+  "common.or": { en: "or", th: "หรือ" },
   "common.cancel": { en: "Cancel", th: "ยกเลิก" },
   "common.delete": { en: "Delete", th: "ลบ" },
   "common.edit": { en: "Edit", th: "แก้ไข" },
