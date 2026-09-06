@@ -1123,6 +1123,10 @@ const DICT = {
   "profile.picAvatar": { en: "Portrait", th: "รูปโปรไฟล์" },
   "profile.picCover": { en: "Cover", th: "รูปปก" },
   "profile.picFromGallery": { en: "From the gallery", th: "เลือกจากแกลเลอรี" },
+  "profile.picCoverDrop": {
+    en: "Drag & drop your banner here",
+    th: "ลากรูปแบนเนอร์มาวางตรงนี้",
+  },
   "profile.picDropHint": {
     en: "Drag a picture onto any of them to replace it.",
     th: "ลากรูปมาวางทับรูปไหนก็ได้เพื่อเปลี่ยนรูปนั้น",

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { GALLERY_BUCKET, MAX_UPLOAD_BYTES } from "@/lib/gallery";
 import ImageCropper from "@/components/ImageCropper";
-import { useDropTarget } from "@/components/ui/DropZone";
+import DropZone, { useDropTarget } from "@/components/ui/DropZone";
 
 /**
  * The two pictures a member chooses for themselves.
@@ -287,16 +287,34 @@ export default function ProfilePictures(
         <div className="mt-3 flex flex-col gap-4">
           {/* ── The portrait ── */}
           <div className="flex flex-wrap items-center gap-3">
-            <div {...avatarDrop.handlers}
-                 title={t("profile.picDropHint")}
-                 className={`size-20 shrink-0 overflow-hidden rounded-full border-2 bg-card transition-colors ${
-                   avatarDrop.over ? "border-dashed border-accent opacity-60" : "border-line"}`}>
+            {/* Too small for the cloud and the OR rule and a button, so it
+                takes the one part that matters: a dashed ring says a picture
+                can be dropped on it, and clicking it does what the button
+                below does. */}
+            <button {...avatarDrop.handlers} disabled={busy}
+                    onClick={() => { setKind("avatar"); file.current?.click(); }}
+                    title={t("profile.picDropHint")}
+                    className={`group relative grid size-20 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-full border-2 border-dashed bg-card transition-colors disabled:opacity-50 ${
+                      avatarDrop.over ? "border-accent" : "border-line hover:border-accent/60"}`}>
               {(avatar ?? fallbackAvatar) && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatar ?? fallbackAvatar ?? ""} alt=""
-                     className="size-full object-cover" />
+                     className={`absolute inset-0 size-full object-cover transition-opacity ${
+                       avatarDrop.over ? "opacity-30" : "group-hover:opacity-60"}`} />
               )}
-            </div>
+              <svg viewBox="0 0 24 24" aria-hidden width="22" height="22" fill="none"
+                   stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
+                   strokeLinejoin="round"
+                   className={`relative transition-opacity ${
+                     avatarDrop.over ? "text-accent opacity-100"
+                       : (avatar ?? fallbackAvatar)
+                         ? "text-ink opacity-0 group-hover:opacity-100"
+                         : "text-muted opacity-100"}`}>
+                <path d="M6.5 18.5A4.5 4.5 0 0 1 6 9.55a6 6 0 0 1 11.6-1.6A4.25 4.25 0 0 1 18 16.4" />
+                <path d="M12 12v8" />
+                <path d="m8.75 15.25 3.25-3.25 3.25 3.25" />
+              </svg>
+            </button>
             <div className="min-w-0 flex-1">
               <div className="text-[13px] font-medium text-ink">{t("profile.picAvatar")}</div>
               <div className="text-[12px] text-muted">
@@ -330,15 +348,26 @@ export default function ProfilePictures(
                 {cover ? t("profile.picYours") : t("profile.picNone")}
               </div>
             </div>
-            <div {...coverDrop.handlers}
-                 title={t("profile.picDropHint")}
-                 className={`aspect-[16/5] w-full overflow-hidden rounded-xl border-2 bg-card transition-colors ${
-                   coverDrop.over ? "border-dashed border-accent opacity-60" : "border-line"}`}>
-              {cover && (
-                // eslint-disable-next-line @next/next/no-img-element
+            {/* Nothing there yet, so the space it will occupy is the invitation
+                to fill it — the drop zone drawn at 16:5, which is the shape the
+                banner is. Once there is one, the banner is the target and the
+                dashed border is what says so. */}
+            {cover ? (
+              <button {...coverDrop.handlers} disabled={busy}
+                      onClick={() => { setKind("cover"); file.current?.click(); }}
+                      title={t("profile.picDropHint")}
+                      className={`aspect-[16/5] w-full cursor-pointer overflow-hidden rounded-xl border-2 border-dashed bg-card transition-colors disabled:opacity-50 ${
+                        coverDrop.over ? "border-accent opacity-50"
+                                       : "border-line hover:border-accent/60"}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={cover} alt="" className="size-full object-cover" />
-              )}
-            </div>
+              </button>
+            ) : (
+              <DropZone size="sm" paste={false} disabled={busy}
+                        onFiles={takeFor("cover")}
+                        title={t("profile.picCoverDrop")}
+                        className="aspect-[16/5] w-full" />
+            )}
             <div className="flex flex-wrap gap-2">
               <button onClick={() => openGallery("cover")} disabled={busy}
                       className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
@@ -368,9 +397,11 @@ export default function ProfilePictures(
               {/* Dressed as the embed it becomes, because the picture on its own
                   does not tell you what Discord will actually do with it. */}
               <div {...shareDrop.handlers}
+                   onClick={() => { if (!busy) { setKind("share"); file.current?.click(); } }}
                    title={t("profile.picDropHint")}
-                   className={`rounded-lg border-l-[3px] border-l-accent bg-card p-3 transition-colors ${
-                     shareDrop.over ? "opacity-60 outline outline-2 outline-dashed outline-accent" : ""}`}>
+                   className={`cursor-pointer rounded-lg border-l-[3px] border-l-accent bg-card p-3 outline-2 outline-dashed transition-colors ${
+                     shareDrop.over ? "opacity-50 outline outline-accent"
+                                    : "outline-transparent hover:outline hover:outline-accent/50"}`}>
                 <div className="text-[12px] text-muted">Cafe And SHabu</div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/member/${characterId}/opengraph-image?v=${stamp}`}
