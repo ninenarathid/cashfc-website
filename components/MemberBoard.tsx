@@ -31,6 +31,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { rarityColor, rarityLabel } from "@/lib/rarity";
 import { Tooltip } from "@/components/ui/Tooltip";
 import AwardBadge from "@/components/ui/AwardBadge";
+import MemberBio from "@/components/MemberBio";
 import { useMemberBadges } from "@/lib/member-badges";
 
 
@@ -1109,11 +1110,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         <span className="text-muted">{meta.join(" · ")}</span>
                       )}
                     </div>
-                    {ov?.bio && (
-                      <div className="mt-0.5 truncate text-[12px] italic" style={{ color: accent }}>
-                        &ldquo;{ov.bio}&rdquo;
-                      </div>
-                    )}
+                    {ov?.bio && <MemberBio m={m} bio={ov.bio} accent={accent} />}
                   </div>
                   <div className={`col-start-2 flex flex-wrap items-center gap-1.5 sm:col-start-auto ${
                     mBadges.length ? "sm:pr-28" : ""}`}>

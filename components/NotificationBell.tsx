@@ -2,15 +2,19 @@
 
 import { useCallback, useEffect, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
+import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
 import { postPath } from "@/lib/gallery";
 import { fmtDateTime } from "@/lib/dates";
+import { useAvatarOverrides } from "@/lib/avatars";
 
 interface Note {
   id: number;
   kind: string;
+  /** The account that did it, for their face and the way to their page. */
+  actor: string | null;
   actor_name: string | null;
   post_id: number | null;
   body: string | null;
@@ -20,8 +24,70 @@ interface Note {
   answered_at?: string | null;
 }
 
+/**
+ * A marker no name contains, so the sentence can be cut at it.
+ *
+ * The wording puts the name in a different place in each language, and there is
+ * no reason it should not — so the name is not pulled to the front and glued
+ * back on. The translated line is rendered with a marker where the name goes
+ * and split there, which leaves the sentence exactly as it was written and the
+ * name a link inside it.
+ */
+const SLOT = "%%WHO%%";
+
+function said(
+  line: string, name: string, href: string | null, onGo: () => void,
+) {
+  const [before, after = ""] = line.split(SLOT);
+  const who = href
+    ? <Link href={href} onClick={onGo}
+            className="font-medium text-ink no-underline hover:text-accent hover:underline">
+        {name}
+      </Link>
+    : <span className="font-medium text-ink">{name}</span>;
+  return <>{before}{who}{after}</>;
+}
+
+/**
+ * Who did it: their face, with what they did in the corner of it.
+ *
+ * For the notifications that have no picture of their own — a potato, a message
+ * on the feedback page. They used to show a bare icon, which said "a potato
+ * happened" and not "Aqua sent you one", and the second is the whole content of
+ * the notification.
+ *
+ * The corner rather than the middle because the face answers "who" and the
+ * badge answers "what", and the first is the one somebody scanning a list of
+ * notifications is actually reading.
+ */
+function FaceWithBadge(
+  { face, badge, href, onGo }: {
+    face: string | null; badge: string; href: string | null; onGo: () => void;
+  },
+) {
+  const body = (
+    <span className="relative block size-12 shrink-0">
+      {face ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={face} alt=""
+             className="size-12 rounded-full border border-line object-cover" />
+      ) : (
+        <span className="block size-12 rounded-full border border-line bg-card" />
+      )}
+      <span className="absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px]">
+        {badge}
+      </span>
+    </span>
+  );
+  return href
+    ? <Link href={href} onClick={onGo} className="shrink-0">{body}</Link>
+    : <span className="shrink-0">{body}</span>;
+}
+
 /** Enough to be worth scrolling, few enough to arrive instantly. */
 const SHOW = 20;
+/** How many more the archive fetches each time it is scrolled to the end. */
+const PAGE = 30;
 
 /**
  * Where each kind of notification leads, and what it looks like.
@@ -36,7 +102,9 @@ const SHOW = 20;
 const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   tag: { say: "notif.tagged", icon: "🏷️", href: "" },
   comment: { say: "notif.commented", icon: "💬", href: "" },
-  popoto: { say: "notif.popoto", icon: "🥔", href: "/profile" },
+  // The href is filled in per notification: a potato on your profile leads to
+  // your page, and which page that is depends on the character you hold.
+  popoto: { say: "notif.popoto", icon: "🥔", href: "" },
   popoto_post: { say: "notif.popotoPost", icon: "🥔", href: "" },
   announcement: { say: "notif.announced", icon: "📣", href: "/" },
   feedback: { say: "notif.feedback", icon: "✉️", href: "/feedback" },
@@ -65,12 +133,88 @@ const POLL_MS = 90_000;
 export default function NotificationBell() {
   const { t } = useLang();
   const [supabase] = useState(createClient);
+  const faces = useAvatarOverrides();
   const [me, setMe] = useState<string | null>(null);
   const [character, setCharacter] = useState<number | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [covers, setCovers] = useState<Record<number, string>>({});
+  /**
+   * The people who did these things: their face, and the page their name goes to.
+   *
+   * A potato is not a picture, so there was nothing to draw beside it but a
+   * generic icon — which said "a potato happened" and not "Aqua sent you one",
+   * and the second is the whole content of the notification. Keyed by account
+   * rather than by character because that is what the row records.
+   */
+  const [people, setPeople] = useState<Record<string,
+    { characterId: number | null; avatar: string | null }>>({});
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  /**
+   * Everything, for when the twenty in the panel are not far enough back.
+   *
+   * The panel is a panel: it hangs off a button, it is read standing up, and a
+   * list that scrolls for ever inside one is a list nobody finds the bottom of.
+   * So it keeps the twenty most recent and the rest live behind a line at the
+   * end of it — fetched a page at a time as that list is scrolled, because
+   * somebody looking for one thing from three weeks ago should not wait for
+   * three weeks of everything first.
+   */
+  const [past, setPast] = useState<Note[] | null>(null);
+  const [morePast, setMorePast] = useState(true);
+  const [loadingPast, setLoadingPast] = useState(false);
+
+  /**
+   * One page of notifications, with the faces and pictures they need.
+   *
+   * Shared by the panel and by the archive behind it, because the difference
+   * between them is only how many and how far back — everything about what a
+   * row needs in order to be drawn is the same, and had it been written twice
+   * the second list would have been the one missing a face.
+   */
+  const page = useCallback(async (from: number, take: number): Promise<Note[]> => {
+    if (!supabase) return [];
+    const { data } = await supabase.from("notifications")
+      .select("id, kind, actor, actor_name, post_id, body, created_at, read_at, answered_at")
+      .order("created_at", { ascending: false })
+      .range(from, from + take - 1);
+    const rows = (data as Note[]) ?? [];
+    if (!rows.length) return [];
+
+    const actors = [...new Set(rows.map((n) => n.actor).filter(Boolean) as string[])];
+    if (actors.length) {
+      const { data: who } = await supabase.from("profiles")
+        .select("id, character_id, discord_avatar").in("id", actors);
+      const by: Record<string, { characterId: number | null; avatar: string | null }> = {};
+      for (const r of (who ?? []) as Record<string, unknown>[]) {
+        by[r.id as string] = {
+          characterId: (r.character_id as number | null) ?? null,
+          avatar: (r.discord_avatar as string | null) ?? null,
+        };
+      }
+      // Merged rather than replaced: the archive keeps adding pages, and a
+      // fresh map would blank the faces on everything already drawn.
+      setPeople((v) => ({ ...v, ...by }));
+    }
+
+    // The picture is the answer to "which one?", so it travels with the question.
+    const ids = [...new Set(rows.map((n) => n.post_id).filter(Boolean) as number[])];
+    if (ids.length) {
+      // The small copy, not the picture. These are drawn at 48 pixels square and
+      // were being fetched at full size — four notifications open in a dropdown
+      // pulled about fourteen megabytes of PNG to fill four thumbnails, on the
+      // same connection as whatever the reader clicked next.
+      const { data: posts } = await supabase.from("gallery_posts")
+        .select("id, image_url, thumb_url").in("id", ids);
+      const map: Record<number, string> = {};
+      for (const r of (posts ?? []) as
+           { id: number; image_url: string; thumb_url?: string | null }[]) {
+        map[r.id] = r.thumb_url || r.image_url;
+      }
+      setCovers((v) => ({ ...v, ...map }));
+    }
+    return rows;
+  }, [supabase]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -86,28 +230,11 @@ export default function NotificationBell() {
     } | null;
     setCharacter(p?.character_verified_at ? p.character_id ?? null : null);
 
-    const { data } = await supabase.from("notifications")
-      .select("id, kind, actor_name, post_id, body, created_at, read_at, answered_at")
-      .order("created_at", { ascending: false }).limit(SHOW);
-    const rows = (data as Note[]) ?? [];
+    const rows = await page(0, SHOW);
     setNotes(rows);
+  }, [supabase, page]);
 
-    // The picture is the answer to "which one?", so it travels with the question.
-    const ids = [...new Set(rows.map((n) => n.post_id).filter(Boolean) as number[])];
-    if (!ids.length) { setCovers({}); return; }
-    // The small copy, not the picture. These are drawn at 48 pixels square and
-    // were being fetched at full size — four notifications open in a dropdown
-    // pulled about fourteen megabytes of PNG to fill four thumbnails, on the
-    // same connection as whatever the reader clicked next.
-    const { data: posts } = await supabase.from("gallery_posts")
-      .select("id, image_url, thumb_url").in("id", ids);
-    const map: Record<number, string> = {};
-    for (const r of (posts ?? []) as
-         { id: number; image_url: string; thumb_url?: string | null }[]) {
-      map[r.id] = r.thumb_url || r.image_url;
-    }
-    setCovers(map);
-  }, [supabase]);
+
 
   useEffect(() => {
     void load();
@@ -144,16 +271,138 @@ export default function NotificationBell() {
     // The database marks it answered; this is only the screen catching up
     // without waiting for a round trip.
     const now = new Date().toISOString();
-    setNotes((v) => v.map((n) => (n.kind === "tag" && n.post_id === postId
-      ? { ...n, answered_at: now } : n)));
+    const settle = (v: Note[]) => v.map((n) => (n.kind === "tag" && n.post_id === postId
+      ? { ...n, answered_at: now } : n));
+    setNotes(settle);
+    setPast((v) => (v ? settle(v) : v));
     void load();
   }
 
-  async function clearAll() {
-    if (!supabase || !notes.length) return;
-    setNotes([]);
-    await supabase.from("notifications").delete().not("id", "is", null);
+  async function openPast() {
+    setOpen(false);
+    if (past) return;
+    setLoadingPast(true);
+    const first = await page(0, PAGE);
+    setPast(first);
+    setMorePast(first.length === PAGE);
+    setLoadingPast(false);
   }
+
+  async function morePages() {
+    if (loadingPast || !morePast || !past) return;
+    setLoadingPast(true);
+    const next = await page(past.length, PAGE);
+    setPast([...past, ...next]);
+    setMorePast(next.length === PAGE);
+    setLoadingPast(false);
+  }
+
+  /**
+   * One notification, drawn the same wherever it is read.
+   *
+   * The panel and the archive are the same list with different ends, so this is
+   * a function rather than two copies — the copy that is not the one being
+   * looked at is the copy that quietly stops matching.
+   */
+  /** Going somewhere puts away whichever list you were reading. */
+  const dismiss = () => { setOpen(false); setPast(null); };
+
+  const row = (n: Note) => {
+    const cover = n.post_id ? covers[n.post_id] : null;
+    const kind = KIND[n.kind];
+    // A picture is its own address; everything else has one written
+    // down, and a kind nobody has taught this has none rather than a
+    // link to the front page that pretends to be an answer.
+    // A potato given to you leads to the page it was given to — the
+    // one everybody else sees, with the potato count on it. It used
+    // to open the profile editor, which is where you change your
+    // nickname and not where anything just happened.
+    const href = n.kind === "popoto"
+      ? (character != null ? `/member/${character}` : "/profile")
+      : n.post_id ? postPath(n.post_id) : (kind?.href || null);
+    const actor = n.actor ? people[n.actor] : undefined;
+    const actorFace = actor?.characterId != null
+      ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
+    const actorHref = actor?.characterId != null
+      ? `/member/${actor.characterId}` : null;
+    // Neither a potato nor a message on the feedback page is a
+    // picture. What they have instead is the person who sent it, so
+    // their face is the thumbnail and what they did sits in the
+    // corner of it. Anything with a picture of its own keeps it: a
+    // tag is answered by looking at the photograph.
+    const facing = n.kind === "popoto" || n.kind === "popoto_post"
+      ? "🥔" : n.kind === "feedback" ? "✉️" : null;
+    // Answered tags keep their line and their picture and lose their
+  // buttons. Taking the whole notification away took the photograph
+  // with it, which is the thing somebody who has just agreed to be
+  // named in one is most likely to want next.
+  const asking = n.kind === "tag" && character != null && !n.answered_at;
+    return (
+      <div key={n.id}
+           className={`flex gap-2.5 border-b border-line px-3.5 py-2.5 last:border-0 ${
+             n.read_at ? "" : "bg-accent/5"}`}>
+        {facing && (actorFace || actorHref) ? (
+          <FaceWithBadge face={actorFace} badge={facing} href={actorHref}
+               onGo={dismiss} />
+        ) : cover && href ? (
+          <Link href={href} onClick={dismiss} className="shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={cover} alt=""
+       className="size-12 rounded-md border border-line object-cover" />
+          </Link>
+        ) : (
+          <span className="grid size-12 shrink-0 place-items-center rounded-md border border-line text-[15px]">
+            {kind?.icon ?? "🔔"}
+          </span>
+        )}
+
+        <div className="min-w-0 flex-1">
+          <p className="text-[12.5px] leading-snug text-ink/90">
+            {kind
+    ? said(t(kind.say, { who: SLOT }), n.actor_name ?? "—",
+           actorHref, dismiss)
+    : t("notif.something")}
+          </p>
+          {n.body && (
+            <p className="mt-0.5 line-clamp-2 text-[12px] leading-snug text-muted">
+    {n.body}
+            </p>
+          )}
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] text-muted">{when(n.created_at)}</span>
+            {/* Not only for pictures. A notification that names a
+      thing and then leaves you to find it is the reason
+      somebody went hunting through the wrong page. */}
+            {!asking && href && (
+    <Link href={href} onClick={dismiss}
+          className="text-[11.5px] text-accent no-underline hover:underline">
+      {t("notif.open")}
+    </Link>
+            )}
+          </div>
+
+          {asking && n.post_id && (
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+    <button onClick={() => answerTag(n.post_id!, true)} disabled={busy}
+            className="rounded-md border border-jade bg-jade/15 px-2.5 py-0.5 text-[12px] text-jade hover:bg-jade/25 disabled:opacity-50">
+      {t("gallery.tagConfirm")}
+    </button>
+    <button onClick={() => answerTag(n.post_id!, false)} disabled={busy}
+            className="rounded-md border border-line px-2.5 py-0.5 text-[12px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
+      {t("gallery.tagDecline")}
+    </button>
+    {href && (
+      <Link href={href} onClick={dismiss}
+            className="px-1 py-0.5 text-[12px] text-accent no-underline hover:underline">
+        {t("notif.look")}
+      </Link>
+    )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   if (!supabase || !me) return null;
 
@@ -182,102 +431,75 @@ export default function NotificationBell() {
 
       <Popover.Portal>
         <Popover.Content align="end" sideOffset={8} collisionPadding={10}
-          className="pop-in z-50 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-line bg-surface shadow-2xl shadow-black/50">
+          className="pop-in z-50 w-[min(34rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-line bg-surface shadow-2xl shadow-black/50">
           <div className="flex items-center justify-between border-b border-line px-3.5 py-2.5">
             <span className="font-display text-[13.5px] font-semibold">
               {t("notif.title")}
             </span>
-            {notes.length > 0 && (
-              <button onClick={clearAll}
-                      className="text-[12px] text-muted underline hover:text-ink">
-                {t("notif.clear")}
-              </button>
-            )}
+
           </div>
 
-          <div className="max-h-[26rem] overflow-y-auto">
+          <div className="max-h-[min(46rem,72vh)] overflow-y-auto">
             {notes.length === 0 && (
               <p className="px-3.5 py-6 text-center text-[12.5px] text-muted">
                 {t("notif.empty")}
               </p>
             )}
 
-            {notes.map((n) => {
-              const cover = n.post_id ? covers[n.post_id] : null;
-              const kind = KIND[n.kind];
-              // A picture is its own address; everything else has one written
-              // down, and a kind nobody has taught this has none rather than a
-              // link to the front page that pretends to be an answer.
-              const href = n.post_id ? postPath(n.post_id) : (kind?.href || null);
-              // Answered tags keep their line and their picture and lose their
-            // buttons. Taking the whole notification away took the photograph
-            // with it, which is the thing somebody who has just agreed to be
-            // named in one is most likely to want next.
-            const asking = n.kind === "tag" && character != null && !n.answered_at;
-              return (
-                <div key={n.id}
-                     className={`flex gap-2.5 border-b border-line px-3.5 py-2.5 last:border-0 ${
-                       n.read_at ? "" : "bg-accent/5"}`}>
-                  {cover && href ? (
-                    <Link href={href} onClick={() => setOpen(false)} className="shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={cover} alt=""
-                           className="size-12 rounded-md border border-line object-cover" />
-                    </Link>
-                  ) : (
-                    <span className="grid size-12 shrink-0 place-items-center rounded-md border border-line text-[15px]">
-                      {kind?.icon ?? "🔔"}
-                    </span>
-                  )}
-
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[12.5px] leading-snug text-ink/90">
-                      {kind ? t(kind.say, { who: n.actor_name ?? "—" })
-                            : t("notif.something")}
-                    </p>
-                    {n.body && (
-                      <p className="mt-0.5 line-clamp-2 text-[12px] leading-snug text-muted">
-                        {n.body}
-                      </p>
-                    )}
-                    <div className="mt-1 flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] text-muted">{when(n.created_at)}</span>
-                      {/* Not only for pictures. A notification that names a
-                          thing and then leaves you to find it is the reason
-                          somebody went hunting through the wrong page. */}
-                      {!asking && href && (
-                        <Link href={href} onClick={() => setOpen(false)}
-                              className="text-[11.5px] text-accent no-underline hover:underline">
-                          {t("notif.open")}
-                        </Link>
-                      )}
-                    </div>
-
-                    {asking && n.post_id && (
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        <button onClick={() => answerTag(n.post_id!, true)} disabled={busy}
-                                className="rounded-md border border-jade bg-jade/15 px-2.5 py-0.5 text-[12px] text-jade hover:bg-jade/25 disabled:opacity-50">
-                          {t("gallery.tagConfirm")}
-                        </button>
-                        <button onClick={() => answerTag(n.post_id!, false)} disabled={busy}
-                                className="rounded-md border border-line px-2.5 py-0.5 text-[12px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
-                          {t("gallery.tagDecline")}
-                        </button>
-                        {href && (
-                          <Link href={href} onClick={() => setOpen(false)}
-                                className="px-1 py-0.5 text-[12px] text-accent no-underline hover:underline">
-                            {t("notif.look")}
-                          </Link>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+            {notes.map(row)}
           </div>
+
+          {/* Only when there might be more behind it. Twenty back is a fortnight
+              for somebody the FC talks to and a year for somebody it does not,
+              so the offer is made by whether the page came back full rather
+              than by a guess at how long that is. */}
+          {notes.length >= SHOW && (
+            <button onClick={openPast}
+                    className="w-full border-t border-line px-3.5 py-2.5 text-center text-[12.5px] text-accent hover:bg-card">
+              {t("notif.seeAll")}
+            </button>
+          )}
         </Popover.Content>
       </Popover.Portal>
+
+      {/* Everything, in a window rather than hanging off the button: a list you
+          read sitting down wants the room, and the panel is not the place to
+          scroll through a year. Fetched a page at a time as it nears the end,
+          so opening it costs one page however long the year was. */}
+      <Dialog.Root open={past !== null} onOpenChange={(o) => { if (!o) setPast(null); }}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="pop-in fixed inset-0 z-[60] bg-bg/80 backdrop-blur-sm" />
+          <Dialog.Content
+            className="pop-in fixed left-1/2 top-1/2 z-[61] flex max-h-[86vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-line bg-surface shadow-2xl shadow-black/60">
+            <Dialog.Title className="border-b border-line px-4 py-3 font-display text-[14px] font-semibold text-ink">
+              {t("notif.past")}
+            </Dialog.Title>
+
+            <div
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                if (el.scrollTop + el.clientHeight > el.scrollHeight - 120) void morePages();
+              }}
+              className="min-h-0 flex-1 overflow-y-auto">
+              {past?.length === 0 && !loadingPast && (
+                <p className="px-4 py-8 text-center text-[12.5px] text-muted">
+                  {t("notif.pastNone")}
+                </p>
+              )}
+              {(past ?? []).map(row)}
+              {loadingPast && (
+                <p className="px-4 py-3 text-center text-[12px] text-muted">
+                  {t("common.loading")}
+                </p>
+              )}
+            </div>
+
+            <Dialog.Close className="border-t border-line px-4 py-2.5 text-[13px] text-muted hover:text-ink">
+              {t("common.close")}
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </Popover.Root>
   );
 }

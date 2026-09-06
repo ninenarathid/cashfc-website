@@ -23,12 +23,22 @@ import type { ReactNode } from "react";
  */
 
 export function HoverCard(
-  { trigger, children, side = "top", align = "center", className = "" }: {
+  { trigger, children, side = "top", align = "center", className = "",
+    bare = false }: {
     trigger: ReactNode;
     children: ReactNode;
     side?: "top" | "right" | "bottom" | "left";
     align?: "start" | "center" | "end";
     className?: string;
+    /**
+     * Drop the padding, for a card that draws its own frame inside this one.
+     *
+     * A flag rather than a px-0 passed through className: two padding utilities
+     * on one element are settled by their order in the stylesheet, not by the
+     * order they were written in, so overriding it that way works or does not
+     * depending on something neither caller can see.
+     */
+    bare?: boolean;
   },
 ) {
   return (
@@ -39,7 +49,8 @@ export function HoverCard(
       <Radix.Portal>
         <Radix.Content
           side={side} align={align} sideOffset={7} collisionPadding={12}
-          className={`pop-in z-50 max-w-[19rem] rounded-xl border border-line bg-surface px-3.5 py-3 text-[12.5px] leading-relaxed text-ink shadow-xl shadow-black/40 ${className}`}
+          className={`pop-in z-50 max-w-[19rem] rounded-xl border border-line bg-surface text-[12.5px] leading-relaxed text-ink shadow-xl shadow-black/40 ${
+            bare ? "" : "px-3.5 py-3"} ${className}`}
         >
           {children}
           <Radix.Arrow className="fill-line" width={11} height={5} />

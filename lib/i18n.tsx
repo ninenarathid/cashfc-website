@@ -163,8 +163,10 @@ const DICT = {
   "feedback.adminSide": { en: "Admin", th: "ผู้ดูแล" },
   "feedback.you": { en: "you", th: "คุณ" },
   "notif.feedback": {
-    en: "New message in feedback.",
-    th: "มีข้อความใหม่ในหน้า Feedback",
+    // Named, now that the face beside it is theirs. "New message in feedback"
+    // was the one line in the panel that said nothing about who.
+    en: "{who} wrote on the feedback page.",
+    th: "{who} เขียนข้อความในหน้า Feedback",
   },
   "nav.myPage": { en: "My page", th: "หน้าของฉัน" },
   "member.achvKept": {
@@ -325,7 +327,7 @@ const DICT = {
     th: "ต้องอ้างสิทธิ์และยืนยันตัวละครก่อนจึงจะโหวตได้ เพราะผลโหวตมีผลกับ leaderboards หนึ่งเสียงจึงต้องเท่ากับหนึ่งคน",
   },
   // ── Who gave the potatoes ──────────────────────────────────────────
-  "popoto.whoGave": { en: "{n} potatoes, from", th: "popoto {n} ครั้ง จาก" },
+  "popoto.whoGave": { en: "{n} popoto, from", th: "popoto {n} ครั้ง จาก" },
   "popoto.seeAll": { en: "Click to see all {n}", th: "กดเพื่อดูทั้ง {n} คน" },
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
   "lb.full": { en: "See all", th: "ดูทั้งหมด" },
@@ -384,7 +386,18 @@ const DICT = {
   "gallery.tagHideAll": { en: "Hide the tags", th: "ซ่อนแท็ก" },
   "notif.title": { en: "Notifications", th: "การแจ้งเตือน" },
   "notif.empty": { en: "Nothing new.", th: "ยังไม่มีอะไรใหม่" },
-  "notif.clear": { en: "Clear", th: "ล้างทั้งหมด" },
+  "notif.seeAll": {
+    en: "Everything before this",
+    th: "ดูการแจ้งเตือนทั้งหมด",
+  },
+  "notif.past": {
+    en: "All notifications",
+    th: "การแจ้งเตือนทั้งหมด",
+  },
+  "notif.pastNone": {
+    en: "Nothing here yet.",
+    th: "ยังไม่มีการแจ้งเตือน",
+  },
   "notif.open": { en: "Open", th: "เปิดดู" },
   "notif.look": { en: "Look first", th: "ดูรูปก่อน" },
   "notif.tagged": {

@@ -51,7 +51,7 @@ interface Message {
 export default function Feedback() {
   const { t } = useLang();
   const [supabase] = useState(createClient);
-  const { isAdmin } = useAdmin();
+  const { isAdmin, realAdmin, ready: adminReady } = useAdmin();
   const [me, setMe] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -118,14 +118,26 @@ export default function Feedback() {
     if (got.error) got = await ask(BASE);
     setMessages(((got.data ?? []) as unknown as Message[])
       .map((m) => ({ ...m, images: m.images ?? [] })));
-    // Opening it is reading it. The trigger keeps each side to its own column,
-    // so this cannot clear the other side's mark.
-    const column = isAdmin ? "seen_admin" : "seen_author";
+    /*
+     * Opening it is reading it.
+     *
+     * Both columns are sent and the trigger keeps whichever is yours, reverting
+     * the other — which is the point. Deciding it here meant reading isAdmin,
+     * and isAdmin is answered by a query of its own: click a thread before that
+     * lands and an admin stamped seen_author, the trigger put it back, nothing
+     * was marked, and the dot stayed for good. The database already knows which
+     * side you are on; asking the browser to know it first was the mistake.
+     */
+    const now = new Date().toISOString();
     await supabase.from("feedback_threads")
-      .update({ [column]: new Date().toISOString() }).eq("id", id);
+      .update({ seen_author: now, seen_admin: now }).eq("id", id);
+    // Cleared here as well as fetched again: a dot that waits for a round trip
+    // to go out is a dot that looks like it did not work.
+    setThreads((list) => list.map((x) => (
+      x.id === id ? { ...x, seen_author: now, seen_admin: now } : x)));
     void loadThreads();
     setTimeout(() => foot.current?.scrollIntoView({ block: "nearest" }), 50);
-  }, [supabase, isAdmin, loadThreads]);
+  }, [supabase, loadThreads]);
 
   /**
    * The attached files, uploaded, as URLs — or null if one of them would not go.
@@ -208,8 +220,26 @@ export default function Feedback() {
 
   /** Unanswered from where you are sitting: something arrived after you last looked. */
   const unread = (x: Thread) => {
-    const seen = isAdmin ? x.seen_admin : x.seen_author;
-    return !seen || new Date(x.updated_at) > new Date(seen);
+    // Nothing until the answer is known. isAdmin starts false while its query is
+    // in flight, and guessing "not an admin" for that moment drew a dot on every
+    // thread an admin had already read.
+    if (!adminReady) return false;
+    /*
+     * realAdmin rather than isAdmin, deliberately.
+     *
+     * isAdmin is the admin switch — an admin who turns their powers off to see
+     * what everybody else sees. The database has no such switch: is_admin() is
+     * what decides which column the trigger stamps, and it answers realAdmin.
+     * Reading the other column would mean an admin browsing with the switch off
+     * kept a dot on every thread they had just read.
+     */
+    const seen = realAdmin ? x.seen_admin : x.seen_author;
+    if (!seen) return true;
+    // A second's grace, in case marking a thread read ever ends up stamping
+    // updated_at alongside it: the two would land microseconds apart in
+    // whichever order the database evaluated them, and a strict comparison
+    // would leave a dot on a thread that had just been read, for ever.
+    return new Date(x.updated_at).getTime() - new Date(seen).getTime() > 1000;
   };
 
   return (

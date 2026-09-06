@@ -43,7 +43,7 @@ export default function HotExplainer() {
           <li>
             {th
               ? "popoto นับสองเท่าของคอมเมนต์ เพราะกดยากกว่าและตั้งใจกว่า"
-              : "A potato counts double a comment: it is the more deliberate of the two."}
+              : "A popoto counts double a comment: it is the more deliberate of the two."}
           </li>
           <li>
             {th
@@ -67,7 +67,7 @@ export default function HotExplainer() {
           ) : (
             <>
               Because the fade is exponential,{" "}
-              <b className="text-ink">doubling the potatoes buys only two more days</b>.
+              <b className="text-ink">doubling the popoto buys only two more days</b>.
               A picture with ten is overtaken by a brand new one after about eight
               days; one with a hundred lasts about six days longer than that, not
               ten times as long.

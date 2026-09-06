@@ -149,7 +149,7 @@ export default function LeaderboardIntro(
               <br />
               The first is Send popoto on somebody&rsquo;s profile, once per person per
               day, so its total matches the number on that member&rsquo;s own page
-              exactly. The second adds up the potatoes on every picture they have
+              exactly. The second adds up the popoto on every picture they have
               posted, credited to the character a picture belongs to rather than
               whoever uploaded it.
             </>
