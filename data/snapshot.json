@@ -4687,7 +4687,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 100,
+  "level": 99,
   "cc": [
    true,
    true,
@@ -6730,7 +6730,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 100,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -6748,7 +6748,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -7411,7 +7411,7 @@
   "mounts": 81,
   "minions": 155,
   "rare": null,
-  "level": 59,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -7432,7 +7432,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -10626,7 +10626,7 @@
    "BlackMage": "master",
    "Dragoon": "legendary",
    "Bard": "master",
-   "Summoner": "master",
+   "Summoner": "expert",
    "Samurai": "expert",
    "Gunbreaker": "expert"
   },
@@ -11102,7 +11102,7 @@
   "jobs": {
    "Scholar": "expert",
    "Warrior": "legendary",
-   "Paladin": "expert"
+   "Gunbreaker": "expert"
   },
   "ex": [],
   "ults": [
@@ -11734,7 +11734,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "master"
+   "Scholar": "expert"
   },
   "ex": [
    "Queen Eternal",
@@ -11765,9 +11765,7 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {
-   "DarkKnight": "expert"
-  },
+  "jobs": {},
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
@@ -12833,6 +12831,7 @@
   "tiers": {},
   "jobs": {
    "Reaper": "legendary",
+   "Ninja": "expert",
    "DarkKnight": "legendary"
   },
   "ex": [],
@@ -12952,7 +12951,7 @@
   "tiers": {},
   "jobs": {
    "Reaper": "legendary",
-   "Dragoon": "expert"
+   "Dragoon": "master"
   },
   "ex": [],
   "ults": [
@@ -14170,7 +14169,7 @@
  },
  "36151779": {
   "name": "Percival Heisenberg",
-  "parse": 97,
+  "parse": 100,
   "ult": 1,
   "mounts": 53,
   "minions": 57,
@@ -14187,7 +14186,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "expert",
-   "Paladin": "master",
+   "Paladin": "legendary",
    "DarkKnight": "master"
   },
   "ex": [
@@ -14197,7 +14196,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "718420": {
   "name": "Phantasm Gloria",
@@ -14359,7 +14358,7 @@
  },
  "25541816": {
   "name": "Presca Burgstalgen",
-  "parse": 62,
+  "parse": 78,
   "ult": 0,
   "mounts": 35,
   "minions": 103,
@@ -14374,10 +14373,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Ninja": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-06"
  },
  "60780260": {
   "name": "Priscilla Deusvult",
@@ -14665,7 +14666,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Warrior": "expert",
+   "Warrior": "legendary",
    "Paladin": "master",
    "RedMage": "expert"
   },
@@ -14681,7 +14682,7 @@
  },
  "40624820": {
   "name": "Rin Miyauchi",
-  "parse": 35,
+  "parse": 41,
   "ult": 1,
   "mounts": 91,
   "minions": 152,
@@ -14722,11 +14723,11 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-31"
+  "chg": "2026-09-06"
  },
  "29901287": {
   "name": "Rishima Garaine",
-  "parse": 59,
+  "parse": 88,
   "ult": 1,
   "mounts": 137,
   "minions": 336,
@@ -14741,12 +14742,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Sage": "legendary"
+  },
   "ex": [],
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "42646897": {
   "name": "Rising Top",
@@ -14772,7 +14775,7 @@
  },
  "36225854": {
   "name": "Roku Roku",
-  "parse": null,
+  "parse": 76,
   "ult": 0,
   "mounts": 25,
   "minions": 82,
@@ -14787,10 +14790,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "RedMage": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "30472222": {
   "name": "Rossete Sacrifar",
@@ -14873,7 +14878,7 @@
  },
  "29395299": {
   "name": "Runie Run",
-  "parse": 98,
+  "parse": 99,
   "ult": 4,
   "mounts": 38,
   "minions": 83,
@@ -14899,7 +14904,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "31710850": {
   "name": "Ryoshi Headhunter",
@@ -15317,7 +15322,7 @@
  },
  "37236539": {
   "name": "Shivan Ryse",
-  "parse": null,
+  "parse": 16,
   "ult": 0,
   "mounts": 94,
   "minions": 207,
@@ -15335,7 +15340,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "32027062": {
   "name": "Sir Colaz",
@@ -15449,6 +15454,7 @@
   "jobs": {
    "Viper": "master",
    "Samurai": "legendary",
+   "Reaper": "legendary",
    "Machinist": "expert",
    "Paladin": "expert"
   },
@@ -15551,8 +15557,9 @@
   "jobs": {
    "Viper": "legendary",
    "Ninja": "legendary",
-   "Bard": "master",
+   "Bard": "legendary",
    "Dragoon": "master",
+   "Reaper": "master",
    "Samurai": "legendary"
   },
   "ex": [
@@ -15696,7 +15703,7 @@
  },
  "36164592": {
   "name": "Synyster Gionni",
-  "parse": 67,
+  "parse": 99,
   "ult": 4,
   "mounts": 34,
   "minions": 44,
@@ -15712,7 +15719,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Samurai": "expert"
+   "Samurai": "legendary"
   },
   "ex": [],
   "ults": [
@@ -15721,7 +15728,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "43282900": {
   "name": "Takumi Yuki",
@@ -15867,7 +15874,9 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Gunbreaker": "master"
+   "Samurai": "expert",
+   "Gunbreaker": "master",
+   "Reaper": "legendary"
   },
   "ex": [],
   "ults": [

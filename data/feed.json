@@ -3,6 +3,167 @@
   {
    "date": "2026-09-06",
    "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "is now a Expert Ninja"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 34184163,
+   "name": "Moji Momiji",
+   "text": "is now a Master Dragoon"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "set a new best parse: 100 on Hesperos as Paladin"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "is now a Legendary Paladin"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 25541816,
+   "name": "Presca Burgstalgen",
+   "text": "set a new best parse: 78 on Erichthonios as Ninja"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 25541816,
+   "name": "Presca Burgstalgen",
+   "text": "is now a Expert Ninja"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "is now a Legendary Warrior"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 40624820,
+   "name": "Rin Miyauchi",
+   "text": "set a new best parse: 41 on Erichthonios as Warrior"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 29901287,
+   "name": "Rishima Garaine",
+   "text": "set a new best parse: 88 on Erichthonios as Sage"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 29901287,
+   "name": "Rishima Garaine",
+   "text": "is now a Legendary Sage"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 36225854,
+   "name": "Roku Roku",
+   "text": "set a new best parse: 76 on Erichthonios as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 36225854,
+   "name": "Roku Roku",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 29395299,
+   "name": "Runie Run",
+   "text": "set a new best parse: 99 on Erichthonios as Paladin"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 37236539,
+   "name": "Shivan Ryse",
+   "text": "set a new best parse: 16 on Erichthonios as Samurai"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "is now a Legendary Reaper"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "is now a Legendary Bard"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "is now a Master Reaper"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "set a new best parse: 99 on Erichthonios as Samurai"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 36164592,
+   "name": "Synyster Gionni",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 39073020,
+   "name": "Toasted Bread",
+   "text": "is now a Expert Samurai"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 39073020,
+   "name": "Toasted Bread",
+   "text": "is now a Legendary Reaper"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
    "id": 36130968,
    "name": "Chu Celestial",
    "text": "reached level 100 on Machinist!"
@@ -1238,167 +1399,6 @@
    "id": 31239994,
    "name": "Sopier Kit",
    "text": "is now a Expert Machinist"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "is now a Expert Paladin"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 48152565,
-   "name": "Yuma Miretmoor",
-   "text": "is now a Expert Pictomancer"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 48152565,
-   "name": "Yuma Miretmoor",
-   "text": "is now a Expert Reaper"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "set a new best parse: 91 on Proto-Carbuncle as Dancer"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "is now a Master Dancer"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 31001697,
-   "name": "Flora Neuenmuller",
-   "text": "set a new best parse: 93 on Agdistis as Dancer"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 16099244,
-   "name": "Luna Froggo",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "set a new best parse: 67 on Hegemone as Dancer"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "set a new best parse: 98 on Hegemone as Astrologian"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "is now a Legendary Astrologian"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 35158574,
-   "name": "Rikka Haulia",
-   "text": "is now a Expert Samurai"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 3256238,
-   "name": "Ai Tsukuyomi",
-   "text": "set a new best parse: 25 on Proto-Carbuncle as Blac\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "grade_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "is now a Legendary Relic grinder ✨"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "grade_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "is now a Master Explorer ✨"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Cut Above the Rest: Star Globe Occultum — only 0.6% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 32147756,
-   "name": "Bunny Nirawz",
-   "text": "is now a Master Ninja"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "is now a Expert Monk"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "set a new best parse: 81 on Kokytos as Warrior"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 5294880,
-   "name": "Mithra Muses",
-   "text": "set a new best parse: 78 on Pandaemonium as Warrior"
   }
  ]
 }
