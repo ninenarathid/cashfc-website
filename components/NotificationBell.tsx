@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import { postPath } from "@/lib/gallery";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
+import { toast } from "@/components/ui/Toast";
 
 interface Note {
   id: number;
@@ -178,6 +179,15 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   /**
+   * The ids already accounted for, so a toast is raised once and only for what
+   * arrived while somebody was here.
+   *
+   * Null until the first load has been read: everything in that first page is
+   * from before this session, and announcing twenty things somebody has already
+   * seen the moment they open a page is worse than announcing none of them.
+   */
+  const seen = useRef<Set<number> | null>(null);
+  /**
    * Everything, for when the twenty in the panel are not far enough back.
    *
    * The panel is a panel: it hangs off a button, it is read standing up, and a
@@ -280,6 +290,77 @@ export default function NotificationBell() {
     const id = setInterval(() => { if (!document.hidden) void load(); }, POLL_MS);
     return () => clearInterval(id);
   }, [load]);
+
+  /**
+   * Anything new in the list, said in the corner as well as filed in the bell.
+   *
+   * Watches the list rather than being called by whatever fetched it. Doing it
+   * inside the fetch meant the fetch had to depend on the faces and the
+   * pictures it had just stored, which changed its identity every time it ran —
+   * and the effect that holds the poll and the live subscription depends on the
+   * fetch, so the two of them chased each other round, tearing the subscription
+   * down and putting it back up on a loop. Watching the result instead breaks
+   * the circle: nothing the announcing needs is anything the fetching reads.
+   *
+   * Unread only, and never on the first pass. The bell is the record of what
+   * you missed; this is for what arrives while you are still here, and a page
+   * that greets you with six toasts for things you read yesterday has
+   * misunderstood which of the two it is.
+   */
+  useEffect(() => {
+    if (seen.current === null) {
+      seen.current = new Set(notes.map((n) => n.id));
+      return;
+    }
+    // Oldest first, so two arriving together stack in the order they happened.
+    for (const n of [...notes].reverse()) {
+      if (seen.current.has(n.id)) continue;
+      seen.current.add(n.id);
+      if (n.read_at) continue;
+      const kind = KIND[n.kind];
+      const line = n.kind === "announcement"
+        ? t("notif.announced")
+        : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something");
+      const actor = n.actor ? people[n.actor] : undefined;
+      const face = actor?.characterId != null
+        ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
+      toast({
+        text: line,
+        image: n.post_id ? covers[n.post_id] ?? face : face,
+        badge: kind?.icon,
+        href: n.kind === "popoto"
+          ? (character != null ? `/member/${character}` : "/profile")
+          : n.post_id ? postPath(n.post_id) : (kind?.href || null),
+      });
+    }
+    // Only the list matters. The faces and pictures are read as they are at the
+    // moment a row appears, and a toast is not redrawn when one arrives later.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes]);
+
+  /**
+   * Told rather than asked, for the moment somebody is actually here.
+   *
+   * A minute and a half is fine for a bell nobody is looking at and far too
+   * long for "Aqua just sent you a potato" — by the time the poll came round
+   * the moment it belonged to has passed. The row is filtered to this account
+   * in the subscription and again by the read policy underneath it, so what
+   * arrives here is only ever yours.
+   *
+   * The poll stays as the floor. If the table is not in the realtime
+   * publication, or the socket cannot be opened, this is late rather than
+   * missing.
+   */
+  useEffect(() => {
+    if (!supabase || !me) return;
+    const channel = supabase.channel(`notifications:${me}`)
+      .on("postgres_changes",
+          { event: "INSERT", schema: "public", table: "notifications",
+            filter: `recipient=eq.${me}` },
+          () => { void load(); })
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [supabase, me, load]);
 
   // Clicking anywhere else puts it away, which is what everybody expects of a
   // panel hanging off a button.

@@ -3,6 +3,7 @@ import { Mitr, Noto_Sans_Thai_Looped, Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import CommandPalette from "@/components/CommandPalette";
+import ToastHost from "@/components/ui/Toast";
 import { TooltipProvider } from "@/components/ui/Tooltip";
 import roster from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
@@ -89,6 +90,9 @@ export default function RootLayout({
               waits, and moving straight to the next shows it at once. */}
           <TooltipProvider>
           <CommandPalette members={index} />
+          {/* Outside the page's own column, because it is pinned to the window
+              rather than to anything on the page. */}
+          <ToastHost />
           <div className="mx-auto max-w-5xl px-4 pb-16">
             <Nav />
             {children}
