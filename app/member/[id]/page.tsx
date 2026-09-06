@@ -131,6 +131,9 @@ export default async function Page(
       patch={coll.patch ?? null}
       art={dutyArtMap()}
       extremeTotal={(data.extremes ?? []).length}
+      // The list, not only the count: the page draws a card for every
+      // trial of the patch, including the ones nobody has queued for.
+      extremeNames={data.extremes ?? []}
       tierLabels={data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"]}
       agg={agg}
       // Faces as well as names: a tag pinned to a picture shows the character

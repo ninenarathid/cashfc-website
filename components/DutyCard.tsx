@@ -89,22 +89,42 @@ export default function DutyCard(
   const total = kills;
   return (
     <div
-      style={art ? {
-        backgroundImage:
-          // Up from the floor, not across from the left. A tall card wants its
-          // caption band along the bottom; the left-to-right wash this replaces
-          // put a dark column down one side and did nothing for the rest.
-          `linear-gradient(to top, rgba(18,22,29,0.97) 0%, rgba(18,22,29,0.9) 24%, rgba(18,22,29,0.4) 56%, rgba(18,22,29,0.12) 100%), url(${art})`,
-        backgroundSize: "cover",
-        // Top by default: `cover` crops whatever does not fit, a 16:9 shot in a
-        // 3.5:1 card loses two thirds of its height, and a screenshot almost
-        // always keeps its subject in the upper half. Almost — hence the
-        // override the caller can pass.
-        backgroundPosition: focus,
-      } : undefined}
-      className={`flex min-h-[150px] justify-between gap-3 overflow-hidden rounded-xl border px-3.5 py-3 ${
+      className={`relative flex min-h-[150px] overflow-hidden rounded-xl border px-3.5 py-3 ${
         art ? "items-end" : "items-center"} ${
-        dim ? "border-dashed border-line opacity-60" : "border-line bg-surface"}`}>
+        dim ? "border-dashed border-line" : "border-line"} ${
+        art ? "" : "bg-surface"}`}>
+      {/*
+        The picture is its own layer rather than a background on the card.
+        Not cleared means the fight is shown greyed and out of focus — the FC
+        can see what is still ahead of them without it looking like a clear —
+        and a filter on the card itself would have taken the name and the badge
+        down with it. Behind the words, so they stay sharp and readable.
+      */}
+      {art && (
+        <div aria-hidden
+             style={{
+               backgroundImage:
+                 // Up from the floor, not across from the left. A tall card
+                 // wants its caption band along the bottom; the left-to-right
+                 // wash this replaces put a dark column down one side and did
+                 // nothing for the rest.
+                 `linear-gradient(to top, rgba(18,22,29,0.97) 0%, rgba(18,22,29,0.9) 24%, rgba(18,22,29,0.4) 56%, rgba(18,22,29,0.12) 100%), url(${art})`,
+               backgroundSize: "cover",
+               // Top by default: `cover` crops whatever does not fit, a 16:9
+               // shot in a 3.5:1 card loses two thirds of its height, and a
+               // screenshot almost always keeps its subject in the upper half.
+               // Almost — hence the override the caller can pass.
+               backgroundPosition: focus,
+               // Scaled a little past the edges, or the blur would show the
+               // card's own corners through a soft rim.
+               ...(dim ? { filter: "grayscale(1) blur(3px)", transform: "scale(1.06)" }
+                       : null),
+             }}
+             className="pointer-events-none absolute inset-0" />
+      )}
+      {/* Everything below sits over the picture. */}
+      <div className={`relative z-10 flex w-full min-w-0 items-center justify-between gap-3 ${
+        dim ? "opacity-65" : ""}`}>
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
           {badge}
@@ -165,6 +185,7 @@ export default function DutyCard(
       <div className="shrink-0 font-data text-xl font-semibold"
            style={{ color: parseColor(best ?? null) }}>
         {best ?? "—"}
+      </div>
       </div>
     </div>
   );

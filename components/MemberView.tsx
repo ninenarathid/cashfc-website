@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import type { JobKills, Member, MemberRaids, Overlay, RaidEncounter, RaidZone, UltimateEntry } from "@/lib/types";
+import type { ExtremeEntry, JobKills, Member, MemberRaids, Overlay, RaidEncounter, RaidZone, UltimateEntry } from "@/lib/types";
 import {
   BOARD_QUERY_KEY, LFG_OPTIONS, ON_VACATION_RANK, isOnVacation, formatBirthday,
   ultimateAbbr,
+  ULTIMATE_ABBR,
 } from "@/lib/types";
 import { percentile } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
@@ -46,6 +47,7 @@ const bannerFor = (accent: string) =>
 export default function MemberView({
   m, raids, tierLabels, agg, fc, rareAchievements = [],
   rareMounts = [], rareMinions = [], patch = null, art = NO_ART, extremeTotal,
+  extremeNames = [],
   memberOptions = [],
 }: {
   m: Member;
@@ -59,6 +61,15 @@ export default function MemberView({
   art?: DutyArt;
   /** How many extreme trials this patch has, for the "cleared x of y" chip. */
   extremeTotal?: number;
+  /**
+   * Every extreme trial of the current patch, by name.
+   *
+   * The denominator, and the list itself. A member's own rows only cover the
+   * fights they have logs for, so a page built from those alone said "6 of 6"
+   * to somebody who had done six of eight — the two they had never queued for
+   * were not missing from the count, they were missing from the question.
+   */
+  extremeNames?: string[];
   tierLabels: string[];
   agg: { mounts: (number | null)[]; minions: (number | null)[]; rare: (number | null)[] };
   fc: { name: string; world: string; region: string };
@@ -193,7 +204,74 @@ export default function MemberView({
   // In the order the patches released them, not the order FF Logs happens to
   // return. "EX1 through EX7" is how this tier is talked about, and a list that
   // is not in that order has to be read rather than glanced at.
-  const extremes = byReleaseOrder(raids?.extremes ?? []);
+  /**
+   * Every Ultimate there is, with this member's rows folded into it.
+   *
+   * FF Logs files the same Ultimate under its own zone and again under
+   * "Ultimates (Legacy)", so a member who killed it twice on two jobs came out
+   * as two identical cards — same picture, same name, one of them quietly
+   * claiming fewer kills than they have. Merged by fight, and then filled out
+   * to the whole list so the ones still ahead of them are on the page as well:
+   * seven is the number of Ultimates, whatever any one member has logs for.
+   *
+   * A clear the Lodestone knows about and FF Logs never saw counts as cleared.
+   * It is not a lesser Ultimate for having gone unlogged.
+   */
+  const ultimates = useMemo(() => {
+    type Card = UltimateEntry & {
+      jobs: (string | null | undefined)[]; job_kills: JobKills; done: boolean;
+    };
+    const by: Record<string, Card> = {};
+    for (const u of raids?.ultimates ?? []) {
+      const key = u.name ?? u.zone ?? String(u.zone_id);
+      const at = by[key] ?? { ...u, kills: 0, best: null, jobs: [], job_kills: {}, done: true };
+      at.kills = (at.kills ?? 0) + (u.kills ?? 0);
+      for (const [job, r] of Object.entries(u.job_kills ?? {})) {
+        const had = at.job_kills[job];
+        at.job_kills[job] = {
+          kills: (had?.kills ?? 0) + r.kills,
+          best: r.best != null && (had?.best == null || r.best > had.best)
+            ? r.best : had?.best ?? null,
+        };
+      }
+      if (u.best != null && (at.best == null || u.best > at.best)) at.best = u.best;
+      if (u.job && !at.jobs.includes(u.job)) at.jobs.push(u.job);
+      by[key] = at;
+    }
+    for (const name of m.ult_achv_only ?? []) {
+      by[name] ??= { zone: "", zone_id: 0, name, best: null, kills: 0, job: null,
+                     cleared: true, jobs: [], job_kills: {}, done: true };
+    }
+    // The rest of them, in the order they were released.
+    for (const name of Object.keys(ULTIMATE_ABBR)) {
+      by[name] ??= { zone: "", zone_id: 0, name, best: null, kills: 0, job: null,
+                     cleared: false, jobs: [], job_kills: {}, done: false };
+    }
+    const order = Object.keys(ULTIMATE_ABBR);
+    return Object.values(by).sort((a, b) =>
+      order.indexOf(a.name ?? "") - order.indexOf(b.name ?? ""));
+  }, [raids?.ultimates, m.ult_achv_only]);
+
+  /**
+   * Every extreme trial of the patch, with this member's row where they have one.
+   *
+   * Built from the patch's list rather than from their logs. A fight they have
+   * never set foot in still gets a card — greyed, blurred, and counted in the
+   * denominator — because "which ones are left" is the question somebody opens
+   * this tab to answer, and a list of only what they have done cannot answer it.
+   */
+  const extremes = useMemo(() => {
+    const had = raids?.extremes ?? [];
+    if (!extremeNames.length) return byReleaseOrder(had);
+    const by = new Map(had.map((e) => [e.name ?? "", e]));
+    const rows = extremeNames.map((name) => by.get(name) ?? {
+      zone: "", zone_id: 0, name, best: null, kills: 0, job: null, cleared: false,
+    } as ExtremeEntry);
+    // Anything logged under a name the patch list does not carry — a trial from
+    // an earlier patch they happen to have a row for — keeps its card.
+    for (const e of had) if (!extremeNames.includes(e.name ?? "")) rows.push(e);
+    return byReleaseOrder(rows);
+  }, [raids?.extremes, extremeNames]);
 
   // Why the collection tiles are empty, which decides what this member has to do
   // about it: never looked up on FFXIV Collect at all, or looked up but keeping
@@ -554,7 +632,8 @@ export default function MemberView({
                             }
                             cleared={!!cleared} kills={enc?.kills} jobs={[enc?.job]}
                             breakdown={enc?.job_kills}
-                            best={enc?.best} dim={!enc && !cleared}
+                            // Not cleared is not cleared, logs or no logs.
+                            best={enc?.best} dim={!cleared}
                             art={art.savage[dutySlug(enc?.name)]}
                               focus={artFocus(dutySlug(enc?.name))} />
                 ))}
@@ -591,7 +670,7 @@ export default function MemberView({
                 Ultimate raids
               </>
             ),
-            hint: (raids?.ultimates?.length ?? 0) + (m.ult_achv_only?.length ?? 0),
+            hint: `${ultimates.filter((u) => u.done).length}/${ultimates.length}`,
             body: (
               <div className="flex flex-col gap-4">
         <div className="grid gap-2 sm:grid-cols-2">
@@ -600,40 +679,11 @@ export default function MemberView({
                         so a member who killed it twice on two jobs came out as
                         two identical cards — same picture, same name, one of
                         them quietly claiming fewer kills than they have. */}
-                    {Object.values(
-                      (raids!.ultimates!).reduce((acc, u) => {
-                        const key = u.name ?? u.zone ?? String(u.zone_id);
-                        const at = acc[key] ?? {
-                          ...u, kills: 0, best: null as number | null,
-                          jobs: [] as (string | null | undefined)[],
-                          job_kills: {} as JobKills,
-                        };
-                        at.kills = (at.kills ?? 0) + (u.kills ?? 0);
-                        // Same fight, two filings: add the per-job kills up the
-                        // same way the total is added up, or the card would
-                        // report one zone's worth against everybody's total.
-                        for (const [job, r] of Object.entries(u.job_kills ?? {})) {
-                          const had = at.job_kills[job];
-                          at.job_kills[job] = {
-                            kills: (had?.kills ?? 0) + r.kills,
-                            best: r.best != null && (had?.best == null || r.best > had.best)
-                              ? r.best : had?.best ?? null,
-                          };
-                        }
-                        // The best pull across every zone it was logged in: the
-                        // number belongs to the person, not to FF Logs' filing.
-                        if (u.best != null && (at.best == null || u.best > at.best)) at.best = u.best;
-                        if (u.job && !at.jobs.includes(u.job)) at.jobs.push(u.job);
-                        acc[key] = at;
-                        return acc;
-                      }, {} as Record<string, UltimateEntry
-                                            & { jobs: (string | null | undefined)[] }
-                                            & { job_kills: JobKills }>),
-                    ).map((u, i) => {
-                      // Prefer the fight name over the zone: FF Logs groups five
+                    {ultimates.map((u, i) => {
+                      // The fight rather than the zone: FF Logs groups five
                       // different Ultimates under zones named "Ultimates",
-                      // "Ultimates (Legacy)" and "Ultimates (Stormblood)", which
-                      // say nothing about what was cleared.
+                      // "Ultimates (Legacy)" and "Ultimates (Stormblood)",
+                      // which say nothing about what was cleared.
                       const title = u.name ?? u.zone;
                       const short = u.name ? ultimateAbbr(u.name) : null;
                       return (
@@ -644,31 +694,25 @@ export default function MemberView({
                                       {short}
                                     </span>
                                   ) : undefined}
-                                  cleared kills={u.kills} jobs={u.jobs}
+                                  cleared={u.done} kills={u.kills} jobs={u.jobs}
                                   breakdown={u.job_kills} best={u.best}
+                                  dim={!u.done}
                                   art={art.ultimate[dutySlug(u.name)]}
-                              focus={artFocus(dutySlug(u.name))} />
+                                  focus={artFocus(dutySlug(u.name))} />
                       );
                     })}
                   </div>
-        <div className="flex flex-wrap gap-2">
-                    {m.ult_achv_only!.map((name) => (
-                      <span key={name}
-                            className="inline-flex items-center gap-2 rounded-xl border border-[#c13ae0]/40 bg-[#c13ae0]/8 px-3.5 py-2 text-[13.5px]">
-                        {/* The same violet as the logged ones beside them. These
-                            are the clears FF Logs never saw; nothing about them
-                            is a lesser Ultimate, so nothing here says so. */}
-                        <span className="rounded-md border border-[#c13ae0]/45 bg-[#c13ae0]/12 px-1.5 py-[1px] font-data text-[12px] font-bold text-[#d060ea]">
-                          {ultimateAbbr(name)}
-                        </span>
-                        <span className="font-data text-ink">{name}</span>
-                      </span>
-                    ))}
-                  </div>
-                  <p className="mt-1.5 text-[12px] text-muted">
-                    Cleared according to Lodestone. Parse and kill counts need an uploaded
-                    log, so there are none to show.
-                  </p>
+        {(m.ult_achv_only?.length ?? 0) > 0 && (
+                    // The clears FF Logs never saw. They are cards in the grid
+                    // above like any other — nothing about an unlogged clear is
+                    // a lesser Ultimate — and this only explains why those ones
+                    // have no numbers on them.
+                    <p className="text-[12px] text-muted">
+                      {m.ult_achv_only!.map((n) => ultimateAbbr(n)).join(", ")}
+                      {" — cleared according to Lodestone. Parse and kill counts need an "}
+                      uploaded log, so there are none to show.
+                    </p>
+                  )}
               </div>
             ),
           }] : []),
