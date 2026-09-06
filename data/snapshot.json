@@ -1699,7 +1699,7 @@
   "mounts": 105,
   "minions": 135,
   "rare": 62,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -1796,7 +1796,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -1912,7 +1912,7 @@
   "mounts": 159,
   "minions": 239,
   "rare": 62,
-  "level": 90,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2003,7 +2003,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-02"
+  "chg": "2026-09-06"
  },
  "47540663": {
   "name": "Edel Meither",
@@ -2175,7 +2175,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 28,
-  "level": 32,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2383,7 +2383,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -2396,7 +2396,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -4477,7 +4477,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 80,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4504,7 +4504,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -4687,7 +4687,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 95,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4814,7 +4814,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6501,7 +6501,7 @@
   "mounts": 67,
   "minions": 95,
   "rare": 31,
-  "level": 79,
+  "level": 54,
   "cc": [
    false,
    false,
@@ -7000,14 +7000,14 @@
   "mounts": 7,
   "minions": 15,
   "rare": null,
-  "level": 69,
+  "level": 70,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-06"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -7198,7 +7198,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8305,7 +8305,7 @@
  },
  "4505633": {
   "name": "Arcz Iris",
-  "parse": 35,
+  "parse": 41,
   "ult": 0,
   "mounts": 91,
   "minions": 225,
@@ -8329,7 +8329,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "60814172": {
   "name": "Ardthur Greywaters",
@@ -8939,7 +8939,7 @@
  },
  "43423269": {
   "name": "Bladez Sweeney",
-  "parse": 87,
+  "parse": 98,
   "ult": 1,
   "mounts": 67,
   "minions": 127,
@@ -8956,6 +8956,7 @@
   "tiers": {},
   "jobs": {
    "Ninja": "master",
+   "Paladin": "legendary",
    "Monk": "master"
   },
   "ex": [
@@ -8967,7 +8968,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "47658617": {
   "name": "Bogotaz Lucaz",
@@ -9728,7 +9729,7 @@
    "DarkKnight": "master",
    "Samurai": "legendary",
    "Sage": "legendary",
-   "Astrologian": "expert",
+   "Astrologian": "master",
    "WhiteMage": "expert",
    "Scholar": "expert"
   },
@@ -9846,7 +9847,7 @@
   ],
   "tiers": {},
   "jobs": {
-   "Samurai": "expert"
+   "Samurai": "master"
   },
   "ex": [
    "Valigarmanda",
@@ -10028,7 +10029,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dragoon": "master"
+   "Dragoon": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -15941,7 +15942,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -15954,7 +15955,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
@@ -16474,7 +16475,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,

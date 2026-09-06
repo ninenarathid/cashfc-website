@@ -2,6 +2,83 @@
  "events": [
   {
    "date": "2026-09-06",
+   "type": "level_100",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "reached level 100 on Monk!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
+   "id": 6951533,
+   "name": "Aemond Targaryen",
+   "text": "reached level 100 on Dragoon!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 4505633,
+   "name": "Arcz Iris",
+   "text": "set a new best parse: 41 on Black Cat as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 43423269,
+   "name": "Bladez Sweeney",
+   "text": "set a new best parse: 98 on Honey B. Lovely as Paladin"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 43423269,
+   "name": "Bladez Sweeney",
+   "text": "is now a Legendary Paladin"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Master Astrologian"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 40394823,
+   "name": "Dummii Amary",
+   "text": "is now a Master Samurai"
+  },
+  {
+   "date": "2026-09-06",
    "type": "rare_up",
    "id": 38152072,
    "name": "Parker Thonhart",
@@ -1322,83 +1399,6 @@
    "id": 42976317,
    "name": "Zeadz Stellar",
    "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "level_100",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "level_100",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "new_member",
-   "id": 44085912,
-   "name": "Mayu Ferguson",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "earned Phantom of the Umbra: Sword & Kite Shield Umbrae"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned With Pick in Hand VII — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Phantom of the Umbra: Codex Umbrae — only 4.8% of players have it"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 8836061,
-   "name": "Allusia Heartfilia",
-   "text": "earned To Each According to His Need: Maelstrom III"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 57885671,
-   "name": "Aisu Kazimira",
-   "text": "earned Thankful Thirteen — only 2.0% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "is now a Expert PvP player ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "minions_up",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "passed 200 minions"
   }
  ]
 }
