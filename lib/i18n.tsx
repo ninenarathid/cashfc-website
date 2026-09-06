@@ -983,6 +983,16 @@ const DICT = {
     en: "Clear",
     th: "ล้าง",
   },
+  "adm.onlyDeleted": {
+    en: "Deleted only",
+    th: "เฉพาะที่ถูกลบ",
+  },
+  "adm.restore": { en: "Restore", th: "กู้คืน" },
+  "adm.restoring": { en: "Restoring…", th: "กำลังกู้คืน…" },
+  "adm.restoreConfirm": {
+    en: "Put this {what} back exactly as it was?",
+    th: "กู้ {what} นี้กลับมาเหมือนเดิมทุกอย่างไหม?",
+  },
   "adm.log": {
     en: "Activity log",
     th: "บันทึกการใช้งาน",

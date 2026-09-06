@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
 import { postPath } from "@/lib/gallery";
 import { fmtExact } from "@/lib/dates";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 interface Line {
   id: number;
@@ -288,6 +289,13 @@ export default function AdminLog(
   const [since, setSince] = useState("");
   const [until, setUntil] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
+  // Only deletions, for when the log is being read as the place a row went
+  // rather than as a record of what happened.
+  const [onlyGone, setOnlyGone] = useState(false);
+  /** What the database said about each attempt, against the line it was for. */
+  const [restored, setRestored] = useState<Record<number, string>>({});
+  const [putting, setPutting] = useState<number | null>(null);
+  const [ask, setAsk] = useState<{ id: number; what: string } | null>(null);
 
   const fetchPage = useCallback(async (from: number, replace: boolean) => {
     if (!supabase) return;
@@ -302,6 +310,7 @@ export default function AdminLog(
     // — otherwise "today" quietly means whatever today is in UTC.
     if (since) q = q.gte("at", new Date(`${since}T00:00:00`).toISOString());
     if (until) q = q.lte("at", new Date(`${until}T23:59:59.999`).toISOString());
+    if (onlyGone) q = q.like("action", "%.delete");
     const kinds = FILTERS.find((f) => f.value === kind)?.kinds ?? [];
     if (kinds.length === 1) q = q.eq("target_kind", kinds[0]);
     else if (kinds.length > 1) q = q.in("target_kind", kinds);
@@ -310,7 +319,7 @@ export default function AdminLog(
     setLines((prev) => (replace ? rows : [...prev, ...rows]));
     setMore(rows.length === PAGE);
     setLoading(false);
-  }, [supabase, who, kind, since, until]);
+  }, [supabase, who, kind, since, until, onlyGone]);
 
   // Typing a name runs ahead of the database, so the query waits for a pause.
   useEffect(() => {
@@ -320,6 +329,23 @@ export default function AdminLog(
 
   const when = (iso: string) =>
     fmtExact(iso);
+
+  /**
+   * Put a deleted row back where it came from.
+   *
+   * The whole row is in the log — the audit trigger writes it on the way out —
+   * so this is the database reading its own record rather than anything being
+   * reconstructed. What it says comes back verbatim: restoring a picture whose
+   * post is still deleted has to fail, and "restore what it belonged to first"
+   * is the useful answer rather than an error nobody can act on.
+   */
+  async function putBack(id: number) {
+    if (!supabase || putting != null) return;
+    setPutting(id);
+    const { data, error } = await supabase.rpc("restore_deleted", { p_id: id });
+    setPutting(null);
+    setRestored((v) => ({ ...v, [id]: error ? error.message : String(data) }));
+  }
 
   return (
     <section className="mt-5 rounded-xl border border-line bg-surface p-4">
@@ -358,6 +384,15 @@ export default function AdminLog(
             {t(s.label)}
           </button>
         ))}
+        {/* The one question this screen is asked when something has gone
+            missing, rather than a scroll through everything looking for it. */}
+        <button onClick={() => setOnlyGone((v) => !v)}
+                className={`rounded-lg border px-2.5 py-1.5 text-[12.5px] transition-colors ${
+                  onlyGone ? "border-chili bg-chili/10 text-chili"
+                           : "border-line text-muted hover:border-chili hover:text-chili"}`}>
+          {t("adm.onlyDeleted")}
+        </button>
+
         {(since || until) && (
           <button onClick={() => { setSince(""); setUntil(""); }}
                   className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili">
@@ -396,6 +431,25 @@ export default function AdminLog(
                   </button>
                 )}
               </div>
+              {op === "delete" && l.detail && (
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <button onClick={() => setAsk({
+                            id: l.id,
+                            what: THING[l.target_kind ?? ""]
+                              ? t(THING[l.target_kind ?? ""]) : (l.target_kind ?? ""),
+                          })}
+                          disabled={putting === l.id || restored[l.id] === "restored"}
+                          className="rounded-md border border-jade/60 px-2.5 py-0.5 text-[11.5px] text-jade hover:bg-jade/10 disabled:opacity-40">
+                    {putting === l.id ? t("adm.restoring") : t("adm.restore")}
+                  </button>
+                  {restored[l.id] && (
+                    <span className={`text-[11.5px] ${
+                      restored[l.id] === "restored" ? "text-jade" : "text-muted"}`}>
+                      {restored[l.id]}
+                    </span>
+                  )}
+                </div>
+              )}
               {summary && expanded !== l.id && (
                 <div className="mt-0.5 truncate text-[12px] text-muted">{summary}</div>
               )}
@@ -412,6 +466,13 @@ export default function AdminLog(
           <p className="py-4 text-center text-[12.5px] text-muted">{t("adm.nothingLogged")}</p>
         )}
       </div>
+
+      {ask && (
+        <ConfirmDialog message={t("adm.restoreConfirm", { what: ask.what })}
+                       confirmLabel={t("adm.restore")}
+                       onConfirm={() => { const id = ask.id; setAsk(null); void putBack(id); }}
+                       onCancel={() => setAsk(null)} />
+      )}
 
       {more && (
         <button onClick={() => fetchPage(lines.length, false)} disabled={loading}
