@@ -1127,6 +1127,10 @@ const DICT = {
     en: "Drag & drop your banner here",
     th: "ลากรูปแบนเนอร์มาวางตรงนี้",
   },
+  "profile.picUpload": {
+    en: "Upload a file",
+    th: "อัปโหลดไฟล์",
+  },
   "profile.picAvatarDrop": {
     en: "Drag & drop a new portrait",
     th: "ลากรูปโปรไฟล์มาวางตรงนี้",

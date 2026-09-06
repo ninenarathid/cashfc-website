@@ -6,6 +6,7 @@ import { useLang } from "@/lib/i18n";
 import { GALLERY_BUCKET, MAX_UPLOAD_BYTES } from "@/lib/gallery";
 import ImageCropper from "@/components/ImageCropper";
 import DropZone, { useDropTarget } from "@/components/ui/DropZone";
+import { AnimatePresence, motion } from "motion/react";
 
 /**
  * The two pictures a member chooses for themselves.
@@ -220,8 +221,54 @@ export default function ProfilePictures(
    */
   const takeFor = (which: Kind) => (files: File[]) => {
     setKind(which);
+    setZone(null);
     pickFile(files[0]);
   };
+  /**
+   * Which section has its drop zone open, if any.
+   *
+   * Drawn permanently, all three were a third of the screen given over to
+   * something most visits do not need — the page is mostly for reading what
+   * your pictures currently look like. So the button is back and the zone is
+   * what it opens, one at a time, sliding down where it used to sit.
+   *
+   * Dropping still works on the pictures themselves whether it is open or not:
+   * somebody already dragging a file should not have to put it down, find a
+   * button and pick it up again.
+   */
+  const [zone, setZone] = useState<Kind | null>(null);
+
+  /** The button that opens it, in the row where Upload always was. */
+  const uploadButton = (which: Kind) => (
+    <button onClick={() => setZone((z) => (z === which ? null : which))} disabled={busy}
+            aria-expanded={zone === which}
+            className={`rounded-lg border px-3 py-1.5 text-[12.5px] transition-colors disabled:opacity-40 ${
+              zone === which ? "border-accent bg-accent/15 text-accent"
+                             : "border-line text-muted hover:border-accent hover:text-accent"}`}>
+      {zone === which ? t("common.cancel") : t("profile.picUpload")}
+    </button>
+  );
+
+  /** And the zone itself, which is nothing at all until it is asked for. */
+  const uploadZone = (
+    which: Kind, title: string, hint: string, className = "",
+  ) => (
+    <AnimatePresence initial={false}>
+      {zone === which && (
+        <motion.div key={which}
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                    className="overflow-hidden">
+          <DropZone size="sm" paste={false} disabled={busy}
+                    onFiles={takeFor(which)} title={title} hint={hint}
+                    className={className} />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   const avatarDrop = useDropTarget({ onFiles: takeFor("avatar"), disabled: busy });
   const coverDrop = useDropTarget({ onFiles: takeFor("cover"), disabled: busy });
   const shareDrop = useDropTarget({ onFiles: takeFor("share"), disabled: busy });
@@ -326,6 +373,7 @@ export default function ProfilePictures(
                         className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                   {t("profile.picFromGallery")}
                 </button>
+                {uploadButton("avatar")}
                 {avatar && (
                   <button onClick={() => clear("avatar")} disabled={busy}
                           className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
@@ -335,9 +383,7 @@ export default function ProfilePictures(
               </div>
             </div>
           </div>
-          <DropZone size="sm" paste={false} disabled={busy}
-                    onFiles={takeFor("avatar")}
-                    title={t("profile.picAvatarDrop")} hint={t("profile.picSquareHint")} />
+          {uploadZone("avatar", t("profile.picAvatarDrop"), t("profile.picSquareHint"))}
           </div>
 
           {/* ── The cover ── */}
@@ -356,6 +402,15 @@ export default function ProfilePictures(
                 that replaces it — always drawn, never only on hover. It used to
                 appear in place of the picture and so was invisible to anybody
                 who already had one, which is everybody it was built for. */}
+            {!cover && zone !== "cover" && (
+              // No banner and the zone not open: the space it would occupy says
+              // so better than an empty grey box does.
+              <DropZone size="sm" paste={false} disabled={busy}
+                        onFiles={takeFor("cover")}
+                        title={t("profile.picCoverDrop")}
+                        hint={t("profile.picWideHint")}
+                        className="aspect-[16/5] w-full" />
+            )}
             {cover && (
               <div {...coverDrop.handlers}
                    className={`aspect-[16/5] w-full overflow-hidden rounded-xl border-2 bg-card transition-colors ${
@@ -364,16 +419,18 @@ export default function ProfilePictures(
                 <img src={cover} alt="" className="size-full object-cover" />
               </div>
             )}
-            <DropZone size="sm" paste={false} disabled={busy}
-                      onFiles={takeFor("cover")}
-                      title={cover ? t("profile.picCoverSwap") : t("profile.picCoverDrop")}
-                      hint={t("profile.picWideHint")}
-                      className={cover ? "" : "aspect-[16/5] w-full"} />
+            {uploadZone("cover",
+                        cover ? t("profile.picCoverSwap") : t("profile.picCoverDrop"),
+                        t("profile.picWideHint"))}
             <div className="flex flex-wrap gap-2">
               <button onClick={() => openGallery("cover")} disabled={busy}
                       className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                 {t("profile.picFromGallery")}
               </button>
+              {/* Only once there is a banner. With none, the full-size zone is
+                  already on screen and a button opening a second one is a
+                  second answer to a question nobody asked twice. */}
+              {cover && uploadButton("cover")}
               {cover && (
                 <button onClick={() => clear("cover")} disabled={busy}
                         className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
@@ -426,10 +483,9 @@ export default function ProfilePictures(
                 </span>
               </div>
 
-              <DropZone size="sm" paste={false} disabled={busy}
-                        onFiles={takeFor("share")}
-                        title={share ? t("profile.shareSwap") : t("profile.shareDrop")}
-                        hint={t("profile.picWideHint")} />
+              {uploadZone("share",
+                          share ? t("profile.shareSwap") : t("profile.shareDrop"),
+                          t("profile.picWideHint"))}
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[12px] text-muted">
                   {share ? t("profile.shareOwn") : t("profile.shareFromCover")}
@@ -438,6 +494,7 @@ export default function ProfilePictures(
                         className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                   {t("profile.picFromGallery")}
                 </button>
+                {uploadButton("share")}
                 {share && (
                   <button onClick={() => clear("share")} disabled={busy}
                           className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
