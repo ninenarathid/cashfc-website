@@ -357,7 +357,7 @@
   "mounts": 143,
   "minions": 287,
   "rare": null,
-  "level": 100,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -378,7 +378,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-06"
  },
  "57885671": {
   "name": "Aisu Kazimira",
@@ -1667,7 +1667,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 98,
+  "level": 99,
   "cc": [
    true,
    true,
@@ -2383,7 +2383,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 98,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -6085,7 +6085,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 82,
   "cc": [
    true,
    true,
@@ -6501,7 +6501,7 @@
   "mounts": 67,
   "minions": 95,
   "rare": 31,
-  "level": 54,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -7016,7 +7016,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 31,
-  "level": 85,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7063,7 +7063,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7352,7 +7352,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 100,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -7365,7 +7365,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -7659,14 +7659,14 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 95,
+  "level": 96,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -10299,7 +10299,8 @@
   },
   "jobs": {
    "Gunbreaker": "legendary",
-   "DarkKnight": "legendary"
+   "DarkKnight": "legendary",
+   "Warrior": "master"
   },
   "ex": [
    "Valigarmanda",
@@ -10526,7 +10527,7 @@
  },
  "30559609": {
   "name": "Florice Frostingway",
-  "parse": 78,
+  "parse": 93,
   "ult": 4,
   "mounts": 94,
   "minions": 167,
@@ -10541,7 +10542,9 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "RedMage": "master"
+  },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
@@ -10552,7 +10555,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "16168981": {
   "name": "Francis Fleuret",
@@ -10622,7 +10625,7 @@
    "BlackMage": "master",
    "Dragoon": "legendary",
    "Bard": "master",
-   "Summoner": "expert",
+   "Summoner": "master",
    "Samurai": "expert",
    "Gunbreaker": "expert"
   },
@@ -10856,7 +10859,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "legendary",
-   "Samurai": "expert"
+   "Samurai": "master"
   },
   "ex": [
    "Queen Eternal",
@@ -11553,7 +11556,7 @@
  },
  "42342468": {
   "name": "Juhara Chiharu",
-  "parse": null,
+  "parse": 3,
   "ult": 0,
   "mounts": 50,
   "minions": 136,
@@ -11571,7 +11574,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "18278635": {
   "name": "Juicy Oniontear",
@@ -11746,7 +11749,7 @@
  },
  "47218599": {
   "name": "Kawa Lynn",
-  "parse": 38,
+  "parse": 72,
   "ult": 1,
   "mounts": 55,
   "minions": 109,
@@ -11761,12 +11764,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "DarkKnight": "expert"
+  },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "28679815": {
   "name": "Kazumi Masa",
@@ -11862,7 +11867,7 @@
  },
  "50417039": {
   "name": "King's Tarotto",
-  "parse": 11,
+  "parse": 18,
   "ult": 1,
   "mounts": 17,
   "minions": 50,
@@ -11882,7 +11887,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "39034125": {
   "name": "Kirin Rin",

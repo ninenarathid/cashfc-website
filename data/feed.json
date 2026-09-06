@@ -3,6 +3,76 @@
   {
    "date": "2026-09-06",
    "type": "level_100",
+   "id": 29907674,
+   "name": "Ranjoe Tp'",
+   "text": "reached level 100 on Fisher!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 30559609,
+   "name": "Florice Frostingway",
+   "text": "set a new best parse: 93 on Kokytos as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 30559609,
+   "name": "Florice Frostingway",
+   "text": "is now a Master Red Mage"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 36168487,
+   "name": "Freki Plumis",
+   "text": "is now a Master Summoner"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 36090951,
+   "name": "Guuji Mercedexs",
+   "text": "is now a Master Samurai"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 42342468,
+   "name": "Juhara Chiharu",
+   "text": "set a new best parse: 3 on Kokytos as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "set a new best parse: 72 on Kokytos as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "is now a Expert Dark Knight"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 50417039,
+   "name": "King's Tarotto",
+   "text": "set a new best parse: 18 on Kokytos as Astrologian"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
    "id": 39199441,
    "name": "Dodoco Chocodoco",
    "text": "reached level 100 on Monk!"
@@ -1329,76 +1399,6 @@
    "id": 39850342,
    "name": "Zene Neko",
    "text": "set a new best parse: 93 on Honey B. Lovely as Whit\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "job_up",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "is now a Legendary White Mage"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "job_up",
-   "id": 34172006,
-   "name": "Zion Zoen",
-   "text": "is now a Expert Viper"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "level_100",
-   "id": 43335087,
-   "name": "Haru Senbonzakura",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "job_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "is now a Expert Black Mage"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "parse_up",
-   "id": 44085912,
-   "name": "Mayu Ferguson",
-   "text": "set a new best parse: 20 on Zoraal Ja as Reaper"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "ex_clear",
-   "id": 44085912,
-   "name": "Mayu Ferguson",
-   "text": "cleared Queen Eternal (Extreme)"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "ex_clear",
-   "id": 44085912,
-   "name": "Mayu Ferguson",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "ex_clear",
-   "id": 44085912,
-   "name": "Mayu Ferguson",
-   "text": "cleared Zelenia (Extreme)"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "ex_clear",
-   "id": 44085912,
-   "name": "Mayu Ferguson",
-   "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100 on White Mage!"
   }
  ]
 }
