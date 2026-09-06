@@ -1,6 +1,48 @@
 {
  "events": [
   {
+   "date": "2026-09-06",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned Cut Above the Rest: Knives Occultum — only 0.6% of players have it"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned R&D: Stellar Raising Hammer"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "rare_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "earned Savage Trouble in Paradise III"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "rare_up",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "earned Thankful Thirteen — only 3.1% of players have it, and 2 more"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 38796459,
+   "name": "Minion Ke",
+   "text": "set a new best parse: 50 on Dancing Green as Dancer"
+  },
+  {
    "date": "2026-09-05",
    "type": "level_100",
    "id": 57375278,
@@ -1357,48 +1399,6 @@
    "id": 24186600,
    "name": "Dumb Bunny",
    "text": "passed 200 minions"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "rare_up",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "earned Happily Treasure After IV — only 1.5% of players have it, and 62 more"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "is now a Master Gatherer ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "is now a Master Crafter ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "is now a Legendary Relic grinder ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "grade_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "is now a Expert Treasure hunter ✨"
   }
  ]
 }

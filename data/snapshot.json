@@ -30,7 +30,7 @@
   "name": "Aqua Eleison",
   "parse": 100,
   "ult": 4,
-  "mounts": 280,
+  "mounts": 281,
   "minions": 486,
   "rare": 519,
   "level": 100,
@@ -169,7 +169,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-06"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -864,7 +864,7 @@
   "ult": 0,
   "mounts": 264,
   "minions": 487,
-  "rare": 442,
+  "rare": 443,
   "level": 100,
   "cc": [
    false,
@@ -942,7 +942,6 @@
    3680,
    3686,
    3687,
-   3708,
    3785,
    3820,
    3833,
@@ -955,6 +954,7 @@
    3952,
    3953,
    3954,
+   3955,
    3957,
    3958,
    3960,
@@ -995,7 +995,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-06"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -1667,7 +1667,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 98,
   "cc": [
    true,
    true,
@@ -1690,7 +1690,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2175,7 +2175,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 28,
-  "level": 100,
+  "level": 32,
   "cc": [
    true,
    true,
@@ -2223,7 +2223,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2640,7 +2640,6 @@
    3630,
    3631,
    3648,
-   3656,
    3667,
    3668,
    3674,
@@ -2649,6 +2648,7 @@
    3762,
    3770,
    3771,
+   3794,
    3796,
    3818,
    3819,
@@ -4687,7 +4687,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 90,
+  "level": 95,
   "cc": [
    true,
    true,
@@ -4814,7 +4814,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -5152,6 +5152,7 @@
    2284,
    2286,
    2444,
+   2596,
    2633,
    2661,
    2662,
@@ -5170,7 +5171,6 @@
    2870,
    2872,
    2873,
-   2928,
    2929,
    2930,
    2931,
@@ -5408,9 +5408,7 @@
   "tiers": {
    "explorer": "master"
   },
-  "jobs": {
-   "Summoner": "expert"
-  },
+  "jobs": {},
   "ex": [
    "Valigarmanda"
   ],
@@ -6087,7 +6085,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 82,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6106,7 +6104,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -6500,10 +6498,10 @@
   "name": "Marin Elysium",
   "parse": 29,
   "ult": 0,
-  "mounts": 66,
-  "minions": 92,
-  "rare": 28,
-  "level": 100,
+  "mounts": 67,
+  "minions": 95,
+  "rare": 31,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -6521,6 +6519,7 @@
    3645,
    3647,
    3649,
+   3650,
    3651,
    3653,
    3662,
@@ -6534,10 +6533,12 @@
    3784,
    3805,
    3823,
+   3832,
    3849,
    3851,
    3867,
    3874,
+   3875,
    3956,
    3958
   ],
@@ -6550,7 +6551,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -6584,7 +6585,7 @@
  },
  "38796459": {
   "name": "Minion Ke",
-  "parse": 44,
+  "parse": 50,
   "ult": 0,
   "mounts": 33,
   "minions": 67,
@@ -6610,7 +6611,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-06"
  },
  "31592995": {
   "name": "Mizuki Hoshiko",
@@ -7197,7 +7198,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 100,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -7228,7 +7229,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-06"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -7475,8 +7476,8 @@
   "name": "Isildur One",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 5,
+  "minions": 11,
   "rare": null,
   "level": 65,
   "cc": null,
@@ -7485,7 +7486,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8337,7 +8338,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 73,
+  "level": 75,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -16473,7 +16474,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 78,
+  "level": 80,
   "cc": [
    false,
    false,

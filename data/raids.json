@@ -10050,6 +10050,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 95,
+      "median": 50,
+      "kills": 9,
+      "job": "Paladin"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 97,
+      "median": 75,
+      "kills": 9,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 99,
+      "median": 99,
+      "kills": 9,
+      "job": "Paladin"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 96,
+      "median": 62,
+      "kills": 8,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -26551,6 +26594,22 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 17,
+      "median": 13,
+      "kills": 2,
+      "job": "RedMage"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -31145,6 +31204,22 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 60,
+      "median": 37,
+      "kills": 6,
+      "job": "Paladin"
+     }
+    ]
+   },
    {
     "zone": "Anabaseios",
     "zone_id": 54,
@@ -40078,6 +40153,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 44,
+      "median": 21,
+      "kills": 4,
+      "job": "Viper"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 34,
+      "median": 9,
+      "kills": 3,
+      "job": "Viper"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 23,
+      "median": 18,
+      "kills": 2,
+      "job": "Viper"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 37,
+      "median": 5,
+      "kills": 3,
+      "job": "Viper"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -43999,6 +44117,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 86,
+      "median": 77,
+      "kills": 9,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 56,
+      "median": 42,
+      "kills": 8,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 68,
+      "median": 43,
+      "kills": 6,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 41,
+      "median": 34,
+      "kills": 5,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -46082,7 +46243,51 @@
     }
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 50,
+      "median": 50,
+      "kills": 1,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 16,
+      "median": 16,
+      "kills": 1,
+      "job": "Dancer"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 4,
+      "median": 4,
+      "kills": 1,
+      "job": "Dancer"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 3,
+      "median": 3,
+      "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "38802422": {
@@ -47984,6 +48189,31 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 29,
+      "median": 12,
+      "kills": 6,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 11,
+      "median": 5,
+      "kills": 6,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
@@ -49601,16 +49831,34 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
     "kills": 14,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1071
+    "job_kills": {
+     "Summoner": {
+      "kills": 8,
+      "best": 89
+     },
+     "RedMage": {
+      "kills": 1,
+      "best": 36
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 59
+     },
+     "Scholar": {
+      "kills": 4,
+      "best": 50
+     }
+    }
    }
   ],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "42053451": {
   "current": {
@@ -50302,6 +50550,22 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 35,
+      "median": 26,
+      "kills": 2,
+      "job": "Pictomancer"
+     }
+    ]
+   },
    {
     "zone": "Anabaseios",
     "zone_id": 54,
