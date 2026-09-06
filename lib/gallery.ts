@@ -353,7 +353,14 @@ export type Roster = Record<number, { name: string; avatar: string | null }>;
 export interface GalleryTag {
   id: number;
   post_id: number;
-  character_id: number;
+  /**
+   * The character named, or null for somebody who is not in the Free Company.
+   *
+   * A guest tag is a label and stops there: no page behind the name, no place
+   * on a leaderboard, nobody to notify and nothing to agree to. Everything that
+   * treats a tag as a person has to check this first.
+   */
+  character_id: number | null;
   name: string;
   confirmed_at: string | null;
   /**
@@ -375,3 +382,13 @@ export interface GalleryTag {
 /** The columns a tag is read with, in one place so every query agrees. */
 export const TAG_COLUMNS =
   "id, post_id, character_id, name, confirmed_at, image_id, x, y, created_at";
+
+/**
+ * One person, however many pins they have on a post.
+ *
+ * A character is its id. A guest has none, so it is the name instead — which
+ * means two guests of the same name on one post are one person here, and that
+ * is the right answer: they are the same name written twice.
+ */
+export const tagWho = (g: { character_id: number | null; name: string }) =>
+  g.character_id != null ? `c${g.character_id}` : `g${g.name.trim().toLowerCase()}`;

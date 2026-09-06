@@ -18,6 +18,12 @@ import { useAdmin } from "@/lib/admin";
  *
  * The storage policy files uploads under the uploader's own id, so the database
  * would refuse a forged one regardless of what this component believes.
+ *
+ * Three ways in, because the file dialog was the only one and it is the worst
+ * of them: an FFXIV screenshot lives four folders down under My Documents and
+ * finding it there, by name, from a picker that opens somewhere else entirely,
+ * is a small chore repeated every time. Dropping the file on the card and
+ * pasting one straight out of the clipboard both skip it.
  */
 interface Option { id: number; name: string; avatar?: string | null }
 
@@ -85,6 +91,45 @@ export default function GalleryUpload(
     setFiles((prev) => [...prev, ...ok]);
     setPreviews((prev) => [...prev, ...ok.map((f) => URL.createObjectURL(f))]);
   }
+
+  /**
+   * Dragging a file over the card, without the flicker.
+   *
+   * dragenter and dragleave fire for every element the pointer crosses inside
+   * the card, so a plain boolean turns off the moment the file passes over the
+   * caption box on its way in. Counting how deep it has gone is what makes the
+   * outline hold still while the file is somewhere over the form.
+   */
+  const depth = useRef(0);
+  const [over, setOver] = useState(false);
+
+  function dropped(e: React.DragEvent) {
+    e.preventDefault();
+    depth.current = 0;
+    setOver(false);
+    if (busy) return;
+    pick([...(e.dataTransfer?.files ?? [])]);
+  }
+
+  // A screenshot on the clipboard is a file that never had to be found on disk
+  // at all. Only while the form is on screen and only when the paste is not
+  // going into something somebody is typing in.
+  useEffect(() => {
+    if (gate !== "ok") return;
+    const onPaste = (e: ClipboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA"
+                 || el.isContentEditable)) return;
+      const found = [...(e.clipboardData?.files ?? [])]
+        .filter((f) => f.type.startsWith("image/"));
+      if (!found.length || busy) return;
+      e.preventDefault();
+      pick(found);
+    };
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  });   // Every render: `pick` closes over the current t(), and there is one
+        // listener either way.
 
   function drop(i: number) {
     setFiles((prev) => prev.filter((_, n) => n !== i));
@@ -205,8 +250,34 @@ export default function GalleryUpload(
   }
 
   return (
-    <div className="rounded-xl border border-line bg-surface p-4">
+    <div
+      onDragEnter={(e) => {
+        if (!e.dataTransfer?.types?.includes("Files")) return;
+        depth.current += 1;
+        setOver(true);
+      }}
+      // Without this the browser navigates to the file instead of handing it
+      // over, which loses whatever was typed in the caption on the way.
+      onDragOver={(e) => {
+        if (e.dataTransfer?.types?.includes("Files")) e.preventDefault();
+      }}
+      onDragLeave={() => {
+        depth.current = Math.max(0, depth.current - 1);
+        if (!depth.current) setOver(false);
+      }}
+      onDrop={dropped}
+      className={`relative rounded-xl border bg-surface p-4 transition-colors ${
+        over ? "border-accent" : "border-line"}`}>
       <div className="font-display font-semibold">{t("gallery.post")}</div>
+
+      {/* Only while something is being held over the card, and over everything
+          on it: the answer to "will it take this?" has to be visible from
+          wherever the pointer happens to be. */}
+      {over && (
+        <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-xl border-2 border-dashed border-accent bg-bg/85 text-[13.5px] text-accent">
+          {t("gallery.dropHere")}
+        </div>
+      )}
 
       {isAdmin && (
         <div className="mt-2.5 rounded-lg border border-chili/30 bg-chili/5 px-3 py-2.5">
@@ -316,6 +387,7 @@ export default function GalleryUpload(
                   className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
             {t("gallery.chooseMany")}
           </button>
+          <span className="text-[11.5px] text-muted">{t("gallery.dropOrPaste")}</span>
           <span className="text-[11.5px] text-muted">{t("gallery.limits")}</span>
         </div>
       )}

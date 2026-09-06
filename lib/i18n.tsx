@@ -121,6 +121,26 @@ const DICT = {
   "feedback.new": { en: "New thread", th: "เปิดเรื่องใหม่" },
   "feedback.subject": { en: "What is this about?", th: "เรื่องอะไร" },
   "feedback.body": { en: "Tell them the rest…", th: "เล่ารายละเอียด…" },
+  "feedback.attachHint": {
+    en: "Drag a screenshot in here, or paste one",
+    th: "ลากรูปมาวางตรงนี้ หรือกด Ctrl+V วางรูปที่ copy ไว้",
+  },
+  "feedback.attachMore": {
+    en: "Drop another",
+    th: "วางเพิ่มได้อีก",
+  },
+  "feedback.dropHere": {
+    en: "Drop it here",
+    th: "วางตรงนี้เลย",
+  },
+  "feedback.tooMany": {
+    en: "Up to {n} pictures on one message",
+    th: "แนบได้สูงสุด {n} รูปต่อหนึ่งข้อความ",
+  },
+  "feedback.noBucket": {
+    en: "Attachment storage is not set up yet — tell an admin",
+    th: "ที่เก็บไฟล์แนบยังไม่ถูกตั้งค่า แจ้งแอดมินได้เลย",
+  },
   "feedback.reply": { en: "Write a reply…", th: "เขียนตอบกลับ…" },
   "feedback.send": { en: "Send", th: "ส่ง" },
   "feedback.pick": { en: "Pick a thread to read it.", th: "เลือกเรื่องที่ต้องการอ่าน" },
@@ -350,6 +370,11 @@ const DICT = {
   },
   "gallery.tagWho": { en: "Who is this?", th: "คนนี้คือใคร?" },
   "gallery.tagDone": { en: "Done", th: "เสร็จแล้ว" },
+  "gallery.tagGuest": { en: "Guest", th: "ไม่ใช่สมาชิก FC" },
+  "gallery.tagGuestAs": {
+    en: "Not in the FC — tag as “{name}”",
+    th: "ไม่ได้อยู่ใน FC — แท็กเป็น “{name}”",
+  },
   "gallery.tagPinned": { en: "Pinned on the picture", th: "ปักหมุดไว้ในรูป" },
   "gallery.tagShowAll": { en: "Show everyone", th: "แสดงแท็กทั้งหมด" },
   "gallery.tagHideAll": { en: "Hide the tags", th: "ซ่อนแท็ก" },
@@ -1152,6 +1177,14 @@ const DICT = {
   "gallery.imageOf": { en: "{n} of {total}", th: "รูปที่ {n} จาก {total}" },
   "gallery.prev": { en: "Previous picture", th: "รูปก่อนหน้า" },
   "gallery.next": { en: "Next picture", th: "รูปถัดไป" },
+  "gallery.dropHere": {
+    en: "Drop the pictures here",
+    th: "วางรูปตรงนี้ได้เลย",
+  },
+  "gallery.dropOrPaste": {
+    en: "or drag them onto this box, or paste one",
+    th: "หรือลากรูปมาวางในกรอบนี้ หรือกด Ctrl+V วางรูปที่ copy ไว้",
+  },
   "gallery.chooseMany": {
     en: "Choose pictures — several at once is fine",
     th: "เลือกรูป จะเลือกทีละหลายรูปก็ได้",

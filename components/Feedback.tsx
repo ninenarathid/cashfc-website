@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { useAdmin } from "@/lib/admin";
 import { fmtDateTime } from "@/lib/dates";
+import Attach from "@/components/feedback/Attach";
+import { uploadFeedbackImage } from "@/lib/feedback";
 
 interface Thread {
   id: number;
@@ -23,6 +25,8 @@ interface Message {
   author_id: string;
   body: string;
   created_at: string;
+  /** Attached pictures, in the order they were dropped. */
+  images: string[];
 }
 
 /**
@@ -56,6 +60,10 @@ export default function Feedback() {
   const [subject, setSubject] = useState("");
   const [draft, setDraft] = useState("");
   const [reply, setReply] = useState("");
+  // Held as files until the message they belong to is sent, so an abandoned
+  // draft leaves nothing in storage to go looking for later.
+  const [draftFiles, setDraftFiles] = useState<File[]>([]);
+  const [replyFiles, setReplyFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
@@ -95,10 +103,16 @@ export default function Feedback() {
     if (!supabase) return;
     setOpenId(id);
     setReply("");
-    const { data } = await supabase.from("feedback_messages")
-      .select("id, thread_id, author_id, body, created_at")
-      .eq("thread_id", id).order("created_at", { ascending: true });
-    setMessages((data as Message[]) ?? []);
+    const ask = (cols: string) => supabase.from("feedback_messages")
+      .select(cols).eq("thread_id", id).order("created_at", { ascending: true });
+    // The attachment column arrived with migration_v34; asking for a column a
+    // database has not got fails the whole query, and a conversation that goes
+    // blank is worse than one with no pictures in it.
+    const BASE = "id, thread_id, author_id, body, created_at";
+    let got = await ask(`${BASE}, images`);
+    if (got.error) got = await ask(BASE);
+    setMessages(((got.data ?? []) as unknown as Message[])
+      .map((m) => ({ ...m, images: m.images ?? [] })));
     // Opening it is reading it. The trigger keeps each side to its own column,
     // so this cannot clear the other side's mark.
     const column = isAdmin ? "seen_admin" : "seen_author";
@@ -107,6 +121,31 @@ export default function Feedback() {
     void loadThreads();
     setTimeout(() => foot.current?.scrollIntoView({ block: "nearest" }), 50);
   }, [supabase, isAdmin, loadThreads]);
+
+  /**
+   * The attached files, uploaded, as URLs — or null if one of them would not go.
+   *
+   * All or nothing on purpose. A message that arrives saying "here is the
+   * screenshot" with the screenshot missing is worse than one that has not been
+   * sent yet, so a failure stops the send and leaves the draft, the words and
+   * the files exactly where they were for a second try.
+   */
+  async function attach(list: File[]): Promise<string[] | null> {
+    if (!supabase || !me || !list.length) return [];
+    const urls: string[] = [];
+    for (const f of list) {
+      const res = await uploadFeedbackImage(supabase, me, f);
+      if ("error" in res) {
+        setErr(res.error === "not-image" ? t("gallery.notImage")
+          : res.error === "too-big" ? t("gallery.tooBig")
+          : res.error.includes("Bucket not found") ? t("feedback.noBucket")
+          : res.error);
+        return null;
+      }
+      urls.push(res.url);
+    }
+    return urls;
+  }
 
   async function start() {
     if (!supabase || !me || !subject.trim() || !draft.trim() || busy) return;
@@ -117,11 +156,14 @@ export default function Feedback() {
       .select("id").single();
     if (error || !data) { setBusy(false); setErr(error?.message ?? "failed"); return; }
     const id = (data as { id: number }).id;
+    const shots = await attach(draftFiles);
+    if (shots === null) { setBusy(false); return; }
     const { error: msgErr } = await supabase.from("feedback_messages")
-      .insert({ thread_id: id, author_id: me, body: draft.trim().slice(0, 4000) });
+      .insert({ thread_id: id, author_id: me, body: draft.trim().slice(0, 4000),
+                ...(shots.length ? { images: shots } : {}) });
     setBusy(false);
     if (msgErr) { setErr(msgErr.message); return; }
-    setSubject(""); setDraft(""); setWriting(false);
+    setSubject(""); setDraft(""); setDraftFiles([]); setWriting(false);
     await loadThreads();
     void openThread(id);
   }
@@ -130,11 +172,14 @@ export default function Feedback() {
     if (!supabase || !me || openId == null || !reply.trim() || busy) return;
     setBusy(true);
     const body = reply.trim().slice(0, 4000);
+    const shots = await attach(replyFiles);
+    if (shots === null) { setBusy(false); return; }
     const { error } = await supabase.from("feedback_messages")
-      .insert({ thread_id: openId, author_id: me, body });
+      .insert({ thread_id: openId, author_id: me, body,
+                ...(shots.length ? { images: shots } : {}) });
     setBusy(false);
     if (error) { setErr(error.message); return; }
-    setReply("");
+    setReply(""); setReplyFiles([]);
     await openThread(openId);
   }
 
@@ -182,12 +227,16 @@ export default function Feedback() {
                       onChange={(e) => setDraft(e.target.value.slice(0, 4000))}
                       placeholder={t("feedback.body")}
                       className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] leading-relaxed text-ink placeholder:text-muted" />
+            <Attach files={draftFiles} onChange={setDraftFiles} disabled={busy} />
             <div className="flex flex-wrap gap-2">
               <button onClick={start} disabled={busy || !subject.trim() || !draft.trim()}
                       className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
                 {t("feedback.send")}
               </button>
-              <button onClick={() => { setWriting(false); setSubject(""); setDraft(""); }}
+              <button onClick={() => {
+                        setWriting(false); setSubject(""); setDraft("");
+                        setDraftFiles([]);
+                      }}
                       className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-muted hover:text-ink">
                 {t("common.cancel")}
               </button>
@@ -264,6 +313,22 @@ export default function Feedback() {
                     <p className="mt-1 whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink/90">
                       {msg.body}
                     </p>
+                    {msg.images.length > 0 && (
+                      // Small in the message and full size in a new tab. A
+                      // screenshot of a bug is read by looking closely at one
+                      // corner of it, which a lightbox sized to the page is no
+                      // help with and the browser's own viewer does properly.
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {msg.images.map((src) => (
+                          <a key={src} href={src} target="_blank" rel="noreferrer"
+                             className="block">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={src} alt="" loading="lazy"
+                                 className="h-28 w-auto rounded-md border border-line object-contain transition-colors hover:border-accent" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -275,6 +340,7 @@ export default function Feedback() {
                         onChange={(e) => setReply(e.target.value.slice(0, 4000))}
                         placeholder={t("feedback.reply")}
                         className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] leading-relaxed text-ink placeholder:text-muted" />
+              <Attach files={replyFiles} onChange={setReplyFiles} disabled={busy} />
               <div>
                 <button onClick={send} disabled={busy || !reply.trim()}
                         className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">

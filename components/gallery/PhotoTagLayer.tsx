@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import type { GalleryTag } from "@/lib/gallery";
-import MemberPicker, { type MemberOption } from "@/components/gallery/MemberPicker";
+import MemberPicker, { type MemberOption, type Picked } from "@/components/gallery/MemberPicker";
 
 /**
  * The tags on a picture: nothing to see until you go looking.
@@ -51,7 +51,7 @@ export default function PhotoTagLayer(
     options: MemberOption[];
     /** Somebody asked to see everyone at once, so every ring is drawn and named. */
     revealAll?: boolean;
-    onPlace: (o: MemberOption) => void;
+    onPlace: (o: Picked) => void;
     onCancel: () => void;
     onRemove: (tagId: number) => void;
     canEdit: boolean;
@@ -73,7 +73,10 @@ export default function PhotoTagLayer(
       )}
 
       {tags.map((g) => {
-        const face = faces[g.character_id];
+        // A guest has no character and so no face on file, and nowhere to go
+        // when the name is clicked. The card is the same card with the link
+        // taken out of it.
+        const face = g.character_id != null ? faces[g.character_id] : undefined;
         const pending = !g.confirmed_at;
         const open = held === g.id || hover === g.id;
         return (
@@ -117,11 +120,21 @@ export default function PhotoTagLayer(
                          className="size-9 shrink-0 rounded-full border border-line object-cover" />
                   )}
                   <div className="min-w-0">
-                    <Link href={`/member/${g.character_id}`}
-                          className="block whitespace-nowrap font-data text-[13px] font-semibold text-ink no-underline hover:text-accent hover:underline">
-                      {face?.name ?? g.name}
-                    </Link>
-                    {pending && (
+                    {g.character_id != null ? (
+                      <Link href={`/member/${g.character_id}`}
+                            className="block whitespace-nowrap font-data text-[13px] font-semibold text-ink no-underline hover:text-accent hover:underline">
+                        {face?.name ?? g.name}
+                      </Link>
+                    ) : (
+                      <span className="block whitespace-nowrap font-data text-[13px] font-semibold text-ink">
+                        {g.name}
+                      </span>
+                    )}
+                    {g.character_id == null ? (
+                      <div className="whitespace-nowrap text-[11px] italic text-muted">
+                        {t("gallery.tagGuest")}
+                      </div>
+                    ) : pending && (
                       <div className="whitespace-nowrap text-[11px] italic text-muted">
                         {t("gallery.tagPending")}
                       </div>
@@ -148,7 +161,7 @@ export default function PhotoTagLayer(
              style={{ left: `${placing.x * 100}%`, top: `${placing.y * 100}%` }}>
           <div className="size-9 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-accent/20" />
           <div className="absolute left-1/2 top-5 w-64 max-w-[70vw] -translate-x-1/2 rounded-xl border border-line bg-surface p-2.5 shadow-2xl">
-            <MemberPicker options={options} autoFocus
+            <MemberPicker options={options} autoFocus allowGuest
                           placeholder={t("gallery.tagWho")}
                           onPick={onPlace} />
             <button onClick={onCancel}

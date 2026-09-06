@@ -610,7 +610,10 @@ export function useGallery(
       const { data: tagRows } = await supabase.from("gallery_tags")
         .select("post_id, character_id")
         .in("post_id", rows.map((r) => r.id))
-        .not("confirmed_at", "is", null);
+        .not("confirmed_at", "is", null)
+        // Members only: a guest has no character, no face on file and no page
+        // to open, so a row of avatars is not where their name belongs.
+        .not("character_id", "is", null);
       // Once each. A post holds several pictures and a tag belongs to a
       // picture, so somebody in three of them comes back three times — and a
       // row of the same face three times reads as three people.

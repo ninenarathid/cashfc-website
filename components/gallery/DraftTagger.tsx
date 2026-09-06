@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import MemberPicker, { type MemberOption } from "@/components/gallery/MemberPicker";
 
-/** A pin placed before the post it belongs to exists. */
-export interface DraftTag { id: number; name: string; x: number; y: number }
+/** A pin placed before the post it belongs to exists. Null id: a guest. */
+export interface DraftTag { id: number | null; name: string; x: number; y: number }
 
 /**
  * Naming the people in a picture while it is still a file on your machine.
@@ -86,8 +86,8 @@ export default function DraftTagger(
                style={{ left: `${placing.x * 100}%`, top: `${placing.y * 100}%` }}>
             <div className="size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-accent/20" />
             <div className="absolute left-1/2 top-5 w-60 max-w-[70vw] -translate-x-1/2 rounded-xl border border-line bg-surface p-2.5 shadow-2xl">
-              <MemberPicker options={options} autoFocus
-                            exclude={tags.map((g) => g.id)}
+              <MemberPicker options={options} autoFocus allowGuest
+                            exclude={tags.map((g) => g.id).filter((n): n is number => n != null)}
                             placeholder={t("gallery.tagWho")}
                             onPick={(o) => {
                               onChange([...tags, { id: o.id, name: o.name, ...placing }]);

@@ -13,6 +13,7 @@ import CollectionHelp from "@/components/CollectionHelp";
 import ProgressBadge from "@/components/ProgressBadge";
 import MemberGallery from "@/components/gallery/MemberGallery";
 import { useLang } from "@/lib/i18n";
+import { readableAccent } from "@/lib/accent";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
 import { isEmpty } from "@/lib/availability";
 import JobBreakdown from "@/components/JobBreakdown";
@@ -155,7 +156,13 @@ export default function MemberView({
     setTimeout(() => setKudosMsg(""), 3000);
   }
 
-  const accent = ov?.accent ?? "#6aa9e0";
+  // Two forms of the one colour they picked. `chosen` is exactly what they
+  // chose and is used where the colour is seen — the wash behind their name.
+  // `accent` is the same colour lifted far enough to be read, and is used
+  // everywhere it becomes words. For every colour on the wheel they are the
+  // same string; they part company only at the black end.
+  const chosen = ov?.accent ?? "#6aa9e0";
+  const accent = readableAccent(chosen);
   const badges = useBadgesFor(m.id);
   const onVacation = isOnVacation(m);
   const birthday = formatBirthday(ov?.birthMonth, ov?.birthDay);
@@ -268,7 +275,7 @@ export default function MemberView({
 
       {/* ── Header / banner ── */}
       <section className="relative overflow-hidden rounded-2xl border border-line"
-               style={{ background: bannerFor(accent) }}>
+               style={{ background: bannerFor(chosen) }}>
         {/* A cover the member chose, with a wash over it. Without the wash the
             name and the rank land on whatever happens to be in the picture, and
             white text on a bright sky is unreadable however good the shot is. */}

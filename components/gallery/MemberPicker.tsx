@@ -6,6 +6,9 @@ import { useAvatarOverrides } from "@/lib/avatars";
 
 export interface MemberOption { id: number; name: string; avatar?: string | null }
 
+/** What comes back: a member, or a name with nobody behind it. */
+export interface Picked { id: number | null; name: string; avatar?: string | null }
+
 /**
  * Find one member by typing part of their name.
  *
@@ -14,15 +17,25 @@ export interface MemberOption { id: number; name: string; avatar?: string | null
  * anything appears, so the first keystroke does not dump half the roster on
  * screen, and eight results at most so the picker never pushes the form it sits
  * inside off the page.
+ *
+ * The roster is not everybody who has ever been in one of these pictures. A
+ * static from another company, somebody's friend at a wedding, a member who has
+ * since left — all of them are in the shot and none of them are in the list, and
+ * until there was a way to write the name anyway the honest answer to "who is
+ * that?" was a blank. So the typed name is itself an option, offered under the
+ * matches rather than instead of them: a guest is the fallback, not the default.
  */
 export default function MemberPicker(
-  { options, exclude = [], onPick, placeholder, autoFocus = false }: {
+  { options, exclude = [], onPick, placeholder, autoFocus = false,
+    allowGuest = false }: {
     options: MemberOption[];
     /** Already chosen — offering them again would only produce a duplicate. */
     exclude?: number[];
-    onPick: (o: MemberOption) => void;
+    onPick: (o: Picked) => void;
     placeholder?: string;
     autoFocus?: boolean;
+    /** Offer the typed name as somebody who is not in the Free Company. */
+    allowGuest?: boolean;
   },
 ) {
   const { t } = useLang();
@@ -54,7 +67,16 @@ export default function MemberPicker(
           ))}
         </div>
       )}
-      {q.length >= 2 && hits.length === 0 && (
+      {/* Dashed, and under the matches: this is the way out when none of them
+          is the answer, and it should not look like one of them. */}
+      {allowGuest && q.length >= 2 && (
+        <button onClick={() => { onPick({ id: null, name: typed.trim() }); setTyped(""); }}
+                className="mt-1.5 w-full rounded-md border border-dashed border-line px-2.5 py-1 text-left text-[12px] text-muted hover:border-accent hover:text-accent">
+          {t("gallery.tagGuestAs", { name: typed.trim() })}
+        </button>
+      )}
+
+      {q.length >= 2 && hits.length === 0 && !allowGuest && (
         <p className="mt-1.5 text-[12px] text-muted">{t("gallery.nothingFound")}</p>
       )}
     </div>

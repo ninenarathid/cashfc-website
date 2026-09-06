@@ -206,7 +206,9 @@ export default function PostDetail(
   // without taking the picture down over it.
   const canEditCaption = mine || isAdmin;
 
-  async function placeTag(o: { id: number; name: string }) {
+  // A member or a guest: the picker returns a name either way, and only one of
+  // them brings a character id along with it.
+  async function placeTag(o: { id: number | null; name: string }) {
     if (!supabase || !placing) return;
     setBusy(true);
     await supabase.from("gallery_tags").insert({

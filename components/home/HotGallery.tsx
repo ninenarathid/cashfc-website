@@ -224,7 +224,9 @@ export default function HotGallery() {
       const { data: tagRows } = await supabase.from("gallery_tags")
         .select("post_id, character_id")
         .in("post_id", rows.map((r) => r.id))
-        .not("confirmed_at", "is", null);
+        .not("confirmed_at", "is", null)
+        // Members only — a guest has no face to draw here.
+        .not("character_id", "is", null);
       const seen: Record<number, Set<number>> = {};
       for (const r of (tagRows ?? []) as { post_id: number; character_id: number }[]) {
         (seen[r.post_id] ??= new Set()).add(r.character_id);

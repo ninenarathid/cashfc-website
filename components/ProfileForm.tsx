@@ -53,6 +53,17 @@ interface ProfileRow {
  * against the site's dark ground — anything much darker turns into a smudge on
  * the board and a black line on somebody's page, which is the reason this is a
  * palette at all rather than a free colour input.
+ *
+ * The wheel has no white, no black and no plain red, and all three were asked
+ * for: a spectrum answers "which colour" and not "no colour at all", which is
+ * an answer people want. They are a fourth row rather than folded into the
+ * others, because that is what they are — the ends of the scale, and the one
+ * red that the wheel walks straight past on its way from pink to orange.
+ *
+ * Black is the one that used to be impossible, and readableAccent is what makes
+ * it possible: the swatch and the banner keep the colour exactly as chosen, and
+ * only the words drawn in it are lifted to where they can be read. Nothing
+ * already on the wheel is anywhere near that floor, so nobody's colour moves.
  */
 const COLORS = [
   // cool
@@ -64,6 +75,8 @@ const COLORS = [
   // green through to blue again
   "#c9cf6a", "#b8cf6a", "#8fc76a", "#6aa84f",
   "#4fb8a8", "#4fc7c7", "#4fa8b8", "#7ea6c9",
+  // red, and the two ends with a step between them
+  "#e03131", "#ffffff", "#9aa4b2", "#0b0e13",
 ];
 
 function Notice({ children }: { children: React.ReactNode }) {
@@ -405,12 +418,16 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
           <div className="text-[13px] text-muted">
             {t("profile.accent")}
-            <div className="mt-1.5 flex gap-2">
+            {/* Wrapped and held at size: twenty-eight swatches in one line is
+                wider than the column, and a row that squeezes them to fit turns
+                a palette into a stripe. The unpicked ones keep a faint rim so
+                the black one is a swatch rather than a hole in the card. */}
+            <div className="mt-1.5 flex max-w-[22rem] flex-wrap gap-2">
               {COLORS.map((c) => (
                 <button key={c} onClick={() => setColor(color === c ? "" : c)}
                         aria-label={`Pick colour ${c}`}
-                        className={`size-7 rounded-full border-2 transition-transform ${
-                          color === c ? "scale-110 border-ink" : "border-transparent"}`}
+                        className={`size-7 shrink-0 rounded-full border-2 transition-transform ${
+                          color === c ? "scale-110 border-ink" : "border-line"}`}
                         style={{ background: c }} />
               ))}
             </div>
