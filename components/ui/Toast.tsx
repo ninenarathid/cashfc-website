@@ -55,6 +55,17 @@ interface Shown extends ToastRequest { id: number }
  */
 const LINGER = 14000;
 
+/**
+ * How many are allowed on screen at once.
+ *
+ * They stack upward from the corner, and without a ceiling a quiet evening
+ * followed by six people pressing the popoto button at the same moment is a
+ * column of cards up the side of the window with the page behind it. The oldest
+ * goes when the fifth arrives, which is the right one to lose: it has been
+ * readable the longest, and it is still in the bell.
+ */
+const AT_ONCE = 4;
+
 export default function ToastHost() {
   const { t } = useLang();
   const [items, setItems] = useState<Shown[]>([]);
@@ -65,7 +76,7 @@ export default function ToastHost() {
       const detail = (e as CustomEvent<ToastRequest>).detail;
       if (!detail?.text) return;
       const id = next++;
-      setItems((v) => [...v, { ...detail, id }]);
+      setItems((v) => [...v, { ...detail, id }].slice(-AT_ONCE));
     };
     window.addEventListener(EVENT, on);
     return () => window.removeEventListener(EVENT, on);
@@ -138,7 +149,9 @@ export default function ToastHost() {
       ))}
 
       {/* Bottom right, above everything, and out of the way of a thumb on a
-          phone — where the nav is not, and where nothing on this site is. */}
+          phone — where the nav is not, and where nothing on this site is.
+          They stack upward with the newest at the bottom: the corner is where
+          the last one appeared, so it is where the eye already is. */}
       <Radix.Viewport className="fixed bottom-5 right-5 z-[90] flex w-[min(28rem,calc(100vw-2.5rem))] flex-col gap-2.5 outline-none" />
     </Radix.Provider>
   );

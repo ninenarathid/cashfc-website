@@ -3,6 +3,7 @@
 //   node scripts/test-notification.mjs                 # a popoto, to whoever --to says
 //   node scripts/test-notification.mjs --to Ninenine
 //   node scripts/test-notification.mjs --to 5644067 --kind tag
+//   node scripts/test-notification.mjs --to 5644067 --n 4   # four at once
 //   node scripts/test-notification.mjs --list          # who can be sent one
 //   node scripts/test-notification.mjs --clean         # remove the ones this made
 //
@@ -110,18 +111,26 @@ async function main() {
     if (!postId) console.log("  (no gallery post to attach — it will show the icon instead)");
   }
 
-  const row = {
-    recipient: to.id,
-    kind,
-    actor: from.id,
-    actor_name: label(from),
-    post_id: postId,
-    body: MARK,
-  };
-  const [made] = await rest("notifications",
-    { method: "POST", body: JSON.stringify(row), headers: { Prefer: "return=representation" } });
+  // Several at once, to watch them stack. Different senders where there are
+  // several to choose from, so the pile does not read as one person shouting.
+  const many = Math.max(1, Math.min(8, Number(arg("n", "1")) || 1));
+  const senders = people.filter((p) => p.id !== to.id && p.character_id != null);
+  const rows = Array.from({ length: many }, (_, i) => {
+    const who = senders[i % senders.length] ?? from;
+    return {
+      recipient: to.id,
+      kind,
+      actor: who.id,
+      actor_name: label(who),
+      post_id: postId,
+      body: MARK,
+    };
+  });
+  const made = await rest("notifications",
+    { method: "POST", body: JSON.stringify(rows), headers: { Prefer: "return=representation" } });
 
-  console.log(`sent ${kind} #${made.id} to ${label(to)} from ${label(from)}`);
+  console.log(`sent ${made.length} ${kind} notification(s) to ${label(to)}`
+    + ` — #${made.map((m) => m.id).join(", #")}`);
   console.log("Open the site as that member — the toast should arrive within a second");
   console.log("with realtime on, and within ninety seconds without it.");
   console.log("Undo with: node scripts/test-notification.mjs --clean");
