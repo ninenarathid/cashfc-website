@@ -417,8 +417,14 @@ const DICT = {
     th: "{who} ส่ง popoto ให้รูปที่มีคุณอยู่",
   },
   "notif.announced": {
-    en: "There is a new announcement.",
-    th: "มีประกาศใหม่",
+    en: "A new announcement from the admins.",
+    th: "มีประกาศใหม่จาก Admin",
+  },
+  // Only ever shown to another admin: which of them wrote it is their business
+  // and nobody else's.
+  "notif.announcedBy": {
+    en: "A new announcement from the admins ({who}).",
+    th: "มีประกาศใหม่จาก Admin ({who})",
   },
   /* Said when a notification arrives of a kind this version does not know.
      Vague on purpose: claiming it is an announcement sends people looking

@@ -9,6 +9,7 @@ import { useLang, type Key } from "@/lib/i18n";
 import { postPath } from "@/lib/gallery";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
+import { useAdmin } from "@/lib/admin";
 
 interface Note {
   id: number;
@@ -38,6 +39,10 @@ const SLOT = "%%WHO%%";
 function said(
   line: string, name: string, href: string | null, onGo: () => void,
 ) {
+  // Not every notification names anybody. Appending the name to a line that
+  // never asked for one is how "There is a new announcement" became "There is a
+  // new announcement Aqua Eleison".
+  if (!line.includes(SLOT)) return <>{line}</>;
   const [before, after = ""] = line.split(SLOT);
   const who = href
     ? <Link href={href} onClick={onGo}
@@ -49,32 +54,37 @@ function said(
 }
 
 /**
- * Who did it: their face, with what they did in the corner of it.
+ * A picture, with what happened in the corner of it.
  *
- * For the notifications that have no picture of their own — a potato, a message
- * on the feedback page. They used to show a bare icon, which said "a potato
- * happened" and not "Aqua sent you one", and the second is the whole content of
- * the notification.
+ * For the notifications that had nothing to show but a bare icon. A face for
+ * the ones that are somebody doing something — a popoto, a message on the
+ * feedback page — because "a popoto happened" is not what the notification
+ * says; "Aqua sent you one" is. And the poster for an announcement that has
+ * one, because a picture somebody went to the trouble of attaching is a better
+ * answer to "which announcement?" than a megaphone.
  *
- * The corner rather than the middle because the face answers "who" and the
- * badge answers "what", and the first is the one somebody scanning a list of
- * notifications is actually reading.
+ * The corner rather than the middle: the picture answers "who" or "which", the
+ * badge answers "what", and the first is the one somebody scanning a list is
+ * actually reading.
  */
-function FaceWithBadge(
-  { face, badge, href, onGo }: {
-    face: string | null; badge: string; href: string | null; onGo: () => void;
+function BadgedThumb(
+  { src, badge, href, onGo, round = true }: {
+    src: string | null; badge: string; href: string | null; onGo: () => void;
+    /** Round for a face; square for a picture, which is not one. */
+    round?: boolean;
   },
 ) {
+  const shape = round ? "rounded-full" : "rounded-md";
   const body = (
-    <span className="relative block size-12 shrink-0">
-      {face ? (
+    <span className="relative block size-16 shrink-0">
+      {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={face} alt=""
-             className="size-12 rounded-full border border-line object-cover" />
+        <img src={src} alt=""
+             className={`size-16 border border-line object-cover ${shape}`} />
       ) : (
-        <span className="block size-12 rounded-full border border-line bg-card" />
+        <span className={`block size-16 border border-line bg-card ${shape}`} />
       )}
-      <span className="absolute -bottom-0.5 -right-0.5 grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px]">
+      <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full border border-line bg-surface text-[12px]">
         {badge}
       </span>
     </span>
@@ -100,7 +110,9 @@ const PAGE = 30;
  * which is true, and a new kind is one row here.
  */
 const KIND: Record<string, { say: Key; icon: string; href: string }> = {
-  tag: { say: "notif.tagged", icon: "🏷️", href: "" },
+  // A pin, because that is what a tag is on the photograph itself and on
+  // the button that places one. One idea, one mark.
+  tag: { say: "notif.tagged", icon: "📍", href: "" },
   comment: { say: "notif.commented", icon: "💬", href: "" },
   // The href is filled in per notification: a potato on your profile leads to
   // your page, and which page that is depends on the character you hold.
@@ -134,6 +146,11 @@ export default function NotificationBell() {
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const faces = useAvatarOverrides();
+  // The switch-adjusted answer rather than the database's: whether an
+  // announcement names the admin who wrote it is a matter of what this screen
+  // shows, and an admin who turns their powers off asked to see what everybody
+  // else sees.
+  const { isAdmin } = useAdmin();
   const [me, setMe] = useState<string | null>(null);
   const [character, setCharacter] = useState<number | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -148,6 +165,16 @@ export default function NotificationBell() {
    */
   const [people, setPeople] = useState<Record<string,
     { characterId: number | null; avatar: string | null }>>({});
+  /**
+   * The picture on an announcement, by its title.
+   *
+   * By title because that is the only thing the notification keeps of it — the
+   * row has no column pointing at the announcement, and its body is the title.
+   * Two announcements with exactly the same title would share a picture here,
+   * which is a smaller wrong than adding a column and a migration for a
+   * thumbnail.
+   */
+  const [posters, setPosters] = useState<Record<string, string>>({});
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   /**
@@ -195,6 +222,18 @@ export default function NotificationBell() {
       // Merged rather than replaced: the archive keeps adding pages, and a
       // fresh map would blank the faces on everything already drawn.
       setPeople((v) => ({ ...v, ...by }));
+    }
+
+    if (rows.some((n) => n.kind === "announcement")) {
+      const { data: anns } = await supabase.from("announcements")
+        .select("title, image_url").not("image_url", "is", null)
+        .order("created_at", { ascending: false }).limit(50);
+      const by: Record<string, string> = {};
+      for (const a of (anns ?? []) as { title: string; image_url: string }[]) {
+        // Newest first, so the first of a repeated title wins.
+        if (a.title && a.image_url && !(a.title in by)) by[a.title] = a.image_url;
+      }
+      setPosters((v) => ({ ...v, ...by }));
     }
 
     // The picture is the answer to "which one?", so it travels with the question.
@@ -297,6 +336,9 @@ export default function NotificationBell() {
     setLoadingPast(false);
   }
 
+  /** Going somewhere puts away whichever list you were reading. */
+  const dismiss = () => { setOpen(false); setPast(null); };
+
   /**
    * One notification, drawn the same wherever it is read.
    *
@@ -304,99 +346,116 @@ export default function NotificationBell() {
    * a function rather than two copies — the copy that is not the one being
    * looked at is the copy that quietly stops matching.
    */
-  /** Going somewhere puts away whichever list you were reading. */
-  const dismiss = () => { setOpen(false); setPast(null); };
-
   const row = (n: Note) => {
     const cover = n.post_id ? covers[n.post_id] : null;
     const kind = KIND[n.kind];
-    // A picture is its own address; everything else has one written
-    // down, and a kind nobody has taught this has none rather than a
-    // link to the front page that pretends to be an answer.
-    // A potato given to you leads to the page it was given to — the
-    // one everybody else sees, with the potato count on it. It used
-    // to open the profile editor, which is where you change your
-    // nickname and not where anything just happened.
+    // A picture is its own address; everything else has one written down, and a
+    // kind nobody has taught this has none rather than a link to the front page
+    // that pretends to be an answer.
+    //
+    // A popoto given to you leads to the page it was given to — the one
+    // everybody else sees, with the count on it. It used to open the profile
+    // editor, which is where you change your nickname and not where anything
+    // just happened.
     const href = n.kind === "popoto"
       ? (character != null ? `/member/${character}` : "/profile")
       : n.post_id ? postPath(n.post_id) : (kind?.href || null);
+    /*
+     * An announcement is from the admins, and which of them wrote it is not the
+     * Free Company's business. It is the other admins' business: they are the
+     * ones who need to know whether it was them, and a board where nobody can
+     * tell who posted what is a board nobody can correct. So the name is on the
+     * line only for somebody who could have written it.
+     */
+    const say = n.kind === "announcement"
+      ? (isAdmin ? ("notif.announcedBy" as const) : ("notif.announced" as const))
+      : kind?.say;
     const actor = n.actor ? people[n.actor] : undefined;
     const actorFace = actor?.characterId != null
       ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
     const actorHref = actor?.characterId != null
       ? `/member/${actor.characterId}` : null;
-    // Neither a potato nor a message on the feedback page is a
-    // picture. What they have instead is the person who sent it, so
-    // their face is the thumbnail and what they did sits in the
-    // corner of it. Anything with a picture of its own keeps it: a
-    // tag is answered by looking at the photograph.
+    // Neither a popoto nor a message on the feedback page is a picture. What
+    // they have instead is the person who sent it, so their face is the
+    // thumbnail and what they did sits in the corner of it. Anything with a
+    // picture of its own keeps it: a tag is answered by looking at the
+    // photograph, and an announcement does not say whose it was.
     const facing = n.kind === "popoto" || n.kind === "popoto_post"
       ? "🥔" : n.kind === "feedback" ? "✉️" : null;
-    // Answered tags keep their line and their picture and lose their
-  // buttons. Taking the whole notification away took the photograph
-  // with it, which is the thing somebody who has just agreed to be
-  // named in one is most likely to want next.
-  const asking = n.kind === "tag" && character != null && !n.answered_at;
+    // An announcement with a picture on it shows that picture, squarely,
+    // because it is a poster and not a face.
+    const poster = n.kind === "announcement" && n.body
+      ? posters[n.body] ?? null : null;
+    // Answered tags keep their line and their picture and lose their buttons.
+    // Taking the whole notification away took the photograph with it, which is
+    // the thing somebody who has just agreed to be named in one is most likely
+    // to want next.
+    const asking = n.kind === "tag" && character != null && !n.answered_at;
+
     return (
       <div key={n.id}
-           className={`flex gap-2.5 border-b border-line px-3.5 py-2.5 last:border-0 ${
+           className={`flex gap-3.5 border-b border-line px-4 py-3.5 last:border-0 ${
              n.read_at ? "" : "bg-accent/5"}`}>
-        {facing && (actorFace || actorHref) ? (
-          <FaceWithBadge face={actorFace} badge={facing} href={actorHref}
-               onGo={dismiss} />
-        ) : cover && href ? (
-          <Link href={href} onClick={dismiss} className="shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={cover} alt=""
-       className="size-12 rounded-md border border-line object-cover" />
-          </Link>
+        {poster ? (
+          <BadgedThumb src={poster} badge="📣" round={false}
+                       href={href} onGo={dismiss} />
+        ) : facing && (actorFace || actorHref) ? (
+          <BadgedThumb src={actorFace} badge={facing} href={actorHref}
+                       onGo={dismiss} />
+        ) : cover ? (
+          // The picture answers "which one?", and the badge on it answers what
+          // happened to it — a pin for a tag, a speech bubble for a comment.
+          // Before this the picture said neither, and the icon that would have
+          // said it only ever appeared when there was no picture at all.
+          <BadgedThumb src={cover} badge={kind?.icon ?? "🔔"} round={false}
+                       href={href} onGo={dismiss} />
         ) : (
-          <span className="grid size-12 shrink-0 place-items-center rounded-md border border-line text-[15px]">
+          <span className="grid size-16 shrink-0 place-items-center rounded-md border border-line text-[20px]">
             {kind?.icon ?? "🔔"}
           </span>
         )}
 
         <div className="min-w-0 flex-1">
-          <p className="text-[12.5px] leading-snug text-ink/90">
-            {kind
-    ? said(t(kind.say, { who: SLOT }), n.actor_name ?? "—",
-           actorHref, dismiss)
-    : t("notif.something")}
+          <p className="text-[13px] leading-snug text-ink/90">
+            {say
+              ? said(t(say, { who: SLOT }), n.actor_name ?? "—",
+                     actorHref, dismiss)
+              : t("notif.something")}
           </p>
           {n.body && (
-            <p className="mt-0.5 line-clamp-2 text-[12px] leading-snug text-muted">
-    {n.body}
+            <p className="mt-1 line-clamp-2 text-[12.5px] leading-snug text-muted">
+              {n.body}
             </p>
           )}
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] text-muted">{when(n.created_at)}</span>
-            {/* Not only for pictures. A notification that names a
-      thing and then leaves you to find it is the reason
-      somebody went hunting through the wrong page. */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
+            <span className="text-[11.5px] text-muted">{when(n.created_at)}</span>
+            {/* Not only for pictures. A notification that names a thing and
+                then leaves you to find it is the reason somebody went hunting
+                through the wrong page. */}
             {!asking && href && (
-    <Link href={href} onClick={dismiss}
-          className="text-[11.5px] text-accent no-underline hover:underline">
-      {t("notif.open")}
-    </Link>
+              <Link href={href} onClick={dismiss}
+                    className="text-[11.5px] text-accent no-underline hover:underline">
+                {t("notif.open")}
+              </Link>
             )}
           </div>
 
           {asking && n.post_id && (
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-    <button onClick={() => answerTag(n.post_id!, true)} disabled={busy}
-            className="rounded-md border border-jade bg-jade/15 px-2.5 py-0.5 text-[12px] text-jade hover:bg-jade/25 disabled:opacity-50">
-      {t("gallery.tagConfirm")}
-    </button>
-    <button onClick={() => answerTag(n.post_id!, false)} disabled={busy}
-            className="rounded-md border border-line px-2.5 py-0.5 text-[12px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
-      {t("gallery.tagDecline")}
-    </button>
-    {href && (
-      <Link href={href} onClick={dismiss}
-            className="px-1 py-0.5 text-[12px] text-accent no-underline hover:underline">
-        {t("notif.look")}
-      </Link>
-    )}
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <button onClick={() => answerTag(n.post_id!, true)} disabled={busy}
+                      className="rounded-md border border-jade bg-jade/15 px-2.5 py-0.5 text-[12px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                {t("gallery.tagConfirm")}
+              </button>
+              <button onClick={() => answerTag(n.post_id!, false)} disabled={busy}
+                      className="rounded-md border border-line px-2.5 py-0.5 text-[12px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
+                {t("gallery.tagDecline")}
+              </button>
+              {href && (
+                <Link href={href} onClick={dismiss}
+                      className="px-1 py-0.5 text-[12px] text-accent no-underline hover:underline">
+                  {t("notif.look")}
+                </Link>
+              )}
             </div>
           )}
         </div>
