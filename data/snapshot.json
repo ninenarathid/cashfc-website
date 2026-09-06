@@ -1667,7 +1667,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8898,7 +8898,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "DarkKnight": "expert"
+   "DarkKnight": "expert",
+   "Gunbreaker": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -11066,7 +11067,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 92,
+  "level": 7,
   "cc": [
    false,
    false,
@@ -11079,7 +11080,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "30333493": {
   "name": "Haruko Sho",
@@ -12815,7 +12816,7 @@
  },
  "34507717": {
   "name": "Mira Lionheart",
-  "parse": 96,
+  "parse": 99,
   "ult": 3,
   "mounts": 80,
   "minions": 111,
@@ -12831,7 +12832,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Reaper": "master",
+   "Reaper": "legendary",
    "DarkKnight": "legendary"
   },
   "ex": [],
@@ -12840,7 +12841,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "29151949": {
   "name": "Mirai Haname",
@@ -12934,7 +12935,7 @@
  },
  "34184163": {
   "name": "Moji Momiji",
-  "parse": 96,
+  "parse": 99,
   "ult": 1,
   "mounts": 45,
   "minions": 144,
@@ -12957,7 +12958,7 @@
   "ults": [
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-06"
  },
  "32046109": {
   "name": "Mojito Crush",
@@ -13072,7 +13073,7 @@
   "jobs": {
    "Warrior": "master",
    "Paladin": "expert",
-   "Gunbreaker": "expert"
+   "Gunbreaker": "master"
   },
   "ex": [],
   "ults": [],
@@ -13270,7 +13271,7 @@
  },
  "37815847": {
   "name": "Necro Himawari",
-  "parse": 48,
+  "parse": 100,
   "ult": 1,
   "mounts": 66,
   "minions": 123,
@@ -13296,12 +13297,14 @@
    3178
   ],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Summoner": "legendary"
+  },
   "ex": [],
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-06"
  },
  "16385554": {
   "name": "Neko Sehkerla",
@@ -13765,7 +13768,7 @@
  },
  "32223527": {
   "name": "Odachi Nameless",
-  "parse": null,
+  "parse": 2,
   "ult": 0,
   "mounts": 44,
   "minions": 88,
@@ -13788,7 +13791,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-06"
  },
  "27935097": {
   "name": "Ohmo Shiroi",
@@ -13836,7 +13839,7 @@
  },
  "31745191": {
   "name": "Oivxii Hikari",
-  "parse": 40,
+  "parse": 85,
   "ult": 0,
   "mounts": 24,
   "minions": 63,
@@ -13851,10 +13854,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Samurai": "master"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-06"
  },
  "44409828": {
   "name": "Olgar Aurelius",

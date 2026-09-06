@@ -3,6 +3,83 @@
   {
    "date": "2026-09-06",
    "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "set a new best parse: 99 on Proto-Carbuncle as Reaper"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 34507717,
+   "name": "Mira Lionheart",
+   "text": "is now a Legendary Reaper"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 34184163,
+   "name": "Moji Momiji",
+   "text": "set a new best parse: 99 on Proto-Carbuncle as Reaper"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 30714243,
+   "name": "Moona Freed",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 37815847,
+   "name": "Necro Himawari",
+   "text": "set a new best parse: 100 on Proto-Carbuncle as Summoner"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 37815847,
+   "name": "Necro Himawari",
+   "text": "is now a Legendary Summoner"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 32223527,
+   "name": "Odachi Nameless",
+   "text": "set a new best parse: 2 on Proto-Carbuncle as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "parse_up",
+   "id": 31745191,
+   "name": "Oivxii Hikari",
+   "text": "set a new best parse: 85 on Hephaistos as Samurai"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "job_up",
+   "id": 31745191,
+   "name": "Oivxii Hikari",
+   "text": "is now a Master Samurai"
+  },
+  {
+   "date": "2026-09-06",
+   "type": "level_100",
    "id": 29907674,
    "name": "Ranjoe Tp'",
    "text": "reached level 100 on Fisher!"
@@ -1322,83 +1399,6 @@
    "id": 5294880,
    "name": "Mithra Muses",
    "text": "set a new best parse: 78 on Pandaemonium as Warrior"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 5294880,
-   "name": "Mithra Muses",
-   "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "set a new best parse: 99 on Pandaemonium as Summoner"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "is now a Expert Dark Knight"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "set a new best parse: 73 on Pandaemonium as Summoner"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "parse_up",
-   "id": 44926008,
-   "name": "Shiraishi Shu",
-   "text": "set a new best parse: 99 on Honey B. Lovely as Gunbreaker"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "job_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "is now a Master Viper"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "job_up",
-   "id": 34597671,
-   "name": "Valkyries Zearaskia",
-   "text": "is now a Expert Pictomancer"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "parse_up",
-   "id": 48152565,
-   "name": "Yuma Miretmoor",
-   "text": "set a new best parse: 95 on Brute Bomber as Sage"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "job_up",
-   "id": 48152565,
-   "name": "Yuma Miretmoor",
-   "text": "is now a Legendary Sage"
-  },
-  {
-   "date": "2026-09-03",
-   "type": "parse_up",
-   "id": 39850342,
-   "name": "Zene Neko",
-   "text": "set a new best parse: 93 on Honey B. Lovely as Whit\u0001 \u0002age"
   }
  ]
 }
