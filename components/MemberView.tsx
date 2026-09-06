@@ -45,7 +45,7 @@ const bannerFor = (accent: string) =>
   `linear-gradient(135deg,#151b25,${accent}38)`;
 
 export default function MemberView({
-  m, raids, tierLabels, agg, fc, rareAchievements = [],
+  m, raids, tierLabels, tierEncounters = [], agg, fc, rareAchievements = [],
   rareMounts = [], rareMinions = [], patch = null, art = NO_ART, extremeTotal,
   extremeNames = [],
   memberOptions = [],
@@ -71,6 +71,16 @@ export default function MemberView({
    */
   extremeNames?: string[];
   tierLabels: string[];
+  /**
+   * The tier's own bosses, one per label and in the same order.
+   *
+   * A card for a fight nobody has logged had no name to look a picture up by —
+   * the boss came off the member's own row, which is exactly what is missing —
+   * so M12S-1 and M12S-2 were the only two cards on the page with no art to go
+   * grey and no boss under the duty. The tier knows its own bosses; this is
+   * that list.
+   */
+  tierEncounters?: { id: number; name: string }[];
   agg: { mounts: (number | null)[]; minions: (number | null)[]; rare: (number | null)[] };
   fc: { name: string; world: string; region: string };
   /** The roster to search when tagging somebody in a gallery picture. */
@@ -187,17 +197,23 @@ export default function MemberView({
   // last part counts as clearing the tier, which is what clears[] already records.
   interface TierCard {
     key: string; label: string; enc: RaidEncounter | null; cleared: boolean;
+    /** The boss, from the member's row or from the tier's own list. */
+    boss: string | null;
   }
   const currentCards: TierCard[] = tierLabels.flatMap((label, i): TierCard[] => {
     const cleared = raids?.current?.clears?.[i] ?? false;
     const parts = (raids?.current?.encounters ?? []).filter(
       (e) => e.label === label || e.label?.startsWith(`${label}-`));
-    if (!parts.length) return [{ key: label, label, enc: null, cleared }];
+    if (!parts.length) {
+      return [{ key: label, label, enc: null, cleared,
+                boss: tierEncounters[i]?.name ?? null }];
+    }
     return parts.map((enc, j) => ({
       key: enc.label ?? `${label}-${j}`,
       label: enc.label ?? label,
       enc,
       cleared: j === parts.length - 1 ? cleared : (enc.kills ?? 0) > 0,
+      boss: enc.name ?? tierEncounters[i]?.name ?? null,
     }));
   });
   const hasCurrentData = !!raids?.current?.encounters?.length;
@@ -611,7 +627,7 @@ export default function MemberView({
               </div>
             ) : (
               <div className="grid gap-2 sm:grid-cols-2">
-                {currentCards.map(({ key, label, enc, cleared }) => (
+                {currentCards.map(({ key, label, enc, cleared, boss }) => (
                   // The same card as the extremes and the Ultimates. This was
                   // four tall tiles with the parse in 30px type, which said the
                   // number mattered more than the fight — and left nowhere for
@@ -621,10 +637,10 @@ export default function MemberView({
                             // round as the extremes: one is what you queue for
                             // and the other is what the parse belongs to.
                             name={savageDuty(label, raids?.current?.zone)
-                                  ?? enc?.name
+                                  ?? boss
                                   ?? t(hasCurrentData ? "member.noLogYet" : "member.awaitingData")}
                             subtitle={savageDuty(label, raids?.current?.zone)
-                                      ? enc?.name ?? null : null}
+                                      ? boss : null}
                             badge={
                               <span className="shrink-0 rounded-md border border-line bg-bg/50 px-1.5 py-[1px] font-data text-[11px] font-bold text-ink/80">
                                 {label}
@@ -634,8 +650,8 @@ export default function MemberView({
                             breakdown={enc?.job_kills}
                             // Not cleared is not cleared, logs or no logs.
                             best={enc?.best} dim={!cleared}
-                            art={art.savage[dutySlug(enc?.name)]}
-                              focus={artFocus(dutySlug(enc?.name))} />
+                            art={art.savage[dutySlug(boss)]}
+                            focus={artFocus(dutySlug(boss))} />
                 ))}
               </div>
             )}

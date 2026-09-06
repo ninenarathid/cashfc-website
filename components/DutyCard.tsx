@@ -108,7 +108,15 @@ export default function DutyCard(
                  // wants its caption band along the bottom; the left-to-right
                  // wash this replaces put a dark column down one side and did
                  // nothing for the rest.
-                 `linear-gradient(to top, rgba(18,22,29,0.97) 0%, rgba(18,22,29,0.9) 24%, rgba(18,22,29,0.4) 56%, rgba(18,22,29,0.12) 100%), url(${art})`,
+                 //
+                 // Lighter over a fight nobody has cleared. The wash is built
+                 // for a picture at full colour; over a grey blurred one it was
+                 // taking a dark screenshot — Lindwurm averages 39 of 255 — the
+                 // rest of the way to black, and the card read as empty rather
+                 // than as a fight still ahead of them.
+                 (dim
+                   ? `linear-gradient(to top, rgba(18,22,29,0.86) 0%, rgba(18,22,29,0.7) 24%, rgba(18,22,29,0.28) 56%, rgba(18,22,29,0.06) 100%), url(${art})`
+                   : `linear-gradient(to top, rgba(18,22,29,0.97) 0%, rgba(18,22,29,0.9) 24%, rgba(18,22,29,0.4) 56%, rgba(18,22,29,0.12) 100%), url(${art})`),
                backgroundSize: "cover",
                // Top by default: `cover` crops whatever does not fit, a 16:9
                // shot in a 3.5:1 card loses two thirds of its height, and a
@@ -117,7 +125,10 @@ export default function DutyCard(
                backgroundPosition: focus,
                // Scaled a little past the edges, or the blur would show the
                // card's own corners through a soft rim.
-               ...(dim ? { filter: "grayscale(1) blur(3px)", transform: "scale(1.06)" }
+               // Grey and out of focus, and lifted: a screenshot that is dark to
+               // begin with goes to nothing under grayscale alone.
+               ...(dim ? { filter: "grayscale(1) brightness(1.45) blur(3px)",
+                           transform: "scale(1.06)" }
                        : null),
              }}
              className="pointer-events-none absolute inset-0" />

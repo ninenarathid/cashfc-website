@@ -135,6 +135,9 @@ export default async function Page(
       // trial of the patch, including the ones nobody has queued for.
       extremeNames={data.extremes ?? []}
       tierLabels={data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"]}
+      // One boss per label, so a fight nobody has logged still has a name
+      // to find its picture by.
+      tierEncounters={data.current_tier?.zone?.encounters ?? []}
       agg={agg}
       // Faces as well as names: a tag pinned to a picture shows the character
       // it names, and looking that up from the browser would mean a round trip
