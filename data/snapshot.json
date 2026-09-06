@@ -4687,7 +4687,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 94,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -4732,7 +4732,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -4814,7 +4814,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -4827,7 +4827,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-06"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -8337,14 +8337,14 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 32,
+  "level": 73,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-09-06"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -16473,7 +16473,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 77,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -16486,7 +16486,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-06"
  },
  "47423083": {
   "name": "Yueying Hua",

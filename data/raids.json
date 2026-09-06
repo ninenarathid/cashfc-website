@@ -7617,9 +7617,9 @@
     "state": "learning",
     "pct": 39.43,
     "phase": 4,
-    "pulls": 85,
-    "last": "2026-09-04",
-    "last_ts": 1788541325
+    "pulls": 103,
+    "last": "2026-09-05",
+    "last_ts": 1788627600
    }
   ]
  },
@@ -18745,9 +18745,9 @@
     "state": "learning",
     "pct": 78.58,
     "phase": 3,
-    "pulls": 102,
-    "last": "2026-09-04",
-    "last_ts": 1788541369
+    "pulls": 98,
+    "last": "2026-09-05",
+    "last_ts": 1788624954
    }
   ]
  },
@@ -19792,9 +19792,9 @@
     "state": "learning",
     "pct": 39.43,
     "phase": 4,
-    "pulls": 85,
-    "last": "2026-09-04",
-    "last_ts": 1788541325
+    "pulls": 103,
+    "last": "2026-09-05",
+    "last_ts": 1788627600
    }
   ]
  },
@@ -22615,9 +22615,9 @@
     "state": "learning",
     "pct": 39.43,
     "phase": 4,
-    "pulls": 85,
-    "last": "2026-09-04",
-    "last_ts": 1788541325
+    "pulls": 103,
+    "last": "2026-09-05",
+    "last_ts": 1788627600
    }
   ]
  },
@@ -23116,9 +23116,9 @@
     "state": "learning",
     "pct": 78.58,
     "phase": 3,
-    "pulls": 171,
-    "last": "2026-09-04",
-    "last_ts": 1788541369
+    "pulls": 159,
+    "last": "2026-09-05",
+    "last_ts": 1788624954
    }
   ]
  },
@@ -24753,9 +24753,9 @@
     "state": "learning",
     "pct": 39.43,
     "phase": 4,
-    "pulls": 85,
-    "last": "2026-09-04",
-    "last_ts": 1788541325
+    "pulls": 103,
+    "last": "2026-09-05",
+    "last_ts": 1788627600
    }
   ]
  },
@@ -30675,9 +30675,9 @@
     "state": "learning",
     "pct": 39.43,
     "phase": 4,
-    "pulls": 85,
-    "last": "2026-09-04",
-    "last_ts": 1788541325
+    "pulls": 103,
+    "last": "2026-09-05",
+    "last_ts": 1788627600
    }
   ]
  },
@@ -32065,9 +32065,9 @@
     "state": "learning",
     "pct": 39.43,
     "phase": 4,
-    "pulls": 85,
-    "last": "2026-09-04",
-    "last_ts": 1788541325
+    "pulls": 103,
+    "last": "2026-09-05",
+    "last_ts": 1788627600
    }
   ]
  },
@@ -43658,11 +43658,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 88.01,
+    "pct": 54.24,
     "phase": 5,
-    "pulls": 76,
-    "last": "2026-09-03",
-    "last_ts": 1788453261
+    "pulls": 68,
+    "last": "2026-09-05",
+    "last_ts": 1788627565
    }
   ]
  },
@@ -50469,9 +50469,9 @@
      "label": "M11S",
      "encounter_id": 103,
      "name": "The Tyrant",
-     "best": 35,
-     "median": 22,
-     "kills": 2,
+     "best": 51,
+     "median": 35,
+     "kills": 3,
      "job": "WhiteMage"
     }
    ],
@@ -50597,20 +50597,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 56,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
-   }
-  ]
+  "_status": "ok"
  },
  "43037186": {
   "current": {
@@ -52631,7 +52618,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 73,
-    "kills": 1,
+    "kills": 2,
     "job": "Monk",
     "cleared": true
    },
