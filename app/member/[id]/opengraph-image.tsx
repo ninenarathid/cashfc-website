@@ -4,7 +4,6 @@ import type { BoardData } from "@/lib/types";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 import { memberTitle, TAG_COLOR, tagText } from "@/lib/tags";
 import { GUEST_RANK, guestHome } from "@/lib/guest-data";
-import { readableAccent } from "@/lib/accent";
 
 /**
  * The card Discord draws when somebody pastes a link to a member.
@@ -211,9 +210,7 @@ export default async function Image(
   const home = m ? undefined : guestHome(Number(id));
 
   const [mine, popoto] = await Promise.all([chosen(id), potatoes(id)]);
-  // Read-safe, because on this card the colour is the name and the rule under
-  // it — and a Discord embed of a black-on-black card says nothing at all.
-  const accent = readableAccent(mine.accent);
+  const accent = mine.accent;
   // Their choice first, then the Lodestone — the same order the site uses
   // everywhere else, so the card matches the page it points at.
   const [face, cover] = await Promise.all([

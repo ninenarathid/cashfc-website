@@ -60,10 +60,13 @@ interface ProfileRow {
  * others, because that is what they are — the ends of the scale, and the one
  * red that the wheel walks straight past on its way from pink to orange.
  *
- * Black is the one that used to be impossible, and readableAccent is what makes
- * it possible: the swatch and the banner keep the colour exactly as chosen, and
- * only the words drawn in it are lifted to where they can be read. Nothing
- * already on the wheel is anywhere near that floor, so nobody's colour moves.
+ * Black is exactly black. It was briefly lifted towards white wherever it was
+ * drawn as text, on the reasoning that black words on a dark page cannot be
+ * read — which is true, and was still the wrong call: what it produced was mid
+ * grey, and a member who picks the darkest swatch on the wheel and is handed
+ * grey has not been given the colour they chose. The palette now means what it
+ * says. Anybody picking this is choosing a page with very little on it, which
+ * is a thing somebody might want and is theirs to want.
  */
 const COLORS = [
   // cool
@@ -76,7 +79,7 @@ const COLORS = [
   "#c9cf6a", "#b8cf6a", "#8fc76a", "#6aa84f",
   "#4fb8a8", "#4fc7c7", "#4fa8b8", "#7ea6c9",
   // red, and the two ends with a step between them
-  "#e03131", "#ffffff", "#9aa4b2", "#0b0e13",
+  "#e03131", "#ffffff", "#9aa4b2", "#000000",
 ];
 
 function Notice({ children }: { children: React.ReactNode }) {

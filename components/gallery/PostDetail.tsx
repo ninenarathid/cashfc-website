@@ -99,6 +99,7 @@ export default function PostDetail(
     { message: string; label: string; danger?: boolean; run: () => void } | null>(null);
   const [placing, setPlacing] = useState<
     { imageId: number; x: number; y: number } | null>(null);
+  const [tagErr, setTagErr] = useState<string | null>(null);
 
   const loadTags = useCallback(async () => {
     if (!supabase) return;
@@ -211,11 +212,16 @@ export default function PostDetail(
   async function placeTag(o: { id: number | null; name: string }) {
     if (!supabase || !placing) return;
     setBusy(true);
-    await supabase.from("gallery_tags").insert({
+    setTagErr(null);
+    const { error } = await supabase.from("gallery_tags").insert({
       post_id: post.id, character_id: o.id, name: o.name,
       image_id: placing.imageId, x: placing.x, y: placing.y,
     });
     setBusy(false);
+    // It used to fail in silence: the card closed, no pin appeared, and the
+    // only account of what went wrong was in a console nobody had open. A
+    // refusal is worth saying out loud even when the wording is the database's.
+    if (error) { setTagErr(error.message); return; }
     setPlacing(null);
     setPicking(false);
     await loadTags();
@@ -473,6 +479,12 @@ export default function PostDetail(
                   }}
                   revealAll={revealAll} onReveal={setRevealAll}
                   onReload={loadTags} onChanged={onChanged} />
+
+        {tagErr && (
+          <p className="rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-chili">
+            {tagErr}
+          </p>
+        )}
 
         <div className="flex flex-wrap gap-2">
           {/* Disabled rather than hidden, with the reason on hover: a button

@@ -15,7 +15,6 @@ import { memberTitle } from "@/lib/tags";
 import TagIcon from "@/components/TagIcon";
 import ProgressBadge from "@/components/ProgressBadge";
 import { useLang } from "@/lib/i18n";
-import { readableAccent } from "@/lib/accent";
 import { useAvatar } from "@/lib/avatars";
 import { ultimateAbbr } from "@/lib/types";
 import JobIcon, {
@@ -987,9 +986,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             <AnimatePresence initial={false} mode="popLayout">
             {list.map((m, i) => {
               const ov = overlays[m.id];
-              // Only ever drawn as words on this screen, so the read-safe
-              // form is the only one the board needs.
-              const accent = readableAccent(ov?.accent ?? "#6aa9e0");
+              const accent = ov?.accent ?? "#6aa9e0";
               // Only the title now, coloured by how few players wear it.
               //
               // Race, mount count and rare-achievement count came off this
