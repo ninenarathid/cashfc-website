@@ -121,6 +121,10 @@ const DICT = {
   "feedback.new": { en: "New thread", th: "เปิดเรื่องใหม่" },
   "feedback.subject": { en: "What is this about?", th: "เรื่องอะไร" },
   "feedback.body": { en: "Tell them the rest…", th: "เล่ารายละเอียด…" },
+  "feedback.imageOpen": {
+    en: "Attached picture",
+    th: "รูปที่แนบมา",
+  },
   "feedback.attachTitle": {
     en: "Drag & drop a screenshot",
     th: "ลากรูปมาวางเพื่อแนบ",

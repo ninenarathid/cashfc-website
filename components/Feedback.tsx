@@ -7,6 +7,7 @@ import { useAdmin } from "@/lib/admin";
 import { fmtDateTime } from "@/lib/dates";
 import Attach from "@/components/feedback/Attach";
 import { uploadFeedbackImage } from "@/lib/feedback";
+import ImageLightbox from "@/components/ui/ImageLightbox";
 
 interface Thread {
   id: number;
@@ -64,6 +65,10 @@ export default function Feedback() {
   // draft leaves nothing in storage to go looking for later.
   const [draftFiles, setDraftFiles] = useState<File[]>([]);
   const [replyFiles, setReplyFiles] = useState<File[]>([]);
+  // Which attachment is open, and the message it belongs to — so the arrows
+  // walk that message's pictures and stop at its edges rather than wandering
+  // into the next person's screenshots.
+  const [zoom, setZoom] = useState<{ images: string[]; at: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
@@ -314,18 +319,20 @@ export default function Feedback() {
                       {msg.body}
                     </p>
                     {msg.images.length > 0 && (
-                      // Small in the message and full size in a new tab. A
-                      // screenshot of a bug is read by looking closely at one
-                      // corner of it, which a lightbox sized to the page is no
-                      // help with and the browser's own viewer does properly.
+                      // Small in the message, big in place. A new tab took the
+                      // reader out of the conversation the picture was attached
+                      // to and lost their place in it on the way back, for a
+                      // bare URL in a tab that could not say which message it
+                      // came from.
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {msg.images.map((src) => (
-                          <a key={src} href={src} target="_blank" rel="noreferrer"
-                             className="block">
+                        {msg.images.map((src, n) => (
+                          <button key={src} type="button"
+                                  onClick={() => setZoom({ images: msg.images, at: n })}
+                                  className="block cursor-zoom-in">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={src} alt="" loading="lazy"
                                  className="h-28 w-auto rounded-md border border-line object-contain transition-colors hover:border-accent" />
-                          </a>
+                          </button>
                         ))}
                       </div>
                     )}
@@ -351,6 +358,12 @@ export default function Feedback() {
           </div>
         )}
       </div>
+
+      {zoom && (
+        <ImageLightbox images={zoom.images} at={zoom.at}
+                       onMove={(at) => setZoom((z) => (z ? { ...z, at } : z))}
+                       onClose={() => setZoom(null)} />
+      )}
 
       {err && <p className="text-[12.5px] text-chili md:col-span-2">{err}</p>}
     </div>
