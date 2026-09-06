@@ -286,6 +286,7 @@ export default function ProfilePictures(
       ) : (
         <div className="mt-3 flex flex-col gap-4">
           {/* ── The portrait ── */}
+          <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-3">
             {/* Too small for the cloud and the OR rule and a button, so it
                 takes the one part that matters: a dashed ring says a picture
@@ -325,11 +326,6 @@ export default function ProfilePictures(
                         className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                   {t("profile.picFromGallery")}
                 </button>
-                <button onClick={() => { setKind("avatar"); file.current?.click(); }}
-                        disabled={busy}
-                        className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
-                  {t("profile.picUpload")}
-                </button>
                 {avatar && (
                   <button onClick={() => clear("avatar")} disabled={busy}
                           className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
@@ -338,6 +334,10 @@ export default function ProfilePictures(
                 )}
               </div>
             </div>
+          </div>
+          <DropZone size="sm" paste={false} disabled={busy}
+                    onFiles={takeFor("avatar")}
+                    title={t("profile.picAvatarDrop")} hint={t("profile.picSquareHint")} />
           </div>
 
           {/* ── The cover ── */}
@@ -352,31 +352,27 @@ export default function ProfilePictures(
                 to fill it — the drop zone drawn at 16:5, which is the shape the
                 banner is. Once there is one, the banner is the target and the
                 dashed border is what says so. */}
-            {cover ? (
-              <button {...coverDrop.handlers} disabled={busy}
-                      onClick={() => { setKind("cover"); file.current?.click(); }}
-                      title={t("profile.picDropHint")}
-                      className={`aspect-[16/5] w-full cursor-pointer overflow-hidden rounded-xl border-2 border-dashed bg-card transition-colors disabled:opacity-50 ${
-                        coverDrop.over ? "border-accent opacity-50"
-                                       : "border-line hover:border-accent/60"}`}>
+            {/* The banner as it is, when there is one, and under it the zone
+                that replaces it — always drawn, never only on hover. It used to
+                appear in place of the picture and so was invisible to anybody
+                who already had one, which is everybody it was built for. */}
+            {cover && (
+              <div {...coverDrop.handlers}
+                   className={`aspect-[16/5] w-full overflow-hidden rounded-xl border-2 bg-card transition-colors ${
+                     coverDrop.over ? "border-dashed border-accent opacity-50" : "border-line"}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={cover} alt="" className="size-full object-cover" />
-              </button>
-            ) : (
-              <DropZone size="sm" paste={false} disabled={busy}
-                        onFiles={takeFor("cover")}
-                        title={t("profile.picCoverDrop")}
-                        className="aspect-[16/5] w-full" />
+              </div>
             )}
+            <DropZone size="sm" paste={false} disabled={busy}
+                      onFiles={takeFor("cover")}
+                      title={cover ? t("profile.picCoverSwap") : t("profile.picCoverDrop")}
+                      hint={t("profile.picWideHint")}
+                      className={cover ? "" : "aspect-[16/5] w-full"} />
             <div className="flex flex-wrap gap-2">
               <button onClick={() => openGallery("cover")} disabled={busy}
                       className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                 {t("profile.picFromGallery")}
-              </button>
-              <button onClick={() => { setKind("cover"); file.current?.click(); }}
-                      disabled={busy}
-                      className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
-                {t("profile.picUpload")}
               </button>
               {cover && (
                 <button onClick={() => clear("cover")} disabled={busy}
@@ -430,6 +426,10 @@ export default function ProfilePictures(
                 </span>
               </div>
 
+              <DropZone size="sm" paste={false} disabled={busy}
+                        onFiles={takeFor("share")}
+                        title={share ? t("profile.shareSwap") : t("profile.shareDrop")}
+                        hint={t("profile.picWideHint")} />
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[12px] text-muted">
                   {share ? t("profile.shareOwn") : t("profile.shareFromCover")}
@@ -437,11 +437,6 @@ export default function ProfilePictures(
                 <button onClick={() => openGallery("share")} disabled={busy}
                         className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                   {t("profile.picFromGallery")}
-                </button>
-                <button onClick={() => { setKind("share"); file.current?.click(); }}
-                        disabled={busy}
-                        className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
-                  {t("profile.picUpload")}
                 </button>
                 {share && (
                   <button onClick={() => clear("share")} disabled={busy}

@@ -1127,11 +1127,34 @@ const DICT = {
     en: "Drag & drop your banner here",
     th: "ลากรูปแบนเนอร์มาวางตรงนี้",
   },
+  "profile.picAvatarDrop": {
+    en: "Drag & drop a new portrait",
+    th: "ลากรูปโปรไฟล์มาวางตรงนี้",
+  },
+  "profile.picCoverSwap": {
+    en: "Drag & drop to replace the banner",
+    th: "ลากรูปมาวางเพื่อเปลี่ยนแบนเนอร์",
+  },
+  "profile.shareDrop": {
+    en: "Drag & drop a picture for the card",
+    th: "ลากรูปสำหรับการ์ดมาวางตรงนี้",
+  },
+  "profile.shareSwap": {
+    en: "Drag & drop to replace the card picture",
+    th: "ลากรูปมาวางเพื่อเปลี่ยนรูปการ์ด",
+  },
+  "profile.picSquareHint": {
+    en: "Square works best — it is cropped to a circle",
+    th: "รูปสี่เหลี่ยมจัตุรัสดีที่สุด เพราะจะถูกตัดเป็นวงกลม",
+  },
+  "profile.picWideHint": {
+    en: "A wide picture works best",
+    th: "รูปแนวนอนจะเข้ากรอบได้สวยที่สุด",
+  },
   "profile.picDropHint": {
     en: "Drag a picture onto any of them to replace it.",
     th: "ลากรูปมาวางทับรูปไหนก็ได้เพื่อเปลี่ยนรูปนั้น",
   },
-  "profile.picUpload": { en: "Upload a file", th: "อัพโหลดไฟล์" },
   "profile.picRemove": { en: "Take it down", th: "เอาออก" },
   "profile.picYours": { en: "Yours", th: "รูปที่คุณเลือกเอง" },
   "profile.picDefault": {
