@@ -53757,7 +53757,17 @@
      "best": 91,
      "median": 74,
      "kills": 10,
-     "job": "Paladin"
+     "job": "Paladin",
+     "job_kills": {
+      "Paladin": {
+       "kills": 8,
+       "best": 91
+      },
+      "DarkKnight": {
+       "kills": 2,
+       "best": 72
+      }
+     }
     },
     {
      "label": "M10S",
@@ -53766,7 +53776,17 @@
      "best": 60,
      "median": 41,
      "kills": 8,
-     "job": "Paladin"
+     "job": "Paladin",
+     "job_kills": {
+      "Paladin": {
+       "kills": 6,
+       "best": 60
+      },
+      "DarkKnight": {
+       "kills": 2,
+       "best": 10
+      }
+     }
     },
     {
      "label": "M11S",
@@ -53775,7 +53795,17 @@
      "best": 70,
      "median": 12,
      "kills": 7,
-     "job": "Paladin"
+     "job": "Paladin",
+     "job_kills": {
+      "Paladin": {
+       "kills": 5,
+       "best": 70
+      },
+      "DarkKnight": {
+       "kills": 2,
+       "best": 3
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -53784,7 +53814,17 @@
      "best": 84,
      "median": 58,
      "kills": 13,
-     "job": "Paladin"
+     "job": "Paladin",
+     "job_kills": {
+      "Paladin": {
+       "kills": 11,
+       "best": 84
+      },
+      "DarkKnight": {
+       "kills": 2,
+       "best": 40
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -53793,7 +53833,17 @@
      "best": 50,
      "median": 30,
      "kills": 8,
-     "job": "Paladin"
+     "job": "Paladin",
+     "job_kills": {
+      "Paladin": {
+       "kills": 6,
+       "best": 50
+      },
+      "DarkKnight": {
+       "kills": 2,
+       "best": 26
+      }
+     }
     }
    ],
    "clears": [
@@ -53966,7 +54016,17 @@
       "best": 29,
       "median": 25,
       "kills": 3,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 2,
+        "best": 29
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 23
+       }
+      }
      }
     ]
    },
@@ -53982,7 +54042,13 @@
       "best": 14,
       "median": 8,
       "kills": 2,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 2,
+        "best": 14
+       }
+      }
      },
      {
       "label": "P10S",
