@@ -1474,6 +1474,105 @@ def collect_rarity_map() -> dict[int, dict]:
     return out
 
 
+MSQ_WIKI = "https://ffxiv.consolegameswiki.com/wiki/Main_Scenario_Quests"
+
+
+def msq_patch_titles(prev: dict | None = None) -> dict[str, dict]:
+    """What each patch of the story is called, and which era it belongs to.
+
+    "7.3" is a number. "7.3 Post-Dawntrail — The Promise of Tomorrow" is where
+    somebody is in the story, and the second is what a chip on a member's row
+    has to say to be worth reading.
+
+    FFXIV Collect knows which patch an achievement belongs to and not what the
+    patch was called, so this is the one thing the wiki the FC pointed at is
+    genuinely better at — the labels, not the progress. Its own headings carry
+    both: an era per section and a title per patch.
+
+    An expansion's own story has no "Patch x.0" heading of its own; it is the
+    section, and the number is taken from the first patch that follows it.
+    Dawntrail's section is followed by 7.1, so Dawntrail is 7.0.
+
+    Falls back to whatever was learned last time. A wiki that is down for an
+    hour should cost the site a patch title, not every patch title.
+    """
+    try:
+        r = requests.get(MSQ_WIKI, headers=UA, timeout=30)
+        r.raise_for_status()
+        html = r.text
+    except Exception as ex:
+        log(f"MSQ patch titles — wiki unavailable ({ex}); keeping what was known")
+        return dict(prev or {})
+
+    heads = [re.sub(r"<[^>]+>", "", h).replace("&amp;", "&").strip()
+             for h in re.findall(r"<h[23][^>]*>(.*?)</h[23]>", html, re.S)]
+
+    out: dict[str, dict] = {}
+    era: str | None = None
+    pending: str | None = None          # an expansion whose number is not known yet
+    for text in heads:
+        m = re.match(r"^(.+?)\s+Main Scenario Quests$", text)
+        if m:
+            era = m.group(1)
+            # "Post-Dawntrail" is a section of patches; "Dawntrail" is the
+            # expansion itself and needs an x.0 of its own. The post- section
+            # comes between the expansion and its first numbered patch, so it
+            # must not clear what is waiting to be numbered — which it did, and
+            # is why no expansion got an x.0 on the first attempt.
+            if not era.lower().startswith("post-"):
+                pending = era
+            continue
+        m = re.match(r"^Patch\s+([0-9]+\.[0-9]+)\s*\((.+)\)$", text)
+        if not m:
+            continue
+        patch, title = m.group(1), m.group(2).strip()
+        out[patch] = {"era": era, "title": title}
+        if pending:
+            out[f"{patch.split('.')[0]}.0"] = {"era": pending, "title": pending}
+            pending = None
+
+    if not out:
+        log("MSQ patch titles — nothing parsed; keeping what was known")
+        return dict(prev or {})
+    log(f"MSQ patch titles — {len(out)} patches from the wiki")
+    return out
+
+
+def msq_ladder(rarity: dict[int, dict]) -> list[tuple[str, int, str]]:
+    """The Main Scenario as a ladder, one rung per patch.
+
+    FFXIV Collect files every story milestone under a "Main Scenario" category
+    with the patch it belongs to, which is a better source than the quest list
+    on the wiki for the reason that decides it: the wiki knows every quest and
+    nothing about any player, and the limit here is what a player exposes rather
+    than what the list contains. It also costs nothing — the catalogue is
+    already downloaded for the rarity map.
+
+    One rung per patch, and the rung is the rarest achievement of that patch:
+    within 7.0 there are six, and the one fewest people hold is the one you are
+    given last. Owning it means the patch is finished rather than begun.
+
+    Quest-level progress is not obtainable. Nothing public says which quest
+    anybody is on, so "somewhere in 7.3" is the honest resolution and the wiki
+    would not have improved it.
+    """
+    by_patch: dict[str, list[tuple[float, int, str]]] = {}
+    for aid, a in rarity.items():
+        if a.get("category") != "Main Scenario" or a.get("pct") is None:
+            continue
+        patch = str(a.get("patch") or "").strip()
+        if not patch:
+            continue
+        by_patch.setdefault(patch, []).append((a["pct"], aid, a.get("name") or ""))
+
+    rungs = []
+    for patch, rows in by_patch.items():
+        rows.sort()                          # rarest first — the last one earned
+        rungs.append((patch, rows[0][1], rows[0][2]))
+    rungs.sort(key=lambda r: float(r[0]) if r[0].replace(".", "", 1).isdigit() else 0.0)
+    return rungs
+
+
 # What Collect calls them, and what this project calls them.
 COLLECTIONS = ("mounts", "minions")
 
@@ -1533,7 +1632,7 @@ def collection_rarity_map() -> dict[str, dict[int, dict]]:
 
 
 COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
-                  "ach_public", "portrait", "ult_achv", "achv_seen_at")
+                  "ach_public", "portrait", "ult_achv", "achv_seen_at", "msq")
 
 # Bump whenever COLLECT_FIELDS gains something, or whenever achv_points changes.
 # Cached entries written before a new field existed cannot supply it, and because the
@@ -1541,7 +1640,7 @@ COLLECT_FIELDS = ("mounts", "minions", "rare_achv",
 # exactly what happened to ult_achv. Bucket scores are cached the same way, so a new
 # scoring formula that did not bump this would keep serving the old numbers until the
 # cache aged out.
-COLLECT_CACHE_VERSION = 6
+COLLECT_CACHE_VERSION = 7
 
 
 def keep_achievements(m: dict, prev: dict) -> None:
@@ -1575,6 +1674,87 @@ def keep_achievements(m: dict, prev: dict) -> None:
     if not m.get("ult_achv"):
         m["ult_achv"] = list(prev.get("ult_achv") or [])
     m["achv_seen_at"] = prev.get("achv_seen_at")
+    # A story already read stays read: a closed profile is not a forgotten one.
+    if not m.get("msq"):
+        m["msq"] = prev.get("msq")
+
+
+def assign_newcomers(members: list[dict]) -> None:
+    """Who is still working through the story, and playing.
+
+    The rule is the Main Scenario and nothing else. An earlier version graded
+    the size of the account instead — mounts and minions against the company's
+    own curve — on the reasoning that "new" means the account has not been
+    around long rather than that the story is unfinished. That reasoning still
+    holds, but it cannot answer the question the mark now has to answer beside
+    it: which patch are they on. A sprout that cannot say where somebody is in
+    the story is a sprout nobody can act on, and a collection count has no
+    opinion about the story at all.
+
+    So: has not finished the current expansion, and is not on vacation.
+
+    The expansion, not the newest patch. Somebody who finished Dawntrail but has
+    not done 7.3 is behind on patch content, which is most of the company and
+    says nothing about being new.
+
+    Nobody whose achievements are private is marked. That is four members in
+    five here, and it is the honest answer rather than an unfortunate one: the
+    story is the only evidence this rule accepts, and where it cannot be read
+    there is no evidence. A closed profile is not the beginning of the story.
+
+    And nobody who has reached the end of the game. The story on its own caught
+    seven veterans in ten — one of them holds UCOB, TEA and DSR, has cleared the
+    tier and killed the extremes two hundred and sixty-four times, and simply
+    has not played Dawntrail's story. Whatever that is, it is not a new player,
+    and a sprout beside that name would be the board getting it plainly wrong.
+
+    Being at the level cap settles it, and so does any clear that only a
+    character at the cap can have. The level is the one they are wearing, so a
+    veteran levelling a fresh job reads low — which is why the clears are
+    checked as well as the level rather than instead of it.
+
+    A member who is past all that has no story progress reported at all: the
+    chip says somebody is working through the story, and of them it would not
+    be true. Where they got to is still on the row in `done`.
+    """
+    cap = max((m.get("level") or 0) for m in members) if members else 0
+    n = readable = veterans = 0
+    for m in members:
+        story = m.get("msq") or {}
+        done, expansion = story.get("done"), story.get("expansion")
+        if not expansion:
+            m["new_player"] = False
+            continue
+        readable += 1
+
+        at_the_end = (
+            (m.get("level") or 0) >= cap
+            or (m.get("savage_kills") or 0) > 0
+            or (m.get("ult_clears") or 0) > 0
+            or (m.get("ex_kills") or 0) > 0
+        )
+        try:
+            behind = done is None or float(done) < float(expansion)
+        except ValueError:
+            behind = False
+
+        # The chip means "still working through the story towards the current
+        # expansion". Past it, there is nothing to work towards — being three
+        # patches behind on Dawntrail is most of this company — and at the end
+        # of the game the claim is wrong however far the story got.
+        if not behind or at_the_end:
+            m["new_player"] = False
+            story["playing"] = None
+            story["playing_name"] = None
+            veterans += at_the_end
+            continue
+
+        here = m.get("rank") != ON_VACATION_RANK
+        m["new_player"] = bool(here)
+        n += m["new_player"]
+    log(f"Newcomers — {n} of {readable} readable member(s) are new; "
+        f"{veterans} are at the end of the game and report no story progress "
+        f"(cap {cap})")
 
 
 def merge_ultimates(members: list[dict]) -> None:
@@ -1626,16 +1806,63 @@ def hydrate_collect(members: list[dict], cache: dict) -> int:
     return hit
 
 
+def current_expansion(rungs: list[tuple[str, int, str]]) -> str | None:
+    """The newest expansion's own completion, which is the newest x.0 rung.
+
+    An expansion's story finishes at its .0 — Dawntrail at 7.0, "In the Glow of
+    a New Dawn". Everything after it is patch content, and somebody who finished
+    the expansion but has not done 7.3 yet is behind on the patches rather than
+    new to the game.
+    """
+    zeros = [p for p, _, _ in rungs if p.endswith(".0")]
+    return zeros[-1] if zeros else None
+
+
+def where_in_the_story(owned: list[int], rungs: list[tuple[str, int, str]]) -> dict | None:
+    """How far through the Main Scenario somebody is, from what they own.
+
+    Returns the last patch they finished and the one they are in the middle of —
+    the same two states the raid board already has words for. Nobody who has
+    finished the newest patch is "playing" anything; they are up to date, and
+    the field says so by leaving `playing` empty.
+    """
+    if not rungs:
+        return None
+    at = {aid: i for i, (_, aid, _) in enumerate(rungs)}
+    best = -1
+    for aid in owned:
+        i = at.get(aid)
+        if i is not None and i > best:
+            best = i
+    done = rungs[best] if best >= 0 else None
+    nxt = rungs[best + 1] if best + 1 < len(rungs) else None
+    return {
+        "done": done[0] if done else None,
+        "done_name": done[2] if done else None,
+        "playing": nxt[0] if nxt else None,
+        "playing_name": nxt[2] if nxt else None,
+        # The newest patch there is, so a page can say "up to date" without
+        # having to know today's patch number itself.
+        "latest": rungs[-1][0],
+        # And the newest expansion, which is the line "new player" is drawn at.
+        "expansion": current_expansion(rungs),
+    }
+
+
 def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
                 cache: dict, collections: dict[str, dict[int, dict]] | None = None) -> None:
     today = time.strftime("%Y-%m-%d", time.gmtime())
+    rungs = msq_ladder(rarity)
+    if rungs:
+        log(f"Main Scenario — {len(rungs)} patches, newest {rungs[-1][0]} "
+            f"({rungs[-1][2]})")
     for i, m in enumerate(active_first(members), 1):
         # What was known last time. A reading that comes back without
         # achievements is not allowed to erase them, so the old values have to
         # be to hand before this one overwrites anything.
         prev = cache.get(str(m["id"])) or {}
         m.update({"mounts": None, "minions": None, "rare_achv": None,
-                  "ach_public": None, "portrait": None})
+                  "ach_public": None, "portrait": None, "msq": None})
         got = False
         try:
             r = requests.get(f"{COLLECT_API}/characters/{m['id']}",
@@ -1689,6 +1916,9 @@ def run_collect(members: list[dict], rarity: dict[int, dict], delay: float,
                                     slot["min"] = p
                     m["rare_achv"] = rare
                     m["achv_buckets"] = buckets
+                    # Where they are in the story. Read from the same list of
+                    # ids as everything else here, so it costs no request.
+                    m["msq"] = where_in_the_story(ids, rungs)
                     # Rarest first, capped: a member can hold hundreds under 10%, and the
                     # profile page only shows a shelf of them. Underscore-prefixed so it
                     # is dropped before members.json is written.
@@ -2692,6 +2922,9 @@ def main() -> None:
     checked = inject_lodestone_privacy(members, extra.get("lode_achv") or {})
     log(f"Achievement privacy — {checked}/{len(members)} verified on The Lodestone")
     assign_tags(members, ceilings)
+    # After the tags, because it reads nothing they write and belongs beside
+    # them: one more thing the roster says about itself.
+    assign_newcomers(members)
 
     if not args.skip_news:
         build_news()

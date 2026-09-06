@@ -32,6 +32,7 @@ import { rarityColor, rarityLabel } from "@/lib/rarity";
 import { Tooltip } from "@/components/ui/Tooltip";
 import AwardBadge from "@/components/ui/AwardBadge";
 import MemberBio from "@/components/MemberBio";
+import NewPlayer, { MsqBadge } from "@/components/NewPlayer";
 import { useMemberBadges } from "@/lib/member-badges";
 
 
@@ -1093,6 +1094,17 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         </span>
                       )}
                     </Link>
+                    {/* Outside the link, because it opens a card of its own and
+                        a hover card inside a link is a fight over the pointer.
+                        Its own space, so the sprout and the verified star read
+                        as two marks rather than one crowded glyph. */}
+                    {/* Lifted a few pixels. An inline image is aligned to the
+                        middle of the lowercase letters, so one taller than the
+                        text it sits beside hangs below the line rather than
+                        sitting on it. */}
+                    <span className="relative -top-[3px] ml-2 align-middle">
+                      <NewPlayer m={m} size={19} />
+                    </span>
                     <div className="flex flex-wrap items-baseline gap-x-1.5 text-[12.5px]">
                       {title && (
                         // Below, not above. The title sits directly under the
@@ -1130,8 +1142,14 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       is; this says what they were doing on Tuesday, which is a
                       different kind of fact and was getting lost at the end of a
                       row of them. */}
-                  {progressRows(m).length > 0 && (
+                  {(progressRows(m).length > 0 || m.msq?.playing) && (
                     <div className="col-start-2 flex flex-wrap gap-1.5 sm:col-span-2">
+                      {/* Beside the fights rather than up among the tags. The
+                          story is the same kind of fact as a boss somebody is
+                          part way through — what they are doing at the moment,
+                          not what they are — and it belongs on the line that
+                          says so. */}
+                      <MsqBadge m={m} patches={data.msq_patches ?? {}} />
                       {/* All of them, not the best one. Somebody can clear two
                           bosses for the first time in a week and be learning two
                           more, and picking one of the four to stand for the rest

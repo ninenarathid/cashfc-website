@@ -93,6 +93,13 @@ export interface Member {
   ult_cleared?: string[] | null;
   /** Of those, the ones only the achievement proves — there is no log to link to. */
   ult_achv_only?: string[] | null;
+  /** Where they are in the story, where their achievements can be read. */
+  msq?: MsqProgress | null;
+  /**
+   * Still finding their feet, by the size of their account rather than by how
+   * far through the story they are. See assign_newcomers in the pipeline.
+   */
+  new_player?: boolean | null;
   /**
    * Per playstyle: how many rare achievements, the rarest one's ownership %, and the
    * rarity-weighted score the leaderboards and grades both rank on.
@@ -204,7 +211,35 @@ export interface BoardData {
   };
   /** Every extreme trial of the current patch — the denominator for ex_cleared. */
   extremes?: string[];
+  /**
+   * What each patch of the story is called, by patch number.
+   *
+   * One table for the whole board rather than a copy on every member: five
+   * hundred rows quoting the same forty names is four hundred and ninety-nine
+   * copies of it. Read from the wiki, which is the one thing it knows that
+   * FFXIV Collect does not.
+   */
+  msq_patches?: Record<string, { era: string | null; title: string }>;
   members: Member[];
+}
+
+/**
+ * How far through the Main Scenario somebody is.
+ *
+ * Read from the story achievements FFXIV Collect files under "Main Scenario",
+ * one milestone per patch. Absent for the four members in five who keep their
+ * achievements private — which is not the same as being at the beginning, and
+ * nothing should draw it as though it were.
+ */
+export interface MsqProgress {
+  /** The last patch of the story they have finished, if any. */
+  done: string | null;
+  done_name?: string | null;
+  /** The one they are in the middle of. Null means they are up to date. */
+  playing: string | null;
+  playing_name?: string | null;
+  /** The newest patch there is, so a page need not know today's patch number. */
+  latest: string;
 }
 
 export interface FeedEvent { date: string; type: string; id: number; name: string; text: string }

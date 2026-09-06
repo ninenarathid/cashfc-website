@@ -134,6 +134,7 @@ export default async function Page(
       // The list, not only the count: the page draws a card for every
       // trial of the patch, including the ones nobody has queued for.
       extremeNames={data.extremes ?? []}
+      msqPatches={data.msq_patches ?? {}}
       tierLabels={data.current_tier?.labels ?? ["M9S", "M10S", "M11S", "M12S"]}
       // One boss per label, so a fight nobody has logged still has a name
       // to find its picture by.

@@ -12,6 +12,7 @@ import {
 import { percentile } from "@/lib/badges";
 import CollectionHelp from "@/components/CollectionHelp";
 import ProgressBadge from "@/components/ProgressBadge";
+import NewPlayer, { MsqBadge } from "@/components/NewPlayer";
 import MemberGallery from "@/components/gallery/MemberGallery";
 import { useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
@@ -47,7 +48,7 @@ const bannerFor = (accent: string) =>
 export default function MemberView({
   m, raids, tierLabels, tierEncounters = [], agg, fc, rareAchievements = [],
   rareMounts = [], rareMinions = [], patch = null, art = NO_ART, extremeTotal,
-  extremeNames = [],
+  extremeNames = [], msqPatches = {},
   memberOptions = [],
 }: {
   m: Member;
@@ -70,6 +71,8 @@ export default function MemberView({
    * were not missing from the count, they were missing from the question.
    */
   extremeNames?: string[];
+  /** What each patch of the story is called, for the progress chip. */
+  msqPatches?: Record<string, { era: string | null; title: string }>;
   tierLabels: string[];
   /**
    * The tier's own bosses, one per label and in the same order.
@@ -410,6 +413,11 @@ export default function MemberView({
                   ✦
                 </span>
               )}
+              {/* After the verified mark: one says the account is theirs, the
+                  other says how long it has been anybody's. */}
+              <span className="relative -top-1 ml-3 align-middle">
+                <NewPlayer m={m} size={30} />
+              </span>
             </h1>
             {ov?.nickname && (
               <div className="text-[15px] font-medium" style={{ color: accent }}>
@@ -533,6 +541,7 @@ export default function MemberView({
       {/* ── Playstyle tags, the same chips the board shows ── */}
       <section className="mt-4 flex flex-wrap gap-2">
         <MemberTags m={m} extremeTotal={extremeTotal} size="md" />
+        <MsqBadge m={m} patches={msqPatches} size="md" />
       </section>
 
       {/* ── What the FC gave them, as opposed to what the game did ── */}

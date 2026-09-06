@@ -1326,6 +1326,20 @@ const DICT = {
   "member.extremeTrials": { en: "Extreme trials", th: "Extreme trials" },
   "member.clearedCount": { en: "({done} of {total} cleared)", th: "(เคลียร์แล้ว {done} จาก {total})" },
   "member.cleared": { en: "Cleared", th: "เคลียร์แล้ว" },
+  "new.label": { en: "New player", th: "ผู้เล่นใหม่" },
+  "new.why": {
+    en: "One of the smallest collections in the company — mounts and minions both.",
+    th: "คอลเลกชันน้อยที่สุดใน FC ทั้ง mount และ minion",
+  },
+  "new.msq": { en: "MSQ Progressing:", th: "MSQ Progressing:" },
+  "new.playingMsq": {
+    en: "Playing the {patch} story",
+    th: "กำลังเล่นเนื้อเรื่อง {patch}",
+  },
+  "new.doneMsq": {
+    en: "Finished the story up to {patch}",
+    th: "จบเนื้อเรื่องถึง {patch} แล้ว",
+  },
   "member.progressing": { en: "Progressing:", th: "กำลังเล่น:" },
   "member.justCleared": { en: "Just cleared:", th: "เพิ่งผ่าน:" },
   "member.inProgress": { en: "Raiding lately", th: "ช่วงนี้กำลังเล่น" },
