@@ -9,6 +9,7 @@ import type { BoardData } from "@/lib/types";
 import { LangProvider } from "@/lib/i18n";
 import { AvatarProvider } from "@/lib/avatars";
 import { AdminProvider } from "@/lib/admin";
+import { everyone } from "@/lib/people";
 
 // This is a Free Company hangout, not a spreadsheet, so all three faces lean warm
 // and all three carry a full Thai set — the FC is Thai and the site is in English,
@@ -71,8 +72,8 @@ export default function RootLayout({
   // what crosses to the browser is this array rather than the 800 KB file it
   // came out of — about 12 KB, which is what a search over five hundred people
   // costs and is worth paying on every page for.
-  const index = (roster as unknown as BoardData).members
-    .map((m) => ({ id: m.id, name: m.name }));
+  const index = everyone(roster as unknown as BoardData)
+    .map((m) => ({ id: m.id, name: m.name, guest: m.guest }));
 
   return (
     <html lang="en">

@@ -89,7 +89,10 @@ def main() -> int:
         log("No guests on file. Nothing to do.")
         return 0
 
-    guests = [{"id": int(cid), "name": home.get("name") or "?", "rank": "Guest"}
+    # The world travels with them: a guest is by definition somebody the roster
+    # does not contain, and FF Logs finds a character by name and world.
+    guests = [{"id": int(cid), "name": home.get("name") or "?", "rank": "Guest",
+               "world": home.get("world")}
               for cid, home in homes.items()]
     log(f"{len(guests)} guest(s): " + ", ".join(g["name"] for g in guests))
 
@@ -127,7 +130,10 @@ def main() -> int:
             log(f"More than {FULL_HISTORY_UP_TO} guests — current zones only; "
                 "give this the roster's rotation if it stays this way.")
         try:
-            P.run_fflogs(guests, raids, full_history=full)
+            # Every zone because six guests are cheap, and the report walk
+            # because a guest learning a fight is the same news as a member
+            # learning one. Those were one switch until they were told apart.
+            P.run_fflogs(guests, raids, full_history=full, walk_progress=True)
             # Which job actually killed each fight. Guests are few enough that
             # the rotation never bites, and the cycle written here is thrown away
             # with the rest of the roster's state below — so they are re-read

@@ -10,6 +10,7 @@ import MemberPending from "@/components/MemberPending";
 import { pendingMember } from "@/lib/pending-member";
 import type { AchievementInfo, CollectionItem } from "@/components/RareShelf";
 import type { BoardData, MemberRaids } from "@/lib/types";
+import { everyone } from "@/lib/people";
 
 const data = raw as unknown as BoardData;
 const raids = raidsRaw as unknown as Record<string, MemberRaids>;
@@ -135,9 +136,7 @@ export default async function Page(
       // Faces as well as names: a tag pinned to a picture shows the character
       // it names, and looking that up from the browser would mean a round trip
       // for something already sitting in the build.
-      memberOptions={data.members.map((x) => ({
-        id: x.id, name: x.name, avatar: x.avatar ?? null,
-      }))}
+      memberOptions={everyone(data)}
       fc={{ name: data.fc.name, world: data.fc.world, region: data.fc.region ?? "JP" }}
     />
   );

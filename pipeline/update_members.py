@@ -459,6 +459,25 @@ def zone_labels(zone_name: str, is_current: bool) -> list[str] | None:
     return None
 
 
+def character_arg(m: dict) -> str:
+    """The FF Logs `character(...)` arguments for one person.
+
+    Almost everybody on this site is on the Free Company's own world, so that
+    stays the default. A guest need not be: the definition of one is somebody
+    the roster does not contain, and "an alt on another world" is in the first
+    line of what that means. Their row carries the world the Lodestone gave, and
+    asking FF Logs for the Yvaine on the right world matters more the further
+    from Tonberry they are.
+
+    The region stays the FC's. Every world a guest has turned up on so far is a
+    JP one, and somebody from another region would need their data centre read
+    as well — a change worth making when there is one to test it against.
+    """
+    return (f"character(name: {json.dumps(m['name'])}, "
+            f"serverSlug: {json.dumps(m.get('world') or CONFIG['server_slug'])}, "
+            f"serverRegion: {json.dumps(CONFIG['server_region'])})")
+
+
 def build_char_query(chunk: list[dict], zones_for) -> str:
     """zones_for(member) -> the zones to ask about for that member.
 
@@ -474,12 +493,7 @@ def build_char_query(chunk: list[dict], zones_for) -> str:
                 args += f", difficulty: {z['difficulty']}"
             zq.append(f"z{z['id']}: zoneRankings({args})")
     # ^ loop closes below
-        body.append(
-            f"c{i}: character(name: {json.dumps(m['name'])}, "
-            f"serverSlug: \"{CONFIG['server_slug']}\", "
-            f"serverRegion: \"{CONFIG['server_region']}\") "
-            f"{{ hidden {' '.join(zq)} }}"
-        )
+        body.append(f"c{i}: {character_arg(m)} {{ hidden {' '.join(zq)} }}")
     return ("query { rateLimitData { limitPerHour pointsSpentThisHour pointsResetIn } "
             "characterData { " + " ".join(body) + " } }")
 
@@ -603,9 +617,7 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
     aliases = []
     for i, m in enumerate(chunk):
         aliases.append(
-            f"c{i}: character(name: {json.dumps(m['name'])}, "
-            f"serverSlug: \"{CONFIG['server_slug']}\", "
-            f"serverRegion: \"{CONFIG['server_region']}\") "
+            f"c{i}: {character_arg(m)} "
             f"{{ recentReports(limit: {PROGRESS_REPORTS}) "
             f"{{ data {{ code startTime }} }} }}")
     q = "query { characterData { " + " ".join(aliases) + " } }"
@@ -732,7 +744,22 @@ def _best_pulls(token: str, chunk: list[dict], want: dict[int, str],
     return out
 
 
-def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | None:
+def run_fflogs(members: list[dict], raids: dict, full_history: bool,
+               walk_progress: bool | None = None) -> dict | None:
+    """
+    walk_progress decides whether recent reports are read for "still learning"
+    and "just cleared". It defaults to the opposite of full_history, which is
+    where it used to be welded: a full-history run over five hundred people
+    already exhausts the hourly budget on zones alone, so the expensive report
+    walk sits that one out.
+
+    That is a statement about five hundred people, and it was quietly deciding
+    the answer for six. The guest stage reads every zone because six guests are
+    cheap, not because it is the weekly sweep — and it inherited a skip that had
+    nothing to do with it, which is why a guest could be on Dancing Mad every
+    night and show nothing at all. The two are separate questions now, and each
+    caller answers its own.
+    """
     token = fflogs_token()
     if not token:
         log("Skipping FFLogs — FFLOGS_CLIENT_ID / FFLOGS_CLIENT_SECRET not set")
@@ -1002,7 +1029,8 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool) -> dict | N
                           if enc_names.get(eid) not in done_names}
             if unfinished and entry.get("_status") not in ("hidden", "none"):
                 pending.append(m)
-        if pending and not full_history:
+        want_progress = (not full_history) if walk_progress is None else walk_progress
+        if pending and want_progress:
             try:
                 found = _best_pulls(token, pending, want_encounters, report_cache)
             except Exception as ex:

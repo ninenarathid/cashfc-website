@@ -21,13 +21,22 @@ import { useLang } from "@/lib/i18n";
  * shipping the whole file to every page so the palette could read two fields
  * would cost more than the feature is worth.
  *
+ * The roster and the guests both, and marked so it is clear which is which. A
+ * guest has a page here like anybody else, and a search that could not reach it
+ * was a search that quietly disagreed with the member board about who exists.
+ *
  * A dialog on a desktop and a sheet on a phone, which is the same decision every
  * native app makes: a centred box with a keyboard over it leaves nowhere to
  * show results, while a sheet rises to meet the keyboard and keeps the list in
  * the half of the screen a thumb can reach.
  */
 
-export interface PaletteMember { id: number; name: string }
+export interface PaletteMember {
+  id: number;
+  name: string;
+  /** Verified, with a page here, and not in the Free Company. */
+  guest?: boolean;
+}
 
 const PAGES: { href: string; key: string }[] = [
   { href: "/members", key: "nav.members" },
@@ -148,8 +157,15 @@ export default function CommandPalette({ members }: { members: PaletteMember[] }
                 transition={{ duration: 0.14, delay: Math.min(i, 8) * 0.012 }}
                 className="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-[13.5px] text-ink data-[selected=true]:bg-card data-[selected=true]:text-accent">
                 <span className="truncate font-data">{m.name}</span>
-                <span className="shrink-0 font-data text-[11px] text-muted">
-                  #{m.id}
+                <span className="flex shrink-0 items-center gap-1.5">
+                  {/* Not translated: it is the rank they wear on the board and
+                      on their own page, and one word should mean one thing. */}
+                  {m.guest && (
+                    <span className="rounded-full border border-line px-1.5 py-px font-data text-[10px] uppercase tracking-[0.1em] text-muted">
+                      Guest
+                    </span>
+                  )}
+                  <span className="font-data text-[11px] text-muted">#{m.id}</span>
                 </span>
               </motion.div>
             </Command.Item>

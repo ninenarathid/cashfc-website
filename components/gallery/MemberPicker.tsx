@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
 
-export interface MemberOption { id: number; name: string; avatar?: string | null }
+export interface MemberOption {
+  id: number;
+  name: string;
+  avatar?: string | null;
+  /** Verified, with a page here, and not in the Free Company. */
+  guest?: boolean;
+}
 
 /** What comes back: a member, or a name with nobody behind it. */
 export interface Picked { id: number | null; name: string; avatar?: string | null }
@@ -63,6 +69,14 @@ export default function MemberPicker(
                      className="size-5 rounded-full object-cover" />
               )}
               {o.name}
+              {/* They are tagged exactly like anybody else — the pin links to
+                  their page and the name is theirs. The mark is only so it is
+                  obvious why somebody who is not in the FC is in this list. */}
+              {o.guest && (
+                <span className="rounded-full border border-line px-1.5 font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
+                  Guest
+                </span>
+              )}
             </button>
           ))}
         </div>

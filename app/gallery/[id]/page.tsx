@@ -3,6 +3,7 @@ import raw from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import GalleryPage from "@/components/gallery/GalleryPage";
+import { everyone } from "@/lib/people";
 
 /**
  * One picture, by link.
@@ -113,7 +114,7 @@ export default async function Page(
   return (
     <GalleryPage
       openId={Number(id) || null}
-      memberOptions={data.members.map((m) => ({ id: m.id, name: m.name, avatar: m.avatar ?? null }))}
+      memberOptions={everyone(data)}
     />
   );
 }
