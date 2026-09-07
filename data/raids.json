@@ -708,12 +708,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 80,
     "kills": 8,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "DarkKnight": {
       "kills": 8,
@@ -16648,12 +16648,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 71,
     "kills": 3,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Paladin": {
       "kills": 3,
@@ -23820,12 +23820,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 94,
     "kills": 5,
     "job": "BlackMage",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "BlackMage": {
       "kills": 5,
@@ -32844,12 +32844,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 32,
     "kills": 1,
     "job": "Dancer",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -37363,12 +37363,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 50,
     "kills": 2,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Summoner": {
       "kills": 2,
@@ -55884,12 +55884,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 90,
     "kills": 19,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "DarkKnight": {
       "kills": 17,
