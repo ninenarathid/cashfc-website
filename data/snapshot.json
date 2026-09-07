@@ -1040,7 +1040,7 @@
   "ult": 6,
   "mounts": 75,
   "minions": 144,
-  "rare": null,
+  "rare": 46,
   "level": 100,
   "cc": [
    true,
@@ -1049,7 +1049,54 @@
    true,
    true
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   157,
+   1585,
+   1587,
+   1907,
+   1993,
+   2052,
+   2286,
+   2444,
+   2551,
+   2596,
+   2637,
+   2693,
+   2764,
+   2765,
+   2766,
+   2767,
+   2778,
+   2784,
+   2871,
+   2873,
+   3002,
+   3074,
+   3113,
+   3154,
+   3155,
+   3162,
+   3252,
+   3338,
+   3348,
+   3349,
+   3350,
+   3539,
+   3577,
+   3616,
+   3617,
+   3630,
+   3631,
+   3673,
+   3805,
+   3868,
+   3869,
+   3870,
+   3874,
+   3889,
+   3898,
+   3979
+  ],
   "tiers": {},
   "jobs": {
    "WhiteMage": "legendary",
@@ -1072,7 +1119,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-01"
+  "chg": "2026-09-07"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -3541,7 +3588,7 @@
   "ult": 0,
   "mounts": 62,
   "minions": 129,
-  "rare": null,
+  "rare": 38,
   "level": 100,
   "cc": [
    true,
@@ -3550,8 +3597,49 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   621,
+   944,
+   1586,
+   2469,
+   2671,
+   2876,
+   2882,
+   2885,
+   2886,
+   3639,
+   3646,
+   3676,
+   3677,
+   3753,
+   3760,
+   3777,
+   3805,
+   3832,
+   3843,
+   3850,
+   3867,
+   3874,
+   3889,
+   3937,
+   3938,
+   3939,
+   3950,
+   3957,
+   3979,
+   3997,
+   3998,
+   3999,
+   4002,
+   4003,
+   4004,
+   4006,
+   4007,
+   4074
+  ],
+  "tiers": {
+   "explorer": "master"
+  },
   "jobs": {
    "Samurai": "master"
   },
@@ -3563,7 +3651,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-07"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -13072,7 +13160,7 @@
   "jobs": {
    "Warrior": "master",
    "Paladin": "expert",
-   "Gunbreaker": "master"
+   "Gunbreaker": "expert"
   },
   "ex": [],
   "ults": [],
@@ -13643,7 +13731,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dancer": "legendary"
+   "Dancer": "master"
   },
   "ex": [],
   "ults": [],
@@ -13916,7 +14004,6 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Astrologian": "expert",
    "WhiteMage": "master"
   },
   "ex": [],
@@ -14006,6 +14093,7 @@
    "Bard": "expert",
    "Machinist": "expert",
    "BlackMage": "expert",
+   "Warrior": "expert",
    "Pictomancer": "legendary",
    "Summoner": "legendary",
    "Ninja": "expert"
@@ -14185,6 +14273,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Samurai": "legendary",
    "Viper": "expert",
    "Paladin": "legendary",
    "DarkKnight": "master"
@@ -14743,7 +14832,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Sage": "legendary"
+   "Sage": "master"
   },
   "ex": [],
   "ults": [
@@ -16467,7 +16556,7 @@
  },
  "29881709": {
   "name": "Y'uki No",
-  "parse": null,
+  "parse": 18,
   "ult": 0,
   "mounts": 100,
   "minions": 202,
@@ -16485,7 +16574,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-07"
  },
  "51060767": {
   "name": "Yatchy Concreategirls",
@@ -16673,7 +16762,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "legendary"
+   "WhiteMage": "master"
   },
   "ex": [
    "Valigarmanda",

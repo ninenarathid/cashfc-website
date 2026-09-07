@@ -1,6 +1,48 @@
 {
  "events": [
   {
+   "date": "2026-09-07",
+   "type": "rare_up",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "earned Aetherpool Party: Fan Brush — only 1.2% of players have it, and 45 more"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "grade_up",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "is now a Master Explorer ✨"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "rare_up",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "earned Cut Above the Rest: Blade Occultum — only 0.9% of players have it, and 37 more"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Expert Warrior"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "job_up",
+   "id": 36151779,
+   "name": "Percival Heisenberg",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "parse_up",
+   "id": 29881709,
+   "name": "Y'uki No",
+   "text": "set a new best parse: 18 on Cloud of Darkness as Samurai"
+  },
+  {
    "date": "2026-09-06",
    "type": "level_100",
    "id": 42845691,
@@ -1357,48 +1399,6 @@
    "id": 30714243,
    "name": "Moona Freed",
    "text": "is now a Expert Paladin"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "rare_up",
-   "id": 37815847,
-   "name": "Necro Himawari",
-   "text": "earned Mixing It Up: Genius"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "rare_up",
-   "id": 36149590,
-   "name": "Neo Anderson",
-   "text": "earned Mixing It Up: Genius"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "is now a Expert Machinist"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "is now a Expert Ninja"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 48010347,
-   "name": "Pineapplepipe Pikachu",
-   "text": "is now a Expert Ninja"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "is now a Expert Machinist"
   }
  ]
 }
