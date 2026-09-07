@@ -1646,7 +1646,13 @@
       "best": 45,
       "median": 43,
       "kills": 9,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 9,
+        "best": 45
+       }
+      }
      },
      {
       "label": "E6S",
@@ -8334,7 +8340,17 @@
       "best": 70,
       "median": 42,
       "kills": 12,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 9,
+        "best": 70
+       },
+       "Samurai": {
+        "kills": 3,
+        "best": 14
+       }
+      }
      },
      {
       "label": "E6S",
@@ -8343,7 +8359,13 @@
       "best": 54,
       "median": 28,
       "kills": 9,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 9,
+        "best": 54
+       }
+      }
      },
      {
       "label": "E7S",
@@ -8352,7 +8374,13 @@
       "best": 36,
       "median": 16,
       "kills": 8,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 8,
+        "best": 36
+       }
+      }
      },
      {
       "label": "E8S",
@@ -8954,7 +8982,13 @@
       "best": 44,
       "median": 41,
       "kills": 3,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 3,
+        "best": 44
+       }
+      }
      },
      {
       "label": "E6S",
@@ -8963,7 +8997,13 @@
       "best": 46,
       "median": 33,
       "kills": 4,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 4,
+        "best": 46
+       }
+      }
      }
     ]
    }
@@ -9935,7 +9975,17 @@
       "best": 15,
       "median": 15,
       "kills": 2,
-      "job": "Monk"
+      "job": "Monk",
+      "job_kills": {
+       "Monk": {
+        "kills": 1,
+        "best": 15
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 11
+       }
+      }
      },
      {
       "label": "E6S",
@@ -9944,7 +9994,17 @@
       "best": 23,
       "median": 23,
       "kills": 2,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Monk": {
+        "kills": 1,
+        "best": 20
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 23
+       }
+      }
      },
      {
       "label": "E8S",
@@ -11428,6 +11488,22 @@
         "best": 37
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 33,
+      "median": 33,
+      "kills": 1,
+      "job": "Summoner"
      }
     ]
    }
@@ -13145,7 +13221,17 @@
       "best": 95,
       "median": 71,
       "kills": 21,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 20,
+        "best": 95
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 10
+       }
+      }
      },
      {
       "label": "E6S",
@@ -13154,7 +13240,13 @@
       "best": 93,
       "median": 58,
       "kills": 21,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 21,
+        "best": 93
+       }
+      }
      },
      {
       "label": "E7S",
@@ -13163,7 +13255,13 @@
       "best": 74,
       "median": 58,
       "kills": 17,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 17,
+        "best": 74
+       }
+      }
      },
      {
       "label": "E8S",
@@ -13172,7 +13270,13 @@
       "best": 62,
       "median": 42,
       "kills": 13,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 13,
+        "best": 62
+       }
+      }
      }
     ]
    },
@@ -15356,7 +15460,13 @@
       "best": 77,
       "median": 54,
       "kills": 9,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 9,
+        "best": 77
+       }
+      }
      },
      {
       "label": "E6S",
@@ -15365,7 +15475,13 @@
       "best": 83,
       "median": 45,
       "kills": 9,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 9,
+        "best": 83
+       }
+      }
      },
      {
       "label": "E7S",
@@ -15374,7 +15490,13 @@
       "best": 45,
       "median": 14,
       "kills": 8,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 8,
+        "best": 45
+       }
+      }
      },
      {
       "label": "E8S",
@@ -15383,7 +15505,13 @@
       "best": 56,
       "median": 24,
       "kills": 10,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 10,
+        "best": 56
+       }
+      }
      }
     ]
    },
@@ -17896,7 +18024,21 @@
       "best": 82,
       "median": 50,
       "kills": 25,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Samurai": {
+        "kills": 4,
+        "best": 23
+       },
+       "WhiteMage": {
+        "kills": 16,
+        "best": 81
+       },
+       "Scholar": {
+        "kills": 5,
+        "best": 82
+       }
+      }
      },
      {
       "label": "E6S",
@@ -17905,7 +18047,17 @@
       "best": 81,
       "median": 51,
       "kills": 23,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 19,
+        "best": 81
+       },
+       "Scholar": {
+        "kills": 4,
+        "best": 68
+       }
+      }
      },
      {
       "label": "E7S",
@@ -17914,7 +18066,17 @@
       "best": 80,
       "median": 36,
       "kills": 15,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 14,
+        "best": 80
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 28
+       }
+      }
      },
      {
       "label": "E8S",
@@ -17923,7 +18085,17 @@
       "best": 66,
       "median": 46,
       "kills": 4,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 2,
+        "best": 66
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 45
+       }
+      }
      }
     ]
    },
@@ -18244,7 +18416,13 @@
       "best": 8,
       "median": 8,
       "kills": 2,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 2,
+        "best": 8
+       }
+      }
      }
     ]
    }
@@ -21939,7 +22117,25 @@
       "best": 87,
       "median": 48,
       "kills": 27,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 20,
+        "best": 87
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 25
+       },
+       "WhiteMage": {
+        "kills": 5,
+        "best": 58
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 11
+       }
+      }
      },
      {
       "label": "E6S",
@@ -21948,7 +22144,17 @@
       "best": 84,
       "median": 47,
       "kills": 24,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 23,
+        "best": 84
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 9
+       }
+      }
      },
      {
       "label": "E7S",
@@ -21957,7 +22163,21 @@
       "best": 80,
       "median": 44,
       "kills": 30,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 22,
+        "best": 80
+       },
+       "Scholar": {
+        "kills": 7,
+        "best": 21
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 9
+       }
+      }
      },
      {
       "label": "E8S",
@@ -21966,7 +22186,13 @@
       "best": 73,
       "median": 40,
       "kills": 18,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 18,
+        "best": 73
+       }
+      }
      }
     ]
    }
@@ -22002,8 +22228,52 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 37,
+      "median": 20,
+      "kills": 8,
+      "job": "Paladin"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 22,
+      "median": 10,
+      "kills": 3,
+      "job": "Paladin"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 10,
+      "median": 9,
+      "kills": 4,
+      "job": "Paladin"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 10,
+      "median": 9,
+      "kills": 5,
+      "job": "Paladin"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "27213488": {
   "current": {
@@ -24266,7 +24536,17 @@
       "best": 78,
       "median": 13,
       "kills": 21,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 17,
+        "best": 78
+       },
+       "DarkKnight": {
+        "kills": 4,
+        "best": 29
+       }
+      }
      },
      {
       "label": "E6S",
@@ -24275,7 +24555,17 @@
       "best": 80,
       "median": 26,
       "kills": 24,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 20,
+        "best": 80
+       },
+       "DarkKnight": {
+        "kills": 4,
+        "best": 25
+       }
+      }
      },
      {
       "label": "E7S",
@@ -24284,7 +24574,13 @@
       "best": 82,
       "median": 35,
       "kills": 17,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 17,
+        "best": 82
+       }
+      }
      },
      {
       "label": "E8S",
@@ -24293,7 +24589,13 @@
       "best": 10,
       "median": 9,
       "kills": 6,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 6,
+        "best": 10
+       }
+      }
      }
     ]
    }
@@ -24942,7 +25244,25 @@
       "best": 100,
       "median": 89,
       "kills": 115,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Ninja": {
+        "kills": 15,
+        "best": 86
+       },
+       "Samurai": {
+        "kills": 1,
+        "best": 30
+       },
+       "Warrior": {
+        "kills": 98,
+        "best": 100
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 30
+       }
+      }
      },
      {
       "label": "E6S",
@@ -24951,7 +25271,17 @@
       "best": 100,
       "median": 96,
       "kills": 107,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Ninja": {
+        "kills": 17,
+        "best": 91
+       },
+       "Warrior": {
+        "kills": 90,
+        "best": 100
+       }
+      }
      },
      {
       "label": "E7S",
@@ -24960,7 +25290,25 @@
       "best": 99,
       "median": 87,
       "kills": 69,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Ninja": {
+        "kills": 13,
+        "best": 94
+       },
+       "Warrior": {
+        "kills": 54,
+        "best": 99
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 39
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 43
+       }
+      }
      },
      {
       "label": "E8S",
@@ -24969,7 +25317,17 @@
       "best": 99,
       "median": 93,
       "kills": 79,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Ninja": {
+        "kills": 13,
+        "best": 96
+       },
+       "Warrior": {
+        "kills": 66,
+        "best": 99
+       }
+      }
      }
     ]
    }
@@ -25486,7 +25844,17 @@
       "best": 65,
       "median": 27,
       "kills": 16,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "Dancer": {
+        "kills": 7,
+        "best": 19
+       },
+       "WhiteMage": {
+        "kills": 9,
+        "best": 65
+       }
+      }
      },
      {
       "label": "E6S",
@@ -25495,7 +25863,17 @@
       "best": 43,
       "median": 15,
       "kills": 20,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "Dancer": {
+        "kills": 10,
+        "best": 41
+       },
+       "WhiteMage": {
+        "kills": 10,
+        "best": 43
+       }
+      }
      },
      {
       "label": "E7S",
@@ -25504,7 +25882,17 @@
       "best": 54,
       "median": 32,
       "kills": 21,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "Dancer": {
+        "kills": 14,
+        "best": 18
+       },
+       "WhiteMage": {
+        "kills": 7,
+        "best": 54
+       }
+      }
      }
     ]
    }
@@ -26184,7 +26572,33 @@
       "best": 62,
       "median": 31,
       "kills": 16,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 2,
+        "best": 36
+       },
+       "Dancer": {
+        "kills": 8,
+        "best": 62
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 28
+       },
+       "DarkKnight": {
+        "kills": 2,
+        "best": 12
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 35
+       },
+       "Scholar": {
+        "kills": 2,
+        "best": 18
+       }
+      }
      },
      {
       "label": "E6S",
@@ -26193,7 +26607,13 @@
       "best": 61,
       "median": 27,
       "kills": 12,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 12,
+        "best": 61
+       }
+      }
      },
      {
       "label": "E7S",
@@ -26202,7 +26622,17 @@
       "best": 55,
       "median": 55,
       "kills": 2,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 1,
+        "best": 55
+       },
+       "BlackMage": {
+        "kills": 1,
+        "best": 15
+       }
+      }
      },
      {
       "label": "E8S",
@@ -28524,7 +28954,29 @@
       "best": 53,
       "median": 29,
       "kills": 16,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "Summoner": {
+        "kills": 2,
+        "best": 25
+       },
+       "WhiteMage": {
+        "kills": 8,
+        "best": 53
+       },
+       "Gunbreaker": {
+        "kills": 1,
+        "best": 16
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 15
+       },
+       "Scholar": {
+        "kills": 3,
+        "best": 23
+       }
+      }
      },
      {
       "label": "E6S",
@@ -28533,7 +28985,21 @@
       "best": 48,
       "median": 19,
       "kills": 8,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "Summoner": {
+        "kills": 1,
+        "best": 10
+       },
+       "WhiteMage": {
+        "kills": 5,
+        "best": 48
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 9
+       }
+      }
      },
      {
       "label": "E7S",
@@ -28542,7 +29008,17 @@
       "best": 54,
       "median": 42,
       "kills": 8,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 2,
+        "best": 54
+       },
+       "Paladin": {
+        "kills": 6,
+        "best": 9
+       }
+      }
      }
     ]
    }
@@ -34644,11 +35120,11 @@
     "name": "The Tyrant",
     "kind": "savage",
     "state": "learning",
-    "pct": 73.56,
+    "pct": 19.19,
     "phase": 0,
-    "pulls": 8,
-    "last": "2026-09-03",
-    "last_ts": 1788460911
+    "pulls": 11,
+    "last": "2026-09-07",
+    "last_ts": 1788791570
    }
   ]
  },
@@ -35472,7 +35948,13 @@
       "best": 65,
       "median": 21,
       "kills": 20,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 20,
+        "best": 65
+       }
+      }
      },
      {
       "label": "E6S",
@@ -35481,7 +35963,13 @@
       "best": 83,
       "median": 14,
       "kills": 18,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 18,
+        "best": 83
+       }
+      }
      },
      {
       "label": "E7S",
@@ -35490,7 +35978,13 @@
       "best": 55,
       "median": 28,
       "kills": 11,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 11,
+        "best": 55
+       }
+      }
      },
      {
       "label": "E8S",
@@ -35499,7 +35993,13 @@
       "best": 49,
       "median": 30,
       "kills": 12,
-      "job": "WhiteMage"
+      "job": "WhiteMage",
+      "job_kills": {
+       "WhiteMage": {
+        "kills": 12,
+        "best": 49
+       }
+      }
      }
     ]
    }
@@ -36882,7 +37382,13 @@
       "best": 40,
       "median": 23,
       "kills": 10,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 10,
+        "best": 40
+       }
+      }
      },
      {
       "label": "E6S",
@@ -36900,7 +37406,13 @@
       "best": 14,
       "median": 12,
       "kills": 6,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 6,
+        "best": 14
+       }
+      }
      },
      {
       "label": "E8S",
@@ -49612,11 +50124,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 36.13,
+    "pct": 29.98,
     "phase": 4,
-    "pulls": 65,
-    "last": "2026-09-02",
-    "last_ts": 1788365948
+    "pulls": 121,
+    "last": "2026-09-07",
+    "last_ts": 1788799322
    }
   ]
  },
@@ -56054,10 +56566,21 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 59,
+    "kills": 2,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 14,
+    "kills": 20,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -63384,7 +63907,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 4,
-    "kills": 14,
+    "kills": 17,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {

@@ -3,6 +3,34 @@
   {
    "date": "2026-09-07",
    "type": "job_up",
+   "id": 28789661,
+   "name": "Zuma Zerk",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "ex_clear",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "parse_up",
+   "id": 26844665,
+   "name": "J'atoh Nunh",
+   "text": "set a new best parse: 37 on Eden Prime as Paladin"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "level_100",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "job_up",
    "id": 15308846,
    "name": "Aqua Eleison",
    "text": "is now a Legendary Warrior"
@@ -1371,34 +1399,6 @@
    "id": 47221226,
    "name": "Destiny Marjory",
    "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "is now a Expert Paladin"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Expert Scholar"
   }
  ]
 }

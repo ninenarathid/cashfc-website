@@ -329,7 +329,7 @@
   "jobs": {
    "Ninja": "legendary",
    "Warrior": "legendary",
-   "Paladin": "expert",
+   "Paladin": "master",
    "Astrologian": "expert"
   },
   "ex": [
@@ -620,7 +620,7 @@
    "Paladin": "legendary",
    "Summoner": "legendary",
    "WhiteMage": "legendary",
-   "Scholar": "master",
+   "Scholar": "expert",
    "RedMage": "expert"
   },
   "ex": [
@@ -1023,7 +1023,7 @@
    "Samurai": "expert",
    "WhiteMage": "expert",
    "Dancer": "expert",
-   "Paladin": "master",
+   "Paladin": "expert",
    "Warrior": "expert"
   },
   "ex": [
@@ -2437,7 +2437,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -4610,7 +4610,7 @@
   "mounts": 47,
   "minions": 114,
   "rare": null,
-  "level": 100,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -4636,7 +4636,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-07"
  },
  "29918404": {
   "name": "Zarass Gierlos",
@@ -4785,7 +4785,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 100,
+  "level": 91,
   "cc": [
    true,
    true,
@@ -5510,6 +5510,7 @@
   },
   "jobs": {},
   "ex": [
+   "Queen Eternal",
    "Valigarmanda"
   ],
   "ults": [],
@@ -5720,6 +5721,65 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "40394823": {
+  "name": "Dummii Amary",
+  "parse": 80,
+  "ult": 0,
+  "mounts": 114,
+  "minions": 275,
+  "rare": 31,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [
+   1337,
+   1415,
+   1453,
+   1508,
+   1614,
+   1676,
+   2037,
+   2392,
+   2555,
+   2559,
+   2562,
+   2603,
+   2669,
+   2699,
+   2748,
+   2749,
+   2750,
+   2759,
+   2765,
+   2794,
+   2797,
+   2802,
+   2883,
+   3001,
+   3194,
+   3202,
+   3203,
+   3243,
+   3265,
+   3317,
+   3318
+  ],
+  "tiers": {},
+  "jobs": {
+   "Samurai": "master"
+  },
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
+  "chg": "2026-09-07"
+ },
  "39959181": {
   "name": "El Blung",
   "parse": 91,
@@ -5900,7 +5960,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 85,
+  "level": 12,
   "cc": null,
   "rare_ids": [
    3874
@@ -6087,7 +6147,7 @@
  },
  "26844665": {
   "name": "J'atoh Nunh",
-  "parse": null,
+  "parse": 37,
   "ult": 0,
   "mounts": 143,
   "minions": 334,
@@ -6122,7 +6182,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-07"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -6185,7 +6245,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 82,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6206,7 +6266,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -6832,7 +6892,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 97,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -6890,6 +6950,31 @@
   "ult": 0,
   "mounts": 100,
   "minions": 233,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
+  "chg": "2026-08-29"
+ },
+ "2852829": {
+  "name": "Papamaru Dj",
+  "parse": 7,
+  "ult": 0,
+  "mounts": 55,
+  "minions": 177,
   "rare": null,
   "level": 100,
   "cc": [
@@ -7357,6 +7442,41 @@
   "ults": [],
   "chg": "2026-08-29"
  },
+ "37648492": {
+  "name": "Sunshine Eveningfall",
+  "parse": 92,
+  "ult": 5,
+  "mounts": 51,
+  "minions": 191,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "WhiteMage": "legendary",
+   "Dancer": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-08-29"
+ },
  "30582341": {
   "name": "Sweetpea Swp",
   "parse": 95,
@@ -7583,14 +7703,14 @@
   "mounts": 5,
   "minions": 11,
   "rare": null,
-  "level": 65,
+  "level": 69,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9896,65 +10016,6 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-30"
- },
- "40394823": {
-  "name": "Dummii Amary",
-  "parse": 80,
-  "ult": 0,
-  "mounts": 114,
-  "minions": 275,
-  "rare": 31,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [
-   1337,
-   1415,
-   1453,
-   1508,
-   1614,
-   1676,
-   2037,
-   2392,
-   2555,
-   2559,
-   2562,
-   2603,
-   2669,
-   2699,
-   2748,
-   2749,
-   2750,
-   2759,
-   2765,
-   2794,
-   2797,
-   2802,
-   2883,
-   3001,
-   3194,
-   3202,
-   3203,
-   3243,
-   3265,
-   3317,
-   3318
-  ],
-  "tiers": {},
-  "jobs": {
-   "Samurai": "master"
-  },
-  "ex": [
-   "Valigarmanda",
-   "Zoraal Ja"
-  ],
-  "ults": [],
-  "chg": "2026-09-07"
  },
  "9155192": {
   "name": "E'stelle Blanc",
@@ -14158,31 +14219,6 @@
   "ults": [],
   "chg": "2026-08-29"
  },
- "2852829": {
-  "name": "Papamaru Dj",
-  "parse": 7,
-  "ult": 0,
-  "mounts": 55,
-  "minions": 177,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [
-   "Valigarmanda",
-   "Zoraal Ja"
-  ],
-  "ults": [],
-  "chg": "2026-08-29"
- },
  "37065671": {
   "name": "Paxis Stone",
   "parse": null,
@@ -15706,41 +15742,6 @@
   "ults": [],
   "chg": "2026-08-29"
  },
- "37648492": {
-  "name": "Sunshine Eveningfall",
-  "parse": 92,
-  "ult": 5,
-  "mounts": 51,
-  "minions": 191,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   true,
-   true,
-   true,
-   true,
-   true
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {
-   "WhiteMage": "legendary",
-   "Dancer": "expert"
-  },
-  "ex": [
-   "Doomtrain",
-   "Valigarmanda",
-   "Zoraal Ja"
-  ],
-  "ults": [
-   "Dragonsong's Reprise",
-   "Futures Rewritten",
-   "The Epic of Alexander",
-   "The Unending Coil of Bahamut",
-   "The Weapon's Refrain"
-  ],
-  "chg": "2026-08-29"
- },
  "45194317": {
   "name": "Sweet Dango",
   "parse": null,
@@ -16067,7 +16068,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 82,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -16600,7 +16601,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 83,
+  "level": 84,
   "cc": [
    false,
    false,
