@@ -3,6 +3,41 @@
   {
    "date": "2026-09-07",
    "type": "job_up",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "job_up",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "job_up",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "job_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "is now a Expert Scholar"
+  },
+  {
+   "date": "2026-09-07",
+   "type": "job_up",
    "id": 28789661,
    "name": "Zuma Zerk",
    "text": "is now a Master Paladin"
@@ -1364,41 +1399,6 @@
    "id": 31236337,
    "name": "Whitefrost Marionette",
    "text": "is now a Expert Astrologian"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "is now a Master Pictomancer"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "is now a Expert Red Mage"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "rare_up",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "earned Mixing It Up: Genius"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 32147756,
-   "name": "Bunny Nirawz",
-   "text": "is now a Master Viper"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "is now a Expert Warrior"
   }
  ]
 }

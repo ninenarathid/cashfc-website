@@ -3406,10 +3406,12 @@
   "jobs": {
    "Samurai": "legendary",
    "Monk": "legendary",
-   "DarkKnight": "legendary",
+   "DarkKnight": "master",
+   "Gunbreaker": "expert",
    "Viper": "expert",
    "Reaper": "expert",
-   "Scholar": "expert",
+   "Summoner": "expert",
+   "Scholar": "master",
    "Dragoon": "expert"
   },
   "ex": [
@@ -3991,7 +3993,7 @@
    "Paladin": "legendary",
    "DarkKnight": "legendary",
    "Warrior": "legendary",
-   "Gunbreaker": "master",
+   "Gunbreaker": "legendary",
    "Ninja": "master",
    "Dancer": "expert",
    "WhiteMage": "expert"
@@ -5343,7 +5345,8 @@
    "WhiteMage": "legendary",
    "Summoner": "expert",
    "Dancer": "expert",
-   "Astrologian": "master"
+   "Scholar": "expert",
+   "Astrologian": "expert"
   },
   "ex": [],
   "ults": [
