@@ -1133,11 +1133,35 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool,
 # Grades for job proficiency, hardest first. Absolute, like the playstyle grades:
 # whoever clears the bar earns it. The board only shows Expert and above — the point
 # is finding somebody who could teach a newcomer, and below that the answer is no.
+#
+# Raised from 80/65/50 when the score stopped being an average of every fight. The
+# statistic got more generous, so the bars had to rise with it or every grade would
+# have quietly inflated: these are the cuts that leave the same number of people
+# holding each grade as before, measured over all 1,061 member-job records on file.
+# What changes is which people, not how many.
 JOB_TIERS: list[tuple[str, float]] = [
-    ("legendary", 80.0),
-    ("master", 65.0),
-    ("expert", 50.0),
+    ("legendary", 88.0),
+    ("master", 72.0),
+    ("expert", 54.0),
 ]
+
+# How much of somebody's record the grade is read from, best first.
+#
+# Not all of it, which is what this used to do and what made a member who logs
+# everything score below one who logs only their good nights. A first kill parses
+# in single figures by definition — it is the night you learned the fight, not a
+# measure of how you play the job — and averaging those in punished exactly the
+# behaviour the FC wants: turning up to prog, and uploading it.
+#
+# One member had nine Dark Knight fights: 98, 80, 77, 67, 45, 32, 31, 15, 8. The
+# four at the bottom are the four bosses he had just started killing. Averaged
+# flat he scored 43 and held no grade at all; read from the better half he scores
+# 61, which is what the top of that record plainly shows.
+#
+# Half, and never fewer than three: a grade resting on one or two good pulls is
+# not a grade, and below three fights the whole record is used anyway.
+GRADE_FROM_BEST = 0.5
+GRADE_MIN_FIGHTS = 3
 
 # Content is not equally hard, and a parse percentile is only ever measured against
 # the people doing that same content — so 99 in an Ultimate is measured against a far
@@ -1368,9 +1392,14 @@ def score_jobs(entry: dict) -> dict[str, dict]:
 
     out: dict[str, dict] = {}
     for job, r in acc.items():
-        wsum = sum(w for _, w, _ in r["parses"])
-        parse = (round(sum(p * w for p, w, _ in r["parses"]) / wsum, 1)
-                 if wsum else 0.0)
+        # The better half of the record, best first. See GRADE_FROM_BEST.
+        ranked = sorted(r["parses"], key=lambda x: -x[0])
+        keep = ranked[: max(GRADE_MIN_FIGHTS,
+                            math.ceil(len(ranked) * GRADE_FROM_BEST))]
+        wsum = sum(w for _, w, _ in keep)
+        parse = round(sum(p * w for p, w, _ in keep) / wsum, 1) if wsum else 0.0
+        # From the whole record: the hardest thing somebody has fought is a fact
+        # about them, not about the half of it the grade is read from.
         hardest = max((k for _, _, k in r["parses"]),
                       key=lambda k: CONTENT_WEIGHT[k], default=None)
         depth = min(1.0, math.log10(1 + r["kills"]) / 2.0)    # ~100 kills tops it out

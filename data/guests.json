@@ -96,11 +96,10 @@
     }
    ],
    "job_top": {
-    "job": "Sage",
     "fights": 12,
     "kills": 88,
-    "parse": 86.9,
-    "score": 85.7,
+    "parse": 96.0,
+    "score": 94.7,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -108,57 +107,57 @@
     "Machinist": {
      "fights": 18,
      "kills": 92,
-     "parse": 78.5,
-     "score": 77.9,
+     "parse": 86.1,
+     "score": 85.4,
      "tier": "master",
      "hardest": "ultimate"
     },
     "Gunbreaker": {
      "fights": 5,
      "kills": 22,
-     "parse": 46.1,
-     "score": 38.4,
+     "parse": 49.1,
+     "score": 40.9,
      "tier": null,
      "hardest": "legacy"
     },
     "BlackMage": {
      "fights": 7,
      "kills": 43,
-     "parse": 54.5,
-     "score": 49.4,
-     "tier": null,
+     "parse": 65.1,
+     "score": 59.0,
+     "tier": "expert",
      "hardest": "ultimate"
     },
     "Paladin": {
      "fights": 5,
      "kills": 17,
-     "parse": 73.6,
-     "score": 59.2,
+     "parse": 79.2,
+     "score": 63.7,
      "tier": "expert",
      "hardest": "ultimate"
     },
     "Astrologian": {
      "fights": 27,
      "kills": 220,
-     "parse": 73.3,
-     "score": 73.3,
+     "parse": 83.1,
+     "score": 83.1,
      "tier": "master",
      "hardest": "ultimate"
     },
     "Viper": {
      "fights": 6,
      "kills": 26,
-     "parse": 53.8,
-     "score": 45.8,
+     "parse": 63.1,
+     "score": 53.7,
      "tier": null,
      "hardest": "ultimate"
     },
     "Scholar": {
      "fights": 15,
      "kills": 88,
-     "parse": 76.0,
-     "score": 75.0,
-     "tier": "master",
+     "parse": 91.1,
+     "score": 89.9,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "Pictomancer": {
@@ -180,8 +179,8 @@
     "Sage": {
      "fights": 12,
      "kills": 88,
-     "parse": 86.9,
-     "score": 85.7,
+     "parse": 96.0,
+     "score": 94.7,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -204,8 +203,8 @@
     "RedMage": {
      "fights": 8,
      "kills": 17,
-     "parse": 26.9,
-     "score": 21.6,
+     "parse": 35.0,
+     "score": 28.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -290,11 +289,10 @@
    "progress": null,
    "progress_all": null,
    "job_top": {
-    "job": "Sage",
     "fights": 31,
     "kills": 506,
-    "parse": 99.7,
-    "score": 99.7,
+    "parse": 100.0,
+    "score": 100.0,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -302,16 +300,16 @@
     "BlackMage": {
      "fights": 8,
      "kills": 37,
-     "parse": 91.3,
-     "score": 81.2,
-     "tier": "legendary",
+     "parse": 97.6,
+     "score": 86.8,
+     "tier": "master",
      "hardest": "savage"
     },
     "RedMage": {
      "fights": 14,
      "kills": 30,
-     "parse": 86.3,
-     "score": 74.8,
+     "parse": 96.6,
+     "score": 83.7,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -326,72 +324,72 @@
     "Scholar": {
      "fights": 31,
      "kills": 118,
-     "parse": 92.5,
-     "score": 92.5,
+     "parse": 98.2,
+     "score": 98.2,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Pictomancer": {
      "fights": 8,
      "kills": 25,
-     "parse": 90.3,
-     "score": 76.4,
+     "parse": 96.8,
+     "score": 81.9,
      "tier": "master",
      "hardest": "savage"
     },
     "Paladin": {
      "fights": 4,
      "kills": 6,
-     "parse": 47.5,
-     "score": 33.1,
+     "parse": 63.2,
+     "score": 44.0,
      "tier": null,
      "hardest": "savage"
     },
     "Summoner": {
      "fights": 15,
      "kills": 98,
-     "parse": 96.9,
-     "score": 96.8,
+     "parse": 100.0,
+     "score": 99.9,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Sage": {
      "fights": 31,
      "kills": 506,
-     "parse": 99.7,
-     "score": 99.7,
+     "parse": 100.0,
+     "score": 100.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Samurai": {
      "fights": 12,
      "kills": 44,
-     "parse": 91.8,
-     "score": 83.4,
+     "parse": 98.3,
+     "score": 89.4,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Warrior": {
      "fights": 15,
      "kills": 78,
-     "parse": 94.7,
-     "score": 92.2,
+     "parse": 98.7,
+     "score": 96.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Astrologian": {
      "fights": 24,
      "kills": 454,
-     "parse": 97.9,
-     "score": 97.9,
+     "parse": 100.0,
+     "score": 100.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "WhiteMage": {
      "fights": 16,
      "kills": 64,
-     "parse": 91.8,
-     "score": 87.3,
+     "parse": 99.1,
+     "score": 94.2,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -406,16 +404,16 @@
     "Monk": {
      "fights": 18,
      "kills": 40,
-     "parse": 80.9,
-     "score": 72.7,
+     "parse": 93.7,
+     "score": 84.2,
      "tier": "master",
      "hardest": "ultimate"
     },
     "Bard": {
      "fights": 4,
      "kills": 7,
-     "parse": 65.1,
-     "score": 46.4,
+     "parse": 69.3,
+     "score": 49.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -432,7 +430,7 @@
      "kills": 6,
      "parse": 95.0,
      "score": 50.2,
-     "tier": "expert",
+     "tier": null,
      "hardest": "ultimate"
     },
     "Gunbreaker": {
@@ -440,7 +438,7 @@
      "kills": 5,
      "parse": 82.8,
      "score": 51.6,
-     "tier": "expert",
+     "tier": null,
      "hardest": "legacy"
     }
    },
@@ -502,11 +500,10 @@
    "progress": null,
    "progress_all": null,
    "job_top": {
-    "job": "Paladin",
     "fights": 12,
     "kills": 93,
-    "parse": 81.1,
-    "score": 80.5,
+    "parse": 89.2,
+    "score": 88.6,
     "tier": "legendary",
     "hardest": "savage"
    },
@@ -514,17 +511,17 @@
     "Paladin": {
      "fights": 12,
      "kills": 93,
-     "parse": 81.1,
-     "score": 80.5,
+     "parse": 89.2,
+     "score": 88.6,
      "tier": "legendary",
      "hardest": "savage"
     },
     "DarkKnight": {
      "fights": 9,
      "kills": 25,
-     "parse": 51.0,
-     "score": 43.2,
-     "tier": null,
+     "parse": 72.6,
+     "score": 61.5,
+     "tier": "expert",
      "hardest": "savage"
     },
     "Samurai": {
@@ -538,8 +535,8 @@
     "Monk": {
      "fights": 5,
      "kills": 15,
-     "parse": 50.9,
-     "score": 40.3,
+     "parse": 58.9,
+     "score": 46.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -608,13 +605,20 @@
    "current_seen": true,
    "progress": null,
    "progress_all": null,
-   "job_top": null,
+   "job_top": {
+    "fights": 9,
+    "kills": 27,
+    "parse": 58.0,
+    "score": 49.6,
+    "tier": null,
+    "hardest": "savage"
+   },
    "job_scores": {
     "WhiteMage": {
      "fights": 9,
      "kills": 27,
-     "parse": 41.7,
-     "score": 35.6,
+     "parse": 58.0,
+     "score": 49.6,
      "tier": null,
      "hardest": "savage"
     },
@@ -705,29 +709,28 @@
     }
    ],
    "job_top": {
-    "job": "DarkKnight",
-    "fights": 14,
-    "kills": 94,
-    "parse": 87.0,
-    "score": 86.5,
+    "fights": 24,
+    "kills": 214,
+    "parse": 92.8,
+    "score": 92.8,
     "tier": "legendary",
-    "hardest": "savage"
+    "hardest": "ultimate"
    },
    "job_scores": {
     "DarkKnight": {
      "fights": 14,
      "kills": 94,
-     "parse": 87.0,
-     "score": 86.5,
+     "parse": 92.4,
+     "score": 91.9,
      "tier": "legendary",
      "hardest": "savage"
     },
     "Warrior": {
      "fights": 24,
      "kills": 214,
-     "parse": 74.5,
-     "score": 74.5,
-     "tier": "master",
+     "parse": 92.8,
+     "score": 92.8,
+     "tier": "legendary",
      "hardest": "ultimate"
     }
    },
@@ -822,11 +825,10 @@
     }
    ],
    "job_top": {
-    "job": "Reaper",
     "fights": 11,
     "kills": 100,
-    "parse": 94.4,
-    "score": 94.4,
+    "parse": 98.4,
+    "score": 98.4,
     "tier": "legendary",
     "hardest": "savage"
    },
@@ -834,24 +836,24 @@
     "Reaper": {
      "fights": 11,
      "kills": 100,
-     "parse": 94.4,
-     "score": 94.4,
+     "parse": 98.4,
+     "score": 98.4,
      "tier": "legendary",
      "hardest": "savage"
     },
     "Samurai": {
      "fights": 10,
      "kills": 10,
-     "parse": 25.8,
-     "score": 19.3,
+     "parse": 43.4,
+     "score": 32.5,
      "tier": null,
      "hardest": "savage"
     },
     "Scholar": {
      "fights": 18,
      "kills": 78,
-     "parse": 63.8,
-     "score": 62.1,
+     "parse": 71.9,
+     "score": 70.0,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -866,9 +868,9 @@
     "WhiteMage": {
      "fights": 4,
      "kills": 38,
-     "parse": 90.4,
-     "score": 80.7,
-     "tier": "legendary",
+     "parse": 91.3,
+     "score": 81.5,
+     "tier": "master",
      "hardest": "extreme"
     },
     "Monk": {
@@ -876,7 +878,7 @@
      "kills": 10,
      "parse": 79.0,
      "score": 50.2,
-     "tier": "expert",
+     "tier": null,
      "hardest": "extreme"
     },
     "Machinist": {
@@ -906,40 +908,40 @@
     "Paladin": {
      "fights": 7,
      "kills": 48,
-     "parse": 84.6,
-     "score": 77.7,
+     "parse": 90.2,
+     "score": 82.9,
      "tier": "master",
      "hardest": "legacy"
     },
     "Warrior": {
      "fights": 4,
      "kills": 19,
-     "parse": 62.5,
-     "score": 51.0,
+     "parse": 66.9,
+     "score": 54.6,
      "tier": "expert",
      "hardest": "legacy"
     },
     "DarkKnight": {
      "fights": 11,
      "kills": 29,
-     "parse": 74.4,
-     "score": 64.2,
-     "tier": "expert",
+     "parse": 86.6,
+     "score": 74.7,
+     "tier": "master",
      "hardest": "ultimate"
     },
     "Sage": {
      "fights": 6,
      "kills": 38,
-     "parse": 77.5,
-     "score": 69.2,
+     "parse": 91.7,
+     "score": 81.9,
      "tier": "master",
      "hardest": "legacy"
     },
     "Astrologian": {
      "fights": 12,
      "kills": 78,
-     "parse": 54.7,
-     "score": 53.2,
+     "parse": 65.0,
+     "score": 63.3,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -978,8 +980,8 @@
     "Dancer": {
      "fights": 4,
      "kills": 26,
-     "parse": 57.2,
-     "score": 48.7,
+     "parse": 62.3,
+     "score": 53.0,
      "tier": null,
      "hardest": "legacy"
     }
