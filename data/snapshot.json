@@ -152,7 +152,7 @@
    "pvp": "legendary"
   },
   "jobs": {
-   "Warrior": "master"
+   "Warrior": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -329,7 +329,7 @@
   "jobs": {
    "Ninja": "legendary",
    "Warrior": "legendary",
-   "Paladin": "master",
+   "Paladin": "expert",
    "Astrologian": "expert"
   },
   "ex": [
@@ -368,7 +368,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "master"
+   "Scholar": "legendary"
   },
   "ex": [],
   "ults": [
@@ -427,7 +427,6 @@
    3644,
    3646,
    3648,
-   3649,
    3656,
    3657,
    3752,
@@ -456,6 +455,7 @@
    3796,
    3797,
    3798,
+   3799,
    3800,
    3801,
    3823,
@@ -619,7 +619,9 @@
   "jobs": {
    "Paladin": "legendary",
    "Summoner": "legendary",
-   "WhiteMage": "master"
+   "WhiteMage": "legendary",
+   "Scholar": "master",
+   "RedMage": "expert"
   },
   "ex": [
    "Necron",
@@ -685,6 +687,7 @@
    3765,
    3766,
    3767,
+   3768,
    3770,
    3771,
    3778,
@@ -723,7 +726,6 @@
    3885,
    3886,
    3887,
-   3898,
    3899,
    3921,
    3922,
@@ -755,11 +757,12 @@
   ],
   "tiers": {
    "relic": "legendary",
-   "explorer": "master"
+   "explorer": "master",
+   "treasure": "expert"
   },
   "jobs": {
    "Dancer": "legendary",
-   "RedMage": "master"
+   "RedMage": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -844,7 +847,9 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "RedMage": "expert"
+   "Dragoon": "expert",
+   "RedMage": "master",
+   "Bard": "master"
   },
   "ex": [
    "Necron",
@@ -1015,8 +1020,9 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Samurai": "expert",
    "WhiteMage": "expert",
-   "Dancer": "master",
+   "Dancer": "expert",
    "Paladin": "master",
    "Warrior": "expert"
   },
@@ -1100,7 +1106,7 @@
   "tiers": {},
   "jobs": {
    "WhiteMage": "legendary",
-   "Astrologian": "expert"
+   "Astrologian": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1268,8 +1274,7 @@
    "RedMage": "legendary",
    "Warrior": "master",
    "Pictomancer": "expert",
-   "Reaper": "legendary",
-   "Machinist": "expert"
+   "Reaper": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1304,6 +1309,7 @@
   ],
   "rare_ids": [
    1328,
+   1329,
    2292,
    2940,
    3256,
@@ -1356,7 +1362,6 @@
    3853,
    3854,
    3858,
-   3859,
    3862,
    3875,
    3886,
@@ -1437,7 +1442,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dancer": "master",
+   "Dancer": "legendary",
    "Warrior": "expert",
    "Paladin": "master"
   },
@@ -1530,7 +1535,6 @@
   ],
   "tiers": {},
   "jobs": {
-   "Machinist": "expert",
    "Sage": "expert"
   },
   "ex": [
@@ -1612,8 +1616,8 @@
   "tiers": {},
   "jobs": {
    "BlackMage": "legendary",
-   "Summoner": "master",
-   "Pictomancer": "master",
+   "Summoner": "legendary",
+   "Pictomancer": "expert",
    "RedMage": "expert"
   },
   "ex": [
@@ -1725,8 +1729,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "BlackMage": "master",
-   "Summoner": "expert"
+   "BlackMage": "master"
   },
   "ex": [
    "Doomtrain",
@@ -1824,6 +1827,7 @@
    "Warrior": "master",
    "Gunbreaker": "expert",
    "Reaper": "master",
+   "Paladin": "master",
    "DarkKnight": "master"
   },
   "ex": [
@@ -2035,7 +2039,7 @@
    "pvp": "expert"
   },
   "jobs": {
-   "Gunbreaker": "expert",
+   "Gunbreaker": "master",
    "Dragoon": "master"
   },
   "ex": [
@@ -2125,7 +2129,7 @@
   "tiers": {},
   "jobs": {
    "Warrior": "legendary",
-   "Paladin": "master"
+   "Paladin": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -2199,7 +2203,8 @@
   "jobs": {
    "Viper": "expert",
    "Monk": "legendary",
-   "Samurai": "legendary"
+   "Samurai": "master",
+   "Summoner": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -2371,7 +2376,9 @@
    "relic": "master",
    "explorer": "legendary"
   },
-  "jobs": {},
+  "jobs": {
+   "Gunbreaker": "expert"
+  },
   "ex": [
    "Doomtrain",
    "Enuo",
@@ -2430,7 +2437,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2443,7 +2450,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -2521,7 +2528,7 @@
   "tiers": {},
   "jobs": {
    "Warrior": "master",
-   "Dancer": "master",
+   "Dancer": "legendary",
    "BlackMage": "expert",
    "Gunbreaker": "master",
    "Bard": "expert",
@@ -2589,7 +2596,7 @@
    "DarkKnight": "master",
    "Warrior": "legendary",
    "Summoner": "expert",
-   "Gunbreaker": "master",
+   "Gunbreaker": "expert",
    "Samurai": "legendary"
   },
   "ex": [
@@ -2734,13 +2741,14 @@
    "explorer": "legendary"
   },
   "jobs": {
+   "Machinist": "expert",
    "Bard": "legendary",
    "Dancer": "master",
    "Scholar": "expert",
-   "Astrologian": "expert",
+   "Astrologian": "master",
    "WhiteMage": "master",
    "Summoner": "master",
-   "RedMage": "master",
+   "RedMage": "expert",
    "Pictomancer": "master"
   },
   "ex": [
@@ -2885,10 +2893,10 @@
    "explorer": "master"
   },
   "jobs": {
-   "Scholar": "expert",
-   "Sage": "master",
+   "Scholar": "master",
+   "Sage": "legendary",
    "RedMage": "expert",
-   "WhiteMage": "expert"
+   "WhiteMage": "master"
   },
   "ex": [
    "Doomtrain",
@@ -2957,7 +2965,6 @@
    3651,
    3652,
    3653,
-   3654,
    3677,
    3752,
    3753,
@@ -2979,6 +2986,7 @@
    3792,
    3798,
    3799,
+   3805,
    3811,
    3814,
    3817,
@@ -3171,7 +3179,7 @@
    "explorer": "master"
   },
   "jobs": {
-   "Warrior": "expert"
+   "Warrior": "master"
   },
   "ex": [
    "Doomtrain",
@@ -3248,6 +3256,7 @@
    "seasonal": "expert"
   },
   "jobs": {
+   "Sage": "expert",
    "Warrior": "expert"
   },
   "ex": [],
@@ -3396,10 +3405,11 @@
   "tiers": {},
   "jobs": {
    "Samurai": "legendary",
-   "Monk": "master",
-   "Gunbreaker": "expert",
-   "Viper": "master",
-   "Scholar": "master",
+   "Monk": "legendary",
+   "DarkKnight": "legendary",
+   "Viper": "expert",
+   "Reaper": "expert",
+   "Scholar": "expert",
    "Dragoon": "expert"
   },
   "ex": [
@@ -3781,7 +3791,8 @@
    "Gunbreaker": "expert",
    "Reaper": "legendary",
    "Machinist": "master",
-   "Bard": "expert"
+   "Bard": "expert",
+   "Dancer": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -3862,12 +3873,11 @@
   "jobs": {
    "BlackMage": "expert",
    "Paladin": "legendary",
-   "Gunbreaker": "legendary",
+   "Gunbreaker": "master",
    "Samurai": "legendary",
-   "Bard": "expert",
    "Machinist": "expert",
    "Warrior": "expert",
-   "DarkKnight": "master",
+   "DarkKnight": "expert",
    "Monk": "legendary"
   },
   "ex": [
@@ -3942,7 +3952,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Warrior": "master"
+   "Warrior": "master",
+   "Gunbreaker": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -3975,14 +3986,13 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "master",
-   "Samurai": "master",
+   "Viper": "legendary",
+   "Samurai": "legendary",
    "Paladin": "legendary",
    "DarkKnight": "legendary",
-   "Warrior": "master",
-   "Gunbreaker": "legendary",
+   "Warrior": "legendary",
+   "Gunbreaker": "master",
    "Ninja": "master",
-   "Scholar": "expert",
    "Dancer": "expert",
    "WhiteMage": "expert"
   },
@@ -4214,6 +4224,7 @@
    3770,
    3771,
    3802,
+   3823,
    3832,
    3842,
    3843,
@@ -4228,7 +4239,6 @@
    3868,
    3869,
    3870,
-   3878,
    3879,
    3880,
    3881,
@@ -4276,13 +4286,12 @@
    "pvp": "expert"
   },
   "jobs": {
-   "Monk": "master",
+   "Monk": "legendary",
    "Warrior": "legendary",
    "Gunbreaker": "master",
    "Paladin": "expert",
    "Dancer": "legendary",
-   "WhiteMage": "expert",
-   "Machinist": "expert"
+   "WhiteMage": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -4613,7 +4622,8 @@
   "tiers": {},
   "jobs": {
    "Paladin": "master",
-   "Machinist": "expert"
+   "Machinist": "expert",
+   "Summoner": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -4775,7 +4785,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 99,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4810,7 +4820,9 @@
    4014
   ],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "WhiteMage": "expert"
+  },
   "ex": [
    "Doomtrain",
    "Enuo",
@@ -4820,7 +4832,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5193,8 +5205,7 @@
   "tiers": {},
   "jobs": {
    "Gunbreaker": "master",
-   "Paladin": "expert",
-   "Viper": "master"
+   "Viper": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -5240,7 +5251,6 @@
    2284,
    2286,
    2444,
-   2596,
    2633,
    2661,
    2662,
@@ -5259,6 +5269,7 @@
    2870,
    2872,
    2873,
+   2928,
    2929,
    2930,
    2931,
@@ -5331,7 +5342,8 @@
   "jobs": {
    "WhiteMage": "legendary",
    "Summoner": "expert",
-   "Dancer": "expert"
+   "Dancer": "expert",
+   "Astrologian": "master"
   },
   "ex": [],
   "ults": [
@@ -5555,6 +5567,7 @@
    1919,
    2292,
    2868,
+   2873,
    2933,
    2996,
    3306,
@@ -5573,7 +5586,6 @@
    3369,
    3370,
    3371,
-   3372,
    3467,
    3468,
    3469,
@@ -5815,7 +5827,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 8,
-  "level": 100,
+  "level": 93,
   "cc": null,
   "rare_ids": [
    1414,
@@ -5831,7 +5843,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-07"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -5888,7 +5900,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 86,
+  "level": 85,
   "cc": null,
   "rare_ids": [
    3874
@@ -5897,7 +5909,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-07"
  },
  "39850923": {
   "name": "Hiro Hikari",
@@ -6183,7 +6195,9 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Paladin": "expert"
+  },
   "ex": [
    "Enuo",
    "Queen Eternal",
@@ -6589,7 +6603,7 @@
   "mounts": 67,
   "minions": 95,
   "rare": 31,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6639,7 +6653,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -6818,7 +6832,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -6829,14 +6843,14 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "master",
+   "WhiteMage": "expert",
    "Astrologian": "legendary"
   },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -7360,7 +7374,9 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Summoner": "expert"
+  },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
@@ -7798,7 +7814,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "master"
+   "Viper": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -8296,9 +8312,7 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {
-   "RedMage": "expert"
-  },
+  "jobs": {},
   "ex": [],
   "ults": [],
   "chg": "2026-09-01"
@@ -8426,14 +8440,14 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 75,
+  "level": 77,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -8986,8 +9000,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "DarkKnight": "expert",
-   "Gunbreaker": "expert"
+   "DarkKnight": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -9045,7 +9058,7 @@
   "tiers": {},
   "jobs": {
    "Ninja": "master",
-   "Paladin": "legendary",
+   "Paladin": "master",
    "Monk": "master"
   },
   "ex": [
@@ -9307,7 +9320,7 @@
   "tiers": {},
   "jobs": {
    "Astrologian": "master",
-   "Scholar": "master"
+   "Scholar": "legendary"
   },
   "ex": [],
   "ults": [
@@ -9815,12 +9828,10 @@
    "goldsaucer": "master"
   },
   "jobs": {
-   "DarkKnight": "master",
+   "DarkKnight": "expert",
    "Samurai": "legendary",
-   "Sage": "legendary",
-   "Astrologian": "master",
-   "WhiteMage": "expert",
-   "Scholar": "expert"
+   "Sage": "master",
+   "Astrologian": "master"
   },
   "ex": [
    "Necron",
@@ -9890,8 +9901,8 @@
   "name": "Dummii Amary",
   "parse": 80,
   "ult": 0,
-  "mounts": 112,
-  "minions": 274,
+  "mounts": 114,
+  "minions": 275,
   "rare": 31,
   "level": 100,
   "cc": [
@@ -9943,7 +9954,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-07"
  },
  "9155192": {
   "name": "E'stelle Blanc",
@@ -10445,6 +10456,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Summoner": "expert",
    "RedMage": "master"
   },
   "ex": [],
@@ -10714,8 +10726,9 @@
    "BlackMage": "master",
    "Dragoon": "legendary",
    "Bard": "master",
-   "Summoner": "expert",
-   "Samurai": "expert",
+   "Summoner": "master",
+   "Samurai": "master",
+   "Warrior": "expert",
    "Gunbreaker": "expert"
   },
   "ex": [
@@ -11402,7 +11415,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "legendary"
+   "Viper": "master"
   },
   "ex": [
    "Guardian Arkveld",
@@ -11706,7 +11719,7 @@
   "tiers": {},
   "jobs": {
    "Scholar": "legendary",
-   "Astrologian": "legendary"
+   "Astrologian": "master"
   },
   "ex": [],
   "ults": [
@@ -11822,7 +11835,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "expert"
+   "Sage": "expert",
+   "Scholar": "master"
   },
   "ex": [
    "Queen Eternal",
@@ -12919,7 +12933,7 @@
   "tiers": {},
   "jobs": {
    "Reaper": "legendary",
-   "Ninja": "expert",
+   "Ninja": "master",
    "DarkKnight": "legendary"
   },
   "ex": [],
@@ -12991,7 +13005,9 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Scholar": "expert"
+  },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
@@ -13039,7 +13055,7 @@
   "tiers": {},
   "jobs": {
    "Reaper": "legendary",
-   "Dragoon": "master"
+   "Dragoon": "expert"
   },
   "ex": [],
   "ults": [
@@ -13160,7 +13176,7 @@
   "jobs": {
    "Warrior": "master",
    "Paladin": "expert",
-   "Gunbreaker": "expert"
+   "Gunbreaker": "master"
   },
   "ex": [],
   "ults": [],
@@ -13350,7 +13366,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "expert"
+   "WhiteMage": "master"
   },
   "ex": [],
   "ults": [],
@@ -13731,7 +13747,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Dancer": "master"
+   "Dancer": "legendary"
   },
   "ex": [],
   "ults": [],
@@ -13777,7 +13793,6 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Summoner": "expert",
    "Gunbreaker": "master"
   },
   "ex": [],
@@ -14004,6 +14019,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Astrologian": "master",
    "WhiteMage": "master"
   },
   "ex": [],
@@ -14757,7 +14773,7 @@
   "jobs": {
    "Warrior": "legendary",
    "Paladin": "master",
-   "RedMage": "expert"
+   "RedMage": "master"
   },
   "ex": [],
   "ults": [
@@ -14983,7 +14999,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Gunbreaker": "master",
+   "Gunbreaker": "legendary",
    "Paladin": "legendary"
   },
   "ex": [],
@@ -15544,7 +15560,6 @@
    "Viper": "master",
    "Samurai": "legendary",
    "Reaper": "legendary",
-   "Machinist": "expert",
    "Paladin": "expert"
   },
   "ex": [
@@ -15649,7 +15664,8 @@
    "Bard": "legendary",
    "Dragoon": "master",
    "Reaper": "master",
-   "Samurai": "legendary"
+   "Samurai": "legendary",
+   "Machinist": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -15708,7 +15724,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "legendary"
+   "WhiteMage": "legendary",
+   "Dancer": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -16050,7 +16067,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 80,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -16063,7 +16080,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
@@ -16583,7 +16600,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 81,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -16596,7 +16613,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-07"
  },
  "47423083": {
   "name": "Yueying Hua",
@@ -16660,7 +16677,6 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Pictomancer": "expert",
    "Reaper": "expert",
    "Sage": "legendary",
    "DarkKnight": "expert",
