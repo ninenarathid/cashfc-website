@@ -13,6 +13,7 @@ import Carousel from "@/components/gallery/Carousel";
 import PostTags from "@/components/gallery/PostTags";
 import PhotoTagLayer from "@/components/gallery/PhotoTagLayer";
 import { useDropTarget } from "@/components/ui/DropZone";
+import { markEntry } from "@/lib/evercold";
 import { useAvatarOverrides } from "@/lib/avatars";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PopotoGivers from "@/components/PopotoGivers";
@@ -291,6 +292,9 @@ export default function PostDetail(
       : await supabase.from("gallery_likes").delete()
           .eq("post_id", post.id).eq("profile_id", me);
     if (error) { setLiked(!next); setLikes((n) => (n ?? 0) + (next ? -1 : 1)); }
+    // Giving one counts towards the draw; taking one back does not take the
+    // day away, because the day was earned when it was given.
+    if (!error && next) void markEntry(supabase, me, myCharacter);
     setBusy(false);
   }
 

@@ -32,6 +32,16 @@ export interface ToastRequest {
   badge?: string;
   /** Where it goes when clicked. Nothing means it is only an announcement. */
   href?: string | null;
+  /**
+   * Which colour it wears.
+   *
+   * Everything is the site accent by default, which is what makes a toast read
+   * as this site interrupting you. "good" is for the handful of things that
+   * are unambiguously a bit of luck — earning a ticket in the draw — and it is
+   * green because green is the one colour on this site that has never meant
+   * anything but that.
+   */
+  tone?: "accent" | "good";
 }
 
 const EVENT = "toast:show";
@@ -103,21 +113,29 @@ export default function ToastHost() {
                      * goes.
                      */
                     style={{
-                      background:
-                        "color-mix(in oklab, var(--color-accent) 10%, var(--color-surface))",
+                      background: `color-mix(in oklab, ${
+                        it.tone === "good" ? "var(--color-jade)" : "var(--color-accent)"
+                      } 10%, var(--color-surface))`,
                     }}
-                    className="pop-in flex items-center gap-3.5 rounded-2xl border-2 border-accent/70 border-l-[6px] border-l-accent p-4 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.7)] ring-1 ring-accent/25 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[state=closed]:opacity-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-transform">
+                    className={`pop-in flex items-center gap-3.5 rounded-2xl border-2 border-l-[6px] p-4 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.7)] ring-1 ${
+                      it.tone === "good"
+                        ? "border-jade/70 border-l-jade ring-jade/25"
+                        : "border-accent/70 border-l-accent ring-accent/25"
+                    } data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[state=closed]:opacity-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-transform`}>
           {(it.image || it.badge) && (
             <span className="relative block size-14 shrink-0">
               {it.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={it.image} alt=""
-                     className="size-14 rounded-full border border-accent/40 object-cover" />
+                     className={`size-14 rounded-full border object-cover ${
+                       it.tone === "good" ? "border-jade/40" : "border-accent/40"}`} />
               ) : (
-                <span className="block size-14 rounded-full border border-accent/40 bg-card" />
+                <span className={`block size-14 rounded-full border bg-card ${
+                  it.tone === "good" ? "border-jade/40" : "border-accent/40"}`} />
               )}
               {it.badge && (
-                <span className="absolute -bottom-0.5 -right-0.5 grid size-6 place-items-center rounded-full border border-accent/50 bg-surface text-[12px]">
+                <span className={`absolute -bottom-0.5 -right-0.5 grid size-6 place-items-center rounded-full border bg-surface text-[12px] ${
+                  it.tone === "good" ? "border-jade/50" : "border-accent/50"}`}>
                   {it.badge}
                 </span>
               )}
@@ -134,7 +152,8 @@ export default function ToastHost() {
               // in it anybody is meant to press.
               <Radix.Action asChild altText={t("notif.open")}>
                 <Link href={it.href} onClick={() => close(it.id)}
-                      className="mt-1 inline-block text-[12.5px] text-accent no-underline hover:underline">
+                      className={`mt-1 inline-block text-[12.5px] no-underline hover:underline ${
+                        it.tone === "good" ? "text-jade" : "text-accent"}`}>
                   {t("notif.open")} &rarr;
                 </Link>
               </Radix.Action>

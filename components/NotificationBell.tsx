@@ -10,6 +10,7 @@ import { postPath } from "@/lib/gallery";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
+import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
 
 interface Note {
@@ -123,6 +124,9 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   popoto_post: { say: "notif.popotoPost", icon: "🥔", href: "" },
   announcement: { say: "notif.announced", icon: "📣", href: "/" },
   feedback: { say: "notif.feedback", icon: "✉️", href: "/feedback" },
+  // The draw. A ticket, because that is what an entry is, and the poster is
+  // the picture beside it — this is the one notification with no person in it.
+  evercold: { say: "notif.evercold", icon: "🎟️", href: "" },
 };
 /** A bell nobody is looking at can afford to be a minute and a half behind. */
 const POLL_MS = 90_000;
@@ -456,14 +460,23 @@ export default function NotificationBell() {
       const kind = KIND[n.kind];
       const line = n.kind === "announcement"
         ? t("notif.announced")
-        : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something");
+        : n.kind === "evercold"
+          ? t("notif.evercold", { n: n.body ?? "?" })
+          : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something");
       const actor = n.actor ? people[n.actor] : undefined;
       const face = actor?.characterId != null
         ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
       toast({
-        text: line,
-        image: n.post_id ? covers[n.post_id] ?? face : face,
+        // The toast has one line for both facts, so the event goes in front —
+        // it is the thing that makes the sentence after it mean anything.
+        text: n.kind === "evercold"
+          ? `${t("notif.evercoldEvent")} — ${line}` : line,
+        image: n.kind === "evercold" ? EVENT_POSTER
+          : n.post_id ? covers[n.post_id] ?? face : face,
         badge: kind?.icon,
+        // Green, because earning a ticket is the one thing the bell says that
+        // is unambiguously a bit of luck.
+        tone: n.kind === "evercold" ? "good" : "accent",
         href: n.kind === "popoto"
           ? (character != null ? `/member/${character}` : "/profile")
           : n.post_id ? postPath(n.post_id) : (kind?.href || null),
@@ -610,6 +623,9 @@ export default function NotificationBell() {
       return;
     }
     setGiven((v) => new Set(v).add(characterId));
+    // Sending one back is giving one, so it earns the day the same as any
+    // other. Fired and forgotten: the potato has landed either way.
+    void markEntry(supabase, me, character);
   }
 
   /** Everybody in the panel who sent one today and has not had one back. */
@@ -660,6 +676,9 @@ export default function NotificationBell() {
     const say = n.kind === "announcement"
       ? (isAdmin ? ("notif.announcedBy" as const) : ("notif.announced" as const))
       : kind?.say;
+    // The one notification with nobody in it: nothing was done to you, you did
+    // something, and the poster is what it is about.
+    const eventPoster = n.kind === "evercold" ? EVENT_POSTER : null;
     const actor = n.actor ? people[n.actor] : undefined;
     const actorFace = actor?.characterId != null
       ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
@@ -675,7 +694,7 @@ export default function NotificationBell() {
     // An announcement with a picture on it shows that picture, squarely,
     // because it is a poster and not a face.
     const poster = n.kind === "announcement" && n.body
-      ? posters[n.body] ?? null : null;
+      ? posters[n.body] ?? null : eventPoster;
     // Answered tags keep their line and their picture and lose their buttons.
     // Taking the whole notification away took the photograph with it, which is
     // the thing somebody who has just agreed to be named in one is most likely
@@ -696,8 +715,8 @@ export default function NotificationBell() {
            className={`flex gap-3.5 border-b border-line px-4 py-3.5 last:border-0 ${
              n.read_at ? "" : "bg-accent/5"}`}>
         {poster ? (
-          <BadgedThumb src={poster} badge="📣" round={false}
-                       href={href} onGo={dismiss} />
+          <BadgedThumb src={poster} badge={n.kind === "evercold" ? "🎟️" : "📣"}
+                       round={false} href={href} onGo={dismiss} />
         ) : facing && (actorFace || actorHref) ? (
           <BadgedThumb src={actorFace} badge={facing} href={actorHref}
                        onGo={dismiss} />
@@ -716,16 +735,28 @@ export default function NotificationBell() {
 
         <div className="min-w-0 flex-1">
           <p className="text-[13px] leading-snug text-ink/90">
-            {say
-              ? said(t(say, { who: SLOT }), n.actor_name ?? "—",
-                     actorHref, dismiss)
-              : t("notif.something")}
+            {/* The event line takes a count where the others take a name, and
+                nobody did it to you — so it is written straight rather than
+                threaded through the linked-name machinery. */}
+            {n.kind === "evercold"
+              ? t("notif.evercold", { n: n.body ?? "?" })
+              : say
+                ? said(t(say, { who: SLOT }), n.actor_name ?? "—",
+                       actorHref, dismiss)
+                : t("notif.something")}
           </p>
-          {n.body && (
+          {/* The second line is the body everywhere except the event, where the
+              body is the number already spoken above and what belongs here is
+              which draw earned it. */}
+          {n.kind === "evercold" ? (
+            <p className="mt-1 font-data text-[11px] uppercase tracking-[0.1em] text-jade">
+              {t("notif.evercoldEvent")}
+            </p>
+          ) : n.body ? (
             <p className="mt-1 line-clamp-2 text-[12.5px] leading-snug text-muted">
               {n.body}
             </p>
-          )}
+          ) : null}
           {backTo != null && (
             <div className="mt-1.5">
               {given.has(backTo) ? (

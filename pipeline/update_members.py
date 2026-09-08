@@ -3014,6 +3014,20 @@ def main() -> None:
         json.dump(out, f, ensure_ascii=False, indent=1)
     log(f"Wrote members.json — {len(members)} members")
 
+    # Just the ids, as their own file.
+    #
+    # The browser needs one question answered — "is this character in the Free
+    # Company?" — in places that have no business loading a 900KB roster to ask
+    # it: the notification bell, the popoto button on somebody else's page. Six
+    # kilobytes of numbers answers it, and being written here means it can never
+    # disagree with the roster it came from.
+    save_json("fc-ids.json", {
+        "generated_at": out["generated_at"],
+        "count": len(members),
+        "ids": sorted(m["id"] for m in members),
+    })
+    log(f"Wrote fc-ids.json — {len(members)} ids")
+
 
 if __name__ == "__main__":
     main()

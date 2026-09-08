@@ -7,7 +7,8 @@
 //   node scripts/test-notification.mjs --list          # who can be sent one
 //   node scripts/test-notification.mjs --clean         # remove the ones this made
 //
-// --kind is one of: popoto, popoto_post, tag, comment, feedback, announcement.
+// --kind is one of: popoto, popoto_post, tag, comment, feedback, announcement,
+// evercold. The last one is the draw, and its body is the running entry count.
 // A kind that wants a picture is given the newest gallery post, so the toast
 // and the bell have something to draw.
 //
@@ -63,7 +64,11 @@ async function main() {
   if (has("clean")) {
     const gone = await rest(`notifications?body=eq.${encodeURIComponent(MARK)}`,
                             { method: "DELETE", headers: { Prefer: "return=representation" } });
-    console.log(`removed ${gone?.length ?? 0} test notification(s)`);
+    // The event rows carry a count rather than the marker, so they are found
+    // by kind — nothing else writes one with a body that is only digits.
+    const draws = await rest("notifications?kind=eq.evercold&body=in.(3,4,5,6,7,8,9,10)",
+                             { method: "DELETE", headers: { Prefer: "return=representation" } });
+    console.log(`removed ${(gone?.length ?? 0) + (draws?.length ?? 0)} test notification(s)`);
     return;
   }
 
@@ -92,7 +97,8 @@ async function main() {
   }
 
   const kind = arg("kind", "popoto");
-  const KINDS = ["popoto", "popoto_post", "tag", "comment", "feedback", "announcement"];
+  const KINDS = ["popoto", "popoto_post", "tag", "comment", "feedback",
+                 "announcement", "evercold"];
   if (!KINDS.includes(kind)) {
     console.error(`--kind must be one of: ${KINDS.join(", ")}`);
     process.exitCode = 1;
@@ -123,7 +129,9 @@ async function main() {
       actor: who.id,
       actor_name: label(who),
       post_id: postId,
-      body: MARK,
+      // The event line reads its number out of the body, so a test of it needs
+      // one there instead of the marker. Cleaning up finds these by kind.
+      body: kind === "evercold" ? String(3 + i) : MARK,
     };
   });
   const made = await rest("notifications",

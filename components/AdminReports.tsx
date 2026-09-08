@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useAvatar } from "@/lib/avatars";
+import { EVENT_FROM, EVENT_TO } from "@/lib/evercold";
 import { fmtDate } from "@/lib/dates";
 import { useLang, type Key } from "@/lib/i18n";
 
@@ -145,7 +146,10 @@ const SCOPES: { key: "fc" | "out" | "all"; label: Key }[] = [
   { key: "all", label: "adm.scopeAll" },
 ];
 
-const SPANS: { label: Key; from: () => string }[] = [
+const SPANS: { label: Key; from: () => string; to?: () => string }[] = [
+  // The event first, because for the next month it is the only span anybody
+  // running this report means.
+  { label: "adm.spanEvent", from: () => EVENT_FROM, to: () => EVENT_TO },
   { label: "adm.spanToday", from: () => today() },
   { label: "adm.span7", from: () => daysAgo(6) },
   { label: "adm.span30", from: () => daysAgo(29) },
@@ -197,8 +201,11 @@ export default function AdminReports(
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const [which, setWhich] = useState(REPORTS[0].key);
-  const [since, setSince] = useState(daysAgo(29));
-  const [until, setUntil] = useState(today());
+  // Opens on the event. The draw this report feeds is the event's draw, and a
+  // report that opens on the last thirty days would be answering a question
+  // nobody is asking until October.
+  const [since, setSince] = useState(EVENT_FROM);
+  const [until, setUntil] = useState(EVENT_TO);
   const [rows, setRows] = useState<Entry[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [howMany, setHowMany] = useState("1");
@@ -332,7 +339,7 @@ export default function AdminReports(
                aria-label={t("adm.to")} className={box} />
         {SPANS.map((sp) => (
           <button key={sp.label}
-                  onClick={() => { setSince(sp.from()); setUntil(today()); }}
+                  onClick={() => { setSince(sp.from()); setUntil(sp.to?.() ?? today()); }}
                   className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
             {t(sp.label)}
           </button>

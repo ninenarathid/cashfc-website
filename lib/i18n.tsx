@@ -422,6 +422,22 @@ const DICT = {
     en: "Nothing here yet.",
     th: "ยังไม่มีการแจ้งเตือน",
   },
+  // The event line. Written as a running total rather than as "+1", because
+  // the number somebody wants after a month of this is how many they have, and
+  // "+1" makes them do the addition themselves every evening.
+  "notif.evercold": {
+    en: "Today's entry is yours — {n} in the draw so far 🥔",
+    th: "ได้รับสิทธิ์ของวันนี้แล้ว — รวมทั้งหมด {n} สิทธิ์ 🥔",
+  },
+  // The event's own name, under the line rather than in it. A notification's
+  // first line is what just happened; which draw it belongs to is the answer
+  // to the next question, and putting both on one line makes the sentence
+  // longer than the toast is wide.
+  "notif.evercoldEvent": {
+    en: "Popoto :Road to Evercold Event",
+    th: "Popoto :Road to Evercold Event",
+  },
+  "adm.spanEvent": { en: "The event", th: "ช่วงกิจกรรม" },
   "notif.open": { en: "Open", th: "เปิดดู" },
   "notif.look": { en: "Look first", th: "ดูรูปก่อน" },
   "notif.tagged": {
@@ -932,16 +948,16 @@ const DICT = {
   "member.otherJobs": { en: "{n} other jobs", th: "อีก {n} อาชีพ" },
 
   "adm.reports": {
-    en: "Popoto given",
-    th: "การส่ง popoto",
+    en: "Popoto: Road to Evercold",
+    th: "Popoto: Road to Evercold",
   },
   "adm.noCharacter": {
     en: "no character",
     th: "ยังไม่ผูกตัวละคร",
   },
   "adm.rpPopoto": {
-    en: "Popoto given, day by day",
-    th: "การส่ง popoto รายวัน",
+    en: "Popoto: Road to Evercold Event",
+    th: "Popoto: Road to Evercold Event",
   },
   "adm.rpPopotoNote": {
     en: "one day of giving is one entry, however many were given that day — it counts only what somebody gave to other people: not what they were given, and not what they gave themselves",

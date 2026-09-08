@@ -33,6 +33,7 @@ import { createClient } from "@/lib/supabase/client";
 import { memberTitle } from "@/lib/tags";
 import { GUEST_RANK, guestHome } from "@/lib/guest-data";
 import { parseColor } from "@/lib/parse";
+import { markEntry } from "@/lib/evercold";
 
 /**
  * The wash behind a member's name, built from the one colour they picked.
@@ -98,6 +99,8 @@ export default function MemberView({
   const [kudosMsg, setKudosMsg] = useState("");
   /** Whether the reader has claimed a character, which giving a popoto needs. */
   const [iHaveCharacter, setIHaveCharacter] = useState(false);
+  /** The viewer's own character, which the draw counts entries against. */
+  const [myCharacter, setMyCharacter] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -149,6 +152,7 @@ export default function MemberView({
           .select("character_id").eq("id", data.user.id).single();
         setIsOwner(me?.character_id === m.id);
         setIHaveCharacter(me?.character_id != null);
+        setMyCharacter(me?.character_id ?? null);
       }
     });
   }, [supabase, m.id]);
@@ -175,6 +179,9 @@ export default function MemberView({
     } else {
       setKudos((k) => (k ?? 0) + 1);
       setKudosMsg(t("kudos.sent"));
+      // The draw counts a day of giving, and this is one. Not awaited: the
+      // potato has landed, and the congratulation can arrive a moment later.
+      void markEntry(supabase, user.id, myCharacter);
     }
     setTimeout(() => setKudosMsg(""), 3000);
   }
