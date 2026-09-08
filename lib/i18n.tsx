@@ -338,8 +338,8 @@ const DICT = {
   },
   "lb.gallery": { en: "Gallery popoto", th: "Popoto จากรูป" },
   "lb.galleryHint": {
-    en: "added up across all their pictures",
-    th: "รวมจากทุกรูปที่โพสต์ในแกลเลอรี",
+    en: "shared between everybody in each picture",
+    th: "แบ่งกันทุกคนที่อยู่ในรูป",
   },
   "gallery.cover": { en: "Cover", th: "รูปหน้าปก" },
   "gallery.openPoster": { en: "Post a picture", th: "โพสต์รูป" },

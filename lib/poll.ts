@@ -58,9 +58,19 @@ export function usePoll() {
   useEffect(() => {
     if (!supabase) { setReady(true); return; }
     void (async () => {
-      // Newest first, one at a time: a second open poll would be two questions
-      // sharing one card, and nobody has asked for that.
+      /*
+       * Newest first, one at a time: a second open poll would be two questions
+       * sharing one card, and nobody has asked for that.
+       *
+       * Closed ones are not fetched at all. A poll that has merely run out of
+       * time keeps its card so the result can be read, which is the point of
+       * asking; closing it in the admin screen is how it comes off the gallery
+       * when the FC is done with it — and it comes off without deleting a
+       * single vote, so the answer and who gave it stay on the admin page for
+       * good.
+       */
       const { data } = await supabase.from("polls").select(COLUMNS)
+        .eq("closed", false)
         .order("created_at", { ascending: false }).limit(1).maybeSingle();
       const p = (data as Poll | null) ?? null;
       setPoll(p);

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
 import LeaderRow, { type Leader } from "@/components/LeaderRow";
+import { popotoText, splitPopoto,
+         type PopotoPost, type PopotoTag } from "@/lib/popoto";
 
 /**
  * The two boards the game had no hand in.
@@ -80,23 +82,19 @@ const BOARDS: Board[] = [
     title: "lb.gallery",
     hint: "lb.galleryHint",
     unit: (n) => `across ${n} picture${n === 1 ? "" : "s"}`,
-    // Counted against the character a post belongs to rather than whoever
-    // uploaded it, because that is who a picture is credited to everywhere else
-    // — an admin posting on somebody's behalf should not collect their potatoes.
+    // Divided between everybody in the picture, which the FC voted for. The
+    // rule itself is in lib/popoto.ts, shared with the front page so the two
+    // boards can never come to different answers about the same photograph.
+    //
+    // Not filtered to posts with a character on them any more: a picture posted
+    // for nobody in particular still belongs to whoever is tagged in it.
     load: async (supabase) => {
-      const { data } = await supabase.from("gallery_posts")
-        .select("character_id, like_count").not("character_id", "is", null);
-      const out: Totals = new Map();
-      for (const p of (data ?? []) as
-           { character_id: number; like_count: number | null }[]) {
-        const likes = p.like_count ?? 0;
-        if (likes <= 0) continue;
-        const at = out.get(p.character_id) ?? { score: 0, n: 0 };
-        at.score += likes;
-        at.n += 1;
-        out.set(p.character_id, at);
-      }
-      return out;
+      const [posts, tags] = await Promise.all([
+        supabase.from("gallery_posts").select("id, character_id, like_count"),
+        supabase.from("gallery_tags").select("post_id, character_id, confirmed_at"),
+      ]);
+      return splitPopoto((posts.data ?? []) as unknown as PopotoPost[],
+                         (tags.data ?? []) as unknown as PopotoTag[]);
     },
   },
 ];
@@ -152,7 +150,7 @@ function OneBoard({ board, names }: { board: Board; names: Names }) {
       <ol className="flex flex-col gap-1 px-4 pb-4 pt-3">
         {rows.map((r, i) => (
           <LeaderRow key={r.id} row={r} place={i + 1}
-                     value={`${board.icon} ${r.score}`}
+                     value={`${board.icon} ${popotoText(r.score)}`}
                      title={board.unit(r.n)} />
         ))}
       </ol>

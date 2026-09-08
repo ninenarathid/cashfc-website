@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { splitPopoto, type PopotoPost, type PopotoTag } from "@/lib/popoto";
 import { useAvatar } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { TAG_COLOR, TAG_LABELS } from "@/lib/tags";
@@ -83,10 +84,10 @@ export default function TopThree(
     const supabase = createClient();
     if (!supabase) return;
     void (async () => {
-      const [kudos, posts] = await Promise.all([
+      const [kudos, posts, tags] = await Promise.all([
         supabase.from("kudos").select("receiver_character_id"),
-        supabase.from("gallery_posts").select("character_id, like_count")
-          .not("character_id", "is", null),
+        supabase.from("gallery_posts").select("id, character_id, like_count"),
+        supabase.from("gallery_tags").select("post_id, character_id, confirmed_at"),
       ]);
 
       const count = (pairs: [number, number][]) => {
@@ -110,9 +111,13 @@ export default function TopThree(
         made.push({ key: "popoto", label: t("lb.popoto"), color: "#e5cc80",
                     emoji: "🥔", rows: profile });
       }
-      const gallery = count(((posts.data ?? []) as
-        { character_id: number; like_count: number | null }[])
-        .map((p) => [p.character_id, p.like_count ?? 0]));
+      // Everybody in the picture, sharing it — the same rule the leaderboard
+      // uses, from the same place, so the front page cannot disagree with the
+      // page it links to.
+      const gallery = count([...splitPopoto(
+        (posts.data ?? []) as unknown as PopotoPost[],
+        (tags.data ?? []) as unknown as PopotoTag[],
+      )].map(([id, v]) => [id, v.score] as [number, number]));
       if (gallery.length) {
         made.push({ key: "gallery", label: t("lb.gallery"), color: "#4fb8a8",
                     emoji: "🥔", rows: gallery });

@@ -135,9 +135,12 @@ export default function LeaderboardIntro(
               <b className="text-ink">และนับแยกกันคนละที่</b>
               <br />
               อันแรกนับจากปุ่ม Send popoto ในหน้าโปรไฟล์ กดได้วันละครั้งต่อคน
-              ตัวเลขจึงตรงกับที่ขึ้นในหน้าโปรไฟล์ของคนนั้นเป๊ะๆ ส่วนอันที่สองรวม
-              Popoto จากทุกรูปที่เขาโพสต์ในแกลเลอรี และนับให้ตัวละครที่รูปนั้นสังกัด
-              ไม่ใช่คนที่กดอัปโหลด
+              ตัวเลขจึงตรงกับที่ขึ้นในหน้าโปรไฟล์ของคนนั้นเป๊ะๆ ส่วนอันที่สอง{" "}
+              <b className="text-ink">แบ่งกันทุกคนที่อยู่ในรูป</b> —
+              เจ้าของรูปกับทุกคนที่ถูกแท็กและยืนยันแล้ว หารเท่ากัน
+              (5 popoto ในรูปที่มีสามคน ได้คนละ 1.67) FC โหวตเปลี่ยนเป็นแบบนี้
+              10 ต่อ 6 เพราะการกดใต้รูปที่มีคนห้าคน คือการพูดถึงรูปนั้น
+              และรูปนั้นเป็นของทั้งห้าคน
             </>
           ) : (
             <>
@@ -149,9 +152,13 @@ export default function LeaderboardIntro(
               <br />
               The first is Send popoto on somebody&rsquo;s profile, once per person per
               day, so its total matches the number on that member&rsquo;s own page
-              exactly. The second adds up the popoto on every picture they have
-              posted, credited to the character a picture belongs to rather than
-              whoever uploaded it.
+              exactly. The second is{" "}
+              <b className="text-ink">divided between everybody in the picture</b> —
+              whoever it is credited to, and everyone tagged in it who has agreed
+              to the tag, in equal shares (five potatoes on a photo of three
+              people is 1.67 each). The FC voted for that, ten to six: pressing
+              the button under a picture of five people is saying something about
+              the picture, and the picture is five people&rsquo;s.
             </>
           )}
         </p>
