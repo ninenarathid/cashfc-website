@@ -1,0 +1,1087 @@
+/**
+ * The shape of a party, and the things a party is for.
+ *
+ * Nothing here talks to the database yet — this is the model on its own, so the
+ * shape can be argued about before any of it is written down in a table. What
+ * the FC agrees to here is what the schema will have to hold.
+ *
+ * Three ideas, kept apart on purpose:
+ *
+ *   A *shape* is how many people stand in it and what they are called. The game
+ *   decides this, not us: four is Tank/Heal/D1/D2, eight is MT/ST/H1/H2/D1-D4,
+ *   and an alliance is three eights called A, B and C.
+ *
+ *   A *content* is what the party is going to do. It carries the shape it is
+ *   normally run at, so picking M12S already knows it is eight people.
+ *
+ *   A *party* is one of those, at a time, with names in some of the seats and
+ *   the rest still open. The open ones are the whole point: which positions are
+ *   missing is the question this board exists to answer.
+ */
+
+import { artFocus, dutySlug, type DutyKind } from "@/lib/duty";
+
+export type SlotRole = "tank" | "healer" | "dps";
+export type Shape = "light" | "full" | "alliance" | "open";
+/** Which of the three eights, in an alliance. */
+export type Wing = "A" | "B" | "C";
+
+export interface SlotDef {
+  /** Unique within the party: "MT", or "B-D3" in an alliance. */
+  id: string;
+  /** What the game calls the seat. */
+  label: string;
+  role: SlotRole;
+  wing?: Wing;
+}
+
+const LIGHT: [string, SlotRole][] = [
+  ["Tank", "tank"], ["Heal", "healer"], ["D1", "dps"], ["D2", "dps"],
+];
+const FULL: [string, SlotRole][] = [
+  ["MT", "tank"], ["ST", "tank"], ["H1", "healer"], ["H2", "healer"],
+  ["D1", "dps"], ["D2", "dps"], ["D3", "dps"], ["D4", "dps"],
+];
+
+/**
+ * Every seat in a party of the given shape, in party-list order.
+ *
+ * An alliance is not a fourth arrangement, it is the eight-player one three
+ * times over — so it is built from the same list rather than written out again,
+ * and a seat's id carries its wing so "B-H2" is a different seat from "A-H2".
+ */
+export function slotsOf(shape: Shape): SlotDef[] {
+  if (shape === "open") return [];
+  if (shape === "light") {
+    return LIGHT.map(([label, role]) => ({ id: label, label, role }));
+  }
+  if (shape === "full") {
+    return FULL.map(([label, role]) => ({ id: label, label, role }));
+  }
+  return (["A", "B", "C"] as Wing[]).flatMap((wing) =>
+    FULL.map(([label, role]) => ({ id: `${wing}-${label}`, label, role, wing })));
+}
+
+export const SHAPE_SIZE: Record<Shape, number> = {
+  light: 4, full: 8, alliance: 24, open: 0,
+};
+
+export const SHAPE_LABEL: Record<Shape, string> = {
+  light: "Light party (4)",
+  full: "Full party (8)",
+  alliance: "Alliance (24)",
+  // Never shown as-is: three different situations end up with no seats, and
+  // openLabel below says which one this is. Kept only as the fallback for a
+  // kind nobody has thought about yet.
+  open: "No fixed party",
+};
+
+/* ── What a party is for ──────────────────────────────────────────────────── */
+
+export type ContentKind =
+  | "extreme" | "savage" | "ultimate"
+  | "alliance" | "treasure" | "fate" | "hunt" | "criterion" | "pvp"
+  | "community" | "other";
+
+export interface ContentDef {
+  key: string;
+  kind: ContentKind;
+  name: string;
+  /** What people actually say. "M12S", "FRU". */
+  short?: string;
+  shape: Shape;
+  /**
+   * Whether the size is the game's decision or the party's.
+   *
+   * A savage fight is eight people and there is nothing to ask; a treasure map
+   * run is four or eight depending on how many turned up. Offering the choice
+   * on the first kind is a question with one right answer, which is a question
+   * somebody can still get wrong.
+   */
+  fixedShape?: boolean;
+  /** EX1, M11S, FRU — the short label people say out loud. */
+  badge?: string;
+  /** The duty as the game lists it, which is what you queue for. */
+  duty?: string;
+  /**
+   * Its own game badge, where the kind's is too broad.
+   *
+   * Community Events covers a photo shoot, a scene and a concert, and the game
+   * has a separate playstyle icon for each of the three. The kind's icon still
+   * marks the category chip; this marks the thing itself.
+   */
+  icon?: string;
+  /** A still from the fight, where one has been filed. */
+  art?: string;
+  /** Where that still is anchored when it is cropped. */
+  focus?: string;
+}
+
+/** One fight the picture files can be looked up by. */
+export interface ContentSeed {
+  /** The name the artwork is filed under — the boss, as FF Logs reports it. */
+  name: string;
+  /** What people say instead, if that differs. */
+  short?: string;
+  /** EX1, M11S. */
+  badge?: string;
+  /** The duty as the game lists it. */
+  duty?: string;
+}
+
+/**
+ * The kinds, in the order they are offered.
+ *
+ * The three the FC asked for first are first, and the rest are the things
+ * people organise anyway and currently do in Discord scrollback. Dungeons and
+ * roulettes are deliberately absent until the top of this list works.
+ */
+export const KIND_LABEL: Record<ContentKind, string> = {
+  extreme: "Extreme",
+  savage: "Savage",
+  ultimate: "Ultimate",
+  alliance: "Alliance raid",
+  treasure: "Treasure hunt",
+  fate: "FATE farm",
+  hunt: "Hunt train",
+  criterion: "Criterion / Variant",
+  pvp: "PvP",
+  community: "Community Events",
+  other: "Other",
+};
+
+export const KIND_ORDER: ContentKind[] = [
+  "extreme", "savage", "ultimate",
+  "alliance", "treasure", "criterion", "pvp", "community", "fate", "hunt", "other",
+];
+
+/**
+ * The game's own badge for each kind, by the name TagIcon files it under.
+ *
+ * The same art the member board puts on a tag, because a member who has learned
+ * that orange maw means savage should not have to learn a second symbol for it
+ * one page over. Kinds the game has no badge for get none rather than a
+ * borrowed one: an invented icon is worse than a word.
+ */
+export const KIND_ICON: Partial<Record<ContentKind, string>> = {
+  extreme: "extreme",
+  savage: "tier-clear",
+  ultimate: "ultimate",
+  alliance: "alliance",
+  criterion: "criterion",
+  fate: "fate",
+  hunt: "hunt",
+  community: "community",
+  pvp: "pvp",
+  treasure: "treasure",
+};
+
+/**
+ * What "no seats" means, which depends on why there are none.
+ *
+ * Three quite different situations end up at the same shape and one sentence
+ * cannot serve all three. PvP genuinely cannot be entered as a party —
+ * everybody queues alone and the game builds the teams. A hunt train is a party
+ * in every ordinary sense that simply has no roles. And a photograph is not a
+ * party at all; calling that a queue would be nonsense on a listing whose whole
+ * content is "come and stand here".
+ */
+export function openLabel(kind: ContentKind | undefined): string {
+  if (kind === "pvp") return "Everyone queues separately";
+  if (kind === "community") return "Anyone can join";
+  return "No fixed party";
+}
+
+/** The size, said the way this particular kind of listing needs it said. */
+export const shapeLabel = (shape: Shape, kind: ContentKind | undefined): string =>
+  shape === "open" ? openLabel(kind) : SHAPE_LABEL[shape];
+
+/** A colour per kind, so a long list is scannable before it is read. */
+export const KIND_COLOR: Record<ContentKind, string> = {
+  extreme: "#d98b3a",
+  savage: "#d14b3a",
+  ultimate: "#a87fd8",
+  alliance: "#7ea6c9",
+  treasure: "#c9a227",
+  fate: "#6aa84f",
+  hunt: "#4fb8a8",
+  criterion: "#c96f9e",
+  pvp: "#c74a4a",
+  community: "#d47fb8",
+  other: "#8b93a1",
+};
+
+/**
+ * The catalogue.
+ *
+ * Extremes and the savage tier are read from the board rather than typed here,
+ * because they change with the patch and the board is already kept current by
+ * the pipeline — a hand-written list would be wrong the week a tier lands, and
+ * wrong in the one place people would be trying to use it.
+ */
+export function catalogue(
+  { extremes = [], savage = [], ultimates = [], alliances = [], criterions = [],
+    art }: {
+    extremes?: ContentSeed[];
+    savage?: ContentSeed[];
+    ultimates?: ContentSeed[];
+    alliances?: ContentSeed[];
+    criterions?: ContentSeed[];
+    /** kind -> slug -> path, straight from dutyArtMap(). */
+    art?: Partial<Record<DutyKind, Record<string, string>>>;
+  },
+): ContentDef[] {
+  const out: ContentDef[] = [];
+
+  /*
+   * The pictures are the ones already on the member pages.
+   *
+   * Looked up by the fight's own name rather than by the label over it, because
+   * that is how they are filed and how every other page finds them — "M12S-2"
+   * is what the FC calls it and "Lindwurm II" is what the file is called, and
+   * only one of those is a fact about the game.
+   */
+  const shot = (kind: DutyKind, name: string) => {
+    const slug = dutySlug(name);
+    return { art: art?.[kind]?.[slug], focus: artFocus(slug) };
+  };
+
+  for (const e of extremes) {
+    out.push({
+      key: `ex:${e.name}`, kind: "extreme", name: e.name, short: e.short,
+      badge: e.badge, duty: e.duty,
+      shape: "full", fixedShape: true, ...shot("extreme", e.name),
+    });
+  }
+  for (const sv of savage) {
+    out.push({
+      key: `sav:${sv.short ?? sv.name}`, kind: "savage",
+      name: sv.name, short: sv.short, badge: sv.badge, duty: sv.duty,
+      shape: "full", fixedShape: true, ...shot("savage", sv.name),
+    });
+  }
+  for (const u of ultimates) {
+    out.push({
+      key: `ult:${u.name}`, kind: "ultimate", name: u.name, short: u.short,
+      badge: u.badge ?? u.short, duty: u.duty ?? u.name,
+      shape: "full", fixedShape: true, ...shot("ultimate", u.name),
+    });
+  }
+
+  // The rest are not a list of bosses, they are a list of things to do — one
+  // entry each, and the party says which one in its own words. Only the ones
+  // the game fixes are marked fixed: a map run is four or eight depending on
+  // who turned up, and a FATE farm is however many.
+  // Named, not lumped. "Alliance raid" as a single row was the same mistake the
+  // extremes would have been: three different evenings behind one label, and
+  // nobody able to say which one they were going to without writing it in the
+  // note.
+  for (const a of alliances) {
+    out.push({
+      key: `all:${a.name}`, kind: "alliance", name: a.name, short: a.short,
+      badge: a.badge, duty: a.duty ?? a.name,
+      shape: "alliance", fixedShape: true, ...shot("alliance", a.name),
+    });
+  }
+
+  // Every Variant and Criterion dungeon, not only this expansion's: unlike a
+  // savage tier these do not go stale, and Aloalo runs are still put together
+  // for the mount years after the patch.
+  for (const c of criterions) {
+    out.push({
+      key: `cri:${c.name}`, kind: "criterion", name: c.name, short: c.short,
+      badge: c.badge, duty: c.duty ?? c.name,
+      shape: "light", fixedShape: true, ...shot("criterion", c.name),
+    });
+  }
+
+  out.push(
+    // Kept for anything the tables above have not heard of -- an older series,
+    // or one that lands before somebody updates the list.
+    { key: "alliance", kind: "alliance", name: "Another alliance raid",
+      shape: "alliance", fixedShape: true },
+    /*
+     * No seats, for either of them.
+     *
+     * This had a five-player grid for Crystalline Conflict and a light party
+     * for Frontline, which was wrong about how PvP is entered: you do not queue
+     * as a party at all -- everybody queues on their own, at the same time, and
+     * the game builds the teams. So what a PvP listing is for is agreeing on
+     * the time and seeing who else is going, and a seat chart would be
+     * describing something that cannot happen.
+     */
+    { key: "pvp:cc", kind: "pvp", name: "Crystalline Conflict",
+      badge: "CC", duty: "Crystalline Conflict", shape: "open", fixedShape: true },
+    { key: "pvp:fl", kind: "pvp", name: "Frontline",
+      badge: "FL", duty: "Frontline", shape: "open", fixedShape: true },
+    { key: "treasure", kind: "treasure", name: "Treasure maps", shape: "full" },
+    { key: "criterion", kind: "criterion", name: "Another criterion dungeon",
+      shape: "light", fixedShape: true },
+    /*
+     * The things the FC does together that are not a fight.
+     *
+     * However many turn up, all three of them. A photograph is not a party and
+     * capping it at eight would turn away the ninth person, which is the
+     * opposite of what a group photo is for; the same goes for an audience and
+     * for a scene with however many characters in it.
+     *
+     * Three rows rather than one "Community" row, for the reason the alliance
+     * raids are three rather than one: they are different evenings, and
+     * somebody scrolling past should be able to tell whether tonight is a photo
+     * shoot or a concert without opening it.
+     */
+    { key: "comm:gpose", kind: "community", name: "Group pose",
+      icon: "gpose", shape: "open" },
+    { key: "comm:rp", kind: "community", name: "Role-playing",
+      badge: "RP", icon: "roleplay", shape: "open" },
+    { key: "comm:perf", kind: "community", name: "Performance",
+      icon: "performance", shape: "open" },
+    { key: "fate", kind: "fate", name: "FATE farm", shape: "open" },
+    { key: "hunt", kind: "hunt", name: "Hunt train", shape: "open" },
+    { key: "other", kind: "other", name: "Something else", shape: "open" },
+  );
+  return out;
+}
+
+/* ── Time ─────────────────────────────────────────────────────────────────── */
+
+/**
+ * One food, in minutes.
+ *
+ * Not a joke — it is how the FC already measures a raid night. Well-Fed lasts
+ * thirty minutes, so "three food" is a length everybody can picture without
+ * doing arithmetic, and it is the unit people reach for when they say how long
+ * they are staying up.
+ */
+export const FOOD_MINUTES = 30;
+
+export const foodToMinutes = (food: number) => Math.round(food * FOOD_MINUTES);
+export const minutesToFood = (min: number) => min / FOOD_MINUTES;
+
+/** "2h 30m" */
+export function fmtLength(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h ? (m ? `${h}h ${m}m` : `${h}h`) : `${m}m`;
+}
+
+/** The same length said the other way. */
+export const fmtFood = (minutes: number): string => {
+  const f = minutesToFood(minutes);
+  return `${Number.isInteger(f) ? f : f.toFixed(1)} food`;
+};
+
+/**
+ * Bangkok, always, whoever is reading.
+ *
+ * The FC is Thai and arranges everything in Thai time, and the one thing a
+ * meeting time must never do is quietly follow the reader's own clock — a
+ * member in Japan reading "20:00" as their own evening would arrive two hours
+ * late. So the zone is fixed here and named in the interface.
+ */
+export const TZ = "Asia/Bangkok";
+
+const bkk = (opts: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat("en-GB", { timeZone: TZ, ...opts });
+
+/** "20:00" */
+export const fmtTime = (iso: string): string =>
+  bkk({ hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
+
+/** "Sat 13/09" */
+export const fmtDay = (iso: string): string =>
+  bkk({ weekday: "short", day: "2-digit", month: "2-digit" }).format(new Date(iso));
+
+/** The day a party falls on in Bangkok, as a sortable key. */
+export const dayKey = (iso: string): string =>
+  bkk({ year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(new Date(iso)).split("/").reverse().join("-");
+
+/* ── A party ──────────────────────────────────────────────────────────────── */
+
+/**
+ * What else somebody in a seat could play.
+ *
+ * A party of eight rarely comes together in the order people sign up. Somebody
+ * says "I have taken D2 but I can tank if you need it", and until now the board
+ * had no way to hold that — so the party looked like it needed a tank when it
+ * had one sitting in a DPS seat, and the person who could have joined as a DPS
+ * went elsewhere.
+ *
+ * Three ways to say it, because people say it three ways:
+ *
+ *   all      "I will play whatever is left"
+ *   roles    "I can tank or heal" — the whole role, whichever seat
+ *   seats    "I can take MT or D2" — those exact seats and no others
+ *
+ * Roles and seats can both be set; together they are the union. Empty means
+ * what it says: this person is in this seat and staying there.
+ */
+export interface Flex {
+  all?: boolean;
+  roles?: SlotRole[];
+  seats?: string[];
+}
+
+export const canFlex = (f: Flex | undefined | null): boolean =>
+  !!f && (!!f.all || !!f.roles?.length || !!f.seats?.length);
+
+/** Whether somebody could move into this seat. Their own seat never counts. */
+export function coversSeat(f: Flex | undefined | null, slot: SlotDef): boolean {
+  if (!f) return false;
+  if (f.all) return true;
+  if (f.roles?.includes(slot.role)) return true;
+  // Written without a wing in an alliance: "I can MT" means any party's MT,
+  // since which of the three you stand in is the one thing nobody minds.
+  return !!f.seats?.some((id) => id === slot.id || id === slot.label);
+}
+
+/** "Flex all", "Flex tank/healer", "Flex MT, D2" — however it was said. */
+export function flexLabel(f: Flex | undefined | null): string | null {
+  if (!canFlex(f)) return null;
+  if (f!.all) return "Flex any";
+  const bits = [
+    ...(f!.roles ?? []).map((r) => ROLE_LABEL[r]),
+    ...(f!.seats ?? []),
+  ];
+  return `Flex ${bits.join(", ")}`;
+}
+
+/**
+ * People already in the party who could move into a seat that is still open.
+ *
+ * The reason flex is worth recording. A party with an empty MT and a DPS who
+ * can tank is not a party that needs a tank — it needs one more body, and the
+ * seat it ends up advertising is whichever one is left over.
+ *
+ * Counted as people, not as seats. The first version of this returned the open
+ * seats a flexible member could cover, which read "flex 4" for one person who
+ * had said they would play anything — four seats they could each take, one at
+ * a time, drawn as though four people were waiting to move. Somebody can only
+ * sit in one chair.
+ */
+export function flexersOf(p: Party): SlotTaken[] {
+  const open = openSeats(p);
+  if (!open.length) return [];
+  return Object.entries(p.seats)
+    .filter(([id, v]) => canFlex(v.flex)
+      && open.some((s) => s.id !== id && coversSeat(v.flex, s)))
+    .map(([, v]) => v);
+}
+
+/** Somebody in a seat. Mirrors a gallery tag: proposed, then agreed to. */
+export interface SlotTaken {
+  /** Null for somebody who is not on this site. See Floater. */
+  characterId: number | null;
+  name: string;
+  avatar: string | null;
+  job?: string | null;
+  /** What else they could play, if they said. */
+  flex?: Flex;
+  /**
+   * Null until they say yes.
+   *
+   * Putting a friend in a seat is an invitation, not a fact about their
+   * evening, and a board that counts unanswered invitations as filled seats
+   * tells everybody else the party is full when it is not. Same rule as a
+   * photograph tag, for the same reason.
+   */
+  confirmedAt: string | null;
+}
+
+/**
+ * What one seat will accept.
+ *
+ * The party saying what it wants in this particular chair: a group with no
+ * raise is looking for one specific thing, and "Healer" is not a precise enough
+ * advert. Empty means the seat takes any job its role can play, which is the
+ * ordinary case.
+ *
+ * No-duplicate-jobs is deliberately not here. It reads like a property of a
+ * seat and is not one: a rule that stopped D2 repeating a job while D3 was free
+ * to repeat it would not prevent anything, because the duplicate would simply
+ * arrive in D3. It is a fact about the whole party, so it lives on the party —
+ * see `oneOfEachJob`.
+ */
+export interface SeatRule {
+  /** Jobs this seat will take. Empty or absent means anything the role allows. */
+  jobs?: string[];
+}
+
+/** Jobs held by people already in the party. Unanswered invitations count. */
+export function jobsTaken(p: Party, exceptSeat?: string): string[] {
+  return Object.entries(p.seats)
+    .filter(([id, v]) => id !== exceptSeat && v.job)
+    .map(([, v]) => v.job as string);
+}
+
+/**
+ * Which of these jobs the seat is actually open to, right now.
+ *
+ * `candidates` arrives already cut down to the jobs that can play the seat's
+ * role, because which job is a healer is a fact about the game and belongs
+ * with the icons rather than in here.
+ *
+ * The word "now" is the point of this function. A seat marked one-per-job is
+ * open to a different set of jobs this afternoon than it was this morning,
+ * because somebody joined in between — so this is worked out at the moment it
+ * is drawn rather than stored.
+ */
+export function openTo(
+  p: Party, slotId: string, candidates: string[],
+): string[] {
+  const want = p.rules?.[slotId]?.jobs;
+  let out = want?.length ? candidates.filter((j) => new Set(want).has(j)) : candidates;
+  if (p.oneOfEachJob) {
+    const taken = new Set(jobsTaken(p, slotId));
+    out = out.filter((j) => !taken.has(j));
+  }
+  return out;
+}
+
+/** Whether a seat has been narrowed at all, for deciding whether to say so. */
+export const hasRule = (r: SeatRule | undefined): boolean => !!r?.jobs?.length;
+
+export interface Party {
+  id: string;
+  contentKey: string;
+  /** One line, shown on the collapsed row. The headline. */
+  note?: string;
+  /** The write-up: paragraphs and pictures, shown when the row is opened. */
+  body?: PartyBlock[];
+  /** How far in, and what is being drilled. Fights only. */
+  progress?: Progress;
+  /** Who gets what. See hasLoot for where it applies. */
+  loot?: Loot;
+  /** Where in the game to meet. See hasSpot. */
+  spot?: Spot;
+  /** Replies. */
+  comments?: PartyComment[];
+  shape: Shape;
+  /** An instant. Displayed in Bangkok; stored as a moment in time. */
+  startsAt: string;
+  lengthMinutes: number;
+  /** How the length was typed in, so it can be shown back the same way. */
+  lengthUnit: "hours" | "food";
+  ownerCharacterId: number;
+  /** Seat id -> who is in it. Absent means open. */
+  seats: Record<string, SlotTaken>;
+  /**
+   * People in the party who have not been pinned to a seat.
+   *
+   * Kept apart from `seats` on purpose: a floater is not in a seat, and writing
+   * them into one would be the site inventing a decision nobody made. Where
+   * they end up is worked out by resolveParty every time the party is drawn,
+   * from the seats actually free at that moment.
+   */
+  floating?: Floater[];
+  /**
+   * Seats the party is not looking to fill.
+   *
+   * Five friends running an eight-man with three seats they mean to leave
+   * empty is a real thing, and without this the board would advertise three
+   * openings nobody wanted.
+   */
+  closed?: string[];
+  /** Seat id -> what that seat will take. Absent means it will take anything. */
+  rules?: Record<string, SeatRule>;
+  /**
+   * No two people on the same job.
+   *
+   * One switch for the whole party, because that is the size of the idea. Set
+   * per seat it could not do its job: whichever seat was left unticked is where
+   * the duplicate would land, so a rule that is not everywhere is not a rule.
+   *
+   * Applied when a seat is drawn rather than stored as a list of jobs, because
+   * what it allows changes every time somebody joins.
+   */
+  oneOfEachJob?: boolean;
+  createdAt: string;
+}
+
+/**
+ * Somebody in the party who has not been pinned to a seat yet.
+ *
+ * The point of the whole idea. Saying "I can play ST or D2" used to mean
+ * picking one of them and hoping — which is a decision nobody wanted to make,
+ * made at the worst possible moment, by the person with the least information.
+ * A floater says what they can play and nothing else; the seat sorts itself out
+ * as the party fills.
+ *
+ * They show on the right of every seat they could take, so somebody reading the
+ * board sees a face on ST and a face on D2 and understands that only one of
+ * those will happen.
+ */
+export interface Floater {
+  /**
+   * Null for somebody who is not on this site.
+   *
+   * A raid night is not made only of people with accounts here — a friend from
+   * another FC, somebody's static partner on Light, a mate who has never
+   * touched the website. Refusing to list them would mean the board could not
+   * describe a real party, which is the one thing it has to do; so an outsider
+   * is a name and nothing else, and everything that needs an id checks first.
+   */
+  characterId: number | null;
+  name: string;
+  avatar: string | null;
+  /** Optional, and often decided last: somebody playing "whatever is left"
+   *  cannot know their job until they know their seat. */
+  job?: string | null;
+  /** What they can play. `all` is the widest offer there is. */
+  flex: Flex;
+  confirmedAt: string | null;
+}
+
+/** How a party's seats actually come out, once the floaters are worked in. */
+export interface Resolved {
+  /** Seat id -> whoever ends up in it. */
+  seats: Record<string, SlotTaken>;
+  /** Seat id -> floaters who could still take it, for the faces on the right. */
+  maybe: Record<string, Floater[]>;
+  /** Floaters still not pinned to anything. */
+  loose: Floater[];
+  /** Every seat still empty after the floaters have been worked in. */
+  open: SlotDef[];
+  /**
+   * Empty seats nobody has even offered for.
+   *
+   * Not the same as `open`, and the difference matters. A seat with a floater
+   * hovering over it will probably be filled by them — but only one of the
+   * seats they hover over will be, so the others are still empty chairs.
+   * `open` counts the chairs; this names the ones where the party has no
+   * candidate at all, which is what the role chips should be about.
+   */
+  uncovered: SlotDef[];
+  /**
+   * How many more people the party actually needs.
+   *
+   * Chairs minus the people already offering to sit in one of them. A party of
+   * seven with somebody who will take ST or D2 needs one more person, not two —
+   * which is what the board was saying before this existed, and why it read
+   * "Full" for a party that was one short.
+   */
+  wanted: number;
+}
+
+/**
+ * A stable shuffle.
+ *
+ * Two people who will both play anything have to be told apart somehow, and the
+ * rule agreed was to pick at random. Random per render would be worse than
+ * useless — the board would deal them different seats every second — so the
+ * draw is seeded by the party and by exactly who is in it. It only changes when
+ * something about the party changes, which is when it should.
+ */
+function shuffled<T>(items: T[], seed: string): T[] {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+  }
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    h = Math.imul(h ^ (h >>> 15), 2246822507);
+    const j = Math.abs(h) % (i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/**
+ * A handle that works for everybody in a party.
+ *
+ * Ids are the right key for members and there is no id for a friend from
+ * another FC, so the name stands in. Two guests called the same thing would
+ * collide, which costs them a shuffled seat order and nothing else.
+ */
+export const whoKey = (p: { characterId: number | null; name: string }): string =>
+  p.characterId != null ? `c${p.characterId}` : `n${p.name.toLowerCase()}`;
+
+/** How wide somebody's offer is. Widest goes last, and "anything" is widest. */
+const breadth = (f: Floater, open: SlotDef[]): number =>
+  f.flex.all ? Number.MAX_SAFE_INTEGER
+             : open.filter((s) => coversSeat(f.flex, s)).length;
+
+/**
+ * Work the floaters into the seats.
+ *
+ * Two passes, and the difference between them is what the FC actually asked
+ * for.
+ *
+ * The first pass only places somebody when they have no choice left. If you
+ * offered ST or D2 and somebody else takes D2, you are the ST — there is
+ * nothing to decide and no reason to wait. This repeats, because pinning one
+ * person can force the next.
+ *
+ * The second pass runs only when the party is exactly full: as many floaters as
+ * seats left, so everybody has to land somewhere. Narrow offers are placed
+ * first and "anything" last, which is what makes an open offer generous rather
+ * than a way to grab the seat you wanted — you get what nobody else could take.
+ * Ties among equally open offers are drawn from a hat.
+ *
+ * Placement uses augmenting paths rather than taking the first seat that fits,
+ * because greed strands people: two floaters who can both only play ST and D2
+ * are fine, and a greedy pass that hands the first of them D2 leaves the second
+ * looking at a seat somebody else is in. This finds an arrangement whenever one
+ * exists.
+ */
+export function resolveParty(p: Party): Resolved {
+  const shut = new Set(p.closed ?? []);
+  const openSlots = slotsOf(p.shape)
+    .filter((s) => !p.seats[s.id] && !shut.has(s.id));
+  const byId = new Map(openSlots.map((s) => [s.id, s]));
+
+  const seats: Record<string, SlotTaken> = { ...p.seats };
+  let loose = [...(p.floating ?? [])];
+  let free = new Set(openSlots.map((s) => s.id));
+
+  const pin = (f: Floater, seatId: string) => {
+    seats[seatId] = {
+      characterId: f.characterId, name: f.name, avatar: f.avatar,
+      job: f.job ?? null, flex: f.flex, confirmedAt: f.confirmedAt,
+    };
+    free.delete(seatId);
+    loose = loose.filter((x) => x !== f);
+  };
+
+  // ── Pass one: anybody with exactly one place left to go ──────────────────
+  for (let guard = 0; guard < 64; guard++) {
+    const forced = loose
+      .map((f) => ({
+        f, seats: [...free].filter((id) => coversSeat(f.flex, byId.get(id)!)),
+      }))
+      .find((x) => x.seats.length === 1);
+    if (!forced) break;
+    pin(forced.f, forced.seats[0]);
+  }
+
+  // ── Pass two: the party is exactly full, so everybody lands ──────────────
+  if (loose.length > 0 && loose.length === free.size) {
+    const order = [...loose].sort(
+      (a, b) => breadth(a, openSlots) - breadth(b, openSlots));
+    const seed = `${p.id}|${[...free].sort().join(",")}|`
+      + loose.map(whoKey).sort().join(",");
+
+    const taken = new Map<string, Floater>();
+    const tryPlace = (f: Floater, seen: Set<string>): boolean => {
+      // Shuffled, so two people who will play anything are not both handed the
+      // seats in party-list order every time.
+      for (const id of shuffled([...free], seed + whoKey(f))) {
+        if (seen.has(id) || !coversSeat(f.flex, byId.get(id)!)) continue;
+        seen.add(id);
+        const sitting = taken.get(id);
+        if (!sitting || tryPlace(sitting, seen)) {
+          taken.set(id, f);
+          return true;
+        }
+      }
+      return false;
+    };
+    for (const f of order) tryPlace(f, new Set());
+    for (const [id, f] of taken) pin(f, id);
+  }
+
+  // ── Whoever is still floating shows on every seat they could take ────────
+  const maybe: Record<string, Floater[]> = {};
+  for (const id of free) {
+    const slot = byId.get(id)!;
+    const who = loose.filter((f) => coversSeat(f.flex, slot));
+    if (who.length) maybe[id] = who;
+  }
+
+  const open = openSlots.filter((s) => free.has(s.id));
+  return {
+    seats, maybe, loose, open,
+    uncovered: open.filter((s) => !maybe[s.id]),
+    wanted: Math.max(0, open.length - loose.length),
+  };
+}
+
+/**
+ * How far into a fight a party is, and what it is drilling.
+ *
+ * The single most useful thing a listing can say, and the thing Discord posts
+ * always bury in prose. "M11S" tells you nothing about whether you can join:
+ * a group on their first night and a group farming the kill are running the
+ * same fight and want completely different people.
+ *
+ * The ladder is the one the game community already uses and it is the same
+ * shape for every fight:
+ *
+ *   fresh   nobody here has seen it. Explanations expected, deaths expected.
+ *   prog    working through it. Most of a tier's life is spent on this rung.
+ *   a2c     the whole fight is known and the party is going for the kill.
+ *   farm    it dies. This is about loot, or a mount, or somebody's weapon.
+ *
+ * "Prog" rather than "In progress", because it is the word the FC already uses
+ * — a prog party is a thing people say out loud, and a board that renames it
+ * would be teaching a second vocabulary for something everybody can already
+ * name.
+ *
+ * The middle rung carries no phase number yet. Numbering the phases means
+ * knowing how many each boss has, which is a table nobody has written; asking
+ * each party to invent its own would have two groups on the same fight
+ * disagreeing about whether it has four phases or five, on a board whose whole
+ * job is to make them understand each other. `phase` and `phases` stay in the
+ * shape for the day that table exists.
+ *
+ * `mech` is what actually answers the question in the meantime, and it is free
+ * text on purpose: the party knows what it is drilling and can say it in its
+ * own words — "second Wroth Flames", "adds into cleaves" — which is more use
+ * than any number. A picked-from-a-list version comes later; it does not have
+ * to come first.
+ */
+export type ProgressAt = "fresh" | "prog" | "a2c" | "farm";
+
+export interface Progress {
+  at: ProgressAt;
+  /** 1-based. Unused until there is a table of phases per boss. */
+  phase?: number;
+  /** How many phases the party reckons the fight has. */
+  phases?: number;
+  /** The mechanic being drilled, in the party's own words. */
+  mech?: string;
+}
+
+export const PROGRESS_LABEL: Record<ProgressAt, string> = {
+  fresh: "Fresh start",
+  prog: "Prog",
+  a2c: "A2C",
+  farm: "Farm",
+};
+
+export const PROGRESS_HELP: Record<ProgressAt, string> = {
+  fresh: "Nobody has seen it. Everything gets explained.",
+  prog: "Working through the fight. Say what we are drilling.",
+  a2c: "The whole fight is known — going for the clear.",
+  farm: "It dies. This is for the loot.",
+};
+
+/** Warm for a first night, cool for a farm: how much learning is left. */
+export const PROGRESS_COLOR: Record<ProgressAt, string> = {
+  fresh: "#d98b3a", prog: "#c96f9e", a2c: "#7ea6c9", farm: "#6aa84f",
+};
+
+/** How many phases to offer before anybody has said. */
+export const DEFAULT_PHASES = 4;
+
+/** "P3 · Wroth Flames", "A2C", "Fresh start" — the whole thing in one line. */
+export function progressText(p: Progress | undefined): string | null {
+  if (!p) return null;
+  const head = p.at === "prog" && p.phase
+    // Only where a phase number has been set, which nothing offers yet.
+    ? `P${p.phase}${p.phases ? `/${p.phases}` : ""}`
+    : PROGRESS_LABEL[p.at];
+  return p.mech?.trim() ? `${head} · ${p.mech.trim()}` : head;
+}
+
+/**
+ * Whether this kind of content has a fight to make progress through.
+ *
+ * A hunt train has no phases and a treasure map run cannot be farmed in the
+ * sense meant here, so asking would be asking a question with no answer.
+ */
+export const isFight = (kind: ContentKind | undefined): boolean =>
+  kind === "extreme" || kind === "savage" || kind === "ultimate"
+  || kind === "alliance" || kind === "criterion";
+
+/**
+ * A place in the game, with the coordinates players give each other.
+ *
+ * Needed by two kinds of listing and for the same reason: a photo shoot and a
+ * FATE farm are both an agreement to stand somewhere specific, and the zone
+ * alone is not specific. "Kozama'uka" is a place the size of a county.
+ *
+ * Coordinates are optional. "Somewhere in the Crystarium" is a real plan, and
+ * refusing it until somebody types 12.4 pushes that plan back into Discord.
+ */
+export interface Spot {
+  /** The zone, by the name the game gives it. */
+  map: string;
+  /** The region it is in, carried along so a row can say which Camp it means. */
+  region?: string;
+  x?: number;
+  y?: number;
+}
+
+/** "Kozama'uka (12.4, 30.1)" */
+export function spotText(s: Spot | undefined): string | null {
+  if (!s?.map) return null;
+  const at = s.x != null && s.y != null
+    ? ` (${s.x.toFixed(1)}, ${s.y.toFixed(1)})` : "";
+  return `${s.map}${at}`;
+}
+
+/**
+ * Whether this kind of thing happens somewhere in particular.
+ *
+ * A raid happens inside an instance and saying where it is would be saying its
+ * own name back; a photo shoot, a FATE farm and a hunt train are all about a
+ * spot on a map, and are useless without one.
+ */
+export const hasSpot = (kind: ContentKind | undefined): boolean =>
+  kind === "community" || kind === "fate" || kind === "hunt"
+  || kind === "treasure";
+
+/**
+ * Who gets what, agreed before anybody walks in.
+ *
+ * The one thing a party absolutely must settle in advance and the one thing
+ * Discord posts most often leave out — and it is the argument that ends static
+ * groups. Three rules, which are the three the FC already uses:
+ *
+ *   ltr    Left to right down the party list. Whoever gets theirs leaves, so
+ *          the next person moves up. Slow, and completely unarguable.
+ *   ffa    Everybody rolls on everything.
+ *   merc   Somebody is paying for the clear. The lead pays each person a
+ *          stated amount for the kill or for a rare drop, and the loot is
+ *          theirs. Said in numbers here rather than "negotiable", because a
+ *          price nobody has stated is a price two people have assumed
+ *          differently.
+ *
+ * Set on every party whatever the progress is: a prog night that unexpectedly
+ * kills the boss still has to answer the question, and answering it at 1am
+ * after a first clear is the worst possible time.
+ *
+ * Only savage and extreme. Those are the two where the FC actually negotiates
+ * this — a weekly tier with a limited number of drops, and a trial farmed for
+ * a mount that only one person can win at a time. Everything else either
+ * shares out differently or has never needed a rule written down, and offering
+ * these three answers there would be offering three wrong ones. The rest get
+ * their own when somebody says what they should be.
+ */
+export type LootRule = "ltr" | "ffa" | "merc" | "book";
+
+export interface Loot {
+  rule: LootRule;
+  /** Gil per person, when the rule is `merc`. */
+  pay?: number;
+}
+
+export const LOOT_LABEL: Record<LootRule, string> = {
+  ltr: "L to R",
+  ffa: "FFA",
+  merc: "Mercenary",
+  book: "Book run",
+};
+
+export const LOOT_HELP: Record<LootRule, string> = {
+  ltr: "Left to right down the party list — whoever gets theirs leaves.",
+  ffa: "Free for all. Everybody rolls on everything.",
+  merc: "The lead pays everyone for a clear or a rare drop, and keeps the loot.",
+  book: "Here for the weekly books. Nobody is fighting over the gear.",
+};
+
+export const LOOT_COLOR: Record<LootRule, string> = {
+  ltr: "#7ea6c9", ffa: "#6aa84f", merc: "#c9a227", book: "#9a7fd4",
+};
+
+/**
+ * Which rules this kind of content can use.
+ *
+ * Only savage drops the weekly tokens, so "book run" is a sentence that means
+ * nothing about an extreme trial. Offering it there would be offering an answer
+ * that could only ever be wrong.
+ */
+export function lootRulesFor(kind: ContentKind | undefined): LootRule[] {
+  if (kind === "savage") return ["ltr", "ffa", "merc", "book"];
+  if (kind === "extreme") return ["ltr", "ffa", "merc"];
+  return [];
+}
+
+/** "L to R", "Mercenary · 2,000,000 gil". */
+export function lootText(l: Loot | undefined): string | null {
+  if (!l) return null;
+  if (l.rule !== "merc" || !l.pay) return LOOT_LABEL[l.rule];
+  return `${LOOT_LABEL.merc} · ${l.pay.toLocaleString("en-US")} gil`;
+}
+
+/**
+ * Whether this kind of content has loot worth writing a rule about.
+ *
+ * Narrower than isFight on purpose: a criterion dungeon drops for the party
+ * rather than to a roll, so the three rules above do not describe it. It is
+ * left out until somebody says what its rule should be, which is better than
+ * offering three answers that are all wrong.
+ */
+export const hasLoot = (kind: ContentKind | undefined): boolean =>
+  kind === "savage" || kind === "extreme";
+
+/**
+ * A party's write-up: paragraphs and pictures, in the order they were put down.
+ *
+ * The one-line note was never going to be enough. What a raid lead actually
+ * wants to post is a plan — where we are starting from, a screenshot of the
+ * strat, what to bring, another picture of the uptime spot — and that is
+ * paragraphs with pictures between them rather than a caption.
+ *
+ * A list of blocks rather than rich text with images embedded in it. Rich text
+ * means a parser, a sanitiser and a decision about what happens when somebody
+ * pastes formatted HTML from Discord; blocks mean the picture is either between
+ * two paragraphs or it is not. The FC is writing raid plans, not typesetting.
+ */
+export interface PartyBlock {
+  /** Stable across edits, so React does not shuffle the list while typing. */
+  id: string;
+  kind: "text" | "image";
+  text?: string;
+  /**
+   * A public URL in the party bucket. Uploaded when the picture is dropped
+   * rather than when the party is saved, so the wait happens while somebody is
+   * still writing rather than after they have finished.
+   */
+  url?: string;
+  caption?: string;
+}
+
+/** Somebody's reply on a party. */
+export interface PartyComment {
+  id: string;
+  author: { characterId: number | null; name: string; avatar: string | null };
+  text: string;
+  /** Pictures on the reply itself — the same idea as a feedback attachment. */
+  images?: string[];
+  at: string;
+}
+
+export const blockId = (): string =>
+  `b${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+/** Whether there is anything worth drawing. */
+export const hasBody = (b: PartyBlock[] | undefined): boolean =>
+  !!b?.some((x) => (x.kind === "text" && x.text?.trim()) || (x.kind === "image" && x.url));
+
+export const endsAt = (p: Party): string =>
+  new Date(new Date(p.startsAt).getTime() + p.lengthMinutes * 60_000).toISOString();
+
+/** Seats with nobody in them and not deliberately shut. What is missing. */
+export function openSeats(p: Party): SlotDef[] {
+  const shut = new Set(p.closed ?? []);
+  return slotsOf(p.shape).filter((s) => !p.seats[s.id] && !shut.has(s.id));
+}
+
+/** Seats with somebody in them who has said yes. */
+export function filledSeats(p: Party): SlotDef[] {
+  return slotsOf(p.shape).filter((s) => p.seats[s.id]?.confirmedAt);
+}
+
+/** Seats with somebody in them who has not answered yet. */
+export function pendingSeats(p: Party): SlotDef[] {
+  return slotsOf(p.shape).filter((s) => p.seats[s.id] && !p.seats[s.id].confirmedAt);
+}
+
+/** How many of each role are still wanted — what the chips filter on. */
+export function needsByRole(p: Party): Record<SlotRole, number> {
+  const out: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
+  // Seats nobody has offered for. A seat a floater is hovering over is not
+  // something the party is asking a stranger for.
+  for (const s of resolveParty(p).uncovered) out[s.role] += 1;
+  return out;
+}
+
+export const ROLE_LABEL: Record<SlotRole, string> = {
+  tank: "Tank", healer: "Healer", dps: "DPS",
+};
+export const ROLE_COLOR: Record<SlotRole, string> = {
+  tank: "#7ea6c9", healer: "#6aa84f", dps: "#d14b3a",
+};

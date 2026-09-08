@@ -23,7 +23,8 @@ import { NO_ART, type DutyArt, type DutyKind } from "@/lib/duty";
  * The cost is that a misspelled filename is silent, which is the right way
  * round: a missing picture is a row that looks the way it always did.
  */
-const KINDS: DutyKind[] = ["extreme", "savage", "ultimate"];
+const KINDS: DutyKind[] =
+  ["extreme", "savage", "ultimate", "alliance", "criterion"];
 const ART = new Set([".webp", ".jpg", ".jpeg", ".png", ".avif"]);
 
 function walk(dir: string, into: Record<string, string>, urlBase: string): void {
@@ -48,7 +49,10 @@ function walk(dir: string, into: Record<string, string>, urlBase: string): void 
 }
 
 export function dutyArtMap(): DutyArt {
-  const out: DutyArt = { ...NO_ART, extreme: {}, savage: {}, ultimate: {} };
+  const out: DutyArt = {
+    ...NO_ART,
+    extreme: {}, savage: {}, ultimate: {}, alliance: {}, criterion: {},
+  };
   for (const kind of KINDS) {
     walk(path.join(process.cwd(), "public", "duty", kind), out[kind], `/duty/${kind}`);
   }

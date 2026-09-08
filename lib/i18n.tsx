@@ -193,6 +193,7 @@ const DICT = {
      linked to from inside the site; this is the one place that has to warn
      somebody before they arrive. */
   "nav.guidesWip": { en: "Guides (WIP)", th: "ไกด์ (WIP)" },
+  "nav.partyWip": { en: "Party finder (WIP)", th: "หาปาร์ตี้ (WIP)" },
 
   // ── Gallery ─────────────────────────────────────────────────────────
   "gallery.eyebrow": { en: "Gallery", th: "แกลเลอรี" },

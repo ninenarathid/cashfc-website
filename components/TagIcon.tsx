@@ -75,6 +75,36 @@ const TAG_ICON: Record<string, { path: string; alt: string; square?: boolean }> 
   // art the game puts on an Ultimate clear, which is close but is a reward
   // rather than the duty. Square, like the other two duty badges.
   ultimate:     { path: "061000/061832", alt: "ultimate raid", square: true },
+  // The game's own Alliance Raid icon — the green maw the Duty Finder puts on
+  // every 24-player raid. Found by rendering 061801 through 061860 and looking
+  // at the sheet, which is how every other path in this file was picked.
+  alliance:     { path: "061000/061844", alt: "alliance raid", square: true },
+  // The game's own Variant and Criterion icon — three figures under the arch.
+  // Found the same way as the one above it: rendered the range and looked.
+  criterion:    { path: "061000/061846", alt: "criterion dungeon", square: true },
+  // The game's own FATE icon — the purple orb in a gold crest, the mark that
+  // sits over a FATE ring on the map. Rendered and checked like the rest.
+  fate:         { path: "061000/061809", alt: "FATE", square: true },
+  // The game's own Hunt icon — the mandragora on a red starburst, the mark the
+  // Hunt boards and the clan mark bills carry.
+  hunt:         { path: "061000/061819", alt: "the Hunt", square: true },
+
+  /*
+   * The Party Finder playstyle set.
+   *
+   * A different range from the duty badges above -- 0617xx rather than 0618xx
+   * -- which is why sweeping the duty range for them found nothing. They are
+   * named in the CharaCardPlayStyle sheet, so these were read off the game's
+   * own table rather than picked by eye: row 29 is Community Events, 24 is
+   * Group Pose, 18 is Role-playing, 26 is Performance Mode.
+   *
+   * Worth knowing for the next one: if a symbol looks like something the Party
+   * Finder shows, that sheet has its number.
+   */
+  community:    { path: "061000/061766", alt: "community event", square: true },
+  gpose:        { path: "061000/061764", alt: "group pose", square: true },
+  roleplay:     { path: "061000/061751", alt: "role-playing", square: true },
+  performance:  { path: "061000/061763", alt: "performance", square: true },
   veteran:      { path: "002000/002669", alt: "past raids" },
 
   // Casual, Achievements private and No data get nothing on purpose: an icon

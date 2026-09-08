@@ -1,0 +1,3589 @@
+{
+ "generated_at": "2026-09-08T13:33:58.020Z",
+ "source": "XIVAPI v2, sheet Map",
+ "regions": [
+  "Abalathia's Spine",
+  "Coerthas",
+  "Dravania",
+  "Gyr Abania",
+  "Hingashi",
+  "Hydaelyn",
+  "Ilsabard",
+  "La Noscea",
+  "Mor Dhona",
+  "Norvrandt",
+  "Othard",
+  "Thanalan",
+  "The Black Shroud",
+  "The First",
+  "The Northern Empty",
+  "The Sea of Stars",
+  "The Source",
+  "The World Unsundered",
+  "Unlost World",
+  "Xak Tural",
+  "Yok Tural",
+  "Instances"
+ ],
+ "maps": [
+  {
+   "name": "Abalathia's Spine",
+   "region": "Abalathia's Spine",
+   "id": "region/05",
+   "size": 100
+  },
+  {
+   "name": "Aetherochemical Research Facility",
+   "region": "Abalathia's Spine",
+   "sub": "Automachina Research",
+   "id": "a2d1/01",
+   "size": 200
+  },
+  {
+   "name": "Azys Lla",
+   "region": "Abalathia's Spine",
+   "id": "a2f2/00",
+   "size": 95
+  },
+  {
+   "name": "Central Azys Lla",
+   "region": "Abalathia's Spine",
+   "id": "a2e2/00",
+   "size": 400
+  },
+  {
+   "name": "Containment Bay P1T6",
+   "region": "Abalathia's Spine",
+   "id": "a2fe/00",
+   "size": 400
+  },
+  {
+   "name": "Containment Bay S1T7",
+   "region": "Abalathia's Spine",
+   "id": "a2fd/00",
+   "size": 400
+  },
+  {
+   "name": "Containment Bay Z1T9",
+   "region": "Abalathia's Spine",
+   "id": "a2fg/00",
+   "size": 400
+  },
+  {
+   "name": "Dun Scaith",
+   "region": "Abalathia's Spine",
+   "sub": "The Lady Radlia",
+   "id": "z2r3/01",
+   "size": 200
+  },
+  {
+   "name": "Last Remnant",
+   "region": "Abalathia's Spine",
+   "id": "a2ff/00",
+   "size": 400
+  },
+  {
+   "name": "Leofard's Chambers",
+   "region": "Abalathia's Spine",
+   "id": "a2e4/00",
+   "size": 800
+  },
+  {
+   "name": "Neverreap",
+   "region": "Abalathia's Spine",
+   "id": "a2d2/00",
+   "size": 200
+  },
+  {
+   "name": "Singularity Reactor",
+   "region": "Abalathia's Spine",
+   "id": "a2fb/00",
+   "size": 400
+  },
+  {
+   "name": "The Diadem",
+   "region": "Abalathia's Spine",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Fractal Continuum",
+   "region": "Abalathia's Spine",
+   "sub": "Forward Complex",
+   "id": "a2d3/01",
+   "size": 200
+  },
+  {
+   "name": "The Fractal Continuum (Hard)",
+   "region": "Abalathia's Spine",
+   "sub": "Central Complex",
+   "id": "a2d4/01",
+   "size": 200
+  },
+  {
+   "name": "The Limitless Blue",
+   "region": "Abalathia's Spine",
+   "id": "a2fa/00",
+   "size": 400
+  },
+  {
+   "name": "The Parrock",
+   "region": "Abalathia's Spine",
+   "id": "a2e3/00",
+   "size": 400
+  },
+  {
+   "name": "The Sea of Clouds",
+   "region": "Abalathia's Spine",
+   "id": "a2f1/00",
+   "size": 95
+  },
+  {
+   "name": "Void Ark",
+   "region": "Abalathia's Spine",
+   "sub": "Upper Deck",
+   "id": "z2r1/01",
+   "size": 200
+  },
+  {
+   "name": "Akh Afah Amphitheatre",
+   "region": "Coerthas",
+   "id": "r1fc/00",
+   "size": 400
+  },
+  {
+   "name": "Aurum Vale",
+   "region": "Coerthas",
+   "id": "r1r2/00",
+   "size": 200
+  },
+  {
+   "name": "Cloud Nine",
+   "region": "Coerthas",
+   "id": "r2ti/00",
+   "size": 800
+  },
+  {
+   "name": "Coerthas",
+   "region": "Coerthas",
+   "id": "region/03",
+   "size": 100
+  },
+  {
+   "name": "Coerthas Central Highlands",
+   "region": "Coerthas",
+   "id": "r1f1/00",
+   "size": 100
+  },
+  {
+   "name": "Coerthas Western Highlands",
+   "region": "Coerthas",
+   "id": "r2f1/00",
+   "size": 95
+  },
+  {
+   "name": "Company Workshop - Empyreum",
+   "region": "Coerthas",
+   "id": "r1i5/00",
+   "size": 400
+  },
+  {
+   "name": "Dusk Vigil",
+   "region": "Coerthas",
+   "id": "r2d1/00",
+   "size": 200
+  },
+  {
+   "name": "Dzemael Darkhold",
+   "region": "Coerthas",
+   "sub": "Outer Hold",
+   "id": "r1r1/01",
+   "size": 200
+  },
+  {
+   "name": "Empyreum",
+   "region": "Coerthas",
+   "sub": "Empyreum",
+   "id": "r1h1/01",
+   "size": 200
+  },
+  {
+   "name": "Fortemps Manor",
+   "region": "Coerthas",
+   "id": "r2e4/00",
+   "size": 400
+  },
+  {
+   "name": "Foundation",
+   "region": "Coerthas",
+   "id": "r2t1/00",
+   "size": 200
+  },
+  {
+   "name": "Griffin Crossing",
+   "region": "Coerthas",
+   "id": "r1fb/00",
+   "size": 200
+  },
+  {
+   "name": "Ingleside Apartment",
+   "region": "Coerthas",
+   "id": "r1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Ingleside Apartment Lobby",
+   "region": "Coerthas",
+   "id": "r1i6/00",
+   "size": 400
+  },
+  {
+   "name": "Intercessory",
+   "region": "Coerthas",
+   "id": "r1e2/00",
+   "size": 400
+  },
+  {
+   "name": "Medias Res",
+   "region": "Coerthas",
+   "id": "r1fz/01",
+   "size": 400
+  },
+  {
+   "name": "Private Chambers - Empyreum",
+   "region": "Coerthas",
+   "id": "r1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Private Cottage - Empyreum",
+   "region": "Coerthas",
+   "sub": "Ground Floor",
+   "id": "r1i1/01",
+   "size": 400
+  },
+  {
+   "name": "Private House - Empyreum",
+   "region": "Coerthas",
+   "sub": "Ground Floor",
+   "id": "r1i2/01",
+   "size": 400
+  },
+  {
+   "name": "Private Mansion - Empyreum",
+   "region": "Coerthas",
+   "sub": "Ground Floor",
+   "id": "r1i3/01",
+   "size": 400
+  },
+  {
+   "name": "Ruling Chamber",
+   "region": "Coerthas",
+   "id": "r2e6/00",
+   "size": 400
+  },
+  {
+   "name": "Saint Endalim's Scholasticate",
+   "region": "Coerthas",
+   "id": "r2e1/00",
+   "size": 400
+  },
+  {
+   "name": "Seat of the Lord Commander",
+   "region": "Coerthas",
+   "id": "r2e3/00",
+   "size": 400
+  },
+  {
+   "name": "Snowcloak",
+   "region": "Coerthas",
+   "id": "r1d3/00",
+   "size": 200
+  },
+  {
+   "name": "Steps of Faith",
+   "region": "Coerthas",
+   "id": "r1fd/00",
+   "size": 200
+  },
+  {
+   "name": "Stone Vigil",
+   "region": "Coerthas",
+   "id": "r1d1/00",
+   "size": 200
+  },
+  {
+   "name": "Strategy Room",
+   "region": "Coerthas",
+   "id": "r2ea/00",
+   "size": 400
+  },
+  {
+   "name": "The Fields of Glory",
+   "region": "Coerthas",
+   "id": "r2p1/00",
+   "size": 100
+  },
+  {
+   "name": "The Firmament",
+   "region": "Coerthas",
+   "id": "r1hx/00",
+   "size": 200
+  },
+  {
+   "name": "The Howling Eye",
+   "region": "Coerthas",
+   "id": "r1fa/01",
+   "size": 400
+  },
+  {
+   "name": "The Lightfeather Proving Grounds",
+   "region": "Coerthas",
+   "id": "r2e5/00",
+   "size": 400
+  },
+  {
+   "name": "The Pillars",
+   "region": "Coerthas",
+   "id": "r2t2/00",
+   "size": 200
+  },
+  {
+   "name": "The Stone Vigil (Hard)",
+   "region": "Coerthas",
+   "id": "r1d2/00",
+   "size": 200
+  },
+  {
+   "name": "The Vault",
+   "region": "Coerthas",
+   "sub": "Chantry Nave",
+   "id": "r2d2/01",
+   "size": 200
+  },
+  {
+   "name": "Xelphatol",
+   "region": "Coerthas",
+   "id": "r2d3/00",
+   "size": 200
+  },
+  {
+   "name": "Archeia Harmonias",
+   "region": "Dravania",
+   "id": "s5p7/00",
+   "size": 400
+  },
+  {
+   "name": "Astragalos",
+   "region": "Dravania",
+   "id": "d2p1/00",
+   "size": 100
+  },
+  {
+   "name": "Breath of the Creator",
+   "region": "Dravania",
+   "sub": "Illuminus",
+   "id": "d2aa/01",
+   "size": 200
+  },
+  {
+   "name": "Dravania",
+   "region": "Dravania",
+   "id": "region/06",
+   "size": 100
+  },
+  {
+   "name": "Eyes of the Creator",
+   "region": "Dravania",
+   "sub": "The Tipped Ewer",
+   "id": "d2a9/01",
+   "size": 200
+  },
+  {
+   "name": "Heart of the Creator",
+   "region": "Dravania",
+   "sub": "The Atrium",
+   "id": "d2ab/01",
+   "size": 200
+  },
+  {
+   "name": "Idyllshire",
+   "region": "Dravania",
+   "id": "d2t1/00",
+   "size": 400
+  },
+  {
+   "name": "Matoya's Cave",
+   "region": "Dravania",
+   "id": "d2e3/00",
+   "size": 400
+  },
+  {
+   "name": "Matoya's Relict",
+   "region": "Dravania",
+   "sub": "The Sorcerer's Interstice",
+   "id": "d4d1/01",
+   "size": 200
+  },
+  {
+   "name": "Sacrificial Chamber",
+   "region": "Dravania",
+   "id": "d2e2/00",
+   "size": 400
+  },
+  {
+   "name": "Saint Mocianne's Arboretum",
+   "region": "Dravania",
+   "sub": "First Floor",
+   "id": "d2d4/01",
+   "size": 200
+  },
+  {
+   "name": "Saint Mocianne's Arboretum (Hard)",
+   "region": "Dravania",
+   "sub": "First Floor",
+   "id": "d2d9/01",
+   "size": 200
+  },
+  {
+   "name": "Sohm Al (Hard)",
+   "region": "Dravania",
+   "sub": "Betrayal",
+   "id": "d2d8/01",
+   "size": 200
+  },
+  {
+   "name": "Sohm Al Foothills",
+   "region": "Dravania",
+   "sub": "The South Face",
+   "id": "d2d1/01",
+   "size": 200
+  },
+  {
+   "name": "Sohr Khai",
+   "region": "Dravania",
+   "sub": "An Answer of Sorrow",
+   "id": "d2d6/01",
+   "size": 200
+  },
+  {
+   "name": "Soul of the Creator",
+   "region": "Dravania",
+   "id": "d2ac/00",
+   "size": 200
+  },
+  {
+   "name": "The Aery",
+   "region": "Dravania",
+   "id": "d2d2/00",
+   "size": 200
+  },
+  {
+   "name": "The Antitower",
+   "region": "Dravania",
+   "sub": "Pleroma",
+   "id": "d2d5/01",
+   "size": 200
+  },
+  {
+   "name": "The Arm of the Father",
+   "region": "Dravania",
+   "id": "d2a3/00",
+   "size": 200
+  },
+  {
+   "name": "The Arm of the Son",
+   "region": "Dravania",
+   "id": "d2a7/00",
+   "size": 200
+  },
+  {
+   "name": "The Burden of the Father",
+   "region": "Dravania",
+   "id": "d2a4/00",
+   "size": 200
+  },
+  {
+   "name": "The Burden of the Son",
+   "region": "Dravania",
+   "id": "d2a8/00",
+   "size": 200
+  },
+  {
+   "name": "The Churning Mists",
+   "region": "Dravania",
+   "id": "d2f3/00",
+   "size": 95
+  },
+  {
+   "name": "The Cuff of the Father",
+   "region": "Dravania",
+   "sub": "Upper Ring",
+   "id": "d2a2/01",
+   "size": 200
+  },
+  {
+   "name": "The Cuff of the Son",
+   "region": "Dravania",
+   "sub": "Forward Ring",
+   "id": "d2a6/01",
+   "size": 200
+  },
+  {
+   "name": "The Dravanian Forelands",
+   "region": "Dravania",
+   "id": "d2f1/00",
+   "size": 95
+  },
+  {
+   "name": "The Dravanian Hinterlands",
+   "region": "Dravania",
+   "id": "d2f2/00",
+   "size": 95
+  },
+  {
+   "name": "The Fist of the Father",
+   "region": "Dravania",
+   "id": "d2a1/00",
+   "size": 200
+  },
+  {
+   "name": "The Fist of the Son",
+   "region": "Dravania",
+   "id": "d2a5/00",
+   "size": 200
+  },
+  {
+   "name": "The Gordian Knot",
+   "region": "Dravania",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Great Gubal Library",
+   "region": "Dravania",
+   "id": "d2d3/00",
+   "size": 200
+  },
+  {
+   "name": "The Great Gubal Library (Hard)",
+   "region": "Dravania",
+   "sub": "Middle Floors",
+   "id": "d2d7/01",
+   "size": 200
+  },
+  {
+   "name": "The Midan Knot",
+   "region": "Dravania",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Thok ast Thok",
+   "region": "Dravania",
+   "id": "d2fa/00",
+   "size": 400
+  },
+  {
+   "name": "Ala Mhigo",
+   "region": "Gyr Abania",
+   "sub": "Mercantile District",
+   "id": "g3d2/01",
+   "size": 200
+  },
+  {
+   "name": "Castrum Abania",
+   "region": "Gyr Abania",
+   "id": "g3d1/00",
+   "size": 200
+  },
+  {
+   "name": "Cinder Drift",
+   "region": "Gyr Abania",
+   "id": "n4fe/00",
+   "size": 400
+  },
+  {
+   "name": "Deltascape V1.0",
+   "region": "Gyr Abania",
+   "id": "z3o2/00",
+   "size": 400
+  },
+  {
+   "name": "Deltascape V2.0",
+   "region": "Gyr Abania",
+   "id": "z3o3/00",
+   "size": 400
+  },
+  {
+   "name": "Deltascape V3.0",
+   "region": "Gyr Abania",
+   "id": "z3o4/00",
+   "size": 400
+  },
+  {
+   "name": "Deltascape V4.0",
+   "region": "Gyr Abania",
+   "id": "z3o5/00",
+   "size": 400
+  },
+  {
+   "name": "Emanation",
+   "region": "Gyr Abania",
+   "id": "g3fa/00",
+   "size": 400
+  },
+  {
+   "name": "Eorzean Alliance Headquarters",
+   "region": "Gyr Abania",
+   "id": "g3e7/02",
+   "size": 400
+  },
+  {
+   "name": "Garlean Legion Tents",
+   "region": "Gyr Abania",
+   "id": "g3e7/01",
+   "size": 400
+  },
+  {
+   "name": "Gyr Abania",
+   "region": "Gyr Abania",
+   "id": "region/07",
+   "size": 100
+  },
+  {
+   "name": "Myth",
+   "region": "Gyr Abania",
+   "id": "g3fc/02",
+   "size": 400
+  },
+  {
+   "name": "Psiscape V1.0",
+   "region": "Gyr Abania",
+   "id": "z3oc/00",
+   "size": 400
+  },
+  {
+   "name": "Psiscape V2.0",
+   "region": "Gyr Abania",
+   "id": "z3od/00",
+   "size": 400
+  },
+  {
+   "name": "Rhalgr's Reach",
+   "region": "Gyr Abania",
+   "id": "g3t1/00",
+   "size": 200
+  },
+  {
+   "name": "Sigmascape V1.0",
+   "region": "Gyr Abania",
+   "id": "z3o7/01",
+   "size": 400
+  },
+  {
+   "name": "Sigmascape V2.0",
+   "region": "Gyr Abania",
+   "id": "z3o8/00",
+   "size": 400
+  },
+  {
+   "name": "Sigmascape V3.0",
+   "region": "Gyr Abania",
+   "id": "z3o9/00",
+   "size": 400
+  },
+  {
+   "name": "Sigmascape V4.0",
+   "region": "Gyr Abania",
+   "id": "z3oy/00",
+   "size": 400
+  },
+  {
+   "name": "The Drowned City of Skalla",
+   "region": "Gyr Abania",
+   "sub": "The Shallows",
+   "id": "g3d4/01",
+   "size": 200
+  },
+  {
+   "name": "The First Altar of Djanan Qhat",
+   "region": "Gyr Abania",
+   "id": "g3e1/00",
+   "size": 400
+  },
+  {
+   "name": "The Fringes",
+   "region": "Gyr Abania",
+   "id": "g3f1/00",
+   "size": 100
+  },
+  {
+   "name": "The Ghimlyt Dark",
+   "region": "Gyr Abania",
+   "id": "g3d5/00",
+   "size": 200
+  },
+  {
+   "name": "The Hall of the Griffin",
+   "region": "Gyr Abania",
+   "id": "g3d2/02",
+   "size": 200
+  },
+  {
+   "name": "The Interdimensional Rift",
+   "region": "Gyr Abania",
+   "id": "z3o1/00",
+   "size": 200
+  },
+  {
+   "name": "The Lochs",
+   "region": "Gyr Abania",
+   "id": "g3f3/00",
+   "size": 100
+  },
+  {
+   "name": "The Peaks",
+   "region": "Gyr Abania",
+   "id": "g3f2/00",
+   "size": 100
+  },
+  {
+   "name": "The Resonatorium",
+   "region": "Gyr Abania",
+   "id": "g3e3/00",
+   "size": 400
+  },
+  {
+   "name": "The Royal Airship Landing",
+   "region": "Gyr Abania",
+   "id": "g3fb/01",
+   "size": 400
+  },
+  {
+   "name": "The Royal Menagerie",
+   "region": "Gyr Abania",
+   "id": "g3e4/00",
+   "size": 200
+  },
+  {
+   "name": "The Temple of the Fist",
+   "region": "Gyr Abania",
+   "sub": "Dilemma",
+   "id": "g3d3/01",
+   "size": 200
+  },
+  {
+   "name": "Transparency",
+   "region": "Gyr Abania",
+   "id": "g3fb/02",
+   "size": 400
+  },
+  {
+   "name": "Another Mount Rokkon",
+   "region": "Hingashi",
+   "sub": "Path of the First Virtue",
+   "id": "e5d2/01",
+   "size": 200
+  },
+  {
+   "name": "Bokairo Inn",
+   "region": "Hingashi",
+   "id": "e3ti/00",
+   "size": 800
+  },
+  {
+   "name": "Company Workshop - Shirogane",
+   "region": "Hingashi",
+   "id": "e1i5/00",
+   "size": 400
+  },
+  {
+   "name": "Hingashi",
+   "region": "Hingashi",
+   "id": "region/09",
+   "size": 100
+  },
+  {
+   "name": "Kobai Goten Apartment",
+   "region": "Hingashi",
+   "id": "e1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Kobai Goten Apartment Lobby",
+   "region": "Hingashi",
+   "id": "e1i6/00",
+   "size": 400
+  },
+  {
+   "name": "Kugane",
+   "region": "Hingashi",
+   "id": "e3t1/00",
+   "size": 200
+  },
+  {
+   "name": "Kugane Castle",
+   "region": "Hingashi",
+   "sub": "Ni-no-Maru",
+   "id": "e3d4/01",
+   "size": 200
+  },
+  {
+   "name": "Kugane Ohashi",
+   "region": "Hingashi",
+   "id": "e3ff/00",
+   "size": 400
+  },
+  {
+   "name": "Mount Rokkon",
+   "region": "Hingashi",
+   "sub": "Mountain Base",
+   "id": "e5d1/01",
+   "size": 200
+  },
+  {
+   "name": "Private Chambers - Shirogane",
+   "region": "Hingashi",
+   "id": "e1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Private Cottage - Shirogane",
+   "region": "Hingashi",
+   "sub": "Ground Floor",
+   "id": "e1i1/01",
+   "size": 400
+  },
+  {
+   "name": "Private House - Shirogane",
+   "region": "Hingashi",
+   "sub": "Ground Floor",
+   "id": "e1i2/01",
+   "size": 400
+  },
+  {
+   "name": "Private Mansion - Shirogane",
+   "region": "Hingashi",
+   "sub": "Ground Floor",
+   "id": "e1i3/01",
+   "size": 400
+  },
+  {
+   "name": "Ruby Bazaar Offices",
+   "region": "Hingashi",
+   "id": "e3e1/00",
+   "size": 400
+  },
+  {
+   "name": "Shirogane",
+   "region": "Hingashi",
+   "sub": "Shirogane",
+   "id": "e1h1/01",
+   "size": 200
+  },
+  {
+   "name": "Hydaelyn",
+   "region": "Hydaelyn",
+   "id": "world/03",
+   "size": 100
+  },
+  {
+   "name": "Alzadaal's Legacy",
+   "region": "Ilsabard",
+   "sub": "The Bhaflau Remnants",
+   "id": "m5d4/01",
+   "size": 200
+  },
+  {
+   "name": "Estinien's Chambers",
+   "region": "Ilsabard",
+   "id": "m5e5/00",
+   "size": 800
+  },
+  {
+   "name": "Garlemald",
+   "region": "Ilsabard",
+   "id": "m5f2/00",
+   "size": 100
+  },
+  {
+   "name": "Ilsabard",
+   "region": "Ilsabard",
+   "id": "region/12",
+   "size": 100
+  },
+  {
+   "name": "Khadga",
+   "region": "Ilsabard",
+   "id": "default/00",
+   "size": 400
+  },
+  {
+   "name": "Lapis Manalis",
+   "region": "Ilsabard",
+   "sub": "Pes Albus",
+   "id": "m5d5/01",
+   "size": 200
+  },
+  {
+   "name": "Magna Glacies",
+   "region": "Ilsabard",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Meghaduta Guest Chambers",
+   "region": "Ilsabard",
+   "id": "m5e4/00",
+   "size": 800
+  },
+  {
+   "name": "Mount Ordeals",
+   "region": "Ilsabard",
+   "id": "m5fa/00",
+   "size": 400
+  },
+  {
+   "name": "Radz-at-Han",
+   "region": "Ilsabard",
+   "id": "m5t1/00",
+   "size": 200
+  },
+  {
+   "name": "Senatus",
+   "region": "Ilsabard",
+   "id": "m5e7/00",
+   "size": 400
+  },
+  {
+   "name": "Thavnair",
+   "region": "Ilsabard",
+   "id": "m5f1/00",
+   "size": 100
+  },
+  {
+   "name": "The Clyteum",
+   "region": "Ilsabard",
+   "sub": "The Commercium",
+   "id": "m6d2/01",
+   "size": 200
+  },
+  {
+   "name": "The Gilded Araya",
+   "region": "Ilsabard",
+   "id": "m5fb/00",
+   "size": 400
+  },
+  {
+   "name": "The Nethergate",
+   "region": "Ilsabard",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Tower of Babil",
+   "region": "Ilsabard",
+   "sub": "Magitek Freight Depot E",
+   "id": "m5d2/01",
+   "size": 200
+  },
+  {
+   "name": "The Tower of Zot",
+   "region": "Ilsabard",
+   "sub": "Tower Base",
+   "id": "m5d1/01",
+   "size": 200
+  },
+  {
+   "name": "Vanaspati",
+   "region": "Ilsabard",
+   "sub": "Vanaspati",
+   "id": "m5d3/01",
+   "size": 200
+  },
+  {
+   "name": "Brayflox's Longstop",
+   "region": "La Noscea",
+   "id": "s1d2/00",
+   "size": 200
+  },
+  {
+   "name": "Brayflox's Longstop (Hard)",
+   "region": "La Noscea",
+   "id": "s1d6/00",
+   "size": 200
+  },
+  {
+   "name": "Command Room",
+   "region": "La Noscea",
+   "id": "s1e4/00",
+   "size": 800
+  },
+  {
+   "name": "Company Workshop - Mist",
+   "region": "La Noscea",
+   "id": "s1i5/00",
+   "size": 400
+  },
+  {
+   "name": "Dock Storehouse",
+   "region": "La Noscea",
+   "id": "s1f3/02",
+   "size": 400
+  },
+  {
+   "name": "Dutiful Sisters of the Edelweiss",
+   "region": "La Noscea",
+   "id": "s1t2/02",
+   "size": 400
+  },
+  {
+   "name": "Eastern La Noscea",
+   "region": "La Noscea",
+   "id": "s1f3/01",
+   "size": 100
+  },
+  {
+   "name": "Hullbreaker Isle",
+   "region": "La Noscea",
+   "id": "s1d5/00",
+   "size": 200
+  },
+  {
+   "name": "Hullbreaker Isle (Hard)",
+   "region": "La Noscea",
+   "id": "s1da/00",
+   "size": 200
+  },
+  {
+   "name": "La Noscea",
+   "region": "La Noscea",
+   "id": "region/00",
+   "size": 100
+  },
+  {
+   "name": "Limsa Lominsa Lower Decks",
+   "region": "La Noscea",
+   "id": "s1t2/01",
+   "size": 200
+  },
+  {
+   "name": "Limsa Lominsa Upper Decks",
+   "region": "La Noscea",
+   "id": "s1t1/01",
+   "size": 200
+  },
+  {
+   "name": "Lower Aetheroacoustic Exploratory Site",
+   "region": "La Noscea",
+   "id": "s1b2/00",
+   "size": 200
+  },
+  {
+   "name": "Lower La Noscea",
+   "region": "La Noscea",
+   "id": "s1f2/00",
+   "size": 100
+  },
+  {
+   "name": "Maelstrom Barracks",
+   "region": "La Noscea",
+   "id": "s1tg/00",
+   "size": 400
+  },
+  {
+   "name": "Middle La Noscea",
+   "region": "La Noscea",
+   "id": "s1f1/00",
+   "size": 100
+  },
+  {
+   "name": "Mist",
+   "region": "La Noscea",
+   "sub": "Mist",
+   "id": "s1h1/01",
+   "size": 200
+  },
+  {
+   "name": "Mizzenmast Inn",
+   "region": "La Noscea",
+   "id": "s1ti/00",
+   "size": 800
+  },
+  {
+   "name": "Outer La Noscea",
+   "region": "La Noscea",
+   "id": "s1f6/00",
+   "size": 100
+  },
+  {
+   "name": "Pharos Sirius",
+   "region": "La Noscea",
+   "sub": "Flood Cellar",
+   "id": "s1d4/01",
+   "size": 200
+  },
+  {
+   "name": "Pharos Sirius (Hard)",
+   "region": "La Noscea",
+   "sub": "Fifth & Fourth Levels",
+   "id": "s1d9/01",
+   "size": 200
+  },
+  {
+   "name": "Private Chambers - Mist",
+   "region": "La Noscea",
+   "id": "s1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Private Cottage - Mist",
+   "region": "La Noscea",
+   "sub": "Ground Floor",
+   "id": "s1i1/01",
+   "size": 400
+  },
+  {
+   "name": "Private House - Mist",
+   "region": "La Noscea",
+   "sub": "Ground Floor",
+   "id": "s1i2/01",
+   "size": 400
+  },
+  {
+   "name": "Private Mansion - Mist",
+   "region": "La Noscea",
+   "sub": "Ground Floor",
+   "id": "s1i3/01",
+   "size": 400
+  },
+  {
+   "name": "Ragnarok Central Core",
+   "region": "La Noscea",
+   "id": "s1b5/00",
+   "size": 200
+  },
+  {
+   "name": "Ragnarok Drive Cylinder",
+   "region": "La Noscea",
+   "id": "s1b4/00",
+   "size": 200
+  },
+  {
+   "name": "Ragnarok Main Bridge",
+   "region": "La Noscea",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Rhotano Sea",
+   "region": "La Noscea",
+   "id": "o1e2/00",
+   "size": 400
+  },
+  {
+   "name": "Sastasha",
+   "region": "La Noscea",
+   "id": "s1d1/00",
+   "size": 200
+  },
+  {
+   "name": "Sastasha (Hard)",
+   "region": "La Noscea",
+   "id": "s1d7/00",
+   "size": 200
+  },
+  {
+   "name": "Seal Rock",
+   "region": "La Noscea",
+   "id": "s2p1/00",
+   "size": 100
+  },
+  {
+   "name": "The Falling City of Nym",
+   "region": "La Noscea",
+   "id": "default/00",
+   "size": 400
+  },
+  {
+   "name": "The Feasting Grounds",
+   "region": "La Noscea",
+   "id": "s1p4/00",
+   "size": 200
+  },
+  {
+   "name": "The Fold",
+   "region": "La Noscea",
+   "id": "s1p2/00",
+   "size": 400
+  },
+  {
+   "name": "The Misery",
+   "region": "La Noscea",
+   "id": "o3e1/00",
+   "size": 400
+  },
+  {
+   "name": "The Navel",
+   "region": "La Noscea",
+   "id": "s1fa/00",
+   "size": 400
+  },
+  {
+   "name": "The Ragnarok",
+   "region": "La Noscea",
+   "sub": "Engine Room",
+   "id": "s1b3/01",
+   "size": 200
+  },
+  {
+   "name": "The Sirensong Sea",
+   "region": "La Noscea",
+   "id": "o3d1/00",
+   "size": 200
+  },
+  {
+   "name": "The Wanderer's Palace",
+   "region": "La Noscea",
+   "id": "s1d3/00",
+   "size": 200
+  },
+  {
+   "name": "The Wanderer's Palace (Hard)",
+   "region": "La Noscea",
+   "id": "s1d8/00",
+   "size": 200
+  },
+  {
+   "name": "The Whorleater",
+   "region": "La Noscea",
+   "id": "o1fa/00",
+   "size": 400
+  },
+  {
+   "name": "Topmast Apartment",
+   "region": "La Noscea",
+   "id": "s1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Topmast Apartment Lobby",
+   "region": "La Noscea",
+   "id": "s1i6/00",
+   "size": 400
+  },
+  {
+   "name": "Upper Aetheroacoustic Exploratory Site",
+   "region": "La Noscea",
+   "id": "s1b1/00",
+   "size": 200
+  },
+  {
+   "name": "Upper La Noscea",
+   "region": "La Noscea",
+   "id": "s1f5/00",
+   "size": 100
+  },
+  {
+   "name": "Western La Noscea",
+   "region": "La Noscea",
+   "id": "s1f4/00",
+   "size": 100
+  },
+  {
+   "name": "Wolves' Den Pier",
+   "region": "La Noscea",
+   "id": "s1p1/00",
+   "size": 400
+  },
+  {
+   "name": "Carteneau Flats: Borderland Ruins",
+   "region": "Mor Dhona",
+   "id": "l1p3/00",
+   "size": 100
+  },
+  {
+   "name": "Crystal Tower Training Grounds",
+   "region": "Mor Dhona",
+   "id": "l1p2/00",
+   "size": 200
+  },
+  {
+   "name": "Eureka Orthos",
+   "region": "Mor Dhona",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Labyrinth of the Ancients",
+   "region": "Mor Dhona",
+   "sub": "Lower Labyrinth",
+   "id": "l1r1/01",
+   "size": 200
+  },
+  {
+   "name": "Mor Dhona",
+   "region": "Mor Dhona",
+   "id": "l1f1/01",
+   "size": 100
+  },
+  {
+   "name": "Omega Control",
+   "region": "Mor Dhona",
+   "id": "l1e3/00",
+   "size": 400
+  },
+  {
+   "name": "Syrcus Tower",
+   "region": "Mor Dhona",
+   "sub": "First Lower Ring",
+   "id": "l1r2/01",
+   "size": 200
+  },
+  {
+   "name": "The Belly of the Beast",
+   "region": "Mor Dhona",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Chrysalis",
+   "region": "Mor Dhona",
+   "id": "z1e9/00",
+   "size": 400
+  },
+  {
+   "name": "The Keeper of the Lake",
+   "region": "Mor Dhona",
+   "sub": "Forecastle",
+   "id": "l1d1/01",
+   "size": 200
+  },
+  {
+   "name": "The Rising Stones",
+   "region": "Mor Dhona",
+   "id": "l1e1/01",
+   "size": 400
+  },
+  {
+   "name": "The Syrcus Trench",
+   "region": "Mor Dhona",
+   "id": "l1e5/00",
+   "size": 400
+  },
+  {
+   "name": "The Weeping City of Mhach",
+   "region": "Mor Dhona",
+   "sub": "Yafaem Saltmoor",
+   "id": "z2r2/01",
+   "size": 200
+  },
+  {
+   "name": "The World of Darkness",
+   "region": "Mor Dhona",
+   "id": "l1r3/00",
+   "size": 200
+  },
+  {
+   "name": "A Future Rewritten",
+   "region": "Norvrandt",
+   "id": "n4gw/00",
+   "size": 400
+  },
+  {
+   "name": "Akadaemia Anyder",
+   "region": "Norvrandt",
+   "sub": "The Halls",
+   "id": "n4d8/01",
+   "size": 200
+  },
+  {
+   "name": "Amaurot",
+   "region": "Norvrandt",
+   "sub": "Fading Footsteps",
+   "id": "n4d6/01",
+   "size": 100
+  },
+  {
+   "name": "Amh Araeng",
+   "region": "Norvrandt",
+   "id": "n4f3/00",
+   "size": 100
+  },
+  {
+   "name": "Anamnesis Anyder",
+   "region": "Norvrandt",
+   "sub": "The Setebos Trench",
+   "id": "n4da/01",
+   "size": 200
+  },
+  {
+   "name": "Anogg's Lair",
+   "region": "Norvrandt",
+   "id": "n4e8/02",
+   "size": 400
+  },
+  {
+   "name": "Ashfall",
+   "region": "Norvrandt",
+   "id": "n4g6/00",
+   "size": 400
+  },
+  {
+   "name": "Atlas Peak",
+   "region": "Norvrandt",
+   "id": "n4g4/00",
+   "size": 400
+  },
+  {
+   "name": "Bygone Gaol",
+   "region": "Norvrandt",
+   "id": "n4gb/00",
+   "size": 400
+  },
+  {
+   "name": "Dohn Mheg",
+   "region": "Norvrandt",
+   "sub": "Lran Mheg",
+   "id": "n4d2/01",
+   "size": 200
+  },
+  {
+   "name": "Eulmore",
+   "region": "Norvrandt",
+   "sub": "The Buttress",
+   "id": "n4t2/01",
+   "size": 200
+  },
+  {
+   "name": "Excavation Tunnels",
+   "region": "Norvrandt",
+   "id": "n4e8/01",
+   "size": 400
+  },
+  {
+   "name": "Frozen Reflections",
+   "region": "Norvrandt",
+   "id": "n4g8/02",
+   "size": 400
+  },
+  {
+   "name": "Great Glacier",
+   "region": "Norvrandt",
+   "id": "n4g8/01",
+   "size": 400
+  },
+  {
+   "name": "Holminster Switch",
+   "region": "Norvrandt",
+   "id": "n4d1/00",
+   "size": 200
+  },
+  {
+   "name": "Il Mheg",
+   "region": "Norvrandt",
+   "id": "n4f4/00",
+   "size": 100
+  },
+  {
+   "name": "Kholusia",
+   "region": "Norvrandt",
+   "id": "n4f2/00",
+   "size": 100
+  },
+  {
+   "name": "Lakeland",
+   "region": "Norvrandt",
+   "id": "n4f1/00",
+   "size": 100
+  },
+  {
+   "name": "Laxan Loft",
+   "region": "Norvrandt",
+   "id": "n4ga/00",
+   "size": 400
+  },
+  {
+   "name": "Lyhe Mheg",
+   "region": "Norvrandt",
+   "id": "n4e9/10",
+   "size": 400
+  },
+  {
+   "name": "Malikah's Well",
+   "region": "Norvrandt",
+   "sub": "The Jasper Walls",
+   "id": "n4d4/01",
+   "size": 200
+  },
+  {
+   "name": "Mt. Gulg",
+   "region": "Norvrandt",
+   "sub": "The Rise Above",
+   "id": "n4d5/01",
+   "size": 200
+  },
+  {
+   "name": "Norvrandt",
+   "region": "Norvrandt",
+   "id": "region/10",
+   "size": 100
+  },
+  {
+   "name": "Pilgrim's Traverse",
+   "region": "Norvrandt",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Ronkan Reflections",
+   "region": "Norvrandt",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Sphere of Naught",
+   "region": "Norvrandt",
+   "id": "n4g9/00",
+   "size": 400
+  },
+  {
+   "name": "The Confessional of Toupasa the Elder",
+   "region": "Norvrandt",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Copied Factory",
+   "region": "Norvrandt",
+   "sub": "Upper Stratum",
+   "id": "n4r1/01",
+   "size": 200
+  },
+  {
+   "name": "The Core",
+   "region": "Norvrandt",
+   "id": "n4g1/00",
+   "size": 400
+  },
+  {
+   "name": "The Crown of the Immaculate",
+   "region": "Norvrandt",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Crystarium",
+   "region": "Norvrandt",
+   "id": "n4t1/00",
+   "size": 200
+  },
+  {
+   "name": "The Dancing Plague",
+   "region": "Norvrandt",
+   "id": "n4fa/00",
+   "size": 400
+  },
+  {
+   "name": "The Dying Gasp",
+   "region": "Norvrandt",
+   "id": "n4fc/00",
+   "size": 400
+  },
+  {
+   "name": "The Empty",
+   "region": "Norvrandt",
+   "id": "n4gz/00",
+   "size": 400
+  },
+  {
+   "name": "The Gandof Thunder Plains",
+   "region": "Norvrandt",
+   "id": "n4g5/00",
+   "size": 400
+  },
+  {
+   "name": "The Garden of Nowhere",
+   "region": "Norvrandt",
+   "id": "n4gc/01",
+   "size": 400
+  },
+  {
+   "name": "The Grand Cosmos",
+   "region": "Norvrandt",
+   "id": "n4d9/01",
+   "size": 200
+  },
+  {
+   "name": "The Halo",
+   "region": "Norvrandt",
+   "id": "n4g2/00",
+   "size": 400
+  },
+  {
+   "name": "The Heroes' Gauntlet",
+   "region": "Norvrandt",
+   "sub": "Amh Araeng",
+   "id": "n4db/01",
+   "size": 200
+  },
+  {
+   "name": "The Nabaath Mines",
+   "region": "Norvrandt",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Nereus Trench",
+   "region": "Norvrandt",
+   "id": "n4g3/00",
+   "size": 400
+  },
+  {
+   "name": "The Ocular",
+   "region": "Norvrandt",
+   "id": "n4e1/00",
+   "size": 400
+  },
+  {
+   "name": "The Pendants Personal Suite",
+   "region": "Norvrandt",
+   "id": "n4ti/00",
+   "size": 800
+  },
+  {
+   "name": "The Puppets' Bunker",
+   "region": "Norvrandt",
+   "sub": "The Duergar Mountains",
+   "id": "n4r2/01",
+   "size": 200
+  },
+  {
+   "name": "The Qitana Ravel",
+   "region": "Norvrandt",
+   "sub": "The Qitana Ravel",
+   "id": "n4d3/01",
+   "size": 200
+  },
+  {
+   "name": "The Rak'tika Greatwood",
+   "region": "Norvrandt",
+   "id": "n4f5/00",
+   "size": 100
+  },
+  {
+   "name": "The Tempest",
+   "region": "Norvrandt",
+   "id": "n4f6/00",
+   "size": 100
+  },
+  {
+   "name": "The Tower at Paradigm's Breach",
+   "region": "Norvrandt",
+   "sub": "Lower Section",
+   "id": "n4r3/01",
+   "size": 200
+  },
+  {
+   "name": "The Twinning",
+   "region": "Norvrandt",
+   "sub": "The Shallow",
+   "id": "n4d7/01",
+   "size": 200
+  },
+  {
+   "name": "Bardam's Mettle",
+   "region": "Othard",
+   "id": "e3d2/00",
+   "size": 200
+  },
+  {
+   "name": "Castrum Fluminis",
+   "region": "Othard",
+   "id": "e3fd/00",
+   "size": 400
+  },
+  {
+   "name": "Doma Castle",
+   "region": "Othard",
+   "id": "e3d3/00",
+   "size": 200
+  },
+  {
+   "name": "Heaven-on-High",
+   "region": "Othard",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Hells' Kier",
+   "region": "Othard",
+   "id": "e3fe/00",
+   "size": 400
+  },
+  {
+   "name": "Hells' Lid",
+   "region": "Othard",
+   "id": "e3d5/00",
+   "size": 200
+  },
+  {
+   "name": "Kienkan",
+   "region": "Othard",
+   "id": "e3e7/00",
+   "size": 400
+  },
+  {
+   "name": "Onsal Hakair",
+   "region": "Othard",
+   "id": "e3p1/00",
+   "size": 100
+  },
+  {
+   "name": "Othard",
+   "region": "Othard",
+   "id": "region/08",
+   "size": 100
+  },
+  {
+   "name": "Reisen Temple",
+   "region": "Othard",
+   "id": "e3e8/00",
+   "size": 400
+  },
+  {
+   "name": "Reisen Temple Road",
+   "region": "Othard",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Shisui of the Violet Tides",
+   "region": "Othard",
+   "id": "e3d1/00",
+   "size": 200
+  },
+  {
+   "name": "The Azim Steppe",
+   "region": "Othard",
+   "id": "e3f3/00",
+   "size": 100
+  },
+  {
+   "name": "The Blessed Treasury",
+   "region": "Othard",
+   "id": "e3fa/00",
+   "size": 400
+  },
+  {
+   "name": "The Burn",
+   "region": "Othard",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Doman Enclave",
+   "region": "Othard",
+   "id": "e3ea/00",
+   "size": 400
+  },
+  {
+   "name": "The Great Hunt",
+   "region": "Othard",
+   "id": "e3fc/00",
+   "size": 400
+  },
+  {
+   "name": "The House of the Fierce",
+   "region": "Othard",
+   "id": "e3e5/00",
+   "size": 400
+  },
+  {
+   "name": "The Jade Stoa",
+   "region": "Othard",
+   "id": "e3fb/00",
+   "size": 400
+  },
+  {
+   "name": "The Ruby Sea",
+   "region": "Othard",
+   "id": "e3f1/00",
+   "size": 100
+  },
+  {
+   "name": "The Swallow's Compass",
+   "region": "Othard",
+   "sub": "The Swallow's Compass",
+   "id": "e3d6/01",
+   "size": 200
+  },
+  {
+   "name": "The Wreath of Snakes",
+   "region": "Othard",
+   "id": "e3fg/00",
+   "size": 400
+  },
+  {
+   "name": "Yanxia",
+   "region": "Othard",
+   "id": "e3f2/00",
+   "size": 100
+  },
+  {
+   "name": "Another Sil'dihn Subterrane",
+   "region": "Thanalan",
+   "sub": "The Jewel",
+   "id": "w5d2/01",
+   "size": 200
+  },
+  {
+   "name": "Blue Sky",
+   "region": "Thanalan",
+   "id": "w1tz/00",
+   "size": 400
+  },
+  {
+   "name": "Blunderville Square",
+   "region": "Thanalan",
+   "id": "w1el/00",
+   "size": 800
+  },
+  {
+   "name": "Bowl of Embers",
+   "region": "Thanalan",
+   "id": "w1fa/00",
+   "size": 400
+  },
+  {
+   "name": "Castrum Marinum Drydocks",
+   "region": "Thanalan",
+   "id": "n4fg/00",
+   "size": 400
+  },
+  {
+   "name": "Castrum Meridianum",
+   "region": "Thanalan",
+   "id": "w1d4/00",
+   "size": 200
+  },
+  {
+   "name": "Central Thanalan",
+   "region": "Thanalan",
+   "id": "w1f2/00",
+   "size": 100
+  },
+  {
+   "name": "Company Workshop - The Goblet",
+   "region": "Thanalan",
+   "id": "w1i5/00",
+   "size": 400
+  },
+  {
+   "name": "Copperbell Mines",
+   "region": "Thanalan",
+   "sub": "Ground Level",
+   "id": "w1d1/01",
+   "size": 200
+  },
+  {
+   "name": "Copperbell Mines (Hard)",
+   "region": "Thanalan",
+   "sub": "Ground Level",
+   "id": "w1d6/01",
+   "size": 200
+  },
+  {
+   "name": "Cutter's Cry",
+   "region": "Thanalan",
+   "sub": "The Dry Sands",
+   "id": "w1r1/01",
+   "size": 200
+  },
+  {
+   "name": "Eastern Thanalan",
+   "region": "Thanalan",
+   "id": "w1f3/00",
+   "size": 100
+  },
+  {
+   "name": "Flame Barracks",
+   "region": "Thanalan",
+   "id": "w1tg/00",
+   "size": 400
+  },
+  {
+   "name": "Frondale's Home for Friendless Foundlings",
+   "region": "Thanalan",
+   "id": "w1ef/00",
+   "size": 800
+  },
+  {
+   "name": "Halatali",
+   "region": "Thanalan",
+   "id": "w1d2/00",
+   "size": 200
+  },
+  {
+   "name": "Halatali (Hard)",
+   "region": "Thanalan",
+   "id": "w1d7/00",
+   "size": 200
+  },
+  {
+   "name": "Hall of the Unbound",
+   "region": "Thanalan",
+   "id": "w1em/00",
+   "size": 800
+  },
+  {
+   "name": "Heart of the Sworn",
+   "region": "Thanalan",
+   "id": "w1e4/00",
+   "size": 400
+  },
+  {
+   "name": "Hidden Gorge",
+   "region": "Thanalan",
+   "id": "w1p1/00",
+   "size": 100
+  },
+  {
+   "name": "IC-06 Central Decks",
+   "region": "Thanalan",
+   "id": "w1b1/00",
+   "size": 200
+  },
+  {
+   "name": "IC-06 Main Bridge",
+   "region": "Thanalan",
+   "id": "w1b3/00",
+   "size": 200
+  },
+  {
+   "name": "IC-06 Regeneration Grid",
+   "region": "Thanalan",
+   "id": "w1b2/00",
+   "size": 200
+  },
+  {
+   "name": "Keybound Square",
+   "region": "Thanalan",
+   "id": "w1eo/00",
+   "size": 400
+  },
+  {
+   "name": "Lemures Headquarters",
+   "region": "Thanalan",
+   "id": "w1ej/00",
+   "size": 400
+  },
+  {
+   "name": "Northern Thanalan",
+   "region": "Thanalan",
+   "id": "w1f5/00",
+   "size": 100
+  },
+  {
+   "name": "Paglth'an",
+   "region": "Thanalan",
+   "sub": "Zolm'ak",
+   "id": "w4d1/01",
+   "size": 200
+  },
+  {
+   "name": "Porta Decumana",
+   "region": "Thanalan",
+   "id": "w1fb/00",
+   "size": 400
+  },
+  {
+   "name": "Private Chambers - The Goblet",
+   "region": "Thanalan",
+   "id": "w1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Private Cottage - The Goblet",
+   "region": "Thanalan",
+   "sub": "Ground Floor",
+   "id": "w1i1/01",
+   "size": 400
+  },
+  {
+   "name": "Private House - The Goblet",
+   "region": "Thanalan",
+   "sub": "Ground Floor",
+   "id": "w1i2/01",
+   "size": 400
+  },
+  {
+   "name": "Private Mansion - The Goblet",
+   "region": "Thanalan",
+   "sub": "Ground Floor",
+   "id": "w1i3/01",
+   "size": 400
+  },
+  {
+   "name": "Southern Thanalan",
+   "region": "Thanalan",
+   "id": "w1f4/01",
+   "size": 100
+  },
+  {
+   "name": "Sultana's Breath Apartment",
+   "region": "Thanalan",
+   "id": "w1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Sultana's Breath Apartment Lobby",
+   "region": "Thanalan",
+   "id": "w1i6/00",
+   "size": 400
+  },
+  {
+   "name": "Thanalan",
+   "region": "Thanalan",
+   "id": "region/02",
+   "size": 100
+  },
+  {
+   "name": "The Battlehall",
+   "region": "Thanalan",
+   "id": "w1ee/00",
+   "size": 800
+  },
+  {
+   "name": "The Burning Heart",
+   "region": "Thanalan",
+   "id": "w1b4/00",
+   "size": 200
+  },
+  {
+   "name": "The Eighteenth Floor",
+   "region": "Thanalan",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Fall of Belah'dia",
+   "region": "Thanalan",
+   "id": "default/00",
+   "size": 400
+  },
+  {
+   "name": "The Goblet",
+   "region": "Thanalan",
+   "sub": "The Goblet",
+   "id": "w1h1/01",
+   "size": 200
+  },
+  {
+   "name": "The Gold Saucer",
+   "region": "Thanalan",
+   "sub": "The Gold Saucer",
+   "id": "w1eb/00",
+   "size": 400
+  },
+  {
+   "name": "The Hourglass",
+   "region": "Thanalan",
+   "id": "w1ti/00",
+   "size": 800
+  },
+  {
+   "name": "The Porta Decumana",
+   "region": "Thanalan",
+   "id": "w1d5/09",
+   "size": 400
+  },
+  {
+   "name": "The Praetorium",
+   "region": "Thanalan",
+   "sub": "Sky Level",
+   "id": "w1d5/01",
+   "size": 200
+  },
+  {
+   "name": "The Sil'dihn Subterrane",
+   "region": "Thanalan",
+   "id": "w5d1/00",
+   "size": 200
+  },
+  {
+   "name": "The Sunken Temple of Qarn",
+   "region": "Thanalan",
+   "sub": "Sanctum Entrance",
+   "id": "w1d3/01",
+   "size": 200
+  },
+  {
+   "name": "The Sunken Temple of Qarn (Hard)",
+   "region": "Thanalan",
+   "sub": "Inner Sanctum",
+   "id": "w1d8/01",
+   "size": 200
+  },
+  {
+   "name": "The Waking Sands",
+   "region": "Thanalan",
+   "id": "w1e6/00",
+   "size": 400
+  },
+  {
+   "name": "Ul'dah - Steps of Nald",
+   "region": "Thanalan",
+   "id": "w1t1/01",
+   "size": 200
+  },
+  {
+   "name": "Ul'dah - Steps of Thal",
+   "region": "Thanalan",
+   "sub": "Merchant Strip",
+   "id": "w1t2/01",
+   "size": 200
+  },
+  {
+   "name": "Western Thanalan",
+   "region": "Thanalan",
+   "id": "w1f1/00",
+   "size": 100
+  },
+  {
+   "name": "Amdapor Keep",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1d3/01",
+   "size": 200
+  },
+  {
+   "name": "Amdapor Keep (Hard)",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1d7/01",
+   "size": 200
+  },
+  {
+   "name": "Baelsar's Wall",
+   "region": "The Black Shroud",
+   "sub": "Lower Reaches",
+   "id": "f1da/01",
+   "size": 200
+  },
+  {
+   "name": "Central Decks",
+   "region": "The Black Shroud",
+   "sub": "Lower Decks",
+   "id": "f1b3/01",
+   "size": 200
+  },
+  {
+   "name": "Central Shroud",
+   "region": "The Black Shroud",
+   "id": "f1f1/00",
+   "size": 100
+  },
+  {
+   "name": "Company Workshop - The Lavender Beds",
+   "region": "The Black Shroud",
+   "id": "f1i5/00",
+   "size": 400
+  },
+  {
+   "name": "Dalamud's Shadow",
+   "region": "The Black Shroud",
+   "id": "f1b1/00",
+   "size": 200
+  },
+  {
+   "name": "East Shroud",
+   "region": "The Black Shroud",
+   "id": "f1f2/00",
+   "size": 100
+  },
+  {
+   "name": "Haukke Manor",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1d2/01",
+   "size": 200
+  },
+  {
+   "name": "Haukke Manor (Hard)",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1d4/01",
+   "size": 200
+  },
+  {
+   "name": "Haunted Manor",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1d9/01",
+   "size": 200
+  },
+  {
+   "name": "Lichenweed",
+   "region": "The Black Shroud",
+   "id": "f1p1/00",
+   "size": 200
+  },
+  {
+   "name": "Lily Hills Apartment",
+   "region": "The Black Shroud",
+   "id": "f1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Lily Hills Apartment Lobby",
+   "region": "The Black Shroud",
+   "id": "f1i6/00",
+   "size": 400
+  },
+  {
+   "name": "Lilyswim",
+   "region": "The Black Shroud",
+   "id": "f1ed/01",
+   "size": 400
+  },
+  {
+   "name": "Lotus Stand",
+   "region": "The Black Shroud",
+   "id": "f1e5/00",
+   "size": 400
+  },
+  {
+   "name": "Manor Basement",
+   "region": "The Black Shroud",
+   "id": "f1dc/00",
+   "size": 200
+  },
+  {
+   "name": "New Gridania",
+   "region": "The Black Shroud",
+   "id": "f1t1/00",
+   "size": 200
+  },
+  {
+   "name": "North Shroud",
+   "region": "The Black Shroud",
+   "id": "f1f4/00",
+   "size": 100
+  },
+  {
+   "name": "Old Gridania",
+   "region": "The Black Shroud",
+   "id": "f1t2/00",
+   "size": 200
+  },
+  {
+   "name": "Private Chambers - The Lavender Beds",
+   "region": "The Black Shroud",
+   "id": "f1i4/00",
+   "size": 400
+  },
+  {
+   "name": "Private Cottage - The Lavender Beds",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1i1/01",
+   "size": 400
+  },
+  {
+   "name": "Private House - The Lavender Beds",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1i2/01",
+   "size": 400
+  },
+  {
+   "name": "Private Mansion - The Lavender Beds",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1i3/01",
+   "size": 400
+  },
+  {
+   "name": "Sanctum of the Twelve",
+   "region": "The Black Shroud",
+   "id": "default/00",
+   "size": 200
+  },
+  {
+   "name": "Seat of the First Bow",
+   "region": "The Black Shroud",
+   "id": "f1e4/00",
+   "size": 800
+  },
+  {
+   "name": "Sneaky Hollow",
+   "region": "The Black Shroud",
+   "id": "f1ea/00",
+   "size": 400
+  },
+  {
+   "name": "South Shroud",
+   "region": "The Black Shroud",
+   "id": "f1f3/00",
+   "size": 100
+  },
+  {
+   "name": "Starlight Stalls",
+   "region": "The Black Shroud",
+   "id": "f1ec/00",
+   "size": 400
+  },
+  {
+   "name": "Sylphstep",
+   "region": "The Black Shroud",
+   "id": "default/00",
+   "size": 400
+  },
+  {
+   "name": "The Black Shroud",
+   "region": "The Black Shroud",
+   "id": "region/01",
+   "size": 100
+  },
+  {
+   "name": "The Haunted Manor",
+   "region": "The Black Shroud",
+   "sub": "Ground Floor",
+   "id": "f1d9/01",
+   "size": 200
+  },
+  {
+   "name": "The Holocharts",
+   "region": "The Black Shroud",
+   "id": "f1b4/00",
+   "size": 200
+  },
+  {
+   "name": "The Lavender Beds",
+   "region": "The Black Shroud",
+   "sub": "The Lavender Beds",
+   "id": "f1h1/01",
+   "size": 200
+  },
+  {
+   "name": "The Lost City of Amdapor",
+   "region": "The Black Shroud",
+   "sub": "Central Amdapor",
+   "id": "f1d5/01",
+   "size": 200
+  },
+  {
+   "name": "The Lost City of Amdapor (Hard)",
+   "region": "The Black Shroud",
+   "sub": "Central Amdapor",
+   "id": "f1d8/01",
+   "size": 200
+  },
+  {
+   "name": "The Outer Coil",
+   "region": "The Black Shroud",
+   "sub": "Incubation Bay",
+   "id": "f1b2/01",
+   "size": 200
+  },
+  {
+   "name": "The Palace of the Dead",
+   "region": "The Black Shroud",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Pâtisserie",
+   "region": "The Black Shroud",
+   "id": "f1dd/00",
+   "size": 400
+  },
+  {
+   "name": "The Phantoms' Feast",
+   "region": "The Black Shroud",
+   "sub": "Lower Sepulchres",
+   "id": "f1db/01",
+   "size": 200
+  },
+  {
+   "name": "The Roost",
+   "region": "The Black Shroud",
+   "id": "f1ti/00",
+   "size": 800
+  },
+  {
+   "name": "The Striking Tree",
+   "region": "The Black Shroud",
+   "id": "f1fb/00",
+   "size": 400
+  },
+  {
+   "name": "The Tam-Tara Deepcroft",
+   "region": "The Black Shroud",
+   "id": "f1d1/00",
+   "size": 300
+  },
+  {
+   "name": "The Tam-Tara Deepcroft (Hard)",
+   "region": "The Black Shroud",
+   "id": "f1d6/00",
+   "size": 300
+  },
+  {
+   "name": "The Thousand Maws of Toto-Rak",
+   "region": "The Black Shroud",
+   "id": "f1r1/00",
+   "size": 200
+  },
+  {
+   "name": "Thornmarch",
+   "region": "The Black Shroud",
+   "id": "f1fa/00",
+   "size": 400
+  },
+  {
+   "name": "Twin Adder Barracks",
+   "region": "The Black Shroud",
+   "id": "f1tg/00",
+   "size": 400
+  },
+  {
+   "name": "Valentione's Ceremony",
+   "region": "The Black Shroud",
+   "id": "f1e9/00",
+   "size": 400
+  },
+  {
+   "name": "The First",
+   "region": "The First",
+   "id": "world/02",
+   "size": 100
+  },
+  {
+   "name": "Andron",
+   "region": "The Northern Empty",
+   "id": "k5ti/00",
+   "size": 400
+  },
+  {
+   "name": "Apex of Creation",
+   "region": "The Northern Empty",
+   "id": "n5rc/02",
+   "size": 400
+  },
+  {
+   "name": "Ascension",
+   "region": "The Northern Empty",
+   "id": "n5rc/01",
+   "size": 400
+  },
+  {
+   "name": "Labyrinthos",
+   "region": "The Northern Empty",
+   "id": "k5f1/00",
+   "size": 100
+  },
+  {
+   "name": "Main Deck",
+   "region": "The Northern Empty",
+   "id": "y6e3/00",
+   "size": 400
+  },
+  {
+   "name": "Main Hall",
+   "region": "The Northern Empty",
+   "id": "k5e1/00",
+   "size": 400
+  },
+  {
+   "name": "Old Sharlayan",
+   "region": "The Northern Empty",
+   "id": "k5t1/00",
+   "size": 200
+  },
+  {
+   "name": "Restricted Archives",
+   "region": "The Northern Empty",
+   "id": "k5e4/00",
+   "size": 400
+  },
+  {
+   "name": "The Aetherfont",
+   "region": "The Northern Empty",
+   "sub": "Ice Field",
+   "id": "k5d2/01",
+   "size": 200
+  },
+  {
+   "name": "The Aetherial Slough",
+   "region": "The Northern Empty",
+   "id": "n5r9/00",
+   "size": 400
+  },
+  {
+   "name": "The Aitiascope",
+   "region": "The Northern Empty",
+   "sub": "Aetherial Lens",
+   "id": "k5d1/01",
+   "size": 200
+  },
+  {
+   "name": "The Chamber of Fourteen",
+   "region": "The Northern Empty",
+   "id": "n5rb/00",
+   "size": 400
+  },
+  {
+   "name": "The Dæmons' Nest",
+   "region": "The Northern Empty",
+   "id": "n5ra/00",
+   "size": 400
+  },
+  {
+   "name": "The Mothercrystal",
+   "region": "The Northern Empty",
+   "id": "k5fa/00",
+   "size": 400
+  },
+  {
+   "name": "The Northern Empty",
+   "region": "The Northern Empty",
+   "id": "region/11",
+   "size": 100
+  },
+  {
+   "name": "Beyond the Stars",
+   "region": "The Sea of Stars",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Elysion",
+   "region": "The Sea of Stars",
+   "id": "u5e3/02",
+   "size": 400
+  },
+  {
+   "name": "Mare Lamentorum",
+   "region": "The Sea of Stars",
+   "id": "u5f1/00",
+   "size": 100
+  },
+  {
+   "name": "Smileton",
+   "region": "The Sea of Stars",
+   "sub": "The Outsides",
+   "id": "u5d2/01",
+   "size": 200
+  },
+  {
+   "name": "The Dark Inside",
+   "region": "The Sea of Stars",
+   "id": "u5fa/00",
+   "size": 400
+  },
+  {
+   "name": "The Dead Ends",
+   "region": "The Sea of Stars",
+   "sub": "Ostrakon Hexi",
+   "id": "u5d1/01",
+   "size": 200
+  },
+  {
+   "name": "The Excitatron 6000",
+   "region": "The Sea of Stars",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Final Day",
+   "region": "The Sea of Stars",
+   "id": "u5fb/00",
+   "size": 400
+  },
+  {
+   "name": "The Sea of Stars",
+   "region": "The Sea of Stars",
+   "id": "region/13",
+   "size": 100
+  },
+  {
+   "name": "The Stigma Dreamscape",
+   "region": "The Sea of Stars",
+   "sub": "The Alphatron Star",
+   "id": "u5d3/01",
+   "size": 200
+  },
+  {
+   "name": "Ultima Thule",
+   "region": "The Sea of Stars",
+   "id": "u5f2/00",
+   "size": 100
+  },
+  {
+   "name": "The Source",
+   "region": "The Source",
+   "id": "world/01",
+   "size": 100
+  },
+  {
+   "name": "Elpis",
+   "region": "The World Unsundered",
+   "id": "n5f1/00",
+   "size": 100
+  },
+  {
+   "name": "Ktisis Hyperboreia",
+   "region": "The World Unsundered",
+   "sub": "Terrestrial Artifice",
+   "id": "n5d1/01",
+   "size": 200
+  },
+  {
+   "name": "Propylaion",
+   "region": "The World Unsundered",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Stygian Insenescence Cells",
+   "region": "The World Unsundered",
+   "id": "n5r8/00",
+   "size": 400
+  },
+  {
+   "name": "The Caustic Purgatory",
+   "region": "The World Unsundered",
+   "id": "n5r5/00",
+   "size": 400
+  },
+  {
+   "name": "The Fervid Limbo",
+   "region": "The World Unsundered",
+   "id": "n5r3/00",
+   "size": 400
+  },
+  {
+   "name": "The Gates of Pandæmonium",
+   "region": "The World Unsundered",
+   "id": "n5r1/00",
+   "size": 400
+  },
+  {
+   "name": "The Hollow Purgatory",
+   "region": "The World Unsundered",
+   "id": "n5r7/00",
+   "size": 400
+  },
+  {
+   "name": "The Pestilent Purgatory",
+   "region": "The World Unsundered",
+   "id": "n5r6/00",
+   "size": 400
+  },
+  {
+   "name": "The Sanguine Limbo",
+   "region": "The World Unsundered",
+   "id": "n5r4/00",
+   "size": 400
+  },
+  {
+   "name": "The Shifting Gymnasion Agonon",
+   "region": "The World Unsundered",
+   "id": "n5c1/00",
+   "size": 400
+  },
+  {
+   "name": "The Stagnant Limbo",
+   "region": "The World Unsundered",
+   "id": "n5r2/00",
+   "size": 400
+  },
+  {
+   "name": "The World Unsundered",
+   "region": "The World Unsundered",
+   "id": "region/14",
+   "size": 100
+  },
+  {
+   "name": "Alexandria",
+   "region": "Unlost World",
+   "sub": "The Dream She Lived",
+   "id": "x6d3/01",
+   "size": 200
+  },
+  {
+   "name": "Alexandria Crater",
+   "region": "Unlost World",
+   "id": "x6ed/00",
+   "size": 400
+  },
+  {
+   "name": "Bentini Depot",
+   "region": "Unlost World",
+   "id": "x6ee/00",
+   "size": 400
+  },
+  {
+   "name": "Hell on Rails",
+   "region": "Unlost World",
+   "id": "x6fg/01",
+   "size": 400
+  },
+  {
+   "name": "Interphos",
+   "region": "Unlost World",
+   "id": "x6fb/00",
+   "size": 400
+  },
+  {
+   "name": "Living Memory",
+   "region": "Unlost World",
+   "id": "x6f3/00",
+   "size": 100
+  },
+  {
+   "name": "Mistwake",
+   "region": "Unlost World",
+   "sub": "Quan Caverns",
+   "id": "x6d9/01",
+   "size": 200
+  },
+  {
+   "name": "Strayborough",
+   "region": "Unlost World",
+   "sub": "Dreamborough South",
+   "id": "x6d5/01",
+   "size": 200
+  },
+  {
+   "name": "The Ageless Necropolis",
+   "region": "Unlost World",
+   "id": "x6fe/01",
+   "size": 400
+  },
+  {
+   "name": "The Lightless Abyss",
+   "region": "Unlost World",
+   "id": "x6fe/02",
+   "size": 400
+  },
+  {
+   "name": "The Meso Terminal",
+   "region": "Unlost World",
+   "sub": "Lower Circuits",
+   "id": "x6d8/01",
+   "size": 200
+  },
+  {
+   "name": "Treno",
+   "region": "Unlost World",
+   "sub": "Quan Caverns",
+   "id": "x6d9/04",
+   "size": 200
+  },
+  {
+   "name": "Unlost World",
+   "region": "Unlost World",
+   "id": "region/17",
+   "size": 100
+  },
+  {
+   "name": "Vault Oneiron",
+   "region": "Unlost World",
+   "id": "x6c1/00",
+   "size": 400
+  },
+  {
+   "name": "Arcadia",
+   "region": "Xak Tural",
+   "id": "x6rc/01",
+   "size": 400
+  },
+  {
+   "name": "Blasting Ring",
+   "region": "Xak Tural",
+   "id": "x6r3/00",
+   "size": 400
+  },
+  {
+   "name": "Break Room",
+   "region": "Xak Tural",
+   "id": "x6e8/00",
+   "size": 400
+  },
+  {
+   "name": "Containment Complex 10-29",
+   "region": "Xak Tural",
+   "id": "x6eb/00",
+   "size": 400
+  },
+  {
+   "name": "Demolition Site",
+   "region": "Xak Tural",
+   "sub": "Residential Radius 8-71",
+   "id": "x6r7/01",
+   "size": 400
+  },
+  {
+   "name": "Earthen Sky Hideout",
+   "region": "Xak Tural",
+   "id": "x6e1/00",
+   "size": 400
+  },
+  {
+   "name": "Greenroom",
+   "region": "Xak Tural",
+   "id": "x6e5/00",
+   "size": 400
+  },
+  {
+   "name": "Groovy Ring",
+   "region": "Xak Tural",
+   "id": "x6r5/00",
+   "size": 400
+  },
+  {
+   "name": "Heritage Found",
+   "region": "Xak Tural",
+   "id": "x6f2/00",
+   "size": 100
+  },
+  {
+   "name": "Hunter's Ring",
+   "region": "Xak Tural",
+   "id": "x6r8/01",
+   "size": 400
+  },
+  {
+   "name": "Hunting Ground",
+   "region": "Xak Tural",
+   "id": "x6r8/02",
+   "size": 400
+  },
+  {
+   "name": "Kanilokka Corpus Substructure",
+   "region": "Xak Tural",
+   "id": "x6ec/00",
+   "size": 400
+  },
+  {
+   "name": "Lovely Lovering",
+   "region": "Xak Tural",
+   "id": "x6r2/00",
+   "size": 400
+  },
+  {
+   "name": "Origenics",
+   "region": "Xak Tural",
+   "sub": "Hover Docks",
+   "id": "x6d2/01",
+   "size": 200
+  },
+  {
+   "name": "Rebel Ring",
+   "region": "Xak Tural",
+   "id": "x6r6/00",
+   "size": 400
+  },
+  {
+   "name": "Recollection",
+   "region": "Xak Tural",
+   "id": "x6fd/00",
+   "size": 400
+  },
+  {
+   "name": "Ring Noir",
+   "region": "Xak Tural",
+   "id": "x6r9/00",
+   "size": 400
+  },
+  {
+   "name": "Scratching Ring",
+   "region": "Xak Tural",
+   "id": "x6r1/00",
+   "size": 400
+  },
+  {
+   "name": "Shaaloani",
+   "region": "Xak Tural",
+   "id": "x6f1/00",
+   "size": 100
+  },
+  {
+   "name": "Solution Nine",
+   "region": "Xak Tural",
+   "id": "x6t1/00",
+   "size": 180
+  },
+  {
+   "name": "Summit of Everkeep",
+   "region": "Xak Tural",
+   "id": "x6fa/00",
+   "size": 400
+  },
+  {
+   "name": "Tender Valley",
+   "region": "Xak Tural",
+   "sub": "Tender Valley",
+   "id": "x6d4/01",
+   "size": 200
+  },
+  {
+   "name": "The Backroom",
+   "region": "Xak Tural",
+   "id": "x6e2/00",
+   "size": 400
+  },
+  {
+   "name": "The Crown",
+   "region": "Xak Tural",
+   "id": "x6rb/00",
+   "size": 400
+  },
+  {
+   "name": "The Thundering",
+   "region": "Xak Tural",
+   "id": "x6r4/00",
+   "size": 400
+  },
+  {
+   "name": "The Underkeep",
+   "region": "Xak Tural",
+   "sub": "Foundation Sector",
+   "id": "x6d7/01",
+   "size": 200
+  },
+  {
+   "name": "The Windward Wilds",
+   "region": "Xak Tural",
+   "id": "x6ff/01",
+   "size": 400
+  },
+  {
+   "name": "The X-Ring",
+   "region": "Xak Tural",
+   "id": "x6ra/00",
+   "size": 400
+  },
+  {
+   "name": "Throne Room",
+   "region": "Xak Tural",
+   "id": "x6e9/00",
+   "size": 400
+  },
+  {
+   "name": "Tritails Training",
+   "region": "Xak Tural",
+   "id": "x6e4/00",
+   "size": 400
+  },
+  {
+   "name": "Vanguard",
+   "region": "Xak Tural",
+   "id": "x6d1/00",
+   "size": 200
+  },
+  {
+   "name": "Xak Tural",
+   "region": "Xak Tural",
+   "id": "region/16",
+   "size": 100
+  },
+  {
+   "name": "Yuweyawata",
+   "region": "Xak Tural",
+   "sub": "Wawsatenyazeto",
+   "id": "x6d6/01",
+   "size": 200
+  },
+  {
+   "name": "Zorgor the Boundless",
+   "region": "Xak Tural",
+   "id": "x6e7/00",
+   "size": 100
+  },
+  {
+   "name": "Cenote Ja Ja Gural",
+   "region": "Yok Tural",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Ihuykatumu",
+   "region": "Yok Tural",
+   "sub": "Downriver Ihuykatumu",
+   "id": "y6d1/01",
+   "size": 200
+  },
+  {
+   "name": "Kozama'uka",
+   "region": "Yok Tural",
+   "id": "y6f2/00",
+   "size": 100
+  },
+  {
+   "name": "Skydeep Cenote Inner Chamber",
+   "region": "Yok Tural",
+   "id": "y6e2/00",
+   "size": 400
+  },
+  {
+   "name": "Sunperch",
+   "region": "Yok Tural",
+   "id": "y6e1/00",
+   "size": 400
+  },
+  {
+   "name": "The Bayside Battleground",
+   "region": "Yok Tural",
+   "id": "s5p6/00",
+   "size": 400
+  },
+  {
+   "name": "The For'ard Cabins",
+   "region": "Yok Tural",
+   "id": "y6ti/00",
+   "size": 800
+  },
+  {
+   "name": "The Skydeep Cenote",
+   "region": "Yok Tural",
+   "sub": "Gok Draak Cenotaph",
+   "id": "y6d3/01",
+   "size": 200
+  },
+  {
+   "name": "Tuliyollal",
+   "region": "Yok Tural",
+   "id": "y6t1/00",
+   "size": 180
+  },
+  {
+   "name": "Urqopacha",
+   "region": "Yok Tural",
+   "id": "y6f1/00",
+   "size": 100
+  },
+  {
+   "name": "Worqor Chirteh",
+   "region": "Yok Tural",
+   "id": "y6p1/00",
+   "size": 100
+  },
+  {
+   "name": "Worqor Lar Dor",
+   "region": "Yok Tural",
+   "id": "y6fa/00",
+   "size": 400
+  },
+  {
+   "name": "Worqor Zormor",
+   "region": "Yok Tural",
+   "sub": "Zirgor Zormor",
+   "id": "y6d2/01",
+   "size": 200
+  },
+  {
+   "name": "Yak T'el",
+   "region": "Yok Tural",
+   "id": "y6f3/00",
+   "size": 100
+  },
+  {
+   "name": "Yok Tural",
+   "region": "Yok Tural",
+   "id": "region/15",
+   "size": 100
+  },
+  {
+   "name": "Zirgorteh the Open-armed",
+   "region": "Yok Tural",
+   "id": "y6e5/01",
+   "size": 400
+  },
+  {
+   "name": "Aglaia",
+   "region": "Instances",
+   "sub": "Heaven of Lightning",
+   "id": "z5r1/01",
+   "size": 200
+  },
+  {
+   "name": "Aloalo Island",
+   "region": "Instances",
+   "sub": "Island Foreshore",
+   "id": "o5d1/01",
+   "size": 200
+  },
+  {
+   "name": "Another Aloalo Island",
+   "region": "Instances",
+   "sub": "Dilumu",
+   "id": "o5d2/01",
+   "size": 200
+  },
+  {
+   "name": "Auxesia",
+   "region": "Instances",
+   "id": "c1w4/01",
+   "size": 100
+  },
+  {
+   "name": "Blunderville",
+   "region": "Instances",
+   "sub": "Gentlebean's Fever",
+   "id": "default/00",
+   "size": 200
+  },
+  {
+   "name": "Bozjan Southern Front",
+   "region": "Instances",
+   "id": "n4b4/01",
+   "size": 100
+  },
+  {
+   "name": "Castrum Lacus Litore",
+   "region": "Instances",
+   "id": "n4b4/02",
+   "size": 200
+  },
+  {
+   "name": "Chocobo Square",
+   "region": "Instances",
+   "id": "s1fb/00",
+   "size": 100
+  },
+  {
+   "name": "Cid's Memory",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Delubrum Reginae",
+   "region": "Instances",
+   "sub": "Outer Locus",
+   "id": "n4b5/01",
+   "size": 200
+  },
+  {
+   "name": "Dreamlike Palace",
+   "region": "Instances",
+   "id": "n4d9/10",
+   "size": 200
+  },
+  {
+   "name": "Eorzea",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Eorzean Subterrane",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Euphrosyne",
+   "region": "Instances",
+   "sub": "Heaven of Earth",
+   "id": "z5r2/01",
+   "size": 200
+  },
+  {
+   "name": "Eureka Anemos",
+   "region": "Instances",
+   "id": "z3fa/00",
+   "size": 100
+  },
+  {
+   "name": "Eureka Hydatos",
+   "region": "Instances",
+   "id": "z3fd/01",
+   "size": 100
+  },
+  {
+   "name": "Eureka Pagos",
+   "region": "Instances",
+   "id": "z3fb/00",
+   "size": 100
+  },
+  {
+   "name": "Eureka Pyros",
+   "region": "Instances",
+   "id": "z3fc/00",
+   "size": 100
+  },
+  {
+   "name": "G-Savior Deck",
+   "region": "Instances",
+   "id": "n4fh/00",
+   "size": 400
+  },
+  {
+   "name": "Gangos",
+   "region": "Instances",
+   "id": "n4ea/00",
+   "size": 400
+  },
+  {
+   "name": "Jeuno: The First Walk",
+   "region": "Instances",
+   "sub": "Lower Jeuno",
+   "id": "z6r1/01",
+   "size": 200
+  },
+  {
+   "name": "Liminal Space",
+   "region": "Instances",
+   "id": "d2az/00",
+   "size": 400
+  },
+  {
+   "name": "Lower Jeuno",
+   "region": "Instances",
+   "id": "z6e1/00",
+   "size": 400
+  },
+  {
+   "name": "Mordion Gaol",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Nihil",
+   "region": "Instances",
+   "id": "z5fd/02",
+   "size": 200
+  },
+  {
+   "name": "North Horn",
+   "region": "Instances",
+   "sub": "North Basin",
+   "id": "o6b2/01",
+   "size": 100
+  },
+  {
+   "name": "Oizys",
+   "region": "Instances",
+   "id": "c1w3/01",
+   "size": 100
+  },
+  {
+   "name": "Phaenna",
+   "region": "Instances",
+   "id": "c1w2/00",
+   "size": 100
+  },
+  {
+   "name": "Phantom Village",
+   "region": "Instances",
+   "id": "o6e1/00",
+   "size": 400
+  },
+  {
+   "name": "San d'Oria: The Second Walk",
+   "region": "Instances",
+   "sub": "San d'Oria",
+   "id": "z6r2/01",
+   "size": 200
+  },
+  {
+   "name": "Sinus Ardorum",
+   "region": "Instances",
+   "id": "c1w1/00",
+   "size": 100
+  },
+  {
+   "name": "South Horn",
+   "region": "Instances",
+   "id": "o6b1/01",
+   "size": 100
+  },
+  {
+   "name": "Storm's Crown",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 400
+  },
+  {
+   "name": "Terncliff",
+   "region": "Instances",
+   "id": "n4eb/01",
+   "size": 400
+  },
+  {
+   "name": "Terncliff Bay",
+   "region": "Instances",
+   "id": "n4eb/02",
+   "size": 400
+  },
+  {
+   "name": "Thaleia",
+   "region": "Instances",
+   "sub": "Heaven of Water",
+   "id": "z5r3/01",
+   "size": 200
+  },
+  {
+   "name": "The Abyssal Fracture",
+   "region": "Instances",
+   "id": "z5fc/00",
+   "size": 400
+  },
+  {
+   "name": "The Aquapolis",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Binding Coil of Bahamut",
+   "region": "Instances",
+   "id": "f1bz/00",
+   "size": 400
+  },
+  {
+   "name": "The Clockwork Castletown",
+   "region": "Instances",
+   "id": "s5p4/00",
+   "size": 400
+  },
+  {
+   "name": "The Dalriada",
+   "region": "Instances",
+   "id": "n4b6/03",
+   "size": 200
+  },
+  {
+   "name": "The Dungeons of Lyhe Ghiah",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Endeavor",
+   "region": "Instances",
+   "id": "o1a1/00",
+   "size": 400
+  },
+  {
+   "name": "The Fell Court of Troia",
+   "region": "Instances",
+   "sub": "Carcere IV",
+   "id": "z5d1/01",
+   "size": 200
+  },
+  {
+   "name": "The Imperial Palace",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Last Trace",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 200
+  },
+  {
+   "name": "The Lost Canals of Uznair",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Lunar Subterrane",
+   "region": "Instances",
+   "sub": "The Lunar Subterrane",
+   "id": "z5d2/01",
+   "size": 200
+  },
+  {
+   "name": "The Maiden's Home",
+   "region": "Instances",
+   "id": "m6e1/00",
+   "size": 400
+  },
+  {
+   "name": "The Memory of Embers",
+   "region": "Instances",
+   "id": "w1fa/10",
+   "size": 400
+  },
+  {
+   "name": "The Merchant's Tale",
+   "region": "Instances",
+   "sub": "A Faraway Place",
+   "id": "m6d1/01",
+   "size": 200
+  },
+  {
+   "name": "The Omphalos",
+   "region": "Instances",
+   "id": "z5e1/00",
+   "size": 400
+  },
+  {
+   "name": "The Orbonne Monastery",
+   "region": "Instances",
+   "sub": "The Golmore Jungle",
+   "id": "z3r3/01",
+   "size": 200
+  },
+  {
+   "name": "The Palaistra",
+   "region": "Instances",
+   "id": "s5p1/00",
+   "size": 400
+  },
+  {
+   "name": "The Prima Vista Bridge",
+   "region": "Instances",
+   "id": "z3e3/00",
+   "size": 400
+  },
+  {
+   "name": "The Prima Vista Tiring Room",
+   "region": "Instances",
+   "id": "z3e2/00",
+   "size": 400
+  },
+  {
+   "name": "The Red Moon",
+   "region": "Instances",
+   "id": "z5e5/00",
+   "size": 400
+  },
+  {
+   "name": "The Red Sands",
+   "region": "Instances",
+   "id": "s5p5/00",
+   "size": 400
+  },
+  {
+   "name": "The Ridorana Cataract",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "The Ridorana Lighthouse",
+   "region": "Instances",
+   "sub": "The Ridorana Cataract",
+   "id": "z3r2/01",
+   "size": 200
+  },
+  {
+   "name": "The Rift",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 400
+  },
+  {
+   "name": "The Royal City of Rabanastre",
+   "region": "Instances",
+   "sub": "Charred Ruins",
+   "id": "z3r1/01",
+   "size": 200
+  },
+  {
+   "name": "The Seat of Sacrifice",
+   "region": "Instances",
+   "id": "n4ff/01",
+   "size": 400
+  },
+  {
+   "name": "The Shifting Altars of Uznair",
+   "region": "Instances",
+   "id": "o3c2/00",
+   "size": 400
+  },
+  {
+   "name": "The Shifting Oubliettes of Lyhe Ghiah",
+   "region": "Instances",
+   "id": "n4c2/00",
+   "size": 400
+  },
+  {
+   "name": "The Unmaking",
+   "region": "Instances",
+   "id": "z5fd/01",
+   "size": 400
+  },
+  {
+   "name": "The Voidcast Dais",
+   "region": "Instances",
+   "id": "z5fb/00",
+   "size": 400
+  },
+  {
+   "name": "The Volcanic Heart",
+   "region": "Instances",
+   "id": "s5p2/00",
+   "size": 400
+  },
+  {
+   "name": "Tower of Blood",
+   "region": "Instances",
+   "sub": "Tower Base",
+   "id": "o6b1/02",
+   "size": 200
+  },
+  {
+   "name": "Tower of Magic",
+   "region": "Instances",
+   "sub": "Tower Base",
+   "id": "o6b2/02",
+   "size": 200
+  },
+  {
+   "name": "Transmission Control",
+   "region": "Instances",
+   "id": "n4b2/00",
+   "size": 400
+  },
+  {
+   "name": "Trial's Threshold",
+   "region": "Instances",
+   "id": "default/00",
+   "size": 100
+  },
+  {
+   "name": "Ultimacy",
+   "region": "Instances",
+   "id": "w1fz/00",
+   "size": 400
+  },
+  {
+   "name": "Unnamed Island",
+   "region": "Instances",
+   "id": "h1m2/01",
+   "size": 100
+  },
+  {
+   "name": "Windurst: The Third Walk",
+   "region": "Instances",
+   "sub": "Windurst",
+   "id": "z6r3/01",
+   "size": 200
+  },
+  {
+   "name": "Zadnor",
+   "region": "Instances",
+   "id": "n4b6/01",
+   "size": 100
+  },
+  {
+   "name": "Zero's Domain",
+   "region": "Instances",
+   "id": "z5e4/00",
+   "size": 400
+  }
+ ]
+}

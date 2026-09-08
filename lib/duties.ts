@@ -79,3 +79,83 @@ export function savageDuty(label: string | null | undefined,
   if (!floor || !zone) return null;
   return `${zone} M${((Number(floor) - 1) % 4) + 1} (Savage)`;
 }
+
+
+/**
+ * The alliance raids of the current expansion.
+ *
+ * Hand-written for the same reason the extremes above are: FF Logs does not
+ * rank 24-player content, so nothing in this project's data has ever heard of
+ * these, and no API will hand them over. Three lines that change once every two
+ * years are cheaper than a scraper that has to be right.
+ *
+ * Dawntrail's series is the Final Fantasy XI crossover, one raid per odd patch.
+ * Checked against the Console Games Wiki and Icy Veins in September 2026 — the
+ * third had landed by then, so this is the whole set unless 7.6 adds one.
+ *
+ * The patch is the badge because it is the only short handle these have. The
+ * FC says "Jeuno" and "San d'Oria" for the first two, which is the city rather
+ * than the duty, and a badge reading "Jeuno" beside a title reading "Jeuno: The
+ * First Walk" says one thing twice.
+ */
+export interface AllianceRaid {
+  /** The duty as the game lists it. */
+  duty: string;
+  /** The patch it arrived in, which is also its badge. */
+  patch: string;
+}
+
+export const ALLIANCE_RAIDS: AllianceRaid[] = [
+  { duty: "Jeuno: The First Walk", patch: "7.1" },
+  { duty: "San d'Oria: The Second Walk", patch: "7.3" },
+  { duty: "Windurst: The Third Walk", patch: "7.5" },
+];
+
+
+/**
+ * Every Variant and Criterion dungeon, newest first.
+ *
+ * Hand-written for the reason the two tables above are: this is four-player
+ * side content that FF Logs does not rank and no API will hand over. Checked
+ * against the Console Games Wiki in September 2026.
+ *
+ * All of them, not only this expansion's. Unlike a savage tier, these do not
+ * go stale — people still put Aloalo runs together for the mount and the
+ * weapons years later, and a board that only offered the newest one would be
+ * missing most of what actually gets organised.
+ *
+ * Three names for what is nearly the same dungeon, and the game's own naming is
+ * the thing to trust rather than tidy up: the plain name is the Variant, which
+ * is exploration and can be done alone; "Another" is the Criterion, which is a
+ * fight; "(Savage)" is the Criterion that hurts. Dawntrail changed the pattern
+ * to Variant, Variant (Advanced), Criterion — so the shape of this list is not
+ * something to enforce, only to record.
+ *
+ * The patch is the badge for the same reason it is on the alliance raids:
+ * these have no shorthand anybody says out loud, and the number sorts them.
+ */
+export interface CriterionDungeon {
+  /** The duty as the game lists it. */
+  duty: string;
+  patch: string;
+  /** Which one it is, since the name alone does not always say. */
+  kind: "Variant" | "Advanced" | "Criterion" | "Criterion (Savage)";
+}
+
+export const CRITERION_DUNGEONS: CriterionDungeon[] = [
+  { duty: "Another Merchant's Tale", patch: "7.45", kind: "Criterion" },
+  { duty: "The Merchant's Tale (Advanced)", patch: "7.45", kind: "Advanced" },
+  { duty: "The Merchant's Tale", patch: "7.45", kind: "Variant" },
+
+  { duty: "Another Aloalo Island (Savage)", patch: "6.51", kind: "Criterion (Savage)" },
+  { duty: "Another Aloalo Island", patch: "6.51", kind: "Criterion" },
+  { duty: "Aloalo Island", patch: "6.51", kind: "Variant" },
+
+  { duty: "Another Mount Rokkon (Savage)", patch: "6.45", kind: "Criterion (Savage)" },
+  { duty: "Another Mount Rokkon", patch: "6.45", kind: "Criterion" },
+  { duty: "Mount Rokkon", patch: "6.45", kind: "Variant" },
+
+  { duty: "Another Sil'dihn Subterrane (Savage)", patch: "6.25", kind: "Criterion (Savage)" },
+  { duty: "Another Sil'dihn Subterrane", patch: "6.25", kind: "Criterion" },
+  { duty: "The Sil'dihn Subterrane", patch: "6.25", kind: "Variant" },
+];

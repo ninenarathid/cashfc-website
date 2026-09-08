@@ -34,6 +34,9 @@ const FEEDBACK_TAB: (typeof TABS)[number] = { href: "/feedback", label: "nav.fee
 // they do. Admins only while they are being written. A half-finished guide is worse
 // than none, because somebody will stand where it says.
 const GUIDES_TAB: (typeof TABS)[number] = { href: "/guides", label: "nav.guidesWip" };
+// Same footing as the guides, and for the same reason: a board of parties that
+// cannot yet be saved would waste the evening of whoever believed it.
+const PARTY_TAB: (typeof TABS)[number] = { href: "/party", label: "nav.partyWip" };
 
 export default function Nav() {
   const pathname = usePathname();
@@ -69,7 +72,7 @@ export default function Nav() {
     ...TABS,
     ...(showGallery ? [GALLERY_TAB] : []),
     ...(signedIn ? [FEEDBACK_TAB] : []),
-    ...(isAdmin ? [GUIDES_TAB] : []),
+    ...(isAdmin ? [GUIDES_TAB, PARTY_TAB] : []),
   ];
   // The header takes its own artwork, since a mark that works at 56px in a nav bar is
   // rarely the same one that works at 450px on the front page. Falls back to the
