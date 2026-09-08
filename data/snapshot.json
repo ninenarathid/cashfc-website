@@ -687,7 +687,6 @@
    3765,
    3766,
    3767,
-   3768,
    3770,
    3771,
    3778,
@@ -716,6 +715,7 @@
    3862,
    3868,
    3869,
+   3877,
    3878,
    3879,
    3880,
@@ -757,8 +757,7 @@
   ],
   "tiers": {
    "relic": "legendary",
-   "explorer": "master",
-   "treasure": "expert"
+   "explorer": "master"
   },
   "jobs": {
    "Dancer": "legendary",
@@ -948,11 +947,11 @@
    3686,
    3687,
    3785,
+   3812,
    3820,
    3833,
    3834,
    3835,
-   3938,
    3949,
    3950,
    3951,
@@ -1009,7 +1008,7 @@
   "mounts": 146,
   "minions": 242,
   "rare": null,
-  "level": 100,
+  "level": 11,
   "cc": [
    true,
    true,
@@ -1038,7 +1037,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-08"
  },
  "31236337": {
   "name": "Whitefrost Marionette",
@@ -2438,7 +2437,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2451,7 +2450,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-07"
+  "chg": "2026-09-08"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -2966,6 +2965,7 @@
    3651,
    3652,
    3653,
+   3654,
    3677,
    3752,
    3753,
@@ -2987,7 +2987,6 @@
    3792,
    3798,
    3799,
-   3805,
    3811,
    3814,
    3817,
@@ -4227,7 +4226,6 @@
    3770,
    3771,
    3802,
-   3823,
    3832,
    3842,
    3843,
@@ -4242,6 +4240,7 @@
    3868,
    3869,
    3870,
+   3878,
    3879,
    3880,
    3881,
@@ -4960,7 +4959,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 74,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -4975,7 +4974,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-08"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -6574,13 +6573,13 @@
    3763,
    3765,
    3766,
+   3767,
    3770,
    3771,
    3778,
    3784,
    3802,
    3817,
-   3823,
    3832,
    3842,
    3846,
@@ -6895,7 +6894,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 99,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -6913,7 +6912,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-07"
+  "chg": "2026-09-08"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -7206,7 +7205,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 31,
-  "level": 100,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -7253,7 +7252,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-08"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7637,7 +7636,7 @@
   "mounts": 81,
   "minions": 155,
   "rare": null,
-  "level": 100,
+  "level": 59,
   "cc": [
    true,
    true,
@@ -7658,7 +7657,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-06"
+  "chg": "2026-09-08"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -7705,14 +7704,14 @@
   "mounts": 5,
   "minions": 11,
   "rare": null,
-  "level": 69,
+  "level": 70,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-07"
+  "chg": "2026-09-08"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

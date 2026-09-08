@@ -318,12 +318,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 10,
     "kills": 14,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Samurai": {
       "kills": 14,
@@ -18817,12 +18817,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 90,
     "kills": 33,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Summoner": {
       "kills": 17,
@@ -21723,12 +21723,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 26,
     "kills": 17,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Astrologian": {
       "kills": 17,
@@ -28642,12 +28642,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 51,
     "kills": 7,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Gunbreaker": {
       "kills": 7,
@@ -29938,12 +29938,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 20,
     "kills": 1,
     "job": "DarkKnight",
-    "cleared": true,
-    "encounter_id": 1050
+    "cleared": true
    }
   ],
   "extremes": [],
@@ -36596,12 +36596,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 75,
     "kills": 28,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Samurai": {
       "kills": 23,
@@ -41060,12 +41060,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 54,
     "kills": 17,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Paladin": {
       "kills": 17,
