@@ -89,7 +89,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 8.5,
-     "score": 4.1,
+     "score": 4.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -97,7 +97,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 1.2,
-     "score": 0.7,
+     "score": 0.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -105,7 +105,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 9.0,
-     "score": 4.7,
+     "score": 4.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -113,7 +113,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 5.4,
-     "score": 3.1,
+     "score": 3.3,
      "tier": null,
      "hardest": "extreme"
     }
@@ -202,7 +202,7 @@
      "fights": 5,
      "kills": 17,
      "parse": 30.0,
-     "score": 24.1,
+     "score": 25.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -210,7 +210,7 @@
      "fights": 2,
      "kills": 7,
      "parse": 33.2,
-     "score": 19.9,
+     "score": 21.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -218,7 +218,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 36.6,
-     "score": 25.7,
+     "score": 27.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -226,7 +226,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 13.5,
-     "score": 8.7,
+     "score": 9.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -234,7 +234,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 33.0,
-     "score": 12.7,
+     "score": 13.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -242,7 +242,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 13.2,
-     "score": 6.9,
+     "score": 7.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -250,7 +250,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 33.0,
-     "score": 19.0,
+     "score": 20.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -258,7 +258,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 20.5,
-     "score": 10.0,
+     "score": 10.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -459,7 +459,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 11.0,
-     "score": 6.9,
+     "score": 7.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -467,7 +467,7 @@
      "fights": 4,
      "kills": 14,
      "parse": 13.1,
-     "score": 10.3,
+     "score": 11.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -475,7 +475,7 @@
      "fights": 9,
      "kills": 71,
      "parse": 50.7,
-     "score": 48.8,
+     "score": 50.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -483,7 +483,7 @@
      "fights": 5,
      "kills": 5,
      "parse": 36.4,
-     "score": 24.7,
+     "score": 26.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -491,7 +491,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 19.0,
-     "score": 7.3,
+     "score": 7.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -507,7 +507,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 12.0,
-     "score": 4.6,
+     "score": 4.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -730,7 +730,7 @@
      "fights": 2,
      "kills": 25,
      "parse": 98.8,
-     "score": 72.5,
+     "score": 79.0,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -738,7 +738,7 @@
      "fights": 5,
      "kills": 18,
      "parse": 75.4,
-     "score": 61.1,
+     "score": 65.6,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -746,7 +746,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 66.3,
-     "score": 38.2,
+     "score": 40.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -754,7 +754,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 33.0,
-     "score": 12.7,
+     "score": 13.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -848,7 +848,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 23.5,
-     "score": 11.5,
+     "score": 12.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -1011,7 +1011,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 35.0,
-     "score": 13.5,
+     "score": 14.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1019,7 +1019,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 32.0,
-     "score": 13.8,
+     "score": 14.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1027,7 +1027,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 44.0,
-     "score": 21.5,
+     "score": 23.0,
      "tier": null,
      "hardest": "extreme"
     }
@@ -1164,7 +1164,7 @@
      "kills": 136,
      "parse": 89.7,
      "score": 89.7,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "legacy"
     },
     "Summoner": {
@@ -1180,14 +1180,14 @@
      "kills": 163,
      "parse": 88.9,
      "score": 88.9,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "ultimate"
     },
     "Scholar": {
      "fights": 7,
      "kills": 16,
      "parse": 77.9,
-     "score": 62.2,
+     "score": 66.6,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -1195,7 +1195,7 @@
      "fights": 5,
      "kills": 14,
      "parse": 69.9,
-     "score": 54.8,
+     "score": 58.6,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -1203,7 +1203,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 55.8,
-     "score": 34.8,
+     "score": 36.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -1211,7 +1211,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 26.0,
-     "score": 12.7,
+     "score": 13.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -1378,7 +1378,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 67.0,
-     "score": 32.8,
+     "score": 35.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1386,7 +1386,7 @@
      "fights": 3,
      "kills": 25,
      "parse": 55.9,
-     "score": 44.2,
+     "score": 47.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1394,7 +1394,7 @@
      "fights": 3,
      "kills": 12,
      "parse": 34.7,
-     "score": 24.7,
+     "score": 26.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -1402,7 +1402,7 @@
      "fights": 1,
      "kills": 11,
      "parse": 47.0,
-     "score": 27.7,
+     "score": 30.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1410,7 +1410,7 @@
      "fights": 6,
      "kills": 41,
      "parse": 76.1,
-     "score": 68.6,
+     "score": 74.3,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -1418,7 +1418,7 @@
      "fights": 1,
      "kills": 27,
      "parse": 52.0,
-     "score": 35.7,
+     "score": 39.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1426,7 +1426,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 20.0,
-     "score": 7.7,
+     "score": 8.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1434,7 +1434,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 20.0,
-     "score": 8.6,
+     "score": 9.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1442,7 +1442,7 @@
      "fights": 6,
      "kills": 6,
      "parse": 27.0,
-     "score": 18.8,
+     "score": 19.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -1450,7 +1450,7 @@
      "fights": 6,
      "kills": 7,
      "parse": 45.0,
-     "score": 32.0,
+     "score": 33.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -1458,7 +1458,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 15.0,
-     "score": 6.5,
+     "score": 6.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -1466,7 +1466,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 38.0,
-     "score": 14.6,
+     "score": 15.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -1625,7 +1625,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 9.5,
-     "score": 4.6,
+     "score": 4.8,
      "tier": null,
      "hardest": "extreme"
     }
@@ -1724,7 +1724,7 @@
      "fights": 5,
      "kills": 65,
      "parse": 37.6,
-     "score": 35.8,
+     "score": 37.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -1804,7 +1804,7 @@
      "fights": 10,
      "kills": 36,
      "parse": 68.9,
-     "score": 61.1,
+     "score": 66.1,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -1812,7 +1812,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 94.0,
-     "score": 46.0,
+     "score": 49.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1820,7 +1820,7 @@
      "fights": 2,
      "kills": 15,
      "parse": 40.3,
-     "score": 27.3,
+     "score": 29.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -1828,7 +1828,7 @@
      "fights": 10,
      "kills": 82,
      "parse": 77.4,
-     "score": 75.8,
+     "score": 77.4,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -1836,17 +1836,17 @@
      "fights": 8,
      "kills": 52,
      "parse": 78.0,
-     "score": 72.4,
+     "score": 78.0,
      "tier": "master",
      "hardest": "legacy"
     }
    },
    "job_top": {
-    "job": "RedMage",
-    "fights": 10,
-    "kills": 82,
-    "parse": 77.4,
-    "score": 75.8,
+    "job": "Bard",
+    "fights": 8,
+    "kills": 52,
+    "parse": 78.0,
+    "score": 78.0,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -1921,7 +1921,7 @@
      "fights": 3,
      "kills": 54,
      "parse": 67.1,
-     "score": 58.8,
+     "score": 63.3,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -1929,7 +1929,7 @@
      "fights": 4,
      "kills": 61,
      "parse": 65.8,
-     "score": 62.2,
+     "score": 65.8,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -1937,7 +1937,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 39.0,
-     "score": 16.8,
+     "score": 17.7,
      "tier": null,
      "hardest": "extreme"
     }
@@ -1947,7 +1947,7 @@
     "fights": 4,
     "kills": 61,
     "parse": 65.8,
-    "score": 62.2,
+    "score": 65.8,
     "tier": "expert",
     "hardest": "extreme"
    },
@@ -2141,7 +2141,7 @@
      "fights": 10,
      "kills": 17,
      "parse": 72.1,
-     "score": 58.0,
+     "score": 62.2,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -2149,7 +2149,7 @@
      "fights": 6,
      "kills": 11,
      "parse": 27.6,
-     "score": 20.9,
+     "score": 22.3,
      "tier": null,
      "hardest": "savage"
     },
@@ -2157,7 +2157,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 34.9,
-     "score": 17.0,
+     "score": 17.8,
      "tier": null,
      "hardest": "savage"
     },
@@ -2165,7 +2165,7 @@
      "fights": 5,
      "kills": 7,
      "parse": 42.3,
-     "score": 30.1,
+     "score": 31.9,
      "tier": null,
      "hardest": "savage"
     },
@@ -2173,7 +2173,7 @@
      "fights": 7,
      "kills": 18,
      "parse": 38.7,
-     "score": 31.4,
+     "score": 33.7,
      "tier": null,
      "hardest": "savage"
     },
@@ -2181,7 +2181,7 @@
      "fights": 15,
      "kills": 44,
      "parse": 67.7,
-     "score": 61.5,
+     "score": 66.7,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -2189,7 +2189,7 @@
      "fights": 2,
      "kills": 19,
      "parse": 96.8,
-     "score": 68.1,
+     "score": 74.0,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -2197,15 +2197,15 @@
      "fights": 9,
      "kills": 41,
      "parse": 78.0,
-     "score": 70.3,
-     "tier": "expert",
+     "score": 76.2,
+     "tier": "master",
      "hardest": "legacy"
     },
     "Pictomancer": {
      "fights": 1,
      "kills": 1,
      "parse": 45.0,
-     "score": 17.3,
+     "score": 18.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -2213,7 +2213,7 @@
      "fights": 5,
      "kills": 32,
      "parse": 78.6,
-     "score": 68.7,
+     "score": 74.2,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -2221,7 +2221,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 23.0,
-     "score": 12.0,
+     "score": 12.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -2231,8 +2231,8 @@
     "fights": 9,
     "kills": 41,
     "parse": 78.0,
-    "score": 70.3,
-    "tier": "expert",
+    "score": 76.2,
+    "tier": "master",
     "hardest": "legacy"
    },
    "legacy_clears": 14,
@@ -2346,7 +2346,7 @@
      "fights": 17,
      "kills": 75,
      "parse": 79.4,
-     "score": 76.9,
+     "score": 79.4,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -2354,7 +2354,7 @@
      "fights": 6,
      "kills": 18,
      "parse": 63.1,
-     "score": 51.2,
+     "score": 54.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -2362,7 +2362,7 @@
      "fights": 2,
      "kills": 7,
      "parse": 19.6,
-     "score": 11.8,
+     "score": 12.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -2370,7 +2370,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 18.2,
-     "score": 8.9,
+     "score": 9.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -2378,7 +2378,7 @@
      "fights": 5,
      "kills": 8,
      "parse": 43.2,
-     "score": 31.3,
+     "score": 33.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -2386,7 +2386,7 @@
      "fights": 7,
      "kills": 11,
      "parse": 62.5,
-     "score": 47.4,
+     "score": 50.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -2583,7 +2583,7 @@
      "fights": 10,
      "kills": 47,
      "parse": 82.6,
-     "score": 75.7,
+     "score": 82.1,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -2591,7 +2591,7 @@
      "fights": 4,
      "kills": 20,
      "parse": 83.2,
-     "score": 68.4,
+     "score": 73.5,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -2599,7 +2599,7 @@
      "fights": 7,
      "kills": 40,
      "parse": 100.0,
-     "score": 89.8,
+     "score": 97.3,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -2607,17 +2607,17 @@
      "fights": 1,
      "kills": 8,
      "parse": 93.0,
-     "score": 51.8,
+     "score": 55.9,
      "tier": null,
      "hardest": "ultimate"
     }
    },
    "job_top": {
-    "job": "RedMage",
-    "fights": 22,
-    "kills": 209,
-    "parse": 95.8,
-    "score": 95.8,
+    "job": "Reaper",
+    "fights": 7,
+    "kills": 40,
+    "parse": 100.0,
+    "score": 97.3,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -2749,7 +2749,7 @@
      "fights": 2,
      "kills": 14,
      "parse": 16.9,
-     "score": 11.3,
+     "score": 12.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -2757,7 +2757,7 @@
      "fights": 2,
      "kills": 9,
      "parse": 2.7,
-     "score": 1.7,
+     "score": 1.8,
      "tier": null,
      "hardest": "extreme"
     }
@@ -2962,7 +2962,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 70.0,
-     "score": 27.0,
+     "score": 27.9,
      "tier": null,
      "hardest": "savage"
     },
@@ -2970,7 +2970,7 @@
      "fights": 3,
      "kills": 30,
      "parse": 73.7,
-     "score": 59.7,
+     "score": 64.8,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -2986,7 +2986,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 80.0,
-     "score": 30.8,
+     "score": 31.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -2994,7 +2994,7 @@
      "fights": 5,
      "kills": 22,
      "parse": 29.1,
-     "score": 24.2,
+     "score": 26.1,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -3103,7 +3103,7 @@
      "fights": 11,
      "kills": 87,
      "parse": 89.0,
-     "score": 87.7,
+     "score": 89.0,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -3111,26 +3111,26 @@
      "fights": 6,
      "kills": 39,
      "parse": 96.2,
-     "score": 86.2,
-     "tier": "master",
+     "score": 93.3,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "Bard": {
      "fights": 1,
      "kills": 2,
      "parse": 19.0,
-     "score": 8.2,
+     "score": 8.6,
      "tier": null,
      "hardest": "extreme"
     }
    },
    "job_top": {
-    "job": "Ninja",
-    "fights": 11,
-    "kills": 87,
-    "parse": 89.0,
-    "score": 87.7,
-    "tier": "master",
+    "job": "Viper",
+    "fights": 6,
+    "kills": 39,
+    "parse": 96.2,
+    "score": 93.3,
+    "tier": "legendary",
     "hardest": "ultimate"
    },
    "legacy_clears": 4,
@@ -3204,8 +3204,8 @@
      "fights": 2,
      "kills": 41,
      "parse": 67.4,
-     "score": 53.2,
-     "tier": null,
+     "score": 58.2,
+     "tier": "expert",
      "hardest": "extreme"
     },
     "Sage": {
@@ -3220,7 +3220,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 40.5,
-     "score": 19.8,
+     "score": 20.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -3228,7 +3228,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 77.0,
-     "score": 29.7,
+     "score": 30.7,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -3236,7 +3236,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 26.0,
-     "score": 17.1,
+     "score": 18.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -3244,7 +3244,7 @@
      "fights": 3,
      "kills": 12,
      "parse": 15.7,
-     "score": 11.2,
+     "score": 12.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -3405,14 +3405,14 @@
      "kills": 158,
      "parse": 90.8,
      "score": 90.8,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "ultimate"
     },
     "Pictomancer": {
      "fights": 3,
      "kills": 34,
      "parse": 81.7,
-     "score": 67.3,
+     "score": 73.2,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -3420,7 +3420,7 @@
      "fights": 7,
      "kills": 14,
      "parse": 79.7,
-     "score": 62.5,
+     "score": 66.8,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -3428,7 +3428,7 @@
      "fights": 6,
      "kills": 21,
      "parse": 56.5,
-     "score": 46.7,
+     "score": 50.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -3436,7 +3436,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 63.0,
-     "score": 27.2,
+     "score": 28.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -3444,7 +3444,7 @@
      "fights": 8,
      "kills": 15,
      "parse": 52.3,
-     "score": 41.4,
+     "score": 44.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -3452,7 +3452,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 12.0,
-     "score": 4.6,
+     "score": 4.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -3460,7 +3460,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 15.5,
-     "score": 7.6,
+     "score": 7.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -3468,7 +3468,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 19.0,
-     "score": 9.3,
+     "score": 9.9,
      "tier": null,
      "hardest": "legacy"
     }
@@ -3616,15 +3616,15 @@
      "fights": 12,
      "kills": 91,
      "parse": 73.9,
-     "score": 73.2,
-     "tier": "master",
+     "score": 73.9,
+     "tier": "expert",
      "hardest": "savage"
     },
     "Viper": {
      "fights": 5,
      "kills": 42,
      "parse": 85.0,
-     "score": 76.8,
+     "score": 83.3,
      "tier": "master",
      "hardest": "extreme"
     },
@@ -3632,7 +3632,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 23.5,
-     "score": 16.5,
+     "score": 17.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3640,7 +3640,7 @@
      "fights": 3,
      "kills": 17,
      "parse": 53.6,
-     "score": 40.1,
+     "score": 43.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3648,7 +3648,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 26.7,
-     "score": 18.7,
+     "score": 20.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3656,7 +3656,7 @@
      "fights": 3,
      "kills": 13,
      "parse": 13.5,
-     "score": 9.7,
+     "score": 10.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3664,7 +3664,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 12.0,
-     "score": 4.6,
+     "score": 4.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3672,7 +3672,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 45.0,
-     "score": 24.6,
+     "score": 26.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3680,7 +3680,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 56.0,
-     "score": 21.6,
+     "score": 22.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3688,7 +3688,7 @@
      "fights": 6,
      "kills": 24,
      "parse": 90.3,
-     "score": 76.0,
+     "score": 81.9,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -3696,7 +3696,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 33.0,
-     "score": 15.3,
+     "score": 16.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3704,7 +3704,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 20.0,
-     "score": 7.7,
+     "score": 8.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -3712,7 +3712,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 11.0,
-     "score": 4.2,
+     "score": 4.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -3836,7 +3836,7 @@
      "fights": 5,
      "kills": 19,
      "parse": 83.9,
-     "score": 68.5,
+     "score": 73.6,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -3933,7 +3933,7 @@
      "fights": 6,
      "kills": 12,
      "parse": 61.0,
-     "score": 46.8,
+     "score": 50.0,
      "tier": null,
      "hardest": "savage"
     },
@@ -3941,7 +3941,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 33.0,
-     "score": 14.2,
+     "score": 15.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -3949,7 +3949,7 @@
      "fights": 1,
      "kills": 12,
      "parse": 87.0,
-     "score": 52.1,
+     "score": 56.6,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -4069,7 +4069,7 @@
      "fights": 3,
      "kills": 15,
      "parse": 55.8,
-     "score": 41.0,
+     "score": 44.1,
      "tier": null,
      "hardest": "savage"
     },
@@ -4077,7 +4077,7 @@
      "fights": 13,
      "kills": 44,
      "parse": 27.9,
-     "score": 25.4,
+     "score": 27.5,
      "tier": null,
      "hardest": "savage"
     },
@@ -4085,7 +4085,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 19.0,
-     "score": 11.0,
+     "score": 11.5,
      "tier": null,
      "hardest": "savage"
     },
@@ -4093,7 +4093,7 @@
      "fights": 7,
      "kills": 13,
      "parse": 36.4,
-     "score": 28.2,
+     "score": 30.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -4101,7 +4101,7 @@
      "fights": 4,
      "kills": 21,
      "parse": 74.0,
-     "score": 61.2,
+     "score": 65.8,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -4109,7 +4109,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 21.0,
-     "score": 10.9,
+     "score": 11.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -4117,7 +4117,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 42.7,
-     "score": 28.0,
+     "score": 29.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -4125,7 +4125,7 @@
      "fights": 6,
      "kills": 47,
      "parse": 90.2,
-     "score": 82.7,
+     "score": 89.7,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -4133,7 +4133,7 @@
      "fights": 9,
      "kills": 97,
      "parse": 80.3,
-     "score": 80.1,
+     "score": 80.3,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -4141,19 +4141,19 @@
      "fights": 9,
      "kills": 55,
      "parse": 85.9,
-     "score": 80.2,
+     "score": 85.9,
      "tier": "master",
      "hardest": "legacy"
     }
    },
    "job_top": {
-    "job": "Warrior",
-    "fights": 16,
-    "kills": 115,
-    "parse": 85.7,
-    "score": 85.7,
+    "job": "Reaper",
+    "fights": 6,
+    "kills": 47,
+    "parse": 90.2,
+    "score": 89.7,
     "tier": "master",
-    "hardest": "ultimate"
+    "hardest": "legacy"
    },
    "legacy_clears": 23,
    "fflogs": "ok",
@@ -4288,7 +4288,7 @@
      "fights": 5,
      "kills": 38,
      "parse": 59.8,
-     "score": 53.4,
+     "score": 57.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -4296,7 +4296,7 @@
      "fights": 4,
      "kills": 16,
      "parse": 50.0,
-     "score": 39.9,
+     "score": 42.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -4304,7 +4304,7 @@
      "fights": 10,
      "kills": 84,
      "parse": 87.4,
-     "score": 85.8,
+     "score": 87.4,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -4312,7 +4312,7 @@
      "fights": 1,
      "kills": 26,
      "parse": 66.0,
-     "score": 45.0,
+     "score": 49.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -4320,7 +4320,7 @@
      "fights": 4,
      "kills": 28,
      "parse": 64.9,
-     "score": 55.7,
+     "score": 60.1,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -4328,7 +4328,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 41.2,
-     "score": 21.4,
+     "score": 22.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -4336,7 +4336,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 37.0,
-     "score": 16.0,
+     "score": 16.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -4480,7 +4480,7 @@
      "kills": 102,
      "parse": 72.2,
      "score": 72.2,
-     "tier": "master",
+     "tier": "expert",
      "hardest": "savage"
     },
     "Dragoon": {
@@ -4651,7 +4651,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 13.0,
-     "score": 5.0,
+     "score": 5.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -4659,7 +4659,7 @@
      "fights": 8,
      "kills": 93,
      "parse": 95.5,
-     "score": 94.8,
+     "score": 95.5,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -4667,7 +4667,7 @@
      "fights": 2,
      "kills": 6,
      "parse": 68.3,
-     "score": 39.9,
+     "score": 42.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -4675,7 +4675,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 16.0,
-     "score": 8.2,
+     "score": 8.7,
      "tier": null,
      "hardest": "extreme"
     }
@@ -4799,7 +4799,7 @@
      "fights": 4,
      "kills": 41,
      "parse": 43.4,
-     "score": 39.1,
+     "score": 42.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -4807,7 +4807,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 32.3,
-     "score": 22.7,
+     "score": 24.3,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -4815,15 +4815,15 @@
      "fights": 5,
      "kills": 30,
      "parse": 82.8,
-     "score": 71.7,
-     "tier": "expert",
+     "score": 77.5,
+     "tier": "master",
      "hardest": "legacy"
     },
     "WhiteMage": {
      "fights": 3,
      "kills": 26,
      "parse": 56.6,
-     "score": 45.0,
+     "score": 48.7,
      "tier": null,
      "hardest": "legacy"
     }
@@ -4936,7 +4936,7 @@
      "fights": 7,
      "kills": 84,
      "parse": 88.5,
-     "score": 86.9,
+     "score": 88.5,
      "tier": "master",
      "hardest": "savage"
     },
@@ -4945,14 +4945,14 @@
      "kills": 328,
      "parse": 89.3,
      "score": 89.3,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "ultimate"
     },
     "DarkKnight": {
      "fights": 12,
      "kills": 72,
      "parse": 81.0,
-     "score": 78.1,
+     "score": 81.0,
      "tier": "master",
      "hardest": "ultimate"
     }
@@ -4963,7 +4963,7 @@
     "kills": 328,
     "parse": 89.3,
     "score": 89.3,
-    "tier": "legendary",
+    "tier": "master",
     "hardest": "ultimate"
    },
    "legacy_clears": 19,
@@ -5076,7 +5076,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 78.2,
-     "score": 54.9,
+     "score": 58.8,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -5084,15 +5084,15 @@
      "fights": 11,
      "kills": 96,
      "parse": 90.9,
-     "score": 90.6,
-     "tier": "legendary",
+     "score": 90.9,
+     "tier": "master",
      "hardest": "ultimate"
     },
     "Samurai": {
      "fights": 11,
      "kills": 61,
      "parse": 89.6,
-     "score": 84.7,
+     "score": 89.6,
      "tier": "master",
      "hardest": "savage"
     },
@@ -5100,7 +5100,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 71.4,
-     "score": 46.8,
+     "score": 49.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -5108,7 +5108,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 48.6,
-     "score": 31.9,
+     "score": 33.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -5116,7 +5116,7 @@
      "fights": 4,
      "kills": 27,
      "parse": 64.3,
-     "score": 55.0,
+     "score": 59.3,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -5126,8 +5126,8 @@
     "fights": 11,
     "kills": 96,
     "parse": 90.9,
-    "score": 90.6,
-    "tier": "legendary",
+    "score": 90.9,
+    "tier": "master",
     "hardest": "ultimate"
    },
    "legacy_clears": 10,
@@ -5237,8 +5237,8 @@
      "fights": 6,
      "kills": 27,
      "parse": 84.1,
-     "score": 71.9,
-     "tier": "expert",
+     "score": 77.5,
+     "tier": "master",
      "hardest": "savage"
     }
    },
@@ -5247,8 +5247,8 @@
     "fights": 6,
     "kills": 27,
     "parse": 84.1,
-    "score": 71.9,
-    "tier": "expert",
+    "score": 77.5,
+    "tier": "master",
     "hardest": "savage"
    },
    "legacy_clears": 0,
@@ -5390,7 +5390,7 @@
      "fights": 4,
      "kills": 9,
      "parse": 39.4,
-     "score": 29.1,
+     "score": 30.9,
      "tier": null,
      "hardest": "savage"
     },
@@ -5398,7 +5398,7 @@
      "fights": 8,
      "kills": 42,
      "parse": 66.4,
-     "score": 60.0,
+     "score": 65.0,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -5406,7 +5406,7 @@
      "fights": 2,
      "kills": 7,
      "parse": 43.5,
-     "score": 26.1,
+     "score": 27.9,
      "tier": null,
      "hardest": "savage"
     },
@@ -5414,7 +5414,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 7.2,
-     "score": 4.9,
+     "score": 5.2,
      "tier": null,
      "hardest": "savage"
     }
@@ -5424,7 +5424,7 @@
     "fights": 8,
     "kills": 42,
     "parse": 66.4,
-    "score": 60.0,
+    "score": 65.0,
     "tier": "expert",
     "hardest": "savage"
    },
@@ -5543,7 +5543,7 @@
      "fights": 6,
      "kills": 50,
      "parse": 15.1,
-     "score": 13.9,
+     "score": 15.1,
      "tier": null,
      "hardest": "legacy"
     }
@@ -5736,7 +5736,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 22.0,
-     "score": 11.2,
+     "score": 12.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -5744,7 +5744,7 @@
      "fights": 2,
      "kills": 6,
      "parse": 31.0,
-     "score": 18.1,
+     "score": 19.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -5752,7 +5752,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 47.0,
-     "score": 21.8,
+     "score": 23.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -5760,7 +5760,7 @@
      "fights": 9,
      "kills": 16,
      "parse": 74.6,
-     "score": 59.5,
+     "score": 63.8,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -5768,7 +5768,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 13.0,
-     "score": 5.0,
+     "score": 5.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -5776,7 +5776,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 63.1,
-     "score": 40.7,
+     "score": 43.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -5784,7 +5784,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 53.0,
-     "score": 20.4,
+     "score": 21.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -5885,15 +5885,15 @@
      "fights": 14,
      "kills": 86,
      "parse": 89.8,
-     "score": 88.4,
-     "tier": "legendary",
+     "score": 89.8,
+     "tier": "master",
      "hardest": "ultimate"
     },
     "BlackMage": {
      "fights": 3,
      "kills": 32,
      "parse": 71.9,
-     "score": 58.8,
+     "score": 63.8,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -5901,7 +5901,7 @@
      "fights": 6,
      "kills": 69,
      "parse": 77.5,
-     "score": 74.3,
+     "score": 77.5,
      "tier": "master",
      "hardest": "extreme"
     },
@@ -5909,7 +5909,7 @@
      "fights": 3,
      "kills": 14,
      "parse": 39.2,
-     "score": 28.5,
+     "score": 30.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -5917,7 +5917,7 @@
      "fights": 1,
      "kills": 13,
      "parse": 90.0,
-     "score": 54.6,
+     "score": 59.4,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -5925,7 +5925,7 @@
      "fights": 2,
      "kills": 23,
      "parse": 60.0,
-     "score": 43.5,
+     "score": 47.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -5933,7 +5933,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 5.0,
-     "score": 1.9,
+     "score": 2.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -5941,7 +5941,7 @@
      "fights": 6,
      "kills": 29,
      "parse": 70.5,
-     "score": 60.8,
+     "score": 65.6,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -5949,7 +5949,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 18.0,
-     "score": 7.8,
+     "score": 8.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -5959,8 +5959,8 @@
     "fights": 14,
     "kills": 86,
     "parse": 89.8,
-    "score": 88.4,
-    "tier": "legendary",
+    "score": 89.8,
+    "tier": "master",
     "hardest": "ultimate"
    },
    "legacy_clears": 9,
@@ -6076,7 +6076,7 @@
      "fights": 10,
      "kills": 68,
      "parse": 98.4,
-     "score": 94.2,
+     "score": 98.4,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -6084,7 +6084,7 @@
      "fights": 10,
      "kills": 29,
      "parse": 89.3,
-     "score": 77.0,
+     "score": 83.2,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -6100,7 +6100,7 @@
      "fights": 6,
      "kills": 22,
      "parse": 68.8,
-     "score": 57.3,
+     "score": 61.6,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -6108,7 +6108,7 @@
      "fights": 4,
      "kills": 11,
      "parse": 28.6,
-     "score": 21.7,
+     "score": 23.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -6116,15 +6116,15 @@
      "fights": 4,
      "kills": 21,
      "parse": 86.8,
-     "score": 71.8,
-     "tier": "expert",
+     "score": 77.2,
+     "tier": "master",
      "hardest": "legacy"
     },
     "WhiteMage": {
      "fights": 1,
      "kills": 1,
      "parse": 21.0,
-     "score": 8.1,
+     "score": 8.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6132,7 +6132,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 17.0,
-     "score": 8.3,
+     "score": 8.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6140,7 +6140,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 11.0,
-     "score": 4.2,
+     "score": 4.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6148,7 +6148,7 @@
      "fights": 1,
      "kills": 8,
      "parse": 76.0,
-     "score": 42.3,
+     "score": 45.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6156,7 +6156,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 46.0,
-     "score": 21.4,
+     "score": 22.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6164,7 +6164,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 33.0,
-     "score": 14.2,
+     "score": 15.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6172,7 +6172,7 @@
      "fights": 3,
      "kills": 58,
      "parse": 54.1,
-     "score": 47.8,
+     "score": 51.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6180,7 +6180,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 46.6,
-     "score": 26.9,
+     "score": 28.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -6188,17 +6188,17 @@
      "fights": 5,
      "kills": 80,
      "parse": 97.8,
-     "score": 95.5,
+     "score": 97.8,
      "tier": "legendary",
      "hardest": "legacy"
     }
    },
    "job_top": {
-    "job": "Warrior",
-    "fights": 29,
-    "kills": 298,
-    "parse": 97.0,
-    "score": 97.0,
+    "job": "Paladin",
+    "fights": 10,
+    "kills": 68,
+    "parse": 98.4,
+    "score": 98.4,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -6341,7 +6341,7 @@
      "fights": 4,
      "kills": 11,
      "parse": 82.0,
-     "score": 62.2,
+     "score": 66.3,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -6357,15 +6357,15 @@
      "fights": 14,
      "kills": 42,
      "parse": 96.3,
-     "score": 87.0,
-     "tier": "master",
+     "score": 94.3,
+     "tier": "legendary",
      "hardest": "savage"
     },
     "Scholar": {
      "fights": 13,
      "kills": 45,
      "parse": 67.7,
-     "score": 61.7,
+     "score": 66.9,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -6373,7 +6373,7 @@
      "fights": 14,
      "kills": 38,
      "parse": 82.8,
-     "score": 73.9,
+     "score": 80.0,
      "tier": "master",
      "hardest": "savage"
     },
@@ -6381,7 +6381,7 @@
      "fights": 12,
      "kills": 61,
      "parse": 83.1,
-     "score": 78.6,
+     "score": 83.1,
      "tier": "master",
      "hardest": "savage"
     },
@@ -6389,7 +6389,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 66.0,
-     "score": 30.6,
+     "score": 32.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6397,7 +6397,7 @@
      "fights": 18,
      "kills": 68,
      "parse": 76.3,
-     "score": 73.1,
+     "score": 76.3,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -6405,7 +6405,7 @@
      "fights": 9,
      "kills": 24,
      "parse": 83.5,
-     "score": 70.3,
+     "score": 75.7,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -6413,7 +6413,7 @@
      "fights": 4,
      "kills": 16,
      "parse": 63.4,
-     "score": 50.6,
+     "score": 54.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -6421,15 +6421,15 @@
      "fights": 5,
      "kills": 51,
      "parse": 92.5,
-     "score": 85.6,
-     "tier": "master",
+     "score": 92.5,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "Paladin": {
      "fights": 1,
      "kills": 4,
      "parse": 48.0,
-     "score": 23.5,
+     "score": 25.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6437,7 +6437,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 38.0,
-     "score": 14.6,
+     "score": 15.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -6628,14 +6628,14 @@
      "kills": 244,
      "parse": 91.0,
      "score": 91.0,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "ultimate"
     },
     "DarkKnight": {
      "fights": 1,
      "kills": 2,
      "parse": 25.0,
-     "score": 10.8,
+     "score": 11.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6643,7 +6643,7 @@
      "fights": 1,
      "kills": 12,
      "parse": 13.0,
-     "score": 7.8,
+     "score": 8.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6651,7 +6651,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 57.7,
-     "score": 32.7,
+     "score": 34.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -6659,7 +6659,7 @@
      "fights": 5,
      "kills": 9,
      "parse": 50.2,
-     "score": 37.0,
+     "score": 39.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -6667,7 +6667,7 @@
      "fights": 5,
      "kills": 21,
      "parse": 77.5,
-     "score": 64.1,
+     "score": 68.9,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -6675,7 +6675,7 @@
      "fights": 12,
      "kills": 92,
      "parse": 78.9,
-     "score": 78.2,
+     "score": 78.9,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -6683,7 +6683,7 @@
      "fights": 2,
      "kills": 10,
      "parse": 57.8,
-     "score": 36.8,
+     "score": 39.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6691,7 +6691,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 48.0,
-     "score": 31.5,
+     "score": 33.5,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -6699,7 +6699,7 @@
      "fights": 2,
      "kills": 9,
      "parse": 48.4,
-     "score": 30.2,
+     "score": 32.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6707,7 +6707,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 76.0,
-     "score": 35.3,
+     "score": 37.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6715,7 +6715,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 47.0,
-     "score": 21.8,
+     "score": 23.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6723,7 +6723,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 33.7,
-     "score": 16.4,
+     "score": 17.2,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -6731,7 +6731,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 44.0,
-     "score": 19.0,
+     "score": 20.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -6739,7 +6739,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 41.0,
-     "score": 15.8,
+     "score": 16.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -6747,7 +6747,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 17.0,
-     "score": 6.5,
+     "score": 6.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -6755,7 +6755,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 80.0,
-     "score": 37.1,
+     "score": 39.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -6766,7 +6766,7 @@
     "kills": 244,
     "parse": 91.0,
     "score": 91.0,
-    "tier": "legendary",
+    "tier": "master",
     "hardest": "ultimate"
    },
    "legacy_clears": 19,
@@ -6937,7 +6937,7 @@
      "fights": 3,
      "kills": 15,
      "parse": 58.5,
-     "score": 43.0,
+     "score": 46.3,
      "tier": null,
      "hardest": "savage"
     },
@@ -6945,7 +6945,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 35.0,
-     "score": 15.1,
+     "score": 15.9,
      "tier": null,
      "hardest": "savage"
     },
@@ -6953,7 +6953,7 @@
      "fights": 6,
      "kills": 74,
      "parse": 71.0,
-     "score": 68.7,
+     "score": 71.0,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -6961,7 +6961,7 @@
      "fights": 7,
      "kills": 89,
      "parse": 44.5,
-     "score": 44.0,
+     "score": 44.5,
      "tier": null,
      "hardest": "savage"
     },
@@ -6969,7 +6969,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 26.0,
-     "score": 10.0,
+     "score": 10.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6977,7 +6977,7 @@
      "fights": 3,
      "kills": 14,
      "parse": 33.6,
-     "score": 24.4,
+     "score": 26.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6985,7 +6985,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 19.0,
-     "score": 9.3,
+     "score": 9.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -6993,7 +6993,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 10.0,
-     "score": 3.9,
+     "score": 4.0,
      "tier": null,
      "hardest": "extreme"
     }
@@ -7003,7 +7003,7 @@
     "fights": 6,
     "kills": 74,
     "parse": 71.0,
-    "score": 68.7,
+    "score": 71.0,
     "tier": "expert",
     "hardest": "savage"
    },
@@ -7167,7 +7167,7 @@
      "fights": 12,
      "kills": 52,
      "parse": 42.5,
-     "score": 39.4,
+     "score": 42.5,
      "tier": null,
      "hardest": "savage"
     },
@@ -7176,14 +7176,14 @@
      "kills": 223,
      "parse": 72.2,
      "score": 72.2,
-     "tier": "master",
+     "tier": "expert",
      "hardest": "ultimate"
     },
     "Scholar": {
      "fights": 6,
      "kills": 20,
      "parse": 21.3,
-     "score": 17.5,
+     "score": 18.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -7191,7 +7191,7 @@
      "fights": 14,
      "kills": 77,
      "parse": 55.2,
-     "score": 53.6,
+     "score": 55.2,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -7199,7 +7199,7 @@
      "fights": 5,
      "kills": 9,
      "parse": 28.9,
-     "score": 21.3,
+     "score": 22.7,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -7207,7 +7207,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 24.0,
-     "score": 11.1,
+     "score": 11.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -7215,7 +7215,7 @@
      "fights": 4,
      "kills": 16,
      "parse": 48.3,
-     "score": 38.5,
+     "score": 41.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -7223,7 +7223,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 12.5,
-     "score": 8.5,
+     "score": 8.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -7231,7 +7231,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 72.0,
-     "score": 27.7,
+     "score": 28.7,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -7239,7 +7239,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 16.0,
-     "score": 6.2,
+     "score": 6.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -7247,7 +7247,7 @@
      "fights": 5,
      "kills": 15,
      "parse": 25.8,
-     "score": 20.4,
+     "score": 21.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -7255,7 +7255,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 7.0,
-     "score": 2.7,
+     "score": 2.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -7266,7 +7266,7 @@
     "kills": 223,
     "parse": 72.2,
     "score": 72.2,
-    "tier": "master",
+    "tier": "expert",
     "hardest": "ultimate"
    },
    "legacy_clears": 19,
@@ -7407,7 +7407,7 @@
      "fights": 10,
      "kills": 91,
      "parse": 72.5,
-     "score": 71.8,
+     "score": 72.5,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -7417,7 +7417,7 @@
     "fights": 10,
     "kills": 91,
     "parse": 72.5,
-    "score": 71.8,
+    "score": 72.5,
     "tier": "expert",
     "hardest": "legacy"
    },
@@ -7550,7 +7550,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 24.0,
-     "score": 9.2,
+     "score": 9.6,
      "tier": null,
      "hardest": "savage"
     },
@@ -7558,7 +7558,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 7.0,
-     "score": 3.6,
+     "score": 3.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -7566,7 +7566,7 @@
      "fights": 4,
      "kills": 16,
      "parse": 60.3,
-     "score": 48.1,
+     "score": 51.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -7574,7 +7574,7 @@
      "fights": 1,
      "kills": 9,
      "parse": 39.0,
-     "score": 22.2,
+     "score": 24.0,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -7582,7 +7582,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 29.0,
-     "score": 14.1,
+     "score": 14.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -7746,7 +7746,7 @@
      "fights": 14,
      "kills": 91,
      "parse": 95.8,
-     "score": 94.9,
+     "score": 95.8,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -7754,7 +7754,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 59.7,
-     "score": 34.4,
+     "score": 36.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -7762,7 +7762,7 @@
      "fights": 16,
      "kills": 55,
      "parse": 95.2,
-     "score": 88.9,
+     "score": 95.2,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -7770,15 +7770,15 @@
      "fights": 9,
      "kills": 62,
      "parse": 91.1,
-     "score": 86.3,
-     "tier": "master",
+     "score": 91.1,
+     "tier": "legendary",
      "hardest": "savage"
     },
     "Gunbreaker": {
      "fights": 5,
      "kills": 9,
      "parse": 87.1,
-     "score": 64.2,
+     "score": 68.3,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -7786,7 +7786,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 88.0,
-     "score": 33.9,
+     "score": 35.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -7794,7 +7794,7 @@
      "fights": 3,
      "kills": 23,
      "parse": 85.7,
-     "score": 66.9,
+     "score": 72.4,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -7802,7 +7802,7 @@
      "fights": 7,
      "kills": 11,
      "parse": 71.8,
-     "score": 54.4,
+     "score": 58.0,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -7810,7 +7810,7 @@
      "fights": 3,
      "kills": 15,
      "parse": 63.3,
-     "score": 46.5,
+     "score": 50.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -7818,7 +7818,7 @@
      "fights": 4,
      "kills": 12,
      "parse": 76.1,
-     "score": 58.4,
+     "score": 62.3,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -7826,7 +7826,7 @@
      "fights": 4,
      "kills": 6,
      "parse": 40.8,
-     "score": 28.4,
+     "score": 30.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -7834,7 +7834,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 36.4,
-     "score": 24.7,
+     "score": 26.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -7842,7 +7842,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 47.0,
-     "score": 18.1,
+     "score": 18.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -7850,7 +7850,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 63.0,
-     "score": 37.9,
+     "score": 40.0,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -7858,7 +7858,7 @@
      "fights": 5,
      "kills": 25,
      "parse": 93.0,
-     "score": 78.7,
+     "score": 84.8,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -7866,7 +7866,7 @@
      "fights": 6,
      "kills": 16,
      "parse": 88.7,
-     "score": 70.8,
+     "score": 75.8,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -7874,7 +7874,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 47.0,
-     "score": 22.9,
+     "score": 24.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -7884,7 +7884,7 @@
     "fights": 14,
     "kills": 91,
     "parse": 95.8,
-    "score": 94.9,
+    "score": 95.8,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -7966,7 +7966,7 @@
      "fights": 11,
      "kills": 89,
      "parse": 91.4,
-     "score": 90.3,
+     "score": 91.4,
      "tier": "legendary",
      "hardest": "legacy"
     }
@@ -7976,7 +7976,7 @@
     "fights": 11,
     "kills": 89,
     "parse": 91.4,
-    "score": 90.3,
+    "score": 91.4,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -8123,7 +8123,7 @@
      "fights": 10,
      "kills": 97,
      "parse": 22.9,
-     "score": 22.8,
+     "score": 22.9,
      "tier": null,
      "hardest": "savage"
     },
@@ -8147,7 +8147,7 @@
      "fights": 4,
      "kills": 12,
      "parse": 29.9,
-     "score": 22.9,
+     "score": 24.5,
      "tier": null,
      "hardest": "extreme"
     }
@@ -8246,8 +8246,8 @@
      "fights": 8,
      "kills": 48,
      "parse": 92.2,
-     "score": 84.7,
-     "tier": "master",
+     "score": 91.9,
+     "tier": "legendary",
      "hardest": "savage"
     }
    },
@@ -8256,8 +8256,8 @@
     "fights": 8,
     "kills": 48,
     "parse": 92.2,
-    "score": 84.7,
-    "tier": "master",
+    "score": 91.9,
+    "tier": "legendary",
     "hardest": "savage"
    },
    "legacy_clears": 0,
@@ -8381,7 +8381,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 53.7,
-     "score": 37.7,
+     "score": 40.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -8389,7 +8389,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 23.0,
-     "score": 8.9,
+     "score": 9.2,
      "tier": null,
      "hardest": "extreme"
     }
@@ -8525,15 +8525,15 @@
      "fights": 8,
      "kills": 52,
      "parse": 76.7,
-     "score": 71.1,
-     "tier": "expert",
+     "score": 76.7,
+     "tier": "master",
      "hardest": "savage"
     },
     "Paladin": {
      "fights": 8,
      "kills": 30,
      "parse": 55.5,
-     "score": 48.1,
+     "score": 51.9,
      "tier": null,
      "hardest": "savage"
     },
@@ -8541,7 +8541,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 31.0,
-     "score": 11.9,
+     "score": 12.4,
      "tier": null,
      "hardest": "savage"
     },
@@ -8549,7 +8549,7 @@
      "fights": 8,
      "kills": 55,
      "parse": 87.8,
-     "score": 82.0,
+     "score": 87.8,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -8557,7 +8557,7 @@
      "fights": 7,
      "kills": 15,
      "parse": 73.8,
-     "score": 58.4,
+     "score": 62.5,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -8565,7 +8565,7 @@
      "fights": 3,
      "kills": 18,
      "parse": 43.2,
-     "score": 32.6,
+     "score": 35.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -8573,7 +8573,7 @@
      "fights": 1,
      "kills": 8,
      "parse": 53.0,
-     "score": 29.5,
+     "score": 31.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -8581,7 +8581,7 @@
      "fights": 3,
      "kills": 22,
      "parse": 63.9,
-     "score": 49.6,
+     "score": 53.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -8589,7 +8589,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 30.9,
-     "score": 17.8,
+     "score": 18.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -8597,7 +8597,7 @@
      "fights": 6,
      "kills": 78,
      "parse": 94.6,
-     "score": 92.1,
+     "score": 94.6,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -8605,15 +8605,15 @@
      "fights": 8,
      "kills": 51,
      "parse": 93.5,
-     "score": 86.5,
-     "tier": "master",
+     "score": 93.5,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "Bard": {
      "fights": 9,
      "kills": 29,
      "parse": 80.1,
-     "score": 69.1,
+     "score": 74.6,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -8621,7 +8621,7 @@
      "fights": 9,
      "kills": 31,
      "parse": 74.1,
-     "score": 64.5,
+     "score": 69.6,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -8810,7 +8810,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 62.0,
-     "score": 35.1,
+     "score": 37.4,
      "tier": null,
      "hardest": "savage"
     },
@@ -8826,7 +8826,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 48.0,
-     "score": 18.5,
+     "score": 19.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -8834,7 +8834,7 @@
      "fights": 2,
      "kills": 10,
      "parse": 43.6,
-     "score": 27.7,
+     "score": 29.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -8842,7 +8842,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 28.1,
-     "score": 18.4,
+     "score": 19.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -8938,7 +8938,7 @@
      "fights": 9,
      "kills": 20,
      "parse": 75.3,
-     "score": 61.9,
+     "score": 66.5,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -8954,15 +8954,15 @@
      "fights": 4,
      "kills": 59,
      "parse": 91.7,
-     "score": 86.4,
-     "tier": "master",
+     "score": 91.7,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "Samurai": {
      "fights": 14,
      "kills": 89,
      "parse": 94.0,
-     "score": 92.9,
+     "score": 94.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -8970,7 +8970,7 @@
      "fights": 2,
      "kills": 16,
      "parse": 61.5,
-     "score": 42.2,
+     "score": 45.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -8978,7 +8978,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 59.0,
-     "score": 32.2,
+     "score": 34.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -8986,7 +8986,7 @@
      "fights": 4,
      "kills": 31,
      "parse": 61.2,
-     "score": 53.3,
+     "score": 57.5,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -8994,7 +8994,7 @@
      "fights": 3,
      "kills": 22,
      "parse": 81.4,
-     "score": 63.2,
+     "score": 68.3,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -9002,7 +9002,7 @@
      "fights": 2,
      "kills": 18,
      "parse": 83.4,
-     "score": 58.2,
+     "score": 63.2,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -9010,15 +9010,15 @@
      "fights": 5,
      "kills": 16,
      "parse": 89.2,
-     "score": 71.2,
-     "tier": "expert",
+     "score": 76.3,
+     "tier": "master",
      "hardest": "legacy"
     },
     "Scholar": {
      "fights": 2,
      "kills": 5,
      "parse": 46.6,
-     "score": 26.4,
+     "score": 28.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -9034,7 +9034,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 94.0,
-     "score": 48.0,
+     "score": 51.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -9042,7 +9042,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 62.0,
-     "score": 28.8,
+     "score": 30.5,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -9148,7 +9148,7 @@
      "fights": 8,
      "kills": 23,
      "parse": 29.4,
-     "score": 24.6,
+     "score": 26.5,
      "tier": null,
      "hardest": "savage"
     },
@@ -9156,7 +9156,7 @@
      "fights": 11,
      "kills": 57,
      "parse": 40.9,
-     "score": 38.4,
+     "score": 40.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9164,7 +9164,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 31.5,
-     "score": 15.4,
+     "score": 16.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -9172,7 +9172,7 @@
      "fights": 8,
      "kills": 40,
      "parse": 55.3,
-     "score": 49.7,
+     "score": 53.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9180,7 +9180,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 10.4,
-     "score": 5.1,
+     "score": 5.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9188,7 +9188,7 @@
      "fights": 1,
      "kills": 23,
      "parse": 39.0,
-     "score": 26.1,
+     "score": 28.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -9196,7 +9196,7 @@
      "fights": 7,
      "kills": 24,
      "parse": 47.7,
-     "score": 40.2,
+     "score": 43.3,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -9204,7 +9204,7 @@
      "fights": 8,
      "kills": 33,
      "parse": 41.9,
-     "score": 36.7,
+     "score": 39.7,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -9212,7 +9212,7 @@
      "fights": 6,
      "kills": 7,
      "parse": 28.3,
-     "score": 20.2,
+     "score": 21.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9220,7 +9220,7 @@
      "fights": 1,
      "kills": 15,
      "parse": 20.0,
-     "score": 12.4,
+     "score": 13.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -9228,7 +9228,7 @@
      "fights": 3,
      "kills": 9,
      "parse": 17.3,
-     "score": 11.8,
+     "score": 12.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9236,7 +9236,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 27.0,
-     "score": 10.4,
+     "score": 10.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9371,7 +9371,7 @@
      "fights": 4,
      "kills": 4,
      "parse": 31.8,
-     "score": 20.9,
+     "score": 22.0,
      "tier": null,
      "hardest": "savage"
     },
@@ -9379,7 +9379,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 13.0,
-     "score": 5.0,
+     "score": 5.2,
      "tier": null,
      "hardest": "savage"
     },
@@ -9388,14 +9388,14 @@
      "kills": 100,
      "parse": 75.6,
      "score": 75.6,
-     "tier": "master",
+     "tier": "expert",
      "hardest": "ultimate"
     },
     "Gunbreaker": {
      "fights": 10,
      "kills": 32,
      "parse": 66.4,
-     "score": 58.0,
+     "score": 62.7,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -9403,7 +9403,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 27.1,
-     "score": 14.1,
+     "score": 14.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9411,7 +9411,7 @@
      "fights": 1,
      "kills": 8,
      "parse": 35.0,
-     "score": 19.5,
+     "score": 21.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -9419,7 +9419,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 6.0,
-     "score": 2.3,
+     "score": 2.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9427,7 +9427,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 50.0,
-     "score": 19.3,
+     "score": 20.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -9438,7 +9438,7 @@
     "kills": 100,
     "parse": 75.6,
     "score": 75.6,
-    "tier": "master",
+    "tier": "expert",
     "hardest": "ultimate"
    },
    "legacy_clears": 7,
@@ -9550,7 +9550,7 @@
      "fights": 9,
      "kills": 40,
      "parse": 99.7,
-     "score": 89.6,
+     "score": 97.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -9558,15 +9558,15 @@
      "fights": 17,
      "kills": 78,
      "parse": 90.4,
-     "score": 88.0,
-     "tier": "legendary",
+     "score": 90.4,
+     "tier": "master",
      "hardest": "savage"
     },
     "Pictomancer": {
      "fights": 1,
      "kills": 2,
      "parse": 29.0,
-     "score": 12.5,
+     "score": 13.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -9590,7 +9590,7 @@
      "fights": 10,
      "kills": 47,
      "parse": 97.2,
-     "score": 89.1,
+     "score": 96.6,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -9598,7 +9598,7 @@
      "fights": 15,
      "kills": 51,
      "parse": 95.4,
-     "score": 88.3,
+     "score": 95.4,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -9606,7 +9606,7 @@
      "fights": 4,
      "kills": 8,
      "parse": 72.2,
-     "score": 52.4,
+     "score": 55.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -9614,7 +9614,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 80.5,
-     "score": 44.0,
+     "score": 46.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -9622,7 +9622,7 @@
      "fights": 5,
      "kills": 5,
      "parse": 58.0,
-     "score": 39.4,
+     "score": 41.5,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -9630,7 +9630,7 @@
      "fights": 8,
      "kills": 22,
      "parse": 91.8,
-     "score": 76.4,
+     "score": 82.2,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -9638,7 +9638,7 @@
      "fights": 4,
      "kills": 10,
      "parse": 69.1,
-     "score": 51.7,
+     "score": 55.0,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -9646,7 +9646,7 @@
      "fights": 4,
      "kills": 4,
      "parse": 87.8,
-     "score": 57.8,
+     "score": 60.7,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -9654,7 +9654,7 @@
      "fights": 3,
      "kills": 16,
      "parse": 80.8,
-     "score": 59.9,
+     "score": 64.5,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -9662,7 +9662,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 23.0,
-     "score": 8.9,
+     "score": 9.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9670,7 +9670,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 15.5,
-     "score": 7.6,
+     "score": 7.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9678,7 +9678,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 46.0,
-     "score": 27.7,
+     "score": 29.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9686,7 +9686,7 @@
      "fights": 3,
      "kills": 10,
      "parse": 74.3,
-     "score": 51.4,
+     "score": 55.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -9694,7 +9694,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 19.0,
-     "score": 7.3,
+     "score": 7.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -10037,7 +10037,7 @@
      "kills": 286,
      "parse": 91.0,
      "score": 91.0,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "ultimate"
     },
     "Warrior": {
@@ -10052,7 +10052,7 @@
      "fights": 4,
      "kills": 7,
      "parse": 58.4,
-     "score": 41.6,
+     "score": 44.0,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -10060,7 +10060,7 @@
      "fights": 9,
      "kills": 35,
      "parse": 86.6,
-     "score": 76.5,
+     "score": 82.8,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -10068,7 +10068,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 79.0,
-     "score": 36.7,
+     "score": 38.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10076,7 +10076,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 85.7,
-     "score": 60.2,
+     "score": 64.4,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -10084,7 +10084,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 40.0,
-     "score": 19.6,
+     "score": 20.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10092,7 +10092,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 23.3,
-     "score": 14.0,
+     "score": 14.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -10100,7 +10100,7 @@
      "fights": 2,
      "kills": 18,
      "parse": 47.7,
-     "score": 33.3,
+     "score": 36.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10116,7 +10116,7 @@
      "fights": 5,
      "kills": 50,
      "parse": 68.7,
-     "score": 63.4,
+     "score": 68.7,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -10124,7 +10124,7 @@
      "fights": 3,
      "kills": 19,
      "parse": 59.8,
-     "score": 45.5,
+     "score": 49.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10132,7 +10132,7 @@
      "fights": 2,
      "kills": 9,
      "parse": 82.9,
-     "score": 51.8,
+     "score": 55.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10140,7 +10140,7 @@
      "fights": 1,
      "kills": 6,
      "parse": 48.0,
-     "score": 25.3,
+     "score": 27.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10148,7 +10148,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 79.0,
-     "score": 30.4,
+     "score": 31.5,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -10156,7 +10156,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 99.0,
-     "score": 42.7,
+     "score": 44.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -10164,7 +10164,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 66.5,
-     "score": 43.6,
+     "score": 46.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -10172,7 +10172,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 21.0,
-     "score": 10.2,
+     "score": 10.7,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -10340,7 +10340,7 @@
      "fights": 6,
      "kills": 19,
      "parse": 49.7,
-     "score": 40.6,
+     "score": 43.6,
      "tier": null,
      "hardest": "savage"
     },
@@ -10356,7 +10356,7 @@
      "fights": 3,
      "kills": 14,
      "parse": 84.6,
-     "score": 61.5,
+     "score": 66.2,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -10364,7 +10364,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 70.0,
-     "score": 34.1,
+     "score": 35.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10372,7 +10372,7 @@
      "fights": 3,
      "kills": 26,
      "parse": 90.6,
-     "score": 72.0,
+     "score": 78.0,
      "tier": "master",
      "hardest": "extreme"
     },
@@ -10380,7 +10380,7 @@
      "fights": 4,
      "kills": 9,
      "parse": 76.4,
-     "score": 56.3,
+     "score": 59.9,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -10388,7 +10388,7 @@
      "fights": 3,
      "kills": 15,
      "parse": 42.9,
-     "score": 31.5,
+     "score": 33.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10396,7 +10396,7 @@
      "fights": 1,
      "kills": 6,
      "parse": 90.0,
-     "score": 47.5,
+     "score": 51.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10404,7 +10404,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 53.0,
-     "score": 24.6,
+     "score": 26.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10412,7 +10412,7 @@
      "fights": 2,
      "kills": 7,
      "parse": 72.0,
-     "score": 43.2,
+     "score": 46.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10420,7 +10420,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 33.0,
-     "score": 12.7,
+     "score": 13.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10428,7 +10428,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 71.0,
-     "score": 30.6,
+     "score": 32.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10436,7 +10436,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 41.0,
-     "score": 17.7,
+     "score": 18.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10444,7 +10444,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 9.0,
-     "score": 3.5,
+     "score": 3.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -10578,7 +10578,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 35.6,
-     "score": 20.2,
+     "score": 21.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10586,7 +10586,7 @@
      "fights": 5,
      "kills": 70,
      "parse": 73.6,
-     "score": 70.7,
+     "score": 73.6,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -10718,7 +10718,7 @@
      "fights": 6,
      "kills": 34,
      "parse": 8.6,
-     "score": 7.6,
+     "score": 8.2,
      "tier": null,
      "hardest": "savage"
     }
@@ -10819,7 +10819,7 @@
      "fights": 10,
      "kills": 65,
      "parse": 86.2,
-     "score": 82.1,
+     "score": 86.2,
      "tier": "master",
      "hardest": "savage"
     },
@@ -10827,7 +10827,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 29.5,
-     "score": 16.1,
+     "score": 17.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10835,7 +10835,7 @@
      "fights": 3,
      "kills": 18,
      "parse": 50.4,
-     "score": 38.0,
+     "score": 41.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10843,7 +10843,7 @@
      "fights": 2,
      "kills": 13,
      "parse": 95.5,
-     "score": 63.4,
+     "score": 68.4,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -10851,7 +10851,7 @@
      "fights": 5,
      "kills": 19,
      "parse": 42.6,
-     "score": 34.8,
+     "score": 37.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -10859,7 +10859,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 4.0,
-     "score": 1.5,
+     "score": 1.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10867,8 +10867,8 @@
      "fights": 8,
      "kills": 59,
      "parse": 57.3,
-     "score": 54.0,
-     "tier": "expert",
+     "score": 57.3,
+     "tier": null,
      "hardest": "legacy"
     }
    },
@@ -10877,7 +10877,7 @@
     "fights": 10,
     "kills": 65,
     "parse": 86.2,
-    "score": 82.1,
+    "score": 86.2,
     "tier": "master",
     "hardest": "savage"
    },
@@ -10964,7 +10964,7 @@
      "fights": 4,
      "kills": 19,
      "parse": 70.1,
-     "score": 57.2,
+     "score": 61.5,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -10972,7 +10972,7 @@
      "fights": 8,
      "kills": 90,
      "parse": 80.3,
-     "score": 79.4,
+     "score": 80.3,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -10980,7 +10980,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 55.0,
-     "score": 23.7,
+     "score": 24.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10988,7 +10988,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 32.0,
-     "score": 12.3,
+     "score": 12.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -10996,7 +10996,7 @@
      "fights": 10,
      "kills": 96,
      "parse": 84.5,
-     "score": 84.2,
+     "score": 84.5,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -11004,7 +11004,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 36.2,
-     "score": 22.6,
+     "score": 23.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -11012,7 +11012,7 @@
      "fights": 2,
      "kills": 14,
      "parse": 22.0,
-     "score": 14.8,
+     "score": 16.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -11020,7 +11020,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 50.0,
-     "score": 28.3,
+     "score": 30.1,
      "tier": null,
      "hardest": "legacy"
     }
@@ -11030,7 +11030,7 @@
     "fights": 10,
     "kills": 96,
     "parse": 84.5,
-    "score": 84.2,
+    "score": 84.5,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -11191,7 +11191,7 @@
      "fights": 9,
      "kills": 52,
      "parse": 66.6,
-     "score": 61.8,
+     "score": 66.6,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -11199,7 +11199,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 4.0,
-     "score": 1.5,
+     "score": 1.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -11207,7 +11207,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 39.0,
-     "score": 15.0,
+     "score": 15.6,
      "tier": null,
      "hardest": "extreme"
     }
@@ -11217,7 +11217,7 @@
     "fights": 9,
     "kills": 52,
     "parse": 66.6,
-    "score": 61.8,
+    "score": 66.6,
     "tier": "expert",
     "hardest": "savage"
    },
@@ -11339,7 +11339,7 @@
      "fights": 10,
      "kills": 28,
      "parse": 61.2,
-     "score": 52.6,
+     "score": 56.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -11347,7 +11347,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 54.2,
-     "score": 30.7,
+     "score": 32.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -11355,7 +11355,7 @@
      "fights": 5,
      "kills": 70,
      "parse": 95.6,
-     "score": 91.9,
+     "score": 95.6,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -11363,7 +11363,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 69.2,
-     "score": 47.0,
+     "score": 49.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -11564,7 +11564,7 @@
      "fights": 2,
      "kills": 9,
      "parse": 14.0,
-     "score": 8.8,
+     "score": 9.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -11776,7 +11776,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 18.0,
-     "score": 6.9,
+     "score": 7.2,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -11918,7 +11918,7 @@
      "fights": 4,
      "kills": 17,
      "parse": 34.8,
-     "score": 28.0,
+     "score": 30.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -11926,7 +11926,7 @@
      "fights": 7,
      "kills": 41,
      "parse": 30.3,
-     "score": 27.3,
+     "score": 29.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -11942,7 +11942,7 @@
      "fights": 2,
      "kills": 7,
      "parse": 6.1,
-     "score": 3.7,
+     "score": 3.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -11950,7 +11950,7 @@
      "fights": 12,
      "kills": 73,
      "parse": 55.0,
-     "score": 53.1,
+     "score": 55.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -11958,7 +11958,7 @@
      "fights": 4,
      "kills": 19,
      "parse": 28.8,
-     "score": 23.5,
+     "score": 25.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -11966,7 +11966,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 13.0,
-     "score": 6.6,
+     "score": 7.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -11974,7 +11974,7 @@
      "fights": 2,
      "kills": 8,
      "parse": 11.5,
-     "score": 7.0,
+     "score": 7.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -12087,7 +12087,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 29.0,
-     "score": 12.5,
+     "score": 13.2,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -12193,7 +12193,7 @@
      "fights": 3,
      "kills": 29,
      "parse": 64.8,
-     "score": 52.3,
+     "score": 56.7,
      "tier": null,
      "hardest": "savage"
     },
@@ -12201,7 +12201,7 @@
      "fights": 1,
      "kills": 6,
      "parse": 48.0,
-     "score": 25.3,
+     "score": 27.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -12209,7 +12209,7 @@
      "fights": 3,
      "kills": 82,
      "parse": 77.7,
-     "score": 71.7,
+     "score": 73.3,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -12217,7 +12217,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 70.0,
-     "score": 30.2,
+     "score": 31.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -12320,7 +12320,7 @@
      "fights": 1,
      "kills": 8,
      "parse": 53.0,
-     "score": 29.5,
+     "score": 31.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -12328,7 +12328,7 @@
      "fights": 8,
      "kills": 16,
      "parse": 73.5,
-     "score": 58.7,
+     "score": 62.8,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -12336,7 +12336,7 @@
      "fights": 8,
      "kills": 17,
      "parse": 73.8,
-     "score": 59.4,
+     "score": 63.7,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -12344,7 +12344,7 @@
      "fights": 8,
      "kills": 25,
      "parse": 69.0,
-     "score": 58.4,
+     "score": 62.9,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -12352,7 +12352,7 @@
      "fights": 7,
      "kills": 29,
      "parse": 76.4,
-     "score": 65.9,
+     "score": 71.1,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -12360,7 +12360,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 21.0,
-     "score": 11.5,
+     "score": 12.1,
      "tier": null,
      "hardest": "legacy"
     }
@@ -12779,7 +12779,7 @@
      "fights": 2,
      "kills": 9,
      "parse": 76.9,
-     "score": 48.1,
+     "score": 51.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -12787,7 +12787,7 @@
      "fights": 1,
      "kills": 8,
      "parse": 89.0,
-     "score": 49.5,
+     "score": 53.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -12795,7 +12795,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 36.0,
-     "score": 13.9,
+     "score": 14.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -12803,7 +12803,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 50.0,
-     "score": 24.5,
+     "score": 26.1,
      "tier": null,
      "hardest": "extreme"
     }
@@ -13132,7 +13132,7 @@
      "fights": 1,
      "kills": 34,
      "parse": 45.0,
-     "score": 32.0,
+     "score": 35.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -13140,7 +13140,7 @@
      "fights": 3,
      "kills": 21,
      "parse": 45.3,
-     "score": 34.9,
+     "score": 37.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -13148,7 +13148,7 @@
      "fights": 8,
      "kills": 89,
      "parse": 72.2,
-     "score": 71.3,
+     "score": 72.2,
      "tier": "expert",
      "hardest": "ultimate"
     }
@@ -13158,7 +13158,7 @@
     "fights": 8,
     "kills": 89,
     "parse": 72.2,
-    "score": 71.3,
+    "score": 72.2,
     "tier": "expert",
     "hardest": "ultimate"
    },
@@ -13300,7 +13300,7 @@
      "fights": 6,
      "kills": 62,
      "parse": 79.8,
-     "score": 75.6,
+     "score": 79.8,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -13308,7 +13308,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 16.0,
-     "score": 8.2,
+     "score": 8.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -13316,7 +13316,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 53.1,
-     "score": 34.3,
+     "score": 36.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -13324,7 +13324,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 8.0,
-     "score": 3.1,
+     "score": 3.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -13334,7 +13334,7 @@
     "fights": 6,
     "kills": 62,
     "parse": 79.8,
-    "score": 75.6,
+    "score": 79.8,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -13463,7 +13463,7 @@
      "fights": 8,
      "kills": 37,
      "parse": 45.8,
-     "score": 40.7,
+     "score": 44.1,
      "tier": null,
      "hardest": "savage"
     },
@@ -13471,7 +13471,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 11.2,
-     "score": 5.5,
+     "score": 5.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -13479,7 +13479,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 12.0,
-     "score": 5.6,
+     "score": 5.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -13487,7 +13487,7 @@
      "fights": 2,
      "kills": 26,
      "parse": 31.2,
-     "score": 23.0,
+     "score": 25.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -13495,7 +13495,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 20.0,
-     "score": 7.7,
+     "score": 8.0,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -13503,7 +13503,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 8.0,
-     "score": 4.5,
+     "score": 4.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -14050,7 +14050,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 7.0,
-     "score": 2.7,
+     "score": 2.8,
      "tier": null,
      "hardest": "extreme"
     }
@@ -14174,7 +14174,7 @@
      "fights": 1,
      "kills": 9,
      "parse": 40.0,
-     "score": 22.8,
+     "score": 24.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -14182,7 +14182,7 @@
      "fights": 1,
      "kills": 14,
      "parse": 45.0,
-     "score": 27.7,
+     "score": 30.1,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -14252,7 +14252,7 @@
      "fights": 1,
      "kills": 7,
      "parse": 54.0,
-     "score": 29.3,
+     "score": 31.6,
      "tier": null,
      "hardest": "extreme"
     }
@@ -14356,7 +14356,7 @@
      "fights": 4,
      "kills": 19,
      "parse": 29.1,
-     "score": 23.8,
+     "score": 25.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -14364,7 +14364,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 9.0,
-     "score": 3.5,
+     "score": 3.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -14494,7 +14494,7 @@
      "fights": 3,
      "kills": 12,
      "parse": 34.0,
-     "score": 24.2,
+     "score": 25.9,
      "tier": null,
      "hardest": "savage"
     }
@@ -14682,7 +14682,7 @@
      "fights": 4,
      "kills": 7,
      "parse": 20.4,
-     "score": 14.5,
+     "score": 15.4,
      "tier": null,
      "hardest": "savage"
     },
@@ -14690,7 +14690,7 @@
      "fights": 10,
      "kills": 37,
      "parse": 61.8,
-     "score": 55.0,
+     "score": 59.5,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -14700,7 +14700,7 @@
     "fights": 10,
     "kills": 37,
     "parse": 61.8,
-    "score": 55.0,
+    "score": 59.5,
     "tier": "expert",
     "hardest": "legacy"
    },
@@ -14884,7 +14884,7 @@
      "fights": 1,
      "kills": 6,
      "parse": 3.0,
-     "score": 1.6,
+     "score": 1.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -14892,7 +14892,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 4.0,
-     "score": 1.9,
+     "score": 2.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -14900,7 +14900,7 @@
      "fights": 1,
      "kills": 8,
      "parse": 4.0,
-     "score": 2.2,
+     "score": 2.4,
      "tier": null,
      "hardest": "extreme"
     }
@@ -15100,7 +15100,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 48.5,
-     "score": 28.0,
+     "score": 29.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15108,7 +15108,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 42.2,
-     "score": 23.9,
+     "score": 25.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15116,7 +15116,7 @@
      "fights": 15,
      "kills": 68,
      "parse": 97.7,
-     "score": 93.6,
+     "score": 97.7,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -15124,7 +15124,7 @@
      "fights": 20,
      "kills": 93,
      "parse": 98.6,
-     "score": 97.9,
+     "score": 98.6,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -15140,7 +15140,7 @@
      "fights": 13,
      "kills": 56,
      "parse": 99.8,
-     "score": 93.4,
+     "score": 99.8,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -15148,7 +15148,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 18.0,
-     "score": 6.9,
+     "score": 7.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15156,7 +15156,7 @@
      "fights": 5,
      "kills": 12,
      "parse": 87.3,
-     "score": 67.0,
+     "score": 71.5,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -15164,7 +15164,7 @@
      "fights": 6,
      "kills": 15,
      "parse": 77.5,
-     "score": 61.3,
+     "score": 65.6,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -15172,7 +15172,7 @@
      "fights": 6,
      "kills": 7,
      "parse": 41.8,
-     "score": 29.8,
+     "score": 31.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15180,7 +15180,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 12.5,
-     "score": 6.1,
+     "score": 6.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15188,7 +15188,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 33.3,
-     "score": 19.2,
+     "score": 20.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15196,7 +15196,7 @@
      "fights": 3,
      "kills": 6,
      "parse": 48.0,
-     "score": 30.7,
+     "score": 32.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15204,7 +15204,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 84.0,
-     "score": 32.4,
+     "score": 33.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15212,7 +15212,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 22.0,
-     "score": 8.5,
+     "score": 8.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15220,7 +15220,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 63.0,
-     "score": 24.3,
+     "score": 25.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15228,17 +15228,17 @@
      "fights": 1,
      "kills": 1,
      "parse": 34.0,
-     "score": 13.1,
+     "score": 13.6,
      "tier": null,
      "hardest": "legacy"
     }
    },
    "job_top": {
-    "job": "Gunbreaker",
-    "fights": 19,
-    "kills": 143,
-    "parse": 99.5,
-    "score": 99.5,
+    "job": "Warrior",
+    "fights": 13,
+    "kills": 56,
+    "parse": 99.8,
+    "score": 99.8,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -15356,7 +15356,7 @@
      "fights": 10,
      "kills": 75,
      "parse": 35.1,
-     "score": 34.0,
+     "score": 35.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15364,7 +15364,7 @@
      "fights": 7,
      "kills": 53,
      "parse": 47.4,
-     "score": 44.1,
+     "score": 47.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15372,7 +15372,7 @@
      "fights": 2,
      "kills": 12,
      "parse": 46.5,
-     "score": 30.5,
+     "score": 32.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15380,7 +15380,7 @@
      "fights": 1,
      "kills": 18,
      "parse": 51.0,
-     "score": 32.7,
+     "score": 35.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15388,7 +15388,7 @@
      "fights": 2,
      "kills": 16,
      "parse": 58.2,
-     "score": 39.9,
+     "score": 43.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15396,7 +15396,7 @@
      "fights": 3,
      "kills": 20,
      "parse": 35.7,
-     "score": 27.3,
+     "score": 29.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15404,7 +15404,7 @@
      "fights": 2,
      "kills": 7,
      "parse": 31.3,
-     "score": 18.8,
+     "score": 20.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15412,7 +15412,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 20.0,
-     "score": 10.2,
+     "score": 10.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15420,7 +15420,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 25.5,
-     "score": 13.9,
+     "score": 14.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15428,7 +15428,7 @@
      "fights": 5,
      "kills": 28,
      "parse": 53.2,
-     "score": 45.7,
+     "score": 49.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -15594,7 +15594,7 @@
      "fights": 4,
      "kills": 7,
      "parse": 24.5,
-     "score": 17.4,
+     "score": 18.5,
      "tier": null,
      "hardest": "extreme"
     }
@@ -15721,7 +15721,7 @@
      "fights": 4,
      "kills": 14,
      "parse": 33.1,
-     "score": 25.9,
+     "score": 27.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15729,7 +15729,7 @@
      "fights": 6,
      "kills": 18,
      "parse": 21.1,
-     "score": 17.1,
+     "score": 18.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15737,7 +15737,7 @@
      "fights": 6,
      "kills": 17,
      "parse": 29.0,
-     "score": 23.3,
+     "score": 25.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15745,7 +15745,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 9.0,
-     "score": 3.9,
+     "score": 4.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15753,7 +15753,7 @@
      "fights": 3,
      "kills": 8,
      "parse": 18.4,
-     "score": 12.3,
+     "score": 13.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15761,7 +15761,7 @@
      "fights": 5,
      "kills": 7,
      "parse": 42.4,
-     "score": 30.2,
+     "score": 32.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15769,7 +15769,7 @@
      "fights": 4,
      "kills": 16,
      "parse": 40.5,
-     "score": 32.3,
+     "score": 34.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15777,7 +15777,7 @@
      "fights": 4,
      "kills": 10,
      "parse": 44.7,
-     "score": 33.5,
+     "score": 35.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15785,7 +15785,7 @@
      "fights": 4,
      "kills": 16,
      "parse": 48.1,
-     "score": 38.4,
+     "score": 41.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15793,7 +15793,7 @@
      "fights": 3,
      "kills": 6,
      "parse": 13.7,
-     "score": 8.8,
+     "score": 9.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15801,7 +15801,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 32.8,
-     "score": 19.8,
+     "score": 20.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15809,7 +15809,7 @@
      "fights": 3,
      "kills": 10,
      "parse": 34.9,
-     "score": 24.2,
+     "score": 25.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15817,7 +15817,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 40.5,
-     "score": 22.1,
+     "score": 23.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15825,7 +15825,7 @@
      "fights": 4,
      "kills": 17,
      "parse": 30.6,
-     "score": 24.6,
+     "score": 26.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15833,7 +15833,7 @@
      "fights": 3,
      "kills": 6,
      "parse": 29.3,
-     "score": 18.8,
+     "score": 19.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15841,7 +15841,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 28.0,
-     "score": 10.8,
+     "score": 11.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15849,7 +15849,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 36.0,
-     "score": 15.5,
+     "score": 16.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -15857,7 +15857,7 @@
      "fights": 2,
      "kills": 14,
      "parse": 70.4,
-     "score": 47.3,
+     "score": 51.1,
      "tier": null,
      "hardest": "extreme"
     }
@@ -15936,7 +15936,7 @@
      "fights": 5,
      "kills": 5,
      "parse": 28.8,
-     "score": 19.6,
+     "score": 20.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -15944,7 +15944,7 @@
      "fights": 3,
      "kills": 48,
      "parse": 40.3,
-     "score": 34.8,
+     "score": 37.9,
      "tier": null,
      "hardest": "extreme"
     }
@@ -16030,7 +16030,7 @@
      "fights": 3,
      "kills": 70,
      "parse": 52.3,
-     "score": 47.3,
+     "score": 49.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -16038,7 +16038,7 @@
      "fights": 2,
      "kills": 55,
      "parse": 41.4,
-     "score": 34.0,
+     "score": 36.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -16046,7 +16046,7 @@
      "fights": 2,
      "kills": 7,
      "parse": 18.4,
-     "score": 11.0,
+     "score": 11.8,
      "tier": null,
      "hardest": "extreme"
     }
@@ -16337,7 +16337,7 @@
      "fights": 4,
      "kills": 17,
      "parse": 85.5,
-     "score": 68.8,
+     "score": 73.8,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -16353,7 +16353,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 27.0,
-     "score": 13.2,
+     "score": 13.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -16513,7 +16513,7 @@
      "fights": 2,
      "kills": 27,
      "parse": 40.9,
-     "score": 30.4,
+     "score": 33.1,
      "tier": null,
      "hardest": "extreme"
     }
@@ -16583,7 +16583,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 5.9,
-     "score": 3.8,
+     "score": 4.1,
      "tier": null,
      "hardest": "extreme"
     }
@@ -16670,7 +16670,7 @@
      "fights": 2,
      "kills": 8,
      "parse": 31.4,
-     "score": 19.2,
+     "score": 20.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -16678,7 +16678,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 4.0,
-     "score": 1.5,
+     "score": 1.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -16686,7 +16686,7 @@
      "fights": 7,
      "kills": 23,
      "parse": 60.2,
-     "score": 50.4,
+     "score": 54.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -16694,7 +16694,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 74.0,
-     "score": 28.5,
+     "score": 29.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -16702,7 +16702,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 51.7,
-     "score": 26.9,
+     "score": 28.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -16918,7 +16918,7 @@
      "fights": 2,
      "kills": 81,
      "parse": 66.4,
-     "score": 57.4,
+     "score": 58.9,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -16926,7 +16926,7 @@
      "fights": 2,
      "kills": 23,
      "parse": 43.4,
-     "score": 31.5,
+     "score": 34.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -16934,7 +16934,7 @@
      "fights": 2,
      "kills": 14,
      "parse": 32.1,
-     "score": 21.5,
+     "score": 23.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -16942,7 +16942,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 93.0,
-     "score": 35.8,
+     "score": 37.1,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -16952,7 +16952,7 @@
     "fights": 2,
     "kills": 81,
     "parse": 66.4,
-    "score": 57.4,
+    "score": 58.9,
     "tier": "expert",
     "hardest": "extreme"
    },
@@ -17175,7 +17175,7 @@
      "fights": 8,
      "kills": 78,
      "parse": 68.8,
-     "score": 67.0,
+     "score": 68.8,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -17183,7 +17183,7 @@
      "fights": 2,
      "kills": 8,
      "parse": 70.5,
-     "score": 43.2,
+     "score": 46.3,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -17191,7 +17191,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 6.0,
-     "score": 2.3,
+     "score": 2.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -17363,7 +17363,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 4.0,
-     "score": 2.0,
+     "score": 2.2,
      "tier": null,
      "hardest": "extreme"
     }
@@ -17430,7 +17430,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 12.0,
-     "score": 4.6,
+     "score": 4.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -17537,7 +17537,7 @@
      "fights": 12,
      "kills": 94,
      "parse": 91.3,
-     "score": 90.8,
+     "score": 91.3,
      "tier": "legendary",
      "hardest": "savage"
     },
@@ -17545,7 +17545,7 @@
      "fights": 2,
      "kills": 9,
      "parse": 65.7,
-     "score": 41.1,
+     "score": 44.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -17553,7 +17553,7 @@
      "fights": 6,
      "kills": 70,
      "parse": 96.3,
-     "score": 92.5,
+     "score": 96.3,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -17561,7 +17561,7 @@
      "fights": 11,
      "kills": 83,
      "parse": 88.2,
-     "score": 86.4,
+     "score": 88.2,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -17569,15 +17569,15 @@
      "fights": 10,
      "kills": 55,
      "parse": 93.0,
-     "score": 86.9,
-     "tier": "master",
+     "score": 93.0,
+     "tier": "legendary",
      "hardest": "legacy"
     },
     "Ninja": {
      "fights": 2,
      "kills": 2,
      "parse": 16.5,
-     "score": 8.0,
+     "score": 8.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -17587,7 +17587,7 @@
     "fights": 6,
     "kills": 70,
     "parse": 96.3,
-    "score": 92.5,
+    "score": 96.3,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -17666,7 +17666,7 @@
      "fights": 1,
      "kills": 15,
      "parse": 8.0,
-     "score": 5.0,
+     "score": 5.4,
      "tier": null,
      "hardest": "extreme"
     }
@@ -17748,14 +17748,14 @@
      "kills": 238,
      "parse": 88.4,
      "score": 88.4,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "ultimate"
     },
     "Sage": {
      "fights": 8,
      "kills": 13,
      "parse": 47.1,
-     "score": 36.5,
+     "score": 39.0,
      "tier": null,
      "hardest": "savage"
     },
@@ -17763,15 +17763,15 @@
      "fights": 5,
      "kills": 15,
      "parse": 68.2,
-     "score": 54.0,
-     "tier": "expert",
+     "score": 57.8,
+     "tier": null,
      "hardest": "ultimate"
     },
     "Astrologian": {
      "fights": 3,
      "kills": 17,
      "parse": 47.4,
-     "score": 35.5,
+     "score": 38.2,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -17779,7 +17779,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 38.8,
-     "score": 23.4,
+     "score": 24.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -17787,7 +17787,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 34.6,
-     "score": 21.6,
+     "score": 22.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -17795,7 +17795,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 27.0,
-     "score": 13.2,
+     "score": 13.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -17803,7 +17803,7 @@
      "fights": 5,
      "kills": 55,
      "parse": 48.4,
-     "score": 45.2,
+     "score": 48.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -17814,7 +17814,7 @@
     "kills": 238,
     "parse": 88.4,
     "score": 88.4,
-    "tier": "legendary",
+    "tier": "master",
     "hardest": "ultimate"
    },
    "legacy_clears": 14,
@@ -17882,7 +17882,7 @@
      "fights": 6,
      "kills": 29,
      "parse": 75.0,
-     "score": 64.7,
+     "score": 69.8,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -17890,7 +17890,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 13.0,
-     "score": 5.0,
+     "score": 5.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -17900,7 +17900,7 @@
     "fights": 6,
     "kills": 29,
     "parse": 75.0,
-    "score": 64.7,
+    "score": 69.8,
     "tier": "expert",
     "hardest": "ultimate"
    },
@@ -18311,7 +18311,7 @@
      "fights": 9,
      "kills": 90,
      "parse": 52.9,
-     "score": 52.3,
+     "score": 52.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -18319,7 +18319,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 23.3,
-     "score": 13.2,
+     "score": 14.0,
      "tier": null,
      "hardest": "savage"
     },
@@ -18327,7 +18327,7 @@
      "fights": 7,
      "kills": 52,
      "parse": 48.6,
-     "score": 45.1,
+     "score": 48.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -18737,7 +18737,7 @@
      "fights": 4,
      "kills": 55,
      "parse": 17.5,
-     "score": 16.3,
+     "score": 17.5,
      "tier": null,
      "hardest": "extreme"
     }
@@ -18871,7 +18871,7 @@
      "fights": 1,
      "kills": 9,
      "parse": 6.0,
-     "score": 3.4,
+     "score": 3.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -18879,7 +18879,7 @@
      "fights": 1,
      "kills": 7,
      "parse": 5.0,
-     "score": 2.7,
+     "score": 2.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -18887,7 +18887,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 14.0,
-     "score": 5.4,
+     "score": 5.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -18895,7 +18895,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 11.0,
-     "score": 5.4,
+     "score": 5.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -18903,7 +18903,7 @@
      "fights": 2,
      "kills": 13,
      "parse": 14.0,
-     "score": 9.3,
+     "score": 10.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -18911,7 +18911,7 @@
      "fights": 1,
      "kills": 12,
      "parse": 20.0,
-     "score": 12.0,
+     "score": 13.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -18919,7 +18919,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 68.0,
-     "score": 31.6,
+     "score": 33.5,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -19155,7 +19155,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 45.0,
-     "score": 19.4,
+     "score": 20.4,
      "tier": null,
      "hardest": "extreme"
     }
@@ -19229,7 +19229,7 @@
      "fights": 2,
      "kills": 70,
      "parse": 79.5,
-     "score": 67.5,
+     "score": 70.6,
      "tier": "expert",
      "hardest": "extreme"
     }
@@ -19239,7 +19239,7 @@
     "fights": 2,
     "kills": 70,
     "parse": 79.5,
-    "score": 67.5,
+    "score": 70.6,
     "tier": "expert",
     "hardest": "extreme"
    },
@@ -19541,7 +19541,7 @@
      "fights": 1,
      "kills": 6,
      "parse": 7.0,
-     "score": 3.7,
+     "score": 4.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -20081,7 +20081,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 13.3,
-     "score": 6.9,
+     "score": 7.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -20208,7 +20208,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 26.0,
-     "score": 11.2,
+     "score": 11.8,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -20386,7 +20386,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 2.0,
-     "score": 1.0,
+     "score": 1.1,
      "tier": null,
      "hardest": "extreme"
     }
@@ -20505,7 +20505,7 @@
      "fights": 3,
      "kills": 9,
      "parse": 75.2,
-     "score": 51.2,
+     "score": 54.7,
      "tier": null,
      "hardest": "legacy"
     }
@@ -20810,7 +20810,7 @@
      "fights": 7,
      "kills": 20,
      "parse": 18.7,
-     "score": 15.4,
+     "score": 16.5,
      "tier": null,
      "hardest": "savage"
     },
@@ -20818,7 +20818,7 @@
      "fights": 6,
      "kills": 15,
      "parse": 25.5,
-     "score": 20.2,
+     "score": 21.6,
      "tier": null,
      "hardest": "savage"
     },
@@ -20826,7 +20826,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 17.0,
-     "score": 6.5,
+     "score": 6.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -20834,7 +20834,7 @@
      "fights": 5,
      "kills": 9,
      "parse": 7.2,
-     "score": 5.3,
+     "score": 5.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -20842,7 +20842,7 @@
      "fights": 3,
      "kills": 14,
      "parse": 22.6,
-     "score": 16.4,
+     "score": 17.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -20850,7 +20850,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 3.0,
-     "score": 1.3,
+     "score": 1.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -20858,7 +20858,7 @@
      "fights": 4,
      "kills": 23,
      "parse": 32.1,
-     "score": 26.9,
+     "score": 28.9,
      "tier": null,
      "hardest": "legacy"
     }
@@ -21243,7 +21243,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 5.5,
-     "score": 3.0,
+     "score": 3.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -21451,7 +21451,7 @@
      "fights": 7,
      "kills": 29,
      "parse": 36.4,
-     "score": 31.4,
+     "score": 33.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21459,7 +21459,7 @@
      "fights": 6,
      "kills": 32,
      "parse": 23.6,
-     "score": 20.6,
+     "score": 22.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21467,7 +21467,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 22.6,
-     "score": 12.8,
+     "score": 13.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21475,7 +21475,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 23.5,
-     "score": 11.5,
+     "score": 12.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21483,7 +21483,7 @@
      "fights": 3,
      "kills": 15,
      "parse": 19.1,
-     "score": 14.0,
+     "score": 15.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21491,7 +21491,7 @@
      "fights": 3,
      "kills": 19,
      "parse": 14.4,
-     "score": 10.9,
+     "score": 11.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21499,7 +21499,7 @@
      "fights": 2,
      "kills": 15,
      "parse": 11.2,
-     "score": 7.6,
+     "score": 8.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -21566,7 +21566,7 @@
      "fights": 10,
      "kills": 80,
      "parse": 83.4,
-     "score": 81.4,
+     "score": 83.4,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -21574,7 +21574,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 18.0,
-     "score": 7.8,
+     "score": 8.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21582,7 +21582,7 @@
      "fights": 5,
      "kills": 10,
      "parse": 75.2,
-     "score": 56.3,
+     "score": 59.9,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -21590,7 +21590,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 62.0,
-     "score": 26.8,
+     "score": 28.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21598,7 +21598,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 23.0,
-     "score": 8.9,
+     "score": 9.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -21608,7 +21608,7 @@
     "fights": 10,
     "kills": 80,
     "parse": 83.4,
-    "score": 81.4,
+    "score": 83.4,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -21912,7 +21912,7 @@
      "fights": 4,
      "kills": 15,
      "parse": 32.1,
-     "score": 25.4,
+     "score": 27.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -21920,7 +21920,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 12.0,
-     "score": 5.2,
+     "score": 5.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -22025,7 +22025,7 @@
      "fights": 5,
      "kills": 56,
      "parse": 84.3,
-     "score": 78.9,
+     "score": 84.3,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -22033,7 +22033,7 @@
      "fights": 4,
      "kills": 8,
      "parse": 64.7,
-     "score": 46.9,
+     "score": 49.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -22043,7 +22043,7 @@
     "fights": 5,
     "kills": 56,
     "parse": 84.3,
-    "score": 78.9,
+    "score": 84.3,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -22138,7 +22138,7 @@
      "fights": 4,
      "kills": 7,
      "parse": 16.6,
-     "score": 11.8,
+     "score": 12.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -22146,7 +22146,7 @@
      "fights": 5,
      "kills": 22,
      "parse": 56.4,
-     "score": 47.0,
+     "score": 50.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -22154,7 +22154,7 @@
      "fights": 6,
      "kills": 14,
      "parse": 21.2,
-     "score": 16.6,
+     "score": 17.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -22162,7 +22162,7 @@
      "fights": 2,
      "kills": 16,
      "parse": 39.5,
-     "score": 27.1,
+     "score": 29.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -22178,7 +22178,7 @@
      "fights": 2,
      "kills": 21,
      "parse": 21.8,
-     "score": 15.6,
+     "score": 16.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -22186,7 +22186,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 4.0,
-     "score": 1.5,
+     "score": 1.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -22427,7 +22427,7 @@
      "fights": 6,
      "kills": 54,
      "parse": 46.4,
-     "score": 43.2,
+     "score": 46.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -22435,7 +22435,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 38.0,
-     "score": 18.6,
+     "score": 19.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -22451,7 +22451,7 @@
      "fights": 4,
      "kills": 23,
      "parse": 63.0,
-     "score": 52.8,
+     "score": 56.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -22459,7 +22459,7 @@
      "fights": 4,
      "kills": 4,
      "parse": 25.0,
-     "score": 16.5,
+     "score": 17.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -22548,7 +22548,7 @@
      "fights": 2,
      "kills": 23,
      "parse": 18.7,
-     "score": 13.6,
+     "score": 14.7,
      "tier": null,
      "hardest": "extreme"
     }
@@ -22639,7 +22639,7 @@
      "fights": 7,
      "kills": 42,
      "parse": 86.7,
-     "score": 78.4,
+     "score": 84.9,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -22647,7 +22647,7 @@
      "fights": 2,
      "kills": 24,
      "parse": 67.5,
-     "score": 49.2,
+     "score": 53.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -22655,15 +22655,15 @@
      "fights": 4,
      "kills": 39,
      "parse": 97.7,
-     "score": 87.5,
-     "tier": "master",
+     "score": 94.7,
+     "tier": "legendary",
      "hardest": "legacy"
     },
     "Monk": {
      "fights": 5,
      "kills": 78,
      "parse": 84.7,
-     "score": 82.4,
+     "score": 84.7,
      "tier": "master",
      "hardest": "legacy"
     }
@@ -22673,8 +22673,8 @@
     "fights": 4,
     "kills": 39,
     "parse": 97.7,
-    "score": 87.5,
-    "tier": "master",
+    "score": 94.7,
+    "tier": "legendary",
     "hardest": "legacy"
    },
    "legacy_clears": 13,
@@ -22805,7 +22805,7 @@
      "fights": 6,
      "kills": 17,
      "parse": 53.0,
-     "score": 42.6,
+     "score": 45.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -22821,7 +22821,7 @@
      "fights": 2,
      "kills": 7,
      "parse": 40.7,
-     "score": 24.4,
+     "score": 26.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -22829,7 +22829,7 @@
      "fights": 5,
      "kills": 21,
      "parse": 62.0,
-     "score": 51.3,
+     "score": 55.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -23386,7 +23386,7 @@
      "fights": 6,
      "kills": 59,
      "parse": 94.3,
-     "score": 88.8,
+     "score": 94.3,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -23394,7 +23394,7 @@
      "fights": 4,
      "kills": 4,
      "parse": 51.0,
-     "score": 33.6,
+     "score": 35.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -23404,7 +23404,7 @@
     "fights": 6,
     "kills": 59,
     "parse": 94.3,
-    "score": 88.8,
+    "score": 94.3,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -23482,7 +23482,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 24.0,
-     "score": 11.8,
+     "score": 12.5,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -23562,7 +23562,7 @@
      "fights": 5,
      "kills": 73,
      "parse": 78.0,
-     "score": 75.3,
+     "score": 78.0,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -23570,7 +23570,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 46.0,
-     "score": 23.9,
+     "score": 25.2,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -23580,7 +23580,7 @@
     "fights": 5,
     "kills": 73,
     "parse": 78.0,
-    "score": 75.3,
+    "score": 78.0,
     "tier": "master",
     "hardest": "ultimate"
    },
@@ -24009,7 +24009,7 @@
      "fights": 7,
      "kills": 36,
      "parse": 77.2,
-     "score": 68.4,
+     "score": 74.1,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -24017,7 +24017,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 44.0,
-     "score": 17.0,
+     "score": 17.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -24025,7 +24025,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 99.0,
-     "score": 48.5,
+     "score": 51.7,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -24033,7 +24033,7 @@
      "fights": 5,
      "kills": 28,
      "parse": 40.3,
-     "score": 34.6,
+     "score": 37.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -24041,7 +24041,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 32.0,
-     "score": 13.8,
+     "score": 14.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -24049,7 +24049,7 @@
      "fights": 6,
      "kills": 6,
      "parse": 58.3,
-     "score": 40.6,
+     "score": 42.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -24057,7 +24057,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 21.7,
-     "score": 12.5,
+     "score": 13.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -24065,7 +24065,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 5.0,
-     "score": 1.9,
+     "score": 2.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -24073,7 +24073,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 54.0,
-     "score": 20.8,
+     "score": 21.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -24083,7 +24083,7 @@
     "fights": 7,
     "kills": 36,
     "parse": 77.2,
-    "score": 68.4,
+    "score": 74.1,
     "tier": "expert",
     "hardest": "ultimate"
    },
@@ -24215,7 +24215,7 @@
      "fights": 6,
      "kills": 74,
      "parse": 96.4,
-     "score": 93.2,
+     "score": 96.4,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -24223,7 +24223,7 @@
      "fights": 5,
      "kills": 44,
      "parse": 90.2,
-     "score": 82.0,
+     "score": 88.9,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -24231,7 +24231,7 @@
      "fights": 1,
      "kills": 7,
      "parse": 24.0,
-     "score": 13.0,
+     "score": 14.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -24241,7 +24241,7 @@
     "fights": 6,
     "kills": 74,
     "parse": 96.4,
-    "score": 93.2,
+    "score": 96.4,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -24307,7 +24307,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 17.0,
-     "score": 6.5,
+     "score": 6.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -24435,7 +24435,7 @@
      "fights": 4,
      "kills": 24,
      "parse": 60.4,
-     "score": 50.9,
+     "score": 54.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -24443,7 +24443,7 @@
      "fights": 2,
      "kills": 17,
      "parse": 62.6,
-     "score": 43.3,
+     "score": 47.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -24694,7 +24694,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 47.4,
-     "score": 25.9,
+     "score": 27.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -24702,7 +24702,7 @@
      "fights": 4,
      "kills": 25,
      "parse": 34.8,
-     "score": 29.5,
+     "score": 31.7,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -24710,7 +24710,7 @@
      "fights": 3,
      "kills": 29,
      "parse": 85.9,
-     "score": 69.3,
+     "score": 75.2,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -24726,7 +24726,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 22.0,
-     "score": 10.8,
+     "score": 11.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -24734,15 +24734,15 @@
      "fights": 7,
      "kills": 70,
      "parse": 91.4,
-     "score": 87.8,
-     "tier": "master",
+     "score": 91.4,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "Astrologian": {
      "fights": 5,
      "kills": 52,
      "parse": 78.3,
-     "score": 72.6,
+     "score": 78.3,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -24750,7 +24750,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 13.0,
-     "score": 5.6,
+     "score": 5.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -24758,7 +24758,7 @@
      "fights": 2,
      "kills": 6,
      "parse": 88.0,
-     "score": 51.4,
+     "score": 54.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -24766,7 +24766,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 78.6,
-     "score": 50.8,
+     "score": 54.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -24774,7 +24774,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 82.0,
-     "score": 41.9,
+     "score": 44.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -24782,7 +24782,7 @@
      "fights": 5,
      "kills": 9,
      "parse": 37.2,
-     "score": 27.4,
+     "score": 29.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -24919,7 +24919,7 @@
      "fights": 13,
      "kills": 94,
      "parse": 43.0,
-     "score": 42.7,
+     "score": 43.0,
      "tier": null,
      "hardest": "savage"
     },
@@ -24927,7 +24927,7 @@
      "fights": 3,
      "kills": 6,
      "parse": 12.7,
-     "score": 8.1,
+     "score": 8.6,
      "tier": null,
      "hardest": "savage"
     },
@@ -24935,7 +24935,7 @@
      "fights": 4,
      "kills": 16,
      "parse": 62.6,
-     "score": 50.0,
+     "score": 53.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -24943,7 +24943,7 @@
      "fights": 5,
      "kills": 10,
      "parse": 22.0,
-     "score": 16.5,
+     "score": 17.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -24951,7 +24951,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 33.6,
-     "score": 19.0,
+     "score": 20.3,
      "tier": null,
      "hardest": "extreme"
     }
@@ -25333,7 +25333,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 41.0,
-     "score": 17.7,
+     "score": 18.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -25342,7 +25342,7 @@
      "kills": 124,
      "parse": 90.5,
      "score": 90.5,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "legacy"
     }
    },
@@ -25352,7 +25352,7 @@
     "kills": 124,
     "parse": 90.5,
     "score": 90.5,
-    "tier": "legendary",
+    "tier": "master",
     "hardest": "legacy"
    },
    "legacy_clears": 10,
@@ -25478,7 +25478,7 @@
      "fights": 2,
      "kills": 19,
      "parse": 46.2,
-     "score": 32.5,
+     "score": 35.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -25494,7 +25494,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 20.0,
-     "score": 7.7,
+     "score": 8.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -25502,7 +25502,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 8.0,
-     "score": 3.1,
+     "score": 3.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -25582,7 +25582,7 @@
      "fights": 4,
      "kills": 42,
      "parse": 45.8,
-     "score": 41.4,
+     "score": 44.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -25590,7 +25590,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 54.0,
-     "score": 30.6,
+     "score": 32.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -25680,7 +25680,7 @@
      "fights": 3,
      "kills": 16,
      "parse": 42.6,
-     "score": 31.6,
+     "score": 34.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -25688,7 +25688,7 @@
      "fights": 5,
      "kills": 15,
      "parse": 39.9,
-     "score": 31.6,
+     "score": 33.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -25888,7 +25888,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 37.2,
-     "score": 25.3,
+     "score": 26.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -25896,7 +25896,7 @@
      "fights": 5,
      "kills": 69,
      "parse": 95.2,
-     "score": 91.3,
+     "score": 95.2,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -25904,7 +25904,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 36.0,
-     "score": 13.9,
+     "score": 14.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -25914,7 +25914,7 @@
     "fights": 5,
     "kills": 69,
     "parse": 95.2,
-    "score": 91.3,
+    "score": 95.2,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -26106,7 +26106,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 46.0,
-     "score": 17.7,
+     "score": 18.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -26114,7 +26114,7 @@
      "fights": 8,
      "kills": 75,
      "parse": 98.1,
-     "score": 95.0,
+     "score": 98.1,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -26122,7 +26122,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 11.0,
-     "score": 4.2,
+     "score": 4.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -26138,8 +26138,8 @@
      "fights": 6,
      "kills": 44,
      "parse": 94.8,
-     "score": 86.2,
-     "tier": "master",
+     "score": 93.4,
+     "tier": "legendary",
      "hardest": "ultimate"
     }
    },
@@ -26334,7 +26334,7 @@
      "fights": 6,
      "kills": 24,
      "parse": 65.3,
-     "score": 55.0,
+     "score": 59.2,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -26342,7 +26342,7 @@
      "fights": 5,
      "kills": 51,
      "parse": 84.5,
-     "score": 78.2,
+     "score": 84.5,
      "tier": "master",
      "hardest": "legacy"
     }
@@ -26352,7 +26352,7 @@
     "fights": 5,
     "kills": 51,
     "parse": 84.5,
-    "score": 78.2,
+    "score": 84.5,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -26418,7 +26418,7 @@
      "fights": 4,
      "kills": 30,
      "parse": 68.6,
-     "score": 59.4,
+     "score": 64.2,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -26426,7 +26426,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 42.5,
-     "score": 20.7,
+     "score": 21.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -26434,7 +26434,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 32.0,
-     "score": 13.8,
+     "score": 14.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -26444,7 +26444,7 @@
     "fights": 4,
     "kills": 30,
     "parse": 68.6,
-    "score": 59.4,
+    "score": 64.2,
     "tier": "expert",
     "hardest": "legacy"
    },
@@ -26815,7 +26815,7 @@
      "fights": 1,
      "kills": 6,
      "parse": 88.0,
-     "score": 46.5,
+     "score": 49.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -26823,7 +26823,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 68.0,
-     "score": 26.2,
+     "score": 27.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -26831,7 +26831,7 @@
      "fights": 1,
      "kills": 8,
      "parse": 100.0,
-     "score": 55.7,
+     "score": 60.1,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -26839,7 +26839,7 @@
      "fights": 5,
      "kills": 45,
      "parse": 91.1,
-     "score": 83.0,
+     "score": 90.1,
      "tier": "master",
      "hardest": "legacy"
     }
@@ -26849,7 +26849,7 @@
     "fights": 5,
     "kills": 45,
     "parse": 91.1,
-    "score": 83.0,
+    "score": 90.1,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -26923,7 +26923,7 @@
      "fights": 2,
      "kills": 8,
      "parse": 20.1,
-     "score": 12.3,
+     "score": 13.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -26931,7 +26931,7 @@
      "fights": 5,
      "kills": 23,
      "parse": 49.0,
-     "score": 41.0,
+     "score": 44.2,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -26939,7 +26939,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 19.0,
-     "score": 7.3,
+     "score": 7.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -26947,7 +26947,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 44.0,
-     "score": 17.0,
+     "score": 17.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -26955,7 +26955,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 65.0,
-     "score": 31.8,
+     "score": 33.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -26963,7 +26963,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 41.0,
-     "score": 17.7,
+     "score": 18.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -26971,7 +26971,7 @@
      "fights": 6,
      "kills": 23,
      "parse": 87.9,
-     "score": 73.6,
+     "score": 79.2,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -26979,7 +26979,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 22.0,
-     "score": 8.5,
+     "score": 8.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -26987,7 +26987,7 @@
      "fights": 5,
      "kills": 5,
      "parse": 16.0,
-     "score": 10.9,
+     "score": 11.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -26997,7 +26997,7 @@
     "fights": 6,
     "kills": 23,
     "parse": 87.9,
-    "score": 73.6,
+    "score": 79.2,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -27127,7 +27127,7 @@
      "fights": 4,
      "kills": 11,
      "parse": 17.1,
-     "score": 13.0,
+     "score": 13.8,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -27215,7 +27215,7 @@
      "fights": 8,
      "kills": 56,
      "parse": 88.2,
-     "score": 82.5,
+     "score": 88.2,
      "tier": "master",
      "hardest": "extreme"
     },
@@ -27223,15 +27223,15 @@
      "fights": 17,
      "kills": 94,
      "parse": 90.2,
-     "score": 89.7,
-     "tier": "legendary",
+     "score": 90.2,
+     "tier": "master",
      "hardest": "legacy"
     },
     "Dancer": {
      "fights": 5,
      "kills": 10,
      "parse": 52.7,
-     "score": 39.4,
+     "score": 42.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -27239,7 +27239,7 @@
      "fights": 12,
      "kills": 35,
      "parse": 89.5,
-     "score": 79.1,
+     "score": 85.5,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -27247,7 +27247,7 @@
      "fights": 12,
      "kills": 32,
      "parse": 82.5,
-     "score": 72.1,
+     "score": 77.9,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -27255,7 +27255,7 @@
      "fights": 6,
      "kills": 27,
      "parse": 88.6,
-     "score": 75.7,
+     "score": 81.7,
      "tier": "master",
      "hardest": "extreme"
     },
@@ -27263,7 +27263,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 35.0,
-     "score": 21.8,
+     "score": 23.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27271,7 +27271,7 @@
      "fights": 6,
      "kills": 14,
      "parse": 70.8,
-     "score": 55.5,
+     "score": 59.3,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -27279,7 +27279,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 40.6,
-     "score": 25.3,
+     "score": 26.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27287,7 +27287,7 @@
      "fights": 2,
      "kills": 9,
      "parse": 78.8,
-     "score": 49.2,
+     "score": 52.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27295,7 +27295,7 @@
      "fights": 2,
      "kills": 10,
      "parse": 40.1,
-     "score": 25.5,
+     "score": 27.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27303,7 +27303,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 60.0,
-     "score": 34.0,
+     "score": 36.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27311,7 +27311,7 @@
      "fights": 4,
      "kills": 6,
      "parse": 60.0,
-     "score": 41.8,
+     "score": 44.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27319,7 +27319,7 @@
      "fights": 3,
      "kills": 6,
      "parse": 72.7,
-     "score": 46.6,
+     "score": 49.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27327,7 +27327,7 @@
      "fights": 3,
      "kills": 29,
      "parse": 78.1,
-     "score": 63.0,
+     "score": 68.3,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -27335,7 +27335,7 @@
      "fights": 3,
      "kills": 6,
      "parse": 48.2,
-     "score": 30.9,
+     "score": 32.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27343,7 +27343,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 52.5,
-     "score": 28.7,
+     "score": 30.4,
      "tier": null,
      "hardest": "extreme"
     }
@@ -27645,7 +27645,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 24.7,
-     "score": 12.9,
+     "score": 13.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -27973,7 +27973,7 @@
      "fights": 7,
      "kills": 65,
      "parse": 95.9,
-     "score": 91.4,
+     "score": 95.9,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -27982,14 +27982,14 @@
      "kills": 208,
      "parse": 74.9,
      "score": 74.9,
-     "tier": "master",
+     "tier": "expert",
      "hardest": "ultimate"
     },
     "Dragoon": {
      "fights": 2,
      "kills": 3,
      "parse": 38.3,
-     "score": 19.9,
+     "score": 21.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -27997,7 +27997,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 49.0,
-     "score": 18.9,
+     "score": 19.6,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -28007,7 +28007,7 @@
     "fights": 7,
     "kills": 65,
     "parse": 95.9,
-    "score": 91.4,
+    "score": 95.9,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -28139,7 +28139,7 @@
      "fights": 6,
      "kills": 48,
      "parse": 54.8,
-     "score": 50.3,
+     "score": 54.6,
      "tier": null,
      "hardest": "savage"
     }
@@ -28568,7 +28568,7 @@
      "fights": 1,
      "kills": 11,
      "parse": 79.0,
-     "score": 46.6,
+     "score": 50.5,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -28576,7 +28576,7 @@
      "fights": 5,
      "kills": 29,
      "parse": 80.3,
-     "score": 69.3,
+     "score": 74.8,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -28584,7 +28584,7 @@
      "fights": 3,
      "kills": 10,
      "parse": 65.5,
-     "score": 45.3,
+     "score": 48.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -28592,7 +28592,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 19.5,
-     "score": 9.5,
+     "score": 9.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -28601,14 +28601,14 @@
      "kills": 106,
      "parse": 88.6,
      "score": 88.6,
-     "tier": "legendary",
+     "tier": "master",
      "hardest": "legacy"
     },
     "Gunbreaker": {
      "fights": 4,
      "kills": 18,
      "parse": 76.6,
-     "score": 62.1,
+     "score": 66.6,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -28616,7 +28616,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 31.0,
-     "score": 15.1,
+     "score": 15.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -28624,7 +28624,7 @@
      "fights": 3,
      "kills": 8,
      "parse": 52.2,
-     "score": 34.9,
+     "score": 37.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -28632,7 +28632,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 53.0,
-     "score": 20.4,
+     "score": 21.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -28640,7 +28640,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 37.0,
-     "score": 14.3,
+     "score": 14.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -28651,7 +28651,7 @@
     "kills": 106,
     "parse": 88.6,
     "score": 88.6,
-    "tier": "legendary",
+    "tier": "master",
     "hardest": "legacy"
    },
    "legacy_clears": 9,
@@ -28842,7 +28842,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 13.0,
-     "score": 7.1,
+     "score": 7.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -29109,7 +29109,7 @@
      "fights": 3,
      "kills": 18,
      "parse": 37.8,
-     "score": 28.5,
+     "score": 30.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -29388,7 +29388,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 43.0,
-     "score": 18.6,
+     "score": 19.5,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -29396,7 +29396,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 23.0,
-     "score": 11.2,
+     "score": 11.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -29404,7 +29404,7 @@
      "fights": 3,
      "kills": 17,
      "parse": 31.1,
-     "score": 23.3,
+     "score": 25.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -29412,7 +29412,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 14.0,
-     "score": 5.4,
+     "score": 5.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -29734,7 +29734,7 @@
      "fights": 6,
      "kills": 45,
      "parse": 85.4,
-     "score": 77.8,
+     "score": 84.4,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -29742,7 +29742,7 @@
      "fights": 10,
      "kills": 77,
      "parse": 98.7,
-     "score": 95.9,
+     "score": 98.7,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -29750,7 +29750,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 76.0,
-     "score": 29.3,
+     "score": 30.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -29760,7 +29760,7 @@
     "fights": 10,
     "kills": 77,
     "parse": 98.7,
-    "score": 95.9,
+    "score": 98.7,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -30001,7 +30001,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 6.0,
-     "score": 2.6,
+     "score": 2.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30009,7 +30009,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 4.5,
-     "score": 2.2,
+     "score": 2.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30017,7 +30017,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 4.0,
-     "score": 1.5,
+     "score": 1.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -30146,7 +30146,7 @@
      "fights": 8,
      "kills": 92,
      "parse": 100.0,
-     "score": 99.2,
+     "score": 100.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -30154,7 +30154,7 @@
      "fights": 4,
      "kills": 4,
      "parse": 14.3,
-     "score": 9.4,
+     "score": 9.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30162,7 +30162,7 @@
      "fights": 3,
      "kills": 51,
      "parse": 93.3,
-     "score": 81.1,
+     "score": 88.1,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -30170,7 +30170,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 66.0,
-     "score": 32.2,
+     "score": 33.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30178,7 +30178,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 22.0,
-     "score": 8.5,
+     "score": 8.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -30188,7 +30188,7 @@
     "fights": 8,
     "kills": 92,
     "parse": 100.0,
-    "score": 99.2,
+    "score": 100.0,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -30312,7 +30312,7 @@
      "fights": 2,
      "kills": 17,
      "parse": 37.6,
-     "score": 26.0,
+     "score": 28.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -30504,7 +30504,7 @@
      "fights": 13,
      "kills": 50,
      "parse": 62.9,
-     "score": 58.1,
+     "score": 62.9,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -30512,7 +30512,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 29.7,
-     "score": 17.9,
+     "score": 18.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30520,15 +30520,15 @@
      "fights": 11,
      "kills": 96,
      "parse": 74.9,
-     "score": 74.6,
-     "tier": "master",
+     "score": 74.9,
+     "tier": "expert",
      "hardest": "legacy"
     },
     "Ninja": {
      "fights": 1,
      "kills": 1,
      "parse": 61.0,
-     "score": 23.5,
+     "score": 24.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -30536,7 +30536,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 18.0,
-     "score": 7.8,
+     "score": 8.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30544,7 +30544,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 15.0,
-     "score": 5.8,
+     "score": 6.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30552,7 +30552,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 59.0,
-     "score": 40.1,
+     "score": 42.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30560,7 +30560,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 21.9,
-     "score": 14.4,
+     "score": 15.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -30570,8 +30570,8 @@
     "fights": 11,
     "kills": 96,
     "parse": 74.9,
-    "score": 74.6,
-    "tier": "master",
+    "score": 74.9,
+    "tier": "expert",
     "hardest": "legacy"
    },
    "legacy_clears": 12,
@@ -30639,7 +30639,7 @@
      "fights": 4,
      "kills": 10,
      "parse": 66.2,
-     "score": 49.5,
+     "score": 52.7,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -30647,7 +30647,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 57.7,
-     "score": 30.0,
+     "score": 31.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30655,7 +30655,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 22.0,
-     "score": 9.5,
+     "score": 10.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30663,7 +30663,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 28.0,
-     "score": 14.6,
+     "score": 15.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30671,7 +30671,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 40.0,
-     "score": 17.3,
+     "score": 18.1,
      "tier": null,
      "hardest": "legacy"
     }
@@ -30741,7 +30741,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 7.0,
-     "score": 2.7,
+     "score": 2.8,
      "tier": null,
      "hardest": "extreme"
     }
@@ -30815,7 +30815,7 @@
      "fights": 5,
      "kills": 48,
      "parse": 84.6,
-     "score": 77.7,
+     "score": 84.3,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -30823,7 +30823,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 26.0,
-     "score": 10.0,
+     "score": 10.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -30831,7 +30831,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 12.0,
-     "score": 4.6,
+     "score": 4.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -30841,7 +30841,7 @@
     "fights": 5,
     "kills": 48,
     "parse": 84.6,
-    "score": 77.7,
+    "score": 84.3,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -31024,7 +31024,7 @@
      "fights": 4,
      "kills": 7,
      "parse": 20.8,
-     "score": 14.8,
+     "score": 15.7,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -31094,7 +31094,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 80.3,
-     "score": 39.2,
+     "score": 40.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -31102,7 +31102,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 62.9,
-     "score": 44.2,
+     "score": 47.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -31235,7 +31235,7 @@
      "fights": 2,
      "kills": 37,
      "parse": 100.0,
-     "score": 77.7,
+     "score": 85.0,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -31243,7 +31243,7 @@
      "fights": 3,
      "kills": 42,
      "parse": 56.8,
-     "score": 48.1,
+     "score": 52.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -31253,7 +31253,7 @@
     "fights": 2,
     "kills": 37,
     "parse": 100.0,
-    "score": 77.7,
+    "score": 85.0,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -31321,7 +31321,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 43.5,
-     "score": 21.2,
+     "score": 22.2,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -31389,7 +31389,7 @@
      "fights": 2,
      "kills": 6,
      "parse": 43.5,
-     "score": 25.4,
+     "score": 27.1,
      "tier": null,
      "hardest": "legacy"
     }
@@ -31598,7 +31598,7 @@
      "fights": 6,
      "kills": 63,
      "parse": 86.9,
-     "score": 82.5,
+     "score": 86.9,
      "tier": "master",
      "hardest": "legacy"
     }
@@ -31608,7 +31608,7 @@
     "fights": 6,
     "kills": 63,
     "parse": 86.9,
-    "score": 82.5,
+    "score": 86.9,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -31746,7 +31746,7 @@
      "fights": 6,
      "kills": 9,
      "parse": 55.2,
-     "score": 40.7,
+     "score": 43.3,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -31754,7 +31754,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 13.0,
-     "score": 7.8,
+     "score": 8.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -31762,7 +31762,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 15.0,
-     "score": 5.8,
+     "score": 6.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -31770,7 +31770,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 58.5,
-     "score": 37.8,
+     "score": 40.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -31778,7 +31778,7 @@
      "fights": 5,
      "kills": 12,
      "parse": 19.8,
-     "score": 15.2,
+     "score": 16.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -31786,7 +31786,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 42.0,
-     "score": 23.8,
+     "score": 25.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -32099,7 +32099,7 @@
      "fights": 8,
      "kills": 76,
      "parse": 98.5,
-     "score": 95.6,
+     "score": 98.5,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -32107,7 +32107,7 @@
      "fights": 1,
      "kills": 12,
      "parse": 100.0,
-     "score": 59.9,
+     "score": 65.0,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -32115,7 +32115,7 @@
      "fights": 5,
      "kills": 74,
      "parse": 96.6,
-     "score": 93.4,
+     "score": 96.6,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -32123,7 +32123,7 @@
      "fights": 4,
      "kills": 43,
      "parse": 99.0,
-     "score": 89.7,
+     "score": 97.3,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -32131,7 +32131,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 56.5,
-     "score": 27.6,
+     "score": 28.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -32141,7 +32141,7 @@
     "fights": 8,
     "kills": 76,
     "parse": 98.5,
-    "score": 95.6,
+    "score": 98.5,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -32206,7 +32206,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 27.0,
-     "score": 10.4,
+     "score": 10.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -32500,7 +32500,7 @@
      "fights": 4,
      "kills": 12,
      "parse": 54.4,
-     "score": 41.7,
+     "score": 44.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -32745,7 +32745,7 @@
      "fights": 2,
      "kills": 8,
      "parse": 44.2,
-     "score": 27.1,
+     "score": 29.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -32753,7 +32753,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 12.0,
-     "score": 4.6,
+     "score": 4.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -32761,7 +32761,7 @@
      "fights": 3,
      "kills": 16,
      "parse": 32.1,
-     "score": 23.8,
+     "score": 25.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -32769,7 +32769,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 11.0,
-     "score": 5.1,
+     "score": 5.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -32848,7 +32848,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 42.0,
-     "score": 19.5,
+     "score": 20.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -32856,7 +32856,7 @@
      "fights": 9,
      "kills": 51,
      "parse": 29.9,
-     "score": 27.7,
+     "score": 29.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -32864,7 +32864,7 @@
      "fights": 6,
      "kills": 14,
      "parse": 7.3,
-     "score": 5.7,
+     "score": 6.1,
      "tier": null,
      "hardest": "legacy"
     }
@@ -32935,7 +32935,7 @@
      "fights": 7,
      "kills": 27,
      "parse": 35.5,
-     "score": 30.3,
+     "score": 32.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -32943,7 +32943,7 @@
      "fights": 4,
      "kills": 11,
      "parse": 12.0,
-     "score": 9.1,
+     "score": 9.7,
      "tier": null,
      "hardest": "legacy"
     }
@@ -33073,7 +33073,7 @@
      "fights": 2,
      "kills": 8,
      "parse": 10.1,
-     "score": 6.2,
+     "score": 6.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -33081,7 +33081,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 61.0,
-     "score": 23.5,
+     "score": 24.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -33089,7 +33089,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 23.2,
-     "score": 14.5,
+     "score": 15.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -33277,7 +33277,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 11.0,
-     "score": 5.4,
+     "score": 5.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -33285,7 +33285,7 @@
      "fights": 5,
      "kills": 22,
      "parse": 95.4,
-     "score": 79.4,
+     "score": 85.4,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -33293,7 +33293,7 @@
      "fights": 5,
      "kills": 51,
      "parse": 97.0,
-     "score": 89.8,
+     "score": 97.0,
      "tier": "legendary",
      "hardest": "legacy"
     }
@@ -33303,7 +33303,7 @@
     "fights": 5,
     "kills": 51,
     "parse": 97.0,
-    "score": 89.8,
+    "score": 97.0,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -33724,7 +33724,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 25.0,
-     "score": 9.6,
+     "score": 10.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -33803,7 +33803,7 @@
      "fights": 7,
      "kills": 77,
      "parse": 99.5,
-     "score": 96.7,
+     "score": 99.5,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -33811,7 +33811,7 @@
      "fights": 6,
      "kills": 56,
      "parse": 81.9,
-     "score": 76.7,
+     "score": 81.9,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -33819,7 +33819,7 @@
      "fights": 5,
      "kills": 97,
      "parse": 92.3,
-     "score": 92.1,
+     "score": 92.3,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -33827,7 +33827,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 32.0,
-     "score": 12.3,
+     "score": 12.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -33837,7 +33837,7 @@
     "fights": 7,
     "kills": 77,
     "parse": 99.5,
-    "score": 96.7,
+    "score": 99.5,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -34021,7 +34021,7 @@
      "fights": 8,
      "kills": 32,
      "parse": 62.1,
-     "score": 54.3,
+     "score": 58.6,
      "tier": "expert",
      "hardest": "ultimate"
     }
@@ -34031,7 +34031,7 @@
     "fights": 8,
     "kills": 32,
     "parse": 62.1,
-    "score": 54.3,
+    "score": 58.6,
     "tier": "expert",
     "hardest": "ultimate"
    },
@@ -34157,7 +34157,7 @@
      "fights": 9,
      "kills": 65,
      "parse": 98.6,
-     "score": 93.9,
+     "score": 98.6,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -34165,8 +34165,8 @@
      "fights": 4,
      "kills": 31,
      "parse": 81.6,
-     "score": 71.0,
-     "tier": "expert",
+     "score": 76.7,
+     "tier": "master",
      "hardest": "legacy"
     }
    },
@@ -34175,7 +34175,7 @@
     "fights": 9,
     "kills": 65,
     "parse": 98.6,
-    "score": 93.9,
+    "score": 98.6,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -34359,7 +34359,7 @@
      "fights": 5,
      "kills": 17,
      "parse": 61.3,
-     "score": 49.3,
+     "score": 52.9,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -34430,7 +34430,7 @@
      "fights": 2,
      "kills": 6,
      "parse": 12.5,
-     "score": 7.3,
+     "score": 7.8,
      "tier": null,
      "hardest": "extreme"
     }
@@ -34500,7 +34500,7 @@
      "fights": 12,
      "kills": 39,
      "parse": 92.1,
-     "score": 82.5,
+     "score": 89.3,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -34508,7 +34508,7 @@
      "fights": 5,
      "kills": 15,
      "parse": 86.0,
-     "score": 68.0,
+     "score": 72.8,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -34516,7 +34516,7 @@
      "fights": 4,
      "kills": 9,
      "parse": 47.6,
-     "score": 35.1,
+     "score": 37.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -34524,7 +34524,7 @@
      "fights": 10,
      "kills": 38,
      "parse": 84.7,
-     "score": 75.6,
+     "score": 81.9,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -34532,7 +34532,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 67.2,
-     "score": 36.7,
+     "score": 38.9,
      "tier": null,
      "hardest": "legacy"
     }
@@ -34542,7 +34542,7 @@
     "fights": 12,
     "kills": 39,
     "parse": 92.1,
-    "score": 82.5,
+    "score": 89.3,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -34839,7 +34839,7 @@
      "fights": 2,
      "kills": 20,
      "parse": 58.6,
-     "score": 41.6,
+     "score": 45.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -34935,7 +34935,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 40.8,
-     "score": 26.3,
+     "score": 28.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -34943,7 +34943,7 @@
      "fights": 1,
      "kills": 14,
      "parse": 78.0,
-     "score": 48.0,
+     "score": 52.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -34951,7 +34951,7 @@
      "fights": 6,
      "kills": 27,
      "parse": 80.2,
-     "score": 68.6,
+     "score": 73.9,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -34959,7 +34959,7 @@
      "fights": 2,
      "kills": 9,
      "parse": 75.4,
-     "score": 47.1,
+     "score": 50.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -34969,7 +34969,7 @@
     "fights": 6,
     "kills": 27,
     "parse": 80.2,
-    "score": 68.6,
+    "score": 73.9,
     "tier": "expert",
     "hardest": "legacy"
    },
@@ -35099,7 +35099,7 @@
      "fights": 9,
      "kills": 29,
      "parse": 42.3,
-     "score": 36.5,
+     "score": 39.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -35108,14 +35108,14 @@
      "kills": 130,
      "parse": 74.8,
      "score": 74.8,
-     "tier": "master",
+     "tier": "expert",
      "hardest": "legacy"
     },
     "Scholar": {
      "fights": 6,
      "kills": 18,
      "parse": 14.3,
-     "score": 11.6,
+     "score": 12.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -35123,7 +35123,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 11.0,
-     "score": 4.2,
+     "score": 4.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -35134,7 +35134,7 @@
     "kills": 130,
     "parse": 74.8,
     "score": 74.8,
-    "tier": "master",
+    "tier": "expert",
     "hardest": "legacy"
    },
    "legacy_clears": 13,
@@ -35203,7 +35203,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 60.0,
-     "score": 23.1,
+     "score": 24.0,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -35382,7 +35382,7 @@
      "fights": 2,
      "kills": 10,
      "parse": 45.4,
-     "score": 28.9,
+     "score": 31.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -35390,7 +35390,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 24.0,
-     "score": 11.1,
+     "score": 11.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -35398,7 +35398,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 45.0,
-     "score": 19.4,
+     "score": 20.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -35524,7 +35524,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 11.7,
-     "score": 6.1,
+     "score": 6.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -35532,7 +35532,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 9.0,
-     "score": 3.5,
+     "score": 3.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -35613,7 +35613,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 92.0,
-     "score": 42.7,
+     "score": 45.3,
      "tier": null,
      "hardest": "extreme"
     },
@@ -35621,7 +35621,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 15.0,
-     "score": 7.3,
+     "score": 7.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -35629,7 +35629,7 @@
      "fights": 5,
      "kills": 27,
      "parse": 69.2,
-     "score": 59.2,
+     "score": 63.8,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -36107,7 +36107,7 @@
      "fights": 5,
      "kills": 11,
      "parse": 69.5,
-     "score": 52.7,
+     "score": 56.2,
      "tier": null,
      "hardest": "ultimate"
     }
@@ -36238,7 +36238,7 @@
      "fights": 6,
      "kills": 60,
      "parse": 94.4,
-     "score": 89.1,
+     "score": 94.4,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -36246,7 +36246,7 @@
      "fights": 8,
      "kills": 68,
      "parse": 37.3,
-     "score": 35.7,
+     "score": 37.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -36254,7 +36254,7 @@
      "fights": 4,
      "kills": 20,
      "parse": 51.4,
-     "score": 42.3,
+     "score": 45.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -36262,7 +36262,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 22.0,
-     "score": 12.0,
+     "score": 12.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -36270,7 +36270,7 @@
      "fights": 3,
      "kills": 11,
      "parse": 38.8,
-     "score": 27.2,
+     "score": 29.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -36280,7 +36280,7 @@
     "fights": 6,
     "kills": 60,
     "parse": 94.4,
-    "score": 89.1,
+    "score": 94.4,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -36406,8 +36406,8 @@
      "fights": 2,
      "kills": 32,
      "parse": 69.6,
-     "score": 53.0,
-     "tier": null,
+     "score": 57.9,
+     "tier": "expert",
      "hardest": "ultimate"
     },
     "Gunbreaker": {
@@ -36422,7 +36422,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 33.7,
-     "score": 19.4,
+     "score": 20.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -36430,7 +36430,7 @@
      "fights": 3,
      "kills": 9,
      "parse": 48.9,
-     "score": 33.3,
+     "score": 35.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -36576,7 +36576,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 11.0,
-     "score": 4.2,
+     "score": 4.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -36681,7 +36681,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 5.0,
-     "score": 1.9,
+     "score": 2.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -36887,7 +36887,7 @@
      "fights": 10,
      "kills": 91,
      "parse": 81.3,
-     "score": 80.5,
+     "score": 81.3,
      "tier": "master",
      "hardest": "legacy"
     }
@@ -36897,7 +36897,7 @@
     "fights": 10,
     "kills": 91,
     "parse": 81.3,
-    "score": 80.5,
+    "score": 81.3,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -37081,7 +37081,7 @@
      "fights": 5,
      "kills": 43,
      "parse": 87.3,
-     "score": 79.1,
+     "score": 85.8,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -37089,15 +37089,15 @@
      "fights": 7,
      "kills": 41,
      "parse": 93.3,
-     "score": 84.1,
-     "tier": "master",
+     "score": 91.1,
+     "tier": "legendary",
      "hardest": "legacy"
     },
     "Dancer": {
      "fights": 2,
      "kills": 5,
      "parse": 50.4,
-     "score": 28.6,
+     "score": 30.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -37105,7 +37105,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 29.0,
-     "score": 13.5,
+     "score": 14.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -37115,8 +37115,8 @@
     "fights": 7,
     "kills": 41,
     "parse": 93.3,
-    "score": 84.1,
-    "tier": "master",
+    "score": 91.1,
+    "tier": "legendary",
     "hardest": "legacy"
    },
    "legacy_clears": 7,
@@ -37251,7 +37251,7 @@
      "fights": 16,
      "kills": 76,
      "parse": 72.2,
-     "score": 70.0,
+     "score": 72.2,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -37259,7 +37259,7 @@
      "fights": 10,
      "kills": 55,
      "parse": 70.9,
-     "score": 66.2,
+     "score": 70.9,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -37267,7 +37267,7 @@
      "fights": 6,
      "kills": 33,
      "parse": 74.0,
-     "score": 64.9,
+     "score": 70.1,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -37275,7 +37275,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 36.5,
-     "score": 22.7,
+     "score": 24.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -37283,7 +37283,7 @@
      "fights": 4,
      "kills": 17,
      "parse": 72.5,
-     "score": 58.3,
+     "score": 62.5,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -37291,7 +37291,7 @@
      "fights": 6,
      "kills": 70,
      "parse": 94.9,
-     "score": 91.2,
+     "score": 94.9,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -37307,7 +37307,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 53.8,
-     "score": 33.5,
+     "score": 35.5,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -37315,7 +37315,7 @@
      "fights": 4,
      "kills": 20,
      "parse": 79.6,
-     "score": 65.4,
+     "score": 70.3,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -37323,7 +37323,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 21.0,
-     "score": 9.8,
+     "score": 10.3,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -37331,7 +37331,7 @@
      "fights": 7,
      "kills": 14,
      "parse": 67.0,
-     "score": 52.5,
+     "score": 56.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -37339,7 +37339,7 @@
      "fights": 5,
      "kills": 20,
      "parse": 65.2,
-     "score": 53.6,
+     "score": 57.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -37347,7 +37347,7 @@
      "fights": 5,
      "kills": 10,
      "parse": 57.7,
-     "score": 43.2,
+     "score": 46.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -37472,7 +37472,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 71.6,
-     "score": 46.2,
+     "score": 49.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -37480,7 +37480,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 62.6,
-     "score": 41.1,
+     "score": 43.7,
      "tier": null,
      "hardest": "extreme"
     },
@@ -37488,7 +37488,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 44.8,
-     "score": 25.4,
+     "score": 27.0,
      "tier": null,
      "hardest": "extreme"
     }
@@ -37804,7 +37804,7 @@
      "fights": 5,
      "kills": 53,
      "parse": 67.9,
-     "score": 63.1,
+     "score": 67.9,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -37820,7 +37820,7 @@
      "fights": 7,
      "kills": 31,
      "parse": 92.9,
-     "score": 80.8,
+     "score": 87.3,
      "tier": "master",
      "hardest": "legacy"
     }
@@ -38108,7 +38108,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 100.0,
-     "score": 46.4,
+     "score": 49.2,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -38116,7 +38116,7 @@
      "fights": 1,
      "kills": 16,
      "parse": 100.0,
-     "score": 62.9,
+     "score": 68.6,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -38124,7 +38124,7 @@
      "fights": 5,
      "kills": 78,
      "parse": 99.1,
-     "score": 96.4,
+     "score": 99.1,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -38132,7 +38132,7 @@
      "fights": 5,
      "kills": 20,
      "parse": 79.6,
-     "score": 65.4,
+     "score": 70.3,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -38142,7 +38142,7 @@
     "fights": 5,
     "kills": 78,
     "parse": 99.1,
-    "score": 96.4,
+    "score": 99.1,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -38212,7 +38212,7 @@
      "fights": 3,
      "kills": 15,
      "parse": 19.9,
-     "score": 14.6,
+     "score": 15.7,
      "tier": null,
      "hardest": "extreme"
     }
@@ -38573,7 +38573,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 52.8,
-     "score": 35.9,
+     "score": 37.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -38581,7 +38581,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 11.0,
-     "score": 4.2,
+     "score": 4.4,
      "tier": null,
      "hardest": "legacy"
     }
@@ -38935,7 +38935,7 @@
      "fights": 1,
      "kills": 4,
      "parse": 4.0,
-     "score": 2.0,
+     "score": 2.1,
      "tier": null,
      "hardest": "legacy"
     }
@@ -39118,7 +39118,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 50.1,
-     "score": 32.9,
+     "score": 35.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -39199,7 +39199,7 @@
      "fights": 10,
      "kills": 61,
      "parse": 88.9,
-     "score": 84.1,
+     "score": 88.9,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -39207,7 +39207,7 @@
      "fights": 3,
      "kills": 17,
      "parse": 61.6,
-     "score": 46.1,
+     "score": 49.7,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39215,7 +39215,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 27.7,
-     "score": 17.3,
+     "score": 18.3,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39223,7 +39223,7 @@
      "fights": 3,
      "kills": 5,
      "parse": 21.0,
-     "score": 13.1,
+     "score": 13.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39231,7 +39231,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 61.2,
-     "score": 41.6,
+     "score": 43.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39239,7 +39239,7 @@
      "fights": 6,
      "kills": 26,
      "parse": 86.3,
-     "score": 73.4,
+     "score": 79.1,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -39247,7 +39247,7 @@
      "fights": 9,
      "kills": 16,
      "parse": 63.7,
-     "score": 50.8,
+     "score": 54.5,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39255,7 +39255,7 @@
      "fights": 5,
      "kills": 12,
      "parse": 42.8,
-     "score": 32.8,
+     "score": 35.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39263,7 +39263,7 @@
      "fights": 3,
      "kills": 6,
      "parse": 35.2,
-     "score": 22.5,
+     "score": 23.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -39271,7 +39271,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 39.0,
-     "score": 16.8,
+     "score": 17.7,
      "tier": null,
      "hardest": "legacy"
     }
@@ -39349,7 +39349,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 38.0,
-     "score": 18.5,
+     "score": 19.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39357,7 +39357,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 31.0,
-     "score": 11.9,
+     "score": 12.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39365,7 +39365,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 37.0,
-     "score": 16.0,
+     "score": 16.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -39373,7 +39373,7 @@
      "fights": 4,
      "kills": 14,
      "parse": 36.9,
-     "score": 28.9,
+     "score": 30.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -39381,7 +39381,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 7.0,
-     "score": 2.7,
+     "score": 2.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -39477,7 +39477,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 68.0,
-     "score": 34.7,
+     "score": 37.2,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39485,7 +39485,7 @@
      "fights": 3,
      "kills": 4,
      "parse": 24.2,
-     "score": 14.6,
+     "score": 15.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -39493,7 +39493,7 @@
      "fights": 5,
      "kills": 28,
      "parse": 61.6,
-     "score": 52.9,
+     "score": 57.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -39501,7 +39501,7 @@
      "fights": 5,
      "kills": 77,
      "parse": 88.8,
-     "score": 86.3,
+     "score": 88.8,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -39509,7 +39509,7 @@
      "fights": 4,
      "kills": 11,
      "parse": 59.3,
-     "score": 45.0,
+     "score": 47.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -39517,7 +39517,7 @@
      "fights": 5,
      "kills": 5,
      "parse": 34.3,
-     "score": 23.3,
+     "score": 24.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -39525,7 +39525,7 @@
      "fights": 5,
      "kills": 14,
      "parse": 41.8,
-     "score": 32.8,
+     "score": 35.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -39533,7 +39533,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 47.7,
-     "score": 27.5,
+     "score": 28.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -39543,7 +39543,7 @@
     "fights": 5,
     "kills": 77,
     "parse": 88.8,
-    "score": 86.3,
+    "score": 88.8,
     "tier": "master",
     "hardest": "legacy"
    },
@@ -39675,7 +39675,7 @@
      "fights": 5,
      "kills": 69,
      "parse": 73.0,
-     "score": 70.0,
+     "score": 73.0,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -39685,7 +39685,7 @@
     "fights": 5,
     "kills": 69,
     "parse": 73.0,
-    "score": 70.0,
+    "score": 73.0,
     "tier": "expert",
     "hardest": "legacy"
    },
@@ -39816,7 +39816,7 @@
      "fights": 6,
      "kills": 31,
      "parse": 77.5,
-     "score": 67.4,
+     "score": 72.8,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -39824,7 +39824,7 @@
      "fights": 6,
      "kills": 33,
      "parse": 95.4,
-     "score": 83.7,
+     "score": 90.4,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -39832,7 +39832,7 @@
      "fights": 3,
      "kills": 12,
      "parse": 63.8,
-     "score": 45.4,
+     "score": 48.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -39840,7 +39840,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 45.0,
-     "score": 20.9,
+     "score": 22.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -39848,7 +39848,7 @@
      "fights": 5,
      "kills": 25,
      "parse": 76.0,
-     "score": 64.3,
+     "score": 69.3,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -39856,7 +39856,7 @@
      "fights": 5,
      "kills": 63,
      "parse": 93.9,
-     "score": 89.1,
+     "score": 93.9,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -39864,7 +39864,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 15.0,
-     "score": 5.8,
+     "score": 6.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -39874,7 +39874,7 @@
     "fights": 5,
     "kills": 63,
     "parse": 93.9,
-    "score": 89.1,
+    "score": 93.9,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -40011,7 +40011,7 @@
      "fights": 2,
      "kills": 6,
      "parse": 83.5,
-     "score": 48.8,
+     "score": 52.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -40019,7 +40019,7 @@
      "fights": 13,
      "kills": 79,
      "parse": 93.7,
-     "score": 91.3,
+     "score": 93.7,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -40035,7 +40035,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 41.6,
-     "score": 23.6,
+     "score": 25.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -40043,7 +40043,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 26.5,
-     "score": 12.9,
+     "score": 13.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -40193,7 +40193,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 63.0,
-     "score": 24.3,
+     "score": 25.2,
      "tier": null,
      "hardest": "savage"
     },
@@ -40201,7 +40201,7 @@
      "fights": 5,
      "kills": 14,
      "parse": 54.4,
-     "score": 42.6,
+     "score": 45.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -40467,7 +40467,7 @@
      "fights": 5,
      "kills": 14,
      "parse": 26.0,
-     "score": 20.4,
+     "score": 21.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -40475,7 +40475,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 6.0,
-     "score": 2.3,
+     "score": 2.4,
      "tier": null,
      "hardest": "savage"
     },
@@ -40483,7 +40483,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 6.0,
-     "score": 2.3,
+     "score": 2.4,
      "tier": null,
      "hardest": "extreme"
     }
@@ -40734,7 +40734,7 @@
      "fights": 4,
      "kills": 21,
      "parse": 75.1,
-     "score": 62.1,
+     "score": 66.8,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -40744,7 +40744,7 @@
     "fights": 4,
     "kills": 21,
     "parse": 75.1,
-    "score": 62.1,
+    "score": 66.8,
     "tier": "expert",
     "hardest": "legacy"
    },
@@ -40873,7 +40873,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 49.0,
-     "score": 18.9,
+     "score": 19.6,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -40889,7 +40889,7 @@
      "fights": 7,
      "kills": 24,
      "parse": 21.4,
-     "score": 18.0,
+     "score": 19.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -40897,7 +40897,7 @@
      "fights": 5,
      "kills": 30,
      "parse": 52.6,
-     "score": 45.6,
+     "score": 49.2,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -40905,7 +40905,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 56.5,
-     "score": 27.6,
+     "score": 28.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -41043,7 +41043,7 @@
      "fights": 7,
      "kills": 41,
      "parse": 73.5,
-     "score": 66.2,
+     "score": 71.8,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -41051,7 +41051,7 @@
      "fights": 8,
      "kills": 68,
      "parse": 99.1,
-     "score": 94.9,
+     "score": 99.1,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -41059,7 +41059,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 13.5,
-     "score": 6.6,
+     "score": 6.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -41067,7 +41067,7 @@
      "fights": 4,
      "kills": 24,
      "parse": 41.5,
-     "score": 34.9,
+     "score": 37.6,
      "tier": null,
      "hardest": "legacy"
     },
@@ -41075,7 +41075,7 @@
      "fights": 8,
      "kills": 21,
      "parse": 48.2,
-     "score": 39.9,
+     "score": 42.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -41083,7 +41083,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 30.0,
-     "score": 11.6,
+     "score": 12.0,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -41091,7 +41091,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 91.0,
-     "score": 35.1,
+     "score": 36.3,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -41099,7 +41099,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 26.0,
-     "score": 12.7,
+     "score": 13.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -41109,7 +41109,7 @@
     "fights": 8,
     "kills": 68,
     "parse": 99.1,
-    "score": 94.9,
+    "score": 99.1,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -41239,7 +41239,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 19.0,
-     "score": 7.3,
+     "score": 7.6,
      "tier": null,
      "hardest": "legacy"
     }
@@ -41364,7 +41364,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 7.0,
-     "score": 3.0,
+     "score": 3.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -41372,7 +41372,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 16.0,
-     "score": 8.7,
+     "score": 9.3,
      "tier": null,
      "hardest": "legacy"
     }
@@ -41504,7 +41504,7 @@
      "fights": 6,
      "kills": 69,
      "parse": 46.3,
-     "score": 44.4,
+     "score": 46.3,
      "tier": null,
      "hardest": "savage"
     }
@@ -41581,7 +41581,7 @@
      "fights": 6,
      "kills": 44,
      "parse": 90.8,
-     "score": 82.5,
+     "score": 89.5,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -41589,7 +41589,7 @@
      "fights": 14,
      "kills": 22,
      "parse": 58.2,
-     "score": 48.4,
+     "score": 52.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -41605,7 +41605,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 22.0,
-     "score": 8.5,
+     "score": 8.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -41613,7 +41613,7 @@
      "fights": 4,
      "kills": 6,
      "parse": 51.8,
-     "score": 36.1,
+     "score": 38.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -41621,7 +41621,7 @@
      "fights": 8,
      "kills": 33,
      "parse": 41.6,
-     "score": 36.5,
+     "score": 39.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -41629,7 +41629,7 @@
      "fights": 5,
      "kills": 63,
      "parse": 98.8,
-     "score": 93.8,
+     "score": 98.8,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -41637,7 +41637,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 39.0,
-     "score": 16.8,
+     "score": 17.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -41645,7 +41645,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 34.4,
-     "score": 19.5,
+     "score": 20.7,
      "tier": null,
      "hardest": "legacy"
     },
@@ -41653,7 +41653,7 @@
      "fights": 3,
      "kills": 12,
      "parse": 74.8,
-     "score": 53.2,
+     "score": 57.1,
      "tier": null,
      "hardest": "legacy"
     },
@@ -41661,7 +41661,7 @@
      "fights": 4,
      "kills": 25,
      "parse": 75.0,
-     "score": 63.5,
+     "score": 68.4,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -41669,7 +41669,7 @@
      "fights": 3,
      "kills": 7,
      "parse": 62.4,
-     "score": 40.9,
+     "score": 43.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -41944,7 +41944,7 @@
      "fights": 13,
      "kills": 47,
      "parse": 99.1,
-     "score": 90.8,
+     "score": 98.5,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -41952,7 +41952,7 @@
      "fights": 3,
      "kills": 10,
      "parse": 67.5,
-     "score": 46.7,
+     "score": 50.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -41960,7 +41960,7 @@
      "fights": 13,
      "kills": 95,
      "parse": 97.3,
-     "score": 96.8,
+     "score": 97.3,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -41968,7 +41968,7 @@
      "fights": 9,
      "kills": 32,
      "parse": 85.2,
-     "score": 74.4,
+     "score": 80.4,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -41976,7 +41976,7 @@
      "fights": 8,
      "kills": 25,
      "parse": 93.9,
-     "score": 79.5,
+     "score": 85.6,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -41984,7 +41984,7 @@
      "fights": 4,
      "kills": 19,
      "parse": 60.2,
-     "score": 49.2,
+     "score": 52.8,
      "tier": null,
      "hardest": "legacy"
     },
@@ -41992,7 +41992,7 @@
      "fights": 13,
      "kills": 82,
      "parse": 94.0,
-     "score": 92.0,
+     "score": 94.0,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -42000,7 +42000,7 @@
      "fights": 9,
      "kills": 22,
      "parse": 66.7,
-     "score": 55.5,
+     "score": 59.7,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -42008,7 +42008,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 54.0,
-     "score": 27.6,
+     "score": 29.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -42016,7 +42016,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 55.0,
-     "score": 37.4,
+     "score": 39.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -42024,19 +42024,19 @@
      "fights": 2,
      "kills": 2,
      "parse": 24.5,
-     "score": 11.9,
+     "score": 12.5,
      "tier": null,
      "hardest": "legacy"
     }
    },
    "job_top": {
-    "job": "Viper",
-    "fights": 12,
-    "kills": 134,
-    "parse": 97.7,
-    "score": 97.7,
+    "job": "Ninja",
+    "fights": 13,
+    "kills": 47,
+    "parse": 99.1,
+    "score": 98.5,
     "tier": "legendary",
-    "hardest": "savage"
+    "hardest": "ultimate"
    },
    "legacy_clears": 20,
    "mounts": 84,
@@ -42355,7 +42355,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 17.0,
-     "score": 6.5,
+     "score": 6.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -42363,7 +42363,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 10.7,
-     "score": 6.2,
+     "score": 6.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -42804,7 +42804,7 @@
      "fights": 6,
      "kills": 17,
      "parse": 75.2,
-     "score": 60.5,
+     "score": 64.9,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -42812,7 +42812,7 @@
      "fights": 5,
      "kills": 35,
      "parse": 94.6,
-     "score": 83.6,
+     "score": 90.4,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -42820,7 +42820,7 @@
      "fights": 5,
      "kills": 71,
      "parse": 92.2,
-     "score": 88.7,
+     "score": 92.2,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -42828,7 +42828,7 @@
      "fights": 3,
      "kills": 3,
      "parse": 8.7,
-     "score": 5.0,
+     "score": 5.3,
      "tier": null,
      "hardest": "legacy"
     },
@@ -42836,7 +42836,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 55.0,
-     "score": 23.7,
+     "score": 24.9,
      "tier": null,
      "hardest": "legacy"
     }
@@ -42846,7 +42846,7 @@
     "fights": 5,
     "kills": 71,
     "parse": 92.2,
-    "score": 88.7,
+    "score": 92.2,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -43032,7 +43032,7 @@
      "fights": 3,
      "kills": 10,
      "parse": 32.0,
-     "score": 22.1,
+     "score": 23.7,
      "tier": null,
      "hardest": "extreme"
     }
@@ -43157,7 +43157,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 38.0,
-     "score": 17.6,
+     "score": 18.7,
      "tier": null,
      "hardest": "legacy"
     }
@@ -43345,7 +43345,7 @@
      "fights": 5,
      "kills": 44,
      "parse": 67.6,
-     "score": 61.4,
+     "score": 66.6,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -43361,7 +43361,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 38.0,
-     "score": 14.6,
+     "score": 15.2,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -43369,7 +43369,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 16.0,
-     "score": 6.2,
+     "score": 6.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -43377,7 +43377,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 25.0,
-     "score": 9.6,
+     "score": 10.0,
      "tier": null,
      "hardest": "legacy"
     }
@@ -44395,7 +44395,7 @@
      "fights": 1,
      "kills": 5,
      "parse": 21.0,
-     "score": 10.7,
+     "score": 11.5,
      "tier": null,
      "hardest": "legacy"
     }
@@ -44520,7 +44520,7 @@
      "fights": 3,
      "kills": 35,
      "parse": 42.0,
-     "score": 34.7,
+     "score": 37.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -44653,7 +44653,7 @@
      "fights": 2,
      "kills": 5,
      "parse": 27.2,
-     "score": 15.4,
+     "score": 16.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -44661,7 +44661,7 @@
      "fights": 2,
      "kills": 11,
      "parse": 82.7,
-     "score": 53.4,
+     "score": 57.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -44669,7 +44669,7 @@
      "fights": 2,
      "kills": 24,
      "parse": 78.6,
-     "score": 57.3,
+     "score": 62.4,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -44677,7 +44677,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 48.0,
-     "score": 18.5,
+     "score": 19.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -44685,7 +44685,7 @@
      "fights": 6,
      "kills": 68,
      "parse": 92.3,
-     "score": 88.4,
+     "score": 92.3,
      "tier": "legendary",
      "hardest": "legacy"
     },
@@ -44693,7 +44693,7 @@
      "fights": 5,
      "kills": 12,
      "parse": 67.0,
-     "score": 51.4,
+     "score": 54.9,
      "tier": null,
      "hardest": "legacy"
     },
@@ -44701,7 +44701,7 @@
      "fights": 7,
      "kills": 67,
      "parse": 67.1,
-     "score": 64.1,
+     "score": 67.1,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -44709,7 +44709,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 56.0,
-     "score": 24.2,
+     "score": 25.4,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -44717,7 +44717,7 @@
      "fights": 1,
      "kills": 18,
      "parse": 90.0,
-     "score": 57.8,
+     "score": 63.1,
      "tier": "expert",
      "hardest": "legacy"
     }
@@ -44727,7 +44727,7 @@
     "fights": 6,
     "kills": 68,
     "parse": 92.3,
-    "score": 88.4,
+    "score": 92.3,
     "tier": "legendary",
     "hardest": "legacy"
    },
@@ -44852,7 +44852,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 26.2,
-     "score": 14.3,
+     "score": 15.2,
      "tier": null,
      "hardest": "legacy"
     }
@@ -44988,7 +44988,7 @@
      "fights": 4,
      "kills": 5,
      "parse": 25.7,
-     "score": 17.5,
+     "score": 18.4,
      "tier": null,
      "hardest": "legacy"
     },
@@ -44996,7 +44996,7 @@
      "fights": 8,
      "kills": 20,
      "parse": 42.8,
-     "score": 35.2,
+     "score": 37.8,
      "tier": null,
      "hardest": "legacy"
     }
@@ -45250,7 +45250,7 @@
      "fights": 9,
      "kills": 67,
      "parse": 83.6,
-     "score": 79.9,
+     "score": 83.6,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -45258,7 +45258,7 @@
      "fights": 5,
      "kills": 31,
      "parse": 68.0,
-     "score": 59.2,
+     "score": 63.9,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -45266,7 +45266,7 @@
      "fights": 5,
      "kills": 64,
      "parse": 80.1,
-     "score": 76.2,
+     "score": 80.1,
      "tier": "master",
      "hardest": "legacy"
     }
@@ -45276,7 +45276,7 @@
     "fights": 9,
     "kills": 67,
     "parse": 83.6,
-    "score": 79.9,
+    "score": 83.6,
     "tier": "master",
     "hardest": "ultimate"
    },
@@ -45479,7 +45479,7 @@
      "fights": 5,
      "kills": 15,
      "parse": 20.7,
-     "score": 16.4,
+     "score": 17.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -45487,7 +45487,7 @@
      "fights": 3,
      "kills": 33,
      "parse": 23.7,
-     "score": 19.5,
+     "score": 21.1,
      "tier": null,
      "hardest": "legacy"
     }

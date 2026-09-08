@@ -617,9 +617,9 @@
    "pvp": "expert"
   },
   "jobs": {
-   "Paladin": "legendary",
+   "Paladin": "master",
    "Summoner": "legendary",
-   "WhiteMage": "legendary",
+   "WhiteMage": "master",
    "Scholar": "expert",
    "RedMage": "expert"
   },
@@ -1023,7 +1023,7 @@
    "Samurai": "expert",
    "WhiteMage": "expert",
    "Dancer": "expert",
-   "Paladin": "expert",
+   "Paladin": "master",
    "Warrior": "expert"
   },
   "ex": [
@@ -1484,7 +1484,7 @@
   "tiers": {},
   "jobs": {
    "Ninja": "master",
-   "Viper": "master"
+   "Viper": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -1535,6 +1535,7 @@
   ],
   "tiers": {},
   "jobs": {
+   "Machinist": "expert",
    "Sage": "expert"
   },
   "ex": [
@@ -1616,7 +1617,7 @@
   "tiers": {},
   "jobs": {
    "BlackMage": "legendary",
-   "Summoner": "legendary",
+   "Summoner": "master",
    "Pictomancer": "expert",
    "RedMage": "expert"
   },
@@ -1656,7 +1657,7 @@
   "tiers": {},
   "jobs": {
    "Samurai": "master",
-   "Reaper": "master",
+   "Reaper": "expert",
    "Viper": "master",
    "Ninja": "master"
   },
@@ -2039,7 +2040,7 @@
    "pvp": "expert"
   },
   "jobs": {
-   "Gunbreaker": "master",
+   "Gunbreaker": "expert",
    "Dragoon": "master"
   },
   "ex": [
@@ -2129,7 +2130,7 @@
   "tiers": {},
   "jobs": {
    "Warrior": "legendary",
-   "Paladin": "expert"
+   "Paladin": "master"
   },
   "ex": [
    "Doomtrain",
@@ -2162,7 +2163,7 @@
   "tiers": {},
   "jobs": {
    "Gunbreaker": "master",
-   "Warrior": "legendary",
+   "Warrior": "master",
    "DarkKnight": "master"
   },
   "ex": [
@@ -2202,7 +2203,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "expert",
-   "Monk": "legendary",
+   "Monk": "master",
    "Samurai": "master",
    "Summoner": "expert"
   },
@@ -2267,7 +2268,7 @@
   ],
   "tiers": {},
   "jobs": {
-   "Machinist": "expert"
+   "Machinist": "master"
   },
   "ex": [
    "Doomtrain",
@@ -2528,7 +2529,7 @@
   "tiers": {},
   "jobs": {
    "Warrior": "master",
-   "Dancer": "legendary",
+   "Dancer": "master",
    "BlackMage": "expert",
    "Gunbreaker": "master",
    "Bard": "expert",
@@ -2596,7 +2597,7 @@
    "DarkKnight": "master",
    "Warrior": "legendary",
    "Summoner": "expert",
-   "Gunbreaker": "expert",
+   "Gunbreaker": "master",
    "Samurai": "legendary"
   },
   "ex": [
@@ -2743,13 +2744,13 @@
   "jobs": {
    "Machinist": "expert",
    "Bard": "legendary",
-   "Dancer": "master",
+   "Dancer": "legendary",
    "Scholar": "expert",
    "Astrologian": "master",
    "WhiteMage": "master",
    "Summoner": "master",
    "RedMage": "expert",
-   "Pictomancer": "master"
+   "Pictomancer": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -2894,7 +2895,7 @@
   },
   "jobs": {
    "Scholar": "master",
-   "Sage": "legendary",
+   "Sage": "master",
    "RedMage": "expert",
    "WhiteMage": "master"
   },
@@ -3179,7 +3180,7 @@
    "explorer": "master"
   },
   "jobs": {
-   "Warrior": "master"
+   "Warrior": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -3406,7 +3407,7 @@
   "jobs": {
    "Samurai": "legendary",
    "Monk": "legendary",
-   "DarkKnight": "master",
+   "DarkKnight": "legendary",
    "Gunbreaker": "expert",
    "Viper": "expert",
    "Reaper": "expert",
@@ -3653,7 +3654,7 @@
    "explorer": "master"
   },
   "jobs": {
-   "Samurai": "master"
+   "Samurai": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -3788,11 +3789,11 @@
   "jobs": {
    "Viper": "legendary",
    "Summoner": "legendary",
-   "RedMage": "expert",
+   "RedMage": "master",
    "DarkKnight": "master",
    "Gunbreaker": "expert",
    "Reaper": "legendary",
-   "Machinist": "master",
+   "Machinist": "legendary",
    "Bard": "expert",
    "Dancer": "expert"
   },
@@ -3875,11 +3876,11 @@
   "jobs": {
    "BlackMage": "expert",
    "Paladin": "legendary",
-   "Gunbreaker": "master",
+   "Gunbreaker": "legendary",
    "Samurai": "legendary",
    "Machinist": "expert",
    "Warrior": "expert",
-   "DarkKnight": "expert",
+   "DarkKnight": "master",
    "Monk": "legendary"
   },
   "ex": [
@@ -3954,7 +3955,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Warrior": "master",
+   "Warrior": "expert",
    "Gunbreaker": "expert"
   },
   "ex": [
@@ -3989,7 +3990,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "legendary",
-   "Samurai": "legendary",
+   "Samurai": "master",
    "Paladin": "legendary",
    "DarkKnight": "legendary",
    "Warrior": "legendary",
@@ -4288,7 +4289,7 @@
    "pvp": "expert"
   },
   "jobs": {
-   "Monk": "legendary",
+   "Monk": "master",
    "Warrior": "legendary",
    "Gunbreaker": "master",
    "Paladin": "expert",
@@ -4624,8 +4625,7 @@
   "tiers": {},
   "jobs": {
    "Paladin": "master",
-   "Machinist": "expert",
-   "Summoner": "expert"
+   "Machinist": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -7402,7 +7402,7 @@
    "Viper": "legendary",
    "Reaper": "legendary",
    "Gunbreaker": "master",
-   "DarkKnight": "master"
+   "DarkKnight": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -7463,8 +7463,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "legendary",
-   "Dancer": "expert"
+   "WhiteMage": "master"
   },
   "ex": [
    "Doomtrain",
@@ -9181,7 +9180,7 @@
   "tiers": {},
   "jobs": {
    "Ninja": "master",
-   "Paladin": "master",
+   "Paladin": "legendary",
    "Monk": "master"
   },
   "ex": [
@@ -9953,7 +9952,7 @@
   "jobs": {
    "DarkKnight": "expert",
    "Samurai": "legendary",
-   "Sage": "master",
+   "Sage": "legendary",
    "Astrologian": "master"
   },
   "ex": [
@@ -10145,7 +10144,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Summoner": "legendary"
+   "Summoner": "master"
   },
   "ex": [],
   "ults": [
@@ -10464,7 +10463,7 @@
   "jobs": {
    "Gunbreaker": "legendary",
    "DarkKnight": "legendary",
-   "Warrior": "master"
+   "Warrior": "legendary"
   },
   "ex": [
    "Valigarmanda",
@@ -10788,7 +10787,7 @@
   "jobs": {
    "Machinist": "legendary",
    "BlackMage": "master",
-   "Dragoon": "legendary",
+   "Dragoon": "master",
    "Bard": "master",
    "Summoner": "master",
    "Samurai": "master",
@@ -11025,7 +11024,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "legendary",
-   "Samurai": "master"
+   "Samurai": "expert"
   },
   "ex": [
    "Queen Eternal",
@@ -11266,7 +11265,7 @@
   "tiers": {},
   "jobs": {
    "Scholar": "expert",
-   "Warrior": "legendary",
+   "Warrior": "master",
    "Gunbreaker": "expert"
   },
   "ex": [],
@@ -11900,7 +11899,7 @@
   "tiers": {},
   "jobs": {
    "Sage": "expert",
-   "Scholar": "master"
+   "Scholar": "expert"
   },
   "ex": [
    "Queen Eternal",
@@ -13119,7 +13118,7 @@
   "tiers": {},
   "jobs": {
    "Reaper": "legendary",
-   "Dragoon": "expert"
+   "Dragoon": "master"
   },
   "ex": [],
   "ults": [
@@ -13430,7 +13429,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "master"
+   "WhiteMage": "expert"
   },
   "ex": [],
   "ults": [],
@@ -13857,6 +13856,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Summoner": "expert",
    "Gunbreaker": "master"
   },
   "ex": [],
@@ -14084,7 +14084,7 @@
   "tiers": {},
   "jobs": {
    "Astrologian": "master",
-   "WhiteMage": "master"
+   "WhiteMage": "legendary"
   },
   "ex": [],
   "ults": [

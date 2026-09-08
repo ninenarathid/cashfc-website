@@ -1134,15 +1134,20 @@ def run_fflogs(members: list[dict], raids: dict, full_history: bool,
 # whoever clears the bar earns it. The board only shows Expert and above — the point
 # is finding somebody who could teach a newcomer, and below that the answer is no.
 #
-# Raised from 80/65/50 when the score stopped being an average of every fight. The
-# statistic got more generous, so the bars had to rise with it or every grade would
-# have quietly inflated: these are the cuts that leave the same number of people
-# holding each grade as before, measured over all 1,061 member-job records on file.
-# What changes is which people, not how many.
+# Raised twice, both times for the same reason and by the same method: whenever the
+# statistic underneath gets more generous the bars have to rise with it, or the
+# grades inflate without anybody deciding they should. Each set is the cut that
+# leaves the same number of people holding each grade as the set before it, read
+# over every member-job record on file — 1,061 the first time, 1,106 now. What a
+# rule change is allowed to alter is which people hold a grade, never how many.
+#
+#   80 / 65 / 50   the original, on a flat average of every fight
+#   88 / 72 / 54   when the grade moved to the better half of the record
+#   91.1 / 76 / 57.9   when depth stopped rewarding the grind (see DEPTH_AT)
 JOB_TIERS: list[tuple[str, float]] = [
-    ("legendary", 88.0),
-    ("master", 72.0),
-    ("expert", 54.0),
+    ("legendary", 91.1),
+    ("master", 76.0),
+    ("expert", 57.9),
 ]
 
 # How much of somebody's record the grade is read from, best first.
@@ -1162,6 +1167,27 @@ JOB_TIERS: list[tuple[str, float]] = [
 # not a grade, and below three fights the whole record is used anyway.
 GRADE_FROM_BEST = 0.5
 GRADE_MIN_FIGHTS = 3
+
+# How many kills it takes before the record is believed, as a log10 divisor:
+# 10**1.7 - 1, or about fifty.
+#
+# This measures confidence, not effort. A 96 parse over three kills might be three
+# good nights or one lucky one, and the multiplier exists to say we do not know
+# yet. Fifty kills of the same fight settles that question — there is no reading of
+# the statistics under which the next fifty tell us anything more about how
+# somebody plays.
+#
+# It used to be a hundred, which quietly turned a confidence measure into a grind
+# reward: a Paladin parsing 97.7 over 39 kills was held below a Warrior parsing
+# 89.3 over 328, and the only difference between them was hours. Only one record
+# in ten ever reached the old ceiling, so for most of the FC the grade was being
+# scaled down by a number that had stopped being about them.
+#
+# Moving it is what the bars above were re-cut for. 47 records change grade, 24 up
+# and 23 down, and the ones that give way are long grinds with ordinary parses —
+# which is the trade this is: the grade answers "who could teach me this job", and
+# that is a question about the parse.
+DEPTH_AT = 1.7
 
 # Content is not equally hard, and a parse percentile is only ever measured against
 # the people doing that same content — so 99 in an Ultimate is measured against a far
@@ -1402,7 +1428,7 @@ def score_jobs(entry: dict) -> dict[str, dict]:
         # about them, not about the half of it the grade is read from.
         hardest = max((k for _, _, k in r["parses"]),
                       key=lambda k: CONTENT_WEIGHT[k], default=None)
-        depth = min(1.0, math.log10(1 + r["kills"]) / 2.0)    # ~100 kills tops it out
+        depth = min(1.0, math.log10(1 + r["kills"]) / DEPTH_AT)
         breadth = min(1.0, r["fights"] / 4.0)                 # four fights tops it out
         experience = 0.7 * depth + 0.3 * breadth
         # Floor of 0.25: a strong parse on a thin record still counts for something,
