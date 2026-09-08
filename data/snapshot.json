@@ -785,7 +785,7 @@
   "mounts": 159,
   "minions": 426,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -801,7 +801,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-08"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -3601,7 +3601,7 @@
   "mounts": 62,
   "minions": 129,
   "rare": 38,
-  "level": 40,
+  "level": 41,
   "cc": [
    true,
    true,
@@ -4646,7 +4646,7 @@
   "mounts": 205,
   "minions": 416,
   "rare": 307,
-  "level": 19,
+  "level": 36,
   "cc": [
    false,
    false,
@@ -4786,7 +4786,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 97,
+  "level": 98,
   "cc": [
    true,
    true,
@@ -6665,7 +6665,7 @@
   "mounts": 67,
   "minions": 95,
   "rare": 31,
-  "level": 55,
+  "level": 15,
   "cc": [
    false,
    false,
@@ -7003,7 +7003,7 @@
   "mounts": 131,
   "minions": 270,
   "rare": 113,
-  "level": 32,
+  "level": 37,
   "cc": [
    false,
    false,
@@ -7160,7 +7160,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 26,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8345,7 +8345,7 @@
   "mounts": 163,
   "minions": 367,
   "rare": 47,
-  "level": 3,
+  "level": 19,
   "cc": [
    false,
    false,

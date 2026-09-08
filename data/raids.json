@@ -6744,7 +6744,7 @@
     "state": "learning",
     "pct": 61.33,
     "phase": 4,
-    "pulls": 122,
+    "pulls": 98,
     "last": "2026-09-03",
     "last_ts": 1788454524
    }
@@ -8519,11 +8519,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.43,
+    "pct": 35.77,
     "phase": 4,
-    "pulls": 103,
-    "last": "2026-09-05",
-    "last_ts": 1788627600
+    "pulls": 108,
+    "last": "2026-09-07",
+    "last_ts": 1788798548
    }
   ]
  },
@@ -13515,7 +13515,7 @@
     "state": "learning",
     "pct": 61.33,
     "phase": 4,
-    "pulls": 122,
+    "pulls": 98,
     "last": "2026-09-03",
     "last_ts": 1788454524
    }
@@ -21282,11 +21282,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 67.61,
+    "pct": 61.9,
     "phase": 3,
-    "pulls": 111,
+    "pulls": 129,
     "last": "2026-09-07",
-    "last_ts": 1788790814
+    "last_ts": 1788800450
    }
   ]
  },
@@ -22524,11 +22524,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.43,
+    "pct": 35.77,
     "phase": 4,
-    "pulls": 103,
-    "last": "2026-09-05",
-    "last_ts": 1788627600
+    "pulls": 108,
+    "last": "2026-09-07",
+    "last_ts": 1788798548
    }
   ]
  },
@@ -25687,11 +25687,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.43,
+    "pct": 35.77,
     "phase": 4,
-    "pulls": 103,
-    "last": "2026-09-05",
-    "last_ts": 1788627600
+    "pulls": 108,
+    "last": "2026-09-07",
+    "last_ts": 1788798548
    }
   ]
  },
@@ -26252,11 +26252,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 67.61,
+    "pct": 61.9,
     "phase": 3,
-    "pulls": 132,
+    "pulls": 150,
     "last": "2026-09-07",
-    "last_ts": 1788790814
+    "last_ts": 1788800450
    }
   ]
  },
@@ -28105,11 +28105,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.43,
+    "pct": 35.77,
     "phase": 4,
-    "pulls": 103,
-    "last": "2026-09-05",
-    "last_ts": 1788627600
+    "pulls": 108,
+    "last": "2026-09-07",
+    "last_ts": 1788798548
    }
   ]
  },
@@ -33706,26 +33706,15 @@
   "_status": "ok",
   "progress": [
    {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 18,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
-   },
-   {
     "encounter_id": 104,
     "name": "Lindwurm",
     "kind": "savage",
     "state": "learning",
-    "pct": 31.82,
+    "pct": 27.45,
     "phase": 0,
-    "pulls": 8,
+    "pulls": 35,
     "last": "2026-09-07",
-    "last_ts": 1788779028
+    "last_ts": 1788796654
    }
   ]
  },
@@ -35062,11 +35051,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.43,
+    "pct": 35.77,
     "phase": 4,
-    "pulls": 103,
-    "last": "2026-09-05",
-    "last_ts": 1788627600
+    "pulls": 108,
+    "last": "2026-09-07",
+    "last_ts": 1788798548
    }
   ]
  },
@@ -36541,11 +36530,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.43,
+    "pct": 35.77,
     "phase": 4,
-    "pulls": 103,
-    "last": "2026-09-05",
-    "last_ts": 1788627600
+    "pulls": 108,
+    "last": "2026-09-07",
+    "last_ts": 1788798548
    }
   ]
  },
@@ -48936,9 +48925,20 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 59,
+    "pulls": 48,
     "last": "2026-09-04",
     "last_ts": 1788539850
+   },
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 48.99,
+    "phase": 0,
+    "pulls": 13,
+    "last": "2026-09-07",
+    "last_ts": 1788791892
    }
   ]
  },
@@ -50084,9 +50084,9 @@
     "state": "learning",
     "pct": 54.24,
     "phase": 5,
-    "pulls": 62,
+    "pulls": 75,
     "last": "2026-09-07",
-    "last_ts": 1788790551
+    "last_ts": 1788797904
    }
   ]
  },
@@ -57073,6 +57073,17 @@
     "pulls": 56,
     "last": "2026-08-30",
     "last_ts": 1788086407
+   },
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 48.99,
+    "phase": 0,
+    "pulls": 13,
+    "last": "2026-09-07",
+    "last_ts": 1788791892
    }
   ]
  },
@@ -62482,6 +62493,17 @@
     "pulls": 56,
     "last": "2026-08-30",
     "last_ts": 1788086407
+   },
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 48.99,
+    "phase": 0,
+    "pulls": 13,
+    "last": "2026-09-07",
+    "last_ts": 1788791892
    }
   ]
  },
