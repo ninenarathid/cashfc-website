@@ -154,6 +154,44 @@ def splice_achievements(achv: dict, cid: int, ids: list[int],
     return added
 
 
+def splice_collections(coll: dict, cid: int, one: dict,
+                       known: dict[str, dict[int, dict]] | None) -> int:
+    """Put one character's rarest mounts and minions into the shared file.
+
+    The same shape as splice_achievements and for the same reason: a guest is
+    not on the roster, so the nightly pass that builds this file walks straight
+    past them. Their achievements were spliced in here from the beginning and
+    their collections were not — run_collect works both out on the way past and
+    only one of them was being kept, so every guest's shelf showed a hundred
+    rare achievements and no mounts at all.
+
+    Added to, never pruned. The catalogue is shared, and an entry this character
+    has stopped holding may still be the only copy another one points at.
+    """
+    if not known:
+        return 0
+    per = coll.setdefault("members", {})
+    catalog = coll.setdefault("catalog", {})
+    mine, added = {}, 0
+    for kind in P.COLLECTIONS:
+        ids = one.get(f"_rare_{kind}") or []
+        if not ids:
+            continue
+        mine[kind] = list(ids)
+        slot = catalog.setdefault(kind, {})
+        for i in ids:
+            if str(i) in slot:
+                continue
+            info = (known.get(kind) or {}).get(i)
+            if not info:
+                continue
+            slot[str(i)] = info
+            added += 1
+    if mine:
+        per[str(cid)] = {**(per.get(str(cid)) or {}), **mine}
+    return added
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--delay", type=float, default=4.0,
@@ -192,6 +230,7 @@ def main() -> int:
     extra = P.load_json("extra.json", {})
     cache = extra.setdefault("collect", {})
     achv = P.load_json("achv.json", {"catalog": {}, "members": {}})
+    coll = P.load_json("collections.json", {"catalog": {}, "members": {}})
 
     added = fetched = still_empty = failed = 0
     touched_guest = False
@@ -259,6 +298,7 @@ def main() -> int:
                 f"{one.get('rare_achv')} rare achievements")
 
         splice_achievements(achv, cid, one.pop("_rare_ids", None) or [], rarity)
+        splice_collections(coll, cid, one, collections)
 
         if kind == "guest":
             # The one file that will ever hold this. A guest is not on the
@@ -281,6 +321,7 @@ def main() -> int:
 
     P.save_json("extra.json", extra)
     P.save_json("achv.json", achv)
+    P.save_json("collections.json", coll)
     if touched_guest:
         P.save_json("guests.json", guest_file)
 
