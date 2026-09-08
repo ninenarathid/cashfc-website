@@ -24,6 +24,8 @@ interface Note {
   read_at: string | null;
   /** A question that has been answered. It stays; its buttons do not. */
   answered_at?: string | null;
+  /** Taken off the bell by its reader. Never off the archive. */
+  cleared_at?: string | null;
 }
 
 /**
@@ -126,6 +128,90 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
 const POLL_MS = 90_000;
 
 /**
+ * The count, in the browser tab.
+ *
+ * The red dot on the bell only works on somebody looking at the site. Most of
+ * the time this tab is one of fifteen behind a game, and the tab strip shows a
+ * favicon and about twelve characters of title — so the count goes at the very
+ * front, where those twelve characters are, in the shape mail and chat have
+ * used for twenty years.
+ *
+ * It does NOT set document.title, which is the obvious way and does not work
+ * here. Two earlier attempts, and what each ran into:
+ *
+ *   Writing it once, on mount. Next rewrites the title on every navigation from
+ *   the metadata of the page being opened, so the count survived until the
+ *   first click and then was gone for good.
+ *
+ *   Writing it back whenever the title changed. The <title> node is React's,
+ *   and React puts its own text back the moment anything else edits it — the
+ *   two then take turns about a hundred and eighty times a second, and the tab
+ *   flickers between the two spellings. /members renders six title elements;
+ *   `document.title` writes the first, React re-renders it, and round it goes.
+ *
+ * So this does not touch React's titles at all. It adds one of its own at the
+ * front of the head and keeps it there. The document's title is the text of the
+ * first <title> in tree order, so ours is the one the tab shows, React goes on
+ * managing its own underneath, and neither has to know about the other. The
+ * base text is read back out of React's title, so the count rides on whatever
+ * the current page calls itself without ever having to be told a page changed.
+ */
+function useTitleCount(n: number) {
+  useEffect(() => {
+    if (n <= 0) return;
+    const head = document.head;
+    const mine = document.createElement("title");
+    // Findable in the inspector, so the next person to wonder why there are two
+    // has the answer in the element itself.
+    mine.dataset.unread = String(n);
+
+    /**
+     * What the page calls itself: the first title that is not ours.
+     *
+     * Searched across the whole document rather than the head, because React
+     * does not always put it in the head — on the front page it renders the
+     * title in place and hoists it later, and a search of the head alone came
+     * back empty there and made the tab read "(4)" with no name after it.
+     */
+    const base = () => {
+      for (const el of document.querySelectorAll("title")) {
+        if (el !== mine) return el.textContent ?? "";
+      }
+      return "";
+    };
+
+    let queued = 0;
+    const settle = () => {
+      queued = 0;
+      const name = base();
+      // Nothing to count against yet. Stay out of the document rather than
+      // show a number on its own, and try again on the next thing that moves.
+      if (!name) { mine.remove(); return; }
+      // First in the document, or it is not the one being read: the title is
+      // the text of the first <title> in tree order, and the head comes before
+      // the body.
+      if (head.firstChild !== mine) head.insertBefore(mine, head.firstChild);
+      const want = `(${n}) ${name}`;
+      if (mine.textContent !== want) mine.textContent = want;
+    };
+    settle();
+
+    // Coalesced, and idempotent: once it is right, running it again writes
+    // nothing, so this cannot set off the loop it is watching for.
+    const watch = new MutationObserver(() => {
+      if (!queued) queued = requestAnimationFrame(settle);
+    });
+    watch.observe(head, { childList: true, subtree: true, characterData: true });
+
+    return () => {
+      watch.disconnect();
+      if (queued) cancelAnimationFrame(queued);
+      mine.remove();        // and the tab is the page's own title again
+    };
+  }, [n]);
+}
+
+/**
  * Today, as the kudos table reckons it.
  *
  * A popoto is one per person per day and the database enforces that on a `day`
@@ -217,6 +303,8 @@ export default function NotificationBell() {
    * somebody looking for one thing from three weeks ago should not wait for
    * three weeks of everything first.
    */
+  /** How many are cleared, which is only ever used to decide what to offer. */
+  const [hidden, setHidden] = useState(0);
   const [past, setPast] = useState<Note[] | null>(null);
   const [morePast, setMorePast] = useState(true);
   const [loadingPast, setLoadingPast] = useState(false);
@@ -229,10 +317,22 @@ export default function NotificationBell() {
    * row needs in order to be drawn is the same, and had it been written twice
    * the second list would have been the one missing a face.
    */
-  const page = useCallback(async (from: number, take: number): Promise<Note[]> => {
+  const page = useCallback(async (
+    from: number, take: number,
+    /**
+     * Whether cleared ones count.
+     *
+     * The only difference between the bell and the record. The bell is a list
+     * of things still wanting attention, so clearing takes them off it; the
+     * archive is what happened, and nothing is ever off that.
+     */
+    { withCleared = false }: { withCleared?: boolean } = {},
+  ): Promise<Note[]> => {
     if (!supabase) return [];
-    const { data } = await supabase.from("notifications")
-      .select("id, kind, actor, actor_name, post_id, body, created_at, read_at, answered_at")
+    let q = supabase.from("notifications")
+      .select("id, kind, actor, actor_name, post_id, body, created_at, read_at, answered_at, cleared_at");
+    if (!withCleared) q = q.is("cleared_at", null);
+    const { data } = await q
       .order("created_at", { ascending: false })
       .range(from, from + take - 1);
     const rows = (data as Note[]) ?? [];
@@ -308,6 +408,15 @@ export default function NotificationBell() {
 
     const rows = await page(0, SHOW);
     setNotes(rows);
+
+    // Counted rather than fetched. The archive link only appears when there is
+    // something behind the panel, and after a clear the panel is empty — so
+    // without this the button that leads to the cleared ones would be hidden by
+    // the act of clearing them, which is the one way to make a soft clear feel
+    // exactly like a delete.
+    const { count } = await supabase.from("notifications")
+      .select("id", { count: "exact", head: true }).not("cleared_at", "is", null);
+    setHidden(count ?? 0);
   }, [supabase, page]);
 
 
@@ -392,6 +501,7 @@ export default function NotificationBell() {
   // Clicking anywhere else puts it away, which is what everybody expects of a
   // panel hanging off a button.
   const unread = notes.filter((n) => !n.read_at).length;
+  useTitleCount(unread);
 
   async function reveal() {
     const next = !open;
@@ -425,11 +535,43 @@ export default function NotificationBell() {
     void load();
   }
 
+  /**
+   * Take everything off the bell, and keep every word of it.
+   *
+   * The button that used to be here deleted, and deleting is how nine real
+   * notifications were lost with no way to get them back. This one writes a
+   * date into a column: the panel stops listing them, the archive goes on
+   * listing them, and the rows themselves are untouched.
+   *
+   * Read as well as cleared. Clearing is somebody saying they have dealt with
+   * the lot, and leaving one of them counted as unread afterwards would leave a
+   * red dot on a bell with nothing behind it.
+   *
+   * The screen empties first. The list is already on this machine and the round
+   * trip only writes it down, so waiting for the server before believing the
+   * button was pressed buys nothing.
+   */
+  async function clearAll() {
+    if (!supabase || !notes.length) return;
+    const gone = notes.length;
+    setNotes([]);
+    setHidden((v) => v + gone);
+    const now = new Date().toISOString();
+    // No recipient filter: the policy is the filter, and naming the column
+    // twice is one more place for the two to disagree.
+    const { error } = await supabase.from("notifications")
+      .update({ cleared_at: now, read_at: now }).is("cleared_at", null);
+    // Put them back rather than leave the panel lying about what the server
+    // holds. Nothing was destroyed either way, so this is only the screen
+    // catching up with a refusal.
+    if (error) void load();
+  }
+
   async function openPast() {
     setOpen(false);
     if (past) return;
     setLoadingPast(true);
-    const first = await page(0, PAGE);
+    const first = await page(0, PAGE, { withCleared: true });
     setPast(first);
     setMorePast(first.length === PAGE);
     setLoadingPast(false);
@@ -438,7 +580,7 @@ export default function NotificationBell() {
   async function morePages() {
     if (loadingPast || !morePast || !past) return;
     setLoadingPast(true);
-    const next = await page(past.length, PAGE);
+    const next = await page(past.length, PAGE, { withCleared: true });
     setPast([...past, ...next]);
     setMorePast(next.length === PAGE);
     setLoadingPast(false);
@@ -671,13 +813,21 @@ export default function NotificationBell() {
             <span className="font-display text-[13.5px] font-semibold">
               {t("notif.title")}
             </span>
-
+            {notes.length > 0 && (
+              // Quiet, and it says on hover that it does not delete — the last
+              // button in this corner did, so the promise is worth making
+              // before the press rather than after.
+              <button onClick={clearAll} title={t("notif.clearTitle")}
+                      className="rounded-md px-2 py-0.5 text-[12px] text-muted transition-colors hover:bg-card hover:text-ink">
+                {t("notif.clear")}
+              </button>
+            )}
           </div>
 
           <div className="max-h-[min(46rem,72vh)] overflow-y-auto">
             {notes.length === 0 && (
               <p className="px-3.5 py-6 text-center text-[12.5px] text-muted">
-                {t("notif.empty")}
+                {hidden > 0 ? t("notif.emptyCleared") : t("notif.empty")}
               </p>
             )}
 
@@ -705,7 +855,7 @@ export default function NotificationBell() {
               for somebody the FC talks to and a year for somebody it does not,
               so the offer is made by whether the page came back full rather
               than by a guess at how long that is. */}
-          {notes.length >= SHOW && (
+          {(notes.length >= SHOW || hidden > 0) && (
             <button onClick={openPast}
                     className="w-full border-t border-line px-3.5 py-2.5 text-center text-[12.5px] text-accent hover:bg-card">
               {t("notif.seeAll")}

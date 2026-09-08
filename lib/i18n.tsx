@@ -396,6 +396,19 @@ const DICT = {
     en: "Send one back to all {n}",
     th: "ส่ง popoto คืนทั้งหมด ({n})",
   },
+  "notif.clear": { en: "Clear", th: "เคลียร์" },
+  "notif.clearTitle": {
+    en: "Clear these from the bell. Nothing is deleted — they stay in "
+        + "all notifications.",
+    th: "เอาออกจากกระดิ่ง ไม่ได้ลบทิ้ง ยังดูได้ในการแจ้งเตือนทั้งหมด",
+  },
+  // The empty panel says which kind of empty it is. "Nothing new" after
+  // pressing Clear reads as though the button threw the lot away, and the
+  // whole point of this one is that it did not.
+  "notif.emptyCleared": {
+    en: "All clear. Everything is still below, in all notifications.",
+    th: "เคลียร์หมดแล้ว ทุกอย่างยังอยู่ครบในการแจ้งเตือนทั้งหมด ด้านล่าง",
+  },
   "notif.seeAll": {
     en: "Everything before this",
     th: "ดูการแจ้งเตือนทั้งหมด",
