@@ -487,14 +487,21 @@ export default function MemberView({
                   neither. Joined at the border, they read as the one thing they
                   are. */}
               <span className="inline-flex items-stretch">
+                {/* The words are the page's own ink, not the member's colour.
+                    The frame is theirs — border and hover — but the label has
+                    to be read, and an accent is a colour somebody chose for a
+                    banner rather than one chosen to carry text: at the black
+                    end of the wheel this button was writing in the ground it
+                    sits on. Its other half already used ink, so the pair now
+                    matches as well as being legible. */}
                 <button onClick={sendKudos}
-                        className={`border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-accent hover:bg-accent/15 ${
+                        className={`border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${
                           kudos ? "rounded-l-md" : "rounded-md"}`}>
                   🥔 Send popoto
                 </button>
                 {!!kudos && (
                   <PopotoGivers kind="profile" id={m.id} count={kudos} className="-ml-px">
-                    <span className="rounded-r-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-accent">
+                    <span className="rounded-r-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink">
                       {kudos}
                     </span>
                   </PopotoGivers>
@@ -533,7 +540,10 @@ export default function MemberView({
                 </Link>
               )}
             </div>
-            {kudosMsg && <div className="mt-1.5 text-[12.5px] text-accent">{kudosMsg}</div>}
+            {/* What the button said back, in the button's colour — it is the
+                other half of that press, and it disappears the same way if the
+                accent is dark. */}
+            {kudosMsg && <div className="mt-1.5 text-[12.5px] text-ink/75">{kudosMsg}</div>}
           </div>
         </div>
       </section>
