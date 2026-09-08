@@ -66114,14 +66114,14 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 80,
-    "kills": 2,
+    "best": 89,
+    "kills": 4,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
      "Scholar": {
-      "kills": 2,
-      "best": 80
+      "kills": 4,
+      "best": 89
      }
     }
    },
