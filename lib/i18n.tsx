@@ -386,6 +386,16 @@ const DICT = {
   "gallery.tagHideAll": { en: "Hide the tags", th: "ซ่อนแท็ก" },
   "notif.title": { en: "Notifications", th: "การแจ้งเตือน" },
   "notif.empty": { en: "Nothing new.", th: "ยังไม่มีอะไรใหม่" },
+  "notif.back": { en: "Send one back", th: "ส่งคืนบ้าง" },
+  "notif.backSending": { en: "Sending…", th: "กำลังส่ง…" },
+  "notif.backDone": {
+    en: "Sent back today",
+    th: "วันนี้ส่ง popoto ให้แล้ว",
+  },
+  "notif.backAll": {
+    en: "Send one back to all {n}",
+    th: "ส่ง popoto คืนทั้งหมด ({n})",
+  },
   "notif.seeAll": {
     en: "Everything before this",
     th: "ดูการแจ้งเตือนทั้งหมด",

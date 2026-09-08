@@ -126,6 +126,16 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
 const POLL_MS = 90_000;
 
 /**
+ * Today, as the kudos table reckons it.
+ *
+ * A popoto is one per person per day and the database enforces that on a `day`
+ * column defaulting to current_date, which on this server is UTC. toISOString
+ * is UTC too, so these are the same day boundary rather than two that agree
+ * most of the time and disagree for seven hours every night.
+ */
+const todayUtc = () => new Date().toISOString().slice(0, 10);
+
+/**
  * What happened while you were away.
  *
  * A tag is the reason this exists. Somebody putting your name on a picture is a
@@ -187,6 +197,16 @@ export default function NotificationBell() {
    * seen the moment they open a page is worse than announcing none of them.
    */
   const seen = useRef<Set<number> | null>(null);
+  /**
+   * Characters this account has already given a popoto to today.
+   *
+   * Read once when the bell loads rather than asked per button: the answer is
+   * the same for every row and the panel would otherwise open with a small
+   * query for each of them.
+   */
+  const [given, setGiven] = useState<Set<number>>(new Set());
+  const [sending, setSending] = useState<Set<number>>(new Set());
+  const [backErr, setBackErr] = useState<string | null>(null);
   /**
    * Everything, for when the twenty in the panel are not far enough back.
    *
@@ -278,6 +298,13 @@ export default function NotificationBell() {
       character_id?: number | null; character_verified_at?: string | null;
     } | null;
     setCharacter(p?.character_verified_at ? p.character_id ?? null : null);
+
+    // Who has already had one from me today, so the button can say so before it
+    // is pressed rather than after.
+    const { data: mine } = await supabase.from("kudos")
+      .select("receiver_character_id").eq("sender_id", uid).eq("day", todayUtc());
+    setGiven(new Set(((mine ?? []) as { receiver_character_id: number }[])
+      .map((k) => k.receiver_character_id)));
 
     const rows = await page(0, SHOW);
     setNotes(rows);
@@ -417,6 +444,46 @@ export default function NotificationBell() {
     setLoadingPast(false);
   }
 
+  /**
+   * A popoto back to somebody who sent you one, from the notification itself.
+   *
+   * Only for one that arrived today. A popoto is one per person per day, so
+   * yesterday's notification is not something that can be answered any more —
+   * the reply would be a new gesture on a new day rather than a reply, and a
+   * button that says "send one back" about a Tuesday is a button about nothing.
+   *
+   * The database has the last word on the one-a-day rule. If it says the row
+   * already exists, that is not an error to report: it means the answer is
+   * already yes, so the button simply becomes the sentence saying so.
+   */
+  async function sendBack(characterId: number) {
+    if (!supabase || !me || sending.has(characterId)) return;
+    setBackErr(null);
+    setSending((v) => new Set(v).add(characterId));
+    const { error } = await supabase.from("kudos")
+      .insert({ sender_id: me, receiver_character_id: characterId });
+    setSending((v) => { const n = new Set(v); n.delete(characterId); return n; });
+    if (error && error.code !== "23505") {
+      setBackErr(error.message);
+      return;
+    }
+    setGiven((v) => new Set(v).add(characterId));
+  }
+
+  /** Everybody in the panel who sent one today and has not had one back. */
+  const owed = (() => {
+    const out = new Map<number, string>();
+    if (character == null) return out;   // nothing to send one with
+    for (const n of notes) {
+      if (n.kind !== "popoto") continue;
+      if (n.created_at.slice(0, 10) !== todayUtc()) continue;
+      const cid = n.actor ? people[n.actor]?.characterId ?? null : null;
+      if (cid == null || cid === character || given.has(cid)) continue;
+      out.set(cid, n.actor_name ?? "—");
+    }
+    return out;
+  })();
+
   /** Going somewhere puts away whichever list you were reading. */
   const dismiss = () => { setOpen(false); setPast(null); };
 
@@ -472,6 +539,15 @@ export default function NotificationBell() {
     // the thing somebody who has just agreed to be named in one is most likely
     // to want next.
     const asking = n.kind === "tag" && character != null && !n.answered_at;
+    // A popoto that arrived today, from somebody with a page, and not from
+    // yourself: the only case where sending one back is a reply rather than a
+    // new gesture on a different day.
+    const backTo = n.kind === "popoto"
+      && character != null
+      && n.created_at.slice(0, 10) === todayUtc()
+      && actor?.characterId != null
+      && actor.characterId !== character
+      ? actor.characterId : null;
 
     return (
       <div key={n.id}
@@ -508,6 +584,25 @@ export default function NotificationBell() {
               {n.body}
             </p>
           )}
+          {backTo != null && (
+            <div className="mt-1.5">
+              {given.has(backTo) ? (
+                // Not a disabled button. There is nothing left to press, and a
+                // greyed-out control invites a click that will never do
+                // anything — a sentence says the same thing and does not lie.
+                <span className="inline-flex items-center gap-1.5 text-[12px] text-jade">
+                  🥔 {t("notif.backDone")}
+                </span>
+              ) : (
+                <button onClick={() => sendBack(backTo)}
+                        disabled={sending.has(backTo)}
+                        className="rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-[12px] text-gold transition-colors hover:bg-gold/20 disabled:opacity-50">
+                  🥔 {sending.has(backTo) ? t("notif.backSending") : t("notif.back")}
+                </button>
+              )}
+            </div>
+          )}
+
           <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
             <span className="text-[11.5px] text-muted">{when(n.created_at)}</span>
             {/* Not only for pictures. A notification that names a thing and
@@ -588,6 +683,23 @@ export default function NotificationBell() {
 
             {notes.map(row)}
           </div>
+
+          {/* Everybody at once, when there is more than nothing to answer. The
+              same thing as pressing each button in turn, and pressed by
+              somebody who has just read a panel full of them. */}
+          {owed.size > 0 && (
+            <button onClick={() => { for (const cid of owed.keys()) void sendBack(cid); }}
+                    disabled={sending.size > 0}
+                    className="w-full border-t border-line bg-gold/5 px-3.5 py-2.5 text-center text-[12.5px] text-gold hover:bg-gold/15 disabled:opacity-50">
+              🥔 {t("notif.backAll", { n: owed.size })}
+            </button>
+          )}
+
+          {backErr && (
+            <p className="border-t border-line px-3.5 py-2 text-[12px] text-chili">
+              {backErr}
+            </p>
+          )}
 
           {/* Only when there might be more behind it. Twenty back is a fortnight
               for somebody the FC talks to and a year for somebody it does not,
