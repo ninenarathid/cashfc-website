@@ -33125,12 +33125,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 49,
     "kills": 1,
     "job": "Reaper",
-    "cleared": true,
-    "encounter_id": 1060
+    "cleared": true
    }
   ],
   "extremes": [
@@ -41782,12 +41782,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 35,
     "kills": 3,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Sage": {
       "kills": 3,
@@ -41799,12 +41799,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 53,
     "kills": 3,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Sage": {
       "kills": 3,
@@ -42784,12 +42784,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 88,
     "kills": 17,
     "job": "Reaper",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Reaper": {
       "kills": 17,
@@ -42801,12 +42801,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 43,
     "kills": 15,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Ninja": {
       "kills": 15,
@@ -42818,12 +42818,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 75,
     "kills": 17,
     "job": "Reaper",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Reaper": {
       "kills": 17,
@@ -43846,12 +43846,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 90,
     "kills": 17,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Warrior": {
       "kills": 17,
@@ -43863,12 +43863,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 31,
     "kills": 15,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Warrior": {
       "kills": 15,
@@ -43880,12 +43880,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 57,
     "kills": 13,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Warrior": {
       "kills": 11,
@@ -45267,12 +45267,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 38,
     "kills": 4,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Scholar": {
       "kills": 4,
@@ -47023,12 +47023,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 5,
     "kills": 1,
     "job": "Samurai",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    }
   ],
   "extremes": [
@@ -52497,12 +52497,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 48,
     "kills": 1,
     "job": "Warrior",
-    "cleared": true,
-    "encounter_id": 1062
+    "cleared": true
    }
   ],
   "extremes": [],
@@ -60320,12 +60320,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 38,
     "kills": 1,
     "job": "DarkKnight",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    }
   ],
   "extremes": [],
@@ -62066,23 +62066,23 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 23,
     "kills": 1,
     "job": "BlackMage",
-    "cleared": true,
-    "encounter_id": 1062
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 40,
     "kills": 1,
     "job": "BlackMage",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    }
   ],
   "extremes": [],
@@ -62297,12 +62297,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 11,
     "kills": 2,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Astrologian": {
       "kills": 2,

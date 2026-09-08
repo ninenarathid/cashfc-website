@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-09-08",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
    "date": "2026-09-07",
    "type": "job_up",
    "id": 26268800,
@@ -1392,13 +1399,6 @@
    "id": 29511615,
    "name": "Whitefang Dimmoon",
    "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "is now a Expert Astrologian"
   }
  ]
 }

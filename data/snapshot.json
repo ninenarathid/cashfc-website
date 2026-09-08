@@ -4787,7 +4787,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 91,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4834,7 +4834,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-07"
+  "chg": "2026-09-08"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5790,7 +5790,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -5815,7 +5815,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-08"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -8563,14 +8563,14 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 78,
+  "level": 80,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-07"
+  "chg": "2026-09-08"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",

@@ -988,8 +988,15 @@
    "fflogs": "ok",
    "lode_achv_public": true,
    "stats_seen": "2026-09-07"
+  },
+  "31445625": {
+   "name": "Empress Killer",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Fat Cat",
+   "seen": "2026-09-08"
   }
  },
- "generated_at": "2026-09-07T22:59:27Z",
- "count": 6
+ "generated_at": "2026-09-08T05:07:41Z",
+ "count": 7
 }
