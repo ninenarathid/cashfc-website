@@ -20,10 +20,12 @@ import DropZone, { useDropTarget, usePasteImages } from "@/components/ui/DropZon
  * in storage.
  */
 export default function Attach(
-  { files, onChange, disabled = false }: {
+  { files, onChange, disabled = false, scope }: {
     files: File[];
     onChange: (files: File[]) => void;
     disabled?: boolean;
+    /** The form this box belongs to, so a paste reaches the one being typed in. */
+    scope?: { current: HTMLElement | null };
   },
 ) {
   const { t } = useLang();
@@ -56,7 +58,10 @@ export default function Attach(
 
   // Held here rather than left to the zone, because the zone is replaced by the
   // previews the moment there is one and Ctrl+V has to go on working after that.
-  usePasteImages(take, !disabled);
+  // Scoped to the form this box is attached to, not to the box itself: the
+  // thing being typed into is the textarea beside it, and on the feedback page
+  // there are two of these on screen at once.
+  usePasteImages(take, !disabled, scope);
   const { over, handlers } = useDropTarget({ onFiles: take, disabled });
 
   if (!files.length) {

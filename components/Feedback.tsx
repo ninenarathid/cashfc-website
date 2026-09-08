@@ -72,6 +72,11 @@ export default function Feedback() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
+  // Which form a pasted screenshot belongs to. Both of these can be on screen
+  // together -- a thread open with a reply box, while a new message is being
+  // written above it -- and without them one paste landed in both.
+  const draftBox = useRef<HTMLDivElement>(null);
+  const replyBox = useRef<HTMLDivElement>(null);
   const foot = useRef<HTMLDivElement | null>(null);
 
   const loadThreads = useCallback(async () => {
@@ -254,7 +259,8 @@ export default function Feedback() {
         )}
 
         {writing && (
-          <div className="flex flex-col gap-2 rounded-xl border border-accent/40 bg-surface p-3">
+          <div ref={draftBox}
+               className="flex flex-col gap-2 rounded-xl border border-accent/40 bg-surface p-3">
             <input value={subject} onChange={(e) => setSubject(e.target.value.slice(0, 120))}
                    placeholder={t("feedback.subject")}
                    className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
@@ -262,7 +268,8 @@ export default function Feedback() {
                       onChange={(e) => setDraft(e.target.value.slice(0, 4000))}
                       placeholder={t("feedback.body")}
                       className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] leading-relaxed text-ink placeholder:text-muted" />
-            <Attach files={draftFiles} onChange={setDraftFiles} disabled={busy} />
+            <Attach files={draftFiles} onChange={setDraftFiles} disabled={busy}
+                    scope={draftBox} />
             <div className="flex flex-wrap gap-2">
               <button onClick={start} disabled={busy || !subject.trim() || !draft.trim()}
                       className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
@@ -372,12 +379,13 @@ export default function Feedback() {
               <div ref={foot} />
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div ref={replyBox} className="flex flex-col gap-2">
               <textarea value={reply} rows={3}
                         onChange={(e) => setReply(e.target.value.slice(0, 4000))}
                         placeholder={t("feedback.reply")}
                         className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] leading-relaxed text-ink placeholder:text-muted" />
-              <Attach files={replyFiles} onChange={setReplyFiles} disabled={busy} />
+              <Attach files={replyFiles} onChange={setReplyFiles} disabled={busy}
+                      scope={replyBox} />
               <div>
                 <button onClick={send} disabled={busy || !reply.trim()}
                         className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">

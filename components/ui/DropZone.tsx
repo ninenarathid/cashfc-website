@@ -40,26 +40,50 @@ export function useDropTarget(
   const [over, setOver] = useState(false);
   const holding = (e: React.DragEvent) => !!e.dataTransfer?.types?.includes("Files");
 
+  /*
+   * The innermost target owns the drag, and its ancestors hear none of it.
+   *
+   * Drag events bubble like any other, and the gallery uploader is a card that
+   * accepts a drop anywhere on it with the dashed zone sitting inside that card.
+   * Dropping five files on the zone ran the zone's handler and then the card's,
+   * and five pictures became ten. Reported from the FC: "ลาก 5 ไฟล์จะกลายเป็น
+   * 10 ไฟล์ครับ แต่ถ้ากด Upload แล้วเลือกไม่เป็น" -- the file dialog was fine,
+   * because a dialog fires one change event and cannot bubble into anything.
+   *
+   * Stopping the drop alone would have left the card lit up forever: its
+   * dragenter had already run and counted, and the drop that would have reset
+   * it never arrived. So all four are stopped together and the counter on the
+   * outer target is never started in the first place. One target highlights,
+   * one target receives, and they are the same one.
+   */
+  const mine = (e: React.DragEvent) => e.stopPropagation();
+
   return {
     /** True while a file is being held over it, for the highlight. */
     over,
     handlers: {
       onDragEnter: (e: React.DragEvent) => {
         if (disabled || !holding(e)) return;
+        mine(e);
         depth.current += 1;
         setOver(true);
       },
       // Without this the browser opens the file instead of handing it over,
       // which navigates away from whatever was half-written on the page.
       onDragOver: (e: React.DragEvent) => {
-        if (!disabled && holding(e)) e.preventDefault();
+        if (disabled || !holding(e)) return;
+        mine(e);
+        e.preventDefault();
       },
-      onDragLeave: () => {
+      onDragLeave: (e: React.DragEvent) => {
+        if (disabled) return;
+        mine(e);
         depth.current = Math.max(0, depth.current - 1);
         if (!depth.current) setOver(false);
       },
       onDrop: (e: React.DragEvent) => {
         e.preventDefault();
+        mine(e);
         depth.current = 0;
         setOver(false);
         if (disabled) return;
@@ -78,7 +102,19 @@ export function useDropTarget(
  * is what a message is written in, and pasting a screenshot into the words you
  * are typing about it is exactly where this belongs.
  */
-export function usePasteImages(onFiles: (files: File[]) => void, active = true) {
+export function usePasteImages(
+  onFiles: (files: File[]) => void,
+  active = true,
+  /**
+   * The part of the page this one is the uploader for.
+   *
+   * Only needed where two of these can be on screen at once. The feedback page
+   * has an attach box on the message you are writing and another on the reply
+   * you are typing, and both listened to the whole window: one screenshot went
+   * into both boxes, and then into two different messages.
+   */
+  scope?: { current: HTMLElement | null },
+) {
   useEffect(() => {
     if (!active) return;
     const onPaste = (e: ClipboardEvent) => {
@@ -88,7 +124,26 @@ export function usePasteImages(onFiles: (files: File[]) => void, active = true) 
         .filter((f) => f.type.startsWith("image/"));
       if (!found.length) return;
       e.preventDefault();
-      onFiles(found);
+
+      // These listen on the window, so stopPropagation cannot separate them the
+      // way it separates two nested drop targets -- there is nothing in between
+      // to stop. The event itself carries the answer: whoever takes it marks it,
+      // and everybody else stands down.
+      const seen = e as ClipboardEvent & { __tookImages?: boolean };
+      const take = () => {
+        if (seen.__tookImages) return;
+        seen.__tookImages = true;
+        onFiles(found);
+      };
+
+      // Pasted into the box this one belongs to: it is plainly meant for here.
+      if (!scope || (el && scope.current?.contains(el))) { take(); return; }
+
+      // Pasted somewhere else. Every listener for one event runs before any
+      // microtask does, so waiting a tick lets the box that was actually being
+      // typed in claim it first, and this only picks up a paste that landed
+      // nowhere in particular.
+      queueMicrotask(take);
     };
     window.addEventListener("paste", onPaste);
     return () => window.removeEventListener("paste", onPaste);
