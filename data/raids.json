@@ -48767,9 +48767,20 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 62,
+    "pulls": 59,
     "last": "2026-09-04",
     "last_ts": 1788539850
+   },
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 48.99,
+    "phase": 0,
+    "pulls": 13,
+    "last": "2026-09-07",
+    "last_ts": 1788791892
    }
   ]
  },
@@ -50654,11 +50665,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 29.98,
+    "pct": 26.59,
     "phase": 4,
-    "pulls": 121,
-    "last": "2026-09-07",
-    "last_ts": 1788799322
+    "pulls": 79,
+    "last": "2026-09-08",
+    "last_ts": 1788883289
    }
   ]
  },
@@ -58278,7 +58289,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 27.45,
+    "phase": 0,
+    "pulls": 27,
+    "last": "2026-09-07",
+    "last_ts": 1788796654
+   }
+  ]
  },
  "43037186": {
   "current": {

@@ -785,7 +785,7 @@
   "mounts": 159,
   "minions": 426,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -869,7 +869,7 @@
   "mounts": 264,
   "minions": 487,
   "rare": 443,
-  "level": 100,
+  "level": 48,
   "cc": [
    false,
    false,
@@ -999,7 +999,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-08"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -2626,7 +2626,7 @@
   "mounts": 205,
   "minions": 253,
   "rare": 237,
-  "level": 41,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -7774,7 +7774,7 @@
   "mounts": 114,
   "minions": 254,
   "rare": null,
-  "level": 100,
+  "level": 1,
   "cc": [
    false,
    false,
@@ -7792,7 +7792,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-08"
  },
  "60972300": {
   "name": "Mizuki Sekine",
