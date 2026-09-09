@@ -100,9 +100,14 @@ export async function countEntries(
  * each have to know the rules of the event — they only have to say that a
  * potato went out.
  *
- * Silent about failure on purpose. This is a bonus notification about a draw;
- * a member whose potato landed should not be shown an error because the
- * congratulation did not.
+ * Silent to the member about failure on purpose: this is a bonus congratulation
+ * about a draw, and somebody whose potato landed should not be shown an error
+ * because the applause did not arrive.
+ *
+ * Not silent to a developer, though. It was, and that cost a day — the insert
+ * was being refused by a policy that did not exist yet, and there was nothing
+ * anywhere to say so. A warning in the console is the difference between
+ * "nothing happened" and a sentence naming the reason.
  */
 export async function markEntry(
   supabase: SupabaseClient | null,
@@ -128,7 +133,7 @@ export async function markEntry(
   const total = await countEntries(supabase, userId, myCharacterId);
   if (!total) return;
 
-  await supabase.from("notifications").insert({
+  const { error } = await supabase.from("notifications").insert({
     recipient: userId,
     kind: "evercold",
     // The running total, which is the whole content of the line. Kept in body
@@ -136,4 +141,5 @@ export async function markEntry(
     // thing its wording needs.
     body: String(total),
   });
+  if (error) console.warn("evercold: could not write the entry notice —", error.message);
 }
