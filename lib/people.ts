@@ -1,5 +1,24 @@
 import type { BoardData } from "@/lib/types";
 import { allGuestIds, guestHome } from "@/lib/guest-data";
+import fcIds from "@/data/fc-ids.json";
+
+/**
+ * Whether a character is in the Free Company.
+ *
+ * One definition, here, because the question has already been got wrong once by
+ * being answered somewhere else. The admin report was handed `everyone()` as
+ * its roster — the list this file builds by adding guests to it — so every
+ * guest counted as a member, and a draw that excludes guests was quietly
+ * including three of them.
+ *
+ * Read from data/fc-ids.json rather than from members.json: it is six kilobytes
+ * of numbers against nine hundred, it is written by the same pipeline run, and
+ * it can be imported by a client component without the roster coming with it.
+ */
+const FC = new Set((fcIds as { ids: number[] }).ids);
+
+export const isFcMember = (characterId: number | null | undefined): boolean =>
+  characterId != null && FC.has(characterId);
 
 /**
  * Somebody who can be searched for, tagged, or credited with a picture.

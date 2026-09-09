@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import fcIds from "@/data/fc-ids.json";
+import { isFcMember } from "@/lib/people";
 
 /**
  * Popoto: Road to Evercold — the Free Company's month-long draw.
@@ -46,11 +46,6 @@ export function eventIsOn(at: Date = new Date()): boolean {
   const t = at.getTime();
   return t >= Date.parse(EVENT_OPENS) && t <= Date.parse(EVENT_SHUTS);
 }
-
-/** Whether a character is on the Free Company roster. */
-const ROSTER = new Set((fcIds as { ids: number[] }).ids);
-export const isFcMember = (characterId: number | null | undefined): boolean =>
-  characterId != null && ROSTER.has(characterId);
 
 /** The day a give falls on, in Bangkok — which is the day the draw counts. */
 const bangkokDay = (iso: string): string =>

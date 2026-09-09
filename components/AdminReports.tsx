@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useAvatar } from "@/lib/avatars";
 import { EVENT_FROM, EVENT_TO } from "@/lib/evercold";
+import { isFcMember } from "@/lib/people";
 import { fmtDate } from "@/lib/dates";
 import { useLang, type Key } from "@/lib/i18n";
 
@@ -192,10 +193,8 @@ function Person(
 }
 
 export default function AdminReports(
-  { portraits, memberIds }: {
+  { portraits }: {
     portraits: Record<number, string>;
-    /** Every character on the FC roster — what "in the FC" means here. */
-    memberIds: number[];
   },
 ) {
   const { t } = useLang();
@@ -269,16 +268,25 @@ export default function AdminReports(
 
   useEffect(() => { void run(); }, [run]);
 
-  const roster = useMemo(() => new Set(memberIds), [memberIds]);
+
 
   // Filtered here rather than in the query: switching between FC and everybody
   // is then instant and costs no round trip, and the two counts are always of
   // the same reading rather than of two moments a few seconds apart.
   const shown = useMemo(() => (rows ?? []).filter((r) => {
     if (scope === "all") return true;
-    const fc = r.characterId != null && roster.has(r.characterId);
+    /*
+     * Asked of the roster rather than of a list handed in.
+     *
+     * This used to take a memberIds prop, and the admin page filled it from
+     * everyone() — which is the roster with the guests added to it. So every
+     * guest counted as a member, and a draw whose whole point is to exclude
+     * them was quietly including three. A prop that can be given the wrong
+     * list eventually is.
+     */
+    const fc = isFcMember(r.characterId);
     return scope === "fc" ? fc : !fc;
-  }), [rows, scope, roster]);
+  }), [rows, scope]);
 
   const people = useMemo(
     () => new Set(shown.map((r) => r.profileId)).size, [shown]);
