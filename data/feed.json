@@ -3,6 +3,55 @@
   {
    "date": "2026-09-09",
    "type": "level_100",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "parse_up",
+   "id": 41073949,
+   "name": "Vanir Arkwright",
+   "text": "set a new best parse: 56 on Erichthonios as Monk"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "parse_up",
+   "id": 29881709,
+   "name": "Y'uki No",
+   "text": "set a new best parse: 60 on Erichthonios as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "parse_up",
+   "id": 693670,
+   "name": "Zediez Vesarius",
+   "text": "set a new best parse: 73 on Erichthonios as Ninja"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "job_up",
+   "id": 693670,
+   "name": "Zediez Vesarius",
+   "text": "is now a Expert Ninja"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "parse_up",
+   "id": 35629716,
+   "name": "Zeldris Ragnarsson",
+   "text": "set a new best parse: 77 on Erichthonios as Dragoon"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "job_up",
+   "id": 35629716,
+   "name": "Zeldris Ragnarsson",
+   "text": "is now a Expert Dragoon"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "level_100",
    "id": 37061370,
    "name": "Peonies Dunieres",
    "text": "reached level 100 on White Mage!"
@@ -1350,55 +1399,6 @@
    "id": 38796459,
    "name": "Minion Ke",
    "text": "set a new best parse: 50 on Dancing Green as Dancer"
-  },
-  {
-   "date": "2026-09-05",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-05",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-05",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-05",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-05",
-   "type": "level_100",
-   "id": 31155521,
-   "name": "Ketchup Love",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-05",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned An Ode to Leathercraft — only 2.8% of players have it"
-  },
-  {
-   "date": "2026-09-05",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned Rocket Forgery I — only 2.7% of players have it"
   }
  ]
 }

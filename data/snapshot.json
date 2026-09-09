@@ -2227,7 +2227,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 28,
-  "level": 54,
+  "level": 56,
   "cc": [
    true,
    true,
@@ -6904,7 +6904,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -16239,7 +16239,7 @@
  },
  "41073949": {
   "name": "Vanir Arkwright",
-  "parse": null,
+  "parse": 56,
   "ult": 0,
   "mounts": 45,
   "minions": 62,
@@ -16257,7 +16257,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-09"
  },
  "23921786": {
   "name": "Vinera Fennes",
@@ -16592,7 +16592,7 @@
  },
  "29881709": {
   "name": "Y'uki No",
-  "parse": 18,
+  "parse": 60,
   "ult": 0,
   "mounts": 100,
   "minions": 202,
@@ -16610,7 +16610,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-07"
+  "chg": "2026-09-09"
  },
  "51060767": {
   "name": "Yatchy Concreategirls",
@@ -16737,7 +16737,7 @@
  },
  "693670": {
   "name": "Zediez Vesarius",
-  "parse": 28,
+  "parse": 73,
   "ult": 0,
   "mounts": 32,
   "minions": 99,
@@ -16752,14 +16752,16 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Ninja": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-09"
  },
  "35629716": {
   "name": "Zeldris Ragnarsson",
-  "parse": null,
+  "parse": 77,
   "ult": 0,
   "mounts": 57,
   "minions": 116,
@@ -16774,10 +16776,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Dragoon": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-09"
  },
  "39850342": {
   "name": "Zene Neko",

@@ -212,6 +212,58 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 73,
+      "median": 50,
+      "kills": 10,
+      "job": "Ninja"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 46,
+      "median": 26,
+      "kills": 10,
+      "job": "Ninja"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 55,
+      "median": 29,
+      "kills": 10,
+      "job": "Ninja"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 32,
+      "median": 12,
+      "kills": 10,
+      "job": "Ninja"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 21,
+      "median": 13,
+      "kills": 5,
+      "job": "Ninja"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -30101,6 +30153,58 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 60,
+      "median": 28,
+      "kills": 13,
+      "job": "RedMage"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 53,
+      "median": 19,
+      "kills": 12,
+      "job": "RedMage"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 41,
+      "median": 14,
+      "kills": 13,
+      "job": "RedMage"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 43,
+      "median": 7,
+      "kills": 21,
+      "job": "RedMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 13,
+      "median": 5,
+      "kills": 9,
+      "job": "RedMage"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -42678,6 +42782,58 @@
     ]
    },
    {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 85,
+      "median": 58,
+      "kills": 18,
+      "job": "Ninja"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 84,
+      "median": 54,
+      "kills": 17,
+      "job": "Ninja"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 68,
+      "median": 9,
+      "kills": 12,
+      "job": "Reaper"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 72,
+      "median": 26,
+      "kills": 37,
+      "job": "Ninja"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 82,
+      "median": 33,
+      "kills": 16,
+      "job": "Ninja"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -45504,6 +45660,58 @@
     ]
    },
    {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 74,
+      "median": 44,
+      "kills": 19,
+      "job": "Sage"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 76,
+      "median": 42,
+      "kills": 20,
+      "job": "Sage"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 69,
+      "median": 38,
+      "kills": 11,
+      "job": "Sage"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 83,
+      "median": 54,
+      "kills": 38,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 65,
+      "median": 40,
+      "kills": 13,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -46490,8 +46698,61 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 77,
+      "median": 22,
+      "kills": 9,
+      "job": "Dragoon"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 44,
+      "median": 20,
+      "kills": 10,
+      "job": "Dragoon"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 52,
+      "median": 36,
+      "kills": 2,
+      "job": "Dragoon"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 40,
+      "median": 17,
+      "kills": 26,
+      "job": "Dragoon"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 26,
+      "median": 12,
+      "kills": 9,
+      "job": "Dragoon"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "35634484": {
   "current": {
@@ -55150,6 +55411,58 @@
     ]
    },
    {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 65,
+      "median": 40,
+      "kills": 8,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 44,
+      "median": 27,
+      "kills": 8,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 20,
+      "median": 10,
+      "kills": 4,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 51,
+      "median": 37,
+      "kills": 11,
+      "job": "WhiteMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 47,
+      "median": 34,
+      "kills": 3,
+      "job": "WhiteMage"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -57394,8 +57707,61 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 56,
+      "median": 40,
+      "kills": 5,
+      "job": "Monk"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 54,
+      "median": 44,
+      "kills": 5,
+      "job": "Monk"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 54,
+      "median": 28,
+      "kills": 2,
+      "job": "Monk"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 40,
+      "median": 9,
+      "kills": 8,
+      "job": "Monk"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 39,
+      "median": 35,
+      "kills": 3,
+      "job": "Monk"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "41098683": {
   "current": {
@@ -59382,7 +59748,21 @@
       "best": 40,
       "median": 18,
       "kills": 13,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Summoner": {
+        "kills": 2,
+        "best": 18
+       },
+       "Sage": {
+        "kills": 7,
+        "best": 40
+       },
+       "Astrologian": {
+        "kills": 4,
+        "best": 20
+       }
+      }
      },
      {
       "label": "P6S",
@@ -59391,7 +59771,21 @@
       "best": 24,
       "median": 21,
       "kills": 8,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 4,
+        "best": 24
+       },
+       "Astrologian": {
+        "kills": 3,
+        "best": 20
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 7
+       }
+      }
      },
      {
       "label": "P7S",
@@ -59400,7 +59794,17 @@
       "best": 48,
       "median": 17,
       "kills": 9,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 5,
+        "best": 48
+       },
+       "Astrologian": {
+        "kills": 4,
+        "best": 7
+       }
+      }
      },
      {
       "label": "P8S",
@@ -59409,7 +59813,17 @@
       "best": 36,
       "median": 12,
       "kills": 30,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 28,
+        "best": 36
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 2
+       }
+      }
      },
      {
       "label": null,
@@ -59418,7 +59832,13 @@
       "best": 24,
       "median": 5,
       "kills": 9,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 9,
+        "best": 24
+       }
+      }
      }
     ]
    }
