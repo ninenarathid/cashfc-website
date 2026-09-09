@@ -2,6 +2,97 @@
  "events": [
   {
    "date": "2026-09-09",
+   "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned The Might Phantastick: Arquebus Penumbrae, and 1 more"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "level_100",
+   "id": 19827594,
+   "name": "Aylufa Regolith",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "level_100",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned Resplendent: Brilliant Cross-pein Hammer"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "rare_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "earned Not Today, Necron"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "rare_up",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "earned Wild Child V — only 0.0% of players have it, and 9 more"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned With Pick in Hand VII — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Crucible Checkmate I — only 0.1% of players have it, and 7 more"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "rare_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "earned Savage Trouble in Paradise III"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "level_100",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "level_100",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "rare_up",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "earned I Can Dig It XVI"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "level_100",
+   "id": 44085912,
+   "name": "Mayu Ferguson",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-09-09",
    "type": "level_100",
    "id": 58199536,
    "name": "Areeya Lovekin",
@@ -1308,97 +1399,6 @@
    "id": 26433344,
    "name": "Oppa' Pkz",
    "text": "is now a Expert Astrologian"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 26433344,
-   "name": "Oppa' Pkz",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 25541816,
-   "name": "Presca Burgstalgen",
-   "text": "set a new best parse: 62 on Ramuh as Ninja"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "level_100",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "reached level 100 on Blacksmith!"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "level_100",
-   "id": 26298391,
-   "name": "Yozora Luna",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "level_100",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 25620101,
-   "name": "Athena Leonheart",
-   "text": "is now a Expert Dark Knight"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 30333493,
-   "name": "Haruko Sho",
-   "text": "set a new best parse: 98 on Shadowkeeper as Warrior"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 30333493,
-   "name": "Haruko Sho",
-   "text": "is now a Legendary Warrior"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 30333493,
-   "name": "Haruko Sho",
-   "text": "is now a Expert Paladin"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "parse_up",
-   "id": 12003402,
-   "name": "Kei Chan",
-   "text": "set a new best parse: 92 on Cloud of Darkness as Whit\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 12003402,
-   "name": "Kei Chan",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-04",
-   "type": "job_up",
-   "id": 18489055,
-   "name": "Linda Ing",
-   "text": "is now a Legendary Gunbreaker"
   }
  ]
 }
