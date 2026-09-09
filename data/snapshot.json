@@ -413,7 +413,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 130,
-  "level": 11,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -531,7 +531,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -869,7 +869,7 @@
   "mounts": 264,
   "minions": 487,
   "rare": 443,
-  "level": 48,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -999,7 +999,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -1298,7 +1298,7 @@
   "mounts": 123,
   "minions": 371,
   "rare": 208,
-  "level": 100,
+  "level": 34,
   "cc": [
    false,
    false,
@@ -1421,7 +1421,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-09"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -3672,7 +3672,7 @@
   "mounts": 193,
   "minions": 416,
   "rare": null,
-  "level": 25,
+  "level": 38,
   "cc": [
    false,
    false,
@@ -3694,7 +3694,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "5644067": {
   "name": "Ninenine The'phantom",
@@ -4172,7 +4172,7 @@
   "mounts": 201,
   "minions": 382,
   "rare": 293,
-  "level": 19,
+  "level": 36,
   "cc": [
    true,
    true,
@@ -4314,7 +4314,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -4323,7 +4323,7 @@
   "mounts": 103,
   "minions": 274,
   "rare": 132,
-  "level": 100,
+  "level": 25,
   "cc": [
    true,
    false,
@@ -4454,7 +4454,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-09"
  },
  "11603711": {
   "name": "Takamina Aamin",
@@ -4786,7 +4786,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 24,
-  "level": 98,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4833,7 +4833,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -4875,14 +4875,14 @@
   "mounts": 125,
   "minions": 274,
   "rare": null,
-  "level": 100,
+  "level": 15,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": null
+  "chg": "2026-09-09"
  },
  "38335568": {
   "name": "Vivienne Yhisa",
@@ -4891,7 +4891,7 @@
   "mounts": 55,
   "minions": 110,
   "rare": null,
-  "level": 100,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -4906,7 +4906,7 @@
    "Queen Eternal"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-09"
  },
  "6951533": {
   "name": "Aemond Targaryen",
@@ -4959,7 +4959,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 7,
+  "level": 16,
   "cc": [
    false,
    false,
@@ -4974,7 +4974,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -5227,7 +5227,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 116,
-  "level": 18,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5351,7 +5351,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -5419,7 +5419,7 @@
   "mounts": 147,
   "minions": 420,
   "rare": null,
-  "level": 11,
+  "level": 14,
   "cc": [
    false,
    false,
@@ -5432,7 +5432,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "44143115": {
   "name": "Chapton Lola",
@@ -5789,7 +5789,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 9,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -5814,7 +5814,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -5823,7 +5823,7 @@
   "mounts": 110,
   "minions": 267,
   "rare": null,
-  "level": 38,
+  "level": 41,
   "cc": [
    false,
    false,
@@ -5836,7 +5836,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "15543487": {
   "name": "Evageline Akmacdowell",
@@ -5889,7 +5889,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 8,
-  "level": 85,
+  "level": 9,
   "cc": null,
   "rare_ids": [
    1414,
@@ -5905,7 +5905,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -7702,8 +7702,8 @@
   "parse": null,
   "ult": 0,
   "mounts": 5,
-  "minions": 11,
-  "rare": null,
+  "minions": 14,
+  "rare": 0,
   "level": 70,
   "cc": null,
   "rare_ids": [],
@@ -7711,7 +7711,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-09"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

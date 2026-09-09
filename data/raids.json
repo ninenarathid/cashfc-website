@@ -1918,6 +1918,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 23,
+      "median": 9,
+      "kills": 10,
+      "job": "Sage"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 9,
+      "median": 4,
+      "kills": 6,
+      "job": "Sage"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 20,
+      "median": 11,
+      "kills": 5,
+      "job": "Sage"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 8,
+      "median": 5,
+      "kills": 2,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
