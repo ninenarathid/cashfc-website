@@ -2227,7 +2227,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 28,
-  "level": 53,
+  "level": 54,
   "cc": [
    true,
    true,
@@ -5899,7 +5899,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 8,
-  "level": 89,
+  "level": 23,
   "cc": null,
   "rare_ids": [
    1414,
@@ -6675,7 +6675,7 @@
   "mounts": 67,
   "minions": 95,
   "rare": 31,
-  "level": 30,
+  "level": 34,
   "cc": [
    false,
    false,
@@ -7013,7 +7013,7 @@
   "mounts": 131,
   "minions": 270,
   "rare": 113,
-  "level": 42,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -14414,7 +14414,7 @@
  },
  "43481858": {
   "name": "Pika Juni",
-  "parse": null,
+  "parse": 48,
   "ult": 0,
   "mounts": 12,
   "minions": 35,
@@ -14432,7 +14432,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-09"
  },
  "48010347": {
   "name": "Pineapplepipe Pikachu",
@@ -14823,7 +14823,8 @@
   "jobs": {
    "Warrior": "legendary",
    "Paladin": "master",
-   "RedMage": "master"
+   "RedMage": "master",
+   "DarkKnight": "expert"
   },
   "ex": [],
   "ults": [
@@ -14837,7 +14838,7 @@
  },
  "40624820": {
   "name": "Rin Miyauchi",
-  "parse": 41,
+  "parse": 64,
   "ult": 1,
   "mounts": 91,
   "minions": 152,
@@ -14873,12 +14874,14 @@
    2995
   ],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Warrior": "expert"
+  },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-06"
+  "chg": "2026-09-09"
  },
  "29901287": {
   "name": "Rishima Garaine",
@@ -14976,7 +14979,7 @@
  },
  "39961214": {
   "name": "Ruby Sugarstar",
-  "parse": 96,
+  "parse": 98,
   "ult": 4,
   "mounts": 23,
   "minions": 64,
@@ -14993,7 +14996,7 @@
   "tiers": {},
   "jobs": {
    "Monk": "expert",
-   "Ninja": "master",
+   "Ninja": "legendary",
    "Pictomancer": "expert",
    "Bard": "legendary"
   },
@@ -15007,7 +15010,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-31"
+  "chg": "2026-09-09"
  },
  "35863038": {
   "name": "Ruka Aeon",
@@ -15409,7 +15412,8 @@
    "seasonal": "expert"
   },
   "jobs": {
-   "Gunbreaker": "legendary"
+   "Gunbreaker": "legendary",
+   "Warrior": "legendary"
   },
   "ex": [],
   "ults": [
