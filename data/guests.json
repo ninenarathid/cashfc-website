@@ -11,7 +11,7 @@
    "rare_achv": 316,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788457480",
-   "collect_seen": "2026-09-07",
+   "collect_seen": "2026-09-08",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -100,7 +100,7 @@
     "fights": 12,
     "kills": 88,
     "parse": 96.0,
-    "score": 94.7,
+    "score": 96.0,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -109,7 +109,7 @@
      "fights": 18,
      "kills": 92,
      "parse": 86.1,
-     "score": 85.4,
+     "score": 86.1,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -117,7 +117,7 @@
      "fights": 5,
      "kills": 22,
      "parse": 49.1,
-     "score": 40.9,
+     "score": 44.0,
      "tier": null,
      "hardest": "legacy"
     },
@@ -125,7 +125,7 @@
      "fights": 7,
      "kills": 43,
      "parse": 65.1,
-     "score": 59.0,
+     "score": 64.0,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -133,7 +133,7 @@
      "fights": 5,
      "kills": 17,
      "parse": 79.2,
-     "score": 63.7,
+     "score": 68.3,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -149,15 +149,15 @@
      "fights": 6,
      "kills": 26,
      "parse": 63.1,
-     "score": 53.7,
-     "tier": null,
+     "score": 57.9,
+     "tier": "expert",
      "hardest": "ultimate"
     },
     "Scholar": {
      "fights": 15,
      "kills": 88,
      "parse": 91.1,
-     "score": 89.9,
+     "score": 91.1,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -165,7 +165,7 @@
      "fights": 3,
      "kills": 10,
      "parse": 56.9,
-     "score": 39.4,
+     "score": 42.1,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -173,7 +173,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 31.7,
-     "score": 16.5,
+     "score": 17.4,
      "tier": null,
      "hardest": "extreme"
     },
@@ -181,7 +181,7 @@
      "fights": 12,
      "kills": 88,
      "parse": 96.0,
-     "score": 94.7,
+     "score": 96.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -189,7 +189,7 @@
      "fights": 2,
      "kills": 4,
      "parse": 34.5,
-     "score": 18.8,
+     "score": 20.0,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -197,7 +197,7 @@
      "fights": 1,
      "kills": 2,
      "parse": 57.0,
-     "score": 24.6,
+     "score": 25.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -205,7 +205,7 @@
      "fights": 8,
      "kills": 17,
      "parse": 35.0,
-     "score": 28.2,
+     "score": 30.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -213,13 +213,13 @@
      "fights": 2,
      "kills": 3,
      "parse": 57.0,
-     "score": 29.7,
+     "score": 31.3,
      "tier": null,
      "hardest": "legacy"
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-07",
+   "stats_seen": "2026-09-08",
    "lode_achv_public": true
   },
   "31441339": {
@@ -228,12 +228,12 @@
    "dc": "Elemental",
    "fc": "Fat Cat",
    "seen": "2026-09-03",
-   "mounts": 97,
-   "minions": 164,
-   "rare_achv": 128,
+   "mounts": 98,
+   "minions": 166,
+   "rare_achv": 132,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788654535",
-   "collect_seen": "2026-09-07",
+   "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788898658",
+   "collect_seen": "2026-09-08",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -290,9 +290,9 @@
    "progress": null,
    "progress_all": null,
    "job_top": {
-    "job": "Sage",
-    "fights": 31,
-    "kills": 506,
+    "job": "Summoner",
+    "fights": 15,
+    "kills": 98,
     "parse": 100.0,
     "score": 100.0,
     "tier": "legendary",
@@ -303,15 +303,15 @@
      "fights": 8,
      "kills": 37,
      "parse": 97.6,
-     "score": 86.8,
-     "tier": "master",
+     "score": 94.0,
+     "tier": "legendary",
      "hardest": "savage"
     },
     "RedMage": {
      "fights": 14,
      "kills": 30,
      "parse": 96.6,
-     "score": 83.7,
+     "score": 90.4,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -319,7 +319,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 71.0,
-     "score": 27.4,
+     "score": 28.3,
      "tier": null,
      "hardest": "savage"
     },
@@ -335,7 +335,7 @@
      "fights": 8,
      "kills": 25,
      "parse": 96.8,
-     "score": 81.9,
+     "score": 88.3,
      "tier": "master",
      "hardest": "savage"
     },
@@ -343,7 +343,7 @@
      "fights": 4,
      "kills": 6,
      "parse": 63.2,
-     "score": 44.0,
+     "score": 46.5,
      "tier": null,
      "hardest": "savage"
     },
@@ -351,7 +351,7 @@
      "fights": 15,
      "kills": 98,
      "parse": 100.0,
-     "score": 99.9,
+     "score": 100.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -367,7 +367,7 @@
      "fights": 12,
      "kills": 44,
      "parse": 98.3,
-     "score": 89.4,
+     "score": 96.9,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -375,7 +375,7 @@
      "fights": 15,
      "kills": 78,
      "parse": 98.7,
-     "score": 96.0,
+     "score": 98.7,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -391,7 +391,7 @@
      "fights": 16,
      "kills": 64,
      "parse": 99.1,
-     "score": 94.2,
+     "score": 99.1,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -399,7 +399,7 @@
      "fights": 1,
      "kills": 11,
      "parse": 92.0,
-     "score": 54.2,
+     "score": 58.8,
      "tier": "expert",
      "hardest": "extreme"
     },
@@ -407,15 +407,15 @@
      "fights": 18,
      "kills": 40,
      "parse": 93.7,
-     "score": 84.2,
-     "tier": "master",
+     "score": 91.2,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "Bard": {
      "fights": 4,
      "kills": 7,
      "parse": 69.3,
-     "score": 49.3,
+     "score": 52.2,
      "tier": null,
      "hardest": "legacy"
     },
@@ -423,7 +423,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 62.0,
-     "score": 23.9,
+     "score": 24.8,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -431,7 +431,7 @@
      "fights": 1,
      "kills": 6,
      "parse": 95.0,
-     "score": 50.2,
+     "score": 53.9,
      "tier": null,
      "hardest": "ultimate"
     },
@@ -439,13 +439,13 @@
      "fights": 3,
      "kills": 5,
      "parse": 82.8,
-     "score": 51.6,
+     "score": 54.6,
      "tier": null,
      "hardest": "legacy"
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-07",
+   "stats_seen": "2026-09-08",
    "lode_achv_public": true
   },
   "42349146": {
@@ -459,7 +459,7 @@
    "rare_achv": 15,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
-   "collect_seen": "2026-09-07",
+   "collect_seen": "2026-09-08",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -506,8 +506,8 @@
     "fights": 12,
     "kills": 93,
     "parse": 89.2,
-    "score": 88.6,
-    "tier": "legendary",
+    "score": 89.2,
+    "tier": "master",
     "hardest": "savage"
    },
    "job_scores": {
@@ -515,15 +515,15 @@
      "fights": 12,
      "kills": 93,
      "parse": 89.2,
-     "score": 88.6,
-     "tier": "legendary",
+     "score": 89.2,
+     "tier": "master",
      "hardest": "savage"
     },
     "DarkKnight": {
      "fights": 9,
      "kills": 25,
      "parse": 72.6,
-     "score": 61.5,
+     "score": 66.2,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -531,7 +531,7 @@
      "fights": 1,
      "kills": 8,
      "parse": 41.0,
-     "score": 22.8,
+     "score": 24.6,
      "tier": null,
      "hardest": "extreme"
     },
@@ -539,7 +539,7 @@
      "fights": 5,
      "kills": 15,
      "parse": 58.9,
-     "score": 46.6,
+     "score": 49.9,
      "tier": null,
      "hardest": "extreme"
     },
@@ -547,7 +547,7 @@
      "fights": 2,
      "kills": 8,
      "parse": 52.5,
-     "score": 32.2,
+     "score": 34.5,
      "tier": null,
      "hardest": "extreme"
     },
@@ -555,14 +555,14 @@
      "fights": 2,
      "kills": 15,
      "parse": 32.1,
-     "score": 21.8,
+     "score": 23.6,
      "tier": null,
      "hardest": "extreme"
     }
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-07"
+   "stats_seen": "2026-09-08"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -575,7 +575,7 @@
    "rare_achv": 121,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788521581",
-   "collect_seen": "2026-09-07",
+   "collect_seen": "2026-09-08",
    "tags": [
     "prog",
     "extreme",
@@ -614,7 +614,7 @@
      "fights": 9,
      "kills": 27,
      "parse": 58.0,
-     "score": 49.6,
+     "score": 53.5,
      "tier": null,
      "hardest": "savage"
     },
@@ -622,14 +622,14 @@
      "fights": 3,
      "kills": 15,
      "parse": 56.5,
-     "score": 41.5,
+     "score": 44.7,
      "tier": null,
      "hardest": "legacy"
     }
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-07"
+   "stats_seen": "2026-09-08"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -658,7 +658,12 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "ult_achv": [],
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
    "ult_achv_only": [],
    "legacy_clears": 13,
    "ex_cleared": [
@@ -718,7 +723,7 @@
      "fights": 14,
      "kills": 94,
      "parse": 92.4,
-     "score": 91.9,
+     "score": 92.4,
      "tier": "legendary",
      "hardest": "savage"
     },
@@ -732,8 +737,8 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": false,
-   "stats_seen": "2026-09-07"
+   "lode_achv_public": true,
+   "stats_seen": "2026-09-08"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -746,7 +751,7 @@
    "rare_achv": 206,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788597267",
-   "collect_seen": "2026-09-07",
+   "collect_seen": "2026-09-08",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -759,8 +764,7 @@
    "achv_tiers": {
     "crafter": "expert",
     "relic": "legendary",
-    "explorer": "master",
-    "treasure": "expert"
+    "explorer": "master"
    },
    "parse": 99,
    "savage_kills": 5,
@@ -844,7 +848,7 @@
      "fights": 10,
      "kills": 10,
      "parse": 43.4,
-     "score": 32.5,
+     "score": 34.6,
      "tier": null,
      "hardest": "savage"
     },
@@ -852,7 +856,7 @@
      "fights": 18,
      "kills": 78,
      "parse": 71.9,
-     "score": 70.0,
+     "score": 71.9,
      "tier": "expert",
      "hardest": "savage"
     },
@@ -860,7 +864,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 15.0,
-     "score": 5.8,
+     "score": 6.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -868,7 +872,7 @@
      "fights": 4,
      "kills": 38,
      "parse": 91.3,
-     "score": 81.5,
+     "score": 88.2,
      "tier": "master",
      "hardest": "extreme"
     },
@@ -876,7 +880,7 @@
      "fights": 2,
      "kills": 10,
      "parse": 79.0,
-     "score": 50.2,
+     "score": 54.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -884,7 +888,7 @@
      "fights": 2,
      "kills": 3,
      "parse": 31.3,
-     "score": 16.3,
+     "score": 17.2,
      "tier": null,
      "hardest": "extreme"
     },
@@ -892,7 +896,7 @@
      "fights": 2,
      "kills": 6,
      "parse": 33.7,
-     "score": 19.7,
+     "score": 21.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -900,7 +904,7 @@
      "fights": 2,
      "kills": 2,
      "parse": 34.4,
-     "score": 16.8,
+     "score": 17.5,
      "tier": null,
      "hardest": "legacy"
     },
@@ -908,7 +912,7 @@
      "fights": 7,
      "kills": 48,
      "parse": 90.2,
-     "score": 82.9,
+     "score": 89.9,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -916,7 +920,7 @@
      "fights": 4,
      "kills": 19,
      "parse": 66.9,
-     "score": 54.6,
+     "score": 58.7,
      "tier": "expert",
      "hardest": "legacy"
     },
@@ -924,7 +928,7 @@
      "fights": 11,
      "kills": 29,
      "parse": 86.6,
-     "score": 74.7,
+     "score": 80.6,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -932,7 +936,7 @@
      "fights": 6,
      "kills": 38,
      "parse": 91.7,
-     "score": 81.9,
+     "score": 88.6,
      "tier": "master",
      "hardest": "legacy"
     },
@@ -940,7 +944,7 @@
      "fights": 12,
      "kills": 78,
      "parse": 65.0,
-     "score": 63.3,
+     "score": 65.0,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -948,7 +952,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 67.0,
-     "score": 31.1,
+     "score": 33.0,
      "tier": null,
      "hardest": "extreme"
     },
@@ -956,7 +960,7 @@
      "fights": 1,
      "kills": 3,
      "parse": 51.0,
-     "score": 23.7,
+     "score": 25.1,
      "tier": null,
      "hardest": "extreme"
     },
@@ -964,7 +968,7 @@
      "fights": 1,
      "kills": 6,
      "parse": 42.0,
-     "score": 22.2,
+     "score": 23.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -972,7 +976,7 @@
      "fights": 1,
      "kills": 1,
      "parse": 32.0,
-     "score": 12.3,
+     "score": 12.8,
      "tier": null,
      "hardest": "extreme"
     },
@@ -980,35 +984,157 @@
      "fights": 4,
      "kills": 26,
      "parse": 62.3,
-     "score": 53.0,
+     "score": 57.1,
      "tier": null,
      "hardest": "legacy"
     }
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-07"
+   "stats_seen": "2026-09-08"
   },
   "31445625": {
    "name": "Empress Killer",
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Fat Cat",
-   "seen": "2026-09-08"
+   "seen": "2026-09-08",
+   "mounts": 174,
+   "minions": 263,
+   "rare_achv": 267,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788835457",
+   "collect_seen": "2026-09-08",
+   "tags": [
+    "ultimate",
+    "veteran",
+    "relic",
+    "explorer",
+    "treasure",
+    "seasonal"
+   ],
+   "achv_tiers": {
+    "relic": "legendary",
+    "explorer": "legendary",
+    "treasure": "legendary"
+   },
+   "parse": null,
+   "savage_kills": 0,
+   "ult_clears": 7,
+   "ult_cleared": [
+    "Dancing Mad",
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": [
+    "Dancing Mad",
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv_only": [
+    "Dancing Mad",
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "legacy_clears": 0,
+   "ex_cleared": [],
+   "ex_kills": 0,
+   "current_clears": null,
+   "current_seen": false,
+   "progress": null,
+   "progress_all": null,
+   "job_top": null,
+   "job_scores": {},
+   "fflogs": "pending",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-08"
   },
   "58744659": {
    "name": "Laira Thalor",
    "world": "Aegis",
    "dc": "Elemental",
    "fc": "The Etheirys",
-   "seen": "2026-09-08"
+   "seen": "2026-09-08",
+   "mounts": 80,
+   "minions": 95,
+   "rare_achv": 88,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/258b10ee99a778ff735c30a38c9cadaf_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1788896903",
+   "collect_seen": "2026-09-08",
+   "tags": [
+    "relic",
+    "explorer",
+    "seasonal"
+   ],
+   "achv_tiers": {
+    "relic": "master",
+    "explorer": "master"
+   },
+   "parse": null,
+   "savage_kills": 0,
+   "ult_clears": 0,
+   "ult_cleared": [],
+   "ult_achv": [],
+   "ult_achv_only": [],
+   "legacy_clears": 0,
+   "ex_cleared": [],
+   "ex_kills": 0,
+   "current_clears": null,
+   "current_seen": false,
+   "progress": null,
+   "progress_all": null,
+   "job_top": null,
+   "job_scores": {},
+   "fflogs": "pending",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-08"
   },
   "43284378": {
    "name": "Busy Party",
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "CatNip's Company",
-   "seen": "2026-09-08"
+   "seen": "2026-09-08",
+   "tags": [
+    "unknown"
+   ],
+   "achv_tiers": {},
+   "parse": null,
+   "savage_kills": 0,
+   "ult_clears": 0,
+   "ult_cleared": [],
+   "ult_achv": null,
+   "ult_achv_only": [],
+   "legacy_clears": 0,
+   "ex_cleared": [],
+   "ex_kills": 0,
+   "current_clears": null,
+   "current_seen": false,
+   "progress": null,
+   "progress_all": null,
+   "job_top": null,
+   "job_scores": {},
+   "fflogs": "pending",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-08",
+   "mounts": 114,
+   "minions": 328,
+   "rare_achv": 132,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/ab848575d89650a2e7b9bbdbe03c3bd2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788909336",
+   "collect_seen": "2026-09-09"
   }
  },
  "generated_at": "2026-09-08T22:56:58Z",
