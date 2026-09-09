@@ -480,7 +480,21 @@ export default function MemberView({
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {[
                 [`https://na.finalfantasyxiv.com/lodestone/character/${m.id}/`, "LODE"],
-                [`https://www.fflogs.com/character/${fc.region.toLowerCase()}/${fc.world.toLowerCase()}/${encodeURIComponent(m.name)}`, "LOGS"],
+                // The world they are actually on. Almost everybody here is on
+                // the company's own, so that is the fallback — but a guest is
+                // by definition somebody the roster does not contain, and "an
+                // alt on another world" is the first thing that can mean. Eight
+                // of the nine guests happen to be on Tonberry, which is why
+                // this went unnoticed until the ninth: her logs link searched
+                // Tonberry for somebody who plays on Aegis and found nobody.
+                //
+                // The region stays the FC's, which is the same call the pipeline
+                // makes for the same reason: every world a guest has turned up
+                // on so far is a JP one, and reading a data centre back to a
+                // region is worth doing when there is a case to test it on.
+                [`https://www.fflogs.com/character/${fc.region.toLowerCase()}/${
+                  (home?.world ?? fc.world).toLowerCase()}/${
+                  encodeURIComponent(m.name)}`, "LOGS"],
                 [`https://ffxivcollect.com/characters/${m.id}`, "COLL"],
               ].map(([href, label]) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
