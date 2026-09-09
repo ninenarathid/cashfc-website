@@ -12437,6 +12437,58 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 85,
+      "median": 81,
+      "kills": 12,
+      "job": "Scholar"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 95,
+      "median": 89,
+      "kills": 15,
+      "job": "Scholar"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 86,
+      "median": 73,
+      "kills": 14,
+      "job": "Scholar"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 83,
+      "median": 63,
+      "kills": 20,
+      "job": "Scholar"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 71,
+      "median": 63,
+      "kills": 8,
+      "job": "Scholar"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -55977,6 +56029,31 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 2,
+      "median": 1,
+      "kills": 3,
+      "job": "Paladin"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 1,
+      "median": 1,
+      "kills": 2,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -62293,7 +62370,60 @@
    }
   ],
   "extremes": [],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 80,
+      "median": 31,
+      "kills": 10,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 67,
+      "median": 43,
+      "kills": 9,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 53,
+      "median": 26,
+      "kills": 14,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 45,
+      "median": 13,
+      "kills": 14,
+      "job": "BlackMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 27,
+      "median": 7,
+      "kills": 6,
+      "job": "BlackMage"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "49712485": {
