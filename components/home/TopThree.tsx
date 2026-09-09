@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { allRows } from "@/lib/rows";
 import { splitPopoto, type PopotoPost, type PopotoTag } from "@/lib/popoto";
 import { useAvatar } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
@@ -84,10 +85,18 @@ export default function TopThree(
     const supabase = createClient();
     if (!supabase) return;
     void (async () => {
+      // Paged: a plain select stops at a thousand rows and says nothing, so
+      // the day kudos passed that mark this panel started showing a top three
+      // built from part of the table. See lib/rows.
       const [kudos, posts, tags] = await Promise.all([
-        supabase.from("kudos").select("receiver_character_id"),
-        supabase.from("gallery_posts").select("id, character_id, like_count"),
-        supabase.from("gallery_tags").select("post_id, character_id, confirmed_at"),
+        allRows<{ receiver_character_id: number }>((from, to) =>
+          supabase.from("kudos").select("receiver_character_id").range(from, to)),
+        allRows<{ id: number; character_id: number | null; like_count: number | null }>(
+          (from, to) => supabase.from("gallery_posts")
+            .select("id, character_id, like_count").range(from, to)),
+        allRows<{ post_id: number; character_id: number | null; confirmed_at: string | null }>(
+          (from, to) => supabase.from("gallery_tags")
+            .select("post_id, character_id, confirmed_at").range(from, to)),
       ]);
 
       const count = (pairs: [number, number][]) => {
@@ -105,8 +114,7 @@ export default function TopThree(
       };
 
       const made: Board[] = [];
-      const profile = count(((kudos.data ?? []) as { receiver_character_id: number }[])
-        .map((k) => [k.receiver_character_id, 1]));
+      const profile = count(kudos.map((k) => [k.receiver_character_id, 1]));
       if (profile.length) {
         made.push({ key: "popoto", label: t("lb.popoto"), color: "#e5cc80",
                     emoji: "🥔", rows: profile });
@@ -115,8 +123,7 @@ export default function TopThree(
       // uses, from the same place, so the front page cannot disagree with the
       // page it links to.
       const gallery = count([...splitPopoto(
-        (posts.data ?? []) as unknown as PopotoPost[],
-        (tags.data ?? []) as unknown as PopotoTag[],
+        posts as unknown as PopotoPost[], tags as unknown as PopotoTag[],
       )].map(([id, v]) => [id, v.score] as [number, number]));
       if (gallery.length) {
         made.push({ key: "gallery", label: t("lb.gallery"), color: "#4fb8a8",

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { allRows } from "@/lib/rows";
 import { useLang, type Key } from "@/lib/i18n";
 import LeaderRow, { type Leader } from "@/components/LeaderRow";
 import { popotoText, splitPopoto,
@@ -55,12 +56,16 @@ const BOARDS: Board[] = [
     // One row per sender per person per day, which the table enforces, so
     // counting rows counts potatoes and counting senders counts people.
     load: async (supabase) => {
-      const { data } = await supabase.from("kudos")
-        .select("receiver_character_id, sender_id");
+      // Paged. This used to be one select, which meant the board counted the
+      // first thousand rows of the table and then quietly stopped — every
+      // total on the page was short from the day kudos passed that mark, while
+      // each member's own page, which filters to one person, stayed right.
+      const data = await allRows<{ receiver_character_id: number; sender_id: string }>(
+        (from, to) => supabase.from("kudos")
+          .select("receiver_character_id, sender_id").range(from, to));
       const out: Totals = new Map();
       const senders = new Map<number, Set<string>>();
-      for (const k of (data ?? []) as
-           { receiver_character_id: number; sender_id: string }[]) {
+      for (const k of data) {
         const at = out.get(k.receiver_character_id) ?? { score: 0, n: 0 };
         at.score += 1;
         out.set(k.receiver_character_id, at);
@@ -89,12 +94,15 @@ const BOARDS: Board[] = [
     // Not filtered to posts with a character on them any more: a picture posted
     // for nobody in particular still belongs to whoever is tagged in it.
     load: async (supabase) => {
+      // Paged for the same reason, before it becomes the same bug: these two
+      // are in the dozens today and the gallery only grows.
       const [posts, tags] = await Promise.all([
-        supabase.from("gallery_posts").select("id, character_id, like_count"),
-        supabase.from("gallery_tags").select("post_id, character_id, confirmed_at"),
+        allRows<PopotoPost>((from, to) => supabase.from("gallery_posts")
+          .select("id, character_id, like_count").range(from, to)),
+        allRows<PopotoTag>((from, to) => supabase.from("gallery_tags")
+          .select("post_id, character_id, confirmed_at").range(from, to)),
       ]);
-      return splitPopoto((posts.data ?? []) as unknown as PopotoPost[],
-                         (tags.data ?? []) as unknown as PopotoTag[]);
+      return splitPopoto(posts, tags);
     },
   },
 ];

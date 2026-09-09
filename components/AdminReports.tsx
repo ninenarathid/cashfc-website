@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAvatar } from "@/lib/avatars";
 import { EVENT_FROM, EVENT_TO } from "@/lib/evercold";
 import { isFcMember } from "@/lib/people";
+import { allRows } from "@/lib/rows";
 import { fmtDate } from "@/lib/dates";
 import { useLang, type Key } from "@/lib/i18n";
 
@@ -80,17 +81,30 @@ const REPORTS: Report[] = [
         if (until) out = out.lte("created_at", endOf(until)) as typeof out;
         return out as T;
       };
+      /*
+       * Paged, because this is the draw.
+       *
+       * A plain select stops at a thousand rows without saying so. Over a
+       * one-day span that never bit; over a month of an event it would, and
+       * the way it would bite is that somebody who gave a potato on the wrong
+       * side of the cut-off simply would not be in the hat. A leaderboard being
+       * short is embarrassing; a draw being short is unfair.
+       */
       const [kudos, likes, posts] = await Promise.all([
-        range(supabase.from("kudos")
-          .select("sender_id, receiver_character_id, created_at")),
-        range(supabase.from("gallery_likes").select("profile_id, post_id, created_at")),
+        allRows<{ sender_id: string; receiver_character_id: number; created_at: string }>(
+          (from, to) => range(supabase.from("kudos")
+            .select("sender_id, receiver_character_id, created_at")).range(from, to)),
+        allRows<{ profile_id: string; post_id: number; created_at: string }>(
+          (from, to) => range(supabase.from("gallery_likes")
+            .select("profile_id, post_id, created_at")).range(from, to)),
         // Not date-ranged: a like from last week can land on a picture posted
         // last year, and the owner is what we came for.
-        supabase.from("gallery_posts").select("id, character_id"),
+        allRows<{ id: number; character_id: number | null }>(
+          (from, to) => supabase.from("gallery_posts")
+            .select("id, character_id").range(from, to)),
       ]);
       const owner = new Map<number, number | null>(
-        ((posts.data ?? []) as { id: number; character_id: number | null }[])
-          .map((row) => [row.id, row.character_id]));
+        posts.map((row) => [row.id, row.character_id]));
 
       const got = new Map<string, Map<string, number[]>>();
       const bump = (id: string, iso: string, at: 0 | 1) => {
@@ -105,13 +119,11 @@ const REPORTS: Report[] = [
       // in the table, it costs nothing, and a draw that rewards it is a draw
       // decided by whoever remembered to click their own profile most days —
       // which is the opposite of what this report is for.
-      for (const k of (kudos.data ?? []) as
-           { sender_id: string; receiver_character_id: number; created_at: string }[]) {
+      for (const k of kudos) {
         if (k.receiver_character_id === mine.get(k.sender_id)) continue;
         bump(k.sender_id, k.created_at, 0);
       }
-      for (const l of (likes.data ?? []) as
-           { profile_id: string; post_id: number; created_at: string }[]) {
+      for (const l of likes) {
         const posted = owner.get(l.post_id);
         // A picture with nobody credited belongs to nobody, so a like on it
         // cannot be a like on your own.
