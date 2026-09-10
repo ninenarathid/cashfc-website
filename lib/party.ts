@@ -26,7 +26,7 @@ import { artFocus, dutySlug, type DutyKind } from "@/lib/duty";
 import { FC_WORLD } from "@/lib/world";
 
 export type SlotRole = "tank" | "healer" | "dps";
-export type Shape = "light" | "full" | "alliance" | "open";
+export type Shape = "light" | "full" | "eight" | "alliance" | "open";
 /** Which of the three eights, in an alliance. */
 export type Wing = "A" | "B" | "C";
 
@@ -37,6 +37,18 @@ export interface SlotDef {
   label: string;
   role: SlotRole;
   wing?: Wing;
+  /**
+   * A seat with no role attached to it.
+   *
+   * A FATE farm and a treasure night are eight people and nothing more: there
+   * is no tank, nobody is healing, and turning up on whatever you happen to be
+   * on is the whole arrangement. They still want eight seats — a count is how
+   * anybody tells whether there is room — so this is a party of eight with the
+   * composition taken out rather than a party with no seats.
+   *
+   * The role underneath is a placeholder nothing user-facing reads.
+   */
+  free?: boolean;
 }
 
 const LIGHT: [string, SlotRole][] = [
@@ -56,6 +68,13 @@ const FULL: [string, SlotRole][] = [
  */
 export function slotsOf(shape: Shape): SlotDef[] {
   if (shape === "open") return [];
+  // Numbered, because there is nothing else to call them. "1" through "8" is
+  // what a party list looks like when nobody is filling a role.
+  if (shape === "eight") {
+    return Array.from({ length: 8 }, (_, i) => ({
+      id: String(i + 1), label: String(i + 1), role: "dps" as const, free: true,
+    }));
+  }
   if (shape === "light") {
     return LIGHT.map(([label, role]) => ({ id: label, label, role }));
   }
@@ -67,7 +86,7 @@ export function slotsOf(shape: Shape): SlotDef[] {
 }
 
 export const SHAPE_SIZE: Record<Shape, number> = {
-  light: 4, full: 8, alliance: 24, open: 0,
+  light: 4, full: 8, eight: 8, alliance: 24, open: 0,
 };
 
 /*
@@ -81,6 +100,8 @@ export const SHAPE_SIZE: Record<Shape, number> = {
 export const SHAPE_LABEL: Record<Shape, string> = {
   light: "4 players",
   full: "8 players",
+  // The same eight, with nothing said about who plays what.
+  eight: "8 players",
   alliance: "Alliance · 24",
   // Never shown as-is: three different situations end up with no seats, and
   // openLabel below says which one this is. Kept only as the fallback for a
@@ -359,7 +380,15 @@ export function catalogue(
       badge: "CC", duty: "Crystalline Conflict", shape: "open", fixedShape: true },
     { key: "pvp:fl", kind: "pvp", name: "Frontline",
       badge: "FL", duty: "Frontline", shape: "open", fixedShape: true },
-    { key: "treasure", kind: "treasure", name: "Treasure maps", shape: "full" },
+    /*
+     * Eight, and no composition.
+     *
+     * A map night is eight people opening portals. What comes out of a portal
+     * does not care what anybody is playing, and a party list reading MT and
+     * H1 was asking eight people to agree something that never came up.
+     */
+    { key: "treasure", kind: "treasure", name: "Treasure maps",
+      shape: "eight", fixedShape: true },
     { key: "criterion", kind: "criterion", name: "Another criterion dungeon",
       shape: "light", fixedShape: true },
     /*
@@ -451,7 +480,8 @@ export function catalogue(
      * "Everybody turn up" left a night with fourteen people in it and no way
      * to have known that before arriving.
      */
-    { key: "fate", kind: "fate", name: "FATE farm", shape: "full" },
+    { key: "fate", kind: "fate", name: "FATE farm",
+      shape: "eight", fixedShape: true },
     { key: "hunt", kind: "hunt", name: "Hunt train", shape: "open" },
     /*
      * Somebody to learn from, or somebody offering to teach.
@@ -1364,7 +1394,7 @@ export function spotText(s: Spot | undefined): string | null {
  */
 export const jobMatters = (kind: ContentKind | undefined): boolean =>
   !(kind === "community" || kind === "fate" || kind === "hunt"
-    || kind === "field");
+    || kind === "field" || kind === "treasure");
 
 export const hasSpot = (kind: ContentKind | undefined): boolean =>
   kind === "community" || kind === "fate" || kind === "hunt"
@@ -1805,7 +1835,11 @@ export function needsByRole(p: Party): Record<SlotRole, number> {
   const out: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
   // Seats nobody has offered for. A seat a floater is hovering over is not
   // something the party is asking a stranger for.
-  for (const s of resolveParty(p).uncovered) out[s.role] += 1;
+  //
+  // A seat with no role is not a DPS seat going spare: a FATE farm short of
+  // three people is not short of three DPS, and filing it under one would put
+  // it in front of somebody filtering for a job to bring.
+  for (const s of resolveParty(p).uncovered) if (!s.free) out[s.role] += 1;
   return out;
 }
 

@@ -133,7 +133,9 @@ function Seat(
   const who = res.seats[slot.id];
   const maybe = res.maybe[slot.id] ?? [];
   const src = useFace()(who?.characterId, who?.avatar ?? null);
-  const tint = ROLE_COLOR[slot.role];
+  // A seat with no role has no colour to take from one. Grey, so the grid
+  // still reads as a party without claiming somebody has to tank it.
+  const tint = slot.free ? "#8b93a1" : ROLE_COLOR[slot.role];
 
   const ring =
     state === "taken" ? { borderColor: `color-mix(in srgb, ${tint} 55%, transparent)`,
@@ -382,7 +384,9 @@ export function NeedLine({ party }: { party: Party }) {
   }
 
   const need: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
-  for (const s of res.uncovered) need[s.role] += 1;
+  // Roleless seats fall through to "wants N more" below, which is the true
+  // answer for a FATE farm: it is short of people, not short of healers.
+  for (const s of res.uncovered) if (!s.free) need[s.role] += 1;
   const parts = (Object.keys(need) as SlotRole[]).filter((r) => need[r] > 0);
 
   return (

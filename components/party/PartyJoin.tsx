@@ -338,7 +338,7 @@ export default function PartyJoin(
                 {t("party.takeASeat")}
               </span>
               {free.map((sl) => {
-                const c = ROLE_COLOR[sl.role];
+                const c = sl.free ? "#8b93a1" : ROLE_COLOR[sl.role];
                 return (
                   <button key={sl.id} type="button" disabled={busy}
                           onClick={() => run(async () => {
@@ -351,7 +351,11 @@ export default function PartyJoin(
                     <span style={{ background: c }}
                           className="size-1.5 shrink-0 rounded-full" />
                     {sl.label}
-                    <span className="opacity-70">{ROLE_LABEL[sl.role]}</span>
+                    {/* Only where the seat has a role. A FATE farm's seats are
+                        numbered and nothing else. */}
+                    {!sl.free && (
+                      <span className="opacity-70">{ROLE_LABEL[sl.role]}</span>
+                    )}
                   </button>
                 );
               })}
@@ -401,7 +405,7 @@ export default function PartyJoin(
                   <div className="flex flex-wrap gap-1.5">
                     {seats.map((sl) => {
                       const on = !any && want.has(sl.id);
-                      const c = ROLE_COLOR[sl.role];
+                      const c = sl.free ? "#8b93a1" : ROLE_COLOR[sl.role];
                       return (
                         <button key={sl.id} type="button" disabled={any}
                                 onClick={() => setWant((v) => {
@@ -419,7 +423,9 @@ export default function PartyJoin(
                           <span style={{ background: c }}
                                 className="size-1.5 shrink-0 rounded-full" />
                           {sl.label}
-                          <span className="opacity-70">{ROLE_LABEL[sl.role]}</span>
+                          {!sl.free && (
+                            <span className="opacity-70">{ROLE_LABEL[sl.role]}</span>
+                          )}
                         </button>
                       );
                     })}
