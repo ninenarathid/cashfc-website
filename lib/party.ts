@@ -539,15 +539,23 @@ export const lengthUnitsFor = (kind: ContentKind | undefined): LengthUnit[] =>
 /**
  * What a fresh listing of this kind opens on.
  *
- * Hours almost everywhere, since it is the one unit every evening has. Two
- * exceptions, and both are the content answering for itself: a treasure night
- * ends when the maps do, and a legacy trial is counted in runs because that is
- * the whole shape of the evening — you are there until the mount drops or
- * until everybody has had enough, and "two hours of the Bowl of Embers" is a
- * number nobody would say out loud.
+ * Hours where nothing better applies, since it is the one unit every evening
+ * has. The rest is the content answering for itself:
+ *
+ *   maps   A treasure night ends when the maps do, and nothing else.
+ *   runs   A legacy trial is however many goes it takes — you are there until
+ *          the mount drops or until everybody has had enough, and "two hours
+ *          of the Bowl of Embers" is a number nobody would say out loud.
+ *   food   An extreme, a savage tier and an ultimate are measured in Well-Fed,
+ *          because that is the clock everybody in the party is watching. One,
+ *          which is thirty minutes and the shortest honest answer.
  */
 export const defaultUnitFor = (kind: ContentKind | undefined): LengthUnit =>
-  kind === "treasure" ? "maps" : kind === "legacy" ? "runs" : "hours";
+  kind === "treasure" ? "maps"
+    : kind === "legacy" ? "runs"
+      : (kind === "extreme" || kind === "savage" || kind === "ultimate")
+          ? "food"
+          : "hours";
 
 function unitsFor(kind: ContentKind | undefined): LengthUnit[] {
   // A map night has one honest answer and it is not a number. Offering hours
@@ -1311,6 +1319,10 @@ const HOUSING = new Set([
 
 export const isHousing = (map: string | undefined | null): boolean =>
   HOUSING.has((map ?? "").trim());
+
+/** "Elemental · Tonberry", where the party said which. */
+export const worldText = (s: Spot | undefined): string | null =>
+  s?.world ? `${s.dc ? `${s.dc} · ` : ""}${s.world}` : null;
 
 /** "Kozama'uka (12.4, 30.1)", or "Gilgamesh · Kozama'uka" when away. */
 export function spotText(s: Spot | undefined): string | null {

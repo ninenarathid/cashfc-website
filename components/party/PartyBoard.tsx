@@ -12,6 +12,7 @@ import {
   LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay,
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
   needsByRole, partyStatus, progressText, resolveParty, slotsOf, spotText,
+  worldText,
   timeIsEstimate,
 } from "@/lib/party";
 import { createClient } from "@/lib/supabase/client";
@@ -34,6 +35,7 @@ import { PartyBody } from "@/components/party/PartyBody";
 import { ProgressChip } from "@/components/party/ProgressTrack";
 import { LootChip } from "@/components/party/LootPlan";
 import { SpotChip } from "@/components/party/WherePicker";
+import MapShot from "@/components/party/MapShot";
 import PartyComments from "@/components/party/PartyComments";
 import { useAvatarOverrides } from "@/lib/avatars";
 import PartyCreate from "@/components/party/PartyCreate";
@@ -193,6 +195,13 @@ function PartyDetail(
             <><span className="opacity-40">·</span>
               <span>{party.roulettes.join(", ")}</span></>
           )}
+          {/* Which world it is on, spelled out. Everybody here is on
+              Tonberry and will read past it, which is the point: the row where
+              it says something else is the row somebody has to travel for. */}
+          {worldText(party.spot) && (
+            <><span className="opacity-40">·</span>
+              <span>🌐 {worldText(party.spot)}</span></>
+          )}
           {spotText(party.spot) && (
             <><span className="opacity-40">·</span>
               <span>📍 {spotText(party.spot)}</span></>
@@ -202,6 +211,13 @@ function PartyDetail(
               <span>{t("party.onePerJob")}</span></>
           )}
         </p>
+
+          {/* Where it is, on the map, once there are coordinates to put a
+              pin at. The line above is an address anybody in the game can
+              use and also two numbers: somebody who does not know the zone
+              would otherwise log in to find out whether that is the north
+              end or the far side of a river. */}
+          <MapShot spot={party.spot} size={300} />
 
           {/* The write-up first, then who is in it. What the party is
               doing is the thing somebody opened the row to read; the
@@ -934,6 +950,10 @@ export default function PartyBoard(
                       {!!p.roulettes?.length && (
                         <><span className="opacity-40">·</span>
                           <span>{p.roulettes.join(", ")}</span></>
+                      )}
+                      {worldText(p.spot) && (
+                        <><span className="opacity-40">·</span>
+                          <span>🌐 {worldText(p.spot)}</span></>
                       )}
                       {spotText(p.spot) && (
                         <><span className="opacity-40">·</span>

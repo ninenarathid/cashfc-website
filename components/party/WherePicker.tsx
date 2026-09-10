@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import type { Spot } from "@/lib/party";
 import { isHousing, spotText } from "@/lib/party";
+import MapShot from "@/components/party/MapShot";
+import { WARDS, plotAt } from "@/lib/housing";
 import maps from "@/data/maps.json";
 import { DATACENTRES, FC_DC, FC_WORLD, dcOf } from "@/lib/world";
 import { useLang } from "@/lib/i18n";
@@ -59,6 +61,9 @@ export default function WherePicker(
   const dc = value?.dc ?? dcOf(world) ?? FC_DC;
   const set = (patch: Partial<Spot>) =>
     onChange({ map: "", ...value, dc, world, ...patch });
+
+  /** The plot they have typed, where it is a plot the game has. */
+  const here = plotAt(value?.map, value?.plot);
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
@@ -118,7 +123,7 @@ export default function WherePicker(
             <>
               <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
                 {t("pf.ward")}
-                <input type="number" step={1} min={1} max={30}
+                <input type="number" step={1} min={1} max={WARDS}
                        value={value.ward ?? ""}
                        onChange={(e) => onChange({
                          ...value,
@@ -161,11 +166,35 @@ export default function WherePicker(
               </label>
             </>
           )}
-          <button type="button" onClick={() => { onChange(undefined); setQ(""); }}
+          <button type="button"
+                  onClick={() => { onChange({ map: "", dc, world }); setQ(""); }}
                   className="text-[12px] text-muted underline hover:text-ink">
             {t("pf.change")}
           </button>
         </div>
+      ) : null}
+
+      {/* The pin, while it is still being placed. Clicking the map is how
+          somebody standing in the zone would say where — and two numbers typed
+          from memory are easy to get wrong by a digit, which a picture is how
+          anybody notices. A housing district has no coordinates to place, so
+          it gets no map. */}
+      {value?.map ? (
+        // A housing district is the one place the plot number is the pin: the
+        // game marks all sixty on its own map, and which of the two maps —
+        // main ward or subdivision — the zone name cannot tell you.
+        isHousing(value.map) ? (
+          here && (
+            <MapShot spot={value} size="full"
+                     art={{ id: here.map, size: here.size }}
+                     at={{ x: here.x, y: here.y }}
+                     caption={`${value.map} · ${t("pf.ward")} ${value.ward ?? "?"}, `
+                       + `${t("pf.plot")} ${here.plot}`} />
+          )
+        ) : (
+          <MapShot spot={value} size="full"
+                   onPick={(x, y) => onChange({ ...value, dc, world, x, y })} />
+        )
       ) : (
         <>
           <input value={q} onChange={(e) => setQ(e.target.value)}
@@ -173,7 +202,7 @@ export default function WherePicker(
                  className={`${sel} w-full placeholder:text-muted`} />
           {hits.map((m) => (
             <button key={m.name} type="button"
-                    onClick={() => { onChange({ map: m.name, region: m.region }); setQ(""); }}
+                    onClick={() => { set({ map: m.name, region: m.region }); setQ(""); }}
                     className="flex items-baseline gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-surface">
               <span className="text-[13px] text-ink">{m.name}</span>
               {m.region && (

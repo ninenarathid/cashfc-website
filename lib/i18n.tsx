@@ -1830,9 +1830,14 @@ const DICT = {
   "pf.payEach": { en: "Paying each person", th: "จ่ายคนละ" },
 
   /* Where in the game. */
+  "pf.mapClick": {
+    en: "Click the map to place it",
+    th: "กดบนแผนที่เพื่อปักหมุด",
+  },
+  "pf.mapFrom": { en: "map from XIVAPI", th: "แผนที่จาก XIVAPI" },
   "pf.ward": { en: "Ward", th: "Ward" },
   "pf.plot": { en: "Plot", th: "Plot" },
-  "pf.where": { en: "Where", th: "ที่ไหน" },
+  "pf.where": { en: "Meeting point", th: "จุดนัดพบ" },
   "pf.whereHelp": {
     en: "Any zone in the game. Coordinates optional.",
     th: "แมพไหนในเกมก็ได้ พิกัดใส่หรือไม่ใส่ก็ได้",
@@ -2004,6 +2009,10 @@ const DICT = {
   "pf.pickContentFirst": {
     en: "Pick what you are running.",
     th: "เลือกก่อนว่าจะเล่นอะไร",
+  },
+  "pf.titleFirst": {
+    en: "Give it a title first.",
+    th: "ใส่หัวข้อของปาร์ตี้ก่อน",
   },
   "pf.takeSeatFirst": {
     en: "Take your own seat first.",

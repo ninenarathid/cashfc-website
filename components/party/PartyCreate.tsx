@@ -548,12 +548,17 @@ export default function PartyCreate(
     setSeats((v) => ({ ...v, [slotId]: { ...v[slotId], flex: f } }));
   }
 
-  const ready = !!chosen && !!start && !past && minutes > 0
+  const ready = !!chosen && !!note.trim() && !!start && !past && minutes > 0
     && (!!mySeat || iAmFloating);
   // Which of the two is missing, so the button says why it is grey rather than
   // leaving somebody to work it out.
   const wants = !chosen ? "pf.pickContentFirst" as const
-    : (!mySeat && !iAmFloating) ? "pf.takeSeatFirst" as const : null;
+    // The one line the whole board is read by. Twelve rows that all say
+    // "AAC Heavyweight M3 (Savage)" are twelve rows nobody can tell apart, and
+    // the difference between them — prog, farm, first timers welcome — is
+    // exactly what this field is for.
+    : !note.trim() ? "pf.titleFirst" as const
+      : (!mySeat && !iAmFloating) ? "pf.takeSeatFirst" as const : null;
   const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
 
   /*
@@ -642,9 +647,13 @@ export default function PartyCreate(
           </select>
         )}
 
+        {/* Required, and marked so before somebody reaches a grey button and
+            has to work out which of six fields it meant. */}
         <input value={note} onChange={(e) => setNote(e.target.value.slice(0, 140))}
+               required aria-required
                placeholder={t("pf.note")}
-               className={`${sel} min-w-[16rem] flex-1 placeholder:text-muted`} />
+               className={`${sel} min-w-[16rem] flex-1 placeholder:text-muted ${
+                 note.trim() ? "" : "border-accent/50"}`} />
       </div>
 
       {isFight(chosen?.kind) && (

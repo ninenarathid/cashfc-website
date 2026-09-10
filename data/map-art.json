@@ -1,0 +1,2147 @@
+{
+ "generated_at": "2026-09-10T19:52:13.197Z",
+ "source": "XIVAPI v2, sheet Map (Id and SizeFactor, by PlaceName)",
+ "base": "https://v2.xivapi.com/api/asset/map/",
+ "art": {
+  "New Gridania": {
+   "id": "f1t1/00",
+   "size": 200
+  },
+  "Old Gridania": {
+   "id": "f1t2/00",
+   "size": 200
+  },
+  "Central Shroud": {
+   "id": "f1f1/00",
+   "size": 100
+  },
+  "East Shroud": {
+   "id": "f1f2/00",
+   "size": 100
+  },
+  "South Shroud": {
+   "id": "f1f3/00",
+   "size": 100
+  },
+  "North Shroud": {
+   "id": "f1f4/00",
+   "size": 100
+  },
+  "The Tam-Tara Deepcroft": {
+   "id": "f1d1/00",
+   "size": 300
+  },
+  "The Thousand Maws of Toto-Rak": {
+   "id": "f1r1/00",
+   "size": 200
+  },
+  "Limsa Lominsa Upper Decks": {
+   "id": "s1t1/01",
+   "size": 200
+  },
+  "Limsa Lominsa Lower Decks": {
+   "id": "s1t2/01",
+   "size": 200
+  },
+  "Ul'dah - Steps of Nald": {
+   "id": "w1t1/01",
+   "size": 200
+  },
+  "Ul'dah - Steps of Thal": {
+   "id": "w1t2/01",
+   "size": 200
+  },
+  "Middle La Noscea": {
+   "id": "s1f1/00",
+   "size": 100
+  },
+  "Lower La Noscea": {
+   "id": "s1f2/00",
+   "size": 100
+  },
+  "Eastern La Noscea": {
+   "id": "s1f3/01",
+   "size": 100
+  },
+  "Western La Noscea": {
+   "id": "s1f4/00",
+   "size": 100
+  },
+  "Upper La Noscea": {
+   "id": "s1f5/00",
+   "size": 100
+  },
+  "Western Thanalan": {
+   "id": "w1f1/00",
+   "size": 100
+  },
+  "Central Thanalan": {
+   "id": "w1f2/00",
+   "size": 100
+  },
+  "Eastern Thanalan": {
+   "id": "w1f3/00",
+   "size": 100
+  },
+  "Southern Thanalan": {
+   "id": "w1f4/01",
+   "size": 100
+  },
+  "Northern Thanalan": {
+   "id": "w1f5/00",
+   "size": 100
+  },
+  "Mor Dhona": {
+   "id": "l1f1/01",
+   "size": 100
+  },
+  "Mizzenmast Inn": {
+   "id": "s1ti/00",
+   "size": 800
+  },
+  "The Hourglass": {
+   "id": "w1ti/00",
+   "size": 800
+  },
+  "The Roost": {
+   "id": "f1ti/00",
+   "size": 800
+  },
+  "Outer La Noscea": {
+   "id": "s1f6/00",
+   "size": 100
+  },
+  "Sastasha": {
+   "id": "s1d1/00",
+   "size": 200
+  },
+  "The Wanderer's Palace": {
+   "id": "s1d3/00",
+   "size": 200
+  },
+  "The Navel": {
+   "id": "s1fa/00",
+   "size": 400
+  },
+  "Copperbell Mines": {
+   "id": "w1d1/01",
+   "size": 200
+  },
+  "Bowl of Embers": {
+   "id": "w1fa/00",
+   "size": 400
+  },
+  "Thornmarch": {
+   "id": "f1fa/00",
+   "size": 400
+  },
+  "Stone Vigil": {
+   "id": "r1d1/00",
+   "size": 200
+  },
+  "Aurum Vale": {
+   "id": "r1r2/00",
+   "size": 200
+  },
+  "The Howling Eye": {
+   "id": "r1fa/01",
+   "size": 400
+  },
+  "The Sunken Temple of Qarn": {
+   "id": "w1d3/01",
+   "size": 200
+  },
+  "Brayflox's Longstop": {
+   "id": "s1d2/00",
+   "size": 200
+  },
+  "Halatali": {
+   "id": "w1d2/00",
+   "size": 200
+  },
+  "Castrum Meridianum": {
+   "id": "w1d4/00",
+   "size": 200
+  },
+  "Haukke Manor": {
+   "id": "f1d2/01",
+   "size": 200
+  },
+  "Amdapor Keep": {
+   "id": "f1d3/01",
+   "size": 200
+  },
+  "Dzemael Darkhold": {
+   "id": "r1r1/01",
+   "size": 200
+  },
+  "Wolves' Den Pier": {
+   "id": "s1p1/00",
+   "size": 400
+  },
+  "Cutter's Cry": {
+   "id": "w1r1/01",
+   "size": 200
+  },
+  "Coerthas Central Highlands": {
+   "id": "r1f1/00",
+   "size": 100
+  },
+  "The Praetorium": {
+   "id": "w1d5/01",
+   "size": 200
+  },
+  "Upper Aetheroacoustic Exploratory Site": {
+   "id": "s1b1/00",
+   "size": 200
+  },
+  "Lower Aetheroacoustic Exploratory Site": {
+   "id": "s1b2/00",
+   "size": 200
+  },
+  "Ragnarok Drive Cylinder": {
+   "id": "s1b4/00",
+   "size": 200
+  },
+  "Ragnarok Central Core": {
+   "id": "s1b5/00",
+   "size": 200
+  },
+  "The Ragnarok": {
+   "id": "s1b3/01",
+   "size": 200
+  },
+  "Central Decks": {
+   "id": "f1b3/01",
+   "size": 200
+  },
+  "Seat of the First Bow": {
+   "id": "f1e4/00",
+   "size": 800
+  },
+  "Lotus Stand": {
+   "id": "f1e5/00",
+   "size": 400
+  },
+  "Labyrinth of the Ancients": {
+   "id": "l1r1/01",
+   "size": 200
+  },
+  "Mist": {
+   "id": "s1h1/01",
+   "size": 200
+  },
+  "Command Room": {
+   "id": "s1e4/00",
+   "size": 800
+  },
+  "The Memory of Embers": {
+   "id": "w1fa/10",
+   "size": 400
+  },
+  "A Future Rewritten": {
+   "id": "n4gw/00",
+   "size": 400
+  },
+  "Heart of the Sworn": {
+   "id": "w1e4/00",
+   "size": 400
+  },
+  "Sigmascape V4.0": {
+   "id": "z3oy/00",
+   "size": 400
+  },
+  "The Waking Sands": {
+   "id": "w1e6/00",
+   "size": 400
+  },
+  "The Fold": {
+   "id": "s1p2/00",
+   "size": 400
+  },
+  "The Lavender Beds": {
+   "id": "f1h1/01",
+   "size": 200
+  },
+  "The Goblet": {
+   "id": "w1h1/01",
+   "size": 200
+  },
+  "La Noscea": {
+   "id": "region/00",
+   "size": 100
+  },
+  "Thanalan": {
+   "id": "region/02",
+   "size": 100
+  },
+  "The Black Shroud": {
+   "id": "region/01",
+   "size": 100
+  },
+  "Coerthas": {
+   "id": "region/03",
+   "size": 100
+  },
+  "Eorzea": {
+   "id": "world/00",
+   "size": 100
+  },
+  "Rhotano Sea": {
+   "id": "o1e2/00",
+   "size": 400
+  },
+  "Pharos Sirius": {
+   "id": "s1d4/01",
+   "size": 200
+  },
+  "Private Cottage - Mist": {
+   "id": "s1i1/01",
+   "size": 400
+  },
+  "Private House - Mist": {
+   "id": "s1i2/01",
+   "size": 400
+  },
+  "Private Mansion - Mist": {
+   "id": "s1i3/01",
+   "size": 400
+  },
+  "Private Cottage - The Lavender Beds": {
+   "id": "f1i1/01",
+   "size": 400
+  },
+  "Private House - The Lavender Beds": {
+   "id": "f1i2/01",
+   "size": 400
+  },
+  "Private Mansion - The Lavender Beds": {
+   "id": "f1i3/01",
+   "size": 400
+  },
+  "Private Cottage - The Goblet": {
+   "id": "w1i1/01",
+   "size": 400
+  },
+  "Private House - The Goblet": {
+   "id": "w1i2/01",
+   "size": 400
+  },
+  "Private Mansion - The Goblet": {
+   "id": "w1i3/01",
+   "size": 400
+  },
+  "The Rising Stones": {
+   "id": "l1e1/01",
+   "size": 400
+  },
+  "Haukke Manor (Hard)": {
+   "id": "f1d4/01",
+   "size": 200
+  },
+  "Copperbell Mines (Hard)": {
+   "id": "w1d6/01",
+   "size": 200
+  },
+  "Porta Decumana": {
+   "id": "w1fb/00",
+   "size": 400
+  },
+  "Griffin Crossing": {
+   "id": "r1fb/00",
+   "size": 200
+  },
+  "Halatali (Hard)": {
+   "id": "w1d7/00",
+   "size": 200
+  },
+  "Brayflox's Longstop (Hard)": {
+   "id": "s1d6/00",
+   "size": 200
+  },
+  "The Whorleater": {
+   "id": "o1fa/00",
+   "size": 400
+  },
+  "Dalamud's Shadow": {
+   "id": "f1b1/00",
+   "size": 200
+  },
+  "The Outer Coil": {
+   "id": "f1b2/01",
+   "size": 200
+  },
+  "The Holocharts": {
+   "id": "f1b4/00",
+   "size": 200
+  },
+  "The Lost City of Amdapor": {
+   "id": "f1d5/01",
+   "size": 200
+  },
+  "The Stone Vigil (Hard)": {
+   "id": "r1d2/00",
+   "size": 200
+  },
+  "Syrcus Tower": {
+   "id": "l1r2/01",
+   "size": 200
+  },
+  "The Tam-Tara Deepcroft (Hard)": {
+   "id": "f1d6/00",
+   "size": 300
+  },
+  "The Striking Tree": {
+   "id": "f1fb/00",
+   "size": 400
+  },
+  "Carteneau Flats: Borderland Ruins": {
+   "id": "l1p3/00",
+   "size": 100
+  },
+  "Hullbreaker Isle": {
+   "id": "s1d5/00",
+   "size": 200
+  },
+  "Sastasha (Hard)": {
+   "id": "s1d7/00",
+   "size": 200
+  },
+  "Private Chambers - Mist": {
+   "id": "s1i4/00",
+   "size": 400
+  },
+  "Private Chambers - The Lavender Beds": {
+   "id": "f1i4/00",
+   "size": 400
+  },
+  "Private Chambers - The Goblet": {
+   "id": "w1i4/00",
+   "size": 400
+  },
+  "Akh Afah Amphitheatre": {
+   "id": "r1fc/00",
+   "size": 400
+  },
+  "Snowcloak": {
+   "id": "r1d3/00",
+   "size": 200
+  },
+  "IC-06 Central Decks": {
+   "id": "w1b1/00",
+   "size": 200
+  },
+  "IC-06 Regeneration Grid": {
+   "id": "w1b2/00",
+   "size": 200
+  },
+  "IC-06 Main Bridge": {
+   "id": "w1b3/00",
+   "size": 200
+  },
+  "The Burning Heart": {
+   "id": "w1b4/00",
+   "size": 200
+  },
+  "Intercessory": {
+   "id": "r1e2/00",
+   "size": 400
+  },
+  "The Sunken Temple of Qarn (Hard)": {
+   "id": "w1d8/01",
+   "size": 200
+  },
+  "The World of Darkness": {
+   "id": "l1r3/00",
+   "size": 200
+  },
+  "Steps of Faith": {
+   "id": "r1fd/00",
+   "size": 200
+  },
+  "The Wanderer's Palace (Hard)": {
+   "id": "s1d8/00",
+   "size": 200
+  },
+  "Amdapor Keep (Hard)": {
+   "id": "f1d7/01",
+   "size": 200
+  },
+  "The Gold Saucer": {
+   "id": "w1eb/00",
+   "size": 400
+  },
+  "Chocobo Square": {
+   "id": "s1fb/00",
+   "size": 100
+  },
+  "The Keeper of the Lake": {
+   "id": "l1d1/01",
+   "size": 200
+  },
+  "Company Workshop - Mist": {
+   "id": "s1i5/00",
+   "size": 400
+  },
+  "Company Workshop - The Goblet": {
+   "id": "w1i5/00",
+   "size": 400
+  },
+  "Company Workshop - The Lavender Beds": {
+   "id": "f1i5/00",
+   "size": 400
+  },
+  "The Chrysalis": {
+   "id": "z1e9/00",
+   "size": 400
+  },
+  "Coerthas Western Highlands": {
+   "id": "r2f1/00",
+   "size": 95
+  },
+  "The Dravanian Forelands": {
+   "id": "d2f1/00",
+   "size": 95
+  },
+  "The Dravanian Hinterlands": {
+   "id": "d2f2/00",
+   "size": 95
+  },
+  "The Churning Mists": {
+   "id": "d2f3/00",
+   "size": 95
+  },
+  "The Sea of Clouds": {
+   "id": "a2f1/00",
+   "size": 95
+  },
+  "Azys Lla": {
+   "id": "a2f2/00",
+   "size": 95
+  },
+  "Foundation": {
+   "id": "r2t1/00",
+   "size": 200
+  },
+  "The Pillars": {
+   "id": "r2t2/00",
+   "size": 200
+  },
+  "Saint Endalim's Scholasticate": {
+   "id": "r2e1/00",
+   "size": 400
+  },
+  "Seat of the Lord Commander": {
+   "id": "r2e3/00",
+   "size": 400
+  },
+  "Fortemps Manor": {
+   "id": "r2e4/00",
+   "size": 400
+  },
+  "Cloud Nine": {
+   "id": "r2ti/00",
+   "size": 800
+  },
+  "The Lightfeather Proving Grounds": {
+   "id": "r2e5/00",
+   "size": 400
+  },
+  "Ruling Chamber": {
+   "id": "r2e6/00",
+   "size": 400
+  },
+  "Sacrificial Chamber": {
+   "id": "d2e2/00",
+   "size": 400
+  },
+  "Sohm Al Foothills": {
+   "id": "d2d1/01",
+   "size": 200
+  },
+  "Neverreap": {
+   "id": "a2d2/00",
+   "size": 200
+  },
+  "Aetherochemical Research Facility": {
+   "id": "a2d1/01",
+   "size": 200
+  },
+  "The Limitless Blue": {
+   "id": "a2fa/00",
+   "size": 400
+  },
+  "Singularity Reactor": {
+   "id": "a2fb/00",
+   "size": 400
+  },
+  "The Fist of the Father": {
+   "id": "d2a1/00",
+   "size": 200
+  },
+  "The Cuff of the Father": {
+   "id": "d2a2/01",
+   "size": 200
+  },
+  "The Arm of the Father": {
+   "id": "d2a3/00",
+   "size": 200
+  },
+  "The Burden of the Father": {
+   "id": "d2a4/00",
+   "size": 200
+  },
+  "The Great Gubal Library": {
+   "id": "d2d3/00",
+   "size": 200
+  },
+  "Seal Rock": {
+   "id": "s2p1/00",
+   "size": 100
+  },
+  "Dusk Vigil": {
+   "id": "r2d1/00",
+   "size": 200
+  },
+  "The Fractal Continuum": {
+   "id": "a2d3/01",
+   "size": 200
+  },
+  "The Vault": {
+   "id": "r2d2/01",
+   "size": 200
+  },
+  "The Aery": {
+   "id": "d2d2/00",
+   "size": 200
+  },
+  "Matoya's Cave": {
+   "id": "d2e3/00",
+   "size": 400
+  },
+  "Thok ast Thok": {
+   "id": "d2fa/00",
+   "size": 400
+  },
+  "Idyllshire": {
+   "id": "d2t1/00",
+   "size": 400
+  },
+  "Abalathia's Spine": {
+   "id": "region/05",
+   "size": 100
+  },
+  "Dravania": {
+   "id": "region/06",
+   "size": 100
+  },
+  "Central Azys Lla": {
+   "id": "a2e2/00",
+   "size": 400
+  },
+  "Pharos Sirius (Hard)": {
+   "id": "s1d9/01",
+   "size": 200
+  },
+  "Saint Mocianne's Arboretum": {
+   "id": "d2d4/01",
+   "size": 200
+  },
+  "Void Ark": {
+   "id": "z2r1/01",
+   "size": 200
+  },
+  "The Antitower": {
+   "id": "d2d5/01",
+   "size": 200
+  },
+  "The Lost City of Amdapor (Hard)": {
+   "id": "f1d8/01",
+   "size": 200
+  },
+  "Containment Bay S1T7": {
+   "id": "a2fd/00",
+   "size": 400
+  },
+  "The Feasting Grounds": {
+   "id": "s1p4/00",
+   "size": 200
+  },
+  "The Fist of the Son": {
+   "id": "d2a5/00",
+   "size": 200
+  },
+  "The Cuff of the Son": {
+   "id": "d2a6/01",
+   "size": 200
+  },
+  "The Arm of the Son": {
+   "id": "d2a7/00",
+   "size": 200
+  },
+  "The Burden of the Son": {
+   "id": "d2a8/00",
+   "size": 200
+  },
+  "Sohr Khai": {
+   "id": "d2d6/01",
+   "size": 200
+  },
+  "The Battlehall": {
+   "id": "w1ee/00",
+   "size": 800
+  },
+  "The Fields of Glory": {
+   "id": "r2p1/00",
+   "size": 100
+  },
+  "Hullbreaker Isle (Hard)": {
+   "id": "s1da/00",
+   "size": 200
+  },
+  "The Weeping City of Mhach": {
+   "id": "z2r2/01",
+   "size": 200
+  },
+  "The Parrock": {
+   "id": "a2e3/00",
+   "size": 400
+  },
+  "Leofard's Chambers": {
+   "id": "a2e4/00",
+   "size": 800
+  },
+  "Twin Adder Barracks": {
+   "id": "f1tg/00",
+   "size": 400
+  },
+  "Flame Barracks": {
+   "id": "w1tg/00",
+   "size": 400
+  },
+  "Maelstrom Barracks": {
+   "id": "s1tg/00",
+   "size": 400
+  },
+  "The Great Gubal Library (Hard)": {
+   "id": "d2d7/01",
+   "size": 200
+  },
+  "Xelphatol": {
+   "id": "r2d3/00",
+   "size": 200
+  },
+  "Last Remnant": {
+   "id": "a2ff/00",
+   "size": 400
+  },
+  "Haunted Manor": {
+   "id": "f1d9/01",
+   "size": 200
+  },
+  "Topmast Apartment Lobby": {
+   "id": "s1i6/00",
+   "size": 400
+  },
+  "Lily Hills Apartment Lobby": {
+   "id": "f1i6/00",
+   "size": 400
+  },
+  "Sultana's Breath Apartment Lobby": {
+   "id": "w1i6/00",
+   "size": 400
+  },
+  "Topmast Apartment": {
+   "id": "s1i4/00",
+   "size": 400
+  },
+  "Lily Hills Apartment": {
+   "id": "f1i4/00",
+   "size": 400
+  },
+  "Sultana's Breath Apartment": {
+   "id": "w1i4/00",
+   "size": 400
+  },
+  "Eyes of the Creator": {
+   "id": "d2a9/01",
+   "size": 200
+  },
+  "Breath of the Creator": {
+   "id": "d2aa/01",
+   "size": 200
+  },
+  "Heart of the Creator": {
+   "id": "d2ab/01",
+   "size": 200
+  },
+  "Soul of the Creator": {
+   "id": "d2ac/00",
+   "size": 200
+  },
+  "Containment Bay P1T6": {
+   "id": "a2fe/00",
+   "size": 400
+  },
+  "Frondale's Home for Friendless Foundlings": {
+   "id": "w1ef/00",
+   "size": 800
+  },
+  "Shisui of the Violet Tides": {
+   "id": "e3d1/00",
+   "size": 200
+  },
+  "Baelsar's Wall": {
+   "id": "f1da/01",
+   "size": 200
+  },
+  "Dun Scaith": {
+   "id": "z2r3/01",
+   "size": 200
+  },
+  "Lichenweed": {
+   "id": "f1p1/00",
+   "size": 200
+  },
+  "Sohm Al (Hard)": {
+   "id": "d2d8/01",
+   "size": 200
+  },
+  "Containment Bay Z1T9": {
+   "id": "a2fg/00",
+   "size": 400
+  },
+  "Yanxia": {
+   "id": "e3f2/00",
+   "size": 100
+  },
+  "Omega Control": {
+   "id": "l1e3/00",
+   "size": 400
+  },
+  "The Sirensong Sea": {
+   "id": "o3d1/00",
+   "size": 200
+  },
+  "Kugane Castle": {
+   "id": "e3d4/01",
+   "size": 200
+  },
+  "The Temple of the Fist": {
+   "id": "g3d3/01",
+   "size": 200
+  },
+  "Shirogane": {
+   "id": "e1h1/01",
+   "size": 200
+  },
+  "Rhalgr's Reach": {
+   "id": "g3t1/00",
+   "size": 200
+  },
+  "The Fringes": {
+   "id": "g3f1/00",
+   "size": 100
+  },
+  "The Peaks": {
+   "id": "g3f2/00",
+   "size": 100
+  },
+  "The Lochs": {
+   "id": "g3f3/00",
+   "size": 100
+  },
+  "Kugane": {
+   "id": "e3t1/00",
+   "size": 200
+  },
+  "The Ruby Sea": {
+   "id": "e3f1/00",
+   "size": 100
+  },
+  "The Azim Steppe": {
+   "id": "e3f3/00",
+   "size": 100
+  },
+  "Ala Mhigo": {
+   "id": "g3d2/01",
+   "size": 200
+  },
+  "Bardam's Mettle": {
+   "id": "e3d2/00",
+   "size": 200
+  },
+  "The Misery": {
+   "id": "o3e1/00",
+   "size": 400
+  },
+  "Ruby Bazaar Offices": {
+   "id": "e3e1/00",
+   "size": 400
+  },
+  "The House of the Fierce": {
+   "id": "e3e5/00",
+   "size": 400
+  },
+  "The Doman Enclave": {
+   "id": "e3ea/00",
+   "size": 400
+  },
+  "Bokairo Inn": {
+   "id": "e3ti/00",
+   "size": 800
+  },
+  "The First Altar of Djanan Qhat": {
+   "id": "g3e1/00",
+   "size": 400
+  },
+  "The Resonatorium": {
+   "id": "g3e3/00",
+   "size": 400
+  },
+  "The Royal Menagerie": {
+   "id": "g3e4/00",
+   "size": 200
+  },
+  "The Source": {
+   "id": "world/01",
+   "size": 100
+  },
+  "Gyr Abania": {
+   "id": "region/07",
+   "size": 100
+  },
+  "Othard": {
+   "id": "region/08",
+   "size": 100
+  },
+  "Hingashi": {
+   "id": "region/09",
+   "size": 100
+  },
+  "Kobai Goten Apartment Lobby": {
+   "id": "e1i6/00",
+   "size": 400
+  },
+  "The Interdimensional Rift": {
+   "id": "z3o1/00",
+   "size": 200
+  },
+  "Deltascape V1.0": {
+   "id": "z3o2/00",
+   "size": 400
+  },
+  "Deltascape V2.0": {
+   "id": "z3o3/00",
+   "size": 400
+  },
+  "Deltascape V3.0": {
+   "id": "z3o4/00",
+   "size": 400
+  },
+  "Deltascape V4.0": {
+   "id": "z3o5/00",
+   "size": 400
+  },
+  "Doma Castle": {
+   "id": "e3d3/00",
+   "size": 200
+  },
+  "Castrum Abania": {
+   "id": "g3d1/00",
+   "size": 200
+  },
+  "Emanation": {
+   "id": "g3fa/00",
+   "size": 400
+  },
+  "The Blessed Treasury": {
+   "id": "e3fa/00",
+   "size": 400
+  },
+  "The Royal Airship Landing": {
+   "id": "g3fb/01",
+   "size": 400
+  },
+  "Transparency": {
+   "id": "g3fb/02",
+   "size": 400
+  },
+  "Astragalos": {
+   "id": "d2p1/00",
+   "size": 100
+  },
+  "The Drowned City of Skalla": {
+   "id": "g3d4/01",
+   "size": 200
+  },
+  "Eureka Anemos": {
+   "id": "z3fa/00",
+   "size": 100
+  },
+  "The Binding Coil of Bahamut": {
+   "id": "f1bz/00",
+   "size": 400
+  },
+  "The Hall of the Griffin": {
+   "id": "g3d2/02",
+   "size": 200
+  },
+  "The Prima Vista Tiring Room": {
+   "id": "z3e2/00",
+   "size": 400
+  },
+  "The Prima Vista Bridge": {
+   "id": "z3e3/00",
+   "size": 400
+  },
+  "The Royal City of Rabanastre": {
+   "id": "z3r1/01",
+   "size": 200
+  },
+  "Private Cottage - Shirogane": {
+   "id": "e1i1/01",
+   "size": 400
+  },
+  "Private House - Shirogane": {
+   "id": "e1i2/01",
+   "size": 400
+  },
+  "Private Mansion - Shirogane": {
+   "id": "e1i3/01",
+   "size": 400
+  },
+  "Company Workshop - Shirogane": {
+   "id": "e1i5/00",
+   "size": 400
+  },
+  "Private Chambers - Shirogane": {
+   "id": "e1i4/00",
+   "size": 400
+  },
+  "Myth": {
+   "id": "g3fc/02",
+   "size": 400
+  },
+  "Kobai Goten Apartment": {
+   "id": "e1i4/00",
+   "size": 400
+  },
+  "Hells' Lid": {
+   "id": "e3d5/00",
+   "size": 200
+  },
+  "Crystal Tower Training Grounds": {
+   "id": "l1p2/00",
+   "size": 200
+  },
+  "The Fractal Continuum (Hard)": {
+   "id": "a2d4/01",
+   "size": 200
+  },
+  "Sigmascape V1.0": {
+   "id": "z3o7/01",
+   "size": 400
+  },
+  "Sigmascape V2.0": {
+   "id": "z3o8/00",
+   "size": 400
+  },
+  "Sigmascape V3.0": {
+   "id": "z3o9/00",
+   "size": 400
+  },
+  "The Jade Stoa": {
+   "id": "e3fb/00",
+   "size": 400
+  },
+  "Valentione's Ceremony": {
+   "id": "f1e9/00",
+   "size": 400
+  },
+  "Kienkan": {
+   "id": "e3e7/00",
+   "size": 400
+  },
+  "Reisen Temple": {
+   "id": "e3e8/00",
+   "size": 400
+  },
+  "The Swallow's Compass": {
+   "id": "e3d6/01",
+   "size": 200
+  },
+  "Eureka Pagos": {
+   "id": "z3fb/00",
+   "size": 100
+  },
+  "The Great Hunt": {
+   "id": "e3fc/00",
+   "size": 400
+  },
+  "The Ridorana Lighthouse": {
+   "id": "z3r2/01",
+   "size": 200
+  },
+  "Ultimacy": {
+   "id": "w1fz/00",
+   "size": 400
+  },
+  "Castrum Fluminis": {
+   "id": "e3fd/00",
+   "size": 400
+  },
+  "The Burn": {
+   "id": "e3d7/00",
+   "size": 200
+  },
+  "Saint Mocianne's Arboretum (Hard)": {
+   "id": "d2d9/01",
+   "size": 200
+  },
+  "Eureka Pyros": {
+   "id": "z3fc/00",
+   "size": 100
+  },
+  "Psiscape V1.0": {
+   "id": "z3oc/00",
+   "size": 400
+  },
+  "Hidden Gorge": {
+   "id": "w1p1/00",
+   "size": 100
+  },
+  "Kugane Ohashi": {
+   "id": "e3ff/00",
+   "size": 400
+  },
+  "Blue Sky": {
+   "id": "w1tz/00",
+   "size": 400
+  },
+  "Lakeland": {
+   "id": "n4f1/00",
+   "size": 100
+  },
+  "Kholusia": {
+   "id": "n4f2/00",
+   "size": 100
+  },
+  "Amh Araeng": {
+   "id": "n4f3/00",
+   "size": 100
+  },
+  "Il Mheg": {
+   "id": "n4f4/00",
+   "size": 100
+  },
+  "The Rak'tika Greatwood": {
+   "id": "n4f5/00",
+   "size": 100
+  },
+  "The Tempest": {
+   "id": "n4f6/00",
+   "size": 100
+  },
+  "The Crystarium": {
+   "id": "n4t1/00",
+   "size": 200
+  },
+  "Eulmore": {
+   "id": "n4t2/01",
+   "size": 200
+  },
+  "The Shifting Altars of Uznair": {
+   "id": "o3c2/00",
+   "size": 400
+  },
+  "The Ghimlyt Dark": {
+   "id": "g3d5/00",
+   "size": 200
+  },
+  "Psiscape V2.0": {
+   "id": "z3od/00",
+   "size": 400
+  },
+  "Hells' Kier": {
+   "id": "e3fe/00",
+   "size": 400
+  },
+  "The Haunted Manor": {
+   "id": "f1d9/01",
+   "size": 200
+  },
+  "The Qitana Ravel": {
+   "id": "n4d3/01",
+   "size": 200
+  },
+  "The Orbonne Monastery": {
+   "id": "z3r3/01",
+   "size": 200
+  },
+  "Eureka Hydatos": {
+   "id": "z3fd/01",
+   "size": 100
+  },
+  "The Wreath of Snakes": {
+   "id": "e3fg/00",
+   "size": 400
+  },
+  "Garlean Legion Tents": {
+   "id": "g3e7/01",
+   "size": 400
+  },
+  "Eorzean Alliance Headquarters": {
+   "id": "g3e7/02",
+   "size": 400
+  },
+  "Dohn Mheg": {
+   "id": "n4d2/01",
+   "size": 200
+  },
+  "The Twinning": {
+   "id": "n4d7/01",
+   "size": 200
+  },
+  "Amaurot": {
+   "id": "n4d6/01",
+   "size": 100
+  },
+  "The First": {
+   "id": "world/02",
+   "size": 100
+  },
+  "Mt. Gulg": {
+   "id": "n4d5/01",
+   "size": 200
+  },
+  "Akadaemia Anyder": {
+   "id": "n4d8/01",
+   "size": 200
+  },
+  "Malikah's Well": {
+   "id": "n4d4/01",
+   "size": 200
+  },
+  "Norvrandt": {
+   "id": "region/10",
+   "size": 100
+  },
+  "Holminster Switch": {
+   "id": "n4d1/00",
+   "size": 200
+  },
+  "The Syrcus Trench": {
+   "id": "l1e5/00",
+   "size": 400
+  },
+  "The Pendants Personal Suite": {
+   "id": "n4ti/00",
+   "size": 800
+  },
+  "The Ocular": {
+   "id": "n4e1/00",
+   "size": 400
+  },
+  "Dutiful Sisters of the Edelweiss": {
+   "id": "s1t2/02",
+   "size": 400
+  },
+  "Dock Storehouse": {
+   "id": "s1f3/02",
+   "size": 400
+  },
+  "The Dancing Plague": {
+   "id": "n4fa/00",
+   "size": 400
+  },
+  "The Crown of the Immaculate": {
+   "id": "n4fb/00",
+   "size": 400
+  },
+  "The Dying Gasp": {
+   "id": "n4fc/00",
+   "size": 400
+  },
+  "The Core": {
+   "id": "n4g1/00",
+   "size": 400
+  },
+  "The Halo": {
+   "id": "n4g2/00",
+   "size": 400
+  },
+  "The Nereus Trench": {
+   "id": "n4g3/00",
+   "size": 400
+  },
+  "Atlas Peak": {
+   "id": "n4g4/00",
+   "size": 400
+  },
+  "The Empty": {
+   "id": "n4gz/00",
+   "size": 400
+  },
+  "The Grand Cosmos": {
+   "id": "n4d9/01",
+   "size": 200
+  },
+  "Onsal Hakair": {
+   "id": "e3p1/00",
+   "size": 100
+  },
+  "The Copied Factory": {
+   "id": "n4r1/01",
+   "size": 200
+  },
+  "Liminal Space": {
+   "id": "d2az/00",
+   "size": 400
+  },
+  "The Firmament": {
+   "id": "r1hx/00",
+   "size": 200
+  },
+  "Excavation Tunnels": {
+   "id": "n4e8/01",
+   "size": 400
+  },
+  "Lyhe Mheg": {
+   "id": "n4e9/10",
+   "size": 400
+  },
+  "Cinder Drift": {
+   "id": "n4fe/00",
+   "size": 400
+  },
+  "The Diadem": {
+   "id": "a2fx/00",
+   "size": 100
+  },
+  "Anamnesis Anyder": {
+   "id": "n4da/01",
+   "size": 200
+  },
+  "The Gandof Thunder Plains": {
+   "id": "n4g5/00",
+   "size": 400
+  },
+  "Ashfall": {
+   "id": "n4g6/00",
+   "size": 400
+  },
+  "The Heroes' Gauntlet": {
+   "id": "n4db/01",
+   "size": 200
+  },
+  "Great Glacier": {
+   "id": "n4g8/01",
+   "size": 400
+  },
+  "Frozen Reflections": {
+   "id": "n4g8/02",
+   "size": 400
+  },
+  "Gangos": {
+   "id": "n4ea/00",
+   "size": 400
+  },
+  "The Endeavor": {
+   "id": "o1a1/00",
+   "size": 400
+  },
+  "Bozjan Southern Front": {
+   "id": "n4b4/01",
+   "size": 100
+  },
+  "Transmission Control": {
+   "id": "n4b2/00",
+   "size": 400
+  },
+  "The Puppets' Bunker": {
+   "id": "n4r2/01",
+   "size": 200
+  },
+  "The Seat of Sacrifice": {
+   "id": "n4ff/01",
+   "size": 400
+  },
+  "Anogg's Lair": {
+   "id": "n4e8/02",
+   "size": 400
+  },
+  "Castrum Lacus Litore": {
+   "id": "n4b4/02",
+   "size": 200
+  },
+  "Terncliff": {
+   "id": "n4eb/01",
+   "size": 400
+  },
+  "Terncliff Bay": {
+   "id": "n4eb/02",
+   "size": 400
+  },
+  "Matoya's Relict": {
+   "id": "d4d1/01",
+   "size": 200
+  },
+  "Sphere of Naught": {
+   "id": "n4g9/00",
+   "size": 400
+  },
+  "The Garden of Nowhere": {
+   "id": "n4gc/01",
+   "size": 400
+  },
+  "Laxan Loft": {
+   "id": "n4ga/00",
+   "size": 400
+  },
+  "Castrum Marinum Drydocks": {
+   "id": "n4fg/00",
+   "size": 400
+  },
+  "The Shifting Oubliettes of Lyhe Ghiah": {
+   "id": "n4c2/00",
+   "size": 400
+  },
+  "Delubrum Reginae": {
+   "id": "n4b5/01",
+   "size": 200
+  },
+  "Bygone Gaol": {
+   "id": "n4gb/00",
+   "size": 400
+  },
+  "The Tower at Paradigm's Breach": {
+   "id": "n4r3/01",
+   "size": 200
+  },
+  "Zadnor": {
+   "id": "n4b6/01",
+   "size": 100
+  },
+  "Paglth'an": {
+   "id": "w4d1/01",
+   "size": 200
+  },
+  "G-Savior Deck": {
+   "id": "n4fh/00",
+   "size": 400
+  },
+  "The Dalriada": {
+   "id": "n4b6/03",
+   "size": 200
+  },
+  "The Dark Inside": {
+   "id": "u5fa/00",
+   "size": 400
+  },
+  "The Mothercrystal": {
+   "id": "k5fa/00",
+   "size": 400
+  },
+  "The Final Day": {
+   "id": "u5fb/00",
+   "size": 400
+  },
+  "Empyreum": {
+   "id": "r1h1/01",
+   "size": 200
+  },
+  "Ingleside Apartment Lobby": {
+   "id": "r1i6/00",
+   "size": 400
+  },
+  "Private Cottage - Empyreum": {
+   "id": "r1i1/01",
+   "size": 400
+  },
+  "Private House - Empyreum": {
+   "id": "r1i2/01",
+   "size": 400
+  },
+  "Private Mansion - Empyreum": {
+   "id": "r1i3/01",
+   "size": 400
+  },
+  "Company Workshop - Empyreum": {
+   "id": "r1i5/00",
+   "size": 400
+  },
+  "Private Chambers - Empyreum": {
+   "id": "r1i4/00",
+   "size": 400
+  },
+  "Ingleside Apartment": {
+   "id": "r1i4/00",
+   "size": 400
+  },
+  "Old Sharlayan": {
+   "id": "k5t1/00",
+   "size": 200
+  },
+  "Radz-at-Han": {
+   "id": "m5t1/00",
+   "size": 200
+  },
+  "Labyrinthos": {
+   "id": "k5f1/00",
+   "size": 100
+  },
+  "Thavnair": {
+   "id": "m5f1/00",
+   "size": 100
+  },
+  "Garlemald": {
+   "id": "m5f2/00",
+   "size": 100
+  },
+  "Mare Lamentorum": {
+   "id": "u5f1/00",
+   "size": 100
+  },
+  "Ultima Thule": {
+   "id": "u5f2/00",
+   "size": 100
+  },
+  "Elpis": {
+   "id": "n5f1/00",
+   "size": 100
+  },
+  "The Tower of Zot": {
+   "id": "m5d1/01",
+   "size": 200
+  },
+  "The Phantoms' Feast": {
+   "id": "f1db/01",
+   "size": 200
+  },
+  "Smileton": {
+   "id": "u5d2/01",
+   "size": 200
+  },
+  "The Gates of Pandæmonium": {
+   "id": "n5r1/00",
+   "size": 400
+  },
+  "Ktisis Hyperboreia": {
+   "id": "n5d1/01",
+   "size": 200
+  },
+  "The Stigma Dreamscape": {
+   "id": "u5d3/01",
+   "size": 200
+  },
+  "The Aitiascope": {
+   "id": "k5d1/01",
+   "size": 200
+  },
+  "The Fervid Limbo": {
+   "id": "n5r3/00",
+   "size": 400
+  },
+  "The Tower of Babil": {
+   "id": "m5d2/01",
+   "size": 200
+  },
+  "The Stagnant Limbo": {
+   "id": "n5r2/00",
+   "size": 400
+  },
+  "The Sanguine Limbo": {
+   "id": "n5r4/00",
+   "size": 400
+  },
+  "The Northern Empty": {
+   "id": "region/11",
+   "size": 100
+  },
+  "Ilsabard": {
+   "id": "region/12",
+   "size": 100
+  },
+  "The Sea of Stars": {
+   "id": "region/13",
+   "size": 100
+  },
+  "The World Unsundered": {
+   "id": "region/14",
+   "size": 100
+  },
+  "The Dead Ends": {
+   "id": "u5d1/01",
+   "size": 200
+  },
+  "Vanaspati": {
+   "id": "m5d3/01",
+   "size": 200
+  },
+  "Lemures Headquarters": {
+   "id": "w1ej/00",
+   "size": 400
+  },
+  "Main Hall": {
+   "id": "k5e1/00",
+   "size": 400
+  },
+  "Andron": {
+   "id": "k5ti/00",
+   "size": 400
+  },
+  "Strategy Room": {
+   "id": "r2ea/00",
+   "size": 400
+  },
+  "Alzadaal's Legacy": {
+   "id": "m5d4/01",
+   "size": 200
+  },
+  "Aglaia": {
+   "id": "z5r1/01",
+   "size": 200
+  },
+  "Medias Res": {
+   "id": "r1fz/01",
+   "size": 400
+  },
+  "The Palaistra": {
+   "id": "s5p1/00",
+   "size": 400
+  },
+  "The Volcanic Heart": {
+   "id": "s5p2/00",
+   "size": 400
+  },
+  "The Porta Decumana": {
+   "id": "w1d5/09",
+   "size": 400
+  },
+  "The Omphalos": {
+   "id": "z5e1/00",
+   "size": 400
+  },
+  "Restricted Archives": {
+   "id": "k5e4/00",
+   "size": 400
+  },
+  "The Fell Court of Troia": {
+   "id": "z5d1/01",
+   "size": 200
+  },
+  "The Pestilent Purgatory": {
+   "id": "n5r6/00",
+   "size": 400
+  },
+  "Unnamed Island": {
+   "id": "h1m2/01",
+   "size": 100
+  },
+  "Zero's Domain": {
+   "id": "z5e4/00",
+   "size": 400
+  },
+  "Meghaduta Guest Chambers": {
+   "id": "m5e4/00",
+   "size": 800
+  },
+  "Sneaky Hollow": {
+   "id": "f1ea/00",
+   "size": 400
+  },
+  "The Hollow Purgatory": {
+   "id": "n5r7/00",
+   "size": 400
+  },
+  "Elysion": {
+   "id": "u5e3/02",
+   "size": 400
+  },
+  "Storm's Crown": {
+   "id": "z5fa/00",
+   "size": 400
+  },
+  "The Sil'dihn Subterrane": {
+   "id": "w5d1/00",
+   "size": 200
+  },
+  "Another Sil'dihn Subterrane": {
+   "id": "w5d2/01",
+   "size": 200
+  },
+  "The Caustic Purgatory": {
+   "id": "n5r5/00",
+   "size": 400
+  },
+  "Stygian Insenescence Cells": {
+   "id": "n5r8/00",
+   "size": 400
+  },
+  "Euphrosyne": {
+   "id": "z5r2/01",
+   "size": 200
+  },
+  "Lapis Manalis": {
+   "id": "m5d5/01",
+   "size": 200
+  },
+  "The Shifting Gymnasion Agonon": {
+   "id": "n5c1/00",
+   "size": 400
+  },
+  "The Clockwork Castletown": {
+   "id": "s5p4/00",
+   "size": 400
+  },
+  "Mount Ordeals": {
+   "id": "m5fa/00",
+   "size": 400
+  },
+  "The Voidcast Dais": {
+   "id": "z5fb/00",
+   "size": 400
+  },
+  "The Aetherfont": {
+   "id": "k5d2/01",
+   "size": 200
+  },
+  "The Dæmons' Nest": {
+   "id": "n5ra/00",
+   "size": 400
+  },
+  "Ascension": {
+   "id": "n5rc/01",
+   "size": 400
+  },
+  "Apex of Creation": {
+   "id": "n5rc/02",
+   "size": 400
+  },
+  "The Aetherial Slough": {
+   "id": "n5r9/00",
+   "size": 400
+  },
+  "The Gilded Araya": {
+   "id": "m5fb/00",
+   "size": 400
+  },
+  "The Chamber of Fourteen": {
+   "id": "n5rb/00",
+   "size": 400
+  },
+  "Estinien's Chambers": {
+   "id": "m5e5/00",
+   "size": 800
+  },
+  "Senatus": {
+   "id": "m5e7/00",
+   "size": 400
+  },
+  "The Red Moon": {
+   "id": "z5e5/00",
+   "size": 400
+  },
+  "Mount Rokkon": {
+   "id": "e5d1/01",
+   "size": 200
+  },
+  "Another Mount Rokkon": {
+   "id": "e5d2/01",
+   "size": 200
+  },
+  "The Red Sands": {
+   "id": "s5p5/00",
+   "size": 400
+  },
+  "Tuliyollal": {
+   "id": "y6t1/00",
+   "size": 180
+  },
+  "Solution Nine": {
+   "id": "x6t1/00",
+   "size": 180
+  },
+  "Urqopacha": {
+   "id": "y6f1/00",
+   "size": 100
+  },
+  "Kozama'uka": {
+   "id": "y6f2/00",
+   "size": 100
+  },
+  "Yak T'el": {
+   "id": "y6f3/00",
+   "size": 100
+  },
+  "Shaaloani": {
+   "id": "x6f1/00",
+   "size": 100
+  },
+  "Heritage Found": {
+   "id": "x6f2/00",
+   "size": 100
+  },
+  "Living Memory": {
+   "id": "x6f3/00",
+   "size": 100
+  },
+  "The Lunar Subterrane": {
+   "id": "z5d2/01",
+   "size": 200
+  },
+  "Aloalo Island": {
+   "id": "o5d1/01",
+   "size": 200
+  },
+  "Another Aloalo Island": {
+   "id": "o5d2/01",
+   "size": 200
+  },
+  "Thaleia": {
+   "id": "z5r3/01",
+   "size": 200
+  },
+  "Blunderville Square": {
+   "id": "w1el/00",
+   "size": 800
+  },
+  "The Abyssal Fracture": {
+   "id": "z5fc/00",
+   "size": 400
+  },
+  "Ihuykatumu": {
+   "id": "y6d1/01",
+   "size": 200
+  },
+  "Vanguard": {
+   "id": "x6d1/00",
+   "size": 200
+  },
+  "Tender Valley": {
+   "id": "x6d4/01",
+   "size": 200
+  },
+  "Worqor Zormor": {
+   "id": "y6d2/01",
+   "size": 200
+  },
+  "Origenics": {
+   "id": "x6d2/01",
+   "size": 200
+  },
+  "Alexandria": {
+   "id": "x6d3/01",
+   "size": 200
+  },
+  "The Skydeep Cenote": {
+   "id": "y6d3/01",
+   "size": 200
+  },
+  "Strayborough": {
+   "id": "x6d5/01",
+   "size": 200
+  },
+  "Hydaelyn": {
+   "id": "world/03",
+   "size": 100
+  },
+  "Yok Tural": {
+   "id": "region/15",
+   "size": 100
+  },
+  "Xak Tural": {
+   "id": "region/16",
+   "size": 100
+  },
+  "Unlost World": {
+   "id": "region/17",
+   "size": 100
+  },
+  "Lovely Lovering": {
+   "id": "x6r2/00",
+   "size": 400
+  },
+  "The Thundering": {
+   "id": "x6r4/00",
+   "size": 400
+  },
+  "Worqor Lar Dor": {
+   "id": "y6fa/00",
+   "size": 400
+  },
+  "Blasting Ring": {
+   "id": "x6r3/00",
+   "size": 400
+  },
+  "Scratching Ring": {
+   "id": "x6r1/00",
+   "size": 400
+  },
+  "Interphos": {
+   "id": "x6fb/00",
+   "size": 400
+  },
+  "Summit of Everkeep": {
+   "id": "x6fa/00",
+   "size": 400
+  },
+  "Sunperch": {
+   "id": "y6e1/00",
+   "size": 400
+  },
+  "Earthen Sky Hideout": {
+   "id": "x6e1/00",
+   "size": 400
+  },
+  "Main Deck": {
+   "id": "y6e3/00",
+   "size": 400
+  },
+  "The Backroom": {
+   "id": "x6e2/00",
+   "size": 400
+  },
+  "Skydeep Cenote Inner Chamber": {
+   "id": "y6e2/00",
+   "size": 400
+  },
+  "Tritails Training": {
+   "id": "x6e4/00",
+   "size": 400
+  },
+  "Greenroom": {
+   "id": "x6e5/00",
+   "size": 400
+  },
+  "The For'ard Cabins": {
+   "id": "y6ti/00",
+   "size": 800
+  },
+  "Manor Basement": {
+   "id": "f1dc/00",
+   "size": 200
+  },
+  "Dreamlike Palace": {
+   "id": "n4d9/10",
+   "size": 200
+  },
+  "Yuweyawata": {
+   "id": "x6d6/01",
+   "size": 200
+  },
+  "Jeuno: The First Walk": {
+   "id": "z6r1/01",
+   "size": 200
+  },
+  "Lower Jeuno": {
+   "id": "z6e1/00",
+   "size": 400
+  },
+  "Starlight Stalls": {
+   "id": "f1ec/00",
+   "size": 400
+  },
+  "Hall of the Unbound": {
+   "id": "w1em/00",
+   "size": 800
+  },
+  "Zorgor the Boundless": {
+   "id": "x6e7/00",
+   "size": 100
+  },
+  "South Horn": {
+   "id": "o6b1/01",
+   "size": 100
+  },
+  "Tower of Blood": {
+   "id": "o6b1/02",
+   "size": 200
+  },
+  "Rebel Ring": {
+   "id": "x6r6/00",
+   "size": 400
+  },
+  "Groovy Ring": {
+   "id": "x6r5/00",
+   "size": 400
+  },
+  "Hunter's Ring": {
+   "id": "x6r8/01",
+   "size": 400
+  },
+  "Hunting Ground": {
+   "id": "x6r8/02",
+   "size": 400
+  },
+  "The Underkeep": {
+   "id": "x6d7/01",
+   "size": 200
+  },
+  "Demolition Site": {
+   "id": "x6r7/01",
+   "size": 400
+  },
+  "Sinus Ardorum": {
+   "id": "c1w1/00",
+   "size": 100
+  },
+  "Break Room": {
+   "id": "x6e8/00",
+   "size": 400
+  },
+  "Throne Room": {
+   "id": "x6e9/00",
+   "size": 400
+  },
+  "Phantom Village": {
+   "id": "o6e1/00",
+   "size": 400
+  },
+  "Recollection": {
+   "id": "x6fd/00",
+   "size": 400
+  },
+  "San d'Oria: The Second Walk": {
+   "id": "z6r2/01",
+   "size": 200
+  },
+  "The Ageless Necropolis": {
+   "id": "x6fe/01",
+   "size": 400
+  },
+  "The Lightless Abyss": {
+   "id": "x6fe/02",
+   "size": 400
+  },
+  "Zirgorteh the Open-armed": {
+   "id": "y6e5/01",
+   "size": 400
+  },
+  "The Meso Terminal": {
+   "id": "x6d8/01",
+   "size": 200
+  },
+  "Vault Oneiron": {
+   "id": "x6c1/00",
+   "size": 400
+  },
+  "The Bayside Battleground": {
+   "id": "s5p6/00",
+   "size": 400
+  },
+  "The Pâtisserie": {
+   "id": "f1dd/00",
+   "size": 400
+  },
+  "Containment Complex 10-29": {
+   "id": "x6eb/00",
+   "size": 400
+  },
+  "The Windward Wilds": {
+   "id": "x6ff/01",
+   "size": 400
+  },
+  "Phaenna": {
+   "id": "c1w2/00",
+   "size": 100
+  },
+  "Mistwake": {
+   "id": "x6d9/01",
+   "size": 200
+  },
+  "Ring Noir": {
+   "id": "x6r9/00",
+   "size": 400
+  },
+  "Hell on Rails": {
+   "id": "x6fg/01",
+   "size": 400
+  },
+  "The X-Ring": {
+   "id": "x6ra/00",
+   "size": 400
+  },
+  "The Crown": {
+   "id": "x6rb/00",
+   "size": 400
+  },
+  "The Merchant's Tale": {
+   "id": "m6d1/01",
+   "size": 200
+  },
+  "Worqor Chirteh": {
+   "id": "y6p1/00",
+   "size": 100
+  },
+  "Treno": {
+   "id": "x6d9/04",
+   "size": 200
+  },
+  "Alexandria Crater": {
+   "id": "x6ed/00",
+   "size": 400
+  },
+  "The Maiden's Home": {
+   "id": "m6e1/00",
+   "size": 400
+  },
+  "Bentini Depot": {
+   "id": "x6ee/00",
+   "size": 400
+  },
+  "Lilyswim": {
+   "id": "f1ed/01",
+   "size": 400
+  },
+  "North Horn": {
+   "id": "o6b2/01",
+   "size": 100
+  },
+  "Tower of Magic": {
+   "id": "o6b2/02",
+   "size": 200
+  },
+  "Oizys": {
+   "id": "c1w3/01",
+   "size": 100
+  },
+  "Kanilokka Corpus Substructure": {
+   "id": "x6ec/00",
+   "size": 400
+  },
+  "Arcadia": {
+   "id": "x6rc/01",
+   "size": 400
+  },
+  "Windurst: The Third Walk": {
+   "id": "z6r3/01",
+   "size": 200
+  },
+  "The Clyteum": {
+   "id": "m6d2/01",
+   "size": 200
+  },
+  "The Unmaking": {
+   "id": "z5fd/01",
+   "size": 400
+  },
+  "Nihil": {
+   "id": "z5fd/02",
+   "size": 200
+  },
+  "Archeia Harmonias": {
+   "id": "s5p7/00",
+   "size": 400
+  },
+  "Keybound Square": {
+   "id": "w1eo/00",
+   "size": 400
+  },
+  "Auxesia": {
+   "id": "c1w4/01",
+   "size": 100
+  }
+ }
+}
