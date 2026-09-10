@@ -32,7 +32,7 @@ const DICT = {
   "nav.leaderboards": { en: "Leaderboards", th: "อันดับ" },
   "nav.signIn": { en: "Sign in", th: "เข้าสู่ระบบ" },
   "nav.signOut": { en: "Sign out", th: "ออกจากระบบ" },
-  "nav.profile": { en: "My profile", th: "โปรไฟล์ของฉัน" },
+  "nav.profile": { en: "My profile", th: "โปรไฟล์ของคุณ" },
   "member.kindSavage": { en: "Savage", th: "Savage" },
   "member.kindUltimate": { en: "Ultimate", th: "Ultimate" },
   "board.progAny": { en: "Progressing: any", th: "กำลังเล่น: ทั้งหมด" },
@@ -168,7 +168,7 @@ const DICT = {
     en: "{who} wrote on the feedback page.",
     th: "{who} เขียนข้อความในหน้า Feedback",
   },
-  "nav.myPage": { en: "My page", th: "หน้าของฉัน" },
+  "nav.myPage": { en: "My page", th: "หน้าของคุณ" },
   "member.achvKept": {
     en: "Private now — last read earlier",
     th: "ตอนนี้ปิดอยู่ — ข้อมูลจากที่อ่านไว้ก่อนหน้า",
@@ -1418,21 +1418,21 @@ const DICT = {
   "member.showFewer": { en: "Show fewer", th: "แสดงน้อยลง" },
 
   // ── Profile ─────────────────────────────────────────────────────────
-  "profile.title": { en: "My profile", th: "โปรไฟล์ของฉัน" },
+  "profile.title": { en: "My profile", th: "โปรไฟล์ของคุณ" },
   "profile.waysToSignIn": { en: "Ways to sign in", th: "ช่องทางเข้าสู่ระบบ" },
   "profile.waysHint": {
     en: "Link a second one and either will get you back to this same profile. Worth doing before you need it.",
     th: "ผูกช่องทางที่สองไว้ แล้วจะเข้าด้วยทางไหนก็ได้ กลับมาที่โปรไฟล์เดียวกัน ควรทำไว้ก่อนที่จะต้องใช้",
   },
   "profile.link": { en: "Link {name}", th: "ผูก {name}" },
-  "profile.myCharacter": { en: "My character", th: "ตัวละครของฉัน" },
-  "profile.viewMyPage": { en: "View my page", th: "ดูหน้าของฉัน" },
+  "profile.myCharacter": { en: "My character", th: "ตัวละครของคุณ" },
+  "profile.viewMyPage": { en: "View my page", th: "ดูหน้าของคุณ" },
   "profile.unlink": { en: "Unlink", th: "ยกเลิกการผูก" },
   "profile.customise": { en: "Customise profile", th: "ปรับแต่งโปรไฟล์" },
   "profile.nickname": { en: "Nickname", th: "ชื่อเล่น" },
   "profile.birthday": { en: "Birthday (day and month only)", th: "วันเกิด (เอาแค่วันกับเดือน)" },
   "profile.clear": { en: "clear", th: "ล้าง" },
-  "profile.bio": { en: "About me", th: "เกี่ยวกับฉัน" },
+  "profile.bio": { en: "About me", th: "เกี่ยวกับคุณ" },
   "profile.accent": { en: "Accent colour", th: "สีประจำตัว" },
   "profile.banner": { en: "Profile banner", th: "แบนเนอร์โปรไฟล์" },
   "profile.lookingFor": { en: "Looking for", th: "กำลังมองหา" },
@@ -1533,16 +1533,16 @@ const DICT = {
   "party.within3": { en: "Within three days", th: "ภายใน 3 วัน" },
   "party.within7": { en: "Within a week", th: "ภายใน 1 สัปดาห์" },
   "party.hasRoom": { en: "Still has room", th: "ยังมีที่ว่าง" },
-  "party.imIn": { en: "I am in it", th: "ที่ฉันอยู่ด้วย" },
+  "party.imIn": { en: "I am in it", th: "ที่คุณอยู่ด้วย" },
   /* The grid on the profile, pointed at the board: which of these start while
      I am usually around. */
   /* Its own area at the top. A party you are in is not one listing among
      forty — it is the thing you came to check. */
   "party.kindMentor": { en: "Find Mentor", th: "หา Mentor" },
   "party.mineHeading": {
-    en: "Parties you are in ({n})", th: "ปาร์ตี้ที่มีเราอยู่ ({n})",
+    en: "Parties you are in ({n})", th: "ปาร์ตี้ที่มีคุณอยู่ ({n})",
   },
-  "party.whenIPlay": { en: "When I play", th: "ตรงกับเวลาที่ฉันเล่น" },
+  "party.whenIPlay": { en: "When I play", th: "ตรงกับเวลาที่คุณเล่น" },
   "party.setHours": {
     en: "Set the hours you usually play on your profile first.",
     th: "ตั้งช่วงเวลาที่ปกติว่างเล่นในโปรไฟล์ก่อน",
@@ -1908,8 +1908,8 @@ const DICT = {
     en: "They show on every seat they could take, and drop into whichever one is left.",
     th: "จะขึ้นบนทุกตำแหน่งที่เขาเล่นได้ แล้วลงตำแหน่งที่เหลือ",
   },
-  "pf.iWillFlex": { en: "I will flex", th: "ฉัน flex เอง" },
-  "pf.iAmComing": { en: "I am coming", th: "ฉันไปด้วย" },
+  "pf.iWillFlex": { en: "I will flex", th: "คุณ flex เอง" },
+  "pf.iAmComing": { en: "I am coming", th: "คุณไปด้วย" },
   "pf.whoIsComing": { en: "Who is coming", th: "ใครไปบ้าง" },
   "pf.openNoParty": {
     en: "Nobody is in a party — everybody queues on their own.",
@@ -1921,7 +1921,7 @@ const DICT = {
   },
   "pf.playing": { en: "Playing", th: "เล่น" },
   "pf.takeOut": { en: "Take them out of this seat", th: "เอาออกจากตำแหน่งนี้" },
-  "pf.thatIsMe": { en: "That is me", th: "ตรงนี้คือฉัน" },
+  "pf.thatIsMe": { en: "That is me", th: "ตรงนี้คือคุณ" },
   "pf.lookAgain": { en: "Look for somebody after all", th: "กลับมาหาคนตำแหน่งนี้" },
   "pf.notLooking": { en: "Not looking for this seat", th: "ไม่หาคนตำแหน่งนี้" },
   "pf.invitedNotBooked": {
