@@ -9,7 +9,7 @@ import type {
 import type { DutyArt } from "@/lib/duty";
 import {
   KIND_COLOR, KIND_ICON, KIND_LABEL, KIND_ORDER, ROLE_COLOR, ROLE_LABEL,
-  LOOT_LABEL, PROGRESS_LABEL, STATUS_ORDER, catalogue, dayKey, endsAt, fmtDay,
+  LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay,
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
   needsByRole, partyStatus, progressText, resolveParty, slotsOf, spotText,
 } from "@/lib/party";
@@ -35,7 +35,7 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import PartyCreate from "@/components/party/PartyCreate";
 import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
 import Modal from "@/components/ui/Modal";
-import { StatusPill, WhenLine, useNow, statusLabel } from "@/components/party/PartyClock";
+import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
 import ShareParty, { readDeepLink, writeDeepLink } from "@/components/party/ShareParty";
 
 /**
@@ -61,14 +61,18 @@ type Sort = "soon" | "new" | "open";
 type When = "" | "today" | "3d" | "week";
 
 /**
- * Which of the five states to show.
+ * On the board, or in the past.
  *
- * "" is the default and means everything that has not finished — the board's
- * job is what is still happening, and a finished party sitting in the list is a
- * row nobody can act on. Ended is not deleted, though: "how did Tuesday go" is
- * a real question, and one of the six settings answers it.
+ * Two settings, not seven. The five states are worth telling apart on a row —
+ * "starting soon" and "just ended" are different things to know at a glance —
+ * and are not worth filtering by one at a time: nobody looks for the parties
+ * that are between fifty and sixty minutes away. The question a reader actually
+ * has is whether they are looking at tonight or at last week.
+ *
+ * "" means everything that has not finished, which is the board's job. Ended is
+ * not deleted, and "how did Tuesday go" is answered by the other setting.
  */
-type StatusPick = "" | PartyStatus | "all";
+type StatusPick = "" | "done";
 
 const EMPTY = {
   role: "" as SlotRole | "", when: "" as When, mine: false, openOnly: false,
@@ -353,7 +357,7 @@ export default function PartyBoard(
    * ended ones, or following a link to one, is a wider read rather than a
    * filter over what is already here.
    */
-  const wide = adv.status === "done" || adv.status === "all" || !!pinned;
+  const wide = adv.status === "done" || !!pinned;
 
   const refresh = useCallback(async () => {
     if (!supabase) { setLoading(false); return; }
@@ -417,11 +421,10 @@ export default function PartyBoard(
       // The party somebody followed a link to is shown whatever else is set.
       if (p.id === pinned) return true;
 
-      const st = partyStatus(p, now);
       // Finished is out of the way by default and one setting away. Everything
       // else on this board is about an evening somebody can still be part of.
-      if (adv.status === "") { if (st === "done") return false; }
-      else if (adv.status !== "all" && st !== adv.status) return false;
+      const over = partyStatus(p, now) === "done";
+      if (over !== (adv.status === "done")) return false;
 
       const c = byKey[p.contentKey];
       if (kinds.size && (!c || !kinds.has(c.kind))) return false;
@@ -648,10 +651,7 @@ export default function PartyBoard(
                   onChange={(e) => setAdv({ ...adv, status: e.target.value as StatusPick })}
                   className={sel} aria-label={t("party.status")}>
             <option value="">{t("party.stOpenOnly")}</option>
-            {STATUS_ORDER.map((k) => (
-              <option key={k} value={k}>{statusLabel(k, t)}</option>
-            ))}
-            <option value="all">{t("party.stEverything")}</option>
+            <option value="done">{t("party.stDone")}</option>
           </select>
 
           <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">

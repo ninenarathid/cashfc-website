@@ -1560,7 +1560,6 @@ const DICT = {
   "party.stJustEnded": { en: "Just ended", th: "เพิ่งจบไป" },
   "party.stDone": { en: "Ended", th: "จบแล้ว" },
   "party.stOpenOnly": { en: "Not ended yet", th: "ที่ยังไม่จบ" },
-  "party.stEverything": { en: "Everything, ended included", th: "ทั้งหมด รวมที่จบแล้ว" },
 
   /*
    * The countdown.
