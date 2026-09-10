@@ -117,9 +117,10 @@ export function RuleMark({ party, slot }: { party: Party; slot: SlotDef }) {
 
   return (
     <span className="flex flex-wrap items-center gap-1">
-      {/* The icons, up to four. Past that the row is wider than the seat and
-          reads as a wall rather than as an answer, so it becomes a count. */}
-      {live.length <= 4
+      {/* The icons, up to seven. Seven fit across a seat on two rows and are
+          read at a glance; past that they are a wall rather than an answer,
+          and a count says the same thing in less space. */}
+      {live.length <= 7
         ? live.map((j) => <JobIcon key={j} job={j} size={18} />)
         : <span className="font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
             {t("pf.jobsN", { n: live.length })}
