@@ -1,0 +1,145 @@
+{
+ "generated_at": "2026-09-10T09:45:08.521Z",
+ "source": "XIVAPI v2, sheet Item",
+ "latest": "Timeworn Gargantuaskin Map",
+ "maps": [
+  {
+   "id": 46185,
+   "name": "Timeworn Gargantuaskin Map",
+   "g": "G18",
+   "short": "Gargantuaskin"
+  },
+  {
+   "id": 44349,
+   "name": "Presumably Special Timeworn Map",
+   "short": "Presumably Special Timeworn"
+  },
+  {
+   "id": 43557,
+   "name": "Timeworn Br'aaxskin Map",
+   "g": "G17",
+   "short": "Br'aaxskin"
+  },
+  {
+   "id": 43556,
+   "name": "Timeworn Loboskin Map",
+   "g": "G16",
+   "short": "Loboskin"
+  },
+  {
+   "id": 39918,
+   "name": "Conceivably Special Timeworn Map",
+   "short": "Conceivably Special Timeworn"
+  },
+  {
+   "id": 39593,
+   "name": "Potentially Special Timeworn Map",
+   "short": "Potentially Special Timeworn"
+  },
+  {
+   "id": 39591,
+   "name": "Timeworn Ophiotauroskin Map",
+   "g": "G15",
+   "short": "Ophiotauroskin"
+  },
+  {
+   "id": 36612,
+   "name": "Timeworn Kumbhiraskin Map",
+   "g": "G14",
+   "short": "Kumbhiraskin"
+  },
+  {
+   "id": 36611,
+   "name": "Timeworn Saigaskin Map",
+   "g": "G13",
+   "short": "Saigaskin"
+  },
+  {
+   "id": 33328,
+   "name": "Ostensibly Special Timeworn Map",
+   "short": "Ostensibly Special Timeworn"
+  },
+  {
+   "id": 26745,
+   "name": "Timeworn Zonureskin Map",
+   "g": "G12",
+   "short": "Zonureskin"
+  },
+  {
+   "id": 26744,
+   "name": "Timeworn Gliderskin Map",
+   "g": "G11",
+   "short": "Gliderskin"
+  },
+  {
+   "id": 24794,
+   "name": "Seemingly Special Timeworn Map",
+   "short": "Seemingly Special Timeworn"
+  },
+  {
+   "id": 19770,
+   "name": "Timeworn Thief's Map",
+   "short": "Thief's"
+  },
+  {
+   "id": 17836,
+   "name": "Timeworn Gazelleskin Map",
+   "g": "G10",
+   "short": "Gazelleskin"
+  },
+  {
+   "id": 17835,
+   "name": "Timeworn Gaganaskin Map",
+   "g": "G9",
+   "short": "Gaganaskin"
+  },
+  {
+   "id": 12243,
+   "name": "Timeworn Dragonskin Map",
+   "g": "G8",
+   "short": "Dragonskin"
+  },
+  {
+   "id": 12242,
+   "name": "Timeworn Wyvernskin Map",
+   "g": "G7",
+   "short": "Wyvernskin"
+  },
+  {
+   "id": 12241,
+   "name": "Timeworn Archaeoskin Map",
+   "g": "G6",
+   "short": "Archaeoskin"
+  },
+  {
+   "id": 6692,
+   "name": "Timeworn Peisteskin Map",
+   "g": "G5",
+   "short": "Peisteskin"
+  },
+  {
+   "id": 6691,
+   "name": "Timeworn Boarskin Map",
+   "g": "G4",
+   "short": "Boarskin"
+  },
+  {
+   "id": 6690,
+   "name": "Timeworn Toadskin Map",
+   "g": "G3",
+   "short": "Toadskin"
+  },
+  {
+   "id": 6689,
+   "name": "Timeworn Goatskin Map",
+   "g": "G2",
+   "short": "Goatskin"
+  },
+  {
+   "id": 6688,
+   "name": "Timeworn Leather Map",
+   "g": "G1",
+   "short": "Leather"
+  }
+ ]
+}

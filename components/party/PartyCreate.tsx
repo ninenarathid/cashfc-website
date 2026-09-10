@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import type {
-  ContentDef, Flex, Floater, Loot, Party, PartyBlock, Progress, SeatRule, Shape,
-  SlotDef, SlotRole, Spot,
+  ContentDef, Flex, Floater, Loot, MapPlan, Party, PartyBlock, Progress,
+  SeatRule, Shape, SlotDef, SlotRole, Spot,
 } from "@/lib/party";
 import {
-  FOOD_MINUTES, ROLE_LABEL, SHAPE_LABEL, canFlex, endsAt, flexLabel,
-  foodToMinutes, fmtTime, hasLoot, hasSpot, isFight, lootRulesFor, shapeLabel,
+  FOOD_MINUTES, ROLE_LABEL, canFlex, endsAt, flexLabel,
+  foodToMinutes, fmtTime, hasLoot, hasMaps, hasSpot, isFight, lootRulesFor,
+  shapeLabel,
   slotsOf, whoKey,
 } from "@/lib/party";
 import type { PersonOption } from "@/lib/people";
@@ -20,7 +21,10 @@ import { BodyEditor } from "@/components/party/PartyBody";
 import ProgressTrack from "@/components/party/ProgressTrack";
 import LootPlan from "@/components/party/LootPlan";
 import WherePicker from "@/components/party/WherePicker";
+import MapPicker from "@/components/party/MapPicker";
 import { useAvatarOverrides } from "@/lib/avatars";
+import { useLang } from "@/lib/i18n";
+import { shapeSay } from "@/lib/party-i18n";
 
 /**
  * Putting a party on the board.
@@ -90,6 +94,7 @@ function FlexEditor(
     value: Flex; onChange: (f: Flex) => void;
   },
 ) {
+  const { t } = useLang();
   const roles: SlotRole[] = ["tank", "healer", "dps"];
   // Labels, not ids: in an alliance "MT" means any of the three parties' MT,
   // because which of the three you stand in is the one thing nobody minds.
@@ -113,11 +118,11 @@ function FlexEditor(
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
-          Can also play
+          {t("pf.canAlsoPlay")}
         </span>
         <button type="button" className={chip(!!value.all)}
                 onClick={() => onChange(value.all ? {} : { all: true })}>
-          Anything
+          {t("pf.anything")}
         </button>
       </div>
 
@@ -168,6 +173,7 @@ export default function PartyCreate(
     onCancel: () => void;
   },
 ) {
+  const { t } = useLang();
   const overrides = useAvatarOverrides();
   const face = (id: number | null | undefined, fallback: string | null) =>
     (id != null && overrides[id]) || fallback || null;
@@ -211,6 +217,7 @@ export default function PartyCreate(
   const safeLoot: Loot = okRules.length && !okRules.includes(loot.rule)
     ? { rule: okRules[0] } : loot;
   const [spot, setSpot] = useState<Spot | undefined>(undefined);
+  const [maps, setMaps] = useState<MapPlan | undefined>(undefined);
   /** The person being added as a floater, before their positions are set. */
   const [adding, setAdding] = useState<Floater | null>(null);
   const [fq, setFq] = useState("");
@@ -232,6 +239,7 @@ export default function PartyCreate(
     progress: isFight(chosen?.kind) ? progress : undefined,
     loot: hasLoot(chosen?.kind) ? safeLoot : undefined,
     spot: hasSpot(chosen?.kind) ? spot : undefined,
+    maps: hasMaps(chosen?.kind) ? maps : undefined,
     shape: useShape,
     startsAt: fromBangkokLocal(start),
     lengthMinutes: minutes, lengthUnit: unit,
@@ -239,7 +247,8 @@ export default function PartyCreate(
     seats, closed, rules, oneOfEachJob: oneEach, floating,
     createdAt: new Date().toISOString(),
   }), [contentKey, note, useShape, start, minutes, unit, me.id, seats, closed,
-       rules, oneEach, floating, body, progress, safeLoot, spot, chosen?.kind]);
+       rules, oneEach, floating, body, progress, safeLoot, spot, maps,
+       chosen?.kind]);
 
   const mySeat = Object.entries(seats).find(([, v]) => v.characterId === me.id)?.[0];
   const iAmFloating = floating.some((f) => f.characterId === me.id);
@@ -308,9 +317,9 @@ export default function PartyCreate(
   return (
     <div className="flex flex-col gap-3.5 rounded-xl border border-accent/40 bg-surface p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="font-display text-[15px] font-semibold">New party</h3>
+        <h3 className="font-display text-[15px] font-semibold">{t("pf.new")}</h3>
         <button onClick={onCancel} className="text-[12.5px] text-muted hover:text-ink">
-          Cancel
+          {t("pf.cancel")}
         </button>
       </div>
 
@@ -323,20 +332,24 @@ export default function PartyCreate(
           // form says which fact it has taken rather than leaving a dead
           // control that cannot be moved.
           <span className="rounded-lg border border-line bg-bg/40 px-3 py-2 text-[13px] text-muted">
-            {shapeLabel(useShape, chosen?.kind)}
-            <span className="ml-1.5 opacity-70">· set by the content</span>
+            {shapeSay(useShape, chosen?.kind, t)}
+            <span className="ml-1.5 opacity-70">· {t("pf.setByContent")}</span>
           </span>
         ) : (
           <select value={useShape} onChange={(e) => setShape(e.target.value as Shape)}
-                  className={sel} aria-label="Party size">
-            {(["light", "cc", "full", "alliance", "open"] as Shape[]).map((s) => (
-              <option key={s} value={s}>{SHAPE_LABEL[s]}</option>
+                  className={sel} aria-label={t("pf.size")}>
+            {/* "cc" was here until the five-seat Crystalline Conflict shape
+                came out: PvP is queued alone, so both PvP entries are open
+                parties. It left a dead option behind that rendered as a blank
+                line, because SHAPE_LABEL has nothing under that key. */}
+            {(["light", "full", "alliance", "open"] as Shape[]).map((s) => (
+              <option key={s} value={s}>{shapeSay(s, chosen?.kind, t)}</option>
             ))}
           </select>
         )}
 
         <input value={note} onChange={(e) => setNote(e.target.value.slice(0, 140))}
-               placeholder="One line for the list — which map, which phase, voice or not"
+               placeholder={t("pf.note")}
                className={`${sel} min-w-[16rem] flex-1 placeholder:text-muted`} />
       </div>
 
@@ -351,6 +364,8 @@ export default function PartyCreate(
         <LootPlan value={safeLoot} onChange={setLoot} kind={chosen?.kind} />
       )}
 
+      {hasMaps(chosen?.kind) && <MapPicker value={maps} onChange={setMaps} />}
+
       {hasSpot(chosen?.kind) && <WherePicker value={spot} onChange={setSpot} />}
 
       <BodyEditor body={body} onChange={setBody} userId={userId} />
@@ -359,7 +374,7 @@ export default function PartyCreate(
       <div className="flex flex-wrap items-end gap-2.5">
         <label className="flex flex-col gap-1">
           <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-            Starts (Thai time)
+            {t("pf.starts")}
           </span>
           <input type="datetime-local" value={start} min={min}
                  onChange={(e) => setStart(e.target.value)}
@@ -379,7 +394,7 @@ export default function PartyCreate(
             <span className="flex items-center gap-1.5">
               {unit === "food" && <FoodIcon size={16} className="text-gold" />}
               <select value={unit} onChange={(e) => setUnit(e.target.value as "hours" | "food")}
-                      className={sel} aria-label="Unit">
+                      className={sel} aria-label={t("pf.unit")}>
                 <option value="food">food</option>
                 <option value="hours">hours</option>
               </select>
@@ -415,8 +430,8 @@ export default function PartyCreate(
             <label className="flex items-center gap-2 text-[12.5px] text-muted">
               <input type="checkbox" checked={oneEach}
                      onChange={(e) => setOneEach(e.target.checked)} />
-              One player per job
-              <span className="opacity-70">— no two people on the same job</span>
+              {t("pf.onePerJob")}
+              <span className="opacity-70">{t("pf.onePerJobWhy")}</span>
             </label>
           )}
         </div>
@@ -477,7 +492,7 @@ export default function PartyCreate(
               {useShape !== "open" && (
                 <>
                   <span className="text-[12.5px] text-ink">
-                    What can {adding.name} play?
+                    {t("pf.whatCanPlay", { name: adding.name })}
                   </span>
                   <FlexEditor shape={useShape} seatId=""
                               value={adding.flex}
@@ -494,17 +509,16 @@ export default function PartyCreate(
                           setAdding(null);
                         }}
                         className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[12.5px] text-accent disabled:opacity-40">
-                  Done
+                  {t("pf.done")}
                 </button>
                 <button onClick={() => setAdding(null)}
                         className="text-[12.5px] text-muted hover:text-ink">
-                  Cancel
+                  {t("pf.cancel")}
                 </button>
               </div>
               {useShape !== "open" && !canFlex(adding.flex) && (
                 <span className="text-[11.5px] text-muted">
-                  Pick at least one thing they can play, or put them in a seat
-                  instead.
+                  {t("pf.pickOneThing")}
                 </span>
               )}
             </div>
@@ -523,7 +537,7 @@ export default function PartyCreate(
                 )}
               </div>
               <input value={fq} onChange={(e) => setFq(e.target.value)}
-                     placeholder="Add somebody who can flex…"
+                     placeholder={t("pf.addFlexer")}
                      className={`${sel} w-full placeholder:text-muted`} />
               {fq.trim().length >= 2 && !floatSuggestions.length && (
                 <button onClick={() => {
@@ -575,7 +589,7 @@ export default function PartyCreate(
               {sitting ? `${sitting.name} — ${picking.label}` : `Who is in ${picking.label}?`}
             </span>
             <button onClick={() => setPicking(null)}
-                    className="text-[12px] text-muted hover:text-ink">close</button>
+                    className="text-[12px] text-muted hover:text-ink">{t("pf.close")}</button>
           </div>
 
           {sitting ? (
@@ -585,7 +599,7 @@ export default function PartyCreate(
                   playing has no duplicates to avoid. */}
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
-                  Playing
+                  {t("pf.playing")}
                 </span>
                 {jobsForRole(picking.role).map((job) => (
                   <button key={job} type="button"
@@ -614,7 +628,7 @@ export default function PartyCreate(
                           setPicking(null);
                         }}
                         className="self-start rounded-lg border border-chili/50 px-3 py-1 text-[12.5px] text-chili hover:bg-chili/10">
-                  Take them out of this seat
+                  {t("pf.takeOut")}
                 </button>
               )}
             </>
@@ -624,18 +638,18 @@ export default function PartyCreate(
                 {!mySeat && (
                   <button onClick={() => place(picking, me)}
                           className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[12.5px] text-accent">
-                    That is me
+                    {t("pf.thatIsMe")}
                   </button>
                 )}
                 {closed.includes(picking.id) ? (
                   <button onClick={() => setClosed((v) => v.filter((id) => id !== picking.id))}
                           className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:text-ink">
-                    Look for somebody after all
+                    {t("pf.lookAgain")}
                   </button>
                 ) : (
                   <button onClick={() => { setClosed((v) => [...v, picking.id]); setPicking(null); }}
                           className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:text-ink">
-                    Not looking for this seat
+                    {t("pf.notLooking")}
                   </button>
                 )}
               </div>
@@ -647,7 +661,7 @@ export default function PartyCreate(
                        onChange={(r) => setRules((v) => ({ ...v, [picking.id]: r }))} />
 
               <input value={q} onChange={(e) => setQ(e.target.value)} autoFocus
-                     placeholder="Search the roster…"
+                     placeholder={t("pf.searchRoster")}
                      className={`${sel} w-full placeholder:text-muted`} />
               {suggestions.map((p) => (
                 <button key={p.id} onClick={() => place(picking, p)}
@@ -682,9 +696,7 @@ export default function PartyCreate(
               )}
 
               <p className="text-[11.5px] text-muted">
-                Anybody you place is invited, not booked — the seat says
-                &ldquo;awaiting reply&rdquo; until they accept, the same as a photo tag.
-                Somebody from outside is taken at your word.
+                {t("pf.invitedNotBooked")}
               </p>
             </>
           )}
@@ -695,11 +707,11 @@ export default function PartyCreate(
         <button disabled={!ready || busy}
                 onClick={() => void onAdd({ ...draft, id: "new" })}
                 className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
-          {busy ? "Putting it up…" : "Put it on the board"}
+          {busy ? t("pf.putting") : t("pf.putUp")}
         </button>
         {!mySeat && !iAmFloating && (
           <span className="text-[12px] text-muted">
-            Take a seat, or say you will flex.
+            {t("pf.takeSeatFirst")}
           </span>
         )}
       </div>

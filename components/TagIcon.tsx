@@ -88,6 +88,10 @@ const TAG_ICON: Record<string, { path: string; alt: string; square?: boolean }> 
   // The game's own Hunt icon — the mandragora on a red starburst, the mark the
   // Hunt boards and the clan mark bills carry.
   hunt:         { path: "061000/061819", alt: "the Hunt", square: true },
+  // The game's own Field Operations icon -- the crossed blade and wand over a
+  // banner, the mark Eureka, Bozja and the Occult Crescent share. Same range
+  // as the duty badges above, found the same way.
+  field:        { path: "061000/061837", alt: "field operations", square: true },
 
   /*
    * The Party Finder playstyle set.

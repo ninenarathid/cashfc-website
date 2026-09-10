@@ -7,6 +7,7 @@ import { ROLE_COLOR, canFlex, flexLabel, resolveParty, slotsOf } from "@/lib/par
 import JobIcon from "@/components/JobIcon";
 import { RuleMark } from "@/components/party/JobRule";
 import { useAvatarOverrides } from "@/lib/avatars";
+import { useLang } from "@/lib/i18n";
 
 /**
  * The face to draw for somebody.
@@ -125,6 +126,7 @@ function Seat(
     compact?: boolean;
   },
 ) {
+  const { t } = useLang();
   const state = seatState(party, slot.id, res);
   const who = res.seats[slot.id];
   const maybe = res.maybe[slot.id] ?? [];
@@ -171,7 +173,7 @@ function Seat(
             // Dashed and with a question mark for somebody who is not on this
             // site: a member who simply has no picture is a solid circle, and
             // the two are different facts that should not look the same.
-            <span title={who?.characterId == null ? "Not on this site" : undefined}
+            <span title={who?.characterId == null ? t("pf.notOnSite") : undefined}
                   className={`grid size-[34px] shrink-0 place-items-center rounded-full text-[13px] text-muted ${
                     who?.characterId == null
                       ? "border border-dashed border-line" : "border border-line bg-card"}`}>
@@ -188,7 +190,7 @@ function Seat(
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className={`text-[11.5px] ${
             state === "open" ? "text-accent/80" : "text-muted"}`}>
-            {state === "open" ? "Open" : "—"}
+            {state === "open" ? t("pf.open") : "—"}
           </span>
           {/* What it is asking for, where it asks for anything in particular.
               An unrestricted seat says nothing, which is what makes a
@@ -199,7 +201,7 @@ function Seat(
 
       {state === "waiting" && (
         <span className="font-data text-[9.5px] uppercase tracking-[0.1em] text-gold">
-          awaiting reply
+          {t("pf.awaitingReply")}
         </span>
       )}
 
@@ -209,7 +211,7 @@ function Seat(
           the grid saying the same thing. */}
       {state !== "open" && state !== "shut" && who?.characterId == null && (
         <span className="font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
-          outside the FC
+          {t("pf.outsideFc")}
         </span>
       )}
 
@@ -260,6 +262,7 @@ export default function PartySeats(
     kind?: ContentKind;
   },
 ) {
+  const { t } = useLang();
   const slots = slotsOf(party.shape);
   const res = resolveParty(party);
 
@@ -292,7 +295,7 @@ export default function PartySeats(
                 </span>
                 {!f.confirmedAt && (
                   <span className="font-data text-[9px] uppercase tracking-[0.1em] text-gold">
-                    asked
+                    {t("pf.askedShort")}
                   </span>
                 )}
               </span>

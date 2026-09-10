@@ -466,6 +466,18 @@ const DICT = {
     en: "A new announcement from the admins ({who}).",
     th: "มีประกาศใหม่จาก Admin ({who})",
   },
+  "notif.partyJoin": {
+    en: "{who} asked to join your party.",
+    th: "{who} ขอเข้าร่วมปาร์ตี้ของคุณ",
+  },
+  "notif.partyInvite": {
+    en: "{who} invited you to a party.",
+    th: "{who} ชวนคุณเข้าปาร์ตี้",
+  },
+  "notif.partyOk": {
+    en: "{who} let you into the party.",
+    th: "{who} รับคุณเข้าปาร์ตี้แล้ว",
+  },
   /* Said when a notification arrives of a kind this version does not know.
      Vague on purpose: claiming it is an announcement sends people looking
      through the announcements for something that is not in them. */
@@ -1477,6 +1489,373 @@ const DICT = {
   "common.or": { en: "or", th: "หรือ" },
   "common.cancel": { en: "Cancel", th: "ยกเลิก" },
   "common.delete": { en: "Delete", th: "ลบ" },
+  /*
+   * ── The party finder ────────────────────────────────────────────────
+   *
+   * The chrome, and nothing else. What a party is for stays in English
+   * because it is what the FC says out loud: M12S, Savage, Extreme, FATE,
+   * Bozja, A2C, Farm, L to R, FFA, Tank, Healer, DPS. A Thai rendering of
+   * "Fresh start" or "Book run" would be a word nobody uses, on a board
+   * whose whole job is that two people reading it understand the same
+   * thing.
+   *
+   * Translated here: every question the page asks and every button it
+   * offers. Those are the site talking, not the game.
+   */
+  "party.title": { en: "Party finder", th: "หาปาร์ตี้" },
+  "party.times": {
+    en: "All times are Thai time (UTC+7).",
+    th: "เวลาทั้งหมดเป็นเวลาไทย (UTC+7)",
+  },
+  "party.new": { en: "+ New party", th: "+ ตั้งปาร์ตี้" },
+  "party.search": {
+    en: "Search a fight, a note, or somebody already in",
+    th: "ค้นหาไฟต์ ข้อความ หรือชื่อคนที่อยู่ในปาร์ตี้",
+  },
+  "party.sortSoon": { en: "Starting soonest", th: "ใกล้เริ่มที่สุด" },
+  "party.sortNew": { en: "Just posted", th: "เพิ่งตั้ง" },
+  "party.sortOpen": { en: "Most seats open", th: "ที่ว่างเยอะที่สุด" },
+  "party.clearN": { en: "Clear {n}", th: "ล้าง {n}" },
+  "party.needs": { en: "Needs", th: "ขาด" },
+  "party.anyRole": { en: "Any role", th: "ตำแหน่งไหนก็ได้" },
+  "party.wantsRole": { en: "Wants a {role}", th: "ขาด {role}" },
+  "party.progress": { en: "Progress", th: "ความคืบหน้า" },
+  "party.anyProgress": { en: "Any progress", th: "ทุกความคืบหน้า" },
+  "party.loot": { en: "Loot", th: "แผน Loot" },
+  "party.anyLoot": { en: "Any loot rule", th: "ทุกแผน Loot" },
+  "party.when": { en: "When", th: "เมื่อไหร่" },
+  "party.anyTime": { en: "Any time", th: "ทุกเวลา" },
+  "party.within1": { en: "Within a day", th: "ภายใน 1 วัน" },
+  "party.within3": { en: "Within three days", th: "ภายใน 3 วัน" },
+  "party.within7": { en: "Within a week", th: "ภายใน 1 สัปดาห์" },
+  "party.hasRoom": { en: "Still has room", th: "ยังมีที่ว่าง" },
+  "party.imIn": { en: "I am in it", th: "ที่ฉันอยู่ด้วย" },
+  "party.countOne": { en: "1 party", th: "1 ปาร์ตี้" },
+  "party.countMany": { en: "{n} parties", th: "{n} ปาร์ตี้" },
+  "party.loading": { en: "Loading…", th: "กำลังโหลด…" },
+  "party.none": {
+    en: "Nothing matches. Try clearing a filter, or put one up yourself.",
+    th: "ไม่มีปาร์ตี้ที่ตรงกับที่เลือก ลองล้างตัวกรอง หรือตั้งปาร์ตี้เองก็ได้",
+  },
+  "party.onePerJob": { en: "one player per job", th: "หนึ่งคนหนึ่งอาชีพ" },
+  "party.thaiTime": { en: "Thai time", th: "เวลาไทย" },
+
+  /* ── The five states, which are the five things a reader wants ────── */
+  "party.status": { en: "Status", th: "สถานะ" },
+  "party.stUpcoming": { en: "Not started", th: "ยังไม่เริ่ม" },
+  "party.stSoon": { en: "Starting soon", th: "กำลังจะเริ่ม" },
+  "party.stLive": { en: "In progress", th: "เริ่มแล้ว" },
+  "party.stJustEnded": { en: "Just ended", th: "เพิ่งจบไป" },
+  "party.stDone": { en: "Ended", th: "จบแล้ว" },
+  "party.stOpenOnly": { en: "Not ended yet", th: "ที่ยังไม่จบ" },
+  "party.stEverything": { en: "Everything, ended included", th: "ทั้งหมด รวมที่จบแล้ว" },
+
+  /*
+   * The countdown.
+   *
+   * Two lines rather than one with a unit appended, because Thai puts the
+   * unit after the number with a space and English does not, and a clock
+   * assembled out of fragments by whichever component needed one is a clock
+   * that reads wrong in one of the two languages.
+   */
+  "party.leftDH": { en: "{d}d {h}h", th: "{d} วัน {h} ชม." },
+  "party.leftHM": { en: "{h}h {m}m", th: "{h} ชม. {m} นาที" },
+  "party.leftMS": { en: "{m}m {s}s", th: "{m}:{s} นาที" },
+  /* Under a minute the mm:ss form reads as "0:37 minutes", which is not what
+     thirty-seven seconds is called in either language. */
+  "party.leftS": { en: "{s}s", th: "{s} วินาที" },
+  /* The whole phrase, because "ago" is a word at the end in English and no
+     word at all in Thai — a sentence built from a prefix and a clock reads
+     wrong in one of the two however the fragments are arranged. */
+  "party.startsIn": { en: "starts in {left}", th: "อีก {left}" },
+  "party.endsIn": { en: "ends in {left}", th: "จบในอีก {left}" },
+  "party.endedAgo": { en: "ended {left} ago", th: "จบไปแล้ว {left}" },
+
+  /* ── Joining, and being let in ────────────────────────────────────── */
+  "party.askToJoin": { en: "Ask to join", th: "ขอเข้าร่วม" },
+  "party.asking": { en: "Asking…", th: "กำลังส่ง…" },
+  "party.asked": { en: "Waiting for the lead to let you in", th: "รอหัวห้องยืนยัน" },
+  "party.withdraw": { en: "Withdraw", th: "ยกเลิกคำขอ" },
+  "party.invited": { en: "You have been invited", th: "คุณถูกชวนเข้าปาร์ตี้นี้" },
+  "party.accept": { en: "Accept", th: "ตอบรับ" },
+  "party.youAreIn": { en: "You are in this party", th: "คุณอยู่ในปาร์ตี้นี้แล้ว" },
+  "party.leave": { en: "Leave", th: "ออกจากปาร์ตี้" },
+  "party.letIn": { en: "Let in", th: "รับเข้า" },
+  "party.turnDown": { en: "Turn down", th: "ปฏิเสธ" },
+  "party.waitingOnYou": { en: "{n} waiting for you", th: "มี {n} คนรอคุณยืนยัน" },
+  "party.pickSeats": {
+    en: "Which seats can you play?", th: "เล่นตำแหน่งไหนได้บ้าง",
+  },
+  "party.pickSeatsFirst": {
+    en: "Pick a seat, or say you can play anything.",
+    th: "เลือกตำแหน่งที่เล่นได้ หรือกดว่าเล่นได้ทุกตำแหน่ง",
+  },
+  "party.flexAny": { en: "I can play anything", th: "เล่นได้ทุกตำแหน่ง" },
+  "party.pickJob": { en: "Which job", th: "อาชีพที่จะเล่น" },
+  "party.pickJobFirst": {
+    en: "Say which job you will be on.",
+    th: "เลือกอาชีพที่จะเล่นด้วย",
+  },
+  "party.askingFor": {
+    en: "Asking for whichever is left of: {seats}",
+    th: "ขอเข้าตำแหน่งที่เหลือจาก: {seats}",
+  },
+  "party.anySeat": { en: "Anywhere you need me", th: "ตรงไหนก็ได้" },
+
+  /* ── A link to one party ──────────────────────────────────────────── */
+  "party.lootOwner": { en: "Map owner takes all", th: "เจ้าของแมพได้ของทั้งหมด" },
+  "party.copyLink": { en: "Copy link", th: "คัดลอกลิงก์" },
+  "party.copied": { en: "Link copied", th: "คัดลอกแล้ว" },
+
+  /* ── A map night ──────────────────────────────────────────────────── */
+  "party.mapWhich": { en: "Which map", th: "แมพไหน" },
+  "party.mapAny": { en: "Any map", th: "แมพไหนก็ได้" },
+  "party.mapLatest": { en: "latest", th: "ล่าสุด" },
+  "party.mapEach": { en: "Maps each", th: "คนละกี่แมพ" },
+  "party.mapEachAny": { en: "However many", th: "กี่แมพก็ได้" },
+  "party.mapEachN": { en: "{n} each", th: "คนละ {n} แมพ" },
+  "party.estimate": { en: "estimate", th: "โดยประมาณ" },
+  "party.estimateWhy": {
+    en: "A rough figure — a map night runs until the maps are done, and how long that takes is a dice roll.",
+    th: "เป็นเวลาโดยประมาณ เพราะ Treasure hunt จบเมื่อเปิดแมพครบ ซึ่งใช้เวลาไม่แน่นอน",
+  },
+
+  /* ── What the mercenary is paying for ─────────────────────────────── */
+  "party.payWhen": { en: "Paid when", th: "จ่ายเมื่อ" },
+  "party.payClear": { en: "On the clear", th: "เมื่อผ่านไฟต์" },
+  "party.payMount": { en: "On a rare mount", th: "เมื่อได้ rare mount" },
+  "party.payBoth": { en: "Either", th: "อย่างใดอย่างหนึ่ง" },
+  "party.payClearWhy": {
+    en: "Paid when the boss dies, whatever dropped.",
+    th: "จ่ายเมื่อบอสตาย ไม่ว่าจะดรอปอะไร",
+  },
+  "party.payMountWhy": {
+    en: "Paid only if the rare mount drops. Some nights that is nobody.",
+    th: "จ่ายเฉพาะตอนที่ rare mount ดรอป บางคืนก็ไม่มีใครได้",
+  },
+  "party.payBothWhy": {
+    en: "Paid for the clear, and again if the mount drops.",
+    th: "จ่ายเมื่อผ่านไฟต์ และจ่ายอีกครั้งถ้า mount ดรอป",
+  },
+
+  /*
+   * ── Putting a party up ──────────────────────────────────────────────
+   *
+   * The form, which is where the site does most of its talking: what each
+   * control is for, what a rule will do, and what happens after you press
+   * the button. A Thai member filling this in should not have to read
+   * English to find out that placing somebody is an invitation rather than
+   * a booking.
+   *
+   * The game's own vocabulary is still left alone. Tank, Healer, DPS, the
+   * job names, the fight names, and the four rungs of the progress track
+   * are what the FC says out loud either way.
+   */
+  "pf.new": { en: "New party", th: "ตั้งปาร์ตี้ใหม่" },
+  "pf.cancel": { en: "Cancel", th: "ยกเลิก" },
+  "pf.close": { en: "close", th: "ปิด" },
+  "pf.done": { en: "Done", th: "เสร็จ" },
+  "pf.change": { en: "change", th: "เปลี่ยน" },
+  "pf.remove": { en: "Remove", th: "เอาออก" },
+  "pf.note": {
+    en: "One line for the list — which map, which phase, voice or not",
+    th: "หนึ่งบรรทัดสำหรับหน้ารวม เช่น แมพไหน เฟสไหน เข้าห้องเสียงไหม",
+  },
+  "pf.starts": { en: "Starts (Thai time)", th: "เริ่ม (เวลาไทย)" },
+  "pf.for": { en: "For", th: "ยาว" },
+  "pf.size": { en: "Party size", th: "ขนาดปาร์ตี้" },
+  "pf.unit": { en: "Unit", th: "หน่วย" },
+  "pf.hours": { en: "hours", th: "ชั่วโมง" },
+  "pf.setByContent": { en: "set by the content", th: "กำหนดตามคอนเทนต์" },
+
+  /* The three arrangements, and the three reasons there is no arrangement. */
+  "pf.shapeLight": { en: "Light party (4)", th: "ปาร์ตี้เล็ก (4)" },
+  "pf.shapeFull": { en: "Full party (8)", th: "ปาร์ตี้เต็ม (8)" },
+  "pf.shapeAlliance": { en: "Alliance (24)", th: "Alliance (24)" },
+  "pf.openPvp": { en: "Everyone queues separately", th: "ทุกคน queue แยกกัน" },
+  "pf.openCommunity": { en: "Anyone can join", th: "ใครมาก็ได้" },
+  "pf.openNone": { en: "No fixed party", th: "ไม่จำกัดปาร์ตี้" },
+
+  /* Where we are: the rung names stay, what each one asks for does not. */
+  "pf.whereWeAre": { en: "Where we are", th: "ถึงไหนแล้ว" },
+  "pf.progFreshWhy": {
+    en: "Nobody has seen it. Everything gets explained.",
+    th: "ยังไม่มีใครเคยเล่น อธิบายกันทุกท่า",
+  },
+  "pf.progProgWhy": {
+    en: "Working through the fight. Say what we are drilling.",
+    th: "กำลังไล่ไฟต์อยู่ บอกด้วยว่าฝึกท่าไหน",
+  },
+  "pf.progA2cWhy": {
+    en: "The whole fight is known — going for the clear.",
+    th: "รู้ไฟต์หมดแล้ว ลงไปเอาผ่าน",
+  },
+  "pf.progFarmWhy": {
+    en: "It dies. This is for the loot.",
+    th: "ผ่านอยู่แล้ว ลงมาฟาร์มของ",
+  },
+  "pf.mechProg": {
+    en: "What are we drilling? e.g. second Wroth Flames, adds into cleaves",
+    th: "ฝึกท่าไหนอยู่ เช่น Wroth Flames ครั้งที่สอง, adds ต่อ cleaves",
+  },
+  "pf.mechA2c": {
+    en: "Anything still catching people out? (optional)",
+    th: "ยังมีท่าไหนที่คนพลาดบ่อยไหม (ไม่ใส่ก็ได้)",
+  },
+  "pf.readsAs": { en: "Reads as:", th: "จะขึ้นว่า:" },
+
+  /* Loot: the handles stay, the explanations do not. */
+  "pf.lootLtrWhy": {
+    en: "Left to right down the party list — whoever gets theirs leaves.",
+    th: "ไล่จากซ้ายไปขวาตามลิสต์ปาร์ตี้ ใครได้ของแล้วออก",
+  },
+  "pf.lootFfaWhy": {
+    en: "Free for all. Everybody rolls on everything.",
+    th: "ทอยกันทุกคน ทุกชิ้น",
+  },
+  "pf.lootMercWhy": {
+    en: "The lead pays everyone for a clear or a rare drop, and keeps the loot.",
+    th: "หัวห้องจ่ายเงินให้ทุกคน แล้วเก็บของเอง",
+  },
+  "pf.lootBookWhy": {
+    en: "Here for the weekly books. Nobody is fighting over the gear.",
+    th: "มาเก็บ book รายสัปดาห์ ไม่ได้แย่งของกัน",
+  },
+  "pf.lootOwnerWhy": {
+    en: "Whoever opened the map keeps what came out of it. The rest are helping.",
+    th: "ใครเปิดแมพ คนนั้นได้ของทั้งหมด ที่เหลือมาช่วย",
+  },
+  "pf.payEach": { en: "Paying each person", th: "จ่ายคนละ" },
+
+  /* Where in the game. */
+  "pf.where": { en: "Where", th: "ที่ไหน" },
+  "pf.whereHelp": {
+    en: "Any zone in the game. Coordinates optional.",
+    th: "แมพไหนในเกมก็ได้ พิกัดใส่หรือไม่ใส่ก็ได้",
+  },
+  "pf.whereSearch": {
+    en: "Search a zone — Kozama'uka, Limsa, Crystarium…",
+    th: "ค้นหาแมพ — Kozama'uka, Limsa, Crystarium…",
+  },
+  "pf.whereNone": {
+    en: "No zone by that name. {n} places are listed — try a shorter search.",
+    th: "ไม่มีแมพชื่อนี้ มีทั้งหมด {n} ที่ ลองพิมพ์สั้นลง",
+  },
+
+  /* The write-up. */
+  "pf.plan": {
+    en: "The plan — paragraphs and pictures",
+    th: "รายละเอียด — ข้อความและรูป",
+  },
+  "pf.paragraph": { en: "+ Paragraph", th: "+ ย่อหน้า" },
+  "pf.dropAnywhere": {
+    en: "or drop pictures anywhere in here",
+    th: "หรือลากรูปมาวางตรงไหนก็ได้ในกรอบนี้",
+  },
+  "pf.dropShots": { en: "Drop screenshots here", th: "ลากรูปมาวางตรงนี้" },
+  "pf.dropShotsHint": {
+    en: "They go in at the end; move them where you want them",
+    th: "รูปจะไปต่อท้าย แล้วค่อยเลื่อนไปตรงที่ต้องการ",
+  },
+  "pf.planText": { en: "What is the plan?", th: "แผนเป็นยังไง" },
+  "pf.caption": { en: "Caption (optional)", th: "คำบรรยาย (ไม่ใส่ก็ได้)" },
+  "pf.moveUp": { en: "Move up", th: "เลื่อนขึ้น" },
+  "pf.moveDown": { en: "Move down", th: "เลื่อนลง" },
+  "pf.uploading": { en: "uploading {n}…", th: "กำลังอัปโหลด {n} รูป…" },
+  "pf.tooBig": { en: "That picture is too large.", th: "รูปใหญ่เกินไป" },
+  "pf.notPicture": { en: "That is not a picture.", th: "ไฟล์นี้ไม่ใช่รูป" },
+
+  /* Seats. */
+  "pf.pickOwnSeat": { en: "Pick your own seat first", th: "เลือกตำแหน่งของตัวเองก่อน" },
+  "pf.seatsHint": {
+    en: "Seats — click one to fill it, invite somebody, or set their flex",
+    th: "ตำแหน่ง — คลิกเพื่อใส่คน ชวนคน หรือตั้ง flex",
+  },
+  "pf.onePerJob": { en: "One player per job", th: "หนึ่งคนหนึ่งอาชีพ" },
+  "pf.onePerJobWhy": {
+    en: "— no two people on the same job",
+    th: "— ห้ามซ้ำอาชีพกัน",
+  },
+  "pf.onePerJobOn": { en: "one player per job is on", th: "เปิดหนึ่งคนหนึ่งอาชีพอยู่" },
+  "pf.noDouble": {
+    en: "Nobody in this party doubles up on a job",
+    th: "ปาร์ตี้นี้ไม่มีใครเล่นอาชีพซ้ำกัน",
+  },
+  "pf.open": { en: "Open", th: "ว่าง" },
+  "pf.openToAll": { en: "Open to all", th: "ใครมาก็ได้" },
+  "pf.awaitingReply": { en: "awaiting reply", th: "รอตอบรับ" },
+  "pf.askedShort": { en: "asked", th: "ขอเข้ามา" },
+  "pf.outsideFc": { en: "outside the FC", th: "คนนอก FC" },
+  "pf.notOnSite": { en: "Not on this site", th: "ไม่ได้อยู่ในเว็บนี้" },
+  "pf.stillSettling": {
+    en: "Seats still being settled between people already in",
+    th: "ตำแหน่งยังสลับกันได้ในหมู่คนที่อยู่แล้ว",
+  },
+  "pf.jobsFor": { en: "Jobs for {seat}", th: "อาชีพสำหรับ {seat}" },
+  "pf.anyJob": { en: "any job", th: "อาชีพไหนก็ได้" },
+  "pf.alreadyOn": {
+    en: "Somebody in the party is already on this",
+    th: "มีคนในปาร์ตี้เล่นอาชีพนี้อยู่แล้ว",
+  },
+  "pf.openToAny": { en: "Open to any {role}", th: "เปิดให้ {role} ทุกอาชีพ" },
+  "pf.openToN": { en: "Open to {n}:", th: "เปิดให้ {n} อาชีพ:" },
+  "pf.seatShut": {
+    en: "Nothing can take this seat — loosen it, or nobody can join.",
+    th: "ไม่มีอาชีพไหนลงตำแหน่งนี้ได้ ลดเงื่อนไขลง ไม่งั้นไม่มีใครเข้าได้",
+  },
+  "pf.jobsN": { en: "{n} jobs", th: "{n} อาชีพ" },
+
+  /* Adding people. */
+  "pf.canAlsoPlay": { en: "Can also play", th: "เล่นได้อีก" },
+  "pf.anything": { en: "Anything", th: "ทุกตำแหน่ง" },
+  "pf.whatCanPlay": { en: "What can {name} play?", th: "{name} เล่นอะไรได้บ้าง" },
+  "pf.pickOneThing": {
+    en: "Pick at least one thing they can play, or put them in a seat instead.",
+    th: "เลือกอย่างน้อยหนึ่งอย่างที่เขาเล่นได้ หรือใส่ลงตำแหน่งไปเลย",
+  },
+  "pf.addNamed": { en: "Add “{name}”", th: "เพิ่ม “{name}”" },
+  "pf.outsiderHint": {
+    en: "Somebody from outside the FC, or not on this site",
+    th: "คนนอก FC หรือคนที่ไม่ได้อยู่ในเว็บนี้",
+  },
+  "pf.searchRoster": { en: "Search the roster…", th: "ค้นหาสมาชิก…" },
+  "pf.addFlexer": { en: "Add somebody who can flex…", th: "เพิ่มคนที่ flex ได้…" },
+  "pf.flexibleNoSeat": { en: "Flexible — no seat yet", th: "Flex — ยังไม่มีตำแหน่ง" },
+  "pf.flexHint": {
+    en: "They show on every seat they could take, and drop into whichever one is left.",
+    th: "จะขึ้นบนทุกตำแหน่งที่เขาเล่นได้ แล้วลงตำแหน่งที่เหลือ",
+  },
+  "pf.iWillFlex": { en: "I will flex", th: "ฉัน flex เอง" },
+  "pf.playing": { en: "Playing", th: "เล่น" },
+  "pf.takeOut": { en: "Take them out of this seat", th: "เอาออกจากตำแหน่งนี้" },
+  "pf.thatIsMe": { en: "That is me", th: "ตรงนี้คือฉัน" },
+  "pf.lookAgain": { en: "Look for somebody after all", th: "กลับมาหาคนตำแหน่งนี้" },
+  "pf.notLooking": { en: "Not looking for this seat", th: "ไม่หาคนตำแหน่งนี้" },
+  "pf.invitedNotBooked": {
+    en: "Anybody you place is invited, not booked — the seat says “awaiting reply” until they accept, the same as a photo tag. Somebody from outside is taken at your word.",
+    th: "ใครที่คุณใส่ลงไปถือเป็นการชวน ยังไม่ใช่การจอง ตำแหน่งจะขึ้นว่า “รอตอบรับ” จนกว่าเขาจะรับ เหมือนแท็กรูป ส่วนคนนอกเว็บถือตามที่คุณบอก",
+  },
+  "pf.putUp": { en: "Put it on the board", th: "ลงบอร์ด" },
+  "pf.putting": { en: "Putting it up…", th: "กำลังลง…" },
+  "pf.takeSeatFirst": {
+    en: "Take a seat, or say you will flex.",
+    th: "เลือกตำแหน่งของตัวเอง หรือบอกว่าจะ flex",
+  },
+
+  /* The conversation under a party. */
+  "pf.comments": { en: "Comments", th: "ความคิดเห็น" },
+  "pf.commentsN": { en: "{n} comments", th: "{n} ความคิดเห็น" },
+  "pf.commentOne": { en: "1 comment", th: "1 ความคิดเห็น" },
+  "pf.comment": { en: "Comment", th: "ส่ง" },
+  "pf.commentBox": {
+    en: "Ask something, or say you are coming late…",
+    th: "ถามอะไรก็ได้ หรือบอกว่าจะมาสาย…",
+  },
+  "pf.orDropShot": {
+    en: "or drop a screenshot in here",
+    th: "หรือลากรูปมาวางตรงนี้",
+  },
+
   "common.edit": { en: "Edit", th: "แก้ไข" },
   "common.noData": { en: "No data", th: "ไม่มีข้อมูล" },
 } satisfies Record<string, Entry>;

@@ -81,7 +81,7 @@ export const SHAPE_LABEL: Record<Shape, string> = {
 export type ContentKind =
   | "extreme" | "savage" | "ultimate"
   | "alliance" | "treasure" | "fate" | "hunt" | "criterion" | "pvp"
-  | "community" | "other";
+  | "community" | "field" | "other";
 
 export interface ContentDef {
   key: string;
@@ -147,12 +147,14 @@ export const KIND_LABEL: Record<ContentKind, string> = {
   criterion: "Criterion / Variant",
   pvp: "PvP",
   community: "Community Events",
+  field: "Field Operations",
   other: "Other",
 };
 
 export const KIND_ORDER: ContentKind[] = [
   "extreme", "savage", "ultimate",
-  "alliance", "treasure", "criterion", "pvp", "community", "fate", "hunt", "other",
+  "alliance", "treasure", "criterion", "field", "pvp", "community", "fate",
+  "hunt", "other",
 ];
 
 /**
@@ -169,6 +171,7 @@ export const KIND_ICON: Partial<Record<ContentKind, string>> = {
   ultimate: "ultimate",
   alliance: "alliance",
   criterion: "criterion",
+  field: "field",
   fate: "fate",
   hunt: "hunt",
   community: "community",
@@ -208,6 +211,7 @@ export const KIND_COLOR: Record<ContentKind, string> = {
   criterion: "#c96f9e",
   pvp: "#c74a4a",
   community: "#d47fb8",
+  field: "#a1734a",
   other: "#8b93a1",
 };
 
@@ -336,6 +340,26 @@ export function catalogue(
       badge: "RP", icon: "roleplay", shape: "open" },
     { key: "comm:perf", kind: "community", name: "Performance",
       icon: "performance", shape: "open" },
+    /*
+     * Three rows rather than one, for the same reason the alliance raids are
+     * three: they are different evenings. Somebody scrolling past should be
+     * able to tell whether tonight is Occult Crescent or a Hydatos NM train
+     * without opening it.
+     *
+     * Which zone within each is left to the map picker, which already knows
+     * every one of them — Anemos and Hydatos are the same idea forty levels
+     * apart, and a row per zone would be seven rows saying almost nothing.
+     *
+     * Eight seats, because eight is what a field party actually forms. The
+     * instance holds dozens and the queue is not the point; the eight who
+     * agreed a time are.
+     */
+    { key: "field:occult", kind: "field", name: "Occult Crescent",
+      icon: "field", shape: "full" },
+    { key: "field:bozja", kind: "field", name: "Bozja", icon: "field",
+      shape: "full" },
+    { key: "field:eureka", kind: "field", name: "Eureka", icon: "field",
+      shape: "full" },
     { key: "fate", kind: "fate", name: "FATE farm", shape: "open" },
     { key: "hunt", kind: "hunt", name: "Hunt train", shape: "open" },
     { key: "other", kind: "other", name: "Something else", shape: "open" },
@@ -486,6 +510,32 @@ export interface SlotTaken {
    * tells everybody else the party is full when it is not. Same rule as a
    * photograph tag, for the same reason.
    */
+  /**
+   * Which way round this seat happened.
+   *
+   * "owner" — the lead put them here, and `confirmedAt` is their answer.
+   * "self"  — they asked to join, and `confirmedAt` is the lead's answer.
+   *
+   * Both end up as an unconfirmed seat and both are settled by the same field,
+   * which is why one word is enough to carry the difference. Without it the
+   * board cannot tell whose turn it is: the same grey seat means "waiting on
+   * them" in one direction and "waiting on you" in the other, and showing the
+   * lead a Confirm button on a seat that is waiting on somebody else is how a
+   * party ends up with a member who never agreed to be in it.
+   *
+   * Absent means "owner", which is what every seat made before joining
+   * existed was.
+   */
+  by?: "owner" | "self";
+  /**
+   * The row this seat is, so it can be confirmed or taken back.
+   *
+   * The one place the model knows a database exists, and it earns it: answering
+   * a seat means naming the row, and the alternative is matching on party and
+   * character and hoping — which stops working the moment the party contains
+   * two people from off this site, who both have no character id at all.
+   */
+  seatRowId?: number;
   confirmedAt: string | null;
 }
 
@@ -555,6 +605,8 @@ export interface Party {
   loot?: Loot;
   /** Where in the game to meet. See hasSpot. */
   spot?: Spot;
+  /** Which map, and how many each. Treasure hunts only. See hasMaps. */
+  maps?: MapPlan;
   /** Replies. */
   comments?: PartyComment[];
   shape: Shape;
@@ -630,6 +682,32 @@ export interface Floater {
   job?: string | null;
   /** What they can play. `all` is the widest offer there is. */
   flex: Flex;
+  /**
+   * Which way round this seat happened.
+   *
+   * "owner" — the lead put them here, and `confirmedAt` is their answer.
+   * "self"  — they asked to join, and `confirmedAt` is the lead's answer.
+   *
+   * Both end up as an unconfirmed seat and both are settled by the same field,
+   * which is why one word is enough to carry the difference. Without it the
+   * board cannot tell whose turn it is: the same grey seat means "waiting on
+   * them" in one direction and "waiting on you" in the other, and showing the
+   * lead a Confirm button on a seat that is waiting on somebody else is how a
+   * party ends up with a member who never agreed to be in it.
+   *
+   * Absent means "owner", which is what every seat made before joining
+   * existed was.
+   */
+  by?: "owner" | "self";
+  /**
+   * The row this seat is, so it can be confirmed or taken back.
+   *
+   * The one place the model knows a database exists, and it earns it: answering
+   * a seat means naming the row, and the alternative is matching on party and
+   * character and hoping — which stops working the moment the party contains
+   * two people from off this site, who both have no character id at all.
+   */
+  seatRowId?: number;
   confirmedAt: string | null;
 }
 
@@ -921,7 +999,7 @@ export function spotText(s: Spot | undefined): string | null {
  */
 export const hasSpot = (kind: ContentKind | undefined): boolean =>
   kind === "community" || kind === "fate" || kind === "hunt"
-  || kind === "treasure";
+  || kind === "treasure" || kind === "field";
 
 /**
  * Who gets what, agreed before anybody walks in.
@@ -937,7 +1015,12 @@ export const hasSpot = (kind: ContentKind | undefined): boolean =>
  *          stated amount for the kill or for a rare drop, and the loot is
  *          theirs. Said in numbers here rather than "negotiable", because a
  *          price nobody has stated is a price two people have assumed
- *          differently.
+ *          differently — and said with a trigger, because "paid for the
+ *          clear" and "paid when the mount drops" are two different deals
+ *          wearing one word.
+ *   owner  Treasure maps. Whoever opened the map takes what came out of it,
+ *          and everybody else came to help. The other honest answer to a map
+ *          night, and one that has to be said before anybody portals in.
  *
  * Set on every party whatever the progress is: a prog night that unexpectedly
  * kills the boss still has to answer the question, and answering it at 1am
@@ -950,19 +1033,50 @@ export const hasSpot = (kind: ContentKind | undefined): boolean =>
  * these three answers there would be offering three wrong ones. The rest get
  * their own when somebody says what they should be.
  */
-export type LootRule = "ltr" | "ffa" | "merc" | "book";
+export type LootRule = "ltr" | "ffa" | "merc" | "book" | "owner";
+
+/**
+ * What the mercenary is paying for.
+ *
+ * A wage and a bet, and the FC has run both. Paying for the clear is a wage:
+ * everybody is paid at the end of the night whether or not anything dropped.
+ * Paying on a rare mount is a bet, and on a bad night it pays nobody — which is
+ * a perfectly normal arrangement and a terrible thing to discover at 1am. A
+ * party that has not said which one it means has two people who each assumed
+ * the other.
+ */
+export type PayOn = "clear" | "mount" | "both";
 
 export interface Loot {
   rule: LootRule;
   /** Gil per person, when the rule is `merc`. */
   pay?: number;
+  /** What has to happen before that is paid. Only meaningful under `merc`. */
+  payOn?: PayOn;
 }
+
+export const PAY_ON_LABEL: Record<PayOn, string> = {
+  clear: "on the clear",
+  mount: "on a rare mount",
+  both: "on the clear or a rare mount",
+};
+
+/** What each trigger means, spelled out where somebody is choosing one. */
+export const PAY_ON_HELP: Record<PayOn, string> = {
+  clear: "Paid when the boss dies, whatever dropped.",
+  mount: "Paid only if the rare mount drops. Some nights that is nobody.",
+  both: "Paid for the clear, and again if the mount drops.",
+};
+
+/** The default, because a wage is what people mean when they say nothing. */
+export const DEFAULT_PAY_ON: PayOn = "clear";
 
 export const LOOT_LABEL: Record<LootRule, string> = {
   ltr: "L to R",
   ffa: "FFA",
   merc: "Mercenary",
   book: "Book run",
+  owner: "Map owner takes all",
 };
 
 export const LOOT_HELP: Record<LootRule, string> = {
@@ -970,10 +1084,12 @@ export const LOOT_HELP: Record<LootRule, string> = {
   ffa: "Free for all. Everybody rolls on everything.",
   merc: "The lead pays everyone for a clear or a rare drop, and keeps the loot.",
   book: "Here for the weekly books. Nobody is fighting over the gear.",
+  owner: "Whoever opened the map keeps what came out of it. The rest are helping.",
 };
 
 export const LOOT_COLOR: Record<LootRule, string> = {
   ltr: "#7ea6c9", ffa: "#6aa84f", merc: "#c9a227", book: "#9a7fd4",
+  owner: "#c96f9e",
 };
 
 /**
@@ -986,14 +1102,21 @@ export const LOOT_COLOR: Record<LootRule, string> = {
 export function lootRulesFor(kind: ContentKind | undefined): LootRule[] {
   if (kind === "savage") return ["ltr", "ffa", "merc", "book"];
   if (kind === "extreme") return ["ltr", "ffa", "merc"];
+  // A map night has its own two answers and none of the raid ones fits: there
+  // is no party list to work down, and nothing to pay a wage for. Either
+  // everybody rolls on everything, or each chest belongs to whoever opened the
+  // map and the rest of us are there for the portals.
+  if (kind === "treasure") return ["ffa", "owner"];
   return [];
 }
 
-/** "L to R", "Mercenary · 2,000,000 gil". */
+/** "L to R", "Mercenary · 2,000,000 gil on a rare mount". */
 export function lootText(l: Loot | undefined): string | null {
   if (!l) return null;
-  if (l.rule !== "merc" || !l.pay) return LOOT_LABEL[l.rule];
-  return `${LOOT_LABEL.merc} · ${l.pay.toLocaleString("en-US")} gil`;
+  if (l.rule !== "merc") return LOOT_LABEL[l.rule];
+  const when = l.payOn ? ` ${PAY_ON_LABEL[l.payOn]}` : "";
+  if (!l.pay) return `${LOOT_LABEL.merc}${when}`;
+  return `${LOOT_LABEL.merc} · ${l.pay.toLocaleString("en-US")} gil${when}`;
 }
 
 /**
@@ -1005,7 +1128,7 @@ export function lootText(l: Loot | undefined): string | null {
  * offering three answers that are all wrong.
  */
 export const hasLoot = (kind: ContentKind | undefined): boolean =>
-  kind === "savage" || kind === "extreme";
+  kind === "savage" || kind === "extreme" || kind === "treasure";
 
 /**
  * A party's write-up: paragraphs and pictures, in the order they were put down.
@@ -1053,6 +1176,161 @@ export const hasBody = (b: PartyBlock[] | undefined): boolean =>
 
 export const endsAt = (p: Party): string =>
   new Date(new Date(p.startsAt).getTime() + p.lengthMinutes * 60_000).toISOString();
+
+/* ── A map night ──────────────────────────────────────────────────────────── */
+
+/**
+ * What a treasure party is opening, and how much of it.
+ *
+ * Two questions that decide whether somebody can come, and neither is answered
+ * by the time or the party size. A G18 night is not a G12 night — the maps are
+ * different items, gathered at different levels, and turning up with the wrong
+ * one means standing about while everybody else portals. And "bring one" and
+ * "bring five" are different evenings: one is twenty minutes, the other is most
+ * of the night.
+ *
+ * Both optional. "Maps, tonight, bring what you have" is a real plan and the
+ * board should not refuse it until somebody has picked a G number.
+ */
+export interface MapPlan {
+  /** The map, by its item name: "Timeworn Gargantuaskin Map". */
+  kind?: string;
+  /** How many each person brings. */
+  each?: number;
+}
+
+export const hasMaps = (kind: ContentKind | undefined): boolean =>
+  kind === "treasure";
+
+/**
+ * Whether the length shown is a guess rather than a plan.
+ *
+ * A savage night runs from eight until ten because somebody decided it would.
+ * A map night runs until the maps are done, and how long that takes depends on
+ * how many portals open — which is a dice roll nobody controls. Two hours of
+ * maps can be forty minutes or it can be four hours.
+ *
+ * So the board says so rather than pretending, and the party is not judged for
+ * overrunning something it never promised.
+ */
+export const timeIsEstimate = (kind: ContentKind | undefined): boolean =>
+  kind === "treasure";
+
+/** "G18 · 3 each", "G18", "2 each". */
+export function mapsText(m: MapPlan | undefined, gOf?: (name: string) => string | undefined): string | null {
+  if (!m) return null;
+  const which = m.kind ? (gOf?.(m.kind) ?? m.kind) : null;
+  const each = m.each ? `${m.each} each` : null;
+  const parts = [which, each].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+}
+
+/* ── Where a party is in its own evening ──────────────────────────────────── */
+
+/**
+ * The five states of a listing, which are the five different things a member
+ * wants from it.
+ *
+ *   upcoming    Later. There is time to sort a job out and ask questions.
+ *   soon        Within the hour. Stop reading and log in.
+ *   live        Happening. Joining now means joining something already going.
+ *   justEnded   Finished within the last hour. Still worth showing: this is
+ *               where "how did it go" and the screenshots land, and a board
+ *               that files a party under history the second it ends throws
+ *               away the hour it is most talked about.
+ *   done        Over. Off the board unless somebody goes looking.
+ *
+ * An hour on each side. Long enough to be a real warning and to catch the
+ * conversation afterwards; short enough that "soon" still means soon.
+ *
+ * Worked out from the clock every time rather than stored, because a stored
+ * status is a second copy of the truth that needs a job to keep it honest —
+ * and the moment that job is late the board is lying about which parties are
+ * running.
+ */
+export type PartyStatus = "upcoming" | "soon" | "live" | "justEnded" | "done";
+
+/** The width of the warning, and of the grace afterwards. */
+export const SOON_MS = 3_600_000;
+
+export function partyStatus(p: Party, now: number = Date.now()): PartyStatus {
+  const start = new Date(p.startsAt).getTime();
+  const end = new Date(endsAt(p)).getTime();
+  if (now < start - SOON_MS) return "upcoming";
+  if (now < start) return "soon";
+  if (now < end) return "live";
+  if (now < end + SOON_MS) return "justEnded";
+  return "done";
+}
+
+export const STATUS_LABEL: Record<PartyStatus, string> = {
+  upcoming: "Not started",
+  soon: "Starting soon",
+  live: "In progress",
+  justEnded: "Just ended",
+  done: "Ended",
+};
+
+/** Cool while it waits, warm as it nears, green while it runs, grey after. */
+export const STATUS_COLOR: Record<PartyStatus, string> = {
+  upcoming: "#7ea6c9",
+  soon: "#d98b3a",
+  live: "#6aa84f",
+  justEnded: "#a87fd8",
+  done: "#8b93a1",
+};
+
+/** The order the filter chips sit in, which is the order an evening happens. */
+export const STATUS_ORDER: PartyStatus[] = [
+  "upcoming", "soon", "live", "justEnded", "done",
+];
+
+/** Whether a party in this state is still part of tonight. */
+export const isOver = (st: PartyStatus): boolean => st === "done";
+
+/**
+ * How long until it starts, broken into parts.
+ *
+ * Parts rather than a formatted string, because the two languages put them in
+ * different orders and neither should be assembled here. Negative once the
+ * thing has started, so a caller can tell "in five minutes" from "five minutes
+ * ago" without a second call.
+ */
+export interface Span {
+  /** Signed. Negative once the moment has passed. */
+  ms: number;
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+export function spanTo(iso: string, now: number = Date.now()): Span {
+  const ms = new Date(iso).getTime() - now;
+  // Rounded down towards zero from the absolute value, so "1 minute" means a
+  // minute is left rather than a minute has nearly gone. A countdown that
+  // reads 0:00 for a whole second before it fires is a countdown people stop
+  // trusting.
+  const a = Math.abs(ms);
+  return {
+    ms,
+    days: Math.floor(a / 86_400_000),
+    hours: Math.floor(a / 3_600_000) % 24,
+    minutes: Math.floor(a / 60_000) % 60,
+    seconds: Math.floor(a / 1000) % 60,
+  };
+}
+
+/**
+ * How often a countdown needs redrawing to look alive.
+ *
+ * Seconds only inside the last hour. Above that the seconds digit is noise
+ * nobody reads, and redrawing every listing on the board once a second so that
+ * "in 3 days" can stay "in 3 days" is a fan spinning for nothing.
+ */
+export const tickMs = (ms: number): number =>
+  Math.abs(ms) < SOON_MS ? 1000 : 60_000;
+
 
 /** Seats with nobody in them and not deliberately shut. What is missing. */
 export function openSeats(p: Party): SlotDef[] {

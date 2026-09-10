@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { makeFull, MAX_UPLOAD_BYTES } from "@/lib/gallery";
 import type {
-  Floater, Flex, Loot, Party, PartyBlock, PartyComment, Progress, SeatRule,
-  Shape, SlotTaken, Spot,
+  Floater, Flex, Loot, MapPlan, Party, PartyBlock, PartyComment, Progress,
+  SeatRule, Shape, SlotTaken, Spot,
 } from "@/lib/party";
 
 /**
@@ -38,6 +38,7 @@ interface PostRow {
   progress: Progress | null;
   loot: Loot | null;
   spot: Spot | null;
+  maps: MapPlan | null;
   body: PartyBlock[] | null;
   created_at: string;
 }
@@ -51,6 +52,8 @@ interface MemberRow {
   avatar: string | null;
   job: string | null;
   flex: Flex | null;
+  /** 'owner' if the lead put them here, 'self' if they asked to join. */
+  asked_by: string | null;
   confirmed_at: string | null;
 }
 
@@ -68,7 +71,11 @@ interface CommentRow {
 const POST_COLS =
   "id, owner, owner_character_id, content_key, note, shape, starts_at,"
   + " length_minutes, length_unit, one_of_each_job, closed, rules, progress,"
-  + " loot, spot, body, created_at";
+  + " loot, spot, maps, body, created_at";
+
+const MEMBER_COLS =
+  "id, party_id, seat, character_id, name, avatar, job, flex, asked_by,"
+  + " confirmed_at";
 
 /* ── reading ──────────────────────────────────────────────────────────────── */
 
@@ -84,21 +91,33 @@ const POST_COLS =
  * Finished parties are left behind. The board is for what is still to come, and
  * "started three hours ago and ran for two" is arithmetic the database can do
  * on the way out rather than the browser doing it on everything ever posted.
+ *
+ * `back` widens that window, which is what the Ended filter asks for. Kept as
+ * an argument rather than always fetching a month, because the common load is
+ * every load and a board that drags a month of finished parties across the wire
+ * to show tonight's four is a board that feels slow to everybody in order to
+ * serve the one person who went looking.
  */
-export async function loadParties(supabase: SupabaseClient): Promise<Party[]> {
-  const since = new Date(Date.now() - 12 * 3600_000).toISOString();
+export async function loadParties(
+  supabase: SupabaseClient, opts?: { back?: number },
+): Promise<Party[]> {
+  const since = new Date(Date.now() - (opts?.back ?? 12) * 3600_000).toISOString();
   const { data: posts, error } = await supabase.from("party_posts")
     .select(POST_COLS)
     .is("deleted_at", null)
     .gte("starts_at", since)
-    .order("starts_at", { ascending: true })
+    // Soonest first while the window is the usual one. Reversed for a wide
+    // window so that the two hundred rows kept are the recent ones: asking for
+    // a month and getting the oldest two hundred of it would hand back exactly
+    // the parties nobody was looking for.
+    .order("starts_at", { ascending: !opts?.back })
     .limit(200);
   if (error || !posts?.length) return [];
 
   const ids = (posts as unknown as PostRow[]).map((p) => p.id);
   const [{ data: members }, { data: comments }] = await Promise.all([
     supabase.from("party_members")
-      .select("id, party_id, seat, character_id, name, avatar, job, flex, confirmed_at")
+      .select(MEMBER_COLS)
       .in("party_id", ids),
     supabase.from("party_comments")
       .select("id, party_id, author_character_id, author_name, author_avatar,"
@@ -113,6 +132,9 @@ export async function loadParties(supabase: SupabaseClient): Promise<Party[]> {
     const who = {
       characterId: m.character_id, name: m.name, avatar: m.avatar,
       job: m.job, confirmedAt: m.confirmed_at,
+      // Kept so a seat can be answered from either end. See SlotTaken.by.
+      seatRowId: m.id,
+      by: (m.asked_by === "self" ? "self" : "owner") as "self" | "owner",
       ...(m.flex ? { flex: m.flex } : {}),
     };
     if (m.seat) {
@@ -161,6 +183,7 @@ export async function loadParties(supabase: SupabaseClient): Promise<Party[]> {
     progress: p.progress ?? undefined,
     loot: p.loot ?? undefined,
     spot: p.spot ?? undefined,
+    maps: p.maps ?? undefined,
     body: p.body ?? [],
     comments: talkOf.get(p.id) ?? [],
     createdAt: p.created_at,
@@ -195,6 +218,7 @@ export async function createParty(
     progress: p.progress ?? null,
     loot: p.loot ?? null,
     spot: p.spot ?? null,
+    maps: p.maps ?? null,
     body: p.body ?? [],
   }).select("id").single();
   if (error || !data) return { error: error?.message ?? "no row" };
@@ -205,12 +229,14 @@ export async function createParty(
       party_id: partyId, seat,
       character_id: v.characterId, name: v.name, avatar: v.avatar,
       job: v.job ?? null, flex: v.flex ?? null,
+      asked_by: v.by ?? "owner",
       confirmed_at: v.confirmedAt, invited_by: userId,
     })),
     ...(p.floating ?? []).map((f) => ({
       party_id: partyId, seat: null,
       character_id: f.characterId, name: f.name, avatar: f.avatar,
       job: f.job ?? null, flex: f.flex ?? null,
+      asked_by: f.by ?? "owner",
       confirmed_at: f.confirmedAt, invited_by: userId,
     })),
   ];
@@ -238,6 +264,70 @@ export async function addComment(
   }).select("id").single();
   if (error || !data) return { error: error?.message ?? "no row" };
   return { id: String((data as { id: number }).id) };
+}
+
+/* ── asking to join ───────────────────────────────────────────────────────── */
+
+/**
+ * Ask for a seat.
+ *
+ * Written unconfirmed, which is what makes it a request rather than a fact: the
+ * board goes on advertising the seat until the lead says yes, because a party
+ * that counts unanswered requests as filled turns away the people it is looking
+ * for. A trigger tells the lead; nothing here has to remember to.
+ *
+ * `seat` is null for a flex join — "I can play any of these, put me where you
+ * need me". The resolver works out where that lands every time the party is
+ * drawn, so there is nothing to decide here.
+ */
+export async function askToJoin(
+  supabase: SupabaseClient, userId: string, partyId: string,
+  who: { characterId: number | null; name: string; avatar: string | null;
+         job?: string | null; flex?: Flex; seat?: string | null },
+): Promise<{ id: string } | { error: string }> {
+  const { data, error } = await supabase.from("party_members").insert({
+    party_id: Number(partyId),
+    seat: who.seat ?? null,
+    character_id: who.characterId,
+    name: who.name,
+    avatar: who.avatar,
+    job: who.job ?? null,
+    flex: who.flex ?? null,
+    asked_by: "self",
+    confirmed_at: null,
+    invited_by: userId,
+  }).select("id").single();
+  if (error || !data) return { error: error?.message ?? "no row" };
+  return { id: String((data as { id: number }).id) };
+}
+
+/**
+ * Let somebody in, or say yes to an invitation.
+ *
+ * One function for both because it is one column either way, and which
+ * direction it was asked in is already on the row.
+ */
+export async function confirmSeat(
+  supabase: SupabaseClient, seatRowId: number,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_members")
+    .update({ confirmed_at: new Date().toISOString() })
+    .eq("id", seatRowId);
+  return error ? { error: error.message } : {};
+}
+
+/**
+ * Take a seat back: turned down, withdrawn, or somebody leaving.
+ *
+ * A real delete rather than a tombstone, for the reason v39 gives: a seat is
+ * not a record of anything once it is empty, and a hidden row would have to be
+ * filtered out of every count on the board.
+ */
+export async function dropSeat(
+  supabase: SupabaseClient, seatRowId: number,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_members").delete().eq("id", seatRowId);
+  return error ? { error: error.message } : {};
 }
 
 /** Take a listing off the board without destroying it. */

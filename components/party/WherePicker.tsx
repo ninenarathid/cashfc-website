@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { Spot } from "@/lib/party";
 import { spotText } from "@/lib/party";
 import maps from "@/data/maps.json";
+import { useLang } from "@/lib/i18n";
 
 /**
  * Where in the game, with coordinates.
@@ -29,6 +30,7 @@ const ALL = (maps as { maps: MapRow[] }).maps;
 export default function WherePicker(
   { value, onChange }: { value: Spot | undefined; onChange: (s: Spot | undefined) => void },
 ) {
+  const { t } = useLang();
   const [q, setQ] = useState("");
 
   const hits = useMemo(() => {
@@ -53,10 +55,10 @@ export default function WherePicker(
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-          Where
+          {t("pf.where")}
         </span>
         <span className="text-[11.5px] text-muted">
-          Any zone in the game. Coordinates optional.
+          {t("pf.whereHelp")}
         </span>
       </div>
 
@@ -90,13 +92,13 @@ export default function WherePicker(
           </label>
           <button type="button" onClick={() => { onChange(undefined); setQ(""); }}
                   className="text-[12px] text-muted underline hover:text-ink">
-            change
+            {t("pf.change")}
           </button>
         </div>
       ) : (
         <>
           <input value={q} onChange={(e) => setQ(e.target.value)}
-                 placeholder="Search a zone — Kozama'uka, Limsa, Crystarium…"
+                 placeholder={t("pf.whereSearch")}
                  className={`${sel} w-full placeholder:text-muted`} />
           {hits.map((m) => (
             <button key={m.name} type="button"
@@ -113,8 +115,7 @@ export default function WherePicker(
           ))}
           {q.trim().length >= 2 && !hits.length && (
             <span className="text-[11.5px] text-muted">
-              No zone by that name. {ALL.length} places are listed — try a
-              shorter search.
+              {t("pf.whereNone", { n: ALL.length })}
             </span>
           )}
         </>

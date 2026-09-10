@@ -10,6 +10,7 @@ import ImageLightbox from "@/components/ui/ImageLightbox";
 import { useDropTarget } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
 import { uploadPartyImage } from "@/lib/party-db";
+import { useLang } from "@/lib/i18n";
 
 /**
  * Replies on a party.
@@ -33,6 +34,7 @@ export default function PartyComments(
     onAdd: (c: PartyComment) => void | Promise<void>;
   },
 ) {
+  const { t } = useLang();
   const overrides = useAvatarOverrides();
   const face = (id: number | null, fallback: string | null) =>
     (id != null && overrides[id]) || fallback || null;
@@ -131,7 +133,7 @@ export default function PartyComments(
              over ? "border-accent bg-accent/5" : "border-line bg-bg/40"}`}>
         <textarea value={text} rows={2}
                   onChange={(e) => setText(e.target.value.slice(0, 2000))}
-                  placeholder="Ask something, or say you are coming late…"
+                  placeholder={t("pf.commentBox")}
                   className="rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
         {!!shots.length && (
           <div className="flex flex-wrap gap-2">
@@ -140,7 +142,7 @@ export default function PartyComments(
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={src} alt="" className="h-20 w-auto rounded-md border border-line" />
                 <button onClick={() => setShots((v) => v.filter((_, i) => i !== n))}
-                        aria-label="Remove"
+                        aria-label={t("pf.remove")}
                         className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1 text-[11px] text-chili">
                   ✕
                 </button>
@@ -151,10 +153,10 @@ export default function PartyComments(
         <div className="flex items-center gap-2">
           <button onClick={send} disabled={(!text.trim() && !shots.length) || busy > 0}
                   className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[12.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
-            Comment
+            {t("pf.comment")}
           </button>
           <span className="text-[11.5px] text-muted">
-            {busy > 0 ? `uploading ${busy}…` : "or drop a screenshot in here"}
+            {busy > 0 ? t("pf.uploading", { n: busy }) : t("pf.orDropShot")}
           </span>
         </div>
       </div>

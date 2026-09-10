@@ -7,6 +7,7 @@ import ImageLightbox from "@/components/ui/ImageLightbox";
 import DropZone, { useDropTarget } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
 import { uploadPartyImage } from "@/lib/party-db";
+import { useLang } from "@/lib/i18n";
 
 /**
  * The write-up on a party: paragraphs and pictures, read and written.
@@ -77,6 +78,7 @@ export function BodyEditor(
     userId: string;
   },
 ) {
+  const { t } = useLang();
   const [supabase] = useState(createClient);
   const [busy, setBusy] = useState(0);
   const [err, setErr] = useState<string | null>(null);
@@ -134,11 +136,11 @@ export function BodyEditor(
            over ? "border-accent bg-accent/5" : "border-line bg-bg/40"}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-          The plan — paragraphs and pictures
+          {t("pf.plan")}
         </span>
         {busy > 0 && (
           <span className="text-[11.5px] text-muted">
-            uploading {busy} picture{busy > 1 ? "s" : ""}…
+            {t("pf.uploading", { n: busy })}
           </span>
         )}
         {err && <span className="text-[11.5px] text-chili">{err}</span>}
@@ -150,7 +152,7 @@ export function BodyEditor(
             {b.kind === "text" ? (
               <textarea value={b.text ?? ""} rows={3}
                         onChange={(e) => set(b.id, { text: e.target.value.slice(0, 2000) })}
-                        placeholder="What is the plan?"
+                        placeholder={t("pf.planText")}
                         className={`${sel} w-full placeholder:text-muted`} />
             ) : (
               <div className="flex flex-col gap-1.5">
@@ -159,7 +161,7 @@ export function BodyEditor(
                      className="max-h-56 w-auto self-start rounded-lg border border-line object-contain" />
                 <input value={b.caption ?? ""}
                        onChange={(e) => set(b.id, { caption: e.target.value.slice(0, 140) })}
-                       placeholder="Caption (optional)"
+                       placeholder={t("pf.caption")}
                        className={`${sel} w-full placeholder:text-muted`} />
               </div>
             )}
@@ -169,16 +171,16 @@ export function BodyEditor(
               a column of three blocks has one column of controls. */}
           <div className="flex shrink-0 flex-col gap-1">
             <button type="button" onClick={() => move(i, -1)} disabled={i === 0}
-                    aria-label="Move up"
+                    aria-label={t("pf.moveUp")}
                     className="rounded border border-line px-1.5 text-[11px] text-muted hover:text-ink disabled:opacity-30">
               ↑
             </button>
             <button type="button" onClick={() => move(i, 1)} disabled={i === body.length - 1}
-                    aria-label="Move down"
+                    aria-label={t("pf.moveDown")}
                     className="rounded border border-line px-1.5 text-[11px] text-muted hover:text-ink disabled:opacity-30">
               ↓
             </button>
-            <button type="button" onClick={() => drop(b.id)} aria-label="Remove"
+            <button type="button" onClick={() => drop(b.id)} aria-label={t("pf.remove")}
                     className="rounded border border-chili/50 px-1.5 text-[11px] text-chili hover:bg-chili/10">
               ✕
             </button>
@@ -190,10 +192,10 @@ export function BodyEditor(
         <button type="button"
                 onClick={() => add({ id: blockId(), kind: "text", text: "" })}
                 className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:border-accent/60 hover:text-ink">
-          + Paragraph
+          {t("pf.paragraph")}
         </button>
         <span className="text-[11.5px] text-muted">
-          or drop pictures anywhere in here
+          {t("pf.dropAnywhere")}
         </span>
       </div>
 
@@ -202,8 +204,8 @@ export function BodyEditor(
           second empty box under the one being filled. */}
       {!body.length && (
         <DropZone size="sm" multiple paste={false} onFiles={takeFiles}
-                  title="Drop screenshots here"
-                  hint="They go in at the end; move them where you want them" />
+                  title={t("pf.dropShots")}
+                  hint={t("pf.dropShotsHint")} />
       )}
     </div>
   );

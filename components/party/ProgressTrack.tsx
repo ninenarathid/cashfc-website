@@ -2,6 +2,8 @@
 
 import type { Progress, ProgressAt } from "@/lib/party";
 import { PROGRESS_COLOR, PROGRESS_HELP, PROGRESS_LABEL, progressText } from "@/lib/party";
+import { useLang } from "@/lib/i18n";
+import { progressHelp } from "@/lib/party-i18n";
 
 /**
  * Where the party is in the fight, as a track you click along.
@@ -32,6 +34,7 @@ export default function ProgressTrack(
     onChange: (p: Progress) => void;
   },
 ) {
+  const { t } = useLang();
   const at = value.at;
 
   const steps: { key: ProgressAt; label: string }[] = [
@@ -48,9 +51,9 @@ export default function ProgressTrack(
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-          Where we are
+          {t("pf.whereWeAre")}
         </span>
-        <span className="text-[11.5px] text-muted">{PROGRESS_HELP[at]}</span>
+        <span className="text-[11.5px] text-muted">{progressHelp(at, t)}</span>
       </div>
 
       {/* One row. The rules between the buttons are what make it read as a
@@ -83,14 +86,12 @@ export default function ProgressTrack(
       {wantsMech && (
         <input value={value.mech ?? ""}
                onChange={(e) => onChange({ ...value, mech: e.target.value.slice(0, 80) })}
-               placeholder={at === "a2c"
-                 ? "Anything still catching people out? (optional)"
-                 : "What are we drilling? e.g. second Wroth Flames, adds into cleaves"}
+               placeholder={t(at === "a2c" ? "pf.mechA2c" : "pf.mechProg")}
                className="rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
       )}
 
       <span className="text-[11.5px]" style={{ color: tint }}>
-        Reads as: {progressText(value)}
+        {t("pf.readsAs")} {progressText(value)}
       </span>
     </div>
   );
@@ -98,11 +99,12 @@ export default function ProgressTrack(
 
 /** The same fact, small, for a row in the list. */
 export function ProgressChip({ progress }: { progress: Progress | undefined }) {
+  const { t } = useLang();
   const text = progressText(progress);
   if (!progress || !text) return null;
   const tint = PROGRESS_COLOR[progress.at];
   return (
-    <span title={PROGRESS_HELP[progress.at]}
+    <span title={progressHelp(progress.at, t)}
           style={{ color: tint,
                    borderColor: `color-mix(in srgb, ${tint} 45%, transparent)`,
                    background: `color-mix(in srgb, ${tint} 10%, transparent)` }}

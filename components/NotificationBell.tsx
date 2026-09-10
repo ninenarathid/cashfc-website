@@ -20,6 +20,8 @@ interface Note {
   actor: string | null;
   actor_name: string | null;
   post_id: number | null;
+  /** The party it is about, for the three kinds that are about one. */
+  party_id?: number | null;
   body: string | null;
   created_at: string;
   read_at: string | null;
@@ -127,7 +129,38 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   // The draw. A ticket, because that is what an entry is, and the poster is
   // the picture beside it — this is the one notification with no person in it.
   evercold: { say: "notif.evercold", icon: "🎟️", href: "" },
+  /*
+   * The party finder. All three lead to the party itself rather than to the
+   * board — the board is a list, and a list is where somebody has to start
+   * looking again for the thing they were just told about.
+   *
+   * A raised hand for a request, because that is what it is; an envelope for an
+   * invitation; a tick for being let in.
+   */
+  party_join: { say: "notif.partyJoin", icon: "✋", href: "/party" },
+  party_invite: { say: "notif.partyInvite", icon: "✉️", href: "/party" },
+  party_ok: { say: "notif.partyOk", icon: "✅", href: "/party" },
 };
+
+/**
+ * Where one notification leads.
+ *
+ * A picture is its own address; a party is an address with the party in it; a
+ * popoto given to you leads to the page it was given to, which is the one
+ * everybody else sees with the count on it rather than the profile editor. A
+ * kind nobody has taught this leads nowhere rather than to the front page
+ * pretending to be an answer.
+ */
+const hrefOf = (
+  n: { kind: string; post_id: number | null; party_id?: number | null },
+  character: number | null,
+  postPath: (id: number) => string,
+): string | null => (
+  n.kind === "popoto" ? (character != null ? `/member/${character}` : "/profile")
+    : n.party_id ? `/party?p=${n.party_id}`
+      : n.post_id ? postPath(n.post_id)
+        : (KIND[n.kind]?.href || null)
+);
 /** A bell nobody is looking at can afford to be a minute and a half behind. */
 const POLL_MS = 90_000;
 
@@ -334,7 +367,10 @@ export default function NotificationBell() {
   ): Promise<Note[]> => {
     if (!supabase) return [];
     let q = supabase.from("notifications")
-      .select("id, kind, actor, actor_name, post_id, body, created_at, read_at, answered_at, cleared_at");
+      // One string literal, not a concatenation: supabase-js reads this at the
+      // type level and cannot parse a value it has to compute.
+      // eslint-disable-next-line max-len
+      .select("id, kind, actor, actor_name, post_id, party_id, body, created_at, read_at, answered_at, cleared_at");
     if (!withCleared) q = q.is("cleared_at", null);
     const { data } = await q
       .order("created_at", { ascending: false })
@@ -477,9 +513,7 @@ export default function NotificationBell() {
         // Green, because earning a ticket is the one thing the bell says that
         // is unambiguously a bit of luck.
         tone: n.kind === "evercold" ? "good" : "accent",
-        href: n.kind === "popoto"
-          ? (character != null ? `/member/${character}` : "/profile")
-          : n.post_id ? postPath(n.post_id) : (kind?.href || null),
+        href: hrefOf(n, character, postPath),
       });
     }
     // Only the list matters. The faces and pictures are read as they are at the
@@ -655,17 +689,7 @@ export default function NotificationBell() {
   const row = (n: Note) => {
     const cover = n.post_id ? covers[n.post_id] : null;
     const kind = KIND[n.kind];
-    // A picture is its own address; everything else has one written down, and a
-    // kind nobody has taught this has none rather than a link to the front page
-    // that pretends to be an answer.
-    //
-    // A popoto given to you leads to the page it was given to — the one
-    // everybody else sees, with the count on it. It used to open the profile
-    // editor, which is where you change your nickname and not where anything
-    // just happened.
-    const href = n.kind === "popoto"
-      ? (character != null ? `/member/${character}` : "/profile")
-      : n.post_id ? postPath(n.post_id) : (kind?.href || null);
+    const href = hrefOf(n, character, postPath);
     /*
      * An announcement is from the admins, and which of them wrote it is not the
      * Free Company's business. It is the other admins' business: they are the

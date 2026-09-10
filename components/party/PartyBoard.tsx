@@ -1,19 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { PersonOption } from "@/lib/people";
 import type {
-  ContentDef, ContentSeed, LootRule, Party, PartyComment, ProgressAt, SlotRole,
+  ContentDef, ContentSeed, LootRule, Party, PartyComment, PartyStatus,
+  ProgressAt, SlotRole,
 } from "@/lib/party";
 import type { DutyArt } from "@/lib/duty";
 import {
-  KIND_COLOR, KIND_ICON, KIND_LABEL, KIND_ORDER, ROLE_COLOR, ROLE_LABEL, SHAPE_LABEL,
-  LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay, fmtFood, shapeLabel,
-  fmtLength, fmtTime, hasBody, lootText, needsByRole, progressText,
-  resolveParty, slotsOf, spotText,
+  KIND_COLOR, KIND_ICON, KIND_LABEL, KIND_ORDER, ROLE_COLOR, ROLE_LABEL,
+  LOOT_LABEL, PROGRESS_LABEL, STATUS_ORDER, catalogue, dayKey, endsAt, fmtDay,
+  fmtFood, fmtLength, fmtTime, hasBody, lootText, mapsText,
+  needsByRole, partyStatus, progressText, resolveParty, slotsOf, spotText,
+  timeIsEstimate,
 } from "@/lib/party";
 import { createClient } from "@/lib/supabase/client";
 import { addComment, createParty, loadParties } from "@/lib/party-db";
+import { useLiveParties } from "@/lib/party-live";
+import { mapLabel } from "@/lib/treasure";
+import { useLang } from "@/lib/i18n";
+import { lootLine, shapeSay } from "@/lib/party-i18n";
 import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
 import TagIcon from "@/components/TagIcon";
@@ -25,6 +31,9 @@ import { SpotChip } from "@/components/party/WherePicker";
 import PartyComments from "@/components/party/PartyComments";
 import { useAvatarOverrides } from "@/lib/avatars";
 import PartyCreate from "@/components/party/PartyCreate";
+import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
+import { StatusPill, WhenLine, useNow, statusLabel } from "@/components/party/PartyClock";
+import ShareParty, { readDeepLink, writeDeepLink } from "@/components/party/ShareParty";
 
 /**
  * Who is running what, and when.
@@ -48,10 +57,21 @@ import PartyCreate from "@/components/party/PartyCreate";
 type Sort = "soon" | "new" | "open";
 type When = "" | "today" | "3d" | "week";
 
+/**
+ * Which of the five states to show.
+ *
+ * "" is the default and means everything that has not finished — the board's
+ * job is what is still happening, and a finished party sitting in the list is a
+ * row nobody can act on. Ended is not deleted, though: "how did Tuesday go" is
+ * a real question, and one of the six settings answers it.
+ */
+type StatusPick = "" | PartyStatus | "all";
+
 const EMPTY = {
   role: "" as SlotRole | "", when: "" as When, mine: false, openOnly: false,
   prog: "" as ProgressAt | "",
   loot: "" as LootRule | "",
+  status: "" as StatusPick,
 };
 
 export default function PartyBoard(
@@ -87,21 +107,70 @@ export default function PartyBoard(
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
-  const [openId, setOpenId] = useState<string | null>(null);
 
   const [query, setQuery] = useState("");
   const [kinds, setKinds] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<Sort>("soon");
   const [adv, setAdv] = useState(EMPTY);
+  const { t } = useLang();
 
-  // The sample board, once there is a roster to build it from.
+  /*
+   * A link to one party.
+   *
+   * Read once, on the way in, and then held rather than re-read: the id in the
+   * address is where the reader arrived, and it goes on being the party they
+   * came for even after they have changed a filter that would otherwise have
+   * hidden it. Sending somebody a link to Tuesday's raid and having it open on
+   * an empty board because Tuesday is over would make the link useless in
+   * exactly the case people share one.
+   */
+  const [pinned, setPinned] = useState<string | null>(null);
+  useEffect(() => { setPinned(readDeepLink()); }, []);
+
+  const [openId, setOpenIdRaw] = useState<string | null>(null);
+  const setOpenId = useCallback((id: string | null) => {
+    setOpenIdRaw(id);
+    writeDeepLink(id);
+    if (!id) setPinned(null);
+  }, []);
+  /*
+   * Open whatever the link named, once the board has it — and once only.
+   *
+   * The board reloads whenever anything on it changes, so without the latch
+   * this would fire again on every seat somebody takes anywhere, and snap a
+   * reader who had since opened a different party back to the one they arrived
+   * on. Which is a page that will not let go of you.
+   */
+  const landed = useRef(false);
+  useEffect(() => {
+    if (landed.current || !pinned) return;
+    if (!parties.some((p) => p.id === pinned)) return;
+    landed.current = true;
+    setOpenIdRaw(pinned);
+  }, [pinned, parties]);
+
+  /*
+   * A finished party is not in the usual load at all — the query stops twelve
+   * hours back, which is what keeps the common case small. So asking to see
+   * ended ones, or following a link to one, is a wider read rather than a
+   * filter over what is already here.
+   */
+  const wide = adv.status === "done" || adv.status === "all" || !!pinned;
+
   const refresh = useCallback(async () => {
     if (!supabase) { setLoading(false); return; }
-    setParties(await loadParties(supabase));
+    setParties(await loadParties(supabase, wide ? { back: 24 * 30 } : undefined));
     setLoading(false);
-  }, [supabase]);
+  }, [supabase, wide]);
 
   useEffect(() => { void refresh(); }, [refresh]);
+
+  // And keeps itself current: two people looking at the last open seat should
+  // not both take it because neither could see the other.
+  useLiveParties(supabase, refresh);
+
+  /** One clock for the board. See PartyClock. */
+  const now = useNow(parties);
 
   const kindCounts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -123,13 +192,17 @@ export default function PartyBoard(
    */
   const base = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const now = Date.now();
     const horizon = adv.when === "today" ? 1 : adv.when === "3d" ? 3 : adv.when === "week" ? 7 : 0;
 
     const out = parties.filter((p) => {
-      // Gone by is gone: a party that finished an hour ago is history, and the
-      // board is for what is still to come.
-      if (new Date(endsAt(p)).getTime() < now) return false;
+      // The party somebody followed a link to is shown whatever else is set.
+      if (p.id === pinned) return true;
+
+      const st = partyStatus(p, now);
+      // Finished is out of the way by default and one setting away. Everything
+      // else on this board is about an evening somebody can still be part of.
+      if (adv.status === "") { if (st === "done") return false; }
+      else if (adv.status !== "all" && st !== adv.status) return false;
 
       const c = byKey[p.contentKey];
       if (kinds.size && (!c || !kinds.has(c.kind))) return false;
@@ -137,6 +210,7 @@ export default function PartyBoard(
       if (q) {
         const hay = [c?.name, c?.short, c?.badge, c?.duty, p.note,
                      progressText(p.progress), lootText(p.loot), spotText(p.spot),
+                     mapsText(p.maps, mapLabel),
                      ...Object.values(p.seats).map((s) => s.name)]
           .filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
@@ -164,7 +238,7 @@ export default function PartyBoard(
     });
 
     return out;
-  }, [parties, byKey, query, kinds, adv, me]);
+  }, [parties, byKey, query, kinds, adv, me, now, pinned]);
 
   const anyProgress = useMemo(() => base.some((p) => p.progress), [base]);
   const anyLoot = useMemo(() => base.some((p) => p.loot), [base]);
@@ -180,12 +254,20 @@ export default function PartyBoard(
     const openCount = (p: Party) =>
       slotsOf(p.shape).filter((s) => seatState(p, s.id) === "open").length;
 
+    /*
+     * "Soonest first" has nothing to sort when everything has already
+     * happened. Looking at finished parties, the one somebody wants is the one
+     * that just finished — so the same setting runs the other way, and a month
+     * of history does not open on the oldest night in it.
+     */
+    const back = adv.status === "done" ? -1 : 1;
+
     return [...out].sort((a, b) =>
       sort === "new" ? b.createdAt.localeCompare(a.createdAt)
       : sort === "open" ? openCount(b) - openCount(a)
-                          || a.startsAt.localeCompare(b.startsAt)
-      : a.startsAt.localeCompare(b.startsAt));
-  }, [base, adv.prog, adv.loot, sort]);
+                          || back * a.startsAt.localeCompare(b.startsAt)
+      : back * a.startsAt.localeCompare(b.startsAt));
+  }, [base, adv.prog, adv.loot, adv.status, sort]);
 
   /** Grouped by the day they fall on in Bangkok, which is how people read a schedule. */
   const days = useMemo(() => {
@@ -194,7 +276,10 @@ export default function PartyBoard(
       const k = dayKey(p.startsAt);
       (m.get(k) ?? m.set(k, []).get(k)!).push(p);
     }
-    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    // In the order the list is already in, rather than always oldest first.
+    // Sorting the days by their own key would put a month of finished parties
+    // above tonight the moment somebody looked at the archive.
+    return [...m.entries()];
   }, [shown]);
 
   /*
@@ -221,7 +306,7 @@ export default function PartyBoard(
 
   const advCount = (adv.role ? 1 : 0) + (adv.when ? 1 : 0)
     + (adv.mine ? 1 : 0) + (adv.openOnly ? 1 : 0) + (adv.prog ? 1 : 0)
-    + (adv.loot ? 1 : 0);
+    + (adv.loot ? 1 : 0) + (adv.status ? 1 : 0);
 
   const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
 
@@ -230,19 +315,19 @@ export default function PartyBoard(
       <header className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
           <h1 className="flex items-center gap-2 font-display text-[22px] font-semibold">
-            Party finder
+            {t("party.title")}
             <span className="rounded-md border border-gold/50 bg-gold/10 px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.14em] text-gold">
               WIP
             </span>
           </h1>
           <p className="mt-1 text-[12.5px] text-muted">
-            All times are Thai time (UTC+7).
+            {t("party.times")}
           </p>
         </div>
         {!writing && (
           <button onClick={() => setWriting(true)}
                   className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25">
-            + New party
+            {t("party.new")}
           </button>
         )}
       </header>
@@ -299,14 +384,14 @@ export default function PartyBoard(
 
       <div className="flex flex-wrap gap-2.5">
         <input type="search" value={query} onChange={(e) => setQuery(e.target.value)}
-               placeholder="Search a fight, a note, or somebody already in"
-               aria-label="Search parties"
+               placeholder={t("party.search")}
+               aria-label={t("party.search")}
                className={`${sel} min-w-[200px] flex-1 placeholder:text-muted`} />
         <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}
-                aria-label="Sort by" className={sel}>
-          <option value="soon">Starting soonest</option>
-          <option value="new">Just posted</option>
-          <option value="open">Most seats open</option>
+                aria-label={t("party.sortSoon")} className={sel}>
+          <option value="soon">{t("party.sortSoon")}</option>
+          <option value="new">{t("party.sortNew")}</option>
+          <option value="open">{t("party.sortOpen")}</option>
         </select>
       </div>
 
@@ -314,31 +399,52 @@ export default function PartyBoard(
         {advCount > 0 && (
           <button onClick={() => setAdv(EMPTY)}
                   className="self-end text-[12.5px] text-muted underline hover:text-ink">
-            Clear {advCount}
+            {t("party.clearN", { n: advCount })}
           </button>
         )}
         <div className="flex flex-wrap items-center gap-2.5">
+          {/*
+            * Where the five states live.
+            *
+            * First, because it is the one control that decides whether a party
+            * is on the board at all rather than which of them are — and because
+            * "where did Tuesday's raid go" is answered by the setting a reader
+            * meets first.
+            */}
           <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-            Needs
+            {t("party.status")}
+          </span>
+          <select value={adv.status}
+                  onChange={(e) => setAdv({ ...adv, status: e.target.value as StatusPick })}
+                  className={sel} aria-label={t("party.status")}>
+            <option value="">{t("party.stOpenOnly")}</option>
+            {STATUS_ORDER.map((k) => (
+              <option key={k} value={k}>{statusLabel(k, t)}</option>
+            ))}
+            <option value="all">{t("party.stEverything")}</option>
+          </select>
+
+          <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+            {t("party.needs")}
           </span>
           <select value={adv.role}
                   onChange={(e) => setAdv({ ...adv, role: e.target.value as SlotRole | "" })}
-                  className={sel} aria-label="Role wanted">
-            <option value="">Any role</option>
+                  className={sel} aria-label={t("party.anyRole")}>
+            <option value="">{t("party.anyRole")}</option>
             {(Object.keys(ROLE_LABEL) as SlotRole[]).map((r) => (
-              <option key={r} value={r}>Wants a {ROLE_LABEL[r]}</option>
+              <option key={r} value={r}>{t("party.wantsRole", { role: ROLE_LABEL[r] })}</option>
             ))}
           </select>
 
           {anyProgress && (
             <>
               <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                Progress
+                {t("party.progress")}
               </span>
               <select value={adv.prog}
                       onChange={(e) => setAdv({ ...adv, prog: e.target.value as ProgressAt | "" })}
-                      className={sel} aria-label="How far in">
-                <option value="">Any progress</option>
+                      className={sel} aria-label={t("party.progress")}>
+                <option value="">{t("party.anyProgress")}</option>
                 {(Object.keys(PROGRESS_LABEL) as ProgressAt[]).map((k) => (
                   <option key={k} value={k}>{PROGRESS_LABEL[k]}</option>
                 ))}
@@ -349,12 +455,12 @@ export default function PartyBoard(
           {anyLoot && (
             <>
               <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-                Loot
+                {t("party.loot")}
               </span>
               <select value={adv.loot}
                       onChange={(e) => setAdv({ ...adv, loot: e.target.value as LootRule | "" })}
-                      className={sel} aria-label="Loot rule">
-                <option value="">Any loot rule</option>
+                      className={sel} aria-label={t("party.loot")}>
+                <option value="">{t("party.anyLoot")}</option>
                 {(Object.keys(LOOT_LABEL) as LootRule[]).map((k) => (
                   <option key={k} value={k}>{LOOT_LABEL[k]}</option>
                 ))}
@@ -363,42 +469,43 @@ export default function PartyBoard(
           )}
 
           <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-            When
+            {t("party.when")}
           </span>
           <select value={adv.when}
                   onChange={(e) => setAdv({ ...adv, when: e.target.value as When })}
-                  className={sel} aria-label="How soon">
-            <option value="">Any time</option>
-            <option value="today">Within a day</option>
-            <option value="3d">Within three days</option>
-            <option value="week">Within a week</option>
+                  className={sel} aria-label={t("party.when")}>
+            <option value="">{t("party.anyTime")}</option>
+            <option value="today">{t("party.within1")}</option>
+            <option value="3d">{t("party.within3")}</option>
+            <option value="week">{t("party.within7")}</option>
           </select>
 
           <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
             <input type="checkbox" checked={adv.openOnly}
                    onChange={(e) => setAdv({ ...adv, openOnly: e.target.checked })} />
-            Still has room
+            {t("party.hasRoom")}
           </label>
           <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
             <input type="checkbox" checked={adv.mine}
                    onChange={(e) => setAdv({ ...adv, mine: e.target.checked })} />
-            I am in it
+            {t("party.imIn")}
           </label>
         </div>
       </div>
 
       <p className="text-[12.5px] text-muted">
-        {shown.length} {shown.length === 1 ? "party" : "parties"}
+        {shown.length === 1 ? t("party.countOne")
+                            : t("party.countMany", { n: shown.length })}
       </p>
 
       {/* ── The list, by day ─────────────────────────────────────────────── */}
       {loading && (
-        <p className="px-4 py-10 text-center text-[13px] text-muted">Loading…</p>
+        <p className="px-4 py-10 text-center text-[13px] text-muted">{t("party.loading")}</p>
       )}
 
       {!loading && days.length === 0 && (
         <p className="rounded-xl border border-dashed border-line px-4 py-10 text-center text-[13px] text-muted">
-          Nothing matches. Try clearing a filter, or put one up yourself.
+          {t("party.none")}
         </p>
       )}
 
@@ -451,8 +558,20 @@ export default function PartyBoard(
                         <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={34} />
                       </span>
                     )}
-                    <span className="relative z-[1] font-data text-[18px] font-semibold tabular-nums text-white drop-shadow">
-                      {fmtTime(p.startsAt)}
+                    <span className="relative z-[1] flex flex-col">
+                      <span className="font-data text-[18px] font-semibold tabular-nums text-white drop-shadow">
+                        {fmtTime(p.startsAt)}
+                      </span>
+                      {/*
+                        * The answer to the question the time only poses.
+                        * "20:00" says when and not whether that is soon, which
+                        * is the arithmetic people do badly across a day
+                        * boundary — a party reading "tomorrow 20:00" on a
+                        * Tuesday night is one nobody registers is nine hours
+                        * away.
+                        */}
+                      <WhenLine party={p} now={now}
+                                className="font-data text-[10.5px] text-white/80 drop-shadow" />
                     </span>
                   </span>
 
@@ -464,6 +583,7 @@ export default function PartyBoard(
                       <span className="font-display text-[16px] font-semibold text-ink">
                         {c?.duty ?? c?.name ?? p.contentKey}
                       </span>
+                      <StatusPill status={partyStatus(p, now)} />
                       {/* The shorthand as a badge beside the name rather than
                           instead of it: the old row printed "Hunt train Hunt
                           train" wherever a content had no separate short form. */}
@@ -477,7 +597,13 @@ export default function PartyBoard(
                     </span>
 
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1"
+                            title={timeIsEstimate(c?.kind) ? t("party.estimateWhy") : undefined}>
+                        {/* A map night has no end anybody chose — it runs until
+                            the maps are done, and that is a dice roll. Saying
+                            so is better than a time that quietly turns out to
+                            have been a guess. */}
+                        {timeIsEstimate(c?.kind) && <span className="opacity-70">~</span>}
                         {fmtLength(p.lengthMinutes)}
                         {p.lengthUnit === "food" && (
                           <><FoodIcon size={11} className="text-gold" />
@@ -485,18 +611,22 @@ export default function PartyBoard(
                         )}
                       </span>
                       <span className="opacity-40">·</span>
-                      <span>{shapeLabel(p.shape, c?.kind)}</span>
+                      <span>{shapeSay(p.shape, c?.kind, t)}</span>
                       {progressText(p.progress) && (
                         <><span className="opacity-40">·</span>
                           <span>{progressText(p.progress)}</span></>
                       )}
-                      {lootText(p.loot) && (
+                      {lootLine(p.loot, t) && (
                         <><span className="opacity-40">·</span>
-                          <span>{lootText(p.loot)}</span></>
+                          <span>{lootLine(p.loot, t)}</span></>
                       )}
                       {p.oneOfEachJob && (
                         <><span className="opacity-40">·</span>
-                          <span>one player per job</span></>
+                          <span>{t("party.onePerJob")}</span></>
+                      )}
+                      {mapsText(p.maps, mapLabel) && (
+                        <><span className="opacity-40">·</span>
+                          <span>🗺 {mapsText(p.maps, mapLabel)}</span></>
                       )}
                       {spotText(p.spot) && (
                         <><span className="opacity-40">·</span>
@@ -540,6 +670,15 @@ export default function PartyBoard(
                     </span>
 
                     <span className="flex items-center gap-2">
+                      {/* Somebody is waiting on an answer. Shown on the closed
+                          row because a request nobody sees is a request that
+                          goes unanswered, and the lead is the one person who
+                          has to notice without being told twice. */}
+                      {pendingAsks(p) > 0 && (
+                        <span className="rounded-full border border-gold/50 bg-gold/10 px-1.5 font-data text-[10.5px] text-gold">
+                          ✋ {pendingAsks(p)}
+                        </span>
+                      )}
                       {!!p.comments?.length && (
                         <span className="font-data text-[11.5px] text-muted">
                           💬 {p.comments.length}
@@ -564,6 +703,11 @@ export default function PartyBoard(
                     {hasBody(p.body) && <PartyBody body={p.body!} />}
 
                     <PartySeats party={p} kind={c?.kind} />
+
+                    <PartyJoin party={p} me={me} userId={userId}
+                               supabase={supabase}
+                               onDone={refresh} onError={setErr} />
+
                     <p className="text-[11.5px] text-muted">
                       {/* The boss, which the row above has no room for: it
                           leads with what people say and what you queue for,
@@ -572,8 +716,16 @@ export default function PartyBoard(
                         <>{c.name} · </>
                       )}
                       {fmtDay(p.startsAt)} · {fmtTime(p.startsAt)} → {fmtTime(endsAt(p))}
-                      {" "}Thai time
+                      {" "}{t("party.thaiTime")}
+                      {timeIsEstimate(c?.kind) && (
+                        <> · {t("party.estimate")}</>
+                      )}
                     </p>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <WhenLine party={p} now={now} className="text-[12px] text-muted" />
+                      <ShareParty id={p.id} />
+                    </div>
 
                     <PartyComments comments={p.comments ?? []} me={me}
                                    userId={userId}

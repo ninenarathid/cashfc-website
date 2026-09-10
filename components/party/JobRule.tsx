@@ -3,6 +3,7 @@
 import type { Party, SeatRule, SlotDef, SlotRole } from "@/lib/party";
 import { openTo } from "@/lib/party";
 import JobIcon, { ALL_JOBS, ROLE_GROUP } from "@/components/JobIcon";
+import { useLang } from "@/lib/i18n";
 
 /**
  * Which jobs a seat will take.
@@ -36,6 +37,7 @@ export default function JobRule(
     onChange: (r: SeatRule) => void;
   },
 ) {
+  const { t } = useLang();
   const all = jobsForRole(slot.role);
   const picked = new Set(value.jobs ?? []);
   // What the seat is open to at this moment, which is not the same as what was
@@ -54,12 +56,12 @@ export default function JobRule(
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
-          Jobs for {slot.label}
+          {t("pf.jobsFor", { seat: slot.label })}
         </span>
         {!!picked.size && (
           <button type="button" onClick={() => onChange({ ...value, jobs: [] })}
                   className="text-[11.5px] text-muted underline hover:text-ink">
-            any job
+            {t("pf.anyJob")}
           </button>
         )}
       </div>
@@ -89,14 +91,14 @@ export default function JobRule(
           seat entirely is worth finding out about here rather than from
           somebody who could not join. */}
       <span className={`text-[11.5px] ${live.length ? "text-jade" : "text-chili"}`}>
-        {live.length === all.length ? "Open to any " + slot.role
-          : live.length ? `Open to ${live.length}: ` + live
+        {live.length === all.length ? t("pf.openToAny", { role: slot.role })
+          : live.length ? `${t("pf.openToN", { n: live.length })} ` + live
               .map((j) => j.replace(/([a-z])([A-Z])/g, "$1 $2")).join(", ")
-          : "Nothing can take this seat — loosen it, or nobody can join."}
+          : t("pf.seatShut")}
         {/* Said here as well as on the party, because this is where somebody
             finds out their four ticks have become one. */}
         {party.oneOfEachJob && live.length < (value.jobs?.length || all.length) && (
-          <span className="opacity-70"> · one player per job is on</span>
+          <span className="opacity-70"> · {t("pf.onePerJobOn")}</span>
         )}
       </span>
     </div>
@@ -105,6 +107,7 @@ export default function JobRule(
 
 /** The rule on a seat, small enough to sit under a name in the grid. */
 export function RuleMark({ party, slot }: { party: Party; slot: SlotDef }) {
+  const { t } = useLang();
   // Only what this seat itself asks for. The no-duplicates rule is the party's
   // and is said once above the grid -- repeating it on all eight seats would
   // be eight copies of one sentence.
@@ -119,7 +122,7 @@ export function RuleMark({ party, slot }: { party: Party; slot: SlotDef }) {
       {live.length <= 4
         ? live.map((j) => <JobIcon key={j} job={j} size={18} />)
         : <span className="font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
-            {live.length} jobs
+            {t("pf.jobsN", { n: live.length })}
           </span>}
     </span>
   );
@@ -127,11 +130,12 @@ export function RuleMark({ party, slot }: { party: Party; slot: SlotDef }) {
 
 /** The party-wide rule, said once. */
 export function OneEachMark({ party }: { party: Party }) {
+  const { t } = useLang();
   if (!party.oneOfEachJob) return null;
   return (
-    <span title="Nobody in this party doubles up on a job"
+    <span title={t("pf.noDouble")}
           className="rounded-full border border-line px-2 py-[2px] font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
-      one player per job
+      {t("pf.onePerJob")}
     </span>
   );
 }
