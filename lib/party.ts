@@ -504,10 +504,18 @@ export const DEFAULT_LENGTH: { unit: LengthUnit; amount: number } = {
   unit: "hours", amount: 1,
 };
 
-/** A sensible number when somebody switches units, since four hours and four
- *  runs are different evenings and the digit should not simply carry over. */
+/**
+ * One of whatever it is, every time.
+ *
+ * The digit does not carry across a change of unit — four hours and four runs
+ * are different evenings, and a number that survived the switch is a number
+ * nobody chose for the unit it landed in. It resets to one rather than to a
+ * guess at what that unit usually means, for the same reason the form opens on
+ * one hour: the smallest honest answer asks the question instead of holding an
+ * opinion about an evening nobody has described yet.
+ */
 export const DEFAULT_AMOUNT: Record<LengthUnit, number> = {
-  hours: 1, food: 4, runs: 3, maps: 1,
+  hours: 1, food: 1, runs: 1, maps: 1,
 };
 
 /**

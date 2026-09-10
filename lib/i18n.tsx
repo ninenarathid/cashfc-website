@@ -1772,7 +1772,7 @@ const DICT = {
     en: "The plan — paragraphs and pictures",
     th: "รายละเอียด — ข้อความและรูป",
   },
-  "pf.paragraph": { en: "+ Paragraph", th: "+ ย่อหน้า" },
+  "pf.paragraph": { en: "+ Paragraph", th: "+ ข้อความ" },
   "pf.dropAnywhere": {
     en: "or drop pictures anywhere in here",
     th: "หรือลากรูปมาวางตรงไหนก็ได้ในกรอบนี้",
