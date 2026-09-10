@@ -1792,6 +1792,8 @@ const DICT = {
     en: "Seats — click one to fill it, invite somebody, or set their flex",
     th: "ตำแหน่ง — คลิกเพื่อใส่คน ชวนคน หรือตั้ง flex",
   },
+  /* An alliance is three parties, and every list of its seats says which. */
+  "pf.partyWing": { en: "Party {wing}", th: "ปาร์ตี้ {wing}" },
   "pf.onePerJob": { en: "One player per job", th: "หนึ่งคน/อาชีพ" },
   "pf.onePerJobWhy": {
     en: "— no two people on the same job",

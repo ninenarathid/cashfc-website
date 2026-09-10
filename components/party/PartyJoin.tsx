@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PersonOption } from "@/lib/people";
-import type { ContentKind, Flex, Party, SlotDef, SlotRole } from "@/lib/party";
+import type {
+  ContentKind, Flex, Party, SlotDef, SlotRole, Wing,
+} from "@/lib/party";
 import {
   ROLE_COLOR, ROLE_LABEL, jobMatters, openSeats, openTo,
 } from "@/lib/party";
@@ -89,6 +91,21 @@ export default function PartyJoin(
 
   const free = useMemo(() => openSeats(party), [party]);
   const seated = party.shape !== "open";
+
+  /*
+   * The open seats, by which of the three eights they are in.
+   *
+   * One nameless group for anything that is not an alliance, so the ordinary
+   * party draws exactly as it did — a heading over a single row of four or
+   * eight seats would be a label for the obvious.
+   */
+  const wings = useMemo(() => {
+    if (party.shape !== "alliance") return [[null, free]] as [Wing | null, SlotDef[]][];
+    return (["A", "B", "C"] as Wing[])
+      .map((w) => [w, free.filter((sl) => sl.wing === w)] as [Wing | null, SlotDef[]])
+      // A wing with nothing open is a heading over nothing.
+      .filter(([, seats]) => seats.length);
+  }, [party.shape, free]);
   /*
    * Whether to ask about a job at all.
    *
@@ -288,43 +305,63 @@ export default function PartyJoin(
               <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
                 {t("party.pickSeats")}
               </span>
-              <div className="flex flex-wrap gap-1.5">
-                {free.map((s) => {
-                  const on = !any && want.has(s.id);
-                  const c = ROLE_COLOR[s.role];
-                  return (
-                    <button key={s.id} type="button" disabled={any}
-                            onClick={() => setWant((v) => {
-                              const next = new Set(v);
-                              if (!next.delete(s.id)) next.add(s.id);
-                              return next;
-                            })}
-                            style={on
-                              ? { borderColor: c, color: c,
-                                  background: `color-mix(in srgb, ${c} 14%, transparent)` }
-                              : undefined}
-                            className={`flex items-center gap-1.5 rounded-full border px-3 py-[3px] text-[12.5px] transition-colors ${
-                              on ? "" : "border-line text-muted hover:border-muted hover:text-ink"} ${
-                              any ? "opacity-40" : ""}`}>
-                      <span style={{ background: c }}
-                            className="size-1.5 shrink-0 rounded-full" />
-                      {s.label}
-                      <span className="opacity-70">{ROLE_LABEL[s.role]}</span>
-                    </button>
-                  );
-                })}
+              {/*
+                * An alliance is three parties, and its seats say so.
+                *
+                * Flat, twenty-one open seats came out as "ST Tank, H2 Healer,
+                * D2 DPS … MT Tank, ST Tank" — every label appearing up to
+                * three times with nothing to tell them apart, so picking "D3"
+                * meant picking one of three different seats at random. The
+                * grid above has drawn them as Party A, B and C from the
+                * beginning; this is the same three headings.
+                */}
+              {wings.map(([wing, seats]) => (
+                <div key={wing ?? "-"} className="flex flex-col gap-1.5">
+                  {wing && (
+                    <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
+                      {t("pf.partyWing", { wing })}
+                    </span>
+                  )}
+                  <div className="flex flex-wrap gap-1.5">
+                    {seats.map((sl) => {
+                      const on = !any && want.has(sl.id);
+                      const c = ROLE_COLOR[sl.role];
+                      return (
+                        <button key={sl.id} type="button" disabled={any}
+                                onClick={() => setWant((v) => {
+                                  const next = new Set(v);
+                                  if (!next.delete(sl.id)) next.add(sl.id);
+                                  return next;
+                                })}
+                                style={on
+                                  ? { borderColor: c, color: c,
+                                      background: `color-mix(in srgb, ${c} 14%, transparent)` }
+                                  : undefined}
+                                className={`flex items-center gap-1.5 rounded-full border px-3 py-[3px] text-[12.5px] transition-colors ${
+                                  on ? "" : "border-line text-muted hover:border-muted hover:text-ink"} ${
+                                  any ? "opacity-40" : ""}`}>
+                          <span style={{ background: c }}
+                                className="size-1.5 shrink-0 rounded-full" />
+                          {sl.label}
+                          <span className="opacity-70">{ROLE_LABEL[sl.role]}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
 
-                {/* The widest offer there is, and its own button because it is
-                    not one more seat — it is the answer that makes the others
-                    beside the point. */}
-                <button type="button"
-                        onClick={() => { setAny((v) => !v); setWant(new Set()); }}
-                        className={`rounded-full border px-3 py-[3px] text-[12.5px] transition-colors ${
-                          any ? "border-jade bg-jade/15 text-jade"
-                              : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                    {t("party.flexAny")}
-                </button>
-              </div>
+              {/* The widest offer there is, and its own button because it is
+                  not one more seat — it is the answer that makes the others
+                  beside the point. Outside the wings for the same reason: it
+                  is not a seat in any of them. */}
+              <button type="button"
+                      onClick={() => { setAny((v) => !v); setWant(new Set()); }}
+                      className={`self-start rounded-full border px-3 py-[3px] text-[12.5px] transition-colors ${
+                        any ? "border-jade bg-jade/15 text-jade"
+                            : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                  {t("party.flexAny")}
+              </button>
             </>
           )}
 

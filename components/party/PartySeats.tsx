@@ -260,11 +260,12 @@ function Block(
     onPick?: (slot: SlotDef) => void; wing?: Wing;
   },
 ) {
+  const { t } = useLang();
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       {wing && (
         <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-          Party {wing}
+          {t("pf.partyWing", { wing })}
         </span>
       )}
       <div className={`grid gap-1.5 ${
