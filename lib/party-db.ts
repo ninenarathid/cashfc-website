@@ -367,6 +367,42 @@ export async function confirmSeat(
   return error ? { error: error.message } : {};
 }
 
+/** What happened when somebody said yes. See v47. */
+export type Accepted = "seat" | "flex" | "gone";
+
+/**
+ * Say yes to an invitation, and take the suggested seat if it is still there.
+ *
+ * Through the database rather than as two statements from here, because two
+ * people accepting the same seat in the same second is the whole problem this
+ * is meant to solve: the unique index decides, and whoever loses is put in the
+ * party without a seat instead of having their acceptance fail.
+ */
+export async function acceptInvite(
+  supabase: SupabaseClient, seatRowId: number,
+): Promise<{ got: Accepted } | { error: string }> {
+  const { data, error } = await supabase.rpc("party_accept", { p_member: seatRowId });
+  if (error) return { error: error.message };
+  return { got: (data as Accepted) ?? "flex" };
+}
+
+/**
+ * Take a free seat, once already in.
+ *
+ * The other half: you say yes first and choose where you are standing
+ * afterwards, which is the order people decide in. Returns "taken" when
+ * somebody got there first, which is a thing to say rather than an error.
+ */
+export async function takeSeat(
+  supabase: SupabaseClient, seatRowId: number, seat: string,
+): Promise<{ got: "seat" | "taken" | "gone" } | { error: string }> {
+  const { data, error } = await supabase.rpc("party_take_seat", {
+    p_member: seatRowId, p_seat: seat,
+  });
+  if (error) return { error: error.message };
+  return { got: (data as "seat" | "taken" | "gone") ?? "taken" };
+}
+
 /**
  * Take a seat back: turned down, withdrawn, or somebody leaving.
  *

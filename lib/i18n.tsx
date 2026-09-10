@@ -478,6 +478,10 @@ const DICT = {
     en: "{who} let you into the party.",
     th: "{who} รับคุณเข้าปาร์ตี้แล้ว",
   },
+  "notif.partySeatGone": {
+    en: "The seat you were asked about has been taken.",
+    th: "ตำแหน่งที่คุณถูกชวนมาลง มีคนลงแล้ว",
+  },
   "notif.partyTalk": {
     en: "{who} said something in a party you are in.",
     th: "{who} ส่งข้อความในปาร์ตี้ที่คุณอยู่",
@@ -1593,6 +1597,27 @@ const DICT = {
   "party.asked": { en: "Waiting for the lead to let you in", th: "รอหัวห้องยืนยัน" },
   "party.withdraw": { en: "Withdraw", th: "ยกเลิกคำขอ" },
   "party.invited": { en: "You have been invited", th: "คุณถูกชวนเข้าปาร์ตี้นี้" },
+  /* ── An invitation names a seat and does not hold it ─────────────────
+     Three people can be asked about D4 at once, so the answer has to say
+     which of them got it and what the others are agreeing to instead. */
+  "party.invitedTo": {
+    en: "You have been asked about {seat}",
+    th: "คุณถูกชวนมาลงตำแหน่ง {seat}",
+  },
+  "party.seatGone": {
+    en: "{seat} has been taken since — you would come in without a seat and pick one later.",
+    th: "ตอนนี้ {seat} มีคนลงแล้ว ถ้าตอบตกลงจะเข้ามาแบบยังไม่มีตำแหน่ง แล้วค่อยเลือกทีหลังได้",
+  },
+  "party.acceptSeat": { en: "Accept {seat}", th: "ตกลง ลง {seat}" },
+  "party.acceptAnyway": { en: "Come anyway", th: "ตกลง เข้าร่วมเลย" },
+  "party.youAreInAt": {
+    en: "You are in, on {seat}", th: "คุณอยู่ในปาร์ตี้นี้แล้ว ตำแหน่ง {seat}",
+  },
+  "party.landedFlex": {
+    en: "the seat had gone, so you have none yet",
+    th: "ตำแหน่งเดิมเต็มไปแล้ว ตอนนี้ยังไม่มีตำแหน่ง",
+  },
+  "party.takeASeat": { en: "Take a seat", th: "เลือกตำแหน่ง" },
   "party.accept": { en: "Accept", th: "ตอบรับ" },
   "party.youAreIn": { en: "You are in this party", th: "คุณอยู่ในปาร์ตี้นี้แล้ว" },
   "party.leave": { en: "Leave", th: "ออกจากปาร์ตี้" },
@@ -1798,8 +1823,8 @@ const DICT = {
 
   /* The write-up. */
   "pf.plan": {
-    en: "The plan — paragraphs and pictures",
-    th: "รายละเอียด — ข้อความและรูป",
+    en: "Party details",
+    th: "รายละเอียด Party",
   },
   "pf.paragraph": { en: "+ Paragraph", th: "+ ข้อความ" },
   "pf.dropAnywhere": {

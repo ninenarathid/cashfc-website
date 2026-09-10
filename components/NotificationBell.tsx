@@ -143,6 +143,9 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   // Somebody said something where you are. The speech bubble, the same mark
   // the tell button wears, because it is the same idea.
   party_talk: { say: "notif.partyTalk", icon: "💬", href: "/party" },
+  // The seat you were asked about went to somebody else. Still an invitation,
+  // now a different one, which is why it is told rather than withdrawn.
+  party_seat_gone: { say: "notif.partySeatGone", icon: "🪑", href: "/party" },
 };
 
 /**

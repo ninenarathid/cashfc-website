@@ -7,11 +7,13 @@ import type {
   ContentKind, Flex, Party, SlotDef, SlotRole, Wing,
 } from "@/lib/party";
 import {
-  ROLE_COLOR, ROLE_LABEL, jobMatters, openSeats, openTo,
+  ROLE_COLOR, ROLE_LABEL, askedAbout, jobMatters, openSeats, openTo,
 } from "@/lib/party";
 import JobIcon, { jobLabel, jobRoleGroup } from "@/components/JobIcon";
 import { jobsForRole } from "@/components/party/JobRule";
-import { askToJoin, confirmSeat, dropSeat } from "@/lib/party-db";
+import {
+  acceptInvite, askToJoin, confirmSeat, dropSeat, takeSeat,
+} from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
 
@@ -77,6 +79,14 @@ export default function PartyJoin(
    * exists to prevent, one level down. The lead picks from what was offered.
    */
   const [picked, setPicked] = useState<Set<string>>(new Set());
+  /**
+   * What became of the seat they were asked about.
+   *
+   * Said rather than silently done: somebody who agreed to D4 and is standing
+   * in the party without a seat needs to know which of those two happened, and
+   * to be able to walk back out if the answer changes the evening for them.
+   */
+  const [outcome, setOutcome] = useState<"seat" | "flex" | null>(null);
 
   const iAmOwner = !!me && party.ownerCharacterId === me.id;
   const mine = useMemo(
@@ -90,6 +100,11 @@ export default function PartyJoin(
 
   const free = useMemo(() => openSeats(party), [party]);
   const seated = party.shape !== "open";
+
+  /** The seat this reader was asked about, where they were asked about one. */
+  const asked = askedAbout(mine);
+  /** And whether somebody has since sat in it. */
+  const seatGone = !!asked && !free.some((sl) => sl.id === asked);
 
   /*
    * The open seats, by which of the three eights they are in.
@@ -254,29 +269,97 @@ export default function PartyJoin(
       )}
 
       {!iAmOwner && mine && !mine.confirmedAt && mine.by !== "self" && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[12.5px] text-muted">{t("party.invited")}</span>
-          <button disabled={busy}
-                  onClick={() => run(() => confirmSeat(supabase, mine.seatRowId!))}
-                  className={`${btn} border border-jade/60 bg-jade/15 text-jade hover:bg-jade/25`}>
-            {t("party.accept")}
-          </button>
-          <button disabled={busy}
-                  onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
-                  className={`${btn} border border-line text-muted hover:text-ink`}>
-            {t("party.turnDown")}
-          </button>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[12.5px] text-muted">
+            {asked
+              ? t("party.invitedTo", { seat: asked })
+              : t("party.invited")}
+          </span>
+          {/*
+            * Said before they answer, not after.
+            *
+            * The lead may have asked three people about D4. If one of them has
+            * already sat in it, this is the moment that matters — saying yes
+            * is still worth doing and is a different yes, so it says so here
+            * rather than surprising them on the way in.
+            */}
+          {asked && seatGone && (
+            <span className="text-[12px] text-gold">
+              {t("party.seatGone", { seat: asked })}
+            </span>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <button disabled={busy}
+                    onClick={() => run(async () => {
+                      const r = await acceptInvite(supabase, mine.seatRowId!);
+                      if ("error" in r) return r;
+                      setOutcome(r.got === "seat" ? "seat" : "flex");
+                      return {};
+                    })}
+                    className={`${btn} border border-jade/60 bg-jade/15 text-jade hover:bg-jade/25`}>
+              {asked && !seatGone ? t("party.acceptSeat", { seat: asked })
+                                  : t("party.acceptAnyway")}
+            </button>
+            <button disabled={busy}
+                    onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
+                    className={`${btn} border border-line text-muted hover:text-ink`}>
+              {t("party.turnDown")}
+            </button>
+          </div>
         </div>
       )}
 
       {!iAmOwner && mine?.confirmedAt && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[12.5px] text-jade">{t("party.youAreIn")}</span>
-          <button disabled={busy}
-                  onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
-                  className={`${btn} border border-line text-muted hover:text-ink`}>
-            {t("party.leave")}
-          </button>
+        <div className="flex flex-col gap-1.5">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="text-[12.5px] text-jade">
+              {mine.seat ? t("party.youAreInAt", { seat: mine.seat })
+                         : t("party.youAreIn")}
+            </span>
+            {/* Which of the two happened, once and only just after it did. */}
+            {outcome === "flex" && (
+              <span className="text-[12px] text-gold">{t("party.landedFlex")}</span>
+            )}
+            <button disabled={busy}
+                    onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
+                    className={`${btn} border border-line text-muted hover:text-ink`}>
+              {t("party.leave")}
+            </button>
+          </span>
+
+          {/*
+            * Pick where you are standing, afterwards.
+            *
+            * Which is the order people decide in: yes to the evening first,
+            * and the seat when the party has taken shape. Somebody who never
+            * picks one is a floater, which the resolver has always known what
+            * to do with.
+            */}
+          {seated && !mine.seat && free.length > 0 && (
+            <span className="flex flex-wrap items-center gap-1.5">
+              <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
+                {t("party.takeASeat")}
+              </span>
+              {free.map((sl) => {
+                const c = ROLE_COLOR[sl.role];
+                return (
+                  <button key={sl.id} type="button" disabled={busy}
+                          onClick={() => run(async () => {
+                            const r = await takeSeat(supabase, mine.seatRowId!, sl.id);
+                            if ("error" in r) return r;
+                            if (r.got === "taken") onError(t("party.seatGone", { seat: sl.id }));
+                            return {};
+                          })}
+                          className="flex items-center gap-1.5 rounded-full border border-line px-3 py-[3px] text-[12.5px] text-muted transition-colors hover:border-muted hover:text-ink">
+                    <span style={{ background: c }}
+                          className="size-1.5 shrink-0 rounded-full" />
+                    {sl.label}
+                    <span className="opacity-70">{ROLE_LABEL[sl.role]}</span>
+                  </button>
+                );
+              })}
+            </span>
+          )}
         </div>
       )}
 

@@ -423,16 +423,39 @@ export default function PartyCreate(
                     && p.name.toLowerCase().includes(s)).slice(0, 8);
   }, [fq, people, inParty]);
 
+  /*
+   * Put somebody in a seat, or ask them about one.
+   *
+   * The lead takes a seat outright — it is their party and their decision. For
+   * anybody else this is a question, and a question must not hold the seat: a
+   * lead who wants three people asked about D4 could otherwise ask exactly one
+   * of them and then wait, and asking the wrong one costs the evening.
+   *
+   * So an invitation is somebody in the party who has not sat down, with a
+   * flex naming the seat they were asked about. The grid already draws people
+   * hovering over the seats they could take, so all three show up on D4 and
+   * the seat stays open until one of them actually sits in it.
+   */
   function place(slot: SlotDef, p: PersonOption) {
-    setSeats((v) => ({
-      ...v,
-      [slot.id]: {
+    if (p.id === me.id) {
+      setSeats((v) => ({
+        ...v,
+        [slot.id]: {
+          characterId: p.id, name: p.name, avatar: p.avatar,
+          confirmedAt: new Date().toISOString(),
+        },
+      }));
+      setQ("");
+      return;
+    }
+    setFloating((v) => [
+      ...v.filter((f) => f.characterId !== p.id),
+      {
         characterId: p.id, name: p.name, avatar: p.avatar,
-        // The creator is in by definition. Everybody else is invited, and the
-        // seat says so until they answer.
-        confirmedAt: p.id === me.id ? new Date().toISOString() : null,
+        flex: { seats: [slot.id] },
+        confirmedAt: null,
       },
-    }));
+    ]);
     setQ("");
   }
 

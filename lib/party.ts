@@ -644,6 +644,20 @@ export interface Flex {
 export const canFlex = (f: Flex | undefined | null): boolean =>
   !!f && (!!f.all || !!f.roles?.length || !!f.seats?.length);
 
+/**
+ * The seat somebody was invited to think about.
+ *
+ * An invitation names one seat and does not hold it — three people can be
+ * asked about D4 at once, and whoever says yes first sits in it. The seat is
+ * carried in the flex because "I could take D4" is what a flex naming one seat
+ * already means everywhere else here, and because a held seat is exactly what
+ * an invitation must not be.
+ */
+export const askedAbout = (m: { seat?: string; flex?: Flex } | undefined):
+  string | undefined =>
+  (!m?.seat && m?.flex?.seats?.length === 1 && !m.flex.all && !m.flex.roles?.length)
+    ? m.flex.seats[0] : undefined;
+
 /** Whether somebody could move into this seat. Their own seat never counts. */
 export function coversSeat(f: Flex | undefined | null, slot: SlotDef): boolean {
   if (!f) return false;
