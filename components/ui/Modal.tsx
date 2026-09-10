@@ -61,11 +61,13 @@ export function useIsPhone(): boolean {
 
 export default function Modal(
   { open, onOpenChange, title, subtitle, children, wide = false,
-    sticky = false }: {
+    sticky = false, icon }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     /** Named for screen readers, and drawn where there is room for a heading. */
     title: string;
+    /** Beside the heading, so the window and the button that opened it match. */
+    icon?: React.ReactNode;
     subtitle?: string;
     children: React.ReactNode;
     /** For a picker that is a grid of pictures rather than a column of fields. */
@@ -102,7 +104,10 @@ export default function Modal(
   const head = (
     <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-3.5">
       <div className="flex min-w-0 flex-col">
-        <span className="font-display text-[15px] font-semibold text-ink">{title}</span>
+        <span className="flex items-center gap-1.5 font-display text-[15px] font-semibold text-ink">
+          {icon}
+          {title}
+        </span>
         {subtitle && <span className="truncate text-[12px] text-muted">{subtitle}</span>}
       </div>
       <button onClick={() => onOpenChange(false)} aria-label="Close"

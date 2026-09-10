@@ -619,7 +619,12 @@ export default function PartyBoard(
         </div>
         {!writing && (
           <button onClick={() => setWriting(true)}
-                  className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25">
+                  className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-[13px] text-accent hover:bg-accent/25">
+            {/* The Duty Finder's own hexagon, which is where somebody would be
+                doing this if they were not doing it here. A plus said
+                "something is being added" about a page whose whole subject is
+                things being arranged. */}
+            <TagIcon tag="dungeon" size={17} />
             {t("party.new")}
           </button>
         )}

@@ -1352,10 +1352,10 @@ export const worldText = (s: Spot | undefined): string | null =>
 export function spotText(s: Spot | undefined): string | null {
   if (!s?.map) return null;
   const at = isHousing(s.map)
-    // Ward first, the way the game's own housing search reads it. Either half
-    // alone is still worth saying: "Ward 12" narrows a district to a place you
-    // can walk, and a plot number without a ward is what somebody has to hand.
-    ? [s.ward != null ? `W${s.ward}` : null, s.plot != null ? `P${s.plot}` : null]
+    // Plot first, which is how the FC says it out loud. Either half alone is
+    // still worth saying: a plot number is what somebody has to hand, and
+    // "Ward 12" narrows a district to somewhere you can walk.
+    ? [s.plot != null ? `P${s.plot}` : null, s.ward != null ? `W${s.ward}` : null]
         .filter(Boolean).join(" ").replace(/^(.)/, " $1")
     : s.x != null && s.y != null
       ? ` (${s.x.toFixed(1)}, ${s.y.toFixed(1)})` : "";

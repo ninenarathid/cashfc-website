@@ -120,17 +120,8 @@ export default function WherePicker(
               nicety — a coordinate inside the Goblet tells nobody which house,
               and Ward 12 Plot 30 is what somebody would actually be told. */}
           {isHousing(value.map) ? (
+            // Plot before ward, which is the order the FC says it in.
             <>
-              <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
-                {t("pf.ward")}
-                <input type="number" step={1} min={1} max={WARDS}
-                       value={value.ward ?? ""}
-                       onChange={(e) => onChange({
-                         ...value,
-                         ward: e.target.value === "" ? undefined : Number(e.target.value),
-                       })}
-                       className={`${sel} w-20`} />
-              </label>
               <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
                 {t("pf.plot")}
                 <input type="number" step={1} min={1} max={60}
@@ -138,6 +129,16 @@ export default function WherePicker(
                        onChange={(e) => onChange({
                          ...value,
                          plot: e.target.value === "" ? undefined : Number(e.target.value),
+                       })}
+                       className={`${sel} w-20`} />
+              </label>
+              <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
+                {t("pf.ward")}
+                <input type="number" step={1} min={1} max={WARDS}
+                       value={value.ward ?? ""}
+                       onChange={(e) => onChange({
+                         ...value,
+                         ward: e.target.value === "" ? undefined : Number(e.target.value),
                        })}
                        className={`${sel} w-20`} />
               </label>
@@ -188,8 +189,8 @@ export default function WherePicker(
             <MapShot spot={value} size="full"
                      art={{ id: here.map, size: here.size }}
                      at={{ x: here.x, y: here.y }}
-                     caption={`${value.map} · ${t("pf.ward")} ${value.ward ?? "?"}, `
-                       + `${t("pf.plot")} ${here.plot}`} />
+                     caption={`${value.map} · ${t("pf.plot")} ${here.plot}, `
+                       + `${t("pf.ward")} ${value.ward ?? "?"}`} />
           )
         ) : (
           <MapShot spot={value} size="full"

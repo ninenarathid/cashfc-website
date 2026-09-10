@@ -1523,7 +1523,9 @@ const DICT = {
     en: "All times are Thai time (UTC+7).",
     th: "เวลาทั้งหมดเป็นเวลาไทย (UTC+7)",
   },
-  "party.new": { en: "+ New party", th: "+ ตั้งปาร์ตี้" },
+  /* No plus: the icon beside it is the Duty Finder's own hexagon, which says
+     "a duty is being arranged" rather than "something is being added". */
+  "party.new": { en: "New party", th: "ตั้งปาร์ตี้" },
   "party.search": {
     en: "Search a fight, a note, or somebody already in",
     th: "ค้นหาไฟต์ ข้อความ หรือชื่อคนที่อยู่ในปาร์ตี้",
