@@ -608,11 +608,8 @@ export default function PartyBoard(
     <div className="flex flex-col gap-4">
       <header className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <h1 className="flex items-center gap-2 font-display text-[22px] font-semibold">
+          <h1 className="font-display text-[22px] font-semibold">
             {t("party.title")}
-            <span className="rounded-md border border-gold/50 bg-gold/10 px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.14em] text-gold">
-              WIP
-            </span>
           </h1>
           <p className="mt-1 text-[12.5px] text-muted">
             {t("party.times")}

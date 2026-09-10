@@ -4,10 +4,10 @@ import { everyone } from "@/lib/people";
 import { partySeeds } from "@/lib/party-seeds";
 import PartyFinder from "@/components/party/PartyFinder";
 
-export const metadata = { title: "Party finder (WIP) — Cafe And SHabu" };
+export const metadata = { title: "Party finder — Cafe And SHabu" };
 
 /**
- * The party finder. Admin-only while it is being finished.
+ * The party finder, open to anybody.
  *
  * What the list is built from is assembled in lib/party-seeds.ts, because a
  * second page needs the same thing: a link preview has to turn "sav:M12S-2"
