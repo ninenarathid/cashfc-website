@@ -533,7 +533,23 @@ export type LengthUnit = "hours" | "food" | "runs" | "maps";
  * Hours is first because it is the one that always applies and the one a new
  * listing opens on.
  */
-export function lengthUnitsFor(kind: ContentKind | undefined): LengthUnit[] {
+export const lengthUnitsFor = (kind: ContentKind | undefined): LengthUnit[] =>
+  unitsFor(kind);
+
+/**
+ * What a fresh listing of this kind opens on.
+ *
+ * Hours almost everywhere, since it is the one unit every evening has. Two
+ * exceptions, and both are the content answering for itself: a treasure night
+ * ends when the maps do, and a legacy trial is counted in runs because that is
+ * the whole shape of the evening — you are there until the mount drops or
+ * until everybody has had enough, and "two hours of the Bowl of Embers" is a
+ * number nobody would say out loud.
+ */
+export const defaultUnitFor = (kind: ContentKind | undefined): LengthUnit =>
+  kind === "treasure" ? "maps" : kind === "legacy" ? "runs" : "hours";
+
+function unitsFor(kind: ContentKind | undefined): LengthUnit[] {
   // A map night has one honest answer and it is not a number. Offering hours
   // beside it would be offering somebody the chance to promise a time the
   // content cannot keep.
@@ -541,7 +557,7 @@ export function lengthUnitsFor(kind: ContentKind | undefined): LengthUnit[] {
   const fed = kind === "extreme" || kind === "savage" || kind === "ultimate"
     || kind === "criterion";
   const countable = fed || kind === "dungeon" || kind === "pvp"
-    || kind === "alliance";
+    || kind === "alliance" || kind === "legacy";
   return [
     "hours",
     ...(fed ? ["food" as const] : []),

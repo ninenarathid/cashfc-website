@@ -8,6 +8,7 @@ import type {
 import {
   DEFAULT_AMOUNT, DEFAULT_LENGTH, DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL,
   canFlex, endsAt, flexLabel, lengthUnitsFor, mapsToMinutes, runsToMinutes,
+  defaultUnitFor,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasRoulettes, hasSpot, isFight,
   jobMatters,
   lootRulesFor,
@@ -335,6 +336,15 @@ export default function PartyCreate(
    * follows, for the same reason.
    */
   useEffect(() => {
+    // What this content is normally counted in, where it has an answer of its
+    // own — a legacy trial in runs, a map night in maps — and hours otherwise.
+    const want = defaultUnitFor(chosen?.kind);
+    if (units.includes(want)) {
+      if (want === unit) return;
+      setUnit(want);
+      setAmount(DEFAULT_AMOUNT[want]);
+      return;
+    }
     if (units.includes(unit)) return;
     // Whatever this content does allow, which for a map night is the sentence
     // rather than a number.
@@ -342,7 +352,7 @@ export default function PartyCreate(
     setUnit(next);
     setAmount(DEFAULT_AMOUNT[next]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [units.join(",")]);
+  }, [units.join(","), chosen?.kind]);
 
   useEffect(() => {
     const live = new Set(slotsOf(useShape).map((sl) => sl.id));
