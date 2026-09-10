@@ -1894,7 +1894,7 @@ const DICT = {
   "pf.whoIsComing": { en: "Who is coming", th: "ใครไปบ้าง" },
   "pf.openNoParty": {
     en: "Nobody is in a party — everybody queues on their own.",
-    th: "ไม่มีการจัดปาร์ตี้ ทุกคน queue เอง",
+    th: "ไม่มีการจัดปาร์ตี้",
   },
   "pf.past": {
     en: "That is already past — pick a later time.",
