@@ -8,7 +8,7 @@ import type {
 } from "@/lib/party";
 import type { DutyArt } from "@/lib/duty";
 import {
-  KIND_COLOR, KIND_ICON, KIND_LABEL, KIND_ORDER, ROLE_COLOR, ROLE_LABEL,
+  KIND_COLOR, KIND_ICON, KIND_ORDER, ROLE_COLOR, ROLE_LABEL,
   LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay,
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
   needsByRole, partyStatus, progressText, resolveParty, slotsOf, spotText,
@@ -21,7 +21,7 @@ import { mapLabel } from "@/lib/treasure";
 import { useLang } from "@/lib/i18n";
 import Link from "next/link";
 import { freeAt } from "@/lib/suggest";
-import { lengthSay, lootLine, shapeSay } from "@/lib/party-i18n";
+import { kindSay, lengthSay, lootLine, shapeSay } from "@/lib/party-i18n";
 import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
 import TagIcon from "@/components/TagIcon";
@@ -33,7 +33,7 @@ import { SpotChip } from "@/components/party/WherePicker";
 import PartyComments from "@/components/party/PartyComments";
 import { useAvatarOverrides } from "@/lib/avatars";
 import PartyCreate from "@/components/party/PartyCreate";
-import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
+import PartyJoin, { amIn, pendingAsks } from "@/components/party/PartyJoin";
 import Modal from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
 import ShareParty, { readDeepLink, writeDeepLink } from "@/components/party/ShareParty";
@@ -56,6 +56,9 @@ import ShareParty, { readDeepLink, writeDeepLink } from "@/components/party/Shar
  * rendered and looked at without an admin session, which is the only way it
  * could be checked at all while the page is shut.
  */
+
+/** The key of the section that is not a day. No date can collide with it. */
+const MINE = "\u0000mine";
 
 type Sort = "soon" | "new" | "open";
 type When = "" | "today" | "3d" | "week";
@@ -375,6 +378,19 @@ export default function PartyBoard(
   const now = useNow(parties);
 
   /*
+   * Whether this party is one of the reader's.
+   *
+   * The roster and the owner, because a lead does not always take a seat in
+   * their own party. amIn walks the seats and the floaters together, which is
+   * the part the filter here used to get wrong: it read Object.values(p.seats)
+   * only, so somebody flexing without a seat was not "in it" on a board whose
+   * whole point is that flexing counts.
+   */
+  const isMine = useCallback(
+    (p: Party) => !!me && (p.ownerCharacterId === me.id || amIn(p, me)),
+    [me]);
+
+  /*
    * The reader's own hours, from the grid on their profile.
    *
    * One row, fetched once. The suggestions in the create form need everybody's
@@ -462,16 +478,12 @@ export default function PartyBoard(
        */
       if (adv.free && freeAt(myHours, p.startsAt) !== true) return false;
 
-      if (adv.mine && me) {
-        const inIt = p.ownerCharacterId === me.id
-          || Object.values(p.seats).some((s) => s.characterId === me.id);
-        if (!inIt) return false;
-      }
+      if (adv.mine && !isMine(p)) return false;
       return true;
     });
 
     return out;
-  }, [parties, byKey, query, kinds, adv, me, now, pinned, myHours]);
+  }, [parties, byKey, query, kinds, adv, me, now, pinned, myHours, isMine]);
 
   const anyProgress = useMemo(() => base.some((p) => p.progress), [base]);
   const anyLoot = useMemo(() => base.some((p) => p.loot), [base]);
@@ -502,18 +514,35 @@ export default function PartyBoard(
       : back * a.startsAt.localeCompare(b.startsAt));
   }, [base, adv.prog, adv.loot, adv.status, sort]);
 
-  /** Grouped by the day they fall on in Bangkok, which is how people read a schedule. */
-  const days = useMemo(() => {
+  /**
+   * The reader's own parties, and then everybody else's by day.
+   *
+   * Yours at the top and out of the schedule entirely. A party you are in is
+   * not one listing among forty — it is the thing you came to check, and
+   * hunting for your own name down a list of Thursdays is the work this board
+   * exists to remove. Sorting them first inside the list would have been
+   * half of it; they would still have been rows in somebody else's Friday.
+   *
+   * The rest stay grouped by the day they fall on in Bangkok, which is how
+   * people read a schedule.
+   */
+  const sections = useMemo(() => {
+    const mine = shown.filter(isMine);
+    const rest = shown.filter((p) => !isMine(p));
+
     const m = new Map<string, Party[]>();
-    for (const p of shown) {
+    for (const p of rest) {
       const k = dayKey(p.startsAt);
       (m.get(k) ?? m.set(k, []).get(k)!).push(p);
     }
     // In the order the list is already in, rather than always oldest first.
     // Sorting the days by their own key would put a month of finished parties
     // above tonight the moment somebody looked at the archive.
-    return [...m.entries()];
-  }, [shown]);
+    const days = [...m.entries()];
+    return mine.length
+      ? ([[MINE, mine], ...days] as [string, Party[]][])
+      : days;
+  }, [shown, isMine]);
 
   /*
    * A filter for something nothing on the board has is a control that can only
@@ -608,7 +637,7 @@ export default function PartyBoard(
                       on ? "" : "border-line text-muted hover:border-muted hover:text-ink"} ${
                       !n && !on ? "opacity-45" : ""}`}>
               {KIND_ICON[k] && <TagIcon tag={KIND_ICON[k]!} size={14} />}
-              {KIND_LABEL[k]}
+              {kindSay(k, t)}
               <small className="ml-1.5 font-data opacity-70">{n}</small>
             </button>
           );
@@ -750,16 +779,18 @@ export default function PartyBoard(
         <p className="px-4 py-10 text-center text-[13px] text-muted">{t("party.loading")}</p>
       )}
 
-      {!loading && days.length === 0 && (
+      {!loading && sections.length === 0 && (
         <p className="rounded-xl border border-dashed border-line px-4 py-10 text-center text-[13px] text-muted">
           {t("party.none")}
         </p>
       )}
 
-      {days.map(([key, list]) => (
+      {sections.map(([key, list]) => (
         <section key={key} className="flex flex-col gap-2">
-          <h2 className="font-data text-[11px] uppercase tracking-[0.14em] text-muted">
-            {fmtDay(list[0].startsAt)}
+          <h2 className={`font-data text-[11px] uppercase tracking-[0.14em] ${
+            key === MINE ? "text-accent" : "text-muted"}`}>
+            {key === MINE ? t("party.mineHeading", { n: list.length })
+                          : fmtDay(list[0].startsAt)}
           </h2>
           {list.map((p) => {
             const c = byKey[p.contentKey];

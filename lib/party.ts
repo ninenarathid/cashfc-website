@@ -168,7 +168,7 @@ export const KIND_LABEL: Record<ContentKind, string> = {
   community: "Community Events",
   field: "Field Operations",
   dungeon: "Dungeon",
-  mentor: "Mentor",
+  mentor: "Find Mentor",
   other: "Other",
 };
 
@@ -422,7 +422,7 @@ export function catalogue(
      * is a sentence, and picking one of three crowns first would be a question
      * asked before the one that matters.
      */
-    { key: "mentor", kind: "mentor", name: "Mentor", shape: "open" },
+    { key: "mentor", kind: "mentor", name: "Find Mentor", shape: "open" },
     { key: "other", kind: "other", name: "Something else", shape: "open" },
   );
   return out;

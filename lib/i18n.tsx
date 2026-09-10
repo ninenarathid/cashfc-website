@@ -1536,6 +1536,12 @@ const DICT = {
   "party.imIn": { en: "I am in it", th: "ที่ฉันอยู่ด้วย" },
   /* The grid on the profile, pointed at the board: which of these start while
      I am usually around. */
+  /* Its own area at the top. A party you are in is not one listing among
+     forty — it is the thing you came to check. */
+  "party.kindMentor": { en: "Find Mentor", th: "หา Mentor" },
+  "party.mineHeading": {
+    en: "Parties you are in ({n})", th: "ปาร์ตี้ที่มีเราอยู่ ({n})",
+  },
   "party.whenIPlay": { en: "When I play", th: "ตรงกับเวลาที่ฉันเล่น" },
   "party.setHours": {
     en: "Set the hours you usually play on your profile first.",

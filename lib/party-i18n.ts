@@ -1,7 +1,7 @@
 import type {
   ContentKind, LengthUnit, LootRule, PayOn, ProgressAt, Shape,
 } from "@/lib/party";
-import { LOOT_LABEL, fmtLength, minutesToFood } from "@/lib/party";
+import { KIND_LABEL, LOOT_LABEL, fmtLength, minutesToFood } from "@/lib/party";
 import type { Key } from "@/lib/i18n";
 
 /**
@@ -56,6 +56,20 @@ const PROGRESS_KEY: Record<ProgressAt, Key> = {
 
 /** The rung's own name stays English; what it asks of you does not. */
 export const progressHelp = (at: ProgressAt, t: T): string => t(PROGRESS_KEY[at]);
+
+/* ── what a party is for ─────────────────────────────────────────────────── */
+
+/**
+ * The kind, in the reader's language where it is a phrase rather than a name.
+ *
+ * Almost all of them are the game's own vocabulary and stay: Savage, Treasure
+ * hunt, FATE farm, Criterion. "Find Mentor" is not something the game calls
+ * anything — it is this site describing an evening — so it is translated, the
+ * same rule the rest of the page follows.
+ */
+export const kindSay = (kind: ContentKind | undefined, t: T): string =>
+  kind === "mentor" ? t("party.kindMentor")
+    : kind ? KIND_LABEL[kind] : "";
 
 /* ── how long ────────────────────────────────────────────────────────────── */
 

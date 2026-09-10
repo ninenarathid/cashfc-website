@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { ContentDef, ContentKind } from "@/lib/party";
-import { KIND_COLOR, KIND_ICON, KIND_LABEL, KIND_ORDER, SHAPE_SIZE } from "@/lib/party";
+import { KIND_COLOR, KIND_ICON, KIND_ORDER, SHAPE_SIZE } from "@/lib/party";
+import { kindSay } from "@/lib/party-i18n";
 import TagIcon from "@/components/TagIcon";
 import Modal from "@/components/ui/Modal";
 import { useLang } from "@/lib/i18n";
@@ -103,7 +104,7 @@ export default function ContentPicker(
                 nobody had chosen yet. */}
             {chosen && (
               <span className="font-data text-[10px] uppercase tracking-[0.14em] text-ink/70">
-                {KIND_LABEL[chosen.kind]}
+                {kindSay(chosen.kind, t)}
               </span>
             )}
             <span className={`truncate font-display text-[16px] font-semibold ${
@@ -142,7 +143,7 @@ export default function ContentPicker(
                   means savage should not have to learn a second symbol for it
                   one page over. */}
               {KIND_ICON[k] && <TagIcon tag={KIND_ICON[k]!} size={20} />}
-              {KIND_LABEL[k]}
+              {kindSay(k, t)}
             </button>
           );
         })}
