@@ -2,6 +2,153 @@
  "events": [
   {
    "date": "2026-09-10",
+   "type": "level_100",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "reached level 100 on Bard!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Legendary Black Mage"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Expert Ninja"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Master Machinist"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "is now a Expert Monk"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 26298391,
+   "name": "Yozora Luna",
+   "text": "is now a Master Machinist"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 8836061,
+   "name": "Allusia Heartfilia",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "is now a Master Dancer"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "is now a Expert Astrologian"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "parse_up",
+   "id": 5720080,
+   "name": "Bowling Chan",
+   "text": "set a new best parse: 95 on Voidwalker as Gunbreaker"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "parse_up",
+   "id": 8999658,
+   "name": "Chzzck Godslayer",
+   "text": "set a new best parse: 90 on Eden Prime as Scholar"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 8999658,
+   "name": "Chzzck Godslayer",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-09-10",
    "type": "grade_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1252,153 +1399,6 @@
    "id": 31236337,
    "name": "Whitefrost Marionette",
    "text": "earned Aetherpool Party: Fan Brush — only 1.2% of players have it, and 45 more"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "grade_up",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "is now a Master Explorer ✨"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "rare_up",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "earned Cut Above the Rest: Blade Occultum — only 0.9% of players have it, and 37 more"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 24313144,
-   "name": "Oxyy Genn",
-   "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 36151779,
-   "name": "Percival Heisenberg",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "parse_up",
-   "id": 29881709,
-   "name": "Y'uki No",
-   "text": "set a new best parse: 18 on Cloud of Darkness as Samurai"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 30333493,
-   "name": "Haruko Sho",
-   "text": "is now a Expert Gunbreaker"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 34507717,
-   "name": "Mira Lionheart",
-   "text": "is now a Expert Ninja"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 34184163,
-   "name": "Moji Momiji",
-   "text": "is now a Master Dragoon"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 36151779,
-   "name": "Percival Heisenberg",
-   "text": "set a new best parse: 100 on Hesperos as Paladin"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 36151779,
-   "name": "Percival Heisenberg",
-   "text": "is now a Legendary Paladin"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 25541816,
-   "name": "Presca Burgstalgen",
-   "text": "set a new best parse: 78 on Erichthonios as Ninja"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 25541816,
-   "name": "Presca Burgstalgen",
-   "text": "is now a Expert Ninja"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "is now a Legendary Warrior"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 40624820,
-   "name": "Rin Miyauchi",
-   "text": "set a new best parse: 41 on Erichthonios as Warrior"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 29901287,
-   "name": "Rishima Garaine",
-   "text": "set a new best parse: 88 on Erichthonios as Sage"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 29901287,
-   "name": "Rishima Garaine",
-   "text": "is now a Legendary Sage"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 36225854,
-   "name": "Roku Roku",
-   "text": "set a new best parse: 76 on Erichthonios as Re\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 36225854,
-   "name": "Roku Roku",
-   "text": "is now a Expert Red Mage"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 29395299,
-   "name": "Runie Run",
-   "text": "set a new best parse: 99 on Erichthonios as Paladin"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 37236539,
-   "name": "Shivan Ryse",
-   "text": "set a new best parse: 16 on Erichthonios as Samurai"
   }
  ]
 }

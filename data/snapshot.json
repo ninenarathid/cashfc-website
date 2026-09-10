@@ -851,7 +851,7 @@
   "mounts": 264,
   "minions": 487,
   "rare": 417,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -1721,7 +1721,7 @@
   "mounts": 105,
   "minions": 135,
   "rare": 59,
-  "level": 90,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2175,7 +2175,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 26,
-  "level": 56,
+  "level": 61,
   "cc": [
    true,
    true,
@@ -2714,7 +2714,7 @@
   "mounts": 197,
   "minions": 416,
   "rare": 168,
-  "level": 8,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3206,7 +3206,7 @@
   "mounts": 129,
   "minions": 246,
   "rare": 80,
-  "level": 21,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3364,7 +3364,7 @@
   "mounts": 186,
   "minions": 434,
   "rare": 136,
-  "level": 7,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3878,15 +3878,17 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "BlackMage": "expert",
+   "BlackMage": "legendary",
    "Paladin": "legendary",
    "Gunbreaker": "legendary",
    "Samurai": "legendary",
-   "Bard": "legendary",
-   "Machinist": "expert",
-   "Warrior": "expert",
+   "Ninja": "expert",
+   "Bard": "expert",
+   "Machinist": "master",
+   "Warrior": "master",
    "DarkKnight": "master",
    "Monk": "legendary",
+   "RedMage": "expert",
    "Dragoon": "master"
   },
   "ex": [
@@ -3996,14 +3998,15 @@
   "tiers": {},
   "jobs": {
    "Viper": "legendary",
-   "Samurai": "master",
+   "Samurai": "legendary",
    "Paladin": "legendary",
    "DarkKnight": "legendary",
    "Warrior": "legendary",
    "Gunbreaker": "legendary",
    "Ninja": "master",
    "Dancer": "expert",
-   "WhiteMage": "expert"
+   "WhiteMage": "expert",
+   "Monk": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -4032,7 +4035,7 @@
   "mounts": 173,
   "minions": 415,
   "rare": 424,
-  "level": 100,
+  "level": 23,
   "cc": [
    false,
    false,
@@ -4163,14 +4166,14 @@
   "mounts": 233,
   "minions": 301,
   "rare": null,
-  "level": 100,
+  "level": 36,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -4577,7 +4580,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 15,
+  "level": 20,
   "cc": [
    true,
    true,
@@ -4604,7 +4607,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-10"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -4625,7 +4628,7 @@
   "tiers": {},
   "jobs": {
    "Paladin": "master",
-   "Machinist": "expert"
+   "Machinist": "master"
   },
   "ex": [
    "Doomtrain",
@@ -4786,7 +4789,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 22,
-  "level": 92,
+  "level": 97,
   "cc": [
    true,
    true,
@@ -4957,7 +4960,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 38,
+  "level": 40,
   "cc": [
    false,
    false,
@@ -4972,7 +4975,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -4981,7 +4984,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 1,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5330,9 +5333,10 @@
   "jobs": {
    "WhiteMage": "legendary",
    "Summoner": "expert",
-   "Dancer": "expert",
+   "Dancer": "master",
    "Scholar": "expert",
-   "Astrologian": "master"
+   "Astrologian": "master",
+   "RedMage": "expert"
   },
   "ex": [],
   "ults": [
@@ -5493,7 +5497,9 @@
    4017
   ],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Astrologian": "expert"
+  },
   "ex": [
    "Queen Eternal",
    "Valigarmanda"
@@ -5864,7 +5870,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 30,
+  "level": 35,
   "cc": null,
   "rare_ids": [
    1613,
@@ -5935,7 +5941,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 30,
+  "level": 41,
   "cc": null,
   "rare_ids": [
    3874
@@ -6207,7 +6213,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 84,
   "cc": [
    true,
    true,
@@ -6228,7 +6234,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-07"
+  "chg": "2026-09-10"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -6614,7 +6620,7 @@
   "mounts": 67,
   "minions": 100,
   "rare": 36,
-  "level": 37,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6822,7 +6828,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 20,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -6835,7 +6841,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -7330,7 +7336,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 100,
+  "level": 34,
   "cc": [
    true,
    true,
@@ -7520,7 +7526,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 100,
+  "level": 31,
   "cc": [
    false,
    false,
@@ -7533,7 +7539,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-10"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -7574,7 +7580,7 @@
   "mounts": 81,
   "minions": 155,
   "rare": null,
-  "level": 26,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -7595,7 +7601,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -7604,7 +7610,7 @@
   "mounts": 107,
   "minions": 305,
   "rare": null,
-  "level": 100,
+  "level": 9,
   "cc": [
    false,
    false,
@@ -7617,7 +7623,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-10"
  },
  "54419512": {
   "name": "Film Nio",
@@ -9127,7 +9133,7 @@
  },
  "5720080": {
   "name": "Bowling Chan",
-  "parse": 86,
+  "parse": 95,
   "ult": 3,
   "mounts": 150,
   "minions": 326,
@@ -9154,7 +9160,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-04"
+  "chg": "2026-09-10"
  },
  "33604767": {
   "name": "Boyekon Redroof",
@@ -9550,7 +9556,7 @@
  },
  "8999658": {
   "name": "Chzzck Godslayer",
-  "parse": 87,
+  "parse": 90,
   "ult": 3,
   "mounts": 140,
   "minions": 216,
@@ -9566,7 +9572,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Samurai": "expert"
+   "Samurai": "expert",
+   "Scholar": "master"
   },
   "ex": [],
   "ults": [
@@ -9574,7 +9581,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-10"
  },
  "16034463": {
   "name": "Cool Piggy",
