@@ -46,7 +46,8 @@ export function useLiveParties(
     };
 
     const ch = supabase.channel("party-board");
-    for (const table of ["party_posts", "party_members", "party_comments"]) {
+    for (const table of ["party_posts", "party_members", "party_comments",
+                         "party_comment_reactions"]) {
       ch.on("postgres_changes",
         { event: "*", schema: "public", table }, soon);
     }

@@ -1,3 +1,5 @@
+import { DUNGEONS } from "@/lib/dungeons";
+
 /**
  * The shape of a party, and the things a party is for.
  *
@@ -66,10 +68,18 @@ export const SHAPE_SIZE: Record<Shape, number> = {
   light: 4, full: 8, alliance: 24, open: 0,
 };
 
+/*
+ * The English fallback, for anything rendered outside the dictionary. See
+ * shapeSay in lib/party-i18n.ts, which is what the pages actually use.
+ *
+ * The seat count without the word "full": the game's name for the arrangement
+ * collides with the other thing this board says about a party — that it has no
+ * room left — and a listing cannot afford two meanings for one word.
+ */
 export const SHAPE_LABEL: Record<Shape, string> = {
-  light: "Light party (4)",
-  full: "Full party (8)",
-  alliance: "Alliance (24)",
+  light: "4 players",
+  full: "8 players",
+  alliance: "Alliance · 24",
   // Never shown as-is: three different situations end up with no seats, and
   // openLabel below says which one this is. Kept only as the fallback for a
   // kind nobody has thought about yet.
@@ -81,12 +91,21 @@ export const SHAPE_LABEL: Record<Shape, string> = {
 export type ContentKind =
   | "extreme" | "savage" | "ultimate"
   | "alliance" | "treasure" | "fate" | "hunt" | "criterion" | "pvp"
-  | "community" | "field" | "other";
+  | "community" | "field" | "dungeon" | "other";
 
 export interface ContentDef {
   key: string;
   kind: ContentKind;
   name: string;
+  /**
+   * A second level of sorting, where one kind has more rows than a grid can
+   * usefully show at once.
+   *
+   * The dungeons need it and nothing else does yet: a hundred and three cards
+   * in one pane is not a picker, it is a scroll. Grouped by expansion they are
+   * six panes of about fifteen, which is a grid somebody can read.
+   */
+  group?: string;
   /** What people actually say. "M12S", "FRU". */
   short?: string;
   shape: Shape;
@@ -148,13 +167,14 @@ export const KIND_LABEL: Record<ContentKind, string> = {
   pvp: "PvP",
   community: "Community Events",
   field: "Field Operations",
+  dungeon: "Dungeon",
   other: "Other",
 };
 
 export const KIND_ORDER: ContentKind[] = [
   "extreme", "savage", "ultimate",
-  "alliance", "treasure", "criterion", "field", "pvp", "community", "fate",
-  "hunt", "other",
+  "alliance", "treasure", "criterion", "dungeon", "field", "pvp", "community",
+  "fate", "hunt", "other",
 ];
 
 /**
@@ -171,6 +191,7 @@ export const KIND_ICON: Partial<Record<ContentKind, string>> = {
   ultimate: "ultimate",
   alliance: "alliance",
   criterion: "criterion",
+  dungeon: "dungeon",
   field: "field",
   fate: "fate",
   hunt: "hunt",
@@ -212,6 +233,7 @@ export const KIND_COLOR: Record<ContentKind, string> = {
   pvp: "#c74a4a",
   community: "#d47fb8",
   field: "#a1734a",
+  dungeon: "#5f9ea0",
   other: "#8b93a1",
 };
 
@@ -354,6 +376,26 @@ export function catalogue(
      * instance holds dozens and the queue is not the point; the eight who
      * agreed a time are.
      */
+    /*
+     * Every dungeon in the game, from the Duty Finder's own table.
+     *
+     * The level is the badge because it is what tells two similar names apart
+     * and what decides whether somebody can come — "Sohm Al" and "Sohm Al
+     * (Hard)" are thirty levels apart and read almost identically.
+     *
+     * Four seats, always. Every one of the hundred and three is a light party,
+     * which is a fact about the game rather than a choice this listing offers.
+     */
+    ...DUNGEONS.map((d) => ({
+      key: `dun:${d.id}`,
+      kind: "dungeon" as const,
+      name: d.name,
+      duty: d.name,
+      group: d.expansion,
+      badge: `Lv${d.level}`,
+      shape: "light" as const,
+      fixedShape: true,
+    })),
     { key: "field:occult", kind: "field", name: "Occult Crescent",
       icon: "field", shape: "full" },
     { key: "field:bozja", kind: "field", name: "Bozja", icon: "field",
@@ -536,6 +578,16 @@ export interface SlotTaken {
    * two people from off this site, who both have no character id at all.
    */
   seatRowId?: number;
+  /**
+   * Every job they offered, where they offered more than one.
+   *
+   * `job` is what they will be on and is the one the seat draws; this is what
+   * they said they could be on. The two are the same thing when somebody names
+   * one job, which is why `job` stays the field everything reads — a party
+   * that has settled is described by `job` alone, and this is only the record
+   * of what was on the table before it did.
+   */
+  jobs?: string[];
   confirmedAt: string | null;
 }
 
@@ -708,6 +760,16 @@ export interface Floater {
    * two people from off this site, who both have no character id at all.
    */
   seatRowId?: number;
+  /**
+   * Every job they offered, where they offered more than one.
+   *
+   * `job` is what they will be on and is the one the seat draws; this is what
+   * they said they could be on. The two are the same thing when somebody names
+   * one job, which is why `job` stays the field everything reads — a party
+   * that has settled is described by `job` alone, and this is only the record
+   * of what was on the table before it did.
+   */
+  jobs?: string[];
   confirmedAt: string | null;
 }
 
@@ -997,6 +1059,23 @@ export function spotText(s: Spot | undefined): string | null {
  * own name back; a photo shoot, a FATE farm and a hunt train are all about a
  * spot on a map, and are useless without one.
  */
+/**
+ * Whether joining has to say which job.
+ *
+ * A raid is a composition and the job is half of what the party is deciding.
+ * A photo shoot, a FATE farm, a hunt train and a night in Bozja are not: you
+ * turn up on whatever you happen to be on, and asking somebody to commit to a
+ * job before they can press Join is a form standing in front of an evening
+ * that has no form.
+ *
+ * Treasure and PvP stay on the asking side. A map night wants to know it has a
+ * healer before it opens the first portal, and PvP is queued alone but on a
+ * particular job, which is the thing people are agreeing about.
+ */
+export const jobMatters = (kind: ContentKind | undefined): boolean =>
+  !(kind === "community" || kind === "fate" || kind === "hunt"
+    || kind === "field");
+
 export const hasSpot = (kind: ContentKind | undefined): boolean =>
   kind === "community" || kind === "fate" || kind === "hunt"
   || kind === "treasure" || kind === "field";
@@ -1157,6 +1236,31 @@ export interface PartyBlock {
   caption?: string;
 }
 
+/**
+ * A reaction on a reply.
+ *
+ * Who, not how many. A count alone cannot answer either question anybody
+ * actually has about one — "have I already" and "who agreed with that" — and a
+ * board where you cannot tell whether the tick is yours is a board where people
+ * press it twice to find out.
+ */
+export interface Reaction {
+  emoji: string;
+  by: { characterId: number | null; name: string }[];
+}
+
+/**
+ * The reactions on offer.
+ *
+ * A short fixed row rather than a picker of every emoji there is. This is for
+ * the three things people actually say under a raid plan — yes, nice, that is
+ * funny — and a search box for a thousand symbols turns a one-tap
+ * acknowledgement back into a decision. The potato is here because it is the
+ * Free Company's own currency and it belongs anywhere the FC agrees with
+ * something.
+ */
+export const REACTIONS = ["👍", "❤️", "😂", "🎉", "🥔"] as const;
+
 /** Somebody's reply on a party. */
 export interface PartyComment {
   id: string;
@@ -1164,7 +1268,30 @@ export interface PartyComment {
   text: string;
   /** Pictures on the reply itself — the same idea as a feedback attachment. */
   images?: string[];
+  reactions?: Reaction[];
   at: string;
+}
+
+/**
+ * Whether two replies in a row are one person still talking.
+ *
+ * Somebody who says three things in a minute has not had three conversations,
+ * and drawing their face and name three times says they have. Grouped, the
+ * second and third are just more of the first — which is how every chat anybody
+ * uses already reads, and how these were always meant to be read.
+ *
+ * Ten minutes, because past that they came back to say something rather than
+ * carried on saying it, and the gap is worth seeing.
+ */
+export const GROUP_MS = 600_000;
+
+export function sameSpeaker(a: PartyComment, b: PartyComment | undefined): boolean {
+  if (!b) return false;
+  // Two people off this site both have a null character id and are not the
+  // same person, so the name has to agree as well.
+  if (a.author.characterId !== b.author.characterId) return false;
+  if (a.author.characterId == null && a.author.name !== b.author.name) return false;
+  return new Date(a.at).getTime() - new Date(b.at).getTime() < GROUP_MS;
 }
 
 export const blockId = (): string =>

@@ -35,9 +35,18 @@ export function writeDeepLink(id: string | null): void {
   window.history.replaceState(null, "", url.toString());
 }
 
-/** The whole address of one party, which is the thing being shared. */
+/**
+ * The whole address of one party, which is the thing being shared.
+ *
+ * The path form rather than the query one. Both open the same party, and only
+ * this one is a page as far as anybody else's software is concerned: Discord
+ * fetches it and gets a card with the fight, the time and how full the party
+ * is, where /party?p=11 gets whatever /party says about itself. Which was the
+ * site's own eleven-word description, under every link anybody had ever
+ * posted.
+ */
 export const partyUrl = (id: string): string =>
-  typeof window === "undefined" ? "" : `${window.location.origin}${window.location.pathname}?${PARAM}=${id}`;
+  typeof window === "undefined" ? "" : `${window.location.origin}/party/${id}`;
 
 export default function ShareParty({ id }: { id: string }) {
   const { t } = useLang();

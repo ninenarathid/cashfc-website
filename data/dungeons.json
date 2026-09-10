@@ -1,0 +1,838 @@
+{
+ "generated_at": "2026-09-10T11:27:25.005Z",
+ "source": "XIVAPI v2, sheet ContentFinderCondition (ContentType: Dungeons)",
+ "expansions": [
+  "Dawntrail",
+  "Endwalker",
+  "Shadowbringers",
+  "Stormblood",
+  "Heavensward",
+  "A Realm Reborn"
+ ],
+ "dungeons": [
+  {
+   "id": 4,
+   "name": "Sastasha",
+   "level": 15,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 2,
+   "name": "The Tam–Tara Deepcroft",
+   "level": 16,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 3,
+   "name": "Copperbell Mines",
+   "level": 17,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 7,
+   "name": "Halatali",
+   "level": 20,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 1,
+   "name": "The Thousand Maws of Toto–Rak",
+   "level": 24,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 6,
+   "name": "Haukke Manor",
+   "level": 28,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 8,
+   "name": "Brayflox's Longstop",
+   "level": 32,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 9,
+   "name": "The Sunken Temple of Qarn",
+   "level": 35,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 12,
+   "name": "Cutter's Cry",
+   "level": 38,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 11,
+   "name": "The Stone Vigil",
+   "level": 41,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 13,
+   "name": "Dzemael Darkhold",
+   "level": 44,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 5,
+   "name": "The Aurum Vale",
+   "level": 47,
+   "ilvl": 0,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 10,
+   "name": "The Wanderer's Palace",
+   "level": 50,
+   "ilvl": 45,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 14,
+   "name": "Amdapor Keep",
+   "level": 50,
+   "ilvl": 45,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 15,
+   "name": "Castrum Meridianum",
+   "level": 50,
+   "ilvl": 42,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 16,
+   "name": "The Praetorium",
+   "level": 50,
+   "ilvl": 42,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 17,
+   "name": "Pharos Sirius",
+   "level": 50,
+   "ilvl": 48,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 18,
+   "name": "Copperbell Mines (Hard)",
+   "level": 50,
+   "ilvl": 48,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 19,
+   "name": "Haukke Manor (Hard)",
+   "level": 50,
+   "ilvl": 48,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 20,
+   "name": "Brayflox's Longstop (Hard)",
+   "level": 50,
+   "ilvl": 55,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 21,
+   "name": "Halatali (Hard)",
+   "level": 50,
+   "ilvl": 55,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 22,
+   "name": "The Lost City of Amdapor",
+   "level": 50,
+   "ilvl": 55,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 23,
+   "name": "Hullbreaker Isle",
+   "level": 50,
+   "ilvl": 70,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 24,
+   "name": "The Tam–Tara Deepcroft (Hard)",
+   "level": 50,
+   "ilvl": 70,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 25,
+   "name": "The Stone Vigil (Hard)",
+   "level": 50,
+   "ilvl": 70,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 26,
+   "name": "The Sunken Temple of Qarn (Hard)",
+   "level": 50,
+   "ilvl": 80,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 27,
+   "name": "Snowcloak",
+   "level": 50,
+   "ilvl": 80,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 28,
+   "name": "Sastasha (Hard)",
+   "level": 50,
+   "ilvl": 80,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 29,
+   "name": "Amdapor Keep (Hard)",
+   "level": 50,
+   "ilvl": 90,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 30,
+   "name": "The Wanderer's Palace (Hard)",
+   "level": 50,
+   "ilvl": 90,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 32,
+   "name": "The Keeper of the Lake",
+   "level": 50,
+   "ilvl": 90,
+   "size": 4,
+   "expansion": "A Realm Reborn"
+  },
+  {
+   "id": 36,
+   "name": "The Dusk Vigil",
+   "level": 51,
+   "ilvl": 100,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 37,
+   "name": "Sohm Al",
+   "level": 53,
+   "ilvl": 105,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 39,
+   "name": "The Aery",
+   "level": 55,
+   "ilvl": 110,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 34,
+   "name": "The Vault",
+   "level": 57,
+   "ilvl": 115,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 31,
+   "name": "The Great Gubal Library",
+   "level": 59,
+   "ilvl": 120,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 33,
+   "name": "Neverreap",
+   "level": 60,
+   "ilvl": 145,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 35,
+   "name": "The Fractal Continuum",
+   "level": 60,
+   "ilvl": 145,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 38,
+   "name": "The Aetherochemical Research Facility",
+   "level": 60,
+   "ilvl": 142,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 40,
+   "name": "Pharos Sirius (Hard)",
+   "level": 60,
+   "ilvl": 170,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 41,
+   "name": "Saint Mocianne's Arboretum",
+   "level": 60,
+   "ilvl": 170,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 140,
+   "name": "The Lost City of Amdapor (Hard)",
+   "level": 60,
+   "ilvl": 180,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 141,
+   "name": "The Antitower",
+   "level": 60,
+   "ilvl": 180,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 171,
+   "name": "Sohr Khai",
+   "level": 60,
+   "ilvl": 200,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 172,
+   "name": "Hullbreaker Isle (Hard)",
+   "level": 60,
+   "ilvl": 200,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 182,
+   "name": "Xelphatol",
+   "level": 60,
+   "ilvl": 210,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 196,
+   "name": "The Great Gubal Library (Hard)",
+   "level": 60,
+   "ilvl": 210,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 219,
+   "name": "Baelsar's Wall",
+   "level": 60,
+   "ilvl": 230,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 221,
+   "name": "Sohm Al (Hard)",
+   "level": 60,
+   "ilvl": 230,
+   "size": 4,
+   "expansion": "Heavensward"
+  },
+  {
+   "id": 238,
+   "name": "The Sirensong Sea",
+   "level": 61,
+   "ilvl": 240,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 235,
+   "name": "Shisui of the Violet Tides",
+   "level": 63,
+   "ilvl": 245,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 240,
+   "name": "Bardam's Mettle",
+   "level": 65,
+   "ilvl": 250,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 241,
+   "name": "Doma Castle",
+   "level": 67,
+   "ilvl": 255,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 242,
+   "name": "Castrum Abania",
+   "level": 69,
+   "ilvl": 260,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 236,
+   "name": "The Temple of the Fist",
+   "level": 70,
+   "ilvl": 280,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 247,
+   "name": "Ala Mhigo",
+   "level": 70,
+   "ilvl": 280,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 262,
+   "name": "Kugane Castle",
+   "level": 70,
+   "ilvl": 280,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 279,
+   "name": "The Drowned City of Skalla",
+   "level": 70,
+   "ilvl": 300,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 284,
+   "name": "Hells' Lid",
+   "level": 70,
+   "ilvl": 310,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 285,
+   "name": "The Fractal Continuum (Hard)",
+   "level": 70,
+   "ilvl": 310,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 536,
+   "name": "The Swallow's Compass",
+   "level": 70,
+   "ilvl": 330,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 584,
+   "name": "Saint Mocianne's Arboretum (Hard)",
+   "level": 70,
+   "ilvl": 340,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 585,
+   "name": "The Burn",
+   "level": 70,
+   "ilvl": 340,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 611,
+   "name": "The Ghimlyt Dark",
+   "level": 70,
+   "ilvl": 360,
+   "size": 4,
+   "expansion": "Stormblood"
+  },
+  {
+   "id": 676,
+   "name": "Holminster Switch",
+   "level": 71,
+   "ilvl": 370,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 649,
+   "name": "Dohn Mheg",
+   "level": 73,
+   "ilvl": 375,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 651,
+   "name": "The Qitana Ravel",
+   "level": 75,
+   "ilvl": 380,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 656,
+   "name": "Malikah's Well",
+   "level": 77,
+   "ilvl": 385,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 659,
+   "name": "Mt. Gulg",
+   "level": 79,
+   "ilvl": 390,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 652,
+   "name": "Amaurot",
+   "level": 80,
+   "ilvl": 410,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 655,
+   "name": "The Twinning",
+   "level": 80,
+   "ilvl": 410,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 661,
+   "name": "Akadaemia Anyder",
+   "level": 80,
+   "ilvl": 410,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 692,
+   "name": "The Grand Cosmos",
+   "level": 80,
+   "ilvl": 430,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 714,
+   "name": "Anamnesis Anyder",
+   "level": 80,
+   "ilvl": 440,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 737,
+   "name": "The Heroes' Gauntlet",
+   "level": 80,
+   "ilvl": 460,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 746,
+   "name": "Matoya's Relict",
+   "level": 80,
+   "ilvl": 470,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 777,
+   "name": "Paglth'an",
+   "level": 80,
+   "ilvl": 490,
+   "size": 4,
+   "expansion": "Shadowbringers"
+  },
+  {
+   "id": 783,
+   "name": "The Tower of Zot",
+   "level": 81,
+   "ilvl": 500,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 785,
+   "name": "The Tower of Babil",
+   "level": 83,
+   "ilvl": 505,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 789,
+   "name": "Vanaspati",
+   "level": 85,
+   "ilvl": 510,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 787,
+   "name": "Ktisis Hyperboreia",
+   "level": 87,
+   "ilvl": 515,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 786,
+   "name": "The Aitiascope",
+   "level": 89,
+   "ilvl": 520,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 784,
+   "name": "The Stigma Dreamscape",
+   "level": 90,
+   "ilvl": 540,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 792,
+   "name": "The Dead Ends",
+   "level": 90,
+   "ilvl": 540,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 794,
+   "name": "Smileton",
+   "level": 90,
+   "ilvl": 540,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 822,
+   "name": "The Aetherfont",
+   "level": 90,
+   "ilvl": 605,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 823,
+   "name": "The Lunar Subterrane",
+   "level": 90,
+   "ilvl": 620,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 844,
+   "name": "Alzadaal's Legacy",
+   "level": 90,
+   "ilvl": 560,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 869,
+   "name": "The Fell Court of Troia",
+   "level": 90,
+   "ilvl": 575,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 896,
+   "name": "Lapis Manalis",
+   "level": 90,
+   "ilvl": 590,
+   "size": 4,
+   "expansion": "Endwalker"
+  },
+  {
+   "id": 826,
+   "name": "Ihuykatumu",
+   "level": 91,
+   "ilvl": 630,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 824,
+   "name": "Worqor Zormor",
+   "level": 93,
+   "ilvl": 635,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 829,
+   "name": "The Skydeep Cenote",
+   "level": 95,
+   "ilvl": 640,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 831,
+   "name": "Vanguard",
+   "level": 97,
+   "ilvl": 645,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 825,
+   "name": "Origenics",
+   "level": 99,
+   "ilvl": 650,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 827,
+   "name": "Alexandria",
+   "level": 100,
+   "ilvl": 670,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 834,
+   "name": "Tender Valley",
+   "level": 100,
+   "ilvl": 670,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 981,
+   "name": "The Strayborough Deadwalk",
+   "level": 100,
+   "ilvl": 670,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 1008,
+   "name": "Yuweyawata Field Station",
+   "level": 100,
+   "ilvl": 690,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 1011,
+   "name": "The Clyteum",
+   "level": 100,
+   "ilvl": 750,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 1027,
+   "name": "The Underkeep",
+   "level": 100,
+   "ilvl": 705,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 1028,
+   "name": "The Meso Terminal",
+   "level": 100,
+   "ilvl": 720,
+   "size": 4,
+   "expansion": "Dawntrail"
+  },
+  {
+   "id": 1064,
+   "name": "Mistwake",
+   "level": 100,
+   "ilvl": 735,
+   "size": 4,
+   "expansion": "Dawntrail"
+  }
+ ]
+}

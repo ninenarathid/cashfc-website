@@ -1652,6 +1652,7 @@ const DICT = {
    * are what the FC says out loud either way.
    */
   "pf.new": { en: "New party", th: "ตั้งปาร์ตี้ใหม่" },
+  "pf.pickContent": { en: "What are we running?", th: "จะเล่นอะไร" },
   "pf.cancel": { en: "Cancel", th: "ยกเลิก" },
   "pf.close": { en: "close", th: "ปิด" },
   "pf.done": { en: "Done", th: "เสร็จ" },
@@ -1669,9 +1670,19 @@ const DICT = {
   "pf.setByContent": { en: "set by the content", th: "กำหนดตามคอนเทนต์" },
 
   /* The three arrangements, and the three reasons there is no arrangement. */
-  "pf.shapeLight": { en: "Light party (4)", th: "ปาร์ตี้เล็ก (4)" },
-  "pf.shapeFull": { en: "Full party (8)", th: "ปาร์ตี้เต็ม (8)" },
-  "pf.shapeAlliance": { en: "Alliance (24)", th: "Alliance (24)" },
+  /*
+   * The number, without the word.
+   *
+   * "Full party (8)" is the game's name for the arrangement and it collides
+   * with the other thing this board says about a party — that it is full, as
+   * in there is no room. In Thai the collision is total: ปาร์ตี้เต็ม is what
+   * you would write for both, and a row saying ปาร์ตี้เต็ม (8) beside a marker
+   * saying เต็มแล้ว is two different facts in one word. The seat count says
+   * everything the name was carrying and cannot be misread.
+   */
+  "pf.shapeLight": { en: "4 players", th: "4 คน" },
+  "pf.shapeFull": { en: "8 players", th: "8 คน" },
+  "pf.shapeAlliance": { en: "Alliance · 24", th: "Alliance · 24 คน" },
   "pf.openPvp": { en: "Everyone queues separately", th: "ทุกคน queue แยกกัน" },
   "pf.openCommunity": { en: "Anyone can join", th: "ใครมาก็ได้" },
   "pf.openNone": { en: "No fixed party", th: "ไม่จำกัดปาร์ตี้" },
@@ -1783,6 +1794,19 @@ const DICT = {
   },
   "pf.open": { en: "Open", th: "ว่าง" },
   "pf.openToAll": { en: "Open to all", th: "ใครมาก็ได้" },
+  /* Plain words and no badge. A mark saying "full" would be the board drawing
+     attention to the rows with nothing left in them. */
+  "pf.full": { en: "Full", th: "เต็มแล้ว" },
+  /* "ขาด 4 Tank", not "4 Tank". The number and the role alone read as a count
+     of who is in the party rather than of who is missing from it — which are
+     opposite facts wearing the same two words. */
+  "pf.needRole": { en: "needs {n} {role}", th: "ขาด {n} {role}" },
+  "pf.wantMore": { en: "needs {n} more · any role", th: "ขาดอีก {n} · ตำแหน่งไหนก็ได้" },
+  "pf.flexingN": { en: "{n} flexing", th: "flex {n}" },
+  "pf.flexingWhy": {
+    en: "{n} in the party have not settled on a seat yet",
+    th: "มี {n} คนในปาร์ตี้ที่ยังไม่ลงตำแหน่งแน่นอน",
+  },
   "pf.awaitingReply": { en: "awaiting reply", th: "รอตอบรับ" },
   "pf.askedShort": { en: "asked", th: "ขอเข้ามา" },
   "pf.outsideFc": { en: "outside the FC", th: "คนนอก FC" },
@@ -1826,6 +1850,16 @@ const DICT = {
     th: "จะขึ้นบนทุกตำแหน่งที่เขาเล่นได้ แล้วลงตำแหน่งที่เหลือ",
   },
   "pf.iWillFlex": { en: "I will flex", th: "ฉัน flex เอง" },
+  "pf.iAmComing": { en: "I am coming", th: "ฉันไปด้วย" },
+  "pf.whoIsComing": { en: "Who is coming", th: "ใครไปบ้าง" },
+  "pf.openNoParty": {
+    en: "Nobody is in a party — everybody queues on their own.",
+    th: "ไม่มีการจัดปาร์ตี้ ทุกคน queue เอง",
+  },
+  "pf.past": {
+    en: "That is already past — pick a later time.",
+    th: "เวลานี้ผ่านไปแล้ว เลือกเวลาข้างหน้า",
+  },
   "pf.playing": { en: "Playing", th: "เล่น" },
   "pf.takeOut": { en: "Take them out of this seat", th: "เอาออกจากตำแหน่งนี้" },
   "pf.thatIsMe": { en: "That is me", th: "ตรงนี้คือฉัน" },
@@ -1847,6 +1881,7 @@ const DICT = {
   "pf.commentsN": { en: "{n} comments", th: "{n} ความคิดเห็น" },
   "pf.commentOne": { en: "1 comment", th: "1 ความคิดเห็น" },
   "pf.comment": { en: "Comment", th: "ส่ง" },
+  "pf.react": { en: "React", th: "แสดงความรู้สึก" },
   "pf.commentBox": {
     en: "Ask something, or say you are coming late…",
     th: "ถามอะไรก็ได้ หรือบอกว่าจะมาสาย…",

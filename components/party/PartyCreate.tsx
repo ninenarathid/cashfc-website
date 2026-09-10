@@ -22,6 +22,7 @@ import ProgressTrack from "@/components/party/ProgressTrack";
 import LootPlan from "@/components/party/LootPlan";
 import WherePicker from "@/components/party/WherePicker";
 import MapPicker from "@/components/party/MapPicker";
+import Modal from "@/components/ui/Modal";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { shapeSay } from "@/lib/party-i18n";
@@ -315,14 +316,17 @@ export default function PartyCreate(
   const sitting = picking ? seats[picking.id] : undefined;
 
   return (
-    <div className="flex flex-col gap-3.5 rounded-xl border border-accent/40 bg-surface p-4">
-      <div className="flex items-baseline justify-between gap-3">
-        <h3 className="font-display text-[15px] font-semibold">{t("pf.new")}</h3>
-        <button onClick={onCancel} className="text-[12.5px] text-muted hover:text-ink">
-          {t("pf.cancel")}
-        </button>
-      </div>
-
+    /*
+     * A window rather than a slab at the top of the board.
+     *
+     * Inline, this form ran to 1,541px on a desktop and 2,801px on a phone —
+     * three and a third screens before the button — and it pushed the board it
+     * belongs to entirely off the bottom while still rendering it underneath.
+     * A window scrolls itself, closes on Escape, gives focus back to the button
+     * that opened it, and leaves the board exactly where the reader left it.
+     */
+    <Modal open onOpenChange={(v) => { if (!v) onCancel(); }} title={t("pf.new")}>
+    <div className="flex flex-col gap-3.5">
       <ContentPicker content={content} value={contentKey}
                      onChange={(k) => { setContentKey(k); setShape(""); }} />
 
@@ -383,7 +387,7 @@ export default function PartyCreate(
 
         <label className="flex flex-col gap-1">
           <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-            For
+            {t("pf.for")}
           </span>
           <span className="flex items-stretch gap-1.5">
             <input type="number" min={unit === "food" ? 1 : 0.5}
@@ -396,14 +400,14 @@ export default function PartyCreate(
               <select value={unit} onChange={(e) => setUnit(e.target.value as "hours" | "food")}
                       className={sel} aria-label={t("pf.unit")}>
                 <option value="food">food</option>
-                <option value="hours">hours</option>
+                <option value="hours">{t("pf.hours")}</option>
               </select>
             </span>
           </span>
         </label>
 
         <p className={`pb-2 text-[12px] ${past ? "text-chili" : "text-muted"}`}>
-          {past ? "That is already past — pick a later time."
+          {past ? t("pf.past")
             : <>
                 {unit === "food" && (
                   <>
@@ -420,8 +424,7 @@ export default function PartyCreate(
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-            {mySeat ? "Seats — click one to fill it, invite somebody, or set their flex"
-                    : "Pick your own seat first"}
+            {t(mySeat ? "pf.seatsHint" : "pf.pickOwnSeat")}
           </span>
           {/* One switch for the party, not one per seat. Whichever seat was
               left unticked is where the duplicate would land, so a rule that
@@ -444,12 +447,10 @@ export default function PartyCreate(
       <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-              {useShape === "open" ? "Who is coming" : "Flexible — no seat yet"}
+              {t(useShape === "open" ? "pf.whoIsComing" : "pf.flexibleNoSeat")}
             </span>
             <span className="text-[11.5px] text-muted">
-              {useShape === "open"
-                ? "Nobody is in a party — everybody queues on their own."
-                : "They show on every seat they could take, and drop into whichever one is left."}
+              {t(useShape === "open" ? "pf.openNoParty" : "pf.flexHint")}
             </span>
           </div>
 
@@ -532,7 +533,7 @@ export default function PartyCreate(
                             confirmedAt: new Date().toISOString(),
                           })}
                           className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[12.5px] text-accent">
-                    {useShape === "open" ? "I am coming" : "I will flex"}
+                    {t(useShape === "open" ? "pf.iAmComing" : "pf.iWillFlex")}
                   </button>
                 )}
               </div>
@@ -714,7 +715,12 @@ export default function PartyCreate(
             {t("pf.takeSeatFirst")}
           </span>
         )}
+        <button onClick={onCancel}
+                className="ml-auto text-[12.5px] text-muted hover:text-ink">
+          {t("pf.cancel")}
+        </button>
       </div>
     </div>
+    </Modal>
   );
 }

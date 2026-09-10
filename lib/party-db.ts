@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { makeFull, MAX_UPLOAD_BYTES } from "@/lib/gallery";
 import type {
   Floater, Flex, Loot, MapPlan, Party, PartyBlock, PartyComment, Progress,
-  SeatRule, Shape, SlotTaken, Spot,
+  Reaction, SeatRule, Shape, SlotTaken, Spot,
 } from "@/lib/party";
 
 /**
@@ -52,9 +52,18 @@ interface MemberRow {
   avatar: string | null;
   job: string | null;
   flex: Flex | null;
+  /** Every job they offered, where they offered more than one. */
+  jobs: string[] | null;
   /** 'owner' if the lead put them here, 'self' if they asked to join. */
   asked_by: string | null;
   confirmed_at: string | null;
+}
+
+interface ReactionRow {
+  comment_id: number;
+  character_id: number | null;
+  name: string;
+  emoji: string;
 }
 
 interface CommentRow {
@@ -74,7 +83,7 @@ const POST_COLS =
   + " loot, spot, maps, body, created_at";
 
 const MEMBER_COLS =
-  "id, party_id, seat, character_id, name, avatar, job, flex, asked_by,"
+  "id, party_id, seat, character_id, name, avatar, job, jobs, flex, asked_by,"
   + " confirmed_at";
 
 /* ── reading ──────────────────────────────────────────────────────────────── */
@@ -135,6 +144,7 @@ export async function loadParties(
       // Kept so a seat can be answered from either end. See SlotTaken.by.
       seatRowId: m.id,
       by: (m.asked_by === "self" ? "self" : "owner") as "self" | "owner",
+      ...(m.jobs?.length ? { jobs: m.jobs } : {}),
       ...(m.flex ? { flex: m.flex } : {}),
     };
     if (m.seat) {
@@ -150,8 +160,32 @@ export async function loadParties(
     }
   }
 
+  /*
+   * The reactions, in a fourth query rather than a join.
+   *
+   * Same argument as the other three: joining them onto the comments would
+   * return every comment once per reaction, with its pictures repeated in each
+   * copy. Asked for by comment id, which is why it waits until the comments
+   * have come back.
+   */
+  const talk = (comments ?? []) as unknown as CommentRow[];
+  const reactOf = new Map<number, Reaction[]>();
+  if (talk.length) {
+    const { data: reacts } = await supabase.from("party_comment_reactions")
+      .select("comment_id, character_id, name, emoji")
+      .in("comment_id", talk.map((c) => c.id));
+    for (const r of (reacts ?? []) as unknown as ReactionRow[]) {
+      const on = reactOf.get(r.comment_id) ?? [];
+      const already = on.find((x) => x.emoji === r.emoji);
+      const who = { characterId: r.character_id, name: r.name };
+      if (already) already.by.push(who);
+      else on.push({ emoji: r.emoji, by: [who] });
+      reactOf.set(r.comment_id, on);
+    }
+  }
+
   const talkOf = new Map<number, PartyComment[]>();
-  for (const c of (comments ?? []) as unknown as CommentRow[]) {
+  for (const c of talk) {
     const at = talkOf.get(c.party_id) ?? [];
     at.push({
       id: String(c.id),
@@ -161,6 +195,7 @@ export async function loadParties(
       },
       text: c.body,
       ...(c.images?.length ? { images: c.images } : {}),
+      ...(reactOf.has(c.id) ? { reactions: reactOf.get(c.id) } : {}),
       at: c.created_at,
     });
     talkOf.set(c.party_id, at);
@@ -283,7 +318,8 @@ export async function addComment(
 export async function askToJoin(
   supabase: SupabaseClient, userId: string, partyId: string,
   who: { characterId: number | null; name: string; avatar: string | null;
-         job?: string | null; flex?: Flex; seat?: string | null },
+         job?: string | null; jobs?: string[]; flex?: Flex;
+         seat?: string | null },
 ): Promise<{ id: string } | { error: string }> {
   const { data, error } = await supabase.from("party_members").insert({
     party_id: Number(partyId),
@@ -291,7 +327,10 @@ export async function askToJoin(
     character_id: who.characterId,
     name: who.name,
     avatar: who.avatar,
-    job: who.job ?? null,
+    // One job named is a job settled; several is an offer, and `job` stays
+    // empty until somebody picks from it.
+    job: who.job ?? (who.jobs?.length === 1 ? who.jobs[0] : null),
+    jobs: who.jobs && who.jobs.length > 1 ? who.jobs : null,
     flex: who.flex ?? null,
     asked_by: "self",
     confirmed_at: null,
@@ -328,6 +367,41 @@ export async function dropSeat(
 ): Promise<{ error?: string }> {
   const { error } = await supabase.from("party_members").delete().eq("id", seatRowId);
   return error ? { error: error.message } : {};
+}
+
+/**
+ * Put a reaction on a reply, or take it off again.
+ *
+ * One call for both, because from the reader's side it is one button: the
+ * second press on the same emoji is how you undo the first. Which it does is
+ * decided by what is already there rather than by the caller, so two windows
+ * open on the same party cannot disagree about what the button means.
+ */
+export async function toggleReaction(
+  supabase: SupabaseClient, userId: string, commentId: string, emoji: string,
+  who: { characterId: number | null; name: string },
+  mine: boolean,
+): Promise<{ error?: string }> {
+  if (mine) {
+    const { error } = await supabase.from("party_comment_reactions")
+      .delete()
+      .eq("comment_id", Number(commentId))
+      .eq("profile_id", userId)
+      .eq("emoji", emoji);
+    return error ? { error: error.message } : {};
+  }
+  const { error } = await supabase.from("party_comment_reactions").insert({
+    comment_id: Number(commentId),
+    profile_id: userId,
+    character_id: who.characterId,
+    name: who.name,
+    emoji,
+  });
+  // Pressing it twice quickly races itself against the unique index. The row
+  // it collided with is the row the reader wanted, so this is not a failure to
+  // report — it is the second press finding the first already done.
+  if (error && !/duplicate key/i.test(error.message)) return { error: error.message };
+  return {};
 }
 
 /** Take a listing off the board without destroying it. */

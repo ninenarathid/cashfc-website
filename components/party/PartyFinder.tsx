@@ -35,6 +35,8 @@ export default function PartyFinder(
     alliances: ContentSeed[];
     criterions: ContentSeed[];
     art: DutyArt;
+    /** Opened straight away, when the address named one. See app/party/[id]. */
+    openParty?: string;
   },
 ) {
   const [supabase] = useState(createClient);

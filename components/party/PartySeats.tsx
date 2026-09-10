@@ -3,7 +3,9 @@
 import type {
   ContentKind, Floater, Party, Resolved, SlotDef, SlotRole, Wing,
 } from "@/lib/party";
-import { ROLE_COLOR, canFlex, flexLabel, resolveParty, slotsOf } from "@/lib/party";
+import {
+  ROLE_COLOR, ROLE_LABEL, canFlex, flexLabel, resolveParty, slotsOf,
+} from "@/lib/party";
 import JobIcon from "@/components/JobIcon";
 import { RuleMark } from "@/components/party/JobRule";
 import { useAvatarOverrides } from "@/lib/avatars";
@@ -180,7 +182,22 @@ function Seat(
               {who?.characterId == null ? "?" : ""}
             </span>
           )}
-          {who?.job && <JobIcon job={who.job} size={20} />}
+          {/* The job, or the offer. Somebody who said "White Mage or Sage"
+              has not been placed on either yet, and drawing one of them would
+              be the board deciding for the party. */}
+          {who?.job ? <JobIcon job={who.job} size={20} />
+            : who?.jobs?.length ? (
+              <span className="flex shrink-0 -space-x-1.5" title={who.jobs.join(", ")}>
+                {who.jobs.slice(0, 3).map((j) => (
+                  <JobIcon key={j} job={j} size={18} />
+                ))}
+                {who.jobs.length > 3 && (
+                  <span className="pl-2 font-data text-[9.5px] text-muted">
+                    +{who.jobs.length - 3}
+                  </span>
+                )}
+              </span>
+            ) : null}
           <span className={`truncate text-[13px] ${
             state === "waiting" ? "text-ink/60" : "text-ink"}`}>
             {who?.name}
@@ -322,24 +339,43 @@ export default function PartySeats(
 
 /** A one-line summary of what is missing, for the collapsed row. */
 export function NeedLine({ party }: { party: Party }) {
+  const { t } = useLang();
+
+  /*
+   * Looking, or not.
+   *
+   * The one fact on a row somebody can act on, and until now it looked exactly
+   * like the six rows they could not: a party short of a healer and a party
+   * that filled up yesterday were the same shape in the same place. So the
+   * open ones carry a light travelling across them and the full ones are told
+   * in plain words.
+   *
+   * The full case deliberately gets no mark at all. A badge saying "full" is
+   * the board drawing attention to the rows with nothing left in them, which
+   * is the opposite of what a row of badges is for.
+   */
   // A hunt train has no seats and never fills, so "Full" would be the wrong
   // word twice over -- it has nothing to fill, and it is the one kind of party
   // anybody can always join.
   if (party.shape === "open") {
-    return <span className="text-[12.5px] text-jade">Open to all</span>;
+    return (
+      <span className="looking rounded-full border border-jade/50 px-2.5 py-[3px] font-data text-[10.5px] uppercase tracking-[0.1em] text-jade">
+        {t("pf.openToAll")}
+      </span>
+    );
   }
 
   const res = resolveParty(party);
   if (!res.wanted) {
     return (
       <span className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[12.5px] text-jade">Full</span>
+        <span className="text-[12.5px] text-muted">{t("pf.full")}</span>
         {res.loose.length > 0 && (
           // Full, but not settled: the seats are spoken for and who sits where
           // is still being worked out between the people already in.
-          <span title="Seats still being settled between people already in"
+          <span title={t("pf.stillSettling")}
                 className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.1em] text-jade">
-            {res.loose.length} flexing
+            {t("pf.flexingN", { n: res.loose.length })}
           </span>
         )}
       </span>
@@ -355,22 +391,22 @@ export function NeedLine({ party }: { party: Party }) {
       {parts.length ? parts.map((r) => (
         <span key={r}
               style={{ color: ROLE_COLOR[r],
-                       borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 45%, transparent)` }}
-              className="rounded-full border px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.1em]">
-          {need[r]} {r}
+                       borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 55%, transparent)` }}
+              className="looking rounded-full border px-2.5 py-[3px] font-data text-[10.5px] uppercase tracking-[0.1em]">
+          {t("pf.needRole", { n: need[r], role: ROLE_LABEL[r] })}
         </span>
       )) : (
         // Every empty seat has somebody hovering over it, so there is no role
         // to name -- but only one of the seats each of them hovers over will
         // actually be theirs. What the party wants is bodies, any role.
-        <span className="rounded-full border border-accent/50 px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.1em] text-accent">
-          {res.wanted} more · any role
+        <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[10.5px] uppercase tracking-[0.1em] text-accent">
+          {t("pf.wantMore", { n: res.wanted })}
         </span>
       )}
       {res.loose.length > 0 && (
-        <span title={`${res.loose.length} in the party have not settled on a seat yet`}
+        <span title={t("pf.flexingWhy", { n: res.loose.length })}
               className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.1em] text-jade">
-          {res.loose.length} flexing
+          {t("pf.flexingN", { n: res.loose.length })}
         </span>
       )}
     </span>

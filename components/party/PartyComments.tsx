@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import type { PartyComment } from "@/lib/party";
-import { blockId } from "@/lib/party";
+import { REACTIONS, blockId, sameSpeaker } from "@/lib/party";
 import type { PersonOption } from "@/lib/people";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import ImageLightbox from "@/components/ui/ImageLightbox";
 import { useDropTarget } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
-import { uploadPartyImage } from "@/lib/party-db";
+import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 
 /**
@@ -25,13 +25,16 @@ import { useLang } from "@/lib/i18n";
  * this spot?" is a screenshot, not a sentence.
  */
 export default function PartyComments(
-  { comments, me, userId, onAdd }: {
+  { comments, me, userId, onAdd, onReact }: {
     comments: PartyComment[];
     /** Whoever is reading, or null if nobody is signed in. */
     me: PersonOption | null;
     /** Their account, which the pictures are filed under. */
     userId: string | null;
     onAdd: (c: PartyComment) => void | Promise<void>;
+    /** Shown immediately; the write follows. Optional so a preview can omit it. */
+    onReact?: (commentId: string, emoji: string, on: boolean,
+               who: { characterId: number | null; name: string }) => void;
   },
 ) {
   const { t } = useLang();
@@ -42,6 +45,15 @@ export default function PartyComments(
   const [text, setText] = useState("");
   const [shots, setShots] = useState<string[]>([]);
   const [zoom, setZoom] = useState<{ images: string[]; at: number } | null>(null);
+  /**
+   * Which message has its emoji row open.
+   *
+   * One at a time, and opened by a press rather than by hovering. Hover alone
+   * meant the row was permanently on every message on a phone, where there is
+   * no hover to wait for — five emoji over every line, overlapping the line
+   * above, on a 390px screen. A press works with a finger and with a mouse.
+   */
+  const [picking, setPicking] = useState<string | null>(null);
 
   const [supabase] = useState(createClient);
   const [busy, setBusy] = useState(0);
@@ -58,6 +70,25 @@ export default function PartyComments(
     }
   };
   const { over, handlers } = useDropTarget({ onFiles: take });
+
+  /*
+   * Put one on, or take it off.
+   *
+   * On the screen first and then written, like the replies themselves: a tap
+   * that waits for a round trip before anything moves reads as a tap that
+   * missed. The board reloads on the realtime event anyway, so a write that
+   * fails corrects itself within the second rather than leaving a lie on the
+   * page.
+   */
+  const react = (c: PartyComment, emoji: string) => {
+    if (!supabase || !userId) return;
+    const who = { characterId: me?.id ?? null, name: me?.name ?? "You" };
+    const on = c.reactions?.find((r) => r.emoji === emoji);
+    const mine = !!on?.by.some((w) => w.characterId === who.characterId
+                                   && w.name === who.name);
+    onReact?.(c.id, emoji, !mine, who);
+    void toggleReaction(supabase, userId, c.id, emoji, who, mine);
+  };
 
   const send = () => {
     if (!text.trim() && !shots.length) return;
@@ -77,49 +108,169 @@ export default function PartyComments(
   };
 
   return (
-    <section className="flex flex-col gap-3 border-t border-line pt-3">
+    <section className="flex flex-col items-stretch gap-3 border-t border-line pt-3">
       <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
-        {comments.length ? `${comments.length} comment${comments.length > 1 ? "s" : ""}`
-                         : "Comments"}
+        {comments.length === 0 ? t("pf.comments")
+          : comments.length === 1 ? t("pf.commentOne")
+            : t("pf.commentsN", { n: comments.length })}
       </span>
 
-      {comments.map((c) => {
+      {/*
+        * A conversation, laid out as one.
+        *
+        * These are replies under a party — "can I come late", "which spot do
+        * you mean" — and they read as a chat because that is what they are.
+        * A column of identical left-aligned blocks made you read every name to
+        * find your own line in it; putting yours down the right side answers
+        * that before anything is read, which is the one thing a chat layout is
+        * actually for.
+        *
+        * Which side is decided by the character, not by the account: the same
+        * person can be signed in on a second device, and "mine" should mean
+        * the same thing on both.
+        *
+        * Runs of one person talking are drawn as one run. Somebody who says
+        * three things in a minute has not had three conversations, and three
+        * faces down the margin says they have — so the face and the name go on
+        * the first of a run and the rest are more of it.
+        */}
+      {comments.map((c, i) => {
         const src = face(c.author.characterId, c.author.avatar);
+        const mine = !!me && c.author.characterId === me.id;
+        const cont = sameSpeaker(c, comments[i - 1]);
+        // Whether the next one carries on, so the tail of a run keeps its
+        // corner square and only the last bubble is rounded off.
+        const goes = sameSpeaker(comments[i + 1] ?? c, c) && i + 1 < comments.length;
         return (
-          <article key={c.id} className="flex gap-2.5">
-            {src ? (
+          <article key={c.id}
+                   className={`flex w-[min(46rem,100%)] max-w-full gap-2.5 ${
+                     cont ? "-mt-1.5" : ""} ${
+                     mine ? "flex-row-reverse self-end" : "self-start"}`}>
+            {/* The gap where the face was, on everything after the first of a
+                run — so the bubbles stay in their column instead of sliding
+                under the avatar. */}
+            {cont ? (
+              <span aria-hidden className="size-[30px] shrink-0" />
+            ) : src ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={src} alt="" width={30} height={30}
                    className="size-[30px] shrink-0 rounded-full border border-line object-cover" />
             ) : (
               <span className={`grid size-[30px] shrink-0 place-items-center rounded-full text-[12px] text-muted ${
-                      c.author.characterId == null
-                        ? "border border-dashed border-line" : "border border-line bg-card"}`}>
+                c.author.characterId == null
+                  ? "border border-dashed border-line" : "border border-line bg-card"}`}>
                 {c.author.characterId == null ? "?" : ""}
               </span>
             )}
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
-              <span className="flex flex-wrap items-baseline gap-2">
-                <span className="text-[13px] text-ink">{c.author.name}</span>
-                <span className="font-data text-[10.5px] text-muted">
-                  {fmtDateTime(c.at)}
+
+            <div className={`flex min-w-0 flex-col gap-1 ${mine ? "items-end" : "items-start"}`}>
+              {/*
+                * The bubble.
+                *
+                * Yours in the accent, everybody else's on the card colour, and
+                * the corner nearest its own avatar squared off — which is what
+                * makes a row of them read as coming from a direction rather
+                * than as a stack of boxes. Inside a run the squared corner is
+                * kept on every bubble, so the run reads as one shape.
+                */}
+              <div className={`group/msg relative flex min-w-0 flex-col gap-1 rounded-2xl border px-3 py-2 ${
+                mine
+                  ? `border-accent/40 bg-accent/[0.09] ${cont || goes ? "rounded-tr-sm" : "rounded-tr-sm"}`
+                  : `border-line bg-card/50 ${cont || goes ? "rounded-tl-sm" : "rounded-tl-sm"}`}`}>
+                {!cont && (
+                  <span className={`flex flex-wrap items-baseline gap-2 ${
+                    mine ? "flex-row-reverse" : ""}`}>
+                    {/* Your own name is the one thing on the line you already
+                        know. The side says it, so the space goes to the time. */}
+                    {!mine && (
+                      <span className="text-[13px] text-ink">{c.author.name}</span>
+                    )}
+                    <span className="font-data text-[10.5px] text-muted">
+                      {fmtDateTime(c.at)}
+                    </span>
+                  </span>
+                )}
+                {c.text && (
+                  <p className={`whitespace-pre-wrap break-words text-[13px] leading-relaxed text-ink/85 ${
+                    mine ? "text-right" : ""}`}>
+                    {c.text}
+                  </p>
+                )}
+                {!!c.images?.length && (
+                  <div className={`flex flex-wrap gap-2 ${mine ? "justify-end" : ""}`}>
+                    {c.images.map((src2, n) => (
+                      <button key={src2} onClick={() => setZoom({ images: c.images!, at: n })}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src2} alt=""
+                             className="h-24 w-auto rounded-md border border-line object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/*
+                  * The way to add one, on the edge of the bubble.
+                  *
+                  * Hidden until the message is hovered, and always there on a
+                  * touch screen where there is no hover to wait for. A row of
+                  * five faint emoji under every line would be five times more
+                  * furniture than conversation.
+                  */}
+                {userId && (
+                  <span className={`absolute -top-3 z-[1] flex items-center ${
+                    mine ? "left-1" : "right-1"}`}>
+                    {picking === c.id ? (
+                      <span className="flex items-center gap-0.5 rounded-full border border-line bg-surface px-1 py-0.5 shadow-sm">
+                        {REACTIONS.map((e) => (
+                          <button key={e} type="button" title={e}
+                                  onClick={() => { react(c, e); setPicking(null); }}
+                                  className="rounded-full px-1 text-[13px] leading-none transition-transform hover:scale-125">
+                            {e}
+                          </button>
+                        ))}
+                      </span>
+                    ) : (
+                      /* Small, and out of the way until it is wanted. Faint on
+                         a desktop until the message is hovered; always there
+                         on a touch screen, where waiting for a hover that
+                         never comes means the button does not exist. */
+                      <button type="button" aria-label={t("pf.react")}
+                              onClick={() => setPicking(c.id)}
+                              className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none opacity-0 shadow-sm transition-opacity hover:opacity-100 focus-visible:opacity-100 group-hover/msg:opacity-100 max-sm:opacity-60">
+                        ☺
+                      </button>
+                    )}
+                  </span>
+                )}
+              </div>
+
+              {/*
+                * What has been left on it.
+                *
+                * Under the bubble rather than in it, because a reaction is
+                * something other people did to the message and not part of
+                * what it says. Yours is outlined, so "have I already" is
+                * answered without counting.
+                */}
+              {!!c.reactions?.length && (
+                <span className={`flex flex-wrap gap-1 ${mine ? "justify-end" : ""}`}>
+                  {c.reactions.map((r) => {
+                    const isMine = !!me && r.by.some((w) => w.characterId === me.id);
+                    return (
+                      <button key={r.emoji} type="button"
+                              disabled={!userId}
+                              title={r.by.map((w) => w.name).join(", ")}
+                              onClick={() => react(c, r.emoji)}
+                              className={`flex items-center gap-1 rounded-full border px-1.5 py-[1px] text-[11.5px] transition-colors ${
+                                isMine
+                                  ? "border-accent/60 bg-accent/15 text-accent"
+                                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                        <span className="text-[12px] leading-none">{r.emoji}</span>
+                        <span className="font-data">{r.by.length}</span>
+                      </button>
+                    );
+                  })}
                 </span>
-              </span>
-              {c.text && (
-                <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink/85">
-                  {c.text}
-                </p>
-              )}
-              {!!c.images?.length && (
-                <div className="flex flex-wrap gap-2">
-                  {c.images.map((src2, n) => (
-                    <button key={src2} onClick={() => setZoom({ images: c.images!, at: n })}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src2} alt=""
-                           className="h-24 w-auto rounded-md border border-line object-cover" />
-                    </button>
-                  ))}
-                </div>
               )}
             </div>
           </article>

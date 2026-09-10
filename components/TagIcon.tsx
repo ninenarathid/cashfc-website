@@ -92,6 +92,10 @@ const TAG_ICON: Record<string, { path: string; alt: string; square?: boolean }> 
   // banner, the mark Eureka, Bozja and the Occult Crescent share. Same range
   // as the duty badges above, found the same way.
   field:        { path: "061000/061837", alt: "field operations", square: true },
+  // The game's own Dungeon icon -- the blue cave mouth. Not picked by eye
+  // this time: ContentType row 2 is called "Dungeons" and names this file as
+  // its own, which is as authoritative as it gets.
+  dungeon:      { path: "061000/061801", alt: "dungeon", square: true },
 
   /*
    * The Party Finder playstyle set.

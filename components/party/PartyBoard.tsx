@@ -32,6 +32,7 @@ import PartyComments from "@/components/party/PartyComments";
 import { useAvatarOverrides } from "@/lib/avatars";
 import PartyCreate from "@/components/party/PartyCreate";
 import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
+import Modal from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow, statusLabel } from "@/components/party/PartyClock";
 import ShareParty, { readDeepLink, writeDeepLink } from "@/components/party/ShareParty";
 
@@ -74,8 +75,173 @@ const EMPTY = {
   status: "" as StatusPick,
 };
 
+
+/**
+ * One party, opened.
+ *
+ * A window rather than the row growing downwards. The row had to carry the
+ * write-up, the seat grid, the join controls and the whole conversation, which
+ * pushed every other party off the screen and made a link to one land on a page
+ * that looked exactly like the page without it — the thing you followed the
+ * link for was somewhere in the middle of a list, quietly expanded.
+ *
+ * Now the link arrives at the party. Which is what a link to a party should do,
+ * and is the whole reason the address carries an id.
+ */
+function PartyDetail(
+  { party, def, now, me, userId, supabase, refresh, setErr, setParties, onClose }: {
+    party: Party;
+    def: ContentDef | undefined;
+    now: number;
+    me: PersonOption | null;
+    userId: string | null;
+    supabase: ReturnType<typeof createClient>;
+    refresh: () => Promise<void>;
+    setErr: (m: string | null) => void;
+    setParties: React.Dispatch<React.SetStateAction<Party[]>>;
+    onClose: () => void;
+  },
+) {
+  const { t } = useLang();
+  const tint = def ? KIND_COLOR[def.kind] : "#8b93a1";
+  return (
+    <Modal open onOpenChange={(v) => { if (!v) onClose(); }}
+           title={def?.duty ?? def?.name ?? party.contentKey}
+           subtitle={`${fmtDay(party.startsAt)} · ${fmtTime(party.startsAt)} → ${fmtTime(endsAt(party))}`}>
+      <div className="flex flex-col gap-3">
+        {/*
+          * The still from the fight, across the top.
+          *
+          * A window has no row above it to have shown this already, and the
+          * picture is how people recognise which evening they have opened —
+          * the same reason it is on the row and on the content picker.
+          */}
+        <div style={{
+               backgroundImage: def?.art ? `url(${def.art})` : undefined,
+               backgroundPosition: def?.focus ?? "center",
+               backgroundColor: def?.art ? undefined
+                 : `color-mix(in srgb, ${tint} 22%, var(--color-bg))`,
+             }}
+             className="relative flex h-[110px] items-end overflow-hidden rounded-xl bg-cover">
+          <span aria-hidden
+                className="absolute inset-0 bg-gradient-to-t from-black/85 to-black/20" />
+          {!def?.art && def && (def.icon || KIND_ICON[def.kind]) && (
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-90">
+              <TagIcon tag={def.icon ?? KIND_ICON[def.kind]!} size={38} />
+            </span>
+          )}
+          <span className="relative z-[1] flex w-full flex-wrap items-center gap-2 p-3">
+            <span className="font-data text-[20px] font-semibold tabular-nums text-white drop-shadow">
+              {fmtTime(party.startsAt)}
+            </span>
+            <StatusPill status={partyStatus(party, now)} />
+            <WhenLine party={party} now={now}
+                      className="font-data text-[11.5px] text-white/85 drop-shadow" />
+            <span className="ml-auto"><ShareParty id={party.id} /></span>
+          </span>
+        </div>
+
+        {party.note && (
+          <p className="text-[13.5px] text-ink/80">{party.note}</p>
+        )}
+
+        {/* The terms of the evening, the way the row says them. */}
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
+          <span>{shapeSay(party.shape, def?.kind, t)}</span>
+          {progressText(party.progress) && (
+            <><span className="opacity-40">·</span>
+              <span>{progressText(party.progress)}</span></>
+          )}
+          {lootLine(party.loot, t) && (
+            <><span className="opacity-40">·</span>
+              <span>{lootLine(party.loot, t)}</span></>
+          )}
+          {mapsText(party.maps, mapLabel) && (
+            <><span className="opacity-40">·</span>
+              <span>🗺 {mapsText(party.maps, mapLabel)}</span></>
+          )}
+          {spotText(party.spot) && (
+            <><span className="opacity-40">·</span>
+              <span>📍 {spotText(party.spot)}</span></>
+          )}
+          {party.oneOfEachJob && (
+            <><span className="opacity-40">·</span>
+              <span>{t("party.onePerJob")}</span></>
+          )}
+        </p>
+
+          {/* The write-up first, then who is in it. What the party is
+              doing is the thing somebody opened the row to read; the
+              seats are the answer to whether they can join it. */}
+          {hasBody(party.body) && <PartyBody body={party.body!} />}
+
+          <PartySeats party={party} kind={def?.kind} />
+
+          <PartyJoin party={party} kind={def?.kind} me={me} userId={userId}
+                     supabase={supabase}
+                     onDone={refresh} onError={setErr} />
+
+          {/* The boss, which neither the title nor the row has room for: the
+              title leads with the duty you queue for, and this is the third
+              name the same fight has. The clock is in the subtitle already. */}
+          <p className="text-[11.5px] text-muted">
+            {def?.name && def.name !== def.badge && def.name !== def.duty && (
+              <>{def.name} · </>
+            )}
+            {t("party.thaiTime")}
+            {timeIsEstimate(def?.kind) && (
+              <> · {t("party.estimateWhy")}</>
+            )}
+          </p>
+
+          <PartyComments comments={party.comments ?? []} me={me}
+                         userId={userId}
+                         onReact={(cid, emoji, on, who) =>
+                           // Shown at once; the write and the
+                           // realtime event follow behind it.
+                           setParties((v) => v.map((x) => (x.id === party.id ? {
+                             ...x,
+                             comments: (x.comments ?? []).map((c) => {
+                               if (c.id !== cid) return c;
+                               const rs = [...(c.reactions ?? [])];
+                               const i = rs.findIndex((r) => r.emoji === emoji);
+                               if (on) {
+                                 if (i < 0) rs.push({ emoji, by: [who] });
+                                 else rs[i] = { ...rs[i], by: [...rs[i].by, who] };
+                               } else if (i >= 0) {
+                                 const by = rs[i].by.filter(
+                                   (w) => w.characterId !== who.characterId);
+                                 if (by.length) rs[i] = { ...rs[i], by };
+                                 else rs.splice(i, 1);
+                               }
+                               return { ...c, reactions: rs };
+                             }),
+                           } : x)))}
+                         onAdd={async (c: PartyComment) => {
+                           // On the screen first: a reply that waits
+                           // for a round trip before appearing reads
+                           // as a reply that did not send.
+                           setParties((v) => v.map((x) => (x.id === party.id
+                             ? { ...x, comments: [...(x.comments ?? []), c] }
+                             : x)));
+                           if (!supabase || !userId) return;
+                           const r = await addComment(supabase, userId, party.id, {
+                             characterId: c.author.characterId,
+                             name: c.author.name,
+                             avatar: c.author.avatar,
+                             text: c.text,
+                             images: c.images ?? [],
+                           });
+                           if ("error" in r) { setErr(r.error); void refresh(); }
+                         }} />
+      </div>
+    </Modal>
+  );
+}
+
 export default function PartyBoard(
-  { people, extremes, savage, ultimates, alliances, criterions, art, me, userId }: {
+  { people, extremes, savage, ultimates, alliances, criterions, art, me, userId,
+    openParty }: {
     people: PersonOption[];
     extremes: ContentSeed[];
     savage: ContentSeed[];
@@ -87,6 +253,14 @@ export default function PartyBoard(
     me: PersonOption | null;
     /** Their account, which is what the tables are written as. */
     userId: string | null;
+    /**
+     * A party to open on arrival, from /party/[id].
+     *
+     * Same idea as the `?p=` in the address and handled by the same latch: the
+     * page was opened *for* this party, so it stays findable whatever the
+     * filters would otherwise have done with it.
+     */
+    openParty?: string;
   },
 ) {
   // Chosen pictures over Lodestone portraits, the same order as everywhere else.
@@ -124,15 +298,21 @@ export default function PartyBoard(
    * an empty board because Tuesday is over would make the link useless in
    * exactly the case people share one.
    */
-  const [pinned, setPinned] = useState<string | null>(null);
-  useEffect(() => { setPinned(readDeepLink()); }, []);
+  const [pinned, setPinned] = useState<string | null>(openParty ?? null);
+  useEffect(() => {
+    if (!openParty) setPinned(readDeepLink());
+  }, [openParty]);
 
   const [openId, setOpenIdRaw] = useState<string | null>(null);
   const setOpenId = useCallback((id: string | null) => {
     setOpenIdRaw(id);
-    writeDeepLink(id);
     if (!id) setPinned(null);
-  }, []);
+    // Arriving at /party/11 and closing the window leaves you on the board,
+    // not on an address for a party that is no longer open. Anywhere else the
+    // id lives in the query and is simply taken out again.
+    if (!id && openParty) window.history.replaceState(null, "", "/party");
+    else writeDeepLink(id);
+  }, [openParty]);
   /*
    * Open whatever the link named, once the board has it — and once only.
    *
@@ -583,7 +763,6 @@ export default function PartyBoard(
                       <span className="font-display text-[16px] font-semibold text-ink">
                         {c?.duty ?? c?.name ?? p.contentKey}
                       </span>
-                      <StatusPill status={partyStatus(p, now)} />
                       {/* The shorthand as a badge beside the name rather than
                           instead of it: the old row printed "Hunt train Hunt
                           train" wherever a content had no separate short form. */}
@@ -594,6 +773,12 @@ export default function PartyBoard(
                           {c.badge}
                         </span>
                       )}
+                      {/* Last, after the fight has finished naming itself.
+                          The badge is part of the title — EX6 and UCOB are what
+                          people call these — and a status word wedged between
+                          the name and its own shorthand breaks the name in
+                          half. */}
+                      <StatusPill status={partyStatus(p, now)} />
                     </span>
 
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
@@ -695,64 +880,32 @@ export default function PartyBoard(
                   </span>
                 </button>
 
-                {open && (
-                  <div className="flex flex-col gap-3 border-t border-line px-3.5 py-3">
-                    {/* The write-up first, then who is in it. What the party is
-                        doing is the thing somebody opened the row to read; the
-                        seats are the answer to whether they can join it. */}
-                    {hasBody(p.body) && <PartyBody body={p.body!} />}
-
-                    <PartySeats party={p} kind={c?.kind} />
-
-                    <PartyJoin party={p} me={me} userId={userId}
-                               supabase={supabase}
-                               onDone={refresh} onError={setErr} />
-
-                    <p className="text-[11.5px] text-muted">
-                      {/* The boss, which the row above has no room for: it
-                          leads with what people say and what you queue for,
-                          and this is the third name the same fight has. */}
-                      {c?.name && c.name !== c.badge && c.name !== c.duty && (
-                        <>{c.name} · </>
-                      )}
-                      {fmtDay(p.startsAt)} · {fmtTime(p.startsAt)} → {fmtTime(endsAt(p))}
-                      {" "}{t("party.thaiTime")}
-                      {timeIsEstimate(c?.kind) && (
-                        <> · {t("party.estimate")}</>
-                      )}
-                    </p>
-
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <WhenLine party={p} now={now} className="text-[12px] text-muted" />
-                      <ShareParty id={p.id} />
-                    </div>
-
-                    <PartyComments comments={p.comments ?? []} me={me}
-                                   userId={userId}
-                                   onAdd={async (c: PartyComment) => {
-                                     // On the screen first: a reply that waits
-                                     // for a round trip before appearing reads
-                                     // as a reply that did not send.
-                                     setParties((v) => v.map((x) => (x.id === p.id
-                                       ? { ...x, comments: [...(x.comments ?? []), c] }
-                                       : x)));
-                                     if (!supabase || !userId) return;
-                                     const r = await addComment(supabase, userId, p.id, {
-                                       characterId: c.author.characterId,
-                                       name: c.author.name,
-                                       avatar: c.author.avatar,
-                                       text: c.text,
-                                       images: c.images ?? [],
-                                     });
-                                     if ("error" in r) { setErr(r.error); void refresh(); }
-                                   }} />
-                  </div>
-                )}
+                {/* The row is a summary now; the party itself opens over it.
+                    See PartyDetail. */}
               </article>
             );
           })}
         </section>
       ))}
+
+      {/*
+        * Whichever party is open, over the board.
+        *
+        * One window for the whole page rather than one per row: only ever one
+        * is open, and mounting thirty dialogs to keep twenty-nine of them shut
+        * is thirty comment threads and thirty seat grids built for nothing.
+        */}
+      {openId && (() => {
+        const p = shown.find((x) => x.id === openId)
+          ?? parties.find((x) => x.id === openId);
+        if (!p) return null;
+        return (
+          <PartyDetail party={p} def={byKey[p.contentKey]} now={now}
+                       me={me} userId={userId} supabase={supabase}
+                       refresh={refresh} setErr={setErr} setParties={setParties}
+                       onClose={() => setOpenId(null)} />
+        );
+      })()}
     </div>
   );
 }

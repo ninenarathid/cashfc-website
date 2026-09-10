@@ -138,6 +138,43 @@ body { overflow-x: clip; }
   .skeleton { animation: none; background-image: none; background-color: var(--color-card); }
 }
 
+/* ── Still looking ────────────────────────────────────────────────────────
+   A party that is short of people is the one thing on the board somebody can
+   act on, and it looked exactly like the six that are already full. A light
+   travelling across the mark says "this one is open" before the row is read.
+
+   The same sweep as the skeletons, deliberately: on this site a moving
+   highlight already means "not finished yet", and a party looking for a healer
+   is not finished yet. Slower, because a skeleton is a wait of a second and
+   this sits on the screen for as long as somebody is reading the board — at
+   1.6s it is a page that will not keep still.
+
+   Only on the mark, never on the text: a name that shimmers is a name that is
+   hard to read, and this has to be legible first and eye-catching second. */
+@keyframes looking-sweep {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+.looking {
+  background-image: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 38%,
+    color-mix(in oklab, var(--color-accent) 22%, transparent) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: looking-sweep 2.8s linear infinite;
+}
+
+/* Somebody who has asked not to be moved at is somebody for whom a travelling
+   highlight is not a hint, it is a distraction. The border and the colour still
+   say the same thing without it. */
+@media (prefers-reduced-motion: reduce) {
+  .looking { animation: none; background-image: none; }
+}
+
 /* ── The foil on a badge ─────────────────────────────────────────────────
    A fan of ten blurred hourglass wedges, which is what the plate this is
    adapted from actually has. Two earlier attempts approximated it with a
