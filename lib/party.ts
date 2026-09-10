@@ -22,6 +22,7 @@ import { DUNGEONS } from "@/lib/dungeons";
  */
 
 import { artFocus, dutySlug, type DutyKind } from "@/lib/duty";
+import { FC_WORLD } from "@/lib/world";
 
 export type SlotRole = "tank" | "healer" | "dps";
 export type Shape = "light" | "full" | "alliance" | "open";
@@ -410,7 +411,15 @@ export function catalogue(
       shape: "full" },
     { key: "field:eureka", kind: "field", name: "Eureka", icon: "field",
       shape: "full" },
-    { key: "fate", kind: "fate", name: "FATE farm", shape: "open" },
+    /*
+     * Eight, because that is what a FATE party is.
+     *
+     * Not a composition — no job is being agreed and nothing is advertised per
+     * seat — but a count somebody can look at and tell whether there is room.
+     * "Everybody turn up" left a night with fourteen people in it and no way
+     * to have known that before arriving.
+     */
+    { key: "fate", kind: "fate", name: "FATE farm", shape: "full" },
     { key: "hunt", kind: "hunt", name: "Hunt train", shape: "open" },
     /*
      * Somebody to learn from, or somebody offering to teach.
@@ -668,7 +677,7 @@ export function coversSeat(f: Flex | undefined | null, slot: SlotDef): boolean {
   return !!f.seats?.some((id) => id === slot.id || id === slot.label);
 }
 
-/** "Flex all", "Flex tank/healer", "Flex MT, D2" — however it was said. */
+/** "Flex any", "Flex Healer", "Flex MT, D2" — or just "D2". See below. */
 export function flexLabel(f: Flex | undefined | null): string | null {
   if (!canFlex(f)) return null;
   if (f!.all) return "Flex any";
@@ -676,6 +685,11 @@ export function flexLabel(f: Flex | undefined | null): string | null {
     ...(f!.roles ?? []).map((r) => ROLE_LABEL[r]),
     ...(f!.seats ?? []),
   ];
+  // One seat named and nothing else is not flexing at all: it is the seat
+  // somebody was asked about, which is what askedAbout reads out of the same
+  // shape. "Flex D2" reads as a choice made between options when there was
+  // only ever the one. A single *role* stays a flex, because that is a range.
+  if (f!.seats?.length === 1 && bits.length === 1) return bits[0];
   return `Flex ${bits.join(", ")}`;
 }
 
@@ -1219,14 +1233,53 @@ export interface Spot {
   region?: string;
   x?: number;
   y?: number;
+  /**
+   * Which world, and its data centre.
+   *
+   * The other half of an address since world visiting. A board read by one
+   * Free Company will assume Tonberry every time, and the one night that is
+   * wrong is the night somebody has travelled — which is exactly the night it
+   * needed saying.
+   */
+  dc?: string;
+  world?: string;
+  /** A housing district is addressed by ward and plot, not by coordinates. */
+  ward?: number;
+  plot?: number;
 }
 
-/** "Kozama'uka (12.4, 30.1)" */
+/**
+ * The five residential districts.
+ *
+ * Nowhere else in the game is addressed this way, and inside one of them a
+ * coordinate is useless: nobody says "meet me at 22.4, 11.9 in the Goblet",
+ * they say Ward 12, Plot 30. The apartment wings answer to the same pair.
+ */
+const HOUSING = new Set([
+  "Mist", "The Lavender Beds", "The Goblet", "Shirogane", "Empyreum",
+  // What the zone list happens to call them, where it differs.
+  "Lavender Beds", "Goblet",
+]);
+
+export const isHousing = (map: string | undefined | null): boolean =>
+  HOUSING.has((map ?? "").trim());
+
+/** "Kozama'uka (12.4, 30.1)", or "Gilgamesh · Kozama'uka" when away. */
 export function spotText(s: Spot | undefined): string | null {
   if (!s?.map) return null;
-  const at = s.x != null && s.y != null
-    ? ` (${s.x.toFixed(1)}, ${s.y.toFixed(1)})` : "";
-  return `${s.map}${at}`;
+  const at = isHousing(s.map)
+    // Ward first, the way the game's own housing search reads it. Either half
+    // alone is still worth saying: "Ward 12" narrows a district to a place you
+    // can walk, and a plot number without a ward is what somebody has to hand.
+    ? [s.ward != null ? `W${s.ward}` : null, s.plot != null ? `P${s.plot}` : null]
+        .filter(Boolean).join(" ").replace(/^(.)/, " $1")
+    : s.x != null && s.y != null
+      ? ` (${s.x.toFixed(1)}, ${s.y.toFixed(1)})` : "";
+  // Only when it is somewhere else. Every member of this Free Company is on
+  // Tonberry, so printing it on every row is printing the same word forever
+  // and burying the one row where it is not.
+  const away = s.world && s.world !== FC_WORLD ? `${s.world} · ` : "";
+  return `${away}${s.map}${at}`;
 }
 
 /**

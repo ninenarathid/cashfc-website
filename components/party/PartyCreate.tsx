@@ -9,6 +9,7 @@ import {
   DEFAULT_AMOUNT, DEFAULT_LENGTH, DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL,
   canFlex, endsAt, flexLabel, lengthUnitsFor, mapsToMinutes, runsToMinutes,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasRoulettes, hasSpot, isFight,
+  jobMatters,
   lootRulesFor,
   shapeLabel,
   slotsOf, whoKey,
@@ -32,6 +33,7 @@ import { createClient } from "@/lib/supabase/client";
 import Modal, { Sheet } from "@/components/ui/Modal";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
+import { FC_DC, FC_WORLD } from "@/lib/world";
 import { shapeSay } from "@/lib/party-i18n";
 
 /**
@@ -238,7 +240,11 @@ export default function PartyCreate(
   const okRules = lootRulesFor(chosen?.kind);
   const safeLoot: Loot = okRules.length && !okRules.includes(loot.rule)
     ? { rule: okRules[0] } : loot;
-  const [spot, setSpot] = useState<Spot | undefined>(undefined);
+  // Starts on this Free Company's own world rather than empty: the picker
+  // shows Elemental and Tonberry from the first render, and a form that
+  // displays an answer it has not stored is a form that lies quietly.
+  const [spot, setSpot] = useState<Spot | undefined>(
+    { map: "", dc: FC_DC, world: FC_WORLD });
   const [maps, setMaps] = useState<MapPlan | undefined>(undefined);
   const [roulettes, setRoulettes] = useState<string[] | undefined>(undefined);
   /** The person being added as a floater, before their positions are set. */
@@ -248,6 +254,8 @@ export default function PartyCreate(
   const lastPicked = useRef<SlotDef | null>(null);
   /** Seats whose convention has already been offered once. See below. */
   const preset = useRef<Set<string>>(new Set());
+  /** And which shape that was for, since a seat id means different things. */
+  const presetFor = useRef<Shape | "">("");
   const [q, setQ] = useState("");
 
   /*
@@ -347,7 +355,6 @@ export default function PartyCreate(
       const kept = Object.fromEntries(Object.entries(v).filter(([id]) => live.has(id)));
       return Object.keys(kept).length === Object.keys(v).length ? v : kept;
     });
-    preset.current = new Set([...preset.current].filter((id) => live.has(id)));
   }, [useShape]);
 
   /*
@@ -362,11 +369,26 @@ export default function PartyCreate(
    * job list is the answer "any job at all", and re-filling it would make that
    * answer impossible to give.
    *
-   * Only where the convention exists. A light party's D1 is any DPS, and
-   * pre-ticking melee there would advertise a rule nobody meant.
+   * What is asked for depends on the shape: an eight-man's D3 is a physical
+   * ranged, and a light party's D1 is any DPS there is.
    */
   useEffect(() => {
-    if (useShape !== "full" && useShape !== "alliance") return;
+    // Only where a job is part of what the party is deciding. A FATE farm is
+    // eight people and no composition — advertising "D3 wants a Bard" for one
+    // would be a rule about an evening that has none.
+    if (!contentKey || useShape === "open" || !jobMatters(chosen?.kind)) return;
+    /*
+     * Per shape, not per seat.
+     *
+     * "D1" means one thing in an eight-man and another in a light party — two
+     * melee against any DPS in the game — so a record of which seats have been
+     * offered their convention has to know which party it was offering it for.
+     * Without that, a form that started as an eight-man kept its melee-only D1
+     * when the content turned out to be a four-man roulette.
+     */
+    const shapeChanged = presetFor.current !== useShape;
+    if (shapeChanged) { preset.current = new Set(); presetFor.current = useShape; }
+
     const fresh = slotsOf(useShape).filter((sl) => !preset.current.has(sl.id));
     if (!fresh.length) return;
     for (const sl of fresh) preset.current.add(sl.id);
@@ -374,15 +396,23 @@ export default function PartyCreate(
       const next = { ...v };
       let changed = false;
       for (const sl of fresh) {
-        if (next[sl.id]?.jobs?.length) continue;
-        const want = jobsWantedBy(sl, jobsForRole(sl.role));
+        // Left alone once the lead has answered for it — unless the shape
+        // itself changed underneath, in which case the old answer was about a
+        // seat that no longer means the same thing.
+        if (!shapeChanged && next[sl.id]?.jobs?.length) continue;
+        const all = jobsForRole(sl.role);
+        // A light party has no D1-to-D4 convention: its four seats are one of
+        // each, and any DPS at all is a D1. So it advertises the whole role,
+        // where an eight-man's D1 means the two melee.
+        const want = useShape === "light" ? all : jobsWantedBy(sl, all);
         if (!want.length) continue;
         next[sl.id] = { ...next[sl.id], jobs: want };
         changed = true;
       }
       return changed ? next : v;
     });
-  }, [useShape]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useShape, contentKey]);
 
   const draft: Party = useMemo(() => ({
     id: "draft",
@@ -800,21 +830,6 @@ export default function PartyCreate(
             </div>
           ) : (
             <div className="flex flex-col gap-1.5">
-              <div className="flex flex-wrap gap-2">
-                {/* Only where there is a choice to make. A party with no
-                    seats already contains its lead by the time this is
-                    drawn. */}
-                {useShape !== "open" && !mySeat && !iAmFloating && (
-                  <button onClick={() => addFloater({
-                            characterId: me.id, name: me.name, avatar: me.avatar,
-                            flex: {},
-                            confirmedAt: new Date().toISOString(),
-                          })}
-                          className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[12.5px] text-accent">
-                    {t("pf.iWillFlex")}
-                  </button>
-                )}
-              </div>
               <input value={fq} onChange={(e) => setFq(e.target.value)}
                      placeholder={t("pf.addFlexer")}
                      className={`${sel} w-full placeholder:text-muted`} />

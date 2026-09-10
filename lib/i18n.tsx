@@ -1829,6 +1829,8 @@ const DICT = {
   "pf.payEach": { en: "Paying each person", th: "จ่ายคนละ" },
 
   /* Where in the game. */
+  "pf.ward": { en: "Ward", th: "Ward" },
+  "pf.plot": { en: "Plot", th: "Plot" },
   "pf.where": { en: "Where", th: "ที่ไหน" },
   "pf.whereHelp": {
     en: "Any zone in the game. Coordinates optional.",
@@ -1903,7 +1905,7 @@ const DICT = {
     th: "มี {n} คนในปาร์ตี้ที่ยังไม่ลงตำแหน่งแน่นอน",
   },
   "pf.awaitingReply": { en: "awaiting reply", th: "รอตอบรับ" },
-  "pf.askedShort": { en: "asked", th: "ขอเข้ามา" },
+  "pf.askedShort": { en: "being invited", th: "กำลังจะชวนเข้า Party" },
   "pf.outsideFc": { en: "outside the FC", th: "คนนอก FC" },
   "pf.notOnSite": { en: "Not on this site", th: "ไม่ได้อยู่ในเว็บนี้" },
   "pf.stillSettling": {
@@ -2003,8 +2005,8 @@ const DICT = {
     th: "เลือกก่อนว่าจะเล่นอะไร",
   },
   "pf.takeSeatFirst": {
-    en: "Take a seat, or say you will flex.",
-    th: "เลือกตำแหน่งของตัวเอง หรือจะ flex ตำแหน่ง",
+    en: "Take your own seat first.",
+    th: "เลือกตำแหน่งของตัวเองก่อน",
   },
 
   /* The conversation under a party. */

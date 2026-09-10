@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Drawer } from "vaul";
 
@@ -28,6 +28,21 @@ import { Drawer } from "vaul";
 
 /** Below this a centred box has no room, and a sheet is the right shape. */
 const PHONE = "(max-width: 639px)";
+
+/**
+ * How many of these are already open, so a window opened from inside another
+ * one lands on top of it — and, more to the point, so its overlay lands on top
+ * of it too.
+ *
+ * Radix stacks the layers for dismissal and focus on its own; it does not
+ * stack them visually, and z-70 does not cover z-71. The picker was opening
+ * over the form and blurring only the board behind them both, which left the
+ * thing you were picking for as bright as the thing you were picking from.
+ */
+const Depth = createContext(0);
+
+/** The overlay and the box, ten apart, one storey up per window. */
+const layer = (depth: number) => ({ over: 70 + depth * 10, box: 71 + depth * 10 });
 
 export function useIsPhone(): boolean {
   // False on the server and on the first client render, so the two agree; the
@@ -68,6 +83,8 @@ export default function Modal(
   },
 ) {
   const phone = useIsPhone();
+  const depth = useContext(Depth);
+  const z = layer(depth);
   const keep = sticky
     ? { onPointerDownOutside: (e: Event) => e.preventDefault(),
         onInteractOutside: (e: Event) => e.preventDefault() }
@@ -78,7 +95,7 @@ export default function Modal(
   // you end up scrolling the board by accident with the form still open.
   const body = (
     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
-      {children}
+      <Depth.Provider value={depth + 1}>{children}</Depth.Provider>
     </div>
   );
 
@@ -99,9 +116,10 @@ export default function Modal(
     return (
       <Drawer.Root open={open} onOpenChange={onOpenChange}>
         <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 z-[70] bg-bg/80 backdrop-blur-sm" />
-          <Drawer.Content {...keep}
-                          className="fixed inset-x-0 bottom-0 z-[71] mt-16 flex max-h-[94vh] flex-col rounded-t-2xl border border-line bg-surface outline-none">
+          <Drawer.Overlay style={{ zIndex: z.over }}
+                          className="fixed inset-0 bg-bg/80 backdrop-blur-sm" />
+          <Drawer.Content {...keep} style={{ zIndex: z.box }}
+                          className="fixed inset-x-0 bottom-0 mt-16 flex max-h-[94vh] flex-col rounded-t-2xl border border-line bg-surface outline-none">
             {/* The handle. A sheet with nothing to grab reads as a page that
                 has slid up and got stuck. */}
             <span aria-hidden
@@ -118,9 +136,10 @@ export default function Modal(
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="pop-in fixed inset-0 z-[70] bg-bg/80 backdrop-blur-sm" />
-        <Dialog.Content {...keep}
-          className={`pop-in fixed left-1/2 top-[3vh] z-[71] flex max-h-[94vh] w-[calc(100vw-2rem)] -translate-x-1/2 flex-col rounded-2xl border border-line bg-surface shadow-2xl shadow-black/60 ${
+        <Dialog.Overlay style={{ zIndex: z.over }}
+                        className="pop-in fixed inset-0 bg-bg/80 backdrop-blur-sm" />
+        <Dialog.Content {...keep} style={{ zIndex: z.box }}
+          className={`pop-in fixed left-1/2 top-[3vh] flex max-h-[94vh] w-[calc(100vw-2rem)] -translate-x-1/2 flex-col rounded-2xl border border-line bg-surface shadow-2xl shadow-black/60 ${
             wide ? "max-w-6xl" : "max-w-3xl"}`}>
           <Dialog.Title className="sr-only">{title}</Dialog.Title>
           {head}
@@ -156,18 +175,24 @@ export function Sheet(
   },
 ) {
   const phone = useIsPhone();
+  const depth = useContext(Depth);
+  const z = layer(depth);
 
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange}
                  direction={phone ? "bottom" : "right"}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-[80] bg-bg/70 backdrop-blur-[2px]" />
+        <Drawer.Overlay style={{ zIndex: z.over }}
+                        className="fixed inset-0 bg-bg/70 backdrop-blur-[2px]" />
         <Drawer.Content
           // The custom property is vaul's: it is where the panel starts from
           // before it slides in, and the default assumes a sheet coming up from
           // the bottom edge.
-          style={phone ? undefined : { "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties}
-          className={`fixed z-[81] flex flex-col border-line bg-surface outline-none ${
+          style={{
+            zIndex: z.box,
+            ...(phone ? {} : { "--initial-transform": "calc(100% + 8px)" }),
+          } as React.CSSProperties}
+          className={`fixed flex flex-col border-line bg-surface outline-none ${
             phone
               ? "inset-x-0 bottom-0 mt-16 max-h-[88vh] rounded-t-2xl border"
               : "inset-y-0 right-0 w-[28rem] max-w-[94vw] border-l shadow-2xl shadow-black/60"}`}>
@@ -191,7 +216,7 @@ export function Sheet(
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
-            {children}
+            <Depth.Provider value={depth + 1}>{children}</Depth.Provider>
           </div>
         </Drawer.Content>
       </Drawer.Portal>
