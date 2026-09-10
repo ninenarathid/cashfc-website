@@ -85,7 +85,8 @@ export default function ContentPicker(
                 backgroundPosition: chosen?.focus ?? "center top",
                 borderColor: chosen ? KIND_COLOR[chosen.kind] : undefined,
               }}
-              className="group relative flex h-[92px] w-full items-end overflow-hidden rounded-xl border-2 bg-card bg-cover text-left transition-colors hover:border-muted">
+              className={`group relative flex h-[92px] w-full items-end overflow-hidden rounded-xl bg-card bg-cover text-left transition-colors hover:border-muted ${
+                chosen ? "border-2" : "border-2 border-dashed border-line"}`}>
         <span aria-hidden
               className={`absolute inset-0 ${
                 chosen?.art ? "bg-gradient-to-t from-black/85 via-black/40 to-transparent"
@@ -97,15 +98,24 @@ export default function ContentPicker(
         )}
         <span className="relative z-[1] flex w-full items-end justify-between gap-3 p-3">
           <span className="flex min-w-0 flex-col">
-            <span className="font-data text-[10px] uppercase tracking-[0.14em] text-ink/70">
-              {KIND_LABEL[chosen?.kind ?? "other"]}
-            </span>
-            <span className="truncate font-display text-[16px] font-semibold text-ink">
+            {/* The kind, only where there is one. Falling back to "Other" said
+                the party was for something in particular — the one thing
+                nobody had chosen yet. */}
+            {chosen && (
+              <span className="font-data text-[10px] uppercase tracking-[0.14em] text-ink/70">
+                {KIND_LABEL[chosen.kind]}
+              </span>
+            )}
+            <span className={`truncate font-display text-[16px] font-semibold ${
+              chosen ? "text-ink" : "text-ink/60"}`}>
               {chosen?.duty ?? chosen?.name ?? t("pf.pickContent")}
             </span>
           </span>
           <span className="shrink-0 rounded-lg border border-line/70 bg-bg/80 px-2.5 py-1 text-[12px] text-ink/90">
-            {t("pf.change")}
+            {/* "Choose" the first time and "change" afterwards: an empty
+                banner offering to change something is offering to change
+                nothing. */}
+            {t(chosen ? "pf.change" : "pf.choose")}
           </span>
         </span>
       </button>

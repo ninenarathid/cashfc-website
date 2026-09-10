@@ -1087,9 +1087,11 @@ export const hasSpot = (kind: ContentKind | undefined): boolean =>
  * Discord posts most often leave out — and it is the argument that ends static
  * groups. Three rules, which are the three the FC already uses:
  *
+ *   ffa    Everybody rolls on everything. First, and what a party gets by
+ *          saying nothing, because it is what the FC actually runs — the
+ *          others are the arrangements somebody has to have decided on.
  *   ltr    Left to right down the party list. Whoever gets theirs leaves, so
  *          the next person moves up. Slow, and completely unarguable.
- *   ffa    Everybody rolls on everything.
  *   merc   Somebody is paying for the clear. The lead pays each person a
  *          stated amount for the kill or for a rare drop, and the loot is
  *          theirs. Said in numbers here rather than "negotiable", because a
@@ -1150,9 +1152,20 @@ export const PAY_ON_HELP: Record<PayOn, string> = {
 /** The default, because a wage is what people mean when they say nothing. */
 export const DEFAULT_PAY_ON: PayOn = "clear";
 
+/**
+ * What a party is set to before anybody chooses.
+ *
+ * Everybody rolls. It is what the FC runs unless somebody has decided
+ * otherwise, and the rules it sits in front of — a party list worked down in
+ * order, a wage, a weekly book run — are all arrangements that were arrived at
+ * rather than fallen into. A form that opens on one of those has quietly put
+ * words in the lead's mouth.
+ */
+export const DEFAULT_LOOT: LootRule = "ffa";
+
 export const LOOT_LABEL: Record<LootRule, string> = {
-  ltr: "L to R",
   ffa: "FFA",
+  ltr: "L to R",
   merc: "Mercenary",
   book: "Book run",
   owner: "Map owner takes all",
@@ -1179,8 +1192,8 @@ export const LOOT_COLOR: Record<LootRule, string> = {
  * that could only ever be wrong.
  */
 export function lootRulesFor(kind: ContentKind | undefined): LootRule[] {
-  if (kind === "savage") return ["ltr", "ffa", "merc", "book"];
-  if (kind === "extreme") return ["ltr", "ffa", "merc"];
+  if (kind === "savage") return ["ffa", "ltr", "merc", "book"];
+  if (kind === "extreme") return ["ffa", "ltr", "merc"];
   // A map night has its own two answers and none of the raid ones fits: there
   // is no party list to work down, and nothing to pay a wage for. Either
   // everybody rolls on everything, or each chest belongs to whoever opened the

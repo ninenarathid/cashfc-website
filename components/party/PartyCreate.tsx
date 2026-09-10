@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type {
   ContentDef, Flex, Floater, Loot, MapPlan, Party, PartyBlock, Progress,
   SeatRule, Shape, SlotDef, SlotRole, Spot,
 } from "@/lib/party";
 import {
-  FOOD_MINUTES, ROLE_LABEL, canFlex, endsAt, flexLabel,
+  DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL, canFlex, endsAt, flexLabel,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasSpot, isFight, lootRulesFor,
   shapeLabel,
   slotsOf, whoKey,
@@ -179,8 +179,17 @@ export default function PartyCreate(
   const face = (id: number | null | undefined, fallback: string | null) =>
     (id != null && overrides[id]) || fallback || null;
 
-  const [contentKey, setContentKey] = useState(content[0]?.key ?? "");
-  const chosen = content.find((c) => c.key === contentKey) ?? content[0];
+  /*
+   * Nothing, until somebody says.
+   *
+   * The form used to open on whatever happened to be first in the catalogue —
+   * EX1, because that is where the list starts — so a party put up in a hurry
+   * was a party advertising Valigarmanda, and the one field nobody had touched
+   * was the one the whole listing is about. An empty picker asks the question
+   * instead of answering it wrongly.
+   */
+  const [contentKey, setContentKey] = useState("");
+  const chosen = content.find((c) => c.key === contentKey);
   const [note, setNote] = useState("");
   const [shape, setShape] = useState<Shape | "">("");
   const [start, setStart] = useState(defaultStart);
@@ -205,7 +214,7 @@ export default function PartyCreate(
   const [floating, setFloating] = useState<Floater[]>([]);
   const [body, setBody] = useState<PartyBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ at: "fresh" });
-  const [loot, setLoot] = useState<Loot>({ rule: "ltr" });
+  const [loot, setLoot] = useState<Loot>({ rule: DEFAULT_LOOT });
 
   /*
    * A rule the new content cannot use is dropped rather than carried over.
@@ -232,6 +241,31 @@ export default function PartyCreate(
   // time that had quietly become the past.
   const min = earliest();
   const past = !!start && start < min;
+
+  /*
+   * Seats that no longer exist.
+   *
+   * The grid is drawn from the shape, so switching from a full party to a
+   * light one simply stops drawing D2 to D4 — and anybody sitting in one of
+   * them stayed in the form's state, invisible, and went to the database on
+   * save. A party of four with three people in seats nobody could see.
+   *
+   * Reachable before this because changing content changes the shape; reachable
+   * more often now that the form opens with nothing chosen, since the grid is
+   * on screen before the size is known.
+   */
+  useEffect(() => {
+    const live = new Set(slotsOf(useShape).map((sl) => sl.id));
+    setSeats((v) => {
+      const kept = Object.fromEntries(Object.entries(v).filter(([id]) => live.has(id)));
+      return Object.keys(kept).length === Object.keys(v).length ? v : kept;
+    });
+    setClosed((v) => (v.every((id) => live.has(id)) ? v : v.filter((id) => live.has(id))));
+    setRules((v) => {
+      const kept = Object.fromEntries(Object.entries(v).filter(([id]) => live.has(id)));
+      return Object.keys(kept).length === Object.keys(v).length ? v : kept;
+    });
+  }, [useShape]);
 
   const draft: Party = useMemo(() => ({
     id: "draft",
@@ -312,6 +346,10 @@ export default function PartyCreate(
 
   const ready = !!chosen && !!start && !past && minutes > 0
     && (!!mySeat || iAmFloating);
+  // Which of the two is missing, so the button says why it is grey rather than
+  // leaving somebody to work it out.
+  const wants = !chosen ? "pf.pickContentFirst" as const
+    : (!mySeat && !iAmFloating) ? "pf.takeSeatFirst" as const : null;
   const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
   const sitting = picking ? seats[picking.id] : undefined;
 
@@ -710,10 +748,8 @@ export default function PartyCreate(
                 className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
           {busy ? t("pf.putting") : t("pf.putUp")}
         </button>
-        {!mySeat && !iAmFloating && (
-          <span className="text-[12px] text-muted">
-            {t("pf.takeSeatFirst")}
-          </span>
+        {wants && (
+          <span className="text-[12px] text-muted">{t(wants)}</span>
         )}
         <button onClick={onCancel}
                 className="ml-auto text-[12.5px] text-muted hover:text-ink">

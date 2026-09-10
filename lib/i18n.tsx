@@ -1657,6 +1657,7 @@ const DICT = {
   "pf.close": { en: "close", th: "ปิด" },
   "pf.done": { en: "Done", th: "เสร็จ" },
   "pf.change": { en: "change", th: "เปลี่ยน" },
+  "pf.choose": { en: "choose", th: "เลือก" },
   "pf.remove": { en: "Remove", th: "เอาออก" },
   "pf.note": {
     en: "One line for the list — which map, which phase, voice or not",
@@ -1871,6 +1872,10 @@ const DICT = {
   },
   "pf.putUp": { en: "Put it on the board", th: "ลงบอร์ด" },
   "pf.putting": { en: "Putting it up…", th: "กำลังลง…" },
+  "pf.pickContentFirst": {
+    en: "Pick what you are running.",
+    th: "เลือกก่อนว่าจะเล่นอะไร",
+  },
   "pf.takeSeatFirst": {
     en: "Take a seat, or say you will flex.",
     th: "เลือกตำแหน่งของตัวเอง หรือบอกว่าจะ flex",
