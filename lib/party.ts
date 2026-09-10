@@ -1,5 +1,5 @@
 import { DUNGEONS } from "@/lib/dungeons";
-import { TRIALS } from "@/lib/trials";
+import { LEGACY } from "@/lib/legacy";
 
 /**
  * The shape of a party, and the things a party is for.
@@ -192,7 +192,7 @@ export const KIND_LABEL: Record<ContentKind, string> = {
   community: "Community Events",
   field: "Field Operations",
   dungeon: "Dungeon",
-  legacy: "Legacy trial",
+  legacy: "Older raids & trials",
   mentor: "Find Mentor",
   roulette: "Roulette",
   other: "Other",
@@ -429,18 +429,21 @@ export function catalogue(
      * which is a fact about the game rather than a choice this listing offers.
      */
     /*
-     * Every trial the game will still let you walk into unsynced.
+     * Every trial and eight-player raid the game will still let you walk into
+     * unsynced.
      *
      * Which is most of what people actually arrange an evening of: eight
-     * people, one mount, and however many runs it takes. This patch's extreme
-     * is not here — it is on the board under Extreme, where it belongs while
-     * it is still being progressed — and the Ultimates are not trials.
+     * people, one mount or one book, and however many runs it takes. This
+     * patch's extreme and savage are not here — they are on the board under
+     * Extreme and Savage while they are still being progressed — and neither
+     * are the Ultimates or the alliance raids, which have headings of their
+     * own.
      *
      * Eight seats, always, and the level is the badge for the same reason it
      * is on a dungeon: "the Bowl of Embers" and "the Bowl of Embers (Extreme)"
      * are thirty levels apart and read almost identically.
      */
-    ...TRIALS.map((t) => ({
+    ...LEGACY.map((t) => ({
       key: `leg:${t.id}`,
       kind: "legacy" as const,
       name: t.name,

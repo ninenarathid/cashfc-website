@@ -30,6 +30,7 @@ import {
 import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
 import TagIcon from "@/components/TagIcon";
+import PartyIcon from "@/components/party/PartyIcon";
 import FoodIcon from "@/components/party/FoodIcon";
 import { PartyBody } from "@/components/party/PartyBody";
 import { ProgressChip } from "@/components/party/ProgressTrack";
@@ -620,11 +621,11 @@ export default function PartyBoard(
         {!writing && (
           <button onClick={() => setWriting(true)}
                   className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-[13px] text-accent hover:bg-accent/25">
-            {/* The Duty Finder's own hexagon, which is where somebody would be
-                doing this if they were not doing it here. A plus said
-                "something is being added" about a page whose whole subject is
-                things being arranged. */}
-            <TagIcon tag="dungeon" size={17} />
+            {/* The game's own party badge. A plus said "something is being
+                added" about a page whose whole subject is parties being
+                arranged, and the Duty Finder hexagon was already the Dungeon
+                tab's — this says the one thing the button does. */}
+            <PartyIcon size={17} />
             {t("party.new")}
           </button>
         )}

@@ -1551,7 +1551,7 @@ const DICT = {
      I am usually around. */
   /* Its own area at the top. A party you are in is not one listing among
      forty — it is the thing you came to check. */
-  "party.kindLegacy": { en: "Legacy trial", th: "Trial เก่า" },
+  "party.kindLegacy": { en: "Older raids & trials", th: "Raid/Trial เก่า" },
   "party.kindMentor": { en: "Find Mentor", th: "หา Mentor" },
   "party.mineHeading": {
     en: "Parties you are in ({n})", th: "ปาร์ตี้ที่มีคุณอยู่ ({n})",

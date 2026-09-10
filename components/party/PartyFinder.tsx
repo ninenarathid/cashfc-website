@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { PersonOption } from "@/lib/people";
 import type { ContentSeed } from "@/lib/party";
@@ -10,22 +9,22 @@ import PartyBoard from "@/components/party/PartyBoard";
 import type { SuggestRow } from "@/lib/suggest";
 
 /**
- * Who may see the party finder while it is being built.
+ * Who is reading, for a board anybody may look at.
  *
- * Only the gate lives here; the board itself is PartyBoard. Two reasons for the
- * split. A page that decides what to draw and also decides who may look at it
- * cannot be looked at by anybody testing it, which is how a draft ships with a
- * layout nobody checked. And this gate is temporary — it comes off the day the
- * board is real — while everything it wraps is not.
+ * The gate is gone: this was admin-only while it was being built, and it is
+ * built. What is left is not permission but identity — which character the
+ * reader is, so the board can pull the parties they are in to the top and let
+ * them take a seat.
  *
- * Checked against the database rather than against the admin switch. The switch
- * is a view: it decides whether an admin is *shown* admin controls, and using
- * it to guard a page would hide this from an admin who had turned it off, which
- * is exactly the person it is for.
+ * Signed out is a perfectly good state here. Somebody can read the whole board
+ * without an account, the same as every other page on this site; what they
+ * cannot do is join, which the buttons say for themselves rather than the page
+ * refusing to draw.
  *
- * It is also not a lock. Nothing here is secret — the tables have their own
- * policies and those are the real ones. This keeps an unfinished page out of
- * the way; it does not defend it.
+ * A verified character is still required to hold a seat. An unverified claim
+ * to a name is somebody's typing, and a raid night arranged under one wastes
+ * an evening — the same rule the rest of the site uses for anything that says
+ * who you are in game.
  */
 export default function PartyFinder(
   props: {
@@ -44,47 +43,29 @@ export default function PartyFinder(
   },
 ) {
   const [supabase] = useState(createClient);
-  const [phase, setPhase] = useState<"loading" | "denied" | "ready">("loading");
   const [me, setMe] = useState<PersonOption | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
-      if (!supabase) { setPhase("denied"); return; }
+      if (!supabase) return;
       const { data } = await supabase.auth.getUser();
-      if (!data.user) { setPhase("denied"); return; }
+      if (!data.user) return;
       const { data: row } = await supabase.from("profiles")
-        .select("is_admin, character_id, character_name, character_verified_at")
+        .select("character_id, character_name, character_verified_at")
         .eq("id", data.user.id).single();
-      if (!row?.is_admin) { setPhase("denied"); return; }
       setUserId(data.user.id);
 
-      // Only a verified character can hold a seat, which is the same rule the
-      // rest of the site uses for anything that says who you are in game.
-      const cid = row.character_verified_at ? (row.character_id as number | null) : null;
+      const cid = row?.character_verified_at ? (row.character_id as number | null) : null;
       setMe(props.people.find((p) => p.id === cid)
-        ?? (cid ? { id: cid, name: (row.character_name as string) ?? "You", avatar: null }
+        ?? (cid ? { id: cid, name: (row?.character_name as string) ?? "You", avatar: null }
                 : null));
-      setPhase("ready");
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
-  if (phase === "loading") {
-    return <p className="px-1 py-10 text-center text-[13px] text-muted">Checking…</p>;
-  }
-  if (phase === "denied") {
-    return (
-      <div className="rounded-xl border border-line bg-surface p-6 text-center">
-        <p className="text-[13.5px] text-muted">
-          This page is still being built, and is open to admins only for now.
-        </p>
-        <Link href="/" className="mt-2 inline-block text-[13px] text-accent no-underline">
-          Back to the board
-        </Link>
-      </div>
-    );
-  }
-
+  // Drawn straight away, for everybody. Waiting on the session before drawing
+  // anything made the whole board flash "Checking…" for a reader who was only
+  // ever going to look at it.
   return <PartyBoard {...props} me={me} userId={userId} />;
 }

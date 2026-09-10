@@ -20,7 +20,7 @@ import PartySeats from "@/components/party/PartySeats";
 import ContentPicker from "@/components/party/ContentPicker";
 import JobRule, { jobsForRole } from "@/components/party/JobRule";
 import JobIcon from "@/components/JobIcon";
-import TagIcon from "@/components/TagIcon";
+import PartyIcon from "@/components/party/PartyIcon";
 import FoodIcon from "@/components/party/FoodIcon";
 import { BodyEditor } from "@/components/party/PartyBody";
 import ProgressTrack from "@/components/party/ProgressTrack";
@@ -608,7 +608,7 @@ export default function PartyCreate(
      * that opened it, and leaves the board exactly where the reader left it.
      */
     <Modal open sticky onOpenChange={(v) => { if (!v) onCancel(); }}
-           title={t("pf.new")} icon={<TagIcon tag="dungeon" size={18} />}>
+           title={t("pf.new")} icon={<PartyIcon size={18} />}>
     <div className="flex flex-col gap-3.5">
       <ContentPicker content={content} value={contentKey}
                      onChange={(k) => { setContentKey(k); setShape(""); }} />
