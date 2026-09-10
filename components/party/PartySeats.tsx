@@ -295,11 +295,9 @@ export default function PartySeats(
     return (
       <div className="flex flex-col gap-2 rounded-lg border border-dashed border-line px-3 py-2.5">
         <p className="text-[12.5px] text-muted">
-          {kind === "community"
-            ? "No party — whoever turns up is part of it."
-            : kind === "pvp"
-              ? "No party is formed — everybody queues on their own."
-              : "No fixed party — turn up and join in."}
+          {t(kind === "community" ? "pf.openCommunityWhy"
+            : kind === "pvp" ? "pf.openPvpWhy"
+            : "pf.openTurnUp")}
         </p>
         {going.length > 0 && (
           <div className="flex flex-wrap gap-2">

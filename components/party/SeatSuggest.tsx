@@ -94,11 +94,6 @@ export default function SeatSuggest(
           <input type="checkbox" checked={freeOnly}
                  onChange={(e) => { setFreeOnly(e.target.checked); setMore(false); }} />
           {t("pf.freeThen")}
-          {freeOnly && all.length > list.length && (
-            <span className="opacity-70">
-              (+{all.length - list.length})
-            </span>
-          )}
         </label>
       </div>
 

@@ -74,6 +74,25 @@ export function seatWants(slot: SlotDef): { first: Fine[]; then: Fine[] } {
 const fineOf = (job: string): Fine | null =>
   (jobInfo(job)?.role as Fine | undefined) ?? null;
 
+/**
+ * The same convention, said in job names.
+ *
+ * seatWants speaks in fine roles because that is how a member's history is
+ * indexed. A seat's advert is a list of jobs, because that is what somebody
+ * reading the board recognises — so H1 comes back as White Mage and
+ * Astrologian rather than as "pure".
+ *
+ * Only the first choices. What a seat would settle for is a matter for the
+ * suggestions; what it is asking for is what it says on itself.
+ */
+export function jobsWantedBy(slot: SlotDef, jobs: string[]): string[] {
+  const { first } = seatWants(slot);
+  return jobs.filter((j) => {
+    const f = fineOf(j);
+    return !!f && first.includes(f);
+  });
+}
+
 /* ── what the site already knows about each member ────────────────────────── */
 
 /**

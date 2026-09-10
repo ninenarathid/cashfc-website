@@ -127,12 +127,20 @@ export default function ContentPicker(
     <div className="flex flex-col gap-2.5">
       <div className="flex flex-wrap gap-1.5">
         {KIND_ORDER.map((k) => {
-          const n = content.filter((c) => c.kind === k).length;
+          const only = content.filter((c) => c.kind === k);
+          const n = only.length;
           if (!n) return null;
           const on = k === kind;
           return (
             <button key={k} type="button"
-                    onClick={() => { setKind(k); setGroup(null); }}
+                    onClick={() => {
+                      // One entry is not a choice. A hunt train, a FATE farm,
+                      // a mentor hunt and "other" are each a single card, and
+                      // asking somebody to click the heading and then the only
+                      // thing under it is a step that asks them nothing.
+                      if (n === 1) { onChange(only[0].key); setOpen(false); return; }
+                      setKind(k); setGroup(null);
+                    }}
                     style={on ? { borderColor: KIND_COLOR[k], color: KIND_COLOR[k],
                                   background: `color-mix(in srgb, ${KIND_COLOR[k]} 12%, transparent)` }
                               : undefined}

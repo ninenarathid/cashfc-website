@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   ContentDef, Flex, Floater, LengthUnit, Loot, MapPlan, Party, PartyBlock,
   Progress, SeatRule, Shape, SlotDef, SlotRole, Spot,
@@ -27,8 +27,9 @@ import MapPicker from "@/components/party/MapPicker";
 import RoulettePicker from "@/components/party/RoulettePicker";
 import SeatSuggest from "@/components/party/SeatSuggest";
 import type { SuggestRow } from "@/lib/suggest";
+import { jobsWantedBy } from "@/lib/suggest";
 import { createClient } from "@/lib/supabase/client";
-import Modal from "@/components/ui/Modal";
+import Modal, { Sheet } from "@/components/ui/Modal";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { shapeSay } from "@/lib/party-i18n";
@@ -244,6 +245,9 @@ export default function PartyCreate(
   const [adding, setAdding] = useState<Floater | null>(null);
   const [fq, setFq] = useState("");
   const [picking, setPicking] = useState<SlotDef | null>(null);
+  const lastPicked = useRef<SlotDef | null>(null);
+  /** Seats whose convention has already been offered once. See below. */
+  const preset = useRef<Set<string>>(new Set());
   const [q, setQ] = useState("");
 
   /*
@@ -342,6 +346,41 @@ export default function PartyCreate(
     setRules((v) => {
       const kept = Object.fromEntries(Object.entries(v).filter(([id]) => live.has(id)));
       return Object.keys(kept).length === Object.keys(v).length ? v : kept;
+    });
+    preset.current = new Set([...preset.current].filter((id) => live.has(id)));
+  }, [useShape]);
+
+  /*
+   * Every seat asking for what it conventionally asks for, from the start.
+   *
+   * H1 is a pure healer and D3 is a physical ranged; every static says so out
+   * loud, and a grid where that only appeared once you opened a seat was a
+   * grid that looked empty and was not. Now it is on the seats as soon as the
+   * shape is known, which is where the lead is looking.
+   *
+   * Once per seat, tracked rather than inferred from the rule itself: an empty
+   * job list is the answer "any job at all", and re-filling it would make that
+   * answer impossible to give.
+   *
+   * Only where the convention exists. A light party's D1 is any DPS, and
+   * pre-ticking melee there would advertise a rule nobody meant.
+   */
+  useEffect(() => {
+    if (useShape !== "full" && useShape !== "alliance") return;
+    const fresh = slotsOf(useShape).filter((sl) => !preset.current.has(sl.id));
+    if (!fresh.length) return;
+    for (const sl of fresh) preset.current.add(sl.id);
+    setRules((v) => {
+      const next = { ...v };
+      let changed = false;
+      for (const sl of fresh) {
+        if (next[sl.id]?.jobs?.length) continue;
+        const want = jobsWantedBy(sl, jobsForRole(sl.role));
+        if (!want.length) continue;
+        next[sl.id] = { ...next[sl.id], jobs: want };
+        changed = true;
+      }
+      return changed ? next : v;
     });
   }, [useShape]);
 
@@ -476,7 +515,41 @@ export default function PartyCreate(
   const wants = !chosen ? "pf.pickContentFirst" as const
     : (!mySeat && !iAmFloating) ? "pf.takeSeatFirst" as const : null;
   const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
-  const sitting = picking ? seats[picking.id] : undefined;
+
+  /*
+   * Picked is added.
+   *
+   * There was a Done button here, and a Cancel beside it, for a step that was
+   * never in doubt: nobody searches the roster, finds the person they meant,
+   * and then decides against them. What it did instead was let somebody fill
+   * the flex in, look away, and lose it — the party went up without the person
+   * they had just added.
+   *
+   * So the row appears straight away and what they can play is edited on it.
+   * Getting it wrong costs the same click it always did: remove.
+   */
+  function addFloater(f: Floater) {
+    setFloating((v) => [...v.filter((x) => whoKey(x) !== whoKey(f)), f]);
+    setAdding(f);
+    setFq("");
+  }
+
+  /** Editing one floater's flex writes through to the list it is drawn in. */
+  function editFlex(f: Floater, fx: Flex) {
+    const next = { ...f, flex: fx };
+    setAdding(next);
+    setFloating((v) => v.map((x) => (whoKey(x) === whoKey(f) ? next : x)));
+  }
+  /*
+   * The seat the sheet is about, held one beat past its closing.
+   *
+   * Dismissing it sets picking to null, and a sheet whose contents vanish on
+   * the first frame of a 300ms slide is an empty panel gliding off the screen.
+   * The last one stays until the next one replaces it.
+   */
+  if (picking) lastPicked.current = picking;
+  const seat = picking ?? lastPicked.current;
+  const sitting = seat ? seats[seat.id] : undefined;
 
   return (
     /*
@@ -488,11 +561,25 @@ export default function PartyCreate(
      * A window scrolls itself, closes on Escape, gives focus back to the button
      * that opened it, and leaves the board exactly where the reader left it.
      */
-    <Modal open onOpenChange={(v) => { if (!v) onCancel(); }} title={t("pf.new")}>
+    <Modal open sticky onOpenChange={(v) => { if (!v) onCancel(); }} title={t("pf.new")}>
     <div className="flex flex-col gap-3.5">
       <ContentPicker content={content} value={contentKey}
                      onChange={(k) => { setContentKey(k); setShape(""); }} />
 
+      {/*
+        * Nothing until the fight is chosen.
+        *
+        * Every question below depends on the answer to this one: how many
+        * seats there are, whether loot is worth asking about, whether a length
+        * is counted in hours or in food. Drawn all at once, the form asked
+        * twenty things of somebody who had not yet said what they were doing,
+        * and the first thing it asked them to fill in was the last thing that
+        * would still be right afterwards.
+        */}
+      {!chosen ? (
+        <p className="pb-1 text-[12.5px] text-muted">{t("pf.pickContentFirst")}</p>
+      ) : (
+        <>
       <div className="flex flex-wrap items-center gap-2.5">
         {chosen?.fixedShape ? (
           // Stated, not offered. The size is a fact about the fight, and the
@@ -673,19 +760,22 @@ export default function PartyCreate(
               <span className="text-[13px] text-ink">{f.name}</span>
               {f.characterId == null && (
                 <span className="font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
-                  outside the FC
+                  {t("pf.outsider")}
                 </span>
               )}
               <span className="font-data text-[10px] uppercase tracking-[0.1em] text-jade">
-                {useShape === "open" ? "" : flexLabel(f.flex) ?? "no positions yet"}
+                {useShape === "open" ? "" : flexLabel(f.flex) ?? t("pf.noPositionsYet")}
               </span>
-              <button onClick={() => setAdding(f)}
+              {/* A toggle, because the editor it opens has no button of its
+                  own to shut it with any more. */}
+              <button onClick={() => setAdding(
+                        adding && whoKey(adding) === whoKey(f) ? null : f)}
                       className="ml-auto text-[11.5px] text-muted underline hover:text-ink">
-                change
+                {t("pf.changeLower")}
               </button>
               <button onClick={() => setFloating((v) => v.filter((x) => x !== f))}
                       className="text-[11.5px] text-chili hover:underline">
-                remove
+                {t("pf.removeLower")}
               </button>
             </div>
           ))}
@@ -699,26 +789,9 @@ export default function PartyCreate(
                   </span>
                   <FlexEditor shape={useShape} seatId=""
                               value={adding.flex}
-                              onChange={(fx) => setAdding({ ...adding, flex: fx })} />
+                              onChange={(fx) => editFlex(adding, fx)} />
                 </>
               )}
-              <div className="flex gap-2">
-                <button disabled={useShape !== "open" && !canFlex(adding.flex)}
-                        onClick={() => {
-                          setFloating((v) => [
-                            ...v.filter((x) => whoKey(x) !== whoKey(adding)),
-                            adding,
-                          ]);
-                          setAdding(null);
-                        }}
-                        className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[12.5px] text-accent disabled:opacity-40">
-                  {t("pf.done")}
-                </button>
-                <button onClick={() => setAdding(null)}
-                        className="text-[12.5px] text-muted hover:text-ink">
-                  {t("pf.cancel")}
-                </button>
-              </div>
               {useShape !== "open" && !canFlex(adding.flex) && (
                 <span className="text-[11.5px] text-muted">
                   {t("pf.pickOneThing")}
@@ -732,7 +805,7 @@ export default function PartyCreate(
                     seats already contains its lead by the time this is
                     drawn. */}
                 {useShape !== "open" && !mySeat && !iAmFloating && (
-                  <button onClick={() => setAdding({
+                  <button onClick={() => addFloater({
                             characterId: me.id, name: me.name, avatar: me.avatar,
                             flex: {},
                             confirmedAt: new Date().toISOString(),
@@ -746,21 +819,20 @@ export default function PartyCreate(
                      placeholder={t("pf.addFlexer")}
                      className={`${sel} w-full placeholder:text-muted`} />
               {fq.trim().length >= 2 && !floatSuggestions.length && (
-                <button onClick={() => {
-                          setAdding({ ...outsider(fq),
-                                      flex: useShape === "open" ? { all: true } : {} });
-                          setFq("");
-                        }}
+                <button onClick={() => addFloater({
+                          ...outsider(fq),
+                          flex: useShape === "open" ? { all: true } : {},
+                        })}
                         className="flex items-center gap-2 rounded-lg border border-dashed border-line px-2.5 py-2 text-left hover:border-accent/60">
                   <span className="grid size-9 shrink-0 place-items-center rounded-full border border-dashed border-line text-[13px] text-muted">
                     ?
                   </span>
                   <span className="flex flex-col">
                     <span className="text-[13px] text-ink">
-                      Add &ldquo;{fq.trim()}&rdquo;
+                      {t("pf.addNamed", { name: fq.trim() })}
                     </span>
                     <span className="text-[11.5px] text-muted">
-                      Somebody from outside the FC, or not on this site
+                      {t("pf.outsiderHint")}
                     </span>
                   </span>
                 </button>
@@ -768,12 +840,11 @@ export default function PartyCreate(
               {floatSuggestions.map((p) => (
                 <button key={p.id}
                         onClick={() => {
-                          setAdding({
+                          addFloater({
                             characterId: p.id, name: p.name, avatar: p.avatar,
                             flex: useShape === "open" ? { all: true } : {},
                             confirmedAt: null,
                           });
-                          setFq("");
                         }}
                         className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-surface">
                   {face(p.id, p.avatar) ? (
@@ -788,16 +859,21 @@ export default function PartyCreate(
           )}
       </div>
 
-      {picking && (
-        <div className="flex flex-col gap-2 rounded-lg border border-line bg-card p-3">
-          <div className="flex items-baseline justify-between">
-            <span className="text-[13px] text-ink">
-              {sitting ? `${sitting.name} — ${picking.label}` : `Who is in ${picking.label}?`}
-            </span>
-            <button onClick={() => setPicking(null)}
-                    className="text-[12px] text-muted hover:text-ink">{t("pf.close")}</button>
-          </div>
-
+      {/*
+        * Beside the grid, not underneath it.
+        *
+        * Everything about one seat — who is in it, what they are playing, who
+        * to ask — is a step within putting the party up rather than a second
+        * task, and the grid it is about has to still be visible while you work
+        * on it. As a panel below the grid it pushed the rest of the form down
+        * the page every time it opened.
+        */}
+      <Sheet open={!!picking} onOpenChange={(v) => { if (!v) setPicking(null); }}
+             title={seat ? (sitting ? sitting.name : t("pf.whoIsIn", { seat: seat.label }))
+                         : ""}
+             subtitle={seat ? `${seat.label} · ${ROLE_LABEL[seat.role]}` : undefined}>
+        {seat && (
+        <div className="flex flex-col gap-2.5 pt-1">
           {sitting ? (
             <>
               {/* Which job they are on. Needed before "one player per job"
@@ -807,13 +883,13 @@ export default function PartyCreate(
                 <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
                   {t("pf.playing")}
                 </span>
-                {jobsForRole(picking.role).map((job) => (
+                {jobsForRole(seat.role).map((job) => (
                   <button key={job} type="button"
                           onClick={() => setSeats((v) => ({
                             ...v,
-                            [picking.id]: {
-                              ...v[picking.id],
-                              job: v[picking.id].job === job ? null : job,
+                            [seat.id]: {
+                              ...v[seat.id],
+                              job: v[seat.id].job === job ? null : job,
                             },
                           }))}
                           title={job}
@@ -825,12 +901,12 @@ export default function PartyCreate(
                 ))}
               </div>
 
-              <FlexEditor shape={useShape} seatId={picking.id}
+              <FlexEditor shape={useShape} seatId={seat.id}
                           value={sitting.flex ?? {}}
-                          onChange={(f) => setFlex(picking.id, f)} />
+                          onChange={(f) => setFlex(seat.id, f)} />
               {sitting.characterId !== me.id && (
                 <button onClick={() => {
-                          setSeats((v) => { const n = { ...v }; delete n[picking.id]; return n; });
+                          setSeats((v) => { const n = { ...v }; delete n[seat.id]; return n; });
                           setPicking(null);
                         }}
                         className="self-start rounded-lg border border-chili/50 px-3 py-1 text-[12.5px] text-chili hover:bg-chili/10">
@@ -841,19 +917,27 @@ export default function PartyCreate(
           ) : (
             <>
               <div className="flex flex-wrap gap-2">
+                {/* With their own face on it: this is the one button in the
+                    panel that names a particular person, and the list below it
+                    identifies everybody by their picture. */}
                 {!mySeat && (
-                  <button onClick={() => place(picking, me)}
-                          className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[12.5px] text-accent">
+                  <button onClick={() => place(seat, me)}
+                          className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1 pl-1 pr-3 text-[12.5px] text-accent">
+                    {face(me.id, me.avatar) ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={face(me.id, me.avatar)!} alt="" width={22} height={22}
+                           className="size-[22px] rounded-full border border-accent/40 object-cover" />
+                    ) : <span className="size-[22px] rounded-full border border-accent/40" />}
                     {t("pf.thatIsMe")}
                   </button>
                 )}
-                {closed.includes(picking.id) ? (
-                  <button onClick={() => setClosed((v) => v.filter((id) => id !== picking.id))}
+                {closed.includes(seat.id) ? (
+                  <button onClick={() => setClosed((v) => v.filter((id) => id !== seat.id))}
                           className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:text-ink">
                     {t("pf.lookAgain")}
                   </button>
                 ) : (
-                  <button onClick={() => { setClosed((v) => [...v, picking.id]); setPicking(null); }}
+                  <button onClick={() => { setClosed((v) => [...v, seat.id]); setPicking(null); }}
                           className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:text-ink">
                     {t("pf.notLooking")}
                   </button>
@@ -862,16 +946,16 @@ export default function PartyCreate(
               {/* What the seat is advertising for. On an empty seat only:
                   a rule about who may sit here is a question about the seat,
                   and once somebody is in it the answer is their name. */}
-              <JobRule party={draft} slot={picking}
-                       value={rules[picking.id] ?? {}}
-                       onChange={(r) => setRules((v) => ({ ...v, [picking.id]: r }))} />
+              <JobRule party={draft} slot={seat}
+                       value={rules[seat.id] ?? {}}
+                       onChange={(r) => setRules((v) => ({ ...v, [seat.id]: r }))} />
 
               {/* Who to ask, before the box for looking somebody up. The
                   order is the point: a lead who has to type a name has
                   already decided, and the whole feature is for the moment
                   before that. */}
               {!!suggest?.length && (
-                <SeatSuggest slot={picking} def={chosen} rows={suggest}
+                <SeatSuggest slot={seat} def={chosen} rows={suggest}
                              labels={labels ?? []} startsAt={draft.startsAt}
                              when={when} people={people}
                              exclude={new Set([
@@ -882,14 +966,14 @@ export default function PartyCreate(
                                  .map((f) => f.characterId)
                                  .filter((x): x is number => x != null),
                              ])}
-                             onPick={(p) => place(picking, p)} />
+                             onPick={(p) => place(seat, p)} />
               )}
 
               <input value={q} onChange={(e) => setQ(e.target.value)}
                      placeholder={t("pf.searchRoster")}
                      className={`${sel} w-full placeholder:text-muted`} />
               {suggestions.map((p) => (
-                <button key={p.id} onClick={() => place(picking, p)}
+                <button key={p.id} onClick={() => place(seat, p)}
                         className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-surface">
                   {face(p.id, p.avatar) ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -904,17 +988,17 @@ export default function PartyCreate(
                   rather than beside it, so it reads as the answer to "they are
                   not in here" instead of a way round looking. */}
               {q.trim().length >= 2 && !suggestions.length && (
-                <button onClick={() => seatOutsider(picking, q)}
+                <button onClick={() => seatOutsider(seat, q)}
                         className="flex items-center gap-2 rounded-lg border border-dashed border-line px-2.5 py-2 text-left hover:border-accent/60">
                   <span className="grid size-9 shrink-0 place-items-center rounded-full border border-dashed border-line text-[13px] text-muted">
                     ?
                   </span>
                   <span className="flex flex-col">
                     <span className="text-[13px] text-ink">
-                      Add &ldquo;{q.trim()}&rdquo;
+                      {t("pf.addNamed", { name: q.trim() })}
                     </span>
                     <span className="text-[11.5px] text-muted">
-                      Somebody from outside the FC, or not on this site
+                      {t("pf.outsiderHint")}
                     </span>
                   </span>
                 </button>
@@ -926,16 +1010,23 @@ export default function PartyCreate(
             </>
           )}
         </div>
+        )}
+      </Sheet>
+        </>
       )}
 
       <div className="flex items-center gap-2">
-        <button disabled={!ready || busy}
-                onClick={() => void onAdd({ ...draft, id: "new" })}
-                className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
-          {busy ? t("pf.putting") : t("pf.putUp")}
-        </button>
-        {wants && (
-          <span className="text-[12px] text-muted">{t(wants)}</span>
+        {chosen && (
+          <>
+            <button disabled={!ready || busy}
+                    onClick={() => void onAdd({ ...draft, id: "new" })}
+                    className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
+              {busy ? t("pf.putting") : t("pf.putUp")}
+            </button>
+            {wants && (
+              <span className="text-[12px] text-muted">{t(wants)}</span>
+            )}
+          </>
         )}
         <button onClick={onCancel}
                 className="ml-auto text-[12.5px] text-muted hover:text-ink">
