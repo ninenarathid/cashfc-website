@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-09-10",
+   "type": "job_up",
+   "id": 5720080,
+   "name": "Bowling Chan",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-09-10",
    "type": "level_100",
    "id": 28579232,
    "name": "Dessiny Valkyrie",
@@ -1392,13 +1399,6 @@
    "id": 37648492,
    "name": "Sunshine Eveningfall",
    "text": "is now a Expert Dancer"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "rare_up",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "earned Aetherpool Party: Fan Brush — only 1.2% of players have it, and 45 more"
   }
  ]
 }

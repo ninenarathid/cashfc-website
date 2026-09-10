@@ -795,12 +795,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 73,
     "kills": 19,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1068,
     "job_kills": {
      "DarkKnight": {
       "kills": 19,
@@ -2076,7 +2076,17 @@
       "best": 23,
       "median": 9,
       "kills": 10,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 7,
+        "best": 23
+       },
+       "WhiteMage": {
+        "kills": 3,
+        "best": 19
+       }
+      }
      },
      {
       "label": "M6S",
@@ -2085,7 +2095,17 @@
       "best": 9,
       "median": 4,
       "kills": 6,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 5,
+        "best": 9
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 1
+       }
+      }
      },
      {
       "label": "M7S",
@@ -2094,7 +2114,13 @@
       "best": 20,
       "median": 11,
       "kills": 5,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 5,
+        "best": 20
+       }
+      }
      },
      {
       "label": "M8S",
@@ -2103,7 +2129,13 @@
       "best": 8,
       "median": 5,
       "kills": 2,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 2,
+        "best": 8
+       }
+      }
      }
     ]
    },
@@ -4284,7 +4316,21 @@
       "best": 94,
       "median": 78,
       "kills": 23,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 17,
+        "best": 94
+       },
+       "Paladin": {
+        "kills": 5,
+        "best": 74
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 7
+       }
+      }
      },
      {
       "label": "E2S",
@@ -4293,7 +4339,21 @@
       "best": 95,
       "median": 81,
       "kills": 27,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 21,
+        "best": 95
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 78
+       },
+       "WhiteMage": {
+        "kills": 4,
+        "best": 25
+       }
+      }
      },
      {
       "label": "E3S",
@@ -4302,7 +4362,21 @@
       "best": 82,
       "median": 67,
       "kills": 28,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 15,
+        "best": 82
+       },
+       "Paladin": {
+        "kills": 7,
+        "best": 78
+       },
+       "WhiteMage": {
+        "kills": 6,
+        "best": 47
+       }
+      }
      },
      {
       "label": "E4S",
@@ -4311,7 +4385,21 @@
       "best": 87,
       "median": 43,
       "kills": 27,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 16,
+        "best": 87
+       },
+       "Paladin": {
+        "kills": 7,
+        "best": 76
+       },
+       "WhiteMage": {
+        "kills": 4,
+        "best": 13
+       }
+      }
      }
     ]
    }
@@ -6433,7 +6521,17 @@
       "best": 90,
       "median": 73,
       "kills": 4,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 3,
+        "best": 90
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 58
+       }
+      }
      },
      {
       "label": "E2S",
@@ -6442,7 +6540,17 @@
       "best": 83,
       "median": 69,
       "kills": 5,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 4,
+        "best": 83
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 40
+       }
+      }
      },
      {
       "label": "E3S",
@@ -6451,7 +6559,17 @@
       "best": 86,
       "median": 52,
       "kills": 5,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 4,
+        "best": 86
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 56
+       }
+      }
      },
      {
       "label": "E4S",
@@ -6460,7 +6578,21 @@
       "best": 59,
       "median": 40,
       "kills": 8,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 1,
+        "best": 10
+       },
+       "Scholar": {
+        "kills": 6,
+        "best": 59
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 29
+       }
+      }
      }
     ]
    }
@@ -14948,7 +15080,21 @@
       "best": 81,
       "median": 65,
       "kills": 23,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 17,
+        "best": 81
+       },
+       "Machinist": {
+        "kills": 1,
+        "best": 22
+       },
+       "Paladin": {
+        "kills": 5,
+        "best": 43
+       }
+      }
      },
      {
       "label": "E2S",
@@ -14957,7 +15103,17 @@
       "best": 81,
       "median": 62,
       "kills": 27,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 25,
+        "best": 81
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 22
+       }
+      }
      },
      {
       "label": "E3S",
@@ -14966,7 +15122,13 @@
       "best": 81,
       "median": 50,
       "kills": 14,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 14,
+        "best": 81
+       }
+      }
      },
      {
       "label": "E4S",
@@ -14975,7 +15137,13 @@
       "best": 56,
       "median": 24,
       "kills": 17,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 17,
+        "best": 56
+       }
+      }
      }
     ]
    }
@@ -35611,12 +35779,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 30,
     "kills": 12,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1068,
     "job_kills": {
      "Warrior": {
       "kills": 11,
@@ -42928,12 +43096,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 57,
     "kills": 1,
     "job": "Samurai",
-    "cleared": true,
-    "encounter_id": 1068
+    "cleared": true
    },
    {
     "zone": "Ultimates",

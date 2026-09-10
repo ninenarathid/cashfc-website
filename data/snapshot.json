@@ -1483,7 +1483,7 @@
   "mounts": 74,
   "minions": 121,
   "rare": 15,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -2175,7 +2175,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 26,
-  "level": 61,
+  "level": 62,
   "cc": [
    true,
    true,
@@ -3206,7 +3206,7 @@
   "mounts": 129,
   "minions": 246,
   "rare": 80,
-  "level": 100,
+  "level": 38,
   "cc": [
    true,
    true,
@@ -4960,7 +4960,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 40,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -5770,7 +5770,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -5795,7 +5795,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -5870,7 +5870,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 35,
+  "level": 61,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6213,7 +6213,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 84,
+  "level": 85,
   "cc": [
    true,
    true,
@@ -7610,7 +7610,7 @@
   "mounts": 107,
   "minions": 305,
   "rare": null,
-  "level": 9,
+  "level": 16,
   "cc": [
    false,
    false,
@@ -9149,7 +9149,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Gunbreaker": "master"
+   "Gunbreaker": "master",
+   "Paladin": "master"
   },
   "ex": [
    "Valigarmanda",
