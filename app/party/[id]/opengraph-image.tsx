@@ -79,7 +79,18 @@ async function inlineArt(
       .jpeg({ quality: 82, mozjpeg: true })
       .toBuffer();
     return `data:image/jpeg;base64,${png.toString("base64")}`;
-  } catch {
+  } catch (e) {
+    /*
+     * Not silent, because silent cost a production bug.
+     *
+     * public/ is served by the CDN and is not on a serverless function's
+     * filesystem, so this read found nothing once deployed — and since a
+     * missing picture is a card that still works, every party link unfurled
+     * with a flat colour where the screenshot should be and looked deliberate.
+     * next.config.ts traces the folder in; if that key ever stops matching the
+     * route, this line is how anybody finds out.
+     */
+    console.warn("party card: no picture for", url, "—", (e as Error).message);
     return null;
   }
 }
