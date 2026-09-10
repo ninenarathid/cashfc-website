@@ -19,6 +19,8 @@ import { useLiveParties } from "@/lib/party-live";
 import type { SuggestRow } from "@/lib/suggest";
 import { mapLabel } from "@/lib/treasure";
 import { useLang } from "@/lib/i18n";
+import Link from "next/link";
+import { freeAt } from "@/lib/suggest";
 import { lengthSay, lootLine, shapeSay } from "@/lib/party-i18n";
 import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
@@ -73,6 +75,8 @@ const EMPTY = {
   prog: "" as ProgressAt | "",
   loot: "" as LootRule | "",
   status: "" as StatusPick,
+  /** Only parties that start in an hour the reader said they play. */
+  free: false,
 };
 
 
@@ -366,6 +370,27 @@ export default function PartyBoard(
   /** One clock for the board. See PartyClock. */
   const now = useNow(parties);
 
+  /*
+   * The reader's own hours, from the grid on their profile.
+   *
+   * One row, fetched once. The suggestions in the create form need everybody's
+   * and ask for all of them; a board only ever has to answer "does this clash
+   * with me", which is one person's.
+   *
+   * Null means they have never filled it in, which is not the same as being
+   * busy — so the filter below is offered but cannot be switched on, rather
+   * than switched on and quietly emptying the board.
+   */
+  const [myHours, setMyHours] = useState<string | null>(null);
+  useEffect(() => {
+    if (!supabase || !me) return;
+    void supabase.from("profiles").select("availability")
+      .eq("character_id", me.id).maybeSingle()
+      .then(({ data }) => {
+        setMyHours((data as { availability?: string | null } | null)?.availability ?? null);
+      });
+  }, [supabase, me]);
+
   const kindCounts = useMemo(() => {
     const c: Record<string, number> = {};
     for (const p of parties) {
@@ -423,6 +448,17 @@ export default function PartyBoard(
         // always joinable, so it stays.
         if (p.shape !== "open") return false;
       }
+      /*
+       * Parties that start while the reader is usually around.
+       *
+       * The start alone, not the whole evening: somebody who plays from eight
+       * is available for a party that begins at eight and runs past when they
+       * log off, and they can say so themselves. Requiring the whole length to
+       * fit would hide every long raid night from everybody who has been
+       * honest about when they go to bed.
+       */
+      if (adv.free && freeAt(myHours, p.startsAt) !== true) return false;
+
       if (adv.mine && me) {
         const inIt = p.ownerCharacterId === me.id
           || Object.values(p.seats).some((s) => s.characterId === me.id);
@@ -432,7 +468,7 @@ export default function PartyBoard(
     });
 
     return out;
-  }, [parties, byKey, query, kinds, adv, me, now, pinned]);
+  }, [parties, byKey, query, kinds, adv, me, now, pinned, myHours]);
 
   const anyProgress = useMemo(() => base.some((p) => p.progress), [base]);
   const anyLoot = useMemo(() => base.some((p) => p.loot), [base]);
@@ -500,7 +536,7 @@ export default function PartyBoard(
 
   const advCount = (adv.role ? 1 : 0) + (adv.when ? 1 : 0)
     + (adv.mine ? 1 : 0) + (adv.openOnly ? 1 : 0) + (adv.prog ? 1 : 0)
-    + (adv.loot ? 1 : 0) + (adv.status ? 1 : 0);
+    + (adv.loot ? 1 : 0) + (adv.status ? 1 : 0) + (adv.free ? 1 : 0);
 
   const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
 
@@ -683,6 +719,23 @@ export default function PartyBoard(
             <input type="checkbox" checked={adv.mine}
                    onChange={(e) => setAdv({ ...adv, mine: e.target.checked })} />
             {t("party.imIn")}
+          </label>
+          {/*
+            * Offered even to somebody who has not filled the grid in, because
+            * a control that is simply absent is a feature nobody finds. It
+            * cannot be switched on, and it says why.
+            */}
+          <label className={`flex items-center gap-1.5 text-[12.5px] ${
+            myHours ? "text-muted" : "text-muted/50"}`}
+                 title={myHours ? undefined : t("party.setHours")}>
+            <input type="checkbox" checked={adv.free} disabled={!myHours}
+                   onChange={(e) => setAdv({ ...adv, free: e.target.checked })} />
+            {t("party.whenIPlay")}
+            {!myHours && (
+              <Link href="/profile" className="underline hover:text-ink">
+                {t("party.setHoursShort")}
+              </Link>
+            )}
           </label>
         </div>
       </div>

@@ -478,6 +478,10 @@ const DICT = {
     en: "{who} let you into the party.",
     th: "{who} รับคุณเข้าปาร์ตี้แล้ว",
   },
+  "notif.partyTalk": {
+    en: "{who} said something in a party you are in.",
+    th: "{who} ส่งข้อความในปาร์ตี้ที่คุณอยู่",
+  },
   /* Said when a notification arrives of a kind this version does not know.
      Vague on purpose: claiming it is an announcement sends people looking
      through the announcements for something that is not in them. */
@@ -1530,6 +1534,14 @@ const DICT = {
   "party.within7": { en: "Within a week", th: "ภายใน 1 สัปดาห์" },
   "party.hasRoom": { en: "Still has room", th: "ยังมีที่ว่าง" },
   "party.imIn": { en: "I am in it", th: "ที่ฉันอยู่ด้วย" },
+  /* The grid on the profile, pointed at the board: which of these start while
+     I am usually around. */
+  "party.whenIPlay": { en: "When I play", th: "ตรงกับเวลาที่ฉันเล่น" },
+  "party.setHours": {
+    en: "Set the hours you usually play on your profile first.",
+    th: "ตั้งช่วงเวลาที่ปกติว่างเล่นในโปรไฟล์ก่อน",
+  },
+  "party.setHoursShort": { en: "set them", th: "ตั้งเลย" },
   "party.countOne": { en: "1 party", th: "1 ปาร์ตี้" },
   "party.countMany": { en: "{n} parties", th: "{n} ปาร์ตี้" },
   "party.loading": { en: "Loading…", th: "กำลังโหลด…" },
@@ -1669,7 +1681,9 @@ const DICT = {
   "pf.for": { en: "Length", th: "ระยะเวลา" },
   "pf.runs": { en: "runs", th: "รอบ" },
   "pf.nRuns": { en: "{n} runs", th: "{n} รอบ" },
-  "pf.nFood": { en: "{n} food", th: "{n} จาน" },
+  /* The FC's own unit, kept as the word they say rather than translated into
+     plates of something. */
+  "pf.nFood": { en: "{n} Foods", th: "{n} Foods" },
   "pf.untilMapsDone": {
     en: "until everybody's maps are done",
     th: "จนกว่าทุกคนจะเปิดแมพครบ",
@@ -1927,8 +1941,8 @@ const DICT = {
   "pf.comment": { en: "Comment", th: "ส่ง" },
   "pf.react": { en: "React", th: "แสดงความรู้สึก" },
   "pf.commentBox": {
-    en: "Ask something, or say you are coming late…",
-    th: "ถามอะไรก็ได้ หรือบอกว่าจะมาสาย…",
+    en: "Message everybody in this party…",
+    th: "ส่งข้อความหาสมาชิก Party นี้…",
   },
   "pf.orDropShot": {
     en: "or drop a screenshot in here",

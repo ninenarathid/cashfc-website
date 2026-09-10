@@ -140,6 +140,9 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   party_join: { say: "notif.partyJoin", icon: "✋", href: "/party" },
   party_invite: { say: "notif.partyInvite", icon: "✉️", href: "/party" },
   party_ok: { say: "notif.partyOk", icon: "✅", href: "/party" },
+  // Somebody said something where you are. The speech bubble, the same mark
+  // the tell button wears, because it is the same idea.
+  party_talk: { say: "notif.partyTalk", icon: "💬", href: "/party" },
 };
 
 /**
