@@ -16,6 +16,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { addComment, createParty, loadParties } from "@/lib/party-db";
 import { useLiveParties } from "@/lib/party-live";
+import type { SuggestRow } from "@/lib/suggest";
 import { mapLabel } from "@/lib/treasure";
 import { useLang } from "@/lib/i18n";
 import { lengthSay, lootLine, shapeSay } from "@/lib/party-i18n";
@@ -250,10 +251,14 @@ function PartyDetail(
 
 export default function PartyBoard(
   { people, extremes, savage, ultimates, alliances, criterions, art, me, userId,
-    openParty }: {
+    openParty, suggest, labels }: {
     people: PersonOption[];
     extremes: ContentSeed[];
     savage: ContentSeed[];
+    /** Who plays what, for the seat suggestions. */
+    suggest?: SuggestRow[];
+    /** The tier's labels, which is how the savage clears are indexed. */
+    labels?: string[];
     ultimates: ContentSeed[];
     alliances: ContentSeed[];
     criterions: ContentSeed[];
@@ -523,7 +528,7 @@ export default function PartyBoard(
 
       {writing && me && userId && (
         <PartyCreate content={content} people={people} me={me} userId={userId}
-                     busy={saving}
+                     busy={saving} suggest={suggest} labels={labels}
                      onCancel={() => setWriting(false)}
                      onAdd={async (p) => {
                        setSaving(true);

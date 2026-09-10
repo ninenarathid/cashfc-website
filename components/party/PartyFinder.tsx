@@ -7,6 +7,7 @@ import type { PersonOption } from "@/lib/people";
 import type { ContentSeed } from "@/lib/party";
 import type { DutyArt } from "@/lib/duty";
 import PartyBoard from "@/components/party/PartyBoard";
+import type { SuggestRow } from "@/lib/suggest";
 
 /**
  * Who may see the party finder while it is being built.
@@ -37,6 +38,9 @@ export default function PartyFinder(
     art: DutyArt;
     /** Opened straight away, when the address named one. See app/party/[id]. */
     openParty?: string;
+    /** Who plays what, for the seat suggestions. */
+    suggest?: SuggestRow[];
+    labels?: string[];
   },
 ) {
   const [supabase] = useState(createClient);

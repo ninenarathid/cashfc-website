@@ -1853,6 +1853,30 @@ const DICT = {
     th: "คนนอก FC หรือคนที่ไม่ได้อยู่ในเว็บนี้",
   },
   "pf.searchRoster": { en: "Search the roster…", th: "ค้นหาสมาชิก…" },
+
+  /* ── Who to ask for a seat ─────────────────────────────────────────
+     Every fact behind these is already on the site — the jobs and the
+     clears from FF Logs, the hours from the grid people fill in
+     themselves. The line under each name says which of them put that
+     name there, because a list that has quietly reordered itself is a
+     list nobody trusts. */
+  "pf.suggested": { en: "Suggested · {want}", th: "แนะนำ · {want}" },
+  "pf.freeThen": { en: "Only people free then", th: "เฉพาะคนที่ว่างช่วงนั้น" },
+  "pf.nobodyFree": {
+    en: "Nobody who fits this seat has said they play then.",
+    th: "ไม่มีใครที่เล่นตำแหน่งนี้ได้ระบุว่าว่างช่วงนั้น",
+  },
+  "pf.hasCleared": { en: "cleared it", th: "ผ่านแล้ว" },
+  "pf.clearedOn": { en: "cleared it on {job}", th: "ผ่านแล้วด้วย {job}" },
+  "pf.clearedElsewhere": {
+    en: "knows it, on another role",
+    th: "เคยผ่านแล้ว แต่เล่นคนละ role",
+  },
+  "pf.isLearning": { en: "learning it", th: "กำลังฝึกอยู่" },
+  "pf.nPulls": { en: "{n} pulls", th: "{n} pull" },
+  "pf.freeAtTime": { en: "usually free then", th: "ปกติว่างช่วงนี้" },
+  "pf.offConvention": { en: "off the usual spot", th: "ไม่ใช่ตำแหน่งที่ปกติเล่น" },
+  "pf.moreSuggestions": { en: "{n} more", th: "อีก {n} คน" },
   "pf.addFlexer": { en: "Add somebody who can flex…", th: "เพิ่มคนที่ flex ได้…" },
   "pf.flexibleNoSeat": { en: "Flexible — no seat yet", th: "Flex — ยังไม่มีตำแหน่ง" },
   "pf.flexHint": {

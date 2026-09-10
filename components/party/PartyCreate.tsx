@@ -22,6 +22,9 @@ import ProgressTrack from "@/components/party/ProgressTrack";
 import LootPlan from "@/components/party/LootPlan";
 import WherePicker from "@/components/party/WherePicker";
 import MapPicker from "@/components/party/MapPicker";
+import SeatSuggest from "@/components/party/SeatSuggest";
+import type { SuggestRow } from "@/lib/suggest";
+import { createClient } from "@/lib/supabase/client";
 import Modal from "@/components/ui/Modal";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
@@ -161,7 +164,8 @@ function FlexEditor(
 }
 
 export default function PartyCreate(
-  { content, people, me, userId, busy = false, onAdd, onCancel }: {
+  { content, people, me, userId, busy = false, suggest, labels, onAdd,
+    onCancel }: {
     content: ContentDef[];
     people: PersonOption[];
     /** The creator, who takes the first seat they choose. */
@@ -170,6 +174,10 @@ export default function PartyCreate(
     userId: string;
     /** True while the board is writing it down. */
     busy?: boolean;
+    /** Who plays what, for the seat suggestions. See lib/suggest.ts. */
+    suggest?: SuggestRow[];
+    /** The tier's labels, which is how the savage clears are indexed. */
+    labels?: string[];
     onAdd: (p: Party) => void | Promise<void>;
     onCancel: () => void;
   },
@@ -240,6 +248,31 @@ export default function PartyCreate(
   const [fq, setFq] = useState("");
   const [picking, setPicking] = useState<SlotDef | null>(null);
   const [q, setQ] = useState("");
+
+  /*
+   * When everybody said they usually play.
+   *
+   * One query when the form opens, rather than one per seat: sixty rows of a
+   * 168-character string is nothing, and asking again every time somebody
+   * clicks a seat would be sixty rows a click. Failure is silent and means the
+   * suggestions simply do not mention time, which is what they did before this
+   * existed.
+   */
+  const [when, setWhen] = useState<Record<number, string | null>>({});
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+    void supabase.from("profiles")
+      .select("character_id, availability")
+      .not("character_id", "is", null)
+      .not("availability", "is", null)
+      .then(({ data }) => {
+        if (!data) return;
+        setWhen(Object.fromEntries((data as unknown as
+          { character_id: number; availability: string | null }[])
+          .map((r) => [r.character_id, r.availability])));
+      });
+  }, []);
 
   /*
    * The length in minutes, which the board needs whatever the party said.
@@ -731,7 +764,26 @@ export default function PartyCreate(
                        value={rules[picking.id] ?? {}}
                        onChange={(r) => setRules((v) => ({ ...v, [picking.id]: r }))} />
 
-              <input value={q} onChange={(e) => setQ(e.target.value)} autoFocus
+              {/* Who to ask, before the box for looking somebody up. The
+                  order is the point: a lead who has to type a name has
+                  already decided, and the whole feature is for the moment
+                  before that. */}
+              {!!suggest?.length && (
+                <SeatSuggest slot={picking} def={chosen} rows={suggest}
+                             labels={labels ?? []} startsAt={draft.startsAt}
+                             when={when} people={people}
+                             exclude={new Set([
+                               ...Object.values(seats)
+                                 .map((v) => v.characterId)
+                                 .filter((x): x is number => x != null),
+                               ...floating
+                                 .map((f) => f.characterId)
+                                 .filter((x): x is number => x != null),
+                             ])}
+                             onPick={(p) => place(picking, p)} />
+              )}
+
+              <input value={q} onChange={(e) => setQ(e.target.value)}
                      placeholder={t("pf.searchRoster")}
                      className={`${sel} w-full placeholder:text-muted`} />
               {suggestions.map((p) => (
