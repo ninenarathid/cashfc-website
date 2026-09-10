@@ -1537,7 +1537,7 @@ const DICT = {
     en: "Nothing matches. Try clearing a filter, or put one up yourself.",
     th: "ไม่มีปาร์ตี้ที่ตรงกับที่เลือก ลองล้างตัวกรอง หรือตั้งปาร์ตี้เองก็ได้",
   },
-  "party.onePerJob": { en: "one player per job", th: "หนึ่งคนหนึ่งอาชีพ" },
+  "party.onePerJob": { en: "one player per job", th: "หนึ่งคน/อาชีพ" },
   "party.thaiTime": { en: "Thai time", th: "เวลาไทย" },
 
   /* ── The five states, which are the five things a reader wants ────── */
@@ -1664,7 +1664,16 @@ const DICT = {
     th: "หนึ่งบรรทัดสำหรับหน้ารวม เช่น แมพไหน เฟสไหน เข้าห้องเสียงไหม",
   },
   "pf.starts": { en: "Starts (Thai time)", th: "เริ่ม (เวลาไทย)" },
-  "pf.for": { en: "For", th: "ยาว" },
+  /* "ยาว" is how long a thing is, not how long it lasts — it reads as a
+     measurement of the party rather than of the evening. */
+  "pf.for": { en: "Length", th: "ระยะเวลา" },
+  "pf.runs": { en: "runs", th: "รอบ" },
+  "pf.nRuns": { en: "{n} runs", th: "{n} รอบ" },
+  "pf.nFood": { en: "{n} food", th: "{n} จาน" },
+  "pf.runsWhy": {
+    en: "as many as it takes — no end time",
+    th: "จนกว่าจะครบรอบ ไม่กำหนดเวลาจบ",
+  },
   "pf.size": { en: "Party size", th: "ขนาดปาร์ตี้" },
   "pf.unit": { en: "Unit", th: "หน่วย" },
   "pf.hours": { en: "hours", th: "ชั่วโมง" },
@@ -1783,7 +1792,7 @@ const DICT = {
     en: "Seats — click one to fill it, invite somebody, or set their flex",
     th: "ตำแหน่ง — คลิกเพื่อใส่คน ชวนคน หรือตั้ง flex",
   },
-  "pf.onePerJob": { en: "One player per job", th: "หนึ่งคนหนึ่งอาชีพ" },
+  "pf.onePerJob": { en: "One player per job", th: "หนึ่งคน/อาชีพ" },
   "pf.onePerJobWhy": {
     en: "— no two people on the same job",
     th: "— ห้ามซ้ำอาชีพกัน",

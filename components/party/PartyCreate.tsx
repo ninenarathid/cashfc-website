@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type {
-  ContentDef, Flex, Floater, Loot, MapPlan, Party, PartyBlock, Progress,
-  SeatRule, Shape, SlotDef, SlotRole, Spot,
+  ContentDef, Flex, Floater, LengthUnit, Loot, MapPlan, Party, PartyBlock,
+  Progress, SeatRule, Shape, SlotDef, SlotRole, Spot,
 } from "@/lib/party";
 import {
-  DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL, canFlex, endsAt, flexLabel,
+  DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL, canFlex, endsAt, flexLabel, runsToMinutes,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasSpot, isFight, lootRulesFor,
   shapeLabel,
   slotsOf, whoKey,
@@ -193,8 +193,15 @@ export default function PartyCreate(
   const [note, setNote] = useState("");
   const [shape, setShape] = useState<Shape | "">("");
   const [start, setStart] = useState(defaultStart);
-  const [unit, setUnit] = useState<"hours" | "food">("food");
-  const [amount, setAmount] = useState(4);
+  const [unit, setUnit] = useState<LengthUnit>("food");
+  /*
+   * One food, which is thirty minutes.
+   *
+   * It used to open on four, which is a two-hour raid night — a real evening
+   * and a strong opinion for a form to hold before anybody has said what they
+   * are running. The smallest honest unit asks the question instead.
+   */
+  const [amount, setAmount] = useState(1);
 
   /*
    * The size is the content's, unless the content does not fix one.
@@ -234,7 +241,17 @@ export default function PartyCreate(
   const [picking, setPicking] = useState<SlotDef | null>(null);
   const [q, setQ] = useState("");
 
-  const minutes = unit === "food" ? foodToMinutes(amount) : Math.round(amount * 60);
+  /*
+   * The length in minutes, which the board needs whatever the party said.
+   *
+   * A party has to have an end or it never leaves the list. Where the length
+   * was given in runs that end is the board's own assumption about how long a
+   * run takes — never shown as a time, and the listing is marked as an
+   * estimate wherever a length appears.
+   */
+  const minutes = unit === "food" ? foodToMinutes(amount)
+    : unit === "runs" ? runsToMinutes(amount, chosen?.kind)
+      : Math.round(amount * 60);
 
   // Recomputed on every render rather than held in state: "now" moves, and a
   // floor captured when the form opened would let a slow form-filler set a
@@ -278,6 +295,7 @@ export default function PartyCreate(
     shape: useShape,
     startsAt: fromBangkokLocal(start),
     lengthMinutes: minutes, lengthUnit: unit,
+    ...(unit === "runs" ? { runs: Math.max(1, Math.round(amount)) } : {}),
     ownerCharacterId: me.id,
     seats, closed, rules, oneOfEachJob: oneEach, floating,
     createdAt: new Date().toISOString(),
@@ -428,17 +446,26 @@ export default function PartyCreate(
             {t("pf.for")}
           </span>
           <span className="flex items-stretch gap-1.5">
-            <input type="number" min={unit === "food" ? 1 : 0.5}
-                   step={unit === "food" ? 1 : 0.5} value={amount}
+            <input type="number" min={unit === "hours" ? 0.5 : 1}
+                   step={unit === "hours" ? 0.5 : 1} value={amount}
                    onChange={(e) => setAmount(Number(e.target.value) || 0)}
                    className={`${sel} w-20`} />
             {/* Food is first because it is the unit the FC already uses. */}
             <span className="flex items-center gap-1.5">
               {unit === "food" && <FoodIcon size={16} className="text-gold" />}
-              <select value={unit} onChange={(e) => setUnit(e.target.value as "hours" | "food")}
+              <select value={unit}
+                      onChange={(e) => {
+                        const next = e.target.value as LengthUnit;
+                        setUnit(next);
+                        // Four hours and four runs are different evenings, and
+                        // a number carried across the change is a number
+                        // nobody chose for the unit it lands in.
+                        setAmount(next === "hours" ? 2 : next === "runs" ? 3 : 4);
+                      }}
                       className={sel} aria-label={t("pf.unit")}>
                 <option value="food">food</option>
                 <option value="hours">{t("pf.hours")}</option>
+                <option value="runs">{t("pf.runs")}</option>
               </select>
             </span>
           </span>
@@ -446,15 +473,20 @@ export default function PartyCreate(
 
         <p className={`pb-2 text-[12px] ${past ? "text-chili" : "text-muted"}`}>
           {past ? t("pf.past")
-            : <>
-                {unit === "food" && (
-                  <>
-                    <FoodIcon size={12} className="text-gold" /> 1 food
-                    {" "}= {FOOD_MINUTES} min ·{" "}
-                  </>
-                )}
-                {fmtTime(draft.startsAt)} → {fmtTime(endsAt(draft))}
-              </>}
+            : unit === "runs"
+              // No arrow and no end time, because that is the whole point of
+              // saying it in runs. Putting "→ 21:30" here would be the form
+              // making up the number the party declined to give.
+              ? <>{fmtTime(draft.startsAt)} · {t("pf.runsWhy")}</>
+              : <>
+                  {unit === "food" && (
+                    <>
+                      <FoodIcon size={12} className="text-gold" /> 1 food
+                      {" "}= {FOOD_MINUTES} min ·{" "}
+                    </>
+                  )}
+                  {fmtTime(draft.startsAt)} → {fmtTime(endsAt(draft))}
+                </>}
         </p>
       </div>
 

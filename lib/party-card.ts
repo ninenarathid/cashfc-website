@@ -1,5 +1,5 @@
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
-import type { Loot, MapPlan, Progress, Shape, Spot } from "@/lib/party";
+import type { LengthUnit, Loot, MapPlan, Progress, Shape, Spot } from "@/lib/party";
 
 /**
  * One party, as much of it as a link preview should say.
@@ -21,6 +21,9 @@ export interface PartyCard {
   shape: Shape;
   startsAt: string;
   lengthMinutes: number;
+  lengthUnit: LengthUnit;
+  /** How many goes, where the length is a count of them. */
+  runs: number | null;
   ownerName: string | null;
   /** 0 for a party with no fixed seats. */
   seatsTotal: number;
@@ -37,6 +40,8 @@ interface Row {
   shape: string;
   starts_at: string;
   length_minutes: number;
+  length_unit: string;
+  runs: number | null;
   owner_name: string | null;
   seats_total: number;
   seats_taken: number;
@@ -78,6 +83,9 @@ export async function partyCard(id: string): Promise<PartyCard | null> {
       shape: r.shape as Shape,
       startsAt: r.starts_at,
       lengthMinutes: r.length_minutes,
+      lengthUnit: (r.length_unit === "hours" ? "hours"
+        : r.length_unit === "runs" ? "runs" : "food") as LengthUnit,
+      runs: r.runs ?? null,
       ownerName: r.owner_name,
       seatsTotal: r.seats_total,
       seatsTaken: r.seats_taken,

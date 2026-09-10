@@ -1,5 +1,7 @@
-import type { ContentKind, LootRule, PayOn, ProgressAt, Shape } from "@/lib/party";
-import { LOOT_LABEL } from "@/lib/party";
+import type {
+  ContentKind, LengthUnit, LootRule, PayOn, ProgressAt, Shape,
+} from "@/lib/party";
+import { LOOT_LABEL, fmtLength, minutesToFood } from "@/lib/party";
 import type { Key } from "@/lib/i18n";
 
 /**
@@ -54,6 +56,30 @@ const PROGRESS_KEY: Record<ProgressAt, Key> = {
 
 /** The rung's own name stays English; what it asks of you does not. */
 export const progressHelp = (at: ProgressAt, t: T): string => t(PROGRESS_KEY[at]);
+
+/* ── how long ────────────────────────────────────────────────────────────── */
+
+/**
+ * The length, said the way the party said it.
+ *
+ * Three units and three different sentences. Hours and food are lengths and
+ * read as one; runs is a count, and rendering it as the minutes the board
+ * privately assumed would be putting a number in the party's mouth that it
+ * deliberately declined to give.
+ */
+export function lengthSay(
+  p: { lengthMinutes: number; lengthUnit: LengthUnit; runs?: number }, t: T,
+): string {
+  if (p.lengthUnit === "runs") {
+    const n = p.runs ?? 1;
+    return t("pf.nRuns", { n });
+  }
+  if (p.lengthUnit === "food") {
+    const f = minutesToFood(p.lengthMinutes);
+    return t("pf.nFood", { n: Number.isInteger(f) ? f : f.toFixed(1) });
+  }
+  return fmtLength(p.lengthMinutes);
+}
 
 /* ── who gets what ───────────────────────────────────────────────────────── */
 

@@ -1,8 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { makeFull, MAX_UPLOAD_BYTES } from "@/lib/gallery";
 import type {
-  Floater, Flex, Loot, MapPlan, Party, PartyBlock, PartyComment, Progress,
-  Reaction, SeatRule, Shape, SlotTaken, Spot,
+  Floater, Flex, LengthUnit, Loot, MapPlan, Party, PartyBlock, PartyComment,
+  Progress, Reaction, SeatRule, Shape, SlotTaken, Spot,
 } from "@/lib/party";
 
 /**
@@ -32,6 +32,8 @@ interface PostRow {
   starts_at: string;
   length_minutes: number;
   length_unit: string;
+  /** How many goes, where the length is a count of them. See v44. */
+  runs: number | null;
   one_of_each_job: boolean;
   closed: string[] | null;
   rules: Record<string, SeatRule> | null;
@@ -79,7 +81,7 @@ interface CommentRow {
 
 const POST_COLS =
   "id, owner, owner_character_id, content_key, note, shape, starts_at,"
-  + " length_minutes, length_unit, one_of_each_job, closed, rules, progress,"
+  + " length_minutes, length_unit, runs, one_of_each_job, closed, rules, progress,"
   + " loot, spot, maps, body, created_at";
 
 const MEMBER_COLS =
@@ -208,7 +210,9 @@ export async function loadParties(
     shape: p.shape as Shape,
     startsAt: p.starts_at,
     lengthMinutes: p.length_minutes,
-    lengthUnit: (p.length_unit === "hours" ? "hours" : "food") as "hours" | "food",
+    lengthUnit: (p.length_unit === "hours" ? "hours"
+      : p.length_unit === "runs" ? "runs" : "food") as LengthUnit,
+    ...(p.runs ? { runs: p.runs } : {}),
     ownerCharacterId: p.owner_character_id ?? -1,
     seats: seatsOf.get(p.id) ?? {},
     floating: floatOf.get(p.id) ?? [],
@@ -247,6 +251,7 @@ export async function createParty(
     starts_at: p.startsAt,
     length_minutes: p.lengthMinutes,
     length_unit: p.lengthUnit,
+    runs: p.lengthUnit === "runs" ? (p.runs ?? null) : null,
     one_of_each_job: !!p.oneOfEachJob,
     closed: p.closed ?? [],
     rules: p.rules ?? {},

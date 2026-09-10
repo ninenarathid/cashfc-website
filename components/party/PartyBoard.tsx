@@ -10,16 +10,15 @@ import type { DutyArt } from "@/lib/duty";
 import {
   KIND_COLOR, KIND_ICON, KIND_LABEL, KIND_ORDER, ROLE_COLOR, ROLE_LABEL,
   LOOT_LABEL, PROGRESS_LABEL, STATUS_ORDER, catalogue, dayKey, endsAt, fmtDay,
-  fmtFood, fmtLength, fmtTime, hasBody, lootText, mapsText,
+  fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
   needsByRole, partyStatus, progressText, resolveParty, slotsOf, spotText,
-  timeIsEstimate,
 } from "@/lib/party";
 import { createClient } from "@/lib/supabase/client";
 import { addComment, createParty, loadParties } from "@/lib/party-db";
 import { useLiveParties } from "@/lib/party-live";
 import { mapLabel } from "@/lib/treasure";
 import { useLang } from "@/lib/i18n";
-import { lootLine, shapeSay } from "@/lib/party-i18n";
+import { lengthSay, lootLine, shapeSay } from "@/lib/party-i18n";
 import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
 import TagIcon from "@/components/TagIcon";
@@ -107,7 +106,10 @@ function PartyDetail(
   return (
     <Modal open onOpenChange={(v) => { if (!v) onClose(); }}
            title={def?.duty ?? def?.name ?? party.contentKey}
-           subtitle={`${fmtDay(party.startsAt)} · ${fmtTime(party.startsAt)} → ${fmtTime(endsAt(party))}`}>
+           subtitle={party.lengthUnit === "runs"
+             // No end time, because that is the point of counting in runs.
+             ? `${fmtDay(party.startsAt)} · ${fmtTime(party.startsAt)}`
+             : `${fmtDay(party.startsAt)} · ${fmtTime(party.startsAt)} → ${fmtTime(endsAt(party))}`}>
       <div className="flex flex-col gap-3">
         {/*
           * The still from the fight, across the top.
@@ -147,6 +149,13 @@ function PartyDetail(
 
         {/* The terms of the evening, the way the row says them. */}
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
+          <span className="flex items-center gap-1"
+                title={lengthIsEstimate(party, def?.kind) ? t("party.estimateWhy") : undefined}>
+            {lengthIsEstimate(party, def?.kind) && <span className="opacity-70">~</span>}
+            {party.lengthUnit === "food" && <FoodIcon size={11} className="text-gold" />}
+            {lengthSay(party, t)}
+          </span>
+          <span className="opacity-40">·</span>
           <span>{shapeSay(party.shape, def?.kind, t)}</span>
           {progressText(party.progress) && (
             <><span className="opacity-40">·</span>
@@ -189,7 +198,7 @@ function PartyDetail(
               <>{def.name} · </>
             )}
             {t("party.thaiTime")}
-            {timeIsEstimate(def?.kind) && (
+            {lengthIsEstimate(party, def?.kind) && (
               <> · {t("party.estimateWhy")}</>
             )}
           </p>
@@ -783,17 +792,17 @@ export default function PartyBoard(
 
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
                       <span className="flex items-center gap-1"
-                            title={timeIsEstimate(c?.kind) ? t("party.estimateWhy") : undefined}>
+                            title={lengthIsEstimate(p, c?.kind) ? t("party.estimateWhy") : undefined}>
                         {/* A map night has no end anybody chose — it runs until
                             the maps are done, and that is a dice roll. Saying
                             so is better than a time that quietly turns out to
-                            have been a guess. */}
-                        {timeIsEstimate(c?.kind) && <span className="opacity-70">~</span>}
-                        {fmtLength(p.lengthMinutes)}
+                            have been a guess. Same for a party counted in
+                            runs, which said as much on purpose. */}
+                        {lengthIsEstimate(p, c?.kind) && <span className="opacity-70">~</span>}
                         {p.lengthUnit === "food" && (
-                          <><FoodIcon size={11} className="text-gold" />
-                            {fmtFood(p.lengthMinutes)}</>
+                          <FoodIcon size={11} className="text-gold" />
                         )}
+                        {lengthSay(p, t)}
                       </span>
                       <span className="opacity-40">·</span>
                       <span>{shapeSay(p.shape, c?.kind, t)}</span>

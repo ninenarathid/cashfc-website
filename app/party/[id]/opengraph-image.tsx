@@ -4,7 +4,7 @@ import sharp from "sharp";
 import { ImageResponse } from "next/og";
 import {
   KIND_COLOR, KIND_LABEL, PROGRESS_LABEL, SHAPE_LABEL, endsAt, fmtDay, fmtTime,
-  lootText, mapsText, openLabel, spotText,
+  fmtFood, fmtLength, fmtRuns, lootText, mapsText, openLabel, spotText,
 } from "@/lib/party";
 import { contentByKey } from "@/lib/party-seeds";
 import { partyCard, seatCount } from "@/lib/party-card";
@@ -123,6 +123,11 @@ export default async function Image(
 
   const full = card.seatsTotal > 0 && card.seatsTaken >= card.seatsTotal;
   const terms = [
+    // The length as the party said it. A run count is not a duration and the
+    // card should not turn it into one.
+    card.lengthUnit === "runs" ? fmtRuns(card.runs ?? 1)
+      : card.lengthUnit === "food" ? fmtFood(card.lengthMinutes)
+        : fmtLength(card.lengthMinutes),
     card.shape === "open" ? openLabel(def?.kind) : SHAPE_LABEL[card.shape],
     card.progress ? PROGRESS_LABEL[card.progress.at] : null,
     lootText(card.loot ?? undefined),
@@ -188,8 +193,12 @@ export default async function Image(
         }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 760 }}>
             <div style={{ display: "flex", fontSize: 38, fontWeight: 600 }}>
-              {fmtDay(card.startsAt)} · {fmtTime(card.startsAt)} → {fmtTime(
-                endsAt({ startsAt: card.startsAt, lengthMinutes: card.lengthMinutes } as never))}
+              {/* An arrow to an end time nobody promised would be the card
+                  inventing the number the party declined to give. */}
+              {card.lengthUnit === "runs"
+                ? `${fmtDay(card.startsAt)} · ${fmtTime(card.startsAt)}`
+                : `${fmtDay(card.startsAt)} · ${fmtTime(card.startsAt)} → ${fmtTime(
+                    endsAt({ startsAt: card.startsAt, lengthMinutes: card.lengthMinutes } as never))}`}
             </div>
             {!!terms.length && (
               <div style={{ display: "flex", fontSize: 26, color: MUTED }}>

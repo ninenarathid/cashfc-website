@@ -424,6 +424,43 @@ export const FOOD_MINUTES = 30;
 export const foodToMinutes = (food: number) => Math.round(food * FOOD_MINUTES);
 export const minutesToFood = (min: number) => min / FOOD_MINUTES;
 
+/**
+ * How long an evening is said to be.
+ *
+ *   hours  A time. "We are on until ten."
+ *   food   The same, in the unit the FC actually uses.
+ *   runs   A count of goes, for an evening whose length nobody can honestly
+ *          predict. "Three maps" or "four dungeons" is a real plan; "three
+ *          maps, which is ninety minutes" is a guess wearing a plan's clothes,
+ *          and the party gets judged for overrunning something it never said.
+ */
+export type LengthUnit = "hours" | "food" | "runs";
+
+/**
+ * What the board privately assumes a run takes.
+ *
+ * Only so the board can work out when an evening is over — which it has to
+ * know, because a party that never ends never leaves the list. It is never
+ * shown as a time and never presented as the plan: a listing measured in runs
+ * says "3 runs" and is marked as an estimate wherever a length appears.
+ *
+ * The numbers are deliberately generous. Over-running the guess costs an hour
+ * of a finished party sitting on the board; under-running it files a party as
+ * history while people are still in it.
+ */
+export const RUN_MINUTES: Partial<Record<ContentKind, number>> = {
+  extreme: 20, savage: 30, ultimate: 45, alliance: 30, criterion: 40,
+  dungeon: 40, treasure: 25, fate: 30, hunt: 45, pvp: 25,
+};
+export const DEFAULT_RUN_MINUTES = 30;
+
+export const runsToMinutes = (runs: number, kind: ContentKind | undefined) =>
+  Math.max(15, Math.min(1440,
+    Math.round(runs * ((kind && RUN_MINUTES[kind]) ?? DEFAULT_RUN_MINUTES))));
+
+export const minutesToRuns = (min: number, kind: ContentKind | undefined) =>
+  Math.max(1, Math.round(min / ((kind && RUN_MINUTES[kind]) ?? DEFAULT_RUN_MINUTES)));
+
 /** "2h 30m" */
 export function fmtLength(minutes: number): string {
   const h = Math.floor(minutes / 60);
@@ -436,6 +473,9 @@ export const fmtFood = (minutes: number): string => {
   const f = minutesToFood(minutes);
   return `${Number.isInteger(f) ? f : f.toFixed(1)} food`;
 };
+
+/** "3 runs" — the length of an evening nobody can put a clock on. */
+export const fmtRuns = (n: number): string => `${n} ${n === 1 ? "run" : "runs"}`;
 
 /**
  * Bangkok, always, whoever is reading.
@@ -666,7 +706,16 @@ export interface Party {
   startsAt: string;
   lengthMinutes: number;
   /** How the length was typed in, so it can be shown back the same way. */
-  lengthUnit: "hours" | "food";
+  lengthUnit: LengthUnit;
+  /**
+   * How many goes, where the length is a count of them.
+   *
+   * Kept alongside lengthMinutes rather than derived back out of it, because
+   * the minutes are the board's own assumption about how long a run takes and
+   * dividing by that assumption to recover the number somebody actually typed
+   * is a round trip through a guess.
+   */
+  runs?: number;
   ownerCharacterId: number;
   /** Seat id -> who is in it. Absent means open. */
   seats: Record<string, SlotTaken>;
@@ -1355,6 +1404,17 @@ export const hasMaps = (kind: ContentKind | undefined): boolean =>
  */
 export const timeIsEstimate = (kind: ContentKind | undefined): boolean =>
   kind === "treasure";
+
+/**
+ * Whether this particular party's length is a guess.
+ *
+ * Two ways to get there: the content is one whose length nobody controls, or
+ * the party said its length in runs, which is the same admission made
+ * deliberately.
+ */
+export const lengthIsEstimate = (
+  p: { lengthUnit: LengthUnit }, kind: ContentKind | undefined,
+): boolean => p.lengthUnit === "runs" || timeIsEstimate(kind);
 
 /** "G18 · 3 each", "G18", "2 each". */
 export function mapsText(m: MapPlan | undefined, gOf?: (name: string) => string | undefined): string | null {

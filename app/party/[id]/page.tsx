@@ -6,8 +6,8 @@ import type { BoardData } from "@/lib/types";
 import { partySeeds, contentByKey } from "@/lib/party-seeds";
 import { partyCard, seatCount } from "@/lib/party-card";
 import {
-  KIND_LABEL, PROGRESS_LABEL, SHAPE_LABEL, fmtDay, fmtTime, lootText,
-  openLabel, spotText,
+  KIND_LABEL, PROGRESS_LABEL, SHAPE_LABEL, fmtDay, fmtFood, fmtLength, fmtRuns,
+  fmtTime, lootText, openLabel, spotText,
 } from "@/lib/party";
 
 /**
@@ -42,6 +42,9 @@ export async function generateMetadata(
   // how full, and what the evening's terms are.
   const bits = [
     `${fmtDay(card.startsAt)} ${fmtTime(card.startsAt)}`,
+    card.lengthUnit === "runs" ? fmtRuns(card.runs ?? 1)
+      : card.lengthUnit === "food" ? fmtFood(card.lengthMinutes)
+        : fmtLength(card.lengthMinutes),
     card.seatsTotal ? `${seatCount(card)} in the party` : `${card.seatsTaken} coming`,
     card.shape === "open" ? openLabel(def?.kind) : SHAPE_LABEL[card.shape],
     card.progress ? PROGRESS_LABEL[card.progress.at] : null,
