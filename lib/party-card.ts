@@ -84,7 +84,8 @@ export async function partyCard(id: string): Promise<PartyCard | null> {
       startsAt: r.starts_at,
       lengthMinutes: r.length_minutes,
       lengthUnit: (r.length_unit === "hours" ? "hours"
-        : r.length_unit === "runs" ? "runs" : "food") as LengthUnit,
+        : r.length_unit === "runs" ? "runs"
+          : r.length_unit === "maps" ? "maps" : "food") as LengthUnit,
       runs: r.runs ?? null,
       ownerName: r.owner_name,
       seatsTotal: r.seats_total,

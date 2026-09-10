@@ -70,6 +70,9 @@ export const progressHelp = (at: ProgressAt, t: T): string => t(PROGRESS_KEY[at]
 export function lengthSay(
   p: { lengthMinutes: number; lengthUnit: LengthUnit; runs?: number }, t: T,
 ): string {
+  // Not a length: a map night ends when the maps do, and the listing already
+  // says how many each. There is no number here to render.
+  if (p.lengthUnit === "maps") return t("pf.untilMapsDone");
   if (p.lengthUnit === "runs") {
     const n = p.runs ?? 1;
     return t("pf.nRuns", { n });

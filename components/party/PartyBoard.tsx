@@ -107,7 +107,7 @@ function PartyDetail(
   return (
     <Modal open onOpenChange={(v) => { if (!v) onClose(); }}
            title={def?.duty ?? def?.name ?? party.contentKey}
-           subtitle={party.lengthUnit === "runs"
+           subtitle={party.lengthUnit === "runs" || party.lengthUnit === "maps"
              // No end time, because that is the point of counting in runs.
              ? `${fmtDay(party.startsAt)} · ${fmtTime(party.startsAt)}`
              : `${fmtDay(party.startsAt)} · ${fmtTime(party.startsAt)} → ${fmtTime(endsAt(party))}`}>

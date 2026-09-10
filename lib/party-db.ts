@@ -211,7 +211,8 @@ export async function loadParties(
     startsAt: p.starts_at,
     lengthMinutes: p.length_minutes,
     lengthUnit: (p.length_unit === "hours" ? "hours"
-      : p.length_unit === "runs" ? "runs" : "food") as LengthUnit,
+      : p.length_unit === "runs" ? "runs"
+        : p.length_unit === "maps" ? "maps" : "food") as LengthUnit,
     ...(p.runs ? { runs: p.runs } : {}),
     ownerCharacterId: p.owner_character_id ?? -1,
     seats: seatsOf.get(p.id) ?? {},

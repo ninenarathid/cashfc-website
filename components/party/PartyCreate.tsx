@@ -7,7 +7,7 @@ import type {
 } from "@/lib/party";
 import {
   DEFAULT_AMOUNT, DEFAULT_LENGTH, DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL,
-  canFlex, endsAt, flexLabel, lengthUnitsFor, runsToMinutes,
+  canFlex, endsAt, flexLabel, lengthUnitsFor, mapsToMinutes, runsToMinutes,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasSpot, isFight, lootRulesFor,
   shapeLabel,
   slotsOf, whoKey,
@@ -284,11 +284,14 @@ export default function PartyCreate(
    * has nothing to do with. See lengthUnitsFor.
    */
   const units = lengthUnitsFor(chosen?.kind);
-  const useUnit: LengthUnit = units.includes(unit) ? unit : "hours";
+  // Falls back to whatever this content does allow rather than to hours: a map
+  // night has no hours to fall back to, and the effect below is a render late.
+  const useUnit: LengthUnit = units.includes(unit) ? unit : (units[0] ?? "hours");
 
-  const minutes = useUnit === "food" ? foodToMinutes(amount)
-    : useUnit === "runs" ? runsToMinutes(amount, chosen?.kind)
-      : Math.round(amount * 60);
+  const minutes = useUnit === "maps" ? mapsToMinutes(maps?.each)
+    : useUnit === "food" ? foodToMinutes(amount)
+      : useUnit === "runs" ? runsToMinutes(amount, chosen?.kind)
+        : Math.round(amount * 60);
 
   // Recomputed on every render rather than held in state: "now" moves, and a
   // floor captured when the form opened would let a slow form-filler set a
@@ -318,8 +321,11 @@ export default function PartyCreate(
    */
   useEffect(() => {
     if (units.includes(unit)) return;
-    setUnit("hours");
-    setAmount(DEFAULT_AMOUNT.hours);
+    // Whatever this content does allow, which for a map night is the sentence
+    // rather than a number.
+    const next = units[0] ?? "hours";
+    setUnit(next);
+    setAmount(DEFAULT_AMOUNT[next]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [units.join(",")]);
 
@@ -353,7 +359,7 @@ export default function PartyCreate(
     createdAt: new Date().toISOString(),
   }), [contentKey, note, useShape, start, minutes, unit, me.id, seats, closed,
        rules, oneEach, floating, body, progress, safeLoot, spot, maps,
-       useUnit, chosen?.kind]);
+       useUnit, minutes, chosen?.kind]);
 
   const mySeat = Object.entries(seats).find(([, v]) => v.characterId === me.id)?.[0];
   const iAmFloating = floating.some((f) => f.characterId === me.id);
@@ -498,10 +504,15 @@ export default function PartyCreate(
             {t("pf.for")}
           </span>
           <span className="flex items-stretch gap-1.5">
-            <input type="number" min={useUnit === "hours" ? 0.5 : 1}
-                   step={useUnit === "hours" ? 0.5 : 1} value={amount}
-                   onChange={(e) => setAmount(Number(e.target.value) || 0)}
-                   className={`${sel} w-20`} />
+            {/* A map night is not a number of anything. How many each person
+                brings is asked once, in the map picker, and the evening ends
+                when those are done. */}
+            {useUnit !== "maps" && (
+              <input type="number" min={useUnit === "hours" ? 0.5 : 1}
+                     step={useUnit === "hours" ? 0.5 : 1} value={amount}
+                     onChange={(e) => setAmount(Number(e.target.value) || 0)}
+                     className={`${sel} w-20`} />
+            )}
             {/* Food is first because it is the unit the FC already uses. */}
             <span className="flex items-center gap-1.5">
               {useUnit === "food" && <FoodIcon size={16} className="text-gold" />}
@@ -509,7 +520,7 @@ export default function PartyCreate(
                   control that cannot be moved, so it is said as a word. */}
               {units.length === 1 ? (
                 <span className="flex items-center px-1 text-[13.5px] text-muted">
-                  {t("pf.hours")}
+                  {t(useUnit === "maps" ? "pf.untilMapsDone" : "pf.hours")}
                 </span>
               ) : (
                 <select value={useUnit}
@@ -524,7 +535,9 @@ export default function PartyCreate(
                         className={sel} aria-label={t("pf.unit")}>
                   {units.map((u) => (
                     <option key={u} value={u}>
-                      {u === "food" ? "food" : t(u === "hours" ? "pf.hours" : "pf.runs")}
+                      {u === "food" ? "food"
+                        : t(u === "hours" ? "pf.hours"
+                          : u === "runs" ? "pf.runs" : "pf.untilMapsDone")}
                     </option>
                   ))}
                 </select>
@@ -535,7 +548,11 @@ export default function PartyCreate(
 
         <p className={`pb-2 text-[12px] ${past ? "text-chili" : "text-muted"}`}>
           {past ? t("pf.past")
-            : useUnit === "runs"
+            : useUnit === "maps"
+              // No end time, for the same reason a run count has none — and
+              // the sentence beside the control has already said it.
+              ? <>{fmtTime(draft.startsAt)} · {t("party.estimateWhy")}</>
+              : useUnit === "runs"
               // No arrow and no end time, because that is the whole point of
               // saying it in runs. Putting "→ 21:30" here would be the form
               // making up the number the party declined to give.

@@ -1670,6 +1670,10 @@ const DICT = {
   "pf.runs": { en: "runs", th: "รอบ" },
   "pf.nRuns": { en: "{n} runs", th: "{n} รอบ" },
   "pf.nFood": { en: "{n} food", th: "{n} จาน" },
+  "pf.untilMapsDone": {
+    en: "until everybody's maps are done",
+    th: "จนกว่าทุกคนจะเปิดแมพครบ",
+  },
   "pf.runsWhy": {
     en: "as many as it takes — no end time",
     th: "จนกว่าจะครบรอบ ไม่กำหนดเวลาจบ",

@@ -449,11 +449,15 @@ export const minutesToFood = (min: number) => min / FOOD_MINUTES;
  *   hours  A time. "We are on until ten."
  *   food   The same, in the unit the FC actually uses.
  *   runs   A count of goes, for an evening whose length nobody can honestly
- *          predict. "Three maps" or "four dungeons" is a real plan; "three
- *          maps, which is ninety minutes" is a guess wearing a plan's clothes,
- *          and the party gets judged for overrunning something it never said.
+ *          predict. "Four dungeons" is a real plan; "four dungeons, which is
+ *          two hours" is a guess wearing a plan's clothes, and the party gets
+ *          judged for overrunning something it never said.
+ *   maps   Not a length at all: a treasure night ends when everybody's maps
+ *          are done, and how long that takes is a dice roll nobody controls.
+ *          The listing already says how many each, so there is no second
+ *          number to give — the evening's end is the sentence.
  */
-export type LengthUnit = "hours" | "food" | "runs";
+export type LengthUnit = "hours" | "food" | "runs" | "maps";
 
 /**
  * Which of the three this kind of content can honestly be measured in.
@@ -474,9 +478,14 @@ export type LengthUnit = "hours" | "food" | "runs";
  * listing opens on.
  */
 export function lengthUnitsFor(kind: ContentKind | undefined): LengthUnit[] {
+  // A map night has one honest answer and it is not a number. Offering hours
+  // beside it would be offering somebody the chance to promise a time the
+  // content cannot keep.
+  if (kind === "treasure") return ["maps"];
   const fed = kind === "extreme" || kind === "savage" || kind === "ultimate"
     || kind === "criterion";
-  const countable = fed || kind === "dungeon" || kind === "pvp";
+  const countable = fed || kind === "dungeon" || kind === "pvp"
+    || kind === "alliance";
   return [
     "hours",
     ...(fed ? ["food" as const] : []),
@@ -498,7 +507,7 @@ export const DEFAULT_LENGTH: { unit: LengthUnit; amount: number } = {
 /** A sensible number when somebody switches units, since four hours and four
  *  runs are different evenings and the digit should not simply carry over. */
 export const DEFAULT_AMOUNT: Record<LengthUnit, number> = {
-  hours: 1, food: 4, runs: 3,
+  hours: 1, food: 4, runs: 3, maps: 1,
 };
 
 /**
@@ -525,6 +534,21 @@ export const runsToMinutes = (runs: number, kind: ContentKind | undefined) =>
 
 export const minutesToRuns = (min: number, kind: ContentKind | undefined) =>
   Math.max(1, Math.round(min / ((kind && RUN_MINUTES[kind]) ?? DEFAULT_RUN_MINUTES)));
+
+/**
+ * How long the board privately assumes a map night runs.
+ *
+ * Never shown, and never presented as the plan — the listing says "until
+ * everybody's maps are done", which is the truth. This exists only so the
+ * board knows when the evening is over, because a party that never ends never
+ * leaves the list.
+ *
+ * Scaled by how many each person brings, generously. Over-running the guess
+ * costs an hour of a finished party sitting on the board; under-running it
+ * files a party as history while people are still portalling.
+ */
+export const mapsToMinutes = (each: number | undefined) =>
+  Math.max(60, Math.min(1440, (each ?? 2) * 45));
 
 /** "2h 30m" */
 export function fmtLength(minutes: number): string {
@@ -1479,7 +1503,8 @@ export const timeIsEstimate = (kind: ContentKind | undefined): boolean =>
  */
 export const lengthIsEstimate = (
   p: { lengthUnit: LengthUnit }, kind: ContentKind | undefined,
-): boolean => p.lengthUnit === "runs" || timeIsEstimate(kind);
+): boolean => p.lengthUnit === "runs" || p.lengthUnit === "maps"
+  || timeIsEstimate(kind);
 
 /** "G18 · 3 each", "G18", "2 each". */
 export function mapsText(m: MapPlan | undefined, gOf?: (name: string) => string | undefined): string | null {

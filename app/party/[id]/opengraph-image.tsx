@@ -125,9 +125,10 @@ export default async function Image(
   const terms = [
     // The length as the party said it. A run count is not a duration and the
     // card should not turn it into one.
-    card.lengthUnit === "runs" ? fmtRuns(card.runs ?? 1)
-      : card.lengthUnit === "food" ? fmtFood(card.lengthMinutes)
-        : fmtLength(card.lengthMinutes),
+    card.lengthUnit === "maps" ? "until the maps are done"
+      : card.lengthUnit === "runs" ? fmtRuns(card.runs ?? 1)
+        : card.lengthUnit === "food" ? fmtFood(card.lengthMinutes)
+          : fmtLength(card.lengthMinutes),
     card.shape === "open" ? openLabel(def?.kind) : SHAPE_LABEL[card.shape],
     card.progress ? PROGRESS_LABEL[card.progress.at] : null,
     lootText(card.loot ?? undefined),
@@ -195,7 +196,7 @@ export default async function Image(
             <div style={{ display: "flex", fontSize: 38, fontWeight: 600 }}>
               {/* An arrow to an end time nobody promised would be the card
                   inventing the number the party declined to give. */}
-              {card.lengthUnit === "runs"
+              {card.lengthUnit === "runs" || card.lengthUnit === "maps"
                 ? `${fmtDay(card.startsAt)} · ${fmtTime(card.startsAt)}`
                 : `${fmtDay(card.startsAt)} · ${fmtTime(card.startsAt)} → ${fmtTime(
                     endsAt({ startsAt: card.startsAt, lengthMinutes: card.lengthMinutes } as never))}`}
