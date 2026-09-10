@@ -1,4 +1,5 @@
 import { DUNGEONS } from "@/lib/dungeons";
+import { TRIALS } from "@/lib/trials";
 
 /**
  * The shape of a party, and the things a party is for.
@@ -92,7 +93,8 @@ export const SHAPE_LABEL: Record<Shape, string> = {
 export type ContentKind =
   | "extreme" | "savage" | "ultimate"
   | "alliance" | "treasure" | "fate" | "hunt" | "criterion" | "pvp"
-  | "community" | "field" | "dungeon" | "mentor" | "roulette" | "other";
+  | "community" | "field" | "dungeon" | "mentor" | "roulette" | "legacy"
+  | "other";
 
 export interface ContentDef {
   key: string;
@@ -169,6 +171,7 @@ export const KIND_LABEL: Record<ContentKind, string> = {
   community: "Community Events",
   field: "Field Operations",
   dungeon: "Dungeon",
+  legacy: "Legacy trial",
   mentor: "Find Mentor",
   roulette: "Roulette",
   other: "Other",
@@ -176,7 +179,8 @@ export const KIND_LABEL: Record<ContentKind, string> = {
 
 export const KIND_ORDER: ContentKind[] = [
   "extreme", "savage", "ultimate",
-  "alliance", "treasure", "criterion", "dungeon", "field", "pvp", "community",
+  "alliance", "treasure", "criterion", "legacy", "dungeon", "field", "pvp",
+  "community",
   "fate", "hunt", "roulette", "mentor", "other",
 ];
 
@@ -195,6 +199,9 @@ export const KIND_ICON: Partial<Record<ContentKind, string>> = {
   alliance: "alliance",
   criterion: "criterion",
   dungeon: "dungeon",
+  // The extreme maw, because that is what most of this list used to be and
+  // what people still call a trial's hard mode.
+  legacy: "extreme",
   roulette: "roulette",
   mentor: "mentor",
   field: "field",
@@ -239,6 +246,9 @@ export const KIND_COLOR: Record<ContentKind, string> = {
   community: "#d47fb8",
   field: "#a1734a",
   dungeon: "#5f9ea0",
+  // A duller version of the extreme orange: the same kind of fight, a patch or
+  // six ago, and the two chips have to be tellable apart in a row of fifteen.
+  legacy: "#b08b5e",
   // The crown's own colour, paler than the treasure gold so the two chips do
   // not read as the same thing at a glance.
   mentor: "#e8c86a",
@@ -395,6 +405,28 @@ export function catalogue(
      * Four seats, always. Every one of the hundred and three is a light party,
      * which is a fact about the game rather than a choice this listing offers.
      */
+    /*
+     * Every trial the game will still let you walk into unsynced.
+     *
+     * Which is most of what people actually arrange an evening of: eight
+     * people, one mount, and however many runs it takes. This patch's extreme
+     * is not here — it is on the board under Extreme, where it belongs while
+     * it is still being progressed — and the Ultimates are not trials.
+     *
+     * Eight seats, always, and the level is the badge for the same reason it
+     * is on a dungeon: "the Bowl of Embers" and "the Bowl of Embers (Extreme)"
+     * are thirty levels apart and read almost identically.
+     */
+    ...TRIALS.map((t) => ({
+      key: `leg:${t.id}`,
+      kind: "legacy" as const,
+      name: t.name,
+      duty: t.name,
+      group: t.expansion,
+      badge: `Lv${t.level}`,
+      shape: "full" as const,
+      fixedShape: true,
+    })),
     ...DUNGEONS.map((d) => ({
       key: `dun:${d.id}`,
       kind: "dungeon" as const,

@@ -72,7 +72,10 @@ export const progressHelp = (at: ProgressAt, t: T): string => t(PROGRESS_KEY[at]
  */
 export const kindSay = (kind: ContentKind | undefined, t: T): string =>
   kind === "mentor" ? t("party.kindMentor")
-    : kind ? KIND_LABEL[kind] : "";
+    // Not the game's word either: the Duty Finder just calls these Trials, and
+    // "legacy" is this site saying which ones it means.
+    : kind === "legacy" ? t("party.kindLegacy")
+      : kind ? KIND_LABEL[kind] : "";
 
 /* ── how long ────────────────────────────────────────────────────────────── */
 
