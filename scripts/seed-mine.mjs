@@ -6,13 +6,18 @@
 //
 // The board pulls the parties you are in out into their own area above the
 // schedule, and there is no way to look at that on a board where you are in
-// nothing. This puts somebody in three, one of each way it can happen:
+// nothing. This puts somebody in one of each way it can happen:
 //
 //   they put it up          — the lead, who has not taken a seat in their own
 //                             party, which is a real thing leads do
 //   they are in a seat      — the ordinary case
 //   they are flexing        — in the party with no seat yet, which is the case
 //                             the old "I am in it" filter quietly missed
+//
+// One of them carries a proper write-up — paragraphs with screenshots between
+// them — because the body of a party is the half nobody sees until somebody has
+// actually written one, and an empty one demonstrates nothing about how it
+// reads.
 //
 // Marked with rules.__demo, the same key scripts/seed-parties.mjs uses, so
 // either script's --clean takes all of it away.
@@ -77,6 +82,25 @@ const [owner2] = await rest(
 
 const soon = (h) => new Date(Date.now() + h * 3600_000).toISOString();
 const face = (m) => ({ character_id: m.id, name: m.name, avatar: m.avatar ?? null });
+let n = 0;
+const block = (b) => ({ id: `s${Date.now().toString(36)}${n++}`, ...b });
+
+/*
+ * A raid plan as somebody would actually write one.
+ *
+ * The pictures are the duty stills already in public/duty, served from the same
+ * origin as everything else — a seed script that uploaded files would need a
+ * signed-in user and would leave rubbish in the bucket when it was cleaned up.
+ */
+const WRITEUP = [
+  block({ kind: "text", text: "คืนนี้ไล่ตั้งแต่ P1 ก่อนนะครับ ใครยังไม่เคยลง บอกได้เลย เดี๋ยวอธิบายทีละท่า\nเปิดห้องเสียงตั้งแต่สองทุ่ม เข้ามาคุยกันก่อนได้" }),
+  block({ kind: "image", url: "/duty/savage/dawntrail/lindwurm.webp",
+          caption: "มาร์คตอน adds — เลข 1 คือจุดรวมพล" }),
+  block({ kind: "text", text: "ท่าที่คนพลาดบ่อยสุดคือ Wroth Flames ครั้งที่สอง ให้ดูเงาก่อนแล้วค่อยขยับ อย่าเพิ่งวิ่ง" }),
+  block({ kind: "image", url: "/duty/savage/dawntrail/lindwurm-ii.webp",
+          caption: "เฟสสอง ยืนตามสีที่ตัวเองได้" }),
+  block({ kind: "text", text: "ถ้าผ่านก่อนสี่ทุ่มครึ่ง จะต่อ M12S-2 อีกสองสามพูล\nไม่ผ่านก็ไม่เป็นไร อาทิตย์หน้าเอาใหม่" }),
+];
 
 /* ── the three ────────────────────────────────────────────────────────────── */
 const PLAN = [
@@ -102,6 +126,24 @@ const PLAN = [
     members: [
       { ...face(star), seat: "H1", job: "WhiteMage", confirmed_at: new Date().toISOString() },
       ...others.slice(0, 2).map((m, i) => ({ ...face(m), seat: ["MT", "D1"][i], confirmed_at: new Date().toISOString() })),
+    ],
+  },
+  {
+    why: "in a seat, with a write-up",
+    post: {
+      owner: owner2.id, owner_character_id: owner2.character_id,
+      content_key: "sav:M11S", note: "Prog M11S — เริ่มจาก P1",
+      shape: "full", starts_at: soon(3), length_minutes: 120, length_unit: "food",
+      progress: { at: "prog", mech: "Wroth Flames ครั้งที่สอง" },
+      loot: { rule: "ffa" },
+      body: WRITEUP,
+    },
+    members: [
+      { ...face(star), seat: "H2", job: "Scholar", confirmed_at: new Date().toISOString() },
+      ...others.slice(0, 3).map((m, i) => ({ ...face(m), seat: ["MT", "ST", "D1"][i], confirmed_at: new Date().toISOString() })),
+      // Two people asked about D4 and still deciding, which is the thing v47
+      // made possible and the thing worth looking at.
+      ...others.slice(3, 5).map((m) => ({ ...face(m), seat: null, flex: { seats: ["D4"] }, confirmed_at: null })),
     ],
   },
   {
@@ -140,6 +182,6 @@ for (const step of PLAN) {
   console.log(`#${party.id}  ${step.post.content_key.padEnd(14)} ${star.name} ${step.why}`);
 }
 
-console.log(`\n${made} parties. All three should appear under "parties you are in"`);
+console.log(`\n${made} parties. All of them should appear under "parties you are in"`);
 console.log("when signed in as that character.");
 console.log("node scripts/seed-mine.mjs --clean takes them away again.");
