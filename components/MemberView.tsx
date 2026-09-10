@@ -34,6 +34,7 @@ import { memberTitle } from "@/lib/tags";
 import { GUEST_RANK, guestHome } from "@/lib/guest-data";
 import { parseColor } from "@/lib/parse";
 import { markEntry } from "@/lib/evercold";
+import TellButton from "@/components/TellButton";
 
 /**
  * The wash behind a member's name, built from the one colour they picked.
@@ -425,6 +426,12 @@ export default function MemberView({
               <span className="relative -top-1 ml-3 align-middle">
                 <NewPlayer m={m} size={30} />
               </span>
+              {/* The one page where somebody has already decided they want to
+                  talk to this person. The world is theirs, not the FC's, for
+                  the eight of nine guests who are not on Tonberry. */}
+              <TellButton name={m.name} characterId={m.id}
+                          world={home?.world ?? fc.world} size={22}
+                          className="relative -top-1 ml-2.5 align-middle" />
             </h1>
             {ov?.nickname && (
               <div className="text-[15px] font-medium" style={{ color: accent }}>

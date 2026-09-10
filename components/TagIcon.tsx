@@ -115,6 +115,10 @@ const TAG_ICON: Record<string, { path: string; alt: string; square?: boolean }> 
   performance:  { path: "061000/061763", alt: "performance", square: true },
   veteran:      { path: "002000/002669", alt: "past raids" },
 
+  // The game's own speech bubble, for the button that copies a /tell. Found by
+  // rendering 061390-061450 and looking, the way every path here was picked.
+  tell:         { path: "061000/061397", alt: "send a tell", square: true },
+
   // Casual, Achievements private and No data get nothing on purpose: an icon
   // would dress up the absence of information as a thing somebody achieved.
 };

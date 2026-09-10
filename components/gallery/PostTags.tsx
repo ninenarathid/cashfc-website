@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { tagWho, type GalleryTag } from "@/lib/gallery";
+import TellButton from "@/components/TellButton";
 
 /**
  * Who is in this picture, written out under it.
@@ -133,10 +134,14 @@ export default function PostTags(
               {guest ? (
                 <span className="font-data" title={t("gallery.tagGuest")}>{who.name}</span>
               ) : (
-                <Link href={`/member/${who.characterId}`}
-                      className="font-data no-underline hover:text-accent">
-                  {who.name}
-                </Link>
+                <>
+                  <Link href={`/member/${who.characterId}`}
+                        className="font-data no-underline hover:text-accent">
+                    {who.name}
+                  </Link>
+                  <TellButton name={who.name} size={13}
+                              characterId={who.characterId} />
+                </>
               )}
               {who.pins > 0 && (
                 <span title={t("gallery.tagPinned")} className="text-[10px]">📍</span>

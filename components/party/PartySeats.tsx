@@ -10,6 +10,7 @@ import JobIcon from "@/components/JobIcon";
 import { RuleMark } from "@/components/party/JobRule";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
+import TellButton from "@/components/TellButton";
 
 /**
  * The face to draw for somebody.
@@ -202,6 +203,11 @@ function Seat(
             state === "waiting" ? "text-ink/60" : "text-ink"}`}>
             {who?.name}
           </span>
+          {/* Not for somebody off this site: there is no world to send it to,
+              and a tell to a name the game has never heard of goes nowhere. */}
+          {who?.characterId != null && (
+            <TellButton name={who.name} characterId={who.characterId} size={14} />
+          )}
         </span>
       ) : (
         <span className="flex min-w-0 flex-col gap-0.5">
@@ -310,6 +316,9 @@ export default function PartySeats(
                   f.confirmedAt ? "text-ink" : "text-ink/60"}`}>
                   {f.name}
                 </span>
+                {f.characterId != null && (
+                  <TellButton name={f.name} characterId={f.characterId} size={14} />
+                )}
                 {!f.confirmedAt && (
                   <span className="font-data text-[9px] uppercase tracking-[0.1em] text-gold">
                     {t("pf.askedShort")}

@@ -7,6 +7,7 @@ import { isOnVacation } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { fmtShort } from "@/lib/dates";
+import TellButton from "@/components/TellButton";
 
 /**
  * Whose birthday it is, and whose it is about to be.
@@ -101,6 +102,7 @@ export default function Birthdays({ members }: { members: Member[] }) {
   const Name = ({ d }: { d: Day }) => (
     <Link href={`/member/${d.id}`} className="text-ink no-underline hover:text-gold">
       {d.name}
+      <TellButton name={d.name} characterId={d.id} size={14} className="ml-1" />
     </Link>
   );
 

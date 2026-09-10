@@ -10,6 +10,7 @@ import { useLang } from "@/lib/i18n";
 import { TAG_COLOR, TAG_LABELS } from "@/lib/tags";
 import TagIcon from "@/components/TagIcon";
 import type { BucketRow } from "@/lib/leaderboards";
+import TellButton from "@/components/TellButton";
 
 /**
  * Who leads what, on the front page.
@@ -64,6 +65,7 @@ function Face({ row, first }: {
       <span className={`truncate font-data text-ink transition-colors hover:text-accent ${
         first ? "text-[12.5px] font-semibold" : "text-[12px] text-ink/75"}`}>
         {row.name}
+        <TellButton name={row.name} characterId={row.id} className="ml-1.5" />
       </span>
     </Link>
   );

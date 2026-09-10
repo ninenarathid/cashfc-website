@@ -8,6 +8,7 @@ import { hasHistory, seatWantLabel, suggestFor } from "@/lib/suggest";
 import JobIcon, { jobLabel } from "@/components/JobIcon";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
+import TellButton from "@/components/TellButton";
 
 /**
  * Who to ask for this seat.
@@ -121,6 +122,9 @@ export default function SeatSuggest(
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="flex flex-wrap items-center gap-1.5">
                 <span className="truncate text-[13px] text-ink">{p.name}</span>
+                {/* The next thing that happens after picking somebody off this
+                    list is asking them, so the line to do it is on the row. */}
+                <TellButton name={p.name} characterId={p.id} size={15} />
                 {/*
                   * The jobs, with the ones they actually killed this fight on
                   * ringed.

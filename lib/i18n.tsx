@@ -1929,6 +1929,13 @@ const DICT = {
     th: "หรือลากรูปมาวางตรงนี้",
   },
 
+  /* ── The tell button ───────────────────────────────────────────────
+     On every list of people, because every list of people is a list of
+     people somebody eventually wants to talk to. */
+  "tell.copy": { en: "Copy the /tell", th: "คัดลอกคำสั่ง /tell" },
+  "tell.copyFor": { en: "Copy a /tell for {name}", th: "คัดลอก /tell หา {name}" },
+  "tell.copied": { en: "Copied", th: "คัดลอกแล้ว" },
+
   "common.edit": { en: "Edit", th: "แก้ไข" },
   "common.noData": { en: "No data", th: "ไม่มีข้อมูล" },
 } satisfies Record<string, Entry>;
