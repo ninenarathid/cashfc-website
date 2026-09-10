@@ -1,6 +1,90 @@
 {
  "events": [
   {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Master Ninja"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "parse_up",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "set a new best parse: 99 on Cloud of Darkness as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 26699926,
+   "name": "Boonies Princess",
+   "text": "is now a Legendary Summoner"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 28950119,
+   "name": "Einz Aizerces",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "grade_up",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "is now a Expert Explorer ✨"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "rare_up",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "earned Onward and Upward — only 0.4% of players have it, and 76 more"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Legendary Bard"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 15912826,
+   "name": "Rin Shiba",
+   "text": "is now a Master Dragoon"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "job_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "is now a Master Astrologian"
+  },
+  {
+   "date": "2026-09-10",
+   "type": "level_100",
+   "id": 29090821,
+   "name": "Amber Levana",
+   "text": "reached level 100 on Sage!"
+  },
+  {
    "date": "2026-09-09",
    "type": "level_100",
    "id": 31831003,
@@ -1315,90 +1399,6 @@
    "id": 6951533,
    "name": "Aemond Targaryen",
    "text": "reached level 100 on Dragoon!"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "level_100",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 4505633,
-   "name": "Arcz Iris",
-   "text": "set a new best parse: 41 on Black Cat as Dar\u0001 \u0002night"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 43423269,
-   "name": "Bladez Sweeney",
-   "text": "set a new best parse: 98 on Honey B. Lovely as Paladin"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 43423269,
-   "name": "Bladez Sweeney",
-   "text": "is now a Legendary Paladin"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Master Astrologian"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "job_up",
-   "id": 40394823,
-   "name": "Dummii Amary",
-   "text": "is now a Master Samurai"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned Cut Above the Rest: Knives Occultum — only 0.6% of players have it"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned R&D: Stellar Raising Hammer"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "rare_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "earned Savage Trouble in Paradise III"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "level_100",
-   "id": 31155521,
-   "name": "Ketchup Love",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "rare_up",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "earned Thankful Thirteen — only 3.1% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-09-06",
-   "type": "parse_up",
-   "id": 38796459,
-   "name": "Minion Ke",
-   "text": "set a new best parse: 50 on Dancing Green as Dancer"
   }
  ]
 }

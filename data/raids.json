@@ -3948,20 +3948,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 112,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
-   }
-  ]
+  "_status": "ok"
  },
  "5720080": {
   "current": {
@@ -4991,6 +4978,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 84,
+      "median": 57,
+      "kills": 13,
+      "job": "Dancer"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 74,
+      "median": 54,
+      "kills": 15,
+      "job": "Dancer"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 83,
+      "median": 49,
+      "kills": 13,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 82,
+      "median": 43,
+      "kills": 21,
+      "job": "Dancer"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 92,
+      "median": 54,
+      "kills": 8,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -5754,6 +5793,58 @@
         "best": 33
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 66,
+      "median": 15,
+      "kills": 19,
+      "job": "Summoner"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 31,
+      "median": 10,
+      "kills": 12,
+      "job": "Summoner"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 36,
+      "median": 18,
+      "kills": 10,
+      "job": "Summoner"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 14,
+      "median": 10,
+      "kills": 13,
+      "job": "Summoner"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 10,
+      "median": 8,
+      "kills": 4,
+      "job": "Dancer"
      }
     ]
    },
@@ -8709,11 +8800,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 35.77,
+    "pct": 31.85,
     "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-07",
-    "last_ts": 1788798548
+    "pulls": 105,
+    "last": "2026-09-09",
+    "last_ts": 1788971608
    }
   ]
  },
@@ -10272,6 +10363,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 82,
+      "median": 72,
+      "kills": 9,
+      "job": "Ninja"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 83,
+      "median": 78,
+      "kills": 11,
+      "job": "Ninja"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 95,
+      "median": 69,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 79,
+      "median": 42,
+      "kills": 14,
+      "job": "Ninja"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 90,
+      "median": 59,
+      "kills": 7,
+      "job": "Ninja"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -10989,6 +11132,58 @@
         "best": 61
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 95,
+      "median": 80,
+      "kills": 54,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 97,
+      "median": 93,
+      "kills": 89,
+      "job": "Dragoon"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 98,
+      "median": 90,
+      "kills": 85,
+      "job": "Bard"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 95,
+      "median": 72,
+      "kills": 41,
+      "job": "Monk"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 97,
+      "median": 76,
+      "kills": 25,
+      "job": "Monk"
      }
     ]
    },
@@ -13610,6 +13805,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 95,
+      "median": 90,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 84,
+      "median": 47,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 93,
+      "median": 50,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 83,
+      "median": 22,
+      "kills": 14,
+      "job": "Dancer"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 44,
+      "median": 11,
+      "kills": 7,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -15562,6 +15809,40 @@
         "best": 9
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 25,
+      "median": 17,
+      "kills": 4,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 10,
+      "median": 10,
+      "kills": 2,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 16,
+      "median": 16,
+      "kills": 1,
+      "job": "Gunbreaker"
      }
     ]
    }
@@ -18437,6 +18718,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 84,
+      "median": 63,
+      "kills": 12,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 77,
+      "median": 45,
+      "kills": 7,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 79,
+      "median": 45,
+      "kills": 8,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 13,
+      "median": 13,
+      "kills": 4,
+      "job": "Astrologian"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 14,
+      "median": 11,
+      "kills": 2,
+      "job": "Astrologian"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -20510,6 +20843,31 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 70,
+      "median": 58,
+      "kills": 2,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 10,
+      "median": 10,
+      "kills": 1,
+      "job": "Gunbreaker"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -21406,6 +21764,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 88,
+      "median": 79,
+      "kills": 18,
+      "job": "Monk"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 89,
+      "median": 83,
+      "kills": 17,
+      "job": "Monk"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 91,
+      "median": 76,
+      "kills": 15,
+      "job": "Monk"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 95,
+      "median": 54,
+      "kills": 36,
+      "job": "Monk"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 92,
+      "median": 86,
+      "kills": 15,
+      "job": "Monk"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -21576,11 +21986,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 61.9,
+    "pct": 60.2,
     "phase": 3,
-    "pulls": 129,
-    "last": "2026-09-07",
-    "last_ts": 1788800450
+    "pulls": 118,
+    "last": "2026-09-09",
+    "last_ts": 1788973428
    }
   ]
  },
@@ -21940,6 +22350,58 @@
         "best": 21
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 52,
+      "median": 45,
+      "kills": 13,
+      "job": "Machinist"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 50,
+      "median": 32,
+      "kills": 12,
+      "job": "Machinist"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 37,
+      "median": 11,
+      "kills": 11,
+      "job": "Bard"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 35,
+      "median": 20,
+      "kills": 21,
+      "job": "Summoner"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 45,
+      "median": 16,
+      "kills": 13,
+      "job": "Summoner"
      }
     ]
    },
@@ -22720,6 +23182,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 96,
+      "median": 61,
+      "kills": 39,
+      "job": "Summoner"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 97,
+      "median": 79,
+      "kills": 71,
+      "job": "Summoner"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 98,
+      "median": 66,
+      "kills": 71,
+      "job": "Summoner"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 93,
+      "median": 39,
+      "kills": 65,
+      "job": "Summoner"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 89,
+      "median": 34,
+      "kills": 30,
+      "job": "Summoner"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -22818,11 +23332,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 35.77,
+    "pct": 31.85,
     "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-07",
-    "last_ts": 1788798548
+    "pulls": 105,
+    "last": "2026-09-09",
+    "last_ts": 1788971608
    }
   ]
  },
@@ -24091,6 +24605,58 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 68,
+      "median": 51,
+      "kills": 14,
+      "job": "Warrior"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 67,
+      "median": 17,
+      "kills": 13,
+      "job": "Warrior"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 66,
+      "median": 28,
+      "kills": 11,
+      "job": "Warrior"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 25,
+      "median": 16,
+      "kills": 12,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 65,
+      "median": 23,
+      "kills": 7,
+      "job": "Warrior"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -25167,6 +25733,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 79,
+      "median": 29,
+      "kills": 23,
+      "job": "Paladin"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 78,
+      "median": 29,
+      "kills": 31,
+      "job": "Paladin"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 84,
+      "median": 36,
+      "kills": 32,
+      "job": "Paladin"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 60,
+      "median": 14,
+      "kills": 40,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 23,
+      "median": 14,
+      "kills": 14,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -25875,6 +26493,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 100,
+      "median": 95,
+      "kills": 48,
+      "job": "Warrior"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 99,
+      "median": 96,
+      "kills": 56,
+      "job": "Warrior"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 99,
+      "median": 96,
+      "kills": 68,
+      "job": "Warrior"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 100,
+      "median": 86,
+      "kills": 46,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 99,
+      "median": 89,
+      "kills": 30,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -25981,11 +26651,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 35.77,
+    "pct": 31.85,
     "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-07",
-    "last_ts": 1788798548
+    "pulls": 105,
+    "last": "2026-09-09",
+    "last_ts": 1788971608
    }
   ]
  },
@@ -26475,6 +27145,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 82,
+      "median": 61,
+      "kills": 12,
+      "job": "Scholar"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 76,
+      "median": 50,
+      "kills": 12,
+      "job": "Scholar"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 83,
+      "median": 52,
+      "kills": 12,
+      "job": "Scholar"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 70,
+      "median": 38,
+      "kills": 28,
+      "job": "Scholar"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 71,
+      "median": 59,
+      "kills": 15,
+      "job": "Scholar"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -26546,11 +27268,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 61.9,
+    "pct": 60.2,
     "phase": 3,
-    "pulls": 150,
-    "last": "2026-09-07",
-    "last_ts": 1788800450
+    "pulls": 144,
+    "last": "2026-09-09",
+    "last_ts": 1788973428
    }
   ]
  },
@@ -27199,6 +27921,40 @@
       "median": 19,
       "kills": 1,
       "job": "Scholar"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 48,
+      "median": 14,
+      "kills": 6,
+      "job": "Dancer"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 9,
+      "median": 9,
+      "kills": 2,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 26,
+      "median": 26,
+      "kills": 1,
+      "job": "Dancer"
      }
     ]
    },
@@ -28261,6 +29017,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 99,
+      "median": 87,
+      "kills": 40,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 99,
+      "median": 90,
+      "kills": 88,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 98,
+      "median": 86,
+      "kills": 47,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 99,
+      "median": 78,
+      "kills": 47,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 96,
+      "median": 87,
+      "kills": 26,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -28399,11 +29207,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 35.77,
+    "pct": 31.85,
     "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-07",
-    "last_ts": 1788798548
+    "pulls": 105,
+    "last": "2026-09-09",
+    "last_ts": 1788971608
    }
   ]
  },
@@ -28628,6 +29436,58 @@
         "best": 23
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 96,
+      "median": 92,
+      "kills": 37,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 97,
+      "median": 77,
+      "kills": 33,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 92,
+      "median": 82,
+      "kills": 38,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 92,
+      "median": 63,
+      "kills": 42,
+      "job": "Astrologian"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 76,
+      "median": 46,
+      "kills": 21,
+      "job": "Astrologian"
      }
     ]
    },
@@ -29755,6 +30615,49 @@
       "name": "Hippokampos",
       "best": 7,
       "median": 7,
+      "kills": 1,
+      "job": "Samurai"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 19,
+      "median": 19,
+      "kills": 4,
+      "job": "Scholar"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 35,
+      "median": 35,
+      "kills": 5,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 37,
+      "median": 37,
+      "kills": 2,
+      "job": "Scholar"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 10,
+      "median": 10,
       "kills": 1,
       "job": "Samurai"
      }
@@ -32412,6 +33315,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 55,
+      "median": 26,
+      "kills": 19,
+      "job": "Samurai"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 62,
+      "median": 31,
+      "kills": 18,
+      "job": "Monk"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 58,
+      "median": 15,
+      "kills": 14,
+      "job": "Samurai"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 25,
+      "median": 10,
+      "kills": 18,
+      "job": "Samurai"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 13,
+      "median": 10,
+      "kills": 9,
+      "job": "Samurai"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -34024,6 +34979,22 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 18,
+      "median": 18,
+      "kills": 1,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -35388,6 +36359,58 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 96,
+      "median": 70,
+      "kills": 35,
+      "job": "Bard"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 96,
+      "median": 82,
+      "kills": 63,
+      "job": "Bard"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 95,
+      "median": 64,
+      "kills": 67,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 89,
+      "median": 61,
+      "kills": 40,
+      "job": "Bard"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 72,
+      "median": 50,
+      "kills": 23,
+      "job": "Bard"
+     }
+    ]
    }
   ],
   "_status": "ok",
@@ -35397,11 +36420,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 35.77,
+    "pct": 31.85,
     "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-07",
-    "last_ts": 1788798548
+    "pulls": 105,
+    "last": "2026-09-09",
+    "last_ts": 1788971608
    }
   ]
  },
@@ -36802,6 +37825,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 99,
+      "median": 96,
+      "kills": 73,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 99,
+      "median": 96,
+      "kills": 120,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 99,
+      "median": 95,
+      "kills": 135,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 99,
+      "median": 48,
+      "kills": 62,
+      "job": "WhiteMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 99,
+      "median": 39,
+      "kills": 35,
+      "job": "WhiteMage"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -36876,11 +37951,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 35.77,
+    "pct": 31.85,
     "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-07",
-    "last_ts": 1788798548
+    "pulls": 105,
+    "last": "2026-09-09",
+    "last_ts": 1788971608
    }
   ]
  },
@@ -38232,6 +39307,58 @@
         "best": 66
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 72,
+      "median": 39,
+      "kills": 21,
+      "job": "Scholar"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 72,
+      "median": 39,
+      "kills": 21,
+      "job": "Scholar"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 66,
+      "median": 22,
+      "kills": 18,
+      "job": "Scholar"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 44,
+      "median": 18,
+      "kills": 29,
+      "job": "Scholar"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 37,
+      "median": 27,
+      "kills": 18,
+      "job": "Scholar"
      }
     ]
    },
@@ -40887,6 +42014,22 @@
         "best": 18
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 55,
+      "median": 35,
+      "kills": 2,
+      "job": "RedMage"
      }
     ]
    }
@@ -44262,6 +45405,58 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 95,
+      "median": 84,
+      "kills": 20,
+      "job": "Scholar"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 91,
+      "median": 86,
+      "kills": 29,
+      "job": "Scholar"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 95,
+      "median": 81,
+      "kills": 36,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 43,
+      "median": 15,
+      "kills": 13,
+      "job": "Scholar"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 52,
+      "median": 13,
+      "kills": 6,
+      "job": "Scholar"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -46711,7 +47906,21 @@
       "best": 77,
       "median": 22,
       "kills": 9,
-      "job": "Dragoon"
+      "job": "Dragoon",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 7,
+        "best": 77
+       },
+       "Reaper": {
+        "kills": 1,
+        "best": 4
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 2
+       }
+      }
      },
      {
       "label": "P2S",
@@ -46720,7 +47929,17 @@
       "best": 44,
       "median": 20,
       "kills": 10,
-      "job": "Dragoon"
+      "job": "Dragoon",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 7,
+        "best": 44
+       },
+       "Reaper": {
+        "kills": 3,
+        "best": 24
+       }
+      }
      },
      {
       "label": "P3S",
@@ -46729,7 +47948,13 @@
       "best": 52,
       "median": 36,
       "kills": 2,
-      "job": "Dragoon"
+      "job": "Dragoon",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 2,
+        "best": 52
+       }
+      }
      },
      {
       "label": "P4S",
@@ -46738,7 +47963,17 @@
       "best": 40,
       "median": 17,
       "kills": 26,
-      "job": "Dragoon"
+      "job": "Dragoon",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 25,
+        "best": 40
+       },
+       "Reaper": {
+        "kills": 1,
+        "best": 11
+       }
+      }
      },
      {
       "label": null,
@@ -46747,7 +47982,13 @@
       "best": 26,
       "median": 12,
       "kills": 9,
-      "job": "Dragoon"
+      "job": "Dragoon",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 9,
+        "best": 26
+       }
+      }
      }
     ]
    }
@@ -57720,7 +58961,13 @@
       "best": 56,
       "median": 40,
       "kills": 5,
-      "job": "Monk"
+      "job": "Monk",
+      "job_kills": {
+       "Monk": {
+        "kills": 5,
+        "best": 56
+       }
+      }
      },
      {
       "label": "P2S",
@@ -57729,7 +58976,13 @@
       "best": 54,
       "median": 44,
       "kills": 5,
-      "job": "Monk"
+      "job": "Monk",
+      "job_kills": {
+       "Monk": {
+        "kills": 5,
+        "best": 54
+       }
+      }
      },
      {
       "label": "P3S",
@@ -57738,7 +58991,13 @@
       "best": 54,
       "median": 28,
       "kills": 2,
-      "job": "Monk"
+      "job": "Monk",
+      "job_kills": {
+       "Monk": {
+        "kills": 2,
+        "best": 54
+       }
+      }
      },
      {
       "label": "P4S",
@@ -57747,7 +59006,13 @@
       "best": 40,
       "median": 9,
       "kills": 8,
-      "job": "Monk"
+      "job": "Monk",
+      "job_kills": {
+       "Monk": {
+        "kills": 8,
+        "best": 40
+       }
+      }
      },
      {
       "label": null,
@@ -57756,7 +59021,13 @@
       "best": 39,
       "median": 35,
       "kills": 3,
-      "job": "Monk"
+      "job": "Monk",
+      "job_kills": {
+       "Monk": {
+        "kills": 3,
+        "best": 39
+       }
+      }
      }
     ]
    }
@@ -57988,20 +59259,9 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 59,
+    "pulls": 48,
     "last": "2026-09-04",
     "last_ts": 1788539850
-   },
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 56,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
    },
    {
     "encounter_id": 104,
@@ -59210,15 +60470,15 @@
   "_status": "ok",
   "progress": [
    {
-    "encounter_id": 104,
-    "name": "Lindwurm",
+    "encounter_id": 105,
+    "name": "Lindwurm II",
     "kind": "savage",
     "state": "learning",
-    "pct": 27.45,
+    "pct": 91.75,
     "phase": 0,
-    "pulls": 27,
-    "last": "2026-09-07",
-    "last_ts": 1788796654
+    "pulls": 1,
+    "last": "2026-09-09",
+    "last_ts": 1788964801
    }
   ]
  },
@@ -63611,20 +64871,9 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 59,
+    "pulls": 48,
     "last": "2026-09-04",
     "last_ts": 1788539850
-   },
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 15.68,
-    "phase": 1,
-    "pulls": 56,
-    "last": "2026-08-30",
-    "last_ts": 1788086407
    },
    {
     "encounter_id": 104,

@@ -152,7 +152,8 @@
    "pvp": "legendary"
   },
   "jobs": {
-   "Warrior": "legendary"
+   "Warrior": "legendary",
+   "Ninja": "master"
   },
   "ex": [
    "Doomtrain",
@@ -368,7 +369,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "legendary"
+   "Scholar": "master"
   },
   "ex": [],
   "ults": [
@@ -413,7 +414,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 130,
-  "level": 22,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -531,7 +532,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -645,7 +646,7 @@
   "mounts": 178,
   "minions": 290,
   "rare": 224,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -776,7 +777,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "38041221": {
   "name": "Kori Kona",
@@ -1041,7 +1042,7 @@
  },
  "31236337": {
   "name": "Whitefrost Marionette",
-  "parse": 98,
+  "parse": 99,
   "ult": 6,
   "mounts": 75,
   "minions": 144,
@@ -1124,7 +1125,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-07"
+  "chg": "2026-09-10"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -1298,7 +1299,7 @@
   "mounts": 123,
   "minions": 371,
   "rare": 208,
-  "level": 38,
+  "level": 39,
   "cc": [
    false,
    false,
@@ -1421,7 +1422,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -1616,7 +1617,7 @@
   "tiers": {},
   "jobs": {
    "BlackMage": "legendary",
-   "Summoner": "master",
+   "Summoner": "legendary",
    "Pictomancer": "expert",
    "RedMage": "expert"
   },
@@ -2129,6 +2130,7 @@
   "tiers": {},
   "jobs": {
    "Warrior": "legendary",
+   "Scholar": "master",
    "Paladin": "master"
   },
   "ex": [
@@ -3272,7 +3274,7 @@
   "mounts": 129,
   "minions": 246,
   "rare": 85,
-  "level": 11,
+  "level": 21,
   "cc": [
    true,
    true,
@@ -3384,7 +3386,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-08"
+  "chg": "2026-09-10"
  },
  "26268800": {
   "name": "Mono Sodium",
@@ -3830,7 +3832,7 @@
   "ult": 6,
   "mounts": 70,
   "minions": 149,
-  "rare": null,
+  "rare": 77,
   "level": 100,
   "cc": [
    true,
@@ -3839,8 +3841,88 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   564,
+   576,
+   950,
+   1057,
+   1337,
+   1701,
+   1714,
+   1993,
+   2444,
+   2779,
+   2868,
+   2870,
+   2931,
+   2934,
+   3074,
+   3113,
+   3154,
+   3162,
+   3178,
+   3252,
+   3253,
+   3317,
+   3318,
+   3346,
+   3348,
+   3349,
+   3350,
+   3473,
+   3532,
+   3577,
+   3616,
+   3617,
+   3630,
+   3631,
+   3632,
+   3651,
+   3654,
+   3673,
+   3676,
+   3677,
+   3679,
+   3765,
+   3768,
+   3805,
+   3811,
+   3818,
+   3819,
+   3823,
+   3824,
+   3855,
+   3858,
+   3867,
+   3868,
+   3869,
+   3870,
+   3874,
+   3875,
+   3889,
+   3890,
+   3895,
+   3896,
+   3897,
+   3898,
+   3899,
+   3937,
+   3938,
+   3943,
+   3962,
+   3979,
+   3998,
+   3999,
+   4002,
+   4003,
+   4004,
+   4006,
+   4007,
+   4074
+  ],
+  "tiers": {
+   "explorer": "expert"
+  },
   "jobs": {
    "BlackMage": "legendary",
    "Pictomancer": "legendary",
@@ -3863,7 +3945,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-10"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -3887,10 +3969,12 @@
    "Paladin": "legendary",
    "Gunbreaker": "legendary",
    "Samurai": "legendary",
+   "Bard": "legendary",
    "Machinist": "expert",
    "Warrior": "expert",
    "DarkKnight": "master",
-   "Monk": "legendary"
+   "Monk": "legendary",
+   "Dragoon": "master"
   },
   "ex": [
    "Guardian Arkveld",
@@ -4656,7 +4740,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 315,
-  "level": 36,
+  "level": 40,
   "cc": [
    false,
    false,
@@ -4787,7 +4871,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5125,7 +5209,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 24,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5149,7 +5233,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "34434658": {
   "name": "Araiva Leonhart",
@@ -5355,7 +5439,7 @@
    "Summoner": "expert",
    "Dancer": "expert",
    "Scholar": "expert",
-   "Astrologian": "expert"
+   "Astrologian": "master"
   },
   "ex": [],
   "ults": [
@@ -5517,9 +5601,7 @@
    4014,
    4017
   ],
-  "tiers": {
-   "explorer": "master"
-  },
+  "tiers": {},
   "jobs": {},
   "ex": [
    "Queen Eternal",
@@ -5671,7 +5753,6 @@
   ],
   "tiers": {
    "relic": "master",
-   "explorer": "master",
    "treasure": "expert"
   },
   "jobs": {},
@@ -7714,14 +7795,14 @@
   "mounts": 5,
   "minions": 14,
   "rare": 0,
-  "level": 72,
+  "level": 73,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-10"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8355,7 +8436,7 @@
   "mounts": 163,
   "minions": 367,
   "rare": 47,
-  "level": 19,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8424,7 +8505,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-10"
  },
  "28810440": {
   "name": "Amil Aeronril",
@@ -8571,14 +8652,14 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 82,
+  "level": 60,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-10"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
