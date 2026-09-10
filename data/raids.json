@@ -934,7 +934,13 @@
       "best": 96,
       "median": 71,
       "kills": 7,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 7,
+        "best": 96
+       }
+      }
      },
      {
       "label": "M2S",
@@ -943,7 +949,13 @@
       "best": 90,
       "median": 67,
       "kills": 8,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 8,
+        "best": 90
+       }
+      }
      },
      {
       "label": "M3S",
@@ -952,7 +964,13 @@
       "best": 95,
       "median": 84,
       "kills": 8,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 8,
+        "best": 95
+       }
+      }
      },
      {
       "label": "M4S",
@@ -961,7 +979,13 @@
       "best": 93,
       "median": 74,
       "kills": 8,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 8,
+        "best": 93
+       }
+      }
      }
     ]
    },
@@ -13389,7 +13413,13 @@
       "best": 85,
       "median": 81,
       "kills": 12,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 12,
+        "best": 85
+       }
+      }
      },
      {
       "label": "P10S",
@@ -13398,7 +13428,13 @@
       "best": 95,
       "median": 89,
       "kills": 15,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 15,
+        "best": 95
+       }
+      }
      },
      {
       "label": "P11S",
@@ -13407,7 +13443,13 @@
       "best": 86,
       "median": 73,
       "kills": 14,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 14,
+        "best": 86
+       }
+      }
      },
      {
       "label": "P12S",
@@ -13416,7 +13458,13 @@
       "best": 83,
       "median": 63,
       "kills": 20,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 20,
+        "best": 83
+       }
+      }
      },
      {
       "label": null,
@@ -13425,7 +13473,13 @@
       "best": 71,
       "median": 63,
       "kills": 8,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 8,
+        "best": 71
+       }
+      }
      }
     ]
    },
@@ -45296,12 +45350,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 49,
     "kills": 1,
     "job": "Ninja",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -46018,12 +46072,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 1,
     "kills": 1,
     "job": "Reaper",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    }
   ],
   "extremes": [],
@@ -50476,7 +50530,17 @@
       "best": 72,
       "median": 48,
       "kills": 11,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 4,
+        "best": 72
+       },
+       "Samurai": {
+        "kills": 7,
+        "best": 62
+       }
+      }
      },
      {
       "label": "M2S",
@@ -50485,7 +50549,17 @@
       "best": 87,
       "median": 49,
       "kills": 12,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 4,
+        "best": 87
+       },
+       "Samurai": {
+        "kills": 8,
+        "best": 63
+       }
+      }
      },
      {
       "label": "M3S",
@@ -50494,7 +50568,17 @@
       "best": 70,
       "median": 4,
       "kills": 11,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 7,
+        "best": 70
+       },
+       "Viper": {
+        "kills": 4,
+        "best": 45
+       }
+      }
      },
      {
       "label": "M4S",
@@ -50503,7 +50587,17 @@
       "best": 69,
       "median": 47,
       "kills": 5,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 3,
+        "best": 69
+       },
+       "Samurai": {
+        "kills": 2,
+        "best": 59
+       }
+      }
      }
     ]
    },
@@ -52363,7 +52457,21 @@
       "best": 95,
       "median": 87,
       "kills": 17,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Bard": {
+        "kills": 7,
+        "best": 88
+       },
+       "Machinist": {
+        "kills": 8,
+        "best": 95
+       },
+       "Dancer": {
+        "kills": 2,
+        "best": 47
+       }
+      }
      },
      {
       "label": "M2S",
@@ -52372,7 +52480,21 @@
       "best": 97,
       "median": 77,
       "kills": 17,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Bard": {
+        "kills": 8,
+        "best": 88
+       },
+       "Machinist": {
+        "kills": 8,
+        "best": 97
+       },
+       "Dancer": {
+        "kills": 1,
+        "best": 66
+       }
+      }
      },
      {
       "label": "M3S",
@@ -52381,7 +52503,25 @@
       "best": 98,
       "median": 84,
       "kills": 15,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 1,
+        "best": 61
+       },
+       "Machinist": {
+        "kills": 6,
+        "best": 98
+       },
+       "Bard": {
+        "kills": 7,
+        "best": 78
+       },
+       "Dancer": {
+        "kills": 1,
+        "best": 58
+       }
+      }
      },
      {
       "label": "M4S",
@@ -52390,7 +52530,21 @@
       "best": 92,
       "median": 67,
       "kills": 15,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Machinist": {
+        "kills": 6,
+        "best": 92
+       },
+       "Bard": {
+        "kills": 8,
+        "best": 69
+       },
+       "Pictomancer": {
+        "kills": 1,
+        "best": 7
+       }
+      }
      }
     ]
    },
@@ -59914,7 +60068,13 @@
       "best": 2,
       "median": 1,
       "kills": 3,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 3,
+        "best": 2
+       }
+      }
      },
      {
       "label": "P10S",
@@ -59923,7 +60083,13 @@
       "best": 1,
       "median": 1,
       "kills": 2,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 2,
+        "best": 1
+       }
+      }
      }
     ]
    },

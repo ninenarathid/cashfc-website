@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-09-10",
+   "type": "level_100",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-10",
    "type": "job_up",
    "id": 5720080,
    "name": "Bowling Chan",
@@ -1392,13 +1399,6 @@
    "id": 23767900,
    "name": "Spike Le'granddanois",
    "text": "is now a Expert Machinist"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 37648492,
-   "name": "Sunshine Eveningfall",
-   "text": "is now a Expert Dancer"
   }
  ]
 }
