@@ -146,6 +146,16 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   // The seat you were asked about went to somebody else. Still an invitation,
   // now a different one, which is why it is told rather than withdrawn.
   party_seat_gone: { say: "notif.partySeatGone", icon: "🪑", href: "/party" },
+  /*
+   * Your own party, filling and emptying, told to you and to nobody else.
+   *
+   * A lead who asked four people about D4 and went to make dinner used to come
+   * back to a party that had changed twice and had to count the seats to find
+   * out. The second one is the one that matters: somebody dropping out at ten
+   * to eight is the only thing a lead has to act on that evening.
+   */
+  party_in: { say: "notif.partyIn", icon: "🙌", href: "/party" },
+  party_out: { say: "notif.partyOut", icon: "🚪", href: "/party" },
 };
 
 /**

@@ -79,14 +79,17 @@ export default function PartyJoin(
    * exists to prevent, one level down. The lead picks from what was offered.
    */
   const [picked, setPicked] = useState<Set<string>>(new Set());
-  /**
-   * What became of the seat they were asked about.
+  /*
+   * "Whatever you are short of."
    *
-   * Said rather than silently done: somebody who agreed to D4 and is standing
-   * in the party without a seat needs to know which of those two happened, and
-   * to be able to walk back out if the answer changes the evening for them.
+   * A real answer, and for a lot of people the honest one — somebody with
+   * eight jobs at cap does not have a preference, they have a party to fill.
+   * Ticking all twenty-one to say so was a row of lit chips that meant the
+   * same thing and read like somebody who could not decide.
+   *
+   * It sends every job the seats will take, which is what it says.
    */
-  const [outcome, setOutcome] = useState<"seat" | "flex" | null>(null);
+  const [anyJob, setAnyJob] = useState(false);
 
   const iAmOwner = !!me && party.ownerCharacterId === me.id;
   const mine = useMemo(
@@ -292,9 +295,7 @@ export default function PartyJoin(
             <button disabled={busy}
                     onClick={() => run(async () => {
                       const r = await acceptInvite(supabase, mine.seatRowId!);
-                      if ("error" in r) return r;
-                      setOutcome(r.got === "seat" ? "seat" : "flex");
-                      return {};
+                      return "error" in r ? r : {};
                     })}
                     className={`${btn} border border-jade/60 bg-jade/15 text-jade hover:bg-jade/25`}>
               {asked && !seatGone ? t("party.acceptSeat", { seat: asked })
@@ -316,10 +317,6 @@ export default function PartyJoin(
               {mine.seat ? t("party.youAreInAt", { seat: mine.seat })
                          : t("party.youAreIn")}
             </span>
-            {/* Which of the two happened, once and only just after it did. */}
-            {outcome === "flex" && (
-              <span className="text-[12px] text-gold">{t("party.landedFlex")}</span>
-            )}
             <button disabled={busy}
                     onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
                     className={`${btn} border border-line text-muted hover:text-ink`}>
@@ -452,18 +449,29 @@ export default function PartyJoin(
                 {t("party.pickJob")}
               </span>
               <div className="flex flex-wrap gap-1.5">
+                <button type="button"
+                        onClick={() => { setAnyJob((v) => !v); setPicked(new Set()); }}
+                        className={`rounded-full border px-2.5 py-[3px] text-[12px] transition-colors ${
+                          anyJob ? "border-accent bg-accent/15 text-accent"
+                                 : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                  {t("party.jobAny")}
+                </button>
                 {jobs.map((j) => {
                   const on = picked.has(j);
                   return (
                     <button key={j} type="button" title={jobLabel(j)}
-                            onClick={() => setPicked((v) => {
-                              const next = new Set(v);
-                              if (!next.delete(j)) next.add(j);
-                              return next;
-                            })}
+                            onClick={() => {
+                              setAnyJob(false);
+                              setPicked((v) => {
+                                const next = new Set(v);
+                                if (!next.delete(j)) next.add(j);
+                                return next;
+                              });
+                            }}
                             className={`flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[12px] transition-colors ${
                               on ? "border-accent bg-accent/15 text-accent"
-                                 : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                                 : `border-line hover:border-muted hover:text-ink ${
+                                     anyJob ? "text-muted/50" : "text-muted"}`}`}>
                       <JobIcon job={j} size={16} />
                       {jobLabel(j)}
                     </button>
@@ -474,11 +482,13 @@ export default function PartyJoin(
           )}
 
           <div className="flex flex-wrap items-center gap-2">
-            <button disabled={busy || (asksJob && !picked.size)
+            <button disabled={busy || (asksJob && !picked.size && !anyJob)
                               || (seated && free.length > 0 && !any && !want.size)}
                     onClick={() => run(() => askToJoin(supabase, userId, party.id, {
                       characterId: me.id, name: me.name, avatar: me.avatar,
-                      jobs: [...picked],
+                      // "Any" is every job the seats will take, which is what
+                      // it means and what the resolver can place.
+                      jobs: anyJob ? jobs : [...picked],
                       // One seat is a request for that seat. Anything else is a
                       // floater, which is what the resolver needs to place
                       // somebody across the seats they said they could take.
@@ -492,6 +502,8 @@ export default function PartyJoin(
             </button>
             {seated && free.length > 0 && !any && !want.size ? (
               <span className="text-[12px] text-muted">{t("party.pickSeatsFirst")}</span>
+            ) : anyJob ? (
+              <span className="text-[12px] text-muted">{t("party.jobAnyWhy")}</span>
             ) : asksJob && !picked.size ? (
               <span className="text-[12px] text-muted">{t("party.pickJobFirst")}</span>
             ) : asking.length > 1 ? (
