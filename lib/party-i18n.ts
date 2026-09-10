@@ -1,7 +1,10 @@
 import type {
   ContentKind, LengthUnit, LootRule, PayOn, ProgressAt, Shape,
 } from "@/lib/party";
-import { KIND_LABEL, LOOT_LABEL, fmtLength, minutesToFood } from "@/lib/party";
+import {
+  KIND_LABEL, LOOT_LABEL, endsAt, fmtDay, fmtLength, fmtTime, minutesToFood,
+  timeIsEstimate,
+} from "@/lib/party";
 import type { Key } from "@/lib/i18n";
 
 /**
@@ -96,6 +99,44 @@ export function lengthSay(
     return t("pf.nFood", { n: Number.isInteger(f) ? f : f.toFixed(1) });
   }
   return fmtLength(p.lengthMinutes);
+}
+
+/**
+ * Why a length is a guess, said in the words that fit this evening.
+ *
+ * Two different reasons wear the same tilde, and they are not interchangeable.
+ * A treasure night ends when the maps are done and nobody controls how many
+ * portals open. A party counted in runs declined to name an end time on
+ * purpose. One sentence for both had every runs party explaining itself with a
+ * sentence about treasure maps.
+ *
+ * Undefined where the length is a plan somebody made and can be held to.
+ */
+export function whyEstimate(
+  p: { lengthUnit: LengthUnit }, kind: ContentKind | undefined, t: T,
+): string | undefined {
+  if (timeIsEstimate(kind)) return t("party.estimateWhy");
+  if (p.lengthUnit === "runs") return t("pf.runsWhy");
+  return undefined;
+}
+
+/**
+ * The whole date and time, spelled out: "Fri 11/09 · 20:00 → 22:00".
+ *
+ * The board says "in 3 hours" and the group heading says which day, both of
+ * which are the right answers to the questions people usually have. Neither is
+ * the answer to "what exactly am I writing in the Discord post", and working it
+ * back out of a relative time is the arithmetic nobody wants to do twice.
+ *
+ * No end where the party never claimed one — a run count and a map night are
+ * both open-ended on purpose, and an arrow to a made-up time would undo that.
+ */
+export function whenFull(
+  p: { startsAt: string; lengthMinutes: number; lengthUnit: LengthUnit },
+): string {
+  const from = `${fmtDay(p.startsAt)} · ${fmtTime(p.startsAt)}`;
+  if (p.lengthUnit === "runs" || p.lengthUnit === "maps") return from;
+  return `${from} → ${fmtTime(endsAt(p))}`;
 }
 
 /* ── who gets what ───────────────────────────────────────────────────────── */

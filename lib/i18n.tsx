@@ -482,6 +482,14 @@ const DICT = {
     en: "The seat you were asked about has been taken.",
     th: "ตำแหน่งที่คุณถูกชวนมาลง มีคนลงแล้ว",
   },
+  "notif.partyIn": {
+    en: "{who} joined your party.",
+    th: "{who} เข้าร่วมปาร์ตี้ของคุณแล้ว",
+  },
+  "notif.partyOut": {
+    en: "{who} left your party.",
+    th: "{who} ออกจากปาร์ตี้ของคุณ",
+  },
   "notif.partyTalk": {
     en: "{who} said something in a party you are in.",
     th: "{who} ส่งข้อความในปาร์ตี้ที่คุณอยู่",
@@ -1559,7 +1567,6 @@ const DICT = {
     th: "ไม่มีปาร์ตี้ที่ตรงกับที่เลือก ลองล้างตัวกรอง หรือตั้งปาร์ตี้เองก็ได้",
   },
   "party.onePerJob": { en: "one player per job", th: "หนึ่งคน/อาชีพ" },
-  "party.thaiTime": { en: "Thai time", th: "เวลาไทย" },
 
   /* ── The five states, which are the five things a reader wants ────── */
   "party.status": { en: "Status", th: "สถานะ" },
@@ -1612,10 +1619,6 @@ const DICT = {
   "party.acceptAnyway": { en: "Come anyway", th: "ตกลง เข้าร่วมเลย" },
   "party.youAreInAt": {
     en: "You are in, on {seat}", th: "คุณอยู่ในปาร์ตี้นี้แล้ว ตำแหน่ง {seat}",
-  },
-  "party.landedFlex": {
-    en: "the seat had gone, so you have none yet",
-    th: "ตำแหน่งเดิมเต็มไปแล้ว ตอนนี้ยังไม่มีตำแหน่ง",
   },
   "party.takeASeat": { en: "Take a seat", th: "เลือกตำแหน่ง" },
   "party.accept": { en: "Accept", th: "ตอบรับ" },
@@ -1703,10 +1706,15 @@ const DICT = {
   "pf.pickContent": { en: "What are we running?", th: "จะเล่นอะไร" },
   "pf.cancel": { en: "Cancel", th: "ยกเลิก" },
   "pf.close": { en: "close", th: "ปิด" },
+  "pf.whoIsIn": { en: "Who is in {seat}?", th: "ใครลง {seat}" },
   "pf.done": { en: "Done", th: "เสร็จ" },
   "pf.change": { en: "change", th: "เปลี่ยน" },
   "pf.choose": { en: "choose", th: "เลือก" },
   "pf.remove": { en: "Remove", th: "เอาออก" },
+  "pf.changeLower": { en: "change", th: "แก้ไข" },
+  "pf.removeLower": { en: "remove", th: "เอาออก" },
+  "pf.outsider": { en: "outside the FC", th: "คนนอก FC" },
+  "pf.noPositionsYet": { en: "no positions yet", th: "ยังไม่ได้เลือกตำแหน่ง" },
   /* Just what the field is. The examples it used to give — which map, which
      phase, voice or not — are three answers to a question the rest of the form
      already asks properly, and the one thing this field is for is the line
@@ -1718,7 +1726,7 @@ const DICT = {
   "pf.starts": { en: "Starts (Thai time)", th: "เริ่ม (เวลาไทย)" },
   /* "ยาว" is how long a thing is, not how long it lasts — it reads as a
      measurement of the party rather than of the evening. */
-  "pf.for": { en: "Length", th: "ระยะเวลา" },
+  "pf.for": { en: "Length (approx.)", th: "ระยะเวลา (โดยประมาณ)" },
   "pf.runs": { en: "runs", th: "รอบ" },
   "pf.nRuns": { en: "{n} runs", th: "{n} รอบ" },
   /* The FC's own unit, kept as the word they say rather than translated into
@@ -1754,6 +1762,20 @@ const DICT = {
   "pf.openPvp": { en: "Everyone queues separately", th: "ทุกคน queue แยกกัน" },
   "pf.openCommunity": { en: "Anyone can join", th: "ใครมาก็ได้" },
   "pf.openNone": { en: "No fixed party", th: "ไม่จำกัดปาร์ตี้" },
+  /* The same three, said as a sentence rather than a chip: the shape row has
+     room for two words and the empty seat panel has room for a line. */
+  "pf.openCommunityWhy": {
+    en: "No party — whoever turns up is part of it.",
+    th: "ไม่มีการจัดปาร์ตี้ ใครมาก็ร่วมได้เลย",
+  },
+  "pf.openPvpWhy": {
+    en: "No party is formed — everybody queues on their own.",
+    th: "ไม่มีการจัดปาร์ตี้ ทุกคน queue เอง",
+  },
+  "pf.openTurnUp": {
+    en: "No fixed party — turn up and join in.",
+    th: "ไม่มีการจัดปาร์ตี้ มาถึงแล้วเข้าร่วมได้เลย",
+  },
 
   /* Where we are: the rung names stay, what each one asks for does not. */
   "pf.whereWeAre": { en: "Where we are", th: "ถึงไหนแล้ว" },
@@ -1836,7 +1858,10 @@ const DICT = {
     en: "They go in at the end; move them where you want them",
     th: "รูปจะไปต่อท้าย แล้วค่อยเลื่อนไปตรงที่ต้องการ",
   },
-  "pf.planText": { en: "What is the plan?", th: "แผนเป็นยังไง" },
+  "pf.planText": {
+    en: "Details — the plan, what to bring, anything worth saying",
+    th: "เขียนรายละเอียด เช่น แผนการเล่น หรือสิ่งที่ต้องเตรียม",
+  },
   "pf.caption": { en: "Caption (optional)", th: "คำบรรยาย (ไม่ใส่ก็ได้)" },
   "pf.moveUp": { en: "Move up", th: "เลื่อนขึ้น" },
   "pf.moveDown": { en: "Move down", th: "เลื่อนลง" },
@@ -1886,6 +1911,11 @@ const DICT = {
     th: "ตำแหน่งยังสลับกันได้ในหมู่คนที่อยู่แล้ว",
   },
   "pf.jobsFor": { en: "Jobs for {seat}", th: "อาชีพสำหรับ {seat}" },
+  "party.jobAny": { en: "Any job", th: "อะไรก็ได้" },
+  "party.jobAnyWhy": {
+    en: "Whatever the party is short of",
+    th: "แล้วแต่ปาร์ตี้ขาดอะไร",
+  },
   "pf.anyJob": { en: "any job", th: "อาชีพไหนก็ได้" },
   "pf.alreadyOn": {
     en: "Somebody in the party is already on this",
@@ -1937,7 +1967,7 @@ const DICT = {
   "pf.freeAtTime": { en: "usually free then", th: "ปกติว่างช่วงนี้" },
   "pf.offConvention": { en: "off the usual spot", th: "ไม่ใช่ตำแหน่งที่ปกติเล่น" },
   "pf.moreSuggestions": { en: "{n} more", th: "อีก {n} คน" },
-  "pf.addFlexer": { en: "Add somebody who can flex…", th: "เพิ่มคนที่ flex ได้…" },
+  "pf.addFlexer": { en: "Add somebody to the party…", th: "เพิ่มคนใน Party" },
   "pf.flexibleNoSeat": { en: "Flexible — no seat yet", th: "Flex — ยังไม่มีตำแหน่ง" },
   "pf.flexHint": {
     en: "They show on every seat they could take, and drop into whichever one is left.",
@@ -1958,7 +1988,10 @@ const DICT = {
   "pf.takeOut": { en: "Take them out of this seat", th: "เอาออกจากตำแหน่งนี้" },
   "pf.thatIsMe": { en: "That is me", th: "ตรงนี้คือคุณ" },
   "pf.lookAgain": { en: "Look for somebody after all", th: "กลับมาหาคนตำแหน่งนี้" },
-  "pf.notLooking": { en: "Not looking for this seat", th: "ไม่หาคนตำแหน่งนี้" },
+  "pf.notLooking": {
+    en: "Not looking — somebody has this seat already",
+    th: "ไม่หาคนตำแหน่งนี้/มีคนอื่นลงตำแหน่งนี้แล้ว",
+  },
   "pf.invitedNotBooked": {
     en: "Anybody you place is invited, not booked — the seat says “awaiting reply” until they accept, the same as a photo tag. Somebody from outside is taken at your word.",
     th: "ใครที่คุณใส่ลงไปถือเป็นการชวน ยังไม่ใช่การจอง ตำแหน่งจะขึ้นว่า “รอตอบรับ” จนกว่าเขาจะรับ เหมือนแท็กรูป ส่วนคนนอกเว็บถือตามที่คุณบอก",

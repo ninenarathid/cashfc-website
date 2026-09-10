@@ -12,8 +12,10 @@ import {
   LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay,
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
   needsByRole, partyStatus, progressText, resolveParty, slotsOf, spotText,
+  timeIsEstimate,
 } from "@/lib/party";
 import { createClient } from "@/lib/supabase/client";
+
 import { addComment, createParty, loadParties } from "@/lib/party-db";
 import { useLiveParties } from "@/lib/party-live";
 import type { SuggestRow } from "@/lib/suggest";
@@ -21,7 +23,9 @@ import { mapLabel } from "@/lib/treasure";
 import { useLang } from "@/lib/i18n";
 import Link from "next/link";
 import { freeAt } from "@/lib/suggest";
-import { kindSay, lengthSay, lootLine, shapeSay } from "@/lib/party-i18n";
+import {
+  kindSay, lengthSay, lootLine, shapeSay, whenFull, whyEstimate,
+} from "@/lib/party-i18n";
 import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
 import TagIcon from "@/components/TagIcon";
@@ -116,7 +120,11 @@ function PartyDetail(
   const { t } = useLang();
   const tint = def ? KIND_COLOR[def.kind] : "#8b93a1";
   return (
-    <Modal open onOpenChange={(v) => { if (!v) onClose(); }}
+    /* Wide, because a party is not a column of fields: a still across the
+       top, a seat grid eight cells across, a write-up with screenshots in it
+       and the whole conversation underneath. At the form's width the grid
+       wrapped and the pictures came out postage stamps. */
+    <Modal open wide onOpenChange={(v) => { if (!v) onClose(); }}
            title={def?.duty ?? def?.name ?? party.contentKey}
            subtitle={party.lengthUnit === "runs" || party.lengthUnit === "maps"
              // No end time, because that is the point of counting in runs.
@@ -162,7 +170,7 @@ function PartyDetail(
         {/* The terms of the evening, the way the row says them. */}
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
           <span className="flex items-center gap-1"
-                title={lengthIsEstimate(party, def?.kind) ? t("party.estimateWhy") : undefined}>
+                title={whyEstimate(party, def?.kind, t)}>
             {lengthIsEstimate(party, def?.kind) && <span className="opacity-70">~</span>}
             {party.lengthUnit === "food" && <FoodIcon size={11} className="text-gold" />}
             {lengthSay(party, t)}
@@ -211,11 +219,14 @@ function PartyDetail(
               name the same fight has. The clock is in the subtitle already. */}
           <p className="text-[11.5px] text-muted">
             {def?.name && def.name !== def.badge && def.name !== def.duty && (
-              <>{def.name} · </>
+              <>{def.name}</>
             )}
-            {t("party.thaiTime")}
-            {lengthIsEstimate(party, def?.kind) && (
-              <> · {t("party.estimateWhy")}</>
+            {/* The sentence names treasure, because treasure is the only
+                evening whose end is a dice roll rather than a decision. A
+                party counted in runs is also a guess, and says so in its own
+                words beside the length rather than borrowing these. */}
+            {timeIsEstimate(def?.kind) && (
+              <>{def?.name ? " · " : ""}{t("party.estimateWhy")}</>
             )}
           </p>
 
@@ -878,9 +889,17 @@ export default function PartyBoard(
                       <StatusPill status={partyStatus(p, now)} />
                     </span>
 
+                    {/* The date and the two clock times, written out once.
+                        The stamp on the left is the start alone and the line
+                        under it is relative — neither is the thing you copy
+                        into a Discord post when you tell people to be there. */}
+                    <span className="font-data text-[11px] tabular-nums text-muted">
+                      {whenFull(p)}
+                    </span>
+
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
                       <span className="flex items-center gap-1"
-                            title={lengthIsEstimate(p, c?.kind) ? t("party.estimateWhy") : undefined}>
+                            title={whyEstimate(p, c?.kind, t)}>
                         {/* A map night has no end anybody chose — it runs until
                             the maps are done, and that is a dice roll. Saying
                             so is better than a time that quietly turns out to

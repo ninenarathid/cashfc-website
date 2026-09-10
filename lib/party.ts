@@ -1491,7 +1491,8 @@ export const blockId = (): string =>
 export const hasBody = (b: PartyBlock[] | undefined): boolean =>
   !!b?.some((x) => (x.kind === "text" && x.text?.trim()) || (x.kind === "image" && x.url));
 
-export const endsAt = (p: Party): string =>
+/** Only the two fields it reads, so a draft or a row can be handed to it. */
+export const endsAt = (p: { startsAt: string; lengthMinutes: number }): string =>
   new Date(new Date(p.startsAt).getTime() + p.lengthMinutes * 60_000).toISOString();
 
 /* ── A map night ──────────────────────────────────────────────────────────── */
