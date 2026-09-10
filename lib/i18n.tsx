@@ -2041,6 +2041,8 @@ const DICT = {
   "tell.copy": { en: "Copy the /tell", th: "คัดลอกคำสั่ง /tell" },
   "tell.copyFor": { en: "Copy a /tell for {name}", th: "คัดลอก /tell หา {name}" },
   "tell.copied": { en: "Copied", th: "คัดลอกแล้ว" },
+  /* The game's own words, in both languages, like "Send popoto" beside it. */
+  "tell.send": { en: "Send in-game tell", th: "Send in-game tell" },
 
   "common.edit": { en: "Edit", th: "แก้ไข" },
   "common.noData": { en: "No data", th: "ไม่มีข้อมูล" },

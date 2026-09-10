@@ -75,6 +75,29 @@ const trials = rows
   .sort((a, b) => a.level - b.level || a.id - b.id);
 
 /*
+ * This expansion's extremes come off, whatever the game's flag says.
+ *
+ * HighEndDuty only marks the one the current patch is about; the four before
+ * it in the same expansion lose the flag and would land here, which puts every
+ * Dawntrail extreme on the board twice — once under Extreme, where the FC's
+ * own list already has it, and once under a heading that says "legacy".
+ *
+ * At the level cap only, worked out from the data rather than typed, so this
+ * keeps meaning the same thing after the next expansion moves the cap: a level
+ * 50 Minstrel's Ballad really is a legacy trial and stays.
+ *
+ * Both spellings. "The Minstrel's Ballad: Necron's Embrace" is an extreme in
+ * everything but the word — it is on the FC's extreme list under the boss's
+ * own name — and dropping one spelling while keeping the other would be
+ * arbitrary.
+ */
+const cap = Math.max(...trials.map((t) => t.level));
+const current = (t) =>
+  t.level === cap && (/\(Extreme\)$/.test(t.name) || /Minstrel's Ballad/.test(t.name));
+const legacy = trials.filter((t) => !current(t));
+const dropped = trials.filter(current);
+
+/*
  * Expansions newest first, taken from the data so a new one needs nothing here.
  *
  * Somebody farming a mount means a trial from a few expansions back far more
@@ -89,18 +112,21 @@ const order = [...new Set(rows
   .sort((a, b) => Number(b[0]) - Number(a[0]))
   .map(([, name]) => name);
 
-const expansions = order.filter((e) => trials.some((d) => d.expansion === e));
+const expansions = order.filter((e) => legacy.some((d) => d.expansion === e));
 
 writeFileSync("data/trials.json", JSON.stringify({
   generated_at: new Date().toISOString(),
   source: "XIVAPI v2, sheet ContentFinderCondition (Trials, 8 players, not HighEndDuty)",
   expansions,
-  trials,
+  trials: legacy,
 }, null, 1) + "\n");
 
-console.log(`\n${trials.length} trials across ${expansions.length} expansions:`);
+console.log(`
+${legacy.length} trials across ${expansions.length} expansions`
+  + ` — level cap ${cap}, so ${dropped.length} current extremes left out:`
+  + ` ${dropped.map((t) => t.name).join(", ")}`);
 for (const e of expansions) {
-  const n = trials.filter((d) => d.expansion === e);
+  const n = legacy.filter((d) => d.expansion === e);
   console.log(`  ${String(n.length).padStart(3)}  ${e}`
     + `   ${n[0]?.name} … ${n[n.length - 1]?.name}`);
 }

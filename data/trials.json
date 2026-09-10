@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-09-10T19:48:05.047Z",
+ "generated_at": "2026-09-10T20:13:23.200Z",
  "source": "XIVAPI v2, sheet ContentFinderCondition (Trials, 8 players, not HighEndDuty)",
  "expansions": [
   "Dawntrail",
@@ -691,34 +691,10 @@
    "expansion": "Dawntrail"
   },
   {
-   "id": 833,
-   "name": "Worqor Lar Dor (Extreme)",
-   "level": 100,
-   "ilvl": 690,
-   "size": 8,
-   "expansion": "Dawntrail"
-  },
-  {
    "id": 984,
    "name": "The Interphos",
    "level": 100,
    "ilvl": 670,
-   "size": 8,
-   "expansion": "Dawntrail"
-  },
-  {
-   "id": 996,
-   "name": "Everkeep (Extreme)",
-   "level": 100,
-   "ilvl": 690,
-   "size": 8,
-   "expansion": "Dawntrail"
-  },
-  {
-   "id": 1017,
-   "name": "The Minstrel's Ballad: Sphene's Burden",
-   "level": 100,
-   "ilvl": 710,
    "size": 8,
    "expansion": "Dawntrail"
   },
@@ -731,26 +707,10 @@
    "expansion": "Dawntrail"
   },
   {
-   "id": 1031,
-   "name": "Recollection (Extreme)",
-   "level": 100,
-   "ilvl": 730,
-   "size": 8,
-   "expansion": "Dawntrail"
-  },
-  {
    "id": 1043,
    "name": "The Windward Wilds",
    "level": 100,
    "ilvl": 725,
-   "size": 8,
-   "expansion": "Dawntrail"
-  },
-  {
-   "id": 1044,
-   "name": "The Windward Wilds (Extreme)",
-   "level": 100,
-   "ilvl": 740,
    "size": 8,
    "expansion": "Dawntrail"
   },
@@ -763,26 +723,10 @@
    "expansion": "Dawntrail"
   },
   {
-   "id": 1062,
-   "name": "The Minstrel's Ballad: Necron's Embrace",
-   "level": 100,
-   "ilvl": 740,
-   "size": 8,
-   "expansion": "Dawntrail"
-  },
-  {
    "id": 1076,
    "name": "Hell on Rails",
    "level": 100,
    "ilvl": 745,
-   "size": 8,
-   "expansion": "Dawntrail"
-  },
-  {
-   "id": 1077,
-   "name": "Hell on Rails (Extreme)",
-   "level": 100,
-   "ilvl": 760,
    "size": 8,
    "expansion": "Dawntrail"
   },

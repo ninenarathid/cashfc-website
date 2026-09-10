@@ -26,7 +26,7 @@ import { useLang } from "@/lib/i18n";
  * doing the thing you were trying not to do.
  */
 export default function TellButton(
-  { name, characterId, world, size = 16, className = "" }: {
+  { name, characterId, world, size = 16, className = "", label = false }: {
     name: string;
     /** For looking up a guest's world. Members are all on the FC's. */
     characterId?: number | null;
@@ -34,6 +34,14 @@ export default function TellButton(
     world?: string | null;
     size?: number;
     className?: string;
+    /**
+     * Written out, beside the other thing you can do to somebody.
+     *
+     * An icon next to a name is a thing you notice once you already know what
+     * it is. On the row with "Send popoto" it is one of two offers and has to
+     * say what it is in the same voice, at the same size, in words.
+     */
+    label?: boolean;
   },
 ) {
   const { t } = useLang();
@@ -55,6 +63,17 @@ export default function TellButton(
     setDone(true);
     setTimeout(() => setDone(false), 1400);
   };
+
+  if (label) {
+    return (
+      <button type="button" onClick={copy}
+              title={done ? t("tell.copied") : tellCommand(name, characterId, world)}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${className}`}>
+        <TagIcon tag="tell" size={15} />
+        {done ? t("tell.copied") : t("tell.send")}
+      </button>
+    );
+  }
 
   return (
     <button type="button" onClick={copy}

@@ -426,12 +426,6 @@ export default function MemberView({
               <span className="relative -top-1 ml-3 align-middle">
                 <NewPlayer m={m} size={30} />
               </span>
-              {/* The one page where somebody has already decided they want to
-                  talk to this person. The world is theirs, not the FC's, for
-                  the eight of nine guests who are not on Tonberry. */}
-              <TellButton name={m.name} characterId={m.id}
-                          world={home?.world ?? fc.world} size={22}
-                          className="relative -top-1 ml-2.5 align-middle" />
             </h1>
             {ov?.nickname && (
               <div className="text-[15px] font-medium" style={{ color: accent }}>
@@ -514,6 +508,14 @@ export default function MemberView({
                   button because it opens a list — a control inside a control is
                   neither. Joined at the border, they read as the one thing they
                   are. */}
+              {/* Beside the potato, because they are the two things this page
+                  offers you to do to somebody: say thank you, or say something.
+                  As an icon on the heading it was a mark you had to already
+                  know the meaning of. The world is theirs, not the FC's, for
+                  the eight of nine guests who are not on Tonberry. */}
+              <TellButton name={m.name} characterId={m.id}
+                          world={home?.world ?? fc.world} label />
+
               <span className="inline-flex items-stretch">
                 {/* The words are the page's own ink, not the member's colour.
                     The frame is theirs — border and hover — but the label has

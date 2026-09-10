@@ -362,10 +362,6 @@ export function catalogue(
   }
 
   out.push(
-    // Kept for anything the tables above have not heard of -- an older series,
-    // or one that lands before somebody updates the list.
-    { key: "alliance", kind: "alliance", name: "Another alliance raid",
-      shape: "alliance", fixedShape: true },
     /*
      * No seats, for either of them.
      *
@@ -389,8 +385,6 @@ export function catalogue(
      */
     { key: "treasure", kind: "treasure", name: "Treasure maps",
       shape: "eight", fixedShape: true },
-    { key: "criterion", kind: "criterion", name: "Another criterion dungeon",
-      shape: "light", fixedShape: true },
     /*
      * The things the FC does together that are not a fight.
      *
