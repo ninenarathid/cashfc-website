@@ -100,6 +100,9 @@ const TAG_ICON: Record<string, { path: string; alt: string; square?: boolean }> 
   // over a sword, a hammer and a flag, which are Battle, Trade and PvP mentor
   // — three answers to a question this board does not ask.
   mentor:       { path: "061000/061540", alt: "mentor", square: true },
+  // The game names this one itself: ContentType row 1 is "Duty Roulette" and
+  // points at this file, the same way row 2 pointed at the dungeon cave.
+  roulette:     { path: "061000/061807", alt: "duty roulette", square: true },
 
   /*
    * The Party Finder playstyle set.

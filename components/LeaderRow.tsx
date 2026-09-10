@@ -6,7 +6,6 @@ import { ACHV_TIER_STYLE } from "@/lib/tags";
 import { ACHV_TIER_LABEL } from "@/lib/types";
 import { Tooltip } from "@/components/ui/Tooltip";
 import type { ReactNode } from "react";
-import TellButton from "@/components/TellButton";
 
 /**
  * One line of a leaderboard.
@@ -83,7 +82,6 @@ export default function LeaderRow(
                 top ? "text-[16px] font-semibold" : ""}`}>
           {row.name}
         </Link>
-        <TellButton name={row.name} characterId={row.id} className="ml-1.5" />
         {/* The grade is the loudest thing on the line after the name, and gets
             louder the higher it is — a Legendary should not have to be looked
             for among the Experts. */}

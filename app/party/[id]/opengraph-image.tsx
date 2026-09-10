@@ -133,6 +133,7 @@ export default async function Image(
     card.progress ? PROGRESS_LABEL[card.progress.at] : null,
     lootText(card.loot ?? undefined),
     mapsText(card.maps ?? undefined, mapLabel),
+    card.roulettes?.length ? card.roulettes.join(", ") : null,
     spotText(card.spot ?? undefined),
   ].filter(Boolean) as string[];
 

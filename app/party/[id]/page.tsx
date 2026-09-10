@@ -51,6 +51,7 @@ export async function generateMetadata(
     card.progress ? PROGRESS_LABEL[card.progress.at] : null,
     lootText(card.loot ?? undefined),
     spotText(card.spot ?? undefined),
+    card.roulettes?.length ? card.roulettes.join(", ") : null,
     card.note,
   ].filter(Boolean) as string[];
 

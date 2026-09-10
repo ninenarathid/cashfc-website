@@ -32,6 +32,7 @@ export interface PartyCard {
   loot: Loot | null;
   spot: Spot | null;
   maps: MapPlan | null;
+  roulettes: string[] | null;
 }
 
 interface Row {
@@ -49,6 +50,7 @@ interface Row {
   loot: Loot | null;
   spot: Spot | null;
   maps: MapPlan | null;
+  roulettes: string[] | null;
 }
 
 /** Long enough for a cold function, short enough not to hold up a page. */
@@ -94,6 +96,7 @@ export async function partyCard(id: string): Promise<PartyCard | null> {
       loot: r.loot,
       spot: r.spot,
       maps: r.maps,
+      roulettes: r.roulettes,
     };
   } catch {
     return null;

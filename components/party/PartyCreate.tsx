@@ -8,7 +8,8 @@ import type {
 import {
   DEFAULT_AMOUNT, DEFAULT_LENGTH, DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL,
   canFlex, endsAt, flexLabel, lengthUnitsFor, mapsToMinutes, runsToMinutes,
-  foodToMinutes, fmtTime, hasLoot, hasMaps, hasSpot, isFight, lootRulesFor,
+  foodToMinutes, fmtTime, hasLoot, hasMaps, hasRoulettes, hasSpot, isFight,
+  lootRulesFor,
   shapeLabel,
   slotsOf, whoKey,
 } from "@/lib/party";
@@ -23,6 +24,7 @@ import ProgressTrack from "@/components/party/ProgressTrack";
 import LootPlan from "@/components/party/LootPlan";
 import WherePicker from "@/components/party/WherePicker";
 import MapPicker from "@/components/party/MapPicker";
+import RoulettePicker from "@/components/party/RoulettePicker";
 import SeatSuggest from "@/components/party/SeatSuggest";
 import type { SuggestRow } from "@/lib/suggest";
 import { createClient } from "@/lib/supabase/client";
@@ -237,6 +239,7 @@ export default function PartyCreate(
     ? { rule: okRules[0] } : loot;
   const [spot, setSpot] = useState<Spot | undefined>(undefined);
   const [maps, setMaps] = useState<MapPlan | undefined>(undefined);
+  const [roulettes, setRoulettes] = useState<string[] | undefined>(undefined);
   /** The person being added as a floater, before their positions are set. */
   const [adding, setAdding] = useState<Floater | null>(null);
   const [fq, setFq] = useState("");
@@ -350,6 +353,7 @@ export default function PartyCreate(
     loot: hasLoot(chosen?.kind) ? safeLoot : undefined,
     spot: hasSpot(chosen?.kind) ? spot : undefined,
     maps: hasMaps(chosen?.kind) ? maps : undefined,
+    roulettes: hasRoulettes(chosen?.kind) ? roulettes : undefined,
     shape: useShape,
     startsAt: fromBangkokLocal(start),
     lengthMinutes: minutes, lengthUnit: useUnit,
@@ -359,10 +363,32 @@ export default function PartyCreate(
     createdAt: new Date().toISOString(),
   }), [contentKey, note, useShape, start, minutes, unit, me.id, seats, closed,
        rules, oneEach, floating, body, progress, safeLoot, spot, maps,
-       useUnit, minutes, chosen?.kind]);
+       roulettes, useUnit, minutes, chosen?.kind]);
 
   const mySeat = Object.entries(seats).find(([, v]) => v.characterId === me.id)?.[0];
   const iAmFloating = floating.some((f) => f.characterId === me.id);
+
+  /*
+   * You are in the party you are putting up.
+   *
+   * Pressing a button to say you are coming to your own hunt train is asking
+   * somebody to confirm the reason they opened the form. A party with no seats
+   * has nothing to decide, so it simply contains its lead.
+   *
+   * A party with seats is not filled in for them, on purpose. Which seat the
+   * lead is in is the one everybody else's plan is built around — a party of
+   * eight whose lead has not said what they are playing has a hole in the
+   * middle that nobody can see — so that one is asked, and the button stays
+   * grey until it is answered one way or the other.
+   */
+  useEffect(() => {
+    if (useShape !== "open" || !chosen) return;
+    if (mySeat || iAmFloating) return;
+    setFloating((v) => [...v, {
+      characterId: me.id, name: me.name, avatar: me.avatar,
+      flex: { all: true }, confirmedAt: new Date().toISOString(),
+    }]);
+  }, [useShape, chosen, mySeat, iAmFloating, me.id, me.name, me.avatar]);
 
   /**
    * Somebody who is not on this site, added by typing their name.
@@ -480,6 +506,10 @@ export default function PartyCreate(
           already open is the worst time to start. */}
       {hasLoot(chosen?.kind) && (
         <LootPlan value={safeLoot} onChange={setLoot} kind={chosen?.kind} />
+      )}
+
+      {hasRoulettes(chosen?.kind) && (
+        <RoulettePicker value={roulettes} onChange={setRoulettes} />
       )}
 
       {hasMaps(chosen?.kind) && <MapPicker value={maps} onChange={setMaps} />}
@@ -675,14 +705,17 @@ export default function PartyCreate(
           ) : (
             <div className="flex flex-col gap-1.5">
               <div className="flex flex-wrap gap-2">
-                {!mySeat && !iAmFloating && (
+                {/* Only where there is a choice to make. A party with no
+                    seats already contains its lead by the time this is
+                    drawn. */}
+                {useShape !== "open" && !mySeat && !iAmFloating && (
                   <button onClick={() => setAdding({
                             characterId: me.id, name: me.name, avatar: me.avatar,
-                            flex: useShape === "open" ? { all: true } : {},
+                            flex: {},
                             confirmedAt: new Date().toISOString(),
                           })}
                           className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[12.5px] text-accent">
-                    {t(useShape === "open" ? "pf.iAmComing" : "pf.iWillFlex")}
+                    {t("pf.iWillFlex")}
                   </button>
                 )}
               </div>

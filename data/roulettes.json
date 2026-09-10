@@ -1,0 +1,62 @@
+{
+ "generated_at": "2026-09-10T18:30:15.152Z",
+ "source": "XIVAPI v2, sheet ContentRoulette",
+ "resets_at": "22:00",
+ "roulettes": [
+  {
+   "id": 5,
+   "name": "Expert",
+   "full": "Duty Roulette: Expert"
+  },
+  {
+   "id": 8,
+   "name": "Level Cap Dungeons",
+   "full": "Duty Roulette: Level Cap Dungeons"
+  },
+  {
+   "id": 2,
+   "name": "High-level Dungeons",
+   "full": "Duty Roulette: High-level Dungeons"
+  },
+  {
+   "id": 1,
+   "name": "Leveling",
+   "full": "Duty Roulette: Leveling"
+  },
+  {
+   "id": 6,
+   "name": "Trials",
+   "full": "Duty Roulette: Trials"
+  },
+  {
+   "id": 3,
+   "name": "Main Scenario",
+   "full": "Duty Roulette: Main Scenario"
+  },
+  {
+   "id": 4,
+   "name": "Guildhests",
+   "full": "Duty Roulette: Guildhests"
+  },
+  {
+   "id": 15,
+   "name": "Alliance Raids",
+   "full": "Duty Roulette: Alliance Raids"
+  },
+  {
+   "id": 17,
+   "name": "Normal Raids",
+   "full": "Duty Roulette: Normal Raids"
+  },
+  {
+   "id": 9,
+   "name": "Mentor",
+   "full": "Duty Roulette: Mentor"
+  },
+  {
+   "id": 7,
+   "name": "Frontline",
+   "full": "Daily Challenge: Frontline"
+  }
+ ]
+}

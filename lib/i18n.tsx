@@ -1533,7 +1533,6 @@ const DICT = {
   "party.within3": { en: "Within three days", th: "ภายใน 3 วัน" },
   "party.within7": { en: "Within a week", th: "ภายใน 1 สัปดาห์" },
   "party.hasRoom": { en: "Still has room", th: "ยังมีที่ว่าง" },
-  "party.imIn": { en: "I am in it", th: "ที่คุณอยู่ด้วย" },
   /* The grid on the profile, pointed at the board: which of these start while
      I am usually around. */
   /* Its own area at the top. A party you are in is not one listing among
@@ -1625,6 +1624,13 @@ const DICT = {
   "party.copied": { en: "Link copied", th: "คัดลอกแล้ว" },
 
   /* ── A map night ──────────────────────────────────────────────────── */
+  /* ── A roulette night ─────────────────────────────────────────────── */
+  "pf.whichRoulettes": { en: "Which roulettes", th: "ลง Roulette ไหนบ้าง" },
+  "pf.roulettesReset": {
+    en: "Roulettes reset daily at {at} Thai time",
+    th: "Roulette รีเซ็ตทุกวัน {at} น. เวลาไทย",
+  },
+
   "party.mapWhich": { en: "Which map", th: "แมพไหน" },
   "party.mapAny": { en: "Any map", th: "แมพไหนก็ได้" },
   "party.mapLatest": { en: "latest", th: "ล่าสุด" },
@@ -1676,9 +1682,13 @@ const DICT = {
   "pf.change": { en: "change", th: "เปลี่ยน" },
   "pf.choose": { en: "choose", th: "เลือก" },
   "pf.remove": { en: "Remove", th: "เอาออก" },
+  /* Just what the field is. The examples it used to give — which map, which
+     phase, voice or not — are three answers to a question the rest of the form
+     already asks properly, and the one thing this field is for is the line
+     people read on the board. */
   "pf.note": {
-    en: "One line for the list — which map, which phase, voice or not",
-    th: "หนึ่งบรรทัดสำหรับหน้ารวม เช่น แมพไหน เฟสไหน เข้าห้องเสียงไหม",
+    en: "Headline for this party",
+    th: "หัวข้อของปาร์ตี้",
   },
   "pf.starts": { en: "Starts (Thai time)", th: "เริ่ม (เวลาไทย)" },
   /* "ยาว" is how long a thing is, not how long it lasts — it reads as a
@@ -1936,7 +1946,7 @@ const DICT = {
   },
   "pf.takeSeatFirst": {
     en: "Take a seat, or say you will flex.",
-    th: "เลือกตำแหน่งของตัวเอง หรือบอกว่าจะ flex",
+    th: "เลือกตำแหน่งของตัวเอง หรือจะ flex ตำแหน่ง",
   },
 
   /* The conversation under a party. */

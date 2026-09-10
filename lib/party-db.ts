@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { makeFull, MAX_UPLOAD_BYTES } from "@/lib/gallery";
+import { knownRoulettes } from "@/lib/roulettes";
 import type {
   Floater, Flex, LengthUnit, Loot, MapPlan, Party, PartyBlock, PartyComment,
   Progress, Reaction, SeatRule, Shape, SlotTaken, Spot,
@@ -41,6 +42,7 @@ interface PostRow {
   loot: Loot | null;
   spot: Spot | null;
   maps: MapPlan | null;
+  roulettes: string[] | null;
   body: PartyBlock[] | null;
   created_at: string;
 }
@@ -82,7 +84,7 @@ interface CommentRow {
 const POST_COLS =
   "id, owner, owner_character_id, content_key, note, shape, starts_at,"
   + " length_minutes, length_unit, runs, one_of_each_job, closed, rules, progress,"
-  + " loot, spot, maps, body, created_at";
+  + " loot, spot, maps, roulettes, body, created_at";
 
 const MEMBER_COLS =
   "id, party_id, seat, character_id, name, avatar, job, jobs, flex, asked_by,"
@@ -224,6 +226,9 @@ export async function loadParties(
     loot: p.loot ?? undefined,
     spot: p.spot ?? undefined,
     maps: p.maps ?? undefined,
+    // Only the ones the game still has, so a retired roulette cannot linger
+    // on a listing written before it went.
+    ...(p.roulettes?.length ? { roulettes: knownRoulettes(p.roulettes) } : {}),
     body: p.body ?? [],
     comments: talkOf.get(p.id) ?? [],
     createdAt: p.created_at,
@@ -260,6 +265,7 @@ export async function createParty(
     loot: p.loot ?? null,
     spot: p.spot ?? null,
     maps: p.maps ?? null,
+    roulettes: p.roulettes?.length ? p.roulettes : null,
     body: p.body ?? [],
   }).select("id").single();
   if (error || !data) return { error: error?.message ?? "no row" };

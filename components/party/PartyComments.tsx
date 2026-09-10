@@ -11,7 +11,6 @@ import { useDropTarget } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
 import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
-import TellButton from "@/components/TellButton";
 
 /**
  * Replies on a party.
@@ -184,13 +183,7 @@ export default function PartyComments(
                     {/* Your own name is the one thing on the line you already
                         know. The side says it, so the space goes to the time. */}
                     {!mine && (
-                      <>
-                        <span className="text-[13px] text-ink">{c.author.name}</span>
-                        {c.author.characterId != null && (
-                          <TellButton name={c.author.name} size={14}
-                                      characterId={c.author.characterId} />
-                        )}
-                      </>
+                      <span className="text-[13px] text-ink">{c.author.name}</span>
                     )}
                     <span className="font-data text-[10.5px] text-muted">
                       {fmtDateTime(c.at)}

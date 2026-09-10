@@ -34,7 +34,6 @@ import AwardBadge from "@/components/ui/AwardBadge";
 import MemberBio from "@/components/MemberBio";
 import NewPlayer, { MsqBadge } from "@/components/NewPlayer";
 import { useMemberBadges } from "@/lib/member-badges";
-import TellButton from "@/components/TellButton";
 
 
 // Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
@@ -966,17 +965,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     <Link key={m.id} href={`/member/${m.id}`}
                           className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-3 py-2 no-underline transition-colors hover:border-accent">
                       <Avatar m={m} size={9} />
-                      <span className="min-w-0 flex-1">
+                      <span className="min-w-0">
                         <span className="block truncate font-data text-[13px] font-semibold text-ink">
                           {m.name}
                           {overlays[m.id] && <span className="ml-1 text-accent">✦</span>}
                         </span>
                       </span>
-                      {/* Outside the truncating span so a long name cannot
-                          crowd it out, and inside the row so it is where the
-                          name is. */}
-                      <TellButton name={m.name} characterId={m.id}
-                                  world={data.fc?.world} />
                     </Link>
                   ))}
                 </div>
@@ -1081,8 +1075,6 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     </span>
                   )}
                   <div className={`min-w-0 ${mBadges.length ? "pr-28 sm:pr-0" : ""}`}>
-                    <TellButton name={m.name} characterId={m.id} world={data.fc?.world}
-                                className="float-right ml-2" />
                     <Link href={`/member/${m.id}`}
                           className="truncate font-data text-[15px] font-semibold tracking-[0.01em] text-ink no-underline hover:text-accent">
                       {m.name}

@@ -7,20 +7,11 @@ import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { HoverCard } from "@/components/ui/HoverCard";
 import { fmtDateTime } from "@/lib/dates";
-import TellButton from "@/components/TellButton";
 
 export interface Giver {
   name: string;
   avatar: string | null;
   at: string;
-  /**
-   * Their character, where they have proved one.
-   *
-   * Null for somebody signed in who has never claimed a character — in which
-   * case the name above is a Discord handle rather than the one the game
-   * knows, and there is nobody to send a tell to.
-   */
-  characterId: number | null;
 }
 
 /** Where the potatoes came from. The two sources keep separate books. */
@@ -104,7 +95,6 @@ export default function PopotoGivers(
         name: p?.name ?? "—",
         // The face they chose, the same as everywhere else on the site.
         avatar: (p?.cid ? chosen[p.cid] : null) ?? p?.avatar ?? null,
-        characterId: p?.cid ?? null,
         at: r.created_at,
       };
     });
@@ -150,10 +140,6 @@ export default function PopotoGivers(
       )}
       <span className="min-w-0 flex-1 truncate font-data text-[12.5px] text-ink">
         {g.name}
-        {g.characterId != null && (
-          <TellButton name={g.name} characterId={g.characterId} size={14}
-                      className="ml-1" />
-        )}
       </span>
       <span className="shrink-0 text-[11.5px] text-muted">{fmtDateTime(g.at)}</span>
     </div>

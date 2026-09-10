@@ -91,7 +91,7 @@ export const SHAPE_LABEL: Record<Shape, string> = {
 export type ContentKind =
   | "extreme" | "savage" | "ultimate"
   | "alliance" | "treasure" | "fate" | "hunt" | "criterion" | "pvp"
-  | "community" | "field" | "dungeon" | "mentor" | "other";
+  | "community" | "field" | "dungeon" | "mentor" | "roulette" | "other";
 
 export interface ContentDef {
   key: string;
@@ -169,13 +169,14 @@ export const KIND_LABEL: Record<ContentKind, string> = {
   field: "Field Operations",
   dungeon: "Dungeon",
   mentor: "Find Mentor",
+  roulette: "Roulette",
   other: "Other",
 };
 
 export const KIND_ORDER: ContentKind[] = [
   "extreme", "savage", "ultimate",
   "alliance", "treasure", "criterion", "dungeon", "field", "pvp", "community",
-  "fate", "hunt", "mentor", "other",
+  "fate", "hunt", "roulette", "mentor", "other",
 ];
 
 /**
@@ -193,6 +194,7 @@ export const KIND_ICON: Partial<Record<ContentKind, string>> = {
   alliance: "alliance",
   criterion: "criterion",
   dungeon: "dungeon",
+  roulette: "roulette",
   mentor: "mentor",
   field: "field",
   fate: "fate",
@@ -239,6 +241,7 @@ export const KIND_COLOR: Record<ContentKind, string> = {
   // The crown's own colour, paler than the treasure gold so the two chips do
   // not read as the same thing at a glance.
   mentor: "#e8c86a",
+  roulette: "#8f7fd4",
   other: "#8b93a1",
 };
 
@@ -422,6 +425,18 @@ export function catalogue(
      * is a sentence, and picking one of three crowns first would be a question
      * asked before the one that matters.
      */
+    /*
+     * The dailies, as an evening.
+     *
+     * Which roulettes are being run is the whole content of the listing —
+     * "Expert and Alliance" and "Leveling with the new person" are different
+     * nights — so they are ticked off a list rather than written in prose.
+     *
+     * Four seats to start with. A roulette is queued as a party of four or of
+     * eight depending on which one, and four is both the commoner answer and
+     * the one that fits every roulette on the list.
+     */
+    { key: "roulette", kind: "roulette", name: "Duty Roulette", shape: "light" },
     { key: "mentor", kind: "mentor", name: "Find Mentor", shape: "open" },
     { key: "other", kind: "other", name: "Something else", shape: "open" },
   );
@@ -796,6 +811,8 @@ export interface Party {
   spot?: Spot;
   /** Which map, and how many each. Treasure hunts only. See hasMaps. */
   maps?: MapPlan;
+  /** Which roulettes are being run. See hasRoulettes. */
+  roulettes?: string[];
   /** Replies. */
   comments?: PartyComment[];
   shape: Shape;
@@ -1487,6 +1504,15 @@ export interface MapPlan {
 
 export const hasMaps = (kind: ContentKind | undefined): boolean =>
   kind === "treasure";
+
+/**
+ * Whether this listing is a list of roulettes.
+ *
+ * Only the one kind, and it is most of what that kind says: a roulette night
+ * with no roulettes named is an invitation to guess.
+ */
+export const hasRoulettes = (kind: ContentKind | undefined): boolean =>
+  kind === "roulette";
 
 /**
  * Whether the length shown is a guess rather than a plan.

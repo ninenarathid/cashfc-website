@@ -8,19 +8,22 @@ import { useLang } from "@/lib/i18n";
 /**
  * Copy the line that starts a conversation in game.
  *
- * Every list on this site is a list of people somebody eventually wants to talk
- * to — who is short a healer, who cleared the fight, whose birthday it is — and
- * the last step was always the same: read the name off the screen, alt-tab,
- * type it out, get the apostrophe wrong, try again. Names on the Lodestone are
- * spelled exactly as the game spells them, so the site can hand over a line
- * that works rather than a name to copy by eye.
+ * On the member page and nowhere else. Somebody who has opened a person's page
+ * has already decided they want to talk to them, which is the moment for it; a
+ * button on every name in every list was the same idea spread until it was
+ * furniture.
+ *
+ * The last step used to be the same every time: read the name off the screen,
+ * alt-tab, type it out, get the apostrophe wrong, try again. Names on the
+ * Lodestone are spelled exactly as the game spells them, so the site can hand
+ * over a line that works rather than a name to copy by eye.
  *
  * The world matters and is easy to forget: `/tell Name` only reaches somebody
  * standing on your own, and a fair number of the people listed here are not.
  *
- * Rows are usually links or buttons, so this stops the event dead. A tell
- * button that also opened the member page would be a button that did the thing
- * you were trying not to do.
+ * It stops the click dead all the same: it sits inside a heading that has been
+ * a link before now, and a tell button that also navigated would be a button
+ * doing the thing you were trying not to do.
  */
 export default function TellButton(
   { name, characterId, world, size = 16, className = "" }: {

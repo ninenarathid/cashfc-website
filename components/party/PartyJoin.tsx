@@ -14,7 +14,6 @@ import { jobsForRole } from "@/components/party/JobRule";
 import { askToJoin, confirmSeat, dropSeat } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
-import TellButton from "@/components/TellButton";
 
 /**
  * Asking to be let in, and letting people in.
@@ -220,9 +219,6 @@ export default function PartyJoin(
                          className="size-[26px] rounded-full object-cover" />
                   : <span className="size-[26px] rounded-full bg-card" />}
                 <span className="text-[13px] text-ink">{w.name}</span>
-                {w.characterId != null && (
-                  <TellButton name={w.name} characterId={w.characterId} size={14} />
-                )}
                 <span className="text-[12px] text-muted">
                   {/* Which seat they asked for, or that they did not mind. */}
                   {w.seat ?? t("party.anySeat")}

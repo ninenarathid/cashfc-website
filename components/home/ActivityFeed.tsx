@@ -4,7 +4,6 @@ import Link from "next/link";
 import type { FeedEvent } from "@/lib/types";
 import { useLang } from "@/lib/i18n";
 import { fmtShort, fromDay } from "@/lib/dates";
-import TellButton from "@/components/TellButton";
 
 const FEED_ICON: Record<string, string> = {
   parse_up: "📈", boss_clear: "⚔️", ex_clear: "🌪️", ult_clear: "🏆",
@@ -38,9 +37,7 @@ export default function ActivityFeed({ feed }: { feed: FeedEvent[] }) {
                 <Link href={`/member/${e.id}`}
                       className="font-data font-semibold text-ink no-underline hover:text-accent">
                   {e.name}
-                </Link>
-                <TellButton name={e.name} characterId={e.id} size={13}
-                            className="ml-1" />{" "}
+                </Link>{" "}
                 <span className="text-muted">{e.text}</span>
                 <span className="ml-2 text-[11px] text-muted/70">
                   {fmtShort(fromDay(e.date))}

@@ -78,7 +78,7 @@ type When = "" | "today" | "3d" | "week";
 type StatusPick = "" | "done";
 
 const EMPTY = {
-  role: "" as SlotRole | "", when: "" as When, mine: false, openOnly: false,
+  role: "" as SlotRole | "", when: "" as When, openOnly: false,
   prog: "" as ProgressAt | "",
   loot: "" as LootRule | "",
   status: "" as StatusPick,
@@ -180,6 +180,10 @@ function PartyDetail(
           {mapsText(party.maps, mapLabel) && (
             <><span className="opacity-40">·</span>
               <span>🗺 {mapsText(party.maps, mapLabel)}</span></>
+          )}
+          {!!party.roulettes?.length && (
+            <><span className="opacity-40">·</span>
+              <span>{party.roulettes.join(", ")}</span></>
           )}
           {spotText(party.spot) && (
             <><span className="opacity-40">·</span>
@@ -449,6 +453,7 @@ export default function PartyBoard(
         const hay = [c?.name, c?.short, c?.badge, c?.duty, p.note,
                      progressText(p.progress), lootText(p.loot), spotText(p.spot),
                      mapsText(p.maps, mapLabel),
+                     p.roulettes?.join(" "),
                      ...Object.values(p.seats).map((s) => s.name)]
           .filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
@@ -478,7 +483,6 @@ export default function PartyBoard(
        */
       if (adv.free && freeAt(myHours, p.startsAt) !== true) return false;
 
-      if (adv.mine && !isMine(p)) return false;
       return true;
     });
 
@@ -567,7 +571,7 @@ export default function PartyBoard(
   }, [anyProgress, anyLoot, adv.prog, adv.loot]);
 
   const advCount = (adv.role ? 1 : 0) + (adv.when ? 1 : 0)
-    + (adv.mine ? 1 : 0) + (adv.openOnly ? 1 : 0) + (adv.prog ? 1 : 0)
+    + (adv.openOnly ? 1 : 0) + (adv.prog ? 1 : 0)
     + (adv.loot ? 1 : 0) + (adv.status ? 1 : 0) + (adv.free ? 1 : 0);
 
   const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
@@ -744,11 +748,6 @@ export default function PartyBoard(
                    onChange={(e) => setAdv({ ...adv, openOnly: e.target.checked })} />
             {t("party.hasRoom")}
           </label>
-          <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
-            <input type="checkbox" checked={adv.mine}
-                   onChange={(e) => setAdv({ ...adv, mine: e.target.checked })} />
-            {t("party.imIn")}
-          </label>
           {/*
             * Offered even to somebody who has not filled the grid in, because
             * a control that is simply absent is a feature nobody finds. It
@@ -910,6 +909,12 @@ export default function PartyBoard(
                       {mapsText(p.maps, mapLabel) && (
                         <><span className="opacity-40">·</span>
                           <span>🗺 {mapsText(p.maps, mapLabel)}</span></>
+                      )}
+                      {/* Which roulettes, which is the whole of what one
+                          roulette listing says that another does not. */}
+                      {!!p.roulettes?.length && (
+                        <><span className="opacity-40">·</span>
+                          <span>{p.roulettes.join(", ")}</span></>
                       )}
                       {spotText(p.spot) && (
                         <><span className="opacity-40">·</span>
