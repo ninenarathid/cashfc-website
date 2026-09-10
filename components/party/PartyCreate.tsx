@@ -6,7 +6,8 @@ import type {
   Progress, SeatRule, Shape, SlotDef, SlotRole, Spot,
 } from "@/lib/party";
 import {
-  DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL, canFlex, endsAt, flexLabel, runsToMinutes,
+  DEFAULT_AMOUNT, DEFAULT_LENGTH, DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL,
+  canFlex, endsAt, flexLabel, lengthUnitsFor, runsToMinutes,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasSpot, isFight, lootRulesFor,
   shapeLabel,
   slotsOf, whoKey,
@@ -201,15 +202,8 @@ export default function PartyCreate(
   const [note, setNote] = useState("");
   const [shape, setShape] = useState<Shape | "">("");
   const [start, setStart] = useState(defaultStart);
-  const [unit, setUnit] = useState<LengthUnit>("food");
-  /*
-   * One food, which is thirty minutes.
-   *
-   * It used to open on four, which is a two-hour raid night — a real evening
-   * and a strong opinion for a form to hold before anybody has said what they
-   * are running. The smallest honest unit asks the question instead.
-   */
-  const [amount, setAmount] = useState(1);
+  const [unit, setUnit] = useState<LengthUnit>(DEFAULT_LENGTH.unit);
+  const [amount, setAmount] = useState(DEFAULT_LENGTH.amount);
 
   /*
    * The size is the content's, unless the content does not fix one.
@@ -282,8 +276,18 @@ export default function PartyCreate(
    * run takes — never shown as a time, and the listing is marked as an
    * estimate wherever a length appears.
    */
-  const minutes = unit === "food" ? foodToMinutes(amount)
-    : unit === "runs" ? runsToMinutes(amount, chosen?.kind)
+  /*
+   * Only the units this content can honestly use.
+   *
+   * Food is Well-Fed and runs are a countable go, and most content has
+   * neither — "three food of Group pose" is a unit borrowed from an evening it
+   * has nothing to do with. See lengthUnitsFor.
+   */
+  const units = lengthUnitsFor(chosen?.kind);
+  const useUnit: LengthUnit = units.includes(unit) ? unit : "hours";
+
+  const minutes = useUnit === "food" ? foodToMinutes(amount)
+    : useUnit === "runs" ? runsToMinutes(amount, chosen?.kind)
       : Math.round(amount * 60);
 
   // Recomputed on every render rather than held in state: "now" moves, and a
@@ -304,6 +308,21 @@ export default function PartyCreate(
    * more often now that the form opens with nothing chosen, since the grid is
    * on screen before the size is known.
    */
+  /*
+   * A unit the new content cannot use is dropped rather than carried over.
+   *
+   * Picking a savage fight, saying "4 food", then changing to a hunt train
+   * would otherwise leave the party measured in a buff nobody eats for — set
+   * once, invisible afterwards, and wrong. The same rule the loot rule
+   * follows, for the same reason.
+   */
+  useEffect(() => {
+    if (units.includes(unit)) return;
+    setUnit("hours");
+    setAmount(DEFAULT_AMOUNT.hours);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [units.join(",")]);
+
   useEffect(() => {
     const live = new Set(slotsOf(useShape).map((sl) => sl.id));
     setSeats((v) => {
@@ -327,14 +346,14 @@ export default function PartyCreate(
     maps: hasMaps(chosen?.kind) ? maps : undefined,
     shape: useShape,
     startsAt: fromBangkokLocal(start),
-    lengthMinutes: minutes, lengthUnit: unit,
-    ...(unit === "runs" ? { runs: Math.max(1, Math.round(amount)) } : {}),
+    lengthMinutes: minutes, lengthUnit: useUnit,
+    ...(useUnit === "runs" ? { runs: Math.max(1, Math.round(amount)) } : {}),
     ownerCharacterId: me.id,
     seats, closed, rules, oneOfEachJob: oneEach, floating,
     createdAt: new Date().toISOString(),
   }), [contentKey, note, useShape, start, minutes, unit, me.id, seats, closed,
        rules, oneEach, floating, body, progress, safeLoot, spot, maps,
-       chosen?.kind]);
+       useUnit, chosen?.kind]);
 
   const mySeat = Object.entries(seats).find(([, v]) => v.characterId === me.id)?.[0];
   const iAmFloating = floating.some((f) => f.characterId === me.id);
@@ -479,40 +498,50 @@ export default function PartyCreate(
             {t("pf.for")}
           </span>
           <span className="flex items-stretch gap-1.5">
-            <input type="number" min={unit === "hours" ? 0.5 : 1}
-                   step={unit === "hours" ? 0.5 : 1} value={amount}
+            <input type="number" min={useUnit === "hours" ? 0.5 : 1}
+                   step={useUnit === "hours" ? 0.5 : 1} value={amount}
                    onChange={(e) => setAmount(Number(e.target.value) || 0)}
                    className={`${sel} w-20`} />
             {/* Food is first because it is the unit the FC already uses. */}
             <span className="flex items-center gap-1.5">
-              {unit === "food" && <FoodIcon size={16} className="text-gold" />}
-              <select value={unit}
-                      onChange={(e) => {
-                        const next = e.target.value as LengthUnit;
-                        setUnit(next);
-                        // Four hours and four runs are different evenings, and
-                        // a number carried across the change is a number
-                        // nobody chose for the unit it lands in.
-                        setAmount(next === "hours" ? 2 : next === "runs" ? 3 : 4);
-                      }}
-                      className={sel} aria-label={t("pf.unit")}>
-                <option value="food">food</option>
-                <option value="hours">{t("pf.hours")}</option>
-                <option value="runs">{t("pf.runs")}</option>
-              </select>
+              {useUnit === "food" && <FoodIcon size={16} className="text-gold" />}
+              {/* One unit is not a choice. A select with a single option is a
+                  control that cannot be moved, so it is said as a word. */}
+              {units.length === 1 ? (
+                <span className="flex items-center px-1 text-[13.5px] text-muted">
+                  {t("pf.hours")}
+                </span>
+              ) : (
+                <select value={useUnit}
+                        onChange={(e) => {
+                          const next = e.target.value as LengthUnit;
+                          setUnit(next);
+                          // Four hours and four runs are different evenings, and
+                          // a number carried across the change is a number
+                          // nobody chose for the unit it lands in.
+                          setAmount(DEFAULT_AMOUNT[next]);
+                        }}
+                        className={sel} aria-label={t("pf.unit")}>
+                  {units.map((u) => (
+                    <option key={u} value={u}>
+                      {u === "food" ? "food" : t(u === "hours" ? "pf.hours" : "pf.runs")}
+                    </option>
+                  ))}
+                </select>
+              )}
             </span>
           </span>
         </label>
 
         <p className={`pb-2 text-[12px] ${past ? "text-chili" : "text-muted"}`}>
           {past ? t("pf.past")
-            : unit === "runs"
+            : useUnit === "runs"
               // No arrow and no end time, because that is the whole point of
               // saying it in runs. Putting "→ 21:30" here would be the form
               // making up the number the party declined to give.
               ? <>{fmtTime(draft.startsAt)} · {t("pf.runsWhy")}</>
               : <>
-                  {unit === "food" && (
+                  {useUnit === "food" && (
                     <>
                       <FoodIcon size={12} className="text-gold" /> 1 food
                       {" "}= {FOOD_MINUTES} min ·{" "}

@@ -96,6 +96,10 @@ const TAG_ICON: Record<string, { path: string; alt: string; square?: boolean }> 
   // this time: ContentType row 2 is called "Dungeons" and names this file as
   // its own, which is as authoritative as it gets.
   dungeon:      { path: "061000/061801", alt: "dungeon", square: true },
+  // The game's own Mentor crown. The plain one: 061542-4 are the same crown
+  // over a sword, a hammer and a flag, which are Battle, Trade and PvP mentor
+  // — three answers to a question this board does not ask.
+  mentor:       { path: "061000/061540", alt: "mentor", square: true },
 
   /*
    * The Party Finder playstyle set.

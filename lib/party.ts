@@ -91,7 +91,7 @@ export const SHAPE_LABEL: Record<Shape, string> = {
 export type ContentKind =
   | "extreme" | "savage" | "ultimate"
   | "alliance" | "treasure" | "fate" | "hunt" | "criterion" | "pvp"
-  | "community" | "field" | "dungeon" | "other";
+  | "community" | "field" | "dungeon" | "mentor" | "other";
 
 export interface ContentDef {
   key: string;
@@ -168,13 +168,14 @@ export const KIND_LABEL: Record<ContentKind, string> = {
   community: "Community Events",
   field: "Field Operations",
   dungeon: "Dungeon",
+  mentor: "Mentor",
   other: "Other",
 };
 
 export const KIND_ORDER: ContentKind[] = [
   "extreme", "savage", "ultimate",
   "alliance", "treasure", "criterion", "dungeon", "field", "pvp", "community",
-  "fate", "hunt", "other",
+  "fate", "hunt", "mentor", "other",
 ];
 
 /**
@@ -192,6 +193,7 @@ export const KIND_ICON: Partial<Record<ContentKind, string>> = {
   alliance: "alliance",
   criterion: "criterion",
   dungeon: "dungeon",
+  mentor: "mentor",
   field: "field",
   fate: "fate",
   hunt: "hunt",
@@ -234,6 +236,9 @@ export const KIND_COLOR: Record<ContentKind, string> = {
   community: "#d47fb8",
   field: "#a1734a",
   dungeon: "#5f9ea0",
+  // The crown's own colour, paler than the treasure gold so the two chips do
+  // not read as the same thing at a glance.
+  mentor: "#e8c86a",
   other: "#8b93a1",
 };
 
@@ -404,6 +409,20 @@ export function catalogue(
       shape: "full" },
     { key: "fate", kind: "fate", name: "FATE farm", shape: "open" },
     { key: "hunt", kind: "hunt", name: "Hunt train", shape: "open" },
+    /*
+     * Somebody to learn from, or somebody offering to teach.
+     *
+     * Free text like "Something else", and for the same reason: the useful
+     * version of this is "first time in M1S, can somebody walk me through the
+     * tower phase", and there is no list of fights or roles that says it. What
+     * the evening is for goes in the note, which is where a sentence belongs.
+     *
+     * One row rather than the game's three kinds of mentor. Battle, Trade and
+     * PvP are what the crown you wear is called; what somebody needs help with
+     * is a sentence, and picking one of three crowns first would be a question
+     * asked before the one that matters.
+     */
+    { key: "mentor", kind: "mentor", name: "Mentor", shape: "open" },
     { key: "other", kind: "other", name: "Something else", shape: "open" },
   );
   return out;
@@ -435,6 +454,52 @@ export const minutesToFood = (min: number) => min / FOOD_MINUTES;
  *          and the party gets judged for overrunning something it never said.
  */
 export type LengthUnit = "hours" | "food" | "runs";
+
+/**
+ * Which of the three this kind of content can honestly be measured in.
+ *
+ * Hours everywhere, because every evening has a length. The other two are
+ * claims about the content and are false for most of it:
+ *
+ * Food is Well-Fed, and Well-Fed is a thing you keep up because a wipe costs
+ * you the buff. That is a savage tier, an extreme, an ultimate or a criterion
+ * dungeon. Nobody eats for a photo shoot, and "three food of Group pose" is a
+ * unit borrowed from an evening it has nothing to do with.
+ *
+ * Runs need something countable that ends. A fight, a dungeon, a match — you
+ * can say four of those and mean it. A hunt train and a FATE farm have no
+ * discrete go to count, and a treasure night already says how many maps.
+ *
+ * Hours is first because it is the one that always applies and the one a new
+ * listing opens on.
+ */
+export function lengthUnitsFor(kind: ContentKind | undefined): LengthUnit[] {
+  const fed = kind === "extreme" || kind === "savage" || kind === "ultimate"
+    || kind === "criterion";
+  const countable = fed || kind === "dungeon" || kind === "pvp";
+  return [
+    "hours",
+    ...(fed ? ["food" as const] : []),
+    ...(countable ? ["runs" as const] : []),
+  ];
+}
+
+/**
+ * What a fresh listing is set to.
+ *
+ * An hour, because it is the only unit every kind of content can use and the
+ * shortest evening anybody actually arranges. Anything longer is the form
+ * holding an opinion about a party nobody has described yet.
+ */
+export const DEFAULT_LENGTH: { unit: LengthUnit; amount: number } = {
+  unit: "hours", amount: 1,
+};
+
+/** A sensible number when somebody switches units, since four hours and four
+ *  runs are different evenings and the digit should not simply carry over. */
+export const DEFAULT_AMOUNT: Record<LengthUnit, number> = {
+  hours: 1, food: 4, runs: 3,
+};
 
 /**
  * What the board privately assumes a run takes.

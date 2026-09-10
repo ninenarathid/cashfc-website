@@ -1627,11 +1627,11 @@ const DICT = {
   "party.payBoth": { en: "Either", th: "อย่างใดอย่างหนึ่ง" },
   "party.payClearWhy": {
     en: "Paid when the boss dies, whatever dropped.",
-    th: "จ่ายเมื่อบอสตาย ไม่ว่าจะดรอปอะไร",
+    th: "จ่ายเมื่อผ่านบอส ไม่ว่าจะดรอปอะไร",
   },
   "party.payMountWhy": {
     en: "Paid only if the rare mount drops. Some nights that is nobody.",
-    th: "จ่ายเฉพาะตอนที่ rare mount ดรอป บางคืนก็ไม่มีใครได้",
+    th: "จ่ายเฉพาะตอนที่ rare mount ดรอป",
   },
   "party.payBothWhy": {
     en: "Paid for the clear, and again if the mount drops.",
@@ -1732,15 +1732,15 @@ const DICT = {
   },
   "pf.lootFfaWhy": {
     en: "Free for all. Everybody rolls on everything.",
-    th: "ทอยกันทุกคน ทุกชิ้น",
+    th: "Roll กันทุกคน ทุกชิ้น",
   },
   "pf.lootMercWhy": {
     en: "The lead pays everyone for a clear or a rare drop, and keeps the loot.",
-    th: "หัวห้องจ่ายเงินให้ทุกคน แล้วเก็บของเอง",
+    th: "หัวห้องจ่ายเงินให้ทุกคนตามเงื่อนไข",
   },
   "pf.lootBookWhy": {
     en: "Here for the weekly books. Nobody is fighting over the gear.",
-    th: "มาเก็บ book รายสัปดาห์ ไม่ได้แย่งของกัน",
+    th: "มาเก็บ book รายสัปดาห์ ไม่ต้องการของ",
   },
   "pf.lootOwnerWhy": {
     en: "Whoever opened the map keeps what came out of it. The rest are helping.",
