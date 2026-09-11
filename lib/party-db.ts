@@ -547,6 +547,55 @@ export async function dropSeat(
 }
 
 /**
+ * People the lead has just added to their own party.
+ *
+ * Invitations, not memberships: asked_by says the lead asked, and nothing is
+ * confirmed — being added to a party is not the same as having agreed to come,
+ * and the seat grid already draws the difference. Somebody from off this site
+ * is the exception and arrives answered, because there is no account behind
+ * them to do the answering.
+ *
+ * Only people who are not in it yet. The form shows everybody, and everybody
+ * already there is locked in it: the rows carry whether somebody said yes,
+ * which is theirs and not the lead's to retype. Anyone the form hands back
+ * without a row id is somebody who was added just now.
+ *
+ * One insert, deduplicated first, for the reason createParty learned the hard
+ * way: party_members_once is on (party_id, character_id) and a single
+ * collision takes the whole statement with it.
+ */
+export async function inviteMembers(
+  supabase: SupabaseClient, userId: string, partyId: string,
+  who: { seat: string | null; characterId: number | null; name: string;
+         avatar: string | null; job?: string | null; jobs?: string[];
+         flex?: Flex | null; confirmedAt?: string | null }[],
+): Promise<{ error?: string; added: number }> {
+  if (!who.length) return { added: 0 };
+  const seen = new Set<number>();
+  const once = who.filter((w) => {
+    if (w.characterId == null) return true;
+    if (seen.has(w.characterId)) return false;
+    seen.add(w.characterId);
+    return true;
+  });
+  const { error } = await supabase.from("party_members").insert(
+    once.map((w) => ({
+      party_id: Number(partyId),
+      seat: w.seat,
+      character_id: w.characterId,
+      name: w.name,
+      avatar: w.avatar,
+      job: w.job ?? (w.jobs?.length === 1 ? w.jobs[0] : null),
+      jobs: w.jobs && w.jobs.length > 1 ? w.jobs : null,
+      flex: w.flex ?? null,
+      asked_by: "owner",
+      confirmed_at: w.confirmedAt ?? null,
+      invited_by: userId,
+    })));
+  return error ? { error: error.message, added: 0 } : { added: once.length };
+}
+
+/**
  * The lead's own place, changed from the listing form.
  *
  * One row and only one: the caller's. The form has never written the roster

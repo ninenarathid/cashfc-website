@@ -20,6 +20,7 @@ import { createClient } from "@/lib/supabase/client";
 
 import {
   addComment, createParty, deleteParty, dropComment, editComment, loadParties,
+  inviteMembers,
   setOwnSeat,
   updateParty,
 } from "@/lib/party-db";
@@ -819,6 +820,24 @@ export default function PartyBoard(
                            setErr(t("party.seatGone", { seat: s.taken }));
                            await refresh();
                            return;
+                         }
+
+                         /*
+                          * And anybody the lead has just added.
+                          *
+                          * Told apart by having no row id: everybody the form
+                          * was opened with came out of the database with one,
+                          * and the form locks them. What is left is new, and
+                          * goes in as an invitation for them to answer.
+                          */
+                         const fresh = [
+                           ...Object.entries(p.seats).map(([seat, w]) => ({ ...w, seat })),
+                           ...(p.floating ?? []).map((f) => ({ ...f, seat: null })),
+                         ].filter((w) => w.seatRowId == null
+                                      && w.characterId !== me.id);
+                         if (fresh.length) {
+                           const a = await inviteMembers(supabase!, userId, amending.id, fresh);
+                           if (a.error) { setSaving(false); setErr(a.error); return; }
                          }
                        }
                        setSaving(false);

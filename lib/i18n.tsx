@@ -2047,6 +2047,10 @@ const DICT = {
   },
   // Not a complaint. The party started, the lead is editing something else,
   // and the form is only saying it knows.
+  "pf.addPeople": { en: "Who is in it", th: "ใครอยู่ในปาร์ตี้" },
+  // Drawn but not editable. Whether somebody agreed to come is their answer,
+  // and the lead changing it here would be answering on their behalf.
+  "pf.alreadyIn": { en: "already in", th: "อยู่แล้ว" },
   "pf.alreadyStarted": {
     en: "This party has already started. Saving will not move it.",
     th: "ปาร์ตี้นี้เริ่มไปแล้ว บันทึกได้โดยไม่ต้องเปลี่ยนเวลา",

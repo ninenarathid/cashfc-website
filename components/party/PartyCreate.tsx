@@ -921,15 +921,24 @@ export default function PartyCreate(
       </div>
 
       {/* ── Who ──────────────────────────────────────────────────────────── */}
-      {/* Only when it is being written. Who is in a party is settled by the
-          people in it — asking, accepting, leaving — and a form that rewrote
-          that list on save would be the lead retyping other people's answers.
-          The seat grid is on the party itself, where those decisions are. */}
-      {!editing && (<>
+      {/* Who is in it.
+          *
+          * On an edit too, which it was not: the lead could put a party
+          * together when they wrote it and then never add anybody again, and
+          * there is no invite control anywhere else — the grid on the party
+          * page is a picture, not a form. A lead who found somebody in
+          * Discord had nowhere to put them.
+          *
+          * What an edit cannot do is rewrite the people already in it. Those
+          * rows carry whether somebody said yes, which is theirs; they are
+          * drawn here and locked, and only what the lead adds now is written
+          * on save. */}
+      {(<>
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
-            {t(mySeat ? "pf.seatsHint" : "pf.pickOwnSeat")}
+            {t(editing ? "pf.addPeople"
+               : mySeat ? "pf.seatsHint" : "pf.pickOwnSeat")}
           </span>
           {/* One switch for the party, not one per seat. Whichever seat was
               left unticked is where the duplicate would land, so a rule that
@@ -982,6 +991,15 @@ export default function PartyCreate(
               <span className="font-data text-[11.5px] uppercase tracking-[0.1em] text-jade">
                 {useShape === "open" ? "" : flexLabel(f.flex) ?? t("pf.noPositionsYet")}
               </span>
+              {/* Already in it, on an edit: drawn so the lead can see who
+                  is there, and left alone. The row says whether they agreed
+                  to come, and that is not a thing to edit on their behalf —
+                  they leave from the party page, the same way they arrived. */}
+              {f.seatRowId != null ? (
+                <span className="ml-auto font-data text-[11.5px] uppercase tracking-[0.1em] text-muted">
+                  {t("pf.alreadyIn")}
+                </span>
+              ) : (<>
               {/* A toggle, because the editor it opens has no button of its
                   own to shut it with any more. */}
               <button onClick={() => setAdding(
@@ -1000,6 +1018,7 @@ export default function PartyCreate(
                       className="text-[13px] text-chili hover:underline">
                 {t("pf.removeLower")}
               </button>
+              </>)}
             </div>
           ))}
 
