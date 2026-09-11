@@ -66,7 +66,7 @@ const ART_H = 360;
  * that still says everything it was for.
  */
 async function inlineArt(
-  url: string | undefined, focus: string | undefined,
+  url: string | undefined, focus: string | undefined, height: number,
 ): Promise<string | null> {
   if (!url?.startsWith("/")) return null;
   try {
@@ -76,7 +76,7 @@ async function inlineArt(
     const position = /bottom/.test(focus ?? "") ? "bottom"
       : /top/.test(focus ?? "") ? "top" : "centre";
     const png = await sharp(fs.readFileSync(file))
-      .resize(size.width, ART_H, { fit: "cover", position })
+      .resize(size.width, height, { fit: "cover", position })
       .jpeg({ quality: 82, mozjpeg: true })
       .toBuffer();
     return `data:image/jpeg;base64,${png.toString("base64")}`;
@@ -103,7 +103,6 @@ export default async function Image(
   const card = await partyCard(id);
   const def = card ? contentByKey(card.contentKey) : undefined;
   const tint = def ? KIND_COLOR[def.kind] : "#8b93a1";
-  const art = await inlineArt(def?.art, def?.focus);
 
   // Nothing to draw a card about. The plain site card is a better answer than
   // an empty frame with a heading on it.
@@ -134,6 +133,18 @@ export default async function Image(
    * the message used to escape it.
    */
   const needs = cardNeeds(card);
+  /*
+   * The picture gives up sixty pixels when there is a row of chips to fit.
+   *
+   * The card is a fixed six hundred and thirty tall and the middle section
+   * takes what is left, so a third row added underneath does not make the card
+   * taller — it takes the room out of whatever was already there, and the first
+   * thing to go was the line with the lead's name on it.
+   */
+  const artH = needs.length ? ART_H - 64 : ART_H;
+  // Cropped to the box it is going into, which is why it is read after the
+  // height is known rather than alongside the card.
+  const art = await inlineArt(def?.art, def?.focus, artH);
   const terms = [
     // The length as the party said it. A run count is not a duration and the
     // card should not turn it into one.
@@ -170,14 +181,14 @@ export default async function Image(
           * without a picture worked.
           */}
         <div style={{
-          position: "relative", display: "flex", width: "100%", height: ART_H,
+          position: "relative", display: "flex", width: "100%", height: artH,
           ...(art ? {} : { background: `${tint}33` }),
         }}>
           {art && (
             // eslint-disable-next-line @next/next/no-img-element
             /* Already cropped to this box, so it goes in as it is. */
-            <img src={art} alt="" width={size.width} height={ART_H}
-                 style={{ width: size.width, height: ART_H }} />
+            <img src={art} alt="" width={size.width} height={artH}
+                 style={{ width: size.width, height: artH }} />
           )}
           <div style={{
             position: "absolute", inset: 0, display: "flex",
@@ -275,7 +286,7 @@ export default async function Image(
         {needs.length > 0 && (
           <div style={{
             display: "flex", alignItems: "center", gap: 16,
-            padding: "0 48px 34px",
+            padding: "0 48px 30px",
           }}>
             {needs.map(([role, n]) => (
               <div key={role} style={{
