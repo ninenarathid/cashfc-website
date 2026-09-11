@@ -20,7 +20,7 @@ import {
 import type { PersonOption } from "@/lib/people";
 import PartySeats from "@/components/party/PartySeats";
 import ContentPicker from "@/components/party/ContentPicker";
-import JobRule, { jobsForRole } from "@/components/party/JobRule";
+import JobRule, { jobsForSlot } from "@/components/party/JobRule";
 import JobIcon from "@/components/JobIcon";
 import PartyIcon from "@/components/party/PartyIcon";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -485,11 +485,24 @@ export default function PartyCreate(
       const next = { ...v };
       let changed = false;
       for (const sl of fresh) {
+        /*
+         * A seat that is only a number is offered no convention at all.
+         *
+         * There is nothing to pre-tick: the seat takes anything, and a rule
+         * saying so is a rule saying nothing — except on the grid, where any
+         * rule at all draws a row of job icons under the seat and turns
+         * "four people, whoever you are" into a list of thirteen. Any rule
+         * left over from the shape before this one goes with it.
+         */
+        if (sl.free) {
+          if (next[sl.id]) { delete next[sl.id]; changed = true; }
+          continue;
+        }
         // Left alone once the lead has answered for it — unless the shape
         // itself changed underneath, in which case the old answer was about a
         // seat that no longer means the same thing.
         if (!shapeChanged && next[sl.id]?.jobs?.length) continue;
-        const all = jobsForRole(sl.role);
+        const all = jobsForSlot(sl);
         // A light party has no D1-to-D4 convention: its four seats are one of
         // each, and any DPS at all is a D1. So it advertises the whole role,
         // where an eight-man's D1 means the two melee.
@@ -799,7 +812,10 @@ export default function PartyCreate(
                 offered and refused rather than left out: a dropdown that
                 silently loses the option somebody is looking for is a
                 dropdown they will go on looking in. */}
-            {(["light", "full", "alliance", "open"] as Shape[]).map((s) => (
+            {/* Each size beside the one it is a headcount of, because that
+                is the choice being made: four either way, and the question is
+                whether the seats mean anything. */}
+            {(["light", "four", "full", "eight", "alliance", "open"] as Shape[]).map((s) => (
               <option key={s} value={s} disabled={!fits(s)}>
                 {shapeSay(s, chosen?.kind, t)}
                 {fits(s) ? "" : ` — ${t("pf.wontFit")}`}
@@ -1162,7 +1178,7 @@ export default function PartyCreate(
                 <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
                   {t("pf.playing")}
                 </span>
-                {jobsForRole(seat.role).map((job) => (
+                {jobsForSlot(seat).map((job) => (
                   <button key={job} type="button"
                           onClick={() => setSeats((v) => ({
                             ...v,

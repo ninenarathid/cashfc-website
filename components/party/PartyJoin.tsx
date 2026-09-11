@@ -11,7 +11,7 @@ import {
   partyStatus,
 } from "@/lib/party";
 import JobIcon, { jobLabel, jobRoleGroup } from "@/components/JobIcon";
-import { jobsForRole } from "@/components/party/JobRule";
+import { jobsForRole, jobsForSlot } from "@/components/party/JobRule";
 import {
   acceptInvite, askToJoin, confirmSeat, dropSeat, takeSeat,
 } from "@/lib/party-db";
@@ -177,7 +177,7 @@ export default function PartyJoin(
     }
     const out = new Set<string>();
     for (const sl of chosenSeats) {
-      for (const j of openTo(party, sl.id, jobsForRole(sl.role))) out.add(j);
+      for (const j of openTo(party, sl.id, jobsForSlot(sl))) out.add(j);
     }
     return [...out];
   }, [party, chosenSeats, seated]);

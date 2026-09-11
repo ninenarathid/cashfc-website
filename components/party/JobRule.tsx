@@ -20,6 +20,21 @@ import { useLang } from "@/lib/i18n";
  */
 
 /** The jobs that can play a seat of this role, in the game's own order. */
+/**
+ * What a particular seat will take.
+ *
+ * A seat with no role is a number, and a number takes anything. It carries
+ * "dps" internally because a SlotDef has to say something, and every job list
+ * on this board was reading that placeholder as an answer — so a party of
+ * eight with no composition was quietly a party of eight DPS, and the grid
+ * advertised thirteen jobs on a seat whose whole point was that it did not
+ * care. It is asked about the seat now rather than the role behind it.
+ */
+export function jobsForSlot(slot: SlotDef): string[] {
+  if (!slot.free) return jobsForRole(slot.role);
+  return (["tank", "healer", "dps"] as SlotRole[]).flatMap(jobsForRole);
+}
+
 export function jobsForRole(role: SlotRole): string[] {
   const want = role === "tank" ? "Tanks" : role === "healer" ? "Healers" : "DPS";
   return ALL_JOBS.filter((j) => ROLE_GROUP[j.role] === want)
@@ -38,7 +53,7 @@ export default function JobRule(
   },
 ) {
   const { t } = useLang();
-  const all = jobsForRole(slot.role);
+  const all = jobsForSlot(slot);
   const picked = new Set(value.jobs ?? []);
   // What the seat is open to at this moment, which is not the same as what was
   // ticked: one-per-job takes jobs off the list as the party fills up.
@@ -112,7 +127,7 @@ export function RuleMark({ party, slot }: { party: Party; slot: SlotDef }) {
   // and is said once above the grid -- repeating it on all eight seats would
   // be eight copies of one sentence.
   if (!party.rules?.[slot.id]?.jobs?.length) return null;
-  const live = openTo(party, slot.id, jobsForRole(slot.role));
+  const live = openTo(party, slot.id, jobsForSlot(slot));
   if (!live.length) return null;
 
   return (

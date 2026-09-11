@@ -1811,6 +1811,7 @@ const DICT = {
    */
   "pf.shapeLight": { en: "4 players", th: "4 คน" },
   "pf.shapeFull": { en: "8 players", th: "8 คน" },
+  "pf.shapeFour": { en: "4 players · any job", th: "4 คน · อาชีพไหนก็ได้" },
   "pf.shapeEight": { en: "8 players · any job", th: "8 คน · อาชีพไหนก็ได้" },
   "pf.shapeAlliance": { en: "Alliance · 24", th: "Alliance · 24 คน" },
   "pf.openPvp": { en: "Everyone queues separately", th: "ทุกคน queue แยกกัน" },

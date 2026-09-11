@@ -29,9 +29,10 @@ type T = (k: Key, vars?: Record<string, string | number>) => string;
 const SHAPE_KEY: Record<Exclude<Shape, "open">, Key> = {
   light: "pf.shapeLight",
   full: "pf.shapeFull",
-  // Eight people and nothing said about who plays what. Said differently from
-  // a full party, because the difference is the whole point: one is a
-  // composition and the other is a headcount.
+  // A headcount and nothing said about who plays what. Said differently from
+  // the party of the same size, because the difference is the whole point:
+  // one is a composition and the other is how many are coming.
+  four: "pf.shapeFour",
   eight: "pf.shapeEight",
   alliance: "pf.shapeAlliance",
 };

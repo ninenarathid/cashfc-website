@@ -26,7 +26,7 @@ import { artFocus, dutySlug, type DutyKind } from "@/lib/duty";
 import { FC_WORLD } from "@/lib/world";
 
 export type SlotRole = "tank" | "healer" | "dps";
-export type Shape = "light" | "full" | "eight" | "alliance" | "open";
+export type Shape = "light" | "four" | "full" | "eight" | "alliance" | "open";
 /** Which of the three eights, in an alliance. */
 export type Wing = "A" | "B" | "C";
 
@@ -68,10 +68,17 @@ const FULL: [string, SlotRole][] = [
  */
 export function slotsOf(shape: Shape): SlotDef[] {
   if (shape === "open") return [];
-  // Numbered, because there is nothing else to call them. "1" through "8" is
-  // what a party list looks like when nobody is filling a role.
-  if (shape === "eight") {
-    return Array.from({ length: 8 }, (_, i) => ({
+  /*
+   * Numbered, because there is nothing else to call them. "1" through "8" is
+   * what a party list looks like when nobody is filling a role.
+   *
+   * Two sizes of the same idea. A headcount is not only a FATE thing: maps,
+   * a mount farm, somebody rounding up four for a bit of old content — the
+   * question there is how many are coming, and a grid asking which of them is
+   * the tank is asking about a composition nobody has.
+   */
+  if (shape === "eight" || shape === "four") {
+    return Array.from({ length: shape === "eight" ? 8 : 4 }, (_, i) => ({
       id: String(i + 1), label: String(i + 1), role: "dps" as const, free: true,
     }));
   }
@@ -119,7 +126,7 @@ export function shapeFits(
 }
 
 export const SHAPE_SIZE: Record<Shape, number> = {
-  light: 4, full: 8, eight: 8, alliance: 24, open: 0,
+  light: 4, four: 4, full: 8, eight: 8, alliance: 24, open: 0,
 };
 
 /*
@@ -132,8 +139,9 @@ export const SHAPE_SIZE: Record<Shape, number> = {
  */
 export const SHAPE_LABEL: Record<Shape, string> = {
   light: "4 players",
+  // The same four and the same eight, with nothing said about who plays what.
+  four: "4 players",
   full: "8 players",
-  // The same eight, with nothing said about who plays what.
   eight: "8 players",
   alliance: "Alliance · 24",
   // Never shown as-is: three different situations end up with no seats, and
