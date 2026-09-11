@@ -16,12 +16,27 @@ import type { PersonOption } from "@/lib/people";
  */
 
 export interface Mention {
-  id: number;
+  /** Null for the room rather than a person. See EVERYONE. */
+  id: number | null;
   name: string;
   /** Where the "@" is, and how far the whole thing runs. */
   at: number;
   len: number;
 }
+
+/**
+ * The words that mean the whole party.
+ *
+ * Two spellings because this board is read in two languages and somebody
+ * reaching for it is not going to switch first. "@everyone" is what everybody
+ * who has used Discord types without thinking; "@ทุกคน" is what the sentence
+ * around it is written in.
+ *
+ * It reaches the party and stops there. A shout that could be sent to five
+ * hundred people by typing two words is a shout somebody eventually sends to
+ * five hundred people.
+ */
+export const EVERYONE = ["everyone", "ทุกคน"] as const;
 
 /**
  * Longest first, so "Aqua Eleison" is tried before "Aqua".
@@ -44,6 +59,15 @@ export function findMentions(
     // Not inside a word: an email address and a Discord handle both contain an
     // @ with something in front of it, and neither is naming anybody here.
     if (i > 0 && !/[\s(\[{>]/.test(text[i - 1])) continue;
+    // The room first: nobody on the roster is called "everyone", but somebody
+    // could be, and the room is what the word means when it is typed.
+    const all = EVERYONE.find((w) => lower.startsWith(w, i + 1));
+    if (all) {
+      out.push({ id: null, name: text.slice(i + 1, i + 1 + all.length),
+                 at: i, len: all.length + 1 });
+      i += all.length;
+      continue;
+    }
     const found = sorted.find(
       (p) => lower.startsWith(p.name.toLowerCase(), i + 1));
     if (!found) continue;
@@ -56,7 +80,12 @@ export function findMentions(
 
 /** Just the ids, deduplicated, which is what a message stores. */
 export const mentionIds = (text: string, people: PersonOption[]): number[] =>
-  [...new Set(findMentions(text, people).map((m) => m.id))];
+  [...new Set(findMentions(text, people)
+    .map((m) => m.id).filter((id): id is number => id != null))];
+
+/** Whether the message named the room, which is its own column. */
+export const mentionsAll = (text: string, people: PersonOption[]): boolean =>
+  findMentions(text, people).some((m) => m.id == null);
 
 /**
  * What to put in the box when somebody presses reply.

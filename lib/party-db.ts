@@ -84,6 +84,7 @@ interface CommentRow {
   edited_at: string | null;
   mentions: number[] | null;
   reply_to: number | null;
+  mentions_all: boolean | null;
 }
 
 const POST_COLS =
@@ -147,7 +148,7 @@ export async function loadParties(
     supabase.from("party_comments")
       .select("id, party_id, author_character_id, author_name, author_avatar,"
               + " body, images, created_at, deleted_at, edited_at,"
-              + " mentions, reply_to")
+              + " mentions, reply_to, mentions_all")
       .in("party_id", ids)
       .order("created_at", { ascending: true }),
   ]);
@@ -217,6 +218,7 @@ export async function loadParties(
       deletedAt: c.deleted_at,
       editedAt: c.edited_at,
       ...(c.mentions?.length ? { mentions: c.mentions } : {}),
+      ...(c.mentions_all ? { mentionsAll: true } : {}),
       replyTo: c.reply_to == null ? null : String(c.reply_to),
     });
     talkOf.set(c.party_id, at);
@@ -320,6 +322,8 @@ export async function addComment(
        text: string; images: string[];
        /** Characters named with an @. Decides who is told, and how. */
        mentions?: number[];
+       /** Or the room, which is everybody in the party and nobody else. */
+       mentionsAll?: boolean;
        /** The message this answers, where it answers one. */
        replyTo?: string | null },
 ): Promise<{ id: string } | { error: string }> {
@@ -334,6 +338,7 @@ export async function addComment(
     // Empty rather than an empty array: a column that is null for "nobody" is
     // one the trigger can test with coalesce and be done.
     mentions: c.mentions?.length ? c.mentions : null,
+    mentions_all: !!c.mentionsAll,
     reply_to: c.replyTo ? Number(c.replyTo) : null,
   }).select("id").single();
   if (error || !data) return { error: error?.message ?? "no row" };

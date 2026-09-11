@@ -32,13 +32,21 @@ export default function MessageText(
   let at = 0;
   for (const m of named) {
     if (m.at > at) out.push(<Linkify key={`t${at}`} text={text.slice(at, m.at)} />);
-    out.push(
+    out.push(m.id == null ? (
+      // The room is not a page to go to. Marked the same way so it reads as
+      // the same kind of thing, and left as text because there is nowhere for
+      // it to lead.
+      <span key={`m${m.at}`}
+            className="rounded bg-gold/15 px-1 font-medium text-gold">
+        @{m.name}
+      </span>
+    ) : (
       <Link key={`m${m.at}`} href={`/member/${m.id}`}
             onClick={(e) => e.stopPropagation()}
             className="rounded bg-accent/15 px-1 font-medium text-accent no-underline hover:bg-accent/25">
         @{m.name}
-      </Link>,
-    );
+      </Link>
+    ));
     at = m.at + m.len;
   }
   if (at < text.length) out.push(<Linkify key={`t${at}`} text={text.slice(at)} />);

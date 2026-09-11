@@ -1661,6 +1661,8 @@ export interface PartyComment {
    * notification for it is not the same as "somebody spoke".
    */
   mentions?: number[];
+  /** The message named the room rather than particular people. */
+  mentionsAll?: boolean;
   /** The message this one answers, where it answers one. */
   replyTo?: string | null;
   deletedAt?: string | null;

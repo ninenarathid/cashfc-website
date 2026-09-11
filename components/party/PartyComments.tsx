@@ -13,7 +13,7 @@ import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import MessageText from "@/components/MessageText";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import { mentionIds, withMention } from "@/lib/mentions";
+import { mentionIds, mentionsAll, withMention } from "@/lib/mentions";
 import { clips, youtubeSrc } from "@/lib/youtube";
 
 /**
@@ -150,6 +150,7 @@ export default function PartyComments(
       // Worked out here rather than on the way in, so what was highlighted and
       // who was told come from one reading of the same text.
       mentions: mentionIds(text.trim(), people),
+      mentionsAll: mentionsAll(text.trim(), people),
       replyTo: answering?.id ?? null,
     });
     setText("");

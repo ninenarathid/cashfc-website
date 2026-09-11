@@ -360,6 +360,7 @@ function PartyDetail(
                              text: c.text,
                              images: c.images ?? [],
                              mentions: c.mentions,
+                             mentionsAll: c.mentionsAll,
                              replyTo: c.replyTo,
                            });
                            if ("error" in r) { setErr(r.error); void refresh(); }
