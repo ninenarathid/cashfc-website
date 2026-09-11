@@ -882,7 +882,19 @@ export default function PartyBoard(
                     </span>
                   </span>
 
-                  <span className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-3.5 py-3">
+                  {/*
+                    * Beside each other where there is width, stacked where
+                    * there is not.
+                    *
+                    * The right-hand column holds what the party is short of,
+                    * and three chips reading "needs 2 tank" is three hundred
+                    * pixels that will not shrink — on a 360px phone that left
+                    * the title about forty pixels to wrap in, so "The Epic of
+                    * Alexander" came out one word per line with the chips
+                    * printed over the top of it.
+                    */}
+                  <span className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-stretch">
+                  <span className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-3.5 pb-1.5 pt-3 sm:py-3">
                     <span className="flex flex-wrap items-baseline gap-2">
                       {c && (c.icon || KIND_ICON[c.kind]) && (
                         <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={17} />
@@ -969,8 +981,8 @@ export default function PartyBoard(
                     )}
                   </span>
 
-                  <span className="flex shrink-0 flex-col items-end justify-center gap-2 py-3 pr-3.5">
-                    <span className="flex items-center gap-2.5">
+                  <span className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 px-3.5 pb-3 sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:px-0 sm:py-3 sm:pr-3.5">
+                    <span className="flex flex-wrap items-center gap-2.5">
                       {/* Who is already in it. The strongest reason to join a
                           party is that other people have, and the row said
                           nothing at all about that before. */}
@@ -1022,6 +1034,7 @@ export default function PartyBoard(
                       )}
                       <span className="text-[12.5px] text-muted">{owner?.name}</span>
                     </span>
+                  </span>
                   </span>
                 </button>
 
