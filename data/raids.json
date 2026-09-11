@@ -7424,9 +7424,9 @@
     "state": "learning",
     "pct": 61.33,
     "phase": 4,
-    "pulls": 98,
-    "last": "2026-09-03",
-    "last_ts": 1788454524
+    "pulls": 85,
+    "last": "2026-09-09",
+    "last_ts": 1788973011
    }
   ]
  },
@@ -9201,9 +9201,9 @@
     "state": "learning",
     "pct": 31.85,
     "phase": 4,
-    "pulls": 105,
-    "last": "2026-09-09",
-    "last_ts": 1788971608
+    "pulls": 107,
+    "last": "2026-09-11",
+    "last_ts": 1789146646
    }
   ]
  },
@@ -10347,12 +10347,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 9,
     "kills": 1,
     "job": "Paladin",
-    "cleared": true,
-    "encounter_id": 1047
+    "cleared": true
    }
   ],
   "extremes": [
@@ -11071,12 +11071,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 82,
     "kills": 20,
     "job": "RedMage",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "RedMage": {
       "kills": 5,
@@ -11100,12 +11100,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 71,
     "kills": 3,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Monk": {
       "kills": 2,
@@ -14157,12 +14157,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 15,
     "kills": 15,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Bard": {
       "kills": 15,
@@ -14174,12 +14174,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 30,
     "kills": 14,
     "job": "Dancer",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Dancer": {
       "kills": 14,
@@ -14814,9 +14814,9 @@
     "state": "learning",
     "pct": 61.33,
     "phase": 4,
-    "pulls": 98,
-    "last": "2026-09-03",
-    "last_ts": 1788454524
+    "pulls": 85,
+    "last": "2026-09-09",
+    "last_ts": 1788973011
    }
   ]
  },
@@ -19215,12 +19215,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 64,
     "kills": 9,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "WhiteMage": {
       "kills": 9,
@@ -23088,11 +23088,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 60.2,
+    "pct": 52.8,
     "phase": 3,
-    "pulls": 118,
-    "last": "2026-09-09",
-    "last_ts": 1788973428
+    "pulls": 108,
+    "last": "2026-09-10",
+    "last_ts": 1789058822
    }
   ]
  },
@@ -24608,9 +24608,9 @@
     "state": "learning",
     "pct": 31.85,
     "phase": 4,
-    "pulls": 105,
-    "last": "2026-09-09",
-    "last_ts": 1788971608
+    "pulls": 108,
+    "last": "2026-09-11",
+    "last_ts": 1789146646
    }
   ]
  },
@@ -25506,12 +25506,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 15,
     "kills": 2,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Warrior": {
       "kills": 2,
@@ -26513,12 +26513,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 20,
     "kills": 7,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Paladin": {
       "kills": 7,
@@ -26530,12 +26530,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 18,
     "kills": 15,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Paladin": {
       "kills": 15,
@@ -27509,12 +27509,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 100,
     "kills": 25,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Warrior": {
       "kills": 25,
@@ -27526,12 +27526,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 98,
     "kills": 27,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Ninja": {
       "kills": 16,
@@ -28154,9 +28154,9 @@
     "state": "learning",
     "pct": 31.85,
     "phase": 4,
-    "pulls": 105,
-    "last": "2026-09-09",
-    "last_ts": 1788971608
+    "pulls": 109,
+    "last": "2026-09-11",
+    "last_ts": 1789146646
    }
   ]
  },
@@ -28803,11 +28803,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 60.2,
+    "pct": 52.8,
     "phase": 3,
-    "pulls": 144,
-    "last": "2026-09-09",
-    "last_ts": 1788973428
+    "pulls": 136,
+    "last": "2026-09-10",
+    "last_ts": 1789058822
    }
   ]
  },
@@ -29927,12 +29927,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 99,
     "kills": 19,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Ninja": {
       "kills": 4,
@@ -29964,12 +29964,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 96,
     "kills": 30,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Gunbreaker": {
       "kills": 12,
@@ -34449,7 +34449,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 41,
-    "kills": 8,
+    "kills": 9,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -34597,12 +34597,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 22,
     "kills": 15,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Monk": {
       "kills": 15,
@@ -34614,12 +34614,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 38,
     "kills": 8,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Monk": {
       "kills": 7,
@@ -37597,12 +37597,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 88,
     "kills": 10,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Bard": {
       "kills": 10,
@@ -37614,12 +37614,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 44,
     "kills": 10,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Bard": {
       "kills": 10,
@@ -38433,9 +38433,9 @@
     "state": "learning",
     "pct": 31.85,
     "phase": 4,
-    "pulls": 105,
-    "last": "2026-09-09",
-    "last_ts": 1788971608
+    "pulls": 109,
+    "last": "2026-09-11",
+    "last_ts": 1789146646
    }
   ]
  },
@@ -39434,12 +39434,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 39,
     "kills": 10,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Astrologian": {
       "kills": 7,
@@ -39455,12 +39455,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 38,
     "kills": 3,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "WhiteMage": {
       "kills": 3,
@@ -40170,9 +40170,9 @@
     "state": "learning",
     "pct": 31.85,
     "phase": 4,
-    "pulls": 105,
-    "last": "2026-09-09",
-    "last_ts": 1788971608
+    "pulls": 107,
+    "last": "2026-09-11",
+    "last_ts": 1789146646
    }
   ]
  },
@@ -41275,12 +41275,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 35,
     "kills": 10,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Scholar": {
       "kills": 10,
@@ -41292,12 +41292,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 32,
     "kills": 13,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Scholar": {
       "kills": 13,
@@ -47212,12 +47212,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 60,
     "kills": 11,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "WhiteMage": {
       "kills": 5,
@@ -61986,8 +61986,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 27,
-    "kills": 5,
+    "best": 78,
+    "kills": 8,
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
@@ -62027,31 +62027,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 48,
-    "last": "2026-09-04",
-    "last_ts": 1788539850
-   },
-   {
-    "encounter_id": 104,
-    "name": "Lindwurm",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 48.99,
-    "phase": 0,
-    "pulls": 13,
-    "last": "2026-09-07",
-    "last_ts": 1788791892
-   }
-  ]
+  "_status": "ok"
  },
  "42053180": {
   "current": {
