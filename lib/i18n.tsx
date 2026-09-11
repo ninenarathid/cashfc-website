@@ -490,6 +490,10 @@ const DICT = {
     en: "{who} left your party.",
     th: "{who} ออกจากปาร์ตี้ของคุณ",
   },
+  "notif.partySoon": {
+    en: "A party you are in starts within the hour.",
+    th: "ปาร์ตี้ที่คุณอยู่กำลังจะเริ่มในอีกไม่ถึงชั่วโมง",
+  },
   "notif.partyTalk": {
     en: "{who} said something in a party you are in.",
     th: "{who} ส่งข้อความในปาร์ตี้ที่คุณอยู่",

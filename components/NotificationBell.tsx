@@ -155,6 +155,14 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
    * to eight is the only thing a lead has to act on that evening.
    */
   party_in: { say: "notif.partyIn", icon: "🙌", href: "/party" },
+  /*
+   * An hour to go, to everybody in it.
+   *
+   * The one party notification with nobody in it: nothing was done to you and
+   * nobody did it — the clock came round. So it has no actor, and the line
+   * says what is about to happen rather than who.
+   */
+  party_soon: { say: "notif.partySoon", icon: "⏰", href: "/party" },
   party_out: { say: "notif.partyOut", icon: "🚪", href: "/party" },
 };
 
