@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-09-11",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-11",
    "type": "ex_clear",
    "id": 42053180,
    "name": "Chu'ny On-duty",
@@ -1392,13 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "is now a Legendary Warrior"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "is now a Legendary Monk"
   }
  ]
 }
