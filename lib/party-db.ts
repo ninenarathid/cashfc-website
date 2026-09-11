@@ -308,8 +308,30 @@ export async function createParty(
       confirmed_at: f.confirmedAt, invited_by: userId,
     })),
   ];
-  if (rows.length) {
-    const put = await supabase.from("party_members").insert(rows);
+  /*
+   * Nobody twice, checked here rather than left to the constraint.
+   *
+   * party_members_once is on (party_id, character_id), and this is one insert:
+   * a single duplicate takes the whole statement down, so a draft with the
+   * lead both seated and flexing produced a party with nobody in it at all —
+   * including the four people who were not duplicated. The listing is already
+   * written by then, which is how the board ended up with a four-seat party
+   * its own lead could not be found in.
+   *
+   * The seat wins, because it is the more specific of the two answers and it
+   * is the one the grid is drawn from. Outsiders are left alone: they have no
+   * id, the constraint does not apply to them, and two people called nothing
+   * in particular are still two people.
+   */
+  const seen = new Set<number>();
+  const once = rows.filter((r) => {
+    if (r.character_id == null) return true;
+    if (seen.has(r.character_id)) return false;
+    seen.add(r.character_id);
+    return true;
+  });
+  if (once.length) {
+    const put = await supabase.from("party_members").insert(once);
     if (put.error) return { error: put.error.message };
   }
   return { id: String(partyId) };
@@ -363,7 +385,16 @@ export async function askToJoin(
   supabase: SupabaseClient, userId: string, partyId: string,
   who: { characterId: number | null; name: string; avatar: string | null;
          job?: string | null; jobs?: string[]; flex?: Flex;
-         seat?: string | null },
+         seat?: string | null;
+         /**
+          * The lead taking a seat in their own party.
+          *
+          * Same row, already answered. Everybody else is asking, and what they
+          * are asking is for the lead to say yes — which is not a question the
+          * lead can be on both ends of. Left as a request it would put them in
+          * their own waiting list to approve themselves.
+          */
+         own?: boolean },
 ): Promise<{ id: string } | { error: string }> {
   const { data, error } = await supabase.from("party_members").insert({
     party_id: Number(partyId),
@@ -376,8 +407,8 @@ export async function askToJoin(
     job: who.job ?? (who.jobs?.length === 1 ? who.jobs[0] : null),
     jobs: who.jobs && who.jobs.length > 1 ? who.jobs : null,
     flex: who.flex ?? null,
-    asked_by: "self",
-    confirmed_at: null,
+    asked_by: who.own ? "owner" : "self",
+    confirmed_at: who.own ? new Date().toISOString() : null,
     invited_by: userId,
   }).select("id").single();
   if (error || !data) return { error: error?.message ?? "no row" };

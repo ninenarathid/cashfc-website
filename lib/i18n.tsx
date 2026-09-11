@@ -1611,6 +1611,13 @@ const DICT = {
 
   /* ── Joining, and being let in ────────────────────────────────────── */
   "party.askToJoin": { en: "Ask to join", th: "ขอเข้าร่วม" },
+  // The lead is not asking anybody. Nothing is pending after this and there is
+  // nobody to approve it, so a button saying "ask" would be describing a wait
+  // that does not happen.
+  "party.takeOwnSeat": { en: "Take your seat", th: "ลงตำแหน่งของคุณ" },
+  // Said differently once you are already sitting somewhere: the same buttons,
+  // but the question is where you are going rather than whether you are in.
+  "party.moveSeat": { en: "Move to", th: "ย้ายไปที่" },
   "party.asking": { en: "Asking…", th: "กำลังส่ง…" },
   "party.asked": { en: "Waiting for the lead to let you in", th: "รอหัวห้องยืนยัน" },
   "party.withdraw": { en: "Withdraw", th: "ยกเลิกคำขอ" },

@@ -327,7 +327,7 @@ export default function PartyJoin(
         </div>
       )}
 
-      {!iAmOwner && mine?.confirmedAt && (
+      {mine?.confirmedAt && (
         <div className="flex flex-col gap-1.5">
           <span className="flex flex-wrap items-center gap-2">
             <span className="text-[14px] text-jade">
@@ -353,10 +353,21 @@ export default function PartyJoin(
             * picks one is a floater, which the resolver has always known what
             * to do with.
             */}
-          {seated && !mine.seat && free.length > 0 && (
+          {/*
+            * And to somewhere else afterwards, which is the same control.
+            *
+            * It used to stop once you were sitting down, so the one thing you
+            * could not change about your own answer was the part everybody
+            * else's plan is built on. Moving is what a party does in the ten
+            * minutes before it starts — somebody swaps to tank, two people
+            * trade so a job rule works out — and the way to do it was to leave
+            * the party and come back, which loses the seat to whoever is
+            * watching.
+            */}
+          {seated && free.length > 0 && (
             <span className="flex flex-wrap items-center gap-1.5">
               <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
-                {t("party.takeASeat")}
+                {t(mine.seat ? "party.moveSeat" : "party.takeASeat")}
               </span>
               {free.map((sl) => {
                 const c = sl.free ? "#8b93a1" : ROLE_COLOR[sl.role];
@@ -385,7 +396,7 @@ export default function PartyJoin(
         </div>
       )}
 
-      {!iAmOwner && !mine && (
+      {!mine && (
         <div className="flex flex-col gap-2">
           {/*
             * Which seats, not which seat.
@@ -513,6 +524,7 @@ export default function PartyJoin(
                               || (seated && free.length > 0 && !any && !want.size)}
                     onClick={() => run(() => askToJoin(supabase, userId, party.id, {
                       characterId: me.id, name: me.name, avatar: me.avatar,
+                      own: iAmOwner,
                       // "Any" is every job the seats will take, which is what
                       // it means and what the resolver can place.
                       jobs: anyJob ? jobs : [...picked],
@@ -525,7 +537,8 @@ export default function PartyJoin(
                           : asking.length === 1 ? undefined : { all: true },
                     }))}
                     className={`${btn} border border-accent bg-accent/15 text-accent hover:bg-accent/25`}>
-              {busy ? t("party.asking") : t("party.askToJoin")}
+              {busy ? t("party.asking")
+                    : t(iAmOwner ? "party.takeOwnSeat" : "party.askToJoin")}
             </button>
             {seated && free.length > 0 && !any && !want.size ? (
               <span className="text-[13.5px] text-muted">{t("party.pickSeatsFirst")}</span>
