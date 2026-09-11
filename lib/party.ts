@@ -1475,12 +1475,13 @@ export const hasSpot = (kind: ContentKind | undefined): boolean =>
  * kills the boss still has to answer the question, and answering it at 1am
  * after a first clear is the worst possible time.
  *
- * Only savage and extreme. Those are the two where the FC actually negotiates
- * this — a weekly tier with a limited number of drops, and a trial farmed for
- * a mount that only one person can win at a time. Everything else either
- * shares out differently or has never needed a rule written down, and offering
- * these three answers there would be offering three wrong ones. The rest get
- * their own when somebody says what they should be.
+ * Savage, extreme and ultimate. The three where the FC actually negotiates
+ * this — a weekly tier with a limited number of drops, a trial farmed for a
+ * mount that only one person can win at a time, and a fight people are paid
+ * in seven figures to bring somebody through. Everything else either shares
+ * out differently or has never needed a rule written down, and offering these
+ * answers there would be offering wrong ones. The rest get their own when
+ * somebody says what they should be.
  */
 export type LootRule = "ltr" | "ffa" | "merc" | "book" | "owner";
 
@@ -1561,6 +1562,12 @@ export const LOOT_COLOR: Record<LootRule, string> = {
  */
 export function lootRulesFor(kind: ContentKind | undefined): LootRule[] {
   if (kind === "savage") return ["ffa", "ltr", "merc", "book"];
+  // An ultimate is the mercenary fight — a carry is most of what gets arranged
+  // at this level and the price is the whole arrangement, so the rule that was
+  // missing here is the one it needed most. The other two come with it rather
+  // than alone: ffa is what a party means when it has not decided anything,
+  // and one weapon a clear is exactly what a list worked down in order is for.
+  if (kind === "ultimate") return ["ffa", "ltr", "merc"];
   if (kind === "extreme") return ["ffa", "ltr", "merc"];
   // A map night has its own two answers and none of the raid ones fits: there
   // is no party list to work down, and nothing to pay a wage for. Either
