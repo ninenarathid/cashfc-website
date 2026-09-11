@@ -505,7 +505,17 @@
       "best": 85,
       "median": 53,
       "kills": 16,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 14,
+        "best": 85
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 55
+       }
+      }
      },
      {
       "label": "P6S",
@@ -514,7 +524,21 @@
       "best": 95,
       "median": 40,
       "kills": 12,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 9,
+        "best": 95
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 65
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 33
+       }
+      }
      },
      {
       "label": "P7S",
@@ -523,7 +547,17 @@
       "best": 85,
       "median": 53,
       "kills": 8,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 6,
+        "best": 85
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 53
+       }
+      }
      },
      {
       "label": "P8S",
@@ -532,7 +566,17 @@
       "best": 95,
       "median": 39,
       "kills": 45,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 42,
+        "best": 95
+       },
+       "Gunbreaker": {
+        "kills": 3,
+        "best": 48
+       }
+      }
      },
      {
       "label": null,
@@ -541,7 +585,17 @@
       "best": 81,
       "median": 47,
       "kills": 18,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 15,
+        "best": 81
+       },
+       "Gunbreaker": {
+        "kills": 3,
+        "best": 64
+       }
+      }
      }
     ]
    },
@@ -20170,12 +20224,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 99,
     "kills": 3,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Summoner": {
       "kills": 1,
@@ -20191,12 +20245,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 88,
     "kills": 6,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Summoner": {
       "kills": 1,
@@ -20584,7 +20638,25 @@
       "best": 99,
       "median": 95,
       "kills": 19,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 11,
+        "best": 99
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 29
+       },
+       "Warrior": {
+        "kills": 4,
+        "best": 67
+       },
+       "Paladin": {
+        "kills": 3,
+        "best": 45
+       }
+      }
      },
      {
       "label": "P6S",
@@ -20593,7 +20665,29 @@
       "best": 99,
       "median": 66,
       "kills": 18,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Monk": {
+        "kills": 1,
+        "best": 83
+       },
+       "Summoner": {
+        "kills": 8,
+        "best": 99
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 79
+       },
+       "Warrior": {
+        "kills": 6,
+        "best": 54
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 26
+       }
+      }
      },
      {
       "label": "P7S",
@@ -20602,7 +20696,25 @@
       "best": 92,
       "median": 67,
       "kills": 12,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 9,
+        "best": 92
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 75
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 42
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 17
+       }
+      }
      },
      {
       "label": "P8S",
@@ -20611,7 +20723,29 @@
       "best": 90,
       "median": 73,
       "kills": 44,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Monk": {
+        "kills": 10,
+        "best": 79
+       },
+       "Summoner": {
+        "kills": 23,
+        "best": 90
+       },
+       "DarkKnight": {
+        "kills": 5,
+        "best": 81
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 45
+       },
+       "Paladin": {
+        "kills": 4,
+        "best": 31
+       }
+      }
      },
      {
       "label": null,
@@ -20620,7 +20754,29 @@
       "best": 89,
       "median": 61,
       "kills": 19,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Monk": {
+        "kills": 4,
+        "best": 73
+       },
+       "Summoner": {
+        "kills": 10,
+        "best": 89
+       },
+       "DarkKnight": {
+        "kills": 2,
+        "best": 50
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 57
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 35
+       }
+      }
      }
     ]
    },
@@ -32825,12 +32981,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 56,
     "kills": 5,
     "job": "Reaper",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Reaper": {
       "kills": 5,
@@ -44554,34 +44710,34 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 50,
     "kills": 1,
     "job": "Reaper",
-    "cleared": true,
-    "encounter_id": 1062
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 27,
     "kills": 1,
     "job": "Samurai",
-    "cleared": true,
-    "encounter_id": 1060
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 2,
     "kills": 1,
     "job": "Gunbreaker",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    },
    {
     "zone": "Ultimates",
@@ -44738,7 +44894,21 @@
       "best": 94,
       "median": 81,
       "kills": 14,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Summoner": {
+        "kills": 1,
+        "best": 27
+       },
+       "Warrior": {
+        "kills": 8,
+        "best": 94
+       },
+       "DarkKnight": {
+        "kills": 5,
+        "best": 73
+       }
+      }
      },
      {
       "label": "P6S",
@@ -44747,7 +44917,17 @@
       "best": 94,
       "median": 83,
       "kills": 14,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 8,
+        "best": 94
+       },
+       "DarkKnight": {
+        "kills": 6,
+        "best": 74
+       }
+      }
      },
      {
       "label": "P7S",
@@ -44756,7 +44936,17 @@
       "best": 84,
       "median": 43,
       "kills": 14,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "Warrior": {
+        "kills": 8,
+        "best": 84
+       },
+       "DarkKnight": {
+        "kills": 6,
+        "best": 84
+       }
+      }
      },
      {
       "label": "P8S",
@@ -44765,7 +44955,17 @@
       "best": 86,
       "median": 51,
       "kills": 23,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 15,
+        "best": 85
+       },
+       "Warrior": {
+        "kills": 8,
+        "best": 86
+       }
+      }
      },
      {
       "label": null,
@@ -44774,7 +44974,17 @@
       "best": 71,
       "median": 45,
       "kills": 10,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 7,
+        "best": 71
+       },
+       "DarkKnight": {
+        "kills": 3,
+        "best": 21
+       }
+      }
      }
     ]
    },
@@ -51221,12 +51431,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 50,
     "kills": 1,
     "job": "Samurai",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    }
   ],
   "extremes": [
@@ -51317,7 +51527,13 @@
       "best": 97,
       "median": 48,
       "kills": 11,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 11,
+        "best": 97
+       }
+      }
      },
      {
       "label": "P6S",
@@ -51326,7 +51542,13 @@
       "best": 90,
       "median": 74,
       "kills": 4,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 4,
+        "best": 90
+       }
+      }
      },
      {
       "label": "P7S",
@@ -51335,7 +51557,13 @@
       "best": 81,
       "median": 53,
       "kills": 5,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 5,
+        "best": 81
+       }
+      }
      },
      {
       "label": "P8S",
@@ -56401,12 +56629,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 44,
     "kills": 17,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Summoner": {
       "kills": 17,
@@ -56418,12 +56646,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 73,
     "kills": 15,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Summoner": {
       "kills": 15,
@@ -59596,12 +59824,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 41,
     "kills": 2,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Ninja": {
       "kills": 2,
@@ -59613,12 +59841,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 67,
     "kills": 4,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Ninja": {
       "kills": 4,
@@ -59833,7 +60061,21 @@
       "best": 82,
       "median": 31,
       "kills": 20,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Ninja": {
+        "kills": 16,
+        "best": 79
+       },
+       "Bard": {
+        "kills": 3,
+        "best": 82
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 36
+       }
+      }
      },
      {
       "label": "P6S",
@@ -59842,7 +60084,21 @@
       "best": 94,
       "median": 30,
       "kills": 22,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 16,
+        "best": 94
+       },
+       "Bard": {
+        "kills": 5,
+        "best": 93
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 7
+       }
+      }
      },
      {
       "label": "P7S",
@@ -59851,7 +60107,17 @@
       "best": 86,
       "median": 19,
       "kills": 10,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 9,
+        "best": 86
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 14
+       }
+      }
      },
      {
       "label": "P8S",
@@ -59860,7 +60126,17 @@
       "best": 98,
       "median": 31,
       "kills": 53,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 38,
+        "best": 98
+       },
+       "Bard": {
+        "kills": 15,
+        "best": 87
+       }
+      }
      },
      {
       "label": null,
@@ -59869,7 +60145,17 @@
       "best": 84,
       "median": 29,
       "kills": 23,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 15,
+        "best": 84
+       },
+       "Bard": {
+        "kills": 8,
+        "best": 61
+       }
+      }
      }
     ]
    }
@@ -60839,7 +61125,25 @@
       "best": 53,
       "median": 20,
       "kills": 14,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Dancer": {
+        "kills": 1,
+        "best": 25
+       },
+       "Paladin": {
+        "kills": 4,
+        "best": 47
+       },
+       "Warrior": {
+        "kills": 4,
+        "best": 53
+       },
+       "DarkKnight": {
+        "kills": 5,
+        "best": 30
+       }
+      }
      },
      {
       "label": "P6S",
@@ -60848,7 +61152,21 @@
       "best": 64,
       "median": 26,
       "kills": 14,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Paladin": {
+        "kills": 3,
+        "best": 57
+       },
+       "DarkKnight": {
+        "kills": 5,
+        "best": 40
+       },
+       "Warrior": {
+        "kills": 6,
+        "best": 64
+       }
+      }
      },
      {
       "label": "P7S",
@@ -60857,7 +61175,21 @@
       "best": 57,
       "median": 45,
       "kills": 11,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 7,
+        "best": 57
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 48
+       },
+       "DarkKnight": {
+        "kills": 2,
+        "best": 9
+       }
+      }
      },
      {
       "label": "P8S",
@@ -60866,7 +61198,17 @@
       "best": 29,
       "median": 23,
       "kills": 6,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 5,
+        "best": 29
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 2
+       }
+      }
      },
      {
       "label": null,
@@ -60875,7 +61217,13 @@
       "best": 2,
       "median": 1,
       "kills": 2,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 2,
+        "best": 2
+       }
+      }
      }
     ]
    },
@@ -63727,12 +64075,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 98,
     "kills": 9,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Summoner": {
       "kills": 8,
@@ -63748,12 +64096,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 64,
     "kills": 1,
     "job": "Sage",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    }
   ],
   "extremes": [
@@ -66163,12 +66511,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 97,
     "kills": 3,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Machinist": {
       "kills": 3,
@@ -66180,12 +66528,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 99,
     "kills": 16,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Summoner": {
       "kills": 16,

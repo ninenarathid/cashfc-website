@@ -1,6 +1,41 @@
 {
  "events": [
   {
+   "date": "2026-09-11",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-11",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-11",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Expert Monk"
+  },
+  {
+   "date": "2026-09-11",
+   "type": "job_up",
+   "id": 24313144,
+   "name": "Oxyy Genn",
+   "text": "is now a Expert Dark Knight"
+  },
+  {
+   "date": "2026-09-11",
+   "type": "job_up",
+   "id": 33487130,
+   "name": "Rimuru Tempesta",
+   "text": "is now a Master Dark Knight"
+  },
+  {
    "date": "2026-09-10",
    "type": "level_100",
    "id": 31155521,
@@ -1364,41 +1399,6 @@
    "id": 30421228,
    "name": "Natsuki Tri",
    "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 28011817,
-   "name": "Nore Vanessa",
-   "text": "is now a Legendary Dancer"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 26433344,
-   "name": "Oppa' Pkz",
-   "text": "is now a Master Astrologian"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "is now a Master Red Mage"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 29395299,
-   "name": "Runie Run",
-   "text": "is now a Legendary Gunbreaker"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "is now a Expert Machinist"
   }
  ]
 }

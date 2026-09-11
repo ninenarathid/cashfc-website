@@ -2175,7 +2175,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 26,
-  "level": 64,
+  "level": 67,
   "cc": [
    true,
    true,
@@ -2221,7 +2221,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2230,7 +2230,7 @@
   "mounts": 99,
   "minions": 210,
   "rare": 76,
-  "level": 100,
+  "level": 23,
   "cc": [
    true,
    true,
@@ -2333,7 +2333,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -2378,7 +2378,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2391,7 +2391,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -4650,7 +4650,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 45,
+  "level": 49,
   "cc": [
    false,
    false,
@@ -4780,7 +4780,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -4789,7 +4789,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 22,
-  "level": 97,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4834,7 +4834,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5770,7 +5770,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 93,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -5795,7 +5795,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -8496,14 +8496,14 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 60,
+  "level": 62,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -14026,10 +14026,12 @@
    "Bard": "expert",
    "Machinist": "expert",
    "BlackMage": "expert",
+   "Monk": "expert",
    "Warrior": "expert",
    "Pictomancer": "legendary",
    "Summoner": "legendary",
-   "Ninja": "expert"
+   "Ninja": "expert",
+   "DarkKnight": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -14665,7 +14667,7 @@
    "Warrior": "legendary",
    "Paladin": "master",
    "RedMage": "master",
-   "DarkKnight": "expert"
+   "DarkKnight": "master"
   },
   "ex": [],
   "ults": [
@@ -14708,9 +14710,7 @@
    2995
   ],
   "tiers": {},
-  "jobs": {
-   "Warrior": "expert"
-  },
+  "jobs": {},
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
