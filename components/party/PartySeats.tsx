@@ -4,7 +4,7 @@ import type {
   ContentKind, Floater, Party, Resolved, SlotDef, SlotRole, Wing,
 } from "@/lib/party";
 import {
-  ROLE_COLOR, ROLE_LABEL, canFlex, flexLabel, resolveParty, slotsOf,
+  ROLE_COLOR, ROLE_LABEL, canFlex, flexLabel, headcount, resolveParty, slotsOf,
 } from "@/lib/party";
 import JobIcon from "@/components/JobIcon";
 import { RuleMark } from "@/components/party/JobRule";
@@ -343,6 +343,23 @@ export function NeedLine({ party }: { party: Party }) {
   const { t } = useLang();
 
   /*
+   * How many are in it, beside what it is short of.
+   *
+   * The two answer different halves of the same question and the row only ever
+   * carried one: "needs 2 healers" says what is missing and nothing about
+   * whether this is a party of three or of seven. Quiet and uncoloured, since
+   * the chips beside it are the ones somebody is meant to act on — this is the
+   * fact they are read against.
+   */
+  const { here, seats } = headcount(party);
+  const count = seats ? (
+    <span title={t("pf.headcount", { n: String(here), of: String(seats) })}
+          className="rounded-full border border-line px-2.5 py-[3px] font-data text-[13.5px] tabular-nums text-muted">
+      {here}/{seats}
+    </span>
+  ) : null;
+
+  /*
    * Looking, or not.
    *
    * The one fact on a row somebody can act on, and until now it looked exactly
@@ -370,6 +387,7 @@ export function NeedLine({ party }: { party: Party }) {
   if (!res.wanted) {
     return (
       <span className="flex flex-wrap items-center gap-1.5">
+        {count}
         <span className="text-[15.5px] text-muted">{t("pf.full")}</span>
         {res.loose.length > 0 && (
           // Full, but not settled: the seats are spoken for and who sits where
@@ -391,6 +409,7 @@ export function NeedLine({ party }: { party: Party }) {
 
   return (
     <span className="flex flex-wrap items-center gap-1.5">
+      {count}
       {parts.length ? parts.map((r) => (
         <span key={r}
               style={{ color: ROLE_COLOR[r],
