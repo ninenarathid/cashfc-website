@@ -29,6 +29,18 @@ import { clips, youtubeSrc } from "@/lib/youtube";
  * Pictures on a reply, for the same reason the plan has them — "do you mean
  * this spot?" is a screenshot, not a sentence.
  */
+/*
+ * The four buttons on a message, all one size.
+ *
+ * Twenty pixels with a ten-pixel glyph in it was reported as too small to
+ * read, and it was: these are symbols rather than words, so the glyph is the
+ * whole of what they say. Twenty-eight with thirteen is the size of the emoji
+ * in the picker they open, which is the thing they are nearest to.
+ */
+const ctl = (extra: string) =>
+  "grid size-7 shrink-0 place-items-center rounded-full border border-line"
+  + ` bg-surface text-[13px] leading-none shadow-sm transition-colors ${extra}`;
+
 export default function PartyComments(
   { comments, people, me, userId, onAdd, onReact, onEdit, onDrop }: {
     comments: PartyComment[];
@@ -370,22 +382,25 @@ export default function PartyComments(
                   * is more furniture than conversation.
                   */}
                 {mine && !c.deletedAt && !fixing && onEdit && onDrop && (
-                  <span className="absolute -top-3 right-1 z-[1] flex items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/msg:opacity-100 max-sm:opacity-60">
+                  <span className="absolute -top-4 right-1 z-[1] flex items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/msg:opacity-100 max-sm:opacity-60">
                     <button type="button" aria-label={t("pf.edit")}
                             onClick={() => setFixing({ id: c.id, text: c.text })}
-                            className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none shadow-sm hover:border-accent hover:text-accent">
+                            className={ctl("hover:border-accent hover:text-accent")}>
                       ✎
                     </button>
                     <button type="button" aria-label={t("pf.deleteParty")}
                             onClick={() => setDropping(c.id)}
-                            className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none text-chili/80 shadow-sm hover:border-chili hover:text-chili">
+                            className={ctl("text-chili/80 hover:border-chili hover:text-chili")}>
                       ✕
                     </button>
                   </span>
                 )}
 
+                {/* Mostly above the bubble rather than sunk into it: at
+                    twenty-eight across, a control centred on the edge sits
+                    squarely on the name and the time. */}
                 {userId && !c.deletedAt && (
-                  <span className={`absolute -top-3 z-[1] flex items-center ${
+                  <span className={`absolute -top-4 z-[1] flex items-center ${
                     mine ? "left-1" : "right-1"}`}>
                     {picking === c.id ? (
                       <span className="flex items-center gap-0.5 rounded-full border border-line bg-surface px-1 py-0.5 shadow-sm">
@@ -405,7 +420,7 @@ export default function PartyComments(
                       <span className="flex items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-100 group-hover/msg:opacity-100 max-sm:opacity-60">
                         <button type="button" aria-label={t("pf.react")}
                                 onClick={() => setPicking(c.id)}
-                                className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none shadow-sm">
+                                className={ctl("")}>
                           ☺
                         </button>
                         {/* Answering this one in particular: their name goes
@@ -415,7 +430,7 @@ export default function PartyComments(
                         <button type="button" aria-label={t("party.reply")}
                                 title={t("party.reply")}
                                 onClick={() => reply(c)}
-                                className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none shadow-sm hover:border-accent hover:text-accent">
+                                className={ctl("hover:border-accent hover:text-accent")}>
                           ↩
                         </button>
                       </span>
