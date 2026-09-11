@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import PartyFinder from "@/components/party/PartyFinder";
 import { everyone } from "@/lib/people";
@@ -94,8 +95,13 @@ export default async function OneParty(
   const { id } = await params;
   return (
     <main className="pt-2">
-      <PartyFinder people={everyone(raw as unknown as BoardData)}
-                   openParty={id} {...partySeeds()} />
+      {/* Same boundary as /party, for the same reason: the board reads the
+          address, and this route is rendered on demand for a crawler as well
+          as for a person. */}
+      <Suspense>
+        <PartyFinder people={everyone(raw as unknown as BoardData)}
+                     openParty={id} {...partySeeds()} />
+      </Suspense>
     </main>
   );
 }

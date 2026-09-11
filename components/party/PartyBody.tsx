@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import Linkify from "@/components/Linkify";
-import { youtube, youtubeSrc, type Video } from "@/lib/youtube";
+import { clips, youtubeSrc } from "@/lib/youtube";
 
 /**
  * The write-up on a party: paragraphs and pictures, read and written.
@@ -40,9 +40,7 @@ export function PartyBody({ body }: { body: PartyBlock[] }) {
            * players loading at once is what the write-up costs everybody who
            * opens the party.
            */
-          const clips = [...new Set(
-            [...b.text.matchAll(/https?:\/\/[^\s<>"'`)\]}]+/g)].map((m) => m[0]))]
-            .map(youtube).filter((v): v is Video => !!v).slice(0, 2);
+          const seen = clips(b.text);
           return (
             <div key={b.id} className="flex flex-col gap-2">
               {/* Newlines kept: somebody who pressed return meant it, and a
@@ -50,7 +48,7 @@ export function PartyBody({ body }: { body: PartyBlock[] }) {
               <p className="whitespace-pre-wrap break-words text-[13.5px] leading-relaxed text-ink/90">
                 <Linkify text={b.text} />
               </p>
-              {clips.map((v) => (
+              {seen.map((v) => (
                 <div key={v.id}
                      className="aspect-video w-full max-w-xl overflow-hidden rounded-lg border border-line">
                   <iframe src={youtubeSrc(v)} title="YouTube" loading="lazy"

@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import Linkify from "@/components/Linkify";
+import { clips, youtubeSrc } from "@/lib/youtube";
 
 /**
  * Replies on a party.
@@ -197,6 +198,26 @@ export default function PartyComments(
                     <Linkify text={c.text} />
                   </p>
                 )}
+                {/*
+                  * The video, in the message.
+                  *
+                  * Somebody posting a link to the phase-two explanation in the
+                  * middle of a conversation about phase two is posting it so
+                  * the others can watch it — and a link in a chat bubble is a
+                  * page everybody has to leave the conversation for. Same rule
+                  * as the write-up above, and the same cap: two, because a
+                  * message with six in it is a playlist.
+                  */}
+                {clips(c.text).map((v) => (
+                  <div key={v.id}
+                       className={`aspect-video w-full max-w-sm overflow-hidden rounded-lg border border-line ${
+                         mine ? "self-end" : ""}`}>
+                    <iframe src={youtubeSrc(v)} title="YouTube" loading="lazy"
+                            allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+                            allowFullScreen
+                            className="size-full" />
+                  </div>
+                ))}
                 {!!c.images?.length && (
                   <div className={`flex flex-wrap gap-2 ${mine ? "justify-end" : ""}`}>
                     {c.images.map((src2, n) => (

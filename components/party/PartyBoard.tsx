@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { PersonOption } from "@/lib/people";
 import type {
   ContentDef, ContentSeed, LootRule, Party, PartyComment, PartyStatus,
@@ -46,7 +47,7 @@ import PartyCreate from "@/components/party/PartyCreate";
 import PartyJoin, { amIn, pendingAsks } from "@/components/party/PartyJoin";
 import Modal from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
-import ShareParty, { readDeepLink, writeDeepLink } from "@/components/party/ShareParty";
+import ShareParty from "@/components/party/ShareParty";
 
 /**
  * Who is running what, and when.
@@ -405,6 +406,7 @@ export default function PartyBoard(
 
   const [supabase] = useState(createClient);
   const [parties, setParties] = useState<Party[]>([]);
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   /**
    * The party being changed, where somebody is changing one.
@@ -435,20 +437,43 @@ export default function PartyBoard(
    * exactly the case people share one.
    */
   const [pinned, setPinned] = useState<string | null>(openParty ?? null);
+  /*
+   * The address, re-read on every navigation rather than once on arrival.
+   *
+   * A party notification links to /party?p=38, and somebody who is already
+   * looking at the board is exactly who gets one — the board does not remount
+   * for that, so reading the query once when the component mounted meant
+   * following the link did nothing at all. Which is the whole point of the
+   * link, and the case it was most often used in.
+   *
+   * Through the router's own hook rather than window.location, because that
+   * is the one that changes when Next navigates.
+   */
+  const linked = useSearchParams().get("p");
   useEffect(() => {
-    if (!openParty) setPinned(readDeepLink());
-  }, [openParty]);
+    if (openParty) return;
+    setPinned(linked && /^\d+$/.test(linked) ? linked : null);
+  }, [linked, openParty]);
 
   const [openId, setOpenIdRaw] = useState<string | null>(null);
   const setOpenId = useCallback((id: string | null) => {
     setOpenIdRaw(id);
     if (!id) setPinned(null);
     // Arriving at /party/11 and closing the window leaves you on the board,
-    // not on an address for a party that is no longer open. Anywhere else the
-    // id lives in the query and is simply taken out again.
-    if (!id && openParty) window.history.replaceState(null, "", "/party");
-    else writeDeepLink(id);
-  }, [openParty]);
+    // not on an address for a party that is no longer open. That one is a
+    // different route, so it is rewritten rather than navigated.
+    if (!id && openParty) { window.history.replaceState(null, "", "/party"); return; }
+    /*
+     * Through the router rather than history.replaceState.
+     *
+     * The address is read back through the router's hook now, and a raw
+     * replaceState does not reach it: the query would change while the hook
+     * went on reporting the old one, and closing a party would leave the board
+     * believing it was still open. /party is a static route, so this is the
+     * client cache rather than a request.
+     */
+    router.replace(id ? `/party?p=${id}` : "/party", { scroll: false });
+  }, [openParty, router]);
   /*
    * Open whatever the link named, once the board has it — and once only.
    *
@@ -457,11 +482,15 @@ export default function PartyBoard(
    * reader who had since opened a different party back to the one they arrived
    * on. Which is a page that will not let go of you.
    */
-  const landed = useRef(false);
+  const landed = useRef<string | null>(null);
   useEffect(() => {
-    if (landed.current || !pinned) return;
+    // Which party was landed on, not merely whether one was. A flag meant the
+    // second link anybody followed in a session was ignored — and following a
+    // second link is what a board full of parties is for.
+    if (!pinned) { landed.current = null; return; }
+    if (landed.current === pinned) return;
     if (!parties.some((p) => p.id === pinned)) return;
-    landed.current = true;
+    landed.current = pinned;
     setOpenIdRaw(pinned);
   }, [pinned, parties]);
 

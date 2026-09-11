@@ -57,6 +57,22 @@ export function youtube(url: string): Video | null {
 }
 
 /**
+ * The videos linked in a piece of text.
+ *
+ * Two at most: a paragraph with six in it is a playlist, and six players
+ * loading at once is what a write-up would cost everybody who opens the party.
+ * Deduplicated, because the same link pasted twice is one video.
+ *
+ * Here rather than in either of the two components that draw them, because a
+ * link in a message and a link in a raid plan are the same link and should not
+ * be recognised by two slightly different regular expressions.
+ */
+export const clips = (text: string | undefined): Video[] =>
+  !text ? [] : [...new Set(
+    [...text.matchAll(/https?:\/\/[^\s<>"'`)\]}]+/g)].map((m) => m[0]))]
+    .map(youtube).filter((v): v is Video => !!v).slice(0, 2);
+
+/**
  * The player's address.
  *
  * nocookie because this is a Free Company noticeboard and there is no reason

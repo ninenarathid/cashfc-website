@@ -11,29 +11,11 @@ import { useLang } from "@/lib/i18n";
  * the Discord problem the board exists to fix, reappearing in the sentence
  * people use to share it.
  *
- * The address is the state, not a second copy of it. Opening a row writes the
- * id in and closing it takes the id out, with replaceState rather than push so
- * that the back button still leaves the page instead of stepping back through
- * every row somebody opened on the way down.
+ * The address is the state, not a second copy of it — the board reads the open
+ * party out of it and writes it back through the router, which is what makes a
+ * link to one work whether it is followed from Discord or from a notification
+ * on the board itself.
  */
-
-const PARAM = "p";
-
-/** The party the address is asking for, if any. */
-export function readDeepLink(): string | null {
-  if (typeof window === "undefined") return null;
-  const v = new URLSearchParams(window.location.search).get(PARAM);
-  return v && /^\d+$/.test(v) ? v : null;
-}
-
-/** Put the open row in the address, or take it out again. */
-export function writeDeepLink(id: string | null): void {
-  if (typeof window === "undefined") return;
-  const url = new URL(window.location.href);
-  if (id) url.searchParams.set(PARAM, id);
-  else url.searchParams.delete(PARAM);
-  window.history.replaceState(null, "", url.toString());
-}
 
 /**
  * The whole address of one party, which is the thing being shared.
