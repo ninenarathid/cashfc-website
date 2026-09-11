@@ -1631,6 +1631,12 @@ const DICT = {
   "party.accept": { en: "Accept", th: "ตอบรับ" },
   "party.youAreIn": { en: "You are in this party", th: "คุณอยู่ในปาร์ตี้นี้แล้ว" },
   "party.leave": { en: "Leave", th: "ออกจากปาร์ตี้" },
+  /* Not a refusal so much as a fact: an hour out, the rest of the party has
+     counted you in, and a seat given up at ten to eight cannot be filled. */
+  "party.tooLateToLeave": {
+    en: "Too close to the start to drop out",
+    th: "ใกล้เวลาเริ่มแล้ว ออกจากปาร์ตี้ไม่ได้",
+  },
   "party.letIn": { en: "Let in", th: "รับเข้า" },
   "party.turnDown": { en: "Turn down", th: "ปฏิเสธ" },
   "party.waitingOnYou": { en: "{n} waiting for you", th: "มี {n} คนรอคุณยืนยัน" },

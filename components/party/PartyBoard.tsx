@@ -301,7 +301,7 @@ function PartyDetail(
           <PartySeats party={party} kind={def?.kind} />
 
           <PartyJoin party={party} kind={def?.kind} me={me} userId={userId}
-                     supabase={supabase}
+                     supabase={supabase} now={now}
                      onDone={refresh} onError={setErr} />
 
           {/* The boss, which neither the title nor the row has room for: the

@@ -8,6 +8,7 @@ import type {
 } from "@/lib/party";
 import {
   ROLE_COLOR, ROLE_LABEL, askedAbout, jobMatters, openSeats, openTo,
+  partyStatus,
 } from "@/lib/party";
 import JobIcon, { jobLabel, jobRoleGroup } from "@/components/JobIcon";
 import { jobsForRole } from "@/components/party/JobRule";
@@ -52,8 +53,10 @@ const roster = (p: Party): Who[] => [
 ];
 
 export default function PartyJoin(
-  { party, kind, me, userId, supabase, onDone, onError }: {
+  { party, kind, me, userId, supabase, now, onDone, onError }: {
     party: Party;
+    /** The board's clock, which decides whether it is too late to leave. */
+    now: number;
     /** What it is for, which decides whether a job is even a question. */
     kind?: ContentKind;
     me: PersonOption | null;
@@ -67,6 +70,20 @@ export default function PartyJoin(
   const { t } = useLang();
   const overrides = useAvatarOverrides();
   const [busy, setBusy] = useState(false);
+  /*
+   * Past the point of dropping out.
+   *
+   * An hour before the start the row turns amber, everybody in the party is
+   * told, and that is the moment the rest of them start counting on you. A
+   * seat given up at ten to eight is a seat nobody can fill, so it stops being
+   * something you can give up: being in it an hour before is the answer.
+   *
+   * Somebody who has not answered is not held to anything — they never said
+   * yes, and an invitation that cannot be turned down is not an invitation.
+   * The same goes for a request nobody has accepted: withdrawing it takes
+   * nothing away from anybody.
+   */
+  const started = partyStatus(party, now) !== "upcoming";
   /** The open seats this reader says they can play. */
   const [want, setWant] = useState<Set<string>>(new Set());
   /** "Any of them", which overrules the list rather than adding to it. */
@@ -317,11 +334,15 @@ export default function PartyJoin(
               {mine.seat ? t("party.youAreInAt", { seat: mine.seat })
                          : t("party.youAreIn")}
             </span>
-            <button disabled={busy}
-                    onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
-                    className={`${btn} border border-line text-muted hover:text-ink`}>
-              {t("party.leave")}
-            </button>
+            {started ? (
+              <span className="text-[12px] text-muted">{t("party.tooLateToLeave")}</span>
+            ) : (
+              <button disabled={busy}
+                      onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
+                      className={`${btn} border border-line text-muted hover:text-ink`}>
+                {t("party.leave")}
+              </button>
+            )}
           </span>
 
           {/*
