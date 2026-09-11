@@ -1034,6 +1034,16 @@ export interface Party {
    * the row says so.
    */
   updatedAt?: string;
+  /**
+   * When the lead declared it over, early or late.
+   *
+   * Null for every party that is still running on its estimate, which is most
+   * of them. The estimate is the one number on a listing nobody can be
+   * expected to get right, so this is the answer when it turns out wrong in
+   * either direction — a farm that finished three runs early, a prog night
+   * that went on, a party called off before it ever started.
+   */
+  endedAt?: string | null;
 }
 
 /**
@@ -1262,10 +1272,37 @@ export function resolveParty(p: Party): Resolved {
     if (who.length) maybe[id] = who;
   }
 
+  /*
+   * And what is still missing, which is not "seats nobody has offered for".
+   *
+   * One person cannot sit in four chairs. `maybe` lists everybody who could
+   * take a seat, and reading a shortage off it counted one flexible player as
+   * four arrivals: a party of eight with two seated and one floater who would
+   * play any DPS reported itself short of two healers and nothing else, when
+   * it was five people short. The board said "nearly there" to a party that
+   * had barely started.
+   *
+   * So the same matching pass two uses, run for the answer rather than for the
+   * seating: as many floaters as can be given distinct seats are, and whatever
+   * is left over is the real shortage. Which particular DPS seat ends up the
+   * spare one does not matter — the count by role is the same either way.
+   */
+  const held = new Map<string, Floater>();
+  const claim = (f: Floater, seen: Set<string>): boolean => {
+    for (const id of free) {
+      if (seen.has(id) || !coversSeat(f.flex, byId.get(id)!)) continue;
+      seen.add(id);
+      const sitting = held.get(id);
+      if (!sitting || claim(sitting, seen)) { held.set(id, f); return true; }
+    }
+    return false;
+  };
+  for (const f of loose) claim(f, new Set());
+
   const open = openSlots.filter((s) => free.has(s.id));
   return {
     seats, maybe, loose, open,
-    uncovered: open.filter((s) => !maybe[s.id]),
+    uncovered: open.filter((s) => !held.has(s.id)),
     wanted: Math.max(0, open.length - loose.length),
   };
 }
@@ -1728,8 +1765,13 @@ export const hasBody = (b: PartyBlock[] | undefined): boolean =>
   !!b?.some((x) => (x.kind === "text" && x.text?.trim()) || (x.kind === "image" && x.url));
 
 /** Only the two fields it reads, so a draft or a row can be handed to it. */
-export const endsAt = (p: { startsAt: string; lengthMinutes: number }): string =>
-  new Date(new Date(p.startsAt).getTime() + p.lengthMinutes * 60_000).toISOString();
+export const endsAt = (
+  p: { startsAt: string; lengthMinutes: number; endedAt?: string | null },
+): string =>
+  // What the lead said, where they said anything. The estimate is only an
+  // estimate, and a party that has been ended has a real answer.
+  p.endedAt
+  ?? new Date(new Date(p.startsAt).getTime() + p.lengthMinutes * 60_000).toISOString();
 
 /* ── A map night ──────────────────────────────────────────────────────────── */
 
@@ -1829,6 +1871,17 @@ export type PartyStatus = "upcoming" | "soon" | "live" | "justEnded" | "done";
 export const SOON_MS = 3_600_000;
 
 export function partyStatus(p: Party, now: number = Date.now()): PartyStatus {
+  /*
+   * Ended is ended, whatever the clock was going to say.
+   *
+   * Asked first because a party can be called off before it starts, and the
+   * ordinary reading would call that one "upcoming" right up to the start time
+   * it is never going to reach.
+   */
+  if (p.endedAt) {
+    const at = new Date(p.endedAt).getTime();
+    if (now >= at) return now < at + SOON_MS ? "justEnded" : "done";
+  }
   const start = new Date(p.startsAt).getTime();
   const end = new Date(endsAt(p)).getTime();
   if (now < start - SOON_MS) return "upcoming";
@@ -1925,6 +1978,24 @@ export function placeOf(
   }
   const f = (p.floating ?? []).find((x) => x.characterId === characterId);
   return f ? { rowId: f.seatRowId, seat: null, flex: f.flex ?? null } : null;
+}
+
+/**
+ * How many are in it, and how many it holds.
+ *
+ * Everybody counts once — seated or still deciding where to stand — because
+ * the question this answers is how many people are coming, and somebody who
+ * has said yes is coming whether or not they have picked a chair.
+ *
+ * A party with no seats holds nobody in particular, so it has a count and no
+ * total: "three coming" is the whole truth about a hunt train.
+ */
+export function headcount(p: Party): { here: number; seats: number } {
+  const shut = new Set(p.closed ?? []);
+  return {
+    here: Object.keys(p.seats).length + (p.floating?.length ?? 0),
+    seats: slotsOf(p.shape).filter((s) => !shut.has(s.id)).length,
+  };
 }
 
 /** Seats with nobody in them and not deliberately shut. What is missing. */

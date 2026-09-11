@@ -1,9 +1,9 @@
 import type {
-  ContentKind, LengthUnit, LootRule, PayOn, ProgressAt, Shape,
+  ContentKind, LengthUnit, LootRule, Party, PayOn, ProgressAt, Shape,
 } from "@/lib/party";
 import {
-  KIND_LABEL, LOOT_LABEL, endsAt, fmtDay, fmtLength, fmtTime, minutesToFood,
-  timeIsEstimate,
+  KIND_LABEL, LOOT_LABEL, endsAt, fmtDay, fmtLength, fmtTime, headcount,
+  minutesToFood, timeIsEstimate,
 } from "@/lib/party";
 import type { Key } from "@/lib/i18n";
 
@@ -44,6 +44,28 @@ const SHAPE_KEY: Record<Exclude<Shape, "open">, Key> = {
  * PvP genuinely cannot be entered as a party, a hunt train is a party with no
  * roles, and a photo shoot is not a party at all.
  */
+/**
+ * "3/8 คน" — who is in it rather than how big it is.
+ *
+ * The size on its own was the line people were reading as progress, and next
+ * to a grid showing one flexible player hovering over four seats it read as a
+ * party nearly full. The count says the thing that was being guessed at.
+ *
+ * A party with no seats keeps its own words: "no fixed party" is what it is,
+ * and "3/0" would be arithmetic about nothing.
+ */
+export const headSay = (
+  p: Party, kind: ContentKind | undefined, t: T,
+): string => {
+  const { here, seats } = headcount(p);
+  if (!seats) return shapeSay(p.shape, kind, t);
+  const n = t("pf.headcount", { n: String(here), of: String(seats) });
+  // A headcount shape still has to say the seats mean nothing, which is the
+  // whole difference between it and the party of the same size.
+  return p.shape === "four" || p.shape === "eight"
+    ? `${n} · ${t("pf.anyJobShort")}` : n;
+};
+
 export const shapeSay = (
   shape: Shape, kind: ContentKind | undefined, t: T,
 ): string => (
