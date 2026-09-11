@@ -233,14 +233,14 @@ export default function PartyJoin(
     await onDone();
   };
 
-  const btn = "rounded-lg px-3 py-1.5 text-[14px] transition-colors disabled:opacity-50";
+  const btn = "rounded-lg px-3 py-1.5 text-[15.5px] transition-colors disabled:opacity-50";
 
   return (
     <div className="flex flex-col gap-2.5">
       {/* ── The lead's side: who is waiting ────────────────────────────── */}
       {iAmOwner && waiting.length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border border-gold/40 bg-gold/[0.07] p-2.5">
-          <p className="font-data text-[12px] uppercase tracking-[0.14em] text-gold">
+          <p className="font-data text-[13.5px] uppercase tracking-[0.14em] text-gold">
             {t("party.waitingOnYou", { n: waiting.length })}
           </p>
           {waiting.map((w) => {
@@ -250,11 +250,11 @@ export default function PartyJoin(
                    className="flex flex-wrap items-center gap-2">
                 {src
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={src} alt="" width={26} height={26}
-                         className="size-[26px] rounded-full object-cover" />
-                  : <span className="size-[26px] rounded-full bg-card" />}
-                <span className="text-[14.5px] text-ink">{w.name}</span>
-                <span className="text-[13.5px] text-muted">
+                  ? <img src={src} alt="" width={30} height={30}
+                         className="size-[30px] rounded-full object-cover" />
+                  : <span className="size-[30px] rounded-full bg-card" />}
+                <span className="text-[16px] text-ink">{w.name}</span>
+                <span className="text-[15px] text-muted">
                   {/* Which seat they asked for, or that they did not mind. */}
                   {w.seat ?? t("party.anySeat")}
                 </span>
@@ -279,7 +279,7 @@ export default function PartyJoin(
       {/* ── The reader's side ───────────────────────────────────────────── */}
       {!iAmOwner && mine && !mine.confirmedAt && mine.by === "self" && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[14px] text-muted">{t("party.asked")}</span>
+          <span className="text-[15.5px] text-muted">{t("party.asked")}</span>
           <button disabled={busy}
                   onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
                   className={`${btn} border border-line text-muted hover:text-ink`}>
@@ -290,7 +290,7 @@ export default function PartyJoin(
 
       {!iAmOwner && mine && !mine.confirmedAt && mine.by !== "self" && (
         <div className="flex flex-col gap-1.5">
-          <span className="text-[14px] text-muted">
+          <span className="text-[15.5px] text-muted">
             {asked
               ? t("party.invitedTo", { seat: asked })
               : t("party.invited")}
@@ -304,7 +304,7 @@ export default function PartyJoin(
             * rather than surprising them on the way in.
             */}
           {asked && seatGone && (
-            <span className="text-[13.5px] text-gold">
+            <span className="text-[15px] text-gold">
               {t("party.seatGone", { seat: asked })}
             </span>
           )}
@@ -330,12 +330,12 @@ export default function PartyJoin(
       {mine?.confirmedAt && (
         <div className="flex flex-col gap-1.5">
           <span className="flex flex-wrap items-center gap-2">
-            <span className="text-[14px] text-jade">
+            <span className="text-[15.5px] text-jade">
               {mine.seat ? t("party.youAreInAt", { seat: mine.seat })
                          : t("party.youAreIn")}
             </span>
             {started ? (
-              <span className="text-[13.5px] text-muted">{t("party.tooLateToLeave")}</span>
+              <span className="text-[15px] text-muted">{t("party.tooLateToLeave")}</span>
             ) : (
               <button disabled={busy}
                       onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
@@ -366,7 +366,7 @@ export default function PartyJoin(
             */}
           {seated && free.length > 0 && (
             <span className="flex flex-wrap items-center gap-1.5">
-              <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
+              <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
                 {t(mine.seat ? "party.moveSeat" : "party.takeASeat")}
               </span>
               {free.map((sl) => {
@@ -379,7 +379,7 @@ export default function PartyJoin(
                             if (r.got === "taken") onError(t("party.seatGone", { seat: sl.id }));
                             return {};
                           })}
-                          className="flex items-center gap-1.5 rounded-full border border-line px-3 py-[3px] text-[14px] text-muted transition-colors hover:border-muted hover:text-ink">
+                          className="flex items-center gap-1.5 rounded-full border border-line px-3 py-[3px] text-[15.5px] text-muted transition-colors hover:border-muted hover:text-ink">
                     <span style={{ background: c }}
                           className="size-1.5 shrink-0 rounded-full" />
                     {sl.label}
@@ -414,7 +414,7 @@ export default function PartyJoin(
             */}
           {seated && free.length > 0 && (
             <>
-              <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
+              <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
                 {t("party.pickSeats")}
               </span>
               {/*
@@ -430,7 +430,7 @@ export default function PartyJoin(
               {wings.map(([wing, seats]) => (
                 <div key={wing ?? "-"} className="flex flex-col gap-1.5">
                   {wing && (
-                    <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+                    <span className="font-data text-[13px] uppercase tracking-[0.14em] text-muted">
                       {t("pf.partyWing", { wing })}
                     </span>
                   )}
@@ -449,7 +449,7 @@ export default function PartyJoin(
                                   ? { borderColor: c, color: c,
                                       background: `color-mix(in srgb, ${c} 14%, transparent)` }
                                   : undefined}
-                                className={`flex items-center gap-1.5 rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                                className={`flex items-center gap-1.5 rounded-full border px-3 py-[3px] text-[15.5px] transition-colors ${
                                   on ? "" : "border-line text-muted hover:border-muted hover:text-ink"} ${
                                   any ? "opacity-40" : ""}`}>
                           <span style={{ background: c }}
@@ -471,7 +471,7 @@ export default function PartyJoin(
                   is not a seat in any of them. */}
               <button type="button"
                       onClick={() => { setAny((v) => !v); setWant(new Set()); }}
-                      className={`self-start rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                      className={`self-start rounded-full border px-3 py-[3px] text-[15.5px] transition-colors ${
                         any ? "border-jade bg-jade/15 text-jade"
                             : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   {t("party.flexAny")}
@@ -483,13 +483,13 @@ export default function PartyJoin(
               every job in the game is a question nobody has been asked yet. */}
           {asksJob && jobs.length > 0 && (seated ? any || want.size > 0 : true) && (
             <>
-              <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
+              <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
                 {t("party.pickJob")}
               </span>
               <div className="flex flex-wrap gap-1.5">
                 <button type="button"
                         onClick={() => { setAnyJob((v) => !v); setPicked(new Set()); }}
-                        className={`rounded-full border px-2.5 py-[3px] text-[13.5px] transition-colors ${
+                        className={`rounded-full border px-2.5 py-[3px] text-[15px] transition-colors ${
                           anyJob ? "border-accent bg-accent/15 text-accent"
                                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   {t("party.jobAny")}
@@ -506,11 +506,11 @@ export default function PartyJoin(
                                 return next;
                               });
                             }}
-                            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[13.5px] transition-colors ${
+                            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[15px] transition-colors ${
                               on ? "border-accent bg-accent/15 text-accent"
                                  : `border-line hover:border-muted hover:text-ink ${
                                      anyJob ? "text-muted/50" : "text-muted"}`}`}>
-                      <JobIcon job={j} size={16} />
+                      <JobIcon job={j} size={20} />
                       {jobLabel(j)}
                     </button>
                   );
@@ -541,16 +541,16 @@ export default function PartyJoin(
                     : t(iAmOwner ? "party.takeOwnSeat" : "party.askToJoin")}
             </button>
             {seated && free.length > 0 && !any && !want.size ? (
-              <span className="text-[13.5px] text-muted">{t("party.pickSeatsFirst")}</span>
+              <span className="text-[15px] text-muted">{t("party.pickSeatsFirst")}</span>
             ) : anyJob ? (
-              <span className="text-[13.5px] text-muted">{t("party.jobAnyWhy")}</span>
+              <span className="text-[15px] text-muted">{t("party.jobAnyWhy")}</span>
             ) : asksJob && !picked.size ? (
-              <span className="text-[13.5px] text-muted">{t("party.pickJobFirst")}</span>
+              <span className="text-[15px] text-muted">{t("party.pickJobFirst")}</span>
             ) : asking.length > 1 ? (
               // What the party will actually be told, in one line, because
               // "flex across three seats" is a thing worth seeing before you
               // send it rather than after.
-              <span className="text-[13.5px] text-muted">
+              <span className="text-[15px] text-muted">
                 {t("party.askingFor", { seats: asking.map((sl) => sl.label).join(", ") })}
               </span>
             ) : null}

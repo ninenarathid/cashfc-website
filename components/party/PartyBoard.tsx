@@ -173,17 +173,23 @@ function PartyDetail(
           <span aria-hidden
                 className="absolute inset-0 bg-gradient-to-t from-black/85 to-black/20" />
           {!def?.art && def && (def.icon || KIND_ICON[def.kind]) && (
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-90">
+            /* Not on a phone, where it lands on the clock.
+               The banner is a fixed 110px and the row along its bottom wraps
+               to two lines at 400px wide, which puts the time and the
+               countdown exactly where this is centred. It stands in for
+               cover art nobody has drawn yet and says nothing the row does
+               not, so it is the half that gives way. */
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-90 max-sm:hidden">
               <TagIcon tag={def.icon ?? KIND_ICON[def.kind]!} size={38} />
             </span>
           )}
           <span className="relative z-[1] flex w-full flex-wrap items-center gap-2 p-3">
-            <span className="font-data text-[21.5px] font-semibold tabular-nums text-white drop-shadow">
+            <span className="font-data text-[23px] font-semibold tabular-nums text-white drop-shadow">
               {fmtTime(party.startsAt)}
             </span>
             <StatusPill status={partyStatus(party, now)} />
             <WhenLine party={party} now={now}
-                      className="font-data text-[13px] text-white/85 drop-shadow" />
+                      className="font-data text-[14.5px] text-white/85 drop-shadow" />
             <span className="ml-auto flex items-center gap-1.5">
               {/*
                 * The lead's two, only for the lead.
@@ -197,11 +203,11 @@ function PartyDetail(
               {onEdit && (
                 <>
                   <button onClick={onEdit}
-                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[13.5px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
                     ✎ {t("pf.edit")}
                   </button>
                   <button onClick={() => setDropping(true)}
-                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[13.5px] text-chili/90 transition-colors hover:border-chili hover:text-chili">
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-chili/90 transition-colors hover:border-chili hover:text-chili">
                     {t("pf.deleteParty")}
                   </button>
                 </>
@@ -227,7 +233,7 @@ function PartyDetail(
         )}
 
         {party.note && (
-          <p className="text-[15px] text-ink/80">{party.note}</p>
+          <p className="text-[16.5px] text-ink/80">{party.note}</p>
         )}
 
         {/*
@@ -241,13 +247,13 @@ function PartyDetail(
           * never had.
           */}
         {edited && (
-          <p className="font-data text-[12.5px] text-muted">
+          <p className="font-data text-[14px] text-muted">
             {t("pf.editedAt", { at: `${fmtDay(party.updatedAt!)} ${fmtTime(party.updatedAt!)}` })}
           </p>
         )}
 
         {/* The terms of the evening, the way the row says them. */}
-        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-muted">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px] text-muted">
           <span className="flex items-center gap-1"
                 title={whyEstimate(party, def?.kind, t)}>
             {lengthIsEstimate(party, def?.kind) && <span className="opacity-70">~</span>}
@@ -310,7 +316,7 @@ function PartyDetail(
           {/* The boss, which neither the title nor the row has room for: the
               title leads with the duty you queue for, and this is the third
               name the same fight has. The clock is in the subtitle already. */}
-          <p className="text-[13px] text-muted">
+          <p className="text-[14.5px] text-muted">
             {def?.name && def.name !== def.badge && def.name !== def.duty && (
               <>{def.name}</>
             )}

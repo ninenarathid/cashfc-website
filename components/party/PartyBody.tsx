@@ -45,7 +45,7 @@ export function PartyBody({ body }: { body: PartyBlock[] }) {
             <div key={b.id} className="flex flex-col gap-2">
               {/* Newlines kept: somebody who pressed return meant it, and a
                   raid plan is mostly short lines. */}
-              <p className="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-ink/90">
+              <p className="whitespace-pre-wrap break-words text-[16.5px] leading-relaxed text-ink/90">
                 <Linkify text={b.text} />
               </p>
               {seen.map((v) => (
@@ -70,7 +70,7 @@ export function PartyBody({ body }: { body: PartyBlock[] }) {
                    className="max-h-80 w-auto rounded-lg border border-line object-contain" />
             </button>
             {b.caption && (
-              <figcaption className="text-[13.5px] text-muted">{b.caption}</figcaption>
+              <figcaption className="text-[15px] text-muted">{b.caption}</figcaption>
             )}
           </figure>
         );
@@ -273,15 +273,15 @@ export function BodyEditor(
          className={`flex flex-col gap-1 rounded-lg border p-2.5 transition-colors ${
            over ? "border-accent bg-accent/5" : "border-line bg-bg/40"}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-[13px] uppercase tracking-[0.14em] text-muted">
           {t("pf.plan")}
         </span>
         {busy > 0 && (
-          <span className="text-[13px] text-muted">
+          <span className="text-[14.5px] text-muted">
             {t("pf.uploading", { n: busy })}
           </span>
         )}
-        {err && <span className="text-[13px] text-chili">{err}</span>}
+        {err && <span className="text-[14.5px] text-chili">{err}</span>}
       </div>
 
       {body.map((b, i) => (
@@ -304,7 +304,7 @@ export function BodyEditor(
               onPaste={(e) => void pasteInto(e, b)}
               onKeyDown={(e) => backspace(e, i, b)}
               placeholder={i === 0 ? t("pf.planText") : ""}
-              className="w-full resize-none border-0 bg-transparent px-1 py-0.5 text-[15px] leading-relaxed text-ink outline-none focus:bg-surface/40 focus-visible:outline-none placeholder:text-muted" />
+              className="w-full resize-none border-0 bg-transparent px-1 py-0.5 text-[16.5px] leading-relaxed text-ink outline-none focus:bg-surface/40 focus-visible:outline-none placeholder:text-muted" />
           ) : (
             <div className="flex flex-col gap-1.5 py-1">
               {b.url ? (
@@ -314,14 +314,14 @@ export function BodyEditor(
               ) : (
                 // The gap the picture is going to fill, so the document does
                 // not jump when it arrives.
-                <span className="skeleton flex h-32 w-56 items-center justify-center rounded-lg text-[13px] text-muted">
+                <span className="skeleton flex h-32 w-56 items-center justify-center rounded-lg text-[14.5px] text-muted">
                   {t("pf.uploading", { n: 1 })}
                 </span>
               )}
               <input value={b.caption ?? ""}
                      onChange={(e) => set(b.id, { caption: e.target.value.slice(0, 140) })}
                      placeholder={t("pf.caption")}
-                     className="w-full max-w-md border-0 bg-transparent px-1 text-[13.5px] italic text-muted outline-none focus:bg-surface/40 focus-visible:outline-none placeholder:text-muted/60" />
+                     className="w-full max-w-md border-0 bg-transparent px-1 text-[15px] italic text-muted outline-none focus:bg-surface/40 focus-visible:outline-none placeholder:text-muted/60" />
             </div>
           )}
         </BlockRow>
@@ -334,10 +334,10 @@ export function BodyEditor(
                   commit([...body, b]);
                   setFocusId(b.id);
                 }}
-                className="rounded-lg border border-line px-3 py-1 text-[14px] text-muted hover:border-accent/60 hover:text-ink">
+                className="rounded-lg border border-line px-3 py-1 text-[15.5px] text-muted hover:border-accent/60 hover:text-ink">
           {t("pf.paragraph")}
         </button>
-        <span className="text-[13px] text-muted">
+        <span className="text-[14.5px] text-muted">
           {t("pf.dropAnywhere")}
         </span>
       </div>
@@ -382,17 +382,17 @@ function BlockRow(
       <div className="absolute right-0 top-0 flex shrink-0 gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/blk:opacity-100 max-sm:opacity-60">
         <button type="button" onClick={() => onMove(-1)} disabled={index === 0}
                 aria-label={t("pf.moveUp")}
-                className="rounded border border-line bg-surface px-1.5 text-[12.5px] text-muted hover:text-ink disabled:opacity-30">
+                className="rounded border border-line bg-surface px-1.5 text-[14px] text-muted hover:text-ink disabled:opacity-30">
           ↑
         </button>
         <button type="button" onClick={() => onMove(1)} disabled={last}
                 aria-label={t("pf.moveDown")}
-                className="rounded border border-line bg-surface px-1.5 text-[12.5px] text-muted hover:text-ink disabled:opacity-30">
+                className="rounded border border-line bg-surface px-1.5 text-[14px] text-muted hover:text-ink disabled:opacity-30">
           ↓
         </button>
         <button type="button" onClick={onDrop} disabled={pending}
                 aria-label={t("pf.remove")}
-                className="rounded border border-chili/50 bg-surface px-1.5 text-[12.5px] text-chili hover:bg-chili/10 disabled:opacity-30">
+                className="rounded border border-chili/50 bg-surface px-1.5 text-[14px] text-chili hover:bg-chili/10 disabled:opacity-30">
           ✕
         </button>
       </div>

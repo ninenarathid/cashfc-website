@@ -38,8 +38,8 @@ import { clips, youtubeSrc } from "@/lib/youtube";
  * in the picker they open, which is the thing they are nearest to.
  */
 const ctl = (extra: string) =>
-  "grid size-7 shrink-0 place-items-center rounded-full border border-line"
-  + ` bg-surface text-[14.5px] leading-none shadow-sm transition-colors ${extra}`;
+  "grid size-8 shrink-0 place-items-center rounded-full border border-line"
+  + ` bg-surface text-[16px] leading-none shadow-sm transition-colors ${extra}`;
 
 export default function PartyComments(
   { comments, people, me, userId, onAdd, onReact, onEdit, onDrop }: {
@@ -202,7 +202,7 @@ export default function PartyComments(
 
   return (
     <section className="flex flex-col items-stretch gap-3 border-t border-line pt-3">
-      <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+      <span className="font-data text-[13px] uppercase tracking-[0.14em] text-muted">
         {comments.length === 0 ? t("pf.comments")
           : comments.length === 1 ? t("pf.commentOne")
             : t("pf.commentsN", { n: comments.length })}
@@ -243,13 +243,13 @@ export default function PartyComments(
                 run — so the bubbles stay in their column instead of sliding
                 under the avatar. */}
             {cont ? (
-              <span aria-hidden className="size-[30px] shrink-0" />
+              <span aria-hidden className="size-[36px] shrink-0" />
             ) : src ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={src} alt="" width={30} height={30}
-                   className="size-[30px] shrink-0 rounded-full border border-line object-cover" />
+              <img src={src} alt="" width={36} height={36}
+                   className="size-[36px] shrink-0 rounded-full border border-line object-cover" />
             ) : (
-              <span className={`grid size-[30px] shrink-0 place-items-center rounded-full text-[13.5px] text-muted ${
+              <span className={`grid size-[30px] shrink-0 place-items-center rounded-full text-[15px] text-muted ${
                 c.author.characterId == null
                   ? "border border-dashed border-line" : "border border-line bg-card"}`}>
                 {c.author.characterId == null ? "?" : ""}
@@ -276,9 +276,9 @@ export default function PartyComments(
                     {/* Your own name is the one thing on the line you already
                         know. The side says it, so the space goes to the time. */}
                     {!mine && (
-                      <span className="text-[14.5px] text-ink">{c.author.name}</span>
+                      <span className="text-[16px] text-ink">{c.author.name}</span>
                     )}
-                    <span className="font-data text-[12px] text-muted">
+                    <span className="font-data text-[13.5px] text-muted">
                       {fmtDateTime(c.at)}
                     </span>
                     {/* Beside the time it was said, because that is the fact
@@ -286,7 +286,7 @@ export default function PartyComments(
                         read it earlier. Not on a deleted one — "edited" about
                         a message that is gone is a detail about nothing. */}
                     {c.editedAt && !c.deletedAt && (
-                      <span className="font-data text-[12px] text-muted/70"
+                      <span className="font-data text-[13.5px] text-muted/70"
                             title={fmtDateTime(c.editedAt)}>
                         {t("party.msgEdited", { at: fmtDateTime(c.editedAt) })}
                       </span>
@@ -306,7 +306,7 @@ export default function PartyComments(
                   const to = byId.get(c.replyTo);
                   if (!to) return null;
                   return (
-                    <span className={`flex min-w-0 items-center gap-1.5 border-l-2 border-accent/40 pl-2 text-[13px] text-muted ${
+                    <span className={`flex min-w-0 items-center gap-1.5 border-l-2 border-accent/40 pl-2 text-[14.5px] text-muted ${
                       mine ? "self-end" : ""}`}>
                       <span className="shrink-0 text-accent/80">{to.author.name}</span>
                       <span className="truncate opacity-80">
@@ -326,7 +326,7 @@ export default function PartyComments(
                   * happened and stops.
                   */}
                 {c.deletedAt ? (
-                  <p className={`text-[14.5px] italic leading-relaxed text-muted ${
+                  <p className={`text-[16px] italic leading-relaxed text-muted ${
                     mine ? "text-right" : ""}`}>
                     {t("party.msgGone")}
                   </p>
@@ -337,10 +337,10 @@ export default function PartyComments(
                   <span className="flex flex-col gap-1.5">
                     <textarea value={fixing.text} rows={2} autoFocus
                               onChange={(e) => setFixing({ id: c.id, text: e.target.value })}
-                              className="w-[min(28rem,70vw)] rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[14.5px] text-ink" />
+                              className="w-[min(28rem,70vw)] rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[16px] text-ink" />
                     <span className="flex items-center gap-2 self-end">
                       <button type="button" onClick={() => setFixing(null)}
-                              className="text-[13.5px] text-muted hover:text-ink">
+                              className="text-[15px] text-muted hover:text-ink">
                         {t("pf.cancel")}
                       </button>
                       <button type="button"
@@ -349,13 +349,13 @@ export default function PartyComments(
                                 void onEdit?.(c.id, fixing.text.trim());
                                 setFixing(null);
                               }}
-                              className="rounded-lg border border-accent/60 bg-accent/10 px-2.5 py-1 text-[13.5px] text-accent disabled:opacity-40">
+                              className="rounded-lg border border-accent/60 bg-accent/10 px-2.5 py-1 text-[15px] text-accent disabled:opacity-40">
                         {t("party.msgSave")}
                       </button>
                     </span>
                   </span>
                 ) : c.text ? (
-                  <p className={`whitespace-pre-wrap break-words text-[14.5px] leading-relaxed text-ink/85 ${
+                  <p className={`whitespace-pre-wrap break-words text-[16px] leading-relaxed text-ink/85 ${
                     mine ? "text-right" : ""}`}>
                     <MessageText text={c.text} people={people} />
                   </p>
@@ -437,7 +437,7 @@ export default function PartyComments(
                         {REACTIONS.map((e) => (
                           <button key={e} type="button" title={e}
                                   onClick={() => { react(c, e); setPicking(null); }}
-                                  className="rounded-full px-1 text-[14.5px] leading-none transition-transform hover:scale-125">
+                                  className="rounded-full px-1 text-[16px] leading-none transition-transform hover:scale-125">
                             {e}
                           </button>
                         ))}
@@ -486,11 +486,11 @@ export default function PartyComments(
                               disabled={!userId}
                               title={r.by.map((w) => w.name).join(", ")}
                               onClick={() => react(c, r.emoji)}
-                              className={`flex items-center gap-1 rounded-full border px-1.5 py-[1px] text-[13px] transition-colors ${
+                              className={`flex items-center gap-1 rounded-full border px-1.5 py-[1px] text-[14.5px] transition-colors ${
                                 isMine
                                   ? "border-accent/60 bg-accent/15 text-accent"
                                   : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                        <span className="text-[13.5px] leading-none">{r.emoji}</span>
+                        <span className="text-[15px] leading-none">{r.emoji}</span>
                         <span className="font-data">{r.by.length}</span>
                       </button>
                     );
@@ -511,7 +511,7 @@ export default function PartyComments(
             the reply is visibly attached to something before it is sent,
             rather than turning out to have been when it appears. */}
         {answering && (
-          <span className="flex min-w-0 items-center gap-2 rounded-lg border-l-2 border-accent/50 bg-surface/60 px-2 py-1 text-[13px] text-muted">
+          <span className="flex min-w-0 items-center gap-2 rounded-lg border-l-2 border-accent/50 bg-surface/60 px-2 py-1 text-[14.5px] text-muted">
             <span className="shrink-0 text-accent/80">{t("party.replyingTo")}</span>
             <span className="shrink-0 text-ink/80">{answering.author.name}</span>
             <span className="truncate opacity-80">
@@ -527,7 +527,7 @@ export default function PartyComments(
         <MentionInput boxRef={box} value={text} people={people} rows={2}
                       onChange={(v) => setText(v.slice(0, 2000))}
                       placeholder={t("pf.commentBox")}
-                      className="rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink placeholder:text-muted" />
+                      className="rounded-lg border border-line bg-surface px-3 py-2 text-[16.5px] text-ink placeholder:text-muted" />
         {!!shots.length && (
           <div className="flex flex-wrap gap-2">
             {shots.map((src, n) => (
@@ -536,7 +536,7 @@ export default function PartyComments(
                 <img src={src} alt="" className="h-20 w-auto rounded-md border border-line" />
                 <button onClick={() => setShots((v) => v.filter((_, i) => i !== n))}
                         aria-label={t("pf.remove")}
-                        className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1 text-[12.5px] text-chili">
+                        className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1 text-[14px] text-chili">
                   ✕
                 </button>
               </span>
@@ -545,10 +545,10 @@ export default function PartyComments(
         )}
         <div className="flex items-center gap-2">
           <button onClick={send} disabled={(!text.trim() && !shots.length) || busy > 0}
-                  className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[14px] text-accent hover:bg-accent/25 disabled:opacity-40">
+                  className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[15.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
             {t("pf.comment")}
           </button>
-          <span className="text-[13px] text-muted">
+          <span className="text-[14.5px] text-muted">
             {busy > 0 ? t("pf.uploading", { n: busy }) : t("pf.orDropShot")}
           </span>
         </div>

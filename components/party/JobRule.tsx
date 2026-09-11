@@ -121,7 +121,7 @@ export function RuleMark({ party, slot }: { party: Party; slot: SlotDef }) {
           read at a glance; past that they are a wall rather than an answer,
           and a count says the same thing in less space. */}
       {live.length <= 7
-        ? live.map((j) => <JobIcon key={j} job={j} size={22} />)
+        ? live.map((j) => <JobIcon key={j} job={j} size={26} />)
         : <span className="font-data text-[11px] uppercase tracking-[0.1em] text-muted">
             {t("pf.jobsN", { n: live.length })}
           </span>}
