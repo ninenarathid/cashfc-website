@@ -11,6 +11,7 @@ import { useDropTarget } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
 import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
+import Linkify from "@/components/Linkify";
 
 /**
  * Replies on a party.
@@ -193,7 +194,7 @@ export default function PartyComments(
                 {c.text && (
                   <p className={`whitespace-pre-wrap break-words text-[13px] leading-relaxed text-ink/85 ${
                     mine ? "text-right" : ""}`}>
-                    {c.text}
+                    <Linkify text={c.text} />
                   </p>
                 )}
                 {!!c.images?.length && (
