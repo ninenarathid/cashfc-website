@@ -20,6 +20,7 @@ import { createClient } from "@/lib/supabase/client";
 
 import {
   addComment, createParty, deleteParty, dropComment, editComment, loadParties,
+  finishParty,
   inviteMembers,
   setOwnSeat,
   updateParty,
@@ -31,7 +32,7 @@ import { useLang } from "@/lib/i18n";
 import Link from "next/link";
 import { freeAt } from "@/lib/suggest";
 import {
-  kindSay, lengthSay, lootLine, shapeSay, whenFull, whyEstimate,
+  headSay, kindSay, lengthSay, lootLine, whenFull, whyEstimate,
 } from "@/lib/party-i18n";
 import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
@@ -136,6 +137,16 @@ function PartyDetail(
   const tint = def ? KIND_COLOR[def.kind] : "#8b93a1";
   /** Whether the "delete this party?" question is on screen. */
   const [dropping, setDropping] = useState(false);
+  /** Asked before the party is declared over. */
+  const [ending, setEnding] = useState(false);
+
+  /** Do it, say so if it failed, and read the board back either way. */
+  const run = async (go: () => Promise<{ error?: string }>) => {
+    if (!supabase) return;
+    const r = await go();
+    if (r.error) { setErr(r.error); return; }
+    await refresh();
+  };
   /*
    * Edited, as opposed to merely saved.
    *
@@ -207,6 +218,17 @@ function PartyDetail(
                           className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
                     ✎ {t("pf.edit")}
                   </button>
+                  {/* Over when the lead says so, which is the only one who can
+                      know. The estimate on the listing is a guess about how
+                      long a thing takes; this is the answer. Reversible, so a
+                      misclick on a party still going is a second press rather
+                      than a party nobody can rejoin. */}
+                  <button onClick={() => (party.endedAt
+                            ? void run(() => finishParty(supabase!, party.id, false))
+                            : setEnding(true))}
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-jade hover:text-jade">
+                    {t(party.endedAt ? "pf.reopenParty" : "pf.endParty")}
+                  </button>
                   <button onClick={() => setDropping(true)}
                           className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-chili/90 transition-colors hover:border-chili hover:text-chili">
                     {t("pf.deleteParty")}
@@ -217,6 +239,17 @@ function PartyDetail(
             </span>
           </span>
         </div>
+
+        {ending && (
+          <ConfirmDialog z={120}
+                         message={t("pf.endAsk")}
+                         confirmLabel={t("pf.endParty")}
+                         onCancel={() => setEnding(false)}
+                         onConfirm={async () => {
+                           setEnding(false);
+                           await run(() => finishParty(supabase!, party.id, true));
+                         }} />
+        )}
 
         {dropping && (
           <ConfirmDialog z={120} danger
@@ -262,7 +295,7 @@ function PartyDetail(
             {lengthSay(party, t)}
           </span>
           <span className="opacity-40">·</span>
-          <span>{shapeSay(party.shape, def?.kind, t)}</span>
+          <span>{headSay(party, def?.kind, t)}</span>
           {progressText(party.progress) && (
             <><span className="opacity-40">·</span>
               <span>{progressText(party.progress)}</span></>
@@ -1151,7 +1184,7 @@ export default function PartyBoard(
                         {lengthSay(p, t)}
                       </span>
                       <span className="opacity-40">·</span>
-                      <span>{shapeSay(p.shape, c?.kind, t)}</span>
+                      <span>{headSay(p, c?.kind, t)}</span>
                       {progressText(p.progress) && (
                         <><span className="opacity-40">·</span>
                           <span>{progressText(p.progress)}</span></>

@@ -396,7 +396,18 @@ export default function PartyJoin(
         </div>
       )}
 
-      {!mine && (
+      {/*
+        * Nothing to join once the lead has called it.
+        *
+        * Only when they said so, not merely when the estimate ran out: a
+        * party going twenty minutes longer than somebody guessed is still a
+        * party, and shutting the door on it would be the guess deciding.
+        */}
+      {party.endedAt && !mine && (
+        <span className="text-[15.5px] text-muted">{t("party.overNow")}</span>
+      )}
+
+      {!party.endedAt && !mine && (
         <div className="flex flex-col gap-2">
           {/*
             * Which seats, not which seat.

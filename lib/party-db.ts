@@ -46,6 +46,7 @@ interface PostRow {
   body: PartyBlock[] | null;
   created_at: string;
   updated_at: string | null;
+  ended_at: string | null;
 }
 
 interface MemberRow {
@@ -90,7 +91,7 @@ interface CommentRow {
 const POST_COLS =
   "id, owner, owner_character_id, content_key, note, shape, starts_at,"
   + " length_minutes, length_unit, runs, one_of_each_job, closed, rules, progress,"
-  + " loot, spot, maps, roulettes, body, created_at, updated_at";
+  + " loot, spot, maps, roulettes, body, created_at, updated_at, ended_at";
 
 const MEMBER_COLS =
   "id, party_id, seat, character_id, name, avatar, job, jobs, flex, asked_by,"
@@ -253,6 +254,7 @@ export async function loadParties(
     comments: talkOf.get(p.id) ?? [],
     createdAt: p.created_at,
     updatedAt: p.updated_at ?? undefined,
+    endedAt: p.ended_at,
   }));
 }
 
@@ -448,6 +450,31 @@ export async function updateParty(
     roulettes: p.roulettes?.length ? p.roulettes : null,
     body: p.body ?? [],
   }).eq("id", Number(partyId));
+  return error ? { error: error.message } : {};
+}
+
+/**
+ * Over, when the lead says it is over.
+ *
+ * A stamp rather than a state, so "ended" and "ends at" are the same question
+ * with one answer. Early or late both work: a farm party that finished three
+ * runs ahead of the estimate and a prog night that ran two hours past it are
+ * the same correction, and the estimate was never more than a guess.
+ *
+ * Nothing is destroyed. The party happened — or was called off, which is also
+ * something that happened — and it keeps its conversation and its roster
+ * either way. What stops is the board offering it as somewhere to go.
+ *
+ * Plain column, no function: unlike retiring, this does not hide the row from
+ * the policy that has to read it back, so there is nothing here for the two
+ * policies to disagree about.
+ */
+export async function finishParty(
+  supabase: SupabaseClient, partyId: string, on = true,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_posts")
+    .update({ ended_at: on ? new Date().toISOString() : null })
+    .eq("id", Number(partyId));
   return error ? { error: error.message } : {};
 }
 

@@ -1811,6 +1811,9 @@ const DICT = {
    */
   "pf.shapeLight": { en: "4 players", th: "4 คน" },
   "pf.shapeFull": { en: "8 players", th: "8 คน" },
+  // Who is in it, not how big it is. See headSay.
+  "pf.headcount": { en: "{n}/{of} players", th: "{n}/{of} คน" },
+  "pf.anyJobShort": { en: "any job", th: "อาชีพไหนก็ได้" },
   "pf.shapeFour": { en: "4 players · any job", th: "4 คน · อาชีพไหนก็ได้" },
   "pf.shapeEight": { en: "8 players · any job", th: "8 คน · อาชีพไหนก็ได้" },
   "pf.shapeAlliance": { en: "Alliance · 24", th: "Alliance · 24 คน" },
@@ -2052,6 +2055,19 @@ const DICT = {
   // Drawn but not editable. Whether somebody agreed to come is their answer,
   // and the lead changing it here would be answering on their behalf.
   "pf.alreadyIn": { en: "already in", th: "อยู่แล้ว" },
+  // Over when the lead says so. "จบปาร์ตี้" rather than "ยกเลิก": the party is
+  // not being taken back, it is being called finished, which is the same word
+  // whether it ran long, ran short, or never happened at all.
+  "party.overNow": {
+    en: "This party has ended.",
+    th: "ปาร์ตี้นี้จบแล้ว",
+  },
+  "pf.endParty": { en: "End party", th: "จบปาร์ตี้" },
+  "pf.reopenParty": { en: "Reopen", th: "เปิดปาร์ตี้อีกครั้ง" },
+  "pf.endAsk": {
+    en: "End this party now? It stays on the board with everything in it, but nobody can join it any more.",
+    th: "จบปาร์ตี้นี้เลยไหม? ปาร์ตี้จะยังอยู่พร้อมข้อความทั้งหมด แต่จะไม่มีใครเข้าร่วมได้อีก",
+  },
   "pf.alreadyStarted": {
     en: "This party has already started. Saving will not move it.",
     th: "ปาร์ตี้นี้เริ่มไปแล้ว บันทึกได้โดยไม่ต้องเปลี่ยนเวลา",
