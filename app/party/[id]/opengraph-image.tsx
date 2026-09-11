@@ -272,32 +272,33 @@ export default async function Image(
         </div>
 
         {/*
-          * The roles still wanted, across the foot.
+          * The roles still wanted, along the foot.
           *
-          * Under everything else rather than beside the count, because it is
-          * the widest thing on the card and the one somebody's eye should land
-          * on last and remember. Drawn in the same three colours the board
-          * uses, so a chip means the same thing in both places.
+          * Under everything else and pushed right, so they sit below the seat
+          * count and read as the same answer in more detail — "2/8" and then
+          * which two. Drawn in the same three colours the board uses, so a chip
+          * means the same thing in both places.
           *
           * Absent where there is nothing to say: a full party, a hunt train
-          * with no seats, or one whose every empty seat already has somebody
-          * hovering over it.
+          * with no seats, one whose every empty seat already has somebody
+          * hovering over it, or an alliance, where three numbers adding up to
+          * a dozen is not something anybody reads off a card.
           */}
         {needs.length > 0 && (
           <div style={{
-            display: "flex", alignItems: "center", gap: 16,
-            padding: "0 48px 30px",
+            display: "flex", alignItems: "center", justifyContent: "flex-end",
+            gap: 12, padding: "0 48px 30px",
           }}>
             {needs.map(([role, n]) => (
               <div key={role} style={{
                 display: "flex", alignItems: "center",
-                padding: "10px 26px", borderRadius: 999,
-                border: `3px solid ${ROLE_COLOR[role]}`,
+                padding: "6px 18px", borderRadius: 999,
+                border: `2px solid ${ROLE_COLOR[role]}`,
                 background: `${ROLE_COLOR[role]}1f`,
-                color: ROLE_COLOR[role], fontSize: 30, fontWeight: 700,
-                letterSpacing: 1,
+                color: ROLE_COLOR[role], fontSize: 23, fontWeight: 700,
+                letterSpacing: 0.5,
               }}>
-                {`Short ${n} ${ROLE_LABEL[role]}`}
+                {`Need ${n} ${ROLE_LABEL[role]}`}
               </div>
             ))}
           </div>

@@ -177,9 +177,14 @@ function split(rows: Member[]): { seats: Record<string, SlotTaken>; floating: Fl
  * Empty for a party with no seats, which is short of nothing by definition, and
  * for one whose remaining seats all have somebody hovering over them: what that
  * party wants is bodies, and the card already says how many.
+ *
+ * Empty for an alliance too. Twenty-four seats short of a dozen is not a line
+ * anybody reads off a card in a Discord channel — it is three numbers that add
+ * up to what "8/24" already said, in bigger type. A party of eight or four is
+ * the size where "need one healer" is a fact somebody can act on.
  */
 export const cardNeeds = (c: PartyCard): [SlotRole, number][] => {
-  if (!c.hasMembers || !c.seatsTotal) return [];
+  if (!c.hasMembers || !c.seatsTotal || c.seatsTotal > 8) return [];
   const p: Party = {
     id: "card", contentKey: c.contentKey, shape: c.shape,
     startsAt: c.startsAt, lengthMinutes: c.lengthMinutes, lengthUnit: c.lengthUnit,
