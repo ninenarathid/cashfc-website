@@ -49,10 +49,10 @@ export default function LootPlan(
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
           {t("party.loot")}
         </span>
-        <span className="text-[11.5px] text-muted">{lootHelp(value.rule, t)}</span>
+        <span className="text-[13px] text-muted">{lootHelp(value.rule, t)}</span>
       </div>
 
       <div className="flex flex-wrap gap-1.5">
@@ -72,7 +72,7 @@ export default function LootPlan(
                       ? { borderColor: LOOT_COLOR[r], color: LOOT_COLOR[r],
                           background: `color-mix(in srgb, ${LOOT_COLOR[r]} 14%, transparent)` }
                       : undefined}
-                    className={`rounded-full border px-3 py-[3px] text-[12.5px] transition-colors ${
+                    className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
                       on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
               {lootSay(r, t)}
             </button>
@@ -92,7 +92,7 @@ export default function LootPlan(
           * asks rather than letting two people each assume the other.
           */}
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[12.5px] text-muted">{t("party.payWhen")}</span>
+          <span className="text-[14px] text-muted">{t("party.payWhen")}</span>
           {PAY_ORDER.map((k) => {
             const on = payOn === k;
             return (
@@ -102,17 +102,17 @@ export default function LootPlan(
                         ? { borderColor: tint, color: tint,
                             background: `color-mix(in srgb, ${tint} 14%, transparent)` }
                         : undefined}
-                      className={`rounded-full border px-3 py-[3px] text-[12.5px] transition-colors ${
+                      className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
                         on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                 {t(PAY_LABEL[k])}
               </button>
             );
           })}
-          <span className="basis-full text-[11.5px] text-muted">{t(PAY_WHY[payOn])}</span>
+          <span className="basis-full text-[13px] text-muted">{t(PAY_WHY[payOn])}</span>
         </div>
 
         <label className="flex flex-wrap items-center gap-2">
-          <span className="text-[12.5px] text-muted">{t("pf.payEach")}</span>
+          <span className="text-[14px] text-muted">{t("pf.payEach")}</span>
           <input type="number" min={0} step={100000}
                  value={value.pay ?? ""}
                  onChange={(e) => onChange({
@@ -120,13 +120,13 @@ export default function LootPlan(
                    pay: e.target.value ? Math.max(0, Number(e.target.value)) : undefined,
                  })}
                  placeholder="2000000"
-                 className="w-40 rounded-lg border border-line bg-surface px-3 py-1.5 text-[13.5px] text-ink placeholder:text-muted" />
-          <span className="text-[12.5px] text-muted">gil</span>
+                 className="w-40 rounded-lg border border-line bg-surface px-3 py-1.5 text-[15px] text-ink placeholder:text-muted" />
+          <span className="text-[14px] text-muted">gil</span>
           {/* Written out as it will be read. Seven digits in a number field are
               hard to check by eye, and the difference between two hundred
               thousand and two million is the whole deal. */}
           {!!value.pay && (
-            <span className="font-data text-[12px]" style={{ color: tint }}>
+            <span className="font-data text-[13.5px]" style={{ color: tint }}>
               {value.pay.toLocaleString("en-US")}
             </span>
           )}
@@ -148,7 +148,7 @@ export function LootChip({ loot }: { loot: Loot | undefined }) {
           style={{ color: tint,
                    borderColor: `color-mix(in srgb, ${tint} 45%, transparent)`,
                    background: `color-mix(in srgb, ${tint} 10%, transparent)` }}
-          className="rounded-full border px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.1em]">
+          className="rounded-full border px-2 py-[2px] font-data text-[12px] uppercase tracking-[0.1em]">
       {text}
     </span>
   );

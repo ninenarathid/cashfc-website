@@ -67,7 +67,7 @@ export default function ShareParty({ id }: { id: string }) {
 
   return (
     <button onClick={copy}
-            className="rounded-lg border border-line px-2.5 py-1 text-[12px] text-muted transition-colors hover:border-muted hover:text-ink">
+            className="rounded-lg border border-line px-2.5 py-1 text-[13.5px] text-muted transition-colors hover:border-muted hover:text-ink">
       {said ? `✓ ${t("party.copied")}` : `🔗 ${t("party.copyLink")}`}
     </button>
   );

@@ -161,29 +161,29 @@ export default function MentionInput(
               <button type="button"
                       onMouseDown={(e) => { e.preventDefault(); put(h); }}
                       onMouseEnter={() => setHi(i)}
-                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[13px] ${
+                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[14.5px] ${
                         i === hi ? "bg-accent/15 text-accent" : "text-ink"}`}>
                 {h.id == null ? (
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-gold/20 text-[11px] text-gold">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-gold/20 text-[13.5px] text-gold">
                     @
                   </span>
                 ) : face(h.id, h.avatar) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={face(h.id, h.avatar)!} alt="" width={24} height={24}
-                       className="size-6 shrink-0 rounded-full border border-line object-cover" />
+                  <img src={face(h.id, h.avatar)!} alt="" width={28} height={28}
+                       className="size-7 shrink-0 rounded-full border border-line object-cover" />
                 ) : (
                   /* Nobody the site has a picture of at all. Dashed, the same
                      mark the seat grid puts on somebody from outside it. */
-                  <span className="size-6 shrink-0 rounded-full border border-dashed border-line" />
+                  <span className="size-7 shrink-0 rounded-full border border-dashed border-line" />
                 )}
                 <span className="truncate">{h.name}</span>
                 {h.id == null && (
-                  <span className="ml-auto shrink-0 font-data text-[10px] uppercase tracking-[0.1em] text-gold">
+                  <span className="ml-auto shrink-0 font-data text-[11.5px] uppercase tracking-[0.1em] text-gold">
                     {t("party.mentionAll")}
                   </span>
                 )}
                 {h.guest && (
-                  <span className="ml-auto shrink-0 font-data text-[10px] uppercase tracking-[0.1em] text-muted">
+                  <span className="ml-auto shrink-0 font-data text-[11.5px] uppercase tracking-[0.1em] text-muted">
                     {t("party.mentionGuest")}
                   </span>
                 )}

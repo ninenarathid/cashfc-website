@@ -35,7 +35,7 @@ export default function RoulettePicker(
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
           {t("pf.whichRoulettes")}
         </span>
         {/*
@@ -46,7 +46,7 @@ export default function RoulettePicker(
           * party at half past ten are on different days' rewards, and the one
           * that starts at 21:30 will cross the line halfway through.
           */}
-        <span className="text-[11.5px] text-muted">
+        <span className="text-[13px] text-muted">
           {t("pf.roulettesReset", { at: RESETS_AT })}
         </span>
       </div>
@@ -57,10 +57,10 @@ export default function RoulettePicker(
           return (
             <button key={r.id} type="button" onClick={() => toggle(r.name)}
                     title={r.full}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-[3px] text-[12.5px] transition-colors ${
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
                       on ? "border-accent bg-accent/15 text-accent"
                          : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-              <span className={`grid size-3 shrink-0 place-items-center rounded-[3px] border text-[9px] leading-none ${
+              <span className={`grid size-4 shrink-0 place-items-center rounded-[3px] border text-[11.5px] leading-none ${
                 on ? "border-accent bg-accent/30 text-accent" : "border-line"}`}>
                 {on ? "✓" : ""}
               </span>

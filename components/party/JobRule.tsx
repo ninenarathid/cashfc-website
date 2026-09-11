@@ -55,12 +55,12 @@ export default function JobRule(
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
+        <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
           {t("pf.jobsFor", { seat: slot.label })}
         </span>
         {!!picked.size && (
           <button type="button" onClick={() => onChange({ ...value, jobs: [] })}
-                  className="text-[11.5px] text-muted underline hover:text-ink">
+                  className="text-[13px] text-muted underline hover:text-ink">
             {t("pf.anyJob")}
           </button>
         )}
@@ -75,12 +75,12 @@ export default function JobRule(
           return (
             <button key={job} type="button" onClick={() => toggle(job)}
                     title={blocked ? "Somebody in the party is already on this" : job}
-                    className={`flex items-center gap-1 rounded-full border px-2 py-[3px] text-[11.5px] transition-colors ${
+                    className={`flex items-center gap-1 rounded-full border px-2 py-[3px] text-[13px] transition-colors ${
                       on ? blocked
                         ? "border-line/60 text-muted line-through"
                         : "border-accent bg-accent/15 text-accent"
                         : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-              <JobIcon job={job} size={18} />
+              <JobIcon job={job} size={22} />
               {job.replace(/([a-z])([A-Z])/g, "$1 $2")}
             </button>
           );
@@ -90,7 +90,7 @@ export default function JobRule(
       {/* What the rule actually leaves open. A rule that has quietly closed a
           seat entirely is worth finding out about here rather than from
           somebody who could not join. */}
-      <span className={`text-[11.5px] ${live.length ? "text-jade" : "text-chili"}`}>
+      <span className={`text-[13px] ${live.length ? "text-jade" : "text-chili"}`}>
         {live.length === all.length ? t("pf.openToAny", { role: slot.role })
           : live.length ? `${t("pf.openToN", { n: live.length })} ` + live
               .map((j) => j.replace(/([a-z])([A-Z])/g, "$1 $2")).join(", ")
@@ -121,8 +121,8 @@ export function RuleMark({ party, slot }: { party: Party; slot: SlotDef }) {
           read at a glance; past that they are a wall rather than an answer,
           and a count says the same thing in less space. */}
       {live.length <= 7
-        ? live.map((j) => <JobIcon key={j} job={j} size={18} />)
-        : <span className="font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
+        ? live.map((j) => <JobIcon key={j} job={j} size={22} />)
+        : <span className="font-data text-[11px] uppercase tracking-[0.1em] text-muted">
             {t("pf.jobsN", { n: live.length })}
           </span>}
     </span>
@@ -135,7 +135,7 @@ export function OneEachMark({ party }: { party: Party }) {
   if (!party.oneOfEachJob) return null;
   return (
     <span title={t("pf.noDouble")}
-          className="rounded-full border border-line px-2 py-[2px] font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
+          className="rounded-full border border-line px-2 py-[2px] font-data text-[11px] uppercase tracking-[0.1em] text-muted">
       {t("pf.onePerJob")}
     </span>
   );

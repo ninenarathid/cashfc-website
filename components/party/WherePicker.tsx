@@ -52,7 +52,7 @@ export default function WherePicker(
     return [...starts, ...inside].slice(0, 8);
   }, [q]);
 
-  const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
+  const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink";
 
   // Shown as this Free Company's own until somebody says otherwise, and
   // written back the moment they touch either — a form that displays Tonberry
@@ -68,10 +68,10 @@ export default function WherePicker(
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
           {t("pf.where")}
         </span>
-        <span className="text-[11.5px] text-muted">
+        <span className="text-[13px] text-muted">
           {t("pf.whereHelp")}
         </span>
       </div>
@@ -109,7 +109,7 @@ export default function WherePicker(
 
       {value?.map ? (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-lg border border-accent/50 bg-accent/10 px-3 py-1.5 text-[13px] text-accent">
+          <span className="rounded-lg border border-accent/50 bg-accent/10 px-3 py-1.5 text-[14.5px] text-accent">
             {spotText(value)}
           </span>
           {/* Beside the name rather than under it: they are part of the
@@ -122,7 +122,7 @@ export default function WherePicker(
           {isHousing(value.map) ? (
             // Plot before ward, which is the order the FC says it in.
             <>
-              <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
+              <label className="flex items-center gap-1.5 text-[14px] text-muted">
                 {t("pf.plot")}
                 <input type="number" step={1} min={1} max={60}
                        value={value.plot ?? ""}
@@ -132,7 +132,7 @@ export default function WherePicker(
                        })}
                        className={`${sel} w-20`} />
               </label>
-              <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
+              <label className="flex items-center gap-1.5 text-[14px] text-muted">
                 {t("pf.ward")}
                 <input type="number" step={1} min={1} max={WARDS}
                        value={value.ward ?? ""}
@@ -145,7 +145,7 @@ export default function WherePicker(
             </>
           ) : (
             <>
-              <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
+              <label className="flex items-center gap-1.5 text-[14px] text-muted">
                 X
                 <input type="number" step="0.1" min={1} max={45}
                        value={value.x ?? ""}
@@ -155,7 +155,7 @@ export default function WherePicker(
                        })}
                        className={`${sel} w-20`} />
               </label>
-              <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
+              <label className="flex items-center gap-1.5 text-[14px] text-muted">
                 Y
                 <input type="number" step="0.1" min={1} max={45}
                        value={value.y ?? ""}
@@ -169,7 +169,7 @@ export default function WherePicker(
           )}
           <button type="button"
                   onClick={() => { onChange({ map: "", dc, world }); setQ(""); }}
-                  className="text-[12px] text-muted underline hover:text-ink">
+                  className="text-[13.5px] text-muted underline hover:text-ink">
             {t("pf.change")}
           </button>
         </div>
@@ -205,17 +205,17 @@ export default function WherePicker(
             <button key={m.name} type="button"
                     onClick={() => { set({ map: m.name, region: m.region }); setQ(""); }}
                     className="flex items-baseline gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-surface">
-              <span className="text-[13px] text-ink">{m.name}</span>
+              <span className="text-[14.5px] text-ink">{m.name}</span>
               {m.region && (
-                <span className="font-data text-[10.5px] uppercase tracking-[0.1em] text-muted">
+                <span className="font-data text-[12px] uppercase tracking-[0.1em] text-muted">
                   {m.region}
                 </span>
               )}
-              {m.sub && <span className="text-[11.5px] text-muted">{m.sub}</span>}
+              {m.sub && <span className="text-[13px] text-muted">{m.sub}</span>}
             </button>
           ))}
           {q.trim().length >= 2 && !hits.length && (
-            <span className="text-[11.5px] text-muted">
+            <span className="text-[13px] text-muted">
               {t("pf.whereNone", { n: ALL.length })}
             </span>
           )}
@@ -230,7 +230,7 @@ export function SpotChip({ spot }: { spot: Spot | undefined }) {
   const text = spotText(spot);
   if (!text) return null;
   return (
-    <span className="rounded-full border border-line px-2 py-[2px] font-data text-[10.5px] text-muted">
+    <span className="rounded-full border border-line px-2 py-[2px] font-data text-[12px] text-muted">
       📍 {text}
     </span>
   );

@@ -34,11 +34,11 @@ export default function MapPicker(
     onChange(next.kind || next.each ? next : undefined);
   };
 
-  const sel = "rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] text-ink";
+  const sel = "rounded-lg border border-line bg-surface px-3 py-1.5 text-[14.5px] text-ink";
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
-      <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
+      <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
         {t("party.mapWhich")}
       </span>
 
@@ -55,7 +55,7 @@ export default function MapPicker(
           ))}
         </select>
 
-        <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
           {t("party.mapEach")}
         </span>
         <select value={v.each ?? ""}
@@ -74,7 +74,7 @@ export default function MapPicker(
         * it. A map night ends when the maps are done and how long that takes is
         * a dice roll — two hours of maps is forty minutes or it is four.
         */}
-      <p className="text-[11.5px] text-muted">{t("party.estimateWhy")}</p>
+      <p className="text-[13px] text-muted">{t("party.estimateWhy")}</p>
     </div>
   );
 }

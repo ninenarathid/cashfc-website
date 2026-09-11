@@ -87,10 +87,10 @@ export default function SeatSuggest(
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
+        <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
           {t("pf.suggested", { want: seatWantLabel(slot) })}
         </span>
-        <label className="flex items-center gap-1.5 text-[11.5px] text-muted">
+        <label className="flex items-center gap-1.5 text-[13px] text-muted">
           <input type="checkbox" checked={freeOnly}
                  onChange={(e) => { setFreeOnly(e.target.checked); setMore(false); }} />
           {t("pf.freeThen")}
@@ -98,7 +98,7 @@ export default function SeatSuggest(
       </div>
 
       {!shown.length && (
-        <span className="text-[11.5px] text-muted">{t("pf.nobodyFree")}</span>
+        <span className="text-[13px] text-muted">{t("pf.nobodyFree")}</span>
       )}
 
       {shown.map((s) => {
@@ -115,7 +115,7 @@ export default function SeatSuggest(
 
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="flex flex-wrap items-center gap-1.5">
-                <span className="truncate text-[13px] text-ink">{p.name}</span>
+                <span className="truncate text-[14.5px] text-ink">{p.name}</span>
                 {/*
                   * The jobs, with the ones they actually killed this fight on
                   * ringed.
@@ -146,7 +146,7 @@ export default function SeatSuggest(
                 * learning it, 240 pulls in" are different reasons to ask
                 * somebody, worth telling apart at a glance.
                 */}
-              <span className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-muted">
+              <span className="flex flex-wrap items-center gap-x-1.5 text-[12.5px] text-muted">
                 {withHistory && s.history === "cleared" && (
                   <span className="text-jade">
                     {s.onThis.length
@@ -187,7 +187,7 @@ export default function SeatSuggest(
 
       {list.length > shown.length && (
         <button type="button" onClick={() => setMore(true)}
-                className="self-start text-[11.5px] text-muted underline hover:text-ink">
+                className="self-start text-[13px] text-muted underline hover:text-ink">
           {t("pf.moreSuggestions", { n: list.length - shown.length })}
         </button>
       )}

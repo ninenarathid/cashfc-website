@@ -79,7 +79,7 @@ export function StatusPill(
     <span style={{ color: c, borderColor: `color-mix(in srgb, ${c} 45%, transparent)`,
                    background: `color-mix(in srgb, ${c} 12%, transparent)` }}
           className={`inline-flex shrink-0 items-center gap-1 rounded-full border font-data uppercase tracking-[0.1em] ${
-            size === "xs" ? "px-1.5 py-[1px] text-[9.5px]" : "px-2 py-[2px] text-[10px]"}`}>
+            size === "xs" ? "px-1.5 py-[1px] text-[11px]" : "px-2 py-[2px] text-[11.5px]"}`}>
       {/* A dot that beats while it is running, and sits still otherwise. The
           only animation on the board, spent on the one state where "right now"
           is the whole of the message. */}

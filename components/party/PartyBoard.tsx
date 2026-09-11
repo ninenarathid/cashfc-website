@@ -177,12 +177,12 @@ function PartyDetail(
             </span>
           )}
           <span className="relative z-[1] flex w-full flex-wrap items-center gap-2 p-3">
-            <span className="font-data text-[20px] font-semibold tabular-nums text-white drop-shadow">
+            <span className="font-data text-[21.5px] font-semibold tabular-nums text-white drop-shadow">
               {fmtTime(party.startsAt)}
             </span>
             <StatusPill status={partyStatus(party, now)} />
             <WhenLine party={party} now={now}
-                      className="font-data text-[11.5px] text-white/85 drop-shadow" />
+                      className="font-data text-[13px] text-white/85 drop-shadow" />
             <span className="ml-auto flex items-center gap-1.5">
               {/*
                 * The lead's two, only for the lead.
@@ -196,11 +196,11 @@ function PartyDetail(
               {onEdit && (
                 <>
                   <button onClick={onEdit}
-                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[12px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[13.5px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
                     ✎ {t("pf.edit")}
                   </button>
                   <button onClick={() => setDropping(true)}
-                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[12px] text-chili/90 transition-colors hover:border-chili hover:text-chili">
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[13.5px] text-chili/90 transition-colors hover:border-chili hover:text-chili">
                     {t("pf.deleteParty")}
                   </button>
                 </>
@@ -226,7 +226,7 @@ function PartyDetail(
         )}
 
         {party.note && (
-          <p className="text-[13.5px] text-ink/80">{party.note}</p>
+          <p className="text-[15px] text-ink/80">{party.note}</p>
         )}
 
         {/*
@@ -240,13 +240,13 @@ function PartyDetail(
           * never had.
           */}
         {edited && (
-          <p className="font-data text-[11px] text-muted">
+          <p className="font-data text-[12.5px] text-muted">
             {t("pf.editedAt", { at: `${fmtDay(party.updatedAt!)} ${fmtTime(party.updatedAt!)}` })}
           </p>
         )}
 
         {/* The terms of the evening, the way the row says them. */}
-        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-muted">
           <span className="flex items-center gap-1"
                 title={whyEstimate(party, def?.kind, t)}>
             {lengthIsEstimate(party, def?.kind) && <span className="opacity-70">~</span>}
@@ -309,7 +309,7 @@ function PartyDetail(
           {/* The boss, which neither the title nor the row has room for: the
               title leads with the duty you queue for, and this is the third
               name the same fight has. The clock is in the subtitle already. */}
-          <p className="text-[11.5px] text-muted">
+          <p className="text-[13px] text-muted">
             {def?.name && def.name !== def.badge && def.name !== def.duty && (
               <>{def.name}</>
             )}
@@ -749,22 +749,22 @@ export default function PartyBoard(
     + (adv.openOnly ? 1 : 0) + (adv.prog ? 1 : 0)
     + (adv.loot ? 1 : 0) + (adv.status ? 1 : 0) + (adv.free ? 1 : 0);
 
-  const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
+  const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink";
 
   return (
     <div className="flex flex-col gap-4">
       <header className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <h1 className="font-display text-[22px] font-semibold">
+          <h1 className="font-display text-[23.5px] font-semibold">
             {t("party.title")}
           </h1>
-          <p className="mt-1 text-[12.5px] text-muted">
+          <p className="mt-1 text-[14px] text-muted">
             {t("party.times")}
           </p>
         </div>
         {!writing && (
           <button onClick={() => setWriting(true)}
-                  className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-[13px] text-accent hover:bg-accent/25">
+                  className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-[14.5px] text-accent hover:bg-accent/25">
             {/* The game's own party badge. A plus said "something is being
                 added" about a page whose whole subject is parties being
                 arranged, and the Duty Finder hexagon was already the Dungeon
@@ -808,7 +808,7 @@ export default function PartyBoard(
       )}
 
       {err && (
-        <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-[12.5px] text-chili">
+        <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-[14px] text-chili">
           {err}
         </p>
       )}
@@ -828,7 +828,7 @@ export default function PartyBoard(
                     style={on ? { borderColor: KIND_COLOR[k], color: KIND_COLOR[k],
                                   background: `color-mix(in srgb, ${KIND_COLOR[k]} 12%, transparent)` }
                               : undefined}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12.5px] transition-colors ${
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[14px] transition-colors ${
                       on ? "" : "border-line text-muted hover:border-muted hover:text-ink"} ${
                       !n && !on ? "opacity-45" : ""}`}>
               {KIND_ICON[k] && <TagIcon tag={KIND_ICON[k]!} size={14} />}
@@ -855,7 +855,7 @@ export default function PartyBoard(
       <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5">
         {advCount > 0 && (
           <button onClick={() => setAdv(EMPTY)}
-                  className="self-end text-[12.5px] text-muted underline hover:text-ink">
+                  className="self-end text-[14px] text-muted underline hover:text-ink">
             {t("party.clearN", { n: advCount })}
           </button>
         )}
@@ -868,7 +868,7 @@ export default function PartyBoard(
             * "where did Tuesday's raid go" is answered by the setting a reader
             * meets first.
             */}
-          <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
             {t("party.status")}
           </span>
           <select value={adv.status}
@@ -878,7 +878,7 @@ export default function PartyBoard(
             <option value="done">{t("party.stDone")}</option>
           </select>
 
-          <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
             {t("party.needs")}
           </span>
           <select value={adv.role}
@@ -892,7 +892,7 @@ export default function PartyBoard(
 
           {anyProgress && (
             <>
-              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
                 {t("party.progress")}
               </span>
               <select value={adv.prog}
@@ -908,7 +908,7 @@ export default function PartyBoard(
 
           {anyLoot && (
             <>
-              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
                 {t("party.loot")}
               </span>
               <select value={adv.loot}
@@ -922,7 +922,7 @@ export default function PartyBoard(
             </>
           )}
 
-          <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
             {t("party.when")}
           </span>
           <select value={adv.when}
@@ -934,7 +934,7 @@ export default function PartyBoard(
             <option value="week">{t("party.within7")}</option>
           </select>
 
-          <label className="flex items-center gap-1.5 text-[12.5px] text-muted">
+          <label className="flex items-center gap-1.5 text-[14px] text-muted">
             <input type="checkbox" checked={adv.openOnly}
                    onChange={(e) => setAdv({ ...adv, openOnly: e.target.checked })} />
             {t("party.hasRoom")}
@@ -944,7 +944,7 @@ export default function PartyBoard(
             * a control that is simply absent is a feature nobody finds. It
             * cannot be switched on, and it says why.
             */}
-          <label className={`flex items-center gap-1.5 text-[12.5px] ${
+          <label className={`flex items-center gap-1.5 text-[14px] ${
             myHours ? "text-muted" : "text-muted/50"}`}
                  title={myHours ? undefined : t("party.setHours")}>
             <input type="checkbox" checked={adv.free} disabled={!myHours}
@@ -959,25 +959,25 @@ export default function PartyBoard(
         </div>
       </div>
 
-      <p className="text-[12.5px] text-muted">
+      <p className="text-[14px] text-muted">
         {shown.length === 1 ? t("party.countOne")
                             : t("party.countMany", { n: shown.length })}
       </p>
 
       {/* ── The list, by day ─────────────────────────────────────────────── */}
       {loading && (
-        <p className="px-4 py-10 text-center text-[13px] text-muted">{t("party.loading")}</p>
+        <p className="px-4 py-10 text-center text-[14.5px] text-muted">{t("party.loading")}</p>
       )}
 
       {!loading && sections.length === 0 && (
-        <p className="rounded-xl border border-dashed border-line px-4 py-10 text-center text-[13px] text-muted">
+        <p className="rounded-xl border border-dashed border-line px-4 py-10 text-center text-[14.5px] text-muted">
           {t("party.none")}
         </p>
       )}
 
       {sections.map(([key, list]) => (
         <section key={key} className="flex flex-col gap-2">
-          <h2 className={`font-data text-[11px] uppercase tracking-[0.14em] ${
+          <h2 className={`font-data text-[12.5px] uppercase tracking-[0.14em] ${
             key === MINE ? "text-accent" : "text-muted"}`}>
             {key === MINE ? t("party.mineHeading", { n: list.length })
                           : fmtDay(list[0].startsAt)}
@@ -1027,7 +1027,7 @@ export default function PartyBoard(
                       </span>
                     )}
                     <span className="relative z-[1] flex flex-col">
-                      <span className="font-data text-[18px] font-semibold tabular-nums text-white drop-shadow">
+                      <span className="font-data text-[19.5px] font-semibold tabular-nums text-white drop-shadow">
                         {fmtTime(p.startsAt)}
                       </span>
                       {/*
@@ -1039,7 +1039,7 @@ export default function PartyBoard(
                         * away.
                         */}
                       <WhenLine party={p} now={now}
-                                className="font-data text-[10.5px] text-white/80 drop-shadow" />
+                                className="font-data text-[12px] text-white/80 drop-shadow" />
                     </span>
                   </span>
 
@@ -1060,7 +1060,7 @@ export default function PartyBoard(
                       {c && (c.icon || KIND_ICON[c.kind]) && (
                         <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={17} />
                       )}
-                      <span className="font-display text-[16px] font-semibold text-ink">
+                      <span className="font-display text-[17.5px] font-semibold text-ink">
                         {c?.duty ?? c?.name ?? p.contentKey}
                       </span>
                       {/* The shorthand as a badge beside the name rather than
@@ -1069,7 +1069,7 @@ export default function PartyBoard(
                       {c?.badge && c.badge !== c.duty && (
                         <span style={{ color: tint,
                                        borderColor: `color-mix(in srgb, ${tint} 45%, transparent)` }}
-                              className="rounded border px-1.5 font-data text-[11px] font-bold">
+                              className="rounded border px-1.5 font-data text-[12.5px] font-bold">
                           {c.badge}
                         </span>
                       )}
@@ -1085,11 +1085,11 @@ export default function PartyBoard(
                         The stamp on the left is the start alone and the line
                         under it is relative — neither is the thing you copy
                         into a Discord post when you tell people to be there. */}
-                    <span className="font-data text-[11px] tabular-nums text-muted">
+                    <span className="font-data text-[12.5px] tabular-nums text-muted">
                       {whenFull(p)}
                     </span>
 
-                    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted">
+                    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-muted">
                       <span className="flex items-center gap-1"
                             title={whyEstimate(p, c?.kind, t)}>
                         {/* A map night has no end anybody chose — it runs until
@@ -1138,7 +1138,7 @@ export default function PartyBoard(
                     </span>
 
                     {p.note && (
-                      <span className="truncate text-[13px] text-ink/70">{p.note}</span>
+                      <span className="truncate text-[14.5px] text-ink/70">{p.note}</span>
                     )}
                   </span>
 
@@ -1157,14 +1157,14 @@ export default function PartyBoard(
                                  className="size-[34px] rounded-full border-2 border-surface object-cover" />
                           ) : (
                             <span key={i} title={m.name}
-                                  className={`grid size-[34px] place-items-center rounded-full border-2 border-surface text-[12px] text-muted ${
+                                  className={`grid size-[34px] place-items-center rounded-full border-2 border-surface text-[13.5px] text-muted ${
                                     m.characterId == null ? "bg-bg" : "bg-card"}`}>
                               {m.characterId == null ? "?" : ""}
                             </span>
                           );
                         })}
                         {inIt.length > 6 && (
-                          <span className="grid size-[34px] place-items-center rounded-full border-2 border-surface bg-card font-data text-[11px] text-muted">
+                          <span className="grid size-[34px] place-items-center rounded-full border-2 border-surface bg-card font-data text-[12.5px] text-muted">
                             +{inIt.length - 6}
                           </span>
                         )}
@@ -1178,12 +1178,12 @@ export default function PartyBoard(
                           goes unanswered, and the lead is the one person who
                           has to notice without being told twice. */}
                       {pendingAsks(p) > 0 && (
-                        <span className="rounded-full border border-gold/50 bg-gold/10 px-1.5 font-data text-[10.5px] text-gold">
+                        <span className="rounded-full border border-gold/50 bg-gold/10 px-1.5 font-data text-[12px] text-gold">
                           ✋ {pendingAsks(p)}
                         </span>
                       )}
                       {!!p.comments?.length && (
-                        <span className="font-data text-[11.5px] text-muted">
+                        <span className="font-data text-[13px] text-muted">
                           💬 {p.comments.length}
                         </span>
                       )}
@@ -1193,7 +1193,7 @@ export default function PartyBoard(
                              width={32} height={32}
                              className="size-8 rounded-full border border-line object-cover" />
                       )}
-                      <span className="text-[12.5px] text-muted">{owner?.name}</span>
+                      <span className="text-[14px] text-muted">{owner?.name}</span>
                     </span>
                   </span>
                   </span>

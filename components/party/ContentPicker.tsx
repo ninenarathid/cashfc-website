@@ -113,16 +113,16 @@ export default function ContentPicker(
                 the party was for something in particular — the one thing
                 nobody had chosen yet. */}
             {chosen && (
-              <span className="font-data text-[10px] uppercase tracking-[0.14em] text-ink/70">
+              <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-ink/70">
                 {kindSay(chosen.kind, t)}
               </span>
             )}
-            <span className={`truncate font-display text-[16px] font-semibold ${
+            <span className={`truncate font-display text-[17.5px] font-semibold ${
               chosen ? "text-ink" : "text-ink/60"}`}>
               {chosen?.duty ?? chosen?.name ?? t("pf.pickContent")}
             </span>
           </span>
-          <span className="shrink-0 rounded-lg border border-line/70 bg-bg/80 px-2.5 py-1 text-[12px] text-ink/90">
+          <span className="shrink-0 rounded-lg border border-line/70 bg-bg/80 px-2.5 py-1 text-[13.5px] text-ink/90">
             {/* "Choose" the first time and "change" afterwards: an empty
                 banner offering to change something is offering to change
                 nothing. */}
@@ -154,7 +154,7 @@ export default function ContentPicker(
                     style={on ? { borderColor: KIND_COLOR[k], color: KIND_COLOR[k],
                                   background: `color-mix(in srgb, ${KIND_COLOR[k]} 12%, transparent)` }
                               : undefined}
-                    className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13.5px] transition-colors ${
+                    className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[15px] transition-colors ${
                       on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
               {/* The game's own badge, the same one the member board puts on
                   the matching tag. A member who has learned that orange maw
@@ -173,7 +173,7 @@ export default function ContentPicker(
             const on = g === useGroup;
             return (
               <button key={g} type="button" onClick={() => setGroup(g)}
-                      className={`rounded-full border px-3 py-1 text-[12.5px] transition-colors ${
+                      className={`rounded-full border px-3 py-1 text-[14px] transition-colors ${
                         on ? "border-accent bg-accent/15 text-accent"
                            : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                 {g}
@@ -227,7 +227,7 @@ export default function ContentPicker(
                 </span>
               )}
               {c.badge && (
-                <span className="absolute left-2 top-2 z-[1] rounded-md border border-line/70 bg-bg/80 px-2 py-[2px] font-data text-[12px] font-bold text-ink/90">
+                <span className="absolute left-2 top-2 z-[1] rounded-md border border-line/70 bg-bg/80 px-2 py-[2px] font-data text-[13.5px] font-bold text-ink/90">
                   {c.badge}
                 </span>
               )}
@@ -235,13 +235,13 @@ export default function ContentPicker(
               {/* Said on the card, because a greyed-out one with no reason
                   on it reads as broken rather than as refused. */}
               {shut && (
-                <span className="absolute inset-x-2 top-1/2 z-[1] -translate-y-1/2 rounded-md bg-bg/85 px-2 py-1 text-center text-[11.5px] text-ink">
+                <span className="absolute inset-x-2 top-1/2 z-[1] -translate-y-1/2 rounded-md bg-bg/85 px-2 py-1 text-center text-[13px] text-ink">
                   {t("pf.wontFit")}
                 </span>
               )}
 
               <span className="relative z-[1] flex w-full flex-col gap-0.5 p-2.5">
-                <span className="truncate font-display text-[15px] font-semibold text-ink">
+                <span className="truncate font-display text-[16.5px] font-semibold text-ink">
                   {c.name}
                 </span>
                 {/* The second line is whichever of the two says something the
@@ -251,11 +251,11 @@ export default function ContentPicker(
                     which of the three it is. An Ultimate has neither, since its
                     badge already carries the only other name it has. */}
                 <span className="flex items-baseline justify-between gap-1.5">
-                  <span className="truncate text-[12px] text-ink/70">
+                  <span className="truncate text-[13.5px] text-ink/70">
                     {c.duty && c.duty !== c.name ? c.duty
                       : c.short && c.short !== c.badge ? c.short : " "}
                   </span>
-                  <span className="shrink-0 font-data text-[11px] uppercase tracking-[0.1em] text-ink/70">
+                  <span className="shrink-0 font-data text-[12.5px] uppercase tracking-[0.1em] text-ink/70">
                     {SHAPE_SIZE[c.shape] || "—"}
                   </span>
                 </span>

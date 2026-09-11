@@ -100,10 +100,10 @@ function Maybes({ who }: { who: Floater[] }) {
           const src = face(f.characterId, f.avatar);
           return src
             // eslint-disable-next-line @next/next/no-img-element
-            ? <img key={f.characterId ?? f.name} src={src} alt={f.name} width={24} height={24}
-                   className="size-6 rounded-full border border-jade/50 object-cover opacity-85" />
+            ? <img key={f.characterId ?? f.name} src={src} alt={f.name} width={30} height={30}
+                   className="size-[30px] rounded-full border border-jade/50 object-cover opacity-85" />
             : <span key={f.characterId ?? f.name} title={f.name}
-                    className={`grid size-[30px] place-items-center rounded-full text-[12px] text-muted opacity-85 ${
+                    className={`grid size-[30px] place-items-center rounded-full text-[13.5px] text-muted opacity-85 ${
                       f.characterId == null
                         ? "border border-dashed border-jade/50"
                         : "border border-jade/50 bg-card"}`}>
@@ -111,7 +111,7 @@ function Maybes({ who }: { who: Floater[] }) {
               </span>;
         })}
       </span>
-      <span className="font-data text-[8.5px] uppercase tracking-[0.08em] text-jade/80">
+      <span className="font-data text-[10px] uppercase tracking-[0.08em] text-jade/80">
         {who.length > 3 ? `+${who.length - 3} maybe` : "maybe"}
       </span>
     </span>
@@ -162,7 +162,7 @@ function Seat(
       <span className="flex items-center gap-1.5">
         <span className="size-1.5 shrink-0 rounded-full"
               style={{ background: tint, opacity: state === "shut" ? 0.4 : 1 }} />
-        <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
+        <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
           {slot.label}
         </span>
       </span>
@@ -171,14 +171,14 @@ function Seat(
         <span className="flex min-w-0 items-center gap-1.5">
           {src ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={src} alt="" width={34} height={34}
-                 className="size-[34px] shrink-0 rounded-full border border-line object-cover" />
+            <img src={src} alt="" width={38} height={38}
+                 className="size-[38px] shrink-0 rounded-full border border-line object-cover" />
           ) : (
             // Dashed and with a question mark for somebody who is not on this
             // site: a member who simply has no picture is a solid circle, and
             // the two are different facts that should not look the same.
             <span title={who?.characterId == null ? t("pf.notOnSite") : undefined}
-                  className={`grid size-[34px] shrink-0 place-items-center rounded-full text-[13px] text-muted ${
+                  className={`grid size-[38px] shrink-0 place-items-center rounded-full text-[16px] text-muted ${
                     who?.characterId == null
                       ? "border border-dashed border-line" : "border border-line bg-card"}`}>
               {who?.characterId == null ? "?" : ""}
@@ -187,27 +187,27 @@ function Seat(
           {/* The job, or the offer. Somebody who said "White Mage or Sage"
               has not been placed on either yet, and drawing one of them would
               be the board deciding for the party. */}
-          {who?.job ? <JobIcon job={who.job} size={20} />
+          {who?.job ? <JobIcon job={who.job} size={24} />
             : who?.jobs?.length ? (
               <span className="flex shrink-0 -space-x-1.5" title={who.jobs.join(", ")}>
                 {who.jobs.slice(0, 3).map((j) => (
-                  <JobIcon key={j} job={j} size={18} />
+                  <JobIcon key={j} job={j} size={22} />
                 ))}
                 {who.jobs.length > 3 && (
-                  <span className="pl-2 font-data text-[9.5px] text-muted">
+                  <span className="pl-2 font-data text-[11px] text-muted">
                     +{who.jobs.length - 3}
                   </span>
                 )}
               </span>
             ) : null}
-          <span className={`truncate text-[13px] ${
+          <span className={`truncate text-[14.5px] ${
             state === "waiting" ? "text-ink/60" : "text-ink"}`}>
             {who?.name}
           </span>
         </span>
       ) : (
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className={`text-[11.5px] ${
+          <span className={`text-[13px] ${
             state === "open" ? "text-accent/80" : "text-muted"}`}>
             {state === "open" ? t("pf.open") : "—"}
           </span>
@@ -219,7 +219,7 @@ function Seat(
       )}
 
       {state === "waiting" && (
-        <span className="font-data text-[9.5px] uppercase tracking-[0.1em] text-gold">
+        <span className="font-data text-[11px] uppercase tracking-[0.1em] text-gold">
           {t("pf.awaitingReply")}
         </span>
       )}
@@ -229,13 +229,13 @@ function Seat(
           person: one line under their name, not four hints scattered across
           the grid saying the same thing. */}
       {state !== "open" && state !== "shut" && who?.characterId == null && (
-        <span className="font-data text-[9.5px] uppercase tracking-[0.1em] text-muted">
+        <span className="font-data text-[11px] uppercase tracking-[0.1em] text-muted">
           {t("pf.outsideFc")}
         </span>
       )}
 
       {canFlex(who?.flex) && (
-        <span className="truncate font-data text-[9.5px] uppercase tracking-[0.1em] text-jade">
+        <span className="truncate font-data text-[11px] uppercase tracking-[0.1em] text-jade">
           {flexLabel(who?.flex)}
         </span>
       )}
@@ -260,7 +260,7 @@ function Block(
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       {wing && (
-        <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
           {t("pf.partyWing", { wing })}
         </span>
       )}
@@ -296,7 +296,7 @@ export default function PartySeats(
     const going = party.floating ?? [];
     return (
       <div className="flex flex-col gap-2 rounded-lg border border-dashed border-line px-3 py-2.5">
-        <p className="text-[12.5px] text-muted">
+        <p className="text-[14px] text-muted">
           {t(kind === "community" ? "pf.openCommunityWhy"
             : kind === "pvp" ? "pf.openPvpWhy"
             : "pf.openTurnUp")}
@@ -307,12 +307,12 @@ export default function PartySeats(
               <span key={f.characterId ?? f.name}
                     className="flex items-center gap-1.5 rounded-full border border-line bg-surface px-2 py-1">
                 <Face who={f} size={24} />
-                <span className={`text-[12.5px] ${
+                <span className={`text-[14px] ${
                   f.confirmedAt ? "text-ink" : "text-ink/60"}`}>
                   {f.name}
                 </span>
                 {!f.confirmedAt && (
-                  <span className="font-data text-[9px] uppercase tracking-[0.1em] text-gold">
+                  <span className="font-data text-[10.5px] uppercase tracking-[0.1em] text-gold">
                     {t("pf.askedShort")}
                   </span>
                 )}
@@ -360,7 +360,7 @@ export function NeedLine({ party }: { party: Party }) {
   // anybody can always join.
   if (party.shape === "open") {
     return (
-      <span className="looking rounded-full border border-jade/50 px-2.5 py-[3px] font-data text-[10.5px] uppercase tracking-[0.1em] text-jade">
+      <span className="looking rounded-full border border-jade/50 px-2.5 py-[3px] font-data text-[12px] uppercase tracking-[0.1em] text-jade">
         {t("pf.openToAll")}
       </span>
     );
@@ -370,12 +370,12 @@ export function NeedLine({ party }: { party: Party }) {
   if (!res.wanted) {
     return (
       <span className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[12.5px] text-muted">{t("pf.full")}</span>
+        <span className="text-[14px] text-muted">{t("pf.full")}</span>
         {res.loose.length > 0 && (
           // Full, but not settled: the seats are spoken for and who sits where
           // is still being worked out between the people already in.
           <span title={t("pf.stillSettling")}
-                className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.1em] text-jade">
+                className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-[12px] uppercase tracking-[0.1em] text-jade">
             {t("pf.flexingN", { n: res.loose.length })}
           </span>
         )}
@@ -395,20 +395,20 @@ export function NeedLine({ party }: { party: Party }) {
         <span key={r}
               style={{ color: ROLE_COLOR[r],
                        borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 55%, transparent)` }}
-              className="looking rounded-full border px-2.5 py-[3px] font-data text-[10.5px] uppercase tracking-[0.1em]">
+              className="looking rounded-full border px-2.5 py-[3px] font-data text-[12px] uppercase tracking-[0.1em]">
           {t("pf.needRole", { n: need[r], role: ROLE_LABEL[r] })}
         </span>
       )) : (
         // Every empty seat has somebody hovering over it, so there is no role
         // to name -- but only one of the seats each of them hovers over will
         // actually be theirs. What the party wants is bodies, any role.
-        <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[10.5px] uppercase tracking-[0.1em] text-accent">
+        <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[12px] uppercase tracking-[0.1em] text-accent">
           {t("pf.wantMore", { n: res.wanted })}
         </span>
       )}
       {res.loose.length > 0 && (
         <span title={t("pf.flexingWhy", { n: res.loose.length })}
-              className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-[10.5px] uppercase tracking-[0.1em] text-jade">
+              className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-[12px] uppercase tracking-[0.1em] text-jade">
           {t("pf.flexingN", { n: res.loose.length })}
         </span>
       )}

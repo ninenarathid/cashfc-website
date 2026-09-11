@@ -111,7 +111,7 @@ export default function MapShot(
       ) : (
         <div className={box}>{inner}</div>
       )}
-      <figcaption className="font-data text-[10.5px] tabular-nums text-muted">
+      <figcaption className="font-data text-[12px] tabular-nums text-muted">
         {has ? (
           <>
             {caption ?? `${spot.map} (${atX.toFixed(1)}, ${atY.toFixed(1)})`}
