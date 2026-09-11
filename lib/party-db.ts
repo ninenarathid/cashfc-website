@@ -429,15 +429,24 @@ export async function updateParty(
  * people who were in it. Everything that reads the board filters on this
  * column already, so a retired party leaves the board and keeps its history.
  *
- * Who may is the policy's business, not ours: the owner, or an admin, because
- * somebody has to be able to take down a listing whose author has gone quiet.
+ * Through a function rather than by writing the column, which is v55's doing
+ * and worth a line here. Setting deleted_at over the table was refused: the
+ * read policy is `deleted_at is null`, so the update handed back a row the
+ * same statement was no longer allowed to see, and the owner could change
+ * every other column on their own listing except this one. The function asks
+ * the ownership question plainly instead.
+ *
+ * Who may is still the owner or an admin, because somebody has to be able to
+ * take down a listing whose author has gone quiet. False means it was already
+ * gone, which is a second press rather than a failure, and reads the same way
+ * to the caller as having just retired it.
  */
 export async function deleteParty(
   supabase: SupabaseClient, partyId: string,
 ): Promise<{ error?: string }> {
-  const { error } = await supabase.from("party_posts")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", Number(partyId));
+  const { error } = await supabase.rpc("party_retire", {
+    p_party: Number(partyId),
+  });
   return error ? { error: error.message } : {};
 }
 
@@ -573,16 +582,6 @@ export async function toggleReaction(
   // report — it is the second press finding the first already done.
   if (error && !/duplicate key/i.test(error.message)) return { error: error.message };
   return {};
-}
-
-/** Take a listing off the board without destroying it. */
-export async function retireParty(
-  supabase: SupabaseClient, partyId: string,
-): Promise<{ error?: string }> {
-  const { error } = await supabase.from("party_posts")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", Number(partyId));
-  return error ? { error: error.message } : {};
 }
 
 /* ── pictures ─────────────────────────────────────────────────────────────── */
