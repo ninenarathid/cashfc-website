@@ -8,10 +8,10 @@
    "seen": "2026-09-09",
    "mounts": 189,
    "minions": 366,
-   "rare_achv": 316,
+   "rare_achv": 286,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788457480",
-   "collect_seen": "2026-09-09",
+   "collect_seen": "2026-09-10",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -219,7 +219,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-09",
+   "stats_seen": "2026-09-10",
    "lode_achv_public": true
   },
   "31441339": {
@@ -230,10 +230,10 @@
    "seen": "2026-09-10",
    "mounts": 98,
    "minions": 166,
-   "rare_achv": 133,
+   "rare_achv": 127,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788957523",
-   "collect_seen": "2026-09-09",
+   "collect_seen": "2026-09-10",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -445,7 +445,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-09",
+   "stats_seen": "2026-09-10",
    "lode_achv_public": true
   },
   "42349146": {
@@ -456,10 +456,10 @@
    "seen": "2026-09-04",
    "mounts": 44,
    "minions": 81,
-   "rare_achv": 15,
+   "rare_achv": 13,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
-   "collect_seen": "2026-09-09",
+   "collect_seen": "2026-09-10",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -562,7 +562,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-09"
+   "stats_seen": "2026-09-10"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -572,13 +572,14 @@
    "seen": "2026-09-04",
    "mounts": 84,
    "minions": 325,
-   "rare_achv": 121,
+   "rare_achv": 114,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788521581",
-   "collect_seen": "2026-09-09",
+   "collect_seen": "2026-09-10",
    "tags": [
     "prog",
     "extreme",
+    "gatherer",
     "crafter",
     "treasure",
     "pvp"
@@ -629,7 +630,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-09"
+   "stats_seen": "2026-09-10"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -639,10 +640,10 @@
    "seen": "2026-09-04",
    "mounts": 72,
    "minions": 115,
-   "rare_achv": 39,
+   "rare_achv": 36,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4203c340e98d92d7d1e82849bb2343dc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788823240",
-   "collect_seen": "2026-09-09",
+   "collect_seen": "2026-09-10",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -738,7 +739,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-09"
+   "stats_seen": "2026-09-10"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -748,10 +749,10 @@
    "seen": "2026-09-04",
    "mounts": 153,
    "minions": 270,
-   "rare_achv": 206,
+   "rare_achv": 195,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788597267",
-   "collect_seen": "2026-09-09",
+   "collect_seen": "2026-09-10",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -991,7 +992,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-09"
+   "stats_seen": "2026-09-10"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -1001,10 +1002,10 @@
    "seen": "2026-09-08",
    "mounts": 174,
    "minions": 263,
-   "rare_achv": 267,
+   "rare_achv": 246,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788923648",
-   "collect_seen": "2026-09-09",
+   "collect_seen": "2026-09-10",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1017,7 +1018,7 @@
    "achv_tiers": {
     "relic": "legendary",
     "explorer": "legendary",
-    "treasure": "legendary"
+    "treasure": "master"
    },
    "parse": 100,
    "savage_kills": 5,
@@ -1064,66 +1065,106 @@
    "progress_all": null,
    "job_top": {
     "job": "Viper",
-    "fights": 7,
-    "kills": 402,
+    "fights": 11,
+    "kills": 360,
     "parse": 100.0,
     "score": 100.0,
     "tier": "legendary",
-    "hardest": "savage"
+    "hardest": "ultimate"
    },
    "job_scores": {
     "Viper": {
-     "fights": 7,
-     "kills": 402,
+     "fights": 11,
+     "kills": 360,
      "parse": 100.0,
      "score": 100.0,
      "tier": "legendary",
-     "hardest": "savage"
+     "hardest": "ultimate"
     },
     "Gunbreaker": {
-     "fights": 35,
-     "kills": 2630,
+     "fights": 46,
+     "kills": 2356,
      "parse": 100.0,
      "score": 100.0,
+     "tier": "legendary",
+     "hardest": "ultimate"
+    },
+    "Paladin": {
+     "fights": 14,
+     "kills": 771,
+     "parse": 99.9,
+     "score": 99.9,
+     "tier": "legendary",
+     "hardest": "savage"
+    },
+    "Machinist": {
+     "fights": 17,
+     "kills": 68,
+     "parse": 93.0,
+     "score": 93.0,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Dragoon": {
-     "fights": 2,
-     "kills": 34,
-     "parse": 99.1,
-     "score": 83.2,
-     "tier": "master",
+     "fights": 18,
+     "kills": 78,
+     "parse": 96.7,
+     "score": 96.7,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
+    "Sage": {
+     "fights": 8,
+     "kills": 18,
+     "parse": 91.9,
+     "score": 79.9,
+     "tier": "master",
+     "hardest": "legacy"
+    },
+    "Warrior": {
+     "fights": 2,
+     "kills": 2,
+     "parse": 53.2,
+     "score": 27.1,
+     "tier": null,
+     "hardest": "legacy"
+    },
     "WhiteMage": {
-     "fights": 1,
-     "kills": 1,
-     "parse": 50.0,
-     "score": 20.0,
+     "fights": 11,
+     "kills": 18,
+     "parse": 66.0,
+     "score": 57.4,
      "tier": null,
      "hardest": "ultimate"
     },
     "Summoner": {
-     "fights": 1,
-     "kills": 10,
-     "parse": 97.0,
-     "score": 60.9,
-     "tier": "expert",
+     "fights": 8,
+     "kills": 36,
+     "parse": 99.5,
+     "score": 95.5,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
-    "Paladin": {
-     "fights": 8,
-     "kills": 636,
-     "parse": 100.0,
-     "score": 100.0,
-     "tier": "legendary",
+    "DarkKnight": {
+     "fights": 3,
+     "kills": 5,
+     "parse": 91.4,
+     "score": 60.2,
+     "tier": "expert",
+     "hardest": "legacy"
+    },
+    "Ninja": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 53.0,
+     "score": 21.2,
+     "tier": null,
      "hardest": "legacy"
     }
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-09"
+   "stats_seen": "2026-09-10"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1133,20 +1174,18 @@
    "seen": "2026-09-08",
    "mounts": 80,
    "minions": 95,
-   "rare_achv": 88,
+   "rare_achv": 85,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/258b10ee99a778ff735c30a38c9cadaf_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1788896903",
-   "collect_seen": "2026-09-09",
+   "collect_seen": "2026-09-10",
    "tags": [
     "tier-clear",
     "extreme",
     "relic",
-    "explorer",
     "seasonal"
    ],
    "achv_tiers": {
-    "relic": "master",
-    "explorer": "master"
+    "relic": "master"
    },
    "parse": 92,
    "savage_kills": 5,
@@ -1204,7 +1243,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-09"
+   "stats_seen": "2026-09-10"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1218,7 +1257,6 @@
     "extreme",
     "relic",
     "explorer",
-    "goldsaucer",
     "seasonal"
    ],
    "achv_tiers": {
@@ -1270,57 +1308,97 @@
    "progress": null,
    "progress_all": null,
    "job_top": {
-    "job": "Ninja",
-    "fights": 23,
-    "kills": 517,
-    "parse": 99.5,
-    "score": 99.5,
+    "job": "Reaper",
+    "fights": 5,
+    "kills": 67,
+    "parse": 99.3,
+    "score": 99.3,
     "tier": "legendary",
-    "hardest": "ultimate"
+    "hardest": "legacy"
    },
    "job_scores": {
     "Ninja": {
-     "fights": 23,
-     "kills": 517,
-     "parse": 99.5,
-     "score": 99.5,
+     "fights": 32,
+     "kills": 401,
+     "parse": 98.8,
+     "score": 98.8,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "Viper": {
-     "fights": 2,
-     "kills": 33,
-     "parse": 56.5,
-     "score": 47.2,
-     "tier": null,
-     "hardest": "extreme"
+     "fights": 13,
+     "kills": 46,
+     "parse": 62.3,
+     "score": 61.8,
+     "tier": "expert",
+     "hardest": "savage"
     },
     "Samurai": {
-     "fights": 11,
-     "kills": 133,
-     "parse": 92.1,
-     "score": 92.1,
+     "fights": 24,
+     "kills": 259,
+     "parse": 95.4,
+     "score": 95.4,
      "tier": "legendary",
      "hardest": "ultimate"
     },
+    "BlackMage": {
+     "fights": 1,
+     "kills": 2,
+     "parse": 33.0,
+     "score": 15.0,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Monk": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 22.0,
+     "score": 8.8,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Bard": {
+     "fights": 4,
+     "kills": 8,
+     "parse": 64.6,
+     "score": 49.7,
+     "tier": null,
+     "hardest": "ultimate"
+    },
     "Reaper": {
+     "fights": 5,
+     "kills": 67,
+     "parse": 99.3,
+     "score": 99.3,
+     "tier": "legendary",
+     "hardest": "legacy"
+    },
+    "Dragoon": {
      "fights": 2,
-     "kills": 116,
-     "parse": 100.0,
-     "score": 88.8,
-     "tier": "master",
+     "kills": 5,
+     "parse": 75.6,
+     "score": 45.6,
+     "tier": null,
+     "hardest": "legacy"
+    },
+    "Dancer": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 78.0,
+     "score": 31.1,
+     "tier": null,
      "hardest": "legacy"
     }
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-09",
+   "stats_seen": "2026-09-10",
    "mounts": 114,
    "minions": 328,
-   "rare_achv": 132,
+   "rare_achv": 125,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ab848575d89650a2e7b9bbdbe03c3bd2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788909336",
-   "collect_seen": "2026-09-09"
+   "collect_seen": "2026-09-10"
   }
  },
  "generated_at": "2026-09-10T22:45:26Z",

@@ -73406,7 +73406,17 @@
      "best": 100,
      "median": 97,
      "kills": 85,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 60,
+       "best": 100
+      },
+      "Gunbreaker": {
+       "kills": 25,
+       "best": 98
+      }
+     }
     },
     {
      "label": "M10S",
@@ -73415,7 +73425,13 @@
      "best": 100,
      "median": 96,
      "kills": 43,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 43,
+       "best": 100
+      }
+     }
     },
     {
      "label": "M11S",
@@ -73424,7 +73440,17 @@
      "best": 100,
      "median": 95,
      "kills": 32,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 31,
+       "best": 100
+      },
+      "Gunbreaker": {
+       "kills": 1,
+       "best": 19
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -73433,7 +73459,21 @@
      "best": 100,
      "median": 80,
      "kills": 59,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 57,
+       "best": 100
+      },
+      "Paladin": {
+       "kills": 1,
+       "best": 36
+      },
+      "Gunbreaker": {
+       "kills": 1,
+       "best": 19
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -73442,7 +73482,21 @@
      "best": 100,
      "median": 83,
      "kills": 29,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 27,
+       "best": 100
+      },
+      "Paladin": {
+       "kills": 1,
+       "best": 51
+      },
+      "Gunbreaker": {
+       "kills": 1,
+       "best": 13
+      }
+     }
     }
    ],
    "clears": [
@@ -73463,7 +73517,13 @@
     "best": 56,
     "kills": 2,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 2,
+      "best": 56
+     }
+    }
    },
    {
     "zone": "Futures Rewritten",
@@ -73474,7 +73534,17 @@
     "best": 97,
     "kills": 27,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 10,
+      "best": 92
+     },
+     "Gunbreaker": {
+      "kills": 17,
+      "best": 97
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -73496,7 +73566,17 @@
     "best": 90,
     "kills": 12,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 1,
+      "best": 42
+     },
+     "Gunbreaker": {
+      "kills": 11,
+      "best": 90
+     }
+    }
    },
    {
     "zone": "Dragonsong's Reprise",
@@ -73507,7 +73587,21 @@
     "best": 93,
     "kills": 35,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dragoon": {
+      "kills": 3,
+      "best": 45
+     },
+     "Machinist": {
+      "kills": 1,
+      "best": 39
+     },
+     "Gunbreaker": {
+      "kills": 31,
+      "best": 93
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -73518,7 +73612,13 @@
     "best": 96,
     "kills": 28,
     "job": "Dragoon",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dragoon": {
+      "kills": 28,
+      "best": 96
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -73529,7 +73629,25 @@
     "best": 85,
     "kills": 10,
     "job": "Summoner",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Summoner": {
+      "kills": 3,
+      "best": 85
+     },
+     "Machinist": {
+      "kills": 1,
+      "best": 28
+     },
+     "Dragoon": {
+      "kills": 1,
+      "best": 23
+     },
+     "Gunbreaker": {
+      "kills": 5,
+      "best": 76
+     }
+    }
    },
    {
     "zone": "Ultimates",
@@ -73540,7 +73658,13 @@
     "best": 80,
     "kills": 7,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 7,
+      "best": 80
+     }
+    }
    },
    {
     "zone": "Ultimates (Stormblood)",
@@ -73551,7 +73675,13 @@
     "best": 60,
     "kills": 8,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 8,
+      "best": 60
+     }
+    }
    },
    {
     "zone": "Ultimates (Stormblood)",
@@ -73562,7 +73692,13 @@
     "best": 93,
     "kills": 24,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 24,
+      "best": 93
+     }
+    }
    }
   ],
   "extremes": [
@@ -73575,7 +73711,21 @@
     "best": 100,
     "kills": 90,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 83,
+      "best": 100
+     },
+     "Gunbreaker": {
+      "kills": 6,
+      "best": 99
+     },
+     "Machinist": {
+      "kills": 1,
+      "best": 3
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -73586,7 +73736,17 @@
     "best": 100,
     "kills": 64,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 37,
+      "best": 100
+     },
+     "Machinist": {
+      "kills": 27,
+      "best": 99
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -73597,7 +73757,13 @@
     "best": 100,
     "kills": 16,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 16,
+      "best": 100
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -73608,7 +73774,17 @@
     "best": 87,
     "kills": 6,
     "job": "Dragoon",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dragoon": {
+      "kills": 1,
+      "best": 87
+     },
+     "Machinist": {
+      "kills": 5,
+      "best": 83
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -73619,7 +73795,21 @@
     "best": 96,
     "kills": 11,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 1,
+      "best": 60
+     },
+     "Gunbreaker": {
+      "kills": 9,
+      "best": 96
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 60
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -73630,7 +73820,17 @@
     "best": 100,
     "kills": 30,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 9,
+      "best": 86
+     },
+     "Gunbreaker": {
+      "kills": 21,
+      "best": 100
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -73641,7 +73841,17 @@
     "best": 100,
     "kills": 25,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 24,
+      "best": 100
+     },
+     "Warrior": {
+      "kills": 1,
+      "best": 91
+     }
+    }
    }
   ],
   "legacy": [
@@ -73657,7 +73867,13 @@
       "best": 100,
       "median": 98,
       "kills": 140,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 140,
+        "best": 100
+       }
+      }
      },
      {
       "label": "M6S",
@@ -73666,7 +73882,13 @@
       "best": 100,
       "median": 97,
       "kills": 64,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 64,
+        "best": 100
+       }
+      }
      },
      {
       "label": "M7S",
@@ -73675,7 +73897,13 @@
       "best": 100,
       "median": 98,
       "kills": 100,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 100,
+        "best": 100
+       }
+      }
      },
      {
       "label": "M8S",
@@ -73684,7 +73912,13 @@
       "best": 100,
       "median": 96,
       "kills": 32,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 32,
+        "best": 100
+       }
+      }
      }
     ]
    },
@@ -73700,7 +73934,25 @@
       "best": 100,
       "median": 99,
       "kills": 176,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Summoner": {
+        "kills": 1,
+        "best": 53
+       },
+       "Machinist": {
+        "kills": 1,
+        "best": 53
+       },
+       "Gunbreaker": {
+        "kills": 173,
+        "best": 100
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 24
+       }
+      }
      },
      {
       "label": "M2S",
@@ -73709,7 +73961,21 @@
       "best": 100,
       "median": 99,
       "kills": 64,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 1,
+        "best": 70
+       },
+       "Gunbreaker": {
+        "kills": 62,
+        "best": 100
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 25
+       }
+      }
      },
      {
       "label": "M3S",
@@ -73718,7 +73984,13 @@
       "best": 100,
       "median": 98,
       "kills": 119,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 119,
+        "best": 100
+       }
+      }
      },
      {
       "label": "M4S",
@@ -73727,7 +73999,21 @@
       "best": 100,
       "median": 98,
       "kills": 125,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Viper": {
+        "kills": 2,
+        "best": 78
+       },
+       "Gunbreaker": {
+        "kills": 122,
+        "best": 100
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 17
+       }
+      }
      }
     ]
    },
@@ -73743,7 +74029,25 @@
       "best": 100,
       "median": 97,
       "kills": 241,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Summoner": {
+        "kills": 11,
+        "best": 100
+       },
+       "Machinist": {
+        "kills": 1,
+        "best": 48
+       },
+       "Gunbreaker": {
+        "kills": 228,
+        "best": 100
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 94
+       }
+      }
      },
      {
       "label": "P10S",
@@ -73752,7 +74056,25 @@
       "best": 100,
       "median": 98,
       "kills": 101,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Summoner": {
+        "kills": 7,
+        "best": 99
+       },
+       "Machinist": {
+        "kills": 2,
+        "best": 96
+       },
+       "Gunbreaker": {
+        "kills": 91,
+        "best": 100
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 92
+       }
+      }
      },
      {
       "label": "P11S",
@@ -73761,7 +74083,29 @@
       "best": 100,
       "median": 97,
       "kills": 94,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Summoner": {
+        "kills": 11,
+        "best": 99
+       },
+       "Machinist": {
+        "kills": 2,
+        "best": 99
+       },
+       "Gunbreaker": {
+        "kills": 79,
+        "best": 100
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 25
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 75
+       }
+      }
      },
      {
       "label": "P12S",
@@ -73770,7 +74114,29 @@
       "best": 100,
       "median": 93,
       "kills": 221,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 4,
+        "best": 81
+       },
+       "Machinist": {
+        "kills": 5,
+        "best": 89
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 9
+       },
+       "Gunbreaker": {
+        "kills": 210,
+        "best": 100
+       },
+       "Sage": {
+        "kills": 1,
+        "best": 43
+       }
+      }
      },
      {
       "label": null,
@@ -73779,7 +74145,29 @@
       "best": 100,
       "median": 92,
       "kills": 97,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 2,
+        "best": 70
+       },
+       "Machinist": {
+        "kills": 1,
+        "best": 37
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 22
+       },
+       "Gunbreaker": {
+        "kills": 92,
+        "best": 100
+       },
+       "Sage": {
+        "kills": 1,
+        "best": 79
+       }
+      }
      }
     ]
    },
@@ -73795,7 +74183,33 @@
       "best": 100,
       "median": 100,
       "kills": 113,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 1,
+        "best": 63
+       },
+       "Gunbreaker": {
+        "kills": 103,
+        "best": 100
+       },
+       "Paladin": {
+        "kills": 3,
+        "best": 99
+       },
+       "DarkKnight": {
+        "kills": 2,
+        "best": 98
+       },
+       "Sage": {
+        "kills": 3,
+        "best": 80
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 28
+       }
+      }
      },
      {
       "label": "P6S",
@@ -73804,7 +74218,25 @@
       "best": 100,
       "median": 99,
       "kills": 86,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 79,
+        "best": 100
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 80
+       },
+       "Sage": {
+        "kills": 4,
+        "best": 99
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 49
+       }
+      }
      },
      {
       "label": "P7S",
@@ -73813,7 +74245,37 @@
       "best": 100,
       "median": 98,
       "kills": 84,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 1,
+        "best": 64
+       },
+       "Machinist": {
+        "kills": 4,
+        "best": 84
+       },
+       "Ninja": {
+        "kills": 1,
+        "best": 50
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 77
+       },
+       "Gunbreaker": {
+        "kills": 74,
+        "best": 100
+       },
+       "Sage": {
+        "kills": 2,
+        "best": 64
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 64
+       }
+      }
      },
      {
       "label": "P8S",
@@ -73822,7 +74284,29 @@
       "best": 100,
       "median": 90,
       "kills": 69,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Machinist": {
+        "kills": 7,
+        "best": 85
+       },
+       "Dragoon": {
+        "kills": 3,
+        "best": 15
+       },
+       "Gunbreaker": {
+        "kills": 49,
+        "best": 100
+       },
+       "Sage": {
+        "kills": 4,
+        "best": 90
+       },
+       "WhiteMage": {
+        "kills": 6,
+        "best": 50
+       }
+      }
      },
      {
       "label": null,
@@ -73831,7 +74315,29 @@
       "best": 100,
       "median": 95,
       "kills": 41,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 1,
+        "best": 70
+       },
+       "Machinist": {
+        "kills": 4,
+        "best": 89
+       },
+       "Gunbreaker": {
+        "kills": 31,
+        "best": 100
+       },
+       "WhiteMage": {
+        "kills": 3,
+        "best": 79
+       },
+       "Sage": {
+        "kills": 2,
+        "best": 67
+       }
+      }
      }
     ]
    },
@@ -73847,7 +74353,21 @@
       "best": 100,
       "median": 98,
       "kills": 77,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 5,
+        "best": 91
+       },
+       "Machinist": {
+        "kills": 2,
+        "best": 33
+       },
+       "Gunbreaker": {
+        "kills": 70,
+        "best": 100
+       }
+      }
      },
      {
       "label": "P2S",
@@ -73856,7 +74376,29 @@
       "best": 100,
       "median": 97,
       "kills": 78,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 3,
+        "best": 90
+       },
+       "Machinist": {
+        "kills": 3,
+        "best": 79
+       },
+       "Gunbreaker": {
+        "kills": 69,
+        "best": 100
+       },
+       "DarkKnight": {
+        "kills": 2,
+        "best": 78
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 24
+       }
+      }
      },
      {
       "label": "P3S",
@@ -73865,7 +74407,17 @@
       "best": 100,
       "median": 98,
       "kills": 24,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 2,
+        "best": 78
+       },
+       "Gunbreaker": {
+        "kills": 22,
+        "best": 100
+       }
+      }
      },
      {
       "label": "P4S",
@@ -73874,7 +74426,17 @@
       "best": 99,
       "median": 80,
       "kills": 30,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 7,
+        "best": 60
+       },
+       "Gunbreaker": {
+        "kills": 23,
+        "best": 99
+       }
+      }
      },
      {
       "label": null,
@@ -73883,7 +74445,17 @@
       "best": 99,
       "median": 92,
       "kills": 25,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 7,
+        "best": 64
+       },
+       "Gunbreaker": {
+        "kills": 18,
+        "best": 99
+       }
+      }
      }
     ]
    },
@@ -73899,7 +74471,17 @@
       "best": 100,
       "median": 97,
       "kills": 159,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 150,
+        "best": 100
+       },
+       "Gunbreaker": {
+        "kills": 9,
+        "best": 98
+       }
+      }
      },
      {
       "label": "E10S",
@@ -73908,7 +74490,17 @@
       "best": 100,
       "median": 96,
       "kills": 183,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 160,
+        "best": 100
+       },
+       "Gunbreaker": {
+        "kills": 23,
+        "best": 99
+       }
+      }
      },
      {
       "label": "E11S",
@@ -73917,7 +74509,21 @@
       "best": 100,
       "median": 96,
       "kills": 145,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 7,
+        "best": 94
+       },
+       "Paladin": {
+        "kills": 116,
+        "best": 100
+       },
+       "Gunbreaker": {
+        "kills": 22,
+        "best": 99
+       }
+      }
      },
      {
       "label": "E12S",
@@ -73926,7 +74532,21 @@
       "best": 100,
       "median": 80,
       "kills": 232,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 1,
+        "best": 18
+       },
+       "Gunbreaker": {
+        "kills": 26,
+        "best": 100
+       },
+       "Paladin": {
+        "kills": 205,
+        "best": 100
+       }
+      }
      },
      {
       "label": null,
@@ -73935,7 +74555,17 @@
       "best": 100,
       "median": 88,
       "kills": 106,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 90,
+        "best": 100
+       },
+       "Gunbreaker": {
+        "kills": 16,
+        "best": 96
+       }
+      }
      }
     ]
    },
@@ -73951,7 +74581,17 @@
       "best": 90,
       "median": 70,
       "kills": 14,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 13,
+        "best": 90
+       },
+       "Gunbreaker": {
+        "kills": 1,
+        "best": 32
+       }
+      }
      },
      {
       "label": "E6S",
@@ -73960,7 +74600,13 @@
       "best": 80,
       "median": 47,
       "kills": 10,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 10,
+        "best": 80
+       }
+      }
      },
      {
       "label": "E7S",
@@ -73969,7 +74615,13 @@
       "best": 77,
       "median": 52,
       "kills": 10,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 10,
+        "best": 77
+       }
+      }
      },
      {
       "label": "E8S",
@@ -73978,7 +74630,13 @@
       "best": 78,
       "median": 30,
       "kills": 9,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 9,
+        "best": 78
+       }
+      }
      }
     ]
    }
@@ -74141,7 +74799,21 @@
      "best": 97,
      "median": 90,
      "kills": 21,
-     "job": "Ninja"
+     "job": "Ninja",
+     "job_kills": {
+      "Ninja": {
+       "kills": 18,
+       "best": 97
+      },
+      "Viper": {
+       "kills": 1,
+       "best": 47
+      },
+      "Samurai": {
+       "kills": 2,
+       "best": 82
+      }
+     }
     },
     {
      "label": "M10S",
@@ -74150,7 +74822,17 @@
      "best": 77,
      "median": 53,
      "kills": 13,
-     "job": "Ninja"
+     "job": "Ninja",
+     "job_kills": {
+      "Ninja": {
+       "kills": 12,
+       "best": 77
+      },
+      "Viper": {
+       "kills": 1,
+       "best": 70
+      }
+     }
     },
     {
      "label": "M11S",
@@ -74159,7 +74841,17 @@
      "best": 89,
      "median": 69,
      "kills": 18,
-     "job": "Ninja"
+     "job": "Ninja",
+     "job_kills": {
+      "Ninja": {
+       "kills": 16,
+       "best": 89
+      },
+      "Viper": {
+       "kills": 2,
+       "best": 34
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -74168,7 +74860,17 @@
      "best": 98,
      "median": 46,
      "kills": 45,
-     "job": "Ninja"
+     "job": "Ninja",
+     "job_kills": {
+      "Ninja": {
+       "kills": 43,
+       "best": 98
+      },
+      "Viper": {
+       "kills": 2,
+       "best": 54
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -74177,7 +74879,17 @@
      "best": 98,
      "median": 64,
      "kills": 16,
-     "job": "Ninja"
+     "job": "Ninja",
+     "job_kills": {
+      "Ninja": {
+       "kills": 14,
+       "best": 98
+      },
+      "Viper": {
+       "kills": 2,
+       "best": 65
+      }
+     }
     }
    ],
    "clears": [
@@ -74198,7 +74910,13 @@
     "best": 82,
     "kills": 5,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 5,
+      "best": 82
+     }
+    }
    },
    {
     "zone": "Futures Rewritten",
@@ -74209,7 +74927,17 @@
     "best": 64,
     "kills": 2,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 1,
+      "best": 64
+     },
+     "Bard": {
+      "kills": 1,
+      "best": 28
+     }
+    }
    },
    {
     "zone": "The Omega Protocol",
@@ -74220,7 +74948,13 @@
     "best": 40,
     "kills": 14,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 14,
+      "best": 40
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -74231,7 +74965,13 @@
     "best": 51,
     "kills": 17,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 17,
+      "best": 51
+     }
+    }
    }
   ],
   "extremes": [
@@ -74244,7 +74984,21 @@
     "best": 99,
     "kills": 37,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 34,
+      "best": 99
+     },
+     "Viper": {
+      "kills": 2,
+      "best": 52
+     },
+     "Samurai": {
+      "kills": 1,
+      "best": 9
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -74255,7 +75009,29 @@
     "best": 95,
     "kills": 12,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 7,
+      "best": 95
+     },
+     "Viper": {
+      "kills": 1,
+      "best": 64
+     },
+     "Samurai": {
+      "kills": 1,
+      "best": 49
+     },
+     "BlackMage": {
+      "kills": 2,
+      "best": 33
+     },
+     "Monk": {
+      "kills": 1,
+      "best": 22
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -74266,7 +75042,21 @@
     "best": 94,
     "kills": 13,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 10,
+      "best": 94
+     },
+     "Viper": {
+      "kills": 1,
+      "best": 79
+     },
+     "Samurai": {
+      "kills": 2,
+      "best": 75
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -74277,7 +75067,13 @@
     "best": 99,
     "kills": 33,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 33,
+      "best": 99
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -74288,7 +75084,17 @@
     "best": 98,
     "kills": 17,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 4,
+      "best": 74
+     },
+     "Viper": {
+      "kills": 4,
+      "best": 64
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -74299,7 +75105,13 @@
     "best": 45,
     "kills": 6,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 6,
+      "best": 45
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -74310,7 +75122,17 @@
     "best": 59,
     "kills": 27,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 21,
+      "best": 59
+     },
+     "Ninja": {
+      "kills": 6,
+      "best": 58
+     }
+    }
    }
   ],
   "legacy": [
@@ -74326,7 +75148,17 @@
       "best": 99,
       "median": 87,
       "kills": 20,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 17,
+        "best": 99
+       },
+       "Samurai": {
+        "kills": 3,
+        "best": 93
+       }
+      }
      },
      {
       "label": "M6S",
@@ -74335,7 +75167,17 @@
       "best": 86,
       "median": 78,
       "kills": 14,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 12,
+        "best": 86
+       },
+       "Viper": {
+        "kills": 2,
+        "best": 6
+       }
+      }
      },
      {
       "label": "M7S",
@@ -74344,7 +75186,13 @@
       "best": 94,
       "median": 66,
       "kills": 15,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 15,
+        "best": 94
+       }
+      }
      },
      {
       "label": "M8S",
@@ -74353,7 +75201,13 @@
       "best": 98,
       "median": 62,
       "kills": 11,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 11,
+        "best": 98
+       }
+      }
      }
     ]
    },
@@ -74369,7 +75223,17 @@
       "best": 93,
       "median": 61,
       "kills": 13,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 10,
+        "best": 93
+       },
+       "Samurai": {
+        "kills": 3,
+        "best": 77
+       }
+      }
      },
      {
       "label": "M2S",
@@ -74378,7 +75242,17 @@
       "best": 97,
       "median": 63,
       "kills": 12,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 8,
+        "best": 97
+       },
+       "Ninja": {
+        "kills": 4,
+        "best": 66
+       }
+      }
      },
      {
       "label": "M3S",
@@ -74387,7 +75261,17 @@
       "best": 83,
       "median": 44,
       "kills": 12,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 6,
+        "best": 83
+       },
+       "Samurai": {
+        "kills": 6,
+        "best": 69
+       }
+      }
      },
      {
       "label": "M4S",
@@ -74396,7 +75280,21 @@
       "best": 92,
       "median": 46,
       "kills": 23,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 13,
+        "best": 92
+       },
+       "Samurai": {
+        "kills": 9,
+        "best": 87
+       },
+       "Viper": {
+        "kills": 1,
+        "best": 26
+       }
+      }
      }
     ]
    },
@@ -74412,7 +75310,17 @@
       "best": 99,
       "median": 77,
       "kills": 14,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 12,
+        "best": 99
+       },
+       "Ninja": {
+        "kills": 2,
+        "best": 85
+       }
+      }
      },
      {
       "label": "P10S",
@@ -74421,7 +75329,17 @@
       "best": 95,
       "median": 88,
       "kills": 13,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 11,
+        "best": 95
+       },
+       "Ninja": {
+        "kills": 2,
+        "best": 36
+       }
+      }
      },
      {
       "label": "P11S",
@@ -74430,7 +75348,17 @@
       "best": 96,
       "median": 68,
       "kills": 12,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 10,
+        "best": 96
+       },
+       "Ninja": {
+        "kills": 2,
+        "best": 34
+       }
+      }
      },
      {
       "label": "P12S",
@@ -74439,7 +75367,17 @@
       "best": 80,
       "median": 41,
       "kills": 20,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 19,
+        "best": 80
+       },
+       "Ninja": {
+        "kills": 1,
+        "best": 15
+       }
+      }
      },
      {
       "label": null,
@@ -74448,7 +75386,17 @@
       "best": 78,
       "median": 40,
       "kills": 8,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 7,
+        "best": 78
+       },
+       "Ninja": {
+        "kills": 1,
+        "best": 1
+       }
+      }
      }
     ]
    },
@@ -74464,7 +75412,33 @@
       "best": 100,
       "median": 82,
       "kills": 79,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 20,
+        "best": 100
+       },
+       "Ninja": {
+        "kills": 9,
+        "best": 99
+       },
+       "Samurai": {
+        "kills": 40,
+        "best": 96
+       },
+       "Dragoon": {
+        "kills": 4,
+        "best": 82
+       },
+       "Bard": {
+        "kills": 5,
+        "best": 73
+       },
+       "Dancer": {
+        "kills": 1,
+        "best": 75
+       }
+      }
      },
      {
       "label": "P6S",
@@ -74473,7 +75447,25 @@
       "best": 98,
       "median": 78,
       "kills": 37,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 13,
+        "best": 98
+       },
+       "Ninja": {
+        "kills": 9,
+        "best": 97
+       },
+       "Samurai": {
+        "kills": 14,
+        "best": 93
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 54
+       }
+      }
      },
      {
       "label": "P7S",
@@ -74482,7 +75474,25 @@
       "best": 97,
       "median": 68,
       "kills": 42,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 15,
+        "best": 97
+       },
+       "Samurai": {
+        "kills": 16,
+        "best": 95
+       },
+       "Reaper": {
+        "kills": 10,
+        "best": 91
+       },
+       "Dragoon": {
+        "kills": 1,
+        "best": 35
+       }
+      }
      },
      {
       "label": "P8S",
@@ -74491,7 +75501,25 @@
       "best": 99,
       "median": 69,
       "kills": 75,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 23,
+        "best": 99
+       },
+       "Reaper": {
+        "kills": 17,
+        "best": 95
+       },
+       "Samurai": {
+        "kills": 34,
+        "best": 91
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 1
+       }
+      }
      },
      {
       "label": null,
@@ -74500,7 +75528,21 @@
       "best": 90,
       "median": 69,
       "kills": 31,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 16,
+        "best": 90
+       },
+       "Reaper": {
+        "kills": 7,
+        "best": 68
+       },
+       "Samurai": {
+        "kills": 8,
+        "best": 78
+       }
+      }
      }
     ]
    },
@@ -74516,7 +75558,13 @@
       "best": 80,
       "median": 42,
       "kills": 20,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 20,
+        "best": 80
+       }
+      }
      },
      {
       "label": "P2S",
@@ -74525,7 +75573,13 @@
       "best": 77,
       "median": 34,
       "kills": 15,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 15,
+        "best": 77
+       }
+      }
      },
      {
       "label": "P4S",
@@ -74534,7 +75588,13 @@
       "best": 77,
       "median": 54,
       "kills": 14,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 14,
+        "best": 77
+       }
+      }
      },
      {
       "label": null,
@@ -74543,7 +75603,13 @@
       "best": 46,
       "median": 37,
       "kills": 3,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 3,
+        "best": 46
+       }
+      }
      }
     ]
    }
