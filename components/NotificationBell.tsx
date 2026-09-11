@@ -730,7 +730,13 @@ export default function NotificationBell() {
     // picture of its own keeps it: a tag is answered by looking at the
     // photograph, and an announcement does not say whose it was.
     const facing = n.kind === "popoto" || n.kind === "popoto_post"
-      ? "🥔" : n.kind === "feedback" ? "✉️" : null;
+      ? "🥔" : n.kind === "feedback" ? "✉️"
+        // Everything the party finder sends is one person doing something to
+        // your evening — asking for a seat, saying yes, leaving, speaking in a
+        // party you are in. Who it was is the first thing you want, and a
+        // column of identical speech bubbles was the one thing it said.
+        : n.kind.startsWith("party_") ? (kind?.icon ?? "🔔")
+          : null;
     // An announcement with a picture on it shows that picture, squarely,
     // because it is a poster and not a face.
     const poster = n.kind === "announcement" && n.body
