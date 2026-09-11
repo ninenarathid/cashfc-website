@@ -62046,14 +62046,25 @@
   "ultimates": [],
   "extremes": [
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 48,
+    "kills": 4,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 67,
-    "kills": 7,
-    "job": "Scholar",
+    "best": 76,
+    "kills": 13,
+    "job": "Astrologian",
     "cleared": true,
     "job_kills": {
      "Astrologian": {
@@ -62061,7 +62072,7 @@
       "best": 76
      },
      "Scholar": {
-      "kills": 3,
+      "kills": 5,
       "best": 67
      }
     }
@@ -62094,6 +62105,17 @@
       "best": 50
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 42,
+    "kills": 2,
+    "job": "Reaper",
+    "cleared": true
    }
   ],
   "legacy": [],

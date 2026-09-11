@@ -5574,8 +5574,10 @@
    "Astrologian": "expert"
   },
   "ex": [
+   "Doomtrain",
    "Queen Eternal",
-   "Valigarmanda"
+   "Valigarmanda",
+   "Zoraal Ja"
   ],
   "ults": [],
   "chg": "2026-09-10"
@@ -5587,7 +5589,7 @@
   "mounts": 65,
   "minions": 116,
   "rare": null,
-  "level": 51,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -5602,7 +5604,7 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-11"
  },
  "38488824": {
   "name": "Daffodil Amary",
@@ -6014,7 +6016,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 50,
+  "level": 51,
   "cc": null,
   "rare_ids": [
    3874
@@ -6310,7 +6312,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 87,
   "cc": [
    true,
    true,
@@ -6331,7 +6333,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "46739693": {
   "name": "Lins Miyuki",

@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-09-11",
+   "type": "ex_clear",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "cleared Doomtrain (Extreme)"
+  },
+  {
+   "date": "2026-09-11",
+   "type": "ex_clear",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-09-11",
    "type": "level_100",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1385,20 +1399,6 @@
    "id": 29998658,
    "name": "Shippei Astana",
    "text": "is now a Legendary Monk"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned Guardiansbane"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 26298391,
-   "name": "Yozora Luna",
-   "text": "is now a Expert Summoner"
   }
  ]
 }
