@@ -37,9 +37,33 @@ import { clips, youtubeSrc } from "@/lib/youtube";
  * whole of what they say. Twenty-eight with thirteen is the size of the emoji
  * in the picker they open, which is the thing they are nearest to.
  */
+/**
+ * The face on the button that opens the emoji row.
+ *
+ * Drawn rather than typed. It was "☺", the white smiling face, which is
+ * one of the oldest characters in Unicode and looks it — every platform draws
+ * it differently, several draw it as a full-colour emoji next to three
+ * monochrome symbols, and at twenty pixels it came out as a grey smudge.
+ *
+ * This is the same weight as the pencil, the cross and the arrow beside it,
+ * takes the colour of whatever it is sitting in, and stays sharp at any size.
+ */
+function ReactFace({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" strokeWidth={1.7} strokeLinecap="round"
+         aria-hidden focusable="false">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 14.5a4.5 4.5 0 0 0 7 0" />
+      <circle cx="9" cy="9.75" r="1.05" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="9.75" r="1.05" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 const ctl = (extra: string) =>
-  "grid size-8 shrink-0 place-items-center rounded-full border border-line"
-  + ` bg-surface text-[16px] leading-none shadow-sm transition-colors ${extra}`;
+  "grid size-9 shrink-0 place-items-center rounded-full border border-line"
+  + ` bg-surface text-[20px] leading-none shadow-sm transition-colors ${extra}`;
 
 export default function PartyComments(
   { comments, people, me, userId, onAdd, onReact, onEdit, onDrop }: {
@@ -243,13 +267,17 @@ export default function PartyComments(
                 run — so the bubbles stay in their column instead of sliding
                 under the avatar. */}
             {cont ? (
-              <span aria-hidden className="size-[36px] shrink-0" />
+              <span aria-hidden className="size-[70px] shrink-0" />
             ) : src ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={src} alt="" width={36} height={36}
-                   className="size-[36px] shrink-0 rounded-full border border-line object-cover" />
+              <img src={src} alt="" width={70} height={70}
+                   className="size-[70px] shrink-0 rounded-full border border-line object-cover" />
             ) : (
-              <span className={`grid size-[30px] shrink-0 place-items-center rounded-full text-[15px] text-muted ${
+              /* The same seventy across. It was thirty where the picture was
+                 thirty-six, so a run of messages stepped in and out depending
+                 on who had a portrait — and at seventy that gap would be the
+                 width of a thumb. */
+              <span className={`grid size-[70px] shrink-0 place-items-center rounded-full text-[28px] text-muted ${
                 c.author.characterId == null
                   ? "border border-dashed border-line" : "border border-line bg-card"}`}>
                 {c.author.characterId == null ? "?" : ""}
@@ -437,7 +465,7 @@ export default function PartyComments(
                         {REACTIONS.map((e) => (
                           <button key={e} type="button" title={e}
                                   onClick={() => { react(c, e); setPicking(null); }}
-                                  className="rounded-full px-1 text-[16px] leading-none transition-transform hover:scale-125">
+                                  className="rounded-full px-1 text-[20px] leading-none transition-transform hover:scale-125">
                             {e}
                           </button>
                         ))}
@@ -451,7 +479,7 @@ export default function PartyComments(
                         <button type="button" aria-label={t("pf.react")}
                                 onClick={() => setPicking(c.id)}
                                 className={ctl("")}>
-                          ☺
+                          <ReactFace />
                         </button>
                         {/* Answering this one in particular: their name goes
                             in the box and the message is quoted above the
@@ -490,7 +518,7 @@ export default function PartyComments(
                                 isMine
                                   ? "border-accent/60 bg-accent/15 text-accent"
                                   : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                        <span className="text-[15px] leading-none">{r.emoji}</span>
+                        <span className="text-[20px] leading-none">{r.emoji}</span>
                         <span className="font-data">{r.by.length}</span>
                       </button>
                     );
