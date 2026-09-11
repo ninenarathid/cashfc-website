@@ -1727,6 +1727,12 @@ const DICT = {
     th: "หัวข้อของปาร์ตี้",
   },
   "pf.starts": { en: "Starts (Thai time)", th: "เริ่ม (เวลาไทย)" },
+  /* For a screen reader. The two lists sit either side of a colon and are
+     obvious to look at; neither has room for a label of its own. */
+  "pf.hour": { en: "Hour", th: "ชั่วโมง" },
+  "pf.minute": { en: "Minute", th: "นาที" },
+  "pf.timeOfDay": { en: "Time", th: "เวลา" },
+  "pf.pickDay": { en: "Pick a day", th: "เลือกวัน" },
   /* "ยาว" is how long a thing is, not how long it lasts — it reads as a
      measurement of the party rather than of the evening. */
   "pf.for": { en: "Length (approx.)", th: "ระยะเวลา (โดยประมาณ)" },

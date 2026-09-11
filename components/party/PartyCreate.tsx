@@ -33,6 +33,7 @@ import type { SuggestRow } from "@/lib/suggest";
 import { jobsWantedBy } from "@/lib/suggest";
 import { createClient } from "@/lib/supabase/client";
 import Modal, { Sheet } from "@/components/ui/Modal";
+import DateTime from "@/components/ui/DateTime";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { FC_DC, FC_WORLD } from "@/lib/world";
@@ -685,9 +686,7 @@ export default function PartyCreate(
           <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
             {t("pf.starts")}
           </span>
-          <input type="datetime-local" value={start} min={min}
-                 onChange={(e) => setStart(e.target.value)}
-                 className={`${sel} ${past ? "border-chili/60" : ""}`} />
+          <DateTime value={start} min={min} invalid={past} onChange={setStart} />
         </label>
 
         <label className="flex flex-col gap-1">
