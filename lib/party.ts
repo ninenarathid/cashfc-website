@@ -942,6 +942,15 @@ export interface Party {
    */
   runs?: number;
   ownerCharacterId: number;
+  /**
+   * The account that put it up, which is what may change it.
+   *
+   * Kept alongside the character because they answer different questions: the
+   * character is who the party is run by and is drawn on the row, and the
+   * account is who the policies let edit it. A lead can hold the first without
+   * the second — a verified character is a claim about a person, not a login.
+   */
+  owner?: string;
   /** Seat id -> who is in it. Absent means open. */
   seats: Record<string, SlotTaken>;
   /**
@@ -975,6 +984,15 @@ export interface Party {
    */
   oneOfEachJob?: boolean;
   createdAt: string;
+  /**
+   * When the listing was last changed, kept honest by a trigger.
+   *
+   * Worth saying out loud on a board people read once and come back to: a
+   * party that moved from nine to ten is the same row in the same place, and
+   * somebody who read it this morning has no way of knowing it moved unless
+   * the row says so.
+   */
+  updatedAt?: string;
 }
 
 /**

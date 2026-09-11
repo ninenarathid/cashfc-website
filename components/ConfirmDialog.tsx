@@ -28,13 +28,22 @@ import { useLang } from "@/lib/i18n";
  * which is the shape every call site here already used.
  */
 export default function ConfirmDialog(
-  { message, confirmLabel, danger = false, onConfirm, onCancel }: {
+  { message, confirmLabel, danger = false, onConfirm, onCancel, z = 60 }: {
     message: string;
     confirmLabel: string;
     /** Red rather than accent: for deleting, which is the one that is final. */
     danger?: boolean;
     onConfirm: () => void;
     onCancel: () => void;
+    /**
+     * How high to stack it.
+     *
+     * The default clears the page. A question asked from inside a window has
+     * to clear the window as well — Radix stacks its layers for focus and
+     * dismissal but not visually, and a confirm behind the thing it is asking
+     * about is a page that has silently stopped responding.
+     */
+    z?: number;
   },
 ) {
   const { t } = useLang();
@@ -42,12 +51,14 @@ export default function ConfirmDialog(
   return (
     <Alert.Root open onOpenChange={(open) => { if (!open) onCancel(); }}>
       <Alert.Portal>
-        <Alert.Overlay className="pop-in fixed inset-0 z-[60] bg-bg/80 backdrop-blur-sm" />
+        <Alert.Overlay style={{ zIndex: z }}
+                       className="pop-in fixed inset-0 bg-bg/80 backdrop-blur-sm" />
         <Alert.Content
           // The lightbox underneath also closes on Escape, and answering a
           // question should not also put away the thing the question was about.
           onEscapeKeyDown={(e) => e.stopPropagation()}
-          className="pop-in fixed left-1/2 top-1/2 z-[61] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface p-4 shadow-2xl shadow-black/60">
+          style={{ zIndex: z + 1 }}
+          className="pop-in fixed left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface p-4 shadow-2xl shadow-black/60">
           <Alert.Description className="text-[13.5px] leading-relaxed text-ink">
             {message}
           </Alert.Description>

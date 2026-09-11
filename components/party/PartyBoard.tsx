@@ -17,7 +17,9 @@ import {
 } from "@/lib/party";
 import { createClient } from "@/lib/supabase/client";
 
-import { addComment, createParty, loadParties } from "@/lib/party-db";
+import {
+  addComment, createParty, deleteParty, loadParties, updateParty,
+} from "@/lib/party-db";
 import { useLiveParties } from "@/lib/party-live";
 import type { SuggestRow } from "@/lib/suggest";
 import { mapLabel } from "@/lib/treasure";
@@ -31,6 +33,7 @@ import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
 import TagIcon from "@/components/TagIcon";
 import PartyIcon from "@/components/party/PartyIcon";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import FoodIcon from "@/components/party/FoodIcon";
 import { PartyBody } from "@/components/party/PartyBody";
 import { ProgressChip } from "@/components/party/ProgressTrack";
@@ -107,7 +110,8 @@ const EMPTY = {
  * and is the whole reason the address carries an id.
  */
 function PartyDetail(
-  { party, def, now, me, userId, supabase, refresh, setErr, setParties, onClose }: {
+  { party, def, now, me, userId, supabase, refresh, setErr, setParties, onClose,
+    onEdit }: {
     party: Party;
     def: ContentDef | undefined;
     now: number;
@@ -118,10 +122,23 @@ function PartyDetail(
     setErr: (m: string | null) => void;
     setParties: React.Dispatch<React.SetStateAction<Party[]>>;
     onClose: () => void;
+    /** Given to whoever may change it. Absent for everybody else. */
+    onEdit?: () => void;
   },
 ) {
   const { t } = useLang();
   const tint = def ? KIND_COLOR[def.kind] : "#8b93a1";
+  /** Whether the "delete this party?" question is on screen. */
+  const [dropping, setDropping] = useState(false);
+  /*
+   * Edited, as opposed to merely saved.
+   *
+   * The trigger stamps updated_at on the insert as well, so the two are within
+   * a moment of each other on a party nobody has been back to. A minute is the
+   * gap that means somebody returned.
+   */
+  const edited = !!party.updatedAt
+    && new Date(party.updatedAt).getTime() - new Date(party.createdAt).getTime() > 60_000;
   return (
     /* Wide, because a party is not a column of fields: a still across the
        top, a seat grid eight cells across, a write-up with screenshots in it
@@ -162,12 +179,66 @@ function PartyDetail(
             <StatusPill status={partyStatus(party, now)} />
             <WhenLine party={party} now={now}
                       className="font-data text-[11.5px] text-white/85 drop-shadow" />
-            <span className="ml-auto"><ShareParty id={party.id} /></span>
+            <span className="ml-auto flex items-center gap-1.5">
+              {/*
+                * The lead's two, only for the lead.
+                *
+                * On the banner beside the share button rather than at the
+                * bottom of the window: they are things you do to the listing,
+                * and the listing's own controls belong together at the top of
+                * it. Both ask before they happen — a party people have read
+                * and made plans around is not a thing to change by a misclick.
+                */}
+              {onEdit && (
+                <>
+                  <button onClick={onEdit}
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[12px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
+                    ✎ {t("pf.edit")}
+                  </button>
+                  <button onClick={() => setDropping(true)}
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[12px] text-chili/90 transition-colors hover:border-chili hover:text-chili">
+                    {t("pf.deleteParty")}
+                  </button>
+                </>
+              )}
+              <ShareParty id={party.id} />
+            </span>
           </span>
         </div>
 
+        {dropping && (
+          <ConfirmDialog z={120} danger
+                         message={t("pf.deleteAsk")}
+                         confirmLabel={t("pf.deleteParty")}
+                         onCancel={() => setDropping(false)}
+                         onConfirm={async () => {
+                           setDropping(false);
+                           if (!supabase) return;
+                           const r = await deleteParty(supabase, party.id);
+                           if (r.error) { setErr(r.error); return; }
+                           onClose();
+                           await refresh();
+                         }} />
+        )}
+
         {party.note && (
           <p className="text-[13.5px] text-ink/80">{party.note}</p>
+        )}
+
+        {/*
+          * When it last changed, where it has.
+          *
+          * A board people read once and come back to: a party that moved from
+          * nine to ten is the same row in the same place, and somebody who
+          * read it this morning has no way of knowing it moved. Only when it
+          * actually has — the database sets updated_at on the insert too, so
+          * a party nobody has touched would otherwise announce an edit it
+          * never had.
+          */}
+        {edited && (
+          <p className="font-data text-[11px] text-muted">
+            {t("pf.editedAt", { at: `${fmtDay(party.updatedAt!)} ${fmtTime(party.updatedAt!)}` })}
+          </p>
         )}
 
         {/* The terms of the evening, the way the row says them. */}
@@ -335,6 +406,14 @@ export default function PartyBoard(
   const [supabase] = useState(createClient);
   const [parties, setParties] = useState<Party[]>([]);
   const [loading, setLoading] = useState(true);
+  /**
+   * The party being changed, where somebody is changing one.
+   *
+   * Held on the board rather than inside the window it is opened from, because
+   * the form replaces the window: two dialogs, one over the other, asking about
+   * the same party is two places to press Escape and one of them wrong.
+   */
+  const [amending, setAmending] = useState<Party | null>(null);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
@@ -628,17 +707,31 @@ export default function PartyBoard(
         )}
       </header>
 
-      {writing && me && userId && (
+      {/*
+        * The same form, writing a new one or changing one that exists.
+        *
+        * One component because it is one set of questions, and two would be
+        * two places for the loot rules to disagree about which content allows
+        * what. Which of the two it is doing is the `editing` party.
+        */}
+      {(writing || amending) && me && userId && (
         <PartyCreate content={content} people={people} me={me} userId={userId}
                      busy={saving} suggest={suggest} labels={labels}
-                     onCancel={() => setWriting(false)}
+                     editing={amending ?? undefined}
+                     onCancel={() => { setWriting(false); setAmending(null); }}
                      onAdd={async (p) => {
                        setSaving(true);
                        setErr(null);
-                       const r = await createParty(supabase!, userId, p);
+                       const r = amending
+                         ? await updateParty(supabase!, amending.id, p)
+                         : await createParty(supabase!, userId, p);
                        setSaving(false);
-                       if ("error" in r) { setErr(r.error); return; }
+                       // Truthiness, not the key: an update reports success as
+                       // an object with an absent error, and "error" in r is
+                       // true for a type that merely allows one.
+                       if ("error" in r && r.error) { setErr(r.error); return; }
                        setWriting(false);
+                       setAmending(null);
                        // Read it back rather than dropping the local copy in:
                        // the row that matters is the one the database kept, and
                        // it is the only one with a real id to comment against.
@@ -1061,6 +1154,11 @@ export default function PartyBoard(
           <PartyDetail party={p} def={byKey[p.contentKey]} now={now}
                        me={me} userId={userId} supabase={supabase}
                        refresh={refresh} setErr={setErr} setParties={setParties}
+                       /* Theirs to change. The policy says the same thing and
+                          is the one that counts; this decides whether the
+                          buttons are worth drawing. */
+                       onEdit={userId && p.owner === userId
+                         ? () => { setOpenId(null); setAmending(p); } : undefined}
                        onClose={() => setOpenId(null)} />
         );
       })()}

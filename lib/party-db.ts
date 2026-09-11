@@ -45,6 +45,7 @@ interface PostRow {
   roulettes: string[] | null;
   body: PartyBlock[] | null;
   created_at: string;
+  updated_at: string | null;
 }
 
 interface MemberRow {
@@ -84,7 +85,7 @@ interface CommentRow {
 const POST_COLS =
   "id, owner, owner_character_id, content_key, note, shape, starts_at,"
   + " length_minutes, length_unit, runs, one_of_each_job, closed, rules, progress,"
-  + " loot, spot, maps, roulettes, body, created_at";
+  + " loot, spot, maps, roulettes, body, created_at, updated_at";
 
 const MEMBER_COLS =
   "id, party_id, seat, character_id, name, avatar, job, jobs, flex, asked_by,"
@@ -217,6 +218,7 @@ export async function loadParties(
         : p.length_unit === "maps" ? "maps" : "food") as LengthUnit,
     ...(p.runs ? { runs: p.runs } : {}),
     ownerCharacterId: p.owner_character_id ?? -1,
+    owner: p.owner,
     seats: seatsOf.get(p.id) ?? {},
     floating: floatOf.get(p.id) ?? [],
     closed: p.closed ?? [],
@@ -232,6 +234,7 @@ export async function loadParties(
     body: p.body ?? [],
     comments: talkOf.get(p.id) ?? [],
     createdAt: p.created_at,
+    updatedAt: p.updated_at ?? undefined,
   }));
 }
 
@@ -350,6 +353,63 @@ export async function askToJoin(
   }).select("id").single();
   if (error || !data) return { error: error?.message ?? "no row" };
   return { id: String((data as { id: number }).id) };
+}
+
+/**
+ * The listing, changed.
+ *
+ * The party's own details and nothing else: who is in it is not edited through
+ * this form. A save that rewrote the roster would have to delete and recreate
+ * every row to do it, and the thing those rows carry is whether somebody said
+ * yes — which is not the lead's to retype. People join, leave and are let in
+ * through the seat controls, which is where those decisions already live.
+ *
+ * updated_at is the database's, not ours: a trigger sets it on every update, so
+ * a client with a wrong clock cannot claim a party was edited tomorrow.
+ */
+export async function updateParty(
+  supabase: SupabaseClient, partyId: string, p: Party,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_posts").update({
+    content_key: p.contentKey,
+    note: p.note ?? null,
+    shape: p.shape,
+    starts_at: p.startsAt,
+    length_minutes: p.lengthMinutes,
+    length_unit: p.lengthUnit,
+    runs: p.lengthUnit === "runs" ? (p.runs ?? null) : null,
+    one_of_each_job: !!p.oneOfEachJob,
+    closed: p.closed ?? [],
+    rules: p.rules ?? {},
+    progress: p.progress ?? null,
+    loot: p.loot ?? null,
+    spot: p.spot ?? null,
+    maps: p.maps ?? null,
+    roulettes: p.roulettes?.length ? p.roulettes : null,
+    body: p.body ?? [],
+  }).eq("id", Number(partyId));
+  return error ? { error: error.message } : {};
+}
+
+/**
+ * Taking one down.
+ *
+ * A tombstone rather than a delete, which is the opposite of what a dropped
+ * seat gets and for the opposite reason: a seat is not a record of anything
+ * once it is empty, and a party is — it has a conversation attached to it, and
+ * people who were in it. Everything that reads the board filters on this
+ * column already, so a retired party leaves the board and keeps its history.
+ *
+ * Who may is the policy's business, not ours: the owner, or an admin, because
+ * somebody has to be able to take down a listing whose author has gone quiet.
+ */
+export async function deleteParty(
+  supabase: SupabaseClient, partyId: string,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_posts")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", Number(partyId));
+  return error ? { error: error.message } : {};
 }
 
 /**

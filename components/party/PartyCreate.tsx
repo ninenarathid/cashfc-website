@@ -10,6 +10,7 @@ import {
   canFlex, endsAt, flexLabel, lengthUnitsFor, mapsToMinutes, runsToMinutes,
   defaultUnitFor,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasRoulettes, hasSpot, isFight,
+  minutesToFood,
   jobMatters,
   lootRulesFor,
   shapeLabel,
@@ -21,6 +22,7 @@ import ContentPicker from "@/components/party/ContentPicker";
 import JobRule, { jobsForRole } from "@/components/party/JobRule";
 import JobIcon from "@/components/JobIcon";
 import PartyIcon from "@/components/party/PartyIcon";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import FoodIcon from "@/components/party/FoodIcon";
 import { BodyEditor } from "@/components/party/PartyBody";
 import ProgressTrack from "@/components/party/ProgressTrack";
@@ -174,7 +176,7 @@ function FlexEditor(
 
 export default function PartyCreate(
   { content, people, me, userId, busy = false, suggest, labels, onAdd,
-    onCancel }: {
+    onCancel, editing }: {
     content: ContentDef[];
     people: PersonOption[];
     /** The creator, who takes the first seat they choose. */
@@ -189,6 +191,16 @@ export default function PartyCreate(
     labels?: string[];
     onAdd: (p: Party) => void | Promise<void>;
     onCancel: () => void;
+    /**
+     * The party being changed, where this is an edit rather than a new one.
+     *
+     * Every field starts on what it already says, the roster sections come off
+     * — who is in a party is settled through the seat controls, not by
+     * retyping the list — and the button asks before it saves, because a
+     * listing people have already read is a thing other people have made plans
+     * around.
+     */
+    editing?: Party;
   },
 ) {
   const { t } = useLang();
@@ -205,13 +217,29 @@ export default function PartyCreate(
    * was the one the whole listing is about. An empty picker asks the question
    * instead of answering it wrongly.
    */
-  const [contentKey, setContentKey] = useState("");
+  const [contentKey, setContentKey] = useState(editing?.contentKey ?? "");
   const chosen = content.find((c) => c.key === contentKey);
-  const [note, setNote] = useState("");
-  const [shape, setShape] = useState<Shape | "">("");
-  const [start, setStart] = useState(defaultStart);
-  const [unit, setUnit] = useState<LengthUnit>(DEFAULT_LENGTH.unit);
-  const [amount, setAmount] = useState(DEFAULT_LENGTH.amount);
+  const [note, setNote] = useState(editing?.note ?? "");
+  const [shape, setShape] = useState<Shape | "">(editing?.shape ?? "");
+  const [start, setStart] = useState(
+    () => (editing ? asBangkokLocal(new Date(editing.startsAt)) : defaultStart()));
+  const [unit, setUnit] = useState<LengthUnit>(
+    editing?.lengthUnit ?? DEFAULT_LENGTH.unit);
+  /*
+   * The number in whatever unit the party used.
+   *
+   * Stored as minutes, which is one number for three questions — three food is
+   * ninety minutes and so is an hour and a half, and only the unit says which
+   * one the lead meant. So it is read back through the same conversion the
+   * form writes with.
+   */
+  const [amount, setAmount] = useState(() => {
+    if (!editing) return DEFAULT_LENGTH.amount;
+    if (editing.lengthUnit === "runs") return editing.runs ?? 1;
+    if (editing.lengthUnit === "food") return minutesToFood(editing.lengthMinutes);
+    if (editing.lengthUnit === "maps") return DEFAULT_LENGTH.amount;
+    return editing.lengthMinutes / 60;
+  });
 
   /*
    * The size is the content's, unless the content does not fix one.
@@ -224,14 +252,18 @@ export default function PartyCreate(
     ? chosen.shape
     : ((shape || chosen?.shape || "full") as Shape);
 
-  const [seats, setSeats] = useState<Party["seats"]>({});
-  const [closed, setClosed] = useState<string[]>([]);
-  const [rules, setRules] = useState<Record<string, SeatRule>>({});
-  const [oneEach, setOneEach] = useState(false);
-  const [floating, setFloating] = useState<Floater[]>([]);
-  const [body, setBody] = useState<PartyBlock[]>([]);
-  const [progress, setProgress] = useState<Progress>({ at: "fresh" });
-  const [loot, setLoot] = useState<Loot>({ rule: DEFAULT_LOOT });
+  // The roster is carried through untouched so the draft still describes the
+  // whole party -- the seat grid still draws, and nothing about who is in it
+  // is rewritten by a save. See updateParty.
+  const [seats, setSeats] = useState<Party["seats"]>(editing?.seats ?? {});
+  const [closed, setClosed] = useState<string[]>(editing?.closed ?? []);
+  const [rules, setRules] = useState<Record<string, SeatRule>>(editing?.rules ?? {});
+  const [oneEach, setOneEach] = useState(!!editing?.oneOfEachJob);
+  const [floating, setFloating] = useState<Floater[]>(editing?.floating ?? []);
+  const [body, setBody] = useState<PartyBlock[]>(editing?.body ?? []);
+  const [progress, setProgress] = useState<Progress>(
+    editing?.progress ?? { at: "fresh" });
+  const [loot, setLoot] = useState<Loot>(editing?.loot ?? { rule: DEFAULT_LOOT });
 
   /*
    * A rule the new content cannot use is dropped rather than carried over.
@@ -247,19 +279,30 @@ export default function PartyCreate(
   // shows Elemental and Tonberry from the first render, and a form that
   // displays an answer it has not stored is a form that lies quietly.
   const [spot, setSpot] = useState<Spot | undefined>(
-    { map: "", dc: FC_DC, world: FC_WORLD });
-  const [maps, setMaps] = useState<MapPlan | undefined>(undefined);
-  const [roulettes, setRoulettes] = useState<string[] | undefined>(undefined);
+    editing?.spot ?? { map: "", dc: FC_DC, world: FC_WORLD });
+  const [maps, setMaps] = useState<MapPlan | undefined>(editing?.maps);
+  const [roulettes, setRoulettes] = useState<string[] | undefined>(editing?.roulettes);
   /** The person being added as a floater, before their positions are set. */
   const [adding, setAdding] = useState<Floater | null>(null);
   const [fq, setFq] = useState("");
   const [picking, setPicking] = useState<SlotDef | null>(null);
   const lastPicked = useRef<SlotDef | null>(null);
-  /** Seats whose convention has already been offered once. See below. */
-  const preset = useRef<Set<string>>(new Set());
+  /*
+   * Seats whose convention has already been offered once. See below.
+   *
+   * An edit starts with every seat in the set: whatever the rules say now is
+   * what the lead decided when they put it up, and pre-ticking over the top of
+   * that would rewrite an answer somebody already gave.
+   */
+  const preset = useRef<Set<string>>(
+    new Set(editing ? Object.keys(editing.rules ?? {}) : []));
   /** And which shape that was for, since a seat id means different things. */
-  const presetFor = useRef<Shape | "">("");
+  const presetFor = useRef<Shape | "">(editing?.shape ?? "");
   const [q, setQ] = useState("");
+  /** Whether the "save these changes?" question is on screen. */
+  const [asking, setAsking] = useState(false);
+  /** The content whose default unit has already been applied. See below. */
+  const unitFor = useRef<string | null>(editing ? editing.contentKey : null);
 
   /*
    * When everybody said they usually play.
@@ -338,6 +381,22 @@ export default function PartyCreate(
    * follows, for the same reason.
    */
   useEffect(() => {
+    /*
+     * Not over the top of an answer somebody already gave.
+     *
+     * An edit opens on the unit the party was put up with, and this effect
+     * runs on mount — so without this it would reset a two-hour ultimate to
+     * one food before the lead had touched anything.
+     *
+     * Keyed on the content rather than counted as "the first run", because
+     * there is no such thing as one run: React invokes effects twice in
+     * development, and a one-shot flag was spent on the first invocation and
+     * clobbered on the second. Changing the content while editing does move
+     * the unit, which is right — the old one may not be a unit the new
+     * content allows at all.
+     */
+    if (unitFor.current === contentKey) return;
+    unitFor.current = contentKey;
     // What this content is normally counted in, where it has an answer of its
     // own — a legacy trial in runs, a map night in maps — and hours otherwise.
     const want = defaultUnitFor(chosen?.kind);
@@ -354,7 +413,7 @@ export default function PartyCreate(
     setUnit(next);
     setAmount(DEFAULT_AMOUNT[next]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [units.join(","), chosen?.kind]);
+  }, [units.join(","), contentKey]);
 
   useEffect(() => {
     const live = new Set(slotsOf(useShape).map((sl) => sl.id));
@@ -550,11 +609,18 @@ export default function PartyCreate(
     setSeats((v) => ({ ...v, [slotId]: { ...v[slotId], flex: f } }));
   }
 
+  // The seat is asked for when a party is being put up, because a party of
+  // eight whose lead has not said what they are playing has a hole in the
+  // middle nobody can see. It is not asked again on an edit: who is in it is
+  // not what this form is changing, and a lead who never took a seat — which
+  // is a real thing leads do — would otherwise be unable to fix their own
+  // start time.
   const ready = !!chosen && !!note.trim() && !!start && !past && minutes > 0
-    && (!!mySeat || iAmFloating);
+    && (!!editing || !!mySeat || iAmFloating);
   // Which of the two is missing, so the button says why it is grey rather than
   // leaving somebody to work it out.
-  const wants = !chosen ? "pf.pickContentFirst" as const
+  const wants = editing ? null
+    : !chosen ? "pf.pickContentFirst" as const
     // The one line the whole board is read by. Twelve rows that all say
     // "AAC Heavyweight M3 (Savage)" are twelve rows nobody can tell apart, and
     // the difference between them — prog, farm, first timers welcome — is
@@ -609,7 +675,8 @@ export default function PartyCreate(
      * that opened it, and leaves the board exactly where the reader left it.
      */
     <Modal open sticky onOpenChange={(v) => { if (!v) onCancel(); }}
-           title={t("pf.new")} icon={<PartyIcon size={18} />}>
+           title={editing ? t("pf.editing") : t("pf.new")}
+           icon={<PartyIcon size={18} />}>
     <div className="flex flex-col gap-3.5">
       <ContentPicker content={content} value={contentKey}
                      onChange={(k) => { setContentKey(k); setShape(""); }} />
@@ -760,6 +827,11 @@ export default function PartyCreate(
       </div>
 
       {/* ── Who ──────────────────────────────────────────────────────────── */}
+      {/* Only when it is being written. Who is in a party is settled by the
+          people in it — asking, accepting, leaving — and a form that rewrote
+          that list on save would be the lead retyping other people's answers.
+          The seat grid is on the party itself, where those decisions are. */}
+      {!editing && (<>
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <span className="font-data text-[10px] uppercase tracking-[0.14em] text-muted">
@@ -893,6 +965,8 @@ export default function PartyCreate(
             </div>
           )}
       </div>
+
+      </>)}
 
       {/*
         * Beside the grid, not underneath it.
@@ -1053,10 +1127,16 @@ export default function PartyCreate(
       <div className="flex items-center gap-2">
         {chosen && (
           <>
+            {/* An edit is a change to something people have already read and
+                made plans around, so it asks. Putting a new one up does not:
+                nothing depends on it yet, and the listing is editable the
+                moment it exists. */}
             <button disabled={!ready || busy}
-                    onClick={() => void onAdd({ ...draft, id: "new" })}
+                    onClick={() => (editing ? setAsking(true)
+                                            : void onAdd({ ...draft, id: "new" }))}
                     className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
-              {busy ? t("pf.putting") : t("pf.putUp")}
+              {busy ? t("pf.putting")
+                    : editing ? t("pf.saveEdit") : t("pf.putUp")}
             </button>
             {wants && (
               <span className="text-[12px] text-muted">{t(wants)}</span>
@@ -1068,6 +1148,18 @@ export default function PartyCreate(
           {t("pf.cancel")}
         </button>
       </div>
+
+      {/* Above the window it is asked from. See ConfirmDialog's z. */}
+      {asking && (
+        <ConfirmDialog z={120}
+                       message={t("pf.saveAsk")}
+                       confirmLabel={t("pf.saveEdit")}
+                       onCancel={() => setAsking(false)}
+                       onConfirm={() => {
+                         setAsking(false);
+                         void onAdd({ ...draft, id: editing!.id });
+                       }} />
+      )}
     </div>
     </Modal>
   );

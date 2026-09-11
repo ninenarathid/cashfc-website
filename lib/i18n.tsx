@@ -1706,6 +1706,19 @@ const DICT = {
    * are what the FC says out loud either way.
    */
   "pf.new": { en: "New party", th: "ตั้งปาร์ตี้ใหม่" },
+  "pf.edit": { en: "Edit", th: "แก้ไข" },
+  "pf.editing": { en: "Edit party", th: "แก้ไขปาร์ตี้" },
+  "pf.saveEdit": { en: "Save changes", th: "บันทึกการแก้ไข" },
+  "pf.saveAsk": {
+    en: "Save these changes? Everybody who is in the party will see them.",
+    th: "บันทึกการแก้ไขนี้ไหม ทุกคนในปาร์ตี้จะเห็นตามที่แก้",
+  },
+  "pf.deleteParty": { en: "Delete party", th: "ลบปาร์ตี้" },
+  "pf.deleteAsk": {
+    en: "Delete this party? It comes off the board for everybody, along with what was said in it.",
+    th: "ลบปาร์ตี้นี้ไหม ปาร์ตี้จะหายไปจากบอร์ดของทุกคน พร้อมกับข้อความที่คุยกันไว้",
+  },
+  "pf.editedAt": { en: "edited {at}", th: "แก้ไขล่าสุด {at}" },
   "pf.pickContent": { en: "What are we running?", th: "จะเล่นอะไร" },
   "pf.cancel": { en: "Cancel", th: "ยกเลิก" },
   "pf.close": { en: "close", th: "ปิด" },
