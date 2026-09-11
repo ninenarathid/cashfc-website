@@ -2070,6 +2070,8 @@ const DICT = {
   "pf.commentsN": { en: "{n} comments", th: "{n} ความคิดเห็น" },
   "pf.commentOne": { en: "1 comment", th: "1 ความคิดเห็น" },
   "pf.comment": { en: "Comment", th: "ส่ง" },
+  "party.mentionAll": { en: "everyone here", th: "ทุกคนในปาร์ตี้" },
+  "party.mentionGuest": { en: "guest", th: "แขก" },
   "party.reply": { en: "Reply", th: "ตอบกลับ" },
   "party.replyingTo": { en: "Replying to", th: "ตอบกลับ" },
   "party.msgGone": { en: "Message deleted", th: "ข้อความถูกลบ" },

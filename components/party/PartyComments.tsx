@@ -13,6 +13,7 @@ import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import MessageText from "@/components/MessageText";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import MentionInput from "@/components/party/MentionInput";
 import { mentionIds, mentionsAll, withMention } from "@/lib/mentions";
 import { clips, youtubeSrc } from "@/lib/youtube";
 
@@ -478,10 +479,10 @@ export default function PartyComments(
             </button>
           </span>
         )}
-        <textarea ref={box} value={text} rows={2}
-                  onChange={(e) => setText(e.target.value.slice(0, 2000))}
-                  placeholder={t("pf.commentBox")}
-                  className="rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
+        <MentionInput boxRef={box} value={text} people={people} rows={2}
+                      onChange={(v) => setText(v.slice(0, 2000))}
+                      placeholder={t("pf.commentBox")}
+                      className="rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
         {!!shots.length && (
           <div className="flex flex-wrap gap-2">
             {shots.map((src, n) => (
