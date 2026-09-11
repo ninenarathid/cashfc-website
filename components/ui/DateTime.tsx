@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { DayPicker } from "react-day-picker";
 import { useLang } from "@/lib/i18n";
+import { Sheet, useIsPhone } from "@/components/ui/Modal";
 
 /**
  * When, on a twenty-four hour clock.
@@ -25,6 +26,11 @@ import { useLang } from "@/lib/i18n";
  * deliberate — the party is at eight in the evening Thai time whatever the
  * reader's laptop thinks the time is, and converting here would mean converting
  * back in three other places.
+ *
+ * On a phone it is a sheet rather than a popover, which is the rule the rest of
+ * this page follows. A calendar and two clock columns side by side is four
+ * hundred pixels wide; on a 360px screen the popover was pushed against the
+ * right edge with the minutes half off it, which is what a member reported.
  */
 
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
@@ -50,6 +56,10 @@ const toDay = (d: Date): string =>
  * from rather than looking like a component bolted on.
  */
 const CAL = {
+  // Positioned, because the nav buttons are absolute against it. Without this
+  // they anchor to whatever the calendar happens to be sitting inside, which
+  // on a phone put next month's arrow in the sheet's own title bar.
+  root: "relative",
   months: "flex flex-col gap-3",
   month: "flex flex-col gap-3",
   month_caption: "flex items-center justify-center h-8",
@@ -93,6 +103,7 @@ export default function DateTime(
   },
 ) {
   const { t, lang } = useLang();
+  const phone = useIsPhone();
   const [open, setOpen] = useState(false);
   const clock = useRef<HTMLDivElement>(null);
 
@@ -100,15 +111,25 @@ export default function DateTime(
    * Open on the hour that is already set.
    *
    * Twenty-four of them do not fit, and a list that opens at midnight makes
-   * somebody scroll to find where they are before they can change it. Instant
-   * rather than smooth: this happens as the popover appears, and an animation
-   * would read as the list sliding about on its own.
+   * somebody scroll to find where they are before they can change it.
+   *
+   * By hand rather than with scrollIntoView, which scrolls every scrollable
+   * ancestor as well: inside the phone sheet that scrolled the sheet itself,
+   * taking the calendar's month and its arrows off the top of the screen to
+   * centre an hour that was already going to be visible.
    */
   useEffect(() => {
     if (!open) return;
     const id = requestAnimationFrame(() => {
-      clock.current?.querySelectorAll('[aria-selected="true"]').forEach((el) => {
-        el.scrollIntoView({ block: "center" });
+      clock.current?.querySelectorAll('[role="listbox"]').forEach((list) => {
+        const on = list.querySelector<HTMLElement>('[aria-selected="true"]');
+        if (!on) return;
+        // From where the two actually are on the screen, rather than from
+        // offsetTop, which is measured against the nearest positioned ancestor
+        // and that is the calendar rather than this list.
+        const a = on.getBoundingClientRect();
+        const b = list.getBoundingClientRect();
+        list.scrollTop += (a.top - b.top) - (b.height - a.height) / 2;
       });
     });
     return () => cancelAnimationFrame(id);
@@ -147,23 +168,88 @@ export default function DateTime(
     + ` transition-colors ${on ? "bg-accent/20 text-accent font-semibold"
                                : "text-muted hover:bg-surface hover:text-ink"}`;
 
+  /*
+   * The same calendar and the same two columns either way.
+   *
+   * In a row where there is width for one and stacked where there is not: the
+   * phone gets the calendar at full width with the clock under it, rather than
+   * a narrower copy of the desktop arrangement squeezed sideways.
+   */
+  const body = (
+    <div className={`flex gap-3 ${phone ? "flex-col items-center" : ""}`}>
+      <DayPicker mode="single" selected={selected} defaultMonth={selected}
+                 disabled={floor ? { before: floor } : undefined}
+                 showOutsideDays
+                 onSelect={(d) => { if (d) set({ day: toDay(d) }); }}
+                 classNames={CAL} />
+
+      {/* The clock, as two lists. A twenty-four hour column is the whole point
+          of the control, and it is a column rather than a spinner because
+          picking 21 from a list is one press and typing it is four. */}
+      <div className={`flex flex-col gap-1.5 ${
+        phone ? "w-full border-t border-line pt-3" : "border-l border-line pl-3"}`}>
+        <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
+          {t("pf.timeOfDay")}
+        </span>
+        <div ref={clock} className={`flex gap-1 ${phone ? "justify-center" : ""}`}>
+          <div className={col} role="listbox" aria-label={t("pf.hour")}>
+            {HOURS.map((h) => (
+              <button key={h} type="button" role="option" aria-selected={h === hh}
+                      onClick={() => set({ hh: h })} className={tick(h === hh)}>
+                {h}
+              </button>
+            ))}
+          </div>
+          <div className={col} role="listbox" aria-label={t("pf.minute")}>
+            {MINUTES.map((m) => (
+              <button key={m} type="button" role="option" aria-selected={m === mm}
+                      onClick={() => set({ mm: m })} className={tick(m === mm)}>
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button type="button" onClick={() => setOpen(false)}
+                className={`mt-1 rounded-lg border border-accent/60 bg-accent/10 text-[12.5px] text-accent transition-colors hover:bg-accent/20 ${
+                  phone ? "w-full py-2.5" : "px-3 py-1"}`}>
+          {t("pf.done")}
+        </button>
+      </div>
+    </div>
+  );
+
+  const trigger = (
+    <button type="button" onClick={phone ? () => setOpen(true) : undefined}
+            className={`flex items-center gap-2 rounded-lg border bg-surface px-3 py-2 text-left text-[13.5px] text-ink transition-colors hover:border-muted ${
+              invalid ? "border-chili/60" : "border-line"} ${className}`}>
+      {/* A calendar leaf, drawn rather than fetched: this is the site's own
+          furniture, not the game's, and every other icon here is a duty badge
+          that would be wrong on a date. */}
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden
+           stroke="currentColor" strokeWidth="1.8" className="shrink-0 text-muted">
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M3 10h18M8 3v4M16 3v4" />
+      </svg>
+      {label}
+    </button>
+  );
+
+  // A sheet on a phone, which is where the rest of this page puts a step.
+  if (phone) {
+    return (
+      <>
+        {trigger}
+        <Sheet open={open} onOpenChange={setOpen}
+               title={t("pf.starts")} subtitle={label}>
+          {body}
+        </Sheet>
+      </>
+    );
+  }
+
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <button type="button"
-                className={`flex items-center gap-2 rounded-lg border bg-surface px-3 py-2 text-left text-[13.5px] text-ink transition-colors hover:border-muted ${
-                  invalid ? "border-chili/60" : "border-line"} ${className}`}>
-          {/* A calendar leaf, drawn rather than fetched: this is the site's own
-              furniture, not the game's, and every other icon here is a duty
-              badge that would be wrong on a date. */}
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden
-               stroke="currentColor" strokeWidth="1.8" className="shrink-0 text-muted">
-            <rect x="3" y="5" width="18" height="16" rx="2" />
-            <path d="M3 10h18M8 3v4M16 3v4" />
-          </svg>
-          {label}
-        </button>
-      </Popover.Trigger>
+      <Popover.Trigger asChild>{trigger}</Popover.Trigger>
 
       <Popover.Portal>
         {/*
@@ -171,47 +257,9 @@ export default function DateTime(
           * and Radix stacks its layers for dismissal but not visually — a
           * popover at the page's z-index would open behind the dialog.
           */}
-        <Popover.Content align="start" sideOffset={6}
-                         className="z-[95] flex gap-3 rounded-xl border border-line bg-surface p-3 shadow-2xl shadow-black/60">
-          <div className="relative">
-            <DayPicker mode="single" selected={selected} defaultMonth={selected}
-                       disabled={floor ? { before: floor } : undefined}
-                       showOutsideDays
-                       onSelect={(d) => { if (d) set({ day: toDay(d) }); }}
-                       classNames={CAL} />
-          </div>
-
-          {/* The clock, as two lists. A twenty-four hour column is the whole
-              point of the control, and it is a column rather than a spinner
-              because picking 21 from a list is one press and typing it is
-              four. */}
-          <div className="flex flex-col gap-1.5 border-l border-line pl-3">
-            <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
-              {t("pf.timeOfDay")}
-            </span>
-            <div ref={clock} className="flex gap-1">
-              <div className={col} role="listbox" aria-label={t("pf.hour")}>
-                {HOURS.map((h) => (
-                  <button key={h} type="button" role="option" aria-selected={h === hh}
-                          onClick={() => set({ hh: h })} className={tick(h === hh)}>
-                    {h}
-                  </button>
-                ))}
-              </div>
-              <div className={col} role="listbox" aria-label={t("pf.minute")}>
-                {MINUTES.map((m) => (
-                  <button key={m} type="button" role="option" aria-selected={m === mm}
-                          onClick={() => set({ mm: m })} className={tick(m === mm)}>
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <button type="button" onClick={() => setOpen(false)}
-                    className="mt-1 rounded-lg border border-accent/60 bg-accent/10 px-3 py-1 text-[12.5px] text-accent transition-colors hover:bg-accent/20">
-              {t("pf.done")}
-            </button>
-          </div>
+        <Popover.Content align="start" sideOffset={6} collisionPadding={12}
+                         className="z-[95] max-w-[calc(100vw-1.5rem)] rounded-xl border border-line bg-surface p-3 shadow-2xl shadow-black/60">
+          {body}
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
