@@ -359,7 +359,24 @@ export default function PartyCreate(
   // floor captured when the form opened would let a slow form-filler set a
   // time that had quietly become the past.
   const min = earliest();
-  const past = !!start && start < min;
+  /*
+   * On an edit, the floor is whatever the listing already says.
+   *
+   * A party that has already started is not a typo, it is a party — and the
+   * form was treating the two the same, so a lead who came in at half past to
+   * fix the loot rule or add a note was told to pick a later time first. The
+   * only way to save anything was to move the start, which is the one field
+   * they had not come to change and the one everybody else had made plans
+   * around.
+   *
+   * Going earlier than it already starts is still a typo, and still refused.
+   * What is allowed is leaving it where it is.
+   */
+  const wasStart = editing ? asBangkokLocal(new Date(editing.startsAt)) : "";
+  const floor = editing && wasStart && wasStart < min ? wasStart : min;
+  const past = !!start && start < floor;
+  /** Under way already, which is a thing to say rather than a thing to stop. */
+  const running = !past && !!start && start < min;
 
   /*
    * Seats that no longer exist.
@@ -827,7 +844,7 @@ export default function PartyCreate(
           <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
             {t("pf.starts")}
           </span>
-          <DateTime value={start} min={min} invalid={past} onChange={setStart} />
+          <DateTime value={start} min={floor} invalid={past} onChange={setStart} />
         </label>
 
         <label className="flex flex-col gap-1">
@@ -879,6 +896,9 @@ export default function PartyCreate(
 
         <p className={`pb-2 text-[13.5px] ${past ? "text-chili" : "text-muted"}`}>
           {past ? t("pf.past")
+            // Said plainly, not in red: it is already true, and the lead is
+            // here to change something else.
+            : running ? t("pf.alreadyStarted")
             : useUnit === "maps"
               // No end time, for the same reason a run count has none — and
               // the sentence beside the control has already said it.

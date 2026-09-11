@@ -2045,6 +2045,12 @@ const DICT = {
     en: "That is already past — pick a later time.",
     th: "เวลานี้ผ่านไปแล้ว เลือกเวลาข้างหน้า",
   },
+  // Not a complaint. The party started, the lead is editing something else,
+  // and the form is only saying it knows.
+  "pf.alreadyStarted": {
+    en: "This party has already started. Saving will not move it.",
+    th: "ปาร์ตี้นี้เริ่มไปแล้ว บันทึกได้โดยไม่ต้องเปลี่ยนเวลา",
+  },
   "pf.playing": { en: "Playing", th: "เล่น" },
   "pf.takeOut": { en: "Take them out of this seat", th: "เอาออกจากตำแหน่งนี้" },
   "pf.thatIsMe": { en: "That is me", th: "ตรงนี้คือคุณ" },
