@@ -494,6 +494,10 @@ const DICT = {
     en: "A party you are in starts within the hour.",
     th: "ปาร์ตี้ที่คุณอยู่กำลังจะเริ่มในอีกไม่ถึงชั่วโมง",
   },
+  "notif.partyMention": {
+    en: "{who} mentioned you in a party.",
+    th: "{who} พูดถึงคุณในปาร์ตี้",
+  },
   "notif.partyTalk": {
     en: "{who} said something in a party you are in.",
     th: "{who} ส่งข้อความในปาร์ตี้ที่คุณอยู่",
@@ -2066,6 +2070,8 @@ const DICT = {
   "pf.commentsN": { en: "{n} comments", th: "{n} ความคิดเห็น" },
   "pf.commentOne": { en: "1 comment", th: "1 ความคิดเห็น" },
   "pf.comment": { en: "Comment", th: "ส่ง" },
+  "party.reply": { en: "Reply", th: "ตอบกลับ" },
+  "party.replyingTo": { en: "Replying to", th: "ตอบกลับ" },
   "party.msgGone": { en: "Message deleted", th: "ข้อความถูกลบ" },
   "party.msgEdited": { en: "edited {at}", th: "แก้ไข {at}" },
   "party.msgDeleteAsk": {

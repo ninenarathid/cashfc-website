@@ -112,11 +112,13 @@ const EMPTY = {
  * and is the whole reason the address carries an id.
  */
 function PartyDetail(
-  { party, def, now, me, userId, supabase, refresh, setErr, setParties, onClose,
-    onEdit }: {
+  { party, def, now, people, me, userId, supabase, refresh, setErr, setParties,
+    onClose, onEdit }: {
     party: Party;
     def: ContentDef | undefined;
     now: number;
+    /** The roster, for reading names out of what people say to each other. */
+    people: PersonOption[];
     me: PersonOption | null;
     userId: string | null;
     supabase: ReturnType<typeof createClient>;
@@ -320,7 +322,7 @@ function PartyDetail(
             )}
           </p>
 
-          <PartyComments comments={party.comments ?? []} me={me}
+          <PartyComments comments={party.comments ?? []} people={people} me={me}
                          userId={userId}
                          onReact={(cid, emoji, on, who) =>
                            // Shown at once; the write and the
@@ -357,6 +359,8 @@ function PartyDetail(
                              avatar: c.author.avatar,
                              text: c.text,
                              images: c.images ?? [],
+                             mentions: c.mentions,
+                             replyTo: c.replyTo,
                            });
                            if ("error" in r) { setErr(r.error); void refresh(); }
                          }}
@@ -1215,7 +1219,7 @@ export default function PartyBoard(
         if (!p) return null;
         return (
           <PartyDetail party={p} def={byKey[p.contentKey]} now={now}
-                       me={me} userId={userId} supabase={supabase}
+                       people={people} me={me} userId={userId} supabase={supabase}
                        refresh={refresh} setErr={setErr} setParties={setParties}
                        /* Theirs to change. The policy says the same thing and
                           is the one that counts; this decides whether the

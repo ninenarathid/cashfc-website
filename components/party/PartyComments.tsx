@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { PartyComment } from "@/lib/party";
 import { REACTIONS, blockId, sameSpeaker } from "@/lib/party";
 import type { PersonOption } from "@/lib/people";
@@ -11,8 +11,9 @@ import { useDropTarget } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
 import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
-import Linkify from "@/components/Linkify";
+import MessageText from "@/components/MessageText";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { mentionIds, withMention } from "@/lib/mentions";
 import { clips, youtubeSrc } from "@/lib/youtube";
 
 /**
@@ -28,8 +29,16 @@ import { clips, youtubeSrc } from "@/lib/youtube";
  * this spot?" is a screenshot, not a sentence.
  */
 export default function PartyComments(
-  { comments, me, userId, onAdd, onReact, onEdit, onDrop }: {
+  { comments, people, me, userId, onAdd, onReact, onEdit, onDrop }: {
     comments: PartyComment[];
+    /**
+     * The roster, for reading names out of a message.
+     *
+     * Most of the FC is called two words, so "@ followed by a word" would tag
+     * half of "@Aqua Eleison" and miss the rest — which name was meant is a
+     * question only the roster can answer.
+     */
+    people: PersonOption[];
     /** Whoever is reading, or null if nobody is signed in. */
     me: PersonOption | null;
     /** Their account, which the pictures are filed under. */
@@ -61,6 +70,23 @@ export default function PartyComments(
   const [fixing, setFixing] = useState<{ id: string; text: string } | null>(null);
   /** The message somebody is being asked about before it goes. */
   const [dropping, setDropping] = useState<string | null>(null);
+  /**
+   * The message being answered, where one is.
+   *
+   * Kept beside the draft rather than written into it: "@Aqua" in the text is
+   * who is being told, and this is which line is being answered. Three
+   * exchanges deep those are different questions — "no, the other one" needs
+   * the second and says nothing with only the first.
+   */
+  const [answering, setAnswering] = useState<PartyComment | null>(null);
+  const box = useRef<HTMLTextAreaElement>(null);
+
+  /** Reply: their name in the box, their message quoted above it. */
+  const reply = (c: PartyComment) => {
+    setAnswering(c);
+    setText((v) => withMention(v, c.author.name));
+    box.current?.focus();
+  };
   /**
    * Which message has its emoji row open.
    *
@@ -106,6 +132,9 @@ export default function PartyComments(
     void toggleReaction(supabase, userId, c.id, emoji, who, mine);
   };
 
+  /** By id, for the line a reply quotes. */
+  const byId = new Map(comments.map((c) => [c.id, c]));
+
   const send = () => {
     if (!text.trim() && !shots.length) return;
     void onAdd({
@@ -118,9 +147,14 @@ export default function PartyComments(
       text: text.trim(),
       images: shots.length ? shots : undefined,
       at: new Date().toISOString(),
+      // Worked out here rather than on the way in, so what was highlighted and
+      // who was told come from one reading of the same text.
+      mentions: mentionIds(text.trim(), people),
+      replyTo: answering?.id ?? null,
     });
     setText("");
     setShots([]);
+    setAnswering(null);
   };
 
   return (
@@ -217,6 +251,29 @@ export default function PartyComments(
                   </span>
                 )}
                 {/*
+                  * What this answers, above what it says.
+                  *
+                  * One line of it, because the thing being quoted is two
+                  * inches up the screen — this is here to say which of the
+                  * four messages up there, not to reprint one. A reply to
+                  * something since deleted still shows the tombstone's line,
+                  * which is what keeps "no, the other one" readable.
+                  */}
+                {c.replyTo && (() => {
+                  const to = byId.get(c.replyTo);
+                  if (!to) return null;
+                  return (
+                    <span className={`flex min-w-0 items-center gap-1.5 border-l-2 border-accent/40 pl-2 text-[11.5px] text-muted ${
+                      mine ? "self-end" : ""}`}>
+                      <span className="shrink-0 text-accent/80">{to.author.name}</span>
+                      <span className="truncate opacity-80">
+                        {to.deletedAt ? t("party.msgGone") : to.text || "🖼"}
+                      </span>
+                    </span>
+                  );
+                })()}
+
+                {/*
                   * Taken back.
                   *
                   * The line stays where it was, because the replies under it
@@ -257,7 +314,7 @@ export default function PartyComments(
                 ) : c.text ? (
                   <p className={`whitespace-pre-wrap break-words text-[13px] leading-relaxed text-ink/85 ${
                     mine ? "text-right" : ""}`}>
-                    <Linkify text={c.text} />
+                    <MessageText text={c.text} people={people} />
                   </p>
                 ) : null}
                 {/*
@@ -343,11 +400,23 @@ export default function PartyComments(
                          a desktop until the message is hovered; always there
                          on a touch screen, where waiting for a hover that
                          never comes means the button does not exist. */
-                      <button type="button" aria-label={t("pf.react")}
-                              onClick={() => setPicking(c.id)}
-                              className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none opacity-0 shadow-sm transition-opacity hover:opacity-100 focus-visible:opacity-100 group-hover/msg:opacity-100 max-sm:opacity-60">
-                        ☺
-                      </button>
+                      <span className="flex items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 hover:opacity-100 group-hover/msg:opacity-100 max-sm:opacity-60">
+                        <button type="button" aria-label={t("pf.react")}
+                                onClick={() => setPicking(c.id)}
+                                className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none shadow-sm">
+                          ☺
+                        </button>
+                        {/* Answering this one in particular: their name goes
+                            in the box and the message is quoted above the
+                            reply, so three exchanges later "no, the other
+                            one" still says which. */}
+                        <button type="button" aria-label={t("party.reply")}
+                                title={t("party.reply")}
+                                onClick={() => reply(c)}
+                                className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none shadow-sm hover:border-accent hover:text-accent">
+                          ↩
+                        </button>
+                      </span>
                     )}
                   </span>
                 )}
@@ -391,7 +460,24 @@ export default function PartyComments(
       <div {...handlers}
            className={`flex flex-col gap-2 rounded-lg border p-2.5 transition-colors ${
              over ? "border-accent bg-accent/5" : "border-line bg-bg/40"}`}>
-        <textarea value={text} rows={2}
+        {/* What is being answered, above the box it is answered in — so
+            the reply is visibly attached to something before it is sent,
+            rather than turning out to have been when it appears. */}
+        {answering && (
+          <span className="flex min-w-0 items-center gap-2 rounded-lg border-l-2 border-accent/50 bg-surface/60 px-2 py-1 text-[11.5px] text-muted">
+            <span className="shrink-0 text-accent/80">{t("party.replyingTo")}</span>
+            <span className="shrink-0 text-ink/80">{answering.author.name}</span>
+            <span className="truncate opacity-80">
+              {answering.deletedAt ? t("party.msgGone") : answering.text || "🖼"}
+            </span>
+            <button type="button" aria-label={t("pf.cancel")}
+                    onClick={() => setAnswering(null)}
+                    className="ml-auto shrink-0 text-muted hover:text-ink">
+              ✕
+            </button>
+          </span>
+        )}
+        <textarea ref={box} value={text} rows={2}
                   onChange={(e) => setText(e.target.value.slice(0, 2000))}
                   placeholder={t("pf.commentBox")}
                   className="rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />

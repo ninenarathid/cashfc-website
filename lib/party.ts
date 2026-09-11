@@ -1652,6 +1652,17 @@ export interface PartyComment {
    * its shape and the line says what happened to it. Nothing else of it
    * survives — the database blanks the body on the way out.
    */
+  /**
+   * The characters named in it with an @.
+   *
+   * Kept rather than parsed on the way out: who is on the roster changes, and
+   * a message means what it meant when it was written. It is also what decides
+   * who is told — being named is a question addressed to somebody, and the
+   * notification for it is not the same as "somebody spoke".
+   */
+  mentions?: number[];
+  /** The message this one answers, where it answers one. */
+  replyTo?: string | null;
   deletedAt?: string | null;
   /**
    * Last changed, where it has been.
