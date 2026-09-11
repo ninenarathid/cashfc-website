@@ -2145,9 +2145,12 @@ const DICT = {
     en: "Message everybody in this party…",
     th: "ส่งข้อความหาสมาชิก Party นี้…",
   },
+  // Paste named first: Shift+PrintScreen puts a screenshot on the clipboard
+  // and nowhere else, so pasting is the short way and dragging is the one
+  // that needs the file saved out first.
   "pf.orDropShot": {
-    en: "or drop a screenshot in here",
-    th: "หรือลากรูปมาวางตรงนี้",
+    en: "paste a screenshot (Ctrl+V) or drop one in here",
+    th: "วางรูปได้เลย (Ctrl+V) หรือลากรูปมาวางตรงนี้",
   },
 
   /* ── The tell button ───────────────────────────────────────────────

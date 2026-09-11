@@ -7,7 +7,7 @@ import type { PersonOption } from "@/lib/people";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import ImageLightbox from "@/components/ui/ImageLightbox";
-import { useDropTarget } from "@/components/ui/DropZone";
+import { useDropTarget, usePasteImages } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
 import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
@@ -187,6 +187,20 @@ export default function PartyComments(
     }
   };
   const { over, handlers } = useDropTarget({ onFiles: take });
+
+  /*
+   * And pasted, which is how a screenshot actually arrives.
+   *
+   * Shift+PrintScreen puts the picture on the clipboard and nowhere else, so
+   * dragging it in means saving it to disk first to drag the file back out
+   * again — two steps around a keystroke that was already holding the thing.
+   *
+   * Scoped to this box. The listing form can be open over the party it is
+   * editing, and both have somewhere to put a picture; without a scope one
+   * screenshot would land in the message and in the write-up at once.
+   */
+  const pad = useRef<HTMLDivElement>(null);
+  usePasteImages(take, true, pad);
 
   /*
    * Put one on, or take it off.
@@ -553,7 +567,7 @@ export default function PartyComments(
 
       {/* Writing one. Dropping a picture anywhere on the box attaches it, which
           is where somebody's cursor already is when they have the screenshot. */}
-      <div {...handlers}
+      <div {...handlers} ref={pad}
            className={`flex flex-col gap-2 rounded-lg border p-2.5 transition-colors ${
              over ? "border-accent bg-accent/5" : "border-line bg-bg/40"}`}>
         {/* What is being answered, above the box it is answered in — so
