@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import type { PersonOption } from "@/lib/people";
 import { EVERYONE } from "@/lib/mentions";
 import { useLang } from "@/lib/i18n";
+import { useAvatarOverrides } from "@/lib/avatars";
 
 /**
  * A message box that finishes names for you.
@@ -47,6 +48,17 @@ export default function MentionInput(
            "value" | "onChange" | "ref">,
 ) {
   const { t } = useLang();
+  /*
+   * The face they are wearing, not the one the roster last saw.
+   *
+   * Somebody who has set their own picture is that picture everywhere else on
+   * this site — the member board, the seat grid, the messages two inches above
+   * this list. A picker showing their Lodestone portrait instead would be the
+   * one place that disagreed about what somebody looks like.
+   */
+  const overrides = useAvatarOverrides();
+  const face = (id: number | null, fallback: string | null) =>
+    (id != null && overrides[id]) || fallback || null;
   const own = useRef<HTMLTextAreaElement>(null);
   const box = boxRef ?? own;
   /** Where the "@" is, and what has been typed after it. */
@@ -155,12 +167,14 @@ export default function MentionInput(
                   <span className="grid size-6 shrink-0 place-items-center rounded-full bg-gold/20 text-[11px] text-gold">
                     @
                   </span>
-                ) : h.avatar ? (
+                ) : face(h.id, h.avatar) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={h.avatar} alt="" width={24} height={24}
+                  <img src={face(h.id, h.avatar)!} alt="" width={24} height={24}
                        className="size-6 shrink-0 rounded-full border border-line object-cover" />
                 ) : (
-                  <span className="size-6 shrink-0 rounded-full border border-line" />
+                  /* Nobody the site has a picture of at all. Dashed, the same
+                     mark the seat grid puts on somebody from outside it. */
+                  <span className="size-6 shrink-0 rounded-full border border-dashed border-line" />
                 )}
                 <span className="truncate">{h.name}</span>
                 {h.id == null && (
