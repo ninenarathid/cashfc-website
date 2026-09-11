@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 51,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -24,7 +24,7 @@
    "Queen Eternal"
   ],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-11"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -434,7 +434,6 @@
    3766,
    3767,
    3768,
-   3769,
    3770,
    3771,
    3772,
@@ -444,6 +443,7 @@
    3796,
    3797,
    3798,
+   3799,
    3800,
    3801,
    3823,
@@ -669,7 +669,6 @@
    3765,
    3766,
    3767,
-   3768,
    3770,
    3771,
    3778,
@@ -698,6 +697,7 @@
    3862,
    3868,
    3869,
+   3877,
    3878,
    3879,
    3880,
@@ -990,7 +990,7 @@
   "mounts": 146,
   "minions": 242,
   "rare": null,
-  "level": 31,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1019,7 +1019,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-09"
+  "chg": "2026-09-11"
  },
  "31236337": {
   "name": "Whitefrost Marionette",
@@ -2230,7 +2230,7 @@
   "mounts": 99,
   "minions": 210,
   "rare": 76,
-  "level": 23,
+  "level": 41,
   "cc": [
    true,
    true,
@@ -2342,7 +2342,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 20,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2369,7 +2369,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -2791,11 +2791,11 @@
    3770,
    3771,
    3772,
+   3793,
    3794,
    3795,
    3796,
    3797,
-   3798,
    3811,
    3818,
    3819,
@@ -3206,7 +3206,7 @@
   "mounts": 129,
   "minions": 246,
   "rare": 80,
-  "level": 38,
+  "level": 39,
   "cc": [
    true,
    true,
@@ -3314,7 +3314,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "26268800": {
   "name": "Mono Sodium",
@@ -4033,8 +4033,8 @@
   "parse": 1,
   "ult": 0,
   "mounts": 173,
-  "minions": 415,
-  "rare": 424,
+  "minions": 416,
+  "rare": 428,
   "level": 23,
   "cc": [
    false,
@@ -4057,7 +4057,6 @@
    552,
    553,
    607,
-   1342,
    1343,
    1344,
    1345,
@@ -4068,7 +4067,6 @@
    1352,
    1381,
    1382,
-   1727,
    1859,
    1860,
    1861,
@@ -4125,7 +4123,6 @@
    2946,
    2947,
    2948,
-   2949,
    2951,
    3260,
    3480,
@@ -4143,7 +4140,10 @@
    3547,
    3714,
    3951,
-   3964
+   3964,
+   4023,
+   4024,
+   4028
   ],
   "tiers": {
    "gatherer": "expert",
@@ -4157,7 +4157,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -4650,7 +4650,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 49,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -4686,6 +4686,7 @@
    3703,
    3726,
    3729,
+   3757,
    3758,
    3778,
    3784,
@@ -4695,7 +4696,6 @@
    3846,
    3847,
    3848,
-   3849,
    3850,
    3851,
    3852,
@@ -4960,7 +4960,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 76,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -4975,7 +4975,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -5220,7 +5220,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 19,
   "cc": [
    false,
    false,
@@ -5342,7 +5342,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -5770,7 +5770,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 94,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6486,7 +6486,7 @@
   "mounts": 194,
   "minions": 418,
   "rare": 234,
-  "level": 100,
+  "level": 41,
   "cc": [
    false,
    false,
@@ -6611,16 +6611,16 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "46243891": {
   "name": "Marin Elysium",
   "parse": 29,
   "ult": 0,
   "mounts": 67,
-  "minions": 100,
-  "rare": 36,
-  "level": 100,
+  "minions": 101,
+  "rare": 41,
+  "level": 40,
   "cc": [
    false,
    false,
@@ -6653,18 +6653,23 @@
    3832,
    3849,
    3851,
+   3854,
    3867,
    3874,
    3875,
    3956,
    3958,
+   3961,
    4023,
    4024,
    4025,
+   4026,
    4028,
    4029,
    4030,
-   4033
+   4031,
+   4033,
+   4043
   ],
   "tiers": {},
   "jobs": {},
@@ -6675,7 +6680,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7160,7 +7165,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 87,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7205,7 +7210,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7336,7 +7341,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 34,
+  "level": 46,
   "cc": [
    true,
    true,
@@ -7367,7 +7372,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-11"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -8496,7 +8501,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 62,
+  "level": 63,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -16433,7 +16438,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -16446,7 +16451,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-11"
  },
  "47423083": {
   "name": "Yueying Hua",
@@ -16710,7 +16715,8 @@
   "jobs": {
    "Ninja": "master",
    "Viper": "expert",
-   "WhiteMage": "master"
+   "WhiteMage": "master",
+   "Reaper": "expert"
   },
   "ex": [
    "Valigarmanda"
