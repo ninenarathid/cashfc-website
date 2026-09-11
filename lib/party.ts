@@ -85,6 +85,39 @@ export function slotsOf(shape: Shape): SlotDef[] {
     FULL.map(([label, role]) => ({ id: `${wing}-${label}`, label, role, wing })));
 }
 
+/**
+ * Whether a party could be this shape without losing anybody.
+ *
+ * Asked when a listing is being changed rather than written. A party of eight
+ * with six people in it cannot become a party of four — two of them would have
+ * nowhere to be — and that is not something to discover after saving. The same
+ * goes the other way for an alliance: twenty-four people do not fit in eight.
+ *
+ * Two conditions, and the first is the one that is easy to miss. Everybody
+ * already sitting has to still have their chair: an eight-man's seats are MT
+ * and H1, an alliance's are A-MT and A-H1, and a light party's are Tank and
+ * Heal — so "the new shape is bigger" is not enough, because the bigger shape
+ * may not contain a single seat anybody is currently in. Then the count: the
+ * seats left over have to hold whoever is still standing between them.
+ *
+ * A party with no seats holds everybody, so it is a fit only if nobody is
+ * sitting — there would be no seat left to sit in.
+ *
+ * What this permits is the thing people actually want: changing an extreme to
+ * a savage tier, which is eight people either way.
+ */
+export function shapeFits(
+  shape: Shape,
+  seats: Record<string, unknown>,
+  floating: readonly unknown[] = [],
+): boolean {
+  const ids = new Set(slotsOf(shape).map((s) => s.id));
+  const sitting = Object.keys(seats);
+  if (!ids.size) return sitting.length === 0;
+  if (sitting.some((id) => !ids.has(id))) return false;
+  return ids.size >= sitting.length + floating.length;
+}
+
 export const SHAPE_SIZE: Record<Shape, number> = {
   light: 4, full: 8, eight: 8, alliance: 24, open: 0,
 };

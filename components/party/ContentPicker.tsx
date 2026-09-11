@@ -34,10 +34,20 @@ import { useLang } from "@/lib/i18n";
  * over it.
  */
 export default function ContentPicker(
-  { content, value, onChange }: {
+  { content, value, onChange, allow }: {
     content: ContentDef[];
     value: string;
     onChange: (key: string) => void;
+    /**
+     * Which of them this party could actually become.
+     *
+     * Given only when a listing is being changed: a party of eight with six
+     * people in it cannot become a four-player dungeon, and a card that lets
+     * somebody pick one is a card that loses two of them. Dimmed rather than
+     * hidden, because "why is the dungeon not here" is a worse question than
+     * "why can I not pick it".
+     */
+    allow?: (c: ContentDef) => boolean;
   },
 ) {
   const { t } = useLang();
@@ -183,8 +193,10 @@ export default function ContentPicker(
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((c) => {
           const on = c.key === value;
+          const shut = !!allow && !allow(c);
           return (
-            <button key={c.key} type="button"
+            <button key={c.key} type="button" disabled={shut}
+                    title={shut ? t("pf.wontFit") : undefined}
                     onClick={() => { onChange(c.key); setOpen(false); }}
                     style={{
                       // The still goes on as a background, so a fight whose
@@ -195,7 +207,8 @@ export default function ContentPicker(
                       borderColor: on ? KIND_COLOR[c.kind] : undefined,
                     }}
                     className={`group relative flex h-[124px] items-end overflow-hidden rounded-xl border-2 bg-card bg-cover text-left transition-colors ${
-                      on ? "ring-2" : "border-line hover:border-muted"}`}>
+                      shut ? "cursor-not-allowed border-line opacity-30"
+                        : on ? "ring-2" : "border-line hover:border-muted"}`}>
               {/* A gradient off the floor of the card, so the name is readable
                   over whatever the screenshot happens to be doing there. */}
               <span aria-hidden
@@ -216,6 +229,14 @@ export default function ContentPicker(
               {c.badge && (
                 <span className="absolute left-2 top-2 z-[1] rounded-md border border-line/70 bg-bg/80 px-2 py-[2px] font-data text-[12px] font-bold text-ink/90">
                   {c.badge}
+                </span>
+              )}
+
+              {/* Said on the card, because a greyed-out one with no reason
+                  on it reads as broken rather than as refused. */}
+              {shut && (
+                <span className="absolute inset-x-2 top-1/2 z-[1] -translate-y-1/2 rounded-md bg-bg/85 px-2 py-1 text-center text-[11.5px] text-ink">
+                  {t("pf.wontFit")}
                 </span>
               )}
 

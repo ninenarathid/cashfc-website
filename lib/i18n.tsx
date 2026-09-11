@@ -1707,6 +1707,16 @@ const DICT = {
    */
   "pf.new": { en: "New party", th: "ตั้งปาร์ตี้ใหม่" },
   "pf.edit": { en: "Edit", th: "แก้ไข" },
+  /* Said on a content card and on the size control, both of which are refused
+     for the same reason: the people already in this party would not fit. */
+  "pf.wontFit": {
+    en: "Too small for who is already in",
+    th: "คนในปาร์ตี้ตอนนี้ไม่พอดีกับขนาดนี้",
+  },
+  "pf.sizeLocked": {
+    en: "The size cannot change with people in the party — put up a new one instead.",
+    th: "เปลี่ยนขนาดปาร์ตี้ไม่ได้เมื่อมีคนอยู่แล้ว ถ้าต้องการขนาดอื่นให้ตั้งปาร์ตี้ใหม่",
+  },
   "pf.editing": { en: "Edit party", th: "แก้ไขปาร์ตี้" },
   "pf.saveEdit": { en: "Save changes", th: "บันทึกการแก้ไข" },
   "pf.saveAsk": {

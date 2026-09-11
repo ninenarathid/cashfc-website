@@ -13,6 +13,7 @@ import {
   minutesToFood,
   jobMatters,
   lootRulesFor,
+  shapeFits,
   shapeLabel,
   slotsOf, whoKey,
 } from "@/lib/party";
@@ -630,6 +631,18 @@ export default function PartyCreate(
   const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[13.5px] text-ink";
 
   /*
+   * What this party could still be, once it has people in it.
+   *
+   * Only a question for an edit. A new party has nobody in it yet, so every
+   * size is open and every content is pickable — which is why this is measured
+   * against the listing as it stands rather than against the draft: the draft's
+   * seats are the ones being drawn, and they move as the shape does.
+   */
+  const fits = (s: Shape) =>
+    !editing || shapeFits(s, editing.seats, editing.floating ?? []);
+  const fitsContent = (c: ContentDef) => !c.fixedShape || fits(c.shape);
+
+  /*
    * Picked is added.
    *
    * There was a Done button here, and a Cancel beside it, for a step that was
@@ -678,7 +691,16 @@ export default function PartyCreate(
            title={editing ? t("pf.editing") : t("pf.new")}
            icon={<PartyIcon size={18} />}>
     <div className="flex flex-col gap-3.5">
+      {/*
+        * While editing, only the fights this party could actually become.
+        *
+        * Changing an extreme to a savage tier is eight people either way and
+        * is the thing people want. Changing it to a four-player dungeon is
+        * two of them with nowhere to be, and finding that out after saving is
+        * finding out too late.
+        */}
       <ContentPicker content={content} value={contentKey}
+                     allow={editing ? fitsContent : undefined}
                      onChange={(k) => { setContentKey(k); setShape(""); }} />
 
       {/*
@@ -706,13 +728,22 @@ export default function PartyCreate(
           </span>
         ) : (
           <select value={useShape} onChange={(e) => setShape(e.target.value as Shape)}
-                  className={sel} aria-label={t("pf.size")}>
+                  className={sel} aria-label={t("pf.size")}
+                  title={editing ? t("pf.sizeLocked") : undefined}>
             {/* "cc" was here until the five-seat Crystalline Conflict shape
                 came out: PvP is queued alone, so both PvP entries are open
                 parties. It left a dead option behind that rendered as a blank
-                line, because SHAPE_LABEL has nothing under that key. */}
+                line, because SHAPE_LABEL has nothing under that key.
+
+                A size the people already in this party would not fit into is
+                offered and refused rather than left out: a dropdown that
+                silently loses the option somebody is looking for is a
+                dropdown they will go on looking in. */}
             {(["light", "full", "alliance", "open"] as Shape[]).map((s) => (
-              <option key={s} value={s}>{shapeSay(s, chosen?.kind, t)}</option>
+              <option key={s} value={s} disabled={!fits(s)}>
+                {shapeSay(s, chosen?.kind, t)}
+                {fits(s) ? "" : ` — ${t("pf.wontFit")}`}
+              </option>
             ))}
           </select>
         )}
