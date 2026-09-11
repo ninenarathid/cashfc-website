@@ -77,9 +77,11 @@ interface CommentRow {
   author_character_id: number | null;
   author_name: string;
   author_avatar: string | null;
-  body: string;
+  body: string | null;
   images: string[] | null;
   created_at: string;
+  deleted_at: string | null;
+  edited_at: string | null;
 }
 
 const POST_COLS =
@@ -133,10 +135,17 @@ export async function loadParties(
     supabase.from("party_members")
       .select(MEMBER_COLS)
       .in("party_id", ids),
+    /*
+     * Including the deleted ones, which are tombstones rather than holes.
+     *
+     * The body is already gone by the time anybody can read one — a trigger
+     * blanks it when deleted_at is set — so what comes back is who said
+     * something, when, and that it is no longer there.
+     */
     supabase.from("party_comments")
       .select("id, party_id, author_character_id, author_name, author_avatar,"
-              + " body, images, created_at")
-      .in("party_id", ids).is("deleted_at", null)
+              + " body, images, created_at, deleted_at, edited_at")
+      .in("party_id", ids)
       .order("created_at", { ascending: true }),
   ]);
 
@@ -198,10 +207,12 @@ export async function loadParties(
         characterId: c.author_character_id, name: c.author_name,
         avatar: c.author_avatar,
       },
-      text: c.body,
+      text: c.body ?? "",
       ...(c.images?.length ? { images: c.images } : {}),
       ...(reactOf.has(c.id) ? { reactions: reactOf.get(c.id) } : {}),
       at: c.created_at,
+      deletedAt: c.deleted_at,
+      editedAt: c.edited_at,
     });
     talkOf.set(c.party_id, at);
   }
@@ -474,6 +485,40 @@ export async function dropSeat(
   supabase: SupabaseClient, seatRowId: number,
 ): Promise<{ error?: string }> {
   const { error } = await supabase.from("party_members").delete().eq("id", seatRowId);
+  return error ? { error: error.message } : {};
+}
+
+/**
+ * Change what a message says.
+ *
+ * The stamp goes on from here rather than from a trigger, because a delete
+ * also updates the row and is not an edit — and a line that claimed to have
+ * been edited the moment it was deleted would be the tombstone lying about
+ * what happened to it.
+ */
+export async function editComment(
+  supabase: SupabaseClient, commentId: string, text: string,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_comments")
+    .update({ body: text, edited_at: new Date().toISOString() })
+    .eq("id", Number(commentId));
+  return error ? { error: error.message } : {};
+}
+
+/**
+ * Take one back.
+ *
+ * Only the stamp is sent. What the row keeps is the database's decision, not
+ * this function's: a trigger blanks the body and the pictures, so the promise
+ * that a deleted message is gone does not depend on which client made the
+ * call.
+ */
+export async function dropComment(
+  supabase: SupabaseClient, commentId: string,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_comments")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", Number(commentId));
   return error ? { error: error.message } : {};
 }
 

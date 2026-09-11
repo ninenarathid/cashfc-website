@@ -12,6 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import Linkify from "@/components/Linkify";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import { clips, youtubeSrc } from "@/lib/youtube";
 
 /**
@@ -27,7 +28,7 @@ import { clips, youtubeSrc } from "@/lib/youtube";
  * this spot?" is a screenshot, not a sentence.
  */
 export default function PartyComments(
-  { comments, me, userId, onAdd, onReact }: {
+  { comments, me, userId, onAdd, onReact, onEdit, onDrop }: {
     comments: PartyComment[];
     /** Whoever is reading, or null if nobody is signed in. */
     me: PersonOption | null;
@@ -37,6 +38,15 @@ export default function PartyComments(
     /** Shown immediately; the write follows. Optional so a preview can omit it. */
     onReact?: (commentId: string, emoji: string, on: boolean,
                who: { characterId: number | null; name: string }) => void;
+    /**
+     * Change what one says, and take one back.
+     *
+     * Given only where the reader could do either. Both are the author's, and
+     * the policy behind them says the same — this decides whether the controls
+     * are worth drawing.
+     */
+    onEdit?: (commentId: string, text: string) => void | Promise<void>;
+    onDrop?: (commentId: string) => void | Promise<void>;
   },
 ) {
   const { t } = useLang();
@@ -47,6 +57,10 @@ export default function PartyComments(
   const [text, setText] = useState("");
   const [shots, setShots] = useState<string[]>([]);
   const [zoom, setZoom] = useState<{ images: string[]; at: number } | null>(null);
+  /** The message being rewritten, and what it is being rewritten to. */
+  const [fixing, setFixing] = useState<{ id: string; text: string } | null>(null);
+  /** The message somebody is being asked about before it goes. */
+  const [dropping, setDropping] = useState<string | null>(null);
   /**
    * Which message has its emoji row open.
    *
@@ -190,14 +204,62 @@ export default function PartyComments(
                     <span className="font-data text-[10.5px] text-muted">
                       {fmtDateTime(c.at)}
                     </span>
+                    {/* Beside the time it was said, because that is the fact
+                        it qualifies: this is not what was here when somebody
+                        read it earlier. Not on a deleted one — "edited" about
+                        a message that is gone is a detail about nothing. */}
+                    {c.editedAt && !c.deletedAt && (
+                      <span className="font-data text-[10.5px] text-muted/70"
+                            title={fmtDateTime(c.editedAt)}>
+                        {t("party.msgEdited", { at: fmtDateTime(c.editedAt) })}
+                      </span>
+                    )}
                   </span>
                 )}
-                {c.text && (
+                {/*
+                  * Taken back.
+                  *
+                  * The line stays where it was, because the replies under it
+                  * were answers to something and a hole where the question was
+                  * turns them into non sequiturs. Nothing of it is left to
+                  * draw — the database blanked the body — so it says what
+                  * happened and stops.
+                  */}
+                {c.deletedAt ? (
+                  <p className={`text-[13px] italic leading-relaxed text-muted ${
+                    mine ? "text-right" : ""}`}>
+                    {t("party.msgGone")}
+                  </p>
+                ) : fixing?.id === c.id ? (
+                  /* Rewritten in place, in a box the shape of the message. A
+                     dialog for a one-line correction would be a bigger
+                     interruption than the mistake. */
+                  <span className="flex flex-col gap-1.5">
+                    <textarea value={fixing.text} rows={2} autoFocus
+                              onChange={(e) => setFixing({ id: c.id, text: e.target.value })}
+                              className="w-[min(28rem,70vw)] rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] text-ink" />
+                    <span className="flex items-center gap-2 self-end">
+                      <button type="button" onClick={() => setFixing(null)}
+                              className="text-[12px] text-muted hover:text-ink">
+                        {t("pf.cancel")}
+                      </button>
+                      <button type="button"
+                              disabled={!fixing.text.trim() || fixing.text === c.text}
+                              onClick={() => {
+                                void onEdit?.(c.id, fixing.text.trim());
+                                setFixing(null);
+                              }}
+                              className="rounded-lg border border-accent/60 bg-accent/10 px-2.5 py-1 text-[12px] text-accent disabled:opacity-40">
+                        {t("party.msgSave")}
+                      </button>
+                    </span>
+                  </span>
+                ) : c.text ? (
                   <p className={`whitespace-pre-wrap break-words text-[13px] leading-relaxed text-ink/85 ${
                     mine ? "text-right" : ""}`}>
                     <Linkify text={c.text} />
                   </p>
-                )}
+                ) : null}
                 {/*
                   * The video, in the message.
                   *
@@ -208,7 +270,7 @@ export default function PartyComments(
                   * as the write-up above, and the same cap: two, because a
                   * message with six in it is a playlist.
                   */}
-                {clips(c.text).map((v) => (
+                {!c.deletedAt && clips(c.text).map((v) => (
                   <div key={v.id}
                        className={`aspect-video w-full max-w-sm overflow-hidden rounded-lg border border-line ${
                          mine ? "self-end" : ""}`}>
@@ -218,7 +280,7 @@ export default function PartyComments(
                             className="size-full" />
                   </div>
                 ))}
-                {!!c.images?.length && (
+                {!c.deletedAt && !!c.images?.length && (
                   <div className={`flex flex-wrap gap-2 ${mine ? "justify-end" : ""}`}>
                     {c.images.map((src2, n) => (
                       <button key={src2} onClick={() => setZoom({ images: c.images!, at: n })}>
@@ -238,7 +300,32 @@ export default function PartyComments(
                   * five faint emoji under every line would be five times more
                   * furniture than conversation.
                   */}
-                {userId && (
+                {/*
+                  * Correcting and withdrawing, on your own messages only.
+                  *
+                  * Opposite corner from the reaction button, which belongs to
+                  * everybody else — the two are different jobs and putting
+                  * them together would mean hunting for which of the row is
+                  * yours. Faint until the message is hovered, for the same
+                  * reason the reaction is: a row of controls under every line
+                  * is more furniture than conversation.
+                  */}
+                {mine && !c.deletedAt && !fixing && onEdit && onDrop && (
+                  <span className="absolute -top-3 right-1 z-[1] flex items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/msg:opacity-100 max-sm:opacity-60">
+                    <button type="button" aria-label={t("pf.edit")}
+                            onClick={() => setFixing({ id: c.id, text: c.text })}
+                            className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none shadow-sm hover:border-accent hover:text-accent">
+                      ✎
+                    </button>
+                    <button type="button" aria-label={t("pf.deleteParty")}
+                            onClick={() => setDropping(c.id)}
+                            className="grid size-5 place-items-center rounded-full border border-line bg-surface text-[10px] leading-none text-chili/80 shadow-sm hover:border-chili hover:text-chili">
+                      ✕
+                    </button>
+                  </span>
+                )}
+
+                {userId && !c.deletedAt && (
                   <span className={`absolute -top-3 z-[1] flex items-center ${
                     mine ? "left-1" : "right-1"}`}>
                     {picking === c.id ? (
@@ -333,6 +420,18 @@ export default function PartyComments(
           </span>
         </div>
       </div>
+
+      {dropping && (
+        <ConfirmDialog z={120} danger
+                       message={t("party.msgDeleteAsk")}
+                       confirmLabel={t("pf.deleteParty")}
+                       onCancel={() => setDropping(null)}
+                       onConfirm={() => {
+                         const id = dropping;
+                         setDropping(null);
+                         void onDrop?.(id);
+                       }} />
+      )}
 
       {zoom && (
         <ImageLightbox images={zoom.images} at={zoom.at}

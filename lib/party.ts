@@ -1644,6 +1644,23 @@ export const REACTIONS = ["👍", "❤️", "😂", "🎉", "🥔"] as const;
 
 /** Somebody's reply on a party. */
 export interface PartyComment {
+  /**
+   * Taken back, and when.
+   *
+   * The row stays rather than the message disappearing: an answer to a
+   * question nobody can see reads as a non sequitur, so the conversation keeps
+   * its shape and the line says what happened to it. Nothing else of it
+   * survives — the database blanks the body on the way out.
+   */
+  deletedAt?: string | null;
+  /**
+   * Last changed, where it has been.
+   *
+   * A conversation people read for instructions is one where "he said nine"
+   * matters. A line that changed says so; rewriting what somebody has already
+   * read, silently, is the one thing an edit must not do.
+   */
+  editedAt?: string | null;
   id: string;
   author: { characterId: number | null; name: string; avatar: string | null };
   text: string;

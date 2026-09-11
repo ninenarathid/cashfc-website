@@ -2060,6 +2060,13 @@ const DICT = {
   "pf.commentsN": { en: "{n} comments", th: "{n} ความคิดเห็น" },
   "pf.commentOne": { en: "1 comment", th: "1 ความคิดเห็น" },
   "pf.comment": { en: "Comment", th: "ส่ง" },
+  "party.msgGone": { en: "Message deleted", th: "ข้อความถูกลบ" },
+  "party.msgEdited": { en: "edited {at}", th: "แก้ไข {at}" },
+  "party.msgDeleteAsk": {
+    en: "Delete this message? It leaves a line saying it was deleted.",
+    th: "ลบข้อความนี้ไหม จะเหลือบรรทัดที่บอกว่าข้อความถูกลบ",
+  },
+  "party.msgSave": { en: "Save", th: "บันทึก" },
   "pf.react": { en: "React", th: "แสดงความรู้สึก" },
   "pf.commentBox": {
     en: "Message everybody in this party…",

@@ -19,7 +19,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 import {
-  addComment, createParty, deleteParty, loadParties, updateParty,
+  addComment, createParty, deleteParty, dropComment, editComment, loadParties,
+  updateParty,
 } from "@/lib/party-db";
 import { useLiveParties } from "@/lib/party-live";
 import type { SuggestRow } from "@/lib/suggest";
@@ -358,7 +359,40 @@ function PartyDetail(
                              images: c.images ?? [],
                            });
                            if ("error" in r) { setErr(r.error); void refresh(); }
-                         }} />
+                         }}
+                         /*
+                          * Both the same shape as the reply above: on the
+                          * screen at once, the write behind it. A correction
+                          * that waits for a round trip reads as a correction
+                          * that did not take, which is the thing somebody
+                          * fixing a typo is least patient about.
+                          */
+                         onEdit={supabase && userId
+                           ? async (cid, text) => {
+                               const at = new Date().toISOString();
+                               setParties((v) => v.map((x) => (x.id === party.id ? {
+                                 ...x,
+                                 comments: (x.comments ?? []).map((c) => (
+                                   c.id === cid ? { ...c, text, editedAt: at } : c)),
+                               } : x)));
+                               const r = await editComment(supabase, cid, text);
+                               if (r.error) { setErr(r.error); void refresh(); }
+                             }
+                           : undefined}
+                         onDrop={supabase && userId
+                           ? async (cid) => {
+                               const at = new Date().toISOString();
+                               setParties((v) => v.map((x) => (x.id === party.id ? {
+                                 ...x,
+                                 comments: (x.comments ?? []).map((c) => (
+                                   c.id === cid
+                                     ? { ...c, text: "", images: undefined, deletedAt: at }
+                                     : c)),
+                               } : x)));
+                               const r = await dropComment(supabase, cid);
+                               if (r.error) { setErr(r.error); void refresh(); }
+                             }
+                           : undefined} />
       </div>
     </Modal>
   );
