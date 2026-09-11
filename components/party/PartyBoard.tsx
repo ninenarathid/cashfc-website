@@ -12,6 +12,7 @@ import {
   KIND_COLOR, KIND_ICON, KIND_ORDER, ROLE_COLOR, ROLE_LABEL,
   LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay,
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
+  clashFor,
   needsByRole, partyStatus, placeOf, progressText, resolveParty, slotsOf, spotText,
   worldText,
   timeIsEstimate,
@@ -116,7 +117,7 @@ const EMPTY = {
  */
 function PartyDetail(
   { party, def, now, people, me, userId, supabase, refresh, setErr, setParties,
-    onClose, onEdit }: {
+    parties, onClose, onEdit }: {
     party: Party;
     def: ContentDef | undefined;
     now: number;
@@ -128,6 +129,8 @@ function PartyDetail(
     refresh: () => Promise<void>;
     setErr: (m: string | null) => void;
     setParties: React.Dispatch<React.SetStateAction<Party[]>>;
+    /** Every party on the board, for "are you already busy then". */
+    parties: readonly Party[];
     onClose: () => void;
     /** Given to whoever may change it. Absent for everybody else. */
     onEdit?: () => void;
@@ -344,6 +347,7 @@ function PartyDetail(
           <PartySeats party={party} kind={def?.kind} />
 
           <PartyJoin party={party} kind={def?.kind} me={me} userId={userId}
+                     clash={me ? clashFor(parties, me.id, party, party.id) : null}
                      supabase={supabase} now={now}
                      onDone={refresh} onError={setErr} />
 
@@ -365,6 +369,12 @@ function PartyDetail(
 
           <PartyComments comments={party.comments ?? []} people={people} me={me}
                          userId={userId}
+                         /* The start time has come and the party is still on:
+                            somebody has to send the invites, and the moment
+                            that has to happen is the moment everybody stops
+                            watching the board and starts watching the game. */
+                         notice={partyStatus(party, now) === "live"
+                           ? t("party.timeToInvite") : undefined}
                          onReact={(cid, emoji, on, who) =>
                            // Shown at once; the write and the
                            // realtime event follow behind it.
@@ -826,6 +836,7 @@ export default function PartyBoard(
       {(writing || amending) && me && userId && (
         <PartyCreate content={content} people={people} me={me} userId={userId}
                      busy={saving} suggest={suggest} labels={labels}
+                     mine={me ? parties.filter((x) => placeOf(x, me.id)) : []}
                      editing={amending ?? undefined}
                      onCancel={() => { setWriting(false); setAmending(null); }}
                      onAdd={async (p) => {
@@ -1300,6 +1311,7 @@ export default function PartyBoard(
         if (!p) return null;
         return (
           <PartyDetail party={p} def={byKey[p.contentKey]} now={now}
+                       parties={parties}
                        people={people} me={me} userId={userId} supabase={supabase}
                        refresh={refresh} setErr={setErr} setParties={setParties}
                        /* Theirs to change. The policy says the same thing and

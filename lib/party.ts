@@ -1981,6 +1981,51 @@ export function placeOf(
 }
 
 /**
+ * Two parties wanting the same minutes of the same evening.
+ *
+ * Half-open on both sides, so a party that ends at nine and one that starts at
+ * nine do not clash — back-to-back is how most people's evenings are actually
+ * arranged, and calling that a conflict would block the ordinary case to catch
+ * the rare one.
+ */
+export const overlaps = (
+  a: { startsAt: string; lengthMinutes: number; endedAt?: string | null },
+  b: { startsAt: string; lengthMinutes: number; endedAt?: string | null },
+): boolean => {
+  const [as, ae] = [new Date(a.startsAt).getTime(), new Date(endsAt(a)).getTime()];
+  const [bs, be] = [new Date(b.startsAt).getTime(), new Date(endsAt(b)).getTime()];
+  return as < be && bs < ae;
+};
+
+/**
+ * What this person is already committed to over those hours.
+ *
+ * Being in two parties at once is a promise somebody is going to break, and
+ * the person it is broken to is whoever kept a seat open all week. The board
+ * knows both halves — who is in what, and when — so it is in a position to say
+ * before the promise is made rather than after.
+ *
+ * A party that has been called off is not a commitment: its evening is free
+ * again, whatever its start time still says.
+ *
+ * Returns the first clash rather than all of them. One is enough to answer the
+ * question, and naming one party is a sentence somebody can act on where a
+ * list is something to work through.
+ */
+export function clashFor(
+  parties: readonly Party[], characterId: number,
+  when: { startsAt: string; lengthMinutes: number; endedAt?: string | null },
+  exceptId?: string,
+): Party | null {
+  for (const p of parties) {
+    if (p.id === exceptId || p.endedAt) continue;
+    if (!placeOf(p, characterId)) continue;
+    if (overlaps(p, when)) return p;
+  }
+  return null;
+}
+
+/**
  * How many are in it, and how many it holds.
  *
  * Everybody counts once — seated or still deciding where to stand — because

@@ -2058,6 +2058,17 @@ const DICT = {
   // Over when the lead says so. "จบปาร์ตี้" rather than "ยกเลิก": the party is
   // not being taken back, it is being called finished, which is the same word
   // whether it ran long, ran short, or never happened at all.
+  // Said by the clock, to the room. See the notice in PartyComments.
+  // Named by its time rather than its title: the title is the fight, and two
+  // parties on the same fight are told apart by when they start.
+  "party.clash": {
+    en: "You are already in a party at that time ({when}).",
+    th: "คุณมีนัดเล่นปาร์ตี้อื่นในเวลานั้นอยู่แล้ว ({when})",
+  },
+  "party.timeToInvite": {
+    en: "It is time — invite everybody into the party.",
+    th: "ถึงเวลาแล้ว ชวนทุกคนเข้าปาร์ตี้ในเกมได้เลย",
+  },
   "party.overNow": {
     en: "This party has ended.",
     th: "ปาร์ตี้นี้จบแล้ว",
@@ -2102,6 +2113,12 @@ const DICT = {
   "pf.flexibleSpot": { en: "Any position", th: "เล่นได้ทุกตำแหน่ง" },
   "pf.imComing": { en: "I'm coming", th: "ฉันไปด้วย" },
   "pf.notInParty": { en: "Not in the party", th: "ไม่อยู่ในปาร์ตี้" },
+  // The form's own version of the join-side warning. Same fact, said where
+  // the hours are being chosen rather than where a seat is.
+  "pf.clashBusy": {
+    en: "You are already in another party at that time.",
+    th: "คุณมีนัดเล่นปาร์ตี้อื่นในเวลานี้อยู่แล้ว",
+  },
   "pf.takeSeatFirst": {
     en: "Take your own seat first.",
     th: "เลือกตำแหน่งของตัวเองก่อน",

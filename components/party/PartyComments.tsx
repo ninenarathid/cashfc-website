@@ -66,8 +66,17 @@ const ctl = (extra: string) =>
   + ` bg-surface text-[20px] leading-none shadow-sm transition-colors ${extra}`;
 
 export default function PartyComments(
-  { comments, people, me, userId, onAdd, onReact, onEdit, onDrop }: {
+  { comments, people, me, userId, notice, onAdd, onReact, onEdit, onDrop }: {
     comments: PartyComment[];
+    /**
+     * Something the clock has to say, at the foot of the conversation.
+     *
+     * Not a message: nobody wrote it, it is not stored, and it cannot be
+     * replied to or reacted to. It is worked out from the time every time the
+     * page is drawn, which is the reason it is not a row — a row would need a
+     * job to write it, would arrive late, and could be written twice.
+     */
+    notice?: string;
     /**
      * The roster, for reading names out of a message.
      *
@@ -529,6 +538,18 @@ export default function PartyComments(
           </article>
         );
       })}
+
+      {/* Across the thread rather than down one side of it: it is addressed
+          to the room, and a bubble would put it in somebody's mouth. */}
+      {notice && (
+        <span className="my-1 flex items-center gap-2 self-stretch">
+          <span aria-hidden className="h-px flex-1 bg-jade/25" />
+          <span className="rounded-full border border-jade/45 bg-jade/10 px-3 py-[3px] text-center font-data text-[13.5px] text-jade">
+            {notice}
+          </span>
+          <span aria-hidden className="h-px flex-1 bg-jade/25" />
+        </span>
+      )}
 
       {/* Writing one. Dropping a picture anywhere on the box attaches it, which
           is where somebody's cursor already is when they have the screenshot. */}

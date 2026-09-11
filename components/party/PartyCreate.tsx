@@ -15,6 +15,7 @@ import {
   lootRulesFor,
   shapeFits,
   shapeLabel,
+  clashFor,
   slotsOf, whoKey,
 } from "@/lib/party";
 import type { PersonOption } from "@/lib/people";
@@ -176,8 +177,8 @@ function FlexEditor(
 }
 
 export default function PartyCreate(
-  { content, people, me, userId, busy = false, suggest, labels, onAdd,
-    onCancel, editing }: {
+  { content, people, me, userId, busy = false, suggest, labels, mine = [],
+    onAdd, onCancel, editing }: {
     content: ContentDef[];
     people: PersonOption[];
     /** The creator, who takes the first seat they choose. */
@@ -190,6 +191,14 @@ export default function PartyCreate(
     suggest?: SuggestRow[];
     /** The tier's labels, which is how the savage clears are indexed. */
     labels?: string[];
+    /**
+     * The parties this lead is already in, for "are you free then".
+     *
+     * Checked against the draft rather than against what was saved, because
+     * the hours being tested are the ones in the form right now — somebody
+     * moving a clashing party an hour later should watch the warning go.
+     */
+    mine?: readonly Party[];
     onAdd: (p: Party) => void | Promise<void>;
     onCancel: () => void;
     /**
@@ -689,11 +698,27 @@ export default function PartyCreate(
   // not what this form is changing, and a lead who never took a seat — which
   // is a real thing leads do — would otherwise be unable to fix their own
   // start time.
-  const ready = !!chosen && !!note.trim() && !!start && !past && minutes > 0
+  /*
+   * Already somewhere else at that hour.
+   *
+   * Measured off the draft, so it answers the form as it stands. The party
+   * being edited is excluded from its own comparison — a listing always
+   * overlaps itself, and it is not a reason it cannot be saved.
+   */
+  const clash = useMemo(
+    () => (start && minutes > 0
+      ? clashFor(mine, me.id,
+                 { startsAt: fromBangkokLocal(start), lengthMinutes: minutes },
+                 editing?.id)
+      : null),
+    [mine, me.id, start, minutes, editing?.id]);
+
+  const ready = !!chosen && !!note.trim() && !!start && !past && !clash && minutes > 0
     && (!!editing || !!mySeat || iAmFloating);
   // Which of the two is missing, so the button says why it is grey rather than
   // leaving somebody to work it out.
-  const wants = editing ? null
+  const wants = clash ? "pf.clashBusy" as const
+    : editing ? null
     : !chosen ? "pf.pickContentFirst" as const
     // The one line the whole board is read by. Twelve rows that all say
     // "AAC Heavyweight M3 (Savage)" are twelve rows nobody can tell apart, and

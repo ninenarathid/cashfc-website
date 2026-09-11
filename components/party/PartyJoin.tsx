@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PersonOption } from "@/lib/people";
+import { fmtDateTime } from "@/lib/dates";
 import type {
   ContentKind, Flex, Party, SlotDef, SlotRole, Wing,
 } from "@/lib/party";
@@ -53,7 +54,7 @@ const roster = (p: Party): Who[] => [
 ];
 
 export default function PartyJoin(
-  { party, kind, me, userId, supabase, now, onDone, onError }: {
+  { party, kind, me, userId, supabase, now, clash, onDone, onError }: {
     party: Party;
     /** The board's clock, which decides whether it is too late to leave. */
     now: number;
@@ -62,6 +63,13 @@ export default function PartyJoin(
     me: PersonOption | null;
     userId: string | null;
     supabase: SupabaseClient | null;
+    /**
+     * A party this reader is already in over the same hours.
+     *
+     * Worked out by the board, which is the only place holding everybody's
+     * parties to compare against. Null when their evening is free.
+     */
+    clash?: Party | null;
     /** Reload, because a seat changing changes the counts on the whole row. */
     onDone: () => void | Promise<void>;
     onError: (m: string) => void;
@@ -407,7 +415,25 @@ export default function PartyJoin(
         <span className="text-[15.5px] text-muted">{t("party.overNow")}</span>
       )}
 
-      {!party.endedAt && !mine && (
+      {/*
+        * Already promised elsewhere.
+        *
+        * Two parties at once is a promise somebody is going to break, and it
+        * breaks on whoever kept a seat open all week. Said before the promise
+        * rather than after, and it names the other party — "you are busy" is
+        * only useful if you can tell what with.
+        *
+        * Only in front of joining. Somebody already in this one is left alone:
+        * whatever they have double-booked, telling them now is too late to
+        * help, and the way out is the Leave button they already have.
+        */}
+      {!party.endedAt && !mine && clash && (
+        <span className="rounded-lg border border-gold/45 bg-gold/10 px-3 py-2 text-[15.5px] text-gold">
+          {t("party.clash", { when: fmtDateTime(clash.startsAt) })}
+        </span>
+      )}
+
+      {!party.endedAt && !mine && !clash && (
         <div className="flex flex-col gap-2">
           {/*
             * Which seats, not which seat.
