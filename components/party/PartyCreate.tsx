@@ -531,6 +531,49 @@ export default function PartyCreate(
     }]);
   }, [useShape, chosen, mySeat, iAmFloating, me.id, me.name, me.avatar]);
 
+  /*
+   * The lead's own place, on an edit.
+   *
+   * Three moves and they all start by taking the reader out of wherever they
+   * are: seats and floaters are two lists, and somebody who is in both is the
+   * duplicate that used to lose a whole roster on save.
+   *
+   * Whether they had already said yes is carried across rather than restamped.
+   * A lead moving from MT to ST has not just joined their own party, and the
+   * seat grid draws an unconfirmed member differently — so restamping would
+   * make a move look like a fresh arrival to everybody reading it.
+   */
+  const myConfirmedAt = () => {
+    const seated = Object.values(seats).find((v) => v.characterId === me.id);
+    const afloat = floating.find((f) => f.characterId === me.id);
+    return seated?.confirmedAt ?? afloat?.confirmedAt ?? new Date().toISOString();
+  };
+  const liftMe = () => {
+    setSeats((v) => Object.fromEntries(
+      Object.entries(v).filter(([, w]) => w.characterId !== me.id)));
+    setFloating((v) => v.filter((f) => f.characterId !== me.id));
+  };
+  const sitAt = (slotId: string) => {
+    const at = myConfirmedAt();
+    setSeats((v) => {
+      const out = Object.fromEntries(
+        Object.entries(v).filter(([, w]) => w.characterId !== me.id));
+      out[slotId] = {
+        characterId: me.id, name: me.name, avatar: me.avatar, confirmedAt: at,
+      };
+      return out;
+    });
+    setFloating((v) => v.filter((f) => f.characterId !== me.id));
+  };
+  const floatMe = () => {
+    const at = myConfirmedAt();
+    liftMe();
+    setFloating((v) => [...v.filter((f) => f.characterId !== me.id), {
+      characterId: me.id, name: me.name, avatar: me.avatar,
+      flex: { all: true }, confirmedAt: at,
+    }]);
+  };
+
   /**
    * Somebody who is not on this site, added by typing their name.
    *
@@ -1005,6 +1048,56 @@ export default function PartyCreate(
       </div>
 
       </>)}
+
+      {/* ── Your own place, on an edit ────────────────────────────────────── */}
+      {/* The roster stays out of this form, and this is not the roster: it is
+          one row, the reader's own. A lead who never took a seat had nowhere
+          to say so from — the seat controls are on the party itself, and the
+          lead is the one person the party page had no controls for. */}
+      {editing && chosen && (
+        <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+              {t("pf.yourSpot")}
+            </span>
+            <span className="text-[13px] text-muted">{t("pf.yourSpotWhy")}</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {useShape !== "open" && slotsOf(useShape).map((sl) => {
+              const sat = seats[sl.id];
+              const isMine = sat?.characterId === me.id;
+              // Somebody else's seat is not an offer. A shut one is not either,
+              // and the lead shutting a seat and then sitting in it would be
+              // the listing disagreeing with itself.
+              const free = !sat && !closed.includes(sl.id);
+              return (
+                <button key={sl.id} type="button"
+                        disabled={!free && !isMine}
+                        onClick={() => sitAt(sl.id)}
+                        className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                          isMine ? "border-accent bg-accent/15 text-accent"
+                          : free ? "border-line text-muted hover:border-muted hover:text-ink"
+                          : "border-line/40 text-muted/40"}`}>
+                  {sl.label}
+                </button>
+              );
+            })}
+            <button type="button" onClick={floatMe}
+                    className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                      iAmFloating ? "border-jade bg-jade/15 text-jade"
+                        : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+              {t(useShape === "open" ? "pf.imComing" : "pf.flexibleSpot")}
+            </button>
+            <button type="button" onClick={liftMe}
+                    className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                      !mySeat && !iAmFloating
+                        ? "border-chili bg-chili/15 text-chili"
+                        : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+              {t("pf.notInParty")}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/*
         * Beside the grid, not underneath it.

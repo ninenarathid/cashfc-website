@@ -1899,6 +1899,26 @@ export const tickMs = (ms: number): number =>
   Math.abs(ms) < SOON_MS ? 1000 : 60_000;
 
 
+/**
+ * Where somebody is in a party, if they are in it at all.
+ *
+ * Seats and floaters are two lists and one question, and every caller that
+ * wants "am I in this, and where" was walking both. Null means not in it,
+ * which is a different answer from being in it without a seat — the second is
+ * somebody who said yes and has not picked, and the party counts them.
+ */
+export function placeOf(
+  p: Party, characterId: number,
+): { rowId?: number; seat: string | null; flex: Flex | null } | null {
+  for (const [seat, w] of Object.entries(p.seats)) {
+    if (w.characterId === characterId) {
+      return { rowId: w.seatRowId, seat, flex: w.flex ?? null };
+    }
+  }
+  const f = (p.floating ?? []).find((x) => x.characterId === characterId);
+  return f ? { rowId: f.seatRowId, seat: null, flex: f.flex ?? null } : null;
+}
+
 /** Seats with nobody in them and not deliberately shut. What is missing. */
 export function openSeats(p: Party): SlotDef[] {
   const shut = new Set(p.closed ?? []);

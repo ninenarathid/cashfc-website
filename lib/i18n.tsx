@@ -2067,6 +2067,14 @@ const DICT = {
     en: "Give it a title first.",
     th: "ใส่หัวข้อของปาร์ตี้ก่อน",
   },
+  "pf.yourSpot": { en: "Your position", th: "ตำแหน่งของคุณ" },
+  "pf.yourSpotWhy": {
+    en: "Only yours. Everybody else answers for themselves.",
+    th: "แก้ได้เฉพาะของคุณ คนอื่นตอบเองจากหน้าปาร์ตี้",
+  },
+  "pf.flexibleSpot": { en: "Any position", th: "เล่นได้ทุกตำแหน่ง" },
+  "pf.imComing": { en: "I'm coming", th: "ฉันไปด้วย" },
+  "pf.notInParty": { en: "Not in the party", th: "ไม่อยู่ในปาร์ตี้" },
   "pf.takeSeatFirst": {
     en: "Take your own seat first.",
     th: "เลือกตำแหน่งของตัวเองก่อน",

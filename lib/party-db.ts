@@ -547,6 +547,63 @@ export async function dropSeat(
 }
 
 /**
+ * The lead's own place, changed from the listing form.
+ *
+ * One row and only one: the caller's. The form has never written the roster
+ * and still does not — who else is in a party is settled by those people
+ * saying yes, and a save that rewrote the list would be the lead retyping
+ * other people's answers. But their own place is theirs, and the form is
+ * where they were looking for it.
+ *
+ * Three things can have happened, and they are three different calls rather
+ * than one upsert: joining is a new row, leaving destroys one, and moving
+ * keeps the row — which matters, because the row is where "they said yes"
+ * lives and a move that dropped and re-added it would quietly reset that.
+ *
+ * Taking a seat goes through party_take_seat even here, so the lead editing
+ * their listing races for a seat on the same terms as somebody pressing join
+ * on the party page. The index decides; `taken` is the answer when it decides
+ * against them, which is a thing to say rather than an error.
+ */
+export async function setOwnSeat(
+  supabase: SupabaseClient, userId: string, partyId: string,
+  me: { characterId: number; name: string; avatar: string | null },
+  was: { rowId?: number; seat: string | null; flex: Flex | null } | null,
+  want: { seat: string | null; flex: Flex | null } | null,
+): Promise<{ error?: string; taken?: string }> {
+  if (!was && !want) return {};
+
+  if (!was) {
+    const r = await askToJoin(supabase, userId, partyId, {
+      characterId: me.characterId, name: me.name, avatar: me.avatar,
+      seat: want!.seat, flex: want!.flex ?? undefined, own: true,
+    });
+    return "error" in r ? { error: r.error } : {};
+  }
+
+  // Nothing to delete where there is no row: a draft the database never saw.
+  if (was.rowId == null) return {};
+  if (!want) return dropSeat(supabase, was.rowId);
+
+  const same = was.seat === want.seat
+    && JSON.stringify(was.flex ?? null) === JSON.stringify(want.flex ?? null);
+  if (same) return {};
+
+  if (want.seat) {
+    const r = await takeSeat(supabase, was.rowId, want.seat);
+    if ("error" in r) return { error: r.error };
+    return r.got === "taken" ? { taken: want.seat } : {};
+  }
+
+  // Out of the seat and back to flexible, which party_take_seat has no way to
+  // say — it only ever puts somebody into one.
+  const { error } = await supabase.from("party_members")
+    .update({ seat: null, flex: want.flex ?? { all: true } })
+    .eq("id", was.rowId);
+  return error ? { error: error.message } : {};
+}
+
+/**
  * Change what a message says.
  *
  * The stamp goes on from here rather than from a trigger, because a delete

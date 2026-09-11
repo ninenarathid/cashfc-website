@@ -12,7 +12,7 @@ import {
   KIND_COLOR, KIND_ICON, KIND_ORDER, ROLE_COLOR, ROLE_LABEL,
   LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay,
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
-  needsByRole, partyStatus, progressText, resolveParty, slotsOf, spotText,
+  needsByRole, partyStatus, placeOf, progressText, resolveParty, slotsOf, spotText,
   worldText,
   timeIsEstimate,
 } from "@/lib/party";
@@ -20,6 +20,7 @@ import { createClient } from "@/lib/supabase/client";
 
 import {
   addComment, createParty, deleteParty, dropComment, editComment, loadParties,
+  setOwnSeat,
   updateParty,
 } from "@/lib/party-db";
 import { useLiveParties } from "@/lib/party-live";
@@ -793,6 +794,27 @@ export default function PartyBoard(
                        const r = amending
                          ? await updateParty(supabase!, amending.id, p)
                          : await createParty(supabase!, userId, p);
+                       /*
+                        * And the one row of the roster this form may write.
+                        *
+                        * After the listing, not with it: the party's own
+                        * details are what the save is for, and a seat that
+                        * cannot be had should not cost somebody the start
+                        * time they came here to fix.
+                        */
+                       if (amending && !("error" in r && r.error)) {
+                         const s = await setOwnSeat(
+                           supabase!, userId, amending.id,
+                           { characterId: me.id, name: me.name, avatar: me.avatar },
+                           placeOf(amending, me.id), placeOf(p, me.id));
+                         if (s.error) { setSaving(false); setErr(s.error); return; }
+                         if (s.taken) {
+                           setSaving(false);
+                           setErr(t("party.seatGone", { seat: s.taken }));
+                           await refresh();
+                           return;
+                         }
+                       }
                        setSaving(false);
                        // Truthiness, not the key: an update reports success as
                        // an object with an absent error, and "error" in r is
