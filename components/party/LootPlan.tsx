@@ -3,6 +3,7 @@
 import type { ContentKind, Loot, PayOn } from "@/lib/party";
 import {
   DEFAULT_PAY_ON, LOOT_COLOR, LOOT_HELP, LOOT_LABEL, lootRulesFor, lootText,
+  payOnsFor,
 } from "@/lib/party";
 import { useLang, type Key } from "@/lib/i18n";
 import { lootHelp, lootLine, lootSay } from "@/lib/party-i18n";
@@ -44,7 +45,17 @@ export default function LootPlan(
   const { t } = useLang();
   const rules = lootRulesFor(kind);
   const tint = LOOT_COLOR[value.rule];
-  const payOn = value.payOn ?? DEFAULT_PAY_ON;
+  /*
+   * What this content can be paid on, and what it is set to within that.
+   *
+   * Read back through the list rather than trusted: a party written as an
+   * extreme and then changed to an ultimate carries a trigger the ultimate
+   * has no way to mean, and the line under this would have gone on promising
+   * a rare mount that fight does not drop.
+   */
+  const pays = payOnsFor(kind);
+  const stored = value.payOn ?? DEFAULT_PAY_ON;
+  const payOn = pays.includes(stored) ? stored : pays[0];
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
@@ -93,7 +104,10 @@ export default function LootPlan(
           */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[14px] text-muted">{t("party.payWhen")}</span>
-          {PAY_ORDER.map((k) => {
+          {/* One trigger is a statement, not a choice: a row of buttons with
+              nothing to pick between is furniture. The sentence under it says
+              the same thing in words. */}
+          {PAY_ORDER.filter((k) => pays.includes(k)).map((k) => {
             const on = payOn === k;
             return (
               <button key={k} type="button" title={t(PAY_WHY[k])}

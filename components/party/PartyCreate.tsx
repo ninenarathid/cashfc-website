@@ -6,13 +6,15 @@ import type {
   Progress, SeatRule, Shape, SlotDef, SlotRole, Spot,
 } from "@/lib/party";
 import {
-  DEFAULT_AMOUNT, DEFAULT_LENGTH, DEFAULT_LOOT, FOOD_MINUTES, ROLE_LABEL,
+  DEFAULT_AMOUNT, DEFAULT_LENGTH, DEFAULT_LOOT, DEFAULT_PAY_ON,
+  FOOD_MINUTES, ROLE_LABEL,
   canFlex, endsAt, flexLabel, lengthUnitsFor, mapsToMinutes, runsToMinutes,
   defaultUnitFor,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasRoulettes, hasSpot, isFight,
   minutesToFood,
   jobMatters,
   lootRulesFor,
+  payOnsFor,
   shapeFits,
   shapeLabel,
   clashFor,
@@ -283,8 +285,20 @@ export default function PartyCreate(
    * trial does not drop — set once, invisible afterwards, and wrong.
    */
   const okRules = lootRulesFor(chosen?.kind);
-  const safeLoot: Loot = okRules.length && !okRules.includes(loot.rule)
+  /*
+   * And the same for what a mercenary is paid on.
+   *
+   * An ultimate has no rare mount, so a party written as an extreme and then
+   * changed to one carries a trigger that fight cannot mean. Corrected on the
+   * way out rather than only where it is drawn, or the board would show one
+   * deal and the row would keep the other.
+   */
+  const okPays = payOnsFor(chosen?.kind);
+  const fixed: Loot = okRules.length && !okRules.includes(loot.rule)
     ? { rule: okRules[0] } : loot;
+  const safeLoot: Loot = fixed.rule === "merc"
+    && !okPays.includes(fixed.payOn ?? DEFAULT_PAY_ON)
+    ? { ...fixed, payOn: okPays[0] } : fixed;
   // Starts on this Free Company's own world rather than empty: the picker
   // shows Elemental and Tonberry from the first render, and a form that
   // displays an answer it has not stored is a form that lies quietly.

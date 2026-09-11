@@ -455,9 +455,12 @@ export function catalogue(
      * every one of them — Anemos and Hydatos are the same idea forty levels
      * apart, and a row per zone would be seven rows saying almost nothing.
      *
-     * Eight seats, because eight is what a field party actually forms. The
-     * instance holds dozens and the queue is not the point; the eight who
-     * agreed a time are.
+     * Eight seats and no roles, because eight is what a field party actually
+     * forms and none of them is the healer. The instance holds dozens and the
+     * queue is not the point; the eight who agreed a time are — and what they
+     * are on is whatever they happened to be on, which is why the game does
+     * not ask either. Changeable, like every other unfixed shape: this is what
+     * a field night usually is, not what it has to be.
      */
     /*
      * Every dungeon in the game, from the Duty Finder's own table.
@@ -505,11 +508,11 @@ export function catalogue(
       fixedShape: true,
     })),
     { key: "field:occult", kind: "field", name: "Occult Crescent",
-      icon: "field", shape: "full" },
+      icon: "field", shape: "eight" },
     { key: "field:bozja", kind: "field", name: "Bozja", icon: "field",
-      shape: "full" },
+      shape: "eight" },
     { key: "field:eureka", kind: "field", name: "Eureka", icon: "field",
-      shape: "full" },
+      shape: "eight" },
     /*
      * Eight, because that is what a FATE party is.
      *
@@ -1565,6 +1568,21 @@ export const PAY_ON_HELP: Record<PayOn, string> = {
 
 /** The default, because a wage is what people mean when they say nothing. */
 export const DEFAULT_PAY_ON: PayOn = "clear";
+
+/**
+ * Which triggers this kind of content can be paid on.
+ *
+ * An ultimate has no rare mount to bet on — there is a weapon, and it drops
+ * every time — so the only honest deal is a wage for the clear. Offering the
+ * other two would be offering an arrangement that cannot happen, and the one
+ * that pays "only if the mount drops" would pay nobody, ever.
+ *
+ * Everything else that takes a mercenary is a trial farmed for a mount, where
+ * the bet is the whole reason somebody is being paid.
+ */
+export function payOnsFor(kind: ContentKind | undefined): PayOn[] {
+  return kind === "ultimate" ? ["clear"] : ["clear", "mount", "both"];
+}
 
 /**
  * What a party is set to before anybody chooses.
