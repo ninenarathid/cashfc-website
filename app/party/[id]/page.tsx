@@ -26,9 +26,23 @@ import {
  */
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> },
+  { params, searchParams }: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  },
 ): Promise<Metadata> {
   const { id } = await params;
+  /*
+   * The stamp the share button put on the link, passed down to the picture.
+   *
+   * Discord caches the card by the page's address and the picture by the
+   * picture's own — so a fresh address alone gets a new card drawn around the
+   * old image. Checked rather than trusted: it goes into a URL, and anything
+   * that is not a short word is not one of ours.
+   */
+  const v = (await searchParams).v;
+  const stamp = typeof v === "string" && /^[a-z0-9]{1,16}$/i.test(v) ? v : null;
+  const image = `/party/${id}/opengraph-image${stamp ? `?v=${stamp}` : ""}`;
   const fallback: Metadata = { title: "Party finder — Cafe And SHabu" };
 
   const card = await partyCard(id);
@@ -61,8 +75,16 @@ export async function generateMetadata(
   return {
     title,
     description,
-    openGraph: { title, description, type: "article" },
-    twitter: { card: "summary_large_image", title, description },
+    // Named by hand rather than left to the file convention, which is what
+    // pins every share to one address. Same route, same picture — only the
+    // name it is asked for by changes.
+    openGraph: {
+      title, description, type: "article",
+      images: [{ url: image, width: 1200, height: 630, alt: "A party on the board" }],
+    },
+    twitter: {
+      card: "summary_large_image", title, description, images: [image],
+    },
   };
 }
 

@@ -3,11 +3,12 @@ import path from "node:path";
 import sharp from "sharp";
 import { ImageResponse } from "next/og";
 import {
-  KIND_COLOR, KIND_LABEL, PROGRESS_LABEL, SHAPE_LABEL, endsAt, fmtDay, fmtTime,
+  KIND_COLOR, KIND_LABEL, PROGRESS_LABEL, ROLE_COLOR, ROLE_LABEL, SHAPE_LABEL,
+  endsAt, fmtDay, fmtTime,
   fmtFood, fmtLength, fmtRuns, lootText, mapsText, openLabel, spotText,
 } from "@/lib/party";
 import { contentByKey } from "@/lib/party-seeds";
-import { partyCard, seatCount } from "@/lib/party-card";
+import { cardNeeds, partyCard, seatCount } from "@/lib/party-card";
 import { mapLabel } from "@/lib/treasure";
 
 /**
@@ -122,6 +123,17 @@ export default async function Image(
   }
 
   const full = card.seatsTotal > 0 && card.seatsTaken >= card.seatsTotal;
+  /*
+   * What the party is short of, which is the line somebody reads and knows
+   * whether it is them.
+   *
+   * "4/8" says there is room; "short 2 tanks" says whether the room is yours.
+   * A member asked for this after a day of using the board, because it was the
+   * one thing the link could not say and so people were typing it underneath —
+   * which is the Discord scrollback the board exists to replace, reappearing in
+   * the message used to escape it.
+   */
+  const needs = cardNeeds(card);
   const terms = [
     // The length as the party said it. A run count is not a duration and the
     // card should not turn it into one.
@@ -247,6 +259,38 @@ export default async function Image(
             </div>
           </div>
         </div>
+
+        {/*
+          * The roles still wanted, across the foot.
+          *
+          * Under everything else rather than beside the count, because it is
+          * the widest thing on the card and the one somebody's eye should land
+          * on last and remember. Drawn in the same three colours the board
+          * uses, so a chip means the same thing in both places.
+          *
+          * Absent where there is nothing to say: a full party, a hunt train
+          * with no seats, or one whose every empty seat already has somebody
+          * hovering over it.
+          */}
+        {needs.length > 0 && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 16,
+            padding: "0 48px 34px",
+          }}>
+            {needs.map(([role, n]) => (
+              <div key={role} style={{
+                display: "flex", alignItems: "center",
+                padding: "10px 26px", borderRadius: 999,
+                border: `3px solid ${ROLE_COLOR[role]}`,
+                background: `${ROLE_COLOR[role]}1f`,
+                color: ROLE_COLOR[role], fontSize: 30, fontWeight: 700,
+                letterSpacing: 1,
+              }}>
+                {`Short ${n} ${ROLE_LABEL[role]}`}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     ),
     size,

@@ -1,5 +1,9 @@
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
-import type { LengthUnit, Loot, MapPlan, Progress, Shape, Spot } from "@/lib/party";
+import type {
+  Flex, Floater, LengthUnit, Loot, MapPlan, Party, Progress, SeatRule, Shape,
+  SlotRole, SlotTaken, Spot,
+} from "@/lib/party";
+import { needsByRole } from "@/lib/party";
 
 /**
  * One party, as much of it as a link preview should say.
@@ -33,6 +37,32 @@ export interface PartyCard {
   spot: Spot | null;
   maps: MapPlan | null;
   roulettes: string[] | null;
+  /**
+   * Whether the roster came back at all.
+   *
+   * The card function learned to return members in v50. Before that migration
+   * runs it does not, and an empty roster is indistinguishable from a party
+   * nobody has joined — which would have every card announcing a full raid as
+   * short of eight. So this says which, and what is short is not guessed at
+   * until the database is actually answering the question.
+   */
+  hasMembers: boolean;
+  /** Everybody in it, answered or not, for working out what is short. */
+  seats: Record<string, SlotTaken>;
+  floating: Floater[];
+  closed: string[];
+  rules: Record<string, SeatRule>;
+  oneOfEachJob: boolean;
+}
+
+interface Member {
+  seat: string | null;
+  character_id: number | null;
+  name: string;
+  avatar: string | null;
+  job: string | null;
+  flex: Flex | null;
+  confirmed_at: string | null;
 }
 
 interface Row {
@@ -51,6 +81,10 @@ interface Row {
   spot: Spot | null;
   maps: MapPlan | null;
   roulettes: string[] | null;
+  rules: Record<string, SeatRule> | null;
+  closed: string[] | null;
+  one_of_each_job: boolean | null;
+  members: Member[] | null;
 }
 
 /** Long enough for a cold function, short enough not to hold up a page. */
@@ -97,6 +131,11 @@ export async function partyCard(id: string): Promise<PartyCard | null> {
       spot: r.spot,
       maps: r.maps,
       roulettes: r.roulettes,
+      hasMembers: Array.isArray(r.members),
+      ...split(r.members ?? []),
+      closed: r.closed ?? [],
+      rules: r.rules ?? {},
+      oneOfEachJob: !!r.one_of_each_job,
     };
   } catch {
     return null;
@@ -106,3 +145,49 @@ export async function partyCard(id: string): Promise<PartyCard | null> {
 /** "4/8", or "3 coming" where there are no seats to be full of. */
 export const seatCount = (c: PartyCard): string =>
   c.seatsTotal ? `${c.seatsTaken}/${c.seatsTotal}` : String(c.seatsTaken);
+
+/**
+ * Members, as the board keeps them: in seats, or standing beside them.
+ *
+ * The same split loadParties makes, for the same reason — a floater is not in
+ * a seat, and writing them into one would decide something nobody has.
+ */
+function split(rows: Member[]): { seats: Record<string, SlotTaken>; floating: Floater[] } {
+  const seats: Record<string, SlotTaken> = {};
+  const floating: Floater[] = [];
+  for (const m of rows) {
+    const who = {
+      characterId: m.character_id, name: m.name, avatar: m.avatar,
+      job: m.job, flex: m.flex ?? {}, confirmedAt: m.confirmed_at,
+    };
+    if (m.seat) seats[m.seat] = who;
+    else floating.push(who);
+  }
+  return { seats, floating };
+}
+
+/**
+ * Which roles the party is short of, the way the board says it.
+ *
+ * Not a subtraction. Somebody flexing across MT and D2 covers whichever of the
+ * two is still open, so what a party is short of is the answer to a resolution
+ * rather than a count — and this runs the resolver the board runs, so the card
+ * and the row cannot disagree about whether a healer is wanted.
+ *
+ * Empty for a party with no seats, which is short of nothing by definition, and
+ * for one whose remaining seats all have somebody hovering over them: what that
+ * party wants is bodies, and the card already says how many.
+ */
+export const cardNeeds = (c: PartyCard): [SlotRole, number][] => {
+  if (!c.hasMembers || !c.seatsTotal) return [];
+  const p: Party = {
+    id: "card", contentKey: c.contentKey, shape: c.shape,
+    startsAt: c.startsAt, lengthMinutes: c.lengthMinutes, lengthUnit: c.lengthUnit,
+    ownerCharacterId: 0, createdAt: c.startsAt,
+    seats: c.seats, floating: c.floating,
+    closed: c.closed, rules: c.rules, oneOfEachJob: c.oneOfEachJob,
+  };
+  const need = needsByRole(p);
+  return (["tank", "healer", "dps"] as SlotRole[])
+    .filter((r) => need[r] > 0).map((r) => [r, need[r]]);
+};

@@ -46,7 +46,22 @@ export function writeDeepLink(id: string | null): void {
  * posted.
  */
 export const partyUrl = (id: string): string =>
-  typeof window === "undefined" ? "" : `${window.location.origin}/party/${id}`;
+  typeof window === "undefined" ? ""
+    /*
+     * With a throwaway stamp on the end.
+     *
+     * Discord keeps what it has already unfurled, keyed by the address — so the
+     * second time somebody shares a party, the card it draws is the one it drew
+     * the first time: the seats as they were an hour ago, before three people
+     * joined. Which is the one thing a card of a party has to get right.
+     *
+     * An address it has not seen makes it look again. It changes nothing about
+     * where the link goes, and the page passes the stamp down to the picture —
+     * Discord caches that separately, by its own address, so without that the
+     * fresh card would be drawn around the stale image. Same trick the member
+     * page uses, for the same reason.
+     */
+    : `${window.location.origin}/party/${id}?v=${Date.now().toString(36)}`;
 
 export default function ShareParty({ id }: { id: string }) {
   const { t } = useLang();
