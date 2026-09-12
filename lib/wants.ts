@@ -92,7 +92,9 @@ export async function postWant(
     kinds: w.kinds,
     content_keys: w.contentKeys,
     roles: w.roles,
-    note: w.note?.trim() || null,
+    // Cut here as well as in the box, so the one writer the app has cannot
+    // put a paragraph on a card that clamps to two lines whatever it holds.
+    note: w.note?.trim().slice(0, 60) || null,
   });
   return error ? { error: error.message } : {};
 }

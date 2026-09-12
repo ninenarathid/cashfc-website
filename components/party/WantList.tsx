@@ -26,6 +26,21 @@ import { useLang } from "@/lib/i18n";
  * this list is for.
  */
 
+/** One sentence. See the note field for why that is the right size. */
+const NOTE_MAX = 60;
+
+/**
+ * The forename, which is what anybody says out loud anyway.
+ *
+ * A card is a third of a row and "Ninenine The'phantom" spends a third of its
+ * width on the half of the name nobody uses — the FC calls each other by the
+ * first one, and the full name is still on the card for anybody who hovers.
+ *
+ * The first word, not everything before the last: a character name is two
+ * words by the game's own rules, and a guest with one word keeps it.
+ */
+const shortName = (name: string) => name.split(" ")[0] || name;
+
 /**
  * How long a want has left, in the units somebody thinks in.
  *
@@ -209,10 +224,30 @@ export default function WantList(
             )}
           </div>
 
-          <input value={note} maxLength={80}
-                 onChange={(e) => setNote(e.target.value)}
-                 placeholder={t("want.noteHint")}
-                 className="rounded-lg border border-line bg-bg/40 px-3 py-2 text-[15px] text-ink placeholder:text-muted" />
+          {/*
+            * Short, and it says how short while you are still under it.
+            *
+            * The card it lands in is a third of a row and clamps to two
+            * lines, so a paragraph typed here is a paragraph nobody will
+            * read the end of. Sixty characters is a sentence — which is what
+            * this field is for, and about what fits.
+            *
+            * The count appears at forty rather than sitting there from the
+            * first keystroke: a counter on an empty box is the site saying
+            * "you are running out" before anybody has begun.
+            */}
+          <div className="relative">
+            <input value={note} maxLength={NOTE_MAX}
+                   onChange={(e) => setNote(e.target.value.slice(0, NOTE_MAX))}
+                   placeholder={t("want.noteHint")}
+                   className="w-full rounded-lg border border-line bg-bg/40 px-3 py-2 pr-14 text-[15px] text-ink placeholder:text-muted" />
+            {note.length > NOTE_MAX * 0.66 && (
+              <span className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-data text-[12.5px] tabular-nums ${
+                note.length >= NOTE_MAX ? "text-gold" : "text-muted"}`}>
+                {note.length}/{NOTE_MAX}
+              </span>
+            )}
+          </div>
 
           {/* The hours are not asked for, because they have already been
               answered: the grid on their profile is what the matcher reads,
@@ -277,7 +312,33 @@ export default function WantList(
             const rest = want.length - show.length;
             return (
               <div key={w.id}
-                   className="flex gap-3 rounded-xl border border-line bg-surface px-3 py-3">
+                   className="flex flex-col gap-2 rounded-xl border border-line bg-surface px-3 py-3">
+                {/*
+                  * What they said, over the head of the person who said it.
+                  *
+                  * A note is the one part of a card written by a person to
+                  * other people, and everything else on it is the site
+                  * describing them. Above the name with the tail pointing
+                  * down at their face is the arrangement every comic has used
+                  * for a century: you read who is speaking and what they said
+                  * as one thing. Under the card it sat between the facts and
+                  * the buttons with nothing to attach to.
+                  *
+                  * Clamped to two lines whatever is in it. The box that
+                  * writes them is capped, but a row that somebody found a way
+                  * to put a paragraph in should cost the board a card and not
+                  * the page.
+                  */}
+                {w.note && (
+                  <p className="relative w-fit max-w-full rounded-xl border border-line bg-bg/60 px-3 py-1.5 text-[14.5px] leading-snug text-ink/90
+                                line-clamp-2
+                                after:absolute after:-bottom-[5px] after:left-5 after:size-2 after:rotate-45
+                                after:border-b after:border-r after:border-line after:bg-bg/60 after:content-['']">
+                    {w.note}
+                  </p>
+                )}
+
+                <div className="flex gap-3">
                 {face
                   // eslint-disable-next-line @next/next/no-img-element
                   ? <img src={face} alt="" width={52} height={52}
@@ -286,7 +347,9 @@ export default function WantList(
 
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-[16px] text-ink">{w.name}</span>
+                    <span title={w.name} className="text-[16px] text-ink">
+                      {shortName(w.name)}
+                    </span>
                     {w.roles.map((r) => (
                       <span key={r}
                             style={{ color: ROLE_COLOR[r],
@@ -302,22 +365,6 @@ export default function WantList(
                       </span>
                     )}
                   </div>
-
-                  {/* What they said, said as speech, and said straight after
-                      their name.
-                      A note is the one part of a card written by a person to
-                      other people, and it was being set in the same grey as
-                      the machinery around it. Under the name is where a line
-                      somebody said belongs — below the list of content it sat
-                      between the facts and the buttons with nothing to attach
-                      to, and the tail had nothing above it to point at. */}
-                  {w.note && (
-                    <p className="relative w-fit max-w-full rounded-xl border border-line bg-bg/60 px-3 py-1.5 text-[14.5px] text-ink/90
-                                  before:absolute before:-top-[5px] before:left-4 before:size-2 before:rotate-45
-                                  before:border-l before:border-t before:border-line before:bg-bg/60 before:content-['']">
-                      {w.note}
-                    </p>
-                  )}
 
                   <p title={want.map((x) => x.text).join(" · ")}
                      className="flex flex-wrap items-center gap-x-1.5 text-[14.5px]">
@@ -354,6 +401,7 @@ export default function WantList(
                       </>
                     )}
                   </div>
+                </div>
                 </div>
               </div>
             );
