@@ -627,7 +627,7 @@
   "mounts": 178,
   "minions": 290,
   "rare": 208,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -758,7 +758,7 @@
   "ults": [
    "Futures Rewritten"
   ],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "38041221": {
   "name": "Kori Kona",
@@ -1277,7 +1277,7 @@
   "mounts": 123,
   "minions": 371,
   "rare": 198,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -1400,7 +1400,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -2230,7 +2230,7 @@
   "mounts": 99,
   "minions": 210,
   "rare": 76,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2333,7 +2333,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -4162,18 +4162,131 @@
  "43864764": {
   "name": "Shinonome Kamemaru",
   "parse": null,
-  "ult": 0,
-  "mounts": 233,
-  "minions": 301,
-  "rare": null,
+  "ult": 3,
+  "mounts": 264,
+  "minions": 336,
+  "rare": 522,
   "level": 100,
   "cc": null,
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   847,
+   852,
+   853,
+   952,
+   1077,
+   1199,
+   1200,
+   1440,
+   1446,
+   1603,
+   1604,
+   1664,
+   1920,
+   1921,
+   1922,
+   2056,
+   2216,
+   2217,
+   2355,
+   2356,
+   2515,
+   2518,
+   2525,
+   2526,
+   2754,
+   2755,
+   2758,
+   2803,
+   2877,
+   2878,
+   2879,
+   2880,
+   2881,
+   2998,
+   2999,
+   3000,
+   3044,
+   3045,
+   3184,
+   3267,
+   3268,
+   3350,
+   3477,
+   3533,
+   3535,
+   3536,
+   3537,
+   3659,
+   3663,
+   3669,
+   3670,
+   3671,
+   3680,
+   3684,
+   3703,
+   3704,
+   3706,
+   3707,
+   3709,
+   3710,
+   3712,
+   3713,
+   3715,
+   3716,
+   3718,
+   3719,
+   3721,
+   3722,
+   3724,
+   3725,
+   3727,
+   3728,
+   3730,
+   3731,
+   3733,
+   3734,
+   3737,
+   3738,
+   3739,
+   3742,
+   3816,
+   3817,
+   3833,
+   3834,
+   3835,
+   3949,
+   3950,
+   3952,
+   3956,
+   3962,
+   3963,
+   4000,
+   4005,
+   4007,
+   4010,
+   4011,
+   4012,
+   4018,
+   4024,
+   4025
+  ],
+  "tiers": {
+   "gatherer": "master",
+   "crafter": "legendary",
+   "relic": "legendary",
+   "explorer": "legendary",
+   "treasure": "legendary",
+   "goldsaucer": "expert",
+   "pvp": "legendary"
+  },
   "jobs": {},
   "ex": [],
-  "ults": [],
-  "chg": "2026-09-11"
+  "ults": [
+   "Dragonsong's Reprise",
+   "The Omega Protocol",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-09-12"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -4333,7 +4446,7 @@
   "mounts": 103,
   "minions": 274,
   "rare": 119,
-  "level": 34,
+  "level": 38,
   "cc": [
    true,
    false,
@@ -4464,7 +4577,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-12"
  },
  "11603711": {
   "name": "Takamina Aamin",
@@ -4789,7 +4902,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 22,
-  "level": 99,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -4834,7 +4947,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -4916,7 +5029,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -4929,7 +5042,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-12"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -4960,7 +5073,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 77,
+  "level": 43,
   "cc": [
    false,
    false,
@@ -4975,7 +5088,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -5589,7 +5702,7 @@
   "mounts": 65,
   "minions": 116,
   "rare": null,
-  "level": 90,
+  "level": 4,
   "cc": [
    false,
    false,
@@ -5604,7 +5717,7 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "38488824": {
   "name": "Daffodil Amary",
@@ -5945,7 +6058,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 93,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    1613,
@@ -5959,7 +6072,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -6788,7 +6901,7 @@
   "mounts": 137,
   "minions": 269,
   "rare": null,
-  "level": 100,
+  "level": 22,
   "cc": [
    false,
    false,
@@ -6809,7 +6922,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-12"
  },
  "38796459": {
   "name": "Minion Ke",
@@ -7682,8 +7795,8 @@
   "parse": 67,
   "ult": 1,
   "mounts": 81,
-  "minions": 155,
-  "rare": null,
+  "minions": 158,
+  "rare": 21,
   "level": 100,
   "cc": [
    true,
@@ -7692,7 +7805,29 @@
    true,
    true
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   556,
+   568,
+   2444,
+   3616,
+   3640,
+   3645,
+   3652,
+   3805,
+   3823,
+   3867,
+   3868,
+   3874,
+   3875,
+   3889,
+   3895,
+   3943,
+   4023,
+   4024,
+   4028,
+   4029,
+   4030
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [
@@ -7705,7 +7840,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8553,14 +8688,14 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 63,
+  "level": 65,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",

@@ -1,6 +1,111 @@
 {
  "events": [
   {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "reached level 100 on Fisher!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "ult_clear",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "cleared Dragonsong's Reprise 🏆"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "ult_clear",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "cleared The Omega Protocol 🏆"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "ult_clear",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "cleared The Weapon's Refrain 🏆"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "grade_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "is now a Master Gatherer ✨"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "grade_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "is now a Legendary Crafter ✨"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "grade_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "is now a Legendary Relic grinder ✨"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "grade_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "grade_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "is now a Legendary Treasure hunter ✨"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "grade_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "is now a Expert Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "grade_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "is now a Legendary PvP player ✨"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned For the Hoard VII — only 0.1% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 47494518,
+   "name": "Farcia Soluna",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "earned Onward and Upward — only 1.6% of players have it, and 20 more"
+  },
+  {
    "date": "2026-09-11",
    "type": "level_100",
    "id": 42845691,
@@ -1294,111 +1399,6 @@
    "id": 30864049,
    "name": "Lay Stardust",
    "text": "is now a Expert Machinist"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Master Astrologian"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Legendary Sage"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned Not Today, Necron"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "is now a Master Warrior"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 5294880,
-   "name": "Mithra Muses",
-   "text": "is now a Expert Sage"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "is now a Legendary Monk"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "is now a Legendary Dark Knight"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "is now a Expert Reaper"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "is now a Expert Dancer"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "is now a Expert Gunbreaker"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Legendary Viper"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Legendary Warrior"
   }
  ]
 }

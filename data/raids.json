@@ -69341,6 +69341,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 67,
       "median": 42,
@@ -69349,6 +69350,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 19,
       "median": 9,
@@ -69357,6 +69359,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 33,
       "median": 17,
@@ -69365,6 +69368,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 22,
       "median": 8,
