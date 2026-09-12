@@ -28,6 +28,20 @@ import { partySeeds } from "@/lib/party-seeds";
 const SITE = "https://cashfc-website.vercel.app";
 
 /**
+ * Which build drew the card, as part of its address.
+ *
+ * Discord keeps an embed's image for a year and only asks again when the URL
+ * changes, so everything that can change the picture has to be in the URL. The
+ * party's own state was in it from the start; the site that draws the card was
+ * not, and the day three hundred duty banners landed every card in the channel
+ * went on showing the version with no picture in it. A deploy can change how
+ * the card looks, so a deploy changes its address.
+ *
+ * "dev" off Vercel, where there is no deployment and nothing cached.
+ */
+const BUILD = (process.env.VERCEL_GIT_COMMIT_SHA ?? "dev").slice(0, 7);
+
+/**
  * Who is running it, by character id.
  *
  * Off the roster rather than out of the party's own members, because a lead
@@ -214,7 +228,7 @@ function embedFor(
     ...Object.values(p.seats).map((m) => m.seatRowId ?? 0),
     ...(p.floating ?? []).map((m) => m.seatRowId ?? 0),
   ].sort((a, b) => a - b).join("-");
-  const version = `${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}`;
+  const version = `${BUILD}.${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}`;
   const card = `${SITE}/party/${p.id}/opengraph-image?v=${version}`;
 
   return {
