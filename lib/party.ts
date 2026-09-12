@@ -2310,31 +2310,75 @@ export interface Shortfall {
 
 const ROLE_ORDER: SlotRole[] = ["tank", "healer", "dps"];
 
+/**
+ * How many of these seats the party's own people could cover between them.
+ *
+ * The same augmenting-path matching resolveParty uses, asked a narrower
+ * question: not "where does everybody sit" but "at most how many of this one
+ * group of chairs can we fill from inside". One person, one chair, however
+ * many they offered for.
+ */
+function absorb(people: readonly Floater[], seats: readonly SlotDef[]): number {
+  if (!seats.length) return 0;
+  const held = new Map<string, Floater>();
+  const take = (f: Floater, seen: Set<string>): boolean => {
+    for (const s of seats) {
+      if (seen.has(s.id) || !coversSeat(f.flex, s)) continue;
+      seen.add(s.id);
+      const sitting = held.get(s.id);
+      if (!sitting || take(sitting, seen)) { held.set(s.id, f); return true; }
+    }
+    return false;
+  };
+  let n = 0;
+  for (const f of people) if (take(f, new Set())) n += 1;
+  return n;
+}
+
 export function shortfallOf(p: Party): Shortfall {
   const res = resolveParty(p);
   const need: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
   const out: Shortfall = { need, free: 0, either: null, total: res.wanted };
   if (!res.wanted) return out;
 
-  // Every seat a mover might end up in, held back from the count by role.
-  const reach = new Set<string>();
-  for (const m of res.movers) {
-    for (const s of res.takeable) if (coversSeat(m.flex, s)) reach.add(s.id);
-  }
+  /*
+   * A role is only counted as short when it is short every way this ends.
+   *
+   * The resolver settles on one arrangement of the party's own flexible
+   * people, and reading the shortage off that arrangement prints a guess as a
+   * fact: a party with an open MT and an open H2 and one member who can play
+   * either was announcing "needs 1 healer" for no better reason than which
+   * seat the matching happened to hand her. Turn up as a tank and the healer
+   * it wanted was never needed.
+   *
+   * So each role is asked its own question — how many of these chairs could
+   * the party fill from inside, at most — and what is left over after that is
+   * the number that holds whatever else happens. Asked per role rather than
+   * all at once on purpose: dedicating every flexible member to the seats of
+   * one role is a real arrangement, and the minimum is what "certainly short"
+   * means.
+   */
+  const movable = [...res.loose, ...res.movers];
+  const of = (r: SlotRole) =>
+    res.takeable.filter((s) => !s.free && s.role === r);
 
-  // Seats nobody has offered for. A seat a floater is hovering over is not
-  // something the party is asking a stranger for.
-  for (const s of res.uncovered) {
-    if (reach.has(s.id)) continue;
-    if (s.free) out.free += 1;
-    else need[s.role] += 1;
+  for (const r of ROLE_ORDER) {
+    const seats = of(r);
+    need[r] = Math.max(0, seats.length - absorb(movable, seats));
   }
+  // Seats with no role to name. A FATE farm three short is short of people.
+  const bare = res.takeable.filter((s) => s.free);
+  out.free = Math.max(0, bare.length - absorb(movable, bare));
 
-  const counted = need.tank + need.healer + need.dps + out.free;
-  const spare = Math.max(0, res.wanted - counted);
+  /*
+   * And the rest: the people the party wants whose role is not settled yet,
+   * because somebody inside it will move to suit whoever turns up. Every role
+   * that still has a chair going is one they could be.
+   */
+  const certain = need.tank + need.healer + need.dps + out.free;
+  const spare = Math.max(0, res.wanted - certain);
   if (spare) {
-    const roles = ROLE_ORDER.filter((r) =>
-      res.takeable.some((s) => reach.has(s.id) && !s.free && s.role === r));
+    const roles = ROLE_ORDER.filter((r) => of(r).length > need[r]);
     if (roles.length) out.either = { roles, n: spare };
     else out.free += spare;
   }

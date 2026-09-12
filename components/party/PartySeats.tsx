@@ -619,15 +619,18 @@ export function NeedLine({ party }: { party: Party }) {
           {t("pf.needRole", { n: cut.need[r], role: ROLE_LABEL[r] })}
         </span>
       ))}
-      {/* One more, and it depends who turns up: somebody in a seat offered to
-          move, so the party takes either role and ends up with one of them.
-          Uncoloured, because it is not a chip about one role. */}
+      {/* The rest, whose role is not settled: somebody inside the party will
+          move to suit whoever turns up. Uncoloured, because it is not a chip
+          about one role — and where every role is still going it stops naming
+          them and says so, which is shorter and says more. */}
       {cut.either && (
         <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em] text-accent">
-          {t("pf.needRole", {
-            n: cut.either.n,
-            role: cut.either.roles.map((r) => ROLE_LABEL[r]).join("/"),
-          })}
+          {cut.either.roles.length === 3
+            ? t("pf.wantMore", { n: cut.either.n })
+            : t("pf.needRole", {
+                n: cut.either.n,
+                role: cut.either.roles.map((r) => ROLE_LABEL[r]).join("/"),
+              })}
         </span>
       )}
       {!parts.length && !cut.either && (

@@ -176,8 +176,13 @@ function shortfall(p: Party, words = false): string {
    * printed between them.
    */
   if (cut.either) {
-    const marks = cut.either.roles.map(say).join("/");
-    parts.push(words ? `${cut.either.n} ${marks}` : `${marks} ${cut.either.n}`);
+    if (cut.either.roles.length === 3) {
+      // Every role still going. Naming all three is longer than saying so.
+      parts.push(`${cut.either.n} คน`);
+    } else {
+      const marks = cut.either.roles.map(say).join("/");
+      parts.push(words ? `${cut.either.n} ${marks}` : `${marks} ${cut.either.n}`);
+    }
   }
   if (cut.free) parts.push(`${cut.free} คน`);
   return parts.join(" · ") || `${cut.total} คน`;
