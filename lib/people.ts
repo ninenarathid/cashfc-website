@@ -32,6 +32,18 @@ export interface PersonOption {
   avatar: string | null;
   /** Verified, with a page, and not in the Free Company. */
   guest?: boolean;
+  /**
+   * Whatever they parse best on, where they parse at all.
+   *
+   * The job itself rather than the role it belongs to: the table that knows
+   * which is which lives in a client component, and this list is built on the
+   * server. A guess either way, and the best one available — what somebody's
+   * logs say they play most is what they are likeliest to want a seat for.
+   *
+   * Absent for everybody without a parse, which is most of the roster, and
+   * everything that reads it has to work without it rather than assume DPS.
+   */
+  job?: string;
 }
 
 /**
@@ -56,6 +68,7 @@ export interface PersonOption {
 export function everyone(data: BoardData): PersonOption[] {
   const roster = data.members.map((m) => ({
     id: m.id, name: m.name, avatar: m.avatar ?? null,
+    ...(m.job_top?.job ? { job: m.job_top.job } : {}),
   }));
   const inFc = new Set(roster.map((m) => m.id));
 

@@ -41,6 +41,8 @@ import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
 import { OneEachMark } from "@/components/party/JobRule";
 import TagIcon from "@/components/TagIcon";
 import PartyIcon from "@/components/party/PartyIcon";
+import { jobRoleGroup } from "@/components/JobIcon";
+import { fmtDateTime } from "@/lib/dates";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import FoodIcon from "@/components/party/FoodIcon";
 import { PartyBody } from "@/components/party/PartyBody";
@@ -822,6 +824,29 @@ export default function PartyBoard(
    * because it is, circularly, filtered on. This is the list they are choosing
    * from, which is the honest thing to ask.
    */
+  /*
+   * Names by character id, built once rather than per party per keystroke.
+   *
+   * Only for the lead: everybody else in a party is carried on the party
+   * itself, and a lead who never took a seat is not.
+   */
+  /**
+   * The role this reader is likeliest to want a seat for.
+   *
+   * Off their own logs — see PersonOption.job — flattened from the game's six
+   * roles to the three a party has seats for. Absent for anybody without a
+   * parse, which is most of the roster, and everything here treats that as
+   * "we do not know" rather than guessing DPS at them.
+   */
+  const myRole = useMemo((): SlotRole | null => {
+    const g = jobRoleGroup(me?.job);
+    return g === "Tanks" ? "tank" : g === "Healers" ? "healer"
+      : g === "DPS" ? "dps" : null;
+  }, [me?.job]);
+
+  const leadName = useMemo(
+    () => new Map(people.map((x) => [x.id, x.name])), [people]);
+
   const base = useMemo(() => {
     const q = query.trim().toLowerCase();
     const horizon = adv.when === "today" ? 1 : adv.when === "3d" ? 3 : adv.when === "week" ? 7 : 0;
@@ -839,11 +864,28 @@ export default function PartyBoard(
       if (kinds.size && (!c || !kinds.has(c.kind))) return false;
 
       if (q) {
+        /*
+         * Everybody who is actually in it, which is not only the seated.
+         *
+         * "Which party is Dessiny in" is one of the two ways anybody finds a
+         * party — the other is the fight — and it was matching the seat grid
+         * only. Somebody flexing without a chair could not be found, and
+         * neither could a lead who put a party up and has not sat down in it,
+         * which is a normal thing for a lead to do. Searching a friend's name
+         * and getting nothing reads as "they are not raiding tonight".
+         *
+         * Not the invitations or the requests. Those are questions somebody
+         * has been asked and has not answered, they are shown on the party
+         * only to the lead, and a search box is not the place to publish who
+         * is thinking about what.
+         */
         const hay = [c?.name, c?.short, c?.badge, c?.duty, p.note,
                      progressText(p.progress), lootText(p.loot), spotText(p.spot),
                      mapsText(p.maps, mapLabel),
                      p.roulettes?.join(" "),
-                     ...Object.values(p.seats).map((s) => s.name)]
+                     leadName.get(p.ownerCharacterId),
+                     ...Object.values(p.seats).map((s) => s.name),
+                     ...(p.floating ?? []).map((f) => f.name)]
           .filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
       }
@@ -876,10 +918,36 @@ export default function PartyBoard(
     });
 
     return out;
-  }, [parties, byKey, query, kinds, adv, me, now, pinned, myHours]);
+  }, [parties, byKey, query, kinds, adv, me, now, pinned, myHours, leadName]);
 
   const anyProgress = useMemo(() => base.some((p) => p.progress), [base]);
   const anyLoot = useMemo(() => base.some((p) => p.loot), [base]);
+
+  /**
+   * Parties this reader has already promised the same hours to.
+   *
+   * The check existed and ran in one place: inside a party, after you had
+   * opened it. On the board a party that clashes with something you are
+   * already in looked exactly like one you could walk into, so the way to
+   * find out was to open it — which is the click this is here to save.
+   *
+   * Worked out once for the whole list rather than per row: clashFor walks
+   * every party looking for the reader, and doing that inside the render of
+   * each row is the same walk forty times over.
+   *
+   * Parties the reader is in do not appear here, because clashFor is asked to
+   * ignore the party it is being asked about — being in something is not
+   * clashing with it.
+   */
+  const busy = useMemo(() => {
+    const out = new Map<string, Party>();
+    if (!me) return out;
+    for (const p of base) {
+      const other = clashFor(parties, me.id, p, p.id);
+      if (other) out.set(p.id, other);
+    }
+    return out;
+  }, [base, parties, me]);
 
   const shown = useMemo(() => {
     // The most useful pair of filters on the page: somebody who wants a farm
@@ -1106,6 +1174,37 @@ export default function PartyBoard(
             </button>
           );
         })}
+
+        {/*
+          * The one filter the reader never has to be asked for.
+          *
+          * What somebody plays is on their own logs and does not change
+          * between visits, so picking "Healer" out of a select box inside a
+          * collapsed panel is a thing they would do every single time they
+          * opened the page. It is a press, beside the chips they already
+          * press, and it says which role it means so it cannot be mistaken
+          * for a filter that happened to be left on.
+          *
+          * Offered, never applied. A board that quietly hides two thirds of
+          * itself on arrival is a board with no parties on it as far as
+          * anybody can tell, and the panel that would explain why is shut.
+          */}
+        {myRole && (
+          <button onClick={() => setAdv((v) => ({
+                    ...v, role: v.role === myRole ? "" : myRole,
+                  }))}
+                  style={adv.role === myRole
+                    ? { borderColor: ROLE_COLOR[myRole], color: ROLE_COLOR[myRole],
+                        background: `color-mix(in srgb, ${ROLE_COLOR[myRole]} 12%, transparent)` }
+                    : undefined}
+                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[14px] transition-colors ${
+                    adv.role === myRole ? ""
+                      : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+            <span style={{ background: ROLE_COLOR[myRole] }}
+                  className="size-2 shrink-0 rounded-full" />
+            {t("pf.wantsMyRole", { role: ROLE_LABEL[myRole] })}
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2.5">
@@ -1443,6 +1542,17 @@ export default function PartyBoard(
                         )}
                       </span>
                       <NeedLine party={p} />
+                      {/* Said on the row rather than only inside. Gold, and
+                          out of the way of the chips beside it: the party is
+                          fine, it is the reader's evening that is taken, and
+                          they may still be reading it for somebody else. */}
+                      {busy.has(p.id) && (
+                        <span title={t("party.clash", {
+                                when: fmtDateTime(busy.get(p.id)!.startsAt) })}
+                              className="rounded-full border border-gold/45 px-2 py-[2px] font-data text-[12.5px] uppercase tracking-[0.1em] text-gold">
+                          {t("pf.youAreBusy")}
+                        </span>
+                      )}
                     </span>
 
                     <span className="flex items-center gap-2">

@@ -1883,6 +1883,10 @@ const DICT = {
     th: "ยังมีท่าไหนที่คนพลาดบ่อยไหม (ไม่ใส่ก็ได้)",
   },
   /* ── The in-game party finder helper ──────────────────────────────── */
+  // On a row, where it saves opening a party to find out. The party is fine;
+  // it is the reader's evening that is spoken for.
+  "pf.wantsMyRole": { en: "wants a {role}", th: "รับ {role}" },
+  "pf.youAreBusy": { en: "you are busy", th: "คุณติดนัด" },
   "pf.helper": { en: "In-game PF helper", th: "ตัวช่วยตั้งห้อง PF ในเกม" },
   "pf.betaTag": { en: "beta", th: "ทดลอง" },
   "pf.beta": {
