@@ -1619,7 +1619,10 @@ const DICT = {
   // but the question is where you are going rather than whether you are in.
   "party.moveSeat": { en: "Move to", th: "ย้ายไปที่" },
   "party.asking": { en: "Asking…", th: "กำลังส่ง…" },
-  "party.asked": { en: "Waiting for the lead to let you in", th: "รอหัวห้องยืนยัน" },
+  "party.asked": {
+    en: "Waiting for the lead to let you in",
+    th: "รอผู้สร้าง Party ยืนยัน",
+  },
   "party.withdraw": { en: "Withdraw", th: "ยกเลิกคำขอ" },
   "party.invited": { en: "You have been invited", th: "คุณถูกชวนเข้าปาร์ตี้นี้" },
   /* ── An invitation names a seat and does not hold it ─────────────────
@@ -1874,7 +1877,7 @@ const DICT = {
   },
   "pf.lootMercWhy": {
     en: "The lead pays everyone for a clear or a rare drop, and keeps the loot.",
-    th: "หัวห้องจ่ายเงินให้ทุกคนตามเงื่อนไข",
+    th: "ผู้สร้าง Party จ่ายเงินให้ทุกคนตามเงื่อนไข",
   },
   "pf.lootBookWhy": {
     en: "Here for the weekly books. Nobody is fighting over the gear.",

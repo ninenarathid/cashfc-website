@@ -221,7 +221,8 @@ async function doJoin(
       ? "คุณอยู่ในปาร์ตี้นี้อยู่แล้วครับ"
       : "ส่งคำขอไม่สำเร็จครับ ลองใหม่อีกครั้ง";
   }
-  return `ส่งคำขอเข้า **${nameOf(p)}** แล้วครับ รอหัวห้องกดรับ — ${SITE}/party/${p.id}`;
+  return `ส่งคำขอเข้า **${nameOf(p)}** แล้วครับ รอผู้สร้าง Party กดรับ`
+    + ` — ${SITE}/party/${p.id}`;
 }
 
 /** And out again, on the same terms the site gives: not once it is starting. */
