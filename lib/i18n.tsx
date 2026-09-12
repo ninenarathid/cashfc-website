@@ -1904,6 +1904,8 @@ const DICT = {
   "want.narrow": { en: "Or one in particular", th: "หรือเจาะจงว่าอันไหน" },
   "want.asWhat": { en: "As", th: "เล่นตำแหน่ง" },
   "want.anyRole": { en: "whatever you are short of", th: "ตำแหน่งไหนที่ขาด" },
+  "want.anyRoleShort": { en: "any role", th: "ตำแหน่งไหนก็ได้" },
+  "want.andMore": { en: "+{n} more", th: "+ อีก {n}" },
   "want.anything": { en: "anything", th: "อะไรก็ได้" },
   "want.noteHint": {
     en: "Anything else? (optional)", th: "มีอะไรอยากบอกเพิ่มไหม (ไม่ใส่ก็ได้)",
@@ -1914,9 +1916,13 @@ const DICT = {
     th: "เวลาเอาจากตารางเวลาว่างในโปรไฟล์ ถ้ายังไม่ได้กรอกจะถือว่าว่างทุกเวลา",
   },
   "want.twoDays": { en: "Lasts two days", th: "อยู่ได้สองวัน" },
-  "want.capped": { en: "Three at a time.", th: "โพสต์ได้ครั้งละ 3 รายการ" },
+  // One each. A want already names as many kinds and as many roles as you
+  // like, so a second row is the same person saying the same thing with
+  // different boxes ticked — and a list where one person holds three of the
+  // ten lines is a list of who typed most.
+  "want.capped": { en: "You have one up.", th: "คุณลงชื่อไว้แล้ว" },
   "want.extend": { en: "Two more days", th: "ต่ออีกสองวัน" },
-  "want.withdraw": { en: "Withdraw", th: "ถอน" },
+  "want.withdraw": { en: "Withdraw", th: "ถอนออก" },
   "want.askedFor": { en: "asked for this", th: "ลงชื่อไว้" },
   "want.leftDays": { en: "{n}d left", th: "เหลือ {n} วัน" },
   "want.leftHours": { en: "{n}h left", th: "เหลือ {n} ชม." },

@@ -79,17 +79,25 @@ export default function WantList(
   }, [kinds, content]);
 
   const mine = wants.filter((w) => w.owner === userId);
-  const canPost = !!me && !!userId && mine.length < 3;
+  const canPost = !!me && !!userId && !mine.length;
 
-  const say = (w: Want) => {
+  /**
+   * What they are after, as coloured parts rather than one long line.
+   *
+   * The kinds carry the same colours as the chips at the top of the board, so
+   * a row of them reads as the same vocabulary and not as a sentence. Named
+   * fights have no colour of their own and take the accent, because a person
+   * who named one has said something more specific than a category.
+   */
+  const asks = (w: Want): { text: string; tint?: string }[] => {
     if (w.contentKeys.length) {
-      return w.contentKeys
-        .map((k) => byKey[k]?.short ?? byKey[k]?.badge ?? byKey[k]?.name ?? k)
-        .join(" · ");
+      return w.contentKeys.map((k) => ({
+        text: byKey[k]?.badge ?? byKey[k]?.short ?? byKey[k]?.name ?? k,
+      }));
     }
     return w.kinds.length
-      ? w.kinds.map((k) => kindSay(k, t)).join(" · ")
-      : t("want.anything");
+      ? w.kinds.map((k) => ({ text: kindSay(k, t), tint: KIND_COLOR[k] }))
+      : [{ text: t("want.anything") }];
   };
 
   const run = async (go: () => Promise<{ error?: string }>) => {
@@ -118,7 +126,7 @@ export default function WantList(
         )}
         {/* Said where the button would be, so somebody who has three does not
             go looking for a button that is deliberately not there. */}
-        {!!me && userId && mine.length >= 3 && (
+        {!!me && userId && mine.length > 0 && !open && (
           <span className="text-[13.5px] text-muted">{t("want.capped")}</span>
         )}
       </div>
@@ -243,53 +251,110 @@ export default function WantList(
         * the whole message.
         */}
       {wants.length === 0 ? null : (
-        <div className="flex flex-col gap-1.5">
+        /*
+         * Cards side by side, at whatever number of them.
+         *
+         * A want is a small fact — a face, a role, a line of what they are
+         * after — and given the width of the page it was being stretched
+         * across a metre of nothing to say it. Three to a row reads as a
+         * noticeboard, which is what it is, and six of them are one glance
+         * instead of six screens.
+         *
+         * The single card sits in the first column and leaves the rest empty,
+         * which is honest: one person is looking, and the board should not
+         * dress that up as a full row.
+         */
+        <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
           {wants.map((w) => {
             const face = (w.characterId != null && overrides[w.characterId])
               || w.avatar;
             const left = leftFor(w.expiresAt);
+            const want = asks(w);
+            // Four and a count, not seven names. Somebody who ticked half the
+            // board has said "most things", and the row should take one line
+            // saying it rather than four wrapping.
+            const show = want.slice(0, 4);
+            const rest = want.length - show.length;
             return (
               <div key={w.id}
-                   className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2">
+                   className="flex gap-3 rounded-xl border border-line bg-surface px-3 py-3">
                 {face
                   // eslint-disable-next-line @next/next/no-img-element
-                  ? <img src={face} alt="" width={28} height={28}
-                         className="size-7 rounded-full border border-line object-cover" />
-                  : <span className="size-7 rounded-full border border-dashed border-line" />}
-                <span className="text-[15.5px] text-ink">{w.name}</span>
-                <span className="text-[15px] text-accent">{say(w)}</span>
-                {w.roles.map((r) => (
-                  <span key={r}
-                        style={{ color: ROLE_COLOR[r],
-                                 borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 50%, transparent)` }}
-                        className="rounded-full border px-2 py-[1px] font-data text-[12px] uppercase tracking-[0.1em]">
-                    {ROLE_LABEL[r]}
-                  </span>
-                ))}
-                {w.note && (
-                  <span className="text-[14.5px] text-muted">{w.note}</span>
-                )}
-                <span className="ml-auto flex items-center gap-2">
-                  {left && (
-                    <span className="font-data text-[12.5px] text-muted">
-                      {t(left.key, { n: left.n })}
-                    </span>
+                  ? <img src={face} alt="" width={52} height={52}
+                         className="size-[52px] shrink-0 rounded-full border border-line object-cover" />
+                  : <span className="size-[52px] shrink-0 rounded-full border border-dashed border-line" />}
+
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-[16px] text-ink">{w.name}</span>
+                    {w.roles.map((r) => (
+                      <span key={r}
+                            style={{ color: ROLE_COLOR[r],
+                                     borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 50%, transparent)`,
+                                     background: `color-mix(in srgb, ${ROLE_COLOR[r]} 10%, transparent)` }}
+                            className="rounded-full border px-2 py-[1px] font-data text-[11.5px] uppercase tracking-[0.1em]">
+                        {ROLE_LABEL[r]}
+                      </span>
+                    ))}
+                    {!w.roles.length && (
+                      <span className="font-data text-[11.5px] uppercase tracking-[0.1em] text-muted">
+                        {t("want.anyRoleShort")}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* What they said, said as speech, and said straight after
+                      their name.
+                      A note is the one part of a card written by a person to
+                      other people, and it was being set in the same grey as
+                      the machinery around it. Under the name is where a line
+                      somebody said belongs — below the list of content it sat
+                      between the facts and the buttons with nothing to attach
+                      to, and the tail had nothing above it to point at. */}
+                  {w.note && (
+                    <p className="relative w-fit max-w-full rounded-xl border border-line bg-bg/60 px-3 py-1.5 text-[14.5px] text-ink/90
+                                  before:absolute before:-top-[5px] before:left-4 before:size-2 before:rotate-45
+                                  before:border-l before:border-t before:border-line before:bg-bg/60 before:content-['']">
+                      {w.note}
+                    </p>
                   )}
-                  {w.owner === userId && (
-                    <>
-                      <button disabled={busy}
-                              onClick={() => void run(() => extendWant(supabase!, w.id))}
-                              className="rounded-lg border border-line px-2.5 py-1 text-[14px] text-muted transition-colors hover:border-jade hover:text-jade">
-                        {t("want.extend")}
-                      </button>
-                      <button disabled={busy}
-                              onClick={() => void run(() => dropWant(supabase!, w.id))}
-                              className="text-[14px] text-muted underline transition-colors hover:text-chili">
-                        {t("want.withdraw")}
-                      </button>
-                    </>
-                  )}
-                </span>
+
+                  <p title={want.map((x) => x.text).join(" · ")}
+                     className="flex flex-wrap items-center gap-x-1.5 text-[14.5px]">
+                    {show.map((x, i) => (
+                      <span key={x.text} style={x.tint ? { color: x.tint } : undefined}
+                            className={x.tint ? "" : "text-accent"}>
+                        {i > 0 && <span className="mr-1.5 text-muted opacity-50">·</span>}
+                        {x.text}
+                      </span>
+                    ))}
+                    {rest > 0 && (
+                      <span className="text-muted">{t("want.andMore", { n: rest })}</span>
+                    )}
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                    {left && (
+                      <span className="font-data text-[12.5px] text-muted">
+                        {t(left.key, { n: left.n })}
+                      </span>
+                    )}
+                    {w.owner === userId && (
+                      <>
+                        <button disabled={busy}
+                                onClick={() => void run(() => extendWant(supabase!, w.id))}
+                                className="rounded-lg border border-line px-2.5 py-1 text-[13.5px] text-muted transition-colors hover:border-jade hover:text-jade">
+                          {t("want.extend")}
+                        </button>
+                        <button disabled={busy}
+                                onClick={() => void run(() => dropWant(supabase!, w.id))}
+                                className="rounded-lg border border-line px-2.5 py-1 text-[13.5px] text-muted transition-colors hover:border-chili hover:text-chili">
+                          {t("want.withdraw")}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             );
           })}
