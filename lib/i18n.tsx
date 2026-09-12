@@ -1564,6 +1564,15 @@ const DICT = {
   "party.mineHeading": {
     en: "Parties you are in ({n})", th: "ปาร์ตี้ที่มีคุณอยู่ ({n})",
   },
+  // Above the one above it. An invitation is the only row on the board that
+  // cannot move without the reader, and it used to sit inside "parties you are
+  // in" — telling them they had accepted something they had not.
+  "party.invitedHeading": {
+    en: "Waiting on your answer ({n})", th: "รอคุณตอบรับ ({n})",
+  },
+  "party.askedHeading": {
+    en: "Waiting on the lead ({n})", th: "รอผู้สร้าง Party ตอบรับ ({n})",
+  },
   "party.whenIPlay": { en: "When I play", th: "ตรงกับเวลาที่คุณเล่น" },
   "party.setHours": {
     en: "Set the hours you usually play on your profile first.",

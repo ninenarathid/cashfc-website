@@ -634,13 +634,3 @@ export default function PartyJoin(
 /** How many people are waiting on the lead — for a mark on the closed row. */
 export const pendingAsks = (p: Party): number => (p.requests ?? []).length;
 
-/**
- * Whether this reader is in the party at all, or waiting to be.
- *
- * Both, on purpose, and this is the one place the two are worth running
- * together: it decides whether a party belongs in the reader's own section of
- * the board, and a party that is holding a request of theirs is exactly a
- * party they want to be able to find.
- */
-export const amIn = (p: Party, me: PersonOption | null): boolean =>
-  !!me && roster(p).some((m) => m.characterId === me.id);

@@ -50,7 +50,7 @@ import MapShot from "@/components/party/MapShot";
 import PartyComments from "@/components/party/PartyComments";
 import { useAvatarOverrides } from "@/lib/avatars";
 import PartyCreate from "@/components/party/PartyCreate";
-import PartyJoin, { amIn, pendingAsks } from "@/components/party/PartyJoin";
+import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
 import Modal from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
 import ShareParty from "@/components/party/ShareParty";
@@ -74,8 +74,18 @@ import ShareParty from "@/components/party/ShareParty";
  * could be checked at all while the page is shut.
  */
 
-/** The key of the section that is not a day. No date can collide with it. */
+/**
+ * The keys of the sections that are not days. No date can collide with them.
+ *
+ * Three, because standing in a party has three answers and the board was
+ * giving one. A party that asked you and is waiting on your reply sat under
+ * "parties you are in" beside the ones you are actually in — which tells
+ * somebody they have decided something they have not, and buries the one
+ * row on the page that cannot move without them.
+ */
+const INVITED = "\u0000invited";
 const MINE = "\u0000mine";
+const ASKED = "\u0000asked";
 
 type Sort = "soon" | "new" | "open";
 type When = "" | "today" | "3d" | "week";
@@ -707,17 +717,22 @@ export default function PartyBoard(
   /** One clock for the board. See PartyClock. */
   const now = useNow(parties);
 
-  /*
-   * Whether this party is one of the reader's.
+  /**
+   * Where this reader stands with a party — which of the three it is.
    *
-   * The roster and the owner, because a lead does not always take a seat in
-   * their own party. amIn walks the seats and the floaters together, which is
-   * the part the filter here used to get wrong: it read Object.values(p.seats)
-   * only, so somebody flexing without a seat was not "in it" on a board whose
-   * whole point is that flexing counts.
+   * The lead is in it whether or not they took a seat, which is the part a
+   * roster walk on its own gets wrong. Everybody else is told apart by what
+   * has to happen next and by whom: an invitation waits on the reader, a
+   * request waits on the lead, and being in it waits on nobody.
    */
-  const isMine = useCallback(
-    (p: Party) => !!me && (p.ownerCharacterId === me.id || amIn(p, me)),
+  const standing = useCallback(
+    (p: Party): "in" | "invited" | "asked" | null => {
+      if (!me) return null;
+      if (p.ownerCharacterId === me.id) return "in";
+      const at = placeOf(p, me.id);
+      if (!at) return null;
+      return at.invited ? "invited" : at.pending ? "asked" : "in";
+    },
     [me]);
 
   /*
@@ -813,7 +828,7 @@ export default function PartyBoard(
     });
 
     return out;
-  }, [parties, byKey, query, kinds, adv, me, now, pinned, myHours, isMine]);
+  }, [parties, byKey, query, kinds, adv, me, now, pinned, myHours]);
 
   const anyProgress = useMemo(() => base.some((p) => p.progress), [base]);
   const anyLoot = useMemo(() => base.some((p) => p.loot), [base]);
@@ -857,8 +872,17 @@ export default function PartyBoard(
    * people read a schedule.
    */
   const sections = useMemo(() => {
-    const mine = shown.filter(isMine);
-    const rest = shown.filter((p) => !isMine(p));
+    const invited: Party[] = [];
+    const mine: Party[] = [];
+    const asked: Party[] = [];
+    const rest: Party[] = [];
+    for (const p of shown) {
+      const where = standing(p);
+      (where === "invited" ? invited
+        : where === "in" ? mine
+        : where === "asked" ? asked
+        : rest).push(p);
+    }
 
     const m = new Map<string, Party[]>();
     for (const p of rest) {
@@ -869,10 +893,16 @@ export default function PartyBoard(
     // Sorting the days by their own key would put a month of finished parties
     // above tonight the moment somebody looked at the archive.
     const days = [...m.entries()];
-    return mine.length
-      ? ([[MINE, mine], ...days] as [string, Party[]][])
-      : days;
-  }, [shown, isMine]);
+    // Invitations at the very top: they are the only rows on the board that
+    // cannot move without the reader, and everything else will still be there
+    // once they have answered.
+    return [
+      ...(invited.length ? [[INVITED, invited]] : []),
+      ...(mine.length ? [[MINE, mine]] : []),
+      ...(asked.length ? [[ASKED, asked]] : []),
+      ...days,
+    ] as [string, Party[]][];
+  }, [shown, standing]);
 
   /*
    * A filter for something nothing on the board has is a control that can only
@@ -1169,9 +1199,13 @@ export default function PartyBoard(
       {sections.map(([key, list]) => (
         <section key={key} className="flex flex-col gap-2">
           <h2 className={`font-data text-[12.5px] uppercase tracking-[0.14em] ${
-            key === MINE ? "text-accent" : "text-muted"}`}>
-            {key === MINE ? t("party.mineHeading", { n: list.length })
-                          : fmtDay(list[0].startsAt)}
+            key === INVITED ? "text-gold"
+            : key === MINE ? "text-accent"
+            : key === ASKED ? "text-jade" : "text-muted"}`}>
+            {key === INVITED ? t("party.invitedHeading", { n: list.length })
+              : key === MINE ? t("party.mineHeading", { n: list.length })
+              : key === ASKED ? t("party.askedHeading", { n: list.length })
+              : fmtDay(list[0].startsAt)}
           </h2>
           {list.map((p) => {
             const c = byKey[p.contentKey];
