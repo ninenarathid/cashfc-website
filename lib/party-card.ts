@@ -217,6 +217,9 @@ export const cardNeeds = (c: PartyCard): [SlotRole[], number][] => {
   const out = (["tank", "healer", "dps"] as SlotRole[])
     .filter((r) => cut.need[r] > 0)
     .map((r) => [[r], cut.need[r]] as [SlotRole[], number]);
+  // No roles on the last badge means the remainder could not be named as a
+  // choice without lying about how many of each could come. "Need 2 more".
   if (cut.either) out.push([cut.either.roles, cut.either.n]);
+  else if (cut.spare) out.push([[], cut.spare]);
   return out;
 };

@@ -303,9 +303,9 @@ export default async function Image(
                 color: ROLE_COLOR[roles[0]], fontSize: 23, fontWeight: 700,
                 letterSpacing: 0.5,
               }}>
-                {roles.length === 3
-                  ? `Need ${n} more`
-                  : `Need ${n} ${roles.map((r) => ROLE_LABEL[r]).join("/")}`}
+                {roles.length
+                  ? `Need ${n} ${roles.map((r) => ROLE_LABEL[r]).join("/")}`
+                  : `Need ${n} more`}
               </div>
             ))}
           </div>

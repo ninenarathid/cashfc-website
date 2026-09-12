@@ -623,17 +623,17 @@ export function NeedLine({ party }: { party: Party }) {
           move to suit whoever turns up. Uncoloured, because it is not a chip
           about one role — and where every role is still going it stops naming
           them and says so, which is shorter and says more. */}
-      {cut.either && (
+      {(cut.either || cut.spare > 0) && (
         <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em] text-accent">
-          {cut.either.roles.length === 3
-            ? t("pf.wantMore", { n: cut.either.n })
-            : t("pf.needRole", {
+          {cut.either
+            ? t("pf.needRole", {
                 n: cut.either.n,
                 role: cut.either.roles.map((r) => ROLE_LABEL[r]).join("/"),
-              })}
+              })
+            : t("pf.needMore", { n: cut.spare })}
         </span>
       )}
-      {!parts.length && !cut.either && (
+      {!parts.length && !cut.either && !cut.spare && (
         // Every empty seat has somebody hovering over it, so there is no role
         // to name -- but only one of the seats each of them hovers over will
         // actually be theirs. What the party wants is bodies, any role.

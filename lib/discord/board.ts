@@ -176,13 +176,13 @@ function shortfall(p: Party, words = false): string {
    * printed between them.
    */
   if (cut.either) {
-    if (cut.either.roles.length === 3) {
-      // Every role still going. Naming all three is longer than saying so.
-      parts.push(`${cut.either.n} คน`);
-    } else {
-      const marks = cut.either.roles.map(say).join("/");
-      parts.push(words ? `${cut.either.n} ${marks}` : `${marks} ${cut.either.n}`);
-    }
+    const marks = cut.either.roles.map(say).join("/");
+    parts.push(words ? `${cut.either.n} ${marks}` : `${marks} ${cut.either.n}`);
+  } else if (cut.spare) {
+    // The remainder with no role safely attached to it. The seat list in the
+    // field below says which chairs are going, which is the honest version of
+    // what "any role" was trying to say.
+    parts.push(`${cut.spare} คน`);
   }
   if (cut.free) parts.push(`${cut.free} คน`);
   return parts.join(" · ") || `${cut.total} คน`;

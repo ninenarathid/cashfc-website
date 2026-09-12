@@ -2300,11 +2300,23 @@ export function pendingSeats(p: Party): SlotDef[] {
  * cannot tell three different stories about one party.
  */
 export interface Shortfall {
+  /** The fewest of each role it could still take — short every way this ends. */
   need: Record<SlotRole, number>;
+  /** And the most, which is what stops "2 more, any role" meaning two tanks. */
+  most: Record<SlotRole, number>;
   free: number;
-  /** One more person (or n), who could be any one of these roles. */
+  /**
+   * The rest, where it can honestly be said as a choice: n more, any one of
+   * these roles, in any mix. Null when it cannot — see shortfallOf.
+   */
   either: { roles: SlotRole[]; n: number } | null;
-  /** How many people in total, which is the sum of the three above. */
+  /**
+   * The remainder, whatever it is called: people the party wants whose role
+   * is not settled. `either` names the roles when that can be said honestly;
+   * this number stands on its own when it cannot.
+   */
+  spare: number;
+  /** How many people in total. */
   total: number;
 }
 
@@ -2338,7 +2350,10 @@ function absorb(people: readonly Floater[], seats: readonly SlotDef[]): number {
 export function shortfallOf(p: Party): Shortfall {
   const res = resolveParty(p);
   const need: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
-  const out: Shortfall = { need, free: 0, either: null, total: res.wanted };
+  const most: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
+  const out: Shortfall = {
+    need, most, free: 0, either: null, spare: 0, total: res.wanted,
+  };
   if (!res.wanted) return out;
 
   /*
@@ -2365,6 +2380,20 @@ export function shortfallOf(p: Party): Shortfall {
   for (const r of ROLE_ORDER) {
     const seats = of(r);
     need[r] = Math.max(0, seats.length - absorb(movable, seats));
+    /*
+     * And the ceiling, which is the question the floor cannot answer: how many
+     * could turn up as this and all be given a chair. Six seats with two
+     * flexible members inside is not room for two tanks when only one tank
+     * seat is open, and a line reading "2 more, any role" said it was.
+     *
+     * The other way round from the floor: whoever cannot be seated anywhere
+     * but in this role's chairs is taking one of them, and the rest of those
+     * chairs are the room there is.
+     */
+    const elsewhere = res.takeable.filter((x) => x.free || x.role !== r);
+    const stuck = movable.length - absorb(movable, elsewhere);
+    most[r] = Math.max(need[r],
+      Math.min(res.wanted, seats.length - Math.max(0, stuck)));
   }
   // Seats with no role to name. A FATE farm three short is short of people.
   const bare = res.takeable.filter((s) => s.free);
@@ -2378,9 +2407,20 @@ export function shortfallOf(p: Party): Shortfall {
   const certain = need.tank + need.healer + need.dps + out.free;
   const spare = Math.max(0, res.wanted - certain);
   if (spare) {
-    const roles = ROLE_ORDER.filter((r) => of(r).length > need[r]);
-    if (roles.length) out.either = { roles, n: spare };
-    else out.free += spare;
+    const roles = ROLE_ORDER.filter((r) => most[r] > need[r]);
+    /*
+     * Said as a choice only where every way of choosing it is true.
+     *
+     * "1 tank or healer" is safe: either one of them can be the one. "2, any
+     * of tank, healer or DPS" is not, when there is one tank seat and one
+     * healer seat — two tanks read it as an invitation and only one of them
+     * gets a chair. So the choice is only offered when each role named could
+     * absorb the whole remainder on its own; otherwise the number is given
+     * without a role, and the seat list beside it says which chairs are going.
+     */
+    const room = roles.every((r) => most[r] - need[r] >= spare);
+    out.spare = spare;
+    if (roles.length && room) out.either = { roles, n: spare };
   }
   return out;
 }
@@ -2390,16 +2430,13 @@ export function shortfallOf(p: Party): Shortfall {
  *
  * A looser question than the one above, on purpose, and the difference is the
  * word "could": this answers "would a party like this take somebody like me",
- * and a party whose healer can tank would take either. So an undecided seat is
- * counted under every role it might be, which over-counts the party by design
- * and is exactly right for a filter. Anything that prints a number for a
+ * which is the ceiling rather than the floor. A party whose healer can tank
+ * would take either, so both are counted — it over-counts the party by design,
+ * and that is exactly right for a filter. Anything that prints a number for a
  * reader wants shortfallOf instead.
  */
 export function needsByRole(p: Party): Record<SlotRole, number> {
-  const s = shortfallOf(p);
-  const out = { ...s.need };
-  if (s.either) for (const r of s.either.roles) out[r] += s.either.n;
-  return out;
+  return { ...shortfallOf(p).most };
 }
 
 export const ROLE_LABEL: Record<SlotRole, string> = {

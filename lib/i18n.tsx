@@ -1983,6 +1983,10 @@ const DICT = {
      opposite facts wearing the same two words. */
   "pf.needRole": { en: "needs {n} {role}", th: "ขาด {n} {role}" },
   "pf.wantMore": { en: "needs {n} more · any role", th: "ขาดอีก {n} · ตำแหน่งไหนก็ได้" },
+  // Without "any role", which is a promise the party cannot keep: six open
+  // seats and two members who can move is not room for two tanks when only one
+  // tank seat is open. The seat grid beside it says which chairs are going.
+  "pf.needMore": { en: "needs {n} more", th: "ขาดอีก {n} คน" },
   "pf.flexingN": { en: "{n} flexing", th: "flex {n}" },
   "pf.flexingWhy": {
     en: "{n} in the party have not settled on a seat yet",
