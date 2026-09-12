@@ -184,9 +184,34 @@ function PartyDetail(
                backgroundColor: def?.art ? undefined
                  : `color-mix(in srgb, ${tint} 22%, var(--color-bg))`,
              }}
-             className="relative flex h-[110px] items-end overflow-hidden rounded-xl bg-cover">
+             /*
+              * The picture's own shape where there is one.
+              *
+              * These are the game's own duty banners and they are drawn at
+              * 1128x360 — a hundred and ten pixels of that is a band across
+              * the middle, which on Bozja meant the sky and none of the
+              * fortress. Given its own ratio nothing is cropped at any width,
+              * and the art is composed the way somebody meant it to be seen.
+              *
+              * A party with no picture keeps the short strip: it is a tinted
+              * block with an icon in the middle, and three hundred pixels of
+              * that is three hundred pixels of nothing.
+              */
+             className={`relative flex items-end overflow-hidden rounded-xl bg-cover ${
+               def?.art
+                 // A floor as well as a ratio. On a phone the ratio alone
+                 // gives about a hundred and twenty pixels, and the clock,
+                 // the status and the copy button wrap to two rows inside
+                 // that — leaving the picture a strip too thin to make out.
+                 // Below the floor it crops the sides instead, which these
+                 // are composed to survive: the subject is in the middle.
+                 ? "aspect-[1128/360] min-h-[168px]" : "h-[110px]"}`}>
+          {/* Only as dark as the words need. It used to be 85% black at the
+              bottom fading to 20% at the top, which is a scrim over the whole
+              picture; the clock and the countdown sit along the bottom edge,
+              so that is the only part that has to be dark. */}
           <span aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-black/85 to-black/20" />
+                className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
           {!def?.art && def && (def.icon || KIND_ICON[def.kind]) && (
             /* Not on a phone, where it lands on the clock.
                The banner is a fixed 110px and the row along its bottom wraps
