@@ -5,6 +5,7 @@ import type {
   Floater, Flex, LengthUnit, Loot, MapPlan, Party, PartyBlock, PartyComment,
   Progress, Reaction, SeatRule, Shape, SlotTaken, Spot,
 } from "@/lib/party";
+import { askedAbout } from "@/lib/party";
 
 /**
  * The party finder, read from and written to the database.
@@ -272,6 +273,27 @@ export async function loadParties(
     talkOf.set(c.party_id, at);
   }
 
+  /**
+   * The shut seats, minus any the party has asked somebody to sit in.
+   *
+   * Two things a lead can say about one chair that contradict each other:
+   * "we are not looking for anybody here" and "would you take D4?". The
+   * listing said both about The Epic of Alexander -- D3 and D4 shut, four
+   * invitations out to them -- and the board believed the first, so an eight
+   * man fight advertised itself as 4/6 with two free seats while the people
+   * who could fill them were being asked about the other two.
+   *
+   * The invitation wins, because it is the more recent and the more specific
+   * thing the lead did: shutting a seat is a standing statement about a chair
+   * and asking somebody is an act aimed at that chair. Shut it again by
+   * withdrawing the invitation, which is the same sentence said once.
+   */
+  const stillShut = (shut: string[] | null, asked: Floater[] | undefined) => {
+    const open = new Set(
+      (asked ?? []).map((f) => askedAbout(f)).filter((s): s is string => !!s));
+    return (shut ?? []).filter((id) => !open.has(id));
+  };
+
   return (posts as unknown as PostRow[]).map((p) => ({
     id: String(p.id),
     contentKey: p.content_key,
@@ -289,7 +311,7 @@ export async function loadParties(
     floating: floatOf.get(p.id) ?? [],
     requests: askOf.get(p.id) ?? [],
     invites: inviteOf.get(p.id) ?? [],
-    closed: p.closed ?? [],
+    closed: stillShut(p.closed, inviteOf.get(p.id)),
     rules: p.rules ?? {},
     oneOfEachJob: p.one_of_each_job,
     progress: p.progress ?? undefined,

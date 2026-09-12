@@ -8,6 +8,7 @@ import type {
 import {
   DEFAULT_AMOUNT, DEFAULT_LENGTH, DEFAULT_LOOT, DEFAULT_PAY_ON,
   FOOD_MINUTES, ROLE_LABEL,
+  askedAbout,
   canFlex, endsAt, flexLabel, lengthUnitsFor, mapsToMinutes, runsToMinutes,
   defaultUnitFor,
   foodToMinutes, fmtTime, hasLoot, hasMaps, hasRoulettes, hasSpot, isFight,
@@ -674,6 +675,10 @@ export default function PartyCreate(
    * the seat stays open until one of them actually sits in it.
    */
   function place(slot: SlotDef, p: PersonOption) {
+    // Asking somebody to sit here reopens the seat, because the two things
+    // cannot both be true: a shut seat is the party saying it wants nobody in
+    // this chair. See stillShut in party-db for the listing that said both.
+    setClosed((v) => v.filter((id) => id !== slot.id));
     if (p.id === me.id) {
       setSeats((v) => ({
         ...v,
@@ -698,6 +703,7 @@ export default function PartyCreate(
 
   function seatOutsider(slot: SlotDef, name: string) {
     if (!name.trim()) return;
+    setClosed((v) => v.filter((id) => id !== slot.id));
     setSeats((v) => ({ ...v, [slot.id]: outsider(name) }));
     setQ("");
   }
@@ -788,6 +794,19 @@ export default function PartyCreate(
   if (picking) lastPicked.current = picking;
   const seat = picking ?? lastPicked.current;
   const sitting = seat ? seats[seat.id] : undefined;
+  /*
+   * Who has already been asked about this seat.
+   *
+   * An invitation cannot sit in the chair — three people may be asked about D4
+   * and only one of them will sit there — so the seat draws empty, and the
+   * sheet offered to shut an empty seat. That is how a fight for eight came to
+   * advertise two shut seats with four people thinking about them. Named here
+   * instead of the button, so the lead can see what they would be shutting.
+   */
+  const askedHere = seat
+    ? [...(editing?.invites ?? []), ...floating]
+        .filter((f) => askedAbout(f) === seat.id)
+    : [];
 
   return (
     /*
@@ -1265,7 +1284,13 @@ export default function PartyCreate(
                     {t("pf.thatIsMe")}
                   </button>
                 )}
-                {closed.includes(seat.id) ? (
+                {askedHere.length > 0 ? (
+                  <span className="rounded-lg border border-dashed border-line px-3 py-1 text-[14px] text-muted">
+                    {t("pf.askedHere", {
+                      who: askedHere.map((f) => f.name).join(", "),
+                    })}
+                  </span>
+                ) : closed.includes(seat.id) ? (
                   <button onClick={() => setClosed((v) => v.filter((id) => id !== seat.id))}
                           className="rounded-lg border border-line px-3 py-1 text-[14px] text-muted hover:text-ink">
                     {t("pf.lookAgain")}

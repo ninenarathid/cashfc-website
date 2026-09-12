@@ -2133,6 +2133,10 @@ const DICT = {
   "pf.playing": { en: "Playing", th: "เล่น" },
   "pf.takeOut": { en: "Take them out of this seat", th: "เอาออกจากตำแหน่งนี้" },
   "pf.thatIsMe": { en: "That is me", th: "ตรงนี้คือคุณ" },
+  "pf.askedHere": {
+    en: "Asked about this seat: {who}",
+    th: "ชวนมาที่นี่แล้ว: {who}",
+  },
   "pf.lookAgain": { en: "Look for somebody after all", th: "กลับมาหาคนตำแหน่งนี้" },
   "pf.notLooking": {
     en: "Not looking — somebody has this seat already",
