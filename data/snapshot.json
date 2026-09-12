@@ -1924,7 +1924,7 @@
   "mounts": 159,
   "minions": 239,
   "rare": 52,
-  "level": 92,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3364,7 +3364,7 @@
   "mounts": 186,
   "minions": 434,
   "rare": 136,
-  "level": 96,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3531,7 +3531,7 @@
   "mounts": 64,
   "minions": 129,
   "rare": 51,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3646,7 +3646,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 65,
-  "level": 84,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3992,7 +3992,7 @@
   "mounts": 215,
   "minions": 404,
   "rare": null,
-  "level": 100,
+  "level": 13,
   "cc": [
    true,
    true,
@@ -4032,7 +4032,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-12"
  },
  "44133352": {
   "name": "Seville Beoulve",
@@ -4301,7 +4301,7 @@
   "mounts": 201,
   "minions": 382,
   "rare": 266,
-  "level": 41,
+  "level": 45,
   "cc": [
    true,
    true,
@@ -4592,7 +4592,7 @@
   "mounts": 164,
   "minions": 286,
   "rare": 73,
-  "level": 16,
+  "level": 100,
   "cc": [
    true,
    false,
@@ -4908,7 +4908,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 22,
-  "level": 92,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -5964,7 +5964,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 95,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6064,7 +6064,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 94,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6274,7 +6274,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 77,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -6431,7 +6431,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 87,
   "cc": [
    true,
    true,
@@ -7056,7 +7056,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 30,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7069,7 +7069,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-12"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -7518,7 +7518,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 31,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7754,7 +7754,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 31,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7767,7 +7767,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-12"
  },
  "31806535": {
   "name": "Viiska Howl",

@@ -66674,7 +66674,13 @@
       "best": 4,
       "median": 3,
       "kills": 2,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 2,
+        "best": 4
+       }
+      }
      },
      {
       "label": "P10S",
@@ -66683,7 +66689,17 @@
       "best": 3,
       "median": 3,
       "kills": 2,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 1,
+        "best": 3
+       },
+       "Gunbreaker": {
+        "kills": 1,
+        "best": 1
+       }
+      }
      },
      {
       "label": "P11S",
@@ -66692,7 +66708,17 @@
       "best": 23,
       "median": 23,
       "kills": 2,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 1,
+        "best": 23
+       },
+       "Gunbreaker": {
+        "kills": 1,
+        "best": 2
+       }
+      }
      }
     ]
    }

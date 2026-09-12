@@ -3,6 +3,83 @@
   {
    "date": "2026-09-12",
    "type": "level_100",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 11603711,
+   "name": "Takamina Aamin",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on Monk!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 47494518,
+   "name": "Farcia Soluna",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 30596644,
+   "name": "Noelle Eisner",
+   "text": "reached level 100 on Fisher!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 60211788,
+   "name": "Shikihara Catlover",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 33608576,
+   "name": "Verles Eisner",
+   "text": "reached level 100 on Fisher!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
    "id": 29152036,
    "name": "Fluffy Tinytail",
    "text": "reached level 100 on Dragoon!"
@@ -1322,83 +1399,6 @@
    "id": 26268800,
    "name": "Mono Sodium",
    "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 26268800,
-   "name": "Mono Sodium",
-   "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "is now a Legendary Gunbreaker"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "is now a Expert Scholar"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 28789661,
-   "name": "Zuma Zerk",
-   "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "ex_clear",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "cleared Queen Eternal (Extreme)"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "parse_up",
-   "id": 26844665,
-   "name": "J'atoh Nunh",
-   "text": "set a new best parse: 37 on Eden Prime as Paladin"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "level_100",
-   "id": 31155521,
-   "name": "Ketchup Love",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Legendary Warrior"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 31628293,
-   "name": "Aaaaaaa Yaaaaaa",
-   "text": "is now a Legendary Scholar"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "rare_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "earned R&D: Stellar Frypan"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 24186600,
-   "name": "Dumb Bunny",
-   "text": "is now a Legendary White Mage"
   }
  ]
 }
