@@ -8,7 +8,7 @@ import type {
   ContentKind, Flex, Party, SlotDef, SlotRole, Wing,
 } from "@/lib/party";
 import {
-  ROLE_COLOR, ROLE_LABEL, askedAbout, jobMatters, openSeats, openTo,
+  ROLE_COLOR, ROLE_LABEL, askedAbout, flexLabel, jobMatters, openSeats, openTo,
   partyStatus,
 } from "@/lib/party";
 import JobIcon, { jobLabel, jobRoleGroup } from "@/components/JobIcon";
@@ -42,15 +42,22 @@ type Who = { seatRowId?: number; characterId: number | null; name: string;
              seat?: string };
 
 /**
- * Everybody in the party, seated or floating, as one list.
+ * Everybody in the party or at the door, as one list.
  *
  * The seat id is carried along rather than left behind as the key of the
  * object it came out of, because every question asked here — who is waiting,
  * what did they ask for — needs the person and the seat together.
+ *
+ * The requests are in it here and nowhere else on the board, which is the
+ * point of this file: the grid, the headcount and the shortfall describe the
+ * party, and this describes what is being decided about it. Both questions
+ * asked here — is this reader in it, and who is the lead being kept waiting by
+ * — are questions about people who may well not be in it yet.
  */
 const roster = (p: Party): Who[] => [
   ...Object.entries(p.seats).map(([seat, v]) => ({ ...v, seat })),
   ...(p.floating ?? []),
+  ...(p.requests ?? []),
 ];
 
 export default function PartyJoin(
@@ -121,10 +128,14 @@ export default function PartyJoin(
     () => (me ? roster(party).find((m) => m.characterId === me.id) : undefined),
     [party, me]);
 
-  /* Requests waiting on the lead. Invitations are somebody else's to answer. */
-  const waiting = useMemo(
-    () => roster(party).filter((m) => m.by === "self" && !m.confirmedAt),
-    [party]);
+  /*
+   * Requests waiting on the lead. Invitations are somebody else's to answer.
+   *
+   * The board no longer draws these anywhere — an unanswered request is not a
+   * seat and is not one of the eight — so this panel is the only place they
+   * appear, and the only place the lead can say yes from. See Party.requests.
+   */
+  const waiting = party.requests ?? [];
 
   const free = useMemo(() => openSeats(party), [party]);
   const seated = party.shape !== "open";
@@ -263,8 +274,11 @@ export default function PartyJoin(
                   : <span className="size-[30px] rounded-full bg-card" />}
                 <span className="text-[16px] text-ink">{w.name}</span>
                 <span className="text-[15px] text-muted">
-                  {/* Which seat they asked for, or that they did not mind. */}
-                  {w.seat ?? t("party.anySeat")}
+                  {/* What they asked for. One seat named is that seat — it is
+                      carried in the flex rather than held, so this is the only
+                      thing that reads it back — several is the list, and
+                      nothing at all is "wherever you need me". */}
+                  {askedAbout(w) ?? flexLabel(w.flex) ?? t("party.anySeat")}
                 </span>
                 <span className="ml-auto flex gap-1.5">
                   <button disabled={busy}
@@ -287,7 +301,9 @@ export default function PartyJoin(
       {/* ── The reader's side ───────────────────────────────────────────── */}
       {!iAmOwner && mine && !mine.confirmedAt && mine.by === "self" && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[15.5px] text-muted">{t("party.asked")}</span>
+          <span className="text-[15.5px] text-muted">
+            {asked ? t("party.askedFor", { seat: asked }) : t("party.asked")}
+          </span>
           <button disabled={busy}
                   onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
                   className={`${btn} border border-line text-muted hover:text-ink`}>
@@ -599,9 +615,15 @@ export default function PartyJoin(
 }
 
 /** How many people are waiting on the lead — for a mark on the closed row. */
-export const pendingAsks = (p: Party): number =>
-  roster(p).filter((m) => m.by === "self" && !m.confirmedAt).length;
+export const pendingAsks = (p: Party): number => (p.requests ?? []).length;
 
-/** Whether this reader is in the party at all, however they got there. */
+/**
+ * Whether this reader is in the party at all, or waiting to be.
+ *
+ * Both, on purpose, and this is the one place the two are worth running
+ * together: it decides whether a party belongs in the reader's own section of
+ * the board, and a party that is holding a request of theirs is exactly a
+ * party they want to be able to find.
+ */
 export const amIn = (p: Party, me: PersonOption | null): boolean =>
   !!me && roster(p).some((m) => m.characterId === me.id);

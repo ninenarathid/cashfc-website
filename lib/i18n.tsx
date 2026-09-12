@@ -1623,6 +1623,15 @@ const DICT = {
     en: "Waiting for the lead to let you in",
     th: "รอผู้สร้าง Party ยืนยัน",
   },
+  /* And which seat, because the grid no longer says.
+     A request is not drawn in the party until it is answered — that is the
+     point of it — so this line is the only place the seat somebody asked for
+     is written down, and "waiting" on its own left them unable to check what
+     they had actually sent. */
+  "party.askedFor": {
+    en: "Waiting for the lead to let you into {seat}",
+    th: "รอผู้สร้าง Party ยืนยัน — ขอที่นั่ง {seat}",
+  },
   "party.withdraw": { en: "Withdraw", th: "ยกเลิกคำขอ" },
   "party.invited": { en: "You have been invited", th: "คุณถูกชวนเข้าปาร์ตี้นี้" },
   /* ── An invitation names a seat and does not hold it ─────────────────

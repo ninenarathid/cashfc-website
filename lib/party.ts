@@ -1007,6 +1007,26 @@ export interface Party {
    */
   floating?: Floater[];
   /**
+   * People who have asked to come and have not been let in yet.
+   *
+   * Deliberately not in `seats` and not in `floating`, which is the whole
+   * point of the field. A request is a question put to the lead, not a fact
+   * about the evening: somebody who pressed join is not in the party, is not
+   * in a chair, and is not one of the eight — and a board that drew them as
+   * any of those told everybody else the party was fuller than it is, which is
+   * how the last two seats stop being asked for.
+   *
+   * So nothing that describes the party reads this. The lead's own panel does,
+   * because answering is theirs to do, and so does the asker's own line, where
+   * "waiting" and "withdraw" live. Both of those are about the request rather
+   * than about the party, which is exactly the split.
+   *
+   * Floaters in shape, because a request holds no chair: the seat it names is
+   * carried in the flex, the way an invitation already carries one. See
+   * askedAbout, and v47 for the argument.
+   */
+  requests?: Floater[];
+  /**
    * Seats the party is not looking to fill.
    *
    * Five friends running an eight-man with three seats they mean to leave
@@ -1979,23 +1999,41 @@ export const tickMs = (ms: number): number =>
 
 
 /**
- * Where somebody is in a party, if they are in it at all.
+ * Where somebody stands with a party, if they stand anywhere at all.
  *
- * Seats and floaters are two lists and one question, and every caller that
- * wants "am I in this, and where" was walking both. Null means not in it,
- * which is a different answer from being in it without a seat — the second is
- * somebody who said yes and has not picked, and the party counts them.
+ * Seats, floaters and requests are three lists and one question, and every
+ * caller that wants "am I in this, and where" was walking all of them. Null
+ * means nothing at all, which is a different answer from being in it without a
+ * seat — the second is somebody who said yes and has not picked, and the party
+ * counts them — and different again from `pending`, which is somebody the
+ * party does not count and cannot be offered the door twice.
  */
 export function placeOf(
   p: Party, characterId: number,
-): { rowId?: number; seat: string | null; flex: Flex | null } | null {
+): { rowId?: number; seat: string | null; flex: Flex | null;
+     /** They have asked and nobody has answered. Not in it, not free of it. */
+     pending?: true } | null {
   for (const [seat, w] of Object.entries(p.seats)) {
     if (w.characterId === characterId) {
       return { rowId: w.seatRowId, seat, flex: w.flex ?? null };
     }
   }
   const f = (p.floating ?? []).find((x) => x.characterId === characterId);
-  return f ? { rowId: f.seatRowId, seat: null, flex: f.flex ?? null } : null;
+  if (f) return { rowId: f.seatRowId, seat: null, flex: f.flex ?? null };
+  /*
+   * And an unanswered request, which is a place of a sort: not in the party,
+   * but not somewhere anybody can ask again from either. A caller that leaves
+   * this out offers the join button to somebody who has already pressed it,
+   * and the insert behind it dies on the constraint — so the answer came back
+   * as "you are already in this party" to somebody who was not in it.
+   *
+   * Flagged, because "waiting" and "in" are different sentences. Callers that
+   * only want to know whether to offer the button can ignore the flag.
+   */
+  const q = (p.requests ?? []).find((x) => x.characterId === characterId);
+  return q
+    ? { rowId: q.seatRowId, seat: null, flex: q.flex ?? null, pending: true as const }
+    : null;
 }
 
 /**

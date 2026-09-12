@@ -156,6 +156,7 @@ export async function loadParties(
 
   const seatsOf = new Map<number, Record<string, SlotTaken>>();
   const floatOf = new Map<number, Floater[]>();
+  const askOf = new Map<number, Floater[]>();
   for (const m of (members ?? []) as unknown as MemberRow[]) {
     const who = {
       characterId: m.character_id, name: m.name, avatar: m.avatar,
@@ -166,6 +167,32 @@ export async function loadParties(
       ...(m.jobs?.length ? { jobs: m.jobs } : {}),
       ...(m.flex ? { flex: m.flex } : {}),
     };
+    /*
+     * Asked, and not yet answered — which is not being in the party.
+     *
+     * Its own list rather than a flag on a seat, so that everything which
+     * draws the party draws the party: the grid, the headcount and what it is
+     * short of read the seats and the floaters, and none of them has to
+     * remember that one of the rows in there is only a question. See
+     * Party.requests.
+     *
+     * The seat it names is moved into the flex, which is where a request keeps
+     * it — v59 does the same to the rows written before that was true, and
+     * this handles either shape so the board reads correctly the moment the
+     * code lands rather than the moment the migration runs.
+     *
+     * A lead taking a seat in their own party is never one of these: they
+     * arrive answered, because there is nobody for them to be asking.
+     */
+    if (who.by === "self" && !m.confirmed_at) {
+      const at = askOf.get(m.party_id) ?? [];
+      at.push({
+        ...who,
+        flex: m.flex ?? (m.seat ? { seats: [m.seat] } : {}),
+      } as Floater);
+      askOf.set(m.party_id, at);
+      continue;
+    }
     if (m.seat) {
       const at = seatsOf.get(m.party_id) ?? {};
       at[m.seat] = who as SlotTaken;
@@ -240,6 +267,7 @@ export async function loadParties(
     owner: p.owner,
     seats: seatsOf.get(p.id) ?? {},
     floating: floatOf.get(p.id) ?? [],
+    requests: askOf.get(p.id) ?? [],
     closed: p.closed ?? [],
     rules: p.rules ?? {},
     oneOfEachJob: p.one_of_each_job,
@@ -382,6 +410,18 @@ export async function addComment(
  * `seat` is null for a flex join — "I can play any of these, put me where you
  * need me". The resolver works out where that lands every time the party is
  * drawn, so there is nothing to decide here.
+ *
+ * And naming one seat does not hold it, which is v47's rule for invitations
+ * arriving where it always belonged. One seat holds one row, so a request
+ * written into the chair meant the first person to ask about D4 was the only
+ * person who could: everybody after them collided with the constraint and was
+ * told they were already in the party. The seat goes into the flex instead —
+ * "I could take D4", which is what it always meant — and party_let_in claims
+ * the chair at the moment the lead says yes.
+ *
+ * `own` is the exception and stays a real seat, because it is not a request.
+ * The lead is not asking anybody, the row arrives answered, and there is
+ * nothing between writing it and holding the chair.
  */
 export async function askToJoin(
   supabase: SupabaseClient, userId: string, partyId: string,
@@ -398,9 +438,10 @@ export async function askToJoin(
           */
          own?: boolean },
 ): Promise<{ id: string } | { error: string }> {
+  const wants = who.seat ?? null;
   const { data, error } = await supabase.from("party_members").insert({
     party_id: Number(partyId),
-    seat: who.seat ?? null,
+    seat: who.own ? wants : null,
     character_id: who.characterId,
     name: who.name,
     avatar: who.avatar,
@@ -408,7 +449,11 @@ export async function askToJoin(
     // empty until somebody picks from it.
     job: who.job ?? (who.jobs?.length === 1 ? who.jobs[0] : null),
     jobs: who.jobs && who.jobs.length > 1 ? who.jobs : null,
-    flex: who.flex ?? null,
+    // The seat asked for, carried rather than held. askedAbout reads it back
+    // out of exactly this shape.
+    flex: who.own ? (who.flex ?? null)
+      : wants ? { seats: [wants] }
+        : (who.flex ?? null),
     asked_by: who.own ? "owner" : "self",
     confirmed_at: who.own ? new Date().toISOString() : null,
     invited_by: userId,
@@ -509,17 +554,24 @@ export async function deleteParty(
 }
 
 /**
- * Let somebody in, or say yes to an invitation.
+ * Let somebody in.
  *
- * One function for both because it is one column either way, and which
- * direction it was asked in is already on the row.
+ * Not one column any more, which is what v59 changed. A request names its seat
+ * in the flex and does not hold it, so saying yes has two halves — the answer
+ * and the chair — and they have to be one statement or two people let in at
+ * once could be handed the same seat. The database does both and decides the
+ * race; whoever it cannot seat is in the party as a floater, which is where
+ * somebody who asked for "anywhere" was always going to land.
+ *
+ * Which seat they got is not reported back. There is only one person pressing
+ * this — the lead, on their own party, one request at a time — so the answer
+ * is whatever the board shows a moment later, and the board is reloaded either
+ * way.
  */
 export async function confirmSeat(
   supabase: SupabaseClient, seatRowId: number,
 ): Promise<{ error?: string }> {
-  const { error } = await supabase.from("party_members")
-    .update({ confirmed_at: new Date().toISOString() })
-    .eq("id", seatRowId);
+  const { error } = await supabase.rpc("party_let_in", { p_member: seatRowId });
   return error ? { error: error.message } : {};
 }
 
