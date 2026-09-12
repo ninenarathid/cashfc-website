@@ -26,6 +26,29 @@ import { useLang } from "@/lib/i18n";
  * from fields somebody filled in on a website — the person about to post it is
  * the one who knows whether tonight is really like that.
  */
+/**
+ * Two sheets, one behind the other, and a tick once it has been taken.
+ *
+ * Drawn rather than typed as an emoji: 📋 is a clipboard on one platform, a
+ * spiral notepad on another and a memo pad on a third, and this button has to
+ * read as "copy" on a phone as well as on the desktop somebody is about to
+ * alt-tab out of into the game.
+ */
+function CopyMark({ done }: { done: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width={15} height={15} fill="none"
+         stroke="currentColor" strokeWidth={2} strokeLinecap="round"
+         strokeLinejoin="round" aria-hidden className="shrink-0">
+      {done ? <path d="M20 6 9 17l-5-5" /> : (
+        <>
+          <rect x="9" y="9" width="12" height="12" rx="2" />
+          <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export default function PfHelper(
   { party, def, onClose }: {
     party: Party; def: ContentDef | undefined; onClose: () => void;
@@ -84,6 +107,26 @@ export default function PfHelper(
   );
 
   const ja = lang === "ja";
+
+  /*
+   * Copying, and saying so when it cannot.
+   *
+   * The clipboard is refused on an insecure origin and by a browser that has
+   * not been asked — and this button is the entire point of the feature, so a
+   * silent failure here is the feature failing silently. The prompt is not a
+   * consolation prize: the text is in front of them, selected, and Ctrl+C
+   * works. Same fallback the share button has, for the same reason.
+   */
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      window.prompt(t("pf.copyComment"), text);
+      return;
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  };
 
   return (
     <Modal open onOpenChange={(v) => { if (!v) onClose(); }}
@@ -178,12 +221,9 @@ export default function PfHelper(
               <span className="text-[14px] text-chili">{t("pf.tooLong")}</span>
             )}
             <button type="button" disabled={!text}
-                    onClick={() => {
-                      void navigator.clipboard.writeText(text);
-                      setCopied(true);
-                      window.setTimeout(() => setCopied(false), 1600);
-                    }}
-                    className="ml-auto rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                    onClick={() => void copy()}
+                    className="ml-auto flex items-center gap-1.5 rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+              <CopyMark done={copied} />
               {copied ? t("party.copied") : t("pf.copyComment")}
             </button>
           </div>
