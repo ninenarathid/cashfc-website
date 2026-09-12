@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned The Might Phantastick: Index Penumbrae"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned A Beast in the Hand V — only 0.5% of players have it, and 13 more"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "earned Eighth Rank III — only 0.1% of players have it, and 5 more"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned With Axe in Hand VII — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Blood Born V — only 2.3% of players have it"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned R&D: Cross-pein Hyperhammer"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "rare_up",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "earned Eighth Rank III — only 0.1% of players have it, and 4 more"
+  },
+  {
+   "date": "2026-09-12",
+   "type": "level_100",
+   "id": 7283668,
+   "name": "Nowhere Man",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-09-12",
    "type": "level_100",
    "id": 44970350,
    "name": "Allen Crist",
@@ -1329,76 +1399,6 @@
    "id": 31236337,
    "name": "Whitefrost Marionette",
    "text": "is now a Master Astrologian"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned An Eye for Quantity: Miner IV — only 4.7% of players have it"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "is now a Legendary Dancer"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "is now a Legendary Summoner"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Expert Gunbreaker"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 38808156,
-   "name": "Kwiyo Ki",
-   "text": "is now a Legendary Dancer"
-  },
-  {
-   "date": "2026-09-07",
-   "type": "job_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Expert Machinist"
   }
  ]
 }
