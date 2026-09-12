@@ -49,8 +49,15 @@ export default function ProgressTrack(
 
   const tint = PROGRESS_COLOR[at];
   const wantsMech = at === "prog" || at === "a2c";
-  // Nothing is "the phase" of a farm run: it dies, all of it, every time.
-  const phases = at === "farm" ? [] : phasesOf(contentKey);
+  /*
+   * Only while the party is working through it.
+   *
+   * A fresh start is the whole fight from the top, a farm run is the whole
+   * fight until it dies, and neither has a phase — the row was offering a
+   * question with no answer on three rungs out of four. Prog is the one where
+   * "which part" is the fact somebody wants.
+   */
+  const phases = at === "prog" ? phasesOf(contentKey) : [];
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
@@ -74,6 +81,11 @@ export default function ProgressTrack(
                         ...value, at: s.key,
                         // Nothing is being drilled on a farm run.
                         mech: s.key === "farm" ? "" : value.mech,
+                        // And a phase set while progging is not a fact about
+                        // a farm night or a fresh start. Dropped with the row
+                        // that set it, rather than left behind where nothing
+                        // on the form can reach it to turn it off.
+                        phase: s.key === "prog" ? value.phase : undefined,
                       })}
                       style={on
                         ? { borderColor: tint, color: tint,
@@ -88,15 +100,25 @@ export default function ProgressTrack(
         })}
       </div>
 
-      {/* The phases of this fight, where somebody has written them down.
-          Pressable off as well as on: a party that set P3 and then decided the
-          night is about the whole fight has to be able to say so. */}
+      {/*
+        * The phases of this fight, where somebody has written them down.
+        *
+        * With the boss on the chip rather than behind a tooltip. "P3" is what
+        * a party says out loud and what a Japanese listing leads with, but it
+        * is also the one label nobody can check: a lead who knows the fight as
+        * Oracle of Darkness has to count the bosses on their fingers to find
+        * out whether that is three or four, and counting wrong is the whole
+        * reason this list exists.
+        *
+        * Pressable off as well as on: a party that set P3 and then decided the
+        * night is about the whole fight has to be able to say so.
+        */}
       {phases.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {phases.map((ph) => {
             const on = value.phase === ph.n;
             return (
-              <button key={ph.n} type="button" title={ph.name}
+              <button key={ph.n} type="button"
                       onClick={() => onChange({
                         ...value, phase: on ? undefined : ph.n,
                       })}
@@ -104,9 +126,12 @@ export default function ProgressTrack(
                         ? { borderColor: tint, color: tint,
                             background: `color-mix(in srgb, ${tint} 14%, transparent)` }
                         : undefined}
-                      className={`rounded-full border px-2.5 py-[3px] text-[14px] transition-colors ${
+                      className={`flex flex-col items-start rounded-lg border px-2.5 py-1 leading-tight transition-colors ${
                         on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                {/^\d/.test(ph.n) ? `P${ph.n}` : ph.n}
+                <span className="font-data text-[13px] uppercase tracking-[0.1em]">
+                  {/^\d/.test(ph.n) ? `P${ph.n}` : ph.n}
+                </span>
+                <span className="text-[12.5px] opacity-75">{ph.name}</span>
               </button>
             );
           })}
