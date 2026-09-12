@@ -40405,6 +40405,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 95,
       "median": 68,
@@ -40413,6 +40414,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 86,
       "median": 62,
@@ -40421,6 +40423,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 96,
       "median": 74,
@@ -40428,7 +40431,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P12S-1",
+      "label": "P12S",
+      "encounter_id": 91,
       "name": "Athena",
       "best": 71,
       "median": 12,
@@ -40436,7 +40440,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P12S-2",
+      "label": null,
+      "encounter_id": 92,
       "name": "Pallas Athena",
       "best": 56,
       "median": 44,
@@ -66664,6 +66669,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 4,
       "median": 3,
@@ -66672,6 +66678,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 3,
       "median": 3,
@@ -66680,6 +66687,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 23,
       "median": 23,

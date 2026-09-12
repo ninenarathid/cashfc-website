@@ -627,7 +627,7 @@
   "mounts": 178,
   "minions": 290,
   "rare": 208,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1924,7 +1924,7 @@
   "mounts": 159,
   "minions": 239,
   "rare": 52,
-  "level": 36,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -2175,7 +2175,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 26,
-  "level": 67,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2221,7 +2221,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -3364,7 +3364,7 @@
   "mounts": 186,
   "minions": 434,
   "rare": 136,
-  "level": 15,
+  "level": 96,
   "cc": [
    true,
    true,
@@ -3491,7 +3491,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "51922514": {
   "name": "Mumu Nene",
@@ -3531,7 +3531,7 @@
   "mounts": 64,
   "minions": 129,
   "rare": 51,
-  "level": 100,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -3646,7 +3646,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 65,
-  "level": 100,
+  "level": 84,
   "cc": [
    true,
    true,
@@ -3749,7 +3749,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-12"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -3758,7 +3758,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 100,
+  "level": 3,
   "cc": [
    true,
    true,
@@ -3864,7 +3864,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-12"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -3921,7 +3921,7 @@
   "mounts": 48,
   "minions": 140,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3949,7 +3949,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "30667251": {
   "name": "Roxas Akatsuki",
@@ -4301,7 +4301,7 @@
   "mounts": 201,
   "minions": 382,
   "rare": 266,
-  "level": 100,
+  "level": 41,
   "cc": [
    true,
    true,
@@ -4443,7 +4443,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-12"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -4452,7 +4452,7 @@
   "mounts": 103,
   "minions": 274,
   "rare": 119,
-  "level": 38,
+  "level": 100,
   "cc": [
    true,
    false,
@@ -4592,7 +4592,7 @@
   "mounts": 164,
   "minions": 286,
   "rare": 73,
-  "level": 100,
+  "level": 16,
   "cc": [
    true,
    false,
@@ -4690,7 +4690,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-12"
  },
  "58202955": {
   "name": "Trevas Aka",
@@ -4735,7 +4735,7 @@
   "mounts": 47,
   "minions": 114,
   "rare": null,
-  "level": 72,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4760,7 +4760,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-07"
+  "chg": "2026-09-12"
  },
  "29918404": {
   "name": "Zarass Gierlos",
@@ -5035,7 +5035,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5543,7 +5543,7 @@
   "mounts": 31,
   "minions": 95,
   "rare": 2,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5964,7 +5964,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 100,
+  "level": 95,
   "cc": [
    true,
    true,
@@ -5989,7 +5989,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -6064,7 +6064,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 93,
+  "level": 94,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6135,7 +6135,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 86,
+  "level": 87,
   "cc": null,
   "rare_ids": [
    3874
@@ -6274,7 +6274,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 16,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -6306,7 +6306,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-12"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -6838,7 +6838,7 @@
   "mounts": 68,
   "minions": 102,
   "rare": 46,
-  "level": 50,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -7078,7 +7078,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 88,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -7186,7 +7186,7 @@
   "mounts": 131,
   "minions": 271,
   "rare": 116,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7343,7 +7343,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 30,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7518,7 +7518,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 100,
+  "level": 31,
   "cc": [
    false,
    false,
@@ -7533,7 +7533,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-12"
  },
  "8713004": {
   "name": "Shoe Bite",
@@ -8699,7 +8699,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 65,
+  "level": 18,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -16612,7 +16612,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 94,
+  "level": 96,
   "cc": [
    false,
    false,
