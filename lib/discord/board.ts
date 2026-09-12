@@ -1,5 +1,5 @@
 import {
-  KIND_COLOR, catalogue, endsAt, headcount, lootText,
+  KIND_COLOR, catalogue, endsAt, headcount, lootText, openSeats,
   partyStatus, progressText, resolveParty, spotText, worldText,
 } from "@/lib/party";
 import raw from "@/data/members.json";
@@ -181,6 +181,7 @@ function embedFor(
   const status = partyStatus(p);
   const at = stamp(p.startsAt);
 
+  const freeSeats = openSeats(p).filter((sl) => !sl.free).map((sl) => sl.label);
   const extras = [
     progressText(p.progress),
     lootText(p.loot),
@@ -200,7 +201,20 @@ function embedFor(
    * by its URL and would otherwise show the seat count as it stood the first
    * time anybody looked — so the URL changes whenever the card would.
    */
-  const version = `${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}`;
+  /*
+   * Every row id in it, so the URL cannot repeat.
+   *
+   * A headcount alone is not enough: one person leaving and another arriving
+   * leaves it where it was, and the picture would keep whatever it said before
+   * both of them — Discord holds these for a year and asks again only when the
+   * address changes. Row ids only ever climb, so any change to who is in it is
+   * a change to this.
+   */
+  const who = [
+    ...Object.values(p.seats).map((m) => m.seatRowId ?? 0),
+    ...(p.floating ?? []).map((m) => m.seatRowId ?? 0),
+  ].sort((a, b) => a - b).join("-");
+  const version = `${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}`;
   const card = `${SITE}/party/${p.id}/opengraph-image?v=${version}`;
 
   return {
@@ -238,6 +252,17 @@ function embedFor(
       },
       { name: "ในปาร์ตี้", value: seats ? `**${here}/${seats}**` : `**${here}**`, inline: true },
       { name: "ยังขาด", value: shortfall(p), inline: true },
+      /*
+       * Which chairs are empty, by name.
+       *
+       * "ขาด 2 Tank" says how many and not which, and on an eight-man those
+       * are different questions — somebody who can only main tank needs to
+       * know MT is the one going spare. Left out where the seats are only
+       * numbers, since "1, 2, 3, 4" names nothing.
+       */
+      ...(freeSeats.length
+        ? [{ name: "ที่นั่งว่าง", value: freeSeats.join(" · "), inline: false }]
+        : []),
       ...(extras.length
         ? [{ name: "รายละเอียด", value: extras.join(" · ").slice(0, 1000), inline: false }]
         : []),
