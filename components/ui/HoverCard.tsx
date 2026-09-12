@@ -49,7 +49,10 @@ export function HoverCard(
       <Radix.Portal>
         <Radix.Content
           side={side} align={align} sideOffset={7} collisionPadding={12}
-          className={`pop-in z-50 max-w-[19rem] rounded-xl border border-line bg-surface text-[12.5px] leading-relaxed text-ink shadow-xl shadow-black/40 ${
+          // Same storey as the popover, and for the same reason: a hover card
+          // raised over the seat grid or the roster inside a dialog was being
+          // drawn behind it. See Popover.
+          className={`pop-in z-[100] max-w-[19rem] rounded-xl border border-line bg-surface text-[12.5px] leading-relaxed text-ink shadow-xl shadow-black/40 ${
             bare ? "" : "px-3.5 py-3"} ${className}`}
         >
           {children}

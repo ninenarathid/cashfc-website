@@ -47,7 +47,20 @@ export function Popover(
       <Radix.Portal>
         <Radix.Content
           side={side} align={align} sideOffset={7} collisionPadding={12}
-          className={`pop-in z-50 w-[min(17rem,92vw)] rounded-xl border border-line bg-surface p-3 text-[14.5px] leading-relaxed text-ink shadow-xl shadow-black/50 ${className}`}
+          /*
+           * Above the window it was opened from, which is most of them.
+           *
+           * The seat grid lives inside the party's dialog, and Modal puts that
+           * box on z-71. This content is portalled to the body, so the two are
+           * siblings and 50 loses: the popover opened every time, behind an
+           * opaque panel, and pressing a seat looked like a button that did
+           * nothing at all.
+           *
+           * 100 clears a window and a window opened from inside it (71, 81)
+           * and stays under ConfirmDialog at 120 — a question that has to be
+           * answered should cover a card that is only being offered.
+           */
+          className={`pop-in z-[100] w-[min(17rem,92vw)] rounded-xl border border-line bg-surface p-3 text-[14.5px] leading-relaxed text-ink shadow-xl shadow-black/50 ${className}`}
         >
           {children}
           <Radix.Arrow className="fill-line" width={11} height={5} />
