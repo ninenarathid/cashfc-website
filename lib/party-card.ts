@@ -85,6 +85,8 @@ interface Row {
   closed: string[] | null;
   one_of_each_job: boolean | null;
   members: Member[] | null;
+  /** Absent until v63 has run, which reads as "nobody has been asked". */
+  asked_seats?: string[] | null;
 }
 
 /** Long enough for a cold function, short enough not to hold up a page. */
@@ -133,7 +135,18 @@ export async function partyCard(id: string): Promise<PartyCard | null> {
       roulettes: r.roulettes,
       hasMembers: Array.isArray(r.members),
       ...split(r.members ?? []),
-      closed: r.closed ?? [],
+      /*
+       * Shut, minus the seats somebody has been asked to sit in.
+       *
+       * The same rule the site applies when it loads a party, applied here
+       * because this is the one place that cannot see the invitations for
+       * itself -- v61 took the unanswered members off the card, and a seat a
+       * lead is waiting on an answer about is not a seat the party has shut.
+       * Without it the picture inside the Discord message worked from six
+       * seats while the message around it worked from eight.
+       */
+      closed: (r.closed ?? []).filter(
+        (id) => !(r.asked_seats ?? []).includes(id)),
       rules: r.rules ?? {},
       oneOfEachJob: !!r.one_of_each_job,
     };
