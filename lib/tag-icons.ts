@@ -1,0 +1,153 @@
+/**
+ * Where each tag's art lives, as data rather than as part of a component.
+ *
+ * Split out so the server can reach it. The Discord board wants the same icon
+ * the site draws beside a party, and it is built in a route handler — which
+ * cannot import a client component, and should not have to: an icon path is a
+ * fact about the game, not a piece of the interface.
+ */
+
+/**
+ * The game's own art for each tag, served by XIVAPI the same way JobIcon serves job
+ * symbols — no third-party or invented iconography anywhere on the board.
+ *
+ * Every path below was picked by rendering the image and looking at it, not by
+ * guessing from a filename, and each is an object rather than character art: the
+ * icon the game uses most often on gathering achievements is a portrait holding a
+ * pickaxe, which is mush at 13px, while the pickaxe item icon still reads as one.
+ *
+ * They are drawn as circles, with one exception marked `square` below. FFXIV bakes an opaque plate into every category and
+ * item icon — the only transparent art in the game is the 42 class symbols, which
+ * have nothing to say about treasure maps or seasonal events — so a square tile
+ * inside a rounded chip always read as a sticker stuck on top of it. Cropping to a
+ * circle loses the corners of the plate and nothing else.
+ */
+export const TAG_ICON: Record<string, { path: string; alt: string; square?: boolean }> = {
+  // Playstyles, from rare achievements.
+  // The game's own Disciple of the Hand icon — hammer and anvil. 035106 was a
+  // blacksmith's hammer, which is one crafter of eight.
+  crafter:    { path: "061000/061816", alt: "crafting", square: true },
+  // Disciple of the Land — fish and wheat, which covers all three gatherers
+  // where 038011, a pickaxe, only ever meant the miner.
+  gatherer:   { path: "061000/061815", alt: "gathering", square: true },
+  // A relic lance, square because a weapon icon is mostly a long diagonal and a
+  // circle takes both ends off it.
+  relic:      { path: "031000/031917", alt: "relic weapon", square: true },
+  // Exploration — the airship and the glass, which is what Eureka, Bozja and
+  // the Occult Crescent are. 001001 was a map, and a map is where you look
+  // things up rather than where you go.
+  explorer:   { path: "061000/061821", alt: "exploration", square: true },
+  // The game's own Treasure Hunt icon — the chest the Duty Finder puts on every
+  // map dungeon. 000116 was the map item itself, which is what you hold rather
+  // than what you are doing. Square, like the other duty badges.
+  treasure:   { path: "061000/061808", alt: "treasure hunt", square: true },
+  // The Gold Saucer's own icon. 027661 was a Triple Triad card, which is one
+  // game in an arcade full of them.
+  goldsaucer: { path: "061000/061820", alt: "Gold Saucer", square: true },
+  // The game's own Seasonal Event icon — the pinwheel the Duty Finder and the
+  // Lodestone put on every Starlight, Moonfire and Heavensturn. 026107 was a
+  // wrapped present, which is one event's prop rather than the whole calendar.
+  // Square, like the other duty badges.
+  seasonal:   { path: "061000/061826", alt: "seasonal event", square: true },
+  // The game's own PvP icon — crossed swords on red, the badge the Duty Finder
+  // puts on Frontline and Crystalline Conflict. 000210 was a raised fist, which
+  // is a generic action icon and said "fighting" rather than "PvP". Square, like
+  // the other duty badges.
+  pvp:        { path: "061000/061806", alt: "PvP", square: true },
+  oldtimer:   { path: "062000/062916", alt: "quill" },
+
+  // Raiding, from FF Logs. Tier cleared and Progging share an icon deliberately —
+  // they are the same tier, one finished and one not, and the chip already says
+  // which by its label and its dashed border. No member can hold both.
+  //
+  // The game's own Savage icon — the orange maw the Duty Finder puts on every
+  // savage raid. 064848 was a generic raid symbol. Square for the same reason
+  // the extreme one is: it is a duty badge with its own frame, not an item.
+  "tier-clear": { path: "061000/061802", alt: "savage raid", square: true },
+  prog:         { path: "061000/061802", alt: "savage raid", square: true },
+  // The game's own Extreme icon — the red mask the Duty Finder puts on every
+  // extreme trial. 062969 was the generic trials icon, which said "a trial"
+  // where this says "the hard one".
+  //
+  // Square, unlike everything else here. The rule below exists because item and
+  // category icons carry an opaque plate that reads as a sticker inside a
+  // rounded chip; this one is not an item icon but a duty badge, drawn with its
+  // own frame and its horns going into the corners. Cropping it to a circle
+  // took the frame off and cut the horns, which is the one case where the
+  // circle loses something.
+  extreme:      { path: "061000/061804", alt: "extreme trial", square: true },
+  // The game's own Ultimate icon — the violet mask. 000317 was the achievement
+  // art the game puts on an Ultimate clear, which is close but is a reward
+  // rather than the duty. Square, like the other two duty badges.
+  ultimate:     { path: "061000/061832", alt: "ultimate raid", square: true },
+  // The game's own Alliance Raid icon — the green maw the Duty Finder puts on
+  // every 24-player raid. Found by rendering 061801 through 061860 and looking
+  // at the sheet, which is how every other path in this file was picked.
+  alliance:     { path: "061000/061844", alt: "alliance raid", square: true },
+  // The game's own Variant and Criterion icon — three figures under the arch.
+  // Found the same way as the one above it: rendered the range and looked.
+  criterion:    { path: "061000/061846", alt: "criterion dungeon", square: true },
+  // The game's own FATE icon — the purple orb in a gold crest, the mark that
+  // sits over a FATE ring on the map. Rendered and checked like the rest.
+  fate:         { path: "061000/061809", alt: "FATE", square: true },
+  // The game's own Hunt icon — the mandragora on a red starburst, the mark the
+  // Hunt boards and the clan mark bills carry.
+  hunt:         { path: "061000/061819", alt: "the Hunt", square: true },
+  // The game's own Field Operations icon -- the crossed blade and wand over a
+  // banner, the mark Eureka, Bozja and the Occult Crescent share. Same range
+  // as the duty badges above, found the same way.
+  field:        { path: "061000/061837", alt: "field operations", square: true },
+  // The game's own Dungeon icon -- the blue cave mouth. Not picked by eye
+  // this time: ContentType row 2 is called "Dungeons" and names this file as
+  // its own, which is as authoritative as it gets.
+  dungeon:      { path: "061000/061801", alt: "dungeon", square: true },
+  // The game's own Mentor crown. The plain one: 061542-4 are the same crown
+  // over a sword, a hammer and a flag, which are Battle, Trade and PvP mentor
+  // — three answers to a question this board does not ask.
+  mentor:       { path: "061000/061540", alt: "mentor", square: true },
+  // The game names this one itself: ContentType row 1 is "Duty Roulette" and
+  // points at this file, the same way row 2 pointed at the dungeon cave.
+  roulette:     { path: "061000/061807", alt: "duty roulette", square: true },
+
+  /*
+   * The Party Finder playstyle set.
+   *
+   * A different range from the duty badges above -- 0617xx rather than 0618xx
+   * -- which is why sweeping the duty range for them found nothing. They are
+   * named in the CharaCardPlayStyle sheet, so these were read off the game's
+   * own table rather than picked by eye: row 29 is Community Events, 24 is
+   * Group Pose, 18 is Role-playing, 26 is Performance Mode.
+   *
+   * Worth knowing for the next one: if a symbol looks like something the Party
+   * Finder shows, that sheet has its number.
+   */
+  community:    { path: "061000/061766", alt: "community event", square: true },
+  gpose:        { path: "061000/061764", alt: "group pose", square: true },
+  roleplay:     { path: "061000/061751", alt: "role-playing", square: true },
+  performance:  { path: "061000/061763", alt: "performance", square: true },
+  veteran:      { path: "002000/002669", alt: "past raids" },
+
+  // The game's own speech bubble, for the button that copies a /tell. Found by
+  // rendering 061390-061450 and looking, the way every path here was picked.
+  tell:         { path: "061000/061397", alt: "send a tell", square: true },
+
+  // Casual, Achievements private and No data get nothing on purpose: an icon
+  // would dress up the absence of information as a thing somebody achieved.
+};
+
+export const hasTagIcon = (tag: string) => tag in TAG_ICON;
+
+/**
+ * The URL XIVAPI serves that icon from.
+ *
+ * One copy, because two places now need it and a second spelling of this
+ * string is a second thing to get wrong.
+ */
+export const gameIconUrl = (path: string) =>
+  `https://v2.xivapi.com/api/asset?format=webp&path=ui/icon/${path}_hr1.tex`;
+
+/** The same, from a tag rather than a path. Null where the tag has no art. */
+export const tagIconUrl = (tag: string): string | null => {
+  const i = TAG_ICON[tag];
+  return i ? gameIconUrl(i.path) : null;
+};

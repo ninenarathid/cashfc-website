@@ -1,7 +1,11 @@
 import {
-  KIND_COLOR, catalogue, endsAt, headcount, lootText, needsByRole,
+  KIND_COLOR, KIND_ICON, catalogue, endsAt, headcount, lootText,
   partyStatus, progressText, resolveParty, spotText, worldText,
 } from "@/lib/party";
+import { tagIconUrl } from "@/lib/tag-icons";
+import raw from "@/data/members.json";
+import type { BoardData } from "@/lib/types";
+import { everyone } from "@/lib/people";
 import type { ContentDef, Party } from "@/lib/party";
 import { partySeeds } from "@/lib/party-seeds";
 
@@ -23,6 +27,20 @@ import { partySeeds } from "@/lib/party-seeds";
  */
 
 const SITE = "https://cashfc-website.vercel.app";
+
+/**
+ * Who is running it, by character id.
+ *
+ * Off the roster rather than out of the party's own members, because a lead
+ * does not have to be in their own party — that was a whole bug once — and a
+ * board reading the name off the seats would leave the emptiest parties
+ * anonymous, which are exactly the ones somebody has to decide about.
+ */
+const roster = (): Map<number, string> => {
+  const out = new Map<number, string>();
+  for (const q of everyone(raw as unknown as BoardData)) out.set(q.id, q.name);
+  return out;
+};
 
 /** Discord allows ten embeds, and a select may offer twenty-five options. */
 const MAX_EMBEDS = 9;
@@ -73,8 +91,11 @@ function shortfall(p: Party): string {
 }
 
 /** One party, as an embed. */
-function embedFor(p: Party, defs: Record<string, ContentDef>) {
+function embedFor(
+  p: Party, defs: Record<string, ContentDef>, names: Map<number, string>,
+) {
   const def = defs[p.contentKey];
+  const lead = names.get(p.ownerCharacterId);
   const { here, seats } = headcount(p);
   const status = partyStatus(p);
   const lines: string[] = [];
@@ -94,11 +115,27 @@ function embedFor(p: Party, defs: Record<string, ContentDef>) {
   if (extras.length) lines.push(extras.join(" · "));
   if (p.note) lines.push(p.note);
 
+  const art = def?.art ? `${SITE}${def.art}` : null;
+  const icon = def ? tagIconUrl(def.icon ?? KIND_ICON[def.kind] ?? "") : null;
+
   return {
     title: `${nameOf(p, defs)}${status === "live" ? " · กำลังเล่น" : ""}`,
     url: `${SITE}/party/${p.id}`,
     description: lines.join("\n").slice(0, 4000),
     color: def ? Number.parseInt(KIND_COLOR[def.kind].slice(1), 16) : 0x8b93a1,
+    /*
+     * The fight's own art where the site has it, the game's icon where it
+     * does not.
+     *
+     * A banner and a thumbnail respectively, because they are different
+     * pictures: the art is a wide screenshot that earns the width, and a 40px
+     * icon stretched across an embed is a smear. Content with neither — an
+     * evening somebody called "Something else" — gets no picture, which is
+     * what it is.
+     */
+    ...(art ? { image: { url: art } } : {}),
+    ...(!art && icon ? { thumbnail: { url: icon } } : {}),
+    ...(lead ? { footer: { text: `ตั้งโดย ${lead}` } } : {}),
   };
 }
 
@@ -137,18 +174,19 @@ function joinRow(parties: readonly Party[], defs: Record<string, ContentDef>) {
 /** The whole message: what to post the first time, and what to edit into it. */
 export function boardMessage(all: readonly Party[], now = Date.now()) {
   const defs = byKey();
+  const names = roster();
   const open = boardParties(all, now);
   const shown = open.slice(0, MAX_EMBEDS);
   const rest = open.length - shown.length;
 
   const header = open.length
-    ? `## หาปาร์ตี้\n${open.length} ปาร์ตี้ที่ยังเปิดอยู่`
+    ? `## CASH Party Finder\n${open.length} ปาร์ตี้ที่ยังเปิดอยู่`
       + (rest > 0 ? ` · อีก ${rest} ปาร์ตี้ดูได้ที่ ${SITE}/party` : "")
-    : `## หาปาร์ตี้\nตอนนี้ยังไม่มีปาร์ตี้ที่เปิดอยู่ — ตั้งได้ที่ ${SITE}/party`;
+    : `## CASH Party Finder\nตอนนี้ยังไม่มีปาร์ตี้ที่เปิดอยู่ — ตั้งได้ที่ ${SITE}/party`;
 
   return {
     content: `${header}\n-# อัปเดตล่าสุด <t:${Math.floor(now / 1000)}:R>`,
-    embeds: shown.map((p) => embedFor(p, defs)),
+    embeds: shown.map((p) => embedFor(p, defs, names)),
     components: joinRow(shown, defs),
     // Nothing this message says is worth pinging anybody for. The board is
     // read when somebody is looking for a party, not pushed at them.
