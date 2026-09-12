@@ -263,9 +263,17 @@ export function pfComment(
   if (x.giveUp) bits.push(ja ? "ギブ解散" : "disband on give-up");
   if (x.readyCheck) bits.push(ja ? "開始前RC" : "ready check before start");
   if (x.casual) bits.push(ja ? "お気軽にどうぞ" : "casuals welcome");
-  // Last, because it is about us rather than about the evening — and because
-  // it is the line somebody should still see if the rest has been trimmed.
-  if (x.notFluent) bits.push(ja ? "日本語が苦手です" : "JP not fluent, sorry");
+  /*
+   * Last, because it is about us rather than about the evening — and because
+   * it is the line somebody should still see if the rest has been trimmed.
+   *
+   * Japanese only, and not as a default that can be overridden: somebody
+   * reading the English listing has already worked out that the party writes
+   * English, so the sentence answers a question they were never going to ask
+   * and spends bytes doing it. It is a thing to say to the people it
+   * inconveniences, in the language it inconveniences them in.
+   */
+  if (x.notFluent && ja) bits.push("日本語が苦手です");
 
   return bits.join(ja ? "　" : ", ");
 }

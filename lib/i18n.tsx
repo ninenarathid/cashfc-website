@@ -1910,9 +1910,6 @@ const DICT = {
   "pf.extras": { en: "Add to it", th: "เพิ่มเติม" },
   "pf.xTime": { en: "The hours (JST)", th: "เวลา (เวลาญี่ปุ่น)" },
   "pf.xSeats": { en: "Which seats we want", th: "ตำแหน่งที่ต้องการ" },
-  "pf.jaOnly": {
-    en: "not needed in English", th: "ไม่จำเป็นในภาษาอังกฤษ",
-  },
   "pf.xNotFluent": {
     en: "Say our Japanese is weak", th: "บอกว่าญี่ปุ่นเราไม่เก่ง",
   },

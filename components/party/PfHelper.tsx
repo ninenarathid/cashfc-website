@@ -95,11 +95,10 @@ export default function PfHelper(
     byteLen(pfComment(party, { ...x, [k]: v }, lang))
     - byteLen(pfComment(party, { ...x, [k]: undefined }, lang));
 
-  /** One switch, with what it costs and, where it applies, a word of warning. */
+  /** One switch, with what it costs. */
   const Tick = (
-    { on, say, cost, warn, onClick }: {
-      on: boolean; say: string; cost?: number; warn?: string;
-      onClick: () => void;
+    { on, say, cost, onClick }: {
+      on: boolean; say: string; cost?: number; onClick: () => void;
     },
   ) => (
     <button type="button" onClick={onClick}
@@ -110,14 +109,7 @@ export default function PfHelper(
         on ? "border-accent bg-accent/20 text-accent" : "border-line"}`}>
         {on ? "✓" : ""}
       </span>
-      <span className="min-w-0 flex-1">
-        {say}
-        {warn && (
-          <span className="ml-1.5 font-data text-[11.5px] uppercase tracking-[0.08em] text-gold">
-            {warn}
-          </span>
-        )}
-      </span>
+      <span className="min-w-0 flex-1">{say}</span>
       {!!cost && cost > 0 && (
         <span className="shrink-0 font-data text-[12px] text-muted">+{cost}</span>
       )}
@@ -260,16 +252,19 @@ export default function PfHelper(
                   cost={costOf("seats", true)}
                   onClick={() => flip("seats")} />
             {/*
-              * Only worth saying to the people who would be inconvenienced by
-              * it. Somebody reading an English listing has already learned
-              * that the party writes English; telling them our Japanese is
-              * weak answers a question they were never going to ask, in the
-              * one box where every byte is spent on something.
+              * Japanese only, so the switch is Japanese only.
+              *
+              * It used to show in English wearing a note saying it was not
+              * needed — which left a switch that could be pressed and did
+              * nothing, and a switch that does nothing is worse than one that
+              * is not there. Somebody reading the English listing has already
+              * worked out that the party writes English.
               */}
-            <Tick on={!!x.notFluent} say={t("pf.xNotFluent")}
-                  warn={ja ? undefined : t("pf.jaOnly")}
-                  cost={costOf("notFluent", true)}
-                  onClick={() => flip("notFluent")} />
+            {ja && (
+              <Tick on={!!x.notFluent} say={t("pf.xNotFluent")}
+                    cost={costOf("notFluent", true)}
+                    onClick={() => flip("notFluent")} />
+            )}
             <Tick on={!!x.plan}
                   say={t("pf.xPlan", { what: planOf(party) ?? "—" })}
                   cost={costOf("plan", true)}
