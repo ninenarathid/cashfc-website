@@ -2094,8 +2094,12 @@ const DICT = {
   },
   "party.jobOptional": { en: "Job (optional)", th: "อาชีพ (ไม่บังคับ)" },
   "party.confirmSeat": { en: "Confirm", th: "ยืนยัน" },
-  "party.bench": { en: "Bench", th: "ที่นั่งสำรอง" },
-  "party.benchEmpty": { en: "nobody waiting", th: "ยังไม่มีใคร" },
+  // Not "bench" and not "ที่นั่งสำรอง". A substitute is somebody who might not
+  // play, and every one of these people is playing — they said yes and left
+  // the chair until later, which is how most people decide. The same words
+  // the Discord board uses, so the party reads the same in both windows.
+  "party.bench": { en: "No seat yet", th: "ยังไม่เลือกตำแหน่ง" },
+  "party.benchEmpty": { en: "nobody yet", th: "ยังไม่มีใคร" },
   "party.sitHere": { en: "Take {seat}?", th: "นั่งตำแหน่ง {seat} ไหม?" },
   "party.moveHere": { en: "Move to {seat}?", th: "ย้ายไปนั่ง {seat} ไหม?" },
   "party.theyWouldMove": {
@@ -2107,8 +2111,8 @@ const DICT = {
     th: "ตอบรับคำเชิญแล้วนั่ง {seat} เลยไหม?",
   },
   "party.toBench": {
-    en: "Give up your seat and wait on the bench?",
-    th: "สละที่นั่งไปอยู่ที่นั่งสำรองไหม?",
+    en: "Give up your seat and pick one later?",
+    th: "สละที่นั่งไว้ก่อน แล้วค่อยเลือกตำแหน่งทีหลังไหม?",
   },
   "party.invitedPick": {
     en: "Accept first — you choose your own position afterwards.",

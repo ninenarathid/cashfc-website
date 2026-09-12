@@ -157,20 +157,55 @@ function shortfall(p: Party, words = false): string {
   if (p.shape === "open") return "เปิดรับทุกคน";
   const res = resolveParty(p);
   if (!res.wanted) return "เต็มแล้ว";
-  const need: Record<string, number> = { tank: 0, healer: 0, dps: 0 };
-  let free = 0;
-  for (const s of res.uncovered) {
-    if (s.free) free += 1;
-    else need[s.role] += 1;
-  }
   const label: Record<string, string> = {
     tank: "Tank", healer: "Healer", dps: "DPS",
   };
+
+  /*
+   * The seats a mover might end up in, held back from the count.
+   *
+   * Five seats named above and four people wanted below is not a sum that
+   * went wrong: one of ST and H2 is Dessiny's, and which one depends on who
+   * turns up. Counting both as shortages would ask the Free Company for nine
+   * people to fill an eight-man; counting neither would hide the healer seat
+   * that is the only reason a healer would read this line at all.
+   *
+   * So the certain part is counted by role as it always was, and what the
+   * movers leave undecided is said as the choice it is: one more, as either
+   * of these. It lines up with the seat list above, which is where somebody
+   * reading "🛡/💚 1" goes to find out which chairs that means.
+   */
+  const reach = new Set<string>();
+  for (const m of res.movers) {
+    for (const s of res.takeable) if (coversSeat(m.flex, s)) reach.add(s.id);
+  }
+
+  const need: Record<string, number> = { tank: 0, healer: 0, dps: 0 };
+  let free = 0;
+  for (const s of res.uncovered) {
+    if (reach.has(s.id)) continue;
+    if (s.free) free += 1;
+    else need[s.role] += 1;
+  }
   const parts: string[] = [];
   for (const r of ["tank", "healer", "dps"]) {
     if (!need[r]) continue;
     parts.push(words ? `${need[r]} ${label[r]}` : `${ROLE_MARK[r]} ${need[r]}`);
   }
+
+  const counted = need.tank + need.healer + need.dps + free;
+  const spare = Math.max(0, res.wanted - counted);
+  if (spare) {
+    const either = [...new Set(
+      res.takeable.filter((s) => reach.has(s.id) && !s.free).map((s) => s.role))];
+    if (either.length) {
+      const marks = either.map((r) => (words ? label[r] : ROLE_MARK[r])).join("/");
+      parts.push(words ? `${spare} ${marks}` : `${marks} ${spare}`);
+    } else {
+      free += spare;
+    }
+  }
+
   if (free) parts.push(`${free} คน`);
   return parts.join(" · ") || `${res.wanted} คน`;
 }
@@ -211,6 +246,20 @@ function embedFor(
    * corrects — read apart it is a riddle, read together it is the ordinary
    * thing every static does five minutes before a pull.
    */
+  /*
+   * In the party, no chair picked.
+   *
+   * The seat grid has always had somewhere to put these people and the board
+   * had nowhere, so a party of six read as a party of four with two seats
+   * mysteriously spoken for — and it is the other half of why the seat list
+   * is longer than the shortage.
+   *
+   * "ยังไม่เลือกตำแหน่ง", the same words the site uses. Not "bench": a
+   * substitute is somebody who might not play, and every one of these is
+   * playing — they said yes and left the chair until later, which is how most
+   * people decide.
+   */
+  const undecided = res.loose.map((f) => f.name);
   const shuffle = res.movers.map((m) => {
     const could = res.takeable.filter((sl) => coversSeat(m.flex, sl))
       .map((sl) => sl.label);
@@ -302,6 +351,13 @@ function embedFor(
                 ? `
 *ย้ายตำแหน่งได้: ${shuffle.join(" · ")}*`
                 : ""),
+            inline: false,
+          }]
+        : []),
+      ...(undecided.length
+        ? [{
+            name: "ยังไม่เลือกตำแหน่ง",
+            value: undecided.join(" · ").slice(0, 1000),
             inline: false,
           }]
         : []),
