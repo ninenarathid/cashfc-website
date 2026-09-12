@@ -1883,7 +1883,7 @@ const DICT = {
     th: "ยังมีท่าไหนที่คนพลาดบ่อยไหม (ไม่ใส่ก็ได้)",
   },
   /* ── The in-game party finder helper ──────────────────────────────── */
-  "pf.helper": { en: "In-game PF", th: "ตั้งห้อง PF ในเกม" },
+  "pf.helper": { en: "In-game PF helper", th: "ตัวช่วยตั้งห้อง PF ในเกม" },
   "pf.betaTag": { en: "beta", th: "ทดลอง" },
   "pf.beta": {
     en: "Still being tested. Read it before you post, and tell us what the "
