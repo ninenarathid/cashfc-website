@@ -494,6 +494,7 @@ export function catalogue(
       duty: t.name,
       group: t.expansion,
       badge: `Lv${t.level}`,
+      ...shot("legacy", t.name),
       shape: "full" as const,
       fixedShape: true,
     })),
@@ -504,15 +505,16 @@ export function catalogue(
       duty: d.name,
       group: d.expansion,
       badge: `Lv${d.level}`,
+      ...shot("dungeon", d.name),
       shape: "light" as const,
       fixedShape: true,
     })),
     { key: "field:occult", kind: "field", name: "Occult Crescent",
-      icon: "field", shape: "eight" },
+      icon: "field", shape: "eight", ...shot("field", "Occult Crescent") },
     { key: "field:bozja", kind: "field", name: "Bozja", icon: "field",
-      shape: "eight" },
+      shape: "eight", ...shot("field", "Bozja") },
     { key: "field:eureka", kind: "field", name: "Eureka", icon: "field",
-      shape: "eight" },
+      shape: "eight", ...shot("field", "Eureka") },
     /*
      * Eight, because that is what a FATE party is.
      *

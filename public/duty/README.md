@@ -8,6 +8,11 @@ full.
     public/duty/extreme/    the current tier's extreme trials
     public/duty/savage/     the current savage tier
     public/duty/ultimate/   every Ultimate, current and legacy
+    public/duty/alliance/   the alliance raids
+    public/duty/criterion/  Variant and Criterion dungeons
+    public/duty/dungeon/    every dungeon in the game
+    public/duty/legacy/     every older raid and trial
+    public/duty/field/      Eureka, Bozja, the Occult Crescent
 
 ## Naming
 
@@ -34,6 +39,27 @@ with something dark under the left third where the fight's name sits. The card
 draws a gradient over it, heavy on the left, opening across the middle and
 closing again at the right edge where the parse number goes. A picture that is
 bright the whole way across will still fight the text.
+
+## Where these came from
+
+The first twenty were screenshots somebody framed by hand. The other three
+hundred and forty-five are the game's own — every duty in the finder has a
+banner, and XIVAPI serves them:
+
+    https://v2.xivapi.com/api/asset?format=png&path=ui/icon/112000/112549_hr1.tex
+
+The id is `ContentFinderCondition.Image`, matched to a fight by name. They
+arrive 1128x360, which is the shape below almost exactly, so they are converted
+to WebP and otherwise left alone.
+
+Three had to be named by hand, because a field operation is a zone rather than
+a duty and the catalogue calls it by the zone's name: Eureka is Anemos, Bozja
+is the Southern Front, and the Occult Crescent is South Horn — in each case the
+one everybody means when they say the word.
+
+Some of them are bright the whole way across, which the shape note below warns
+about. They are left as the game drew them; darkening one is a decision to make
+about that picture, looking at it, rather than a rule to apply to all of them.
 
 ## What the current patch needs
 

@@ -13,7 +13,11 @@
  * See public/duty/README.md for the shape those pictures want to be.
  */
 export type DutyKind =
-  "extreme" | "savage" | "ultimate" | "alliance" | "criterion";
+  "extreme" | "savage" | "ultimate" | "alliance" | "criterion"
+  // The three that were added once the art turned out to exist for them: the
+  // game draws a banner for every duty in the finder, so the only reason these
+  // went without was that nobody had fetched them.
+  | "dungeon" | "legacy" | "field";
 
 export function dutySlug(name: string | null | undefined): string {
   return (name ?? "")
@@ -25,8 +29,10 @@ export function dutySlug(name: string | null | undefined): string {
 /** Slug to public path, per kind of fight. Empty where nobody has added one. */
 export type DutyArt = Record<DutyKind, Record<string, string>>;
 
-export const NO_ART: DutyArt =
-  { extreme: {}, savage: {}, ultimate: {}, alliance: {}, criterion: {} };
+export const NO_ART: DutyArt = {
+  extreme: {}, savage: {}, ultimate: {}, alliance: {}, criterion: {},
+  dungeon: {}, legacy: {}, field: {},
+};
 
 
 /**
