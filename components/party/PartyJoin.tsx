@@ -58,6 +58,7 @@ const roster = (p: Party): Who[] => [
   ...Object.entries(p.seats).map(([seat, v]) => ({ ...v, seat })),
   ...(p.floating ?? []),
   ...(p.requests ?? []),
+  ...(p.invites ?? []),
 ];
 
 export default function PartyJoin(
@@ -298,6 +299,50 @@ export default function PartyJoin(
         </div>
       )}
 
+      {/* ── The lead's side: who has been asked and has not answered ───── */}
+      {iAmOwner && (party.invites ?? []).length > 0 && (
+        <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
+          <p className="font-data text-[13.5px] uppercase tracking-[0.14em] text-muted">
+            {t("party.invitesOut", { n: (party.invites ?? []).length })}
+          </p>
+          {(party.invites ?? []).map((w) => {
+            const src = (w.characterId != null && overrides[w.characterId]) || w.avatar;
+            /*
+             * The seat only where one was suggested.
+             *
+             * An invitation does not have to name one — "come if you are
+             * free" is the ordinary way to ask somebody — and printing
+             * "ทุกตำแหน่ง" against every name would be a column of the same
+             * word saying nothing. Where the lead did suggest one it is a
+             * hint, not a reservation: whoever accepts picks their own.
+             */
+            const where = askedAbout(w) ?? flexLabel(w.flex);
+            return (
+              <span key={w.seatRowId ?? w.name}
+                    className="flex flex-wrap items-center gap-2">
+                {src
+                  // eslint-disable-next-line @next/next/no-img-element
+                  ? <img src={src} alt="" width={26} height={26}
+                         className="size-[26px] rounded-full object-cover" />
+                  : <span className="size-[26px] rounded-full bg-card" />}
+                <span className="text-[15.5px] text-ink">{w.name}</span>
+                {where && (
+                  <span className="font-data text-[13px] uppercase tracking-[0.1em] text-steel">
+                    {where}
+                  </span>
+                )}
+                <button disabled={busy}
+                        onClick={() => run(() => dropSeat(supabase, w.seatRowId!))}
+                        className="ml-auto text-[14px] text-muted underline hover:text-chili">
+                  {t("party.withdrawInvite")}
+                </button>
+              </span>
+            );
+          })}
+          <p className="text-[14px] text-muted">{t("party.invitesWhy")}</p>
+        </div>
+      )}
+
       {/* ── The reader's side ───────────────────────────────────────────── */}
       {!iAmOwner && mine && !mine.confirmedAt && mine.by === "self" && (
         <div className="flex flex-wrap items-center gap-2">
@@ -319,6 +364,10 @@ export default function PartyJoin(
               ? t("party.invitedTo", { seat: asked })
               : t("party.invited")}
           </span>
+          {/* Which seat is theirs to decide, whether or not one was suggested:
+              the lead asking about D4 is a suggestion, and somebody who would
+              rather heal should not have to decline to say so. */}
+          <span className="text-[14.5px] text-muted">{t("party.invitedPick")}</span>
           {/*
             * Said before they answer, not after.
             *
@@ -336,7 +385,10 @@ export default function PartyJoin(
             <button disabled={busy}
                     onClick={() => run(async () => {
                       const r = await acceptInvite(supabase, mine.seatRowId!);
-                      return "error" in r ? r : {};
+                      if ("error" in r) return r;
+                      // Somebody filled the last seat while this was open.
+                      if (r.got === "full") onError(t("party.tooLateFull"));
+                      return {};
                     })}
                     className={`${btn} border border-jade/60 bg-jade/15 text-jade hover:bg-jade/25`}>
               {asked && !seatGone ? t("party.acceptSeat", { seat: asked })

@@ -1029,6 +1029,19 @@ export interface Party {
    */
   requests?: Floater[];
   /**
+   * People the lead has asked, who have not answered yet.
+   *
+   * The mirror of `requests`, and out of the party for the same reason: being
+   * asked is not being there. Left in the roster it counted a maybe as an
+   * arrival — The Epic of Alexander, four people in it and six invitations
+   * out, announced itself to the Free Company as "10/6, เต็มแล้ว" while two of
+   * its seats stood empty.
+   *
+   * The seat it names is in the flex, never held: that is v47's rule, and it
+   * is what lets a lead ask three people about D4 instead of one.
+   */
+  invites?: Floater[];
+  /**
    * Seats the party is not looking to fill.
    *
    * Five friends running an eight-man with three seats they mean to leave
@@ -2014,7 +2027,9 @@ export function placeOf(
   p: Party, characterId: number,
 ): { rowId?: number; seat: string | null; flex: Flex | null;
      /** They have asked and nobody has answered. Not in it, not free of it. */
-     pending?: true } | null {
+     pending?: true;
+     /** They were asked and have not answered. Also not in it. */
+     invited?: true } | null {
   for (const [seat, w] of Object.entries(p.seats)) {
     if (w.characterId === characterId) {
       return { rowId: w.seatRowId, seat, flex: w.flex ?? null };
@@ -2033,8 +2048,17 @@ export function placeOf(
    * only want to know whether to offer the button can ignore the flag.
    */
   const q = (p.requests ?? []).find((x) => x.characterId === characterId);
-  return q
-    ? { rowId: q.seatRowId, seat: null, flex: q.flex ?? null, pending: true as const }
+  if (q) {
+    return { rowId: q.seatRowId, seat: null, flex: q.flex ?? null, pending: true as const };
+  }
+  /*
+   * And an invitation, which is the same shape of not-quite-here from the
+   * other direction. Flagged apart from a request because what happens next is
+   * different: a request waits on the lead, an invitation waits on you.
+   */
+  const i = (p.invites ?? []).find((x) => x.characterId === characterId);
+  return i
+    ? { rowId: i.seatRowId, seat: null, flex: i.flex ?? null, invited: true as const }
     : null;
 }
 

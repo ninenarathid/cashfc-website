@@ -157,6 +157,7 @@ export async function loadParties(
   const seatsOf = new Map<number, Record<string, SlotTaken>>();
   const floatOf = new Map<number, Floater[]>();
   const askOf = new Map<number, Floater[]>();
+  const inviteOf = new Map<number, Floater[]>();
   for (const m of (members ?? []) as unknown as MemberRow[]) {
     const who = {
       characterId: m.character_id, name: m.name, avatar: m.avatar,
@@ -191,6 +192,25 @@ export async function loadParties(
         flex: m.flex ?? (m.seat ? { seats: [m.seat] } : {}),
       } as Floater);
       askOf.set(m.party_id, at);
+      continue;
+    }
+    /*
+     * Asked by the lead, and not answered — which is also not being in the
+     * party, and for the same reason the line above says it.
+     *
+     * This one had been left in, and it is the more expensive of the two to
+     * leave in: a lead asks several people about one seat on purpose, so the
+     * count runs away fastest exactly where the board is trying hardest to be
+     * read. Its seat moves into the flex the same way, which is where v47 said
+     * an invitation keeps it.
+     */
+    if (!m.confirmed_at) {
+      const at = inviteOf.get(m.party_id) ?? [];
+      at.push({
+        ...who,
+        flex: m.flex ?? (m.seat ? { seats: [m.seat] } : {}),
+      } as Floater);
+      inviteOf.set(m.party_id, at);
       continue;
     }
     if (m.seat) {
@@ -268,6 +288,7 @@ export async function loadParties(
     seats: seatsOf.get(p.id) ?? {},
     floating: floatOf.get(p.id) ?? [],
     requests: askOf.get(p.id) ?? [],
+    invites: inviteOf.get(p.id) ?? [],
     closed: p.closed ?? [],
     rules: p.rules ?? {},
     oneOfEachJob: p.one_of_each_job,
@@ -576,7 +597,15 @@ export async function confirmSeat(
 }
 
 /** What happened when somebody said yes. See v47. */
-export type Accepted = "seat" | "flex" | "gone";
+/**
+ * What happened when somebody said yes. See v47, and v61 for "full".
+ *
+ * "full" is the one that is not about them: the party filled up while they
+ * were deciding. An invitation was never a reservation, so this is a normal
+ * outcome rather than an error — and it has to be said out loud, because the
+ * button they pressed promised otherwise.
+ */
+export type Accepted = "seat" | "flex" | "gone" | "full";
 
 /**
  * Say yes to an invitation, and take the suggested seat if it is still there.

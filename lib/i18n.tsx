@@ -2081,6 +2081,27 @@ const DICT = {
     en: "It is time — invite everybody into the party.",
     th: "ถึงเวลาแล้ว ชวนทุกคนเข้าปาร์ตี้ในเกมได้เลย",
   },
+  "party.invitesOut": {
+    en: "{n} invited, not answered yet",
+    th: "ชวนไปแล้ว {n} คน ยังไม่ตอบ",
+  },
+  "party.withdrawInvite": { en: "withdraw", th: "ถอนคำเชิญ" },
+  // Not a failure of theirs, and said as a fact rather than a refusal: the
+  // party filled while they were thinking about it.
+  "party.tooLateFull": {
+    en: "This party filled up before you accepted.",
+    th: "ปาร์ตี้เต็มก่อนที่คุณจะกดตอบรับพอดีครับ",
+  },
+  "party.invitedPick": {
+    en: "Accept first — you choose your own position afterwards.",
+    th: "กดตอบรับก่อน แล้วเลือกตำแหน่งเองได้",
+  },
+  // Said once under the list rather than against every name, because it is
+  // the rule the list runs on and not a fact about any one person in it.
+  "party.invitesWhy": {
+    en: "They are not in the party until they accept, and they choose their own position.",
+    th: "ยังไม่นับเป็นสมาชิกจนกว่าจะกดตอบรับ และเลือกตำแหน่งเองได้",
+  },
   "party.overNow": {
     en: "This party has ended.",
     th: "ปาร์ตี้นี้จบแล้ว",
