@@ -1,13 +1,13 @@
 "use client";
 
 import type {
-  ContentKind, Floater, Party, Resolved, SlotDef, SlotRole, Wing,
+  ContentKind, Flex, Floater, Party, Resolved, SlotDef, SlotRole, Wing,
 } from "@/lib/party";
 import {
-  ROLE_COLOR, ROLE_LABEL, canFlex, flexLabel, headcount, openTo, resolveParty,
+  ROLE_COLOR, ROLE_LABEL, flexBits, headcount, openTo, resolveParty,
   slotsOf,
 } from "@/lib/party";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import JobIcon, { jobLabel } from "@/components/JobIcon";
 import { jobsForSlot } from "@/components/party/JobRule";
 import { Popover } from "@/components/ui/Popover";
@@ -139,6 +139,44 @@ export interface SeatPick {
   busy?: boolean;
 }
 
+/**
+ * "Flex MT, ST" with the seats that are gone crossed off.
+ *
+ * The whole offer stays on the card. A person who said they could tank said
+ * it, and quietly deleting half the sentence when somebody else took MT would
+ * leave the line changing under the reader with nothing on the page to explain
+ * why — and would hide, from the lead reading the grid, that this healer is
+ * the reason the party never needed a second tank.
+ *
+ * So the dead parts are struck through and dimmed, and what is left in plain
+ * text is exactly what is still in play. Read at a glance it says one thing:
+ * this is where she might end up instead.
+ */
+function FlexLine(
+  { flex, open, seat }: {
+    flex?: Flex | null; open: readonly SlotDef[]; seat: string;
+  },
+) {
+  const parts = flexBits(flex, open, seat);
+  if (!parts) return null;
+  return (
+    <span className="truncate font-data text-[12.5px] uppercase tracking-[0.1em] text-jade">
+      {parts.flex && "Flex "}
+      {/* The separator sits outside the crossed-out span on purpose: a line
+          through the text runs through everything inside it, commas included,
+          and a struck comma reads as part of the word next to it. */}
+      {parts.bits.map((b, i) => (
+        <Fragment key={b.text}>
+          {i > 0 && ", "}
+          <span className={b.live ? "" : "text-muted/70 line-through"}>
+            {b.text}
+          </span>
+        </Fragment>
+      ))}
+    </span>
+  );
+}
+
 function Seat(
   { slot, party, res, onPick, pick, compact }: {
     slot: SlotDef;
@@ -178,7 +216,8 @@ function Seat(
         compact ? "" : "min-h-[4.6rem]"} ${
         state === "open" ? "border-dashed border-line/80 hover:border-accent/60"
         : state === "shut" ? "border-dashed border-line/40 opacity-40"
-        : "border"} ${onPick ? "cursor-pointer" : ""}`}>
+        : "border"} ${onPick || ask ? "cursor-pointer" : ""} ${
+        ask ? "hover:border-accent/60" : ""}`}>
 
       <span className="flex min-w-0 flex-1 flex-col gap-1">
       {/* The seat's name is the constant thing — it is there whether or not
@@ -259,11 +298,9 @@ function Seat(
         </span>
       )}
 
-      {canFlex(who?.flex) && (
-        <span className="truncate font-data text-[12.5px] uppercase tracking-[0.1em] text-jade">
-          {flexLabel(who?.flex)}
-        </span>
-      )}
+      {/* What else they could play, with whatever has since been taken struck
+          out rather than dropped. See flexBits. */}
+      <FlexLine flex={who?.flex} open={res.open} seat={slot.id} />
       </span>
 
       {/* Whoever else could end up here, down the right-hand edge. A face on

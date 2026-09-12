@@ -806,20 +806,69 @@ export function coversSeat(f: Flex | undefined | null, slot: SlotDef): boolean {
   return !!f.seats?.some((id) => id === slot.id || id === slot.label);
 }
 
-/** "Flex any", "Flex Healer", "Flex MT, D2" — or just "D2". See below. */
-export function flexLabel(f: Flex | undefined | null): string | null {
+/**
+ * One part of somebody's offer, and whether it is still worth anything.
+ *
+ * "Flex MT, ST" under a healer in a party whose MT arrived an hour ago is the
+ * listing remembering an offer the party has moved past — but dropping MT
+ * silently loses the fact that she offered it, and the line would change under
+ * the reader for a reason nothing on the page explains. So it is struck
+ * through instead: the offer stands, the seat is gone, and the one part still
+ * in play is the part that is not crossed out.
+ */
+export interface FlexBit {
+  text: string;
+  /** False for a seat or role there is no longer an open chair for. */
+  live: boolean;
+}
+
+/**
+ * Somebody's offer, part by part, ready to be drawn.
+ *
+ * `flex` is whether the word "Flex" belongs in front of it — see flexLabel for
+ * the one case where it does not. Pass the open seats to have the dead parts
+ * marked; without them every part is live, which is what an invitation wants:
+ * the seat a lead asked somebody about is worth printing whatever has happened
+ * to it since, because they still have to answer.
+ *
+ * `seat` is the chair they are in now, and it joins the list. It belongs
+ * there: somebody sitting in H2 who can also play ST is choosing between two
+ * seats, not offering one and holding another, and a line reading "Flex ST"
+ * under her name says the opposite of what "one of H2 and ST is hers" means.
+ * It goes last and only while something else is still live — once every other
+ * part is crossed off she is not choosing between anything, she is the H2.
+ */
+export function flexBits(
+  f: Flex | undefined | null, open?: readonly SlotDef[], seat?: string,
+): { flex: boolean; bits: FlexBit[] } | null {
   if (!canFlex(f)) return null;
-  if (f!.all) return "Flex any";
-  const bits = [
-    ...(f!.roles ?? []).map((r) => ROLE_LABEL[r]),
-    ...(f!.seats ?? []),
-  ];
+  if (f!.all) return { flex: true, bits: [{ text: "any", live: true }] };
+  const seats = (f!.seats ?? []).map((id) => ({
+    text: id,
+    live: !open || open.some((s) => s.id === id || s.label === id),
+  }));
+  const roles = (f!.roles ?? []).map((r) => ({
+    text: ROLE_LABEL[r],
+    live: !open || open.some((s) => s.role === r),
+  }));
   // One seat named and nothing else is not flexing at all: it is the seat
   // somebody was asked about, which is what askedAbout reads out of the same
   // shape. "Flex D2" reads as a choice made between options when there was
   // only ever the one. A single *role* stays a flex, because that is a range.
-  if (f!.seats?.length === 1 && bits.length === 1) return bits[0];
-  return `Flex ${bits.join(", ")}`;
+  if (seats.length === 1 && !roles.length) return { flex: false, bits: seats };
+  const bits = [...roles, ...seats];
+  if (seat && bits.some((b) => b.live) && !bits.some((b) => b.text === seat)) {
+    bits.push({ text: seat, live: true });
+  }
+  return { flex: true, bits };
+}
+
+/** "Flex any", "Flex Healer", "Flex MT, D2" — or just "D2". See flexBits. */
+export function flexLabel(f: Flex | undefined | null): string | null {
+  const parts = flexBits(f);
+  if (!parts) return null;
+  const said = parts.bits.map((b) => b.text).join(", ");
+  return parts.flex ? `Flex ${said}` : said;
 }
 
 /**
@@ -1162,8 +1211,19 @@ export interface Resolved {
   maybe: Record<string, Floater[]>;
   /** Floaters still not pinned to anything. */
   loose: Floater[];
+  /**
+   * People in a seat who offered to move, and so could still end up in
+   * another one. Counted in the party already — a mover is not an arrival.
+   */
+  movers: Floater[];
   /** Every seat still empty after the floaters have been worked in. */
   open: SlotDef[];
+  /**
+   * Every seat the party can still give somebody: `open`, plus the seats the
+   * movers are sitting in. What a board should advertise, and what a press on
+   * the grid is allowed to ask for.
+   */
+  takeable: SlotDef[];
   /**
    * Empty seats nobody has even offered for.
    *
@@ -1311,6 +1371,52 @@ export function resolveParty(p: Party): Resolved {
   }
 
   /*
+   * And so does anybody already in a chair who could move to another one.
+   *
+   * Somebody sat in H2 who can also play MT or ST, with MT since taken, is in
+   * exactly one of two seats by the end of the night and nobody yet knows
+   * which. The grid drew her in H2 like a person who had settled and drew ST
+   * as though nobody had offered for it — which is the same party described
+   * twice, wrongly both times. One of those seats is hers; her face belongs on
+   * both, and the flex line under her name says the same thing from the other
+   * end.
+   *
+   * It changes nothing about what the party is short of. Moving one chair
+   * along is not an extra body, so the matching below still counts floaters
+   * and only floaters.
+   */
+  const movers: Floater[] = [];
+  const moverSeats: SlotDef[] = [];
+  for (const [at, v] of Object.entries(seats)) {
+    if (!canFlex(v.flex)) continue;
+    const could = [...free].filter((id) => coversSeat(v.flex, byId.get(id)!));
+    if (!could.length) continue;
+    const here = slotsOf(p.shape).find((s) => s.id === at);
+    if (!here) continue;
+    /*
+     * Her own chair is written into the offer she is carried around with.
+     *
+     * Not a lie about what she typed — the site never shows this copy's flex,
+     * only her name and face — but the thing that makes the arithmetic below
+     * come out right. She is one person and will end the night in one of
+     * three seats, so she has to be able to claim any of them and exactly one
+     * of them, her own included.
+     */
+    const as: Floater = {
+      characterId: v.characterId, name: v.name, avatar: v.avatar,
+      job: v.job, confirmedAt: v.confirmedAt,
+      flex: { ...v.flex, seats: [...(v.flex!.seats ?? []), at] },
+    };
+    movers.push(as);
+    moverSeats.push(here);
+    // Her own chair among the maybes. It is the seat of the three she is in
+    // right now, which makes it the likeliest and not the settled one — and a
+    // card that marked the other two as undecided while hers looked final
+    // would be answering the question the wrong way round.
+    for (const id of [...could, at]) (maybe[id] ??= []).push(as);
+  }
+
+  /*
    * And what is still missing, which is not "seats nobody has offered for".
    *
    * One person cannot sit in four chairs. `maybe` lists everybody who could
@@ -1325,23 +1431,59 @@ export function resolveParty(p: Party): Resolved {
    * is left over is the real shortage. Which particular DPS seat ends up the
    * spare one does not matter — the count by role is the same either way.
    */
+  const open = openSlots.filter((s) => free.has(s.id));
+  /*
+   * Every seat the party can still hand somebody, which is not the same as
+   * every empty seat.
+   *
+   * A seat whose occupant offered to move is one the party can fill: press it,
+   * they stand up, and the board seats them in whatever is left. Leaving it
+   * out told every healer reading this listing that a party with a healer who
+   * can tank had no healer seat — the one thing they needed to know, said
+   * wrongly. See v62 for the half of this inside the database.
+   *
+   * In the grid's order, not with the borrowed chairs bolted on the end: this
+   * is read as a list of seats and a party list has an order everybody knows.
+   */
+  const takeable = slotsOf(p.shape).filter(
+    (s) => free.has(s.id) || moverSeats.some((m) => m.id === s.id));
+
+  /*
+   * A mover starts the count in the chair she is in.
+   *
+   * The matching would otherwise hand her the first seat in the grid she
+   * happens to cover, and a party with two healers and one tank would announce
+   * that it needs a healer — true, in the sense that a healer could join and
+   * send her to tank, and useless to everybody reading it. Left where she is,
+   * the shortage is the one the party would have if nothing else changed, and
+   * the other arrangements are advertised as seats rather than as needs: her
+   * chair is in the list above, so a healer can still see the door.
+   *
+   * She can still be moved out of it below — an augmenting path re-seats her
+   * when somebody arrives who can only sit there, which is the whole point of
+   * having offered.
+   */
   const held = new Map<string, Floater>();
+  movers.forEach((m, i) => held.set(moverSeats[i].id, m));
   const claim = (f: Floater, seen: Set<string>): boolean => {
-    for (const id of free) {
-      if (seen.has(id) || !coversSeat(f.flex, byId.get(id)!)) continue;
-      seen.add(id);
-      const sitting = held.get(id);
-      if (!sitting || claim(sitting, seen)) { held.set(id, f); return true; }
+    for (const s of takeable) {
+      if (seen.has(s.id) || !coversSeat(f.flex, s)) continue;
+      seen.add(s.id);
+      const sitting = held.get(s.id);
+      if (!sitting || claim(sitting, seen)) { held.set(s.id, f); return true; }
     }
     return false;
   };
   for (const f of loose) claim(f, new Set());
 
-  const open = openSlots.filter((s) => free.has(s.id));
   return {
-    seats, maybe, loose, open,
-    uncovered: open.filter((s) => !held.has(s.id)),
-    wanted: Math.max(0, open.length - loose.length),
+    seats, maybe, loose, movers, open, takeable,
+    uncovered: takeable.filter((s) => !held.has(s.id)),
+    // Everybody who can claim one of these chairs is a body the party already
+    // has. A mover is one of them and is also already counted in the roster,
+    // which is exactly why she cancels out one of the seats rather than
+    // filling one: she vacates one chair by sitting in another.
+    wanted: Math.max(0, takeable.length - loose.length - movers.length),
   };
 }
 

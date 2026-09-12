@@ -388,15 +388,33 @@ function PartyDetail(
                           // Not signed in as somebody who can sit anywhere, or
                           // the evening is over: nothing to ask.
                           if (party.endedAt) return null;
-                          if (seatState(party, slot.id, resolveParty(party)) !== "open") {
+                          if (!mine) return null;
+                          const res = resolveParty(party);
+                          /*
+                           * A seat somebody offered to move out of is a seat
+                           * that can be asked for. They said so themselves,
+                           * in advance and in public, and the offer only ever
+                           * meant this — so the question names them and what
+                           * would happen, and the press does the rest.
+                           */
+                          const sat = res.seats[slot.id];
+                          const moving =
+                            sat && res.takeable.some((s) => s.id === slot.id)
+                            && sat.characterId !== me.id ? sat : null;
+                          if (!moving
+                              && seatState(party, slot.id, res) !== "open") {
                             return null;
                           }
-                          if (!mine) return null;
-                          if (mine.invited) return t("party.acceptInto", { seat: slot.label });
+                          const also = moving
+                            ? t("party.theyWouldMove", { who: moving.name })
+                            : "";
+                          if (mine.invited) {
+                            return t("party.acceptInto", { seat: slot.label }) + also;
+                          }
                           if (mine.pending) return null;
-                          return mine.seat
+                          return (mine.seat
                             ? t("party.moveHere", { seat: slot.label })
-                            : t("party.sitHere", { seat: slot.label });
+                            : t("party.sitHere", { seat: slot.label })) + also;
                         },
                         take: (slot, job) => void (async () => {
                           const mine = placeOf(party, me.id);

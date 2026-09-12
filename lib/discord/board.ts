@@ -1,5 +1,5 @@
 import {
-  KIND_COLOR, catalogue, endsAt, headcount, lootText, openSeats,
+  KIND_COLOR, catalogue, coversSeat, endsAt, headcount, lootText,
   partyStatus, progressText, resolveParty, spotText, worldText,
 } from "@/lib/party";
 import raw from "@/data/members.json";
@@ -195,7 +195,27 @@ function embedFor(
   const status = partyStatus(p);
   const at = stamp(p.startsAt);
 
-  const freeSeats = openSeats(p).filter((sl) => !sl.free).map((sl) => sl.label);
+  /*
+   * The chairs on offer, which include the ones somebody has offered to give
+   * up. A party whose healer can tank has a healer seat; leaving it off this
+   * line told every healer reading the board the opposite. See Resolved.
+   */
+  const res = resolveParty(p);
+  const freeSeats = res.takeable.filter((sl) => !sl.free).map((sl) => sl.label);
+  /*
+   * And the sentence that stops the list over-promising.
+   *
+   * Five seats named and four people wanted is not a mistake: one of the five
+   * is already somebody's, and she ends the night in one of the ones she can
+   * play. Said in the same field as the list, because the list is what it
+   * corrects — read apart it is a riddle, read together it is the ordinary
+   * thing every static does five minutes before a pull.
+   */
+  const shuffle = res.movers.map((m) => {
+    const could = res.takeable.filter((sl) => coversSeat(m.flex, sl))
+      .map((sl) => sl.label);
+    return could.length > 1 ? `${m.name} (${could.join(" · ")})` : null;
+  }).filter(Boolean);
   const extras = [
     progressText(p.progress),
     lootText(p.loot),
@@ -275,7 +295,15 @@ function embedFor(
        * numbers, since "1, 2, 3, 4" names nothing.
        */
       ...(freeSeats.length
-        ? [{ name: "ที่นั่งว่าง", value: freeSeats.join(" · "), inline: false }]
+        ? [{
+            name: "ที่นั่งว่าง",
+            value: freeSeats.join(" · ")
+              + (shuffle.length
+                ? `
+*ย้ายตำแหน่งได้: ${shuffle.join(" · ")}*`
+                : ""),
+            inline: false,
+          }]
         : []),
       ...(extras.length
         ? [{ name: "รายละเอียด", value: extras.join(" · ").slice(0, 1000), inline: false }]

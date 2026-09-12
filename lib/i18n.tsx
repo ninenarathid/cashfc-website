@@ -2098,6 +2098,10 @@ const DICT = {
   "party.benchEmpty": { en: "nobody waiting", th: "ยังไม่มีใคร" },
   "party.sitHere": { en: "Take {seat}?", th: "นั่งตำแหน่ง {seat} ไหม?" },
   "party.moveHere": { en: "Move to {seat}?", th: "ย้ายไปนั่ง {seat} ไหม?" },
+  "party.theyWouldMove": {
+    en: " {who} offered to move, and would give it up.",
+    th: " {who} เสนอไว้ว่าย้ายตำแหน่งได้ และจะสละที่นั่งนี้ให้",
+  },
   "party.acceptInto": {
     en: "Accept the invitation and take {seat}?",
     th: "ตอบรับคำเชิญแล้วนั่ง {seat} เลยไหม?",
