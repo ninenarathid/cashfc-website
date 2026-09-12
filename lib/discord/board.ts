@@ -1,8 +1,7 @@
 import {
-  KIND_COLOR, KIND_ICON, catalogue, endsAt, headcount, lootText,
+  KIND_COLOR, catalogue, endsAt, headcount, lootText,
   partyStatus, progressText, resolveParty, spotText, worldText,
 } from "@/lib/party";
-import { tagIconUrl } from "@/lib/tag-icons";
 import raw from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
 import { everyone } from "@/lib/people";
@@ -36,10 +35,34 @@ const SITE = "https://cashfc-website.vercel.app";
  * board reading the name off the seats would leave the emptiest parties
  * anonymous, which are exactly the ones somebody has to decide about.
  */
-const roster = (): Map<number, string> => {
-  const out = new Map<number, string>();
-  for (const q of everyone(raw as unknown as BoardData)) out.set(q.id, q.name);
+interface Lead { name: string; avatar: string | null }
+
+const roster = (): Map<number, Lead> => {
+  const out = new Map<number, Lead>();
+  for (const q of everyone(raw as unknown as BoardData)) {
+    out.set(q.id, { name: q.name, avatar: q.avatar });
+  }
   return out;
+};
+
+/**
+ * The role marks, from the server's own emoji where it has them.
+ *
+ * Set DISCORD_EMOJI_TANK and friends to "<:tank:123…>" and the board uses the
+ * game's own art; leave them unset and it falls back to something every device
+ * can already draw. Configuration rather than code because emoji ids belong to
+ * a particular server, and hard-coding one would be hard-coding somebody
+ * else's.
+ */
+const ROLE_MARK: Record<string, string> = {
+  tank: process.env.DISCORD_EMOJI_TANK || "🛡️",
+  healer: process.env.DISCORD_EMOJI_HEALER || "💚",
+  dps: process.env.DISCORD_EMOJI_DPS || "⚔️",
+};
+
+/** Where it is up to, at a glance, before a single word is read. */
+const STATUS_MARK: Record<string, string> = {
+  live: "🔴", soon: "🟠", upcoming: "🟢", justEnded: "⚪", done: "⚪",
 };
 
 /** Discord allows ten embeds, and a select may offer twenty-five options. */
@@ -71,40 +94,47 @@ export function boardParties(all: readonly Party[], now = Date.now()): Party[] {
     .sort((a, b) => +new Date(a.startsAt) - +new Date(b.startsAt));
 }
 
-/** "ขาด 2 Healer · ขาด 3 DPS", or what a full party says instead. */
-function shortfall(p: Party): string {
+/**
+ * What is missing, as marks rather than as a sentence.
+ *
+ * "🛡️ 2 · 💚 1" is read at a glance where "ขาด 2 Tank · ขาด 1 Healer" has to
+ * be read as words — and on a board somebody is scanning for somewhere to go,
+ * glancing is the whole interaction.
+ *
+ * `words` for the dropdown, which cannot draw custom emoji in its description
+ * line and would show the raw <:tank:123> text instead.
+ */
+function shortfall(p: Party, words = false): string {
   if (p.shape === "open") return "เปิดรับทุกคน";
   const res = resolveParty(p);
   if (!res.wanted) return "เต็มแล้ว";
-  const need = { tank: 0, healer: 0, dps: 0 } as Record<string, number>;
+  const need: Record<string, number> = { tank: 0, healer: 0, dps: 0 };
   let free = 0;
   for (const s of res.uncovered) {
     if (s.free) free += 1;
     else need[s.role] += 1;
   }
+  const label: Record<string, string> = {
+    tank: "Tank", healer: "Healer", dps: "DPS",
+  };
   const parts: string[] = [];
-  if (need.tank) parts.push(`ขาด ${need.tank} Tank`);
-  if (need.healer) parts.push(`ขาด ${need.healer} Healer`);
-  if (need.dps) parts.push(`ขาด ${need.dps} DPS`);
-  if (free) parts.push(`ขาดอีก ${free} คน`);
-  return parts.join(" · ") || `ขาดอีก ${res.wanted} คน`;
+  for (const r of ["tank", "healer", "dps"]) {
+    if (!need[r]) continue;
+    parts.push(words ? `${need[r]} ${label[r]}` : `${ROLE_MARK[r]} ${need[r]}`);
+  }
+  if (free) parts.push(`${free} คน`);
+  return parts.join(" · ") || `${res.wanted} คน`;
 }
 
 /** One party, as an embed. */
 function embedFor(
-  p: Party, defs: Record<string, ContentDef>, names: Map<number, string>,
+  p: Party, defs: Record<string, ContentDef>, names: Map<number, Lead>,
 ) {
   const def = defs[p.contentKey];
   const lead = names.get(p.ownerCharacterId);
   const { here, seats } = headcount(p);
   const status = partyStatus(p);
-  const lines: string[] = [];
-
-  // Discord's own clock, so everybody reads it in their own timezone — the one
-  // thing the website cannot do, and the reason a Thai FC with members abroad
-  // keeps getting the hour wrong.
-  lines.push(`<t:${stamp(p.startsAt)}:F> · <t:${stamp(p.startsAt)}:R>`);
-  lines.push(`**${seats ? `${here}/${seats} คน` : `${here} คน`}** · ${shortfall(p)}`);
+  const at = stamp(p.startsAt);
 
   const extras = [
     progressText(p.progress),
@@ -112,30 +142,60 @@ function embedFor(
     spotText(p.spot),
     worldText(p.spot),
   ].filter(Boolean);
-  if (extras.length) lines.push(extras.join(" · "));
-  if (p.note) lines.push(p.note);
 
-  const art = def?.art ? `${SITE}${def.art}` : null;
-  const icon = def ? tagIconUrl(def.icon ?? KIND_ICON[def.kind] ?? "") : null;
+  /*
+   * The same picture the site shows when a party is shared anywhere else.
+   *
+   * One template for every party rather than the fight's own art where it
+   * happens to exist: a board where three rows carry a screenshot and two
+   * carry nothing reads as a board that is missing something, and the card
+   * already puts the art inside itself where there is any.
+   *
+   * The version in the query is what keeps it honest. Discord caches an image
+   * by its URL and would otherwise show the seat count as it stood the first
+   * time anybody looked — so the URL changes whenever the card would.
+   */
+  const version = `${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}`;
+  const card = `${SITE}/party/${p.id}/opengraph-image?v=${version}`;
 
   return {
-    title: `${nameOf(p, defs)}${status === "live" ? " · กำลังเล่น" : ""}`,
+    // The lead, with their face. An embed with somebody in it reads as an
+    // invitation; the same embed without reads as a listing.
+    ...(lead ? {
+      author: {
+        name: `ตั้งโดย ${lead.name}`,
+        ...(lead.avatar ? { icon_url: lead.avatar } : {}),
+        url: `${SITE}/member/${p.ownerCharacterId}`,
+      },
+    } : {}),
+    title: `${STATUS_MARK[status] ?? ""} ${nameOf(p, defs)}`.trim(),
     url: `${SITE}/party/${p.id}`,
-    description: lines.join("\n").slice(0, 4000),
+    ...(p.note ? { description: p.note.slice(0, 400) } : {}),
     color: def ? Number.parseInt(KIND_COLOR[def.kind].slice(1), 16) : 0x8b93a1,
     /*
-     * The fight's own art where the site has it, the game's icon where it
-     * does not.
+     * Three columns rather than three lines.
      *
-     * A banner and a thumbnail respectively, because they are different
-     * pictures: the art is a wide screenshot that earns the width, and a 40px
-     * icon stretched across an embed is a smear. Content with neither — an
-     * evening somebody called "Something else" — gets no picture, which is
-     * what it is.
+     * The numbers are what the board is read for, and a paragraph makes them
+     * be read in order. Side by side they can be compared across parties
+     * without reading any of them.
      */
-    ...(art ? { image: { url: art } } : {}),
-    ...(!art && icon ? { thumbnail: { url: icon } } : {}),
-    ...(lead ? { footer: { text: `ตั้งโดย ${lead}` } } : {}),
+    fields: [
+      {
+        name: "เริ่ม",
+        // Discord's own clock, so everybody sees their own timezone — the one
+        // thing the website cannot do, and why a Thai FC with members abroad
+        // keeps getting the hour wrong.
+        value: `<t:${at}:f>
+<t:${at}:R>`,
+        inline: true,
+      },
+      { name: "ในปาร์ตี้", value: seats ? `**${here}/${seats}**` : `**${here}**`, inline: true },
+      { name: "ยังขาด", value: shortfall(p), inline: true },
+      ...(extras.length
+        ? [{ name: "รายละเอียด", value: extras.join(" · ").slice(0, 1000), inline: false }]
+        : []),
+    ],
+    image: { url: card },
   };
 }
 
@@ -164,7 +224,7 @@ function joinRow(parties: readonly Party[], defs: Record<string, ContentDef>) {
         description: `${new Date(p.startsAt).toLocaleString("th-TH", {
           timeZone: "Asia/Bangkok", day: "2-digit", month: "2-digit",
           hour: "2-digit", minute: "2-digit",
-        })} · ${shortfall(p)}`.slice(0, 100),
+        })} · ขาด ${shortfall(p, true)}`.slice(0, 100),
         value: p.id,
       })),
     }],
