@@ -675,12 +675,18 @@ export async function acceptInto(
  * only way out of a chair was out of the evening. Somebody who has said yes
  * and would rather leave the seat open while the party sorts itself out is
  * exactly who the bench is for.
+ *
+ * The offer they are standing up into is theirs to say. "Anywhere" is the
+ * common one and stays the default, but somebody who can play the two DPS
+ * seats and nothing else is making a different and more useful offer, and
+ * writing "anywhere" over it would have the resolver put them in the healer
+ * seat it was trying to fill.
  */
 export async function leaveSeat(
-  supabase: SupabaseClient, seatRowId: number,
+  supabase: SupabaseClient, seatRowId: number, flex: Flex = { all: true },
 ): Promise<{ error?: string }> {
   const { error } = await supabase.from("party_members")
-    .update({ seat: null, flex: { all: true } })
+    .update({ seat: null, flex })
     .eq("id", seatRowId);
   return error ? { error: error.message } : {};
 }

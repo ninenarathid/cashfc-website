@@ -134,9 +134,16 @@ function Maybes({ who }: { who: Floater[] }) {
 export interface SeatPick {
   ask: (slot: SlotDef) => string | null;
   take: (slot: SlotDef, job: string | null) => void;
-  /** The same for standing up: a question, or null where they are not sitting. */
+  /**
+   * The same for the row under the grid: a question, or null for somebody
+   * with no business there. Answering it is not one button but a choice of
+   * seats — "I can play these" is an offer, and the widest version of it is
+   * only the most common one, not the only one. See Bench.
+   */
   benchAsk?: string | null;
-  bench?: () => void;
+  /** What they are offering now, so the chips open where they left them. */
+  benchNow?: Flex | null;
+  bench?: (flex: Flex) => void;
   busy?: boolean;
 }
 
@@ -472,7 +479,7 @@ export default function PartySeats(
   return (
     <div className="flex flex-col gap-2">
       {grid}
-      <Bench who={res.loose} pick={pick} />
+      <Bench who={res.loose} pick={pick} res={res} />
     </div>
   );
 }
@@ -490,7 +497,9 @@ export default function PartySeats(
  * other half of sitting down and there was nowhere to do it from.
  */
 function Bench(
-  { who, pick }: { who: readonly Floater[]; pick?: SeatPick },
+  { who, pick, res }: {
+    who: readonly Floater[]; pick?: SeatPick; res: Resolved;
+  },
 ) {
   const { t } = useLang();
   const face = useFace();
@@ -536,15 +545,89 @@ function Bench(
 
   if (!ask || !pick?.bench) return row;
   return (
-    <Popover trigger={
-      <button type="button" className="w-full text-left">{row}</button>}>
+    <BenchAsk res={res} pick={pick} ask={ask}
+              trigger={
+                <button type="button" className="w-full text-left">{row}</button>} />
+  );
+}
+
+/**
+ * Which seats you can play, asked from the row itself.
+ *
+ * Standing up used to have exactly one answer — anywhere — which made the
+ * middle of the three states unreachable once you were in. A party can hold
+ * somebody who plays the two DPS seats and nothing else; it could take that
+ * answer at the door and never again, so the only way back to it was to leave
+ * the party and ask to join it a second time.
+ *
+ * Nothing picked is "anywhere", which is both the widest offer and the
+ * shortest thing to do, so the common answer stays one press. Picking any seat
+ * turns that off, because "anywhere" beside a list of two is a contradiction
+ * rather than an extra.
+ */
+function BenchAsk(
+  { res, pick, ask, trigger }: {
+    res: Resolved; pick: SeatPick; ask: string; trigger: React.ReactNode;
+  },
+) {
+  const { t } = useLang();
+  const [open, setOpen] = useState(false);
+  const was = pick.benchNow;
+  const [want, setWant] = useState<Set<string>>(
+    () => new Set(was?.all ? [] : (was?.seats ?? [])));
+  const seats = res.takeable;
+
+  return (
+    <Popover open={open} onOpenChange={(v) => {
+               setOpen(v);
+               if (v) setWant(new Set(was?.all ? [] : (was?.seats ?? [])));
+             }}
+             trigger={trigger}>
       <div className="flex flex-col gap-2.5">
         <p className="text-[15px] text-ink">{ask}</p>
-        <button type="button" disabled={pick.busy}
-                onClick={() => pick.bench?.()}
-                className="self-start rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
-          {t("party.confirmSeat")}
-        </button>
+        {seats.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {seats.map((sl) => {
+              const on = want.has(sl.id);
+              const c = sl.free ? "#8b93a1" : ROLE_COLOR[sl.role];
+              return (
+                <button key={sl.id} type="button"
+                        onClick={() => setWant((v) => {
+                          const next = new Set(v);
+                          if (!next.delete(sl.id)) next.add(sl.id);
+                          return next;
+                        })}
+                        style={on
+                          ? { borderColor: c, color: c,
+                              background: `color-mix(in srgb, ${c} 14%, transparent)` }
+                          : undefined}
+                        className={`flex items-center gap-1 rounded-full border px-2.5 py-[2px] text-[14.5px] transition-colors ${
+                          on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                  <span style={{ background: c }}
+                        className="size-1.5 shrink-0 rounded-full" />
+                  {sl.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <span className="text-[13.5px] text-muted">
+          {want.size ? t("party.benchThese") : t("party.benchAny")}
+        </span>
+        <div className="flex items-center gap-2">
+          <button type="button" disabled={pick.busy}
+                  onClick={() => {
+                    setOpen(false);
+                    pick.bench?.(want.size ? { seats: [...want] } : { all: true });
+                  }}
+                  className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+            {t("party.confirmSeat")}
+          </button>
+          <button type="button" onClick={() => setOpen(false)}
+                  className="rounded-lg px-2 py-1.5 text-[14.5px] text-muted hover:text-ink">
+            {t("pf.cancel")}
+          </button>
+        </div>
       </div>
     </Popover>
   );

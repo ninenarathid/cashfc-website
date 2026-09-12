@@ -440,16 +440,27 @@ function PartyDetail(
                           }
                           await refresh();
                         })(),
+                        /*
+                         * Flex is a state you can be moved into and out of,
+                         * like the other two. It used to be a one-way door
+                         * with one answer behind it: stand up, play anywhere.
+                         * Somebody already flexing could not narrow it, and
+                         * somebody who could play the two DPS seats and
+                         * nothing else had to leave the party and ask to join
+                         * it again to say so.
+                         */
                         benchAsk: (() => {
                           const mine = placeOf(party, me.id);
-                          return mine && !mine.invited && !mine.pending && mine.seat
-                            ? t("party.toBench") : null;
+                          if (!mine || mine.invited || mine.pending) return null;
+                          return mine.seat
+                            ? t("party.toBench") : t("party.editFlex");
                         })(),
-                        bench: () => void (async () => {
+                        benchNow: placeOf(party, me.id)?.flex ?? null,
+                        bench: (flex) => void (async () => {
                           const mine = placeOf(party, me.id);
                           if (!mine?.rowId) return;
                           setSeating(true);
-                          const r = await leaveSeat(supabase, mine.rowId);
+                          const r = await leaveSeat(supabase, mine.rowId, flex);
                           setSeating(false);
                           if (r.error) { setErr(r.error); return; }
                           await refresh();

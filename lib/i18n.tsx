@@ -2107,14 +2107,13 @@ const DICT = {
   },
   "party.jobOptional": { en: "Job (optional)", th: "อาชีพ (ไม่บังคับ)" },
   "party.confirmSeat": { en: "Confirm", th: "ยืนยัน" },
-  // Not "bench", and not "no seat yet" either. A substitute is somebody who
-  // might not play; somebody who ticked every DPS seat is playing, and has
-  // told the lead more than a person who ticked one — they chose four seats,
-  // not none. What is true of all of them is that nothing is locked, which is
-  // also what a seated member with a live flex is, and what both become the
-  // moment one option is left. The grid above draws their face on each seat
-  // they named; the Discord board, which has no grid, prints the list.
-  "party.bench": { en: "No fixed seat", th: "ยังไม่ล็อกตำแหน่ง" },
+  // "Flex", the word the FC already uses, and the same word the chip under a
+  // seated member's name uses — because it is the same thing. Not "bench" and
+  // not "no seat yet": a substitute might not play, and "not picked yet" is a
+  // blank where these people gave an answer. Somebody who ticked all four DPS
+  // seats chose four seats, and somebody who ticked none chose the widest
+  // offer there is. Both decided; neither is waiting to.
+  "party.bench": { en: "Flex", th: "Flex" },
   "party.benchEmpty": { en: "nobody yet", th: "ยังไม่มีใคร" },
   "party.sitHere": { en: "Take {seat}?", th: "นั่งตำแหน่ง {seat} ไหม?" },
   "party.moveHere": { en: "Move to {seat}?", th: "ย้ายไปนั่ง {seat} ไหม?" },
@@ -2126,10 +2125,22 @@ const DICT = {
     en: "Accept the invitation and take {seat}?",
     th: "ตอบรับคำเชิญแล้วนั่ง {seat} เลยไหม?",
   },
-  "party.standUp": { en: "Move here", th: "ย้ายมาที่นี่" },
+  "party.standUp": { en: "Go flex", th: "มาเป็น Flex" },
   "party.toBench": {
-    en: "Give up your seat and play wherever you are needed?",
-    th: "สละที่นั่ง แล้วเล่นตำแหน่งไหนก็ได้ตามที่ปาร์ตี้ขาดไหม?",
+    en: "Give up your seat and go flex?",
+    th: "สละที่นั่ง แล้วมาเป็น Flex ไหม?",
+  },
+  "party.editFlex": {
+    en: "Which seats can you play?", th: "เล่นตำแหน่งไหนได้บ้าง?",
+  },
+  // Nothing picked is the widest offer and the shortest thing to do, so the
+  // common answer stays one press — but it is an answer, not a blank.
+  "party.benchAny": {
+    en: "Nothing picked — wherever you are needed.",
+    th: "ไม่เลือก = เล่นตำแหน่งไหนก็ได้ ตามที่ปาร์ตี้ขาด",
+  },
+  "party.benchThese": {
+    en: "You will play one of these.", th: "จะได้เล่นหนึ่งในนี้",
   },
   "party.invitedPick": {
     en: "Accept first — you choose your own position afterwards.",

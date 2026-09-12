@@ -233,12 +233,12 @@ function embedFor(
    * wearing different numbers of options, and the first is what they both
    * become once one option is left — so they belong in one line, not two.
    *
-   * Not "ยังไม่เลือกตำแหน่ง", which is wrong about most of them: somebody who
-   * ticked every DPS seat chose four seats and has told the lead more than a
-   * person who ticked one. What is true of all of them is that nothing is
-   * locked, so that is what it says, and the seats each of them named are
-   * printed beside their name because this is the only window with no grid to
-   * draw them on.
+   * Not "ยังไม่เลือกตำแหน่ง", which is wrong about all of them: flex is a
+   * choice, not the absence of one. Somebody who ticked every DPS seat chose
+   * four seats and has told the lead more than a person who ticked one, and
+   * somebody who ticked none chose the widest offer there is. The seats each
+   * of them named are printed beside their name, because this is the only
+   * window with no grid to draw them on.
    *
    * It is also the other half of why the seat list above is longer than the
    * shortage: six chairs, two people already inside who will take two of
@@ -341,7 +341,7 @@ function embedFor(
         : []),
       ...(unsettled.length
         ? [{
-            name: "ยังไม่ล็อกตำแหน่ง",
+            name: "Flex",
             value: unsettled.join(" · ").slice(0, 1000),
             inline: false,
           }]
