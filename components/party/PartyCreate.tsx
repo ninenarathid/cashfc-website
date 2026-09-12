@@ -39,6 +39,8 @@ import SeatSuggest from "@/components/party/SeatSuggest";
 import type { SuggestRow } from "@/lib/suggest";
 import { jobsWantedBy } from "@/lib/suggest";
 import { createClient } from "@/lib/supabase/client";
+import type { Want } from "@/lib/wants";
+import { loadWants, wantCovers } from "@/lib/wants";
 import Modal, { Sheet } from "@/components/ui/Modal";
 import DateTime from "@/components/ui/DateTime";
 import { useAvatarOverrides } from "@/lib/avatars";
@@ -274,6 +276,18 @@ export default function PartyCreate(
   const [oneEach, setOneEach] = useState(!!editing?.oneOfEachJob);
   const [floating, setFloating] = useState<Floater[]>(editing?.floating ?? []);
   const [body, setBody] = useState<PartyBlock[]>(editing?.body ?? []);
+
+  /*
+   * Read once when the form opens. A want is a standing statement and does not
+   * change while somebody fills in a start time; re-reading it on every
+   * keystroke would be a query per character typed.
+   */
+  const [handsUp, setHandsUp] = useState<Want[]>([]);
+  useEffect(() => {
+    const sb = createClient();
+    if (!sb) return;
+    void loadWants(sb).then(setHandsUp);
+  }, []);
   const [progress, setProgress] = useState<Progress>(
     editing?.progress ?? { at: "fresh" });
   const [loot, setLoot] = useState<Loot>(editing?.loot ?? { rule: DEFAULT_LOOT });
@@ -793,6 +807,18 @@ export default function PartyCreate(
    */
   if (picking) lastPicked.current = picking;
   const seat = picking ?? lastPicked.current;
+
+  /*
+   * Who has put their hand up for this fight, for the suggestion list.
+   *
+   * Everything else that list offers is inference — they play the job, they
+   * ticked the hour, they killed it last tier. This is the one line in it that
+   * is not a guess, so it goes to the top and wears a mark saying why.
+   */
+  const askedFor = (role?: SlotRole) => new Set(
+    handsUp.filter((w) => wantCovers(w, contentKey, chosen?.kind, role))
+      .map((w) => w.characterId)
+      .filter((x): x is number => x != null));
   const sitting = seat ? seats[seat.id] : undefined;
   /*
    * Who has already been asked about this seat.
@@ -1318,6 +1344,7 @@ export default function PartyCreate(
                 <SeatSuggest slot={seat} def={chosen} rows={suggest}
                              labels={labels ?? []} startsAt={draft.startsAt}
                              when={when} people={people}
+                             asked={askedFor(seat.free ? undefined : seat.role)}
                              exclude={new Set([
                                ...Object.values(seats)
                                  .map((v) => v.characterId)

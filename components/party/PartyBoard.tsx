@@ -43,6 +43,9 @@ import TagIcon from "@/components/TagIcon";
 import PartyIcon from "@/components/party/PartyIcon";
 import { jobRoleGroup } from "@/components/JobIcon";
 import { fmtDateTime } from "@/lib/dates";
+import WantList from "@/components/party/WantList";
+import type { Want } from "@/lib/wants";
+import { loadWants } from "@/lib/wants";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import FoodIcon from "@/components/party/FoodIcon";
 import { PartyBody } from "@/components/party/PartyBody";
@@ -758,6 +761,25 @@ export default function PartyBoard(
     setLoading(false);
   }, [supabase, wide]);
 
+  /*
+   * Who is looking, read once beside the parties.
+   *
+   * Its own call rather than part of loadParties: a want is not a party, it
+   * outlives any one of them, and a board that could not load the list of
+   * people looking should still show the parties.
+   *
+   * Read only when somebody is signed in, because the policy that guards the
+   * table says the same thing — a list of who is free when belongs to the
+   * Free Company, and an anonymous visitor would get an empty array and a
+   * heading over nothing.
+   */
+  const [wants, setWants] = useState<Want[]>([]);
+  const readWants = useCallback(async () => {
+    if (!supabase || !userId) { setWants([]); return; }
+    setWants(await loadWants(supabase));
+  }, [supabase, userId]);
+  useEffect(() => { void readWants(); }, [readWants]);
+
   useEffect(() => { void refresh(); }, [refresh]);
 
   // And keeps itself current: two people looking at the last open seat should
@@ -1331,6 +1353,28 @@ export default function PartyBoard(
         {shown.length === 1 ? t("party.countOne")
                             : t("party.countMany", { n: shown.length })}
       </p>
+
+      {/*
+        * The other half of the market, at the head of the list.
+        *
+        * Above the rows rather than under them, because a list nobody scrolls
+        * to is a list nobody posts to and this one is worth nothing until
+        * enough people have. Below the filters, because it is part of the
+        * list and not part of the page — the chips and the search box are
+        * about parties and do not touch it.
+        *
+        * It collapses to a single line when nobody has signed up, so on the
+        * ordinary day it costs one row rather than putting a panel of nothing
+        * between the reader and the parties they came for.
+        *
+        * Only to somebody signed in, which is the same answer the table's own
+        * policy gives: a list of who is free when belongs to the Free Company,
+        * and it is no use to a reader who cannot be invited anyway.
+        */}
+      {userId && supabase && (
+        <WantList wants={wants} content={content} me={me} userId={userId}
+                  supabase={supabase} refresh={readWants} />
+      )}
 
       {/* ── The list, by day ─────────────────────────────────────────────── */}
       {loading && (

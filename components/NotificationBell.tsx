@@ -167,6 +167,15 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
    */
   party_soon: { say: "notif.partySoon", icon: "⏰", href: "/party" },
   party_out: { say: "notif.partyOut", icon: "🚪", href: "/party" },
+  /*
+   * A party you said you were looking for has gone up.
+   *
+   * The one party notification nobody did to you and that is not about a party
+   * you are in: you left a note on the board saying what you wanted, and the
+   * board is answering it. The telescope, because it is the only one that is
+   * the result of looking.
+   */
+  party_match: { say: "notif.partyMatch", icon: "🔭", href: "/party" },
 };
 
 /**

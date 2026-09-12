@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL } from "@/lib/supabase/config";
 import { loadParties } from "@/lib/party-db";
+import { pingWants } from "@/lib/wants-ping";
 import { boardMessage } from "@/lib/discord/board";
 import {
   APP_ID, CHANNEL_ID, deleteMessage, editMessage, listMessages, postMessage,
@@ -70,13 +71,35 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "no" }, { status: 401 });
   }
 
-  const channel = CHANNEL_ID();
   const supabase = admin();
-  if (!channel || !supabase) {
-    return NextResponse.json({ skipped: "not configured" });
-  }
+  if (!supabase) return NextResponse.json({ skipped: "not configured" });
 
   const parties = await loadParties(supabase);
+
+  /*
+   * Before the Discord half, and not inside it.
+   *
+   * This sweep is the only thing on the site that runs on a clock, so the one
+   * other job that wants one lives here too: telling anybody whose "I am
+   * looking for a savage on Tuesday" has just come true. It needs the party
+   * model and nothing about Discord, so it runs whether or not a channel has
+   * been configured — putting it after the channel check would have made
+   * somebody's notification depend on a bot token.
+   *
+   * Its own failure is its own: a sweep that cannot reach the wants table
+   * should still post the board.
+   */
+  let pinged = 0;
+  try {
+    pinged = await pingWants(supabase, parties);
+  } catch {
+    pinged = -1;
+  }
+
+  const channel = CHANNEL_ID();
+  if (!channel) {
+    return NextResponse.json({ skipped: "no channel", pinged });
+  }
 
   /*
    * The pictures members chose for themselves.
@@ -111,7 +134,9 @@ export async function POST(req: Request) {
     if ("ok" in edited) {
       await supabase.from("discord_board")
         .update({ updated_at: new Date().toISOString() }).eq("id", 1);
-      return NextResponse.json({ edited: known, parties: payload.embeds.length });
+      return NextResponse.json({
+        edited: known, parties: payload.embeds.length, pinged,
+      });
     }
     /*
      * Only ever post a second board when Discord says the first one is gone.
@@ -158,6 +183,6 @@ export async function POST(req: Request) {
    */
   const swept = await sweep(channel, posted.ok.id);
   return NextResponse.json({
-    posted: posted.ok.id, parties: payload.embeds.length, swept,
+    posted: posted.ok.id, parties: payload.embeds.length, swept, pinged,
   });
 }

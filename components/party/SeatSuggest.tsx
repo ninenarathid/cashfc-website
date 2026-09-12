@@ -30,7 +30,7 @@ import { useLang } from "@/lib/i18n";
 const SHOW = 6;
 
 export default function SeatSuggest(
-  { slot, def, rows, labels, startsAt, when, exclude, people, onPick }: {
+  { slot, def, rows, labels, startsAt, when, exclude, asked, people, onPick }: {
     slot: SlotDef;
     def: ContentDef | undefined;
     rows: SuggestRow[];
@@ -39,6 +39,15 @@ export default function SeatSuggest(
     /** Character id -> availability grid, as the profile stores it. */
     when: Record<number, string | null>;
     exclude: Set<number>;
+    /**
+     * Anybody who has said on the board that they are looking for this.
+     *
+     * Everything else in this list is inference — they play the job, they
+     * ticked the hour, they killed it last tier — and this is the one thing
+     * that is not. Somebody who put their hand up is not a better guess than
+     * the others; they are not a guess.
+     */
+    asked?: Set<number>;
     /** For the name and the face, which the index deliberately does not carry. */
     people: PersonOption[];
     onPick: (p: PersonOption) => void;
@@ -77,7 +86,17 @@ export default function SeatSuggest(
    * "has not said" is not "is busy" — which is why the count of who is being
    * held back sits next to the switch rather than the filter working quietly.
    */
-  const list = freeOnly ? all.filter((s) => s.free === true) : all;
+  const list = useMemo(() => {
+    const some = freeOnly ? all.filter((s) => s.free === true) : all;
+    // Volunteers first, and never filtered out by the "free then" switch: an
+    // empty grid is why most of the roster fails that test, and somebody who
+    // has just told the board they want this evening has answered the
+    // question the grid was being asked in place of.
+    if (!asked?.size) return some;
+    const up = all.filter((s) => asked.has(s.id));
+    const rest = some.filter((s) => !asked.has(s.id));
+    return [...up, ...rest];
+  }, [all, freeOnly, asked]);
   const shown = more ? list.slice(0, 24) : list.slice(0, SHOW);
 
   if (!all.length) return null;
@@ -116,6 +135,11 @@ export default function SeatSuggest(
             <span className="flex min-w-0 flex-1 flex-col">
               <span className="flex flex-wrap items-center gap-1.5">
                 <span className="truncate text-[14.5px] text-ink">{p.name}</span>
+                {asked?.has(s.id) && (
+                  <span className="rounded-full border border-jade/50 px-1.5 py-[1px] font-data text-[11px] uppercase tracking-[0.08em] text-jade">
+                    {t("want.askedFor")}
+                  </span>
+                )}
                 {/*
                   * The jobs, with the ones they actually killed this fight on
                   * ringed.

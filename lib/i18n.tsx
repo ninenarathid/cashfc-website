@@ -478,6 +478,10 @@ const DICT = {
     en: "{who} let you into the party.",
     th: "{who} รับคุณเข้าปาร์ตี้แล้ว",
   },
+  "notif.partyMatch": {
+    en: "A party you were looking for has gone up.",
+    th: "มีปาร์ตี้ที่คุณกำลังหาเปิดแล้ว",
+  },
   "notif.partySeatGone": {
     en: "The seat you were asked about has been taken.",
     th: "ตำแหน่งที่คุณถูกชวนมาลง มีคนลงแล้ว",
@@ -1885,9 +1889,41 @@ const DICT = {
   /* ── The in-game party finder helper ──────────────────────────────── */
   // On a row, where it saves opening a party to find out. The party is fine;
   // it is the reader's evening that is spoken for.
+  /* ── Who is looking, which is the other half of the board ─────────── */
+  "want.heading": { en: "Looking for a party ({n})", th: "กำลังหา Party ({n})" },
+  // No pronoun. A button speaks to whoever is reading it, and "ผม" picks one
+  // half of the Free Company to speak to. Signing your name is also the truer
+  // description of what the button does — the same word the suggestion list
+  // uses when it marks somebody who has.
+  "want.post": { en: "Put your name down", th: "ลงชื่อหา Party" },
+  "want.postIt": { en: "Put it up", th: "โพสต์" },
+  "want.none": {
+    en: "nobody yet", th: "ยังไม่มีใครลงชื่อ",
+  },
+  "want.what": { en: "Looking for", th: "กำลังหา" },
+  "want.narrow": { en: "Or one in particular", th: "หรือเจาะจงว่าอันไหน" },
+  "want.asWhat": { en: "As", th: "เล่นตำแหน่ง" },
+  "want.anyRole": { en: "whatever you are short of", th: "ตำแหน่งไหนที่ขาด" },
+  "want.anything": { en: "anything", th: "อะไรก็ได้" },
+  "want.noteHint": {
+    en: "Anything else? (optional)", th: "มีอะไรอยากบอกเพิ่มไหม (ไม่ใส่ก็ได้)",
+  },
+  "want.whenWhy": {
+    en: "The hours come from the availability grid on your profile. An empty "
+      + "grid means any time.",
+    th: "เวลาเอาจากตารางเวลาว่างในโปรไฟล์ ถ้ายังไม่ได้กรอกจะถือว่าว่างทุกเวลา",
+  },
+  "want.twoDays": { en: "Lasts two days", th: "อยู่ได้สองวัน" },
+  "want.capped": { en: "Three at a time.", th: "โพสต์ได้ครั้งละ 3 รายการ" },
+  "want.extend": { en: "Two more days", th: "ต่ออีกสองวัน" },
+  "want.withdraw": { en: "Withdraw", th: "ถอน" },
+  "want.askedFor": { en: "asked for this", th: "ลงชื่อไว้" },
+  "want.leftDays": { en: "{n}d left", th: "เหลือ {n} วัน" },
+  "want.leftHours": { en: "{n}h left", th: "เหลือ {n} ชม." },
+
   "pf.wantsMyRole": { en: "wants a {role}", th: "รับ {role}" },
   "pf.youAreBusy": { en: "you are busy", th: "คุณติดนัด" },
-  "pf.helper": { en: "In-game PF helper", th: "ตัวช่วยตั้งห้อง PF ในเกม" },
+  "pf.helper": { en: "In-game PF helper", th: "ตัวช่วยสร้าง PF ในเกม" },
   "pf.betaTag": { en: "beta", th: "ทดลอง" },
   "pf.beta": {
     en: "Still being tested. Read it before you post, and tell us what the "
@@ -1895,7 +1931,7 @@ const DICT = {
       + "translated, so it is right about the party and not yet proven to "
       + "read well.",
     th: "ฟีเจอร์นี้อยู่ในช่วงทดลอง อ่านทวนก่อนโพสต์ทุกครั้ง — ข้อความถอดมาจาก"
-      + "ห้องจริงของคนญี่ปุ่น ไม่ได้แปลด้วยเครื่อง ข้อมูลถูกแน่นอนแต่ยังไม่ได้"
+      + "Party จริงของคนญี่ปุ่น ไม่ได้แปลด้วยเครื่อง ข้อมูลถูกแน่นอนแต่ยังไม่ได้"
       + "พิสูจน์ว่าอ่านแล้วลื่นไหม เจออะไรแปลกบอกได้เลย",
   },
   "pf.helperTitle": {
@@ -1935,7 +1971,7 @@ const DICT = {
   "pf.xWipes": { en: "Disband after N wipes", th: "เลิกเมื่อตาย N ครั้ง" },
   "pf.helperWhy": {
     en: "Built from the listing, never translated — edit it before you post.",
-    th: "ประกอบจากข้อมูลห้อง ไม่ได้แปลอัตโนมัติ แก้ได้ก่อนเอาไปโพสต์",
+    th: "ประกอบจากข้อมูล Party ไม่ได้แปลอัตโนมัติ แก้ได้ก่อนเอาไปโพสต์",
   },
 
   // The example is the answer nine listings in ten give, so it is the whole
