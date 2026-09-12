@@ -129,9 +129,19 @@ function shortfall(p: Party, words = false): string {
 /** One party, as an embed. */
 function embedFor(
   p: Party, defs: Record<string, ContentDef>, names: Map<number, Lead>,
+  faces: Map<number, string>,
 ) {
   const def = defs[p.contentKey];
   const lead = names.get(p.ownerCharacterId);
+  /*
+   * The picture they chose, before the one the game took of them.
+   *
+   * Same order as everywhere else on the site: somebody who set their own
+   * portrait is that portrait on the member board, in the seat grid and beside
+   * their messages, and a board in another window showing their Lodestone
+   * headshot would be the one place that disagreed about what they look like.
+   */
+  const face = faces.get(p.ownerCharacterId) ?? lead?.avatar ?? null;
   const { here, seats } = headcount(p);
   const status = partyStatus(p);
   const at = stamp(p.startsAt);
@@ -159,12 +169,13 @@ function embedFor(
   const card = `${SITE}/party/${p.id}/opengraph-image?v=${version}`;
 
   return {
-    // The lead, with their face. An embed with somebody in it reads as an
-    // invitation; the same embed without reads as a listing.
+    // The lead, with their face and nothing else. An embed with somebody in
+    // it reads as an invitation; the same embed without reads as a listing —
+    // and the name in that position is already plainly whose party it is.
     ...(lead ? {
       author: {
-        name: `ตั้งโดย ${lead.name}`,
-        ...(lead.avatar ? { icon_url: lead.avatar } : {}),
+        name: lead.name,
+        ...(face ? { icon_url: face } : {}),
         url: `${SITE}/member/${p.ownerCharacterId}`,
       },
     } : {}),
@@ -232,7 +243,11 @@ function joinRow(parties: readonly Party[], defs: Record<string, ContentDef>) {
 }
 
 /** The whole message: what to post the first time, and what to edit into it. */
-export function boardMessage(all: readonly Party[], now = Date.now()) {
+export function boardMessage(
+  all: readonly Party[], now = Date.now(),
+  /** character id -> the picture they chose for themselves, where they did. */
+  faces: Map<number, string> = new Map(),
+) {
   const defs = byKey();
   const names = roster();
   const open = boardParties(all, now);
@@ -246,7 +261,7 @@ export function boardMessage(all: readonly Party[], now = Date.now()) {
 
   return {
     content: `${header}\n-# อัปเดตล่าสุด <t:${Math.floor(now / 1000)}:R>`,
-    embeds: shown.map((p) => embedFor(p, defs, names)),
+    embeds: shown.map((p) => embedFor(p, defs, names, faces)),
     components: joinRow(shown, defs),
     // Nothing this message says is worth pinging anybody for. The board is
     // read when somebody is looking for a party, not pushed at them.

@@ -60,7 +60,25 @@ export async function POST(req: Request) {
   }
 
   const parties = await loadParties(supabase);
-  const payload = boardMessage(parties);
+
+  /*
+   * The pictures members chose for themselves.
+   *
+   * Fetched here rather than threaded through the model, because this is the
+   * only caller that needs them and the browser already has its own copy
+   * through the avatar context. Missing rows are simply people who never set
+   * one, and the Lodestone portrait stands in.
+   */
+  const { data: chosen } = await supabase.from("profiles")
+    .select("character_id, avatar_url")
+    .not("avatar_url", "is", null)
+    .not("character_id", "is", null);
+  const faces = new Map<number, string>();
+  for (const r of (chosen ?? []) as { character_id: number; avatar_url: string }[]) {
+    faces.set(r.character_id, r.avatar_url);
+  }
+
+  const payload = boardMessage(parties, Date.now(), faces);
 
   const { data: row } = await supabase
     .from("discord_board").select("channel_id, message_id").eq("id", 1).single();
