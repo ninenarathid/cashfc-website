@@ -201,8 +201,17 @@ export function planOf(p: Party): string | null {
 const LOOT_JA: Record<string, string> = {
   ffa: "フリロ", ltr: "取り抜け", book: "断章", merc: "代行", owner: "主取り",
 };
+/*
+ * The other board's words, not a translation of this one's.
+ *
+ * "Free lot" is フリロ said in English letters and means nothing to anybody
+ * who has not read a Japanese listing; the same rule is FFA everywhere else,
+ * and LTR is what a party finder outside Japan calls taking your drop and
+ * leaving. A listing written in English is addressed to people who read
+ * English listings.
+ */
 const LOOT_EN: Record<string, string> = {
-  ffa: "free lot", ltr: "take and leave", book: "book run",
+  ffa: "FFA", ltr: "LTR", book: "book run",
   merc: "carry", owner: "map owner keeps",
 };
 
@@ -241,14 +250,13 @@ export function pfComment(
    * of a listing says nothing about when.
    */
   const laps = p.lengthUnit === "runs" ? (p.runs ?? 0) : 0;
-  const doing = at === "fresh" ? (ja ? "最初から" : "from the start")
+  const doing = at === "fresh" ? (ja ? "最初から" : "fresh prog")
     : at === "farm" ? (laps
         ? (ja ? `${laps}周` : `${laps} runs`) : (ja ? "周回" : "farm"))
-    : at === "a2c" ? (ja ? "クリ目" : "clear attempt")
+    : at === "a2c" ? (ja ? "クリ目" : "clear party")
     : (ja ? "練習" : "prog");
   const lapRc = x.runsRc && at === "farm" && laps;
-  const head = lapRc ? (ja ? `${doing}RC` : `${doing}, ready check after each`)
-    : doing;
+  const head = lapRc ? (ja ? `${doing}RC` : `${doing}, RC after each`) : doing;
   bits.push(phase && at !== "farm"
     ? (ja ? `${phase}${head}` : `${phase} ${head}`) : head);
 
@@ -259,14 +267,14 @@ export function pfComment(
   // 「継続RC」 is the board's word for a check every so often, and is what is
   // left to say once the run count has not already said it.
   if (x.runsRc && !lapRc) {
-    bits.push(ja ? "継続RC" : "ready check as we go");
+    bits.push(ja ? "継続RC" : "RC between pulls");
   }
 
   if (x.time) bits.push(ja ? span(p).ja : span(p).en);
 
   if (x.macro) {
     bits.push(ja ? (x.macro === "yes" ? "マクマカ○" : "マクマカ×")
-      : (x.macro === "yes" ? "macros+markers" : "no macros"));
+      : (x.macro === "yes" ? "macros + markers" : "no macros"));
   }
 
   const plan = x.plan ? planOf(p) : null;
@@ -291,11 +299,11 @@ export function pfComment(
   }
 
   if (x.firstTimers) bits.push(ja ? "初見歓迎" : "first-timers welcome");
-  if (x.noHomework) bits.push(ja ? "未予習OK" : "no homework needed");
+  if (x.noHomework) bits.push(ja ? "未予習OK" : "blind welcome");
   if (x.wipes) bits.push(ja ? `${x.wipes}滅解散` : `disband after ${x.wipes} wipes`);
-  if (x.giveUp) bits.push(ja ? "ギブ解散" : "disband on give-up");
-  if (x.readyCheck) bits.push(ja ? "開始前RC" : "ready check before start");
-  if (x.casual) bits.push(ja ? "お気軽にどうぞ" : "casuals welcome");
+  if (x.giveUp) bits.push(ja ? "ギブ解散" : "disbanding if it stalls");
+  if (x.readyCheck) bits.push(ja ? "開始前RC" : "RC before pull");
+  if (x.casual) bits.push(ja ? "お気軽にどうぞ" : "chill run");
   /*
    * Last, because it is about us rather than about the evening — and because
    * it is the line somebody should still see if the rest has been trimmed.
