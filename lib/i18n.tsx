@@ -2107,11 +2107,14 @@ const DICT = {
   },
   "party.jobOptional": { en: "Job (optional)", th: "อาชีพ (ไม่บังคับ)" },
   "party.confirmSeat": { en: "Confirm", th: "ยืนยัน" },
-  // Not "bench" and not "ที่นั่งสำรอง". A substitute is somebody who might not
-  // play, and every one of these people is playing — they said yes and left
-  // the chair until later, which is how most people decide. The same words
-  // the Discord board uses, so the party reads the same in both windows.
-  "party.bench": { en: "No seat yet", th: "ยังไม่เลือกตำแหน่ง" },
+  // Not "bench", and not "no seat yet" either. A substitute is somebody who
+  // might not play; somebody who ticked every DPS seat is playing, and has
+  // told the lead more than a person who ticked one — they chose four seats,
+  // not none. What is true of all of them is that nothing is locked, which is
+  // also what a seated member with a live flex is, and what both become the
+  // moment one option is left. The grid above draws their face on each seat
+  // they named; the Discord board, which has no grid, prints the list.
+  "party.bench": { en: "No fixed seat", th: "ยังไม่ล็อกตำแหน่ง" },
   "party.benchEmpty": { en: "nobody yet", th: "ยังไม่มีใคร" },
   "party.sitHere": { en: "Take {seat}?", th: "นั่งตำแหน่ง {seat} ไหม?" },
   "party.moveHere": { en: "Move to {seat}?", th: "ย้ายไปนั่ง {seat} ไหม?" },
@@ -2124,8 +2127,8 @@ const DICT = {
     th: "ตอบรับคำเชิญแล้วนั่ง {seat} เลยไหม?",
   },
   "party.toBench": {
-    en: "Give up your seat and pick one later?",
-    th: "สละที่นั่งไว้ก่อน แล้วค่อยเลือกตำแหน่งทีหลังไหม?",
+    en: "Give up your seat and play wherever you are needed?",
+    th: "สละที่นั่ง แล้วเล่นตำแหน่งไหนก็ได้ตามที่ปาร์ตี้ขาดไหม?",
   },
   "party.invitedPick": {
     en: "Accept first — you choose your own position afterwards.",

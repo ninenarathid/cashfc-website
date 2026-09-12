@@ -225,24 +225,39 @@ function embedFor(
    * thing every static does five minutes before a pull.
    */
   /*
-   * In the party, no chair picked.
+   * Everybody in it whose seat is not settled, in one list.
    *
-   * The seat grid has always had somewhere to put these people and the board
-   * had nowhere, so a party of six read as a party of four with two seats
-   * mysteriously spoken for — and it is the other half of why the seat list
-   * is longer than the shortage.
+   * Three things can be true of a member: they picked a seat and that is the
+   * seat; they picked several and will end in one of them; or they have not
+   * picked and will play whatever is left. The last two are the same state
+   * wearing different numbers of options, and the first is what they both
+   * become once one option is left — so they belong in one line, not two.
    *
-   * "ยังไม่เลือกตำแหน่ง", the same words the site uses. Not "bench": a
-   * substitute is somebody who might not play, and every one of these is
-   * playing — they said yes and left the chair until later, which is how most
-   * people decide.
+   * Not "ยังไม่เลือกตำแหน่ง", which is wrong about most of them: somebody who
+   * ticked every DPS seat chose four seats and has told the lead more than a
+   * person who ticked one. What is true of all of them is that nothing is
+   * locked, so that is what it says, and the seats each of them named are
+   * printed beside their name because this is the only window with no grid to
+   * draw them on.
+   *
+   * It is also the other half of why the seat list above is longer than the
+   * shortage: six chairs, two people already inside who will take two of
+   * them, four people wanted.
    */
-  const undecided = res.loose.map((f) => f.name);
-  const shuffle = res.movers.map((m) => {
-    const could = res.takeable.filter((sl) => coversSeat(m.flex, sl))
-      .map((sl) => sl.label);
-    return could.length > 1 ? `${m.name} (${could.join(" · ")})` : null;
-  }).filter(Boolean);
+  /*
+   * And not at all where no seat has a role to lock.
+   *
+   * A Bozja night or a map run is eight people and any job: nobody has a
+   * position, so nobody's position is unsettled, and a line saying so would
+   * be a heading over the obvious on the parties that need the fewest words.
+   */
+  const roled = res.takeable.some((sl) => !sl.free);
+  const unsettled = (roled ? [...res.movers, ...res.loose] : []).map((f) => {
+    const could = res.takeable.filter((sl) => coversSeat(f.flex, sl));
+    return could.length === 0 || could.length === res.takeable.length
+      ? `${f.name} (ทุกตำแหน่ง)`
+      : `${f.name} (${could.map((sl) => sl.label).join(" · ")})`;
+  });
   const extras = [
     progressText(p.progress),
     lootText(p.loot),
@@ -322,20 +337,12 @@ function embedFor(
        * numbers, since "1, 2, 3, 4" names nothing.
        */
       ...(freeSeats.length
-        ? [{
-            name: "ที่นั่งว่าง",
-            value: freeSeats.join(" · ")
-              + (shuffle.length
-                ? `
-*ย้ายตำแหน่งได้: ${shuffle.join(" · ")}*`
-                : ""),
-            inline: false,
-          }]
+        ? [{ name: "ที่นั่งว่าง", value: freeSeats.join(" · "), inline: false }]
         : []),
-      ...(undecided.length
+      ...(unsettled.length
         ? [{
-            name: "ยังไม่เลือกตำแหน่ง",
-            value: undecided.join(" · ").slice(0, 1000),
+            name: "ยังไม่ล็อกตำแหน่ง",
+            value: unsettled.join(" · ").slice(0, 1000),
             inline: false,
           }]
         : []),

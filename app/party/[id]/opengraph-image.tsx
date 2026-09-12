@@ -293,21 +293,30 @@ export default async function Image(
                 role named, which for every badge but the either/or is the
                 only one — and for that one there is no single right colour,
                 so the first is as good as flipping a coin and is at least
-                the same every time. */}
-            {needs.map(([roles, n]) => (
-              <div key={roles.join("/")} style={{
-                display: "flex", alignItems: "center",
-                padding: "6px 18px", borderRadius: 999,
-                border: `2px solid ${ROLE_COLOR[roles[0]]}`,
-                background: `${ROLE_COLOR[roles[0]]}1f`,
-                color: ROLE_COLOR[roles[0]], fontSize: 23, fontWeight: 700,
-                letterSpacing: 0.5,
-              }}>
-                {roles.length
-                  ? `Need ${n} ${roles.map((r) => ROLE_LABEL[r]).join("/")}`
-                  : `Need ${n} more`}
-              </div>
-            ))}
+                the same every time.
+
+                A badge with no roles on it at all is the remainder that could
+                not be named without lying about how many of each could come.
+                Grey, the same grey a seat with no role wears: there is no role
+                to take a colour from, and reading one off an empty array is
+                how this route came to render nothing at all. */}
+            {needs.map(([roles, n]) => {
+              const tint = roles.length ? ROLE_COLOR[roles[0]] : "#8b93a1";
+              return (
+                <div key={roles.join("/") || "more"} style={{
+                  display: "flex", alignItems: "center",
+                  padding: "6px 18px", borderRadius: 999,
+                  border: `2px solid ${tint}`,
+                  background: `${tint}1f`,
+                  color: tint, fontSize: 23, fontWeight: 700,
+                  letterSpacing: 0.5,
+                }}>
+                  {roles.length
+                    ? `Need ${n} ${roles.map((r) => ROLE_LABEL[r]).join("/")}`
+                    : `Need ${n} more`}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
