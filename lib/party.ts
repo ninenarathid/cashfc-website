@@ -1525,12 +1525,26 @@ export type ProgressAt = "fresh" | "prog" | "a2c" | "farm";
 
 export interface Progress {
   at: ProgressAt;
-  /** 1-based. Unused until there is a table of phases per boss. */
-  phase?: number;
-  /** How many phases the party reckons the fight has. */
-  phases?: number;
+  /**
+   * Which phase, as the table in phases.ts numbers them.
+   *
+   * A string rather than a number because one fight has something before the
+   * count: Dragonsong's Reprise opens with a boss you clear on the way in, and
+   * a party working on it is not on phase zero.
+   */
+  phase?: string;
   /** The mechanic being drilled, in the party's own words. */
   mech?: string;
+  /**
+   * Whose strategy the party is running, in the party's own words.
+   *
+   * "game8", "Mokujin", "ours". Optional, and empty means nothing has been
+   * said — which is different from saying there is no plan. It exists because
+   * a Japanese party finder listing that does not name its macro is a listing
+   * people scroll past: 「game8」 and 「マクマカ○」 are on nearly every board
+   * post, and they are the first thing somebody checks before joining.
+   */
+  plan?: string;
 }
 
 export const PROGRESS_LABEL: Record<ProgressAt, string> = {
@@ -1558,11 +1572,21 @@ export const DEFAULT_PHASES = 4;
 /** "P3 · Wroth Flames", "A2C", "Fresh start" — the whole thing in one line. */
 export function progressText(p: Progress | undefined): string | null {
   if (!p) return null;
-  const head = p.at === "prog" && p.phase
-    // Only where a phase number has been set, which nothing offers yet.
-    ? `P${p.phase}${p.phases ? `/${p.phases}` : ""}`
+  /*
+   * The phase in front of the rung, not instead of it.
+   *
+   * "P3" says where in the fight and "A2C" says what tonight is for, and a
+   * party on P3 going for the clear is a different evening from a party on P3
+   * still drilling it. The old version printed one or the other.
+   */
+  const where = p.phase
+    ? (/^\d/.test(p.phase) ? `P${p.phase}` : p.phase)
+    : null;
+  const head = where && p.at !== "farm"
+    ? `${where} ${PROGRESS_LABEL[p.at]}`
     : PROGRESS_LABEL[p.at];
-  return p.mech?.trim() ? `${head} · ${p.mech.trim()}` : head;
+  const bits = [head, p.mech?.trim(), p.plan?.trim()].filter(Boolean);
+  return bits.join(" · ");
 }
 
 /**

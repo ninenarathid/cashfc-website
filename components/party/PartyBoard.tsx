@@ -13,6 +13,7 @@ import {
   LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay,
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
   clashFor,
+  isFight,
   needsByRole, partyStatus, placeOf, progressText, resolveParty, slotsOf, spotText,
   worldText,
   timeIsEstimate,
@@ -54,6 +55,7 @@ import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
 import Modal from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
 import ShareParty from "@/components/party/ShareParty";
+import PfHelper from "@/components/party/PfHelper";
 
 /**
  * Who is running what, and when.
@@ -155,6 +157,8 @@ function PartyDetail(
   const [ending, setEnding] = useState(false);
   /** True while a seat is being taken, so the grid cannot be pressed twice. */
   const [seating, setSeating] = useState(false);
+  /** Whether the in-game party finder helper is open over the party. */
+  const [pf, setPf] = useState(false);
 
   /** Do it, say so if it failed, and read the board back either way. */
   const run = async (go: () => Promise<{ error?: string }>) => {
@@ -276,10 +280,43 @@ function PartyDetail(
                   </button>
                 </>
               )}
+              {/*
+                * Always, full or not. A party that is full tonight is a party
+                * somebody may still have to put up in the game — and the one
+                * moment you want this is the moment you are about to go and
+                * do it, which is not a moment the board can predict.
+                *
+                * Fights only, including the old ones, because the words it
+                * writes are a fight's words. "P3 practice, free lot, macros
+                * ok" is the wrong sentence about a photo shoot or a hunt
+                * train, and a button that produces a wrong sentence is worse
+                * than no button — those evenings get posted in the game's own
+                * Other category, in whatever words the person running it
+                * would have used anyway.
+                */}
+              {(isFight(def?.kind) || def?.kind === "legacy") && (
+                <button onClick={() => setPf(true)}
+                        className="flex items-center gap-1.5 rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
+                  {/* The same badge the "new party" button wears, because it
+                      is the same act — putting a party up. That one puts it up
+                      here and this one puts it up in the game, and a sword
+                      beside it said "fight", which is the half of the evening
+                      this button has nothing to do with. */}
+                  <PartyIcon size={16} />
+                  {t("pf.helper")}
+                  <span className="rounded-full border border-gold/50 px-1.5 font-data text-[10.5px] uppercase tracking-[0.1em] text-gold">
+                    {t("pf.betaTag")}
+                  </span>
+                </button>
+              )}
               <ShareParty id={party.id} />
             </span>
           </span>
         </div>
+
+        {pf && (
+          <PfHelper party={party} def={def} onClose={() => setPf(false)} />
+        )}
 
         {ending && (
           <ConfirmDialog z={120}

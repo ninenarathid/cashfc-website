@@ -892,7 +892,8 @@ export default function PartyCreate(
       </div>
 
       {isFight(chosen?.kind) && (
-        <ProgressTrack value={progress} onChange={setProgress} />
+        <ProgressTrack value={progress} onChange={setProgress}
+                       contentKey={contentKey} />
       )}
 
       {/* Asked whatever the progress is: a prog night that unexpectedly kills

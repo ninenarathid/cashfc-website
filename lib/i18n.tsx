@@ -1882,6 +1882,60 @@ const DICT = {
     en: "Anything still catching people out? (optional)",
     th: "ยังมีท่าไหนที่คนพลาดบ่อยไหม (ไม่ใส่ก็ได้)",
   },
+  /* ── The in-game party finder helper ──────────────────────────────── */
+  "pf.helper": { en: "In-game PF", th: "ตั้งห้อง PF ในเกม" },
+  "pf.betaTag": { en: "beta", th: "ทดลอง" },
+  "pf.beta": {
+    en: "Still being tested. Read it before you post, and tell us what the "
+      + "board says back — the wording is copied from real listings, not "
+      + "translated, so it is right about the party and not yet proven to "
+      + "read well.",
+    th: "ฟีเจอร์นี้อยู่ในช่วงทดลอง อ่านทวนก่อนโพสต์ทุกครั้ง — ข้อความถอดมาจาก"
+      + "ห้องจริงของคนญี่ปุ่น ไม่ได้แปลด้วยเครื่อง ข้อมูลถูกแน่นอนแต่ยังไม่ได้"
+      + "พิสูจน์ว่าอ่านแล้วลื่นไหม เจออะไรแปลกบอกได้เลย",
+  },
+  "pf.helperTitle": {
+    en: "In-game PF helper", th: "ตัวช่วยสร้าง PF ในเกมส์",
+  },
+  "pf.inGameSettings": {
+    en: "Pick these in the game — no typing", th: "เลือกในเกม ไม่ต้องพิมพ์",
+  },
+  "pf.openSlots": { en: "Open these slots", th: "เปิดช่องเหล่านี้" },
+  "pf.pfComment": { en: "Comment", th: "ข้อความ" },
+  "pf.copyComment": { en: "Copy", th: "คัดลอก" },
+  "pf.tooLong": {
+    en: "Too long — the game will cut it off.",
+    th: "ยาวเกิน เกมจะตัดทิ้ง",
+  },
+  "pf.extras": { en: "Add to it", th: "เพิ่มเติม" },
+  "pf.xTime": { en: "The hours (JST)", th: "เวลา (เวลาญี่ปุ่น)" },
+  "pf.xSeats": { en: "Which seats we want", th: "ตำแหน่งที่ต้องการ" },
+  "pf.xNotFluent": {
+    en: "Say our Japanese is weak", th: "บอกว่าญี่ปุ่นเราไม่เก่ง",
+  },
+  "pf.xPlan": { en: "Strat used ({what})", th: "Strat ที่ใช้ ({what})" },
+  "pf.xMacroYes": { en: "Macros and markers set", th: "มี macro + marker" },
+  "pf.xMacroNo": { en: "No macros", th: "ไม่มี macro" },
+  "pf.xRunsRc": {
+    en: "Ready check between runs", th: "Ready check ระหว่างรอบ",
+  },
+  "pf.xReadyCheck": {
+    en: "Ready check before the pull", th: "Ready check ก่อนเริ่ม",
+  },
+  "pf.xFirstTimers": { en: "First-timers welcome", th: "รับมือใหม่" },
+  "pf.xNoHomework": { en: "No homework needed", th: "ไม่ต้องดูกลไกมาก่อน" },
+  "pf.xGiveUp": { en: "Disband on give-up", th: "เลิกเมื่อยอมแพ้" },
+  "pf.xCasual": { en: "Casuals welcome", th: "เข้ามาได้สบายๆ" },
+  "pf.xWipes": { en: "Disband after N wipes", th: "เลิกเมื่อตาย N ครั้ง" },
+  "pf.helperWhy": {
+    en: "Built from the listing, never translated — edit it before you post.",
+    th: "ประกอบจากข้อมูลห้อง ไม่ได้แปลอัตโนมัติ แก้ได้ก่อนเอาไปโพสต์",
+  },
+
+  // The example is the answer nine listings in ten give, so it is the whole
+  // hint. A list of alternatives reads as a menu to choose from and this is a
+  // box to type a name into.
+  "pf.planHint": { en: "Strat used — game8", th: "Strat ที่ใช้ — game8" },
   "pf.readsAs": { en: "Reads as:", th: "จะขึ้นว่า:" },
 
   /* Loot: the handles stay, the explanations do not. */
