@@ -287,19 +287,25 @@ export default function WantList(
         */}
       {wants.length === 0 ? null : (
         /*
-         * Cards side by side, at whatever number of them.
+         * One row of cards, sliding sideways once they run off the screen.
          *
          * A want is a small fact — a face, a role, a line of what they are
          * after — and given the width of the page it was being stretched
-         * across a metre of nothing to say it. Three to a row reads as a
-         * noticeboard, which is what it is, and six of them are one glance
-         * instead of six screens.
+         * across a metre of nothing to say it. Cards in a row read as a
+         * noticeboard, which is what this is.
          *
-         * The single card sits in the first column and leaves the rest empty,
-         * which is honest: one person is looking, and the board should not
-         * dress that up as a full row.
+         * Sideways rather than wrapping, because the parties are the reason
+         * anybody opened the page: a fortnight where the Free Company is busy
+         * would otherwise push them off the bottom of the screen behind two
+         * rows of people looking for one. This stays one row tall however
+         * many there are, and the card cut off at the right edge is its own
+         * invitation to push it.
+         *
+         * A fixed width so they line up and so the cut is at a card and not
+         * mid-sentence; snap points so a flick lands on a card rather than
+         * between two.
          */
-        <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="flex snap-x snap-mandatory gap-1.5 overflow-x-auto pb-1">
           {wants.map((w) => {
             const face = (w.characterId != null && overrides[w.characterId])
               || w.avatar;
@@ -312,7 +318,7 @@ export default function WantList(
             const rest = want.length - show.length;
             return (
               <div key={w.id}
-                   className="flex flex-col gap-2 rounded-xl border border-line bg-surface px-3 py-3">
+                   className="flex w-[20.5rem] max-w-[85vw] shrink-0 snap-start flex-col gap-2 rounded-xl border border-line bg-surface px-3 py-3">
                 {/*
                   * What they said, over the head of the person who said it.
                   *
