@@ -83,10 +83,23 @@ export default function PfHelper(
   const flip = (k: keyof PfExtras, v?: unknown) =>
     setX((o) => ({ ...o, [k]: v !== undefined ? v : !o[k] }));
 
-  /** One switch, with what it will add and what that costs. */
+  /*
+   * What a switch costs, measured rather than listed.
+   *
+   * Built both ways and subtracted, so the number includes the separator the
+   * token drags in with it and is right in whichever language is showing —
+   * the first version carried a hard-coded Japanese string per switch, which
+   * meant every price vanished the moment somebody pressed English.
+   */
+  const costOf = (k: keyof PfExtras, v: unknown) =>
+    byteLen(pfComment(party, { ...x, [k]: v }, lang))
+    - byteLen(pfComment(party, { ...x, [k]: undefined }, lang));
+
+  /** One switch, with what it costs and, where it applies, a word of warning. */
   const Tick = (
-    { on, say, adds, onClick }: {
-      on: boolean; say: string; adds?: string; onClick: () => void;
+    { on, say, cost, warn, onClick }: {
+      on: boolean; say: string; cost?: number; warn?: string;
+      onClick: () => void;
     },
   ) => (
     <button type="button" onClick={onClick}
@@ -97,11 +110,16 @@ export default function PfHelper(
         on ? "border-accent bg-accent/20 text-accent" : "border-line"}`}>
         {on ? "✓" : ""}
       </span>
-      <span className="min-w-0 flex-1">{say}</span>
-      {adds && (
-        <span className="shrink-0 font-data text-[12px] text-muted">
-          +{byteLen(adds)}
-        </span>
+      <span className="min-w-0 flex-1">
+        {say}
+        {warn && (
+          <span className="ml-1.5 font-data text-[11.5px] uppercase tracking-[0.08em] text-gold">
+            {warn}
+          </span>
+        )}
+      </span>
+      {!!cost && cost > 0 && (
+        <span className="shrink-0 font-data text-[12px] text-muted">+{cost}</span>
       )}
     </button>
   );
@@ -235,41 +253,50 @@ export default function PfHelper(
             {t("pf.extras")}
           </span>
           <div className="grid gap-1.5 sm:grid-cols-2">
-            <Tick on={!!x.time} say={t("pf.xTime")} adds={ja ? "20〜22時" : ""}
+            <Tick on={!!x.time} say={t("pf.xTime")}
+                  cost={costOf("time", true)}
                   onClick={() => flip("time")} />
-            <Tick on={!!x.seats} say={t("pf.xSeats")} adds="@ST D1"
+            <Tick on={!!x.seats} say={t("pf.xSeats")}
+                  cost={costOf("seats", true)}
                   onClick={() => flip("seats")} />
+            {/*
+              * Only worth saying to the people who would be inconvenienced by
+              * it. Somebody reading an English listing has already learned
+              * that the party writes English; telling them our Japanese is
+              * weak answers a question they were never going to ask, in the
+              * one box where every byte is spent on something.
+              */}
             <Tick on={!!x.notFluent} say={t("pf.xNotFluent")}
-                  adds={ja ? "日本語が苦手です" : ""}
+                  warn={ja ? undefined : t("pf.jaOnly")}
+                  cost={costOf("notFluent", true)}
                   onClick={() => flip("notFluent")} />
-            {/* Named after what it will actually add, which is game8 until
-                somebody fills the field in. A switch labelled "strat" that
-                adds nothing when pressed is a broken switch. */}
             <Tick on={!!x.plan}
                   say={t("pf.xPlan", { what: planOf(party) ?? "—" })}
-                  adds={planOf(party) ?? undefined}
+                  cost={costOf("plan", true)}
                   onClick={() => flip("plan")} />
             <Tick on={x.macro === "yes"} say={t("pf.xMacroYes")}
-                  adds={ja ? "マクマカ○" : ""}
+                  cost={costOf("macro", "yes")}
                   onClick={() => flip("macro", x.macro === "yes" ? undefined : "yes")} />
             <Tick on={x.macro === "no"} say={t("pf.xMacroNo")}
-                  adds={ja ? "マクマカ×" : ""}
+                  cost={costOf("macro", "no")}
                   onClick={() => flip("macro", x.macro === "no" ? undefined : "no")} />
-            <Tick on={!!x.runsRc} say={t("pf.xRunsRc")} adds="RC"
+            <Tick on={!!x.runsRc} say={t("pf.xRunsRc")}
+                  cost={costOf("runsRc", true)}
                   onClick={() => flip("runsRc")} />
             <Tick on={!!x.readyCheck} say={t("pf.xReadyCheck")}
-                  adds={ja ? "開始前RC" : ""}
+                  cost={costOf("readyCheck", true)}
                   onClick={() => flip("readyCheck")} />
             <Tick on={!!x.firstTimers} say={t("pf.xFirstTimers")}
-                  adds={ja ? "初見歓迎" : ""}
+                  cost={costOf("firstTimers", true)}
                   onClick={() => flip("firstTimers")} />
             <Tick on={!!x.noHomework} say={t("pf.xNoHomework")}
-                  adds={ja ? "未予習OK" : ""}
+                  cost={costOf("noHomework", true)}
                   onClick={() => flip("noHomework")} />
-            <Tick on={!!x.giveUp} say={t("pf.xGiveUp")} adds={ja ? "ギブ解散" : ""}
+            <Tick on={!!x.giveUp} say={t("pf.xGiveUp")}
+                  cost={costOf("giveUp", true)}
                   onClick={() => flip("giveUp")} />
             <Tick on={!!x.casual} say={t("pf.xCasual")}
-                  adds={ja ? "お気軽にどうぞ" : ""}
+                  cost={costOf("casual", true)}
                   onClick={() => flip("casual")} />
             {/* A number rather than a switch: "disband after some wipes" is
                 not a thing anybody says. */}
