@@ -2092,6 +2092,20 @@ const DICT = {
     en: "This party filled up before you accepted.",
     th: "ปาร์ตี้เต็มก่อนที่คุณจะกดตอบรับพอดีครับ",
   },
+  "party.jobOptional": { en: "Job (optional)", th: "อาชีพ (ไม่บังคับ)" },
+  "party.confirmSeat": { en: "Confirm", th: "ยืนยัน" },
+  "party.bench": { en: "Bench", th: "ที่นั่งสำรอง" },
+  "party.benchEmpty": { en: "nobody waiting", th: "ยังไม่มีใคร" },
+  "party.sitHere": { en: "Take {seat}?", th: "นั่งตำแหน่ง {seat} ไหม?" },
+  "party.moveHere": { en: "Move to {seat}?", th: "ย้ายไปนั่ง {seat} ไหม?" },
+  "party.acceptInto": {
+    en: "Accept the invitation and take {seat}?",
+    th: "ตอบรับคำเชิญแล้วนั่ง {seat} เลยไหม?",
+  },
+  "party.toBench": {
+    en: "Give up your seat and wait on the bench?",
+    th: "สละที่นั่งไปอยู่ที่นั่งสำรองไหม?",
+  },
   "party.invitedPick": {
     en: "Accept first — you choose your own position afterwards.",
     th: "กดตอบรับก่อน แล้วเลือกตำแหน่งเองได้",

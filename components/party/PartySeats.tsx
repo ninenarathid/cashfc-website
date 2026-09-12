@@ -4,9 +4,13 @@ import type {
   ContentKind, Floater, Party, Resolved, SlotDef, SlotRole, Wing,
 } from "@/lib/party";
 import {
-  ROLE_COLOR, ROLE_LABEL, canFlex, flexLabel, headcount, resolveParty, slotsOf,
+  ROLE_COLOR, ROLE_LABEL, canFlex, flexLabel, headcount, openTo, resolveParty,
+  slotsOf,
 } from "@/lib/party";
-import JobIcon from "@/components/JobIcon";
+import { useState } from "react";
+import JobIcon, { jobLabel } from "@/components/JobIcon";
+import { jobsForSlot } from "@/components/party/JobRule";
+import { Popover } from "@/components/ui/Popover";
 import { RuleMark } from "@/components/party/JobRule";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
@@ -118,13 +122,32 @@ function Maybes({ who }: { who: Floater[] }) {
   );
 }
 
+/**
+ * What pressing a seat does, where pressing one does anything.
+ *
+ * The grid already says which seats are free, so a row of buttons underneath
+ * repeating them was the same list said twice. `ask` returns the question to
+ * put to this reader about this seat — null where there is nothing to ask,
+ * which is most seats most of the time — and answering it takes the seat.
+ */
+export interface SeatPick {
+  ask: (slot: SlotDef) => string | null;
+  take: (slot: SlotDef, job: string | null) => void;
+  /** The same for standing up: a question, or null where they are not sitting. */
+  benchAsk?: string | null;
+  bench?: () => void;
+  busy?: boolean;
+}
+
 function Seat(
-  { slot, party, res, onPick, compact }: {
+  { slot, party, res, onPick, pick, compact }: {
     slot: SlotDef;
     party: Party;
     res: Resolved;
     /** Given by the create form, where clicking a seat fills or empties it. */
     onPick?: (slot: SlotDef) => void;
+    /** Given by the open party, where pressing one asks to sit in it. */
+    pick?: SeatPick;
     compact?: boolean;
   },
 ) {
@@ -144,10 +167,12 @@ function Seat(
                               background: "color-mix(in srgb, #c9a227 8%, transparent)" }
     : {};
 
-  const Tag = onPick ? "button" : "div";
-  return (
+  const ask = pick && !onPick ? pick.ask(slot) : null;
+  const Tag = onPick || ask ? "button" : "div";
+  const cell = (
     <Tag
       {...(onPick ? { onClick: () => onPick(slot), type: "button" as const } : {})}
+      {...(ask ? { type: "button" as const } : {})}
       style={ring}
       className={`flex min-w-0 items-stretch gap-2 rounded-lg border px-2 py-1.5 text-left transition-colors ${
         compact ? "" : "min-h-[4.6rem]"} ${
@@ -247,13 +272,80 @@ function Seat(
       <Maybes who={maybe} />
     </Tag>
   );
+
+  if (!ask || !pick) return cell;
+  return <SeatAsk slot={slot} party={party} pick={pick} ask={ask} cell={cell} />;
+}
+
+/**
+ * The question a seat asks when it is pressed, and the answer.
+ *
+ * A popover rather than a dialog, anchored to the seat itself: what is being
+ * confirmed is *this* chair, and a box in the middle of the screen makes the
+ * reader hold which one in their head while they read it.
+ *
+ * The job is offered and not required. Which job somebody brings is a thing
+ * they often decide on the night, and a picker that insisted would be a
+ * question standing between them and a seat that is free right now — so it is
+ * chips they may ignore, and the seat is taken either way.
+ */
+function SeatAsk(
+  { slot, party, pick, ask, cell }: {
+    slot: SlotDef; party: Party; pick: SeatPick; ask: string;
+    cell: React.ReactNode;
+  },
+) {
+  const { t } = useLang();
+  const [open, setOpen] = useState(false);
+  const [job, setJob] = useState<string | null>(null);
+  // Only what this seat will actually take, which is the seat's own rule
+  // narrowed by whatever the party has said about duplicate jobs.
+  const jobs = openTo(party, slot.id, jobsForSlot(slot));
+
+  return (
+    <Popover open={open} onOpenChange={(v) => { setOpen(v); if (!v) setJob(null); }}
+             trigger={cell}>
+      <div className="flex flex-col gap-2.5">
+        <p className="text-[15px] text-ink">{ask}</p>
+        {jobs.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <span className="font-data text-[12px] uppercase tracking-[0.12em] text-muted">
+              {t("party.jobOptional")}
+            </span>
+            <div className="flex flex-wrap gap-1">
+              {jobs.map((j: string) => (
+                <button key={j} type="button" title={jobLabel(j)}
+                        onClick={() => setJob(job === j ? null : j)}
+                        className={`grid size-8 place-items-center rounded-lg border transition-colors ${
+                          job === j ? "border-accent bg-accent/15"
+                                    : "border-line hover:border-muted"}`}>
+                  <JobIcon job={j} size={20} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <button type="button" disabled={pick.busy}
+                  onClick={() => { setOpen(false); pick.take(slot, job); }}
+                  className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+            {t("party.confirmSeat")}
+          </button>
+          <button type="button" onClick={() => setOpen(false)}
+                  className="rounded-lg px-2 py-1.5 text-[14.5px] text-muted hover:text-ink">
+            {t("pf.cancel")}
+          </button>
+        </div>
+      </div>
+    </Popover>
+  );
 }
 
 /** One block of up to eight, in the game's two-row arrangement. */
 function Block(
-  { slots, party, res, onPick, wing }: {
+  { slots, party, res, onPick, pick, wing }: {
     slots: SlotDef[]; party: Party; res: Resolved;
-    onPick?: (slot: SlotDef) => void; wing?: Wing;
+    onPick?: (slot: SlotDef) => void; pick?: SeatPick; wing?: Wing;
   },
 ) {
   const { t } = useLang();
@@ -267,7 +359,8 @@ function Block(
       <div className={`grid gap-1.5 ${
         slots.length > 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4"}`}>
         {slots.map((s) => (
-          <Seat key={s.id} slot={s} party={party} res={res} onPick={onPick} />
+          <Seat key={s.id} slot={s} party={party} res={res} onPick={onPick}
+                pick={pick} />
         ))}
       </div>
     </div>
@@ -275,9 +368,11 @@ function Block(
 }
 
 export default function PartySeats(
-  { party, onPick, kind }: {
+  { party, onPick, pick, kind }: {
     party: Party;
     onPick?: (slot: SlotDef) => void;
+    /** What pressing a seat does. See SeatPick. */
+    pick?: SeatPick;
     /** Only so a seatless party can say why it has no seats. */
     kind?: ContentKind;
   },
@@ -324,17 +419,83 @@ export default function PartySeats(
     );
   }
 
-  if (party.shape !== "alliance") {
-    return <Block slots={slots} party={party} res={res} onPick={onPick} />;
-  }
+  const grid = party.shape !== "alliance"
+    ? <Block slots={slots} party={party} res={res} onPick={onPick} pick={pick} />
+    : (
+      <div className="flex flex-col gap-3">
+        {(["A", "B", "C"] as Wing[]).map((wing) => (
+          <Block key={wing} wing={wing} party={party} res={res} onPick={onPick}
+                 pick={pick} slots={slots.filter((s) => s.wing === wing)} />
+        ))}
+      </div>
+    );
 
+  if (!pick && !res.loose.length) return grid;
   return (
-    <div className="flex flex-col gap-3">
-      {(["A", "B", "C"] as Wing[]).map((wing) => (
-        <Block key={wing} wing={wing} party={party} res={res} onPick={onPick}
-               slots={slots.filter((s) => s.wing === wing)} />
-      ))}
+    <div className="flex flex-col gap-2">
+      {grid}
+      <Bench who={res.loose} pick={pick} />
     </div>
+  );
+}
+
+/**
+ * In the party, no chair yet.
+ *
+ * Its own row under the grid rather than a gap in it, because that is what it
+ * is: somebody who said yes and has not picked, which is a normal place to
+ * stand and not a seat going spare. The resolver already hovers them over the
+ * seats they could take — this says how many of them there are and gives them
+ * somewhere to be.
+ *
+ * Pressable where the reader is sitting somewhere, because standing up is the
+ * other half of sitting down and there was nowhere to do it from.
+ */
+function Bench(
+  { who, pick }: { who: readonly Floater[]; pick?: SeatPick },
+) {
+  const { t } = useLang();
+  const face = useFace();
+  const ask = pick?.benchAsk ?? null;
+  if (!who.length && !ask) return null;
+
+  const row = (
+    <div className={`flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-line/70 px-2.5 py-2 text-left ${
+      ask ? "hover:border-accent/60" : ""}`}>
+      <span className="font-data text-[12.5px] uppercase tracking-[0.12em] text-muted">
+        {t("party.bench")}
+      </span>
+      {who.map((f) => {
+        const src = face(f.characterId, f.avatar);
+        return (
+          <span key={f.seatRowId ?? f.name} className="flex items-center gap-1.5">
+            {src
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={src} alt="" width={24} height={24}
+                     className="size-6 rounded-full border border-line object-cover" />
+              : <span className="size-6 rounded-full border border-dashed border-line" />}
+            <span className="text-[14.5px] text-ink/85">{f.name}</span>
+          </span>
+        );
+      })}
+      {!who.length && (
+        <span className="text-[14.5px] text-muted">{t("party.benchEmpty")}</span>
+      )}
+    </div>
+  );
+
+  if (!ask || !pick?.bench) return row;
+  return (
+    <Popover trigger={<button type="button" className="text-left">{row}</button>}>
+      <div className="flex flex-col gap-2.5">
+        <p className="text-[15px] text-ink">{ask}</p>
+        <button type="button" disabled={pick.busy}
+                onClick={() => pick.bench?.()}
+                className="self-start rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+          {t("party.confirmSeat")}
+        </button>
+      </div>
+    </Popover>
   );
 }
 

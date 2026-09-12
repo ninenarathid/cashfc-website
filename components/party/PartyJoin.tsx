@@ -429,46 +429,11 @@ export default function PartyJoin(
             * picks one is a floater, which the resolver has always known what
             * to do with.
             */}
-          {/*
-            * And to somewhere else afterwards, which is the same control.
-            *
-            * It used to stop once you were sitting down, so the one thing you
-            * could not change about your own answer was the part everybody
-            * else's plan is built on. Moving is what a party does in the ten
-            * minutes before it starts — somebody swaps to tank, two people
-            * trade so a job rule works out — and the way to do it was to leave
-            * the party and come back, which loses the seat to whoever is
-            * watching.
-            */}
-          {seated && free.length > 0 && (
-            <span className="flex flex-wrap items-center gap-1.5">
-              <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
-                {t(mine.seat ? "party.moveSeat" : "party.takeASeat")}
-              </span>
-              {free.map((sl) => {
-                const c = sl.free ? "#8b93a1" : ROLE_COLOR[sl.role];
-                return (
-                  <button key={sl.id} type="button" disabled={busy}
-                          onClick={() => run(async () => {
-                            const r = await takeSeat(supabase, mine.seatRowId!, sl.id);
-                            if ("error" in r) return r;
-                            if (r.got === "taken") onError(t("party.seatGone", { seat: sl.id }));
-                            return {};
-                          })}
-                          className="flex items-center gap-1.5 rounded-full border border-line px-3 py-[3px] text-[15.5px] text-muted transition-colors hover:border-muted hover:text-ink">
-                    <span style={{ background: c }}
-                          className="size-1.5 shrink-0 rounded-full" />
-                    {sl.label}
-                    {/* Only where the seat has a role. A FATE farm's seats are
-                        numbered and nothing else. */}
-                    {!sl.free && (
-                      <span className="opacity-70">{ROLE_LABEL[sl.role]}</span>
-                    )}
-                  </button>
-                );
-              })}
-            </span>
-          )}
+          {/* The seats themselves are where a seat is taken now: press the
+              one you want in the grid above and confirm there. A row of
+              buttons here was the same list said twice, and the second
+              telling was the one that could not show who was already in
+              which chair. */}
         </div>
       )}
 

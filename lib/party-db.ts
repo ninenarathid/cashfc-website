@@ -624,6 +624,46 @@ export async function acceptInvite(
 }
 
 /**
+ * Say yes to an invitation, into the seat they picked.
+ *
+ * Two statements because the database's own function answers the invitation
+ * and claims whatever seat the row names — so the row is told which seat first,
+ * and then answered. The chair is still claimed by party_accept in one
+ * statement, which is what keeps two people answering at once from both
+ * getting it.
+ *
+ * The job rides along on the first write. It is optional everywhere it is
+ * asked for, so null is a normal answer and not a missing one.
+ */
+export async function acceptInto(
+  supabase: SupabaseClient, seatRowId: number, seat: string,
+  job: string | null,
+): Promise<{ got: Accepted } | { error: string }> {
+  const { error: first } = await supabase.from("party_members")
+    .update({ flex: { seats: [seat] }, ...(job ? { job } : {}) })
+    .eq("id", seatRowId);
+  if (first) return { error: first.message };
+  return acceptInvite(supabase, seatRowId);
+}
+
+/**
+ * Stand up, and stay in the party.
+ *
+ * The other half of taking a seat, and it had nowhere to be done from: the
+ * only way out of a chair was out of the evening. Somebody who has said yes
+ * and would rather leave the seat open while the party sorts itself out is
+ * exactly who the bench is for.
+ */
+export async function leaveSeat(
+  supabase: SupabaseClient, seatRowId: number,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_members")
+    .update({ seat: null, flex: { all: true } })
+    .eq("id", seatRowId);
+  return error ? { error: error.message } : {};
+}
+
+/**
  * Take a free seat, once already in.
  *
  * The other half: you say yes first and choose where you are standing
@@ -632,7 +672,15 @@ export async function acceptInvite(
  */
 export async function takeSeat(
   supabase: SupabaseClient, seatRowId: number, seat: string,
+  job: string | null = null,
 ): Promise<{ got: "seat" | "taken" | "gone" } | { error: string }> {
+  // Written before the claim, because the claim clears the flex and this is
+  // the same row: two writes in the other order would fight each other.
+  if (job) {
+    const { error: first } = await supabase.from("party_members")
+      .update({ job }).eq("id", seatRowId);
+    if (first) return { error: first.message };
+  }
   const { data, error } = await supabase.rpc("party_take_seat", {
     p_member: seatRowId, p_seat: seat,
   });

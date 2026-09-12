@@ -20,7 +20,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 import {
-  addComment, createParty, deleteParty, dropComment, editComment, loadParties,
+  acceptInto, addComment, createParty, deleteParty, dropComment, editComment,
+  leaveSeat, loadParties, takeSeat,
   finishParty,
   inviteMembers,
   setOwnSeat,
@@ -142,6 +143,8 @@ function PartyDetail(
   const [dropping, setDropping] = useState(false);
   /** Asked before the party is declared over. */
   const [ending, setEnding] = useState(false);
+  /** True while a seat is being taken, so the grid cannot be pressed twice. */
+  const [seating, setSeating] = useState(false);
 
   /** Do it, say so if it failed, and read the board back either way. */
   const run = async (go: () => Promise<{ error?: string }>) => {
@@ -369,7 +372,61 @@ function PartyDetail(
               seats are the answer to whether they can join it. */}
           {hasBody(party.body) && <PartyBody body={party.body!} />}
 
-          <PartySeats party={party} kind={def?.kind} />
+          {/*
+            * The grid is the control.
+            *
+            * Everything it can be asked is worked out here, where the reader
+            * and the party are both in hand, and handed to it as one question
+            * per seat — the grid itself stays a drawing of the party and does
+            * not learn who is looking at it.
+            */}
+          <PartySeats party={party} kind={def?.kind}
+                      pick={me && userId && supabase ? {
+                        busy: seating,
+                        ask: (slot) => {
+                          const mine = placeOf(party, me.id);
+                          // Not signed in as somebody who can sit anywhere, or
+                          // the evening is over: nothing to ask.
+                          if (party.endedAt) return null;
+                          if (seatState(party, slot.id, resolveParty(party)) !== "open") {
+                            return null;
+                          }
+                          if (!mine) return null;
+                          if (mine.invited) return t("party.acceptInto", { seat: slot.label });
+                          if (mine.pending) return null;
+                          return mine.seat
+                            ? t("party.moveHere", { seat: slot.label })
+                            : t("party.sitHere", { seat: slot.label });
+                        },
+                        take: (slot, job) => void (async () => {
+                          const mine = placeOf(party, me.id);
+                          if (!mine?.rowId) return;
+                          setSeating(true);
+                          const r = mine.invited
+                            ? await acceptInto(supabase, mine.rowId, slot.id, job)
+                            : await takeSeat(supabase, mine.rowId, slot.id, job);
+                          setSeating(false);
+                          if ("error" in r) { setErr(r.error); return; }
+                          if (r.got === "taken") {
+                            setErr(t("party.seatGone", { seat: slot.label }));
+                          }
+                          await refresh();
+                        })(),
+                        benchAsk: (() => {
+                          const mine = placeOf(party, me.id);
+                          return mine && !mine.invited && !mine.pending && mine.seat
+                            ? t("party.toBench") : null;
+                        })(),
+                        bench: () => void (async () => {
+                          const mine = placeOf(party, me.id);
+                          if (!mine?.rowId) return;
+                          setSeating(true);
+                          const r = await leaveSeat(supabase, mine.rowId);
+                          setSeating(false);
+                          if (r.error) { setErr(r.error); return; }
+                          await refresh();
+                        })(),
+                      } : undefined} />
 
           <PartyJoin party={party} kind={def?.kind} me={me} userId={userId}
                      clash={me ? clashFor(parties, me.id, party, party.id) : null}
