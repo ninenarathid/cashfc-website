@@ -50,14 +50,15 @@ export default function ProgressTrack(
   const tint = PROGRESS_COLOR[at];
   const wantsMech = at === "prog" || at === "a2c";
   /*
-   * Only while the party is working through it.
+   * Only on the two rungs where part of a fight is a thing to name.
    *
-   * A fresh start is the whole fight from the top, a farm run is the whole
-   * fight until it dies, and neither has a phase — the row was offering a
-   * question with no answer on three rungs out of four. Prog is the one where
-   * "which part" is the fact somebody wants.
+   * A fresh start is the whole fight from the top and a farm run is the whole
+   * fight until it dies — neither has a phase, and asking would be a question
+   * with no answer. Prog and A2C both do: one is "we are drilling this bit",
+   * the other is "we start here and take it to the end", and the Japanese
+   * board writes both, as 「P3練習」 and 「P3クリ目」.
    */
-  const phases = at === "prog" ? phasesOf(contentKey) : [];
+  const phases = wantsMech ? phasesOf(contentKey) : [];
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
@@ -81,11 +82,12 @@ export default function ProgressTrack(
                         ...value, at: s.key,
                         // Nothing is being drilled on a farm run.
                         mech: s.key === "farm" ? "" : value.mech,
-                        // And a phase set while progging is not a fact about
-                        // a farm night or a fresh start. Dropped with the row
-                        // that set it, rather than left behind where nothing
-                        // on the form can reach it to turn it off.
-                        phase: s.key === "prog" ? value.phase : undefined,
+                        // And a phase is not a fact about a farm night or a
+                        // fresh start. Dropped with the row that set it,
+                        // rather than left behind where nothing on the form
+                        // can reach it to turn it off.
+                        phase: s.key === "prog" || s.key === "a2c"
+                          ? value.phase : undefined,
                       })}
                       style={on
                         ? { borderColor: tint, color: tint,
@@ -136,6 +138,13 @@ export default function ProgressTrack(
             );
           })}
         </div>
+      )}
+
+      {/* What picking one is for, because nothing else on the page says so.
+          The row appears and disappears as the rung changes, which is a
+          behaviour worth one sentence rather than a thing to work out. */}
+      {phases.length > 0 && (
+        <span className="text-[13px] text-muted">{t("pf.phaseWhy")}</span>
       )}
 
       {wantsMech && (

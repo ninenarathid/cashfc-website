@@ -1938,6 +1938,15 @@ const DICT = {
   // The example is the answer nine listings in ten give, so it is the whole
   // hint. A list of alternatives reads as a menu to choose from and this is a
   // box to type a name into.
+  "pf.phaseWhy": {
+    en: "Which part of the fight tonight is about. It leads the listing and "
+      + "the in-game PF text — P3 Prog is \"we are drilling phase 3\", P3 A2C "
+      + "is \"we start at 3 and take it to the end\". Leave it off if tonight "
+      + "is the whole fight.",
+    th: "บอกว่าคืนนี้อยู่ตรงไหนของฟาก จะขึ้นนำหน้าทั้งบนบอร์ดและในข้อความ PF "
+      + "ในเกม — P3 Prog คือ \"ซ้อมเฟส 3\" ส่วน P3 A2C คือ \"เริ่มที่เฟส 3 "
+      + "แล้วตีให้จบ\" ถ้าคืนนี้ตีทั้งฟากก็ไม่ต้องเลือก",
+  },
   "pf.planHint": { en: "Strat used — game8", th: "Strat ที่ใช้ — game8" },
   "pf.readsAs": { en: "Reads as:", th: "จะขึ้นว่า:" },
 
