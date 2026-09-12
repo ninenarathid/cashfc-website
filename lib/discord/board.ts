@@ -1,11 +1,11 @@
 import {
   KIND_COLOR, catalogue, coversSeat, endsAt, headcount, lootText,
-  partyStatus, progressText, resolveParty, spotText, worldText,
+  partyStatus, progressText, resolveParty, shortfallOf, spotText, worldText,
 } from "@/lib/party";
 import raw from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
 import { everyone } from "@/lib/people";
-import type { ContentDef, Party } from "@/lib/party";
+import type { ContentDef, Party, SlotRole } from "@/lib/party";
 import { partySeeds } from "@/lib/party-seeds";
 
 /**
@@ -155,59 +155,32 @@ export function boardParties(all: readonly Party[], now = Date.now()): Party[] {
  */
 function shortfall(p: Party, words = false): string {
   if (p.shape === "open") return "เปิดรับทุกคน";
-  const res = resolveParty(p);
-  if (!res.wanted) return "เต็มแล้ว";
+  const cut = shortfallOf(p);
+  if (!cut.total) return "เต็มแล้ว";
   const label: Record<string, string> = {
     tank: "Tank", healer: "Healer", dps: "DPS",
   };
+  const say = (r: string) => (words ? label[r] : ROLE_MARK[r]);
 
-  /*
-   * The seats a mover might end up in, held back from the count.
-   *
-   * Five seats named above and four people wanted below is not a sum that
-   * went wrong: one of ST and H2 is Dessiny's, and which one depends on who
-   * turns up. Counting both as shortages would ask the Free Company for nine
-   * people to fill an eight-man; counting neither would hide the healer seat
-   * that is the only reason a healer would read this line at all.
-   *
-   * So the certain part is counted by role as it always was, and what the
-   * movers leave undecided is said as the choice it is: one more, as either
-   * of these. It lines up with the seat list above, which is where somebody
-   * reading "🛡/💚 1" goes to find out which chairs that means.
-   */
-  const reach = new Set<string>();
-  for (const m of res.movers) {
-    for (const s of res.takeable) if (coversSeat(m.flex, s)) reach.add(s.id);
-  }
-
-  const need: Record<string, number> = { tank: 0, healer: 0, dps: 0 };
-  let free = 0;
-  for (const s of res.uncovered) {
-    if (reach.has(s.id)) continue;
-    if (s.free) free += 1;
-    else need[s.role] += 1;
-  }
   const parts: string[] = [];
-  for (const r of ["tank", "healer", "dps"]) {
-    if (!need[r]) continue;
-    parts.push(words ? `${need[r]} ${label[r]}` : `${ROLE_MARK[r]} ${need[r]}`);
+  for (const r of ["tank", "healer", "dps"] as SlotRole[]) {
+    if (!cut.need[r]) continue;
+    parts.push(words ? `${cut.need[r]} ${say(r)}` : `${say(r)} ${cut.need[r]}`);
   }
-
-  const counted = need.tank + need.healer + need.dps + free;
-  const spare = Math.max(0, res.wanted - counted);
-  if (spare) {
-    const either = [...new Set(
-      res.takeable.filter((s) => reach.has(s.id) && !s.free).map((s) => s.role))];
-    if (either.length) {
-      const marks = either.map((r) => (words ? label[r] : ROLE_MARK[r])).join("/");
-      parts.push(words ? `${spare} ${marks}` : `${marks} ${spare}`);
-    } else {
-      free += spare;
-    }
+  /*
+   * And the part the movers leave open, said as the choice it is.
+   *
+   * "🛡/💚 1" is one more person, either way round. It lines up with the seat
+   * list above, which is where somebody reading it goes to find out which
+   * chairs that means — five seats named, four people wanted, and the reason
+   * printed between them.
+   */
+  if (cut.either) {
+    const marks = cut.either.roles.map(say).join("/");
+    parts.push(words ? `${cut.either.n} ${marks}` : `${marks} ${cut.either.n}`);
   }
-
-  if (free) parts.push(`${free} คน`);
-  return parts.join(" · ") || `${res.wanted} คน`;
+  if (cut.free) parts.push(`${cut.free} คน`);
+  return parts.join(" · ") || `${cut.total} คน`;
 }
 
 /** One party, as an embed. */

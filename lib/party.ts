@@ -2283,16 +2283,78 @@ export function pendingSeats(p: Party): SlotDef[] {
   return slotsOf(p.shape).filter((s) => p.seats[s.id] && !p.seats[s.id].confirmedAt);
 }
 
-/** How many of each role are still wanted — what the chips filter on. */
-export function needsByRole(p: Party): Record<SlotRole, number> {
-  const out: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
+/**
+ * What a party is short of, said so that the numbers add up.
+ *
+ * The sum is the whole difficulty. A party with a healer who can tank has five
+ * seats it can hand out and wants four people: one of ST and H2 is hers, and
+ * which one depends on who turns up. Counting both as shortages asks the Free
+ * Company for nine people to fill an eight-man. Counting neither hides the
+ * healer seat, which is the only reason a healer reads this at all.
+ *
+ * So it comes back in three pieces. `need` is the part that is certain, by
+ * role. `free` is seats with no role to name — a FATE farm three short is
+ * short of people, not of healers. And `either` is what the movers leave
+ * undecided: one more, as any of these. Everything that draws a shortage
+ * anywhere draws it from here, so the row, the card and the Discord embed
+ * cannot tell three different stories about one party.
+ */
+export interface Shortfall {
+  need: Record<SlotRole, number>;
+  free: number;
+  /** One more person (or n), who could be any one of these roles. */
+  either: { roles: SlotRole[]; n: number } | null;
+  /** How many people in total, which is the sum of the three above. */
+  total: number;
+}
+
+const ROLE_ORDER: SlotRole[] = ["tank", "healer", "dps"];
+
+export function shortfallOf(p: Party): Shortfall {
+  const res = resolveParty(p);
+  const need: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
+  const out: Shortfall = { need, free: 0, either: null, total: res.wanted };
+  if (!res.wanted) return out;
+
+  // Every seat a mover might end up in, held back from the count by role.
+  const reach = new Set<string>();
+  for (const m of res.movers) {
+    for (const s of res.takeable) if (coversSeat(m.flex, s)) reach.add(s.id);
+  }
+
   // Seats nobody has offered for. A seat a floater is hovering over is not
   // something the party is asking a stranger for.
-  //
-  // A seat with no role is not a DPS seat going spare: a FATE farm short of
-  // three people is not short of three DPS, and filing it under one would put
-  // it in front of somebody filtering for a job to bring.
-  for (const s of resolveParty(p).uncovered) if (!s.free) out[s.role] += 1;
+  for (const s of res.uncovered) {
+    if (reach.has(s.id)) continue;
+    if (s.free) out.free += 1;
+    else need[s.role] += 1;
+  }
+
+  const counted = need.tank + need.healer + need.dps + out.free;
+  const spare = Math.max(0, res.wanted - counted);
+  if (spare) {
+    const roles = ROLE_ORDER.filter((r) =>
+      res.takeable.some((s) => reach.has(s.id) && !s.free && s.role === r));
+    if (roles.length) out.either = { roles, n: spare };
+    else out.free += spare;
+  }
+  return out;
+}
+
+/**
+ * How many of each role are still wanted — what the chips filter on.
+ *
+ * A looser question than the one above, on purpose, and the difference is the
+ * word "could": this answers "would a party like this take somebody like me",
+ * and a party whose healer can tank would take either. So an undecided seat is
+ * counted under every role it might be, which over-counts the party by design
+ * and is exactly right for a filter. Anything that prints a number for a
+ * reader wants shortfallOf instead.
+ */
+export function needsByRole(p: Party): Record<SlotRole, number> {
+  const s = shortfallOf(p);
+  const out = { ...s.need };
+  if (s.either) for (const r of s.either.roles) out[r] += s.either.n;
   return out;
 }
 

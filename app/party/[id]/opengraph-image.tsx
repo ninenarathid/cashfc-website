@@ -289,16 +289,21 @@ export default async function Image(
             display: "flex", alignItems: "center", justifyContent: "flex-end",
             gap: 12, padding: "0 48px 30px",
           }}>
-            {needs.map(([role, n]) => (
-              <div key={role} style={{
+            {/* One badge per thing the party wants. Its colour is the first
+                role named, which for every badge but the either/or is the
+                only one — and for that one there is no single right colour,
+                so the first is as good as flipping a coin and is at least
+                the same every time. */}
+            {needs.map(([roles, n]) => (
+              <div key={roles.join("/")} style={{
                 display: "flex", alignItems: "center",
                 padding: "6px 18px", borderRadius: 999,
-                border: `2px solid ${ROLE_COLOR[role]}`,
-                background: `${ROLE_COLOR[role]}1f`,
-                color: ROLE_COLOR[role], fontSize: 23, fontWeight: 700,
+                border: `2px solid ${ROLE_COLOR[roles[0]]}`,
+                background: `${ROLE_COLOR[roles[0]]}1f`,
+                color: ROLE_COLOR[roles[0]], fontSize: 23, fontWeight: 700,
                 letterSpacing: 0.5,
               }}>
-                {`Need ${n} ${ROLE_LABEL[role]}`}
+                {`Need ${n} ${roles.map((r) => ROLE_LABEL[r]).join("/")}`}
               </div>
             ))}
           </div>

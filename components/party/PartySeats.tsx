@@ -5,6 +5,7 @@ import type {
 } from "@/lib/party";
 import {
   ROLE_COLOR, ROLE_LABEL, flexBits, headcount, openTo, resolveParty,
+  shortfallOf,
   slotsOf,
 } from "@/lib/party";
 import { Fragment, useState } from "react";
@@ -599,23 +600,37 @@ export function NeedLine({ party }: { party: Party }) {
     );
   }
 
-  const need: Record<SlotRole, number> = { tank: 0, healer: 0, dps: 0 };
-  // Roleless seats fall through to "wants N more" below, which is the true
-  // answer for a FATE farm: it is short of people, not short of healers.
-  for (const s of res.uncovered) if (!s.free) need[s.role] += 1;
-  const parts = (Object.keys(need) as SlotRole[]).filter((r) => need[r] > 0);
+  /*
+   * What it is short of, from the one place that works it out. Roleless seats
+   * fall through to "wants N more" below, which is the true answer for a FATE
+   * farm: it is short of people, not short of healers.
+   */
+  const cut = shortfallOf(party);
+  const parts = (Object.keys(cut.need) as SlotRole[]).filter((r) => cut.need[r] > 0);
 
   return (
     <span className="flex flex-wrap items-center gap-1.5">
       {count}
-      {parts.length ? parts.map((r) => (
+      {parts.map((r) => (
         <span key={r}
               style={{ color: ROLE_COLOR[r],
                        borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 55%, transparent)` }}
               className="looking rounded-full border px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em]">
-          {t("pf.needRole", { n: need[r], role: ROLE_LABEL[r] })}
+          {t("pf.needRole", { n: cut.need[r], role: ROLE_LABEL[r] })}
         </span>
-      )) : (
+      ))}
+      {/* One more, and it depends who turns up: somebody in a seat offered to
+          move, so the party takes either role and ends up with one of them.
+          Uncoloured, because it is not a chip about one role. */}
+      {cut.either && (
+        <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em] text-accent">
+          {t("pf.needRole", {
+            n: cut.either.n,
+            role: cut.either.roles.map((r) => ROLE_LABEL[r]).join("/"),
+          })}
+        </span>
+      )}
+      {!parts.length && !cut.either && (
         // Every empty seat has somebody hovering over it, so there is no role
         // to name -- but only one of the seats each of them hovers over will
         // actually be theirs. What the party wants is bodies, any role.

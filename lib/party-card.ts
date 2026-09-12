@@ -3,7 +3,7 @@ import type {
   Flex, Floater, LengthUnit, Loot, MapPlan, Party, Progress, SeatRule, Shape,
   SlotRole, SlotTaken, Spot,
 } from "@/lib/party";
-import { needsByRole } from "@/lib/party";
+import { shortfallOf } from "@/lib/party";
 
 /**
  * One party, as much of it as a link preview should say.
@@ -183,7 +183,7 @@ function split(rows: Member[]): { seats: Record<string, SlotTaken>; floating: Fl
  * up to what "8/24" already said, in bigger type. A party of eight or four is
  * the size where "need one healer" is a fact somebody can act on.
  */
-export const cardNeeds = (c: PartyCard): [SlotRole, number][] => {
+export const cardNeeds = (c: PartyCard): [SlotRole[], number][] => {
   if (!c.hasMembers || !c.seatsTotal || c.seatsTotal > 8) return [];
   const p: Party = {
     id: "card", contentKey: c.contentKey, shape: c.shape,
@@ -192,7 +192,18 @@ export const cardNeeds = (c: PartyCard): [SlotRole, number][] => {
     seats: c.seats, floating: c.floating,
     closed: c.closed, rules: c.rules, oneOfEachJob: c.oneOfEachJob,
   };
-  const need = needsByRole(p);
-  return (["tank", "healer", "dps"] as SlotRole[])
-    .filter((r) => need[r] > 0).map((r) => [r, need[r]]);
+  /*
+   * A list of roles per badge, not one role per badge.
+   *
+   * Almost every badge names one role and always did. The exception is the
+   * party whose healer can tank: it wants one more person and will take
+   * either, so "Need 1 Tank/Healer" is one chip and one person, where two
+   * chips would have been the card asking for two.
+   */
+  const cut = shortfallOf(p);
+  const out = (["tank", "healer", "dps"] as SlotRole[])
+    .filter((r) => cut.need[r] > 0)
+    .map((r) => [[r], cut.need[r]] as [SlotRole[], number]);
+  if (cut.either) out.push([cut.either.roles, cut.either.n]);
+  return out;
 };
