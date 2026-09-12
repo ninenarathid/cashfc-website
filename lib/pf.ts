@@ -111,13 +111,29 @@ export interface PfExtras {
   seats?: boolean;
 }
 
-/** What a party starts with ticked: the things nearly every listing says. */
+/**
+ * What a party starts with ticked.
+ *
+ * Set by the FC rather than reasoned out from the board, because what belongs
+ * in a listing is a house style and not a deduction: these are the lines this
+ * Free Company wants on its own recruitment, and every one of them is a switch
+ * somebody can turn off before they post.
+ *
+ * Two are conditional and stay that way. "First-timers welcome" is a promise
+ * about the evening and is wrong on a farm night, and a ready check between
+ * runs means nothing to a party that is not counted in runs — a default that
+ * is untrue of the party it is on is worse than one nobody asked for.
+ *
+ * Not "our Japanese is weak". It is true and it is the FC's to volunteer, not
+ * the board's to announce on every listing it writes.
+ */
 export function pfDefaults(p: Party): PfExtras {
   return {
     time: true,
     seats: true,
     plan: true,
-    notFluent: true,
+    macro: "yes",
+    readyCheck: true,
     runsRc: p.lengthUnit === "runs" && (p.runs ?? 0) > 1,
     firstTimers: p.progress?.at === "fresh",
   };
@@ -214,20 +230,37 @@ export function pfComment(
   const phase = phaseBit(p);
   const bits: string[] = [];
 
-  // What tonight is for, with the phase in front of it where there is one.
+  /*
+   * What tonight is for, with the phase in front of it where there is one —
+   * and the ready check on the end of it where the night is counted in runs.
+   *
+   * 「3周RC」 is one token on the board and not two: three runs, and a ready
+   * check after each to let anybody who has had enough leave cleanly. Pushed
+   * separately it came out as 「3周　RC」, and on a party that is not a farm
+   * run the RC had nothing to attach to at all — a bare 「RC」 in the middle
+   * of a listing says nothing about when.
+   */
+  const laps = p.lengthUnit === "runs" ? (p.runs ?? 0) : 0;
   const doing = at === "fresh" ? (ja ? "最初から" : "from the start")
-    : at === "farm" ? (p.lengthUnit === "runs" && p.runs
-        ? (ja ? `${p.runs}周` : `${p.runs} runs`) : (ja ? "周回" : "farm"))
+    : at === "farm" ? (laps
+        ? (ja ? `${laps}周` : `${laps} runs`) : (ja ? "周回" : "farm"))
     : at === "a2c" ? (ja ? "クリ目" : "clear attempt")
     : (ja ? "練習" : "prog");
+  const lapRc = x.runsRc && at === "farm" && laps;
+  const head = lapRc ? (ja ? `${doing}RC` : `${doing}, ready check after each`)
+    : doing;
   bits.push(phase && at !== "farm"
-    ? (ja ? `${phase}${doing}` : `${phase} ${doing}`) : doing);
+    ? (ja ? `${phase}${head}` : `${phase} ${head}`) : head);
 
   // What is being drilled, but only where it is in an alphabet the reader has.
   const mech = renderable(p.progress?.mech);
   if (mech) bits.push(mech);
 
-  if (x.runsRc) bits.push(ja ? "RC" : "ready check between runs");
+  // 「継続RC」 is the board's word for a check every so often, and is what is
+  // left to say once the run count has not already said it.
+  if (x.runsRc && !lapRc) {
+    bits.push(ja ? "継続RC" : "ready check as we go");
+  }
 
   if (x.time) bits.push(ja ? span(p).ja : span(p).en);
 
