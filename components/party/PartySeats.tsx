@@ -519,12 +519,25 @@ function Bench(
       {!who.length && (
         <span className="text-[14.5px] text-muted">{t("party.benchEmpty")}</span>
       )}
+      {/* Said, not merely hoverable.
+          The seats advertise themselves — an empty one says "Open" in the
+          accent colour and reads as a thing to press. This row is a dashed
+          line with two words of grey in it, so somebody sitting in D4 who
+          wanted to give the seat back had nothing telling them where to do
+          it. A border that lights up under the pointer is not an answer to
+          "how do I", and on a phone there is no pointer at all. */}
+      {ask && (
+        <span className="ml-auto font-data text-[12.5px] uppercase tracking-[0.1em] text-accent">
+          {t("party.standUp")}
+        </span>
+      )}
     </div>
   );
 
   if (!ask || !pick?.bench) return row;
   return (
-    <Popover trigger={<button type="button" className="text-left">{row}</button>}>
+    <Popover trigger={
+      <button type="button" className="w-full text-left">{row}</button>}>
       <div className="flex flex-col gap-2.5">
         <p className="text-[15px] text-ink">{ask}</p>
         <button type="button" disabled={pick.busy}

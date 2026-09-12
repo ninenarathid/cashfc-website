@@ -2126,6 +2126,7 @@ const DICT = {
     en: "Accept the invitation and take {seat}?",
     th: "ตอบรับคำเชิญแล้วนั่ง {seat} เลยไหม?",
   },
+  "party.standUp": { en: "Move here", th: "ย้ายมาที่นี่" },
   "party.toBench": {
     en: "Give up your seat and play wherever you are needed?",
     th: "สละที่นั่ง แล้วเล่นตำแหน่งไหนก็ได้ตามที่ปาร์ตี้ขาดไหม?",
