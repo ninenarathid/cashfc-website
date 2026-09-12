@@ -3,7 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL } from "@/lib/supabase/config";
 import { loadParties } from "@/lib/party-db";
 import { boardMessage } from "@/lib/discord/board";
-import { CHANNEL_ID, editMessage, postMessage } from "@/lib/discord/api";
+import {
+  APP_ID, CHANNEL_ID, deleteMessage, editMessage, listMessages, postMessage,
+} from "@/lib/discord/api";
 
 /**
  * Redraw the board in Discord.
@@ -44,6 +46,21 @@ function sameSecret(a: string, b: string): boolean {
   let diff = 0;
   for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
   return diff === 0;
+}
+
+/** Older boards from this bot, removed. Returns how many went. */
+async function sweep(channel: string, keep: string): Promise<number> {
+  const app = APP_ID();
+  if (!app) return 0;
+  const seen = await listMessages(channel, 30);
+  if ("error" in seen) return 0;
+  let gone = 0;
+  for (const m of seen.ok) {
+    if (m.id === keep || m.author?.id !== app) continue;
+    const out = await deleteMessage(channel, m.id);
+    if ("ok" in out) gone += 1;
+  }
+  return gone;
 }
 
 export async function POST(req: Request) {
@@ -124,5 +141,23 @@ export async function POST(req: Request) {
   await supabase.from("discord_board").update({
     channel_id: channel, message_id: posted.ok.id, posted_at: now, updated_at: now,
   }).eq("id", 1);
-  return NextResponse.json({ posted: posted.ok.id, parties: payload.embeds.length });
+
+  /*
+   * And take down any board this bot left behind.
+   *
+   * Posting a second one is meant to be rare — only when the first is really
+   * gone — but "rare" has already happened twice: somebody tidying the channel
+   * by hand while a tick was in flight leaves the old id pointing at nothing,
+   * and the recovery does its job twice before anybody notices. The board is
+   * one message by design, so the design should be what puts it back.
+   *
+   * Only this bot's own messages, and only ones that are not the board we just
+   * posted. A bot may always delete what it wrote itself, which is why the
+   * invite never asked for Manage Messages and why this cannot reach anything
+   * a member said.
+   */
+  const swept = await sweep(channel, posted.ok.id);
+  return NextResponse.json({
+    posted: posted.ok.id, parties: payload.embeds.length, swept,
+  });
 }

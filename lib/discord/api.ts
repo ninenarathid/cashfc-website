@@ -64,6 +64,26 @@ export const getMessage = (channelId: string, messageId: string) =>
   });
 
 /**
+ * The last few messages in the channel, newest first.
+ *
+ * Only ever used to find boards this bot left behind. Needs Read Message
+ * History, which the invite asks for.
+ */
+export const listMessages = (channelId: string, limit = 20) =>
+  call<{ id: string; author?: { id?: string } }[]>(
+    `/channels/${channelId}/messages?limit=${limit}`, { method: "GET" });
+
+/**
+ * Take one back.
+ *
+ * A bot may always delete its own messages — Manage Messages is only needed
+ * for other people's, which is why the invite does not ask for it and why this
+ * only ever touches what the bot itself posted.
+ */
+export const deleteMessage = (channelId: string, messageId: string) =>
+  call<null>(`/channels/${channelId}/messages/${messageId}`, { method: "DELETE" });
+
+/**
  * What to say back to somebody who pressed something.
  *
  * Always to them alone. The board is a shared message in a channel everybody
