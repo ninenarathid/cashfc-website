@@ -1923,7 +1923,9 @@ const DICT = {
     en: "Ready check before the pull", th: "Ready check ก่อนเริ่ม",
   },
   "pf.xFirstTimers": { en: "First-timers welcome", th: "รับมือใหม่" },
-  "pf.xNoHomework": { en: "No homework needed", th: "ไม่ต้องดูกลไกมาก่อน" },
+  "pf.xNoHomework": {
+    en: "No homework needed", th: "ไม่ต้องดู Boss Mechanics มาก่อน",
+  },
   "pf.xGiveUp": { en: "Disband on give-up", th: "เลิกเมื่อยอมแพ้" },
   "pf.xCasual": { en: "Casuals welcome", th: "เข้ามาได้สบายๆ" },
   "pf.xWipes": { en: "Disband after N wipes", th: "เลิกเมื่อตาย N ครั้ง" },
@@ -1939,7 +1941,7 @@ const DICT = {
     en: "Which part of the fight tonight is about. It leads the listing and "
       + "the in-game PF text — P3 Prog is \"we are drilling phase 3\", P3 A2C "
       + "is \"we start at 3 and take it to the end\".",
-    th: "บอกว่าคืนนี้อยู่ตรงไหนของไฟท์ จะขึ้นนำหน้าทั้งบนบอร์ดและในข้อความ PF "
+    th: "บอกว่าคืนนี้อยู่ตรงไหนของไฟต์ จะขึ้นนำหน้าทั้งบนบอร์ดและในข้อความ PF "
       + "ในเกม — P3 Prog คือ \"ซ้อมเฟส 3\" ส่วน P3 A2C คือ \"เริ่มที่เฟส 3 "
       + "แล้วตีให้จบ\"",
   },
