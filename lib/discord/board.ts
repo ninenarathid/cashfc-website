@@ -60,13 +60,48 @@ const ROLE_MARK: Record<string, string> = {
   dps: process.env.DISCORD_EMOJI_DPS || "⚔️",
 };
 
-/** Where it is up to, at a glance, before a single word is read. */
+/**
+ * Where it is up to: a colour to scan by and a word to be sure of.
+ *
+ * A dot on its own is a convention somebody has to be taught, and a board is
+ * not a place to teach one — green, yellow and red are read straight off, but
+ * only once somebody knows which of the three "not started" is. So the colour
+ * leads and the word follows it.
+ */
 const STATUS_MARK: Record<string, string> = {
-  live: "🔴", soon: "🟠", upcoming: "🟢", justEnded: "⚪", done: "⚪",
+  live: "🔴", soon: "🟡", upcoming: "🟢", justEnded: "⚪", done: "⚪",
+};
+
+const STATUS_WORD: Record<string, string> = {
+  live: "กำลังเล่น", soon: "ใกล้เริ่ม", upcoming: "ยังรับอยู่",
+  justEnded: "เพิ่งจบ", done: "จบแล้ว",
 };
 
 /** Discord allows ten embeds, and a select may offer twenty-five options. */
 const MAX_EMBEDS = 9;
+
+/**
+ * When it starts, in words, for somewhere Discord will not do it for us.
+ *
+ * The <t:...> stamps render in a message and in an embed, and nowhere else —
+ * inside a select option they come out as raw text. So the one place that
+ * cannot use them gets this instead, in Bangkok time, which is where the FC
+ * is and what the rest of the site shows.
+ */
+export function whenShort(iso: string, now = Date.now()): string {
+  const at = new Date(iso).getTime();
+  const mins = Math.round((at - now) / 60000);
+  if (mins <= 0) return "กำลังเล่น";
+  const clock = new Date(iso).toLocaleTimeString("th-TH", {
+    timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit",
+  });
+  if (mins < 60) return `${clock} · อีก ${mins} นาที`;
+  if (mins < 24 * 60) return `${clock} · อีก ${Math.round(mins / 60)} ชม.`;
+  const day = new Date(iso).toLocaleDateString("th-TH", {
+    timeZone: "Asia/Bangkok", day: "2-digit", month: "2-digit",
+  });
+  return `${day} ${clock}`;
+}
 
 /** Unix seconds, which is what Discord's own clock formatting wants. */
 const stamp = (iso: string) => Math.floor(new Date(iso).getTime() / 1000);
@@ -196,7 +231,8 @@ function embedFor(
         // Discord's own clock, so everybody sees their own timezone — the one
         // thing the website cannot do, and why a Thai FC with members abroad
         // keeps getting the hour wrong.
-        value: `<t:${at}:f>
+        value: `${STATUS_WORD[status] ?? ""}
+<t:${at}:f>
 <t:${at}:R>`,
         inline: true,
       },
@@ -222,7 +258,10 @@ function embedFor(
  * looking for the party they are already in should find it where they last saw
  * it, and "เต็มแล้ว" is an answer.
  */
-function joinRow(parties: readonly Party[], defs: Record<string, ContentDef>) {
+function joinRow(
+  parties: readonly Party[], defs: Record<string, ContentDef>,
+  names: Map<number, Lead>, now: number,
+) {
   if (!parties.length) return [];
   return [{
     type: 1,
@@ -230,14 +269,35 @@ function joinRow(parties: readonly Party[], defs: Record<string, ContentDef>) {
       type: 3,
       custom_id: "party:pick",
       placeholder: "เลือกปาร์ตี้ที่จะเข้าร่วม",
-      options: parties.slice(0, 25).map((p) => ({
-        label: `${nameOf(p, defs)}`.slice(0, 100),
-        description: `${new Date(p.startsAt).toLocaleString("th-TH", {
-          timeZone: "Asia/Bangkok", day: "2-digit", month: "2-digit",
-          hour: "2-digit", minute: "2-digit",
-        })} · ขาด ${shortfall(p, true)}`.slice(0, 100),
-        value: p.id,
-      })),
+      options: parties.slice(0, 25).map((p) => {
+        const { here, seats } = headcount(p);
+        const lead = names.get(p.ownerCharacterId)?.name;
+        /*
+         * The lead's name first, because that is what tells two of the same
+         * fight apart. Two M4S nights on one evening have the same title and
+         * nearly the same time, and the only thing that says which is which is
+         * whose it is.
+         *
+         * Then what anybody is actually choosing on: when, how full, what is
+         * missing. A hundred characters is the whole budget, so it is built in
+         * that order and cut from the end.
+         */
+        const bits = [
+          STATUS_WORD[partyStatus(p, now)] ?? null,
+          lead ? `โดย ${lead}` : null,
+          whenShort(p.startsAt, now),
+          seats ? `${here}/${seats}` : `${here} คน`,
+          `ขาด ${shortfall(p, true)}`,
+        ].filter(Boolean).join(" · ");
+        return {
+          // Not custom emoji: a select's own emoji field takes one, and the
+          // urgency is the thing the list cannot otherwise say.
+          emoji: { name: STATUS_MARK[partyStatus(p, now)] ?? "🟢" },
+          label: nameOf(p, defs).slice(0, 100),
+          description: bits.slice(0, 100),
+          value: p.id,
+        };
+      }),
     }],
   }];
 }
@@ -262,7 +322,7 @@ export function boardMessage(
   return {
     content: `${header}\n-# อัปเดตล่าสุด <t:${Math.floor(now / 1000)}:R>`,
     embeds: shown.map((p) => embedFor(p, defs, names, faces)),
-    components: joinRow(shown, defs),
+    components: joinRow(shown, defs, names, now),
     // Nothing this message says is worth pinging anybody for. The board is
     // read when somebody is looking for a party, not pushed at them.
     allowed_mentions: { parse: [] as string[] },
