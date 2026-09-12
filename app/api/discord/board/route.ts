@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL } from "@/lib/supabase/config";
 import { loadParties } from "@/lib/party-db";
 import { boardMessage } from "@/lib/discord/board";
-import { CHANNEL_ID, editMessage, getMessage, postMessage } from "@/lib/discord/api";
+import { CHANNEL_ID, editMessage, postMessage } from "@/lib/discord/api";
 
 /**
  * Redraw the board in Discord.
@@ -96,10 +96,22 @@ export async function POST(req: Request) {
         .update({ updated_at: new Date().toISOString() }).eq("id", 1);
       return NextResponse.json({ edited: known, parties: payload.embeds.length });
     }
-    // Anything other than "that message is gone" is worth reporting rather
-    // than papering over with a second copy of the board.
-    const missing = await getMessage(channel, known);
-    if ("ok" in missing) {
+    /*
+     * Only ever post a second board when Discord says the first one is gone.
+     *
+     * This used to ask "does the message still exist" and post a new one
+     * whenever that question could not be answered — which is exactly what
+     * happens under a rate limit, where both calls come back 429 together. A
+     * burst of triggers therefore produced a burst of boards: four of them in
+     * the channel, each the same list, none of them the one the database
+     * remembered.
+     *
+     * 10008 is Unknown Message, and it is the only answer that means the board
+     * is really gone. Everything else — rate limited, network, a permission
+     * somebody took away — is a reason to stop and say so, because the board
+     * we already have is still there and will be edited on the next tick.
+     */
+    if (!/"code"\s*:\s*10008/.test(edited.error)) {
       return NextResponse.json({ error: edited.error }, { status: 502 });
     }
   }
