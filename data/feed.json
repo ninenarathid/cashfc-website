@@ -9,20 +9,6 @@
   },
   {
    "date": "2026-09-13",
-   "type": "ex_clear",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "cleared Queen Eternal (Extreme)"
-  },
-  {
-   "date": "2026-09-13",
-   "type": "job_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-09-13",
    "type": "rare_up",
    "id": 34509521,
    "name": "Liliya Quintilis",
@@ -1398,6 +1384,20 @@
    "type": "level_100",
    "id": 42976317,
    "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-09",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on Weaver!"
+  },
+  {
+   "date": "2026-09-08",
+   "type": "level_100",
+   "id": 38041221,
+   "name": "Kori Kona",
    "text": "reached level 100 on White Mage!"
   }
  ]
