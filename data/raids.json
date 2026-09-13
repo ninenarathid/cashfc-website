@@ -62051,7 +62051,17 @@
     "best": 80,
     "kills": 3,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 2,
+      "best": 80
+     },
+     "DarkKnight": {
+      "kills": 1,
+      "best": 8
+     }
+    }
    }
   ],
   "legacy": [],
@@ -67712,7 +67722,13 @@
     "best": 81,
     "kills": 5,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 5,
+      "best": 81
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
