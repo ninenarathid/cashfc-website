@@ -1,21 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PersonOption } from "@/lib/people";
 import { fmtDateTime } from "@/lib/dates";
-import type {
-  ContentKind, Flex, Party, SlotDef, SlotRole, Wing,
-} from "@/lib/party";
-import {
-  ROLE_COLOR, ROLE_LABEL, askedAbout, flexLabel, jobMatters, openSeats, openTo,
-  partyStatus,
-} from "@/lib/party";
-import JobIcon, { jobLabel, jobRoleGroup } from "@/components/JobIcon";
-import { jobsForRole, jobsForSlot } from "@/components/party/JobRule";
-import {
-  acceptInvite, askToJoin, confirmSeat, dropSeat, takeSeat,
-} from "@/lib/party-db";
+import type { Flex, Party } from "@/lib/party";
+import { askedAbout, flexLabel, openSeats, partyStatus } from "@/lib/party";
+import { acceptInvite, confirmSeat, dropSeat } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
 
@@ -62,12 +53,11 @@ const roster = (p: Party): Who[] => [
 ];
 
 export default function PartyJoin(
-  { party, kind, me, userId, supabase, now, clash, onDone, onError }: {
+  { party, me, userId, supabase, now, clash, onDone, onError }: {
     party: Party;
     /** The board's clock, which decides whether it is too late to leave. */
     now: number;
     /** What it is for, which decides whether a job is even a question. */
-    kind?: ContentKind;
     me: PersonOption | null;
     userId: string | null;
     supabase: SupabaseClient | null;
@@ -100,30 +90,6 @@ export default function PartyJoin(
    * nothing away from anybody.
    */
   const started = partyStatus(party, now) !== "upcoming";
-  /** The open seats this reader says they can play. */
-  const [want, setWant] = useState<Set<string>>(new Set());
-  /** "Any of them", which overrules the list rather than adding to it. */
-  const [any, setAny] = useState(false);
-  /**
-   * What they can be playing.
-   *
-   * A set, because "White Mage or Sage, you pick" is the ordinary answer and
-   * making somebody choose one of them at the door is the same decision flex
-   * exists to prevent, one level down. The lead picks from what was offered.
-   */
-  const [picked, setPicked] = useState<Set<string>>(new Set());
-  /*
-   * "Whatever you are short of."
-   *
-   * A real answer, and for a lot of people the honest one — somebody with
-   * eight jobs at cap does not have a preference, they have a party to fill.
-   * Ticking all twenty-one to say so was a row of lit chips that meant the
-   * same thing and read like somebody who could not decide.
-   *
-   * It sends every job the seats will take, which is what it says.
-   */
-  const [anyJob, setAnyJob] = useState(false);
-
   const iAmOwner = !!me && party.ownerCharacterId === me.id;
   const mine = useMemo(
     () => (me ? roster(party).find((m) => m.characterId === me.id) : undefined),
@@ -138,110 +104,17 @@ export default function PartyJoin(
    */
   const waiting = party.requests ?? [];
 
-  const free = useMemo(() => openSeats(party), [party]);
-  const seated = party.shape !== "open";
-
   /** The seat this reader was asked about, where they were asked about one. */
   const asked = askedAbout(mine);
-  /** And whether somebody has since sat in it. */
-  const seatGone = !!asked && !free.some((sl) => sl.id === asked);
-
   /*
-   * The open seats, by which of the three eights they are in.
+   * And whether somebody has since sat in it.
    *
-   * One nameless group for anything that is not an alliance, so the ordinary
-   * party draws exactly as it did — a heading over a single row of four or
-   * eight seats would be a label for the obvious.
+   * Everything else this panel knew about seats — which are open, which wings
+   * they fall in, which jobs each would take — went with the join form. The
+   * grid above is the control now and works that out for itself; the one
+   * question left here is about an invitation this reader is holding.
    */
-  const wings = useMemo(() => {
-    if (party.shape !== "alliance") return [[null, free]] as [Wing | null, SlotDef[]][];
-    return (["A", "B", "C"] as Wing[])
-      .map((w) => [w, free.filter((sl) => sl.wing === w)] as [Wing | null, SlotDef[]])
-      // A wing with nothing open is a heading over nothing.
-      .filter(([, seats]) => seats.length);
-  }, [party.shape, free]);
-  /*
-   * Whether to ask about a job at all.
-   *
-   * A photo shoot, a FATE farm, a hunt train and a night in Bozja are not
-   * compositions — you turn up on whatever you are on — and a form that will
-   * not let you press Join until you have committed to a job is a form
-   * standing in front of an evening that has no form.
-   */
-  const asksJob = jobMatters(kind);
-
-  /*
-   * The jobs those seats will actually take.
-   *
-   * Locked to the seats rather than offered whole, because a list of every job
-   * in the game under a healer seat is a list that is wrong twenty times out of
-   * twenty-one. Narrowed twice over: by the role, and then by whatever the
-   * party has said about that particular seat — a group asking for a Warrior on
-   * ST should not be shown a Paladin button that would be refused, and a party
-   * running one player per job should not offer a job somebody already holds.
-   *
-   * openTo does both, and does the second one at the moment it is drawn, which
-   * matters: what a seat will take changes every time somebody joins.
-   */
-  const chosenSeats: SlotDef[] = useMemo(
-    () => (any || !seated ? free : free.filter((sl) => want.has(sl.id))),
-    [any, seated, free, want]);
-
-  const jobs = useMemo(() => {
-    // A hunt train has no seats to lock anything to, so every job is a true
-    // answer. Without this the row came out empty and the button stayed
-    // disabled behind a job nobody could choose — an open party that could
-    // not be joined at all.
-    if (!seated) {
-      return (["tank", "healer", "dps"] as SlotRole[]).flatMap(jobsForRole);
-    }
-    const out = new Set<string>();
-    for (const sl of chosenSeats) {
-      for (const j of openTo(party, sl.id, jobsForSlot(sl))) out.add(j);
-    }
-    return [...out];
-  }, [party, chosenSeats, seated]);
-
-  /*
-   * A job is an answer about a role, so choosing one settles which of the
-   * picked seats were serious.
-   *
-   * Somebody who ticks ST and H1 and then says "White Mage" has not asked for
-   * two seats — they have asked for the healer one, and the tank tick was them
-   * saying they could do either before they decided. Dropping it here rather
-   * than sending it means the party is never advertised a Paladin on H1.
-   */
-  const jobFits = (sl: SlotDef): boolean => {
-    if (!picked.size) return true;
-    // Through the broad grouping rather than the fine one: the seat grid knows
-    // three roles and the job table knows six, and a Scholar is a "barrier"
-    // there and a healer here.
-    //
-    // Any of the offered jobs covering the seat is enough: somebody offering
-    // Warrior and White Mage is genuinely asking for both the tank seat and the
-    // healer one, and it is the lead who decides which.
-    return [...picked].some((j) => {
-      const g = jobRoleGroup(j);
-      const asRole: SlotRole | null =
-        g === "Tanks" ? "tank" : g === "Healers" ? "healer" : g === "DPS" ? "dps" : null;
-      return asRole == null || sl.role === asRole;
-    });
-  };
-  const asking = chosenSeats.filter(jobFits);
-
-  /*
-   * A job that has stopped making sense.
-   *
-   * Untick the healer seat after choosing White Mage and the choice is still
-   * sitting there, invisible under a row that no longer contains it — and the
-   * request would go out advertising a White Mage for a tank seat.
-   */
-  useEffect(() => {
-    setPicked((v) => {
-      const next = new Set([...v].filter((j) => jobs.includes(j)));
-      return next.size === v.size ? v : next;
-    });
-  }, [jobs]);
+  const seatGone = !!asked && !openSeats(party).some((sl) => sl.id === asked);
 
   if (!me || !userId || !supabase) return null;
 
@@ -466,167 +339,17 @@ export default function PartyJoin(
         </span>
       )}
 
-      {!party.endedAt && !mine && !clash && (
-        <div className="flex flex-col gap-2">
-          {/*
-            * Which seats, not which seat.
-            *
-            * The question a party actually needs answering is "what can you
-            * play", and for most people that is more than one thing. A single
-            * choice made them pick their best guess at what the party was
-            * short of and hope — which is the decision flex exists to stop
-            * anybody having to make, made again at the door.
-            *
-            * Only the empty seats can be picked, because the others are not
-            * an offer anybody can make. Several picked is a floater who covers
-            * exactly those, and the resolver puts them in whichever is left
-            * when the party fills; one picked is a request for that seat.
-            */}
-          {seated && free.length > 0 && (
-            <>
-              <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
-                {t("party.pickSeats")}
-              </span>
-              {/*
-                * An alliance is three parties, and its seats say so.
-                *
-                * Flat, twenty-one open seats came out as "ST Tank, H2 Healer,
-                * D2 DPS … MT Tank, ST Tank" — every label appearing up to
-                * three times with nothing to tell them apart, so picking "D3"
-                * meant picking one of three different seats at random. The
-                * grid above has drawn them as Party A, B and C from the
-                * beginning; this is the same three headings.
-                */}
-              {wings.map(([wing, seats]) => (
-                <div key={wing ?? "-"} className="flex flex-col gap-1.5">
-                  {wing && (
-                    <span className="font-data text-[13px] uppercase tracking-[0.14em] text-muted">
-                      {t("pf.partyWing", { wing })}
-                    </span>
-                  )}
-                  <div className="flex flex-wrap gap-1.5">
-                    {seats.map((sl) => {
-                      const on = !any && want.has(sl.id);
-                      const c = sl.free ? "#8b93a1" : ROLE_COLOR[sl.role];
-                      return (
-                        <button key={sl.id} type="button" disabled={any}
-                                onClick={() => setWant((v) => {
-                                  const next = new Set(v);
-                                  if (!next.delete(sl.id)) next.add(sl.id);
-                                  return next;
-                                })}
-                                style={on
-                                  ? { borderColor: c, color: c,
-                                      background: `color-mix(in srgb, ${c} 14%, transparent)` }
-                                  : undefined}
-                                className={`flex items-center gap-1.5 rounded-full border px-3 py-[3px] text-[15.5px] transition-colors ${
-                                  on ? "" : "border-line text-muted hover:border-muted hover:text-ink"} ${
-                                  any ? "opacity-40" : ""}`}>
-                          <span style={{ background: c }}
-                                className="size-1.5 shrink-0 rounded-full" />
-                          {sl.label}
-                          {!sl.free && (
-                            <span className="opacity-70">{ROLE_LABEL[sl.role]}</span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-
-              {/* The widest offer there is, and its own button because it is
-                  not one more seat — it is the answer that makes the others
-                  beside the point. Outside the wings for the same reason: it
-                  is not a seat in any of them. */}
-              <button type="button"
-                      onClick={() => { setAny((v) => !v); setWant(new Set()); }}
-                      className={`self-start rounded-full border px-3 py-[3px] text-[15.5px] transition-colors ${
-                        any ? "border-jade bg-jade/15 text-jade"
-                            : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                  {t("party.flexAny")}
-              </button>
-            </>
-          )}
-
-          {/* Only once there is something to be a job for: an empty row of
-              every job in the game is a question nobody has been asked yet. */}
-          {asksJob && jobs.length > 0 && (seated ? any || want.size > 0 : true) && (
-            <>
-              <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
-                {t("party.pickJob")}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                <button type="button"
-                        onClick={() => { setAnyJob((v) => !v); setPicked(new Set()); }}
-                        className={`rounded-full border px-2.5 py-[3px] text-[15px] transition-colors ${
-                          anyJob ? "border-accent bg-accent/15 text-accent"
-                                 : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                  {t("party.jobAny")}
-                </button>
-                {jobs.map((j) => {
-                  const on = picked.has(j);
-                  return (
-                    <button key={j} type="button" title={jobLabel(j)}
-                            onClick={() => {
-                              setAnyJob(false);
-                              setPicked((v) => {
-                                const next = new Set(v);
-                                if (!next.delete(j)) next.add(j);
-                                return next;
-                              });
-                            }}
-                            className={`flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[15px] transition-colors ${
-                              on ? "border-accent bg-accent/15 text-accent"
-                                 : `border-line hover:border-muted hover:text-ink ${
-                                     anyJob ? "text-muted/50" : "text-muted"}`}`}>
-                      <JobIcon job={j} size={20} />
-                      {jobLabel(j)}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button disabled={busy || (asksJob && !picked.size && !anyJob)
-                              || (seated && free.length > 0 && !any && !want.size)}
-                    onClick={() => run(() => askToJoin(supabase, userId, party.id, {
-                      characterId: me.id, name: me.name, avatar: me.avatar,
-                      own: iAmOwner,
-                      // "Any" is every job the seats will take, which is what
-                      // it means and what the resolver can place.
-                      jobs: anyJob ? jobs : [...picked],
-                      // One seat is a request for that seat. Anything else is a
-                      // floater, which is what the resolver needs to place
-                      // somebody across the seats they said they could take.
-                      seat: asking.length === 1 ? asking[0].id : null,
-                      flex: any && asking.length === free.length ? { all: true }
-                        : asking.length > 1 ? { seats: asking.map((sl) => sl.id) }
-                          : asking.length === 1 ? undefined : { all: true },
-                    }))}
-                    className={`${btn} border border-accent bg-accent/15 text-accent hover:bg-accent/25`}>
-              {busy ? t("party.asking")
-                    : t(iAmOwner ? "party.takeOwnSeat" : "party.askToJoin")}
-            </button>
-            {seated && free.length > 0 && !any && !want.size ? (
-              <span className="text-[15px] text-muted">{t("party.pickSeatsFirst")}</span>
-            ) : anyJob ? (
-              <span className="text-[15px] text-muted">{t("party.jobAnyWhy")}</span>
-            ) : asksJob && !picked.size ? (
-              <span className="text-[15px] text-muted">{t("party.pickJobFirst")}</span>
-            ) : asking.length > 1 ? (
-              // What the party will actually be told, in one line, because
-              // "flex across three seats" is a thing worth seeing before you
-              // send it rather than after.
-              <span className="text-[15px] text-muted">
-                {t("party.askingFor", { seats: asking.map((sl) => sl.label).join(", ") })}
-              </span>
-            ) : null}
-          </div>
-        </div>
-      )}
+      {/*
+        * And joining is the grid.
+        *
+        * This was a row of seat chips, a row of job buttons and an "ask to
+        * join" button — the same seats the grid above was already drawing,
+        * listed a second time because the first list was only a picture.
+        * Now the picture is the control: press the seat you want and confirm,
+        * or press the flex row under it and name the seats you could take.
+        * See PartyDetail, which works out what a press means, and PartySeats,
+        * which asks.
+        */}
     </div>
   );
 }

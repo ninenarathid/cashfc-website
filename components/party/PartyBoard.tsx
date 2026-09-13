@@ -21,7 +21,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 
 import {
-  acceptInto, addComment, createParty, deleteParty, dropComment, editComment,
+  acceptInto, addComment, askToJoin, createParty, deleteParty, dropComment,
+  editComment,
   leaveSeat, loadParties, takeSeat,
   finishParty,
   inviteMembers,
@@ -162,6 +163,18 @@ function PartyDetail(
   const [ending, setEnding] = useState(false);
   /** True while a seat is being taken, so the grid cannot be pressed twice. */
   const [seating, setSeating] = useState(false);
+  /** Theirs to fill, which changes what pressing an empty seat means. */
+  const iAmOwner = !!userId && party.owner === userId;
+  /*
+   * Already promised those hours to somebody else.
+   *
+   * The seats go quiet rather than refusing after the press: the notice under
+   * the grid names the other party, and a control that explains itself only
+   * once you have pressed it is a control that wasted the press.
+   */
+  const busyThen = useMemo(
+    () => (me ? clashFor(parties, me.id, party, party.id) : null),
+    [parties, me, party]);
   /** Whether the in-game party finder helper is open over the party. */
   const [pf, setPf] = useState(false);
 
@@ -437,10 +450,11 @@ function PartyDetail(
                         busy: seating,
                         ask: (slot) => {
                           const mine = placeOf(party, me.id);
-                          // Not signed in as somebody who can sit anywhere, or
-                          // the evening is over: nothing to ask.
+                          // The evening is over: nothing to ask about it.
                           if (party.endedAt) return null;
-                          if (!mine) return null;
+                          // Already asked and waiting on the lead. Pressing a
+                          // second seat would be a second request.
+                          if (mine?.pending) return null;
                           const res = resolveParty(party);
                           /*
                            * A seat somebody offered to move out of is a seat
@@ -460,17 +474,48 @@ function PartyDetail(
                           const also = moving
                             ? t("party.theyWouldMove", { who: moving.name })
                             : "";
+                          /*
+                           * Not in it yet: pressing a seat is how you ask for
+                           * one.
+                           *
+                           * It used to be a row of chips and a button under
+                           * the grid, which asked the same question the grid
+                           * was already drawing the answer to — and made
+                           * joining the one thing on this page that did not
+                           * work by pressing the thing you meant. Somebody
+                           * already busy that evening is shown why by the
+                           * notice below rather than by a seat that does
+                           * nothing when pressed.
+                           */
+                          if (!mine) {
+                            if (busyThen) return null;
+                            return (iAmOwner
+                              ? t("party.takeOwnSeatAt", { seat: slot.label })
+                              : t("party.askForSeat", { seat: slot.label })) + also;
+                          }
                           if (mine.invited) {
                             return t("party.acceptInto", { seat: slot.label }) + also;
                           }
-                          if (mine.pending) return null;
                           return (mine.seat
                             ? t("party.moveHere", { seat: slot.label })
                             : t("party.sitHere", { seat: slot.label })) + also;
                         },
                         take: (slot, job) => void (async () => {
                           const mine = placeOf(party, me.id);
-                          if (!mine?.rowId) return;
+                          if (!mine) {
+                            setSeating(true);
+                            const asked = await askToJoin(
+                              supabase, userId, party.id, {
+                                characterId: me.id, name: me.name,
+                                avatar: me.avatar ?? null, job,
+                                seat: slot.id, own: iAmOwner,
+                              });
+                            setSeating(false);
+                            if ("error" in asked) { setErr(asked.error); return; }
+                            await refresh();
+                            return;
+                          }
+                          if (!mine.rowId) return;
                           setSeating(true);
                           const r = mine.invited
                             ? await acceptInto(supabase, mine.rowId, slot.id, job)
@@ -492,15 +537,36 @@ function PartyDetail(
                          * it again to say so.
                          */
                         benchAsk: (() => {
+                          if (party.endedAt) return null;
                           const mine = placeOf(party, me.id);
-                          if (!mine || mine.invited || mine.pending) return null;
+                          // The other half of joining: everything the old row
+                          // of chips did, one press, in the same place the
+                          // party's own flexers are already listed.
+                          if (!mine) {
+                            return busyThen ? null
+                              : t(iAmOwner ? "party.ownFlex" : "party.joinFlex");
+                          }
+                          if (mine.invited || mine.pending) return null;
                           return mine.seat
                             ? t("party.toBench") : t("party.editFlex");
                         })(),
                         benchNow: placeOf(party, me.id)?.flex ?? null,
                         bench: (flex) => void (async () => {
                           const mine = placeOf(party, me.id);
-                          if (!mine?.rowId) return;
+                          if (!mine) {
+                            setSeating(true);
+                            const asked = await askToJoin(
+                              supabase, userId, party.id, {
+                                characterId: me.id, name: me.name,
+                                avatar: me.avatar ?? null,
+                                seat: null, flex, own: iAmOwner,
+                              });
+                            setSeating(false);
+                            if ("error" in asked) { setErr(asked.error); return; }
+                            await refresh();
+                            return;
+                          }
+                          if (!mine.rowId) return;
                           setSeating(true);
                           const r = await leaveSeat(supabase, mine.rowId, flex);
                           setSeating(false);
@@ -509,7 +575,7 @@ function PartyDetail(
                         })(),
                       } : undefined} />
 
-          <PartyJoin party={party} kind={def?.kind} me={me} userId={userId}
+          <PartyJoin party={party} me={me} userId={userId}
                      clash={me ? clashFor(parties, me.id, party, party.id) : null}
                      supabase={supabase} now={now}
                      onDone={refresh} onError={setErr} />

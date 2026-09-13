@@ -460,6 +460,23 @@ export default function PartySeats(
             ))}
           </div>
         )}
+        {/*
+          * And the way in, for a party with no seats to press.
+          *
+          * The grid is the control everywhere else, and a hunt train has no
+          * grid — so the one question these evenings ask gets one button. It
+          * opens the same confirmation the flex row opens, which on a party
+          * with no seats is the question and nothing else: there are no
+          * chairs to choose between, only whether you are coming.
+          */}
+        {pick?.benchAsk && pick.bench && (
+          <BenchAsk res={res} pick={pick} ask={pick.benchAsk}
+                    trigger={
+                      <button type="button"
+                              className="self-start rounded-lg border border-accent/60 px-3 py-1 text-[14.5px] text-accent transition-colors hover:bg-accent/10">
+                        {t("pf.imComing")}
+                      </button>} />
+        )}
       </div>
     );
   }

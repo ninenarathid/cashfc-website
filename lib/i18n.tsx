@@ -2231,6 +2231,28 @@ const DICT = {
     en: " {who} offered to move, and would give it up.",
     th: " {who} เสนอไว้ว่าย้ายตำแหน่งได้ และจะสละที่นั่งนี้ให้",
   },
+  /*
+   * Joining, asked by the seat rather than by a row of chips under the grid.
+   *
+   * The grid already draws which seats are free; a second list of them with a
+   * button on the end was the same question twice, and it made joining the one
+   * thing on the party page that did not work by pressing the thing you meant.
+   */
+  "party.askForSeat": {
+    en: "Ask to join on {seat}?", th: "ขอเข้าร่วมที่ตำแหน่ง {seat} ไหม?",
+  },
+  "party.takeOwnSeatAt": {
+    en: "Take {seat} in your own party?",
+    th: "ลงตำแหน่ง {seat} ในปาร์ตี้ตัวเองไหม?",
+  },
+  "party.joinFlex": {
+    en: "Ask to join, playing wherever you are needed?",
+    th: "ขอเข้าร่วมแบบเล่นตำแหน่งไหนก็ได้ไหม?",
+  },
+  "party.ownFlex": {
+    en: "Join your own party without fixing a seat yet?",
+    th: "เข้าปาร์ตี้ตัวเองโดยยังไม่ล็อกตำแหน่งไหม?",
+  },
   "party.acceptInto": {
     en: "Accept the invitation and take {seat}?",
     th: "ตอบรับคำเชิญแล้วนั่ง {seat} เลยไหม?",
