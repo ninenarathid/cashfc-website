@@ -401,7 +401,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 128,
-  "level": 100,
+  "level": 35,
   "cc": [
    false,
    false,
@@ -519,7 +519,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-13"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -1921,10 +1921,10 @@
   "name": "Dodoco Chocodoco",
   "parse": 91,
   "ult": 3,
-  "mounts": 159,
+  "mounts": 162,
   "minions": 239,
-  "rare": 52,
-  "level": 100,
+  "rare": 60,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -1984,7 +1984,15 @@
    3869,
    3870,
    3874,
-   3889
+   3889,
+   4023,
+   4024,
+   4025,
+   4026,
+   4028,
+   4029,
+   4030,
+   4033
   ],
   "tiers": {
    "pvp": "expert"
@@ -2005,7 +2013,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "47540663": {
   "name": "Edel Meither",
@@ -2218,6 +2226,7 @@
   "ex": [
    "Doomtrain",
    "Enuo",
+   "Queen Eternal",
    "Valigarmanda"
   ],
   "ults": [],
@@ -2321,7 +2330,7 @@
    "explorer": "legendary"
   },
   "jobs": {
-   "Gunbreaker": "expert"
+   "Gunbreaker": "master"
   },
   "ex": [
    "Doomtrain",
@@ -2791,11 +2800,11 @@
    3770,
    3771,
    3772,
-   3793,
    3794,
    3795,
    3796,
    3797,
+   3798,
    3811,
    3818,
    3819,
@@ -3528,9 +3537,9 @@
   "name": "Nagi Amano",
   "parse": 95,
   "ult": 0,
-  "mounts": 64,
+  "mounts": 65,
   "minions": 129,
-  "rare": 51,
+  "rare": 54,
   "level": 100,
   "cc": [
    true,
@@ -3587,8 +3596,11 @@
    4033,
    4034,
    4035,
+   4036,
    4043,
+   4044,
    4045,
+   4046,
    4047,
    4074
   ],
@@ -3606,7 +3618,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -3615,7 +3627,7 @@
   "mounts": 193,
   "minions": 416,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -3637,7 +3649,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-13"
  },
  "5644067": {
   "name": "Ninenine The'phantom",
@@ -3758,7 +3770,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 3,
+  "level": 26,
   "cc": [
    true,
    true,
@@ -3864,7 +3876,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4040,8 +4052,8 @@
   "ult": 0,
   "mounts": 173,
   "minions": 416,
-  "rare": 428,
-  "level": 27,
+  "rare": 432,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -4120,7 +4132,6 @@
    2803,
    2810,
    2811,
-   2812,
    2941,
    2942,
    2943,
@@ -4129,7 +4140,6 @@
    2946,
    2947,
    2948,
-   2949,
    2951,
    3260,
    3480,
@@ -4149,7 +4159,9 @@
    3951,
    3964,
    4024,
-   4028
+   4025,
+   4026,
+   4030
   ],
   "tiers": {
    "gatherer": "expert",
@@ -4163,7 +4175,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-13"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -4194,6 +4206,7 @@
    2056,
    2216,
    2217,
+   2354,
    2355,
    2356,
    2515,
@@ -4273,8 +4286,7 @@
    4010,
    4011,
    4012,
-   4018,
-   4025
+   4018
   ],
   "tiers": {
    "gatherer": "master",
@@ -4301,7 +4313,7 @@
   "mounts": 201,
   "minions": 382,
   "rare": 266,
-  "level": 45,
+  "level": 46,
   "cc": [
    true,
    true,
@@ -4443,7 +4455,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -4699,7 +4711,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 20,
+  "level": 82,
   "cc": [
    true,
    true,
@@ -4726,7 +4738,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-13"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -4769,7 +4781,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4899,7 +4911,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-13"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -4908,7 +4920,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 22,
-  "level": 100,
+  "level": 97,
   "cc": [
    true,
    true,
@@ -4953,7 +4965,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5035,7 +5047,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 100,
+  "level": 60,
   "cc": [
    false,
    false,
@@ -5048,7 +5060,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -5753,6 +5765,7 @@
    1919,
    2292,
    2868,
+   2873,
    2933,
    2996,
    3306,
@@ -5771,7 +5784,6 @@
    3369,
    3370,
    3371,
-   3372,
    3467,
    3468,
    3469,
@@ -6135,7 +6147,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 87,
+  "level": 86,
   "cc": null,
   "rare_ids": [
    3874
@@ -6144,7 +6156,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "39850923": {
   "name": "Hiro Hikari",
@@ -6274,7 +6286,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 79,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -6306,7 +6318,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -6407,7 +6419,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": null,
-  "level": 90,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -6422,7 +6434,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-06"
+  "chg": "2026-09-13"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6431,7 +6443,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 87,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6452,7 +6464,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -6837,8 +6849,8 @@
   "ult": 0,
   "mounts": 68,
   "minions": 102,
-  "rare": 46,
-  "level": 78,
+  "rare": 49,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6890,9 +6902,12 @@
    4033,
    4034,
    4035,
+   4036,
    4043,
+   4044,
    4045,
-   4047
+   4047,
+   4049
   ],
   "tiers": {},
   "jobs": {},
@@ -6903,7 +6918,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -6912,7 +6927,7 @@
   "mounts": 137,
   "minions": 269,
   "rare": null,
-  "level": 22,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6933,7 +6948,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "38796459": {
   "name": "Minion Ke",
@@ -7078,7 +7093,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 90,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -7096,7 +7111,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -7518,7 +7533,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 100,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -7533,7 +7548,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "8713004": {
   "name": "Shoe Bite",
@@ -7860,7 +7875,7 @@
   "mounts": 107,
   "minions": 305,
   "rare": null,
-  "level": 22,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7873,7 +7888,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-13"
  },
  "42146242": {
   "name": "Zxazi Rowan",
@@ -7924,14 +7939,14 @@
   "mounts": 5,
   "minions": 14,
   "rare": 0,
-  "level": 75,
+  "level": 76,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8699,14 +8714,14 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 18,
+  "level": 31,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-13"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -11310,7 +11325,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 11,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -11323,7 +11338,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-13"
  },
  "30333493": {
   "name": "Haruko Sho",
@@ -16091,7 +16106,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 83,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -16104,7 +16119,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-07"
+  "chg": "2026-09-13"
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
