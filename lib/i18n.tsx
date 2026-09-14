@@ -1871,6 +1871,20 @@ const DICT = {
     th: "เข้าเกมเป็น Party ละ {n} คน แต่ลงชื่อรวมกันที่นี่ที่เดียว",
   },
   "pf.groupN": { en: "Party {n}", th: "Party {n}" },
+  /* ── Putting up a party the same way as last time ─────────────────── */
+  "pf.againTitle": { en: "Set up again", th: "ตั้งแบบเดิม" },
+  // The day it was last put up, which is also the day its week restarted.
+  "pf.againLast": { en: "Set up {when}", th: "ตั้งไว้ {when}" },
+  // A party with no headline. What it was for stands in where there is a
+  // progress point; this is for the ones with neither.
+  "pf.againNoNote": { en: "No headline", th: "ไม่มีคำโปรย" },
+  // Said once, at the top of a form that was filled in from an old party. It
+  // is the one answer that cannot be carried over, so it is the one the form
+  // has to ask for.
+  "pf.againSeeded": {
+    en: "Filled in from a party you ran before. Set the time and it is ready.",
+    th: "ดึงค่ามาจาก Party ที่คุณเคยตั้ง เหลือแค่ตั้งเวลาใหม่",
+  },
   /* ── The front page's notices, which can now be answered ──────────── */
   "home.readOn": { en: "Read more", th: "อ่านต่อ" },
   "home.signInToReply": {

@@ -273,28 +273,60 @@ export async function loadParties(
     talkOf.set(c.party_id, at);
   }
 
-  /**
-   * The shut seats, minus any the party has asked somebody to sit in.
-   *
-   * Two things a lead can say about one chair that contradict each other:
-   * "we are not looking for anybody here" and "would you take D4?". The
-   * listing said both about The Epic of Alexander -- D3 and D4 shut, four
-   * invitations out to them -- and the board believed the first, so an eight
-   * man fight advertised itself as 4/6 with two free seats while the people
-   * who could fill them were being asked about the other two.
-   *
-   * The invitation wins, because it is the more recent and the more specific
-   * thing the lead did: shutting a seat is a standing statement about a chair
-   * and asking somebody is an act aimed at that chair. Shut it again by
-   * withdrawing the invitation, which is the same sentence said once.
-   */
-  const stillShut = (shut: string[] | null, asked: Floater[] | undefined) => {
-    const open = new Set(
-      (asked ?? []).map((f) => askedAbout(f)).filter((s): s is string => !!s));
-    return (shut ?? []).filter((id) => !open.has(id));
-  };
+  return (posts as unknown as PostRow[]).map((p) => partyOf(p, {
+    seats: seatsOf.get(p.id) ?? {},
+    floating: floatOf.get(p.id) ?? [],
+    requests: askOf.get(p.id) ?? [],
+    invites: inviteOf.get(p.id) ?? [],
+    comments: talkOf.get(p.id) ?? [],
+  }));
+}
 
-  return (posts as unknown as PostRow[]).map((p) => ({
+/**
+ * The shut seats, minus any the party has asked somebody to sit in.
+ *
+ * Two things a lead can say about one chair that contradict each other:
+ * "we are not looking for anybody here" and "would you take D4?". The listing
+ * said both about The Epic of Alexander -- D3 and D4 shut, four invitations out
+ * to them -- and the board believed the first, so an eight man fight advertised
+ * itself as 4/6 with two free seats while the people who could fill them were
+ * being asked about the other two.
+ *
+ * The invitation wins, because it is the more recent and the more specific
+ * thing the lead did: shutting a seat is a standing statement about a chair and
+ * asking somebody is an act aimed at that chair. Shut it again by withdrawing
+ * the invitation, which is the same sentence said once.
+ */
+const stillShut = (shut: string[] | null, asked: Floater[] | undefined) => {
+  const open = new Set(
+    (asked ?? []).map((f) => askedAbout(f)).filter((s): s is string => !!s));
+  return (shut ?? []).filter((id) => !open.has(id));
+};
+
+/** Everybody attached to one listing, however they are attached. */
+interface Roster {
+  seats: Record<string, SlotTaken>;
+  floating: Floater[];
+  requests: Floater[];
+  invites: Floater[];
+  comments: PartyComment[];
+}
+
+/** A listing with nobody in it yet. See recentSetups. */
+const NOBODY: Roster = {
+  seats: {}, floating: [], requests: [], invites: [], comments: [],
+};
+
+/**
+ * One row, as the party it describes.
+ *
+ * Lifted out of loadParties so that the one other thing that reads these rows
+ * -- the list of settings a lead has used before -- cannot disagree with it
+ * about what a column means. There was one mapping and there is still one; it
+ * is now handed its people rather than looking them up.
+ */
+function partyOf(p: PostRow, who: Roster): Party {
+  return ({
     id: String(p.id),
     contentKey: p.content_key,
     note: p.note ?? undefined,
@@ -307,11 +339,11 @@ export async function loadParties(
     ...(p.runs ? { runs: p.runs } : {}),
     ownerCharacterId: p.owner_character_id ?? -1,
     owner: p.owner,
-    seats: seatsOf.get(p.id) ?? {},
-    floating: floatOf.get(p.id) ?? [],
-    requests: askOf.get(p.id) ?? [],
-    invites: inviteOf.get(p.id) ?? [],
-    closed: stillShut(p.closed, inviteOf.get(p.id)),
+    seats: who.seats,
+    floating: who.floating,
+    requests: who.requests,
+    invites: who.invites,
+    closed: stillShut(p.closed, who.invites),
     rules: p.rules ?? {},
     oneOfEachJob: p.one_of_each_job,
     progress: p.progress ?? undefined,
@@ -322,11 +354,116 @@ export async function loadParties(
     // on a listing written before it went.
     ...(p.roulettes?.length ? { roulettes: knownRoulettes(p.roulettes) } : {}),
     body: p.body ?? [],
-    comments: talkOf.get(p.id) ?? [],
+    comments: who.comments,
     createdAt: p.created_at,
     updatedAt: p.updated_at ?? undefined,
     endedAt: p.ended_at,
-  }));
+  });
+}
+
+/**
+ * One setting a lead has used before, ready to be used again.
+ *
+ * Some parties are a standing arrangement: the same fight, the same four hours,
+ * the same loot rule, the same write-up, every night at eight. Putting one up
+ * meant filling in the same nine answers again, and the one that is actually
+ * different — tonight's time — is the quickest of them.
+ *
+ * So the settings come back and the time does not. See PartyCreate's `again`.
+ */
+export interface Setup {
+  /** Two listings whose forms would look identical are one of these. */
+  key: string;
+  /** The settings, with nobody in it. */
+  party: Party;
+  /** When it was last set up, which is also when its week restarted. */
+  lastAt: string;
+  /** How many there have been this week. A habit says so by its count. */
+  times: number;
+}
+
+/**
+ * The write-up, as something two of them can be compared by.
+ *
+ * Every block carries an id generated when it was typed, so the same write-up
+ * posted on Monday and again on Tuesday differs in every block — which would
+ * have made two identical parties two different setups, and made this list
+ * useless to exactly the person it is for. The id is for React, not for the
+ * reader, so it is not part of what the write-up says.
+ *
+ * An empty text block is the same as no block: the editor starts with one and
+ * leaves it behind when nobody types in it.
+ */
+const saidIn = (body: PartyBlock[] | undefined) =>
+  (body ?? [])
+    .map((b) => ({ kind: b.kind, text: b.text?.trim() ?? "",
+                   url: b.url ?? "", caption: b.caption?.trim() ?? "" }))
+    .filter((b) => b.text || b.url);
+
+/**
+ * What the form would hold, and nothing about who was in it or when.
+ *
+ * The signature for telling two setups apart, and the list of what is actually
+ * carried over. Everything here is an answer the lead typed; the roster, the
+ * start time and the conversation are what the evening did with it.
+ *
+ * Key order is stable because these come back from jsonb, which Postgres stores
+ * normalised — two identical settings stringify identically.
+ */
+const settingOf = (x: Party): string => JSON.stringify([
+  x.contentKey, x.shape, (x.note ?? "").trim(),
+  x.lengthUnit, x.lengthMinutes, x.runs ?? 0,
+  x.oneOfEachJob ?? false, [...(x.closed ?? [])].sort(), x.rules ?? {},
+  x.progress ?? null, x.loot ?? null, x.spot ?? null, x.maps ?? null,
+  x.roulettes ?? null, saidIn(x.body),
+]);
+
+/** How long a setting is offered back, and how long using it again buys. */
+const KEEP_DAYS = 7;
+
+/**
+ * The settings this lead has put up in the last week, most recent first.
+ *
+ * Deduplicated, because somebody who runs the same thing every night has seven
+ * of them and a list of seven identical cards is a list nobody reads. The count
+ * is kept instead, which says the thing the seven cards were saying.
+ *
+ * A week, counted from when each was last used. Using one again does not add a
+ * card — it is the same setting — but it does restart the week, which is the
+ * behaviour that matters: a standing arrangement stays offered for as long as
+ * it is standing, and one that was tried twice in March goes quietly.
+ *
+ * From created_at rather than starts_at, because the question is when the lead
+ * last set this up and not when the evening it was for happens to fall. A party
+ * posted three weeks ahead would otherwise sit here for a month, and a whole
+ * month is not what "last week" means to the person reading it.
+ */
+export async function recentSetups(
+  supabase: SupabaseClient, userId: string, limit = 6,
+): Promise<Setup[]> {
+  const since = new Date(Date.now() - KEEP_DAYS * 24 * 3600_000).toISOString();
+  const { data } = await supabase.from("party_posts")
+    .select(POST_COLS)
+    .eq("owner", userId)
+    .is("deleted_at", null)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const out: Setup[] = [];
+  const at = new Map<string, Setup>();
+  for (const row of ((data ?? []) as unknown as PostRow[])) {
+    const party = partyOf(row, NOBODY);
+    const key = settingOf(party);
+    const seen = at.get(key);
+    if (seen) { seen.times += 1; continue; }
+    // The newest of a kind is the one kept: it is the one whose write-up and
+    // loot rule are current, and the older ones only say it has happened before.
+    const one: Setup = { key, party, lastAt: row.created_at, times: 1 };
+    at.set(key, one);
+    out.push(one);
+  }
+  return out.slice(0, limit);
 }
 
 /* ── writing ──────────────────────────────────────────────────────────────── */

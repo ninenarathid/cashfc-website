@@ -28,6 +28,8 @@ import {
   inviteMembers,
   setOwnSeat,
   updateParty,
+  recentSetups,
+  type Setup,
 } from "@/lib/party-db";
 import { useLiveParties } from "@/lib/party-live";
 import type { SuggestRow } from "@/lib/suggest";
@@ -744,6 +746,15 @@ export default function PartyBoard(
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
+  /*
+   * The settings this lead has used before, and the one being copied.
+   *
+   * Read once when the board knows who is looking, not on every render: what
+   * somebody posted last week does not change while they are reading the
+   * board, and it changes exactly once — when they post another, which is what
+   * refreshes it.
+   */
+  const [setups, setSetups] = useState<Setup[]>([]);
 
   const [query, setQuery] = useState("");
   const [kinds, setKinds] = useState<Set<string>>(new Set());
@@ -851,6 +862,19 @@ export default function PartyBoard(
     setWants(await loadWants(supabase));
   }, [supabase, userId]);
   useEffect(() => { void readWants(); }, [readWants]);
+
+  /*
+   * And what this lead has put up before.
+   *
+   * Beside the wants for the same reason and with the same rule: it belongs to
+   * one person, so it is asked for only when there is a person, and a board
+   * that could not read it still draws the parties.
+   */
+  const readSetups = useCallback(async () => {
+    if (!supabase || !userId) { setSetups([]); return; }
+    setSetups(await recentSetups(supabase, userId));
+  }, [supabase, userId]);
+  useEffect(() => { void readSetups(); }, [readSetups]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 
@@ -1178,6 +1202,7 @@ export default function PartyBoard(
                      busy={saving} suggest={suggest} labels={labels}
                      mine={me ? parties.filter((x) => placeOf(x, me.id)) : []}
                      editing={amending ?? undefined}
+                     setups={setups}
                      onCancel={() => { setWriting(false); setAmending(null); }}
                      onAdd={async (p) => {
                        setSaving(true);
@@ -1235,6 +1260,10 @@ export default function PartyBoard(
                        // the row that matters is the one the database kept, and
                        // it is the only one with a real id to comment against.
                        await refresh();
+                       // And the settings list, which has just changed: a
+                       // party put up is either a new way of doing it or one
+                       // more time through an old one, and both show here.
+                       await readSetups();
                      }} />
       )}
 

@@ -27,6 +27,7 @@ import ContentPicker from "@/components/party/ContentPicker";
 import JobRule, { jobsForSlot } from "@/components/party/JobRule";
 import JobIcon from "@/components/JobIcon";
 import PartyIcon from "@/components/party/PartyIcon";
+import AgainRow from "@/components/party/AgainRow";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import FoodIcon from "@/components/party/FoodIcon";
 import { BodyEditor } from "@/components/party/PartyBody";
@@ -39,6 +40,7 @@ import SeatSuggest from "@/components/party/SeatSuggest";
 import type { SuggestRow } from "@/lib/suggest";
 import { jobsWantedBy } from "@/lib/suggest";
 import { createClient } from "@/lib/supabase/client";
+import type { Setup } from "@/lib/party-db";
 import type { Want } from "@/lib/wants";
 import { loadWants, wantCovers } from "@/lib/wants";
 import Modal, { Sheet } from "@/components/ui/Modal";
@@ -181,9 +183,7 @@ function FlexEditor(
   );
 }
 
-export default function PartyCreate(
-  { content, people, me, userId, busy = false, suggest, labels, mine = [],
-    onAdd, onCancel, editing }: {
+interface CreateProps {
     content: ContentDef[];
     people: PersonOption[];
     /** The creator, who takes the first seat they choose. */
@@ -216,9 +216,91 @@ export default function PartyCreate(
      * around.
      */
     editing?: Party;
+    /**
+     * A party this lead has put up before, to fill the form in from.
+     *
+     * Not an edit: it writes a new listing, nobody is carried across, and the
+     * time is the next half hour rather than whenever the old one was. Somebody
+     * who runs the same fight every night was answering the same nine questions
+     * every night, and only one of the answers was ever different.
+     *
+     * See recentSetups, which is where these come from and which decides what
+     * counts as the same setting.
+     */
+    again?: Party;
+    /**
+     * The settings this lead has used before, offered at the top of the form.
+     *
+     * Handed in rather than read here: the board already asks for them once
+     * when it learns who is looking, and a form that fetched them again on
+     * every open would be a query for a list that had not changed.
+     */
+    setups?: Setup[];
+}
+
+/**
+ * The window, which stays put while the form inside it is refilled.
+ *
+ * Two components because pressing "set up like last time" replaces every
+ * answer in the form, and the honest way to do that is to build the form
+ * again — every field reads its starting value once, so there is no second
+ * list of assignments to forget to keep up to date when a field is added.
+ *
+ * Rebuilding the whole window would do the same thing to the dialog: a phone
+ * would play the sheet's closing animation and then its opening one, which
+ * reads as the form having been dismissed. So the window is out here, mounted
+ * once, and only its contents are keyed.
+ */
+export default function PartyCreate(props: CreateProps) {
+  const { t } = useLang();
+  /*
+   * Which one was pressed, and how many times.
+   *
+   * The count is in the key as well as the party, so pressing the same one
+   * twice refills the form twice. Without it the second press is a key that
+   * has not changed and therefore nothing at all — which, to somebody who has
+   * just changed three fields and wants them back, looks like a broken button.
+   */
+  const [again, setAgain] = useState<{ p: Party; n: number } | null>(
+    props.again ? { p: props.again, n: 0 } : null);
+
+  return (
+    /*
+     * A window rather than a slab at the top of the board.
+     *
+     * Inline, this form ran to 1,541px on a desktop and 2,801px on a phone —
+     * three and a third screens before the button — and it pushed the board it
+     * belongs to entirely off the bottom while still rendering it underneath.
+     * A window scrolls itself, closes on Escape, gives focus back to the button
+     * that opened it, and leaves the board exactly where the reader left it.
+     */
+    <Modal open sticky onOpenChange={(v) => { if (!v) props.onCancel(); }}
+           title={props.editing ? t("pf.editing") : t("pf.new")}
+           icon={<PartyIcon size={18} />}>
+      <PartyForm key={again ? `again:${again.p.id}:${again.n}` : "new"}
+                 {...props} again={again?.p}
+                 onAgain={(p) => setAgain((v) => ({ p, n: (v?.n ?? 0) + 1 }))} />
+    </Modal>
+  );
+}
+
+function PartyForm(
+  { content, people, me, userId, busy = false, suggest, labels, mine = [],
+    onAdd, onCancel, editing, again, setups = [], onAgain }: CreateProps & {
+    onAgain: (p: Party) => void;
   },
 ) {
   const { t } = useLang();
+
+  /*
+   * What the fields start on.
+   *
+   * The two are the same question — every answer this form takes — asked of a
+   * party being changed or of one being copied. They part company over three
+   * things, and only three: who is in it, when it starts, and whether the
+   * button saves or posts. Those read `editing` directly.
+   */
+  const seed = editing ?? again;
   const overrides = useAvatarOverrides();
   const face = (id: number | null | undefined, fallback: string | null) =>
     (id != null && overrides[id]) || fallback || null;
@@ -232,14 +314,14 @@ export default function PartyCreate(
    * was the one the whole listing is about. An empty picker asks the question
    * instead of answering it wrongly.
    */
-  const [contentKey, setContentKey] = useState(editing?.contentKey ?? "");
+  const [contentKey, setContentKey] = useState(seed?.contentKey ?? "");
   const chosen = content.find((c) => c.key === contentKey);
-  const [note, setNote] = useState(editing?.note ?? "");
-  const [shape, setShape] = useState<Shape | "">(editing?.shape ?? "");
+  const [note, setNote] = useState(seed?.note ?? "");
+  const [shape, setShape] = useState<Shape | "">(seed?.shape ?? "");
   const [start, setStart] = useState(
     () => (editing ? asBangkokLocal(new Date(editing.startsAt)) : defaultStart()));
   const [unit, setUnit] = useState<LengthUnit>(
-    editing?.lengthUnit ?? DEFAULT_LENGTH.unit);
+    seed?.lengthUnit ?? DEFAULT_LENGTH.unit);
   /*
    * The number in whatever unit the party used.
    *
@@ -249,11 +331,11 @@ export default function PartyCreate(
    * form writes with.
    */
   const [amount, setAmount] = useState(() => {
-    if (!editing) return DEFAULT_LENGTH.amount;
-    if (editing.lengthUnit === "runs") return editing.runs ?? 1;
-    if (editing.lengthUnit === "food") return minutesToFood(editing.lengthMinutes);
-    if (editing.lengthUnit === "maps") return DEFAULT_LENGTH.amount;
-    return editing.lengthMinutes / 60;
+    if (!seed) return DEFAULT_LENGTH.amount;
+    if (seed.lengthUnit === "runs") return seed.runs ?? 1;
+    if (seed.lengthUnit === "food") return minutesToFood(seed.lengthMinutes);
+    if (seed.lengthUnit === "maps") return DEFAULT_LENGTH.amount;
+    return seed.lengthMinutes / 60;
   });
 
   /*
@@ -271,11 +353,11 @@ export default function PartyCreate(
   // whole party -- the seat grid still draws, and nothing about who is in it
   // is rewritten by a save. See updateParty.
   const [seats, setSeats] = useState<Party["seats"]>(editing?.seats ?? {});
-  const [closed, setClosed] = useState<string[]>(editing?.closed ?? []);
-  const [rules, setRules] = useState<Record<string, SeatRule>>(editing?.rules ?? {});
-  const [oneEach, setOneEach] = useState(!!editing?.oneOfEachJob);
+  const [closed, setClosed] = useState<string[]>(seed?.closed ?? []);
+  const [rules, setRules] = useState<Record<string, SeatRule>>(seed?.rules ?? {});
+  const [oneEach, setOneEach] = useState(!!seed?.oneOfEachJob);
   const [floating, setFloating] = useState<Floater[]>(editing?.floating ?? []);
-  const [body, setBody] = useState<PartyBlock[]>(editing?.body ?? []);
+  const [body, setBody] = useState<PartyBlock[]>(seed?.body ?? []);
 
   /*
    * Read once when the form opens. A want is a standing statement and does not
@@ -289,8 +371,8 @@ export default function PartyCreate(
     void loadWants(sb).then(setHandsUp);
   }, []);
   const [progress, setProgress] = useState<Progress>(
-    editing?.progress ?? { at: "fresh" });
-  const [loot, setLoot] = useState<Loot>(editing?.loot ?? { rule: DEFAULT_LOOT });
+    seed?.progress ?? { at: "fresh" });
+  const [loot, setLoot] = useState<Loot>(seed?.loot ?? { rule: DEFAULT_LOOT });
 
   /*
    * A rule the new content cannot use is dropped rather than carried over.
@@ -318,9 +400,9 @@ export default function PartyCreate(
   // shows Elemental and Tonberry from the first render, and a form that
   // displays an answer it has not stored is a form that lies quietly.
   const [spot, setSpot] = useState<Spot | undefined>(
-    editing?.spot ?? { map: "", dc: FC_DC, world: FC_WORLD });
-  const [maps, setMaps] = useState<MapPlan | undefined>(editing?.maps);
-  const [roulettes, setRoulettes] = useState<string[] | undefined>(editing?.roulettes);
+    seed?.spot ?? { map: "", dc: FC_DC, world: FC_WORLD });
+  const [maps, setMaps] = useState<MapPlan | undefined>(seed?.maps);
+  const [roulettes, setRoulettes] = useState<string[] | undefined>(seed?.roulettes);
   /** The person being added as a floater, before their positions are set. */
   const [adding, setAdding] = useState<Floater | null>(null);
   const [fq, setFq] = useState("");
@@ -334,14 +416,14 @@ export default function PartyCreate(
    * that would rewrite an answer somebody already gave.
    */
   const preset = useRef<Set<string>>(
-    new Set(editing ? Object.keys(editing.rules ?? {}) : []));
+    new Set(seed ? Object.keys(seed.rules ?? {}) : []));
   /** And which shape that was for, since a seat id means different things. */
-  const presetFor = useRef<Shape | "">(editing?.shape ?? "");
+  const presetFor = useRef<Shape | "">(seed?.shape ?? "");
   const [q, setQ] = useState("");
   /** Whether the "save these changes?" question is on screen. */
   const [asking, setAsking] = useState(false);
   /** The content whose default unit has already been applied. See below. */
-  const unitFor = useRef<string | null>(editing ? editing.contentKey : null);
+  const unitFor = useRef<string | null>(seed ? seed.contentKey : null);
 
   /*
    * When everybody said they usually play.
@@ -592,12 +674,26 @@ export default function PartyCreate(
    */
   useEffect(() => {
     if (useShape !== "open" || !chosen) return;
-    if (mySeat || iAmFloating) return;
-    setFloating((v) => [...v, {
+    if (mySeat) return;
+    /*
+     * Asked of the list being written to, not of the render that scheduled it.
+     *
+     * iAmFloating is a fact about the render this effect was closed over, and
+     * it is still false the second time the effect runs before React has drawn
+     * the first result. That second run was not hypothetical: a form opened
+     * from a past setting arrives with its content already chosen, so this
+     * fires on mount — where development runs every effect twice on purpose —
+     * and the lead was put in their own Frontline party twice, once in the
+     * list and once again in the roster underneath.
+     *
+     * The updater sees the real list, whatever ran before it, so the guard and
+     * the change are one step and the number of times it runs stops mattering.
+     */
+    setFloating((v) => (v.some((f) => f.characterId === me.id) ? v : [...v, {
       characterId: me.id, name: me.name, avatar: me.avatar,
       flex: { all: true }, confirmedAt: new Date().toISOString(),
-    }]);
-  }, [useShape, chosen, mySeat, iAmFloating, me.id, me.name, me.avatar]);
+    }]));
+  }, [useShape, chosen, mySeat, me.id, me.name, me.avatar]);
 
   /*
    * The lead's own place, on an edit.
@@ -835,18 +931,6 @@ export default function PartyCreate(
     : [];
 
   return (
-    /*
-     * A window rather than a slab at the top of the board.
-     *
-     * Inline, this form ran to 1,541px on a desktop and 2,801px on a phone —
-     * three and a third screens before the button — and it pushed the board it
-     * belongs to entirely off the bottom while still rendering it underneath.
-     * A window scrolls itself, closes on Escape, gives focus back to the button
-     * that opened it, and leaves the board exactly where the reader left it.
-     */
-    <Modal open sticky onOpenChange={(v) => { if (!v) onCancel(); }}
-           title={editing ? t("pf.editing") : t("pf.new")}
-           icon={<PartyIcon size={18} />}>
     <div className="flex flex-col gap-3.5">
       {/*
         * While editing, only the fights this party could actually become.
@@ -859,6 +943,24 @@ export default function PartyCreate(
       <ContentPicker content={content} value={contentKey}
                      allow={editing ? fitsContent : undefined}
                      onChange={(k) => { setContentKey(k); setShape(""); }} />
+
+      {/* Under the picker rather than above it. What to play is the first
+          question and these are one answer to it — an answer that happens to
+          bring the other twenty with it. Above, they were being offered before
+          the reader had been told what the form was for. */}
+      {!editing && (
+        <AgainRow setups={setups} content={content} onPick={onAgain}
+                  picked={again} />
+      )}
+
+      {/* Why every field is already full, and what is left to do. A form that
+          opens filled in without saying so reads as one that has remembered
+          something it should not have. */}
+      {again && !editing && (
+        <p className="rounded-lg border border-jade/40 bg-jade/10 px-3 py-2 text-[13.5px] text-jade">
+          {t("pf.againSeeded")}
+        </p>
+      )}
 
       {/*
         * Nothing until the fight is chosen.
@@ -1445,6 +1547,5 @@ export default function PartyCreate(
                        }} />
       )}
     </div>
-    </Modal>
   );
 }
