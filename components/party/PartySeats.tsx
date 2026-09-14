@@ -481,9 +481,17 @@ export default function PartySeats(
                 </span>
               )}
               {lot.map((f) => (
+                /* A bigger face here than anywhere else on the board, because
+                   this list is the whole listing. A party with seats says who
+                   is coming beside the seat they are in and the seat is what
+                   is being read; a party with none says only who — so the
+                   faces are what somebody scans, and at the twenty-four
+                   pixels the seat grid uses they were too small to tell two
+                   Miqo'te apart. The chip grows with it rather than padding
+                   staying put around a larger picture. */
                 <span key={f.characterId ?? f.name}
-                      className="flex items-center gap-1.5 rounded-full border border-line bg-surface px-2 py-1">
-                  <Face who={f} size={24} />
+                      className="flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-3">
+                  <Face who={f} size={50} />
                   <span className={`text-[15.5px] ${
                     f.confirmedAt ? "text-ink" : "text-ink/60"}`}>
                     {f.name}
