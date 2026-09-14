@@ -779,12 +779,16 @@ export function NeedLine({ party }: { party: Party }) {
           them and says so, which is shorter and says more. */}
       {(cut.either || cut.spare > 0) && (
         <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em] text-accent">
-          {cut.either
+          {/* Every role still going is "anybody", and saying it as
+              "TANK/HEALER/DPS" is twenty-one characters of chip for a word.
+              On a row that is the difference between a readable title and one
+              broken a word to a line. */}
+          {cut.either && cut.either.roles.length < 3
             ? t("pf.needRole", {
                 n: cut.either.n,
                 role: cut.either.roles.map((r) => ROLE_LABEL[r]).join("/"),
               })
-            : t("pf.needMore", { n: cut.spare })}
+            : t("pf.needMore", { n: cut.either?.n ?? cut.spare })}
         </span>
       )}
       {!parts.length && !cut.either && !cut.spare && (

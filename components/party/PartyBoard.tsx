@@ -1543,7 +1543,7 @@ export default function PartyBoard(
                     * printed over the top of it.
                     */}
                   <span className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-stretch">
-                  <span className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-3.5 pb-1.5 pt-3 sm:py-3">
+                  <span className="flex min-w-0 flex-1 basis-[14rem] flex-col justify-center gap-1 px-3.5 pb-1.5 pt-3 sm:py-3">
                     <span className="flex flex-wrap items-baseline gap-2">
                       {c && (c.icon || KIND_ICON[c.kind]) && (
                         <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={17} />
@@ -1630,7 +1630,23 @@ export default function PartyBoard(
                     )}
                   </span>
 
-                  <span className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 px-3.5 pb-3 sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:px-0 sm:py-3 sm:pr-3.5">
+                  {/*
+                    * This column yields, and the title does not.
+                    *
+                    * It was shrink-0, which is right about what it holds — a
+                    * count and two or three role chips do not read at half
+                    * width — and wrong about what happens when there is not
+                    * room for all of it. Something has to give on a narrow
+                    * screen, and a chip wrapping onto a second line costs a
+                    * row twenty pixels while a title broken a word to a line
+                    * costs it three hundred and is unreadable besides. Which
+                    * is how one party came out four times the height of the
+                    * one under it.
+                    *
+                    * Two fifths, so a party short of three different roles
+                    * cannot take the row over however many chips it has.
+                    */}
+                  <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 px-3.5 pb-3 sm:max-w-[40%] sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:px-0 sm:py-3 sm:pr-3.5">
                     <span className="flex flex-wrap items-center gap-2.5">
                       {/* Who is already in it. The strongest reason to join a
                           party is that other people have, and the row said
