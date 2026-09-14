@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-09-14",
+   "type": "level_100",
+   "id": 5435582,
+   "name": "Mog Hikarino",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 60211788,
+   "name": "Shikihara Catlover",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 28679378,
+   "name": "Tong Topspeed",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-14",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1364,41 +1399,6 @@
    "id": 44133352,
    "name": "Seville Beoulve",
    "text": "earned With Pick in Hand VII — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Crucible Checkmate I — only 0.1% of players have it, and 7 more"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "rare_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "earned Savage Trouble in Paradise III"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "rare_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "earned I Can Dig It XVI"
   }
  ]
 }
