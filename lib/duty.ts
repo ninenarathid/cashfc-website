@@ -17,7 +17,11 @@ export type DutyKind =
   // The three that were added once the art turned out to exist for them: the
   // game draws a banner for every duty in the finder, so the only reason these
   // went without was that nobody had fetched them.
-  | "dungeon" | "legacy" | "field";
+  | "dungeon" | "legacy" | "field"
+  // And PvP, which the duty finder draws a banner for like everything else.
+  // It is not a fight anybody progs, so nothing here reads a boss name out of
+  // it — the slug is the mode: frontline, crystalline-conflict.
+  | "pvp";
 
 export function dutySlug(name: string | null | undefined): string {
   return (name ?? "")
@@ -31,7 +35,7 @@ export type DutyArt = Record<DutyKind, Record<string, string>>;
 
 export const NO_ART: DutyArt = {
   extreme: {}, savage: {}, ultimate: {}, alliance: {}, criterion: {},
-  dungeon: {}, legacy: {}, field: {},
+  dungeon: {}, legacy: {}, field: {}, pvp: {},
 };
 
 
@@ -49,6 +53,11 @@ export const NO_ART: DutyArt = {
  * for anybody to correct it; two lines here are wrong never.
  */
 const ART_FOCUS: Record<string, string> = {
+  // Frontline is shot from the back of the field: a third of it is sky, the
+  // crystal and the two banners are the middle, and the players are along the
+  // bottom. Anchored to the top it is a photograph of clouds.
+  frontline: "center",
+
   lindwurm: "center",
   // A percentage, not a keyword, because neither keyword was right: dead centre
   // cut the head off the top and `top` gave a dark sliver of ceiling. A fifth of

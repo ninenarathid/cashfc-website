@@ -298,15 +298,23 @@ export const KIND_ICON: Partial<Record<ContentKind, string>> = {
  * party at all; calling that a queue would be nonsense on a listing whose whole
  * content is "come and stand here".
  */
-export function openLabel(kind: ContentKind | undefined): string {
+export function openLabel(
+  kind: ContentKind | undefined, queueIn?: number,
+): string {
+  // How many the game lets in at once beats the kind, which cannot tell
+  // Frontline from Crystalline Conflict. See ContentDef.queueIn.
+  if (queueIn) return `Parties of ${queueIn}`;
   if (kind === "pvp") return "Everyone queues separately";
   if (kind === "community") return "Anyone can join";
   return "No fixed party";
 }
 
 /** The size, said the way this particular kind of listing needs it said. */
-export const shapeLabel = (shape: Shape, kind: ContentKind | undefined): string =>
-  shape === "open" ? openLabel(kind) : SHAPE_LABEL[shape];
+export const shapeLabel = (
+  shape: Shape, kind: ContentKind | undefined, queueIn?: number,
+): string => (
+  shape === "open" ? openLabel(kind, queueIn) : SHAPE_LABEL[shape]
+);
 
 /** A colour per kind, so a long list is scannable before it is read. */
 export const KIND_COLOR: Record<ContentKind, string> = {
@@ -435,10 +443,11 @@ export function catalogue(
      * would have carried, and it comes out of the list itself.
      */
     { key: "pvp:cc", kind: "pvp", name: "Crystalline Conflict",
-      badge: "CC", duty: "Crystalline Conflict", shape: "open", fixedShape: true },
+      badge: "CC", duty: "Crystalline Conflict", shape: "open", fixedShape: true,
+      ...shot("pvp", "Crystalline Conflict") },
     { key: "pvp:fl", kind: "pvp", name: "Frontline",
       badge: "FL", duty: "Frontline", shape: "open", fixedShape: true,
-      queueIn: 4 },
+      queueIn: 4, ...shot("pvp", "Frontline") },
     /*
      * Eight, and no composition.
      *

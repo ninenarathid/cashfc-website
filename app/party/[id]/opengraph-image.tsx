@@ -152,7 +152,8 @@ export default async function Image(
       : card.lengthUnit === "runs" ? fmtRuns(card.runs ?? 1)
         : card.lengthUnit === "food" ? fmtFood(card.lengthMinutes)
           : fmtLength(card.lengthMinutes),
-    card.shape === "open" ? openLabel(def?.kind) : SHAPE_LABEL[card.shape],
+    card.shape === "open" ? openLabel(def?.kind, def?.queueIn)
+      : SHAPE_LABEL[card.shape],
     card.progress ? PROGRESS_LABEL[card.progress.at] : null,
     lootText(card.loot ?? undefined),
     mapsText(card.maps ?? undefined, mapLabel),
