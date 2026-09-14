@@ -3,6 +3,76 @@
   {
    "date": "2026-09-14",
    "type": "level_100",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 21620195,
+   "name": "Nefe'li Lucias",
+   "text": "reached level 100 on Bard!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 11950156,
+   "name": "Rothe Happer",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned An Ode to Clothcraft — only 2.9% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Handking of the World — only 2.3% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Worqor and Peace II — only 4.6% of players have it"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned Phantom of the Umbra: Rapier Umbrae, and 1 more"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 51060767,
+   "name": "Yatchy Concreategirls",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
    "id": 5435582,
    "name": "Mog Hikarino",
    "text": "reached level 100 on Dancer!"
@@ -1329,76 +1399,6 @@
    "id": 34790386,
    "name": "Mikote Menphina",
    "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100 on Armorer!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "parse_up",
-   "id": 48527875,
-   "name": "Kotetsu Bardly",
-   "text": "set a new best parse: 80 on Kokytos as Blac\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "job_up",
-   "id": 48527875,
-   "name": "Kotetsu Bardly",
-   "text": "is now a Expert Black Mage"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "rare_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "earned The Might Phantastick: Arquebus Penumbrae, and 1 more"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 19827594,
-   "name": "Aylufa Regolith",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned Resplendent: Brilliant Cross-pein Hammer"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned Not Today, Necron"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "rare_up",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "earned Wild Child V — only 0.0% of players have it, and 9 more"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned With Pick in Hand VII — only 2.9% of players have it"
   }
  ]
 }
