@@ -1,6 +1,48 @@
 {
  "events": [
   {
+   "date": "2026-09-14",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Wild Child III — only 2.4% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "job_up",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "ex_clear",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-09-14",
+   "type": "level_100",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
    "date": "2026-09-13",
    "type": "rare_up",
    "id": 39199441,
@@ -1357,48 +1399,6 @@
    "id": 37061370,
    "name": "Peonies Dunieres",
    "text": "earned I Can Dig It XVI"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 44085912,
-   "name": "Mayu Ferguson",
-   "text": "reached level 100 on Scholar!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on Weaver!"
-  },
-  {
-   "date": "2026-09-08",
-   "type": "level_100",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "reached level 100 on White Mage!"
   }
  ]
 }

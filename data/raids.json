@@ -16027,7 +16027,13 @@
       "best": 16,
       "median": 14,
       "kills": 4,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 4,
+        "best": 16
+       }
+      }
      }
     ]
    }
@@ -39142,15 +39148,15 @@
   "_status": "ok",
   "progress": [
    {
-    "encounter_id": 103,
-    "name": "The Tyrant",
+    "encounter_id": 104,
+    "name": "Lindwurm",
     "kind": "savage",
     "state": "learning",
-    "pct": 19.19,
+    "pct": 64.11,
     "phase": 0,
-    "pulls": 11,
-    "last": "2026-09-07",
-    "last_ts": 1788791570
+    "pulls": 7,
+    "last": "2026-09-13",
+    "last_ts": 1789306510
    }
   ]
  },
@@ -53331,9 +53337,9 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 48,
-    "last": "2026-09-04",
-    "last_ts": 1788539850
+    "pulls": 29,
+    "last": "2026-09-13",
+    "last_ts": 1789303764
    },
    {
     "encounter_id": 104,
@@ -62113,10 +62119,16 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 48,
-    "kills": 4,
+    "best": 56,
+    "kills": 5,
     "job": "Astrologian",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 5,
+      "best": 56
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -62124,18 +62136,22 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 76,
-    "kills": 13,
+    "best": 78,
+    "kills": 22,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
      "Astrologian": {
-      "kills": 8,
-      "best": 76
+      "kills": 14,
+      "best": 78
      },
      "Scholar": {
-      "kills": 5,
+      "kills": 7,
       "best": 67
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 39
      }
     }
    },
@@ -62174,10 +62190,24 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 42,
-    "kills": 2,
-    "job": "Reaper",
-    "cleared": true
+    "best": 76,
+    "kills": 5,
+    "job": "Sage",
+    "cleared": true,
+    "job_kills": {
+     "Summoner": {
+      "kills": 2,
+      "best": 72
+     },
+     "Reaper": {
+      "kills": 2,
+      "best": 42
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 76
+     }
+    }
    }
   ],
   "legacy": [],
@@ -69743,6 +69773,17 @@
       "best": 4
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 2,
+    "kills": 2,
+    "job": "Dragoon",
+    "cleared": true
    }
   ],
   "legacy": []

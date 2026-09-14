@@ -32,7 +32,7 @@
   "ult": 4,
   "mounts": 281,
   "minions": 486,
-  "rare": 519,
+  "rare": 487,
   "level": 100,
   "cc": [
    true,
@@ -64,7 +64,6 @@
    2494,
    2497,
    2500,
-   2502,
    2503,
    2506,
    2509,
@@ -123,6 +122,7 @@
    3707,
    3708,
    3709,
+   3711,
    3712,
    3714,
    3715,
@@ -134,19 +134,19 @@
    3819,
    3833,
    3834,
-   3938,
    3944,
    3949,
    3991,
    4000,
    4007,
    4017,
-   4018
+   4018,
+   4025
   ],
   "tiers": {
    "gatherer": "legendary",
    "crafter": "legendary",
-   "relic": "legendary",
+   "relic": "master",
    "explorer": "legendary",
    "goldsaucer": "legendary",
    "pvp": "legendary"
@@ -170,7 +170,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-09-06"
+  "chg": "2026-09-14"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -401,7 +401,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 128,
-  "level": 35,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -519,7 +519,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-14"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -4781,7 +4781,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -4911,7 +4911,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-14"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -4920,7 +4920,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 22,
-  "level": 97,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4965,7 +4965,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-14"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5702,7 +5702,8 @@
   ],
   "tiers": {},
   "jobs": {
-   "Astrologian": "expert"
+   "Astrologian": "expert",
+   "Summoner": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -6286,7 +6287,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 82,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -6318,7 +6319,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-14"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -6327,7 +6328,7 @@
   "mounts": 143,
   "minions": 334,
   "rare": 15,
-  "level": 100,
+  "level": 10,
   "cc": [
    false,
    false,
@@ -6356,7 +6357,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-14"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -6529,7 +6530,8 @@
   "tiers": {},
   "jobs": {},
   "ex": [
-   "Valigarmanda"
+   "Valigarmanda",
+   "Zoraal Ja"
   ],
   "ults": [],
   "chg": "2026-09-04"
@@ -7093,7 +7095,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7111,7 +7113,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-13"
+  "chg": "2026-09-14"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -8714,14 +8716,14 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 31,
+  "level": 65,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-14"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
