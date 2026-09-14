@@ -200,6 +200,16 @@ export interface ContentDef {
   art?: string;
   /** Where that still is anchored when it is cropped. */
   focus?: string;
+  /**
+   * The one thing about this content a form cannot work out for itself.
+   *
+   * A translation key, shown beside the size on the create form. Most content
+   * needs none: "8 players" and the fight's own name say everything. Frontline
+   * needs one, because four is a cap and not a target and the Free Company
+   * turns up with seven — which is a second listing, and somebody who does not
+   * know that reads the locked size as the site being wrong.
+   */
+  hint?: string;
 }
 
 /** One fight the picture files can be looked up by. */
@@ -405,19 +415,26 @@ export function catalogue(
 
   out.push(
     /*
-     * No seats, for either of them.
+     * Crystalline Conflict has no seats: everybody queues on their own, at the
+     * same time, and the game builds the teams. So what a listing is for is
+     * agreeing on the hour and seeing who else is going, and a seat chart
+     * would be describing something that cannot happen.
      *
-     * This had a five-player grid for Crystalline Conflict and a light party
-     * for Frontline, which was wrong about how PvP is entered: you do not queue
-     * as a party at all -- everybody queues on their own, at the same time, and
-     * the game builds the teams. So what a PvP listing is for is agreeing on
-     * the time and seeing who else is going, and a seat chart would be
-     * describing something that cannot happen.
+     * Frontline is four, and this said the same thing about it for months. It
+     * is wrong: you queue Frontline as a party of up to four with no
+     * composition at all, which is why it is "four" and not "light" — nobody
+     * is tanking a Frontline.
+     *
+     * Four is the cap and not a target. A Free Company that turns up with
+     * seven puts up a second listing and the two of them queue separately;
+     * there is no arrangement in which five people enter together, so there
+     * is no listing that should let somebody advertise one.
      */
     { key: "pvp:cc", kind: "pvp", name: "Crystalline Conflict",
       badge: "CC", duty: "Crystalline Conflict", shape: "open", fixedShape: true },
     { key: "pvp:fl", kind: "pvp", name: "Frontline",
-      badge: "FL", duty: "Frontline", shape: "open", fixedShape: true },
+      badge: "FL", duty: "Frontline", shape: "four", fixedShape: true,
+      hint: "pf.hintFrontline" },
     /*
      * Eight, and no composition.
      *

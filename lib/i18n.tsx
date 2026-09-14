@@ -1843,6 +1843,13 @@ const DICT = {
   "pf.shapeEight": { en: "8 players · any job", th: "8 คน · อาชีพไหนก็ได้" },
   "pf.shapeAlliance": { en: "Alliance · 24", th: "Alliance · 24 คน" },
   "pf.openPvp": { en: "Everyone queues separately", th: "ทุกคน queue แยกกัน" },
+  // Four is the cap and not a target, and a Free Company that turns up with
+  // seven puts up a second listing. Nobody enters Frontline five at a time,
+  // so nothing should let somebody advertise that they will.
+  "pf.hintFrontline": {
+    en: "More than four? Put up a second party.",
+    th: "เกิน 4 คนให้ตั้งอีกปาร์ตี้",
+  },
   "pf.openCommunity": { en: "Anyone can join", th: "ใครมาก็ได้" },
   "pf.openNone": { en: "No fixed party", th: "ไม่จำกัดปาร์ตี้" },
   /* The same three, said as a sentence rather than a chip: the shape row has
