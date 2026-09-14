@@ -60,6 +60,14 @@ body { overflow-x: clip; }
   margin-right: calc(50% - 50vw);
 }
 
+/* A scroller with no bar on it.
+   Only for a strip that says where it is some other way — the events slider has
+   dots and arrows, so the bar underneath was a second, uglier copy of the same
+   information drawn in the operating system's colours rather than the site's.
+   Never put this on something whose only clue that it scrolls is the bar. */
+.no-bar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-bar::-webkit-scrollbar { display: none; }
+
 /* ── The strip of screenshots on the front page ────────────────────────────
    The columns are rendered twice and the track travels exactly half its own
    width, so at the instant the animation restarts the second copy is sitting

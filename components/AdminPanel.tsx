@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import ImagePicker from "@/components/ImagePicker";
+import ImagesPicker from "@/components/ImagesPicker";
+import { picsOf } from "@/lib/events";
 
 interface Option { id: number; name: string }
 interface Announcement {
   id: number; title: string; body: string | null; created_at: string;
-  image_url: string | null;
+  image_url: string | null; images?: string[] | null;
   title_en?: string | null; body_en?: string | null;
 }
 interface TimelinePost {
@@ -118,7 +120,7 @@ export default function AdminPanel(
   const [aBody, setABody] = useState("");
   const [aTitleEn, setATitleEn] = useState("");
   const [aBodyEn, setABodyEn] = useState("");
-  const [aImage, setAImage] = useState<string | null>(null);
+  const [aImages, setAImages] = useState<string[]>([]);
   const [aEditing, setAEditing] = useState<number | null>(null);
 
   const [posts, setPosts] = useState<TimelinePost[]>([]);
@@ -171,7 +173,14 @@ export default function AdminPanel(
   async function refresh() {
     if (!supabase) return;
     const [a, t, s, o, c, u] = await Promise.all([
-      supabase.from("announcements").select("id, title, body, created_at, image_url")
+      /*
+       * The English pair is asked for because the edit button puts it back in
+       * the form and the save writes whatever is in the form. It was not in
+       * this list, so editing a notice to fix a typo in the Thai silently
+       * cleared its translation.
+       */
+      supabase.from("announcements")
+        .select("id, title, body, created_at, image_url, images, title_en, body_en")
         .order("created_at", { ascending: false }),
       supabase.from("timeline_posts").select("id, title, body, url, posted_at, image_url")
         .order("posted_at", { ascending: false }),
@@ -464,13 +473,19 @@ export default function AdminPanel(
               <textarea value={aBodyEn}
                         onChange={(e) => setABodyEn(e.target.value.slice(0, 2000))}
                         rows={3} placeholder={t("adm.details")} className={inputCls} />
-              <ImagePicker supabase={supabase!} value={aImage} onChange={setAImage} />
+              <ImagesPicker supabase={supabase!} value={aImages} onChange={setAImages} />
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={async () => {
                     if (!aTitle.trim()) return;
                     const fields = {
-                      title: aTitle.trim(), body: aBody.trim() || null, image_url: aImage,
+                      title: aTitle.trim(), body: aBody.trim() || null,
+                      images: aImages,
+                      // Kept in step with the first picture rather than left
+                      // behind: it is what the admin list draws its thumbnail
+                      // from, and what anything reading this table from outside
+                      // the app has always expected to find a poster in.
+                      image_url: aImages[0] ?? null,
                       title_en: aTitleEn.trim() || null,
                       body_en: aBodyEn.trim() || null,
                     };
@@ -482,7 +497,7 @@ export default function AdminPanel(
                         });
                     if (error) { flash(t("adm.saveFailed", { why: error.message })); return; }
                     setATitle(""); setABody(""); setATitleEn(""); setABodyEn("");
-                    setAImage(null); setAEditing(null);
+                    setAImages([]); setAEditing(null);
                     await refresh();
                     flash(aEditing !== null ? t("adm.annUpdated") : t("adm.annPosted"));
                   }}
@@ -493,7 +508,7 @@ export default function AdminPanel(
                   <button
                     onClick={() => {
                       setAEditing(null); setATitle(""); setABody("");
-                      setATitleEn(""); setABodyEn(""); setAImage(null);
+                      setATitleEn(""); setABodyEn(""); setAImages([]);
                     }}
                     className="rounded-lg border border-line px-4 py-2 text-muted hover:border-muted hover:text-ink">
                     {t("adm.cancel")}
@@ -504,14 +519,24 @@ export default function AdminPanel(
             <div className="mt-3 flex flex-col gap-2">
               {anns.map((a) => (
                 <div key={a.id} className="flex items-start justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2">
-                  {a.image_url && (
+                  {picsOf(a).length > 0 && (
                     // The thumbnail opens the full picture, because "which
                     // screenshot was that" is the other half of "what did it say".
-                    <a href={a.image_url} target="_blank" rel="noopener noreferrer"
-                       className="shrink-0">
+                    <a href={picsOf(a)[0]} target="_blank" rel="noopener noreferrer"
+                       className="relative shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={a.image_url} alt=""
-                           className="size-10 rounded-md border border-line object-cover" />
+                      {/* Contained and large enough to recognise. A poster is
+                          portrait and mostly type — cropped to a ten-pixel
+                          square it was a smear of colour, which is no help at
+                          all to the one person who has to tell two of them
+                          apart in a list. */}
+                      <img src={picsOf(a)[0]} alt=""
+                           className="h-24 w-20 rounded-md border border-line bg-bg object-contain" />
+                      {picsOf(a).length > 1 && (
+                        <span className="absolute -bottom-1.5 -right-1.5 rounded-full border border-line bg-card px-1.5 py-0.5 font-data text-[10px] text-muted">
+                          {picsOf(a).length}
+                        </span>
+                      )}
                     </a>
                   )}
                   <div className="min-w-0 flex-1">
@@ -530,7 +555,7 @@ export default function AdminPanel(
                       onClick={() => {
                         setAEditing(a.id); setATitle(a.title); setABody(a.body ?? "");
                         setATitleEn(a.title_en ?? ""); setABodyEn(a.body_en ?? "");
-                        setAImage(a.image_url);
+                        setAImages(picsOf(a));
                       }}
                       className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
                       {t("adm.edit")}
@@ -539,7 +564,7 @@ export default function AdminPanel(
                       onClick={async () => {
                         await supabase!.from("announcements").delete().eq("id", a.id);
                         if (aEditing === a.id) {
-                          setAEditing(null); setATitle(""); setABody(""); setAImage(null);
+                          setAEditing(null); setATitle(""); setABody(""); setAImages([]);
                         }
                         await refresh(); flash(t("adm.annDeleted"));
                       }}

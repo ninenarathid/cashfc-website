@@ -21,6 +21,35 @@ const MAX_BYTES = 5 * 1024 * 1024;
  * target: it is already the right shape and in the right place, and a dashed
  * rectangle beside it would only be a second box asking the same question.
  */
+/**
+ * One file into the bucket, and back as a public URL.
+ *
+ * Pulled out of the component so the many-picture form can use the same rules:
+ * the same bucket, the same size limit, the same naming, and the same sentences
+ * when it goes wrong. See ImagesPicker.
+ */
+export async function uploadToBucket(
+  supabase: SupabaseClient, file: File,
+): Promise<{ url: string } | { error: string }> {
+  if (!file.type.startsWith("image/")) return { error: "That is not an image" };
+  if (file.size > MAX_BYTES) {
+    return { error: `Too big — ${(file.size / 1024 / 1024).toFixed(1)}MB, the limit is 5MB` };
+  }
+  // Named by time and a random suffix rather than by the original filename: two
+  // people uploading "screenshot.png" should not overwrite each other, and the
+  // name ends up in a public URL either way.
+  const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET)
+    .upload(path, file, { cacheControl: "31536000", upsert: false });
+  if (error) {
+    return { error: error.message.includes("Bucket not found")
+      ? "Storage is not set up yet — the gallery bucket is missing"
+      : `Upload failed: ${error.message}` };
+  }
+  return { url: supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl };
+}
+
 export default function ImagePicker(
   { supabase, value, onChange }: {
     supabase: SupabaseClient;
@@ -33,31 +62,11 @@ export default function ImagePicker(
 
   async function upload(file: File) {
     setErr(null);
-    if (!file.type.startsWith("image/")) {
-      setErr("That is not an image");
-      return;
-    }
-    if (file.size > MAX_BYTES) {
-      setErr(`Too big — ${(file.size / 1024 / 1024).toFixed(1)}MB, the limit is 5MB`);
-      return;
-    }
     setBusy(true);
-    // Named by time and a random suffix rather than by the original filename:
-    // two people uploading "screenshot.png" should not overwrite each other, and
-    // the path ends up in a public URL either way.
-    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await supabase.storage.from(BUCKET)
-      .upload(path, file, { cacheControl: "31536000", upsert: false });
+    const r = await uploadToBucket(supabase, file);
     setBusy(false);
-    if (error) {
-      setErr(error.message.includes("Bucket not found")
-        ? "Storage is not set up yet — the gallery bucket is missing"
-        : `Upload failed: ${error.message}`);
-      return;
-    }
-    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    onChange(data.publicUrl);
+    if ("error" in r) { setErr(r.error); return; }
+    onChange(r.url);
   }
 
   // One picture, so only the first of a handful dropped at once is taken.

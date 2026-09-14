@@ -460,6 +460,12 @@ const DICT = {
     en: "A new announcement from the admins.",
     th: "มีประกาศใหม่จาก Admin",
   },
+  // To the admin who posted it, and to nobody else: the question is addressed
+  // to whoever wrote the notice, and the rest of the FC did not ask to hear it.
+  "notif.eventTalk": {
+    en: "{who} replied to your announcement.",
+    th: "{who} ตอบกลับประกาศของคุณ",
+  },
   // Only ever shown to another admin: which of them wrote it is their business
   // and nobody else's.
   "notif.announcedBy": {
@@ -1865,6 +1871,17 @@ const DICT = {
     th: "เข้าเกมเป็น Party ละ {n} คน แต่ลงชื่อรวมกันที่นี่ที่เดียว",
   },
   "pf.groupN": { en: "Party {n}", th: "Party {n}" },
+  /* ── The front page's notices, which can now be answered ──────────── */
+  "home.readOn": { en: "Read more", th: "อ่านต่อ" },
+  "home.signInToReply": {
+    en: "Sign in to reply.", th: "เข้าสู่ระบบเพื่อตอบกลับ",
+  },
+  "home.replyN": { en: "{n} replies", th: "{n} ตอบกลับ" },
+  "home.noReplies": { en: "Be the first to reply", th: "ยังไม่มีใครตอบกลับ" },
+  "home.picsN": { en: "{n} pictures", th: "{n} รูป" },
+  "common.previous": { en: "Previous", th: "ก่อนหน้า" },
+  "common.next": { en: "Next", th: "ถัดไป" },
+
   "pf.reactedN": { en: "{n} reacted", th: "{n} คนกด" },
   // The short version, for the chip beside the content and the line on a row.
   "pf.inPartiesOf": {

@@ -1,7 +1,7 @@
 import raw from "@/data/members.json";
 import feedRaw from "@/data/feed.json";
 import newsRaw from "@/data/news.json";
-import Announcements from "@/components/Announcements";
+import EventSlider from "@/components/home/EventSlider";
 import LatestUpdate from "@/components/home/LatestUpdate";
 import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
@@ -12,6 +12,7 @@ import HotGallery from "@/components/home/HotGallery";
 import TopThree from "@/components/home/TopThree";
 import { BUCKETS, topOf } from "@/lib/leaderboards";
 import { allGuestIds, guestHome } from "@/lib/guest-data";
+import { everyone } from "@/lib/people";
 import type { BoardData, FeedEvent, NewsItem } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
 
@@ -37,7 +38,7 @@ export default function Home() {
     <main>
       <Hero fc={data.fc} total={data.fc.total} active={activeCount} tagStats={tagStats} />
 
-      <Announcements />
+      <EventSlider people={everyone(data)} />
       <DiscordCard />
 
       <Birthdays members={members} />
