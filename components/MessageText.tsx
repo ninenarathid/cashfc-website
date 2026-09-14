@@ -5,7 +5,7 @@ import type { PersonOption } from "@/lib/people";
 import { findMentions } from "@/lib/mentions";
 import Linkify from "@/components/Linkify";
 import Emote from "@/components/ui/Emote";
-import { allEmotes, findEmotes } from "@/lib/emotes";
+import { findEmotes, lineIsEmotes } from "@/lib/emotes";
 
 /**
  * What a message says, with the two things in it that are not prose.
@@ -55,25 +55,20 @@ export default function MessageText(
 
   if (!clean.length) return <Linkify text={text} />;
 
-  /*
-   * An emote on its own is the message, not a full stop in one.
-   *
-   * Somebody answering a wipe with one crying cat has not written a sentence
-   * with a picture in it, and at the height of the text around it the picture
-   * is unreadable. Every chat app draws these bigger for the same reason, and
-   * at seventy pixels the cat's expression is the thing you see rather than
-   * something you have to lean in for — which is the entire content of the
-   * message.
-   */
-  const big = allEmotes(text);
-
   const out: React.ReactNode[] = [];
   let at = 0;
   for (const m of clean) {
     if (m.at > at) out.push(<Linkify key={`t${at}`} text={text.slice(at, m.at)} />);
     if (m.emote) {
       out.push(
-        <Emote key={`e${m.at}`} value={m.emote.id} size={big ? 70 : 20} />);
+        /*
+         * A sticker where it has a line to itself, an emote where it does
+         * not. At seventy pixels the cat's expression is the thing you see
+         * rather than something to lean in for — which is the whole of what
+         * was sent. See lineIsEmotes.
+         */
+        <Emote key={`e${m.at}`} value={m.emote.id}
+               size={lineIsEmotes(text, m.at) ? 70 : 20} />);
       at = m.at + m.len;
       continue;
     }

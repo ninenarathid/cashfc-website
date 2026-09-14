@@ -33,6 +33,9 @@ export const EMOTES: Emote[] = [
 
 const BY_ID = new Map(EMOTES.map((e) => [e.id, e]));
 
+/** Written once, because a line break inside a string literal is a trap. */
+const NL = String.fromCharCode(10);
+
 /** The emote this token names, or nothing where it names none. */
 export const emoteOf = (token: string): Emote | undefined => BY_ID.get(token);
 
@@ -56,18 +59,26 @@ export function findEmotes(text: string): { at: number; len: number; emote: Emot
 }
 
 /**
- * Whether a message is emotes and nothing else.
+ * Whether the line this one sits on is emotes and nothing else.
  *
- * Somebody answering a wipe with one crying cat is not writing a sentence with
- * a picture in it — the picture is the whole message, and at the size of a
- * full stop it does not read as one. Chat everywhere draws these bigger for
- * the same reason, and the rule everywhere is the same: nothing else in the
- * line, and not too many of them.
+ * The difference between an emote and a sticker, and the only difference
+ * there is. Somebody answering a wipe with one crying cat is not writing a
+ * sentence with a picture in it — the picture is what they said, and at the
+ * height of a full stop it cannot be read as one. The same cat in the middle
+ * of "we should :cry: pull earlier" is punctuation, and blown up to seventy
+ * pixels it would throw the line it is in around it.
+ *
+ * By the line rather than by the whole message, because a sticker with a
+ * sentence under it is the ordinary way to send one: the sticker is still the
+ * sticker, and the sentence is still a sentence.
+ *
+ * Three at most. Past that it is a wall and not a reply.
  */
-export function allEmotes(text: string): boolean {
-  const found = findEmotes(text);
+export function lineIsEmotes(text: string, at: number): boolean {
+  const from = text.lastIndexOf(NL, Math.max(0, at - 1)) + 1;
+  const to = text.indexOf(NL, at);
+  const line = text.slice(from, to === -1 ? text.length : to);
+  const found = findEmotes(line);
   if (!found.length || found.length > 3) return false;
-  const rest = found.reduce(
-    (s, f) => s.replace(f.emote.id, " "), text).trim();
-  return rest === "";
+  return found.reduce((s, f) => s.replace(f.emote.id, " "), line).trim() === "";
 }
