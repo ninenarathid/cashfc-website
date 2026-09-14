@@ -1865,6 +1865,7 @@ const DICT = {
     th: "เข้าเกมเป็น Party ละ {n} คน แต่ลงชื่อรวมกันที่นี่ที่เดียว",
   },
   "pf.groupN": { en: "Party {n}", th: "Party {n}" },
+  "pf.reactedN": { en: "{n} reacted", th: "{n} คนกด" },
   // The short version, for the chip beside the content and the line on a row.
   "pf.inPartiesOf": {
     en: "Parties of {n}", th: "เข้าเกม Party ละ {n}",

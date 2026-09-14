@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { PartyComment } from "@/lib/party";
 import { REACTIONS, blockId, sameSpeaker } from "@/lib/party";
 import type { PersonOption } from "@/lib/people";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import ImageLightbox from "@/components/ui/ImageLightbox";
+import { HoverCard } from "@/components/ui/HoverCard";
 import { useDropTarget, usePasteImages } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
@@ -130,6 +131,17 @@ export default function Messages(
   const overrides = useAvatarOverrides();
   const face = (id: number | null, fallback: string | null) =>
     (id != null && overrides[id]) || fallback || null;
+  /*
+   * A reaction carries who pressed it and not what they look like.
+   *
+   * The row stores a character id and a name, which is all it needs to count
+   * and to say — but the card that opens over it is a list of people, and a
+   * list of people on this site has faces on it. The roster is already here
+   * for reading names out of a message; this is the same list answering the
+   * other direction.
+   */
+  const facesBy = useMemo(
+    () => new Map(people.map((p) => [p.id, p.avatar])), [people]);
 
   const [text, setText] = useState("");
   const [shots, setShots] = useState<string[]>([]);
@@ -551,21 +563,59 @@ export default function Messages(
                 * answered without counting.
                 */}
               {!!c.reactions?.length && (
-                <span className={`flex flex-wrap gap-1 ${mine ? "justify-end" : ""}`}>
+                <span className={`flex flex-wrap gap-1.5 ${mine ? "justify-end" : ""}`}>
                   {c.reactions.map((r) => {
                     const isMine = !!me && r.by.some((w) => w.characterId === me.id);
                     return (
-                      <button key={r.emoji} type="button"
-                              disabled={!userId}
-                              title={r.by.map((w) => w.name).join(", ")}
-                              onClick={() => react(c, r.emoji)}
-                              className={`flex items-center gap-1 rounded-full border px-1.5 py-[1px] text-[14.5px] transition-colors ${
-                                isMine
-                                  ? "border-accent/60 bg-accent/15 text-accent"
-                                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                        <Emote value={r.emoji} size={20} />
-                        <span className="font-data">{r.by.length}</span>
-                      </button>
+                      /*
+                       * Who pressed it, on a card rather than in a tooltip.
+                       *
+                       * It was the browser's `title`: a second of waiting, a
+                       * system font, one flat line of names run together with
+                       * commas, and nothing at all on a phone. The question it
+                       * answers — who thought this was funny — is a list of
+                       * people, and the site already draws people with their
+                       * faces on.
+                       */
+                      <HoverCard key={r.emoji} side="top"
+                                 trigger={
+                        <button type="button" disabled={!userId}
+                                onClick={() => react(c, r.emoji)}
+                                className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[14.5px] leading-none transition-colors ${
+                                  isMine
+                                    ? "border-accent/60 bg-accent/15 text-accent"
+                                    : "border-line bg-bg/40 text-muted hover:border-muted hover:text-ink"}`}>
+                          <Emote value={r.emoji} size={20} />
+                          <span className="font-data tabular-nums">{r.by.length}</span>
+                        </button>}>
+                        <span className="flex flex-col gap-1.5">
+                          <span className="flex items-center gap-2">
+                            <Emote value={r.emoji} size={26} />
+                            <span className="font-data text-[11.5px] uppercase tracking-[0.1em] text-muted">
+                              {t("pf.reactedN", { n: r.by.length })}
+                            </span>
+                          </span>
+                          <span className="flex flex-col gap-1">
+                            {r.by.map((w) => (
+                              <span key={`${w.characterId}-${w.name}`}
+                                    className="flex items-center gap-1.5">
+                                {face(w.characterId,
+                                      facesBy.get(w.characterId ?? -1) ?? null) ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img src={face(w.characterId,
+                                             facesBy.get(w.characterId ?? -1) ?? null)!}
+                                       alt=""
+                                       width={18} height={18}
+                                       className="size-[18px] rounded-full border border-line object-cover" />
+                                ) : (
+                                  <span className="size-[18px] rounded-full border border-dashed border-line" />
+                                )}
+                                <span className="text-[13.5px] text-ink">{w.name}</span>
+                              </span>
+                            ))}
+                          </span>
+                        </span>
+                      </HoverCard>
                     );
                   })}
                 </span>
