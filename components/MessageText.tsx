@@ -60,7 +60,10 @@ export default function MessageText(
    *
    * Somebody answering a wipe with one crying cat has not written a sentence
    * with a picture in it, and at the height of the text around it the picture
-   * is unreadable. Every chat app draws these bigger for the same reason.
+   * is unreadable. Every chat app draws these bigger for the same reason, and
+   * at seventy pixels the cat's expression is the thing you see rather than
+   * something you have to lean in for — which is the entire content of the
+   * message.
    */
   const big = allEmotes(text);
 
@@ -70,7 +73,7 @@ export default function MessageText(
     if (m.at > at) out.push(<Linkify key={`t${at}`} text={text.slice(at, m.at)} />);
     if (m.emote) {
       out.push(
-        <Emote key={`e${m.at}`} value={m.emote.id} size={big ? 44 : 20} />);
+        <Emote key={`e${m.at}`} value={m.emote.id} size={big ? 70 : 20} />);
       at = m.at + m.len;
       continue;
     }

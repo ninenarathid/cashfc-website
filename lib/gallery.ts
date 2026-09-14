@@ -392,3 +392,182 @@ export const TAG_COLUMNS =
  */
 export const tagWho = (g: { character_id: number | null; name: string }) =>
   g.character_id != null ? `c${g.character_id}` : `g${g.name.trim().toLowerCase()}`;
+
+/* ── the conversation under a picture ─────────────────────────────────────── */
+
+/**
+ * The comments on a post, in the shape the message component reads.
+ *
+ * Which is the same shape the party board's are in, because they are the same
+ * thing — see components/ui/Messages and v68. The four columns this table did
+ * not have until v68 are here; the reactions come in a second query rather
+ * than a join, for the reason the party board's do: joining them would return
+ * every comment once per reaction with its pictures repeated in each copy.
+ *
+ * Authors are resolved here rather than handed in. The map the gallery page
+ * builds covers whoever posted a picture, and somebody who has only ever left
+ * a comment is not in it — which read as a message from "—".
+ */
+export async function loadGalleryComments(
+  supabase: SupabaseClient, postId: number,
+): Promise<GalleryMessage[]> {
+  const { data: rows } = await supabase.from("gallery_comments")
+    .select("id, author_id, body, images, reply_to, edited_at, deleted_at,"
+      + " mentions, mentions_all, created_at")
+    .eq("post_id", postId)
+    .order("created_at", { ascending: true });
+
+  const talk = (rows ?? []) as unknown as GalleryRow[];
+  if (!talk.length) return [];
+
+  const ids = [...new Set(talk.map((c) => c.author_id))];
+  const [{ data: profs }, { data: reacts }] = await Promise.all([
+    supabase.from("profiles")
+      .select("id, character_id, character_name, display_name,"
+        + " discord_username, discord_avatar, avatar_url")
+      .in("id", ids),
+    supabase.from("gallery_comment_reactions")
+      .select("comment_id, character_id, name, emoji")
+      .in("comment_id", talk.map((c) => c.id)),
+  ]);
+
+  type Prof = {
+    id: string; character_id: number | null; character_name: string | null;
+    display_name: string | null; discord_username: string | null;
+    discord_avatar: string | null; avatar_url: string | null;
+  };
+  const who = new Map(((profs ?? []) as unknown as Prof[]).map((p) => [p.id, {
+    characterId: p.character_id,
+    name: p.character_name ?? p.display_name ?? p.discord_username ?? "—",
+    // What they chose first, then what Discord gave them. The member board
+    // lays the override on top of the Lodestone portrait the same way.
+    avatar: p.avatar_url ?? p.discord_avatar ?? null,
+  }]));
+
+  const on = new Map<number, { emoji: string; by: { characterId: number | null; name: string }[] }[]>();
+  for (const r of ((reacts ?? []) as unknown as {
+    comment_id: number; character_id: number | null; name: string; emoji: string;
+  }[])) {
+    const list = on.get(r.comment_id) ?? [];
+    const already = list.find((x) => x.emoji === r.emoji);
+    const w = { characterId: r.character_id, name: r.name };
+    if (already) already.by.push(w);
+    else list.push({ emoji: r.emoji, by: [w] });
+    on.set(r.comment_id, list);
+  }
+
+  return talk.map((c) => ({
+    id: String(c.id),
+    author: who.get(c.author_id)
+      ?? { characterId: null, name: "—", avatar: null },
+    text: c.body ?? "",
+    ...(c.images?.length ? { images: c.images } : {}),
+    ...(on.has(c.id) ? { reactions: on.get(c.id) } : {}),
+    at: c.created_at,
+    deletedAt: c.deleted_at,
+    editedAt: c.edited_at,
+    ...(c.mentions?.length ? { mentions: c.mentions } : {}),
+    ...(c.mentions_all ? { mentionsAll: true } : {}),
+    replyTo: c.reply_to == null ? null : String(c.reply_to),
+  }));
+}
+
+interface GalleryRow {
+  id: number;
+  author_id: string;
+  body: string | null;
+  images: string[] | null;
+  reply_to: number | null;
+  edited_at: string | null;
+  deleted_at: string | null;
+  mentions: number[] | null;
+  mentions_all: boolean | null;
+  created_at: string;
+}
+
+/** The same shape the party board's messages are in. */
+export interface GalleryMessage {
+  id: string;
+  author: { characterId: number | null; name: string; avatar: string | null };
+  text: string;
+  images?: string[];
+  reactions?: { emoji: string; by: { characterId: number | null; name: string }[] }[];
+  at: string;
+  deletedAt?: string | null;
+  editedAt?: string | null;
+  mentions?: number[];
+  mentionsAll?: boolean;
+  replyTo?: string | null;
+}
+
+export async function addGalleryComment(
+  supabase: SupabaseClient, userId: string, postId: number,
+  c: { text: string; images?: string[]; mentions?: number[];
+       mentionsAll?: boolean; replyTo?: string | null },
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("gallery_comments").insert({
+    post_id: postId,
+    author_id: userId,
+    body: c.text.slice(0, 2000),
+    images: c.images ?? [],
+    mentions: c.mentions ?? [],
+    mentions_all: !!c.mentionsAll,
+    reply_to: c.replyTo ? Number(c.replyTo) : null,
+  });
+  return error ? { error: error.message } : {};
+}
+
+/** Changed, and stamped so the line can say so. */
+export async function editGalleryComment(
+  supabase: SupabaseClient, id: string, text: string,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("gallery_comments")
+    .update({ body: text.slice(0, 2000), edited_at: new Date().toISOString() })
+    .eq("id", Number(id));
+  return error ? { error: error.message } : {};
+}
+
+/**
+ * Taken back: the row stays and the body goes.
+ *
+ * An answer to a question nobody can see reads as a non sequitur, so the
+ * conversation keeps its shape and the line says what happened to it. The
+ * pictures go with the words — a screenshot is as much of a thing said.
+ */
+export async function dropGalleryComment(
+  supabase: SupabaseClient, id: string,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("gallery_comments")
+    .update({ body: "", images: [], deleted_at: new Date().toISOString() })
+    .eq("id", Number(id));
+  return error ? { error: error.message } : {};
+}
+
+/**
+ * Put one on, or take it off.
+ *
+ * Pressing it twice quickly races itself against the unique index. The row it
+ * collided with is the row the reader wanted, so that is not a failure to
+ * report — it is the second press finding the first already done.
+ */
+export async function toggleGalleryReaction(
+  supabase: SupabaseClient, userId: string, commentId: string, emoji: string,
+  who: { characterId: number | null; name: string }, mine: boolean,
+): Promise<{ error?: string }> {
+  if (mine) {
+    const { error } = await supabase.from("gallery_comment_reactions")
+      .delete()
+      .eq("comment_id", Number(commentId))
+      .eq("profile_id", userId)
+      .eq("emoji", emoji);
+    return error ? { error: error.message } : {};
+  }
+  const { error } = await supabase.from("gallery_comment_reactions").insert({
+    comment_id: Number(commentId),
+    profile_id: userId,
+    character_id: who.characterId,
+    name: who.name,
+    emoji,
+  });
+  return error && error.code !== "23505" ? { error: error.message } : {};
+}

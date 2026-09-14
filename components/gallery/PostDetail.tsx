@@ -6,7 +6,9 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import {
   postPath, uploadOne, TAG_COLUMNS,
-  type GalleryComment, type GalleryImage, type GalleryPost, type GalleryTag,
+  addGalleryComment, dropGalleryComment, editGalleryComment,
+  loadGalleryComments, toggleGalleryReaction,
+  type GalleryImage, type GalleryMessage, type GalleryPost, type GalleryTag,
   type Roster,
 } from "@/lib/gallery";
 import Carousel from "@/components/gallery/Carousel";
@@ -18,9 +20,7 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PopotoGivers from "@/components/PopotoGivers";
 import { useAdmin } from "@/lib/admin";
-import MessageText from "@/components/MessageText";
-import Emote from "@/components/ui/Emote";
-import { EMOTES } from "@/lib/emotes";
+import Messages from "@/components/ui/Messages";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import { fmtDate } from "@/lib/dates";
 
@@ -54,12 +54,12 @@ export default function PostDetail(
   const { t } = useLang();
   const chosen = useAvatarOverrides();
   /*
-   * The roster MessageText matches names against.
+   * The roster the conversation matches names against.
    *
    * The gallery calls the same people MemberOption and the party board calls
    * them PersonOption; the difference is one optional field. Empty where the
-   * page was not given a roster, which costs the mentions and leaves the links
-   * and the emotes working.
+   * page was not given a roster, which costs the mentions and leaves
+   * everything else working.
    */
   const people = useMemo(
     () => memberOptions.map((m) => ({ ...m, avatar: m.avatar ?? null })),
@@ -67,8 +67,10 @@ export default function PostDetail(
   const [supabase] = useState(createClient);
   const [likes, setLikes] = useState<number | null>(null);
   const [liked, setLiked] = useState(false);
-  const [comments, setComments] = useState<GalleryComment[]>([]);
-  const [draft, setDraft] = useState("");
+  const [comments, setComments] = useState<GalleryMessage[]>([]);
+  /** The reader, as the conversation needs them: a character, a name, a face. */
+  const [mePerson, setMePerson] = useState<
+    { id: number; name: string; avatar: string | null } | null>(null);
   const [me, setMe] = useState<string | null>(null);
   const [iHaveCharacter, setIHaveCharacter] = useState(false);
   const { isAdmin } = useAdmin();
@@ -132,17 +134,35 @@ export default function PostDetail(
     const [{ data: user }, likeRows, commentRows] = await Promise.all([
       supabase.auth.getUser(),
       supabase.from("gallery_likes").select("profile_id").eq("post_id", post.id),
-      supabase.from("gallery_comments")
-        .select("id, post_id, author_id, body, created_at")
-        .eq("post_id", post.id).order("created_at", { ascending: true }),
+      loadGalleryComments(supabase, post.id),
     ]);
     const uid = user.user?.id ?? null;
     setMe(uid);
     if (uid) {
+      /*
+       * Who the reader is, not merely whether they have a character.
+       *
+       * The conversation puts their name and face on what they send and on
+       * every reaction they give, so "do they have one" stopped being the
+       * whole question the moment the comments became messages.
+       */
       const { data: mine } = await supabase.from("profiles")
-        .select("character_id").eq("id", uid).maybeSingle();
-      setIHaveCharacter((mine as { character_id?: number | null } | null)
-        ?.character_id != null);
+        .select("character_id, character_name, display_name, discord_username,"
+          + " discord_avatar, avatar_url")
+        .eq("id", uid).maybeSingle();
+      const p = mine as {
+        character_id?: number | null; character_name?: string | null;
+        display_name?: string | null; discord_username?: string | null;
+        discord_avatar?: string | null; avatar_url?: string | null;
+      } | null;
+      setIHaveCharacter(p?.character_id != null);
+      setMePerson(p?.character_id != null ? {
+        id: p.character_id!,
+        name: p.character_name ?? p.display_name ?? p.discord_username ?? "—",
+        avatar: p.avatar_url ?? p.discord_avatar ?? null,
+      } : null);
+    } else {
+      setMePerson(null);
     }
 
     const { data: imgs } = await supabase.from("gallery_images")
@@ -157,7 +177,7 @@ export default function PostDetail(
     const ids = (likeRows.data ?? []).map((r) => r.profile_id as string);
     setLikes(ids.length);
     setLiked(!!uid && ids.includes(uid));
-    setComments((commentRows.data as GalleryComment[]) ?? []);
+    setComments(commentRows);
     if (uid) {
       const { data: prof } = await supabase.from("profiles")
         .select("character_id, character_verified_at")
@@ -312,14 +332,6 @@ export default function PostDetail(
     setBusy(false);
   }
 
-  async function addComment() {
-    if (!supabase || !me || !draft.trim()) return;
-    setBusy(true);
-    const { error } = await supabase.from("gallery_comments")
-      .insert({ post_id: post.id, author_id: me, body: draft.trim().slice(0, 500) });
-    setBusy(false);
-    if (!error) { setDraft(""); await load(); }
-  }
 
   /**
    * Puts the link on the clipboard, and does nothing else.
@@ -595,61 +607,63 @@ export default function PostDetail(
           )}
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-2">
-          <div className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
-            {t("gallery.comments")} {comments.length > 0 && `· ${comments.length}`}
-          </div>
-          <div className="flex max-h-64 flex-col gap-2 overflow-y-auto pr-1">
-            {comments.map((c) => (
-              <div key={c.id} className="rounded-lg border border-line bg-card px-3 py-2">
-                <div className="text-[12px] text-muted">
-                  {authors[c.author_id]?.name ?? "—"}
-                </div>
-                {/*
-                  * The same renderer the party board uses.
-                  *
-                  * A comment here was raw text while a message there had
-                  * names, links and the FC's own emotes in it — the same act,
-                  * written in the same box, behaving differently depending on
-                  * which page you were looking at. One component now, so a
-                  * change to what a message can hold lands in both places.
-                  */}
-                <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink/90">
-                  <MessageText text={c.body} people={people} />
-                </div>
-              </div>
-            ))}
-            {comments.length === 0 && (
-              <p className="text-[12.5px] text-muted">{t("gallery.noComments")}</p>
-            )}
-          </div>
-
-          {me ? (
-            <div className="flex flex-col gap-1.5">
-              <div className="flex gap-2">
-                <input value={draft} onChange={(e) => setDraft(e.target.value.slice(0, 500))}
-                       onKeyDown={(e) => { if (e.key === "Enter") void addComment(); }}
-                       placeholder={t("gallery.writeComment")}
-                       className="min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-2 text-[13px] text-ink placeholder:text-muted" />
-                <button onClick={addComment} disabled={busy || !draft.trim()}
-                        className="rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
-                  {t("gallery.send")}
-                </button>
-              </div>
-              {/* And the same row of them, in reach of the same box. */}
-              <span className="flex items-center gap-0.5">
-                {EMOTES.map((e) => (
-                  <button key={e.id} type="button" title={e.say}
-                          onClick={() => setDraft((v) =>
-                            `${v}${v && !v.endsWith(" ") ? " " : ""}${e.id} `
-                              .slice(0, 500))}
-                          className="rounded p-0.5 transition-transform hover:scale-125">
-                    <Emote value={e.id} size={20} />
-                  </button>
-                ))}
-              </span>
-            </div>
-          ) : (
+        {/*
+          * The same conversation the party board has.
+          *
+          * It was a list of boxes with a name and a body in them, and a
+          * single-line input underneath — no pictures, no replies, no
+          * reactions, and no way to take back a thing said in haste under a
+          * photograph of somebody's house. See components/ui/Messages: the
+          * component holds the conversation and this page hands it the
+          * messages and the two writes that know where they are.
+          */}
+        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
+          <Messages comments={comments} people={people} me={mePerson}
+                    userId={me}
+                    upload={(f: File) => uploadOne(supabase!, me!, f)}
+                    write={(cid, emoji, mine, who) =>
+                      void toggleGalleryReaction(
+                        supabase!, me!, cid, emoji, who, mine)}
+                    onAdd={async (c) => {
+                      // On the screen first, then written: a reply that waits
+                      // for a round trip before appearing reads as one that
+                      // did not send.
+                      setComments((v) => [...v, c]);
+                      if (!supabase || !me) return;
+                      await addGalleryComment(supabase, me, post.id, {
+                        text: c.text, images: c.images,
+                        mentions: c.mentions, mentionsAll: c.mentionsAll,
+                        replyTo: c.replyTo,
+                      });
+                      await load();
+                    }}
+                    onReact={(cid, emoji, on, who) =>
+                      setComments((v) => v.map((c) => {
+                        if (c.id !== cid) return c;
+                        const rs = [...(c.reactions ?? [])];
+                        const i = rs.findIndex((r) => r.emoji === emoji);
+                        if (on) {
+                          if (i < 0) rs.push({ emoji, by: [who] });
+                          else rs[i] = { ...rs[i], by: [...rs[i].by, who] };
+                        } else if (i >= 0) {
+                          const by = rs[i].by.filter(
+                            (w) => w.characterId !== who.characterId);
+                          if (by.length) rs[i] = { ...rs[i], by };
+                          else rs.splice(i, 1);
+                        }
+                        return { ...c, reactions: rs };
+                      }))}
+                    onEdit={me ? async (cid, text) => {
+                      if (!supabase) return;
+                      await editGalleryComment(supabase, cid, text);
+                      await load();
+                    } : undefined}
+                    onDrop={me ? async (cid) => {
+                      if (!supabase) return;
+                      await dropGalleryComment(supabase, cid);
+                      await load();
+                    } : undefined} />
+          {!me && (
             <Link href="/profile"
                   className="text-[12.5px] text-accent no-underline hover:underline">
               {t("gallery.signInToReact")}

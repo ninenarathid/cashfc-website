@@ -22,7 +22,7 @@ import { createClient } from "@/lib/supabase/client";
 
 import {
   acceptInto, addComment, askToJoin, createParty, deleteParty, dropComment,
-  editComment,
+  editComment, toggleReaction, uploadPartyImage,
   leaveSeat, loadParties, takeSeat,
   finishParty,
   inviteMembers,
@@ -54,7 +54,7 @@ import { ProgressChip } from "@/components/party/ProgressTrack";
 import { LootChip } from "@/components/party/LootPlan";
 import { SpotChip } from "@/components/party/WherePicker";
 import MapShot from "@/components/party/MapShot";
-import PartyComments from "@/components/party/PartyComments";
+import Messages from "@/components/ui/Messages";
 import { useAvatarOverrides } from "@/lib/avatars";
 import PartyCreate from "@/components/party/PartyCreate";
 import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
@@ -596,8 +596,14 @@ function PartyDetail(
             )}
           </p>
 
-          <PartyComments comments={party.comments ?? []} people={people} me={me}
+          <Messages comments={party.comments ?? []} people={people} me={me}
                          userId={userId}
+                         /* Where this page keeps its pictures and its
+                            reactions. The conversation does not know and does
+                            not need to — see ui/Messages. */
+                         upload={(f) => uploadPartyImage(supabase!, userId!, f)}
+                         write={(cid, emoji, mine, who) =>
+                           void toggleReaction(supabase!, userId!, cid, emoji, who, mine)}
                          /* The start time has come and the party is still on:
                             somebody has to send the invites, and the moment
                             that has to happen is the moment everybody stops

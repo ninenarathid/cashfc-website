@@ -9,7 +9,6 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import ImageLightbox from "@/components/ui/ImageLightbox";
 import { useDropTarget, usePasteImages } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
-import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import MessageText from "@/components/MessageText";
 import Emote from "@/components/ui/Emote";
@@ -20,15 +19,23 @@ import { mentionIds, mentionsAll, withMention } from "@/lib/mentions";
 import { clips, youtubeSrc } from "@/lib/youtube";
 
 /**
- * Replies on a party.
+ * A conversation, wherever one happens.
  *
  * The thing a raid lead posts is a plan, and the thing everybody else has is a
- * question about it: can I bring Reaper, is this the old strat, I am ten minutes
- * late. That conversation currently happens in Discord where it is four
- * messages up by the time the second person asks the same thing, and the answer
- * belongs under the plan it is about.
+ * question about it: can I bring Reaper, is this the old strat, I am ten
+ * minutes late. The same is true under a photograph — who is that, where was
+ * this, that is the pull we wiped on — and for a long time the two were
+ * different code: bubbles with pictures, replies, reactions and a way to take
+ * a message back on one page, and a row with a body on it on the other. That
+ * difference was never a decision; the party board was built second and got
+ * everything the first one had learned, and nobody went back.
  *
- * Pictures on a reply, for the same reason the plan has them — "do you mean
+ * So this holds the conversation and nothing about where it is. Every message
+ * is handed in, every write is handed in, and the two things that still knew
+ * — where a dropped screenshot goes and where a reaction is stored — are
+ * props. See `upload` and `write`.
+ *
+ * Pictures on a reply, for the same reason the plan has them: "do you mean
  * this spot?" is a screenshot, not a sentence.
  */
 /*
@@ -67,8 +74,9 @@ const ctl = (extra: string) =>
   "grid size-9 shrink-0 place-items-center rounded-full border border-line"
   + ` bg-surface text-[20px] leading-none shadow-sm transition-colors ${extra}`;
 
-export default function PartyComments(
-  { comments, people, me, userId, notice, onAdd, onReact, onEdit, onDrop }: {
+export default function Messages(
+  { comments, people, me, userId, notice, onAdd, onReact, onEdit, onDrop,
+    upload, write }: {
     comments: PartyComment[];
     /**
      * Something the clock has to say, at the foot of the conversation.
@@ -104,6 +112,18 @@ export default function PartyComments(
      */
     onEdit?: (commentId: string, text: string) => void | Promise<void>;
     onDrop?: (commentId: string) => void | Promise<void>;
+    /**
+     * Where a dropped screenshot goes, and where a reaction is written.
+     *
+     * The last two things in here that knew which page they were on. This
+     * component is a conversation — bubbles, replies, pictures, reactions —
+     * and a conversation under a photograph is the same conversation as one
+     * under a raid plan. Everything else was already handed in; these two were
+     * imported, and the import was the only reason it could not be.
+     */
+    upload: (file: File) => Promise<{ url: string } | { error: string }>;
+    write: (commentId: string, emoji: string, mine: boolean,
+            who: { characterId: number | null; name: string }) => void;
   },
 ) {
   const { t } = useLang();
@@ -183,7 +203,7 @@ export default function PartyComments(
     if (!supabase || !userId) return;
     setBusy((n) => n + files.length);
     for (const f of files) {
-      const r = await uploadPartyImage(supabase, userId, f);
+      const r = await upload(f);
       setBusy((n) => n - 1);
       if (!("error" in r)) setShots((v) => [...v, r.url]);
     }
@@ -220,7 +240,7 @@ export default function PartyComments(
     const mine = !!on?.by.some((w) => w.characterId === who.characterId
                                    && w.name === who.name);
     onReact?.(c.id, emoji, !mine, who);
-    void toggleReaction(supabase, userId, c.id, emoji, who, mine);
+    write(c.id, emoji, mine, who);
   };
 
   /** By id, for the line a reply quotes. */
