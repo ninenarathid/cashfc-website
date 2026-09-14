@@ -639,75 +639,85 @@ export default function Messages(
 
       {/* Writing one. Dropping a picture anywhere on the box attaches it, which
           is where somebody's cursor already is when they have the screenshot. */}
-      <div {...handlers} ref={pad}
-           className={`flex flex-col gap-2 rounded-lg border p-2.5 transition-colors ${
-             over ? "border-accent bg-accent/5" : "border-line bg-bg/40"}`}>
-        {/* What is being answered, above the box it is answered in — so
-            the reply is visibly attached to something before it is sent,
-            rather than turning out to have been when it appears. */}
-        {answering && (
-          <span className="flex min-w-0 items-center gap-2 rounded-lg border-l-2 border-accent/50 bg-surface/60 px-2 py-1 text-[14.5px] text-muted">
-            <span className="shrink-0 text-accent/80">{t("party.replyingTo")}</span>
-            <span className="shrink-0 text-ink/80">{answering.author.name}</span>
-            <span className="truncate opacity-80">
-              {answering.deletedAt ? t("party.msgGone") : answering.text || "🖼"}
-            </span>
-            <button type="button" aria-label={t("pf.cancel")}
-                    onClick={() => setAnswering(null)}
-                    className="ml-auto shrink-0 text-muted hover:text-ink">
-              ✕
-            </button>
-          </span>
-        )}
-        <MentionInput boxRef={box} value={text} people={people} rows={2}
-                      onChange={(v) => setText(v.slice(0, 2000))}
-                      placeholder={t("pf.commentBox")}
-                      className="rounded-lg border border-line bg-surface px-3 py-2 text-[16.5px] text-ink placeholder:text-muted" />
-        {!!shots.length && (
-          <div className="flex flex-wrap gap-2">
-            {shots.map((src, n) => (
-              <span key={src} className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" className="h-20 w-auto rounded-md border border-line" />
-                <button onClick={() => setShots((v) => v.filter((_, i) => i !== n))}
-                        aria-label={t("pf.remove")}
-                        className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1 text-[14px] text-chili">
-                  ✕
-                </button>
+      {/*
+        * And only where there is somebody to write it.
+        *
+        * The front page is open to anybody, so a visitor who is not signed in
+        * could reach an event, type an answer, watch it appear and never find
+        * out it was not sent — every write here needs a session, so a box with
+        * no session behind it can only tell a lie.
+        */}
+      {userId && (
+        <div {...handlers} ref={pad}
+             className={`flex flex-col gap-2 rounded-lg border p-2.5 transition-colors ${
+               over ? "border-accent bg-accent/5" : "border-line bg-bg/40"}`}>
+          {/* What is being answered, above the box it is answered in — so
+              the reply is visibly attached to something before it is sent,
+              rather than turning out to have been when it appears. */}
+          {answering && (
+            <span className="flex min-w-0 items-center gap-2 rounded-lg border-l-2 border-accent/50 bg-surface/60 px-2 py-1 text-[14.5px] text-muted">
+              <span className="shrink-0 text-accent/80">{t("party.replyingTo")}</span>
+              <span className="shrink-0 text-ink/80">{answering.author.name}</span>
+              <span className="truncate opacity-80">
+                {answering.deletedAt ? t("party.msgGone") : answering.text || "🖼"}
               </span>
-            ))}
-          </div>
-        )}
-        <div className="flex items-center gap-2">
-          <button onClick={send} disabled={(!text.trim() && !shots.length) || busy > 0}
-                  className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[15.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
-            {t("pf.comment")}
-          </button>
-          {/*
-            * The emotes, where somebody writing a message can reach them.
-            *
-            * They work by typing ":kekw:" and nobody knows that, which makes a
-            * feature that exists and cannot be found. Four pictures is a row
-            * and not a picker — there is nothing here to search.
-            */}
-          <span className="flex items-center gap-0.5">
-            {EMOTES.map((e) => (
-              <button key={e.id} type="button" title={e.say}
-                      onClick={() => {
-                        setText((v) => `${v}${v && !v.endsWith(" ") ? " " : ""}${e.id} `
-                          .slice(0, 2000));
-                        box.current?.focus();
-                      }}
-                      className="rounded p-0.5 transition-transform hover:scale-125">
-                <Emote value={e.id} size={22} />
+              <button type="button" aria-label={t("pf.cancel")}
+                      onClick={() => setAnswering(null)}
+                      className="ml-auto shrink-0 text-muted hover:text-ink">
+                ✕
               </button>
-            ))}
-          </span>
-          <span className="text-[14.5px] text-muted">
-            {busy > 0 ? t("pf.uploading", { n: busy }) : t("pf.orDropShot")}
-          </span>
+            </span>
+          )}
+          <MentionInput boxRef={box} value={text} people={people} rows={2}
+                        onChange={(v) => setText(v.slice(0, 2000))}
+                        placeholder={t("pf.commentBox")}
+                        className="rounded-lg border border-line bg-surface px-3 py-2 text-[16.5px] text-ink placeholder:text-muted" />
+          {!!shots.length && (
+            <div className="flex flex-wrap gap-2">
+              {shots.map((src, n) => (
+                <span key={src} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="h-20 w-auto rounded-md border border-line" />
+                  <button onClick={() => setShots((v) => v.filter((_, i) => i !== n))}
+                          aria-label={t("pf.remove")}
+                          className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1 text-[14px] text-chili">
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <button onClick={send} disabled={(!text.trim() && !shots.length) || busy > 0}
+                    className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[15.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
+              {t("pf.comment")}
+            </button>
+            {/*
+              * The emotes, where somebody writing a message can reach them.
+              *
+              * They work by typing ":kekw:" and nobody knows that, which makes a
+              * feature that exists and cannot be found. Four pictures is a row
+              * and not a picker — there is nothing here to search.
+              */}
+            <span className="flex items-center gap-0.5">
+              {EMOTES.map((e) => (
+                <button key={e.id} type="button" title={e.say}
+                        onClick={() => {
+                          setText((v) => `${v}${v && !v.endsWith(" ") ? " " : ""}${e.id} `
+                            .slice(0, 2000));
+                          box.current?.focus();
+                        }}
+                        className="rounded p-0.5 transition-transform hover:scale-125">
+                  <Emote value={e.id} size={22} />
+                </button>
+              ))}
+            </span>
+            <span className="text-[14.5px] text-muted">
+              {busy > 0 ? t("pf.uploading", { n: busy }) : t("pf.orDropShot")}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {dropping && (
         <ConfirmDialog z={120} danger

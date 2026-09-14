@@ -6,11 +6,12 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import {
   postPath, uploadOne, TAG_COLUMNS,
-  addGalleryComment, dropGalleryComment, editGalleryComment,
-  loadGalleryComments, toggleGalleryReaction,
-  type GalleryImage, type GalleryMessage, type GalleryPost, type GalleryTag,
-  type Roster,
+  type GalleryImage, type GalleryPost, type GalleryTag, type Roster,
 } from "@/lib/gallery";
+import {
+  GALLERY_THREAD, addToThread, dropFromThread, editInThread, loadThread,
+  reactInThread, type Message,
+} from "@/lib/threads";
 import Carousel from "@/components/gallery/Carousel";
 import PostTags from "@/components/gallery/PostTags";
 import PhotoTagLayer from "@/components/gallery/PhotoTagLayer";
@@ -67,7 +68,7 @@ export default function PostDetail(
   const [supabase] = useState(createClient);
   const [likes, setLikes] = useState<number | null>(null);
   const [liked, setLiked] = useState(false);
-  const [comments, setComments] = useState<GalleryMessage[]>([]);
+  const [comments, setComments] = useState<Message[]>([]);
   /** The reader, as the conversation needs them: a character, a name, a face. */
   const [mePerson, setMePerson] = useState<
     { id: number; name: string; avatar: string | null } | null>(null);
@@ -134,7 +135,7 @@ export default function PostDetail(
     const [{ data: user }, likeRows, commentRows] = await Promise.all([
       supabase.auth.getUser(),
       supabase.from("gallery_likes").select("profile_id").eq("post_id", post.id),
-      loadGalleryComments(supabase, post.id),
+      loadThread(supabase, GALLERY_THREAD, post.id),
     ]);
     const uid = user.user?.id ?? null;
     setMe(uid);
@@ -622,15 +623,15 @@ export default function PostDetail(
                     userId={me}
                     upload={(f: File) => uploadOne(supabase!, me!, f)}
                     write={(cid, emoji, mine, who) =>
-                      void toggleGalleryReaction(
-                        supabase!, me!, cid, emoji, who, mine)}
+                      void reactInThread(
+                        supabase!, GALLERY_THREAD, me!, cid, emoji, who, mine)}
                     onAdd={async (c) => {
                       // On the screen first, then written: a reply that waits
                       // for a round trip before appearing reads as one that
                       // did not send.
                       setComments((v) => [...v, c]);
                       if (!supabase || !me) return;
-                      await addGalleryComment(supabase, me, post.id, {
+                      await addToThread(supabase, GALLERY_THREAD, post.id, me, {
                         text: c.text, images: c.images,
                         mentions: c.mentions, mentionsAll: c.mentionsAll,
                         replyTo: c.replyTo,
@@ -655,12 +656,12 @@ export default function PostDetail(
                       }))}
                     onEdit={me ? async (cid, text) => {
                       if (!supabase) return;
-                      await editGalleryComment(supabase, cid, text);
+                      await editInThread(supabase, GALLERY_THREAD, cid, text);
                       await load();
                     } : undefined}
                     onDrop={me ? async (cid) => {
                       if (!supabase) return;
-                      await dropGalleryComment(supabase, cid);
+                      await dropFromThread(supabase, GALLERY_THREAD, cid);
                       await load();
                     } : undefined} />
           {!me && (
