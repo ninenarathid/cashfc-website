@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
@@ -18,6 +18,9 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import PopotoGivers from "@/components/PopotoGivers";
 import { useAdmin } from "@/lib/admin";
+import MessageText from "@/components/MessageText";
+import Emote from "@/components/ui/Emote";
+import { EMOTES } from "@/lib/emotes";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import { fmtDate } from "@/lib/dates";
 
@@ -50,6 +53,17 @@ export default function PostDetail(
 ) {
   const { t } = useLang();
   const chosen = useAvatarOverrides();
+  /*
+   * The roster MessageText matches names against.
+   *
+   * The gallery calls the same people MemberOption and the party board calls
+   * them PersonOption; the difference is one optional field. Empty where the
+   * page was not given a roster, which costs the mentions and leaves the links
+   * and the emotes working.
+   */
+  const people = useMemo(
+    () => memberOptions.map((m) => ({ ...m, avatar: m.avatar ?? null })),
+    [memberOptions]);
   const [supabase] = useState(createClient);
   const [likes, setLikes] = useState<number | null>(null);
   const [liked, setLiked] = useState(false);
@@ -591,8 +605,17 @@ export default function PostDetail(
                 <div className="text-[12px] text-muted">
                   {authors[c.author_id]?.name ?? "—"}
                 </div>
+                {/*
+                  * The same renderer the party board uses.
+                  *
+                  * A comment here was raw text while a message there had
+                  * names, links and the FC's own emotes in it — the same act,
+                  * written in the same box, behaving differently depending on
+                  * which page you were looking at. One component now, so a
+                  * change to what a message can hold lands in both places.
+                  */}
                 <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink/90">
-                  {c.body}
+                  <MessageText text={c.body} people={people} />
                 </div>
               </div>
             ))}
@@ -602,15 +625,29 @@ export default function PostDetail(
           </div>
 
           {me ? (
-            <div className="flex gap-2">
-              <input value={draft} onChange={(e) => setDraft(e.target.value.slice(0, 500))}
-                     onKeyDown={(e) => { if (e.key === "Enter") void addComment(); }}
-                     placeholder={t("gallery.writeComment")}
-                     className="min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-2 text-[13px] text-ink placeholder:text-muted" />
-              <button onClick={addComment} disabled={busy || !draft.trim()}
-                      className="rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
-                {t("gallery.send")}
-              </button>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex gap-2">
+                <input value={draft} onChange={(e) => setDraft(e.target.value.slice(0, 500))}
+                       onKeyDown={(e) => { if (e.key === "Enter") void addComment(); }}
+                       placeholder={t("gallery.writeComment")}
+                       className="min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-2 text-[13px] text-ink placeholder:text-muted" />
+                <button onClick={addComment} disabled={busy || !draft.trim()}
+                        className="rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
+                  {t("gallery.send")}
+                </button>
+              </div>
+              {/* And the same row of them, in reach of the same box. */}
+              <span className="flex items-center gap-0.5">
+                {EMOTES.map((e) => (
+                  <button key={e.id} type="button" title={e.say}
+                          onClick={() => setDraft((v) =>
+                            `${v}${v && !v.endsWith(" ") ? " " : ""}${e.id} `
+                              .slice(0, 500))}
+                          className="rounded p-0.5 transition-transform hover:scale-125">
+                    <Emote value={e.id} size={20} />
+                  </button>
+                ))}
+              </span>
             </div>
           ) : (
             <Link href="/profile"

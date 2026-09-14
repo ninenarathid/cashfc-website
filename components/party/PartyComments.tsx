@@ -12,6 +12,8 @@ import { createClient } from "@/lib/supabase/client";
 import { toggleReaction, uploadPartyImage } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import MessageText from "@/components/MessageText";
+import Emote from "@/components/ui/Emote";
+import { EMOTES } from "@/lib/emotes";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import MentionInput from "@/components/party/MentionInput";
 import { mentionIds, mentionsAll, withMention } from "@/lib/mentions";
@@ -486,10 +488,10 @@ export default function PartyComments(
                       <span ref={picker}
                             className="flex items-center gap-0.5 rounded-full border border-line bg-surface px-1 py-0.5 shadow-sm">
                         {REACTIONS.map((e) => (
-                          <button key={e} type="button" title={e}
+                          <button key={e} type="button"
                                   onClick={() => { react(c, e); setPicking(null); }}
-                                  className="rounded-full px-1 text-[20px] leading-none transition-transform hover:scale-125">
-                            {e}
+                                  className="flex items-center rounded-full px-1 leading-none transition-transform hover:scale-125">
+                            <Emote value={e} size={20} />
                           </button>
                         ))}
                       </span>
@@ -541,7 +543,7 @@ export default function PartyComments(
                                 isMine
                                   ? "border-accent/60 bg-accent/15 text-accent"
                                   : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                        <span className="text-[20px] leading-none">{r.emoji}</span>
+                        <Emote value={r.emoji} size={20} />
                         <span className="font-data">{r.by.length}</span>
                       </button>
                     );
@@ -611,6 +613,26 @@ export default function PartyComments(
                   className="rounded-lg border border-accent bg-accent/15 px-3 py-1 text-[15.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
             {t("pf.comment")}
           </button>
+          {/*
+            * The emotes, where somebody writing a message can reach them.
+            *
+            * They work by typing ":kekw:" and nobody knows that, which makes a
+            * feature that exists and cannot be found. Four pictures is a row
+            * and not a picker — there is nothing here to search.
+            */}
+          <span className="flex items-center gap-0.5">
+            {EMOTES.map((e) => (
+              <button key={e.id} type="button" title={e.say}
+                      onClick={() => {
+                        setText((v) => `${v}${v && !v.endsWith(" ") ? " " : ""}${e.id} `
+                          .slice(0, 2000));
+                        box.current?.focus();
+                      }}
+                      className="rounded p-0.5 transition-transform hover:scale-125">
+                <Emote value={e.id} size={22} />
+              </button>
+            ))}
+          </span>
           <span className="text-[14.5px] text-muted">
             {busy > 0 ? t("pf.uploading", { n: busy }) : t("pf.orDropShot")}
           </span>

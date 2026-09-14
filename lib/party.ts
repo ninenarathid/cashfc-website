@@ -24,6 +24,7 @@ import { LEGACY } from "@/lib/legacy";
 
 import { artFocus, dutySlug, type DutyKind } from "@/lib/duty";
 import { FC_WORLD } from "@/lib/world";
+import { EMOTES } from "@/lib/emotes";
 
 export type SlotRole = "tank" | "healer" | "dps";
 export type Shape = "light" | "four" | "full" | "eight" | "alliance" | "open";
@@ -1910,8 +1911,17 @@ export interface Reaction {
  * acknowledgement back into a decision. The potato is here because it is the
  * Free Company's own currency and it belongs anywhere the FC agrees with
  * something.
+ *
+ * Then the FC's own, which are pictures rather than characters. Stored the
+ * same way — a token in the same text column — so nothing downstream has to
+ * know which kind it is holding until it draws it.
  */
-export const REACTIONS = ["👍", "❤️", "😂", "🎉", "🥔"] as const;
+export const REACTIONS: readonly string[] = [
+  "👍", "❤️", "😂", "🎉", "🥔",
+  // And the Free Company's own, which Unicode does not have and which are the
+  // half of this row anybody actually laughs at. See lib/emotes.
+  ...EMOTES.map((e) => e.id),
+];
 
 /** Somebody's reply on a party. */
 export interface PartyComment {

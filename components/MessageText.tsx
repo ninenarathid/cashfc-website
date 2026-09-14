@@ -4,6 +4,8 @@ import Link from "next/link";
 import type { PersonOption } from "@/lib/people";
 import { findMentions } from "@/lib/mentions";
 import Linkify from "@/components/Linkify";
+import Emote from "@/components/ui/Emote";
+import { allEmotes, findEmotes } from "@/lib/emotes";
 
 /**
  * What a message says, with the two things in it that are not prose.
@@ -25,13 +27,53 @@ import Linkify from "@/components/Linkify";
 export default function MessageText(
   { text, people }: { text: string; people: PersonOption[] },
 ) {
-  const named = findMentions(text, people);
-  if (!named.length) return <Linkify text={text} />;
+  /*
+   * Three kinds of thing in one line, marked out in one pass.
+   *
+   * Names and emotes are both spans of the text that stop being text, and
+   * finding them separately meant each one only ever saw what the other had
+   * left — an emote inside the run after a mention was never looked for. So
+   * both are gathered, sorted by where they start, and whatever is left
+   * between them goes to Linkify, which handles the third.
+   *
+   * A name wins a tie. The two cannot really overlap — no emote token appears
+   * inside a character name — but deciding it here is cheaper than being sure
+   * of that forever.
+   */
+  const marks = [
+    ...findMentions(text, people).map((m) => ({ ...m, emote: undefined })),
+    ...findEmotes(text).map((e) => ({
+      at: e.at, len: e.len, id: undefined, name: "", emote: e.emote,
+    })),
+  ].sort((a, b) => a.at - b.at || (a.emote ? 1 : -1));
+
+  const clean: typeof marks = [];
+  for (const m of marks) {
+    const last = clean[clean.length - 1];
+    if (!last || m.at >= last.at + last.len) clean.push(m);
+  }
+
+  if (!clean.length) return <Linkify text={text} />;
+
+  /*
+   * An emote on its own is the message, not a full stop in one.
+   *
+   * Somebody answering a wipe with one crying cat has not written a sentence
+   * with a picture in it, and at the height of the text around it the picture
+   * is unreadable. Every chat app draws these bigger for the same reason.
+   */
+  const big = allEmotes(text);
 
   const out: React.ReactNode[] = [];
   let at = 0;
-  for (const m of named) {
+  for (const m of clean) {
     if (m.at > at) out.push(<Linkify key={`t${at}`} text={text.slice(at, m.at)} />);
+    if (m.emote) {
+      out.push(
+        <Emote key={`e${m.at}`} value={m.emote.id} size={big ? 44 : 20} />);
+      at = m.at + m.len;
+      continue;
+    }
     out.push(m.id == null ? (
       // The room is not a page to go to. Marked the same way so it reads as
       // the same kind of thing, and left as text because there is nowhere for
