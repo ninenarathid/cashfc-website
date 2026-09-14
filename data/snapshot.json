@@ -11327,7 +11327,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 94,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -11340,7 +11340,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-14"
  },
  "30333493": {
   "name": "Haruko Sho",
