@@ -413,13 +413,20 @@ function Block(
 }
 
 export default function PartySeats(
-  { party, onPick, pick, kind }: {
+  { party, onPick, pick, kind, queueIn }: {
     party: Party;
     onPick?: (slot: SlotDef) => void;
     /** What pressing a seat does. See SeatPick. */
     pick?: SeatPick;
     /** Only so a seatless party can say why it has no seats. */
     kind?: ContentKind;
+    /**
+     * How many the game lets in at once, where it lets in fewer than turn up.
+     *
+     * Frontline takes four. See ContentDef.queueIn — the listing holds
+     * everybody and this is what makes the grid draw them in fours.
+     */
+    queueIn?: number;
   },
 ) {
   const { t } = useLang();
@@ -434,32 +441,66 @@ export default function PartySeats(
      * one of these. Who else is going.
      */
     const going = party.floating ?? [];
+    /*
+     * In fours, where the game only lets four in at a time.
+     *
+     * Frontline is entered as a party of up to four, and a Free Company that
+     * turns up with twelve enters it three times. That is one evening and one
+     * listing — so the grouping comes out of the list rather than out of three
+     * separate rows on the board, and the only fact a seat would have carried
+     * on a party with no roles is which four you are going in with.
+     *
+     * By the order they said yes, because there is nothing else to go on and
+     * it is the one order nobody can argue was unfair. Anybody who wants to
+     * swap says so in the conversation underneath, which is what it is for.
+     */
+    const per = queueIn ?? 0;
+    const groups = per > 0
+      ? Array.from({ length: Math.max(1, Math.ceil(going.length / per)) },
+          (_, i) => going.slice(i * per, (i + 1) * per))
+      : [going];
+
     return (
       <div className="flex flex-col gap-2 rounded-lg border border-dashed border-line px-3 py-2.5">
         <p className="text-[15.5px] text-muted">
-          {t(kind === "community" ? "pf.openCommunityWhy"
-            : kind === "pvp" ? "pf.openPvpWhy"
-            : "pf.openTurnUp")}
+          {per > 0 ? t("pf.queueInFours", { n: per })
+            : t(kind === "community" ? "pf.openCommunityWhy"
+              : kind === "pvp" ? "pf.openPvpWhy"
+              : "pf.openTurnUp")}
         </p>
-        {going.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {going.map((f) => (
-              <span key={f.characterId ?? f.name}
-                    className="flex items-center gap-1.5 rounded-full border border-line bg-surface px-2 py-1">
-                <Face who={f} size={24} />
-                <span className={`text-[15.5px] ${
-                  f.confirmedAt ? "text-ink" : "text-ink/60"}`}>
-                  {f.name}
+        {groups.map((lot, i) => (
+          (lot.length > 0 || per > 0) && (
+            <div key={i} className="flex flex-wrap items-center gap-2">
+              {per > 0 && (
+                <span className="font-data text-[12.5px] uppercase tracking-[0.12em] text-muted">
+                  {t("pf.groupN", { n: i + 1 })}
                 </span>
-                {!f.confirmedAt && (
-                  <span className="font-data text-[12px] uppercase tracking-[0.1em] text-gold">
-                    {t("pf.askedShort")}
+              )}
+              {lot.map((f) => (
+                <span key={f.characterId ?? f.name}
+                      className="flex items-center gap-1.5 rounded-full border border-line bg-surface px-2 py-1">
+                  <Face who={f} size={24} />
+                  <span className={`text-[15.5px] ${
+                    f.confirmedAt ? "text-ink" : "text-ink/60"}`}>
+                    {f.name}
                   </span>
-                )}
-              </span>
-            ))}
-          </div>
-        )}
+                  {!f.confirmedAt && (
+                    <span className="font-data text-[12px] uppercase tracking-[0.1em] text-gold">
+                      {t("pf.askedShort")}
+                    </span>
+                  )}
+                </span>
+              ))}
+              {/* The room left in this one, so somebody reading knows whether
+                  pressing the button puts them in it or starts the next. */}
+              {per > 0 && lot.length < per && (
+                <span className="font-data text-[12.5px] text-muted">
+                  {t("pf.roomForN", { n: per - lot.length })}
+                </span>
+              )}
+            </div>
+          )
+        ))}
         {/*
           * And the way in, for a party with no seats to press.
           *

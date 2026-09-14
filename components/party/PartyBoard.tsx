@@ -445,7 +445,7 @@ function PartyDetail(
             * per seat — the grid itself stays a drawing of the party and does
             * not learn who is looking at it.
             */}
-          <PartySeats party={party} kind={def?.kind}
+          <PartySeats party={party} kind={def?.kind} queueIn={def?.queueIn}
                       pick={me && userId && supabase ? {
                         busy: seating,
                         ask: (slot) => {

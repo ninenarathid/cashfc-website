@@ -201,15 +201,18 @@ export interface ContentDef {
   /** Where that still is anchored when it is cropped. */
   focus?: string;
   /**
-   * The one thing about this content a form cannot work out for itself.
+   * How many of them the game lets in together.
    *
-   * A translation key, shown beside the size on the create form. Most content
-   * needs none: "8 players" and the fight's own name say everything. Frontline
-   * needs one, because four is a cap and not a target and the Free Company
-   * turns up with seven — which is a second listing, and somebody who does not
-   * know that reads the locked size as the site being wrong.
+   * Frontline takes a party of four. Twelve people from the same Free Company
+   * turn up to the same Frontline at the same time and enter as three parties
+   * of four — one evening, one arrangement, three queues. So the listing holds
+   * everybody and the grid draws them in fours, rather than the site asking
+   * them to put up three listings for one night.
+   *
+   * Only meaningful on content with no seats: where the game fixes a
+   * composition, the composition is the group.
    */
-  hint?: string;
+  queueIn?: number;
 }
 
 /** One fight the picture files can be looked up by. */
@@ -420,21 +423,22 @@ export function catalogue(
      * agreeing on the hour and seeing who else is going, and a seat chart
      * would be describing something that cannot happen.
      *
-     * Frontline is four, and this said the same thing about it for months. It
-     * is wrong: you queue Frontline as a party of up to four with no
-     * composition at all, which is why it is "four" and not "light" — nobody
-     * is tanking a Frontline.
+     * Frontline is the same and not the same. You enter it as a party of up
+     * to four with no composition at all — nobody is tanking a Frontline — so
+     * four is the unit the game deals in. But a Free Company that turns up
+     * with twelve is not three evenings; it is one evening entered three
+     * times, and asking it to put up three listings would scatter one plan
+     * across three rows and three conversations.
      *
-     * Four is the cap and not a target. A Free Company that turns up with
-     * seven puts up a second listing and the two of them queue separately;
-     * there is no arrangement in which five people enter together, so there
-     * is no listing that should let somebody advertise one.
+     * So the listing has no seats either, and holds everybody, and the grid
+     * draws them in fours. Which group you are in is the only fact a seat
+     * would have carried, and it comes out of the list itself.
      */
     { key: "pvp:cc", kind: "pvp", name: "Crystalline Conflict",
       badge: "CC", duty: "Crystalline Conflict", shape: "open", fixedShape: true },
     { key: "pvp:fl", kind: "pvp", name: "Frontline",
-      badge: "FL", duty: "Frontline", shape: "four", fixedShape: true,
-      hint: "pf.hintFrontline" },
+      badge: "FL", duty: "Frontline", shape: "open", fixedShape: true,
+      queueIn: 4 },
     /*
      * Eight, and no composition.
      *

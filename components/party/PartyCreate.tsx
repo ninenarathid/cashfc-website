@@ -882,14 +882,6 @@ export default function PartyCreate(
           <span className="rounded-lg border border-line bg-bg/40 px-3 py-2 text-[14.5px] text-muted">
             {shapeSay(useShape, chosen?.kind, t)}
             <span className="ml-1.5 opacity-70">· {t("pf.setByContent")}</span>
-            {/* The one thing about this content the size cannot say by
-                itself. See ContentDef.hint — almost nothing has one, and a
-                locked size that surprises somebody is the case that does. */}
-            {chosen.hint && (
-              <span className="ml-1.5 opacity-70">
-                · {t(chosen.hint as Parameters<typeof t>[0])}
-              </span>
-            )}
           </span>
         ) : (
           <select value={useShape} onChange={(e) => setShape(e.target.value as Shape)}
