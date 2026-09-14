@@ -67,8 +67,11 @@ export default function MessageText(
          * rather than something to lean in for — which is the whole of what
          * was sent. See lineIsEmotes.
          */
-        <Emote key={`e${m.at}`} value={m.emote.id}
-               size={lineIsEmotes(text, m.at) ? 70 : 20} />);
+        lineIsEmotes(text, m.at)
+          // The same ninety-six pixels an attached picture gets, framed the
+          // same way. See Emote's `sticker`.
+          ? <Emote key={`e${m.at}`} value={m.emote.id} size={96} sticker />
+          : <Emote key={`e${m.at}`} value={m.emote.id} size={20} />);
       at = m.at + m.len;
       continue;
     }

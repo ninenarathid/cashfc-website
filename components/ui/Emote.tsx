@@ -14,7 +14,20 @@ import { emoteOf } from "@/lib/emotes";
  * and the other with a width would drift apart the first time either changed.
  */
 export default function Emote(
-  { value, size = 20 }: { value: string; size?: number },
+  { value, size = 20, sticker = false }: {
+    value: string;
+    size?: number;
+    /**
+     * Drawn as the picture it is, rather than as a large character.
+     *
+     * A sticker sent on its own line and a screenshot dropped into a message
+     * are the same act from the reader's side — somebody put a picture here —
+     * and the thread was drawing them as two different kinds of thing, one
+     * framed and rounded at ninety-six pixels and the other square and
+     * seventy. Same box for both.
+     */
+    sticker?: boolean;
+  },
 ) {
   const e = emoteOf(value);
   if (!e) {
@@ -26,6 +39,8 @@ export default function Emote(
     // eslint-disable-next-line @next/next/no-img-element
     <img src={e.src} alt={e.say} title={e.say} width={size} height={size}
          style={{ width: size, height: size }}
-         className="inline-block shrink-0 object-contain align-[-0.15em]" />
+         className={sticker
+           ? "inline-block shrink-0 rounded-md border border-line object-cover"
+           : "inline-block shrink-0 object-contain align-[-0.15em]"} />
   );
 }
