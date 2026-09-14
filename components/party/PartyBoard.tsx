@@ -391,7 +391,7 @@ function PartyDetail(
             {lengthSay(party, t)}
           </span>
           <span className="opacity-40">·</span>
-          <span>{headSay(party, def?.kind, t)}</span>
+          <span>{headSay(party, def?.kind, t, def?.queueIn)}</span>
           {progressText(party.progress) && (
             <><span className="opacity-40">·</span>
               <span>{progressText(party.progress)}</span></>
@@ -1592,7 +1592,7 @@ export default function PartyBoard(
                         {lengthSay(p, t)}
                       </span>
                       <span className="opacity-40">·</span>
-                      <span>{headSay(p, c?.kind, t)}</span>
+                      <span>{headSay(p, c?.kind, t, c?.queueIn)}</span>
                       {progressText(p.progress) && (
                         <><span className="opacity-40">·</span>
                           <span>{progressText(p.progress)}</span></>

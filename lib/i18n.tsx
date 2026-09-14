@@ -1865,6 +1865,10 @@ const DICT = {
     th: "เข้าเกมเป็น Party ละ {n} คน แต่ลงชื่อรวมกันที่นี่ที่เดียว",
   },
   "pf.groupN": { en: "Party {n}", th: "Party {n}" },
+  // The short version, for the chip beside the content and the line on a row.
+  "pf.inPartiesOf": {
+    en: "Parties of {n}", th: "เข้าเกม Party ละ {n}",
+  },
   "pf.roomForN": { en: "room for {n}", th: "ว่างอีก {n}" },
   "pf.openCommunity": { en: "Anyone can join", th: "ใครมาก็ได้" },
   "pf.openNone": { en: "No fixed party", th: "ไม่จำกัดปาร์ตี้" },

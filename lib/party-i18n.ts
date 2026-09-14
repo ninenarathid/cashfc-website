@@ -55,10 +55,10 @@ const SHAPE_KEY: Record<Exclude<Shape, "open">, Key> = {
  * and "3/0" would be arithmetic about nothing.
  */
 export const headSay = (
-  p: Party, kind: ContentKind | undefined, t: T,
+  p: Party, kind: ContentKind | undefined, t: T, queueIn?: number,
 ): string => {
   const { here, seats } = headcount(p);
-  if (!seats) return shapeSay(p.shape, kind, t);
+  if (!seats) return shapeSay(p.shape, kind, t, queueIn);
   const n = t("pf.headcount", { n: String(here), of: String(seats) });
   // A headcount shape still has to say the seats mean nothing, which is the
   // whole difference between it and the party of the same size.
@@ -66,13 +66,21 @@ export const headSay = (
     ? `${n} · ${t("pf.anyJobShort")}` : n;
 };
 
+/**
+ * `queueIn` first, because it is the narrower fact.
+ *
+ * "Everyone queues separately" is true of Crystalline Conflict and false of
+ * Frontline, and both are PvP — the kind cannot tell them apart. Content that
+ * says how many the game lets in at once has answered the question already.
+ */
 export const shapeSay = (
-  shape: Shape, kind: ContentKind | undefined, t: T,
+  shape: Shape, kind: ContentKind | undefined, t: T, queueIn?: number,
 ): string => (
   shape !== "open" ? t(SHAPE_KEY[shape])
-    : kind === "pvp" ? t("pf.openPvp")
-      : kind === "community" ? t("pf.openCommunity")
-        : t("pf.openNone")
+    : queueIn ? t("pf.inPartiesOf", { n: queueIn })
+      : kind === "pvp" ? t("pf.openPvp")
+        : kind === "community" ? t("pf.openCommunity")
+          : t("pf.openNone")
 );
 
 /* ── how far in ──────────────────────────────────────────────────────────── */

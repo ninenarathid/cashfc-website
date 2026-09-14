@@ -880,7 +880,7 @@ export default function PartyCreate(
           // form says which fact it has taken rather than leaving a dead
           // control that cannot be moved.
           <span className="rounded-lg border border-line bg-bg/40 px-3 py-2 text-[14.5px] text-muted">
-            {shapeSay(useShape, chosen?.kind, t)}
+            {shapeSay(useShape, chosen?.kind, t, chosen?.queueIn)}
             <span className="ml-1.5 opacity-70">· {t("pf.setByContent")}</span>
           </span>
         ) : (
@@ -1053,7 +1053,8 @@ export default function PartyCreate(
             </label>
           )}
         </div>
-        <PartySeats party={draft} onPick={setPicking} kind={chosen?.kind} />
+        <PartySeats party={draft} onPick={setPicking} kind={chosen?.kind}
+                    queueIn={chosen?.queueIn} />
       </div>
 
       {/* ── People who have not picked a seat ─────────────────────────────── */}
@@ -1064,8 +1065,13 @@ export default function PartyCreate(
             <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
               {t(useShape === "open" ? "pf.whoIsComing" : "pf.flexibleNoSeat")}
             </span>
+            {/* "No party is formed" is true of a hunt train and false of a
+                Frontline, where four of them are. Content that says how many
+                the game takes at once has answered this already. */}
             <span className="text-[13px] text-muted">
-              {t(useShape === "open" ? "pf.openNoParty" : "pf.flexHint")}
+              {chosen?.queueIn && useShape === "open"
+                ? t("pf.inPartiesOf", { n: chosen.queueIn })
+                : t(useShape === "open" ? "pf.openNoParty" : "pf.flexHint")}
             </span>
           </div>
 
