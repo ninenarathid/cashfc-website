@@ -453,6 +453,10 @@ export default function PartySeats(
      * By the order they said yes, because there is nothing else to go on and
      * it is the one order nobody can argue was unfair. Anybody who wants to
      * swap says so in the conversation underneath, which is what it is for.
+     *
+     * The order is the list's own — see inOrder in loadParties. It was taken
+     * on trust here, and the list had none: a Frontline party of twelve was
+     * grouped into threes of four by whatever order the rows came back in.
      */
     const per = queueIn ?? 0;
     const groups = per > 0

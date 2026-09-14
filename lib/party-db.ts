@@ -139,7 +139,9 @@ export async function loadParties(
   const [{ data: members }, { data: comments }] = await Promise.all([
     supabase.from("party_members")
       .select(MEMBER_COLS)
-      .in("party_id", ids),
+      .in("party_id", ids)
+      // So a tie falls the same way every load. See inOrder.
+      .order("id", { ascending: true }),
     /*
      * Including the deleted ones, which are tombstones rather than holes.
      *
@@ -225,6 +227,35 @@ export async function loadParties(
       at.push({ ...who, flex: m.flex ?? {} } as Floater);
       floatOf.set(m.party_id, at);
     }
+  }
+
+  /*
+   * First here, first listed.
+   *
+   * These lists had no order at all: they were whatever the rows happened to
+   * come back as, which is stable enough in practice to look deliberate and is
+   * promised by nobody. A Frontline party of twelve draws them in threes of
+   * four, and which four somebody goes in with was therefore decided by the
+   * query planner.
+   *
+   * By when they actually joined, which for a party with no seats is the only
+   * fair order there is and the one nobody can argue with — the lead is first
+   * because they were, and the eleventh person to press the button is in the
+   * third group. Somebody who wants to swap says so in the conversation
+   * underneath, which is what it is for.
+   *
+   * Not by the row id. Somebody the lead asked on Monday who answered on
+   * Wednesday has an older row than somebody who joined on Tuesday, and they
+   * joined second. The row id is the tie-break, for the same second and for
+   * the form's own draft rows, which have no time on them yet.
+   */
+  const inOrder = (a: Floater, b: Floater) => (
+    a.confirmedAt && b.confirmedAt && a.confirmedAt !== b.confirmedAt
+      ? (a.confirmedAt < b.confirmedAt ? -1 : 1)
+      : (a.seatRowId ?? 0) - (b.seatRowId ?? 0)
+  );
+  for (const lot of [floatOf, askOf, inviteOf]) {
+    for (const list of lot.values()) list.sort(inOrder);
   }
 
   /*
