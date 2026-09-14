@@ -17317,12 +17317,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 80,
     "kills": 2,
     "job": "Dragoon",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Dragoon": {
       "kills": 2,
@@ -17334,12 +17334,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 85,
     "kills": 5,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Machinist": {
       "kills": 4,
@@ -17355,12 +17355,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 97,
     "kills": 6,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Ninja": {
       "kills": 5,
@@ -52163,23 +52163,23 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 9,
     "kills": 1,
     "job": "Samurai",
-    "cleared": true,
-    "encounter_id": 1060
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 52,
     "kills": 4,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Samurai": {
       "kills": 4,
