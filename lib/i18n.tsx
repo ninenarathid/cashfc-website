@@ -1851,11 +1851,20 @@ const DICT = {
    * the listing holds everybody and says how it will be split, rather than
    * asking for three rows on the board and three conversations under them.
    */
+  /*
+   * Two words for two things, and neither of them is "ห้อง".
+   *
+   * "Party" is the group of four the game lets through its door, which is the
+   * word the Free Company uses and the word the rest of this page now uses.
+   * What holds all of them has no second noun on purpose — calling it a party
+   * as well would give the sentence the same word twice meaning two different
+   * things, so it says where instead: everybody signs up here.
+   */
   "pf.queueInFours": {
-    en: "Queued {n} at a time — everybody is in this one listing.",
-    th: "เข้าเกมเป็นตี้ละ {n} คน แต่ทุกคนอยู่ห้องนี้ห้องเดียว",
+    en: "Queued {n} at a time — everybody signs up here.",
+    th: "เข้าเกมเป็น Party ละ {n} คน แต่ลงชื่อรวมกันที่นี่ที่เดียว",
   },
-  "pf.groupN": { en: "Group {n}", th: "ตี้ {n}" },
+  "pf.groupN": { en: "Party {n}", th: "Party {n}" },
   "pf.roomForN": { en: "room for {n}", th: "ว่างอีก {n}" },
   "pf.openCommunity": { en: "Anyone can join", th: "ใครมาก็ได้" },
   "pf.openNone": { en: "No fixed party", th: "ไม่จำกัดปาร์ตี้" },
