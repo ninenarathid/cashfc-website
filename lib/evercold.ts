@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isFcMember } from "@/lib/people";
+import { allRows } from "@/lib/rows";
 
 /**
  * Popoto: Road to Evercold — the Free Company's month-long draw.
@@ -47,8 +48,14 @@ export function eventIsOn(at: Date = new Date()): boolean {
   return t >= Date.parse(EVENT_OPENS) && t <= Date.parse(EVENT_SHUTS);
 }
 
-/** The day a give falls on, in Bangkok — which is the day the draw counts. */
-const bangkokDay = (iso: string): string =>
+/**
+ * The day a give falls on, in Bangkok — which is the day the draw counts.
+ *
+ * Exported so the draw asks this and not a clock of its own. The admin report
+ * once bucketed by the reader's clock, which only agreed with this one for a
+ * reader in Thailand.
+ */
+export const bangkokDay = (iso: string): string =>
   new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Bangkok", year: "numeric", month: "2-digit", day: "2-digit",
   }).format(new Date(iso));
@@ -67,24 +74,32 @@ const bangkokDay = (iso: string): string =>
 export async function entryDays(
   supabase: SupabaseClient, userId: string, myCharacterId: number | null,
 ): Promise<Set<string>> {
-  const [{ data: kudos }, { data: likes }] = await Promise.all([
-    supabase.from("kudos")
-      .select("created_at, receiver_character_id")
-      .eq("sender_id", userId)
-      .gte("created_at", EVENT_OPENS).lte("created_at", EVENT_SHUTS),
-    supabase.from("gallery_likes")
-      .select("created_at, gallery_posts(character_id)")
-      .eq("profile_id", userId)
-      .gte("created_at", EVENT_OPENS).lte("created_at", EVENT_SHUTS),
+  // Paged, the way the draw reads the same rows. One member's month of giving is
+  // well under a thousand, and a count that is right only until somebody is
+  // generous enough is the leaderboard's short count over again (lib/rows.ts).
+  const [kudos, likes] = await Promise.all([
+    allRows<{ created_at: string; receiver_character_id: number }>(
+      (from, to) => supabase.from("kudos")
+        .select("created_at, receiver_character_id")
+        .eq("sender_id", userId)
+        .gte("created_at", EVENT_OPENS).lte("created_at", EVENT_SHUTS)
+        .order("created_at").range(from, to)),
+    allRows(
+      (from, to) => supabase.from("gallery_likes")
+        .select("created_at, gallery_posts(character_id)")
+        .eq("profile_id", userId)
+        .gte("created_at", EVENT_OPENS).lte("created_at", EVENT_SHUTS)
+        .order("created_at").range(from, to)),
   ]);
 
   const days = new Set<string>();
-  for (const k of (kudos ?? []) as unknown as
-       { created_at: string; receiver_character_id: number }[]) {
+  for (const k of kudos) {
     if (myCharacterId != null && k.receiver_character_id === myCharacterId) continue;
     days.add(bangkokDay(k.created_at));
   }
-  for (const l of (likes ?? []) as unknown as
+  // The post a like is on is one row; the client, knowing no schema, types the
+  // embed as a list.
+  for (const l of likes as unknown as
        { created_at: string; gallery_posts: { character_id: number | null } | null }[]) {
     const owner = l.gallery_posts?.character_id ?? null;
     // A picture credited to nobody belongs to nobody, so a potato on it cannot

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useAvatar } from "@/lib/avatars";
-import { EVENT_FROM, EVENT_TO } from "@/lib/evercold";
+import { EVENT_FROM, EVENT_TO, bangkokDay } from "@/lib/evercold";
 import { isFcMember } from "@/lib/people";
 import { allRows } from "@/lib/rows";
 import { fmtDate } from "@/lib/dates";
@@ -58,15 +58,21 @@ interface Report {
   ) => Promise<Map<string, Map<string, number[]>>>;
 }
 
-const two = (n: number) => String(n).padStart(2, "0");
-/** Which local day a timestamp fell on — the day the person was living in. */
-const dayOf = (iso: string) => {
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`;
-};
+/**
+ * Which day a timestamp fell on: the FC's day, in Bangkok.
+ *
+ * It was the reader's day, from whatever clock their browser kept — Bangkok for
+ * an admin in Thailand and something else for one who is not. The member's
+ * notice has always counted Bangkok days, so a potato given at half past
+ * midnight could be an entry of its own in the bell and part of the day before
+ * in the draw: one member, two totals, and no way for them to tell which was
+ * right. One clock for both.
+ */
+const dayOf = bangkokDay;
 
-const startOf = (d: string) => new Date(`${d}T00:00:00`).toISOString();
-const endOf = (d: string) => new Date(`${d}T23:59:59.999`).toISOString();
+// The FC's midnight, not the reader's, for the same reason.
+const startOf = (d: string) => `${d}T00:00:00+07:00`;
+const endOf = (d: string) => `${d}T23:59:59.999+07:00`;
 
 const REPORTS: Report[] = [
   {
@@ -135,14 +141,10 @@ const REPORTS: Report[] = [
   },
 ];
 
-const asDate = (d: Date) =>
-  `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`;
-const today = () => asDate(new Date());
-const daysAgo = (n: number) => {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return asDate(d);
-};
+const today = () => bangkokDay(new Date().toISOString());
+// Bangkok keeps no summer time, so a day there is always this many milliseconds.
+const daysAgo = (n: number) =>
+  bangkokDay(new Date(Date.now() - n * 86_400_000).toISOString());
 
 /**
  * Who the report is about.

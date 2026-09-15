@@ -44,6 +44,17 @@ const rest = async (path, init) => {
   if (!r.ok) throw new Error(`${path}: ${r.status} ${body}`);
   return body ? JSON.parse(body) : null;
 };
+// Every row. This read the first thousand and stopped, which was every kudos there
+// was on the day it was written and a week's short count by the time it could be
+// run again (lib/rows.ts): the totals it sent would have been low.
+const all = async (path) => {
+  const out = [];
+  for (let from = 0; ; from += 1000) {
+    const page = await rest(`${path}&offset=${from}&limit=1000`);
+    out.push(...page);
+    if (page.length < 1000) return out;
+  }
+};
 
 const DRY = process.argv.includes("--dry-run");
 
@@ -59,17 +70,18 @@ const FC = new Set(JSON.parse(readFileSync("data/fc-ids.json", "utf8")).ids);
 
 /* ── who gave what ────────────────────────────────────────────────────────── */
 const enc = encodeURIComponent;
-const profiles = await rest(
-  "profiles?select=id,character_id,character_name&character_id=not.is.null");
+const profiles = await all(
+  "profiles?select=id,character_id,character_name&character_id=not.is.null&order=id");
 const charOf = new Map(profiles.map((p) => [p.id, p.character_id]));
 const nameOf = new Map(profiles.map((p) => [p.id, p.character_name]));
 
-const kudos = await rest(
+const kudos = await all(
   `kudos?select=sender_id,receiver_character_id,created_at`
-  + `&created_at=gte.${enc(FROM)}&created_at=lte.${enc(TO)}`);
-const likes = await rest(
+  + `&created_at=gte.${enc(FROM)}&created_at=lte.${enc(TO)}&order=id`);
+const likes = await all(
   `gallery_likes?select=profile_id,created_at,gallery_posts(character_id)`
-  + `&created_at=gte.${enc(FROM)}&created_at=lte.${enc(TO)}`);
+  + `&created_at=gte.${enc(FROM)}&created_at=lte.${enc(TO)}`
+  + "&order=created_at,profile_id,post_id");
 
 /** account id -> the set of Bangkok days they earned. */
 const days = new Map();
