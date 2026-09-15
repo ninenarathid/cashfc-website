@@ -39198,11 +39198,11 @@
     "name": "Lindwurm",
     "kind": "savage",
     "state": "learning",
-    "pct": 64.11,
+    "pct": 46.65,
     "phase": 0,
-    "pulls": 7,
-    "last": "2026-09-13",
-    "last_ts": 1789306510
+    "pulls": 14,
+    "last": "2026-09-15",
+    "last_ts": 1789491081
    }
   ]
  },
@@ -53413,7 +53413,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 29,
+    "pulls": 3,
     "last": "2026-09-13",
     "last_ts": 1789303764
    },
@@ -55311,11 +55311,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 83.33,
+    "pct": 51.11,
     "phase": 5,
-    "pulls": 73,
-    "last": "2026-09-10",
-    "last_ts": 1789056176
+    "pulls": 94,
+    "last": "2026-09-15",
+    "last_ts": 1789489606
    }
   ]
  },
@@ -62195,8 +62195,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 56,
-    "kills": 5,
+    "best": 66,
+    "kills": 9,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -62217,7 +62217,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 78,
-    "kills": 22,
+    "kills": 29,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -62275,7 +62275,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 76,
-    "kills": 5,
+    "kills": 7,
     "job": "Sage",
     "cleared": true,
     "job_kills": {

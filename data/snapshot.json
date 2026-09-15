@@ -45,6 +45,7 @@
    1313,
    1315,
    1317,
+   1318,
    1321,
    1322,
    1323,
@@ -64,6 +65,7 @@
    2494,
    2497,
    2500,
+   2502,
    2503,
    2506,
    2509,
@@ -122,7 +124,6 @@
    3707,
    3708,
    3709,
-   3711,
    3712,
    3714,
    3715,
@@ -140,8 +141,7 @@
    4000,
    4007,
    4017,
-   4018,
-   4025
+   4018
   ],
   "tiers": {
    "gatherer": "legendary",
@@ -345,7 +345,7 @@
   "mounts": 143,
   "minions": 287,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -366,7 +366,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-06"
+  "chg": "2026-09-15"
  },
  "57885671": {
   "name": "Aisu Kazimira",
@@ -416,9 +416,9 @@
    3646,
    3648,
    3649,
-   3652,
    3656,
    3657,
+   3752,
    3754,
    3755,
    3756,
@@ -697,7 +697,6 @@
    3862,
    3868,
    3869,
-   3877,
    3878,
    3879,
    3880,
@@ -708,6 +707,7 @@
    3885,
    3886,
    3887,
+   3898,
    3899,
    3921,
    3922,
@@ -1028,7 +1028,7 @@
   "mounts": 75,
   "minions": 144,
   "rare": 42,
-  "level": 100,
+  "level": 28,
   "cc": [
    true,
    true,
@@ -1103,7 +1103,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-15"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -1721,7 +1721,7 @@
   "mounts": 105,
   "minions": 135,
   "rare": 59,
-  "level": 100,
+  "level": 1,
   "cc": [
    true,
    true,
@@ -1924,7 +1924,7 @@
   "mounts": 162,
   "minions": 239,
   "rare": 60,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2013,7 +2013,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "47540663": {
   "name": "Edel Meither",
@@ -2387,7 +2387,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 99,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -2723,7 +2723,7 @@
   "mounts": 197,
   "minions": 416,
   "rare": 168,
-  "level": 19,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2862,7 +2862,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "37056222": {
   "name": "Lucine Nokomis",
@@ -3538,8 +3538,8 @@
   "parse": 95,
   "ult": 0,
   "mounts": 65,
-  "minions": 129,
-  "rare": 54,
+  "minions": 130,
+  "rare": 58,
   "level": 100,
   "cc": [
    true,
@@ -3561,6 +3561,7 @@
    3646,
    3677,
    3753,
+   3759,
    3760,
    3805,
    3832,
@@ -3597,11 +3598,14 @@
    4034,
    4035,
    4036,
+   4037,
    4043,
    4044,
    4045,
    4046,
    4047,
+   4048,
+   4049,
    4074
   ],
   "tiers": {
@@ -3770,7 +3774,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 26,
+  "level": 35,
   "cc": [
    true,
    true,
@@ -3876,7 +3880,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-13"
+  "chg": "2026-09-15"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4004,7 +4008,7 @@
   "mounts": 215,
   "minions": 404,
   "rare": null,
-  "level": 18,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4044,7 +4048,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "44133352": {
   "name": "Seville Beoulve",
@@ -4075,6 +4079,7 @@
    552,
    553,
    607,
+   1342,
    1343,
    1344,
    1345,
@@ -4160,7 +4165,6 @@
    3714,
    3951,
    3964,
-   4025,
    4026
   ],
   "tiers": {
@@ -4184,7 +4188,7 @@
   "mounts": 264,
   "minions": 336,
   "rare": 522,
-  "level": 43,
+  "level": 50,
   "cc": null,
   "rare_ids": [
    847,
@@ -4304,7 +4308,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -4313,7 +4317,7 @@
   "mounts": 201,
   "minions": 382,
   "rare": 266,
-  "level": 100,
+  "level": 46,
   "cc": [
    true,
    true,
@@ -4455,7 +4459,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -4917,10 +4921,10 @@
   "name": "Zeadz Stellar",
   "parse": 78,
   "ult": 0,
-  "mounts": 50,
-  "minions": 124,
-  "rare": 22,
-  "level": 100,
+  "mounts": 52,
+  "minions": 127,
+  "rare": 31,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -4930,6 +4934,7 @@
   ],
   "rare_ids": [
    560,
+   944,
    3655,
    3658,
    3769,
@@ -4940,6 +4945,7 @@
    3862,
    3874,
    3889,
+   3943,
    3966,
    3979,
    3986,
@@ -4950,7 +4956,14 @@
    3998,
    4002,
    4003,
-   4014
+   4014,
+   4023,
+   4024,
+   4025,
+   4026,
+   4028,
+   4029,
+   4030
   ],
   "tiers": {},
   "jobs": {
@@ -6077,7 +6090,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 71,
+  "level": 62,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6148,7 +6161,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 35,
+  "level": 58,
   "cc": null,
   "rare_ids": [
    3874
@@ -6287,7 +6300,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 96,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6328,7 +6341,7 @@
   "mounts": 143,
   "minions": 334,
   "rare": 15,
-  "level": 10,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6357,7 +6370,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -6420,7 +6433,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -6435,7 +6448,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-13"
+  "chg": "2026-09-15"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6715,9 +6728,9 @@
   "name": "Lyndanisse Vymmaith",
   "parse": 67,
   "ult": 0,
-  "mounts": 194,
+  "mounts": 196,
   "minions": 418,
-  "rare": 234,
+  "rare": 253,
   "level": 100,
   "cc": [
    false,
@@ -6729,9 +6742,7 @@
   "rare_ids": [
    935,
    940,
-   1132,
    1201,
-   1337,
    1339,
    1370,
    1474,
@@ -6740,10 +6751,10 @@
    2481,
    2559,
    2759,
-   3361,
    3555,
    3600,
    3601,
+   3602,
    3683,
    3717,
    3720,
@@ -6755,19 +6766,12 @@
    3757,
    3758,
    3760,
-   3761,
    3762,
-   3763,
-   3765,
-   3766,
-   3767,
    3770,
    3771,
    3778,
    3784,
-   3802,
    3817,
-   3823,
    3832,
    3842,
    3846,
@@ -6783,14 +6787,7 @@
    3860,
    3861,
    3862,
-   3877,
-   3878,
-   3879,
-   3880,
    3881,
-   3882,
-   3883,
-   3884,
    3885,
    3886,
    3887,
@@ -6805,7 +6802,6 @@
    3922,
    3923,
    3924,
-   3925,
    3935,
    3936,
    3937,
@@ -6824,13 +6820,30 @@
    4006,
    4007,
    4008,
+   4009,
    4014,
    4017,
+   4018,
+   4023,
+   4024,
+   4025,
+   4026,
+   4027,
+   4028,
+   4029,
+   4030,
+   4031,
+   4033,
+   4034,
+   4035,
+   4043,
+   4044,
+   4045,
    4074
   ],
   "tiers": {
    "relic": "legendary",
-   "explorer": "master",
+   "explorer": "legendary",
    "pvp": "expert"
   },
   "jobs": {},
@@ -6843,7 +6856,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7095,7 +7108,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 98,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -7405,7 +7418,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 89,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -7450,7 +7463,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7825,7 +7838,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 21,
-  "level": 74,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8038,14 +8051,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 100,
+  "level": 97,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-05"
+  "chg": "2026-09-15"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -16108,7 +16121,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 87,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -16121,7 +16134,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
@@ -16629,7 +16642,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 43,
+  "level": 54,
   "cc": [
    false,
    false,

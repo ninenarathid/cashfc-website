@@ -2,6 +2,104 @@
  "events": [
   {
    "date": "2026-09-15",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned An Eye for Detail: Weaver IV — only 2.9% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 31628293,
+   "name": "Aaaaaaa Yaaaaaa",
+   "text": "reached level 100 on Blacksmith!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned Phantom of the Umbra: Sword & Kite Shield Umbrae"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "rare_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "earned Stranger than Fiction"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "reached level 100 on Dragoon!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "rare_up",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "earned Unbreakable III — only 0.1% of players have it, and 3 more"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 29325838,
+   "name": "Ryuu Dawnblade",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned With Saw in Hand IV — only 3.0% of players have it"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "rare_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "earned Wild Child IV — only 2.2% of players have it, and 8 more"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 26844665,
+   "name": "J'atoh Nunh",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "grade_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned A Show of Fork IV — only 0.2% of players have it, and 17 more"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-15",
    "type": "level_100",
    "id": 28579232,
    "name": "Dessiny Valkyrie",
@@ -1301,104 +1399,6 @@
    "id": 35629716,
    "name": "Zeldris Ragnarsson",
    "text": "set a new best parse: 77 on Erichthonios as Dragoon"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "job_up",
-   "id": 35629716,
-   "name": "Zeldris Ragnarsson",
-   "text": "is now a Expert Dragoon"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "parse_up",
-   "id": 43481858,
-   "name": "Pika Juni",
-   "text": "set a new best parse: 48 on Agdistis as Sage"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "job_up",
-   "id": 33487130,
-   "name": "Rimuru Tempesta",
-   "text": "is now a Expert Dark Knight"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "parse_up",
-   "id": 40624820,
-   "name": "Rin Miyauchi",
-   "text": "set a new best parse: 64 on Hegemone as Warrior"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "job_up",
-   "id": 40624820,
-   "name": "Rin Miyauchi",
-   "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "parse_up",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "set a new best parse: 98 on Hephaistos as Ninja"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "job_up",
-   "id": 39961214,
-   "name": "Ruby Sugarstar",
-   "text": "is now a Legendary Ninja"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "job_up",
-   "id": 1607774,
-   "name": "Shiomi Shirogane",
-   "text": "is now a Legendary Warrior"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "reached level 100 on Fisher!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "reached level 100 on Botanist!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Fisher!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "reached level 100 on Bard!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "reached level 100 on Samurai!"
   }
  ]
 }
