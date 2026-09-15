@@ -7351,7 +7351,7 @@
   "mounts": 29,
   "minions": 121,
   "rare": null,
-  "level": 68,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -7364,7 +7364,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-15"
  },
  "33387937": {
   "name": "R'bael Senkou",
