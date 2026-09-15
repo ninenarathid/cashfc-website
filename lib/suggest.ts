@@ -227,6 +227,31 @@ function recordOf(
   return done ? { history: "cleared", pulls: null, phase: null } : none;
 }
 
+/**
+ * Who in a party has already cleared its fight.
+ *
+ * The same reading of the records the seat suggestions use, pointed at the
+ * people already sitting down rather than the people who might be asked — so
+ * a member suggested because they have cleared M12S is the same member the
+ * grid calls a helper once they are in. Extremes, savage and ultimates only;
+ * see hasHistory.
+ */
+export function helpersIn(
+  rows: readonly SuggestRow[], ids: readonly number[],
+  def: { kind?: string; name?: string; short?: string; badge?: string } | undefined,
+  labels: string[],
+): Set<number> {
+  const out = new Set<number>();
+  if (!def || !hasHistory(def.kind)) return out;
+  const want = new Set(ids);
+  for (const row of rows) {
+    if (!want.has(row.id)) continue;
+    const r = recordOf(row, def.kind, def.name, def.short ?? def.badge, labels);
+    if (r.history === "cleared") out.add(row.id);
+  }
+  return out;
+}
+
 /** A fight's name flattened to the one handle every source agrees on. */
 export const fightKey = (s: string): string =>
   s.toLowerCase().replace(/[^a-z0-9]/g, "");

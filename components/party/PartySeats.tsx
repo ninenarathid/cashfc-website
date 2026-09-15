@@ -195,7 +195,8 @@ function FlexLine(
 }
 
 function Seat(
-  { slot, party, res, onPick, pick, compact }: {
+  { slot, party, res, onPick, pick, compact, helpers }: {
+    helpers?: ReadonlySet<number>;
     slot: SlotDef;
     party: Party;
     res: Resolved;
@@ -246,6 +247,15 @@ function Seat(
         <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
           {slot.label}
         </span>
+        {/* Helper, in the corner opposite the seat's name, on a locked seat
+            whose sitter has cleared this fight. Only once they are in it: an
+            unanswered seat is somebody who has not said yes, and labelling
+            them would advertise a helper the party does not have. */}
+        {state === "taken" && who?.characterId != null && helpers?.has(who.characterId) && (
+          <span className="ml-auto rounded-full border border-jade/55 bg-jade/15 px-2 py-[1px] font-data text-[11px] font-semibold uppercase tracking-[0.1em] text-jade">
+            {t("pf.helperTag")}
+          </span>
+        )}
       </span>
 
       {state === "taken" || state === "waiting" ? (
@@ -304,6 +314,7 @@ function Seat(
           {t("pf.awaitingReply")}
         </span>
       )}
+
 
       {/* What else they could play. Drawn on the seat they are in rather than
           on the seats they could move to, because it is a fact about the
@@ -406,9 +417,10 @@ function SeatAsk(
 
 /** One block of up to eight, in the game's two-row arrangement. */
 function Block(
-  { slots, party, res, onPick, pick, wing }: {
+  { slots, party, res, onPick, pick, wing, helpers }: {
     slots: SlotDef[]; party: Party; res: Resolved;
     onPick?: (slot: SlotDef) => void; pick?: SeatPick; wing?: Wing;
+    helpers?: ReadonlySet<number>;
   },
 ) {
   const { t } = useLang();
@@ -423,7 +435,7 @@ function Block(
         slots.length > 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4"}`}>
         {slots.map((s) => (
           <Seat key={s.id} slot={s} party={party} res={res} onPick={onPick}
-                pick={pick} />
+                pick={pick} helpers={helpers} />
         ))}
       </div>
     </div>
@@ -431,8 +443,17 @@ function Block(
 }
 
 export default function PartySeats(
-  { party, onPick, pick, kind, queueIn }: {
+  { party, onPick, pick, kind, queueIn, helpers }: {
     party: Party;
+    /**
+     * Who in it has already cleared this fight. See helpersIn.
+     *
+     * Drawn on a locked seat as "Helper": somebody who has seen the whole
+     * fight is a different member of a prog party from somebody learning it,
+     * and the lead and everybody deciding whether to join read the grid for
+     * exactly that.
+     */
+    helpers?: ReadonlySet<number>;
     onPick?: (slot: SlotDef) => void;
     /** What pressing a seat does. See SeatPick. */
     pick?: SeatPick;
@@ -553,12 +574,14 @@ export default function PartySeats(
   }
 
   const grid = party.shape !== "alliance"
-    ? <Block slots={slots} party={party} res={res} onPick={onPick} pick={pick} />
+    ? <Block slots={slots} party={party} res={res} onPick={onPick} pick={pick}
+             helpers={helpers} />
     : (
       <div className="flex flex-col gap-3">
         {(["A", "B", "C"] as Wing[]).map((wing) => (
           <Block key={wing} wing={wing} party={party} res={res} onPick={onPick}
-                 pick={pick} slots={slots.filter((s) => s.wing === wing)} />
+                 pick={pick} slots={slots.filter((s) => s.wing === wing)}
+                 helpers={helpers} />
         ))}
       </div>
     );

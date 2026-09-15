@@ -2373,6 +2373,8 @@ const DICT = {
   },
   "pf.staticPutUp": { en: "Put up static", th: "สร้าง Static" },
   "pf.staticTag": { en: "Static", th: "Static" },
+  // On a locked seat, for somebody who has already cleared the fight.
+  "pf.helperTag": { en: "Helper", th: "Helper" },
   "pf.staticHeading": { en: "Static finder", th: "Static finder" },
   "pf.staticNone": { en: "No statics are looking right now.", th: "ยังไม่มี Static ที่กำลังหาคน" },
   "pf.closeTitle": { en: "Close this party", th: "ปิดห้องนี้" },

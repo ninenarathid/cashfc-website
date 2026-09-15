@@ -36,7 +36,7 @@ import type { SuggestRow } from "@/lib/suggest";
 import { mapLabel } from "@/lib/treasure";
 import { useLang } from "@/lib/i18n";
 import Link from "next/link";
-import { freeAt } from "@/lib/suggest";
+import { freeAt, helpersIn } from "@/lib/suggest";
 import {
   headSay, kindSay, lengthSay, lootLine, whenFull, whyEstimate,
 } from "@/lib/party-i18n";
@@ -141,7 +141,11 @@ const EMPTY = {
  */
 function PartyDetail(
   { party, def, now, people, me, userId, supabase, refresh, setErr, setParties,
-    parties, onClose, onEdit }: {
+    parties, onClose, onEdit, suggest = [], labels = [] }: {
+    /** Everybody's records, for who in this party has already cleared it. */
+    suggest?: SuggestRow[];
+    /** The tier's labels, which is how the savage clears are indexed. */
+    labels?: string[];
     party: Party;
     def: ContentDef | undefined;
     now: number;
@@ -170,6 +174,16 @@ function PartyDetail(
   const [seating, setSeating] = useState(false);
   /** Theirs to fill, which changes what pressing an empty seat means. */
   const iAmOwner = !!userId && party.owner === userId;
+  /*
+   * Who in it has already cleared this fight, for the Helper tag on their
+   * seat. Extremes, savage and ultimates — the fights the records cover.
+   */
+  const helpers = useMemo(
+    () => helpersIn(suggest,
+      Object.values(party.seats).map((w) => w.characterId)
+        .filter((x): x is number => x != null),
+      def, labels),
+    [suggest, party.seats, def, labels]);
   /** Whether the test option is offered when closing. See CloseParty. */
   const { isAdmin } = useAdmin();
   /*
@@ -473,6 +487,7 @@ function PartyDetail(
             * not learn who is looking at it.
             */}
           <PartySeats party={party} kind={def?.kind} queueIn={def?.queueIn}
+                      helpers={helpers}
                       pick={me && userId && supabase ? {
                         busy: seating,
                         ask: (slot) => {
@@ -1892,7 +1907,7 @@ export default function PartyBoard(
         if (!p) return null;
         return (
           <PartyDetail party={p} def={byKey[p.contentKey]} now={now}
-                       parties={parties}
+                       parties={parties} suggest={suggest} labels={labels}
                        people={people} me={me} userId={userId} supabase={supabase}
                        refresh={refresh} setErr={setErr} setParties={setParties}
                        /* Theirs to change. The policy says the same thing and
