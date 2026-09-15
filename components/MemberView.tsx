@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import type { ExtremeEntry, JobKills, Member, MemberRaids, Overlay, RaidEncounter, RaidZone, UltimateEntry } from "@/lib/types";
@@ -26,6 +26,9 @@ import TagIcon from "@/components/TagIcon";
 import DutyCard from "@/components/DutyCard";
 import AwardBadge from "@/components/ui/AwardBadge";
 import PopotoGivers from "@/components/PopotoGivers";
+import { throwPotato } from "@/components/ui/throwPotato";
+import { useRareDemo } from "@/lib/popoto-rare-demo";
+import { RareShowcase } from "@/components/RareInventory";
 import { useBadgesFor } from "@/lib/member-badges";
 import { artFocus, dutySlug, NO_ART, type DutyArt } from "@/lib/duty";
 import { byReleaseOrder, dutyOf, savageDuty } from "@/lib/duties";
@@ -97,6 +100,44 @@ export default function MemberView({
   const [user, setUser] = useState<User | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [kudos, setKudos] = useState<number | null>(null);
+  /** Where a popoto is thrown from and where it lands. See throwPotato. */
+  const kudosBtn = useRef<HTMLButtonElement>(null);
+  const portrait = useRef<HTMLImageElement>(null);
+  /** Between the press and the landing, so one press is one potato. */
+  const [throwing, setThrowing] = useState(false);
+
+  /*
+   * A throw with nothing sent, for trying the animation out.
+   *
+   * Local development only: `testPotato()` in the browser console throws from
+   * this page's button onto this page's picture and writes nothing — no
+   * popoto, no notification, no day counted towards the draw. It does not
+   * exist in the deployed site, so nobody can use it to make a potato appear
+   * to land that was never given.
+   */
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const w = window as unknown as { testPotato?: () => Promise<void> };
+    w.testPotato = () => throwPotato(kudosBtn.current, portrait.current);
+    return () => { delete w.testPotato; };
+  }, []);
+
+  /* (The wrapped one, `testRarePotato()`, works on every page: RareDevTools.) */
+
+  /*
+   * And the shelf: `testRareShelf()` shows this page's public shelf filled
+   * with one gift of each real flavour, so it can be seen before anybody has
+   * put one on show. Nothing is written; `testRareShelf(false)` takes them away.
+   */
+  const [shelfDemo, setShelfDemo] = useState(false);
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const w = window as unknown as { testRareShelf?: (on?: boolean) => void };
+    w.testRareShelf = (on = true) => setShelfDemo(on);
+    return () => { delete w.testRareShelf; };
+  }, []);
+  // From the real flavours when they can be read; see useRareDemo.
+  const shelfGifts = useRareDemo(shelfDemo);
   const [kudosMsg, setKudosMsg] = useState("");
   /** Whether the reader has claimed a character, which giving a popoto needs. */
   const [iHaveCharacter, setIHaveCharacter] = useState(false);
@@ -159,6 +200,7 @@ export default function MemberView({
   }, [supabase, m.id]);
 
   async function sendKudos() {
+    if (throwing) return;
     if (!supabase || !user) {
       setKudosMsg(t("kudos.signIn"));
       return;
@@ -172,12 +214,25 @@ export default function MemberView({
       setTimeout(() => setKudosMsg(""), 5000);
       return;
     }
+    setThrowing(true);
     const { error } = await supabase.from("kudos")
       .insert({ sender_id: user.id, receiver_character_id: m.id });
     if (error) {
+      setThrowing(false);
       setKudosMsg(error.code === "23505"
         ? "Already sent to this member today — come back tomorrow" : "Could not send, try again");
     } else {
+      /*
+       * Thrown once the database has it, not on the press. A potato that
+       * flew and landed and was then refused — already sent today — would be
+       * the page saying two opposite things a second apart. The insert takes
+       * a moment; the throw is worth waiting that moment for.
+       *
+       * The count goes up when it lands rather than when it leaves, which is
+       * when the person watching expects it to.
+       */
+      await throwPotato(kudosBtn.current, portrait.current);
+      setThrowing(false);
       setKudos((k) => (k ?? 0) + 1);
       setKudosMsg(t("kudos.sent"));
       // The draw counts a day of giving, and this is one. Not awaited: the
@@ -388,7 +443,7 @@ export default function MemberView({
         <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:p-6">
           {(ov?.avatarUrl || m.portrait || m.avatar) && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={ov?.avatarUrl ?? m.portrait ?? m.avatar ?? ""} alt=""
+            <img ref={portrait} src={ov?.avatarUrl ?? m.portrait ?? m.avatar ?? ""} alt=""
                  className={`shrink-0 rounded-xl border border-line object-cover object-top ${
                    // A picture they cropped square is shown square. Forcing it
                    // into the Lodestone's tall frame would crop their crop.
@@ -524,7 +579,7 @@ export default function MemberView({
                     end of the wheel this button was writing in the ground it
                     sits on. Its other half already used ink, so the pair now
                     matches as well as being legible. */}
-                <button onClick={sendKudos}
+                <button ref={kudosBtn} onClick={sendKudos} disabled={throwing}
                         className={`border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${
                           kudos ? "rounded-l-md" : "rounded-md"}`}>
                   🥔 Send popoto
@@ -574,6 +629,11 @@ export default function MemberView({
                 other half of that press, and it disappears the same way if the
                 accent is dark. */}
             {kudosMsg && <div className="mt-1.5 text-[12.5px] text-ink/75">{kudosMsg}</div>}
+            {/* The rare popoto they chose to show, for everybody. They choose on
+                their own edit-profile page; see RareInventory. */}
+            {shelfDemo
+              ? shelfGifts && <RareShowcase characterId={m.id} demo={shelfGifts} />
+              : <RareShowcase characterId={m.id} />}
           </div>
         </div>
       </section>

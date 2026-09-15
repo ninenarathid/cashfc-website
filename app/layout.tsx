@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 import CommandPalette from "@/components/CommandPalette";
 import ToastHost from "@/components/ui/Toast";
+import RareDevTools from "@/components/RareDevTools";
 import { TooltipProvider } from "@/components/ui/Tooltip";
 import roster from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
@@ -93,6 +94,9 @@ export default function RootLayout({
           {/* Outside the page's own column, because it is pinned to the window
               rather than to anything on the page. */}
           <ToastHost />
+          {/* Local-only: the testRarePotato() console command. Renders nothing
+              on the deployed site. */}
+          <RareDevTools />
           <div className="mx-auto max-w-5xl px-4 pb-16">
             <Nav />
             {children}

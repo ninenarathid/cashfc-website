@@ -13,6 +13,8 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
 import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
+import GiftIcon from "@/components/ui/GiftIcon";
+import { RARE_INVENTORY } from "@/lib/popoto-rare";
 
 interface Note {
   id: number;
@@ -77,8 +79,10 @@ function said(
  * actually reading.
  */
 function BadgedThumb(
-  { src, badge, href, onGo, round = true }: {
-    src: string | null; badge: string; href: string | null; onGo: () => void;
+  { src, badge, extra, href, onGo, round = true }: {
+    src: string | null; badge: React.ReactNode; href: string | null; onGo: () => void;
+    /** A second thing in the other corner — the parcel that came with a popoto. */
+    extra?: React.ReactNode;
     /** Round for a face; square for a picture, which is not one. */
     round?: boolean;
   },
@@ -96,6 +100,11 @@ function BadgedThumb(
       <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full border border-line bg-surface text-[12px]">
         {badge}
       </span>
+      {extra && (
+        <span className="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full border border-gold/70 bg-surface shadow-[0_0_8px_rgba(229,204,128,.45)]">
+          {extra}
+        </span>
+      )}
     </span>
   );
   return href
@@ -127,6 +136,9 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   // your page, and which page that is depends on the character you hold.
   popoto: { say: "notif.popoto", icon: "🥔", href: "" },
   popoto_post: { say: "notif.popotoPost", icon: "🥔", href: "" },
+  // One in a hundred arrives wrapped. Its row leads to the inventory on the
+  // edit-profile page, where every parcel is opened (see hrefOf).
+  popoto_rare: { say: "notif.popotoRare", icon: "🎁", href: "" },
   announcement: { say: "notif.announced", icon: "📣", href: "/" },
   // Somebody answered a notice you posted. The speech bubble, the same mark a
   // reply wears everywhere else on this site. The href is filled in per
@@ -206,7 +218,10 @@ const hrefOf = (
   character: number | null,
   postPath: (id: number) => string,
 ): string | null => (
-  n.kind === "popoto" ? (character != null ? `/member/${character}` : "/profile")
+  // A parcel is opened in one place, the inventory on the edit-profile page.
+  n.kind === "popoto_rare" ? RARE_INVENTORY
+  : n.kind === "popoto"
+    ? (character != null ? `/member/${character}` : "/profile")
     : n.party_id ? `/party?p=${n.party_id}`
       : n.announcement_id ? eventPath(n.announcement_id)
         : n.post_id ? postPath(n.post_id)
@@ -718,7 +733,7 @@ export default function NotificationBell() {
     const out = new Map<number, string>();
     if (character == null) return out;   // nothing to send one with
     for (const n of notes) {
-      if (n.kind !== "popoto") continue;
+      if (n.kind !== "popoto" && n.kind !== "popoto_rare") continue;
       if (n.created_at.slice(0, 10) !== todayUtc()) continue;
       const cid = n.actor ? people[n.actor]?.characterId ?? null : null;
       if (cid == null || cid === character || given.has(cid)) continue;
@@ -764,7 +779,9 @@ export default function NotificationBell() {
     // thumbnail and what they did sits in the corner of it. Anything with a
     // picture of its own keeps it: a tag is answered by looking at the
     // photograph, and an announcement does not say whose it was.
-    const facing = n.kind === "popoto" || n.kind === "popoto_post"
+    // A popoto that came with something: the sender, the potato, and the
+    // parcel, which is the part that says this one is not like the others.
+    const facing = n.kind === "popoto" || n.kind === "popoto_post" || n.kind === "popoto_rare"
       ? "🥔" : n.kind === "feedback" ? "✉️"
         // Everything the party finder sends is one person doing something to
         // your evening — asking for a seat, saying yes, leaving, speaking in a
@@ -784,7 +801,7 @@ export default function NotificationBell() {
     // A popoto that arrived today, from somebody with a page, and not from
     // yourself: the only case where sending one back is a reply rather than a
     // new gesture on a different day.
-    const backTo = n.kind === "popoto"
+    const backTo = (n.kind === "popoto" || n.kind === "popoto_rare")
       && character != null
       && n.created_at.slice(0, 10) === todayUtc()
       && actor?.characterId != null
@@ -798,8 +815,9 @@ export default function NotificationBell() {
         {poster ? (
           <BadgedThumb src={poster} badge={n.kind.startsWith("evercold") ? "🎟️" : "📣"}
                        round={false} href={href} onGo={dismiss} />
-        ) : facing && (actorFace || actorHref) ? (
-          <BadgedThumb src={actorFace} badge={facing} href={actorHref}
+        ) : facing && (actorFace || actorHref || n.kind === "popoto_rare") ? (
+          <BadgedThumb src={actorFace} badge={facing} href={actorHref ?? (n.kind === "popoto_rare" ? href : null)}
+                       extra={n.kind === "popoto_rare" ? <GiftIcon size={15} /> : undefined}
                        onGo={dismiss} />
         ) : cover ? (
           // The picture answers "which one?", and the badge on it answers what
@@ -833,6 +851,16 @@ export default function NotificationBell() {
             <p className="mt-1 font-data text-[11px] uppercase tracking-[0.1em] text-jade">
               {t("notif.evercoldEvent")}
             </p>
+          ) : n.kind === "popoto_rare" ? (
+            // The body is which popoto it was — not a thing to read. The second
+            // line is the way to the inventory, where every parcel is opened.
+            <div className="mt-1.5">
+              <Link href={RARE_INVENTORY} onClick={dismiss}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-gold/60 bg-gold/15 py-0.5 pl-1.5 pr-2.5 text-[12.5px] font-medium text-gold no-underline transition-colors hover:bg-gold/25">
+                <GiftIcon size={16} />
+                {t("rare.openInInventory")}
+              </Link>
+            </div>
           ) : n.body ? (
             <p className="mt-1 line-clamp-2 text-[12.5px] leading-snug text-muted">
               {n.body}

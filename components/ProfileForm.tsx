@@ -10,6 +10,8 @@ import { LANGS, useLang } from "@/lib/i18n";
 import AvailabilityGrid from "@/components/AvailabilityGrid";
 import PendingTags from "@/components/gallery/PendingTags";
 import ProfilePictures from "@/components/ProfilePictures";
+import { RareInventory } from "@/components/RareInventory";
+import { useRareDemo } from "@/lib/popoto-rare-demo";
 import AdminSwitch from "@/components/AdminSwitch";
 import { useMyFace } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
@@ -98,6 +100,19 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
   const [profile, setProfile] = useState<ProfileRow | null>(null);
 
   const [charId, setCharId] = useState<number | null>(null);
+  /*
+   * `testRareInventory()` in the console, locally: the inventory filled with
+   * one gift of each real flavour (see useRareDemo), to open and put on show
+   * without anything being written. `testRareInventory(false)` puts it back.
+   */
+  const [inventoryDemo, setInventoryDemo] = useState(false);
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const w = window as unknown as { testRareInventory?: (on?: boolean) => void };
+    w.testRareInventory = (on = true) => setInventoryDemo(on);
+    return () => { delete w.testRareInventory; };
+  }, []);
+  const inventoryGifts = useRareDemo(inventoryDemo);
   const [charName, setCharName] = useState<string | null>(null);
   const [verifiedAt, setVerifiedAt] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState("");
@@ -246,6 +261,11 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           here. This is the page that is always reachable, which matters: with the
           powers off, the way back to them must not be one of the things hidden. */}
       <AdminSwitch />
+
+      {/* The rare popoto they have been sent: open the ones still wrapped, and
+          pick up to ten to show on their profile. Renders nothing for somebody
+          who has never had one. */}
+      <RareInventory characterId={charId} demo={inventoryGifts} />
 
       <ProfilePictures
         characterId={charId}

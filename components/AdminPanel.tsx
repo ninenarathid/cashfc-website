@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import ImagePicker from "@/components/ImagePicker";
+import AdminFlavors from "@/components/AdminFlavors";
+import { usePopotoKeeper } from "@/lib/popoto-keeper";
 import ImagesPicker from "@/components/ImagesPicker";
 import { picsOf } from "@/lib/events";
 
@@ -106,6 +108,8 @@ export default function AdminPanel(
     portraits: Record<number, string>;
   },
 ) {
+  /** Whether the rare popoto tab is drawn. See usePopotoKeeper. */
+  const keeper = usePopotoKeeper();
   const { t } = useLang();
   const [supabase] = useState(createClient);
   const [phase, setPhase] = useState<"loading" | "denied" | "ready">("loading");
@@ -771,6 +775,12 @@ export default function AdminPanel(
           <AdminBadges memberOptions={memberOptions} nameOf={nameOf} />
         ) },
         { key: "poll", label: t("adm.poll"), body: <AdminPoll /> },
+        // Only for whoever keeps the rare popoto, not for every admin: the
+        // flavours and their lines are a surprise kept from the other admins
+        // too. The database refuses everybody else the same way (v77).
+        ...(keeper ? [{ key: "blessings", label: t("adm.blessings"), body: (
+          <AdminFlavors memberOptions={memberOptions} />
+        ) }] : []),
       ]} />
 
       <AdminLog nameOf={nameOf} />
