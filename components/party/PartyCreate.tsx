@@ -946,7 +946,9 @@ function PartyForm(
    */
   function addFloater(f: Floater) {
     setFloating((v) => [...v.filter((x) => whoKey(x) !== whoKey(f)), f]);
-    setAdding(f);
+    // A party with no seats has nothing to ask about the person just added —
+    // there is no role to play — so there is no editor to open for them.
+    setAdding(useShape === "open" ? null : f);
     setFq("");
   }
 
@@ -1323,25 +1325,33 @@ function PartyForm(
             </div>
           ))}
 
-          {adding ? (
+          {/*
+            * What the person just added can play, and the box to add the next.
+            *
+            * These were one or the other: the editor replaced the box until it
+            * was toggled shut. In a party with no seats the editor draws
+            * nothing — there is no role to ask about — so after the first name
+            * the box was gone and nothing on the screen brought it back, which
+            * is why "Something else" could only ever invite one person. Now
+            * the box stays once the question is answered, and never leaves at
+            * all where there is no question.
+            */}
+          {adding && useShape !== "open" && (
             <div className="flex flex-col gap-2">
-              {useShape !== "open" && (
-                <>
-                  <span className="text-[14px] text-ink">
-                    {t("pf.whatCanPlay", { name: adding.name })}
-                  </span>
-                  <FlexEditor shape={useShape} seatId=""
-                              value={adding.flex}
-                              onChange={(fx) => editFlex(adding, fx)} />
-                </>
-              )}
-              {useShape !== "open" && !canFlex(adding.flex) && (
+              <span className="text-[14px] text-ink">
+                {t("pf.whatCanPlay", { name: adding.name })}
+              </span>
+              <FlexEditor shape={useShape} seatId=""
+                          value={adding.flex}
+                          onChange={(fx) => editFlex(adding, fx)} />
+              {!canFlex(adding.flex) && (
                 <span className="text-[13px] text-muted">
                   {t("pf.pickOneThing")}
                 </span>
               )}
             </div>
-          ) : (
+          )}
+          {(!adding || useShape === "open" || canFlex(adding.flex)) && (
             <div className="flex flex-col gap-1.5">
               <input value={fq} onChange={(e) => setFq(e.target.value)}
                      placeholder={t("pf.addFlexer")}
