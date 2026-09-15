@@ -9,6 +9,7 @@ import { askedAbout, flexLabel, openSeats, partyStatus } from "@/lib/party";
 import { acceptInvite, confirmSeat, dropSeat } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
+import { useAdmin } from "@/lib/admin";
 
 /**
  * Asking to be let in, and letting people in.
@@ -91,6 +92,15 @@ export default function PartyJoin(
    */
   const started = partyStatus(party, now) !== "upcoming";
   const iAmOwner = !!me && party.ownerCharacterId === me.id;
+  /*
+   * The lead's side of this panel, for the lead or an admin.
+   *
+   * Kept apart from iAmOwner rather than folded into it: the reader's own side
+   * below still asks whether this is their party, and an admin who has been
+   * invited to somebody else's is answering for themselves there like anybody.
+   */
+  const { isAdmin } = useAdmin();
+  const canLead = iAmOwner || isAdmin;
   const mine = useMemo(
     () => (me ? roster(party).find((m) => m.characterId === me.id) : undefined),
     [party, me]);
@@ -131,7 +141,7 @@ export default function PartyJoin(
   return (
     <div className="flex flex-col gap-2.5">
       {/* ── The lead's side: who is waiting ────────────────────────────── */}
-      {iAmOwner && waiting.length > 0 && (
+      {canLead && waiting.length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border border-gold/40 bg-gold/[0.07] p-2.5">
           <p className="font-data text-[13.5px] uppercase tracking-[0.14em] text-gold">
             {t("party.waitingOnYou", { n: waiting.length })}
@@ -173,7 +183,7 @@ export default function PartyJoin(
       )}
 
       {/* ── The lead's side: who has been asked and has not answered ───── */}
-      {iAmOwner && (party.invites ?? []).length > 0 && (
+      {canLead && (party.invites ?? []).length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
           <p className="font-data text-[13.5px] uppercase tracking-[0.14em] text-muted">
             {t("party.invitesOut", { n: (party.invites ?? []).length })}
@@ -204,9 +214,23 @@ export default function PartyJoin(
                     {where}
                   </span>
                 )}
+                {/* The invited person's side, answered for them. An admin's
+                    only: the lead asking and the lead answering would be the
+                    party agreeing with itself. For the evening somebody said
+                    yes in Discord and never came to press the button. */}
+                {isAdmin && w.characterId !== me.id && (
+                  <button disabled={busy}
+                          onClick={() => run(async () => {
+                            const r = await acceptInvite(supabase, w.seatRowId!);
+                            return "error" in r ? { error: r.error } : {};
+                          })}
+                          className={`ml-auto ${btn} border border-jade/60 bg-jade/15 text-jade hover:bg-jade/25`}>
+                    {t("party.acceptFor")}
+                  </button>
+                )}
                 <button disabled={busy}
                         onClick={() => run(() => dropSeat(supabase, w.seatRowId!))}
-                        className="ml-auto text-[14px] text-muted underline hover:text-chili">
+                        className={`${isAdmin && w.characterId !== me.id ? "" : "ml-auto "}text-[14px] text-muted underline hover:text-chili`}>
                   {t("party.withdrawInvite")}
                 </button>
               </span>

@@ -5,7 +5,7 @@ import type {
   Floater, Flex, LengthUnit, Loot, MapPlan, Party, PartyBlock, PartyComment,
   Progress, Reaction, SeatRule, Shape, SlotTaken, Spot,
 } from "@/lib/party";
-import { askedAbout } from "@/lib/party";
+import { askedAbout, endsAt } from "@/lib/party";
 
 /**
  * The party finder, read from and written to the database.
@@ -48,6 +48,9 @@ interface PostRow {
   created_at: string;
   updated_at: string | null;
   ended_at: string | null;
+  /** v73. Absent where that migration has not been run. */
+  outcome?: string | null;
+  outcome_photo?: string | null;
 }
 
 interface MemberRow {
@@ -94,6 +97,27 @@ const POST_COLS =
   + " length_minutes, length_unit, runs, one_of_each_job, closed, rules, progress,"
   + " loot, spot, maps, roulettes, body, created_at, updated_at, ended_at";
 
+/**
+ * The listing's columns, with v73's where the database has them.
+ *
+ * Asked for with the outcome first and without it if that fails, and the
+ * answer remembered for the rest of the page's life: a board whose parties all
+ * vanished because a migration had not been run yet is a worse trade than a
+ * board that cannot say which evenings went well. The same ladder the notices
+ * climb.
+ */
+let knowsOutcome = true;
+async function readPosts<R>(
+  run: (cols: string) => PromiseLike<{ data: R | null; error: { message: string } | null }>,
+): Promise<{ data: R | null; error: { message: string } | null }> {
+  if (knowsOutcome) {
+    const r = await run(`${POST_COLS}, outcome, outcome_photo`);
+    if (!r.error || !/outcome/.test(r.error.message)) return r;
+    knowsOutcome = false;
+  }
+  return run(POST_COLS);
+}
+
 const MEMBER_COLS =
   "id, party_id, seat, character_id, name, avatar, job, jobs, flex, asked_by,"
   + " confirmed_at";
@@ -123,8 +147,8 @@ export async function loadParties(
   supabase: SupabaseClient, opts?: { back?: number },
 ): Promise<Party[]> {
   const since = new Date(Date.now() - (opts?.back ?? 12) * 3600_000).toISOString();
-  const { data: posts, error } = await supabase.from("party_posts")
-    .select(POST_COLS)
+  const { data: posts, error } = await readPosts((cols) => supabase.from("party_posts")
+    .select(cols)
     .is("deleted_at", null)
     .gte("starts_at", since)
     // Soonest first while the window is the usual one. Reversed for a wide
@@ -132,7 +156,7 @@ export async function loadParties(
     // a month and getting the oldest two hundred of it would hand back exactly
     // the parties nobody was looking for.
     .order("starts_at", { ascending: !opts?.back })
-    .limit(200);
+    .limit(200));
   if (error || !posts?.length) return [];
 
   const ids = (posts as unknown as PostRow[]).map((p) => p.id);
@@ -389,6 +413,9 @@ function partyOf(p: PostRow, who: Roster): Party {
     createdAt: p.created_at,
     updatedAt: p.updated_at ?? undefined,
     endedAt: p.ended_at,
+    outcome: (p.outcome === "success" || p.outcome === "fail" || p.outcome === "test")
+      ? p.outcome : null,
+    outcomePhoto: p.outcome_photo ?? null,
   });
 }
 
@@ -473,13 +500,13 @@ export async function recentSetups(
   supabase: SupabaseClient, userId: string, limit = 6,
 ): Promise<Setup[]> {
   const since = new Date(Date.now() - KEEP_DAYS * 24 * 3600_000).toISOString();
-  const { data } = await supabase.from("party_posts")
-    .select(POST_COLS)
+  const { data } = await readPosts((cols) => supabase.from("party_posts")
+    .select(cols)
     .eq("owner", userId)
     .is("deleted_at", null)
     .gte("created_at", since)
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(50));
 
   const out: Setup[] = [];
   const at = new Map<string, Setup>();
@@ -728,9 +755,38 @@ export async function updateParty(
 export async function finishParty(
   supabase: SupabaseClient, partyId: string, on = true,
 ): Promise<{ error?: string }> {
+  // Reopening takes the verdict off with the end: a party that is running
+  // again has not yet gone any particular way.
   const { error } = await supabase.from("party_posts")
-    .update({ ended_at: on ? new Date().toISOString() : null })
+    .update(on ? { ended_at: new Date().toISOString() }
+               : { ended_at: null, outcome: null, outcome_photo: null })
     .eq("id", Number(partyId));
+  return error ? { error: error.message } : {};
+}
+
+/**
+ * Close it, and say how it went.
+ *
+ * Success from the lead or an admin, test from an admin only — the database
+ * refuses a lead's test (v73), so a button drawn by mistake still cannot put
+ * the word on. Fail is never written from here; see party_fail_expired. The end is stamped only where it has not been already: a party
+ * whose time ran out and was marked a fail keeps the moment it actually
+ * finished, and saying afterwards that it went well does not move that.
+ */
+export async function closeParty(
+  supabase: SupabaseClient, party: Party,
+  outcome: "success" | "test", photo: string | null = null,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_posts")
+    .update({
+      outcome,
+      outcome_photo: outcome === "success" ? photo : null,
+      // Stamped only on a party that has not finished by either route: not
+      // one the lead already ended, and not one whose time simply ran out.
+      ...(party.endedAt || new Date(endsAt(party)).getTime() <= Date.now()
+        ? {} : { ended_at: new Date().toISOString() }),
+    })
+    .eq("id", Number(party.id));
   return error ? { error: error.message } : {};
 }
 

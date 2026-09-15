@@ -1162,7 +1162,21 @@ export interface Party {
    * that went on, a party called off before it ever started.
    */
   endedAt?: string | null;
+  /**
+   * How it went, once it has gone. See v73.
+   *
+   * Success is said by the lead or an admin; fail is what a party becomes a
+   * day after it closes — its time ran out, or its room emptied — with nobody
+   * having said otherwise, or what an admin calls an old one; test is an
+   * admin's, for a listing that only ever existed to try the board out. Null for everything still to happen — and for every
+   * party from before outcomes were recorded, which nobody has judged yet.
+   */
+  outcome?: PartyOutcome | null;
+  /** The group photo, where the success came with one. */
+  outcomePhoto?: string | null;
 }
+
+export type PartyOutcome = "success" | "fail" | "test";
 
 /**
  * Somebody in the party who has not been pinned to a seat yet.
@@ -2128,6 +2142,18 @@ export type PartyStatus = "upcoming" | "soon" | "live" | "justEnded" | "done";
 
 /** The width of the warning, and of the grace afterwards. */
 export const SOON_MS = 3_600_000;
+
+/**
+ * Nobody is in it: no seat taken and nobody standing by.
+ *
+ * A party with nobody in it is closed. The database says so the moment the
+ * last person leaves (v73); this is the same fact for the one place the page
+ * has to decide it — whether the lead is offered "reopen" on a listing that
+ * would be reopened to an empty room. Unanswered requests and invitations are
+ * not people in it, which is what they have always meant on this board.
+ */
+export const isEmpty = (p: Party): boolean =>
+  Object.keys(p.seats).length === 0 && !(p.floating?.length);
 
 export function partyStatus(p: Party, now: number = Date.now()): PartyStatus {
   /*

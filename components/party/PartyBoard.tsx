@@ -14,7 +14,7 @@ import {
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
   clashFor,
   isFight,
-  needsByRole, partyStatus, placeOf, progressText, resolveParty, slotsOf, spotText,
+  needsByRole, partyStatus, placeOf, isEmpty, progressText, resolveParty, slotsOf, spotText,
   worldText,
   timeIsEstimate,
 } from "@/lib/party";
@@ -62,6 +62,8 @@ import PartyCreate from "@/components/party/PartyCreate";
 import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
 import Modal from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
+import CloseParty, { SuccessTag } from "@/components/party/CloseParty";
+import { useAdmin } from "@/lib/admin";
 import ShareParty from "@/components/party/ShareParty";
 import PfHelper from "@/components/party/PfHelper";
 
@@ -167,6 +169,8 @@ function PartyDetail(
   const [seating, setSeating] = useState(false);
   /** Theirs to fill, which changes what pressing an empty seat means. */
   const iAmOwner = !!userId && party.owner === userId;
+  /** Whether the test option is offered when closing. See CloseParty. */
+  const { isAdmin } = useAdmin();
   /*
    * Already promised those hours to somebody else.
    *
@@ -265,6 +269,7 @@ function PartyDetail(
               {fmtTime(party.startsAt)}
             </span>
             <StatusPill status={partyStatus(party, now)} />
+            {party.outcome === "success" && <SuccessTag />}
             <WhenLine party={party} now={now}
                       className="font-data text-[14.5px] text-white/85 drop-shadow" />
             <span className="ml-auto flex items-center gap-1.5">
@@ -283,17 +288,31 @@ function PartyDetail(
                           className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
                     ✎ {t("pf.edit")}
                   </button>
-                  {/* Over when the lead says so, which is the only one who can
-                      know. The estimate on the listing is a guess about how
-                      long a thing takes; this is the answer. Reversible, so a
-                      misclick on a party still going is a second press rather
-                      than a party nobody can rejoin. */}
-                  <button onClick={() => (party.endedAt
-                            ? void run(() => finishParty(supabase!, party.id, false))
-                            : setEnding(true))}
-                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-jade hover:text-jade">
-                    {t(party.endedAt ? "pf.reopenParty" : "pf.endParty")}
-                  </button>
+                  {/*
+                    * Closing it, and saying how it went.
+                    *
+                    * Offered until somebody has said: before the start, while
+                    * it runs, and after its time is up — a party marked a fail
+                    * because nobody came back to it within the day can still
+                    * be called a success by the lead who does. Gone once it is a success or
+                    * a test, where reopening is the way to change the answer.
+                    */}
+                  {party.outcome !== "success" && party.outcome !== "test" && (
+                    <button onClick={() => setEnding(true)}
+                            className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-jade hover:text-jade">
+                      {t("pf.closeParty")}
+                    </button>
+                  )}
+                  {/* Reopening, where somebody closed it. Not on a party with
+                      nobody in it: that one closed because the room emptied,
+                      and reopening it would put an empty listing back on the
+                      board. Delete is still there beside it. */}
+                  {party.endedAt && !isEmpty(party) && (
+                    <button onClick={() => void run(() => finishParty(supabase!, party.id, false))}
+                            className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
+                      {t("pf.reopenParty")}
+                    </button>
+                  )}
                   <button onClick={() => setDropping(true)}
                           className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-chili/90 transition-colors hover:border-chili hover:text-chili">
                     {t("pf.deleteParty")}
@@ -334,19 +353,29 @@ function PartyDetail(
           </span>
         </div>
 
+        {/* The group photo, on the party it was taken at. Only inside the
+            party, not on its row: the row carries the Success tag and that is
+            all the board says about how an evening went. */}
+        {party.outcome === "success" && party.outcomePhoto && (
+          <figure className="flex flex-col gap-1.5">
+            <figcaption className="font-data text-[12.5px] uppercase tracking-[0.14em] text-jade">
+              {t("pf.groupPhotoTitle")}
+            </figcaption>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={party.outcomePhoto} alt={t("pf.groupPhotoTitle")} loading="lazy"
+                 className="max-h-[28rem] w-auto max-w-full self-start rounded-lg border border-line object-contain" />
+          </figure>
+        )}
+
         {pf && (
           <PfHelper party={party} def={def} onClose={() => setPf(false)} />
         )}
 
-        {ending && (
-          <ConfirmDialog z={120}
-                         message={t("pf.endAsk")}
-                         confirmLabel={t("pf.endParty")}
-                         onCancel={() => setEnding(false)}
-                         onConfirm={async () => {
-                           setEnding(false);
-                           await run(() => finishParty(supabase!, party.id, true));
-                         }} />
+        {ending && supabase && userId && (
+          <CloseParty party={party} supabase={supabase} userId={userId}
+                      admin={isAdmin}
+                      onClose={() => setEnding(false)}
+                      onDone={refresh} />
         )}
 
         {dropping && (
@@ -770,6 +799,13 @@ export default function PartyBoard(
    * the same party is two places to press Escape and one of them wrong.
    */
   const [amending, setAmending] = useState<Party | null>(null);
+  /*
+   * An admin holds every lead's controls: edit, close, reopen, delete, and
+   * answering for either side of a seat. With the admin switch on — the same
+   * switch every other admin control on the site obeys — so an admin reading
+   * the board as a member sees what a member sees.
+   */
+  const { isAdmin } = useAdmin();
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
@@ -1623,6 +1659,7 @@ export default function PartyBoard(
                           the name and its own shorthand breaks the name in
                           half. */}
                       <StatusPill status={partyStatus(p, now)} />
+                      {p.outcome === "success" && <SuccessTag />}
                     </span>
 
                     {/* The date and the two clock times, written out once.
@@ -1797,7 +1834,7 @@ export default function PartyBoard(
                        /* Theirs to change. The policy says the same thing and
                           is the one that counts; this decides whether the
                           buttons are worth drawing. */
-                       onEdit={userId && p.owner === userId
+                       onEdit={userId && (p.owner === userId || isAdmin)
                          ? () => { setOpenId(null); setAmending(p); } : undefined}
                        onClose={() => setOpenId(null)} />
         );

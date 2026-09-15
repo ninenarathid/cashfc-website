@@ -91,11 +91,13 @@ const CAL = {
 } as const;
 
 export default function DateTime(
-  { value, min, onChange, invalid = false, className = "" }: {
+  { value, min, max, onChange, invalid = false, className = "" }: {
     /** "YYYY-MM-DDTHH:mm", a wall clock with no zone. */
     value: string;
     /** The same shape. Earlier days are offered but cannot be chosen. */
     min?: string;
+    /** The same shape. Later days are drawn but cannot be chosen. */
+    max?: string;
     onChange: (v: string) => void;
     /** Drawn as a mistake — the form decides what counts as one. */
     invalid?: boolean;
@@ -141,6 +143,7 @@ export default function DateTime(
 
   const selected = useMemo(() => toDate(day), [day]);
   const floor = useMemo(() => toDate((min ?? "").slice(0, 10)), [min]);
+  const ceiling = useMemo(() => toDate((max ?? "").slice(0, 10)), [max]);
 
   /*
    * What the button says.
@@ -178,7 +181,10 @@ export default function DateTime(
   const body = (
     <div className={`flex gap-3 ${phone ? "flex-col items-center" : ""}`}>
       <DayPicker mode="single" selected={selected} defaultMonth={selected}
-                 disabled={floor ? { before: floor } : undefined}
+                 disabled={[
+                   ...(floor ? [{ before: floor }] : []),
+                   ...(ceiling ? [{ after: ceiling }] : []),
+                 ]}
                  showOutsideDays
                  onSelect={(d) => { if (d) set({ day: toDay(d) }); }}
                  classNames={CAL} />

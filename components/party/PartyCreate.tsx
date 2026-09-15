@@ -114,6 +114,19 @@ function defaultStart(): string {
  */
 const earliest = () => asBangkokLocal(new Date());
 
+/**
+ * How far ahead a party may be put up.
+ *
+ * Ten days. A listing for a date seven weeks out is not a party anybody can
+ * plan around yet — nobody knows their evenings that far off, and it sits on
+ * the board the whole time as a row with nobody in it. The same number is held
+ * by the database (v73), so a stale tab or the Discord bot cannot go past it.
+ */
+export const MAX_AHEAD_DAYS = 10;
+
+/** The latest start the field will accept: ten days from now, on the Thai clock. */
+const latest = () => asBangkokLocal(new Date(Date.now() + MAX_AHEAD_DAYS * 24 * 3600_000));
+
 /** What the field says is Thai wall-clock time; this is the instant it means. */
 function fromBangkokLocal(value: string): string {
   const [date, time] = value.split("T");
@@ -513,6 +526,15 @@ function PartyForm(
   const wasStart = editing ? asBangkokLocal(new Date(editing.startsAt)) : "";
   const floor = editing && wasStart && wasStart < min ? wasStart : min;
   const past = !!start && start < floor;
+  /*
+   * Too far ahead, measured from now rather than from when the party was
+   * first put up — except that a listing already further out than the limit
+   * may be saved where it is, for the same reason an edit may leave a start in
+   * the past: moving it is not what the lead came to do.
+   */
+  const max = latest();
+  const ceiling = editing && wasStart && wasStart > max ? wasStart : max;
+  const tooFar = !!start && start > ceiling;
   /** Under way already, which is a thing to say rather than a thing to stop. */
   const running = !past && !!start && start < min;
 
@@ -861,7 +883,7 @@ function PartyForm(
       : null),
     [mine, me.id, start, minutes, editing?.id]);
 
-  const ready = !!chosen && !!note.trim() && !!start && !past && !clash && minutes > 0
+  const ready = !!chosen && !!note.trim() && !!start && !past && !tooFar && !clash && minutes > 0
     && (!!editing || !!mySeat || iAmFloating);
   // Which of the two is missing, so the button says why it is grey rather than
   // leaving somebody to work it out.
@@ -1065,7 +1087,8 @@ function PartyForm(
           <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
             {t("pf.starts")}
           </span>
-          <DateTime value={start} min={floor} invalid={past} onChange={setStart} />
+          <DateTime value={start} min={floor} max={ceiling} invalid={past || tooFar}
+                    onChange={setStart} />
         </label>
 
         <label className="flex flex-col gap-1">
@@ -1115,8 +1138,9 @@ function PartyForm(
           </span>
         </label>
 
-        <p className={`pb-2 text-[13.5px] ${past ? "text-chili" : "text-muted"}`}>
+        <p className={`pb-2 text-[13.5px] ${past || tooFar ? "text-chili" : "text-muted"}`}>
           {past ? t("pf.past")
+            : tooFar ? t("pf.tooFar", { n: MAX_AHEAD_DAYS })
             // Said plainly, not in red: it is already true, and the lead is
             // here to change something else.
             : running ? t("pf.alreadyStarted")
@@ -1320,7 +1344,10 @@ function PartyForm(
           one row, the reader's own. A lead who never took a seat had nowhere
           to say so from — the seat controls are on the party itself, and the
           lead is the one person the party page had no controls for. */}
-      {editing && chosen && (
+      {/* Only on the lead's own party. An admin editing somebody else's is
+          not in it, and pressing a seat here would put them in it as though
+          they had put it up — confirmed, without asking anybody. */}
+      {editing && chosen && editing.owner === userId && (
         <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">

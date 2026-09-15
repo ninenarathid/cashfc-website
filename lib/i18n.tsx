@@ -2239,6 +2239,10 @@ const DICT = {
     en: "Nobody is in a party — everybody queues on their own.",
     th: "ไม่มีการจัดปาร์ตี้",
   },
+  "pf.tooFar": {
+    en: "Parties can be put up at most {n} days ahead.",
+    th: "ตั้ง Party ล่วงหน้าได้ไม่เกิน {n} วัน",
+  },
   "pf.past": {
     en: "That is already past — pick a later time.",
     th: "เวลานี้ผ่านไปแล้ว เลือกเวลาข้างหน้า",
@@ -2355,6 +2359,30 @@ const DICT = {
     th: "ปาร์ตี้นี้จบแล้ว",
   },
   "pf.endParty": { en: "End party", th: "จบปาร์ตี้" },
+  /* ── Closing a party, and how it went (v73) ─────────────────────────── */
+  "pf.closeParty": { en: "Close party", th: "ปิดห้อง" },
+  "pf.closeTitle": { en: "Close this party", th: "ปิดห้องนี้" },
+  "pf.closeSuccess": { en: "It went well", th: "สำเร็จ" },
+  "pf.closeSuccessWhy": {
+    en: "The party gets a Success tag. Add the group photo if somebody took one.",
+    th: "ห้องจะได้ Tag Success ใส่รูปถ่ายรวมด้วยก็ได้ถ้ามี",
+  },
+  "pf.groupPhoto": { en: "Group photo (optional)", th: "รูปถ่ายรวม (ไม่บังคับ)" },
+  "pf.groupPhotoHint": {
+    en: "Drop it here, paste it, or press to choose",
+    th: "ลากมาวาง วาง (Ctrl+V) หรือกดเพื่อเลือกไฟล์",
+  },
+  "pf.closeAsSuccess": { en: "Close as success", th: "ปิดห้องแบบสำเร็จ" },
+  "pf.closeTest": { en: "Test party", th: "ห้องทดสอบ" },
+  "pf.closeTestWhy": {
+    en: "Only for a listing made to try the board out. Admins only.",
+    th: "สำหรับห้องที่ตั้งไว้ทดสอบระบบเท่านั้น (เฉพาะ Admin)",
+  },
+  "pf.closeAsTest": { en: "Mark as test", th: "ปิดเป็นห้องทดสอบ" },
+  "pf.successTag": { en: "Success", th: "Success" },
+  "pf.groupPhotoTitle": { en: "Group photo", th: "รูปถ่ายรวม" },
+  // An admin answering an invitation for the person it was sent to.
+  "party.acceptFor": { en: "Confirm for them", th: "ยืนยันแทน" },
   "pf.reopenParty": { en: "Reopen", th: "เปิดปาร์ตี้อีกครั้ง" },
   "pf.endAsk": {
     en: "End this party now? It stays on the board with everything in it, but nobody can join it any more.",
