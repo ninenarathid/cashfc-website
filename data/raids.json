@@ -62578,7 +62578,19 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1076,
+    "name": "Dragonsong's Reprise",
+    "best": 45,
+    "kills": 1,
+    "job": "Paladin",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -71539,13 +71551,17 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 6,
+    "kills": 8,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
      "Scholar": {
-      "kills": 6,
+      "kills": 7,
       "best": 99
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 82
      }
     }
    },
