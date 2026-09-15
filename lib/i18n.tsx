@@ -2361,6 +2361,20 @@ const DICT = {
   "pf.endParty": { en: "End party", th: "จบปาร์ตี้" },
   /* ── Closing a party, and how it went (v73) ─────────────────────────── */
   "pf.closeParty": { en: "Close party", th: "ปิดห้อง" },
+  /* ── Statics (v76) ──────────────────────────────────────────────────── */
+  "pf.staticLabel": { en: "Static", th: "Static" },
+  "pf.staticWhy": {
+    en: "The same group every session until the fight is cleared. Listed in the Static finder, with no limit on how far ahead it starts.",
+    th: "เล่นกับกลุ่มเดิมทุกครั้งจนกว่าจะผ่าน จะไปอยู่ใน Static finder และตั้งวันเริ่มล่วงหน้าได้ไม่จำกัด",
+  },
+  "pf.staticAsk": {
+    en: "This will be put up as a static, not a party: it goes in the Static finder at the foot of the board, and stays open until it is closed. Put it up?",
+    th: "นี่จะเป็นการสร้าง Static ไม่ใช่ Party ทั่วไป จะไปอยู่ใน Static finder ด้านล่างสุดของหน้า และจะเปิดอยู่จนกว่าจะปิดห้อง ยืนยันสร้างไหม?",
+  },
+  "pf.staticPutUp": { en: "Put up static", th: "สร้าง Static" },
+  "pf.staticTag": { en: "Static", th: "Static" },
+  "pf.staticHeading": { en: "Static finder", th: "Static finder" },
+  "pf.staticNone": { en: "No statics are looking right now.", th: "ยังไม่มี Static ที่กำลังหาคน" },
   "pf.closeTitle": { en: "Close this party", th: "ปิดห้องนี้" },
   "pf.closeSuccess": { en: "It went well", th: "สำเร็จ" },
   "pf.closeSuccessWhy": {

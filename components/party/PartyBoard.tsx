@@ -62,7 +62,7 @@ import PartyCreate from "@/components/party/PartyCreate";
 import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
 import Modal from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
-import CloseParty, { GroupPhotos, SuccessTag } from "@/components/party/CloseParty";
+import CloseParty, { GroupPhotos, StaticTag, SuccessTag } from "@/components/party/CloseParty";
 import { useAdmin } from "@/lib/admin";
 import ShareParty from "@/components/party/ShareParty";
 import PfHelper from "@/components/party/PfHelper";
@@ -98,6 +98,7 @@ import PfHelper from "@/components/party/PfHelper";
 const INVITED = "\u0000invited";
 const MINE = "\u0000mine";
 const ASKED = "\u0000asked";
+const STATIC = "\u0000static";
 
 type Sort = "soon" | "new" | "open";
 type When = "" | "today" | "3d" | "week";
@@ -268,7 +269,10 @@ function PartyDetail(
             <span className="font-data text-[23px] font-semibold tabular-nums text-white drop-shadow">
               {fmtTime(party.startsAt)}
             </span>
-            <StatusPill status={partyStatus(party, now)} />
+            {/* A static has no evening for the clock to describe — "not
+                started" and then "ended" about its first session would both
+                be wrong about the group — so it says what it is instead. */}
+            {party.isStatic ? <StaticTag /> : <StatusPill status={partyStatus(party, now)} />}
             {party.outcome === "success" && <SuccessTag />}
             <WhenLine party={party} now={now}
                       className="font-data text-[14.5px] text-white/85 drop-shadow" />
@@ -895,7 +899,19 @@ export default function PartyBoard(
 
   const refresh = useCallback(async () => {
     if (!supabase) { setLoading(false); return; }
-    setParties(await loadParties(supabase, wide ? { back: 24 * 30 } : undefined));
+    /*
+     * The evening's parties and the open statics, as one list.
+     *
+     * One list so that everything which finds a party by id — the open
+     * window, the comment writes that update it in place, a link somebody
+     * followed — finds a static the same way. Where each one is drawn is
+     * decided afterwards; see base and statics.
+     */
+    const [evening, statics] = await Promise.all([
+      loadParties(supabase, wide ? { back: 24 * 30 } : undefined),
+      loadParties(supabase, { statics: true }),
+    ]);
+    setParties([...evening, ...statics]);
     setLoading(false);
   }, [supabase, wide]);
 
@@ -1020,11 +1036,54 @@ export default function PartyBoard(
   const leadName = useMemo(
     () => new Map(people.map((x) => [x.id, x.name])), [people]);
 
-  const base = useMemo(() => {
+  /*
+   * The fight chips and the search box, for both lists.
+   *
+   * Asked of a party on the schedule and of a static alike, so that picking
+   * Ultimate or typing a friend's name narrows the Static finder the same way
+   * it narrows the evening — and so the long list of what a search looks in is
+   * written once.
+   */
+  const matches = useCallback((p: Party) => {
     const q = query.trim().toLowerCase();
+    const c = byKey[p.contentKey];
+    if (kinds.size && (!c || !kinds.has(c.kind))) return false;
+
+    if (q) {
+      /*
+       * Everybody who is actually in it, which is not only the seated.
+       *
+       * "Which party is Dessiny in" is one of the two ways anybody finds a
+       * party — the other is the fight — and it was matching the seat grid
+       * only. Somebody flexing without a chair could not be found, and
+       * neither could a lead who put a party up and has not sat down in it,
+       * which is a normal thing for a lead to do. Searching a friend's name
+       * and getting nothing reads as "they are not raiding tonight".
+       *
+       * Not the invitations or the requests. Those are questions somebody
+       * has been asked and has not answered, they are shown on the party
+       * only to the lead, and a search box is not the place to publish who
+       * is thinking about what.
+       */
+      const hay = [c?.name, c?.short, c?.badge, c?.duty, p.note,
+                   progressText(p.progress), lootText(p.loot), spotText(p.spot),
+                   mapsText(p.maps, mapLabel),
+                   p.roulettes?.join(" "),
+                   leadName.get(p.ownerCharacterId),
+                   ...Object.values(p.seats).map((s) => s.name),
+                   ...(p.floating ?? []).map((f) => f.name)]
+        .filter(Boolean).join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }, [byKey, kinds, query, leadName]);
+
+  const base = useMemo(() => {
     const horizon = adv.when === "today" ? 1 : adv.when === "3d" ? 3 : adv.when === "week" ? 7 : 0;
 
     const out = parties.filter((p) => {
+      // Statics are not on the schedule; they have a section of their own.
+      if (p.isStatic) return false;
       // The party somebody followed a link to is shown whatever else is set.
       if (p.id === pinned) return true;
 
@@ -1033,35 +1092,7 @@ export default function PartyBoard(
       const over = partyStatus(p, now) === "done";
       if (over !== (adv.status === "done")) return false;
 
-      const c = byKey[p.contentKey];
-      if (kinds.size && (!c || !kinds.has(c.kind))) return false;
-
-      if (q) {
-        /*
-         * Everybody who is actually in it, which is not only the seated.
-         *
-         * "Which party is Dessiny in" is one of the two ways anybody finds a
-         * party — the other is the fight — and it was matching the seat grid
-         * only. Somebody flexing without a chair could not be found, and
-         * neither could a lead who put a party up and has not sat down in it,
-         * which is a normal thing for a lead to do. Searching a friend's name
-         * and getting nothing reads as "they are not raiding tonight".
-         *
-         * Not the invitations or the requests. Those are questions somebody
-         * has been asked and has not answered, they are shown on the party
-         * only to the lead, and a search box is not the place to publish who
-         * is thinking about what.
-         */
-        const hay = [c?.name, c?.short, c?.badge, c?.duty, p.note,
-                     progressText(p.progress), lootText(p.loot), spotText(p.spot),
-                     mapsText(p.maps, mapLabel),
-                     p.roulettes?.join(" "),
-                     leadName.get(p.ownerCharacterId),
-                     ...Object.values(p.seats).map((s) => s.name),
-                     ...(p.floating ?? []).map((f) => f.name)]
-          .filter(Boolean).join(" ").toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
+      if (!matches(p)) return false;
 
       if (horizon) {
         const days = (new Date(p.startsAt).getTime() - now) / 86_400_000;
@@ -1091,7 +1122,7 @@ export default function PartyBoard(
     });
 
     return out;
-  }, [parties, byKey, query, kinds, adv, me, now, pinned, myHours, leadName]);
+  }, [parties, adv, me, now, pinned, myHours, matches]);
 
   const anyProgress = useMemo(() => base.some((p) => p.progress), [base]);
   const anyLoot = useMemo(() => base.some((p) => p.loot), [base]);
@@ -1160,6 +1191,20 @@ export default function PartyBoard(
    * The rest stay grouped by the day they fall on in Bangkok, which is how
    * people read a schedule.
    */
+  /*
+   * The open statics, for the section at the foot of the board.
+   *
+   * Only the fight chips and the search apply. The rest of the filters are
+   * about one evening — when it starts, which seat is free tonight, whether
+   * it has finished — and a static is not one; it is open until it is closed.
+   * Newest first, because a static that went up yesterday is the one still
+   * most likely to be looking.
+   */
+  const statics = useMemo(
+    () => parties.filter((p) => p.isStatic && matches(p))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [parties, matches]);
+
   const sections = useMemo(() => {
     const invited: Party[] = [];
     const mine: Party[] = [];
@@ -1220,6 +1265,258 @@ export default function PartyBoard(
     + (adv.loot ? 1 : 0) + (adv.status ? 1 : 0) + (adv.free ? 1 : 0);
 
   const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink";
+
+  /** One party as a row, on the schedule or in the Static finder. */
+  const row = (p: Party) => {
+    const c = byKey[p.contentKey];
+    const tint = c ? KIND_COLOR[c.kind] : "#8b93a1";
+    const open = openId === p.id;
+    const res = resolveParty(p);
+    const inIt = [...Object.values(res.seats), ...res.loose];
+    // Whoever put it up, wherever they ended up -- seated, or still
+    // floating between two seats they offered for.
+    const owner = inIt.find((m) => m.characterId === p.ownerCharacterId);
+    return (
+      <article key={p.id}
+               className="overflow-hidden rounded-xl border border-line bg-surface">
+        {/*
+          * A poster rather than a line of chips.
+          *
+          * The picture is the left rail at full height, and a row with
+          * no picture gets a block in its kind's colour with the game's
+          * own badge on it — so every title starts at the same x. The
+          * old row could not manage that: a thumbnail on some rows and
+          * not others gave a column of eight rows two title columns.
+          *
+          * The time goes on the rail, over the art, where a poster puts
+          * it. Everything that used to be a coloured chip is one muted
+          * line of dots underneath, because those are the terms of the
+          * evening rather than five separate alarms — and the only
+          * coloured thing left is what the party is short of, which is
+          * the one fact a reader is actually deciding on.
+          */}
+        <button onClick={() => setOpenId(open ? null : p.id)}
+                className="flex w-full items-stretch text-left hover:bg-card/30">
+          <span style={{
+                  backgroundImage: c?.art ? `url(${c.art})` : undefined,
+                  backgroundPosition: c?.focus ?? "center",
+                  backgroundColor: c?.art ? undefined
+                    : `color-mix(in srgb, ${tint} 22%, var(--color-bg))`,
+                }}
+                className="relative flex w-[100px] shrink-0 items-end bg-cover bg-center p-2 sm:w-[124px]">
+            <span aria-hidden
+                  className="absolute inset-0 bg-gradient-to-t from-black/85 to-black/25" />
+            {!c?.art && c && (c.icon || KIND_ICON[c.kind]) && (
+              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-90">
+                <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={34} />
+              </span>
+            )}
+            <span className="relative z-[1] flex flex-col">
+              <span className="font-data text-[19.5px] font-semibold tabular-nums text-white drop-shadow">
+                {fmtTime(p.startsAt)}
+              </span>
+              {/*
+                * The answer to the question the time only poses.
+                * "20:00" says when and not whether that is soon, which
+                * is the arithmetic people do badly across a day
+                * boundary — a party reading "tomorrow 20:00" on a
+                * Tuesday night is one nobody registers is nine hours
+                * away.
+                */}
+              <WhenLine party={p} now={now}
+                        className="font-data text-[12px] text-white/80 drop-shadow" />
+            </span>
+          </span>
+
+          {/*
+            * Beside each other where there is width, stacked where
+            * there is not.
+            *
+            * The right-hand column holds what the party is short of,
+            * and three chips reading "needs 2 tank" is three hundred
+            * pixels that will not shrink — on a 360px phone that left
+            * the title about forty pixels to wrap in, so "The Epic of
+            * Alexander" came out one word per line with the chips
+            * printed over the top of it.
+            */}
+          <span className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-stretch">
+          <span className="flex min-w-0 flex-1 basis-[14rem] flex-col justify-center gap-1 px-3.5 pb-1.5 pt-3 sm:py-3">
+            <span className="flex flex-wrap items-baseline gap-2">
+              {c && (c.icon || KIND_ICON[c.kind]) && (
+                <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={17} />
+              )}
+              <span className="font-display text-[17.5px] font-semibold text-ink">
+                {c?.duty ?? c?.name ?? p.contentKey}
+              </span>
+              {/* The shorthand as a badge beside the name rather than
+                  instead of it: the old row printed "Hunt train Hunt
+                  train" wherever a content had no separate short form. */}
+              {c?.badge && c.badge !== c.duty && (
+                <span style={{ color: tint,
+                               borderColor: `color-mix(in srgb, ${tint} 45%, transparent)` }}
+                      className="rounded border px-1.5 font-data text-[12.5px] font-bold">
+                  {c.badge}
+                </span>
+              )}
+              {/* Last, after the fight has finished naming itself.
+                  The badge is part of the title — EX6 and UCOB are what
+                  people call these — and a status word wedged between
+                  the name and its own shorthand breaks the name in
+                  half. */}
+              {p.isStatic ? <StaticTag /> : <StatusPill status={partyStatus(p, now)} />}
+              {p.outcome === "success" && <SuccessTag />}
+            </span>
+
+            {/* The date and the two clock times, written out once.
+                The stamp on the left is the start alone and the line
+                under it is relative — neither is the thing you copy
+                into a Discord post when you tell people to be there. */}
+            <span className="font-data text-[12.5px] tabular-nums text-muted">
+              {whenFull(p)}
+            </span>
+
+            <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-muted">
+              <span className="flex items-center gap-1"
+                    title={whyEstimate(p, c?.kind, t)}>
+                {/* A map night has no end anybody chose — it runs until
+                    the maps are done, and that is a dice roll. Saying
+                    so is better than a time that quietly turns out to
+                    have been a guess. Same for a party counted in
+                    runs, which said as much on purpose. */}
+                {lengthIsEstimate(p, c?.kind) && <span className="opacity-70">~</span>}
+                {p.lengthUnit === "food" && (
+                  <FoodIcon size={11} className="text-gold" />
+                )}
+                {lengthSay(p, t)}
+              </span>
+              <span className="opacity-40">·</span>
+              <span>{headSay(p, c?.kind, t, c?.queueIn)}</span>
+              {progressText(p.progress) && (
+                <><span className="opacity-40">·</span>
+                  <span>{progressText(p.progress)}</span></>
+              )}
+              {lootLine(p.loot, t) && (
+                <><span className="opacity-40">·</span>
+                  <span>{lootLine(p.loot, t)}</span></>
+              )}
+              {p.oneOfEachJob && (
+                <><span className="opacity-40">·</span>
+                  <span>{t("party.onePerJob")}</span></>
+              )}
+              {mapsText(p.maps, mapLabel) && (
+                <><span className="opacity-40">·</span>
+                  <span>🗺 {mapsText(p.maps, mapLabel)}</span></>
+              )}
+              {/* Which roulettes, which is the whole of what one
+                  roulette listing says that another does not. */}
+              {!!p.roulettes?.length && (
+                <><span className="opacity-40">·</span>
+                  <span>{p.roulettes.join(", ")}</span></>
+              )}
+              {worldText(p.spot) && (
+                <><span className="opacity-40">·</span>
+                  <span>🌐 {worldText(p.spot)}</span></>
+              )}
+              {spotText(p.spot) && (
+                <><span className="opacity-40">·</span>
+                  <span>📍 {spotText(p.spot)}</span></>
+              )}
+            </span>
+
+            {p.note && (
+              <span className="truncate text-[14.5px] text-ink/70">{p.note}</span>
+            )}
+          </span>
+
+          {/*
+            * This column yields, and the title does not.
+            *
+            * It was shrink-0, which is right about what it holds — a
+            * count and two or three role chips do not read at half
+            * width — and wrong about what happens when there is not
+            * room for all of it. Something has to give on a narrow
+            * screen, and a chip wrapping onto a second line costs a
+            * row twenty pixels while a title broken a word to a line
+            * costs it three hundred and is unreadable besides. Which
+            * is how one party came out four times the height of the
+            * one under it.
+            *
+            * Two fifths, so a party short of three different roles
+            * cannot take the row over however many chips it has.
+            */}
+          <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 px-3.5 pb-3 sm:max-w-[40%] sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:px-0 sm:py-3 sm:pr-3.5">
+            <span className="flex flex-wrap items-center gap-2.5">
+              {/* Who is already in it. The strongest reason to join a
+                  party is that other people have, and the row said
+                  nothing at all about that before. */}
+              <span className="hidden -space-x-2 sm:flex">
+                {inIt.slice(0, 6).map((m, i) => {
+                  const src = face(m.characterId, m.avatar);
+                  return src ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={i} src={src} alt={m.name} title={m.name}
+                         width={34} height={34}
+                         className="size-[34px] rounded-full border-2 border-surface object-cover" />
+                  ) : (
+                    <span key={i} title={m.name}
+                          className={`grid size-[34px] place-items-center rounded-full border-2 border-surface text-[13.5px] text-muted ${
+                            m.characterId == null ? "bg-bg" : "bg-card"}`}>
+                      {m.characterId == null ? "?" : ""}
+                    </span>
+                  );
+                })}
+                {inIt.length > 6 && (
+                  <span className="grid size-[34px] place-items-center rounded-full border-2 border-surface bg-card font-data text-[12.5px] text-muted">
+                    +{inIt.length - 6}
+                  </span>
+                )}
+              </span>
+              <NeedLine party={p} />
+              {/* Said on the row rather than only inside. Gold, and
+                  out of the way of the chips beside it: the party is
+                  fine, it is the reader's evening that is taken, and
+                  they may still be reading it for somebody else. */}
+              {busy.has(p.id) && (
+                <span title={t("party.clash", {
+                        when: fmtDateTime(busy.get(p.id)!.startsAt) })}
+                      className="rounded-full border border-gold/45 px-2 py-[2px] font-data text-[12.5px] uppercase tracking-[0.1em] text-gold">
+                  {t("pf.youAreBusy")}
+                </span>
+              )}
+            </span>
+
+            <span className="flex items-center gap-2">
+              {/* Somebody is waiting on an answer. Shown on the closed
+                  row because a request nobody sees is a request that
+                  goes unanswered, and the lead is the one person who
+                  has to notice without being told twice. */}
+              {pendingAsks(p) > 0 && (
+                <span className="rounded-full border border-gold/50 bg-gold/10 px-1.5 font-data text-[12px] text-gold">
+                  ✋ {pendingAsks(p)}
+                </span>
+              )}
+              {!!p.comments?.length && (
+                <span className="font-data text-[13px] text-muted">
+                  💬 {p.comments.length}
+                </span>
+              )}
+              {owner && face(owner.characterId, owner.avatar) && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={face(owner.characterId, owner.avatar)!} alt=""
+                     width={32} height={32}
+                     className="size-8 rounded-full border border-line object-cover" />
+              )}
+              <span className="text-[14px] text-muted">{owner?.name}</span>
+            </span>
+          </span>
+          </span>
+        </button>
+
+        {/* The row is a summary now; the party itself opens over it.
+            See PartyDetail. */}
+      </article>
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -1554,258 +1851,33 @@ export default function PartyBoard(
               : key === ASKED ? t("party.askedHeading", { n: list.length })
               : fmtDay(list[0].startsAt)}
           </h2>
-          {list.map((p) => {
-            const c = byKey[p.contentKey];
-            const tint = c ? KIND_COLOR[c.kind] : "#8b93a1";
-            const open = openId === p.id;
-            const res = resolveParty(p);
-            const inIt = [...Object.values(res.seats), ...res.loose];
-            // Whoever put it up, wherever they ended up -- seated, or still
-            // floating between two seats they offered for.
-            const owner = inIt.find((m) => m.characterId === p.ownerCharacterId);
-            return (
-              <article key={p.id}
-                       className="overflow-hidden rounded-xl border border-line bg-surface">
-                {/*
-                  * A poster rather than a line of chips.
-                  *
-                  * The picture is the left rail at full height, and a row with
-                  * no picture gets a block in its kind's colour with the game's
-                  * own badge on it — so every title starts at the same x. The
-                  * old row could not manage that: a thumbnail on some rows and
-                  * not others gave a column of eight rows two title columns.
-                  *
-                  * The time goes on the rail, over the art, where a poster puts
-                  * it. Everything that used to be a coloured chip is one muted
-                  * line of dots underneath, because those are the terms of the
-                  * evening rather than five separate alarms — and the only
-                  * coloured thing left is what the party is short of, which is
-                  * the one fact a reader is actually deciding on.
-                  */}
-                <button onClick={() => setOpenId(open ? null : p.id)}
-                        className="flex w-full items-stretch text-left hover:bg-card/30">
-                  <span style={{
-                          backgroundImage: c?.art ? `url(${c.art})` : undefined,
-                          backgroundPosition: c?.focus ?? "center",
-                          backgroundColor: c?.art ? undefined
-                            : `color-mix(in srgb, ${tint} 22%, var(--color-bg))`,
-                        }}
-                        className="relative flex w-[100px] shrink-0 items-end bg-cover bg-center p-2 sm:w-[124px]">
-                    <span aria-hidden
-                          className="absolute inset-0 bg-gradient-to-t from-black/85 to-black/25" />
-                    {!c?.art && c && (c.icon || KIND_ICON[c.kind]) && (
-                      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-90">
-                        <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={34} />
-                      </span>
-                    )}
-                    <span className="relative z-[1] flex flex-col">
-                      <span className="font-data text-[19.5px] font-semibold tabular-nums text-white drop-shadow">
-                        {fmtTime(p.startsAt)}
-                      </span>
-                      {/*
-                        * The answer to the question the time only poses.
-                        * "20:00" says when and not whether that is soon, which
-                        * is the arithmetic people do badly across a day
-                        * boundary — a party reading "tomorrow 20:00" on a
-                        * Tuesday night is one nobody registers is nine hours
-                        * away.
-                        */}
-                      <WhenLine party={p} now={now}
-                                className="font-data text-[12px] text-white/80 drop-shadow" />
-                    </span>
-                  </span>
-
-                  {/*
-                    * Beside each other where there is width, stacked where
-                    * there is not.
-                    *
-                    * The right-hand column holds what the party is short of,
-                    * and three chips reading "needs 2 tank" is three hundred
-                    * pixels that will not shrink — on a 360px phone that left
-                    * the title about forty pixels to wrap in, so "The Epic of
-                    * Alexander" came out one word per line with the chips
-                    * printed over the top of it.
-                    */}
-                  <span className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-stretch">
-                  <span className="flex min-w-0 flex-1 basis-[14rem] flex-col justify-center gap-1 px-3.5 pb-1.5 pt-3 sm:py-3">
-                    <span className="flex flex-wrap items-baseline gap-2">
-                      {c && (c.icon || KIND_ICON[c.kind]) && (
-                        <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={17} />
-                      )}
-                      <span className="font-display text-[17.5px] font-semibold text-ink">
-                        {c?.duty ?? c?.name ?? p.contentKey}
-                      </span>
-                      {/* The shorthand as a badge beside the name rather than
-                          instead of it: the old row printed "Hunt train Hunt
-                          train" wherever a content had no separate short form. */}
-                      {c?.badge && c.badge !== c.duty && (
-                        <span style={{ color: tint,
-                                       borderColor: `color-mix(in srgb, ${tint} 45%, transparent)` }}
-                              className="rounded border px-1.5 font-data text-[12.5px] font-bold">
-                          {c.badge}
-                        </span>
-                      )}
-                      {/* Last, after the fight has finished naming itself.
-                          The badge is part of the title — EX6 and UCOB are what
-                          people call these — and a status word wedged between
-                          the name and its own shorthand breaks the name in
-                          half. */}
-                      <StatusPill status={partyStatus(p, now)} />
-                      {p.outcome === "success" && <SuccessTag />}
-                    </span>
-
-                    {/* The date and the two clock times, written out once.
-                        The stamp on the left is the start alone and the line
-                        under it is relative — neither is the thing you copy
-                        into a Discord post when you tell people to be there. */}
-                    <span className="font-data text-[12.5px] tabular-nums text-muted">
-                      {whenFull(p)}
-                    </span>
-
-                    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-muted">
-                      <span className="flex items-center gap-1"
-                            title={whyEstimate(p, c?.kind, t)}>
-                        {/* A map night has no end anybody chose — it runs until
-                            the maps are done, and that is a dice roll. Saying
-                            so is better than a time that quietly turns out to
-                            have been a guess. Same for a party counted in
-                            runs, which said as much on purpose. */}
-                        {lengthIsEstimate(p, c?.kind) && <span className="opacity-70">~</span>}
-                        {p.lengthUnit === "food" && (
-                          <FoodIcon size={11} className="text-gold" />
-                        )}
-                        {lengthSay(p, t)}
-                      </span>
-                      <span className="opacity-40">·</span>
-                      <span>{headSay(p, c?.kind, t, c?.queueIn)}</span>
-                      {progressText(p.progress) && (
-                        <><span className="opacity-40">·</span>
-                          <span>{progressText(p.progress)}</span></>
-                      )}
-                      {lootLine(p.loot, t) && (
-                        <><span className="opacity-40">·</span>
-                          <span>{lootLine(p.loot, t)}</span></>
-                      )}
-                      {p.oneOfEachJob && (
-                        <><span className="opacity-40">·</span>
-                          <span>{t("party.onePerJob")}</span></>
-                      )}
-                      {mapsText(p.maps, mapLabel) && (
-                        <><span className="opacity-40">·</span>
-                          <span>🗺 {mapsText(p.maps, mapLabel)}</span></>
-                      )}
-                      {/* Which roulettes, which is the whole of what one
-                          roulette listing says that another does not. */}
-                      {!!p.roulettes?.length && (
-                        <><span className="opacity-40">·</span>
-                          <span>{p.roulettes.join(", ")}</span></>
-                      )}
-                      {worldText(p.spot) && (
-                        <><span className="opacity-40">·</span>
-                          <span>🌐 {worldText(p.spot)}</span></>
-                      )}
-                      {spotText(p.spot) && (
-                        <><span className="opacity-40">·</span>
-                          <span>📍 {spotText(p.spot)}</span></>
-                      )}
-                    </span>
-
-                    {p.note && (
-                      <span className="truncate text-[14.5px] text-ink/70">{p.note}</span>
-                    )}
-                  </span>
-
-                  {/*
-                    * This column yields, and the title does not.
-                    *
-                    * It was shrink-0, which is right about what it holds — a
-                    * count and two or three role chips do not read at half
-                    * width — and wrong about what happens when there is not
-                    * room for all of it. Something has to give on a narrow
-                    * screen, and a chip wrapping onto a second line costs a
-                    * row twenty pixels while a title broken a word to a line
-                    * costs it three hundred and is unreadable besides. Which
-                    * is how one party came out four times the height of the
-                    * one under it.
-                    *
-                    * Two fifths, so a party short of three different roles
-                    * cannot take the row over however many chips it has.
-                    */}
-                  <span className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 px-3.5 pb-3 sm:max-w-[40%] sm:flex-col sm:items-end sm:justify-center sm:gap-2 sm:px-0 sm:py-3 sm:pr-3.5">
-                    <span className="flex flex-wrap items-center gap-2.5">
-                      {/* Who is already in it. The strongest reason to join a
-                          party is that other people have, and the row said
-                          nothing at all about that before. */}
-                      <span className="hidden -space-x-2 sm:flex">
-                        {inIt.slice(0, 6).map((m, i) => {
-                          const src = face(m.characterId, m.avatar);
-                          return src ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img key={i} src={src} alt={m.name} title={m.name}
-                                 width={34} height={34}
-                                 className="size-[34px] rounded-full border-2 border-surface object-cover" />
-                          ) : (
-                            <span key={i} title={m.name}
-                                  className={`grid size-[34px] place-items-center rounded-full border-2 border-surface text-[13.5px] text-muted ${
-                                    m.characterId == null ? "bg-bg" : "bg-card"}`}>
-                              {m.characterId == null ? "?" : ""}
-                            </span>
-                          );
-                        })}
-                        {inIt.length > 6 && (
-                          <span className="grid size-[34px] place-items-center rounded-full border-2 border-surface bg-card font-data text-[12.5px] text-muted">
-                            +{inIt.length - 6}
-                          </span>
-                        )}
-                      </span>
-                      <NeedLine party={p} />
-                      {/* Said on the row rather than only inside. Gold, and
-                          out of the way of the chips beside it: the party is
-                          fine, it is the reader's evening that is taken, and
-                          they may still be reading it for somebody else. */}
-                      {busy.has(p.id) && (
-                        <span title={t("party.clash", {
-                                when: fmtDateTime(busy.get(p.id)!.startsAt) })}
-                              className="rounded-full border border-gold/45 px-2 py-[2px] font-data text-[12.5px] uppercase tracking-[0.1em] text-gold">
-                          {t("pf.youAreBusy")}
-                        </span>
-                      )}
-                    </span>
-
-                    <span className="flex items-center gap-2">
-                      {/* Somebody is waiting on an answer. Shown on the closed
-                          row because a request nobody sees is a request that
-                          goes unanswered, and the lead is the one person who
-                          has to notice without being told twice. */}
-                      {pendingAsks(p) > 0 && (
-                        <span className="rounded-full border border-gold/50 bg-gold/10 px-1.5 font-data text-[12px] text-gold">
-                          ✋ {pendingAsks(p)}
-                        </span>
-                      )}
-                      {!!p.comments?.length && (
-                        <span className="font-data text-[13px] text-muted">
-                          💬 {p.comments.length}
-                        </span>
-                      )}
-                      {owner && face(owner.characterId, owner.avatar) && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={face(owner.characterId, owner.avatar)!} alt=""
-                             width={32} height={32}
-                             className="size-8 rounded-full border border-line object-cover" />
-                      )}
-                      <span className="text-[14px] text-muted">{owner?.name}</span>
-                    </span>
-                  </span>
-                  </span>
-                </button>
-
-                {/* The row is a summary now; the party itself opens over it.
-                    See PartyDetail. */}
-              </article>
-            );
-          })}
+          {list.map((p) => row(p))}
         </section>
       ))}
+
+      {/*
+        * The Static finder, at the foot of the board.
+        *
+        * Below the evening's parties rather than among them, because it is a
+        * different question: not "who is free tonight" but "who wants to play
+        * with us every week until this is cleared". Always drawn, even empty,
+        * so the place to look for one — and to put one up — is known before
+        * there is anything in it.
+        */}
+      {!loading && (
+        <section className="mt-4 flex flex-col gap-2 border-t border-line pt-5">
+          <h2 className="font-display text-[20px] font-semibold text-ink">
+            {t("pf.staticHeading")}
+          </h2>
+          {statics.length
+            ? statics.map((p) => row(p))
+            : (
+              <p className="rounded-xl border border-dashed border-line px-4 py-6 text-center text-[14px] text-muted">
+                {t("pf.staticNone")}
+              </p>
+            )}
+        </section>
+      )}
 
       {/*
         * Whichever party is open, over the board.

@@ -1181,7 +1181,21 @@ export interface Party {
    * only on a success; kept whatever the outcome.
    */
   photos?: GroupPhoto[];
+  /**
+   * A static rather than an evening. See v76.
+   *
+   * The same eight, every week, until the fight is cleared — so the rules that
+   * are about one night do not apply: no ten-day limit on its start, no
+   * automatic fail after its first session, and not closed when nobody on the
+   * board is in it. Listed in its own section at the foot of the board.
+   * Savage and Ultimate only; see canBeStatic.
+   */
+  isStatic?: boolean;
 }
+
+/** The fights a group progresses together, which are the ones a static is for. */
+export const canBeStatic = (kind: ContentKind | undefined): boolean =>
+  kind === "savage" || kind === "ultimate";
 
 export interface GroupPhoto { id: string; url: string; at: string }
 

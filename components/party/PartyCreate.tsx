@@ -19,7 +19,7 @@ import {
   shapeFits,
   shapeLabel,
   clashFor,
-  slotsOf, whoKey,
+  slotsOf, whoKey, canBeStatic,
 } from "@/lib/party";
 import type { PersonOption } from "@/lib/people";
 import PartySeats from "@/components/party/PartySeats";
@@ -387,6 +387,17 @@ function PartyForm(
   const [closed, setClosed] = useState<string[]>(seed?.closed ?? []);
   const [rules, setRules] = useState<Record<string, SeatRule>>(seed?.rules ?? {});
   const [oneEach, setOneEach] = useState(!!seed?.oneOfEachJob);
+  /*
+   * A static, only from the listing being edited.
+   *
+   * Never carried in from a past setting and never the default: putting a
+   * listing up as a static takes it out of the evening's rules and off the
+   * board's schedule, and that should be said on purpose every time rather
+   * than inherited from last week.
+   */
+  const [isStatic, setIsStatic] = useState(!!editing?.isStatic);
+  /** Asked before a new static goes up. */
+  const [askStatic, setAskStatic] = useState(false);
   const [floating, setFloating] = useState<Floater[]>(editing?.floating ?? []);
   const [body, setBody] = useState<PartyBlock[]>(seed?.body ?? []);
 
@@ -534,7 +545,9 @@ function PartyForm(
    */
   const max = latest();
   const ceiling = editing && wasStart && wasStart > max ? wasStart : max;
-  const tooFar = !!start && start > ceiling;
+  // A static has no ceiling: one forming for next month is put up now (v76).
+  const staticNow = isStatic && canBeStatic(chosen?.kind);
+  const tooFar = !staticNow && !!start && start > ceiling;
   /** Under way already, which is a thing to say rather than a thing to stop. */
   const running = !past && !!start && start < min;
 
@@ -691,10 +704,11 @@ function PartyForm(
     ...(useUnit === "runs" ? { runs: Math.max(1, Math.round(amount)) } : {}),
     ownerCharacterId: me.id,
     seats, closed, rules, oneOfEachJob: oneEach, floating,
+    isStatic: isStatic && canBeStatic(chosen?.kind),
     createdAt: new Date().toISOString(),
   }), [contentKey, note, useShape, start, minutes, unit, me.id, seats, closed,
        rules, oneEach, floating, body, progress, safeLoot, spot, maps,
-       roulettes, useUnit, minutes, chosen?.kind]);
+       roulettes, useUnit, minutes, chosen?.kind, isStatic]);
 
   const mySeat = Object.entries(seats).find(([, v]) => v.characterId === me.id)?.[0];
   const iAmFloating = floating.some((f) => f.characterId === me.id);
@@ -982,7 +996,12 @@ function PartyForm(
         */}
       <ContentPicker content={content} value={contentKey}
                      allow={editing ? fitsContent : undefined}
-                     onChange={(k) => { setContentKey(k); setShape(""); }} />
+                     onChange={(k) => {
+                       setContentKey(k); setShape("");
+                       // A different fight is a different question about
+                       // whether this is a static, so it is asked again.
+                       setIsStatic(false);
+                     }} />
 
       {/* Under the picker rather than above it. What to play is the first
           question and these are one answer to it — an answer that happens to
@@ -1016,6 +1035,28 @@ function PartyForm(
         <p className="pb-1 text-[14px] text-muted">{t("pf.pickContentFirst")}</p>
       ) : (
         <>
+      {/*
+        * Static, for the two kinds a group progresses together.
+        *
+        * Right under the fight, because it is a question about the fight: a
+        * static for Dancing Mad is a different kind of listing from one night
+        * of it, and every question below — when, how long, who — means
+        * something different for one. Unticked every time the form opens and
+        * every time the fight changes.
+        */}
+      {canBeStatic(chosen.kind) && (
+        <label className={`flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2 transition-colors ${
+          isStatic ? "border-steel/60 bg-steel/10" : "border-line bg-bg/40 hover:border-muted"}`}>
+          <input type="checkbox" checked={isStatic}
+                 onChange={(e) => setIsStatic(e.target.checked)}
+                 className="mt-1" />
+          <span className="flex flex-col gap-0.5">
+            <span className="text-[15px] font-medium text-ink">{t("pf.staticLabel")}</span>
+            <span className="text-[13.5px] text-muted">{t("pf.staticWhy")}</span>
+          </span>
+        </label>
+      )}
+
       <div className="flex flex-wrap items-center gap-2.5">
         {chosen?.fixedShape ? (
           // Stated, not offered. The size is a fact about the fight, and the
@@ -1087,7 +1128,8 @@ function PartyForm(
           <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
             {t("pf.starts")}
           </span>
-          <DateTime value={start} min={floor} max={ceiling} invalid={past || tooFar}
+          <DateTime value={start} min={floor} max={staticNow ? undefined : ceiling}
+                    invalid={past || tooFar}
                     onChange={setStart} />
         </label>
 
@@ -1567,7 +1609,8 @@ function PartyForm(
                 moment it exists. */}
             <button disabled={!ready || busy}
                     onClick={() => (editing ? setAsking(true)
-                                            : void onAdd({ ...draft, id: "new" }))}
+                      : draft.isStatic ? setAskStatic(true)
+                      : void onAdd({ ...draft, id: "new" }))}
                     className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-[14.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
               {busy ? t("pf.putting")
                     : editing ? t("pf.saveEdit") : t("pf.putUp")}
@@ -1588,6 +1631,20 @@ function PartyForm(
                        onConfirm={() => {
                          setAsking(false);
                          void onAdd({ ...draft, id: editing!.id });
+                       }} />
+      )}
+
+      {/* A static is asked about once more before it goes up: it leaves the
+          evening's schedule for the Static finder, and the checkbox that says
+          so is small and a long way above this button. */}
+      {askStatic && (
+        <ConfirmDialog z={120}
+                       message={t("pf.staticAsk")}
+                       confirmLabel={t("pf.staticPutUp")}
+                       onCancel={() => setAskStatic(false)}
+                       onConfirm={() => {
+                         setAskStatic(false);
+                         void onAdd({ ...draft, id: "new" });
                        }} />
       )}
     </div>

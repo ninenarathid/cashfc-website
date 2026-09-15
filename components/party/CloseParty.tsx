@@ -31,6 +31,16 @@ export function SuccessTag({ className = "" }: { className?: string }) {
   );
 }
 
+/** A static rather than an evening. See v76. */
+export function StaticTag({ className = "" }: { className?: string }) {
+  const { t } = useLang();
+  return (
+    <span className={`inline-flex items-center rounded-full border border-steel/60 bg-steel/15 px-2 py-[2px] font-data text-[12px] font-semibold uppercase tracking-[0.1em] text-steel ${className}`}>
+      {t("pf.staticTag")}
+    </span>
+  );
+}
+
 /**
  * Pictures chosen and not yet sent, drawn from the files themselves.
  *

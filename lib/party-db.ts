@@ -50,6 +50,8 @@ interface PostRow {
   ended_at: string | null;
   /** v73. Absent where that migration has not been run. */
   outcome?: string | null;
+  /** v76. Absent likewise. */
+  is_static?: boolean | null;
 }
 
 interface MemberRow {
@@ -106,9 +108,15 @@ const POST_COLS =
  * climb.
  */
 let knowsOutcome = true;
+let knowsStatic = true;
 async function readPosts<R>(
   run: (cols: string) => PromiseLike<{ data: R | null; error: { message: string } | null }>,
 ): Promise<{ data: R | null; error: { message: string } | null }> {
+  if (knowsOutcome && knowsStatic) {
+    const r = await run(`${POST_COLS}, outcome, is_static`);
+    if (!r.error || !/outcome|is_static/.test(r.error.message)) return r;
+    knowsStatic = false;
+  }
   if (knowsOutcome) {
     const r = await run(`${POST_COLS}, outcome`);
     if (!r.error || !/outcome/.test(r.error.message)) return r;
@@ -143,22 +151,38 @@ const MEMBER_COLS =
  * serve the one person who went looking.
  */
 export async function loadParties(
-  supabase: SupabaseClient, opts?: { back?: number },
+  supabase: SupabaseClient, opts?: { back?: number; statics?: boolean },
 ): Promise<Party[]> {
   const since = new Date(Date.now() - (opts?.back ?? 12) * 3600_000).toISOString();
-  const { data: posts, error } = await readPosts((cols) => supabase.from("party_posts")
-    .select(cols)
-    .is("deleted_at", null)
-    .gte("starts_at", since)
+  /*
+   * Statics are asked for on their own. Their start is the first session and
+   * says nothing about whether they are still looking, so they are not held to
+   * the board's window of "still to come" — every open one, however long ago
+   * it started. The ordinary load leaves them out, which is what keeps one
+   * listing from appearing in both places.
+   */
+  if (opts?.statics && !knowsStatic) return [];
+  const { data: posts, error } = await readPosts((cols) => {
+    const q = supabase.from("party_posts")
+      .select(cols)
+      .is("deleted_at", null);
+    return opts?.statics
+      ? q.eq("is_static", true).is("ended_at", null)
+        .order("created_at", { ascending: false }).limit(100)
+      : q.gte("starts_at", since)
     // Soonest first while the window is the usual one. Reversed for a wide
     // window so that the two hundred rows kept are the recent ones: asking for
     // a month and getting the oldest two hundred of it would hand back exactly
     // the parties nobody was looking for.
     .order("starts_at", { ascending: !opts?.back })
-    .limit(200));
+    .limit(200);
+  });
   if (error || !posts?.length) return [];
 
-  const ids = (posts as unknown as PostRow[]).map((p) => p.id);
+  const rows = (posts as unknown as PostRow[])
+    .filter((p) => !!opts?.statics === !!p.is_static);
+  if (!rows.length) return [];
+  const ids = rows.map((p) => p.id);
   const [{ data: members }, { data: comments }] = await Promise.all([
     supabase.from("party_members")
       .select(MEMBER_COLS)
@@ -350,7 +374,7 @@ export async function loadParties(
     talkOf.set(c.party_id, at);
   }
 
-  return (posts as unknown as PostRow[]).map((p) => partyOf(p, {
+  return rows.map((p) => partyOf(p, {
     seats: seatsOf.get(p.id) ?? {},
     floating: floatOf.get(p.id) ?? [],
     requests: askOf.get(p.id) ?? [],
@@ -440,6 +464,7 @@ function partyOf(p: PostRow, who: Roster): Party {
     endedAt: p.ended_at,
     outcome: (p.outcome === "success" || p.outcome === "fail" || p.outcome === "test")
       ? p.outcome : null,
+    isStatic: !!p.is_static,
   });
 }
 
@@ -564,6 +589,9 @@ export async function createParty(
   const { data, error } = await supabase.from("party_posts").insert({
     owner: userId,
     owner_character_id: p.ownerCharacterId > 0 ? p.ownerCharacterId : null,
+    // Only where the database knows the word (v76), so a board ahead of its
+    // migration can still put up an ordinary party.
+    ...(knowsStatic ? { is_static: !!p.isStatic } : {}),
     content_key: p.contentKey,
     note: p.note ?? null,
     shape: p.shape,
@@ -740,6 +768,7 @@ export async function updateParty(
   supabase: SupabaseClient, partyId: string, p: Party,
 ): Promise<{ error?: string }> {
   const { error } = await supabase.from("party_posts").update({
+    ...(knowsStatic ? { is_static: !!p.isStatic } : {}),
     content_key: p.contentKey,
     note: p.note ?? null,
     shape: p.shape,
