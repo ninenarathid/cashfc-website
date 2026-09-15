@@ -2272,6 +2272,8 @@ const DICT = {
     th: "ชวนไปแล้ว {n} คน ยังไม่ตอบ",
   },
   "party.withdrawInvite": { en: "withdraw", th: "ถอนคำเชิญ" },
+  "party.inviteSomebody": { en: "Invite somebody", th: "ชวนคน" },
+  "party.inviteThem": { en: "Invite", th: "ชวน" },
   // Not a failure of theirs, and said as a fact rather than a refusal: the
   // party filled while they were thinking about it.
   "party.tooLateFull": {

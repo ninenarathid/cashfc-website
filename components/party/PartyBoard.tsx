@@ -651,7 +651,7 @@ function PartyDetail(
                         })(),
                       } : undefined} />
 
-          <PartyJoin party={party} me={me} userId={userId}
+          <PartyJoin party={party} me={me} userId={userId} people={people}
                      clash={me ? clashFor(parties, me.id, party, party.id) : null}
                      supabase={supabase} now={now}
                      onDone={refresh} onError={setErr} />

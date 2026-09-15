@@ -10,6 +10,7 @@ import { acceptInvite, confirmSeat, dropSeat } from "@/lib/party-db";
 import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
+import InviteBox from "@/components/party/InviteBox";
 
 /**
  * Asking to be let in, and letting people in.
@@ -54,8 +55,10 @@ const roster = (p: Party): Who[] => [
 ];
 
 export default function PartyJoin(
-  { party, me, userId, supabase, now, clash, onDone, onError }: {
+  { party, me, userId, supabase, now, clash, onDone, onError, people = [] }: {
     party: Party;
+    /** Who can be invited. See InviteBox. */
+    people?: PersonOption[];
     /** The board's clock, which decides whether it is too late to leave. */
     now: number;
     /** What it is for, which decides whether a job is even a question. */
@@ -180,6 +183,15 @@ export default function PartyJoin(
             );
           })}
         </div>
+      )}
+
+      {/* ── The lead's side: asking somebody new ────────────────────────── */}
+      {/* While there is still an evening to ask them to: not on a party that
+          has been closed or whose time is over. */}
+      {canLead && !party.endedAt && !party.outcome
+        && partyStatus(party, now) !== "done" && (
+        <InviteBox party={party} people={people} supabase={supabase}
+                   userId={userId} onDone={onDone} onError={onError} />
       )}
 
       {/* ── The lead's side: who has been asked and has not answered ───── */}
