@@ -23135,11 +23135,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 43.58,
+    "pct": 41.58,
     "phase": 3,
-    "pulls": 54,
-    "last": "2026-09-13",
-    "last_ts": 1789319189
+    "pulls": 58,
+    "last": "2026-09-14",
+    "last_ts": 1789402787
    }
   ]
  },
@@ -28850,11 +28850,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 43.58,
+    "pct": 41.58,
     "phase": 3,
-    "pulls": 127,
-    "last": "2026-09-13",
-    "last_ts": 1789319189
+    "pulls": 125,
+    "last": "2026-09-14",
+    "last_ts": 1789402787
    }
   ]
  },
@@ -53582,7 +53582,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 30,
+    "pulls": 4,
     "last": "2026-09-13",
     "last_ts": 1789303764
    },
@@ -54739,9 +54739,9 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 54.24,
+    "pct": 57.5,
     "phase": 5,
-    "pulls": 60,
+    "pulls": 33,
     "last": "2026-09-07",
     "last_ts": 1788797904
    }
@@ -62157,8 +62157,8 @@
     "pct": null,
     "phase": 0,
     "pulls": 3,
-    "last": "2026-09-13",
-    "last_ts": 1789276196
+    "last": "2026-09-14",
+    "last_ts": 1789362587
    },
    {
     "encounter_id": 1075,
@@ -62201,8 +62201,12 @@
     "cleared": true,
     "job_kills": {
      "Astrologian": {
-      "kills": 5,
-      "best": 56
+      "kills": 6,
+      "best": 66
+     },
+     "Scholar": {
+      "kills": 3,
+      "best": 31
      }
     }
    },
@@ -62217,8 +62221,12 @@
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
+     "Bard": {
+      "kills": 2,
+      "best": 63
+     },
      "Astrologian": {
-      "kills": 14,
+      "kills": 19,
       "best": 78
      },
      "Scholar": {
@@ -62279,9 +62287,17 @@
       "kills": 2,
       "best": 42
      },
+     "Monk": {
+      "kills": 1,
+      "best": 30
+     },
      "Sage": {
       "kills": 1,
       "best": 76
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 70
      }
     }
    }
@@ -69895,7 +69911,13 @@
     "best": 2,
     "kills": 2,
     "job": "Dragoon",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dragoon": {
+      "kills": 2,
+      "best": 2
+     }
+    }
    }
   ],
   "legacy": []

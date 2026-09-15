@@ -3,6 +3,48 @@
   {
    "date": "2026-09-15",
    "type": "level_100",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 5644067,
+   "name": "Ninenine The'phantom",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 34790386,
+   "name": "Mikote Menphina",
+   "text": "reached level 100 on Bard!"
+  },
+  {
+   "date": "2026-09-15",
+   "type": "level_100",
    "id": 39959181,
    "name": "El Blung",
    "text": "reached level 100 on Astrologian!"
@@ -1357,48 +1399,6 @@
    "id": 36183541,
    "name": "Nagi Amano",
    "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 2957360,
-   "name": "Break Darkflame",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "reached level 100 on Dragoon!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 39850923,
-   "name": "Hiro Hikari",
-   "text": "reached level 100 on Bard!"
   }
  ]
 }
