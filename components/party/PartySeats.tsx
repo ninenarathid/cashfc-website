@@ -247,10 +247,11 @@ function Seat(
         <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
           {slot.label}
         </span>
-        {/* Helper, in the corner opposite the seat's name, on a locked seat
-            whose sitter has cleared this fight. Only once they are in it: an
-            unanswered seat is somebody who has not said yes, and labelling
-            them would advertise a helper the party does not have. */}
+        {/* Helper, in the corner opposite the seat's name, on whoever the
+            grid draws here — seated, or flexing and landed here — once they
+            have cleared this fight. Only once they are in it: an unanswered
+            seat is somebody who has not said yes, and labelling them would
+            advertise a helper the party does not have. */}
         {state === "taken" && who?.characterId != null && helpers?.has(who.characterId) && (
           <span className="ml-auto rounded-full border border-jade/55 bg-jade/15 px-2 py-[1px] font-data text-[11px] font-semibold uppercase tracking-[0.1em] text-jade">
             {t("pf.helperTag")}

@@ -177,13 +177,20 @@ function PartyDetail(
   /*
    * Who in it has already cleared this fight, for the Helper tag on their
    * seat. Extremes, savage and ultimates — the fights the records cover.
+   *
+   * Everybody who has said yes, not only the seated. Somebody flexing between
+   * MT, ST and D2 is drawn in whichever of the three is left, and is in the
+   * party exactly as much as the person beside them — asking only the locked
+   * seats left Metatron untagged in D2 on a TEA party while he was a helper
+   * on the next one down, where he had picked his seat.
    */
   const helpers = useMemo(
     () => helpersIn(suggest,
-      Object.values(party.seats).map((w) => w.characterId)
+      [...Object.values(party.seats), ...(party.floating ?? [])]
+        .map((w) => w.characterId)
         .filter((x): x is number => x != null),
       def, labels),
-    [suggest, party.seats, def, labels]);
+    [suggest, party.seats, party.floating, def, labels]);
   /** Whether the test option is offered when closing. See CloseParty. */
   const { isAdmin } = useAdmin();
   /*
