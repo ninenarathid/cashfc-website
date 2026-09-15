@@ -2345,6 +2345,14 @@ export const overlaps = (
  * A party that has been called off is not a commitment: its evening is free
  * again, whatever its start time still says.
  *
+ * Nor is anything that is already over, on either side. The question is about
+ * hours somebody is about to promise, and a party whose time has passed has no
+ * hours left to promise — asked about one, there is nothing to warn of, and
+ * asked about a live one, a party that finished at nine does not make the
+ * reader busy at ten. It was asking only whether the two windows overlapped,
+ * so a farm run from last Friday told a member who had been in it with a
+ * friend the same night that they were "busy then", on a row marked ended.
+ *
  * Returns the first clash rather than all of them. One is enough to answer the
  * question, and naming one party is a sentence somebody can act on where a
  * list is something to work through.
@@ -2353,9 +2361,13 @@ export function clashFor(
   parties: readonly Party[], characterId: number,
   when: { startsAt: string; lengthMinutes: number; endedAt?: string | null },
   exceptId?: string,
+  now: number = Date.now(),
 ): Party | null {
+  const over = (x: { startsAt: string; lengthMinutes: number; endedAt?: string | null }) =>
+    !!x.endedAt || new Date(endsAt(x)).getTime() <= now;
+  if (over(when)) return null;
   for (const p of parties) {
-    if (p.id === exceptId || p.endedAt) continue;
+    if (p.id === exceptId || over(p)) continue;
     if (!placeOf(p, characterId)) continue;
     if (overlaps(p, when)) return p;
   }
