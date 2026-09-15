@@ -127,8 +127,30 @@ export async function entryDays(
  * was being refused by a policy that did not exist yet, and there was nothing
  * anywhere to say so. A warning in the console is the difference between
  * "nothing happened" and a sentence naming the reason.
+ *
+ * One call at a time. Sending potatoes back down the bell gives several inside
+ * a second, and each call used to ask whether today's notice had gone before
+ * any of them had sent it — one member was told four times in a fifth of a
+ * second. Each call now waits for the one before, so the second asks after the
+ * first has answered. Another tab can still race this page; the database's
+ * one-notice-a-day index settles that, and its refusal is read here as the
+ * notice having gone.
  */
-export async function markEntry(
+export function markEntry(
+  supabase: SupabaseClient | null,
+  userId: string | null,
+  myCharacterId: number | null,
+): Promise<void> {
+  const turn = queue.then(() => mark(supabase, userId, myCharacterId));
+  // A turn that went wrong must not hold up the ones behind it.
+  queue = turn.catch(() => undefined);
+  return turn;
+}
+
+/** The call before this one, for the next to wait on. */
+let queue: Promise<void> = Promise.resolve();
+
+async function mark(
   supabase: SupabaseClient | null,
   userId: string | null,
   myCharacterId: number | null,
@@ -177,5 +199,8 @@ export async function markEntry(
     // thing its wording needs.
     body: String(days.size),
   });
+  // Another tab's notice landed first and the one-a-day index turned this one
+  // away. The notice they have says what this one would have.
+  if (error?.code === "23505") return;
   if (error) console.warn("evercold: could not write the entry notice —", error.message);
 }

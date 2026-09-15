@@ -9,6 +9,8 @@
 //
 // --kind is one of: popoto, popoto_post, tag, comment, feedback, announcement,
 // evercold. The last one is the draw, and its body is the running entry count.
+// The database allows one of those a member a day, so it is sent singly, and
+// not at all to somebody already told today.
 // A kind that wants a picture is given the newest gallery post, so the toast
 // and the bell have something to draw.
 //
@@ -64,9 +66,11 @@ async function main() {
   if (has("clean")) {
     const gone = await rest(`notifications?body=eq.${encodeURIComponent(MARK)}`,
                             { method: "DELETE", headers: { Prefer: "return=representation" } });
-    // The event rows carry a count rather than the marker, so they are found
-    // by kind — nothing else writes one with a body that is only digits.
-    const draws = await rest("notifications?kind=eq.evercold&body=in.(3,4,5,6,7,8,9,10)",
+    // The event rows carry a count rather than the marker, so they are found by
+    // who sent them. This used to find them by the count, 3 to 10, which was
+    // true of a test before the event opened and of every real member's notice
+    // a week into it. A real one has nobody behind it; a test has an actor.
+    const draws = await rest("notifications?kind=eq.evercold&actor=not.is.null",
                              { method: "DELETE", headers: { Prefer: "return=representation" } });
     console.log(`removed ${(gone?.length ?? 0) + (draws?.length ?? 0)} test notification(s)`);
     return;
@@ -119,7 +123,8 @@ async function main() {
 
   // Several at once, to watch them stack. Different senders where there are
   // several to choose from, so the pile does not read as one person shouting.
-  const many = Math.max(1, Math.min(8, Number(arg("n", "1")) || 1));
+  // Not the draw's notice, which the database lets a member have once a day.
+  const many = kind === "evercold" ? 1 : Math.max(1, Math.min(8, Number(arg("n", "1")) || 1));
   const senders = people.filter((p) => p.id !== to.id && p.character_id != null);
   const rows = Array.from({ length: many }, (_, i) => {
     const who = senders[i % senders.length] ?? from;
@@ -130,7 +135,7 @@ async function main() {
       actor_name: label(who),
       post_id: postId,
       // The event line reads its number out of the body, so a test of it needs
-      // one there instead of the marker. Cleaning up finds these by kind.
+      // one there instead of the marker. Cleaning up finds these by the actor.
       body: kind === "evercold" ? String(3 + i) : MARK,
     };
   });
