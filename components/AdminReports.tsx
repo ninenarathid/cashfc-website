@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAvatar } from "@/lib/avatars";
 import { EVENT_FROM, EVENT_TO, bangkokDay } from "@/lib/evercold";
 import { isFcMember } from "@/lib/people";
-import { allRows } from "@/lib/rows";
+import { allRowsOrThrow } from "@/lib/rows";
 import { fmtDate } from "@/lib/dates";
 import { useLang, type Key } from "@/lib/i18n";
 
@@ -95,19 +95,26 @@ const REPORTS: Report[] = [
        * the way it would bite is that somebody who gave a potato on the wrong
        * side of the cut-off simply would not be in the hat. A leaderboard being
        * short is embarrassing; a draw being short is unfair.
+       *
+       * In an order that never ties, because pages are offsets and an offset
+       * into rows the database may hand back in any order can repeat some and
+       * skip others. And strictly: a page that fails is an error on the screen,
+       * not a shorter list the draw is then made from.
        */
       const [kudos, likes, posts] = await Promise.all([
-        allRows<{ sender_id: string; receiver_character_id: number; created_at: string }>(
+        allRowsOrThrow<{ sender_id: string; receiver_character_id: number; created_at: string }>(
           (from, to) => range(supabase.from("kudos")
-            .select("sender_id, receiver_character_id, created_at")).range(from, to)),
-        allRows<{ profile_id: string; post_id: number; created_at: string }>(
+            .select("sender_id, receiver_character_id, created_at"))
+            .order("id").range(from, to)),
+        allRowsOrThrow<{ profile_id: string; post_id: number; created_at: string }>(
           (from, to) => range(supabase.from("gallery_likes")
-            .select("profile_id, post_id, created_at")).range(from, to)),
+            .select("profile_id, post_id, created_at"))
+            .order("created_at").order("profile_id").order("post_id").range(from, to)),
         // Not date-ranged: a like from last week can land on a picture posted
         // last year, and the owner is what we came for.
-        allRows<{ id: number; character_id: number | null }>(
+        allRowsOrThrow<{ id: number; character_id: number | null }>(
           (from, to) => supabase.from("gallery_posts")
-            .select("id, character_id").range(from, to)),
+            .select("id, character_id").order("id").range(from, to)),
       ]);
       const owner = new Map<number, number | null>(
         posts.map((row) => [row.id, row.character_id]));
@@ -224,6 +231,8 @@ export default function AdminReports(
   const [howMany, setHowMany] = useState("1");
   const [drawn, setDrawn] = useState<Entry[] | null>(null);
   const [scope, setScope] = useState<"fc" | "out" | "all">("fc");
+  /** Why the last reading could not be finished, when it could not. */
+  const [failed, setFailed] = useState<string | null>(null);
 
   const report = REPORTS.find((r) => r.key === which) ?? REPORTS[0];
 
@@ -231,17 +240,32 @@ export default function AdminReports(
     if (!supabase) return;
     setLoading(true);
     setDrawn(null);
-    const { data } = await supabase.from("profiles")
-      .select("id, character_id, character_name, display_name, discord_username, avatar_url");
+    setFailed(null);
+    // No list at all rather than the part that arrived, so there is nothing to
+    // draw from until a reading is whole.
+    const fail = (e: unknown) => {
+      setRows(null);
+      setFailed(e instanceof Error ? e.message : String(e));
+      setLoading(false);
+      return null;
+    };
+
+    // Paged like the potatoes, and for the same reason. A member whose profile
+    // is missing from a short read has no character here, so the FC filter
+    // below takes them out of the hat without a word.
+    const profiles = await allRowsOrThrow<{
+      id: string; character_id: number | null; character_name: string | null;
+      display_name: string | null; discord_username: string | null;
+      avatar_url: string | null;
+    }>((from, to) => supabase.from("profiles")
+      .select("id, character_id, character_name, display_name, discord_username, avatar_url")
+      .order("id").range(from, to)).catch(fail);
+    if (!profiles) return;
 
     const who = new Map<string, Pick<Entry,
       "characterId" | "name" | "avatar" | "unclaimed">>();
     const mine = new Map<string, number | null>();
-    for (const p of (data ?? []) as {
-      id: string; character_id: number | null; character_name: string | null;
-      display_name: string | null; discord_username: string | null;
-      avatar_url: string | null;
-    }[]) {
+    for (const p of profiles) {
       // display_name is free text, so an account with no character can call
       // itself anything — including another member's character name. An
       // unclaimed account is named by the login it signed in with.
@@ -257,7 +281,8 @@ export default function AdminReports(
       });
     }
 
-    const perDay = await report.load(supabase, since, until, mine);
+    const perDay = await report.load(supabase, since, until, mine).catch(fail);
+    if (!perDay) return;
 
     const out: Entry[] = [];
     for (const [profileId, days] of perDay) {
@@ -422,6 +447,11 @@ export default function AdminReports(
       {/* ── The entries ── */}
       <div className="mt-3">
         {loading && <p className="text-[12.5px] text-muted">{t("adm.loading")}</p>}
+        {!loading && failed && (
+          <p className="py-3 text-center text-[12.5px] text-chili">
+            {t("adm.rpFailed", { why: failed })}
+          </p>
+        )}
         {!loading && rows && shown.length === 0 && (
           <p className="py-3 text-center text-[12.5px] text-muted">{t("adm.rpEmpty")}</p>
         )}

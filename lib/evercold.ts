@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { isFcMember } from "@/lib/people";
-import { allRows } from "@/lib/rows";
+import { allRowsOrThrow } from "@/lib/rows";
 
 /**
  * Popoto: Road to Evercold — the Free Company's month-long draw.
@@ -77,14 +77,15 @@ export async function entryDays(
   // Paged, the way the draw reads the same rows. One member's month of giving is
   // well under a thousand, and a count that is right only until somebody is
   // generous enough is the leaderboard's short count over again (lib/rows.ts).
+  // Strictly, too: a page that failed throws rather than counting fewer days.
   const [kudos, likes] = await Promise.all([
-    allRows<{ created_at: string; receiver_character_id: number }>(
+    allRowsOrThrow<{ created_at: string; receiver_character_id: number }>(
       (from, to) => supabase.from("kudos")
         .select("created_at, receiver_character_id")
         .eq("sender_id", userId)
         .gte("created_at", EVENT_OPENS).lte("created_at", EVENT_SHUTS)
         .order("created_at").range(from, to)),
-    allRows(
+    allRowsOrThrow(
       (from, to) => supabase.from("gallery_likes")
         .select("created_at, gallery_posts(character_id)")
         .eq("profile_id", userId)
@@ -148,7 +149,17 @@ export async function markEntry(
     .limit(1);
   if (said?.length) return;
 
-  const days = await entryDays(supabase, userId, myCharacterId);
+  let days: Set<string>;
+  try {
+    days = await entryDays(supabase, userId, myCharacterId);
+  } catch (e) {
+    // A count that could not read every page may be a day short, which is the
+    // notice this file must not send again. Nothing is sent, so the next potato
+    // today asks afresh.
+    console.warn("evercold: could not count the entries —",
+      e instanceof Error ? e.message : e);
+    return;
+  }
   // Today has to be one of them. A potato to yourself calls this too, and that
   // used to be enough: the count skipped it, came back with yesterday's total,
   // and "today's entry is yours" went out one short — after which every potato

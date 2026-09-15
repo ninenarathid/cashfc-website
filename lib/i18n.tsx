@@ -1052,6 +1052,12 @@ const DICT = {
     en: "Nobody gave one in these days.",
     th: "ไม่มีใครส่ง popoto ในช่วงวันที่เลือก",
   },
+  // In place of the list when part of the reading failed. A draw from the part
+  // that arrived would leave somebody out without a word.
+  "adm.rpFailed": {
+    en: "Could not read every potato, so there is nothing to draw from yet. Try again. ({why})",
+    th: "อ่านข้อมูล popoto ได้ไม่ครบ จึงยังไม่มีรายชื่อให้สุ่ม ลองใหม่อีกครั้ง ({why})",
+  },
   "adm.drawTitle": {
     en: "Draw",
     th: "สุ่มผู้โชคดี",
