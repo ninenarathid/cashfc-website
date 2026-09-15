@@ -136,6 +136,10 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   // The draw. A ticket, because that is what an entry is, and the poster is
   // the picture beside it — this is the one notification with no person in it.
   evercold: { say: "notif.evercold", icon: "🎟️", href: "" },
+  // The same draw, owning up to a number it sent wrong. Its own kind rather than
+  // another entry notice, which would say "today" about a day they may not have
+  // given on — and would stop the real notice going out when they next did.
+  evercold_fix: { say: "notif.evercoldFix", icon: "🎟️", href: "" },
   /*
    * The party finder. All three lead to the party itself rather than to the
    * board — the board is a list, and a list is where somebody has to start
@@ -543,8 +547,8 @@ export default function NotificationBell() {
       const kind = KIND[n.kind];
       const line = n.kind === "announcement"
         ? t("notif.announced")
-        : n.kind === "evercold"
-          ? t("notif.evercold", { n: n.body ?? "?" })
+        : n.kind.startsWith("evercold") && kind
+          ? t(kind.say, { n: n.body ?? "?" })
           : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something");
       const actor = n.actor ? people[n.actor] : undefined;
       const face = actor?.characterId != null
@@ -552,14 +556,14 @@ export default function NotificationBell() {
       toast({
         // The toast has one line for both facts, so the event goes in front —
         // it is the thing that makes the sentence after it mean anything.
-        text: n.kind === "evercold"
+        text: n.kind.startsWith("evercold")
           ? `${t("notif.evercoldEvent")} — ${line}` : line,
-        image: n.kind === "evercold" ? EVENT_POSTER
+        image: n.kind.startsWith("evercold") ? EVENT_POSTER
           : n.post_id ? covers[n.post_id] ?? face : face,
         badge: kind?.icon,
         // Green, because earning a ticket is the one thing the bell says that
         // is unambiguously a bit of luck.
-        tone: n.kind === "evercold" ? "good" : "accent",
+        tone: n.kind.startsWith("evercold") ? "good" : "accent",
         href: hrefOf(n, character, postPath),
       });
     }
@@ -749,7 +753,7 @@ export default function NotificationBell() {
       : kind?.say;
     // The one notification with nobody in it: nothing was done to you, you did
     // something, and the poster is what it is about.
-    const eventPoster = n.kind === "evercold" ? EVENT_POSTER : null;
+    const eventPoster = n.kind.startsWith("evercold") ? EVENT_POSTER : null;
     const actor = n.actor ? people[n.actor] : undefined;
     const actorFace = actor?.characterId != null
       ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
@@ -792,7 +796,7 @@ export default function NotificationBell() {
            className={`flex gap-3.5 border-b border-line px-4 py-3.5 last:border-0 ${
              n.read_at ? "" : "bg-accent/5"}`}>
         {poster ? (
-          <BadgedThumb src={poster} badge={n.kind === "evercold" ? "🎟️" : "📣"}
+          <BadgedThumb src={poster} badge={n.kind.startsWith("evercold") ? "🎟️" : "📣"}
                        round={false} href={href} onGo={dismiss} />
         ) : facing && (actorFace || actorHref) ? (
           <BadgedThumb src={actorFace} badge={facing} href={actorHref}
@@ -815,8 +819,8 @@ export default function NotificationBell() {
             {/* The event line takes a count where the others take a name, and
                 nobody did it to you — so it is written straight rather than
                 threaded through the linked-name machinery. */}
-            {n.kind === "evercold"
-              ? t("notif.evercold", { n: n.body ?? "?" })
+            {n.kind.startsWith("evercold") && say
+              ? t(say, { n: n.body ?? "?" })
               : say
                 ? said(t(say, { who: SLOT }), n.actor_name ?? "—",
                        actorHref, dismiss)
@@ -825,7 +829,7 @@ export default function NotificationBell() {
           {/* The second line is the body everywhere except the event, where the
               body is the number already spoken above and what belongs here is
               which draw earned it. */}
-          {n.kind === "evercold" ? (
+          {n.kind.startsWith("evercold") ? (
             <p className="mt-1 font-data text-[11px] uppercase tracking-[0.1em] text-jade">
               {t("notif.evercoldEvent")}
             </p>

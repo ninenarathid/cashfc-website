@@ -429,6 +429,13 @@ const DICT = {
     en: "Today's entry is yours — {n} in the draw so far 🥔",
     th: "ได้รับสิทธิ์ของวันนี้แล้ว — รวมทั้งหมด {n} สิทธิ์ 🥔",
   },
+  // A correction to the line above, sent by hand to whoever it undercounted.
+  // It gives only what is true now, the total: the apology is the news, and
+  // which evening was short is arithmetic nobody asked to do.
+  "notif.evercoldFix": {
+    en: "Sorry, we sent you the wrong entry count. You have {n} in the draw 🥔",
+    th: "ขออภัย ระบบแจ้งจำนวนสิทธิ์ผิด ที่ถูกต้องคือรวมทั้งหมด {n} สิทธิ์ 🥔",
+  },
   // The event's own name, under the line rather than in it. A notification's
   // first line is what just happened; which draw it belongs to is the answer
   // to the next question, and putting both on one line makes the sentence

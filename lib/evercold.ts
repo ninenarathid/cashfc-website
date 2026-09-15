@@ -54,16 +54,19 @@ const bangkokDay = (iso: string): string =>
   }).format(new Date(iso));
 
 /**
- * How many entries somebody has earned so far.
+ * The days somebody has earned an entry on so far, as Bangkok dates.
  *
  * Counted from what they actually gave rather than from a running total kept
  * somewhere, because a total is a second copy of the truth and the day it
  * disagrees with the giving is the day somebody loses a ticket they earned.
- * Two queries, once a day per member — the price of the count being right.
+ * Two queries, about once a day per member — the price of the count being right.
+ *
+ * The days rather than how many, because how many cannot say whether today is
+ * one of them, and the notice is a sentence about today.
  */
-export async function countEntries(
+export async function entryDays(
   supabase: SupabaseClient, userId: string, myCharacterId: number | null,
-): Promise<number> {
+): Promise<Set<string>> {
   const [{ data: kudos }, { data: likes }] = await Promise.all([
     supabase.from("kudos")
       .select("created_at, receiver_character_id")
@@ -89,7 +92,7 @@ export async function countEntries(
     if (owner != null && myCharacterId != null && owner === myCharacterId) continue;
     days.add(bangkokDay(l.created_at));
   }
-  return days.size;
+  return days;
 }
 
 /**
@@ -130,8 +133,15 @@ export async function markEntry(
     .limit(1);
   if (said?.length) return;
 
-  const total = await countEntries(supabase, userId, myCharacterId);
-  if (!total) return;
+  const days = await entryDays(supabase, userId, myCharacterId);
+  // Today has to be one of them. A potato to yourself calls this too, and that
+  // used to be enough: the count skipped it, came back with yesterday's total,
+  // and "today's entry is yours" went out one short — after which every potato
+  // that did count found the notice already sent and said nothing. In the first
+  // week that was twenty-six notices to sixteen members, found when one of them
+  // asked why theirs had not moved. Saying nothing here leaves the notice to the
+  // first potato that counts.
+  if (!days.has(today)) return;
 
   const { error } = await supabase.from("notifications").insert({
     recipient: userId,
@@ -139,7 +149,7 @@ export async function markEntry(
     // The running total, which is the whole content of the line. Kept in body
     // because that column is already the place a notification puts the one
     // thing its wording needs.
-    body: String(total),
+    body: String(days.size),
   });
   if (error) console.warn("evercold: could not write the entry notice —", error.message);
 }
