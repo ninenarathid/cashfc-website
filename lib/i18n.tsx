@@ -2364,8 +2364,8 @@ const DICT = {
   "pf.closeTitle": { en: "Close this party", th: "ปิดห้องนี้" },
   "pf.closeSuccess": { en: "It went well", th: "สำเร็จ" },
   "pf.closeSuccessWhy": {
-    en: "The party gets a Success tag. Add the group photo if somebody took one.",
-    th: "ห้องจะได้ Tag Success ใส่รูปถ่ายรวมด้วยก็ได้ถ้ามี",
+    en: "The party gets a Success tag. Add group photos if anybody took some.",
+    th: "ห้องจะได้ Tag Success ใส่รูปถ่ายรวมด้วยก็ได้ถ้ามี (ใส่ได้หลายรูป)",
   },
   "pf.groupPhoto": { en: "Group photo (optional)", th: "รูปถ่ายรวม (ไม่บังคับ)" },
   "pf.groupPhotoHint": {
@@ -2380,7 +2380,9 @@ const DICT = {
   },
   "pf.closeAsTest": { en: "Mark as test", th: "ปิดเป็นห้องทดสอบ" },
   "pf.successTag": { en: "Success", th: "Success" },
-  "pf.groupPhotoTitle": { en: "Group photo", th: "รูปถ่ายรวม" },
+  "pf.groupPhotoTitle": { en: "Group photos", th: "รูปถ่ายรวม" },
+  "pf.addGroupPhoto": { en: "Add a photo", th: "เพิ่มรูป" },
+  "pf.saveGroupPhotos": { en: "Save photos", th: "บันทึกรูป" },
   // An admin answering an invitation for the person it was sent to.
   "party.acceptFor": { en: "Confirm for them", th: "ยืนยันแทน" },
   "pf.reopenParty": { en: "Reopen", th: "เปิดปาร์ตี้อีกครั้ง" },

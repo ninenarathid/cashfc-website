@@ -62,7 +62,7 @@ import PartyCreate from "@/components/party/PartyCreate";
 import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
 import Modal from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
-import CloseParty, { SuccessTag } from "@/components/party/CloseParty";
+import CloseParty, { GroupPhotos, SuccessTag } from "@/components/party/CloseParty";
 import { useAdmin } from "@/lib/admin";
 import ShareParty from "@/components/party/ShareParty";
 import PfHelper from "@/components/party/PfHelper";
@@ -353,19 +353,11 @@ function PartyDetail(
           </span>
         </div>
 
-        {/* The group photo, on the party it was taken at. Only inside the
+        {/* The group photos, on the party they were taken at. Only inside the
             party, not on its row: the row carries the Success tag and that is
             all the board says about how an evening went. */}
-        {party.outcome === "success" && party.outcomePhoto && (
-          <figure className="flex flex-col gap-1.5">
-            <figcaption className="font-data text-[12.5px] uppercase tracking-[0.14em] text-jade">
-              {t("pf.groupPhotoTitle")}
-            </figcaption>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={party.outcomePhoto} alt={t("pf.groupPhotoTitle")} loading="lazy"
-                 className="max-h-[28rem] w-auto max-w-full self-start rounded-lg border border-line object-contain" />
-          </figure>
-        )}
+        <GroupPhotos party={party} supabase={supabase} userId={userId}
+                     canAdd={!!onEdit} onAdded={refresh} />
 
         {pf && (
           <PfHelper party={party} def={def} onClose={() => setPf(false)} />

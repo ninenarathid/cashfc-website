@@ -1172,9 +1172,18 @@ export interface Party {
    * party from before outcomes were recorded, which nobody has judged yet.
    */
   outcome?: PartyOutcome | null;
-  /** The group photo, where the success came with one. */
-  outcomePhoto?: string | null;
+  /**
+   * The group photos, oldest first. See v75.
+   *
+   * Their own list rather than a field of the outcome, because the outcome
+   * changes — reopened, marked a test, closed again — and a photo taken on the
+   * night is a fact about the night whichever way it is later judged. Drawn
+   * only on a success; kept whatever the outcome.
+   */
+  photos?: GroupPhoto[];
 }
+
+export interface GroupPhoto { id: string; url: string; at: string }
 
 export type PartyOutcome = "success" | "fail" | "test";
 

@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { makeFull, MAX_UPLOAD_BYTES } from "@/lib/gallery";
 import { knownRoulettes } from "@/lib/roulettes";
 import type {
-  Floater, Flex, LengthUnit, Loot, MapPlan, Party, PartyBlock, PartyComment,
+  Floater, Flex, GroupPhoto, LengthUnit, Loot, MapPlan, Party, PartyBlock, PartyComment,
   Progress, Reaction, SeatRule, Shape, SlotTaken, Spot,
 } from "@/lib/party";
 import { askedAbout, endsAt } from "@/lib/party";
@@ -50,7 +50,6 @@ interface PostRow {
   ended_at: string | null;
   /** v73. Absent where that migration has not been run. */
   outcome?: string | null;
-  outcome_photo?: string | null;
 }
 
 interface MemberRow {
@@ -111,7 +110,7 @@ async function readPosts<R>(
   run: (cols: string) => PromiseLike<{ data: R | null; error: { message: string } | null }>,
 ): Promise<{ data: R | null; error: { message: string } | null }> {
   if (knowsOutcome) {
-    const r = await run(`${POST_COLS}, outcome, outcome_photo`);
+    const r = await run(`${POST_COLS}, outcome`);
     if (!r.error || !/outcome/.test(r.error.message)) return r;
     knowsOutcome = false;
   }
@@ -290,6 +289,29 @@ export async function loadParties(
    * copy. Asked for by comment id, which is why it waits until the comments
    * have come back.
    */
+  /*
+   * The group photos, in their own query for the same reason as the rest.
+   *
+   * A board without v75 has no such table, and the answer to that is a party
+   * with no photos rather than a board with no parties — so an error here is
+   * read as none.
+   */
+  const photoOf = new Map<number, GroupPhoto[]>();
+  {
+    const { data: shots, error: noShots } = await supabase.from("party_photos")
+      .select("id, party_id, url, created_at")
+      .in("party_id", ids)
+      .order("created_at", { ascending: true });
+    if (!noShots) {
+      for (const r of (shots ?? []) as unknown as
+        { id: number; party_id: number; url: string; created_at: string }[]) {
+        const at = photoOf.get(r.party_id) ?? [];
+        at.push({ id: String(r.id), url: r.url, at: r.created_at });
+        photoOf.set(r.party_id, at);
+      }
+    }
+  }
+
   const talk = (comments ?? []) as unknown as CommentRow[];
   const reactOf = new Map<number, Reaction[]>();
   if (talk.length) {
@@ -334,6 +356,7 @@ export async function loadParties(
     requests: askOf.get(p.id) ?? [],
     invites: inviteOf.get(p.id) ?? [],
     comments: talkOf.get(p.id) ?? [],
+    photos: photoOf.get(p.id) ?? [],
   }));
 }
 
@@ -365,6 +388,7 @@ interface Roster {
   requests: Floater[];
   invites: Floater[];
   comments: PartyComment[];
+  photos?: GroupPhoto[];
 }
 
 /** A listing with nobody in it yet. See recentSetups. */
@@ -410,12 +434,12 @@ function partyOf(p: PostRow, who: Roster): Party {
     ...(p.roulettes?.length ? { roulettes: knownRoulettes(p.roulettes) } : {}),
     body: p.body ?? [],
     comments: who.comments,
+    photos: who.photos ?? [],
     createdAt: p.created_at,
     updatedAt: p.updated_at ?? undefined,
     endedAt: p.ended_at,
     outcome: (p.outcome === "success" || p.outcome === "fail" || p.outcome === "test")
       ? p.outcome : null,
-    outcomePhoto: p.outcome_photo ?? null,
   });
 }
 
@@ -759,7 +783,7 @@ export async function finishParty(
   // again has not yet gone any particular way.
   const { error } = await supabase.from("party_posts")
     .update(on ? { ended_at: new Date().toISOString() }
-               : { ended_at: null, outcome: null, outcome_photo: null })
+               : { ended_at: null, outcome: null })
     .eq("id", Number(partyId));
   return error ? { error: error.message } : {};
 }
@@ -769,25 +793,69 @@ export async function finishParty(
  *
  * Success from the lead or an admin, test from an admin only — the database
  * refuses a lead's test (v73), so a button drawn by mistake still cannot put
- * the word on. Fail is never written from here; see party_fail_expired. The end is stamped only where it has not been already: a party
- * whose time ran out and was marked a fail keeps the moment it actually
- * finished, and saying afterwards that it went well does not move that.
+ * the word on. Fail is never written from here; see party_fail_expired.
+ *
+ * The end is stamped only where it has not been already: a party whose time
+ * ran out and was marked a fail keeps the moment it actually finished, and
+ * saying afterwards that it went well does not move that.
+ *
+ * The verdict is written first and the photos after it. A photo that fails to
+ * go up is worth saying, but it should not cost the lead the success they came
+ * to record; the photos can be added again from the party.
  */
 export async function closeParty(
-  supabase: SupabaseClient, party: Party,
-  outcome: "success" | "test", photo: string | null = null,
+  supabase: SupabaseClient, userId: string, party: Party,
+  outcome: "success" | "test", photos: File[] = [],
 ): Promise<{ error?: string }> {
   const { error } = await supabase.from("party_posts")
     .update({
       outcome,
-      outcome_photo: outcome === "success" ? photo : null,
       // Stamped only on a party that has not finished by either route: not
       // one the lead already ended, and not one whose time simply ran out.
       ...(party.endedAt || new Date(endsAt(party)).getTime() <= Date.now()
         ? {} : { ended_at: new Date().toISOString() }),
     })
     .eq("id", Number(party.id));
-  return error ? { error: error.message } : {};
+  if (error) return { error: error.message };
+  if (outcome !== "success" || !photos.length) return {};
+  return addGroupPhotos(supabase, userId, party.id, photos);
+}
+
+/** The group photo bucket. See v75. */
+export const GROUP_BUCKET = "party-photos";
+
+/**
+ * Group photos, added to a party's own folder and to its list.
+ *
+ * The file goes up as it is. Everything else on this board is re-encoded to
+ * WebP when that saves a quarter of its weight, which is right for a
+ * screenshot somebody glances at in a thread and wrong for a photo kept for
+ * later: the original is the one worth having, and re-encoding it is a
+ * generation of quality nobody can get back.
+ *
+ * One at a time, in the order they were chosen, so the list reads in that
+ * order. The file first and the row after it — a row pointing at a file that
+ * never arrived would be a broken picture in the archive, and a file with no
+ * row is only a file.
+ */
+export async function addGroupPhotos(
+  supabase: SupabaseClient, userId: string, partyId: string, files: File[],
+): Promise<{ error?: string }> {
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) return { error: "not-image" };
+    if (file.size > MAX_UPLOAD_BYTES) return { error: "too-big" };
+    const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+    const path = `${partyId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const up = await supabase.storage.from(GROUP_BUCKET)
+      .upload(path, file, { cacheControl: "31536000", upsert: false, contentType: file.type });
+    if (up.error) return { error: up.error.message };
+    const url = supabase.storage.from(GROUP_BUCKET).getPublicUrl(path).data.publicUrl;
+    const { error } = await supabase.from("party_photos").insert({
+      party_id: Number(partyId), url, path, uploaded_by: userId,
+    });
+    if (error) return { error: error.message };
+  }
+  return {};
 }
 
 /**
