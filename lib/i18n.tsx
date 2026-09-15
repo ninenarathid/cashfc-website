@@ -1019,8 +1019,8 @@ const DICT = {
     th: "ผูกตัวละครก่อน — ไปที่หน้าโปรไฟล์แล้วเลือกตัวละครที่คุณเล่น",
   },
   "kudos.already": {
-    en: "Already sent to this member today — come back tomorrow",
-    th: "ส่งให้คนนี้ไปแล้ววันนี้ — พรุ่งนี้มาใหม่",
+    en: "Already sent to this member today — you can send again after 00:00 UTC (07:00 Thai time)",
+    th: "วันนี้ส่งให้คนนี้ไปแล้ว — ส่งได้อีกครั้งหลัง 07:00 น.",
   },
   "kudos.failed": {
     en: "Could not send, try again",

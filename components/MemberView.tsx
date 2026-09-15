@@ -219,8 +219,7 @@ export default function MemberView({
       .insert({ sender_id: user.id, receiver_character_id: m.id });
     if (error) {
       setThrowing(false);
-      setKudosMsg(error.code === "23505"
-        ? "Already sent to this member today — come back tomorrow" : "Could not send, try again");
+      setKudosMsg(error.code === "23505" ? t("kudos.already") : t("kudos.failed"));
     } else {
       /*
        * Thrown once the database has it, not on the press. A potato that
