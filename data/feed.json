@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-09-15",
+   "type": "level_100",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
    "date": "2026-09-14",
    "type": "level_100",
    "id": 6173187,
@@ -1392,13 +1399,6 @@
    "id": 39850923,
    "name": "Hiro Hikari",
    "text": "reached level 100 on Bard!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 34790386,
-   "name": "Mikote Menphina",
-   "text": "reached level 100 on Black Mage!"
   }
  ]
 }

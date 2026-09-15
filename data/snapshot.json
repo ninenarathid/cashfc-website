@@ -4920,7 +4920,7 @@
   "mounts": 50,
   "minions": 124,
   "rare": 22,
-  "level": 100,
+  "level": 98,
   "cc": [
    true,
    true,
@@ -4965,7 +4965,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5977,7 +5977,7 @@
   "mounts": 103,
   "minions": 161,
   "rare": null,
-  "level": 95,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6002,7 +6002,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -6077,7 +6077,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 94,
+  "level": 41,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6091,7 +6091,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-15"
  },
  "31899766": {
   "name": "Firenna Dragist",
