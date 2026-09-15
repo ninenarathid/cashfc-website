@@ -544,7 +544,15 @@ function PartyForm(
    * the past: moving it is not what the lead came to do.
    */
   const max = latest();
-  const ceiling = editing && wasStart && wasStart > max ? wasStart : max;
+  /*
+   * Leaving a far start where it is, on an edit, is allowed only for a
+   * listing that was already a party. A static being turned into one is
+   * becoming something the ten days apply to, and letting its seven-weeks-out
+   * date through here only meant the database refusing it a moment later with
+   * a message in English (v76).
+   */
+  const ceiling = editing && !editing.isStatic && wasStart && wasStart > max
+    ? wasStart : max;
   // A static has no ceiling: one forming for next month is put up now (v76).
   const staticNow = isStatic && canBeStatic(chosen?.kind);
   const tooFar = !staticNow && !!start && start > ceiling;
