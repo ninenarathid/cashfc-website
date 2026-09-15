@@ -79,6 +79,23 @@ function asBangkokLocal(at: Date): string {
        + `T${two(shifted.getHours())}:${two(shifted.getMinutes())}`;
 }
 
+/**
+ * The same clock time as a party that has already run, on the soonest day it
+ * has not yet passed.
+ *
+ * A party set up again is almost always the same evening again: ten o'clock
+ * last night means ten o'clock tonight, and tomorrow's ten o'clock only once
+ * tonight's has gone. Kept to the Thai wall clock at both ends, so a lead whose
+ * browser is somewhere else still gets the hour they typed last time.
+ */
+function nextSameTime(was: string): string {
+  const [, time] = asBangkokLocal(new Date(was)).split("T");
+  const [today] = asBangkokLocal(new Date()).split("T");
+  let at = new Date(fromBangkokLocal(`${today}T${time}`));
+  if (at.getTime() <= Date.now()) at = new Date(at.getTime() + 24 * 3600_000);
+  return asBangkokLocal(at);
+}
+
 /** The next half hour, which is the earliest anybody realistically means. */
 function defaultStart(): string {
   const t = new Date(Date.now() + 60 * 60_000);
@@ -220,7 +237,7 @@ interface CreateProps {
      * A party this lead has put up before, to fill the form in from.
      *
      * Not an edit: it writes a new listing, nobody is carried across, and the
-     * time is the next half hour rather than whenever the old one was. Somebody
+     * time is the old one's clock time on the soonest day still to come. Somebody
      * who runs the same fight every night was answering the same nine questions
      * every night, and only one of the answers was ever different.
      *
@@ -286,7 +303,7 @@ export default function PartyCreate(props: CreateProps) {
 
 function PartyForm(
   { content, people, me, userId, busy = false, suggest, labels, mine = [],
-    onAdd, onCancel, editing, again, setups = [], onAgain }: CreateProps & {
+    onAdd, editing, again, setups = [], onAgain }: CreateProps & {
     onAgain: (p: Party) => void;
   },
 ) {
@@ -319,7 +336,8 @@ function PartyForm(
   const [note, setNote] = useState(seed?.note ?? "");
   const [shape, setShape] = useState<Shape | "">(seed?.shape ?? "");
   const [start, setStart] = useState(
-    () => (editing ? asBangkokLocal(new Date(editing.startsAt)) : defaultStart()));
+    () => (editing ? asBangkokLocal(new Date(editing.startsAt))
+      : again ? nextSameTime(again.startsAt) : defaultStart()));
   const [unit, setUnit] = useState<LengthUnit>(
     seed?.lengthUnit ?? DEFAULT_LENGTH.unit);
   /*
@@ -1510,8 +1528,11 @@ function PartyForm(
         </>
       )}
 
+      {/* No cancel button of its own: the window's X in the corner already
+          closes it, and a second way out at the bottom was the same control
+          said twice. Only drawn once there is something to put up. */}
+      {chosen && (
       <div className="flex items-center gap-2">
-        {chosen && (
           <>
             {/* An edit is a change to something people have already read and
                 made plans around, so it asks. Putting a new one up does not:
@@ -1528,12 +1549,8 @@ function PartyForm(
               <span className="text-[13.5px] text-muted">{t(wants)}</span>
             )}
           </>
-        )}
-        <button onClick={onCancel}
-                className="ml-auto text-[14px] text-muted hover:text-ink">
-          {t("pf.cancel")}
-        </button>
       </div>
+      )}
 
       {/* Above the window it is asked from. See ConfirmDialog's z. */}
       {asking && (

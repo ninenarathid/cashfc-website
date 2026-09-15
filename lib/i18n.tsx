@@ -1878,12 +1878,12 @@ const DICT = {
   // A party with no headline. What it was for stands in where there is a
   // progress point; this is for the ones with neither.
   "pf.againNoNote": { en: "No headline", th: "ไม่มีคำโปรย" },
-  // Said once, at the top of a form that was filled in from an old party. It
-  // is the one answer that cannot be carried over, so it is the one the form
-  // has to ask for.
+  // Said once, at the top of a form that was filled in from an old party, so
+  // a form that opens already answered does not read as one that remembered
+  // something it should not have.
   "pf.againSeeded": {
-    en: "Filled in from a party you ran before. Set the time and it is ready.",
-    th: "ดึงค่ามาจาก Party ที่คุณเคยตั้ง เหลือแค่ตั้งเวลาใหม่",
+    en: "Filled in from a party you ran before.",
+    th: "ดึงค่ามาจาก Party ที่คุณเคยตั้ง",
   },
   /* ── The front page's notices, which can now be answered ──────────── */
   "home.readOn": { en: "Read more", th: "อ่านต่อ" },
@@ -2276,6 +2276,13 @@ const DICT = {
   },
   "party.jobOptional": { en: "Job (optional)", th: "อาชีพ (ไม่บังคับ)" },
   "party.confirmSeat": { en: "Confirm", th: "ยืนยัน" },
+  // Pressing the seat you are already in.
+  "party.changeJobAt": {
+    en: "Change the job you'll play in {seat}?",
+    th: "เปลี่ยนอาชีพที่จะเล่นในตำแหน่ง {seat} ไหม?",
+  },
+  "party.jobPick": { en: "Job", th: "อาชีพ" },
+  "party.saveJob": { en: "Save", th: "บันทึก" },
   // "Flex", the word the FC already uses, and the same word the chip under a
   // seated member's name uses — because it is the same thing. Not "bench" and
   // not "no seat yet": a substitute might not play, and "not picked yet" is a

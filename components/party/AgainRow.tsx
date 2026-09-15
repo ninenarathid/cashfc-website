@@ -17,9 +17,9 @@ import { useLang } from "@/lib/i18n";
  * answers was ever different, and it is the quickest one to give.
  *
  * So: press one and the form fills in with everything that was true last time,
- * with nobody in it and the time set to the next half hour. Not a repost — a
- * new party that starts where the last one left off, and every field is still
- * there to be changed.
+ * with nobody in it and the same hour on the soonest day that has not passed.
+ * Not a repost — a new party that starts where the last one left off, and every
+ * field is still there to be changed.
  *
  * Cards with the fight's own still on them rather than a row of small chips.
  * These were chips, and two TEA parties as two chips are two words that differ

@@ -23,7 +23,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   acceptInto, addComment, askToJoin, createParty, deleteParty, dropComment,
   editComment, toggleReaction, uploadPartyImage,
-  leaveSeat, loadParties, takeSeat,
+  leaveSeat, loadParties, takeSeat, setSeatJob,
   finishParty,
   inviteMembers,
   setOwnSeat,
@@ -457,6 +457,17 @@ function PartyDetail(
                           // Already asked and waiting on the lead. Pressing a
                           // second seat would be a second request.
                           if (mine?.pending) return null;
+                          /*
+                           * Your own seat. Not a question about the chair —
+                           * you are in it — but the one thing about it that
+                           * does change after everybody has sat down: what
+                           * you are bringing. A full party with every seat
+                           * locked had nowhere to say "I'll go Sage instead"
+                           * short of leaving and asking to come back.
+                           */
+                          if (mine?.seat === slot.id && !mine.invited) {
+                            return t("party.changeJobAt", { seat: slot.label });
+                          }
                           const res = resolveParty(party);
                           /*
                            * A seat somebody offered to move out of is a seat
@@ -502,6 +513,11 @@ function PartyDetail(
                             ? t("party.moveHere", { seat: slot.label })
                             : t("party.sitHere", { seat: slot.label })) + also;
                         },
+                        jobNow: (slot) => {
+                          const mine = placeOf(party, me.id);
+                          return mine?.seat === slot.id && !mine.invited
+                            ? (party.seats[slot.id]?.job ?? null) : undefined;
+                        },
                         take: (slot, job) => void (async () => {
                           const mine = placeOf(party, me.id);
                           if (!mine) {
@@ -518,6 +534,17 @@ function PartyDetail(
                             return;
                           }
                           if (!mine.rowId) return;
+                          // The job on the seat you already have, and nothing
+                          // else: going through the seat claim would ask the
+                          // database to seat somebody where they already sit.
+                          if (mine.seat === slot.id && !mine.invited) {
+                            setSeating(true);
+                            const j = await setSeatJob(supabase, mine.rowId, job);
+                            setSeating(false);
+                            if (j.error) { setErr(j.error); return; }
+                            await refresh();
+                            return;
+                          }
                           setSeating(true);
                           const r = mine.invited
                             ? await acceptInto(supabase, mine.rowId, slot.id, job)

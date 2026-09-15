@@ -885,6 +885,21 @@ export async function takeSeat(
 }
 
 /**
+ * Change the job somebody is bringing to the seat they already have.
+ *
+ * Only the job. The seat is settled and so is whether they said yes; this is
+ * the one fact about a locked seat that is still the sitter's to change on the
+ * night. The same write takeSeat makes before its claim, without the claim.
+ */
+export async function setSeatJob(
+  supabase: SupabaseClient, seatRowId: number, job: string | null,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("party_members")
+    .update({ job }).eq("id", seatRowId);
+  return error ? { error: error.message } : {};
+}
+
+/**
  * Take a seat back: turned down, withdrawn, or somebody leaving.
  *
  * A real delete rather than a tombstone, for the reason v39 gives: a seat is

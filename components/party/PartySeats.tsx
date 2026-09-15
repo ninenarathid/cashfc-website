@@ -135,6 +135,15 @@ export interface SeatPick {
   ask: (slot: SlotDef) => string | null;
   take: (slot: SlotDef, job: string | null) => void;
   /**
+   * The job the reader has on this seat, where this seat is theirs.
+   *
+   * Undefined for every seat that is not: pressing one of those is asking for
+   * it. Pressing your own is not a question about the seat — you are already
+   * in it — so the same popover opens on the job you have and saves a
+   * different one. Null means the seat is yours and no job was named.
+   */
+  jobNow?: (slot: SlotDef) => string | null | undefined;
+  /**
    * The same for the row under the grid: a question, or null for somebody
    * with no business there. Answering it is not one button but a choice of
    * seats — "I can play these" is an offer, and the widest version of it is
@@ -341,21 +350,30 @@ function SeatAsk(
   },
 ) {
   const { t } = useLang();
+  const now = pick.jobNow?.(slot);
+  const mine = now !== undefined;
   const [open, setOpen] = useState(false);
-  const [job, setJob] = useState<string | null>(null);
+  const [job, setJob] = useState<string | null>(now ?? null);
   // Only what this seat will actually take, which is the seat's own rule
-  // narrowed by whatever the party has said about duplicate jobs.
-  const jobs = openTo(party, slot.id, jobsForSlot(slot));
+  // narrowed by whatever the party has said about duplicate jobs. The job
+  // somebody is already on stays offered even if a rule has since moved past
+  // it — otherwise opening this would silently un-pick what they have.
+  const allowed = openTo(party, slot.id, jobsForSlot(slot));
+  const jobs = now && !allowed.includes(now) ? [now, ...allowed] : allowed;
 
   return (
-    <Popover open={open} onOpenChange={(v) => { setOpen(v); if (!v) setJob(null); }}
+    /* Set from the seat each time it opens rather than when it closes: the
+       close comes before the board has read the save back, so resetting then
+       would put the old job in the chips for the next open. */
+    <Popover open={open}
+             onOpenChange={(v) => { setOpen(v); if (v) setJob(now ?? null); }}
              trigger={cell}>
       <div className="flex flex-col gap-2.5">
         <p className="text-[15px] text-ink">{ask}</p>
         {jobs.length > 0 && (
           <div className="flex flex-col gap-1.5">
             <span className="font-data text-[12px] uppercase tracking-[0.12em] text-muted">
-              {t("party.jobOptional")}
+              {t(mine ? "party.jobPick" : "party.jobOptional")}
             </span>
             <div className="flex flex-wrap gap-1">
               {jobs.map((j: string) => (
@@ -371,10 +389,10 @@ function SeatAsk(
           </div>
         )}
         <div className="flex items-center gap-2">
-          <button type="button" disabled={pick.busy}
+          <button type="button" disabled={pick.busy || (mine && job === now)}
                   onClick={() => { setOpen(false); pick.take(slot, job); }}
                   className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
-            {t("party.confirmSeat")}
+            {t(mine ? "party.saveJob" : "party.confirmSeat")}
           </button>
           <button type="button" onClick={() => setOpen(false)}
                   className="rounded-lg px-2 py-1.5 text-[14.5px] text-muted hover:text-ink">
