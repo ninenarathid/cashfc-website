@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-09-16",
+   "type": "level_100",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-16",
    "type": "parse_up",
    "id": 36183541,
    "name": "Nagi Amano",
@@ -1392,13 +1399,6 @@
    "id": 26699926,
    "name": "Boonies Princess",
    "text": "is now a Legendary Summoner"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 28950119,
-   "name": "Einz Aizerces",
-   "text": "is now a Master Scholar"
   }
  ]
 }

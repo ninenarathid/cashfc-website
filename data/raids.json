@@ -55336,9 +55336,9 @@
     "state": "learning",
     "pct": 51.11,
     "phase": 5,
-    "pulls": 94,
-    "last": "2026-09-15",
-    "last_ts": 1789489606
+    "pulls": 96,
+    "last": "2026-09-16",
+    "last_ts": 1789575888
    }
   ]
  },
@@ -56878,6 +56878,40 @@
         "best": 80
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 31,
+      "median": 31,
+      "kills": 2,
+      "job": "Paladin"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 8,
+      "median": 8,
+      "kills": 2,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 10,
+      "median": 10,
+      "kills": 1,
+      "job": "Paladin"
      }
     ]
    }

@@ -4785,7 +4785,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4915,7 +4915,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-16"
  },
  "42976317": {
   "name": "Zeadz Stellar",
