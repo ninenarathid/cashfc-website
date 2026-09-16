@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-09-16",
+   "type": "level_100",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
    "date": "2026-09-15",
    "type": "rare_up",
    "id": 15308846,
@@ -1392,13 +1399,6 @@
    "id": 693670,
    "name": "Zediez Vesarius",
    "text": "is now a Expert Ninja"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "parse_up",
-   "id": 35629716,
-   "name": "Zeldris Ragnarsson",
-   "text": "set a new best parse: 77 on Erichthonios as Dragoon"
   }
  ]
 }
