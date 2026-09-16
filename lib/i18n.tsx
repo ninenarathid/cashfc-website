@@ -493,8 +493,8 @@ const DICT = {
   "adm.rareOn": { en: "Rare popoto is ON", th: "Popoto แรร์: เปิดใช้งาน" },
   "adm.rareOff": { en: "Rare popoto is OFF", th: "Popoto แรร์: ปิดอยู่" },
   "adm.rareOnWhy": {
-    en: "Every popoto sent has a 1% chance of arriving rare.",
-    th: "popoto ทุกลูกที่ส่งมีโอกาส 1% เป็นแรร์",
+    en: "Every popoto sent has a {pct}% chance of arriving rare.",
+    th: "popoto ทุกลูกที่ส่งมีโอกาส {pct}% เป็นแรร์",
   },
   "adm.rareOffWhy": {
     en: "Every popoto is ordinary until this is turned on. Fill in the flavours and lines first.",
@@ -505,6 +505,13 @@ const DICT = {
     th: "ยังไม่มีรสที่พร้อม (รสต้องมีข้อความที่เปิดใช้อย่างน้อย 1 ข้อความ)",
   },
   "adm.rareTurnOn": { en: "Turn on", th: "เปิดใช้งาน" },
+  "adm.rareChance": { en: "Chance of a popoto being rare", th: "โอกาสที่ popoto จะออกแรร์" },
+  "adm.rareChanceMeans": { en: "about one popoto in {n}", th: "ประมาณ 1 ใน {n} ลูก" },
+  "adm.rareChanceZero": {
+    en: "0% — on, but nothing will ever be rare",
+    th: "0% — เปิดอยู่แต่จะไม่มีใครได้แรร์เลย",
+  },
+  "adm.rareChanceBad": { en: "0 to 100 only", th: "กรอกได้ 0 ถึง 100 เท่านั้น" },
   "adm.rareTurnOff": { en: "Turn off", th: "ปิดการใช้งาน" },
   "adm.rareOnAsk": {
     en: "Turn rare popoto on? From the next popoto sent, anybody in the FC can receive one. {n} flavour(s) are ready.",
