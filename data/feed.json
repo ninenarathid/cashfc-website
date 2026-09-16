@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-09-16",
+   "type": "parse_up",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "set a new best parse: 100 on Red Hot and Deep Blue as Samurai"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-16",
    "type": "level_100",
    "id": 31236337,
    "name": "Whitefrost Marionette",
@@ -1385,20 +1399,6 @@
    "id": 28950119,
    "name": "Einz Aizerces",
    "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "grade_up",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "is now a Expert Explorer ✨"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "rare_up",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "earned Onward and Upward — only 0.4% of players have it, and 76 more"
   }
  ]
 }

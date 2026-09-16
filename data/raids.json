@@ -9199,11 +9199,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 31.85,
-    "phase": 4,
-    "pulls": 107,
-    "last": "2026-09-11",
-    "last_ts": 1789146646
+    "pct": 86.31,
+    "phase": 5,
+    "pulls": 102,
+    "last": "2026-09-16",
+    "last_ts": 1789576540
    }
   ]
  },
@@ -23140,9 +23140,9 @@
     "state": "learning",
     "pct": 41.58,
     "phase": 3,
-    "pulls": 58,
-    "last": "2026-09-14",
-    "last_ts": 1789402787
+    "pulls": 80,
+    "last": "2026-09-16",
+    "last_ts": 1789578247
    }
   ]
  },
@@ -24656,11 +24656,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 31.85,
-    "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-11",
-    "last_ts": 1789146646
+    "pct": 86.31,
+    "phase": 5,
+    "pulls": 103,
+    "last": "2026-09-16",
+    "last_ts": 1789576540
    }
   ]
  },
@@ -28202,11 +28202,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 31.85,
-    "phase": 4,
-    "pulls": 109,
-    "last": "2026-09-11",
-    "last_ts": 1789146646
+    "pct": 86.31,
+    "phase": 5,
+    "pulls": 104,
+    "last": "2026-09-16",
+    "last_ts": 1789576540
    }
   ]
  },
@@ -28855,9 +28855,9 @@
     "state": "learning",
     "pct": 41.58,
     "phase": 3,
-    "pulls": 125,
-    "last": "2026-09-14",
-    "last_ts": 1789402787
+    "pulls": 115,
+    "last": "2026-09-16",
+    "last_ts": 1789578247
    }
   ]
  },
@@ -29006,6 +29006,22 @@
       "name": "Agdistis",
       "best": 20,
       "median": 20,
+      "kills": 1,
+      "job": "Reaper"
+     }
+    ]
+   },
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 7,
+      "median": 7,
       "kills": 1,
       "job": "Reaper"
      }
@@ -30962,11 +30978,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 31.85,
-    "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-11",
-    "last_ts": 1789146646
+    "pct": 86.31,
+    "phase": 5,
+    "pulls": 103,
+    "last": "2026-09-16",
+    "last_ts": 1789576540
    }
   ]
  },
@@ -34499,7 +34515,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 41,
-    "kills": 9,
+    "kills": 10,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -38509,11 +38525,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 31.85,
-    "phase": 4,
-    "pulls": 109,
-    "last": "2026-09-11",
-    "last_ts": 1789146646
+    "pct": 86.31,
+    "phase": 5,
+    "pulls": 104,
+    "last": "2026-09-16",
+    "last_ts": 1789576540
    }
   ]
  },
@@ -40246,11 +40262,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 31.85,
-    "phase": 4,
-    "pulls": 107,
-    "last": "2026-09-11",
-    "last_ts": 1789146646
+    "pct": 86.31,
+    "phase": 5,
+    "pulls": 102,
+    "last": "2026-09-16",
+    "last_ts": 1789576540
    }
   ]
  },
@@ -53462,9 +53478,9 @@
      "label": "M10S",
      "encounter_id": 102,
      "name": "Red Hot and Deep Blue",
-     "best": 95,
-     "median": 67,
-     "kills": 9,
+     "best": 100,
+     "median": 69,
+     "kills": 10,
      "job": "Samurai",
      "job_kills": {
       "Samurai": {
@@ -53589,9 +53605,9 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 4,
-    "last": "2026-09-13",
-    "last_ts": 1789303764
+    "pulls": 7,
+    "last": "2026-09-15",
+    "last_ts": 1789486597
    },
    {
     "encounter_id": 104,
@@ -54748,7 +54764,7 @@
     "state": "learning",
     "pct": 57.5,
     "phase": 5,
-    "pulls": 33,
+    "pulls": 16,
     "last": "2026-09-07",
     "last_ts": 1788797904
    }
@@ -62104,8 +62120,8 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 79,
-    "kills": 13,
-    "job": "Gunbreaker",
+    "kills": 14,
+    "job": "Paladin",
     "cleared": true,
     "job_kills": {
      "Gunbreaker": {
@@ -62125,7 +62141,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 88,
-    "kills": 12,
+    "kills": 20,
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
@@ -62174,31 +62190,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 3,
-    "last": "2026-09-14",
-    "last_ts": 1789362587
-   },
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 5.46,
-    "phase": 1,
-    "pulls": 49,
-    "last": "2026-09-13",
-    "last_ts": 1789311534
-   }
-  ]
+  "_status": "ok"
  },
  "42053180": {
   "current": {
@@ -65829,7 +65821,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 73,
-    "kills": 3,
+    "kills": 4,
     "job": "Monk",
     "cleared": true,
     "job_kills": {

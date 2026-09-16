@@ -3535,7 +3535,7 @@
  },
  "36183541": {
   "name": "Nagi Amano",
-  "parse": 95,
+  "parse": 100,
   "ult": 0,
   "mounts": 65,
   "minions": 130,
@@ -3622,7 +3622,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -4924,7 +4924,7 @@
   "mounts": 52,
   "minions": 127,
   "rare": 31,
-  "level": 97,
+  "level": 100,
   "cc": [
    true,
    true,
