@@ -528,6 +528,9 @@ const DICT = {
   },
   "adm.flavorColor": { en: "Colour", th: "สี" },
   "adm.flavorGiven": { en: "given {n}×", th: "ถูกส่งไปแล้ว {n} ครั้ง" },
+  "adm.flavorOpened": { en: "opened", th: "แกะแล้ว" },
+  "adm.flavorUnopened": { en: "not opened", th: "ยังไม่แกะ" },
+  "adm.flavorSelf": { en: "to themselves", th: "ให้ตัวเอง" },
   "adm.flavorActive": { en: "In use", th: "เปิดใช้" },
   "adm.flavorOff": { en: "Retired", th: "ปิดใช้" },
   "adm.flavorSentKept": {

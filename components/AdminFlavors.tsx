@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import ImagePicker from "@/components/ImagePicker";
+import { fmtDate } from "@/lib/dates";
 import AdminRareSwitch from "@/components/AdminRareSwitch";
 import { FlavorArt, TierBadge } from "@/components/PopotoRare";
 import { TIER_LOOK, type RareTier } from "@/lib/popoto-rare";
@@ -20,6 +21,15 @@ interface FlavorRow {
   color: string;
   image_url: string | null;
   active: boolean;
+}
+
+/** One popoto of this flavour that was actually sent. */
+interface Sent {
+  id: number;
+  senderId: string | null;
+  receiver: number;
+  at: string;
+  openedAt: string | null;
 }
 
 interface Quote {
@@ -71,7 +81,10 @@ export default function AdminFlavors(
   const [supabase] = useState(createClient);
   const [rows, setRows] = useState<FlavorRow[]>([]);
   const [quotes, setQuotes] = useState<Record<number, Quote>>({});
-  const [given, setGiven] = useState<Record<number, number>>({});
+  const [sent, setSent] = useState<Record<number, Sent[]>>({});
+  const [senders, setSenders] = useState<Record<string, { name: string; charId: number | null }>>({});
+  /** Which flavour's list of who gave it to whom is open. */
+  const [showSent, setShowSent] = useState<number | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const [addKey, setAddKey] = useState(0);
@@ -92,13 +105,45 @@ export default function AdminFlavors(
     const q: Record<number, Quote> = {};
     for (const r of (bl ?? []) as Quote[]) q[r.flavor_id] ??= r;
     setQuotes(q);
+    /*
+     * Every rare that has gone out, newest first: who sent it, who has it, and
+     * whether they have opened it. The number on a card is the length of its
+     * list, so the count and the list can never disagree.
+     */
     const { data: k } = await supabase.from("kudos")
-      .select("rare_flavor_id").not("rare_flavor_id", "is", null).limit(5000);
-    const n: Record<number, number> = {};
-    for (const r of (k ?? []) as { rare_flavor_id: number }[]) {
-      n[r.rare_flavor_id] = (n[r.rare_flavor_id] ?? 0) + 1;
+      .select("id, rare_flavor_id, sender_id, receiver_character_id, created_at, rare_opened_at")
+      .not("rare_flavor_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    const rowsK = (k ?? []) as {
+      id: number; rare_flavor_id: number; sender_id: string | null;
+      receiver_character_id: number; created_at: string; rare_opened_at: string | null;
+    }[];
+    const by: Record<number, Sent[]> = {};
+    for (const r of rowsK) {
+      (by[r.rare_flavor_id] ??= []).push({
+        id: r.id, senderId: r.sender_id, receiver: r.receiver_character_id,
+        at: r.created_at, openedAt: r.rare_opened_at,
+      });
     }
-    setGiven(n);
+    setSent(by);
+
+    // The senders' names. A popoto is sent by an account rather than by a
+    // character, so the name comes from the profile, not the member list.
+    const ids = [...new Set(rowsK.map((r) => r.sender_id).filter((x): x is string => !!x))];
+    const who: Record<string, { name: string; charId: number | null }> = {};
+    if (ids.length) {
+      const { data: ps } = await supabase.from("profiles")
+        .select("id, character_id, character_name, display_name, discord_username").in("id", ids);
+      for (const pr of (ps ?? []) as { id: string; character_id: number | null;
+        character_name: string | null; display_name: string | null; discord_username: string | null }[]) {
+        who[pr.id] = {
+          name: pr.character_name ?? pr.display_name ?? pr.discord_username ?? "—",
+          charId: pr.character_id,
+        };
+      }
+    }
+    setSenders(who);
   }, [supabase]);
   useEffect(() => { void refresh(); }, [refresh]);
 
@@ -163,6 +208,14 @@ export default function AdminFlavors(
   };
 
   const ready = rows.filter((r) => r.active && quotes[r.id]).length;
+  const byChar = new Map(memberOptions.map((m) => [m.id, m.name]));
+  const nameOf = (charId: number) => byChar.get(charId) ?? `#${charId}`;
+  const senderName = (g: Sent) => {
+    const who = g.senderId ? senders[g.senderId] : null;
+    if (!who) return "\u2014";
+    // Somebody who sent it to their own character is worth seeing as that.
+    return who.charId === g.receiver ? `${who.name} (${t("adm.flavorSelf")})` : who.name;
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -212,7 +265,7 @@ export default function AdminFlavors(
                                   image: r.image_url, th: parts?.th ?? "", en: parts?.en ?? "",
                                   who: q ? { id: q.author_character_id, name: q.author_name } : null,
                                 }}
-                                editingTier={r.tier} sent={(given[r.id] ?? 0) > 0}
+                                editingTier={r.tier} sent={(sent[r.id]?.length ?? 0) > 0}
                                 submitLabel={t("adm.save")}
                                 onCancel={() => setEditing(null)}
                                 onSubmit={async (d) => { if (await save(r.id, d)) setEditing(null); }} />
@@ -233,9 +286,18 @@ export default function AdminFlavors(
                         <span className={`text-[12.5px] leading-snug ${r.name_en ? "text-ink/80" : "text-gold"}`}>
                           {r.name_en || t("adm.flavorNoEn")}
                         </span>
-                        <span className="mt-0.5 text-[11.5px] text-muted">
-                          {t("adm.flavorGiven", { n: given[r.id] ?? 0 })}
-                        </span>
+                        {(sent[r.id]?.length ?? 0) > 0 ? (
+                          <button type="button"
+                                  onClick={() => setShowSent(showSent === r.id ? null : r.id)}
+                                  className="mt-0.5 self-start text-[11.5px] text-muted underline decoration-dotted underline-offset-2 hover:text-accent">
+                            {t("adm.flavorGiven", { n: sent[r.id].length })}
+                            {" "}{showSent === r.id ? "\u25b4" : "\u25be"}
+                          </button>
+                        ) : (
+                          <span className="mt-0.5 text-[11.5px] text-muted">
+                            {t("adm.flavorGiven", { n: 0 })}
+                          </span>
+                        )}
                       </span>
                     </div>
 
@@ -253,6 +315,24 @@ export default function AdminFlavors(
                       <p className="rounded-md border border-dashed border-gold/50 px-2.5 py-2 text-[12px] text-gold">
                         {t("adm.quoteNone")}
                       </p>
+                    )}
+
+                    {/* Who gave it to whom, and whether it has been opened. */}
+                    {showSent === r.id && (
+                      <ul className="flex max-h-56 list-none flex-col gap-1 overflow-y-auto rounded-md bg-bg/40 px-2.5 py-2 text-[11.5px]">
+                        {sent[r.id].map((g) => (
+                          <li key={g.id}
+                              className="flex flex-wrap items-baseline gap-x-1.5 border-b border-line/60 pb-1 last:border-0 last:pb-0">
+                            <span className="text-muted">{senderName(g)}</span>
+                            <span className="text-muted">{"\u2192"}</span>
+                            <span className="font-medium text-ink">{nameOf(g.receiver)}</span>
+                            <span className="ml-auto text-muted">{fmtDate(g.at)}</span>
+                            <span className={g.openedAt ? "text-jade" : "text-gold"}>
+                              {g.openedAt ? t("adm.flavorOpened") : t("adm.flavorUnopened")}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
                     )}
 
                     <div className="flex flex-wrap items-center gap-1.5 text-[12px]">
