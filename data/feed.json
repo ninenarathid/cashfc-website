@@ -3,6 +3,62 @@
   {
    "date": "2026-09-16",
    "type": "level_100",
+   "id": 31236337,
+   "name": "Whitefrost Marionette",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned R&D: Hyperfrypan"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Clare Obscurum: Guillotine Obscurum — only 4.6% of players have it"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
+   "id": 60873337,
+   "name": "Imy Kitty",
+   "text": "reached level 100 on Dragoon!"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
+   "id": 51060767,
+   "name": "Yatchy Concreategirls",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
    "id": 57375278,
    "name": "Komi Kona",
    "text": "reached level 100 on Paladin!"
@@ -1343,62 +1399,6 @@
    "id": 9444020,
    "name": "Non Elemental",
    "text": "earned Onward and Upward — only 0.4% of players have it, and 76 more"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "is now a Legendary Bard"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 15912826,
-   "name": "Rin Shiba",
-   "text": "is now a Master Dragoon"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "is now a Master Astrologian"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "level_100",
-   "id": 29090821,
-   "name": "Amber Levana",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "level_100",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "parse_up",
-   "id": 41073949,
-   "name": "Vanir Arkwright",
-   "text": "set a new best parse: 56 on Erichthonios as Monk"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "parse_up",
-   "id": 29881709,
-   "name": "Y'uki No",
-   "text": "set a new best parse: 60 on Erichthonios as Re\u0001 \u0002age"
   }
  ]
 }

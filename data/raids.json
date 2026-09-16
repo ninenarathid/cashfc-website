@@ -34504,7 +34504,7 @@
     "cleared": true,
     "job_kills": {
      "Warrior": {
-      "kills": 9,
+      "kills": 10,
       "best": 41
      }
     }
@@ -53468,8 +53468,8 @@
      "job": "Samurai",
      "job_kills": {
       "Samurai": {
-       "kills": 9,
-       "best": 95
+       "kills": 10,
+       "best": 100
       }
      }
     },

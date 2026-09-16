@@ -1028,7 +1028,7 @@
   "mounts": 75,
   "minions": 144,
   "rare": 42,
-  "level": 28,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1103,7 +1103,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -1721,7 +1721,7 @@
   "mounts": 105,
   "minions": 135,
   "rare": 59,
-  "level": 1,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1816,7 +1816,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -3215,7 +3215,7 @@
   "mounts": 129,
   "minions": 246,
   "rare": 80,
-  "level": 100,
+  "level": 39,
   "cc": [
    true,
    true,
@@ -3323,7 +3323,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-16"
  },
  "26268800": {
   "name": "Mono Sodium",
@@ -3774,7 +3774,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 35,
+  "level": 42,
   "cc": [
    true,
    true,
@@ -3880,7 +3880,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4317,7 +4317,7 @@
   "mounts": 201,
   "minions": 382,
   "rare": 266,
-  "level": 46,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4371,7 +4371,6 @@
    3770,
    3771,
    3802,
-   3823,
    3832,
    3842,
    3843,
@@ -4392,6 +4391,7 @@
    3881,
    3882,
    3883,
+   3884,
    3885,
    3886,
    3887,
@@ -4459,7 +4459,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -4715,7 +4715,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 83,
+  "level": 67,
   "cc": [
    true,
    true,
@@ -4742,7 +4742,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-16"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -4826,7 +4826,7 @@
    3778,
    3784,
    3817,
-   3832,
+   3844,
    3845,
    3846,
    3847,
@@ -4924,7 +4924,7 @@
   "mounts": 52,
   "minions": 127,
   "rare": 31,
-  "level": 44,
+  "level": 97,
   "cc": [
    true,
    true,
@@ -5437,7 +5437,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -5559,7 +5559,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-11"
+  "chg": "2026-09-16"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6090,7 +6090,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 95,
+  "level": 94,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6300,7 +6300,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 62,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6731,7 +6731,7 @@
   "mounts": 196,
   "minions": 418,
   "rare": 253,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7418,7 +7418,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 82,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -8051,14 +8051,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 97,
+  "level": 58,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -16121,7 +16121,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 88,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -16134,7 +16134,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
@@ -16642,7 +16642,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 60,
+  "level": 100,
   "cc": [
    false,
    false,
