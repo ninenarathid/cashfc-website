@@ -17652,6 +17652,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 96,
       "median": 63,
@@ -17660,6 +17661,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 85,
       "median": 70,
@@ -17668,6 +17670,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 87,
       "median": 79,
@@ -62108,6 +62111,10 @@
      "Gunbreaker": {
       "kills": 13,
       "best": 79
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 79
      }
     }
    },
@@ -62122,9 +62129,25 @@
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
+     "Summoner": {
+      "kills": 3,
+      "best": 71
+     },
+     "RedMage": {
+      "kills": 2,
+      "best": 62
+     },
+     "Pictomancer": {
+      "kills": 2,
+      "best": 51
+     },
      "Gunbreaker": {
       "kills": 12,
       "best": 88
+     },
+     "BlackMage": {
+      "kills": 1,
+      "best": 7
      }
     }
    },

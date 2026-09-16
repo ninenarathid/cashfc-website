@@ -2387,7 +2387,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2400,7 +2400,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -4924,7 +4924,7 @@
   "mounts": 52,
   "minions": 127,
   "rare": 31,
-  "level": 96,
+  "level": 44,
   "cc": [
    true,
    true,
@@ -5259,7 +5259,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 46,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6090,7 +6090,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 62,
+  "level": 95,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6104,7 +6104,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -6161,7 +6161,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 58,
+  "level": 87,
   "cc": null,
   "rare_ids": [
    3874
@@ -6170,7 +6170,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "39850923": {
   "name": "Hiro Hikari",
@@ -6300,7 +6300,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 98,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -6332,7 +6332,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -6731,7 +6731,7 @@
   "mounts": 196,
   "minions": 418,
   "rare": 253,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -6856,7 +6856,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -16642,7 +16642,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 54,
+  "level": 60,
   "cc": [
    false,
    false,
@@ -16655,7 +16655,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-16"
  },
  "47423083": {
   "name": "Yueying Hua",

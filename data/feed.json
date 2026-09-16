@@ -3,6 +3,20 @@
   {
    "date": "2026-09-16",
    "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-16",
+   "type": "level_100",
    "id": 31831003,
    "name": "North Nostafari",
    "text": "reached level 100 on Scholar!"
@@ -1385,20 +1399,6 @@
    "id": 29881709,
    "name": "Y'uki No",
    "text": "set a new best parse: 60 on Erichthonios as Re\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "parse_up",
-   "id": 693670,
-   "name": "Zediez Vesarius",
-   "text": "set a new best parse: 73 on Erichthonios as Ninja"
-  },
-  {
-   "date": "2026-09-09",
-   "type": "job_up",
-   "id": 693670,
-   "name": "Zediez Vesarius",
-   "text": "is now a Expert Ninja"
   }
  ]
 }
