@@ -383,12 +383,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 10,
     "kills": 3,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Gunbreaker": {
       "kills": 3,
@@ -20426,12 +20426,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 90,
     "kills": 16,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Summoner": {
       "kills": 6,
@@ -31873,12 +31873,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 79,
     "kills": 5,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "DarkKnight": {
       "kills": 5,
@@ -40529,12 +40529,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 76,
     "kills": 10,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Samurai": {
       "kills": 10,
@@ -45087,12 +45087,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 52,
     "kills": 31,
     "job": "Dancer",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Dancer": {
       "kills": 12,
@@ -60429,12 +60429,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 90,
     "kills": 5,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Ninja": {
       "kills": 5,
