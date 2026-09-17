@@ -4317,7 +4317,7 @@
   "mounts": 201,
   "minions": 382,
   "rare": 266,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -4459,7 +4459,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -5020,14 +5020,14 @@
   "mounts": 125,
   "minions": 274,
   "rare": null,
-  "level": 19,
+  "level": 24,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-17"
  },
  "38335568": {
   "name": "Vivienne Yhisa",
@@ -6161,7 +6161,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 87,
+  "level": 37,
   "cc": null,
   "rare_ids": [
    3874
@@ -6170,7 +6170,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "39850923": {
   "name": "Hiro Hikari",
@@ -6300,7 +6300,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 100,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -6332,7 +6332,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "26844665": {
   "name": "J'atoh Nunh",
