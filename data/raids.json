@@ -2404,7 +2404,42 @@
     }
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 25,
+      "median": 19,
+      "kills": 2,
+      "job": "Samurai"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 21,
+      "median": 10,
+      "kills": 5,
+      "job": "Samurai"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 62,
+      "median": 15,
+      "kills": 5,
+      "job": "Samurai"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "5294880": {
@@ -15228,6 +15263,49 @@
         "best": 55
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 93,
+      "median": 73,
+      "kills": 23,
+      "job": "Bard"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 81,
+      "median": 53,
+      "kills": 28,
+      "job": "Bard"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 91,
+      "median": 63,
+      "kills": 27,
+      "job": "Bard"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 85,
+      "median": 41,
+      "kills": 36,
+      "job": "Bard"
      }
     ]
    },
@@ -28278,6 +28356,49 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 98,
+      "median": 56,
+      "kills": 33,
+      "job": "RedMage"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 82,
+      "median": 62,
+      "kills": 29,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 60,
+      "median": 32,
+      "kills": 18,
+      "job": "RedMage"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 39,
+      "median": 18,
+      "kills": 8,
+      "job": "RedMage"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -28326,6 +28447,49 @@
       "best": 7,
       "median": 7,
       "kills": 1,
+      "job": "Monk"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 72,
+      "median": 54,
+      "kills": 29,
+      "job": "Monk"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 81,
+      "median": 67,
+      "kills": 22,
+      "job": "Samurai"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 66,
+      "median": 29,
+      "kills": 21,
+      "job": "Samurai"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 41,
+      "median": 18,
+      "kills": 16,
       "job": "Monk"
      }
     ]
@@ -51591,7 +51755,17 @@
       "best": 92,
       "median": 76,
       "kills": 8,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 1,
+        "best": 82
+       },
+       "Warrior": {
+        "kills": 7,
+        "best": 92
+       }
+      }
      },
      {
       "label": "M2S",
@@ -51600,7 +51774,17 @@
       "best": 75,
       "median": 36,
       "kills": 7,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 6,
+        "best": 75
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 55
+       }
+      }
      },
      {
       "label": "M3S",
@@ -51609,7 +51793,13 @@
       "best": 84,
       "median": 64,
       "kills": 6,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 6,
+        "best": 84
+       }
+      }
      },
      {
       "label": "M4S",
@@ -51618,7 +51808,13 @@
       "best": 65,
       "median": 50,
       "kills": 3,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 3,
+        "best": 65
+       }
+      }
      }
     ]
    },

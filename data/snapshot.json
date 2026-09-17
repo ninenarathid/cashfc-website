@@ -2409,7 +2409,7 @@
   "mounts": 102,
   "minions": 261,
   "rare": null,
-  "level": 100,
+  "level": 30,
   "cc": [
    true,
    true,
@@ -2437,7 +2437,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-01"
+  "chg": "2026-09-17"
  },
  "38808156": {
   "name": "Kwiyo Ki",
@@ -5437,7 +5437,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 91,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5559,7 +5559,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -8484,7 +8484,7 @@
  },
  "28860700": {
   "name": "Alicia Silverwalker",
-  "parse": 12,
+  "parse": 81,
   "ult": 0,
   "mounts": 31,
   "minions": 85,
@@ -8499,10 +8499,13 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Monk": "expert",
+   "Samurai": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-17"
  },
  "41059127": {
   "name": "Alt Pira",
@@ -8586,7 +8589,7 @@
  },
  "28810440": {
   "name": "Amil Aeronril",
-  "parse": 82,
+  "parse": 98,
   "ult": 0,
   "mounts": 44,
   "minions": 98,
@@ -8601,10 +8604,13 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "RedMage": "legendary",
+   "Gunbreaker": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-09-01"
+  "chg": "2026-09-17"
  },
  "40809430": {
   "name": "Ank Drogonewt",

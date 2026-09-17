@@ -1,6 +1,55 @@
 {
  "events": [
   {
+   "date": "2026-09-17",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-17",
+   "type": "parse_up",
+   "id": 28860700,
+   "name": "Alicia Silverwalker",
+   "text": "set a new best parse: 81 on Ifrit and Garuda as Samurai"
+  },
+  {
+   "date": "2026-09-17",
+   "type": "job_up",
+   "id": 28860700,
+   "name": "Alicia Silverwalker",
+   "text": "is now a Expert Monk"
+  },
+  {
+   "date": "2026-09-17",
+   "type": "job_up",
+   "id": 28860700,
+   "name": "Alicia Silverwalker",
+   "text": "is now a Expert Samurai"
+  },
+  {
+   "date": "2026-09-17",
+   "type": "parse_up",
+   "id": 28810440,
+   "name": "Amil Aeronril",
+   "text": "set a new best parse: 98 on Ramuh as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-17",
+   "type": "job_up",
+   "id": 28810440,
+   "name": "Amil Aeronril",
+   "text": "is now a Legendary Red Mage"
+  },
+  {
+   "date": "2026-09-17",
+   "type": "job_up",
+   "id": 28810440,
+   "name": "Amil Aeronril",
+   "text": "is now a Expert Gunbreaker"
+  },
+  {
    "date": "2026-09-16",
    "type": "level_100",
    "id": 29918404,
@@ -1350,55 +1399,6 @@
    "id": 46243891,
    "name": "Marin Elysium",
    "text": "earned Crucible Checkmate I — only 0.8% of players have it, and 7 more"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "rare_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "earned Occult Enlightenment IV — only 0.4% of players have it, and 10 more"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "level_100",
-   "id": 33387937,
-   "name": "R'bael Senkou",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "level_100",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Master Ninja"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "level_100",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "parse_up",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "set a new best parse: 99 on Cloud of Darkness as Whit\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "is now a Legendary Summoner"
   }
  ]
 }
