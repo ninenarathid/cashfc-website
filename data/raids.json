@@ -2460,7 +2460,13 @@
       "best": 25,
       "median": 19,
       "kills": 2,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 2,
+        "best": 25
+       }
+      }
      },
      {
       "label": "E6S",
@@ -2469,7 +2475,13 @@
       "best": 21,
       "median": 10,
       "kills": 5,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 5,
+        "best": 21
+       }
+      }
      },
      {
       "label": "E7S",
@@ -2478,7 +2490,13 @@
       "best": 62,
       "median": 15,
       "kills": 5,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 5,
+        "best": 62
+       }
+      }
      }
     ]
    }
@@ -15321,7 +15339,21 @@
       "best": 93,
       "median": 73,
       "kills": 23,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 19,
+        "best": 93
+       },
+       "Dancer": {
+        "kills": 3,
+        "best": 49
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 7
+       }
+      }
      },
      {
       "label": "E6S",
@@ -15330,7 +15362,17 @@
       "best": 81,
       "median": 53,
       "kills": 28,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 25,
+        "best": 81
+       },
+       "Dancer": {
+        "kills": 3,
+        "best": 55
+       }
+      }
      },
      {
       "label": "E7S",
@@ -15339,7 +15381,17 @@
       "best": 91,
       "median": 63,
       "kills": 27,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 25,
+        "best": 91
+       },
+       "Dancer": {
+        "kills": 2,
+        "best": 41
+       }
+      }
      },
      {
       "label": "E8S",
@@ -15348,7 +15400,21 @@
       "best": 85,
       "median": 41,
       "kills": 36,
-      "job": "Bard"
+      "job": "Bard",
+      "job_kills": {
+       "Bard": {
+        "kills": 31,
+        "best": 85
+       },
+       "Machinist": {
+        "kills": 3,
+        "best": 42
+       },
+       "Dancer": {
+        "kills": 2,
+        "best": 21
+       }
+      }
      }
     ]
    },
@@ -28434,7 +28500,29 @@
       "best": 98,
       "median": 56,
       "kills": 33,
-      "job": "RedMage"
+      "job": "RedMage",
+      "job_kills": {
+       "RedMage": {
+        "kills": 15,
+        "best": 98
+       },
+       "BlackMage": {
+        "kills": 8,
+        "best": 54
+       },
+       "Summoner": {
+        "kills": 2,
+        "best": 20
+       },
+       "Gunbreaker": {
+        "kills": 7,
+        "best": 77
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 42
+       }
+      }
      },
      {
       "label": "E6S",
@@ -28443,7 +28531,29 @@
       "best": 82,
       "median": 62,
       "kills": 29,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "RedMage": {
+        "kills": 15,
+        "best": 75
+       },
+       "BlackMage": {
+        "kills": 5,
+        "best": 28
+       },
+       "Summoner": {
+        "kills": 2,
+        "best": 14
+       },
+       "Gunbreaker": {
+        "kills": 4,
+        "best": 82
+       },
+       "Scholar": {
+        "kills": 3,
+        "best": 22
+       }
+      }
      },
      {
       "label": "E7S",
@@ -28452,7 +28562,25 @@
       "best": 60,
       "median": 32,
       "kills": 18,
-      "job": "RedMage"
+      "job": "RedMage",
+      "job_kills": {
+       "RedMage": {
+        "kills": 13,
+        "best": 60
+       },
+       "BlackMage": {
+        "kills": 3,
+        "best": 27
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 10
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 19
+       }
+      }
      },
      {
       "label": "E8S",
@@ -28461,7 +28589,17 @@
       "best": 39,
       "median": 18,
       "kills": 8,
-      "job": "RedMage"
+      "job": "RedMage",
+      "job_kills": {
+       "RedMage": {
+        "kills": 7,
+        "best": 39
+       },
+       "Gunbreaker": {
+        "kills": 1,
+        "best": 27
+       }
+      }
      }
     ]
    }
@@ -28528,7 +28666,21 @@
       "best": 72,
       "median": 54,
       "kills": 29,
-      "job": "Monk"
+      "job": "Monk",
+      "job_kills": {
+       "Monk": {
+        "kills": 21,
+        "best": 72
+       },
+       "Samurai": {
+        "kills": 7,
+        "best": 66
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 9
+       }
+      }
      },
      {
       "label": "E6S",
@@ -28537,7 +28689,17 @@
       "best": 81,
       "median": 67,
       "kills": 22,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 7,
+        "best": 81
+       },
+       "Monk": {
+        "kills": 15,
+        "best": 66
+       }
+      }
      },
      {
       "label": "E7S",
@@ -28546,7 +28708,17 @@
       "best": 66,
       "median": 29,
       "kills": 21,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 6,
+        "best": 66
+       },
+       "Monk": {
+        "kills": 15,
+        "best": 45
+       }
+      }
      },
      {
       "label": "E8S",
@@ -28555,7 +28727,17 @@
       "best": 41,
       "median": 18,
       "kills": 16,
-      "job": "Monk"
+      "job": "Monk",
+      "job_kills": {
+       "Samurai": {
+        "kills": 2,
+        "best": 35
+       },
+       "Monk": {
+        "kills": 14,
+        "best": 41
+       }
+      }
      }
     ]
    }
@@ -46367,12 +46549,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 44,
     "kills": 3,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Ninja": {
       "kills": 3,
@@ -49418,23 +49600,23 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 40,
     "kills": 1,
     "job": "Sage",
-    "cleared": true,
-    "encounter_id": 1060
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 91,
     "kills": 13,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "RedMage": {
       "kills": 1,
@@ -57154,7 +57336,17 @@
       "best": 31,
       "median": 31,
       "kills": 2,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 1,
+        "best": 31
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 8
+       }
+      }
      },
      {
       "label": "E11S",
@@ -57163,7 +57355,13 @@
       "best": 8,
       "median": 8,
       "kills": 2,
-      "job": "Astrologian"
+      "job": "Astrologian",
+      "job_kills": {
+       "Astrologian": {
+        "kills": 2,
+        "best": 8
+       }
+      }
      },
      {
       "label": "E12S",
@@ -67441,12 +67639,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 47,
     "kills": 10,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "DarkKnight": {
       "kills": 10,
@@ -67458,12 +67656,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 44,
     "kills": 3,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Warrior": {
       "kills": 2,

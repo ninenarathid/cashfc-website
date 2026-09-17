@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-09-17",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
+   "date": "2026-09-17",
+   "type": "level_100",
+   "id": 47494518,
+   "name": "Farcia Soluna",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
+   "date": "2026-09-17",
    "type": "rare_up",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1385,20 +1399,6 @@
    "id": 6173187,
    "name": "Motochita Muses",
    "text": "earned Roll the Dice II"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "rare_up",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "earned Crucible Checkmate II — only 0.3% of players have it"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned With Saw in Hand IV — only 3.0% of players have it, and 1 more"
   }
  ]
 }

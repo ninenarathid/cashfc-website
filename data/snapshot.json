@@ -5259,7 +5259,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6090,7 +6090,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 96,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    1613,
@@ -8605,7 +8605,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "RedMage": "legendary",
+   "RedMage": "master",
    "Gunbreaker": "expert"
   },
   "ex": [],
