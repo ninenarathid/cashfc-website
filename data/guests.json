@@ -11,7 +11,7 @@
    "rare_achv": 286,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788457480",
-   "collect_seen": "2026-09-15",
+   "collect_seen": "2026-09-16",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -219,7 +219,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-16",
+   "stats_seen": "2026-09-17",
    "lode_achv_public": true
   },
   "31441339": {
@@ -233,7 +233,7 @@
    "rare_achv": 127,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788957523",
-   "collect_seen": "2026-09-15",
+   "collect_seen": "2026-09-16",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -278,7 +278,7 @@
     "Zelenia",
     "Zoraal Ja"
    ],
-   "ex_kills": 111,
+   "ex_kills": 117,
    "current_clears": [
     true,
     true,
@@ -308,10 +308,10 @@
      "hardest": "savage"
     },
     "RedMage": {
-     "fights": 14,
-     "kills": 30,
-     "parse": 96.6,
-     "score": 90.4,
+     "fights": 15,
+     "kills": 31,
+     "parse": 96.1,
+     "score": 90.3,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -325,7 +325,7 @@
     },
     "Scholar": {
      "fights": 31,
-     "kills": 123,
+     "kills": 126,
      "parse": 98.4,
      "score": 98.4,
      "tier": "legendary",
@@ -340,10 +340,10 @@
      "hardest": "savage"
     },
     "Paladin": {
-     "fights": 4,
-     "kills": 6,
-     "parse": 63.2,
-     "score": 46.5,
+     "fights": 5,
+     "kills": 7,
+     "parse": 70.2,
+     "score": 52.9,
      "tier": null,
      "hardest": "savage"
     },
@@ -357,7 +357,7 @@
     },
     "Sage": {
      "fights": 32,
-     "kills": 507,
+     "kills": 508,
      "parse": 100.0,
      "score": 100.0,
      "tier": "legendary",
@@ -445,7 +445,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-16",
+   "stats_seen": "2026-09-17",
    "lode_achv_public": true
   },
   "42349146": {
@@ -459,7 +459,7 @@
    "rare_achv": 13,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
-   "collect_seen": "2026-09-15",
+   "collect_seen": "2026-09-16",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -503,18 +503,18 @@
    "job_top": {
     "job": "Paladin",
     "fights": 13,
-    "kills": 94,
-    "parse": 88.4,
-    "score": 88.4,
+    "kills": 95,
+    "parse": 88.5,
+    "score": 88.5,
     "tier": "master",
     "hardest": "ultimate"
    },
    "job_scores": {
     "Paladin": {
      "fights": 13,
-     "kills": 94,
-     "parse": 88.4,
-     "score": 88.4,
+     "kills": 95,
+     "parse": 88.5,
+     "score": 88.5,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -561,7 +561,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-16"
+   "stats_seen": "2026-09-17"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -574,7 +574,7 @@
    "rare_achv": 114,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788521581",
-   "collect_seen": "2026-09-15",
+   "collect_seen": "2026-09-16",
    "tags": [
     "prog",
     "extreme",
@@ -628,7 +628,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-16"
+   "stats_seen": "2026-09-17"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -641,7 +641,7 @@
    "rare_achv": 36,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4203c340e98d92d7d1e82849bb2343dc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788823240",
-   "collect_seen": "2026-09-15",
+   "collect_seen": "2026-09-16",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -737,7 +737,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-16"
+   "stats_seen": "2026-09-17"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -750,7 +750,7 @@
    "rare_achv": 195,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788597267",
-   "collect_seen": "2026-09-15",
+   "collect_seen": "2026-09-16",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -990,7 +990,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-16"
+   "stats_seen": "2026-09-17"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -998,12 +998,12 @@
    "dc": "Elemental",
    "fc": "Fat Cat",
    "seen": "2026-09-15",
-   "mounts": 174,
-   "minions": 263,
-   "rare_achv": 246,
+   "mounts": 175,
+   "minions": 264,
+   "rare_achv": 248,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788923648",
-   "collect_seen": "2026-09-15",
+   "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1789546600",
+   "collect_seen": "2026-09-16",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1162,7 +1162,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-16"
+   "stats_seen": "2026-09-17"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1170,13 +1170,14 @@
    "dc": "Elemental",
    "fc": "The Etheirys",
    "seen": "2026-09-15",
-   "mounts": 80,
+   "mounts": 81,
    "minions": 95,
-   "rare_achv": 85,
+   "rare_achv": 92,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/258b10ee99a778ff735c30a38c9cadaf_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1788896903",
-   "collect_seen": "2026-09-15",
+   "portrait": "https://img2.finalfantasyxiv.com/f/258b10ee99a778ff735c30a38c9cadaf_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1789556089",
+   "collect_seen": "2026-09-16",
    "tags": [
+    "ultimate",
     "tier-clear",
     "extreme",
     "relic",
@@ -1187,10 +1188,16 @@
    },
    "parse": 92,
    "savage_kills": 5,
-   "ult_clears": 0,
-   "ult_cleared": [],
-   "ult_achv": [],
-   "ult_achv_only": [],
+   "ult_clears": 1,
+   "ult_cleared": [
+    "Dragonsong's Reprise"
+   ],
+   "ult_achv": [
+    "Dragonsong's Reprise"
+   ],
+   "ult_achv_only": [
+    "Dragonsong's Reprise"
+   ],
    "legacy_clears": 0,
    "ex_cleared": [
     "Doomtrain",
@@ -1241,7 +1248,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-16"
+   "stats_seen": "2026-09-17"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1390,13 +1397,13 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-16",
+   "stats_seen": "2026-09-17",
    "mounts": 114,
    "minions": 328,
    "rare_achv": 125,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ab848575d89650a2e7b9bbdbe03c3bd2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788909336",
-   "collect_seen": "2026-09-15"
+   "collect_seen": "2026-09-16"
   }
  },
  "generated_at": "2026-09-16T23:13:35Z",

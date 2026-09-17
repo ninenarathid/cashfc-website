@@ -62654,10 +62654,16 @@
     "expansion": "Dawntrail",
     "encounter_id": 1076,
     "name": "Dragonsong's Reprise",
-    "best": 45,
-    "kills": 1,
+    "best": 63,
+    "kills": 2,
     "job": "Paladin",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Paladin": {
+      "kills": 2,
+      "best": 63
+     }
+    }
    }
   ],
   "extremes": [
@@ -71626,16 +71632,24 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 8,
+    "kills": 14,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
+     "RedMage": {
+      "kills": 1,
+      "best": 46
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 91
+     },
      "Scholar": {
-      "kills": 7,
+      "kills": 10,
       "best": 99
      },
      "Sage": {
-      "kills": 1,
+      "kills": 2,
       "best": 82
      }
     }
