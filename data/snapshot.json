@@ -643,6 +643,7 @@
    2095,
    2156,
    2292,
+   2462,
    2463,
    2471,
    2472,
@@ -663,7 +664,6 @@
    3736,
    3758,
    3760,
-   3761,
    3762,
    3763,
    3765,
@@ -1341,6 +1341,7 @@
    3853,
    3854,
    3858,
+   3859,
    3862,
    3886,
    3887,
@@ -1375,7 +1376,6 @@
    3974,
    3999,
    4000,
-   4003,
    4004,
    4006,
    4007,
@@ -1721,7 +1721,7 @@
   "mounts": 105,
   "minions": 135,
   "rare": 59,
-  "level": 100,
+  "level": 1,
   "cc": [
    true,
    true,
@@ -1816,7 +1816,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -2409,7 +2409,7 @@
   "mounts": 102,
   "minions": 261,
   "rare": null,
-  "level": 30,
+  "level": 36,
   "cc": [
    true,
    true,
@@ -2584,6 +2584,7 @@
    1330,
    1335,
    1463,
+   1468,
    1474,
    1867,
    2007,
@@ -2648,7 +2649,6 @@
    3868,
    3869,
    3870,
-   3875,
    3883,
    3884,
    3897,
@@ -3215,7 +3215,7 @@
   "mounts": 129,
   "minions": 246,
   "rare": 80,
-  "level": 39,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3323,7 +3323,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "26268800": {
   "name": "Mono Sodium",
@@ -3774,7 +3774,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 42,
+  "level": 47,
   "cc": [
    true,
    true,
@@ -3880,7 +3880,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4008,7 +4008,7 @@
   "mounts": 215,
   "minions": 404,
   "rare": null,
-  "level": 100,
+  "level": 25,
   "cc": [
    true,
    true,
@@ -4048,7 +4048,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-17"
  },
  "44133352": {
   "name": "Seville Beoulve",
@@ -4057,7 +4057,7 @@
   "mounts": 173,
   "minions": 416,
   "rare": 432,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4179,7 +4179,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-17"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -4188,7 +4188,7 @@
   "mounts": 264,
   "minions": 336,
   "rare": 522,
-  "level": 50,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    847,
@@ -4308,7 +4308,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-17"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -4715,7 +4715,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 67,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4742,7 +4742,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -5259,7 +5259,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5283,7 +5283,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -5437,7 +5437,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -5758,7 +5758,7 @@
   "mounts": 175,
   "minions": 358,
   "rare": 160,
-  "level": 100,
+  "level": 35,
   "cc": [
    false,
    false,
@@ -5875,7 +5875,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-17"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6090,7 +6090,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 94,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6104,7 +6104,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -6161,7 +6161,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 37,
+  "level": 88,
   "cc": null,
   "rare_ids": [
    3874
@@ -6300,7 +6300,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 82,
+  "level": 39,
   "cc": [
    false,
    false,
@@ -6379,7 +6379,7 @@
   "mounts": 46,
   "minions": 150,
   "rare": 9,
-  "level": 100,
+  "level": 98,
   "cc": [
    true,
    true,
@@ -6402,7 +6402,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-17"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -6457,7 +6457,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 83,
   "cc": [
    true,
    true,
@@ -6478,7 +6478,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-17"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -6578,7 +6578,7 @@
   "mounts": 57,
   "minions": 194,
   "rare": null,
-  "level": 74,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -6591,7 +6591,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-17"
  },
  "16099244": {
   "name": "Luna Froggo",
@@ -6728,10 +6728,10 @@
   "name": "Lyndanisse Vymmaith",
   "parse": 67,
   "ult": 0,
-  "mounts": 196,
-  "minions": 418,
+  "mounts": 198,
+  "minions": 419,
   "rare": 253,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -6856,7 +6856,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7216,7 +7216,7 @@
   "mounts": 131,
   "minions": 271,
   "rare": 116,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -7225,6 +7225,7 @@
    false
   ],
   "rare_ids": [
+   950,
    951,
    1369,
    1562,
@@ -7273,7 +7274,6 @@
    3811,
    3817,
    3823,
-   3824,
    3842,
    3843,
    3854,
@@ -7342,7 +7342,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-17"
  },
  "43116127": {
   "name": "Piyo Stellar",
@@ -7418,7 +7418,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 84,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -7463,7 +7463,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7784,7 +7784,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 100,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -7797,7 +7797,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-17"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8051,14 +8051,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 58,
+  "level": 97,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -16127,7 +16127,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -16140,7 +16140,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-17"
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
