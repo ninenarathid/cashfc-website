@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL } from "@/lib/supabase/config";
 import { loadParties } from "@/lib/party-db";
 import { pingWants } from "@/lib/wants-ping";
-import { boardMessage } from "@/lib/discord/board";
+import { boardMessage, boardParties } from "@/lib/discord/board";
 import {
   APP_ID, CHANNEL_ID, deleteMessage, editMessage, listMessages, postMessage,
 } from "@/lib/discord/api";
@@ -19,6 +19,10 @@ import {
  * a new one. If the remembered message has been deleted — somebody tidying the
  * channel, a channel recreated — it posts a fresh one and remembers that
  * instead, which is the only way this recovers without a person involved.
+ *
+ * The exception is a party nobody has seen yet, which is posted fresh and the
+ * old board taken down behind it. An edit is silent in Discord; only a message
+ * arriving turns a channel name white. See below.
  *
  * Answers 200 for everything it has already handled, including "there is no
  * bot token yet". The caller is a database trigger: an error here would end up
@@ -118,10 +122,27 @@ export async function POST(req: Request) {
     faces.set(r.character_id, r.avatar_url);
   }
 
-  const payload = boardMessage(parties, Date.now(), faces);
+  const now = Date.now();
+  const at = new Date(now).toISOString();
+  const payload = boardMessage(parties, now, faces);
 
-  const { data: row } = await supabase
-    .from("discord_board").select("channel_id, message_id").eq("id", 1).single();
+  const { data: row, error: rowErr } = await supabase
+    .from("discord_board")
+    .select("channel_id, message_id, party_ids, updated_at").eq("id", 1).single();
+
+  /*
+   * A row we could not read is not a board that is not there.
+   *
+   * Everything below reads a missing row as "no board has been posted yet"
+   * and posts one — which is right when the row says so, and catastrophic
+   * when the row simply did not answer. A column added to this table but not
+   * yet to the database makes every read fail, and the cron tick would then
+   * post a new board every five minutes and sweep the last one away. Whatever
+   * board is up there now is better than that.
+   */
+  if (rowErr) {
+    return NextResponse.json({ error: rowErr.message, pinged }, { status: 502 });
+  }
 
   // A board posted into a different channel is not this board. Changing the
   // channel in the environment should move it rather than edit a message
@@ -129,11 +150,66 @@ export async function POST(req: Request) {
   const known = row?.message_id && row?.channel_id === channel
     ? row.message_id : null;
 
-  if (known) {
+  /*
+   * Which parties are on the board, and which of them are new since the last
+   * time it was drawn.
+   *
+   * An edit makes no sound. Discord turns a channel name white when a message
+   * arrives, not when one changes, so a board that only ever edits itself sits
+   * in grey forever — somebody opens a party at eight and the only people who
+   * find out are the ones who thought to go and look. The channel behaves like
+   * every other channel except the one where something is being arranged.
+   *
+   * So the board keeps both habits, split on the only thing worth interrupting
+   * anybody for. A seat filling, a note changed, a countdown running down: an
+   * edit, silently, the way it has always worked. A party that did not exist
+   * before: a new message, which is the whole of what makes the name go white.
+   * Announcing every seat is how a channel gets muted, and a muted channel is
+   * worse than no channel — this announces the one thing a member would have
+   * wanted a tap on the shoulder for.
+   *
+   * Ids rather than a count, because a count is wrong exactly when it matters:
+   * one party ending as another opens leaves the number where it was, and the
+   * new one would arrive as quietly as if it were the old one.
+   *
+   * A null memory is a board whose ids were never written down — the first
+   * tick after this ships, and any tick after the row is reset. That is not
+   * the same as a board that was empty, and reading it as one would announce
+   * every party the FC has already seen. So it records and says nothing.
+   */
+  const ids = boardParties(parties, now).map((p) => p.id).sort();
+  const seen = (row?.party_ids as string[] | null) ?? null;
+  const fresh = seen ? ids.filter((id) => !seen.includes(id)) : [];
+
+  /*
+   * And only one tick gets to be the one that announces them.
+   *
+   * Opening a party is two statements — the party, then the lead's own seat —
+   * and each carries its own trigger, so two ticks arrive at once both holding
+   * the same new id. Left alone that is two boards in the channel, which is
+   * the one thing a board is not allowed to be.
+   *
+   * So the memory is written before the message is posted, and only by
+   * whoever still finds the row as they last read it. Losing is not failing:
+   * the winner is posting the same board, off the same parties, a moment
+   * later.
+   */
+  if (fresh.length) {
+    const claim = supabase.from("discord_board")
+      .update({ party_ids: ids, updated_at: at }).eq("id", 1);
+    const { data: won } = await (row?.updated_at
+      ? claim.eq("updated_at", row.updated_at)
+      : claim.is("updated_at", null)).select("id");
+    if (!won?.length) {
+      return NextResponse.json({ skipped: "another tick has it", pinged });
+    }
+  }
+
+  if (known && !fresh.length) {
     const edited = await editMessage(channel, known, payload);
     if ("ok" in edited) {
       await supabase.from("discord_board")
-        .update({ updated_at: new Date().toISOString() }).eq("id", 1);
+        .update({ party_ids: ids, updated_at: at }).eq("id", 1);
       return NextResponse.json({
         edited: known, parties: payload.embeds.length, pinged,
       });
@@ -160,12 +236,37 @@ export async function POST(req: Request) {
 
   const posted = await postMessage(channel, payload);
   if ("error" in posted) {
+    /*
+     * Give the new parties back if the board never went up.
+     *
+     * The claim above said "these have been announced" before they had been.
+     * Left standing after a post that failed they would never be announced at
+     * all: the next tick would read them as old news and go back to editing a
+     * message that nobody is told has changed.
+     */
+    if (fresh.length) {
+      await supabase.from("discord_board").update({ party_ids: seen }).eq("id", 1);
+    }
     return NextResponse.json({ error: posted.error }, { status: 502 });
   }
-  const now = new Date().toISOString();
   await supabase.from("discord_board").update({
-    channel_id: channel, message_id: posted.ok.id, posted_at: now, updated_at: now,
+    channel_id: channel, message_id: posted.ok.id, party_ids: ids,
+    posted_at: at, updated_at: at,
   }).eq("id", 1);
+
+  /*
+   * And the board this one replaces, taken down by name.
+   *
+   * The sweep below would find it too, but only where the application id is
+   * configured and only within the last thirty messages of the channel. The
+   * one message this is certain about is the one it was about to edit, so
+   * that one goes explicitly, and the sweep stays what it has always been: a
+   * net for whatever else got left behind.
+   *
+   * After the new board is up rather than before, so there is never a moment
+   * when the channel has no board in it.
+   */
+  if (known) await deleteMessage(channel, known);
 
   /*
    * And take down any board this bot left behind.
@@ -183,6 +284,7 @@ export async function POST(req: Request) {
    */
   const swept = await sweep(channel, posted.ok.id);
   return NextResponse.json({
-    posted: posted.ok.id, parties: payload.embeds.length, swept, pinged,
+    posted: posted.ok.id, parties: payload.embeds.length,
+    fresh: fresh.length, swept, pinged,
   });
 }
