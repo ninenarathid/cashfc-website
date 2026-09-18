@@ -2387,7 +2387,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2409,7 +2409,7 @@
   "mounts": 102,
   "minions": 261,
   "rare": null,
-  "level": 45,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2437,7 +2437,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "38808156": {
   "name": "Kwiyo Ki",
@@ -4785,7 +4785,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -4915,7 +4915,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-18"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5259,7 +5259,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5283,7 +5283,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -5715,11 +5715,11 @@
   ],
   "tiers": {},
   "jobs": {
-   "Astrologian": "expert",
-   "Summoner": "expert"
+   "Astrologian": "expert"
   },
   "ex": [
    "Doomtrain",
+   "Necron",
    "Queen Eternal",
    "Valigarmanda",
    "Zoraal Ja"
@@ -6142,7 +6142,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 100,
+  "level": 96,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6156,7 +6156,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -6213,7 +6213,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 88,
+  "level": 17,
   "cc": null,
   "rare_ids": [
    3874
@@ -6222,7 +6222,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "39850923": {
   "name": "Hiro Hikari",
@@ -6352,7 +6352,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 39,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -6384,7 +6384,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -6431,7 +6431,7 @@
   "mounts": 46,
   "minions": 150,
   "rare": 9,
-  "level": 98,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6454,7 +6454,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -7470,7 +7470,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 87,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -7515,7 +7515,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7964,7 +7964,7 @@
   "mounts": 28,
   "minions": 84,
   "rare": 3,
-  "level": 100,
+  "level": 57,
   "cc": [
    false,
    false,
@@ -7981,7 +7981,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-18"
  },
  "54419512": {
   "name": "Film Nio",
@@ -7990,14 +7990,14 @@
   "mounts": 6,
   "minions": 19,
   "rare": null,
-  "level": 89,
+  "level": 77,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-02"
+  "chg": "2026-09-18"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8103,14 +8103,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 97,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -11398,7 +11398,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 82,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -11411,7 +11411,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-18"
  },
  "30333493": {
   "name": "Haruko Sho",

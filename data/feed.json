@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-09-18",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-09-18",
+   "type": "level_100",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-18",
+   "type": "ex_clear",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "cleared Necron (Extreme)"
+  },
+  {
+   "date": "2026-09-18",
+   "type": "level_100",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-09-18",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-18",
    "type": "minions_up",
    "id": 39959181,
    "name": "El Blung",
@@ -1364,41 +1399,6 @@
    "id": 26699926,
    "name": "Boonies Princess",
    "text": "is now a Master Red Mage"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "rare_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "earned Onward and Upward — only 1.3% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Master Machinist"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Master Red Mage"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Mining Dawntrail"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Expert Astrologian"
   }
  ]
 }

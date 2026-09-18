@@ -39639,11 +39639,11 @@
     "name": "Lindwurm",
     "kind": "savage",
     "state": "learning",
-    "pct": 46.65,
+    "pct": 64.11,
     "phase": 0,
-    "pulls": 14,
-    "last": "2026-09-15",
-    "last_ts": 1789491081
+    "pulls": 7,
+    "last": "2026-09-13",
+    "last_ts": 1789306510
    }
   ]
  },
@@ -53893,17 +53893,6 @@
     "pulls": 3,
     "last": "2026-09-13",
     "last_ts": 1789303764
-   },
-   {
-    "encounter_id": 104,
-    "name": "Lindwurm",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 48.99,
-    "phase": 0,
-    "pulls": 13,
-    "last": "2026-09-07",
-    "last_ts": 1788791892
    }
   ]
  },
@@ -62695,7 +62684,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 66,
-    "kills": 9,
+    "kills": 10,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -62710,13 +62699,24 @@
     }
    },
    {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 39,
+    "kills": 3,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 78,
-    "kills": 29,
+    "kills": 31,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -62774,7 +62774,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 76,
-    "kills": 7,
+    "kills": 11,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
