@@ -71662,11 +71662,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 78.33,
+    "pct": 72.44,
     "phase": 4,
-    "pulls": 60,
-    "last": "2026-09-11",
-    "last_ts": 1789138652
+    "pulls": 59,
+    "last": "2026-09-15",
+    "last_ts": 1789484218
    }
   ]
  },
@@ -72091,17 +72091,17 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 14,
+    "kills": 17,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
      "RedMage": {
-      "kills": 1,
-      "best": 46
+      "kills": 2,
+      "best": 84
      },
      "Paladin": {
-      "kills": 1,
-      "best": 91
+      "kills": 3,
+      "best": 98
      },
      "Scholar": {
       "kills": 10,
@@ -73932,11 +73932,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 31.85,
-    "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-11",
-    "last_ts": 1789146646
+    "pct": 86.31,
+    "phase": 5,
+    "pulls": 77,
+    "last": "2026-09-16",
+    "last_ts": 1789576540
    }
   ]
  },
@@ -74728,11 +74728,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 31.85,
-    "phase": 4,
-    "pulls": 108,
-    "last": "2026-09-11",
-    "last_ts": 1789146646
+    "pct": 86.31,
+    "phase": 5,
+    "pulls": 77,
+    "last": "2026-09-16",
+    "last_ts": 1789576540
    }
   ]
  },
@@ -76049,7 +76049,19 @@
     true
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1076,
+    "name": "Dragonsong's Reprise",
+    "best": 54,
+    "kills": 2,
+    "job": "DarkKnight",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -76130,7 +76142,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 11.71,
+    "phase": 3,
+    "pulls": 23,
+    "last": "2026-09-15",
+    "last_ts": 1789491887
+   }
+  ]
  },
  "43284378": {
   "current": {
