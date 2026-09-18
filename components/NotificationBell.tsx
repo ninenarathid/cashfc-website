@@ -577,8 +577,12 @@ export default function NotificationBell() {
           : n.post_id ? covers[n.post_id] ?? face : face,
         badge: kind?.icon,
         // Green, because earning a ticket is the one thing the bell says that
-        // is unambiguously a bit of luck.
-        tone: n.kind.startsWith("evercold") ? "good" : "accent",
+        // is unambiguously a bit of luck. Gold foil for the wrapped popoto,
+        // which is the other: it draws its own card, and it earns it — one
+        // popoto in a hundred arrives like this, and the corner of the screen
+        // is the only warning anybody gets while they are still on the page.
+        tone: n.kind === "popoto_rare" ? "rare"
+          : n.kind.startsWith("evercold") ? "good" : "accent",
         href: hrefOf(n, character, postPath),
       });
     }
