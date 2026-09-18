@@ -401,7 +401,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 128,
-  "level": 48,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -851,7 +851,7 @@
   "mounts": 264,
   "minions": 487,
   "rare": 417,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -981,7 +981,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-11"
+  "chg": "2026-09-18"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -4008,7 +4008,7 @@
   "mounts": 215,
   "minions": 404,
   "rare": null,
-  "level": 100,
+  "level": 46,
   "cc": [
    true,
    true,
@@ -5715,7 +5715,9 @@
   ],
   "tiers": {},
   "jobs": {
-   "Astrologian": "expert"
+   "Astrologian": "master",
+   "Scholar": "expert",
+   "Summoner": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -7403,7 +7405,7 @@
   "mounts": 29,
   "minions": 121,
   "rare": null,
-  "level": 69,
+  "level": 57,
   "cc": [
    false,
    false,
@@ -7416,7 +7418,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-18"
  },
  "33387937": {
   "name": "R'bael Senkou",
@@ -11398,7 +11400,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 99,
+  "level": 97,
   "cc": [
    false,
    false,

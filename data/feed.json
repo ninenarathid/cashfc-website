@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-09-18",
+   "type": "job_up",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "is now a Master Astrologian"
+  },
+  {
+   "date": "2026-09-18",
+   "type": "job_up",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "is now a Expert Scholar"
+  },
+  {
+   "date": "2026-09-18",
+   "type": "job_up",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-18",
    "type": "grade_up",
    "id": 44970350,
    "name": "Allen Crist",
@@ -1378,27 +1399,6 @@
    "id": 29339718,
    "name": "Ashe Fantine",
    "text": "is now a Master Dancer"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "is now a Expert Red Mage"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "is now a Expert Astrologian"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Viper!"
   }
  ]
 }

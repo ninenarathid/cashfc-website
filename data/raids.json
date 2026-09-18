@@ -8244,6 +8244,10 @@
     "job": "Sage",
     "cleared": true,
     "job_kills": {
+     "RedMage": {
+      "kills": 3,
+      "best": 14
+     },
      "Sage": {
       "kills": 2,
       "best": 30
@@ -53981,8 +53985,8 @@
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 4,
-      "best": 67
+      "kills": 7,
+      "best": 85
      }
     }
    },
@@ -61059,6 +61063,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 21,
       "median": 14,
@@ -62689,7 +62694,7 @@
     "cleared": true,
     "job_kills": {
      "Astrologian": {
-      "kills": 6,
+      "kills": 8,
       "best": 66
      },
      "Scholar": {
@@ -62707,7 +62712,17 @@
     "best": 39,
     "kills": 3,
     "job": "Summoner",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Summoner": {
+      "kills": 2,
+      "best": 39
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 17
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -62725,7 +62740,7 @@
       "best": 63
      },
      "Astrologian": {
-      "kills": 19,
+      "kills": 21,
       "best": 78
      },
      "Scholar": {
@@ -62792,6 +62807,10 @@
      },
      "Sage": {
       "kills": 1,
+      "best": 76
+     },
+     "Scholar": {
+      "kills": 6,
       "best": 76
      },
      "Astrologian": {
@@ -63864,8 +63883,8 @@
     "cleared": true,
     "job_kills": {
      "WhiteMage": {
-      "kills": 2,
-      "best": 57
+      "kills": 5,
+      "best": 80
      }
     }
    },
@@ -70419,8 +70438,8 @@
     "cleared": true,
     "job_kills": {
      "Dragoon": {
-      "kills": 2,
-      "best": 2
+      "kills": 4,
+      "best": 5
      }
     }
    }
