@@ -33,7 +33,7 @@
   "mounts": 281,
   "minions": 486,
   "rare": 487,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -170,7 +170,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-18"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -401,7 +401,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 128,
-  "level": 100,
+  "level": 48,
   "cc": [
    false,
    false,
@@ -519,7 +519,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-18"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -1274,9 +1274,9 @@
   "name": "Allen Crist",
   "parse": 18,
   "ult": 0,
-  "mounts": 123,
-  "minions": 371,
-  "rare": 198,
+  "mounts": 132,
+  "minions": 375,
+  "rare": 238,
   "level": 100,
   "cc": [
    false,
@@ -1287,39 +1287,39 @@
   ],
   "rare_ids": [
    1328,
-   1329,
-   2292,
    2940,
-   3256,
+   3257,
    3258,
+   3259,
    3266,
    3469,
-   3471,
    3477,
-   3478,
    3479,
-   3555,
    3556,
    3674,
    3680,
    3683,
    3684,
    3686,
-   3702,
    3703,
    3704,
    3705,
    3706,
+   3707,
    3708,
    3709,
+   3710,
    3711,
    3712,
+   3713,
    3714,
    3715,
    3717,
    3718,
+   3719,
    3720,
    3721,
+   3722,
    3723,
    3724,
    3726,
@@ -1333,63 +1333,63 @@
    3734,
    3738,
    3742,
-   3778,
-   3784,
-   3832,
    3846,
-   3849,
-   3853,
-   3854,
-   3858,
-   3859,
-   3862,
-   3886,
-   3887,
+   3847,
+   3902,
+   3903,
+   3904,
+   3905,
+   3906,
+   3907,
+   3908,
+   3909,
    3910,
    3911,
    3912,
-   3914,
-   3915,
+   3913,
    3916,
-   3917,
    3918,
-   3919,
-   3920,
-   3921,
    3922,
    3923,
    3924,
-   3935,
    3937,
    3938,
    3939,
    3949,
    3950,
    3953,
+   3954,
    3956,
    3960,
    3961,
+   3962,
    3965,
    3966,
    3969,
    3971,
+   3972,
    3974,
-   3999,
    4000,
    4004,
    4006,
    4007,
    4008,
-   4014,
    4015,
    4017,
    4018,
    4022,
-   4074
+   4025,
+   4026,
+   4027,
+   4030,
+   4031,
+   4033,
+   4034,
+   4043
   ],
   "tiers": {
-   "gatherer": "master",
-   "crafter": "master",
+   "gatherer": "legendary",
+   "crafter": "legendary",
    "relic": "legendary",
    "explorer": "legendary",
    "treasure": "expert"
@@ -1400,7 +1400,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-18"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -1721,7 +1721,7 @@
   "mounts": 105,
   "minions": 135,
   "rare": 59,
-  "level": 1,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1816,7 +1816,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -1924,7 +1924,7 @@
   "mounts": 162,
   "minions": 239,
   "rare": 60,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -2013,7 +2013,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-18"
  },
  "47540663": {
   "name": "Edel Meither",
@@ -2409,7 +2409,7 @@
   "mounts": 102,
   "minions": 261,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -3774,7 +3774,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 47,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -3880,7 +3880,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4008,7 +4008,7 @@
   "mounts": 215,
   "minions": 404,
   "rare": null,
-  "level": 25,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4048,7 +4048,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "44133352": {
   "name": "Seville Beoulve",
@@ -4580,7 +4580,7 @@
   ],
   "tiers": {
    "relic": "master",
-   "explorer": "expert"
+   "explorer": "master"
   },
   "jobs": {
    "Machinist": "legendary",
@@ -4785,7 +4785,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4831,6 +4831,7 @@
    3846,
    3847,
    3848,
+   3849,
    3850,
    3851,
    3852,
@@ -4886,7 +4887,6 @@
    4017,
    4018,
    4022,
-   4023,
    4024,
    4025,
    4028,
@@ -5259,7 +5259,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5437,7 +5437,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 92,
+  "level": 38,
   "cc": [
    false,
    false,
@@ -5559,7 +5559,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -5758,7 +5758,7 @@
   "mounts": 175,
   "minions": 358,
   "rare": 160,
-  "level": 35,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5782,6 +5782,7 @@
    2873,
    2933,
    2996,
+   3305,
    3306,
    3307,
    3308,
@@ -5816,7 +5817,6 @@
    3736,
    3763,
    3769,
-   3792,
    3793,
    3794,
    3795,
@@ -5875,7 +5875,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6142,7 +6142,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 96,
+  "level": 97,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6213,7 +6213,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 17,
+  "level": 88,
   "cc": null,
   "rare_ids": [
    3874
@@ -6352,7 +6352,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 87,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -6509,7 +6509,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 83,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6530,7 +6530,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -6630,7 +6630,7 @@
   "mounts": 57,
   "minions": 194,
   "rare": null,
-  "level": 94,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -6643,7 +6643,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "16099244": {
   "name": "Luna Froggo",
@@ -7267,8 +7267,8 @@
   "ult": 0,
   "mounts": 131,
   "minions": 271,
-  "rare": 116,
-  "level": 50,
+  "rare": 120,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7277,7 +7277,6 @@
    false
   ],
   "rare_ids": [
-   950,
    951,
    1369,
    1562,
@@ -7289,14 +7288,12 @@
    2759,
    2784,
    2873,
-   3001,
    3113,
    3467,
    3555,
    3577,
    3616,
    3640,
-   3645,
    3650,
    3651,
    3654,
@@ -7331,7 +7328,6 @@
    3854,
    3855,
    3859,
-   3874,
    3877,
    3878,
    3890,
@@ -7372,10 +7368,14 @@
    4024,
    4025,
    4026,
+   4027,
    4028,
    4029,
    4030,
+   4031,
    4033,
+   4034,
+   4045,
    4074
   ],
   "tiers": {
@@ -7394,7 +7394,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "43116127": {
   "name": "Piyo Stellar",
@@ -7470,7 +7470,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 89,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -7890,7 +7890,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 21,
-  "level": 100,
+  "level": 75,
   "cc": [
    true,
    true,
@@ -7933,7 +7933,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-18"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -7964,7 +7964,7 @@
   "mounts": 28,
   "minions": 84,
   "rare": 3,
-  "level": 57,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8103,7 +8103,7 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 100,
+  "level": 29,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -16179,7 +16179,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 81,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -16192,7 +16192,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-18"
  },
  "15296154": {
   "name": "Tussuki Yoshikuni",
