@@ -1,6 +1,27 @@
 {
  "events": [
   {
+   "date": "2026-09-18",
+   "type": "minions_up",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "passed 200 minions"
+  },
+  {
+   "date": "2026-09-18",
+   "type": "rare_up",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "earned That Wasn't Wine — only 1.3% of players have it, and 50 more"
+  },
+  {
+   "date": "2026-09-18",
+   "type": "level_100",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "reached level 100 on Fisher!"
+  },
+  {
    "date": "2026-09-17",
    "type": "level_100",
    "id": 8286372,
@@ -1378,27 +1399,6 @@
    "id": 34509521,
    "name": "Liliya Quintilis",
    "text": "is now a Expert Astrologian"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "rare_up",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "earned Savage Gaze of the Abyss III"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "grade_up",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "is now a Expert Relic grinder ✨"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "rare_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "earned Roll the Dice II"
   }
  ]
 }

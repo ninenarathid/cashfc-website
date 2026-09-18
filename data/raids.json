@@ -1369,7 +1369,13 @@
       "best": 86,
       "median": 69,
       "kills": 9,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 9,
+        "best": 86
+       }
+      }
      },
      {
       "label": "E2S",
@@ -1378,7 +1384,13 @@
       "best": 91,
       "median": 79,
       "kills": 10,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 10,
+        "best": 91
+       }
+      }
      },
      {
       "label": "E3S",
@@ -1387,7 +1399,13 @@
       "best": 80,
       "median": 72,
       "kills": 8,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 8,
+        "best": 80
+       }
+      }
      },
      {
       "label": "E4S",
@@ -1396,7 +1414,13 @@
       "best": 68,
       "median": 54,
       "kills": 5,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 5,
+        "best": 68
+       }
+      }
      }
     ]
    }
@@ -9297,7 +9321,7 @@
     "state": "learning",
     "pct": 86.31,
     "phase": 5,
-    "pulls": 102,
+    "pulls": 76,
     "last": "2026-09-16",
     "last_ts": 1789576540
    }
@@ -10426,12 +10450,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 65,
     "kills": 3,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Warrior": {
       "kills": 3,
@@ -11146,12 +11170,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 75,
     "kills": 24,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Monk": {
       "kills": 17,
@@ -14261,12 +14285,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 56,
     "kills": 14,
     "job": "Dancer",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Dancer": {
       "kills": 14,
@@ -16983,12 +17007,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 39,
     "kills": 2,
     "job": "Dragoon",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Dragoon": {
       "kills": 2,
@@ -19457,12 +19481,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 40,
     "kills": 4,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "WhiteMage": {
       "kills": 4,
@@ -22687,12 +22711,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 84,
     "kills": 8,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Monk": {
       "kills": 8,
@@ -23467,12 +23491,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 10,
     "kills": 8,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Bard": {
       "kills": 8,
@@ -24230,12 +24254,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 40,
     "kills": 6,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Summoner": {
       "kills": 6,
@@ -24867,7 +24891,7 @@
     "state": "learning",
     "pct": 86.31,
     "phase": 5,
-    "pulls": 103,
+    "pulls": 77,
     "last": "2026-09-16",
     "last_ts": 1789576540
    }
@@ -26755,12 +26779,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 68,
     "kills": 6,
     "job": "Paladin",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Paladin": {
       "kills": 6,
@@ -27739,12 +27763,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 100,
     "kills": 51,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Ninja": {
       "kills": 6,
@@ -28413,7 +28437,7 @@
     "state": "learning",
     "pct": 86.31,
     "phase": 5,
-    "pulls": 104,
+    "pulls": 78,
     "last": "2026-09-16",
     "last_ts": 1789576540
    }
@@ -28875,12 +28899,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 21,
     "kills": 8,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Scholar": {
       "kills": 8,
@@ -30387,12 +30411,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 97,
     "kills": 35,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "DarkKnight": {
       "kills": 35,
@@ -31391,7 +31415,7 @@
     "state": "learning",
     "pct": 86.31,
     "phase": 5,
-    "pulls": 103,
+    "pulls": 77,
     "last": "2026-09-16",
     "last_ts": 1789576540
    }
@@ -37422,20 +37446,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 104,
-    "name": "Lindwurm",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 27.45,
-    "phase": 0,
-    "pulls": 35,
-    "last": "2026-09-07",
-    "last_ts": 1788796654
-   }
-  ]
+  "_status": "ok"
  },
  "30714243": {
   "current": {
@@ -38085,12 +38096,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 78,
     "kills": 7,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Bard": {
       "kills": 7,
@@ -38938,7 +38949,7 @@
     "state": "learning",
     "pct": 86.31,
     "phase": 5,
-    "pulls": 104,
+    "pulls": 78,
     "last": "2026-09-16",
     "last_ts": 1789576540
    }
@@ -39918,12 +39929,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 56,
     "kills": 32,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "WhiteMage": {
       "kills": 26,
@@ -40675,7 +40686,7 @@
     "state": "learning",
     "pct": 86.31,
     "phase": 5,
-    "pulls": 102,
+    "pulls": 76,
     "last": "2026-09-16",
     "last_ts": 1789576540
    }
@@ -41798,12 +41809,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 10,
     "kills": 17,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Scholar": {
       "kills": 17,
@@ -54051,17 +54062,6 @@
     "pulls": 7,
     "last": "2026-09-15",
     "last_ts": 1789486597
-   },
-   {
-    "encounter_id": 104,
-    "name": "Lindwurm",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 48.99,
-    "phase": 0,
-    "pulls": 13,
-    "last": "2026-09-07",
-    "last_ts": 1788791892
    }
   ]
  },
@@ -55198,20 +55198,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 57.5,
-    "phase": 5,
-    "pulls": 16,
-    "last": "2026-09-07",
-    "last_ts": 1788797904
-   }
-  ]
+  "_status": "ok"
  },
  "36315588": {
   "current": {
