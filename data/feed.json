@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-09-19",
+   "type": "level_100",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
    "date": "2026-09-18",
    "type": "job_up",
    "id": 42053180,
@@ -1392,13 +1399,6 @@
    "id": 8836061,
    "name": "Allusia Heartfilia",
    "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "is now a Master Dancer"
   }
  ]
 }

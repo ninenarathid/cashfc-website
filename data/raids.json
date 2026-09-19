@@ -20829,6 +20829,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 90,
       "median": 71,
@@ -20837,6 +20838,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 95,
       "median": 57,
@@ -20845,6 +20847,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 84,
       "median": 55,
@@ -20853,6 +20856,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 64,
       "median": 24,
@@ -52242,6 +52246,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 75,
       "median": 40,
@@ -52250,6 +52255,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 51,
       "median": 16,
@@ -52258,6 +52264,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 39,
       "median": 38,
@@ -60711,6 +60718,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 65,
       "median": 14,
@@ -60719,6 +60727,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 79,
       "median": 56,
@@ -60727,6 +60736,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 72,
       "median": 27,
@@ -60735,6 +60745,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 53,
       "median": 18,
@@ -70599,7 +70610,7 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 42,
+      "kills": 44,
       "best": 20
      }
     }
