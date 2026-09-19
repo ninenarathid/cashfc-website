@@ -5,8 +5,9 @@ import { loadParties } from "@/lib/party-db";
 import { pingWants } from "@/lib/wants-ping";
 import { boardMessage, boardParties } from "@/lib/discord/board";
 import {
-  APP_ID, CHANNEL_ID, deleteMessage, editMessage, listMessages, postMessage,
+  botId, CHANNEL_ID, deleteMessage, editMessage, listMessages, postMessage,
 } from "@/lib/discord/api";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Redraw the board in Discord.
@@ -32,6 +33,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
+/**
+ * How long a party counts as newly made. See the veto below.
+ */
+const NEW_FOR = 30 * 60_000;
+
 function admin() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key || !SUPABASE_URL) return null;
@@ -55,7 +61,7 @@ function sameSecret(a: string, b: string): boolean {
 
 /** Older boards from this bot, removed. Returns how many went. */
 async function sweep(channel: string, keep: string): Promise<number> {
-  const app = APP_ID();
+  const app = await botId();
   if (!app) return 0;
   const seen = await listMessages(channel, 30);
   if ("error" in seen) return 0;
@@ -66,6 +72,34 @@ async function sweep(channel: string, keep: string): Promise<number> {
     if ("ok" in out) gone += 1;
   }
   return gone;
+}
+
+/**
+ * One board in the channel, checked every time rather than only after posting.
+ *
+ * "There is one board" is the whole design, and until now it was enforced only
+ * on the way out of posting a new one — which is precisely the moment Discord
+ * is most likely to refuse. A burst of posts spends the rate limit, the delete
+ * and the listing behind it come back 429, and the boards that got left over
+ * were never looked at again, because nothing looked except the next post.
+ * Two boards in the channel, for as long as it took somebody to notice.
+ *
+ * So it is checked on every tick, edit or post alike. A quiet channel costs
+ * one listing per redraw and deletes nothing, which is the right price for an
+ * invariant that is the point of the feature.
+ *
+ * Which message to keep is read back from the database rather than taken from
+ * whatever this request was holding. A tick that spent a second editing may be
+ * holding the id of a board another tick has already replaced, and sweeping
+ * around a stale id is how a sweep deletes the board it was meant to protect.
+ */
+async function onlyOne(
+  supabase: SupabaseClient, channel: string,
+): Promise<number> {
+  const { data } = await supabase.from("discord_board")
+    .select("message_id, channel_id").eq("id", 1).single();
+  if (!data?.message_id || data.channel_id !== channel) return 0;
+  return sweep(channel, data.message_id);
 }
 
 export async function POST(req: Request) {
@@ -177,9 +211,32 @@ export async function POST(req: Request) {
    * the same as a board that was empty, and reading it as one would announce
    * every party the FC has already seen. So it records and says nothing.
    */
-  const ids = boardParties(parties, now).map((p) => p.id).sort();
+  /*
+   * And a party is only new if it is also recently made.
+   *
+   * The memory on its own trusted a list it cannot always get. loadParties
+   * answers [] for a read that failed exactly as it answers [] for an evening
+   * with nothing on — one transient error and the board wrote down that it
+   * was carrying nothing, and the next tick found three months-old parties
+   * missing from its own memory and announced all of them. That is what put
+   * the second board in the channel: id 113 was made at 15:34 on the 18th and
+   * posted again as news at 00:50 on the 19th, nine hours later, because
+   * somebody had edited it.
+   *
+   * So the party's own age has a veto. Whatever the memory has lost, a party
+   * made hours ago is not news and cannot be announced — a lost memory costs
+   * a silent tick that writes the ids down again, which is what it should
+   * always have cost. Half an hour is far longer than the gap between a party
+   * being made and the trigger that redraws the board, and far shorter than
+   * the mistake it is there to refuse.
+   */
+  const open = boardParties(parties, now);
+  const ids = open.map((p) => p.id).sort();
   const seen = (row?.party_ids as string[] | null) ?? null;
-  const fresh = seen ? ids.filter((id) => !seen.includes(id)) : [];
+  const fresh = seen
+    ? open.filter((p) => !seen.includes(p.id)
+        && now - new Date(p.createdAt).getTime() < NEW_FOR).map((p) => p.id)
+    : [];
 
   /*
    * And only one tick gets to be the one that announces them.
@@ -210,8 +267,9 @@ export async function POST(req: Request) {
     if ("ok" in edited) {
       await supabase.from("discord_board")
         .update({ party_ids: ids, updated_at: at }).eq("id", 1);
+      const swept = await onlyOne(supabase, channel);
       return NextResponse.json({
-        edited: known, parties: payload.embeds.length, pinged,
+        edited: known, parties: payload.embeds.length, swept, pinged,
       });
     }
     /*
@@ -282,7 +340,7 @@ export async function POST(req: Request) {
    * invite never asked for Manage Messages and why this cannot reach anything
    * a member said.
    */
-  const swept = await sweep(channel, posted.ok.id);
+  const swept = await onlyOne(supabase, channel);
   return NextResponse.json({
     posted: posted.ok.id, parties: payload.embeds.length,
     fresh: fresh.length, swept, pinged,

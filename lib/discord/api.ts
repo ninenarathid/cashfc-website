@@ -46,6 +46,27 @@ async function call<T>(
   }
 }
 
+/**
+ * The bot's own user id, which is what its messages are signed with.
+ *
+ * DISCORD_APP_ID where it is set, because an application's id and its bot
+ * user's id are the same number and reading it out of the environment costs
+ * nothing. Asked of Discord where it is not, rather than giving up: the sweep
+ * that keeps one board in the channel is built on knowing which messages are
+ * ours, and an unset variable used to mean it quietly swept nothing at all.
+ *
+ * Remembered for the life of the instance. It cannot change.
+ */
+let selfId = "";
+
+export async function botId(): Promise<string> {
+  if (selfId) return selfId;
+  const told = APP_ID();
+  if (told) return (selfId = told);
+  const me = await call<{ id: string }>("/users/@me", { method: "GET" });
+  return "error" in me ? "" : (selfId = me.ok.id);
+}
+
 export const postMessage = (channelId: string, payload: unknown) =>
   call<{ id: string }>(`/channels/${channelId}/messages`, {
     method: "POST", body: JSON.stringify(payload),
