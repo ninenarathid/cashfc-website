@@ -5669,8 +5669,8 @@
  },
  "42053180": {
   "name": "Chu'ny On-duty",
-  "parse": 89,
-  "ult": 0,
+  "parse": 90,
+  "ult": 1,
   "mounts": 64,
   "minions": 160,
   "rare": 30,
@@ -5727,8 +5727,10 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-09-10"
+  "ults": [
+   "Futures Rewritten"
+  ],
+  "chg": "2026-09-19"
  },
  "34376591": {
   "name": "Crashbone Noudenet",
@@ -5761,7 +5763,7 @@
   "mounts": 175,
   "minions": 358,
   "rare": 160,
-  "level": 46,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5988,7 +5990,7 @@
  },
  "39959181": {
   "name": "El Blung",
-  "parse": 91,
+  "parse": 97,
   "ult": 3,
   "mounts": 130,
   "minions": 208,
@@ -6070,7 +6072,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-18"
+  "chg": "2026-09-19"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -6375,7 +6377,7 @@
  },
  "31001781": {
   "name": "Ician Wyra'li",
-  "parse": 33,
+  "parse": 53,
   "ult": 2,
   "mounts": 61,
   "minions": 80,
@@ -6396,7 +6398,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-19"
  },
  "60873337": {
   "name": "Imy Kitty",
@@ -6631,12 +6633,12 @@
  },
  "60852230": {
   "name": "Lucienvt Yenslayer",
-  "parse": 4,
+  "parse": 5,
   "ult": 0,
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6831,7 +6833,7 @@
  },
  "29918255": {
   "name": "Lyndanisse Vymmaith",
-  "parse": 67,
+  "parse": 69,
   "ult": 0,
   "mounts": 198,
   "minions": 419,
@@ -6951,7 +6953,9 @@
    "explorer": "legendary",
    "pvp": "expert"
   },
-  "jobs": {},
+  "jobs": {
+   "Summoner": "expert"
+  },
   "ex": [
    "Doomtrain",
    "Guardian Arkveld",
@@ -6961,7 +6965,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-19"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7224,7 +7228,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "expert",
+   "WhiteMage": "master",
    "Astrologian": "legendary"
   },
   "ex": [],
@@ -7436,7 +7440,8 @@
    "explorer": "legendary"
   },
   "jobs": {
-   "WhiteMage": "master"
+   "WhiteMage": "master",
+   "Astrologian": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -7523,7 +7528,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 91,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -7611,7 +7616,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "master",
-   "Samurai": "expert"
+   "Samurai": "master"
   },
   "ex": [
    "Valigarmanda",
@@ -7792,7 +7797,7 @@
  },
  "30582341": {
   "name": "Sweetpea Swp",
-  "parse": 95,
+  "parse": 99,
   "ult": 1,
   "mounts": 83,
   "minions": 157,
@@ -7808,13 +7813,13 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Summoner": "expert"
+   "Summoner": "legendary"
   },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-09-19"
  },
  "36624109": {
   "name": "Tamazon Kitsu",
@@ -8173,7 +8178,7 @@
   "mounts": 114,
   "minions": 254,
   "rare": null,
-  "level": 18,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8318,7 +8323,7 @@
  },
  "5034519": {
   "name": "Acerola Orion",
-  "parse": 84,
+  "parse": 90,
   "ult": 0,
   "mounts": 60,
   "minions": 181,
@@ -8334,14 +8339,15 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "expert"
+   "Viper": "expert",
+   "Reaper": "master"
   },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-19"
  },
  "25504317": {
   "name": "Achel Clay",
@@ -16782,8 +16788,7 @@
   "jobs": {
    "Reaper": "expert",
    "Sage": "legendary",
-   "DarkKnight": "expert",
-   "Gunbreaker": "expert"
+   "DarkKnight": "expert"
   },
   "ex": [
    "Queen Eternal",
