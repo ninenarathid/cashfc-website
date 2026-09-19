@@ -16,7 +16,26 @@
   --color-bg: #0f1319;
   --color-surface: #161b23;
   --color-card: #1b212b;
-  --color-line: #2b3441;
+  /*
+   * Three edges, not one, because "a line" was doing three jobs at 1.48:1
+   * against the page — visible enough to add noise, too faint to mean anything.
+   *
+   *   line         separation. A hairline between two things that are plainly
+   *                two things already. It does not have to be legible on its
+   *                own and should not shout; nudged up just enough to be seen
+   *                on purpose rather than by accident.
+   *   line-lit     the top edge of something raised. Light comes from above, so
+   *                the edge facing it is brighter. This is what gives a panel
+   *                depth on a dark ground — a black shadow cannot, there is
+   *                nothing darker than this background to cast one onto.
+   *   line-strong  the boundary of a control: a field, a toggle, anything whose
+   *                edge is the only thing saying where it starts. 3.02:1 even
+   *                on the lightest surface, which is the bar these have to
+   *                clear and the others do not.
+   */
+  --color-line: #36414f;
+  --color-line-lit: #4a586b;
+  --color-line-strong: #5a6c85;
   --color-ink: #e3e8ef;
   --color-muted: #8b97a8;
   --color-accent: #6aa9e0;
@@ -25,6 +44,67 @@
   --color-jade: #4fb8a8;
   --color-copper: #c98a5b;
   --color-steel: #7ea6c9;
+  /*
+   * The motion vocabulary, the same way the colours above are the palette.
+   *
+   * Three curves, because there are three things motion does here: something
+   * arriving and settling, something leaving, and a sheet under a thumb. They
+   * were written out as literals thirty-odd times between this file and the
+   * components, twice in two spellings of nearly the same curve, which is how a
+   * site ends up with animations that almost match.
+   *
+   * Deliberately not a duration scale. The timings here are argued per place —
+   * 110ms on a popover because you open it twenty times, 620ms on a face
+   * crossing the screen because it is the thing you are watching — and a scale
+   * would flatten reasoning into rounding. The one run of close values in this
+   * file, 230 through 260, is the rare-potato sequence firing in order, and is
+   * a timeline rather than four guesses at the same number.
+   */
+  /*
+   * Tailwind's own shadows are drawn for a light page: shadow-2xl is black at
+   * 25%, and 25% black over a background this dark moves #0f1319 to #0b0e13 —
+   * a shadow nobody can see, paid for seventeen times. Redefined here instead
+   * of edited at every call site, because the call sites were not wrong to ask
+   * for a shadow; the shadow was wrong.
+   *
+   * Darker and tighter, with a hairline of its own to seat the panel against
+   * whatever is behind it.
+   */
+  /*
+   * The type scale.
+   *
+   * There were twenty-seven sizes across eleven hundred places, eight of them
+   * packed into the three and a half pixels between 11 and 14.5 in half-pixel
+   * steps — 12.5 and 13 both used two hundred times over, and nobody alive can
+   * tell them apart. That is not a scale, it is eleven hundred separate
+   * decisions.
+   *
+   * Seven steps, named for the job rather than for a size, because the job is
+   * what a person writing markup actually knows: this is a label, this is
+   * metadata beside a name, this is the body of a card. Each pair of
+   * half-steps collapsed onto whichever of the two was already the more used,
+   * so the smallest possible number of places changed at all.
+   *
+   * Anything above 16px is left as it was. Those are headings and hero numbers,
+   * a handful of one-offs apiece, and a name nobody will reuse is a name that
+   * earns nothing.
+   */
+  --text-label: 10.5px;
+  --text-meta: 11.5px;
+  --text-ui: 12.5px;
+  --text-read: 13px;
+  --text-lead: 14px;
+  --text-title: 15px;
+  --text-head: 16px;
+
+  --shadow-2xl: 0 24px 48px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(0 0 0 / 0.35);
+  --shadow-xl: 0 16px 32px -12px rgb(0 0 0 / 0.7);
+  --shadow-lg: 0 8px 20px -8px rgb(0 0 0 / 0.6);
+
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
   --font-display: var(--font-display-face);
   --font-body: var(--font-body-face);
   --font-data: var(--font-data-face);
@@ -35,10 +115,18 @@ body {
   color: var(--color-ink);
 }
 
+/*
+ * No border-radius here on purpose.
+ *
+ * It used to force 4px on everything, which meant a keyboard landing on a round
+ * avatar drew a small-cornered rectangle around a circle, and the same ring was
+ * wrong again on every rounded-xl card. Left alone, the outline follows whatever
+ * radius the element actually has — which is the only radius that can ever be
+ * right.
+ */
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-  border-radius: 4px;
 }
 
 /* The clipping belongs at the root, not on the column.
@@ -252,7 +340,7 @@ body { overflow-x: clip; }
 
 .donut-arc {
   transform-origin: center;
-  animation: donut-arc 700ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation: donut-arc 700ms var(--ease-settle) backwards;
   animation-delay: calc(var(--i) * 55ms);
   transition: stroke-width 160ms ease-out, opacity 160ms ease-out;
 }
@@ -613,7 +701,7 @@ body { overflow-x: clip; }
   to   { opacity: 0; transform: translateX(100%); }
 }
 .toast-slide[data-state="open"] {
-  animation: toast-in 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: toast-in 400ms var(--ease-settle);
 }
 .toast-slide[data-state="closed"] { animation: toast-out 200ms ease-in; }
 
@@ -654,3 +742,381 @@ body { overflow-x: clip; }
   .toast-slide[data-state="open"],
   .toast-slide[data-state="closed"] { animation: none; }
 }
+
+/* ── The same press, for links that are really buttons ────────────────────
+   The rule above covers button and [role=button]. A nav tab is a <Link>, so it
+   renders an <a> and misses it entirely — which showed up as the search button
+   confirming a tap while the tab sitting against it did not.
+
+   Opt-in rather than `a[href]` across the board, because most links on this site
+   are words inside a sentence and a sentence that flinches when you touch it is
+   not an improvement. Put this on links drawn as a chip, a tile or a tab.
+
+   Same values as the button rule on purpose: a header where two neighbours
+   answer a tap differently is worse than one where neither does. */
+@layer base {
+  a.pressable { transition: scale 160ms ease-out; }
+}
+
+a.pressable:active { scale: 0.97; }
+
+/* ── The header, once it has something above it ───────────────────────────
+   Sticky, and the rule under it only exists after the page has moved. At the
+   top there is nothing to separate the header from, and a line drawn there is
+   a line drawn for its own sake.
+
+   The background is a pseudo-element rather than the bar itself because the bar
+   lives inside the centred column, and the gallery's drift strip is full-bleed:
+   a column-width backdrop would let those pictures slide past in the margins
+   either side of it. Same `50% - 50vw` the .full-bleed rule above uses, so the
+   two agree about where the window's edge is. */
+/*
+ * One published height, because the header is no longer the only thing that
+ * sticks. The gallery's filter row sticks too, and while both were pinned to
+ * top: 0 they landed on each other. It now starts where this ends, which is
+ * what this variable is for — a second hard-coded copy of the header's height
+ * would be a second thing to get wrong the next time the logo changes.
+ *
+ * Fixed rather than measured: a header whose height depends on how many tabs an
+ * admin can see is a header that moves the page under it when somebody signs
+ * in.
+ */
+:root { --nav-h: 64px; }
+@media (min-width: 640px) { :root { --nav-h: 68px; } }
+
+.nav-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--nav-h);
+}
+
+.nav-sticky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  z-index: -1;
+  background: color-mix(in oklab, var(--color-bg) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 200ms ease-out;
+}
+
+.nav-sticky[data-scrolled="true"]::before {
+  border-bottom-color: var(--color-line);
+}
+
+/* ── The bar along the bottom, without the slab ───────────────────────────
+   A hard rule across the top of it read as a plate bolted over the end of the
+   page. A scrim instead: the page fades into the bar rather than stopping at
+   it, which is the truth — there is more page under there, and it is still
+   moving. The scrim sits above the bar and ignores the pointer, so it never
+   eats a tap meant for the content behind it. */
+.tabbar-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 2rem;
+  pointer-events: none;
+  background: linear-gradient(to top,
+    color-mix(in oklab, var(--color-bg) 92%, transparent), transparent);
+}
+
+/* ── The mark that says which tab you are on ──────────────────────────────
+   A caret rather than a filled pill. The game points at the thing you have
+   selected with a small triangle, and one borrowed from there is both lighter
+   than a block of tinted background and the only part of this header that
+   could not have come off any other website.
+
+   It always sits on the side the content is on and points back at its tab: under
+   the header, pointing up; over the bottom bar, pointing down. Drawn with a
+   clip-path so it is one element motion can carry between tabs. */
+.nav-caret {
+  width: 11px;
+  height: 5px;
+  background: var(--color-accent);
+}
+.nav-caret-up { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.nav-caret-down { clip-path: polygon(0 0, 100% 0, 50% 100%); }
+
+/* ── Pages that arrive from the direction you asked for ───────────────────
+   The tabs are a row with an order, so a page can honestly come in from the
+   side the tab you picked sits on. Nav.tsx tags each navigation with which way
+   it went; these are the rules that answer.
+
+   ::view-transition-old and -new are the browser's own snapshots of the page
+   before and after, so this animates two pictures rather than the live DOM —
+   which is why it can slide a whole page without laying anything out twice.
+
+   Everything here is inside a support query and a no-preference query. A
+   browser without the API never sees these rules and swaps the page as it
+   always did; a reader who asked for less movement gets the same. Neither is a
+   degraded path — it is the behaviour this site had last week. */
+@supports (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes page-leave-left {
+      to { opacity: 0; transform: translateX(-3.25rem); }
+    }
+    @keyframes page-enter-right {
+      from { opacity: 0; transform: translateX(3.25rem); }
+    }
+    @keyframes page-leave-right {
+      to { opacity: 0; transform: translateX(3.25rem); }
+    }
+    @keyframes page-enter-left {
+      from { opacity: 0; transform: translateX(-3.25rem); }
+    }
+
+    /* Far enough to read as a direction rather than a twitch, and still short
+       enough that nobody waits for it. The outgoing page leaves quicker than the
+       incoming one arrives, so the two overlap and the gap never shows. */
+    :root:active-view-transition-type(nav-forward) {
+      /* Only while a slide is running. Left switched on for every transition it
+         also silenced the page during a morph, which froze the old page on top
+         of the face travelling underneath it — the movement was there and
+         nothing could be seen of it. */
+      &::view-transition-old(page),
+      &::view-transition-new(page) { mix-blend-mode: normal; }
+
+      &::view-transition-old(page) {
+        animation: page-leave-left 200ms var(--ease-settle) both;
+      }
+      &::view-transition-new(page) {
+        animation: page-enter-right 300ms var(--ease-settle) both;
+      }
+    }
+
+    :root:active-view-transition-type(nav-back) {
+      /* Only while a slide is running. Left switched on for every transition it
+         also silenced the page during a morph, which froze the old page on top
+         of the face travelling underneath it — the movement was there and
+         nothing could be seen of it. */
+      &::view-transition-old(page),
+      &::view-transition-new(page) { mix-blend-mode: normal; }
+
+      &::view-transition-old(page) {
+        animation: page-leave-right 200ms var(--ease-settle) both;
+      }
+      &::view-transition-new(page) {
+        animation: page-enter-left 300ms var(--ease-settle) both;
+      }
+    }
+  }
+}
+
+/* ── The furniture does not travel with the page ──────────────────────────
+   Only <main> is named, so everything else — the header, the bar along the
+   bottom, the footer — is swept into the browser's root snapshot, and the root
+   cross-fades by default. Cross-fading a header into an identical copy of
+   itself is invisible most of the time and a flicker the rest of it, and it
+   drags the whole bar through the transition for no reason.
+
+   Naming them takes them out of the root and gives each its own group. Then the
+   old snapshot is dropped and the new one is shown with no animation: the bar
+   simply stays where it is, which is what a bar that did not change should do. */
+@supports (view-transition-name: none) {
+  .nav-sticky { view-transition-name: site-header; }
+  .tabbar { view-transition-name: site-tabbar; }
+
+  ::view-transition-old(site-header),
+  ::view-transition-old(site-tabbar) { display: none; }
+
+  ::view-transition-new(site-header),
+  ::view-transition-new(site-tabbar) { animation: none; }
+}
+
+/* ── A caret that glows rather than one that is simply blue ───────────────
+   @property is what makes this possible at all. A custom property the browser
+   knows the type of can be interpolated, so the bloom can grow as the caret
+   settles; an unregistered one would snap from value to value and there would
+   be nothing to animate.
+
+   The glow is drawn under the caret and behind it, and is the one place in this
+   header allowed to be pretty rather than useful. Kept to the accent already in
+   the palette — a header that invents a colour is a header that stops matching
+   the site the first time the theme changes. */
+@property --caret-bloom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.nav-caret {
+  --caret-bloom: 9px;
+  filter: drop-shadow(0 0 var(--caret-bloom)
+    color-mix(in oklab, var(--color-accent) 70%, transparent));
+  animation: caret-bloom 420ms var(--ease-settle) both;
+}
+
+@keyframes caret-bloom {
+  from { --caret-bloom: 0px; }
+  to   { --caret-bloom: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-caret { animation: none; }
+}
+
+/* ── A face that travels to its own page ──────────────────────────────────
+   Paired by lib/morph: the row you tapped wears this name on the way out and
+   the portrait at the top of the member page wears it on the way in, so the
+   browser draws one face moving and resizing between the two instead of fading
+   one page into another.
+
+   Slower than the sideways page slide, and deliberately. That slide is a hint
+   about direction and wants to be over; this one is the thing you are looking
+   at, and it is the only place on this site where an animation is allowed to be
+   the point. Still under half a second.
+
+   The group carries the movement; old and new are cross-faded inside it so a
+   round thumbnail can become a rounded square without either shape snapping. */
+@supports (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Slower than it was, because the whole point is to be watched. A face
+       crossing most of a screen in 420ms is a flicker you have to already know
+       about; at 620 it is a thing that moved, and the curve spends most of that
+       time settling rather than travelling. */
+    ::view-transition-group(member-face) {
+      animation-duration: 620ms;
+      animation-timing-function: var(--ease-drawer);
+    }
+
+    /* Both snapshots stretched to fill the box that is morphing, so the picture
+       is correctly framed at every size on the way. Without this each is drawn
+       at its own natural size and scaled, which reads as two photographs
+       dissolving rather than one face moving.
+
+       The forced 14px radius that used to be here was worse than useless: it
+       squared off the round thumbnail on frame one, so the shape people were
+       following changed before the movement started. The snapshots carry their
+       own corners now — a circle at one end, a rounded square at the other. */
+    ::view-transition-old(member-face),
+    ::view-transition-new(member-face) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: normal;
+      animation-duration: 620ms;
+      animation-timing-function: var(--ease-drawer);
+    }
+  }
+}
+
+/* ── The header reacting to the page under it, without JavaScript ─────────
+   animation-timeline: scroll() drives an animation from the scroll position
+   rather than from a clock, and it runs on the compositor — so this keeps
+   working while React is busy, and costs no listener and no re-render.
+
+   It does the same job as the scrolled flag in Nav.tsx and a little more: the
+   backdrop thickens as the page comes up under it rather than switching at a
+   threshold. The flag stays for the browsers that do not have this yet, and the
+   two agree, so there is no moment where one says scrolled and the other does
+   not. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-sticky::before {
+      animation: nav-settle linear both;
+      animation-timeline: scroll(root block);
+      /* Finished by the time the header has one header's worth of page beneath
+         it, which is when it stops being the top of the page. */
+      animation-range: 0 var(--nav-h);
+    }
+  }
+}
+
+@keyframes nav-settle {
+  from {
+    background: color-mix(in oklab, var(--color-bg) 70%, transparent);
+    border-bottom-color: transparent;
+  }
+  to {
+    background: color-mix(in oklab, var(--color-bg) 94%, transparent);
+    border-bottom-color: var(--color-line);
+  }
+}
+
+/* ── Something that opens, rather than something that appears beside you ──
+   pop-in is 110ms, and the comment on it explains why: it dresses popovers and
+   hover cards, which somebody opens twenty times in a sitting, and a flourish
+   on those becomes a wait.
+
+   A modal is not that, and a full-screen picture viewer is not that at all.
+   They are occasional, they take the whole window, and at 110ms the lightbox
+   did not read as opening — it read as a flash. This is the same idea given the
+   budget its own frequency earns: a little further to travel, a little longer
+   to do it, and an ease that lands rather than stops. */
+@keyframes rise-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes rise-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: scale(0.97); }
+}
+.rise-in[data-state="open"] {
+  animation: rise-in 240ms var(--ease-settle);
+}
+.rise-in[data-state="closed"] { animation: rise-out 160ms ease-in; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in[data-state="open"],
+  .rise-in[data-state="closed"] { animation: none; }
+}
+
+/* ── A gradient with no stairs in it ─────────────────────────────────────
+   The scrim over the tab bar fades one dark colour into nothing across 32px.
+   Eight bits of colour cannot describe that many steps, so it draws as bands —
+   worst exactly here, on a near-black that most of a phone screen is made of.
+
+   A little noise laid over the top breaks the step edges up. It is dithering,
+   which is the same answer this problem has had since palettes were 256 colours
+   wide: the eye reads scattered pixels as the shade between two bands rather
+   than as either of them. Small, tiled, and under 4% — enough to break a band,
+   not enough to read as texture. */
+.tabbar-scrim::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── The lit edge, where a surface meets the light ───────────────────────
+   One class rather than a change to every border in the codebase: the effect
+   only reads on a surface with something behind it, and putting it everywhere
+   would make it a texture instead of a light. */
+.lit-top { border-top-color: var(--color-line-lit); }
+
+/* ── A control's edge is the only thing saying where it starts ────────────
+   The hairline between two panels can be faint, because the panels are plainly
+   two things without it. A text field has no such help: its border is the whole
+   of what says "type here", and at the separation line's contrast that is a
+   boundary somebody has to hunt for.
+
+   Selected by the utility class rather than edited into a hundred components:
+   every one of these opted into the standard hairline by writing border-line,
+   so promoting exactly those leaves alone the ones that deliberately chose an
+   accent or a warning colour. Unlayered, which is how it beats the utility it
+   is overriding.
+
+   Checkboxes, ranges and colour wells are left out — the browser draws those
+   itself and a border is not what identifies them. */
+input.border-line:not([type="checkbox"]):not([type="range"]):not([type="color"]),
+textarea.border-line,
+select.border-line {
+  border-color: var(--color-line-strong);
+}
+
+/* ── Leaving is not the same shape as arriving ───────────────────────────
+   Everything here eased in on --ease-settle, and eased out on a plain ease-in,
+   which decelerates into the exit and makes a thing that is going away look
+   like it is arriving somewhere. --ease-exit accelerates instead: once the
+   decision is made, go. */
+.pop-in[data-state="closed"] { animation: pop-out 90ms var(--ease-exit); }
+.rise-in[data-state="closed"] { animation: rise-out 160ms var(--ease-exit); }
+.toast-slide[data-state="closed"] { animation: toast-out 200ms var(--ease-exit); }
