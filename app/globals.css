@@ -866,6 +866,32 @@ a.pressable:active { scale: 0.97; }
    degraded path — it is the behaviour this site had last week. */
 @supports (view-transition-name: none) {
   @media (prefers-reduced-motion: no-preference) {
+    /*
+     * The box must not be morphed, and the snapshots must not be scaled.
+     *
+     * This was the whole of why the slide looked wrong. Nothing was said here
+     * about the group, so the browser did what it does by default: it animated
+     * the box from the old page's size to the new one's. The roster is many
+     * screens tall and the party board is not, so every navigation between them
+     * interpolated one height into the other and drew both snapshots scaled to
+     * fit it on the way. The page appeared to squash and stretch while it slid,
+     * which reads as jank however few frames are actually dropped.
+     *
+     * Pinned, so the box simply is the new page's box; and the snapshots drawn
+     * at their own size from the top rather than stretched into it, so the only
+     * thing moving is the thing that was asked to move.
+     */
+    ::view-transition-group(page) { animation: none; }
+
+    ::view-transition-old(page),
+    ::view-transition-new(page) {
+      object-fit: none;
+      object-position: top center;
+      width: 100%;
+      height: 100%;
+      overflow: clip;
+    }
+
     @keyframes page-leave-left {
       to { opacity: 0; transform: translateX(-3.25rem); }
     }
@@ -891,10 +917,10 @@ a.pressable:active { scale: 0.97; }
       &::view-transition-new(page) { mix-blend-mode: normal; }
 
       &::view-transition-old(page) {
-        animation: page-leave-left 200ms var(--ease-settle) both;
+        animation: page-leave-left 170ms var(--ease-settle) both;
       }
       &::view-transition-new(page) {
-        animation: page-enter-right 300ms var(--ease-settle) both;
+        animation: page-enter-right 260ms var(--ease-settle) both;
       }
     }
 
@@ -907,10 +933,10 @@ a.pressable:active { scale: 0.97; }
       &::view-transition-new(page) { mix-blend-mode: normal; }
 
       &::view-transition-old(page) {
-        animation: page-leave-right 200ms var(--ease-settle) both;
+        animation: page-leave-right 170ms var(--ease-settle) both;
       }
       &::view-transition-new(page) {
-        animation: page-enter-left 300ms var(--ease-settle) both;
+        animation: page-enter-left 260ms var(--ease-settle) both;
       }
     }
   }
