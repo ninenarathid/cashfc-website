@@ -2183,7 +2183,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 26,
-  "level": 100,
+  "level": 75,
   "cc": [
    true,
    true,
@@ -2230,7 +2230,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-15"
+  "chg": "2026-09-19"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -4317,7 +4317,7 @@
   "mounts": 201,
   "minions": 382,
   "rare": 266,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4459,7 +4459,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-17"
+  "chg": "2026-09-19"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -5259,7 +5259,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5283,7 +5283,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-19"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -6144,7 +6144,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 97,
+  "level": 73,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6158,7 +6158,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-19"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -6354,7 +6354,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 92,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -6487,7 +6487,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": null,
-  "level": 93,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -6502,7 +6502,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-09-19"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7648,7 +7648,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -7679,7 +7679,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-09-19"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -8105,14 +8105,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 29,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-19"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -16181,7 +16181,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,

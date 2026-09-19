@@ -1426,8 +1426,22 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ab848575d89650a2e7b9bbdbe03c3bd2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788909336",
    "collect_seen": "2026-09-18"
+  },
+  "36219974": {
+   "name": "Hirano Neko",
+   "world": "Typhon",
+   "dc": "Elemental",
+   "fc": null,
+   "seen": "2026-09-19"
+  },
+  "39752663": {
+   "name": "Lumina Z'attano",
+   "world": "Typhon",
+   "dc": "Elemental",
+   "fc": "YORDLE",
+   "seen": "2026-09-19"
   }
  },
- "generated_at": "2026-09-19T04:56:13Z",
- "count": 9
+ "generated_at": "2026-09-19T12:40:42Z",
+ "count": 11
 }

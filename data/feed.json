@@ -3,6 +3,20 @@
   {
    "date": "2026-09-19",
    "type": "level_100",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-19",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-19",
+   "type": "level_100",
    "id": 38152072,
    "name": "Parker Thonhart",
    "text": "reached level 100 on White Mage!"
@@ -1385,20 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "is now a Expert Monk"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "job_up",
-   "id": 26298391,
-   "name": "Yozora Luna",
-   "text": "is now a Master Machinist"
-  },
-  {
-   "date": "2026-09-10",
-   "type": "level_100",
-   "id": 8836061,
-   "name": "Allusia Heartfilia",
-   "text": "reached level 100 on Samurai!"
   }
  ]
 }

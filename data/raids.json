@@ -46680,6 +46680,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 56,
       "median": 39,
@@ -46688,6 +46689,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 58,
       "median": 29,
@@ -46696,6 +46698,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 44,
       "median": 21,
@@ -46703,7 +46706,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P12S-1",
+      "label": "P12S",
+      "encounter_id": 91,
       "name": "Athena",
       "best": 81,
       "median": 41,
@@ -46711,7 +46715,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P12S-2",
+      "label": null,
+      "encounter_id": 92,
       "name": "Pallas Athena",
       "best": 73,
       "median": 59,
@@ -49742,6 +49747,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 59,
       "median": 48,
@@ -49750,6 +49756,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 81,
       "median": 49,
@@ -49758,6 +49765,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 79,
       "median": 67,
@@ -49765,7 +49773,8 @@
       "job": "Sage"
      },
      {
-      "label": "P12S-1",
+      "label": "P12S",
+      "encounter_id": 91,
       "name": "Athena",
       "best": 96,
       "median": 73,
@@ -49773,7 +49782,8 @@
       "job": "Sage"
      },
      {
-      "label": "P12S-2",
+      "label": null,
+      "encounter_id": 92,
       "name": "Pallas Athena",
       "best": 85,
       "median": 77,
@@ -59741,6 +59751,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 85,
       "median": 22,
@@ -59749,6 +59760,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 66,
       "median": 51,
@@ -59757,6 +59769,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 73,
       "median": 62,
@@ -59764,7 +59777,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P12S-1",
+      "label": "P12S",
+      "encounter_id": 91,
       "name": "Athena",
       "best": 90,
       "median": 49,
@@ -61079,7 +61093,17 @@
       "best": 21,
       "median": 14,
       "kills": 4,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 2,
+        "best": 21
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 5
+       }
+      }
      }
     ]
    },
@@ -66889,6 +66913,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 45,
       "median": 19,
@@ -66897,6 +66922,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 44,
       "median": 15,
@@ -66905,6 +66931,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 27,
       "median": 13,
@@ -67863,6 +67890,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 87,
       "median": 87,
@@ -67871,6 +67899,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 71,
       "median": 11,
@@ -67879,6 +67908,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 71,
       "median": 21,
@@ -67886,7 +67916,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P12S-1",
+      "label": "P12S",
+      "encounter_id": 91,
       "name": "Athena",
       "best": 34,
       "median": 11,
@@ -67894,7 +67925,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P12S-2",
+      "label": null,
+      "encounter_id": 92,
       "name": "Pallas Athena",
       "best": 34,
       "median": 16,
