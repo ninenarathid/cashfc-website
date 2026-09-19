@@ -2690,6 +2690,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 69,
       "median": 26,
@@ -2698,6 +2699,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 61,
       "median": 28,
@@ -2706,6 +2708,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 53,
       "median": 11,
@@ -2713,7 +2716,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 40,
       "median": 4,
@@ -2721,7 +2725,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 11,
       "median": 8,
@@ -3135,6 +3140,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 82,
       "median": 37,
@@ -3143,6 +3149,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 85,
       "median": 41,
@@ -3151,6 +3158,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 88,
       "median": 59,
@@ -3158,7 +3166,8 @@
       "job": "Dancer"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 81,
       "median": 40,
@@ -3166,7 +3175,8 @@
       "job": "Dancer"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 84,
       "median": 39,
@@ -3819,6 +3829,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 97,
       "median": 82,
@@ -3827,6 +3838,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 97,
       "median": 77,
@@ -3835,6 +3847,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 94,
       "median": 82,
@@ -3842,7 +3855,8 @@
       "job": "Summoner"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 90,
       "median": 16,
@@ -3850,7 +3864,8 @@
       "job": "Summoner"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 94,
       "median": 73,
@@ -5198,6 +5213,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 88,
       "median": 49,
@@ -5206,6 +5222,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 85,
       "median": 73,
@@ -5214,6 +5231,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 75,
       "median": 50,
@@ -5221,7 +5239,8 @@
       "job": "Dancer"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 60,
       "median": 28,
@@ -5229,7 +5248,8 @@
       "job": "Dancer"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 70,
       "median": 43,
@@ -6067,6 +6087,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 58,
       "median": 26,
@@ -6075,6 +6096,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 18,
       "median": 7,
@@ -6083,6 +6105,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 13,
       "median": 9,
@@ -6090,7 +6113,8 @@
       "job": "Summoner"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 10,
       "median": 9,
@@ -7380,6 +7404,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 98,
       "median": 88,
@@ -7388,6 +7413,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 96,
       "median": 78,
@@ -7396,6 +7422,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 97,
       "median": 80,
@@ -7403,7 +7430,8 @@
       "job": "RedMage"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 94,
       "median": 48,
@@ -7411,7 +7439,8 @@
       "job": "RedMage"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 93,
       "median": 68,
@@ -7542,11 +7571,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 67.04,
-    "phase": 4,
-    "pulls": 22,
-    "last": "2026-09-09",
-    "last_ts": 1788973011
+    "pct": 82.8,
+    "phase": 3,
+    "pulls": 32,
+    "last": "2026-09-19",
+    "last_ts": 1789836520
    }
   ]
  },
@@ -7934,6 +7963,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 43,
       "median": 27,
@@ -7942,6 +7972,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 47,
       "median": 24,
@@ -7950,6 +7981,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 44,
       "median": 20,
@@ -7957,7 +7989,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 76,
       "median": 45,
@@ -7965,7 +7998,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 57,
       "median": 50,
@@ -8240,7 +8274,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 30,
-    "kills": 6,
+    "kills": 9,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -9323,11 +9357,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 76,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 85,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    }
   ]
  },
@@ -9758,6 +9792,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 99,
       "median": 97,
@@ -9766,6 +9801,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 100,
       "median": 97,
@@ -9774,6 +9810,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 98,
       "median": 97,
@@ -9781,7 +9818,8 @@
       "job": "Reaper"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 97,
       "median": 74,
@@ -9789,7 +9827,8 @@
       "job": "Reaper"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 97,
       "median": 82,
@@ -10747,6 +10786,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 100,
       "median": 92,
@@ -10755,6 +10795,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 95,
       "median": 88,
@@ -10763,6 +10804,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 99,
       "median": 91,
@@ -10770,7 +10812,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 98,
       "median": 80,
@@ -10778,7 +10821,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 91,
       "median": 79,
@@ -11550,6 +11594,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 97,
       "median": 82,
@@ -11558,6 +11603,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 99,
       "median": 88,
@@ -11566,6 +11612,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 96,
       "median": 76,
@@ -11573,7 +11620,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 94,
       "median": 58,
@@ -11581,7 +11629,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 81,
       "median": 60,
@@ -14599,6 +14648,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 95,
       "median": 65,
@@ -14607,6 +14657,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 94,
       "median": 47,
@@ -14615,6 +14666,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 74,
       "median": 46,
@@ -14622,7 +14674,8 @@
       "job": "Dancer"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 82,
       "median": 44,
@@ -14630,7 +14683,8 @@
       "job": "Dancer"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 80,
       "median": 51,
@@ -14954,20 +15008,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 67.04,
-    "phase": 4,
-    "pulls": 22,
-    "last": "2026-09-09",
-    "last_ts": 1788973011
-   }
-  ]
+  "_status": "ok"
  },
  "19896720": {
   "current": {
@@ -16244,6 +16285,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 6,
       "median": 6,
@@ -16758,6 +16800,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 69,
       "median": 44,
@@ -16766,6 +16809,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 64,
       "median": 37,
@@ -16774,6 +16818,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 68,
       "median": 31,
@@ -16781,7 +16826,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 66,
       "median": 18,
@@ -16789,7 +16835,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 31,
       "median": 18,
@@ -17155,6 +17202,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 83,
       "median": 21,
@@ -17163,6 +17211,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 86,
       "median": 80,
@@ -17171,6 +17220,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 66,
       "median": 15,
@@ -17178,7 +17228,8 @@
       "job": "RedMage"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 69,
       "median": 31,
@@ -17186,7 +17237,8 @@
       "job": "RedMage"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 49,
       "median": 37,
@@ -19019,6 +19071,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 91,
       "median": 67,
@@ -19027,6 +19080,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 90,
       "median": 58,
@@ -19035,6 +19089,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 85,
       "median": 40,
@@ -19042,7 +19097,8 @@
       "job": "Monk"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 83,
       "median": 35,
@@ -19050,7 +19106,8 @@
       "job": "Monk"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 96,
       "median": 84,
@@ -19716,6 +19773,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 97,
       "median": 80,
@@ -19724,6 +19782,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 98,
       "median": 73,
@@ -19732,6 +19791,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 96,
       "median": 58,
@@ -19739,7 +19799,8 @@
       "job": "Summoner"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 85,
       "median": 19,
@@ -19747,7 +19808,8 @@
       "job": "Summoner"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 96,
       "median": 58,
@@ -20834,7 +20896,17 @@
       "best": 90,
       "median": 71,
       "kills": 13,
-      "job": "Pictomancer"
+      "job": "Pictomancer",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 9,
+        "best": 90
+       },
+       "Summoner": {
+        "kills": 4,
+        "best": 64
+       }
+      }
      },
      {
       "label": "M2S",
@@ -20843,7 +20915,13 @@
       "best": 95,
       "median": 57,
       "kills": 13,
-      "job": "Pictomancer"
+      "job": "Pictomancer",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 13,
+        "best": 95
+       }
+      }
      },
      {
       "label": "M3S",
@@ -20852,7 +20930,17 @@
       "best": 84,
       "median": 55,
       "kills": 12,
-      "job": "Pictomancer"
+      "job": "Pictomancer",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 10,
+        "best": 84
+       },
+       "Summoner": {
+        "kills": 2,
+        "best": 79
+       }
+      }
      },
      {
       "label": "M4S",
@@ -20861,7 +20949,17 @@
       "best": 64,
       "median": 24,
       "kills": 8,
-      "job": "Pictomancer"
+      "job": "Pictomancer",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 7,
+        "best": 64
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 5
+       }
+      }
      }
     ]
    },
@@ -21991,6 +22089,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 97,
       "median": 74,
@@ -21999,6 +22098,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 99,
       "median": 82,
@@ -22007,6 +22107,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 95,
       "median": 72,
@@ -22014,7 +22115,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 98,
       "median": 45,
@@ -22022,7 +22124,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 85,
       "median": 49,
@@ -22928,6 +23031,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 93,
       "median": 59,
@@ -22936,6 +23040,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 6,
       "median": 6,
@@ -22944,6 +23049,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 74,
       "median": 74,
@@ -22951,7 +23057,8 @@
       "job": "Monk"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 91,
       "median": 68,
@@ -22959,7 +23066,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 85,
       "median": 64,
@@ -23379,11 +23487,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 41.58,
+    "pct": 38.51,
     "phase": 3,
-    "pulls": 80,
-    "last": "2026-09-16",
-    "last_ts": 1789578247
+    "pulls": 107,
+    "last": "2026-09-19",
+    "last_ts": 1789836712
    }
   ]
  },
@@ -23640,6 +23748,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 75,
       "median": 75,
@@ -23647,7 +23756,8 @@
       "job": "Bard"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 34,
       "median": 24,
@@ -23655,7 +23765,8 @@
       "job": "Bard"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 31,
       "median": 13,
@@ -24897,11 +25008,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 77,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 85,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    }
   ]
  },
@@ -26090,6 +26201,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 85,
       "median": 65,
@@ -26098,6 +26210,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 78,
       "median": 59,
@@ -26106,6 +26219,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 89,
       "median": 49,
@@ -26113,7 +26227,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 70,
       "median": 43,
@@ -26121,7 +26236,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 78,
       "median": 66,
@@ -27210,6 +27326,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 97,
       "median": 69,
@@ -27218,6 +27335,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 94,
       "median": 57,
@@ -27226,6 +27344,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 91,
       "median": 67,
@@ -27233,7 +27352,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 78,
       "median": 24,
@@ -27241,7 +27361,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 52,
       "median": 24,
@@ -28060,6 +28181,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 100,
       "median": 98,
@@ -28068,6 +28190,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 100,
       "median": 99,
@@ -28076,6 +28199,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 100,
       "median": 93,
@@ -28083,7 +28207,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 100,
       "median": 87,
@@ -28091,7 +28216,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 100,
       "median": 92,
@@ -28443,11 +28569,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 78,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 86,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    }
   ]
  },
@@ -29032,6 +29158,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 84,
       "median": 84,
@@ -29039,7 +29166,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 82,
       "median": 46,
@@ -29047,7 +29175,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 84,
       "median": 81,
@@ -29296,11 +29425,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 41.58,
+    "pct": 38.51,
     "phase": 3,
-    "pulls": 115,
-    "last": "2026-09-16",
-    "last_ts": 1789578247
+    "pulls": 128,
+    "last": "2026-09-19",
+    "last_ts": 1789836712
    }
   ]
  },
@@ -30806,6 +30935,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 100,
       "median": 100,
@@ -30814,6 +30944,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 100,
       "median": 98,
@@ -30822,6 +30953,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 100,
       "median": 98,
@@ -30829,7 +30961,8 @@
       "job": "Paladin"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 100,
       "median": 96,
@@ -30837,7 +30970,8 @@
       "job": "Paladin"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 100,
       "median": 89,
@@ -31421,11 +31555,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 77,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 86,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    }
   ]
  },
@@ -32869,6 +33003,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 35,
       "median": 18,
@@ -32877,6 +33012,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 25,
       "median": 25,
@@ -34630,6 +34766,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 73,
       "median": 30,
@@ -34638,6 +34775,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 75,
       "median": 46,
@@ -34646,6 +34784,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 87,
       "median": 39,
@@ -34653,7 +34792,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 79,
       "median": 36,
@@ -34661,7 +34801,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 59,
       "median": 27,
@@ -35548,6 +35689,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 94,
       "median": 67,
@@ -35556,6 +35698,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 96,
       "median": 77,
@@ -35564,6 +35707,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 92,
       "median": 52,
@@ -35571,7 +35715,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 96,
       "median": 53,
@@ -35579,7 +35724,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 93,
       "median": 64,
@@ -38571,6 +38717,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 100,
       "median": 95,
@@ -38579,6 +38726,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 100,
       "median": 99,
@@ -38587,6 +38735,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 99,
       "median": 96,
@@ -38594,7 +38743,8 @@
       "job": "Bard"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 97,
       "median": 90,
@@ -38602,7 +38752,8 @@
       "job": "Bard"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 81,
       "median": 66,
@@ -38955,11 +39106,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 78,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 86,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    }
   ]
  },
@@ -40273,6 +40424,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 98,
       "median": 87,
@@ -40281,6 +40433,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 98,
       "median": 84,
@@ -40289,6 +40442,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 95,
       "median": 60,
@@ -40296,7 +40450,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 96,
       "median": 69,
@@ -40304,7 +40459,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 96,
       "median": 70,
@@ -40692,11 +40848,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 76,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 85,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    }
   ]
  },
@@ -41956,6 +42112,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 91,
       "median": 64,
@@ -41964,6 +42121,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 96,
       "median": 82,
@@ -41972,6 +42130,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 88,
       "median": 73,
@@ -41979,7 +42138,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 96,
       "median": 30,
@@ -41987,7 +42147,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 58,
       "median": 30,
@@ -43681,6 +43842,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 93,
       "median": 75,
@@ -43689,6 +43851,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 97,
       "median": 68,
@@ -43697,6 +43860,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 94,
       "median": 76,
@@ -43704,7 +43868,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 86,
       "median": 44,
@@ -43712,7 +43877,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 74,
       "median": 56,
@@ -44685,6 +44851,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 41,
       "median": 17,
@@ -44693,6 +44860,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 44,
       "median": 26,
@@ -44701,6 +44869,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 28,
       "median": 17,
@@ -44708,7 +44877,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 19,
       "median": 19,
@@ -44716,7 +44886,8 @@
       "job": "Reaper"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 52,
       "median": 52,
@@ -48157,6 +48328,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 91,
       "median": 81,
@@ -48165,6 +48337,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 90,
       "median": 73,
@@ -48173,6 +48346,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 65,
       "median": 48,
@@ -48180,7 +48354,8 @@
       "job": "Sage"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 67,
       "median": 17,
@@ -48188,7 +48363,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 32,
       "median": 9,
@@ -52261,7 +52437,13 @@
       "best": 75,
       "median": 40,
       "kills": 4,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 4,
+        "best": 75
+       }
+      }
      },
      {
       "label": "M2S",
@@ -52270,7 +52452,13 @@
       "best": 51,
       "median": 16,
       "kills": 3,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 3,
+        "best": 51
+       }
+      }
      },
      {
       "label": "M3S",
@@ -52279,7 +52467,13 @@
       "best": 39,
       "median": 38,
       "kills": 2,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 2,
+        "best": 39
+       }
+      }
      }
     ]
    },
@@ -53996,8 +54190,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 67,
-    "kills": 4,
+    "best": 85,
+    "kills": 7,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -54069,7 +54263,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 7,
+    "pulls": 6,
     "last": "2026-09-15",
     "last_ts": 1789486597
    }
@@ -54521,6 +54715,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 80,
       "median": 35,
@@ -54529,6 +54724,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 77,
       "median": 44,
@@ -54537,6 +54733,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 79,
       "median": 25,
@@ -54544,7 +54741,8 @@
       "job": "Sage"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 67,
       "median": 27,
@@ -54552,7 +54750,8 @@
       "job": "Sage"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 37,
       "median": 9,
@@ -54652,7 +54851,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 104,
+    "name": "Lindwurm",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 34.82,
+    "phase": 0,
+    "pulls": 22,
+    "last": "2026-09-18",
+    "last_ts": 1789760818
+   }
+  ]
  },
  "36260815": {
   "current": {
@@ -55065,6 +55277,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 90,
       "median": 76,
@@ -55073,6 +55286,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 86,
       "median": 59,
@@ -55081,6 +55295,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 91,
       "median": 78,
@@ -55088,7 +55303,8 @@
       "job": "Astrologian"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 83,
       "median": 30,
@@ -55096,7 +55312,8 @@
       "job": "Astrologian"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 83,
       "median": 52,
@@ -55208,7 +55425,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 32.04,
+    "phase": 5,
+    "pulls": 31,
+    "last": "2026-09-19",
+    "last_ts": 1789836150
+   }
+  ]
  },
  "36315588": {
   "current": {
@@ -59372,6 +59602,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 34,
       "median": 18,
@@ -59380,6 +59611,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 36,
       "median": 24,
@@ -59388,6 +59620,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 41,
       "median": 22,
@@ -59395,7 +59628,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 9,
       "median": 8,
@@ -60737,7 +60971,17 @@
       "best": 65,
       "median": 14,
       "kills": 4,
-      "job": "Pictomancer"
+      "job": "Pictomancer",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 3,
+        "best": 65
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 11
+       }
+      }
      },
      {
       "label": "M2S",
@@ -60746,7 +60990,13 @@
       "best": 79,
       "median": 56,
       "kills": 6,
-      "job": "Pictomancer"
+      "job": "Pictomancer",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 6,
+        "best": 79
+       }
+      }
      },
      {
       "label": "M3S",
@@ -60755,7 +61005,13 @@
       "best": 72,
       "median": 27,
       "kills": 4,
-      "job": "Pictomancer"
+      "job": "Pictomancer",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 4,
+        "best": 72
+       }
+      }
      },
      {
       "label": "M4S",
@@ -60764,7 +61020,13 @@
       "best": 53,
       "median": 18,
       "kills": 3,
-      "job": "Pictomancer"
+      "job": "Pictomancer",
+      "job_kills": {
+       "Pictomancer": {
+        "kills": 3,
+        "best": 53
+       }
+      }
      }
     ]
    },
@@ -62609,6 +62871,17 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 64,
+    "kills": 3,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
     "encounter_id": 1080,
     "name": "Zelenia",
     "best": 46,
@@ -62683,7 +62956,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 80,
-    "kills": 3,
+    "kills": 5,
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
@@ -63784,6 +64057,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 10,
       "median": 3,
@@ -63792,6 +64066,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 7,
       "median": 2,
@@ -63800,6 +64075,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 8,
       "median": 1,
@@ -63807,7 +64083,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 8,
       "median": 1,
@@ -63815,7 +64092,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 3,
       "median": 2,
@@ -63912,8 +64190,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 57,
-    "kills": 2,
+    "best": 80,
+    "kills": 5,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
@@ -64001,20 +64279,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 105,
-    "name": "Lindwurm II",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 91.75,
-    "phase": 0,
-    "pulls": 1,
-    "last": "2026-09-09",
-    "last_ts": 1788964801
-   }
-  ]
+  "_status": "ok"
  },
  "43037186": {
   "current": {
@@ -66752,6 +67017,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 1,
       "median": 1,
