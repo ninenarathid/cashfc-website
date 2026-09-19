@@ -1440,8 +1440,15 @@
    "dc": "Elemental",
    "fc": "YORDLE",
    "seen": "2026-09-19"
+  },
+  "35413272": {
+   "name": "Poppy Lydian",
+   "world": "Typhon",
+   "dc": "Elemental",
+   "fc": "YORDLE",
+   "seen": "2026-09-19"
   }
  },
- "generated_at": "2026-09-19T20:27:13Z",
- "count": 11
+ "generated_at": "2026-09-19T22:28:28Z",
+ "count": 12
 }

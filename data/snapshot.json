@@ -2842,7 +2842,7 @@
    "Scholar": "master",
    "Sage": "master",
    "RedMage": "expert",
-   "WhiteMage": "master",
+   "WhiteMage": "expert",
    "Astrologian": "expert"
   },
   "ex": [
@@ -9264,7 +9264,7 @@
  },
  "31806958": {
   "name": "Baron Master",
-  "parse": 38,
+  "parse": 66,
   "ult": 0,
   "mounts": 65,
   "minions": 154,
@@ -9296,7 +9296,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-19"
  },
  "24211446": {
   "name": "Beammess Dose",
@@ -9790,7 +9790,7 @@
  },
  "31471584": {
   "name": "Chicha Chichi",
-  "parse": 91,
+  "parse": 96,
   "ult": 2,
   "mounts": 18,
   "minions": 44,
@@ -9806,14 +9806,15 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "RedMage": "master"
+   "RedMage": "master",
+   "Dancer": "legendary"
   },
   "ex": [],
   "ults": [
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-01"
+  "chg": "2026-09-19"
  },
  "46485530": {
   "name": "Chillin Chu",
@@ -9967,7 +9968,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Samurai": "expert",
+   "Samurai": "master",
    "Scholar": "master"
   },
   "ex": [],

@@ -3,6 +3,34 @@
   {
    "date": "2026-09-19",
    "type": "parse_up",
+   "id": 31806958,
+   "name": "Baron Master",
+   "text": "set a new best parse: 66 on Cloud of Darkness as Dragoon"
+  },
+  {
+   "date": "2026-09-19",
+   "type": "parse_up",
+   "id": 31471584,
+   "name": "Chicha Chichi",
+   "text": "set a new best parse: 96 on Eden's Promise as Dancer"
+  },
+  {
+   "date": "2026-09-19",
+   "type": "job_up",
+   "id": 31471584,
+   "name": "Chicha Chichi",
+   "text": "is now a Legendary Dancer"
+  },
+  {
+   "date": "2026-09-19",
+   "type": "job_up",
+   "id": 8999658,
+   "name": "Chzzck Godslayer",
+   "text": "is now a Master Samurai"
+  },
+  {
+   "date": "2026-09-19",
+   "type": "parse_up",
    "id": 42053180,
    "name": "Chu'ny On-duty",
    "text": "set a new best parse: 90 on Zoraal Ja as Whit\u0001 \u0002age"
@@ -1371,34 +1399,6 @@
    "id": 43864764,
    "name": "Shinonome Kamemaru",
    "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-11",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-09-11",
-   "type": "level_100",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-11",
-   "type": "level_100",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "reached level 100 on Goldsmith!"
-  },
-  {
-   "date": "2026-09-11",
-   "type": "rare_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "earned R&D: Stellar Frypan"
   }
  ]
 }
