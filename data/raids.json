@@ -74047,7 +74047,7 @@
     "state": "learning",
     "pct": 72.44,
     "phase": 4,
-    "pulls": 59,
+    "pulls": 48,
     "last": "2026-09-15",
     "last_ts": 1789484218
    }
@@ -76315,11 +76315,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 77,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 86,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    }
   ]
  },
@@ -77111,11 +77111,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 77,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 86,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    }
   ]
  },
@@ -79364,6 +79364,967 @@
         "best": 46
        }
       }
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "36219974": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 72,
+     "median": 60,
+     "kills": 7,
+     "job": "Bard"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 61,
+     "median": 48,
+     "kills": 7,
+     "job": "Bard"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 71,
+     "median": 30,
+     "kills": 7,
+     "job": "Bard"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 66,
+     "median": 18,
+     "kills": 14,
+     "job": "Bard"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 51,
+     "median": 34,
+     "kills": 7,
+     "job": "Bard"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "best": 11,
+    "kills": 1,
+    "job": "Ninja",
+    "cleared": true
+   },
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 46,
+    "kills": 2,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1062,
+    "name": "The Epic of Alexander",
+    "best": 61,
+    "kills": 2,
+    "job": "Bard",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1061,
+    "name": "The Weapon's Refrain",
+    "best": 68,
+    "kills": 2,
+    "job": "Bard",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 1,
+    "kills": 1,
+    "job": "Bard",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 4,
+      "median": 3,
+      "kills": 3,
+      "job": "Bard"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 80,
+      "median": 37,
+      "kills": 4,
+      "job": "Bard"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 74,
+      "median": 62,
+      "kills": 2,
+      "job": "Bard"
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 93,
+      "median": 63,
+      "kills": 7,
+      "job": "Bard"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 98,
+      "median": 73,
+      "kills": 7,
+      "job": "Bard"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 81,
+      "median": 54,
+      "kills": 7,
+      "job": "Bard"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 92,
+      "median": 53,
+      "kills": 8,
+      "job": "Bard"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 77,
+      "median": 38,
+      "kills": 16,
+      "job": "Bard"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 81,
+      "median": 45,
+      "kills": 9,
+      "job": "Bard"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 96,
+      "median": 53,
+      "kills": 23,
+      "job": "Bard"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 90,
+      "median": 48,
+      "kills": 16,
+      "job": "Bard"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 93,
+      "median": 53,
+      "kills": 7,
+      "job": "Bard"
+     }
+    ]
+   },
+   {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 37,
+      "median": 37,
+      "kills": 1,
+      "job": "Bard"
+     }
+    ]
+   },
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 50,
+      "median": 43,
+      "kills": 3,
+      "job": "Bard"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 30,
+      "median": 27,
+      "kills": 3,
+      "job": "Bard"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 17,
+      "median": 10,
+      "kills": 2,
+      "job": "Bard"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 10,
+      "median": 5,
+      "kills": 9,
+      "job": "Bard"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "39752663": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 70,
+     "median": 43,
+     "kills": 10,
+     "job": "Scholar"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 73,
+     "median": 44,
+     "kills": 9,
+     "job": "Scholar"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 66,
+     "median": 48,
+     "kills": 6,
+     "job": "Scholar"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 67,
+     "median": 36,
+     "kills": 5,
+     "job": "Scholar"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 68,
+     "median": 41,
+     "kills": 3,
+     "job": "Scholar"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 73,
+    "kills": 4,
+    "job": "Scholar",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 26,
+    "kills": 1,
+    "job": "Scholar",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 96,
+    "kills": 9,
+    "job": "Scholar",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 81,
+      "median": 62,
+      "kills": 18,
+      "job": "Scholar"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 76,
+      "median": 59,
+      "kills": 17,
+      "job": "Scholar"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 80,
+      "median": 62,
+      "kills": 11,
+      "job": "Scholar"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 83,
+      "median": 67,
+      "kills": 23,
+      "job": "Scholar"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 74,
+      "median": 56,
+      "kills": 9,
+      "job": "Scholar"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
+ },
+ "35413272": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 97,
+     "median": 79,
+     "kills": 19,
+     "job": "Paladin"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 97,
+     "median": 56,
+     "kills": 18,
+     "job": "Paladin"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 100,
+     "median": 66,
+     "kills": 16,
+     "job": "Paladin"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 94,
+     "median": 65,
+     "kills": 27,
+     "job": "Paladin"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 97,
+     "median": 48,
+     "kills": 18,
+     "job": "Paladin"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 77,
+    "kills": 13,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 36,
+    "kills": 2,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1077,
+    "name": "The Omega Protocol",
+    "best": 64,
+    "kills": 2,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "best": 78,
+    "kills": 8,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "encounter_id": 1065,
+    "name": "Dragonsong's Reprise",
+    "best": 86,
+    "kills": 20,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1062,
+    "name": "The Epic of Alexander",
+    "best": 50,
+    "kills": 18,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1060,
+    "name": "The Unending Coil of Bahamut",
+    "best": 90,
+    "kills": 9,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1061,
+    "name": "The Weapon's Refrain",
+    "best": 52,
+    "kills": 4,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "encounter_id": 1048,
+    "name": "The Weapon's Refrain",
+    "best": 17,
+    "kills": 8,
+    "job": "Paladin",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 61,
+    "kills": 7,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 43,
+    "kills": 4,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1082,
+    "name": "Guardian Arkveld",
+    "best": 79,
+    "kills": 14,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 85,
+    "kills": 5,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 87,
+    "kills": 2,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 42,
+    "kills": 5,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 98,
+    "kills": 56,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 98,
+    "kills": 43,
+    "job": "Paladin",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 99,
+      "median": 94,
+      "kills": 15,
+      "job": "Paladin"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 69,
+      "median": 30,
+      "kills": 17,
+      "job": "Paladin"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 84,
+      "median": 53,
+      "kills": 13,
+      "job": "Paladin"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 96,
+      "median": 81,
+      "kills": 14,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 100,
+      "median": 75,
+      "kills": 28,
+      "job": "Paladin"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 99,
+      "median": 81,
+      "kills": 25,
+      "job": "Paladin"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 100,
+      "median": 82,
+      "kills": 25,
+      "job": "Paladin"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 97,
+      "median": 82,
+      "kills": 26,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 97,
+      "median": 74,
+      "kills": 22,
+      "job": "Paladin"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 98,
+      "median": 66,
+      "kills": 28,
+      "job": "Paladin"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 95,
+      "median": 71,
+      "kills": 28,
+      "job": "Paladin"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 96,
+      "median": 50,
+      "kills": 62,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 88,
+      "median": 55,
+      "kills": 28,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 85,
+      "median": 38,
+      "kills": 25,
+      "job": "Paladin"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 95,
+      "median": 57,
+      "kills": 31,
+      "job": "Paladin"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 97,
+      "median": 65,
+      "kills": 24,
+      "job": "Paladin"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 96,
+      "median": 32,
+      "kills": 52,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 88,
+      "median": 38,
+      "kills": 20,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 96,
+      "median": 60,
+      "kills": 33,
+      "job": "Paladin"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 94,
+      "median": 39,
+      "kills": 21,
+      "job": "Paladin"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 79,
+      "median": 20,
+      "kills": 17,
+      "job": "Paladin"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 92,
+      "median": 30,
+      "kills": 48,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 96,
+      "median": 47,
+      "kills": 25,
+      "job": "Paladin"
      }
     ]
    }

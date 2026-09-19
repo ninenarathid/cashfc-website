@@ -7,11 +7,11 @@
    "fc": "ChronicleRecords",
    "seen": "2026-09-16",
    "mounts": 189,
-   "minions": 366,
-   "rare_achv": 286,
+   "minions": 367,
+   "rare_achv": 297,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788457480",
-   "collect_seen": "2026-09-18",
+   "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1789838798",
+   "collect_seen": "2026-09-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -78,7 +78,7 @@
     "state": "learning",
     "pct": 72.44,
     "phase": 4,
-    "pulls": 59,
+    "pulls": 48,
     "last": "2026-09-15",
     "last_ts": 1789484218
    },
@@ -90,7 +90,7 @@
      "state": "learning",
      "pct": 72.44,
      "phase": 4,
-     "pulls": 59,
+     "pulls": 48,
      "last": "2026-09-15",
      "last_ts": 1789484218
     }
@@ -219,7 +219,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-18",
+   "stats_seen": "2026-09-19",
    "lode_achv_public": true
   },
   "31441339": {
@@ -233,7 +233,7 @@
    "rare_achv": 141,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1789675342",
-   "collect_seen": "2026-09-18",
+   "collect_seen": "2026-09-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -447,7 +447,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-18",
+   "stats_seen": "2026-09-19",
    "lode_achv_public": true
   },
   "42349146": {
@@ -461,7 +461,7 @@
    "rare_achv": 13,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
-   "collect_seen": "2026-09-18",
+   "collect_seen": "2026-09-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -563,7 +563,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-18"
+   "stats_seen": "2026-09-19"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -576,7 +576,7 @@
    "rare_achv": 114,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788521581",
-   "collect_seen": "2026-09-18",
+   "collect_seen": "2026-09-19",
    "tags": [
     "prog",
     "extreme",
@@ -630,7 +630,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-18"
+   "stats_seen": "2026-09-19"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -643,7 +643,7 @@
    "rare_achv": 36,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4203c340e98d92d7d1e82849bb2343dc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788823240",
-   "collect_seen": "2026-09-18",
+   "collect_seen": "2026-09-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -691,11 +691,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 77,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 86,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    },
    "progress_all": [
     {
@@ -703,11 +703,11 @@
      "name": "Dancing Mad",
      "kind": "ultimate",
      "state": "learning",
-     "pct": 86.31,
+     "pct": 78.86,
      "phase": 5,
-     "pulls": 77,
-     "last": "2026-09-16",
-     "last_ts": 1789576540
+     "pulls": 86,
+     "last": "2026-09-19",
+     "last_ts": 1789837680
     }
    ],
    "job_top": {
@@ -739,7 +739,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-18"
+   "stats_seen": "2026-09-19"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -752,7 +752,7 @@
    "rare_achv": 195,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788597267",
-   "collect_seen": "2026-09-18",
+   "collect_seen": "2026-09-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -808,11 +808,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 86.31,
+    "pct": 78.86,
     "phase": 5,
-    "pulls": 77,
-    "last": "2026-09-16",
-    "last_ts": 1789576540
+    "pulls": 86,
+    "last": "2026-09-19",
+    "last_ts": 1789837680
    },
    "progress_all": [
     {
@@ -820,11 +820,11 @@
      "name": "Dancing Mad",
      "kind": "ultimate",
      "state": "learning",
-     "pct": 86.31,
+     "pct": 78.86,
      "phase": 5,
-     "pulls": 77,
-     "last": "2026-09-16",
-     "last_ts": 1789576540
+     "pulls": 86,
+     "last": "2026-09-19",
+     "last_ts": 1789837680
     }
    ],
    "job_top": {
@@ -992,7 +992,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-18"
+   "stats_seen": "2026-09-19"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -1005,7 +1005,7 @@
    "rare_achv": 248,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1789546600",
-   "collect_seen": "2026-09-18",
+   "collect_seen": "2026-09-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1164,7 +1164,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-18"
+   "stats_seen": "2026-09-19"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1177,7 +1177,7 @@
    "rare_achv": 92,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/258b10ee99a778ff735c30a38c9cadaf_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1789556089",
-   "collect_seen": "2026-09-18",
+   "collect_seen": "2026-09-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1270,7 +1270,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-18"
+   "stats_seen": "2026-09-19"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1419,34 +1419,246 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-18",
+   "stats_seen": "2026-09-19",
    "mounts": 114,
    "minions": 328,
    "rare_achv": 125,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ab848575d89650a2e7b9bbdbe03c3bd2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788909336",
-   "collect_seen": "2026-09-18"
+   "collect_seen": "2026-09-19"
   },
   "36219974": {
    "name": "Hirano Neko",
    "world": "Typhon",
    "dc": "Elemental",
    "fc": null,
-   "seen": "2026-09-19"
+   "seen": "2026-09-19",
+   "tags": [
+    "ultimate",
+    "tier-clear",
+    "extreme"
+   ],
+   "achv_tiers": {},
+   "parse": 98,
+   "savage_kills": 5,
+   "ult_clears": 4,
+   "ult_cleared": [
+    "Dancing Mad",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": null,
+   "ult_achv_only": [],
+   "legacy_clears": 17,
+   "ex_cleared": [
+    "Valigarmanda"
+   ],
+   "ex_kills": 1,
+   "current_clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "current_seen": true,
+   "progress": null,
+   "progress_all": null,
+   "job_top": {
+    "job": "Bard",
+    "fights": 26,
+    "kills": 176,
+    "parse": 89.8,
+    "score": 89.8,
+    "tier": "master",
+    "hardest": "ultimate"
+   },
+   "job_scores": {
+    "Bard": {
+     "fights": 26,
+     "kills": 176,
+     "parse": 89.8,
+     "score": 89.8,
+     "tier": "master",
+     "hardest": "ultimate"
+    },
+    "Ninja": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 23.0,
+     "score": 9.2,
+     "tier": null,
+     "hardest": "ultimate"
+    }
+   },
+   "fflogs": "ok",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-19"
   },
   "39752663": {
    "name": "Lumina Z'attano",
    "world": "Typhon",
    "dc": "Elemental",
    "fc": "YORDLE",
-   "seen": "2026-09-19"
+   "seen": "2026-09-19",
+   "mounts": 110,
+   "minions": 234,
+   "rare_achv": 167,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/b1d1b92d1d4bd18d3ae30688c75ae2b4_32d8c9c7cd5f62d62da2d31b6750a680fl0.jpg?1789847726",
+   "collect_seen": "2026-09-19",
+   "tags": [
+    "ultimate",
+    "tier-clear",
+    "extreme",
+    "gatherer",
+    "relic",
+    "explorer"
+   ],
+   "achv_tiers": {
+    "gatherer": "expert",
+    "relic": "master",
+    "explorer": "master"
+   },
+   "parse": 96,
+   "savage_kills": 5,
+   "ult_clears": 1,
+   "ult_cleared": [
+    "Futures Rewritten"
+   ],
+   "ult_achv": [
+    "Futures Rewritten"
+   ],
+   "ult_achv_only": [],
+   "legacy_clears": 5,
+   "ex_cleared": [
+    "Enuo",
+    "Valigarmanda"
+   ],
+   "ex_kills": 10,
+   "current_clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "current_seen": true,
+   "progress": null,
+   "progress_all": null,
+   "job_top": {
+    "job": "Scholar",
+    "fights": 13,
+    "kills": 125,
+    "parse": 83.6,
+    "score": 83.6,
+    "tier": "master",
+    "hardest": "ultimate"
+   },
+   "job_scores": {
+    "Scholar": {
+     "fights": 13,
+     "kills": 125,
+     "parse": 83.6,
+     "score": 83.6,
+     "tier": "master",
+     "hardest": "ultimate"
+    }
+   },
+   "fflogs": "ok",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-19"
   },
   "35413272": {
    "name": "Poppy Lydian",
    "world": "Typhon",
    "dc": "Elemental",
    "fc": "YORDLE",
-   "seen": "2026-09-19"
+   "seen": "2026-09-19",
+   "mounts": 123,
+   "minions": 323,
+   "rare_achv": 95,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/c75efbacfe909f9178cff11b30c45881_32d8c9c7cd5f62d62da2d31b6750a680fl0_640x873.jpg?1703812193",
+   "collect_seen": "2026-09-19",
+   "tags": [
+    "ultimate",
+    "tier-clear",
+    "extreme",
+    "relic"
+   ],
+   "achv_tiers": {
+    "relic": "master"
+   },
+   "parse": 100,
+   "savage_kills": 5,
+   "ult_clears": 6,
+   "ult_cleared": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": [
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv_only": [],
+   "legacy_clears": 23,
+   "ex_cleared": [
+    "Doomtrain",
+    "Enuo",
+    "Guardian Arkveld",
+    "Necron",
+    "Queen Eternal",
+    "Valigarmanda",
+    "Zelenia",
+    "Zoraal Ja"
+   ],
+   "ex_kills": 136,
+   "current_clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "current_seen": true,
+   "progress": null,
+   "progress_all": null,
+   "job_top": {
+    "job": "Paladin",
+    "fights": 44,
+    "kills": 931,
+    "parse": 99.3,
+    "score": 99.3,
+    "tier": "legendary",
+    "hardest": "ultimate"
+   },
+   "job_scores": {
+    "Paladin": {
+     "fights": 44,
+     "kills": 931,
+     "parse": 99.3,
+     "score": 99.3,
+     "tier": "legendary",
+     "hardest": "ultimate"
+    },
+    "Machinist": {
+     "fights": 1,
+     "kills": 14,
+     "parse": 79.0,
+     "score": 52.9,
+     "tier": null,
+     "hardest": "extreme"
+    }
+   },
+   "fflogs": "ok",
+   "lode_achv_public": null,
+   "stats_seen": "2026-09-19"
   }
  },
  "generated_at": "2026-09-19T22:28:28Z",
