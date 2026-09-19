@@ -194,6 +194,14 @@ const DICT = {
      somebody before they arrive. */
   "nav.guidesWip": { en: "Guides (WIP)", th: "ไกด์ (WIP)" },
   "nav.party": { en: "Party finder", th: "หาปาร์ตี้" },
+  // The hamburger, and the sheet it opens. Only ever seen on a narrow screen.
+  "nav.menu": { en: "Menu", th: "เมนู" },
+  "nav.menuOpen": { en: "Open menu", th: "เปิดเมนู" },
+  // Short forms, for the bar along the bottom of a phone. "Leaderboards" under
+  // a 20px icon in a fifth of a 390px screen is not a label, it is a smudge.
+  "nav.ranks": { en: "Ranks", th: "อันดับ" },
+  "nav.partyShort": { en: "Party", th: "ปาร์ตี้" },
+  "nav.more": { en: "More", th: "เพิ่มเติม" },
 
   // ── Gallery ─────────────────────────────────────────────────────────
   "gallery.eyebrow": { en: "Gallery", th: "แกลเลอรี" },

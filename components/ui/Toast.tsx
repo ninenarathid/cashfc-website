@@ -153,7 +153,7 @@ export default function ToastHost() {
                   it.tone === "good" ? "border-jade/40" : "border-accent/40"}`} />
               )}
               {it.badge && (
-                <span className={`absolute -bottom-0.5 -right-0.5 grid size-6 place-items-center rounded-full border bg-surface text-[12px] ${
+                <span className={`absolute -bottom-0.5 -right-0.5 grid size-6 place-items-center rounded-full border bg-surface text-ui ${
                   it.tone === "good" ? "border-jade/50" : "border-accent/50"}`}>
                   {it.badge}
                 </span>
@@ -162,7 +162,7 @@ export default function ToastHost() {
           )}
 
           <div className="min-w-0 flex-1">
-            <Radix.Title className="text-[14px] leading-snug text-ink">
+            <Radix.Title className="text-lead leading-snug text-ink">
               {it.text}
             </Radix.Title>
             {it.href && (
@@ -171,7 +171,7 @@ export default function ToastHost() {
               // in it anybody is meant to press.
               <Radix.Action asChild altText={t("notif.open")}>
                 <Link href={it.href} onClick={() => close(it.id)}
-                      className={`mt-1 inline-block text-[12.5px] no-underline hover:underline ${
+                      className={`mt-1 inline-block text-ui no-underline hover:underline ${
                         it.tone === "good" ? "text-jade" : "text-accent"}`}>
                   {t("notif.open")} &rarr;
                 </Link>
@@ -180,7 +180,7 @@ export default function ToastHost() {
           </div>
 
           <Radix.Close aria-label="Close"
-                       className="shrink-0 self-start rounded-md px-1.5 text-[14px] text-muted hover:text-ink">
+                       className="shrink-0 self-start rounded-md px-1.5 text-lead text-muted hover:text-ink">
             ✕
           </Radix.Close>
         </Radix.Root>
@@ -292,7 +292,7 @@ function RareToast({ it, onClose }: { it: Shown; onClose: () => void }) {
               card this loud it was one gold thing too many. The frame, the
               light and the parcel have already said which kind of toast this
               is by the time anybody starts reading. */}
-          <Radix.Title className="text-[14.5px] font-medium leading-snug text-ink">
+          <Radix.Title className="text-lead font-medium leading-snug text-ink">
             {it.text}
           </Radix.Title>
           <Radix.Action asChild altText={t("rare.openInInventory")}>
@@ -301,7 +301,7 @@ function RareToast({ it, onClose }: { it: Shown; onClose: () => void }) {
                 card, and there is a parcel with your name on it at the end of
                 it. */}
             <Link href={it.href || RARE_INVENTORY} onClick={onClose}
-                  className="rare-ultra-chip mt-2 inline-flex items-center gap-1.5 rounded-full py-1 pl-2 pr-3 text-[12.5px] font-semibold text-[#3d2c06] no-underline">
+                  className="rare-ultra-chip mt-2 inline-flex items-center gap-1.5 rounded-full py-1 pl-2 pr-3 text-ui font-semibold text-[#3d2c06] no-underline">
               <GiftIcon size={15} />
               {t("rare.openInInventory")} &rarr;
             </Link>
@@ -309,7 +309,7 @@ function RareToast({ it, onClose }: { it: Shown; onClose: () => void }) {
         </div>
 
         <Radix.Close aria-label="Close"
-                     className="relative shrink-0 self-start rounded-md px-1.5 text-[14px] text-gold/70 hover:text-gold">
+                     className="relative shrink-0 self-start rounded-md px-1.5 text-lead text-gold/70 hover:text-gold">
           ✕
         </Radix.Close>
       </div>

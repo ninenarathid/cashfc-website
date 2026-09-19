@@ -76,13 +76,13 @@ export default function GalleryPage(
     <main className="pt-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
+          <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">
             {t("gallery.eyebrow")}
           </div>
           <h1 className="font-display text-3xl font-bold">{t("gallery.title")}</h1>
         </div>
         <button onClick={() => setPosting((v) => !v)}
-                className={`rounded-lg border px-4 py-2 text-[13.5px] transition-colors ${
+                className={`rounded-lg border px-4 py-2 text-read transition-colors ${
                   posting ? "border-line text-muted hover:border-muted hover:text-ink"
                           : "border-accent bg-accent/15 text-accent hover:bg-accent/25"}`}>
           {posting ? t("gallery.closePoster") : `+ ${t("gallery.openPoster")}`}
@@ -100,7 +100,7 @@ export default function GalleryPage(
           back to the top to change the sort is the kind of small friction that
           stops somebody browsing. */}
       {(posts.length > 0 || typed) && (
-        <div className="sticky top-0 z-30 -mx-4 mt-4 flex flex-wrap gap-2.5 border-b border-line bg-bg/85 px-4 py-3 backdrop-blur">
+        <div className="sticky top-[var(--nav-h)] z-30 -mx-4 mt-4 flex flex-wrap gap-2.5 border-b border-line bg-bg/85 px-4 py-3 backdrop-blur">
           <input type="search" value={typed} onChange={(e) => setTyped(e.target.value)}
                  placeholder={t("gallery.search")} aria-label={t("gallery.search")}
                  className="min-w-[200px] flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-muted" />
@@ -110,7 +110,7 @@ export default function GalleryPage(
                ["top", "gallery.sortTop"]] as const).map(([key, label]) => (
               <button key={key} onClick={() => setSort(key)}
                       aria-pressed={sort === key}
-                      className={`px-3 py-2 text-[13px] transition-colors ${
+                      className={`px-3 py-2 text-read transition-colors ${
                         sort === key ? "bg-accent/15 text-accent"
                                      : "text-muted hover:bg-card hover:text-ink"}`}>
                 {t(label)}
@@ -121,7 +121,7 @@ export default function GalleryPage(
       )}
 
       {loading && posts.length === 0 && (
-        <div className="mt-8 flex items-center justify-center gap-2.5 text-[13px] text-muted">
+        <div className="mt-8 flex items-center justify-center gap-2.5 text-read text-muted">
           <span aria-hidden
                 className="size-4 animate-spin rounded-full border-2 border-line border-t-accent" />
           {t("common.loading")}
@@ -130,7 +130,7 @@ export default function GalleryPage(
 
       {ready && !(loading && posts.length === 0) && (
         posts.length === 0 && query ? (
-          <div className="mt-4 rounded-xl border border-dashed border-line p-10 text-center text-[13.5px] text-muted">
+          <div className="mt-4 rounded-xl border border-dashed border-line p-10 text-center text-read text-muted">
             {t("gallery.nothingFound")}
           </div>
         ) : (
@@ -143,7 +143,7 @@ export default function GalleryPage(
                          onChanged={reload} initialOpen={openId ?? null} />
             <LoadMore onVisible={loadMore} active={hasMore && !loading} />
             {loading && (
-              <p className="py-4 text-center text-[12.5px] text-muted">
+              <p className="py-4 text-center text-ui text-muted">
                 {t("gallery.loadingMore")}
               </p>
             )}

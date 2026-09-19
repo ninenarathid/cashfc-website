@@ -118,23 +118,23 @@ export default function CommandPalette({ members }: { members: PaletteMember[] }
         <Command.Input
           value={query} onValueChange={setQuery}
           placeholder={t("palette.placeholder")}
-          className="w-full bg-transparent py-3.5 text-[14px] text-ink outline-none placeholder:text-muted" />
-        <kbd className="hidden shrink-0 rounded border border-line px-1.5 py-0.5 font-data text-[10.5px] text-muted sm:block">
+          className="w-full bg-transparent py-3.5 text-lead text-ink outline-none placeholder:text-muted" />
+        <kbd className="hidden shrink-0 rounded border border-line px-1.5 py-0.5 font-data text-label text-muted sm:block">
           esc
         </kbd>
       </div>
 
       <Command.List className="overflow-y-auto overscroll-contain px-2 py-2">
-        <Command.Empty className="px-2 py-6 text-center text-[13px] text-muted">
+        <Command.Empty className="px-2 py-6 text-center text-read text-muted">
           {t("palette.empty")}
         </Command.Empty>
 
         {!query && (
           <Command.Group heading={t("palette.pages")}
-                         className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-1.5 [&_[cmdk-group-heading]]:font-data [&_[cmdk-group-heading]]:text-[10.5px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.14em] [&_[cmdk-group-heading]]:text-muted">
+                         className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-1.5 [&_[cmdk-group-heading]]:font-data [&_[cmdk-group-heading]]:text-label [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.14em] [&_[cmdk-group-heading]]:text-muted">
             {PAGES.map((p) => (
               <Command.Item key={p.href} value={p.href} onSelect={() => go(p.href)}
-                            className="flex cursor-pointer items-center rounded-lg px-2.5 py-2 text-[13.5px] text-ink data-[selected=true]:bg-card data-[selected=true]:text-accent">
+                            className="flex cursor-pointer items-center rounded-lg px-2.5 py-2 text-read text-ink data-[selected=true]:bg-card data-[selected=true]:text-accent">
                 {t(p.key as Parameters<typeof t>[0])}
               </Command.Item>
             ))}
@@ -142,7 +142,7 @@ export default function CommandPalette({ members }: { members: PaletteMember[] }
         )}
 
         <Command.Group heading={t("palette.members")}
-                       className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-1.5 [&_[cmdk-group-heading]]:font-data [&_[cmdk-group-heading]]:text-[10.5px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.14em] [&_[cmdk-group-heading]]:text-muted">
+                       className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-1.5 [&_[cmdk-group-heading]]:font-data [&_[cmdk-group-heading]]:text-label [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.14em] [&_[cmdk-group-heading]]:text-muted">
           {shown.map((m) => (
             <Command.Item key={m.id} value={`${m.name}#${m.id}`}
                           onSelect={() => go(`/member/${m.id}`)}
@@ -156,17 +156,17 @@ export default function CommandPalette({ members }: { members: PaletteMember[] }
                   day and the only thing it owes anybody is being there already.
                   Raycast does not animate this either. */}
               <div
-                className="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-[13.5px] text-ink data-[selected=true]:bg-card data-[selected=true]:text-accent">
+                className="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-read text-ink data-[selected=true]:bg-card data-[selected=true]:text-accent">
                 <span className="truncate font-data">{m.name}</span>
                 <span className="flex shrink-0 items-center gap-1.5">
                   {/* Not translated: it is the rank they wear on the board and
                       on their own page, and one word should mean one thing. */}
                   {m.guest && (
-                    <span className="rounded-full border border-line px-1.5 py-px font-data text-[10px] uppercase tracking-[0.1em] text-muted">
+                    <span className="rounded-full border border-line px-1.5 py-px font-data text-label uppercase tracking-[0.1em] text-muted">
                       Guest
                     </span>
                   )}
-                  <span className="font-data text-[11px] text-muted">#{m.id}</span>
+                  <span className="font-data text-meta text-muted">#{m.id}</span>
                 </span>
               </div>
             </Command.Item>
@@ -181,7 +181,7 @@ export default function CommandPalette({ members }: { members: PaletteMember[] }
       <Drawer.Root open={open} onOpenChange={setOpen}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-[70] bg-bg/80 backdrop-blur-sm" />
-          <Drawer.Content className="fixed inset-x-0 bottom-0 z-[71] mt-24 flex flex-col rounded-t-2xl border border-line bg-surface outline-none">
+          <Drawer.Content className="lit-top fixed inset-x-0 bottom-0 z-[71] mt-24 flex flex-col rounded-t-2xl border border-line bg-surface outline-none">
             <Drawer.Title className="sr-only">{t("palette.placeholder")}</Drawer.Title>
             {/* The handle is not decoration: it is the affordance that says this
                 can be dragged away, which on a phone is how people close things. */}

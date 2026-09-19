@@ -65,7 +65,7 @@ export default function AuthButton() {
     return (
       <Link
         href="/profile"
-        className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-3.5 py-1.5 text-[13.5px] text-[#a5b2ff] no-underline transition-colors hover:bg-[#5865F2]/25"
+        className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-3.5 py-1.5 text-read text-[#a5b2ff] no-underline transition-colors hover:bg-[#5865F2]/25"
       >
         {t("nav.signIn")}
       </Link>
@@ -79,11 +79,17 @@ export default function AuthButton() {
   // focus: as well as hover — a menu reached by keyboard highlights the item
   // under the arrow keys, and Radix marks that one instead of hovering it.
   const item =
-    "block cursor-pointer px-3.5 py-2 text-[13px] text-ink no-underline outline-none transition-colors hover:bg-card hover:text-accent data-[highlighted]:bg-card data-[highlighted]:text-accent";
+    "block cursor-pointer px-3.5 py-2 text-read text-ink no-underline outline-none transition-colors hover:bg-card hover:text-accent data-[highlighted]:bg-card data-[highlighted]:text-accent";
 
   return (
     <Menu.Root open={open} onOpenChange={setOpen}>
-      <div className="flex items-stretch overflow-hidden rounded-lg border border-line bg-card text-[13px] text-ink transition-colors hover:border-accent">
+      {/* Quiet until you go for it. The tabs beside this are plain words now, and
+          a permanently outlined chip made the avatar — the least important thing
+          in the bar — the first thing the eye found. The border arrives on hover
+          and while the menu is open, which is when it is a control rather than a
+          label. */}
+      <div className="group/auth flex items-stretch overflow-hidden rounded-lg border border-transparent text-read text-ink transition-colors hover:border-line hover:bg-card data-[open=true]:border-line data-[open=true]:bg-card"
+           data-open={open}>
         {/* The name is a link to their page, not part of the menu button. Two
             different things to want, and merging them made the common one — go
             to my page — cost an extra click. */}
@@ -94,10 +100,14 @@ export default function AuthButton() {
             <img src={me.avatar ?? user.avatar ?? ""} alt=""
                  className="size-5 rounded-full object-cover" />
           ) : null}
-          <span className="max-w-28 truncate">{me.name ?? user.name}</span>
+          {/* Shown on a phone, where the header carries almost nothing else, and
+              again once the window is wide enough for it and every tab. In
+              between it is the widest thing competing with the tabs, and a
+              face you can already see is the part that can go. */}
+          <span className="max-w-28 truncate sm:hidden lg:block">{me.name ?? user.name}</span>
         </Link>
         <Menu.Trigger aria-label={t("nav.profile")}
-                className="grid w-6 place-items-center border-l border-line text-muted transition-colors hover:text-accent data-[state=open]:text-accent">
+                className="grid w-6 place-items-center border-l border-transparent text-muted transition-colors group-hover/auth:border-line hover:text-accent data-[state=open]:border-line data-[state=open]:text-accent">
           <svg viewBox="0 0 24 24" aria-hidden width="13" height="13"
                fill="none" stroke="currentColor" strokeWidth="2.4"
                strokeLinecap="round" strokeLinejoin="round"

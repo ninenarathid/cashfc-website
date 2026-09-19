@@ -52,10 +52,10 @@ export default function ImageLightbox(
   return (
     <Dialog.Root open onOpenChange={(o) => { if (!o) onClose(); }}>
       <Dialog.Portal>
-        <Dialog.Overlay className="pop-in fixed inset-0 z-[80] bg-bg/90 backdrop-blur-sm" />
+        <Dialog.Overlay className="rise-in fixed inset-0 z-[80] bg-bg/90 backdrop-blur-sm" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="pop-in fixed inset-0 z-[81] flex items-center justify-center p-4 outline-none">
+          className="rise-in fixed inset-0 z-[81] flex items-center justify-center p-4 outline-none">
           <Dialog.Title className="sr-only">{t("feedback.imageOpen")}</Dialog.Title>
 
           {/* The ground behind the picture is the way out of it, the same as
@@ -76,7 +76,7 @@ export default function ImageLightbox(
                       className="absolute right-3 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-line bg-bg/85 text-ink backdrop-blur transition-colors hover:border-accent hover:text-accent">
                 ›
               </button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-line bg-bg/85 px-3 py-1 font-data text-[11.5px] text-muted backdrop-blur">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-line bg-bg/85 px-3 py-1 font-data text-meta text-muted backdrop-blur">
                 {t("gallery.imageOf", { n: at + 1, total: images.length })}
               </div>
             </>

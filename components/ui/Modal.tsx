@@ -104,14 +104,14 @@ export default function Modal(
   const head = (
     <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-3.5">
       <div className="flex min-w-0 flex-col">
-        <span className="flex items-center gap-1.5 font-display text-[15px] font-semibold text-ink">
+        <span className="flex items-center gap-1.5 font-display text-title font-semibold text-ink">
           {icon}
           {title}
         </span>
-        {subtitle && <span className="truncate text-[12px] text-muted">{subtitle}</span>}
+        {subtitle && <span className="truncate text-ui text-muted">{subtitle}</span>}
       </div>
       <button onClick={() => onOpenChange(false)} aria-label="Close"
-              className="shrink-0 rounded-lg px-2 py-1 text-[12.5px] text-muted hover:text-ink">
+              className="shrink-0 rounded-lg px-2 py-1 text-ui text-muted hover:text-ink">
         ✕
       </button>
     </div>
@@ -142,9 +142,9 @@ export default function Modal(
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay style={{ zIndex: z.over }}
-                        className="pop-in fixed inset-0 bg-bg/80 backdrop-blur-sm" />
+                        className="rise-in fixed inset-0 bg-bg/80 backdrop-blur-sm" />
         <Dialog.Content {...keep} style={{ zIndex: z.box }}
-          className={`pop-in fixed left-1/2 top-[3vh] flex max-h-[94vh] w-[calc(100vw-2rem)] -translate-x-1/2 flex-col rounded-2xl border border-line bg-surface shadow-2xl shadow-black/60 ${
+          className={`rise-in fixed left-1/2 top-[3vh] flex max-h-[94vh] w-[calc(100vw-2rem)] -translate-x-1/2 flex-col lit-top rounded-2xl border border-line bg-surface shadow-2xl shadow-black/60 ${
             wide ? "max-w-6xl" : "max-w-3xl"}`}>
           <Dialog.Title className="sr-only">{title}</Dialog.Title>
           {head}
@@ -208,15 +208,15 @@ export function Sheet(
           <Drawer.Title className="sr-only">{title}</Drawer.Title>
           <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-3.5">
             <div className="flex min-w-0 flex-col">
-              <span className="font-display text-[14.5px] font-semibold text-ink">
+              <span className="font-display text-lead font-semibold text-ink">
                 {title}
               </span>
               {subtitle && (
-                <span className="truncate text-[12px] text-muted">{subtitle}</span>
+                <span className="truncate text-ui text-muted">{subtitle}</span>
               )}
             </div>
             <button onClick={() => onOpenChange(false)} aria-label="Close"
-                    className="shrink-0 rounded-lg px-2 py-1 text-[12.5px] text-muted hover:text-ink">
+                    className="shrink-0 rounded-lg px-2 py-1 text-ui text-muted hover:text-ink">
               ✕
             </button>
           </div>

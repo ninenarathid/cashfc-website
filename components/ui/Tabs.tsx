@@ -41,10 +41,10 @@ export default function Tabs(
       <Radix.List className="flex flex-wrap gap-1 rounded-lg border border-line p-1">
         {tabs.map((tab) => (
           <Radix.Trigger key={tab.key} value={tab.key}
-            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] text-muted outline-none transition-colors hover:text-ink data-[state=active]:bg-card data-[state=active]:text-accent">
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-read text-muted outline-none transition-colors hover:text-ink data-[state=active]:bg-card data-[state=active]:text-accent">
             {tab.label}
             {tab.hint != null && (
-              <span className="ml-1.5 font-data text-[11.5px] opacity-70">
+              <span className="ml-1.5 font-data text-meta opacity-70">
                 {tab.hint}
               </span>
             )}
