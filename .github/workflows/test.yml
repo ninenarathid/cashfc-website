@@ -1,0 +1,52 @@
+name: Tests
+
+# The unit tests under lib/, on every push and every pull request.
+#
+# Separate from the two data workflows on purpose: those are schedule-driven jobs
+# that write to the repository, and this one only reads. It is also the only
+# workflow here that a pull request can start, so it is the only one where the
+# trigger itself is worth thinking about — hence the deny-all token below.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Nothing is written by this workflow: it checks out, installs, and runs vitest.
+# Deny-all rather than contents: read, because a public repository is readable
+# without a token at all and the checkout below needs no more than that.
+permissions: {}
+
+# Unlike the data workflows, cancelling is the right answer here. A test run
+# against a commit that has already been superseded is answering a question
+# nobody is asking any more, and there is no fetched progress to lose.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Pinned to a commit rather than a tag: a tag can be repointed by whoever
+      # controls it, and a pin is the only reference that means one exact tree.
+      # The trailing comment is what Dependabot reads to bump it.
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          # No push to make, so the token has no reason to stay on disk.
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+          cache: npm
+
+      # ci rather than install: the lockfile is the point of running this at all,
+      # and npm ci fails on a package.json that has drifted away from it.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
