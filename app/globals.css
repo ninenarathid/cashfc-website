@@ -88,14 +88,22 @@
    * Anything above 16px is left as it was. Those are headings and hero numbers,
    * a handful of one-offs apiece, and a name nobody will reuse is a name that
    * earns nothing.
+   * Raised once since: the whole site read small, and because the sizes had
+   * names by then it was seven values rather than eleven hundred. That is the
+   * argument for a scale, made in one edit.
+   *
+   * The steps are whole pixels now as well. Collapsing the half-step pairs left
+   * ui at 12.5 and read at 13 — half a pixel apart, which is the same
+   * indistinguishable neighbour the scale was built to remove, still sitting in
+   * the middle of it.
    */
-  --text-label: 10.5px;
-  --text-meta: 11.5px;
-  --text-ui: 12.5px;
-  --text-read: 13px;
-  --text-lead: 14px;
-  --text-title: 15px;
-  --text-head: 16px;
+  --text-label: 11px;
+  --text-meta: 12px;
+  --text-ui: 13px;
+  --text-read: 14px;
+  --text-lead: 15px;
+  --text-title: 16px;
+  --text-head: 17.5px;
 
   --shadow-2xl: 0 24px 48px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(0 0 0 / 0.35);
   --shadow-xl: 0 16px 32px -12px rgb(0 0 0 / 0.7);
