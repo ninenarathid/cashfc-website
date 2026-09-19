@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import type { Metadata } from "next";
 import { Mitr, Noto_Sans_Thai_Looped, Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
@@ -97,10 +98,29 @@ export default function RootLayout({
           {/* Local-only: the testRarePotato() console command. Renders nothing
               on the deployed site. */}
           <RareDevTools />
-          <div className="mx-auto max-w-5xl px-4 pb-16">
+          {/* Extra room at the foot on a phone, where the tab bar is fixed over
+              the bottom of the page and would otherwise sit on the footer. */}
+          <div className="mx-auto max-w-5xl px-4 pb-32 sm:pb-16">
             <Nav />
-            {children}
-          <footer className="mt-9 border-t border-line pt-4 text-[12.5px] leading-relaxed text-muted">
+            {/*
+              The page itself, as something that can be transitioned rather than
+              swapped.
+
+              React 19.3 turns this on: the router already changes routes inside
+              a transition, and wrapping the content tells React to hand that
+              change to the browser's View Transition API instead of replacing
+              the DOM outright. On its own it is a cross-fade; the direction
+              comes from the type each nav tab tags the transition with, which
+              the rules in globals.css answer.
+
+              Nothing here depends on it working. A browser without the API, or a
+              reader who has asked for less movement, gets the instant swap this
+              always did.
+            */}
+            <ViewTransition name="page">
+              {children}
+            </ViewTransition>
+          <footer className="mt-9 border-t border-line pt-4 text-ui leading-relaxed text-muted">
             Data from{" "}
             <a className="text-accent no-underline" href="https://na.finalfantasyxiv.com/lodestone/" target="_blank" rel="noopener noreferrer">The Lodestone</a>{" "}
             (© SQUARE ENIX),{" "}

@@ -27,6 +27,8 @@ import DutyCard from "@/components/DutyCard";
 import AwardBadge from "@/components/ui/AwardBadge";
 import PopotoGivers from "@/components/PopotoGivers";
 import { throwPotato } from "@/components/ui/throwPotato";
+import { FACE_MORPH } from "@/lib/morph";
+import { useAvatar } from "@/lib/avatars";
 import { useRareDemo } from "@/lib/popoto-rare-demo";
 import { RareShowcase } from "@/components/RareInventory";
 import { useBadgesFor } from "@/lib/member-badges";
@@ -105,6 +107,25 @@ export default function MemberView({
   const portrait = useRef<HTMLImageElement>(null);
   /** Between the press and the landing, so one press is one potato. */
   const [throwing, setThrowing] = useState(false);
+
+  /*
+   * The face this page opens with.
+   *
+   * Read from the shared overrides rather than waited for. AvatarProvider sits
+   * in the root layout and holds the chosen picture for every verified member,
+   * so arriving here from anywhere on the site means it is already in hand —
+   * while `ov` below is this page's own request and cannot answer until it
+   * returns.
+   *
+   * That gap was visible and badly timed. The portrait opened as the Lodestone's
+   * tall shot, then swapped to the square one somebody chose a moment later,
+   * which is roughly when the face finished travelling here from the roster: the
+   * picture changed and the frame changed shape right as you looked at it.
+   *
+   * `ov?.avatarUrl` stays as the second answer for the one case the context
+   * cannot cover — somebody opening this URL cold, where both are in flight.
+   */
+  const chosenFace = useAvatar(m.id, null) ?? ov?.avatarUrl ?? null;
 
   /*
    * A throw with nothing sent, for trying the animation out.
@@ -405,7 +426,7 @@ export default function MemberView({
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-card">
               <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
             </div>
-            <div className="mt-1 text-[11px] text-muted">{t("member.higherThan", { n: pct })}</div>
+            <div className="mt-1 text-meta text-muted">{t("member.higherThan", { n: pct })}</div>
           </>
         )}
       </div>
@@ -423,7 +444,7 @@ export default function MemberView({
     <main className="pt-5"
           style={{ "--color-accent": accent } as React.CSSProperties}>
       <Link href={backHref}
-            className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-muted no-underline transition-colors hover:text-accent">
+            className="mb-3 inline-flex items-center gap-1.5 text-read text-muted no-underline transition-colors hover:text-accent">
         <span aria-hidden>←</span> {t("member.back")}
       </Link>
 
@@ -442,14 +463,18 @@ export default function MemberView({
           </>
         )}
         <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-end sm:p-6">
-          {(ov?.avatarUrl || m.portrait || m.avatar) && (
+          {(chosenFace || m.portrait || m.avatar) && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img ref={portrait} src={ov?.avatarUrl ?? m.portrait ?? m.avatar ?? ""} alt=""
+            <img ref={portrait} src={chosenFace ?? m.portrait ?? m.avatar ?? ""} alt=""
+                 // The far end of the morph from the roster. Always named: if
+                 // nothing carried the name in, the browser has nothing to pair
+                 // this with and the page simply arrives as it always did.
+                 style={{ viewTransitionName: FACE_MORPH }}
                  className={`shrink-0 rounded-xl border border-line object-cover object-top ${
                    // A picture they cropped square is shown square. Forcing it
                    // into the Lodestone's tall frame would crop their crop.
-                   ov?.avatarUrl ? "size-32 sm:size-40"
-                                 : "h-44 w-32 sm:h-52 sm:w-40"}`} />
+                   chosenFace ? "size-32 sm:size-40"
+                              : "h-44 w-32 sm:h-52 sm:w-40"}`} />
           )}
           <div className="min-w-0 flex-1">
             {/* Whose company this is. For a member it is this one, and the
@@ -458,7 +483,7 @@ export default function MemberView({
                 not on — so it goes grey and says what they are instead.
                 Somebody in no company at all gets the word Guest, which is
                 then the only true thing there is to put here. */}
-            <div className="flex items-center gap-2 font-data text-[11px] uppercase tracking-[0.2em] text-ink/60">
+            <div className="flex items-center gap-2 font-data text-meta uppercase tracking-[0.2em] text-ink/60">
               <span
                 title={home ? GUEST_RANK : onVacation ? ON_VACATION_RANK : "Active"}
                 aria-label={home ? GUEST_RANK : onVacation ? ON_VACATION_RANK : "Active"}
@@ -484,11 +509,11 @@ export default function MemberView({
               </span>
             </h1>
             {ov?.nickname && (
-              <div className="text-[15px] font-medium" style={{ color: accent }}>
+              <div className="text-title font-medium" style={{ color: accent }}>
                 &ldquo;{ov.nickname}&rdquo;
               </div>
             )}
-            <div className="mt-1 text-[13px] text-ink/70">
+            <div className="mt-1 text-read text-ink/70">
               Lv {m.level ?? "—"}
               {/* For somebody outside the FC, the world and the company they
                   are actually in are the two facts that place them. Every FC
@@ -511,7 +536,7 @@ export default function MemberView({
               // Never shown on its own: this can only be as fresh as the last time
               // Lalachievements re-read the character, and without that caveat an
               // out-of-date sync reads as "this person quit".
-              <div className="mt-0.5 text-[12px] text-ink/55">
+              <div className="mt-0.5 text-ui text-ink/55">
                 Last seen collecting {m.last_active}
                 {m.lala_synced && (
                   <span className="text-ink/40"> · data synced {m.lala_synced}</span>
@@ -519,7 +544,7 @@ export default function MemberView({
               </div>
             )}
             {ov?.bio && (
-              <p className="mt-2 text-[14px] italic" style={{ color: accent }}>
+              <p className="mt-2 text-lead italic" style={{ color: accent }}>
                 &ldquo;{ov.bio}&rdquo;
               </p>
             )}
@@ -528,7 +553,7 @@ export default function MemberView({
               {(ov?.lfg ?? []).map((k) => {
                 const o = LFG_OPTIONS.find((x) => x.key === k);
                 return o ? (
-                  <span key={k} className="rounded-full border border-dashed border-accent/70 bg-bg/40 px-2.5 py-[3px] text-[11.5px] text-accent">
+                  <span key={k} className="rounded-full border border-dashed border-accent/70 bg-bg/40 px-2.5 py-[3px] text-meta text-accent">
                     {o.label}
                   </span>
                 ) : null;
@@ -555,7 +580,7 @@ export default function MemberView({
                 [`https://ffxivcollect.com/characters/${m.id}`, "COLL"],
               ].map(([href, label]) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
-                   className="rounded-md border border-line bg-bg/40 px-2.5 py-1 font-data text-[10.5px] tracking-[0.06em] text-ink/80 no-underline hover:border-accent hover:text-accent">
+                   className="rounded-md border border-line bg-bg/40 px-2.5 py-1 font-data text-label tracking-[0.06em] text-ink/80 no-underline hover:border-accent hover:text-accent">
                   {label}
                 </a>
               ))}
@@ -581,13 +606,13 @@ export default function MemberView({
                     sits on. Its other half already used ink, so the pair now
                     matches as well as being legible. */}
                 <button ref={kudosBtn} onClick={sendKudos} disabled={throwing}
-                        className={`border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${
+                        className={`border border-accent/60 bg-bg/40 px-3 py-1 text-ui text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${
                           kudos ? "rounded-l-md" : "rounded-md"}`}>
                   🥔 Send popoto
                 </button>
                 {!!kudos && (
                   <PopotoGivers kind="profile" id={m.id} count={kudos} className="-ml-px">
-                    <span className="rounded-r-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink">
+                    <span className="rounded-r-md border border-accent/60 bg-bg/40 px-3 py-1 text-ui text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink">
                       {kudos}
                     </span>
                   </PopotoGivers>
@@ -607,7 +632,7 @@ export default function MemberView({
                           const btn = e.currentTarget;
                           void throwPotato(btn, portrait.current);
                         }}
-                        className="rounded-md border border-dashed border-line bg-bg/40 px-3 py-1 font-data text-[11px] uppercase tracking-[0.1em] text-muted transition-colors hover:border-muted hover:text-ink">
+                        className="rounded-md border border-dashed border-line bg-bg/40 px-3 py-1 font-data text-meta uppercase tracking-[0.1em] text-muted transition-colors hover:border-muted hover:text-ink">
                   🥔 throw (dev)
                 </button>
               )}
@@ -634,12 +659,12 @@ export default function MemberView({
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
                 }}
-                className="rounded-md border border-line bg-bg/40 px-3 py-1 text-[12.5px] text-ink/70 hover:border-muted hover:text-ink">
+                className="rounded-md border border-line bg-bg/40 px-3 py-1 text-ui text-ink/70 hover:border-muted hover:text-ink">
                 {copied ? "Copied ✓" : "Share link"}
               </button>
               {isOwner && (
                 <Link href="/profile"
-                      className="rounded-md border border-jade/60 bg-bg/40 px-3 py-1 text-[12.5px] text-jade no-underline hover:bg-jade/15">
+                      className="rounded-md border border-jade/60 bg-bg/40 px-3 py-1 text-ui text-jade no-underline hover:bg-jade/15">
                   Edit this page
                 </Link>
               )}
@@ -647,7 +672,7 @@ export default function MemberView({
             {/* What the button said back, in the button's colour — it is the
                 other half of that press, and it disappears the same way if the
                 accent is dark. */}
-            {kudosMsg && <div className="mt-1.5 text-[12.5px] text-ink/75">{kudosMsg}</div>}
+            {kudosMsg && <div className="mt-1.5 text-ui text-ink/75">{kudosMsg}</div>}
             {/* The rare popoto they chose to show, for everybody. They choose on
                 their own edit-profile page; see RareInventory. */}
             {shelfDemo
@@ -696,7 +721,7 @@ export default function MemberView({
               which of the three you are looking at. The number comes from the
               newest thing in FFXIV Collect's catalogues, so it moves on its own. */}
           {patch && (
-            <span className="font-data text-[13px] font-normal text-muted">
+            <span className="font-data text-read font-normal text-muted">
               {patch}
             </span>
           )}
@@ -724,7 +749,7 @@ export default function MemberView({
                               name={dutyOf(e.name)?.duty ?? e.name}
                               subtitle={dutyOf(e.name) ? e.name : null}
                               badge={dutyOf(e.name) && (
-                                <span className="shrink-0 rounded-md border border-[#b8452c]/45 bg-[#b8452c]/12 px-1.5 py-[1px] font-data text-[11px] font-bold text-[#e2825f]">
+                                <span className="shrink-0 rounded-md border border-[#b8452c]/45 bg-[#b8452c]/12 px-1.5 py-[1px] font-data text-meta font-bold text-[#e2825f]">
                                   {dutyOf(e.name)!.badge}
                                 </span>
                               )}
@@ -750,7 +775,7 @@ export default function MemberView({
             body: (
               <>
             {raids === null ? (
-              <div className="rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] text-muted">
+              <div className="rounded-xl border border-dashed border-line p-8 text-center text-read text-muted">
                 {t("member.notLinked")}
               </div>
             ) : (
@@ -770,7 +795,7 @@ export default function MemberView({
                             subtitle={savageDuty(label, raids?.current?.zone)
                                       ? boss : null}
                             badge={
-                              <span className="shrink-0 rounded-md border border-line bg-bg/50 px-1.5 py-[1px] font-data text-[11px] font-bold text-ink/80">
+                              <span className="shrink-0 rounded-md border border-line bg-bg/50 px-1.5 py-[1px] font-data text-meta font-bold text-ink/80">
                                 {label}
                               </span>
                             }
@@ -789,9 +814,9 @@ export default function MemberView({
                 fight in progress is more current than one already finished. */}
             {(raids?.progress?.length ?? 0) > 0 && (
               <>
-                <h3 className="mb-2 mt-4 font-display text-[15px] font-semibold">
+                <h3 className="mb-2 mt-4 font-display text-title font-semibold">
                   {t("member.inProgress")}{" "}
-                  <span className="text-[12.5px] font-normal text-muted">
+                  <span className="text-ui font-normal text-muted">
                     ({raids!.progress!.length})
                   </span>
                 </h3>
@@ -834,7 +859,7 @@ export default function MemberView({
                         <DutyCard key={`${u.zone_id}-${u.name ?? i}`}
                                   name={title}
                                   badge={short ? (
-                                    <span className="shrink-0 rounded-md border border-[#c13ae0]/45 bg-[#c13ae0]/12 px-1.5 py-[1px] font-data text-[11px] font-bold text-[#d060ea]">
+                                    <span className="shrink-0 rounded-md border border-[#c13ae0]/45 bg-[#c13ae0]/12 px-1.5 py-[1px] font-data text-meta font-bold text-[#d060ea]">
                                       {short}
                                     </span>
                                   ) : undefined}
@@ -851,7 +876,7 @@ export default function MemberView({
                     // above like any other — nothing about an unlogged clear is
                     // a lesser Ultimate — and this only explains why those ones
                     // have no numbers on them.
-                    <p className="text-[12px] text-muted">
+                    <p className="text-ui text-muted">
                       {m.ult_achv_only!.map((n) => ultimateAbbr(n)).join(", ")}
                       {" — cleared according to Lodestone. Parse and kill counts need an "}
                       uploaded log, so there are none to show.
@@ -875,8 +900,8 @@ export default function MemberView({
           <div className="flex flex-col gap-2">
             {Object.entries(legacyGroups).map(([exp, zones]) => (
               <details key={exp} className="rounded-xl border border-line bg-surface">
-                <summary className="cursor-pointer select-none px-4 py-2.5 font-display text-[14.5px] font-semibold marker:text-accent">
-                  {exp} <span className="text-[12px] font-normal text-muted">
+                <summary className="cursor-pointer select-none px-4 py-2.5 font-display text-lead font-semibold marker:text-accent">
+                  {exp} <span className="text-ui font-normal text-muted">
                     — {zones.length} tier
                   </span>
                 </summary>
@@ -888,10 +913,10 @@ export default function MemberView({
                     return (
                       <div key={z.zone_id}>
                         <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-2">
-                          <span className="font-data text-[13px] font-semibold text-ink">
+                          <span className="font-data text-read font-semibold text-ink">
                             {z.zone}
                           </span>
-                          <span className="text-[11.5px] text-muted">
+                          <span className="text-meta text-muted">
                             {kills}/{z.encounters.length} cleared · best{" "}
                             <b style={{ color: parseColor(best < 0 ? null : best) }}>
                               {best < 0 ? "—" : best}
@@ -904,7 +929,7 @@ export default function MemberView({
                                   title={[e.name, e.job && jobLabel(e.job),
                                           e.kills ? t("member.kills", { n: e.kills }) : null]
                                     .filter(Boolean).join(" · ")}
-                                  className="inline-flex items-center gap-1.5 rounded-md border border-line bg-card px-2.5 py-1 font-data text-[11.5px]">
+                                  className="inline-flex items-center gap-1.5 rounded-md border border-line bg-card px-2.5 py-1 font-data text-meta">
                               <span style={{ color: parseColor(e.best) }}>
                                 {e.label ?? e.name} {e.best ?? "✓"}
                               </span>
@@ -931,7 +956,7 @@ export default function MemberView({
         <section className="mt-6">
           <h2 className="mb-2 font-display text-lg font-semibold">
             {t("member.availability")}{" "}
-            <span className="text-[13px] font-normal text-muted">
+            <span className="text-read font-normal text-muted">
               ({t("member.availabilityNote")})
             </span>
           </h2>
@@ -950,24 +975,24 @@ export default function MemberView({
               the label: nothing is broken and nothing is missing, this member has
               their achievements set to private. */}
           {collectState === "private" && (
-            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
+            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-meta font-normal text-muted">
               {t("member.achvPrivate")}
             </span>
           )}
           {collectState === "kept" && (
-            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
+            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-meta font-normal text-muted">
               {m.achv_seen_at
                 ? t("member.achvKeptOn", { on: m.achv_seen_at })
                 : t("member.achvKept")}
             </span>
           )}
           {collectState === "unknown" && (
-            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
+            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-meta font-normal text-muted">
               {t("member.collectUnknown")}
             </span>
           )}
           {collectState === "pending" && (
-            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11.5px] font-normal text-muted">
+            <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-meta font-normal text-muted">
               {t("member.achvPending")}
             </span>
           )}
@@ -987,7 +1012,7 @@ export default function MemberView({
         {/* No steps and no links: the other two states are things a member can
             fix, and this one is a queue they are already in. */}
         {collectState === "pending" && (
-          <div className="mt-3 rounded-xl border border-dashed border-line px-4 py-3 text-[12.5px] leading-[1.8] text-muted">
+          <div className="mt-3 rounded-xl border border-dashed border-line px-4 py-3 text-ui leading-[1.8] text-muted">
             {t("member.achvPendingNote")}
           </div>
         )}

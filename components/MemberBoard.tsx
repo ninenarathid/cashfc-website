@@ -16,6 +16,7 @@ import TagIcon from "@/components/TagIcon";
 import ProgressBadge from "@/components/ProgressBadge";
 import { useLang } from "@/lib/i18n";
 import { useAvatar } from "@/lib/avatars";
+import { markFaceMorph } from "@/lib/morph";
 import { ultimateAbbr } from "@/lib/types";
 import JobIcon, {
   ALL_JOBS, ROLE_GROUP, ROLE_LABEL, ROLE_ORDER, jobLabel, jobRole, jobRoleGroup,
@@ -79,12 +80,16 @@ function Avatar({ m, size = 11 }: { m: Member; size?: number }) {
   // into members.json, which is written nightly and knows nothing about accounts.
   const src = useAvatar(m.id, m.avatar);
   const face = (!src || broken) ? (
-    <div className={`${cls} flex items-center justify-center rounded-full border border-line font-data text-[12px] font-semibold text-bg`}
+    // data-face is how lib/morph finds this one face among five hundred, at the
+    // moment somebody clicks through to it.
+    <div data-face={m.id}
+         className={`${cls} flex items-center justify-center rounded-full border border-line font-data text-ui font-semibold text-bg`}
          style={{ background: `hsl(${hue(m.name)} 45% 68%)` }}>
       {initials(m.name)}
     </div>
   ) : (
-    <div className={`${cls} overflow-hidden rounded-full border border-line bg-card`}>
+    <div data-face={m.id}
+         className={`${cls} overflow-hidden rounded-full border border-line bg-card`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt="" loading="lazy" className="block size-full object-cover"
            onError={() => setBroken(true)} />
@@ -607,14 +612,14 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     return c;
   }, [inScope]);
 
-  const selCls = "rounded-lg border border-line bg-card px-2.5 py-1.5 text-[13px] text-ink";
+  const selCls = "rounded-lg border border-line bg-card px-2.5 py-1.5 text-read text-ink";
 
   return (
     <section>
       <header className="flex flex-wrap items-baseline justify-between gap-3.5 pb-4 pt-6">
         <div>
           <h1 className="font-display text-3xl font-bold leading-tight">Members</h1>
-          <div className="mt-0.5 text-[13.5px] text-muted">
+          <div className="mt-0.5 text-read text-muted">
             {t("board.verifiedHint")}
           </div>
         </div>
@@ -639,7 +644,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                                      : [...adv.activity, o.key],
                       })}
                       role="checkbox" aria-checked={on}
-                      className={`rounded-md px-3.5 py-1.5 text-[13.5px] transition-colors ${
+                      className={`rounded-md px-3.5 py-1.5 text-read transition-colors ${
                         on ? "bg-accent/15 text-accent"
                            : "text-muted hover:text-ink"}`}>
                 {/* A guest is not a dimmed member, so they do not get the
@@ -677,13 +682,13 @@ export default function MemberBoard({ data }: { data: BoardData }) {
         <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5">
           {advCount > 0 && (
             <button onClick={() => setAdv(ADV_EMPTY)}
-                    className="self-end text-[12.5px] text-muted underline hover:text-ink">
+                    className="self-end text-ui text-muted underline hover:text-ink">
               {t("board.clearAll", { n: advCount })}
             </button>
           )}
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+            <span className="font-data text-label uppercase tracking-[0.14em] text-muted">
               Who
             </span>
           {/* The looking-for filter is hidden for now. The statuses are still
@@ -823,7 +828,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               one chip picked, which left two controls disagreeing about what was
               selected. */}
           <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
-            <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+            <span className="font-data text-label uppercase tracking-[0.14em] text-muted">
               Has all of
             </span>
             {Object.keys(TAG_LABELS)
@@ -836,7 +841,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       onClick={() => setAdv({ ...adv,
                         tags: on ? adv.tags.filter((x) => x !== tag) : [...adv.tags, tag] })}
                       aria-pressed={on}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[11.5px] ${
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-meta ${
                         on ? TAG_CLASS[tag] ?? "border-accent bg-accent/15 text-accent"
                            : "border-line text-muted hover:border-muted"}`}>
                       <TagIcon tag={tag} size={16} />
@@ -851,12 +856,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           {/* Current-patch content, one chip per fight. Chips are AND-ed, so picking
               three bosses finds people who cleared all three. */}
           <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2 border-t border-line pt-3">
-            <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+            <span className="font-data text-label uppercase tracking-[0.14em] text-muted">
               This patch
             </span>
 
             <span className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11.5px] text-muted">Savage</span>
+              <span className="text-meta text-muted">Savage</span>
               {labels.map((lb, i) => {
                 const on = adv.boss.includes(i);
                 const n = inScope.filter((m) => onFight(m, i, tierNames)).length;
@@ -865,7 +870,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     onClick={() => setAdv({ ...adv,
                       boss: on ? adv.boss.filter((x) => x !== i) : [...adv.boss, i] })}
                     aria-pressed={on}
-                    className={`rounded-md border px-2 py-1 font-data text-[11.5px] ${
+                    className={`rounded-md border px-2 py-1 font-data text-meta ${
                       on ? "border-chili bg-chili/15 text-chili"
                          : "border-line text-muted hover:border-muted"}`}
                     title={`On or through ${lb}${
@@ -879,7 +884,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
             {allUltimates.length > 0 && (
               <span className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[11.5px] text-muted">Ultimate</span>
+                <span className="text-meta text-muted">Ultimate</span>
                 {allUltimates.map((name) => {
                   const on = adv.ults.includes(name);
                   const n = inScope.filter((m) => onUltimate(m, name)).length;
@@ -889,7 +894,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         ults: on ? adv.ults.filter((x) => x !== name)
                                  : [...adv.ults, name] })}
                       aria-pressed={on}
-                      className={`rounded-md border px-2 py-1 font-data text-[11.5px] ${
+                      className={`rounded-md border px-2 py-1 font-data text-meta ${
                         on ? "border-gold bg-gold/15 text-gold"
                            : "border-line text-muted hover:border-muted"}`}
                       title={`On or through ${name} — ${n} member${n === 1 ? "" : "s"}`}>
@@ -902,7 +907,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
 
             {extremes.length > 0 && (
               <span className="flex flex-wrap items-center gap-1.5">
-                <span className="text-[11.5px] text-muted">Extreme</span>
+                <span className="text-meta text-muted">Extreme</span>
                 {extremes.map((name) => {
                   const on = adv.ex.includes(name);
                   const n = exCounts[name] ?? 0;
@@ -911,7 +916,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       onClick={() => setAdv({ ...adv,
                         ex: on ? adv.ex.filter((x) => x !== name) : [...adv.ex, name] })}
                       aria-pressed={on}
-                      className={`rounded-md border px-2 py-1 text-[11.5px] ${
+                      className={`rounded-md border px-2 py-1 text-meta ${
                         on ? "border-[#c86fd1] bg-[#c86fd1]/15 text-[#d79ade]"
                            : "border-line text-muted hover:border-muted"}`}
                       title={`Cleared ${name} — ${n} member${n === 1 ? "" : "s"}`}>
@@ -925,7 +930,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           </div>
         </div>
 
-        <div className="text-[13px] text-muted">
+        <div className="text-read text-muted">
           {/* Names the scope rather than only the raw numbers: on a default that
               hides two thirds of the roster, "179 of 502" alone reads like
               something is broken. */}
@@ -957,16 +962,17 @@ export default function MemberBoard({ data }: { data: BoardData }) {
             if (!group.length) return null;
             return (
               <div key={r}>
-                <div className="mb-2 font-display text-[15px] font-semibold text-accent">
-                  {r} <span className="text-[12px] font-normal text-muted">({group.length})</span>
+                <div className="mb-2 font-display text-title font-semibold text-accent">
+                  {r} <span className="text-ui font-normal text-muted">({group.length})</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                   {group.map((m) => (
                     <Link key={m.id} href={`/member/${m.id}`}
+                          onClick={() => markFaceMorph(m.id)}
                           className="flex items-center gap-2.5 rounded-lg border border-line bg-surface px-3 py-2 no-underline transition-colors hover:border-accent">
                       <Avatar m={m} size={9} />
                       <span className="min-w-0">
-                        <span className="block truncate font-data text-[13px] font-semibold text-ink">
+                        <span className="block truncate font-data text-read font-semibold text-ink">
                           {m.name}
                           {overlays[m.id] && <span className="ml-1 text-accent">✦</span>}
                         </span>
@@ -1059,7 +1065,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                           row it is meant to be moving. Dropped only while the
                           list is short enough to be animating anyway. */
                        animateLayout ? "" : "[content-visibility:auto]"}`}>
-                  <Link href={`/member/${m.id}`} className="contents">
+                  <Link href={`/member/${m.id}`} onClick={() => markFaceMorph(m.id)}
+                        className="contents">
                     <Avatar m={m} />
                   </Link>
                   {mBadges.length > 0 && (
@@ -1068,7 +1075,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         <AwardBadge key={b.id} size="compact" badge={b} />
                       ))}
                       {mBadges.length > 3 && (
-                        <span className="text-[11.5px] text-muted">
+                        <span className="text-meta text-muted">
                           +{mBadges.length - 3}
                         </span>
                       )}
@@ -1076,7 +1083,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   )}
                   <div className={`min-w-0 ${mBadges.length ? "pr-28 sm:pr-0" : ""}`}>
                     <Link href={`/member/${m.id}`}
-                          className="truncate font-data text-[15px] font-semibold tracking-[0.01em] text-ink no-underline hover:text-accent">
+                          onClick={() => markFaceMorph(m.id)}
+                          className="truncate font-data text-title font-semibold tracking-[0.01em] text-ink no-underline hover:text-accent">
                       {m.name}
                       {ov?.nickname && (
                         <span className="ml-1 font-normal text-muted">
@@ -1105,7 +1113,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     <span className="relative -top-[3px] ml-2 align-middle">
                       <NewPlayer m={m} size={19} />
                     </span>
-                    <div className="flex flex-wrap items-baseline gap-x-1.5 text-[12.5px]">
+                    <div className="flex flex-wrap items-baseline gap-x-1.5 text-ui">
                       {title && (
                         // Below, not above. The title sits directly under the
                         // member's name, and a tooltip opening upwards covered
@@ -1131,7 +1139,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
                       return o ? (
                         <span key={k}
-                              className="whitespace-nowrap rounded-full border border-dashed border-accent/60 px-2.5 py-[3px] text-[11.5px] text-accent">
+                              className="whitespace-nowrap rounded-full border border-dashed border-accent/60 px-2.5 py-[3px] text-meta text-accent">
                           {o.label}
                         </span>
                       ) : null;
