@@ -164,14 +164,14 @@ function FlexEditor(
     return [...set];
   };
   const chip = (on: boolean) =>
-    `rounded-full border px-2.5 py-[3px] text-[13px] transition-colors ${
+    `rounded-full border px-2.5 py-[3px] text-read transition-colors ${
       on ? "border-accent bg-accent/15 text-accent"
          : "border-line text-muted hover:border-muted hover:text-ink"}`;
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
+        <span className="font-data text-meta uppercase tracking-[0.12em] text-muted">
           {t("pf.canAlsoPlay")}
         </span>
         <button type="button" className={chip(!!value.all)}
@@ -207,7 +207,7 @@ function FlexEditor(
       )}
 
       {canFlex(value) && (
-        <span className="text-[13px] text-jade">{flexLabel(value)}</span>
+        <span className="text-read text-jade">{flexLabel(value)}</span>
       )}
     </div>
   );
@@ -918,7 +918,7 @@ function PartyForm(
     // exactly what this field is for.
     : !note.trim() ? "pf.titleFirst" as const
       : (!mySeat && !iAmFloating) ? "pf.takeSeatFirst" as const : null;
-  const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink";
+  const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-title text-ink";
 
   /*
    * What this party could still be, once it has people in it.
@@ -1026,7 +1026,7 @@ function PartyForm(
           opens filled in without saying so reads as one that has remembered
           something it should not have. */}
       {again && !editing && (
-        <p className="rounded-lg border border-jade/40 bg-jade/10 px-3 py-2 text-[13.5px] text-jade">
+        <p className="rounded-lg border border-jade/40 bg-jade/10 px-3 py-2 text-read text-jade">
           {t("pf.againSeeded")}
         </p>
       )}
@@ -1042,7 +1042,7 @@ function PartyForm(
         * would still be right afterwards.
         */}
       {!chosen ? (
-        <p className="pb-1 text-[14px] text-muted">{t("pf.pickContentFirst")}</p>
+        <p className="pb-1 text-lead text-muted">{t("pf.pickContentFirst")}</p>
       ) : (
         <>
       {/*
@@ -1061,8 +1061,8 @@ function PartyForm(
                  onChange={(e) => setIsStatic(e.target.checked)}
                  className="mt-1" />
           <span className="flex flex-col gap-0.5">
-            <span className="text-[15px] font-medium text-ink">{t("pf.staticLabel")}</span>
-            <span className="text-[13.5px] text-muted">{t("pf.staticWhy")}</span>
+            <span className="text-title font-medium text-ink">{t("pf.staticLabel")}</span>
+            <span className="text-read text-muted">{t("pf.staticWhy")}</span>
           </span>
         </label>
       )}
@@ -1072,7 +1072,7 @@ function PartyForm(
           // Stated, not offered. The size is a fact about the fight, and the
           // form says which fact it has taken rather than leaving a dead
           // control that cannot be moved.
-          <span className="rounded-lg border border-line bg-bg/40 px-3 py-2 text-[14.5px] text-muted">
+          <span className="rounded-lg border border-line bg-bg/40 px-3 py-2 text-lead text-muted">
             {shapeSay(useShape, chosen?.kind, t, chosen?.queueIn)}
             <span className="ml-1.5 opacity-70">· {t("pf.setByContent")}</span>
           </span>
@@ -1135,7 +1135,7 @@ function PartyForm(
       {/* ── When, in Thai time, and for how long ──────────────────────────── */}
       <div className="flex flex-wrap items-end gap-2.5">
         <label className="flex flex-col gap-1">
-          <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
             {t("pf.starts")}
           </span>
           <DateTime value={start} min={floor} max={staticNow ? undefined : ceiling}
@@ -1144,7 +1144,7 @@ function PartyForm(
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
             {t("pf.for")}
           </span>
           <span className="flex items-stretch gap-1.5">
@@ -1163,7 +1163,7 @@ function PartyForm(
               {/* One unit is not a choice. A select with a single option is a
                   control that cannot be moved, so it is said as a word. */}
               {units.length === 1 ? (
-                <span className="flex items-center px-1 text-[15px] text-muted">
+                <span className="flex items-center px-1 text-title text-muted">
                   {t(useUnit === "maps" ? "pf.untilMapsDone" : "pf.hours")}
                 </span>
               ) : (
@@ -1190,7 +1190,7 @@ function PartyForm(
           </span>
         </label>
 
-        <p className={`pb-2 text-[13.5px] ${past || tooFar ? "text-chili" : "text-muted"}`}>
+        <p className={`pb-2 text-read ${past || tooFar ? "text-chili" : "text-muted"}`}>
           {past ? t("pf.past")
             : tooFar ? t("pf.tooFar", { n: MAX_AHEAD_DAYS })
             // Said plainly, not in red: it is already true, and the lead is
@@ -1233,7 +1233,7 @@ function PartyForm(
       {(<>
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
             {t(editing ? "pf.addPeople"
                : mySeat ? "pf.seatsHint" : "pf.pickOwnSeat")}
           </span>
@@ -1241,7 +1241,7 @@ function PartyForm(
               left unticked is where the duplicate would land, so a rule that
               is not everywhere is not a rule. */}
           {useShape !== "open" && (
-            <label className="flex items-center gap-2 text-[14px] text-muted">
+            <label className="flex items-center gap-2 text-lead text-muted">
               <input type="checkbox" checked={oneEach}
                      onChange={(e) => setOneEach(e.target.checked)} />
               {t("pf.onePerJob")}
@@ -1258,13 +1258,13 @@ function PartyForm(
           it is everybody. Same control, different question. */}
       <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+            <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
               {t(useShape === "open" ? "pf.whoIsComing" : "pf.flexibleNoSeat")}
             </span>
             {/* "No party is formed" is true of a hunt train and false of a
                 Frontline, where four of them are. Content that says how many
                 the game takes at once has answered this already. */}
-            <span className="text-[13px] text-muted">
+            <span className="text-read text-muted">
               {chosen?.queueIn && useShape === "open"
                 ? t("pf.inPartiesOf", { n: chosen.queueIn })
                 : t(useShape === "open" ? "pf.openNoParty" : "pf.flexHint")}
@@ -1279,19 +1279,19 @@ function PartyForm(
                 <img src={face(f.characterId, f.avatar)!} alt="" width={34} height={34}
                      className="size-[34px] rounded-full border border-line object-cover" />
               ) : (
-                <span className={`grid size-[34px] place-items-center rounded-full text-[14.5px] text-muted ${
+                <span className={`grid size-[34px] place-items-center rounded-full text-lead text-muted ${
                         f.characterId == null
                           ? "border border-dashed border-line" : "border border-line"}`}>
                   {f.characterId == null ? "?" : ""}
                 </span>
               )}
-              <span className="text-[14.5px] text-ink">{f.name}</span>
+              <span className="text-lead text-ink">{f.name}</span>
               {f.characterId == null && (
-                <span className="font-data text-[11px] uppercase tracking-[0.1em] text-muted">
+                <span className="font-data text-meta uppercase tracking-[0.1em] text-muted">
                   {t("pf.outsider")}
                 </span>
               )}
-              <span className="font-data text-[11.5px] uppercase tracking-[0.1em] text-jade">
+              <span className="font-data text-meta uppercase tracking-[0.1em] text-jade">
                 {useShape === "open" ? "" : flexLabel(f.flex) ?? t("pf.noPositionsYet")}
               </span>
               {/* Already in it, on an edit: drawn so the lead can see who
@@ -1299,7 +1299,7 @@ function PartyForm(
                   to come, and that is not a thing to edit on their behalf —
                   they leave from the party page, the same way they arrived. */}
               {f.seatRowId != null ? (
-                <span className="ml-auto font-data text-[11.5px] uppercase tracking-[0.1em] text-muted">
+                <span className="ml-auto font-data text-meta uppercase tracking-[0.1em] text-muted">
                   {t("pf.alreadyIn")}
                 </span>
               ) : (<>
@@ -1307,7 +1307,7 @@ function PartyForm(
                   own to shut it with any more. */}
               <button onClick={() => setAdding(
                         adding && whoKey(adding) === whoKey(f) ? null : f)}
-                      className="ml-auto text-[13px] text-muted underline hover:text-ink">
+                      className="ml-auto text-read text-muted underline hover:text-ink">
                 {t("pf.changeLower")}
               </button>
               {/* And the editor under them goes with them. Taking somebody out
@@ -1318,7 +1318,7 @@ function PartyForm(
                         setFloating((v) => v.filter((x) => x !== f));
                         setAdding((a) => (a && whoKey(a) === whoKey(f) ? null : a));
                       }}
-                      className="text-[13px] text-chili hover:underline">
+                      className="text-read text-chili hover:underline">
                 {t("pf.removeLower")}
               </button>
               </>)}
@@ -1338,14 +1338,14 @@ function PartyForm(
             */}
           {adding && useShape !== "open" && (
             <div className="flex flex-col gap-2">
-              <span className="text-[14px] text-ink">
+              <span className="text-lead text-ink">
                 {t("pf.whatCanPlay", { name: adding.name })}
               </span>
               <FlexEditor shape={useShape} seatId=""
                           value={adding.flex}
                           onChange={(fx) => editFlex(adding, fx)} />
               {!canFlex(adding.flex) && (
-                <span className="text-[13px] text-muted">
+                <span className="text-read text-muted">
                   {t("pf.pickOneThing")}
                 </span>
               )}
@@ -1362,14 +1362,14 @@ function PartyForm(
                           flex: useShape === "open" ? { all: true } : {},
                         })}
                         className="flex items-center gap-2 rounded-lg border border-dashed border-line px-2.5 py-2 text-left hover:border-accent/60">
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full border border-dashed border-line text-[14.5px] text-muted">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full border border-dashed border-line text-lead text-muted">
                     ?
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[14.5px] text-ink">
+                    <span className="text-lead text-ink">
                       {t("pf.addNamed", { name: fq.trim() })}
                     </span>
-                    <span className="text-[13px] text-muted">
+                    <span className="text-read text-muted">
                       {t("pf.outsiderHint")}
                     </span>
                   </span>
@@ -1390,7 +1390,7 @@ function PartyForm(
                     <img src={face(p.id, p.avatar)!} alt="" width={36} height={36}
                          className="size-9 rounded-full border border-line object-cover" />
                   ) : <span className="size-9 rounded-full border border-line" />}
-                  <span className="text-[14.5px] text-ink">{p.name}</span>
+                  <span className="text-lead text-ink">{p.name}</span>
                 </button>
               ))}
             </div>
@@ -1410,10 +1410,10 @@ function PartyForm(
       {editing && chosen && editing.owner === userId && (
         <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+            <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
               {t("pf.yourSpot")}
             </span>
-            <span className="text-[13px] text-muted">{t("pf.yourSpotWhy")}</span>
+            <span className="text-read text-muted">{t("pf.yourSpotWhy")}</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {useShape !== "open" && slotsOf(useShape).map((sl) => {
@@ -1427,7 +1427,7 @@ function PartyForm(
                 <button key={sl.id} type="button"
                         disabled={!free && !isMine}
                         onClick={() => sitAt(sl.id)}
-                        className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                        className={`rounded-full border px-3 py-[3px] text-lead transition-colors ${
                           isMine ? "border-accent bg-accent/15 text-accent"
                           : free ? "border-line text-muted hover:border-muted hover:text-ink"
                           : "border-line/40 text-muted/40"}`}>
@@ -1436,13 +1436,13 @@ function PartyForm(
               );
             })}
             <button type="button" onClick={floatMe}
-                    className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                    className={`rounded-full border px-3 py-[3px] text-lead transition-colors ${
                       iAmFloating ? "border-jade bg-jade/15 text-jade"
                         : "border-line text-muted hover:border-muted hover:text-ink"}`}>
               {t(useShape === "open" ? "pf.imComing" : "pf.flexibleSpot")}
             </button>
             <button type="button" onClick={liftMe}
-                    className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                    className={`rounded-full border px-3 py-[3px] text-lead transition-colors ${
                       !mySeat && !iAmFloating
                         ? "border-chili bg-chili/15 text-chili"
                         : "border-line text-muted hover:border-muted hover:text-ink"}`}>
@@ -1473,7 +1473,7 @@ function PartyForm(
                   means anything: a party where nobody has said what they are
                   playing has no duplicates to avoid. */}
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="font-data text-[11.5px] uppercase tracking-[0.12em] text-muted">
+                <span className="font-data text-meta uppercase tracking-[0.12em] text-muted">
                   {t("pf.playing")}
                 </span>
                 {jobsForSlot(seat).map((job) => (
@@ -1502,7 +1502,7 @@ function PartyForm(
                           setSeats((v) => { const n = { ...v }; delete n[seat.id]; return n; });
                           setPicking(null);
                         }}
-                        className="self-start rounded-lg border border-chili/50 px-3 py-1 text-[14px] text-chili hover:bg-chili/10">
+                        className="self-start rounded-lg border border-chili/50 px-3 py-1 text-lead text-chili hover:bg-chili/10">
                   {t("pf.takeOut")}
                 </button>
               )}
@@ -1515,7 +1515,7 @@ function PartyForm(
                     identifies everybody by their picture. */}
                 {!mySeat && (
                   <button onClick={() => place(seat, me)}
-                          className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1 pl-1 pr-3 text-[14px] text-accent">
+                          className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1 pl-1 pr-3 text-lead text-accent">
                     {face(me.id, me.avatar) ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={face(me.id, me.avatar)!} alt="" width={22} height={22}
@@ -1525,19 +1525,19 @@ function PartyForm(
                   </button>
                 )}
                 {askedHere.length > 0 ? (
-                  <span className="rounded-lg border border-dashed border-line px-3 py-1 text-[14px] text-muted">
+                  <span className="rounded-lg border border-dashed border-line px-3 py-1 text-lead text-muted">
                     {t("pf.askedHere", {
                       who: askedHere.map((f) => f.name).join(", "),
                     })}
                   </span>
                 ) : closed.includes(seat.id) ? (
                   <button onClick={() => setClosed((v) => v.filter((id) => id !== seat.id))}
-                          className="rounded-lg border border-line px-3 py-1 text-[14px] text-muted hover:text-ink">
+                          className="rounded-lg border border-line px-3 py-1 text-lead text-muted hover:text-ink">
                     {t("pf.lookAgain")}
                   </button>
                 ) : (
                   <button onClick={() => { setClosed((v) => [...v, seat.id]); setPicking(null); }}
-                          className="rounded-lg border border-line px-3 py-1 text-[14px] text-muted hover:text-ink">
+                          className="rounded-lg border border-line px-3 py-1 text-lead text-muted hover:text-ink">
                     {t("pf.notLooking")}
                   </button>
                 )}
@@ -1580,8 +1580,8 @@ function PartyForm(
                     <img src={face(p.id, p.avatar)!} alt="" width={36} height={36}
                          className="size-9 rounded-full border border-line object-cover" />
                   ) : <span className="size-9 rounded-full border border-line" />}
-                  <span className="text-[14.5px] text-ink">{p.name}</span>
-                  {p.guest && <span className="text-[12.5px] text-muted">guest</span>}
+                  <span className="text-lead text-ink">{p.name}</span>
+                  {p.guest && <span className="text-ui text-muted">guest</span>}
                 </button>
               ))}
               {/* Nobody on the site by that name. Offered after the search
@@ -1590,21 +1590,21 @@ function PartyForm(
               {q.trim().length >= 2 && !suggestions.length && (
                 <button onClick={() => seatOutsider(seat, q)}
                         className="flex items-center gap-2 rounded-lg border border-dashed border-line px-2.5 py-2 text-left hover:border-accent/60">
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full border border-dashed border-line text-[14.5px] text-muted">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full border border-dashed border-line text-lead text-muted">
                     ?
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[14.5px] text-ink">
+                    <span className="text-lead text-ink">
                       {t("pf.addNamed", { name: q.trim() })}
                     </span>
-                    <span className="text-[13px] text-muted">
+                    <span className="text-read text-muted">
                       {t("pf.outsiderHint")}
                     </span>
                   </span>
                 </button>
               )}
 
-              <p className="text-[13px] text-muted">
+              <p className="text-read text-muted">
                 {t("pf.invitedNotBooked")}
               </p>
             </>
@@ -1629,12 +1629,12 @@ function PartyForm(
                     onClick={() => (editing ? setAsking(true)
                       : draft.isStatic ? setAskStatic(true)
                       : void onAdd({ ...draft, id: "new" }))}
-                    className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-[14.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
+                    className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-lead text-accent hover:bg-accent/25 disabled:opacity-40">
               {busy ? t("pf.putting")
                     : editing ? t("pf.saveEdit") : t("pf.putUp")}
             </button>
             {wants && (
-              <span className="text-[13.5px] text-muted">{t(wants)}</span>
+              <span className="text-read text-muted">{t(wants)}</span>
             )}
           </>
       </div>

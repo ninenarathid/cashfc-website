@@ -31,7 +31,7 @@ export default function ProgressBadge(
   { progress: p, size = "sm" }: { progress: ProgressRow; size?: "sm" | "md" },
 ) {
   const { t, lang } = useLang();
-  const pad = size === "md" ? "px-3 py-1 text-[12.5px]" : "px-2.5 py-[3px] text-[11.5px]";
+  const pad = size === "md" ? "px-3 py-1 text-ui" : "px-2.5 py-[3px] text-meta";
   const cleared = p.state === "cleared";
 
   const when = p.last
@@ -82,7 +82,7 @@ export default function ProgressBadge(
       </span>
     }>
       <div className="flex flex-col gap-1.5">
-        <div className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium ${tone}`}>
+        <div className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-ui font-medium ${tone}`}>
           {t(cleared ? "member.justCleared" : "member.progressing")}
           <span className="opacity-70">{p.name}</span>
         </div>

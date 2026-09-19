@@ -20,11 +20,11 @@ export default function HotExplainer() {
 
   return (
     <details className="mt-3 rounded-xl border border-line bg-surface">
-      <summary className="cursor-pointer select-none px-4 py-2.5 text-[13px] font-medium text-muted marker:text-accent">
+      <summary className="cursor-pointer select-none px-4 py-2.5 text-read font-medium text-muted marker:text-accent">
         {t("gallery.hotHow")}
       </summary>
 
-      <div className="flex flex-col gap-2.5 px-4 pb-3.5 text-[13px] leading-relaxed text-muted">
+      <div className="flex flex-col gap-2.5 px-4 pb-3.5 text-read leading-relaxed text-muted">
         <p>
           {th
             ? "แท็บ Hot right now เรียงตามคะแนนที่ลดลงตามอายุของรูป คิดจาก"
@@ -33,7 +33,7 @@ export default function HotExplainer() {
 
         {/* The sum itself, in the site's data face so it reads as arithmetic
             rather than as another sentence. */}
-        <div className="overflow-x-auto rounded-lg border border-line bg-card px-3.5 py-2.5 font-data text-[12.5px] text-ink">
+        <div className="overflow-x-auto rounded-lg border border-line bg-card px-3.5 py-2.5 font-data text-ui text-ink">
           {th
             ? "คะแนน = (popoto × 2 + คอมเมนต์ + 1) × 0.5 ^ (อายุเป็นชั่วโมง ÷ 48)"
             : "score = (popoto × 2 + comments + 1) × 0.5 ^ (hours old ÷ 48)"}

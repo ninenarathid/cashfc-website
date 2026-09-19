@@ -55,8 +55,8 @@ export default function LeaderRow(
   const face = useAvatar(row.id, row.avatar);
   return (
     <li className={`grid items-center gap-2 ${
-      top ? "grid-cols-[22px_78px_1fr_auto] py-2" : "grid-cols-[22px_1fr_auto]"} text-[13px]`}>
-      <span className={`text-right font-data text-[11.5px] ${
+      top ? "grid-cols-[22px_78px_1fr_auto] py-2" : "grid-cols-[22px_1fr_auto]"} text-read`}>
+      <span className={`text-right font-data text-meta ${
         top ? "text-accent" : "text-muted"}`}>
         {place}
       </span>
@@ -79,7 +79,7 @@ export default function LeaderRow(
       <span className="min-w-0 truncate">
         <Link href={`/member/${row.id}`}
               className={`font-data text-ink no-underline hover:text-accent ${
-                top ? "text-[16px] font-semibold" : ""}`}>
+                top ? "text-head font-semibold" : ""}`}>
           {row.name}
         </Link>
         {/* The grade is the loudest thing on the line after the name, and gets
@@ -95,7 +95,7 @@ export default function LeaderRow(
           </span>
         )}
         {row.note && (
-          <span className={`ml-1.5 text-[11px] ${
+          <span className={`ml-1.5 text-meta ${
             row.noteTone === "muted" ? "text-muted/70" : "text-accent"}`}>
             {row.note}
           </span>
@@ -106,7 +106,7 @@ export default function LeaderRow(
           the number is measured against, which is a sentence rather than a
           label, and the browser's waits a second and wraps where it likes. */}
       <Tooltip content={title} side="left">
-        <span className="cursor-default text-right font-data text-[12px] text-muted">
+        <span className="cursor-default text-right font-data text-ui text-muted">
           {value}
           {sub && <small className="ml-1 opacity-60">({sub})</small>}
         </span>

@@ -242,7 +242,7 @@ export default function ProfilePictures(
   const uploadButton = (which: Kind) => (
     <button onClick={() => setZone((z) => (z === which ? null : which))} disabled={busy}
             aria-expanded={zone === which}
-            className={`rounded-lg border px-3 py-1.5 text-[12.5px] transition-colors disabled:opacity-40 ${
+            className={`rounded-lg border px-3 py-1.5 text-ui transition-colors disabled:opacity-40 ${
               zone === which ? "border-accent bg-accent/15 text-accent"
                              : "border-line text-muted hover:border-accent hover:text-accent"}`}>
       {zone === which ? t("common.cancel") : t("profile.picUpload")}
@@ -280,7 +280,7 @@ export default function ProfilePictures(
   return (
     <section className="mt-3 rounded-xl border border-line bg-surface p-4">
       <div className="font-display font-semibold">{t("profile.pictures")}</div>
-      <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+      <p className="mt-1 text-ui leading-relaxed text-muted">
         {t("profile.picturesHint")} {t("profile.picDropHint")}
       </p>
 
@@ -290,7 +290,7 @@ export default function ProfilePictures(
       {/* ── Cropping, when something has been chosen ── */}
       {source && kind ? (
         <div className="mt-3">
-          <div className="mb-2 font-data text-[11px] uppercase tracking-[0.14em] text-accent">
+          <div className="mb-2 font-data text-meta uppercase tracking-[0.14em] text-accent">
             {kind === "avatar" ? t("profile.picAvatar")
               : kind === "share" ? t("profile.shareCard") : t("profile.picCover")}
           </div>
@@ -305,18 +305,18 @@ export default function ProfilePictures(
       ) : browsing ? (
         <div className="mt-3">
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-            <div className="font-data text-[11px] uppercase tracking-[0.14em] text-accent">
+            <div className="font-data text-meta uppercase tracking-[0.14em] text-accent">
               {t("profile.picFromGallery")}
             </div>
             <button onClick={() => { setBrowsing(false); setKind(null); }}
-                    className="text-[12.5px] text-muted underline hover:text-ink">
+                    className="text-ui text-muted underline hover:text-ink">
               {t("common.cancel")}
             </button>
           </div>
           {shots === null ? (
-            <p className="text-[12.5px] text-muted">{t("gallery.loadingMore")}</p>
+            <p className="text-ui text-muted">{t("gallery.loadingMore")}</p>
           ) : shots.length === 0 ? (
-            <p className="text-[12.5px] text-muted">{t("profile.picNoShots")}</p>
+            <p className="text-ui text-muted">{t("profile.picNoShots")}</p>
           ) : (
             <div className="grid max-h-72 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-5">
               {shots.map((s) => (
@@ -364,19 +364,19 @@ export default function ProfilePictures(
               </svg>
             </button>
             <div className="min-w-0 flex-1">
-              <div className="text-[13px] font-medium text-ink">{t("profile.picAvatar")}</div>
-              <div className="text-[12px] text-muted">
+              <div className="text-read font-medium text-ink">{t("profile.picAvatar")}</div>
+              <div className="text-ui text-muted">
                 {avatar ? t("profile.picYours") : t("profile.picDefault")}
               </div>
               <div className="mt-1.5 flex flex-wrap gap-2">
                 <button onClick={() => openGallery("avatar")} disabled={busy}
-                        className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+                        className="rounded-lg border border-line px-3 py-1.5 text-ui text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                   {t("profile.picFromGallery")}
                 </button>
                 {uploadButton("avatar")}
                 {avatar && (
                   <button onClick={() => clear("avatar")} disabled={busy}
-                          className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
+                          className="rounded-lg border border-line px-3 py-1.5 text-ui text-muted hover:border-chili hover:text-chili disabled:opacity-40">
                     {t("profile.picRemove")}
                   </button>
                 )}
@@ -389,8 +389,8 @@ export default function ProfilePictures(
           {/* ── The cover ── */}
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <div className="text-[13px] font-medium text-ink">{t("profile.picCover")}</div>
-              <div className="text-[12px] text-muted">
+              <div className="text-read font-medium text-ink">{t("profile.picCover")}</div>
+              <div className="text-ui text-muted">
                 {cover ? t("profile.picYours") : t("profile.picNone")}
               </div>
             </div>
@@ -424,7 +424,7 @@ export default function ProfilePictures(
                         t("profile.picWideHint"))}
             <div className="flex flex-wrap gap-2">
               <button onClick={() => openGallery("cover")} disabled={busy}
-                      className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+                      className="rounded-lg border border-line px-3 py-1.5 text-ui text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                 {t("profile.picFromGallery")}
               </button>
               {/* Only once there is a banner. With none, the full-size zone is
@@ -433,7 +433,7 @@ export default function ProfilePictures(
               {cover && uploadButton("cover")}
               {cover && (
                 <button onClick={() => clear("cover")} disabled={busy}
-                        className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
+                        className="rounded-lg border border-line px-3 py-1.5 text-ui text-muted hover:border-chili hover:text-chili disabled:opacity-40">
                   {t("profile.picRemove")}
                 </button>
               )}
@@ -443,8 +443,8 @@ export default function ProfilePictures(
           {/* ── What a link to your page looks like elsewhere ── */}
           {characterId && (
             <div className="flex flex-col gap-2 border-t border-line pt-3">
-              <div className="text-[13px] font-medium text-ink">{t("profile.shareCard")}</div>
-              <p className="text-[12.5px] leading-relaxed text-muted">
+              <div className="text-read font-medium text-ink">{t("profile.shareCard")}</div>
+              <p className="text-ui leading-relaxed text-muted">
                 {t("profile.shareCardHint")}
               </p>
               {/* Dressed as the embed it becomes, because the picture on its own
@@ -455,7 +455,7 @@ export default function ProfilePictures(
                    className={`cursor-pointer rounded-lg border-l-[3px] border-l-accent bg-card p-3 outline-2 outline-dashed transition-colors ${
                      shareDrop.over ? "opacity-50 outline outline-accent"
                                     : "outline-transparent hover:outline hover:outline-accent/50"}`}>
-                <div className="text-[12px] text-muted">Cafe And SHabu</div>
+                <div className="text-ui text-muted">Cafe And SHabu</div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={`/member/${characterId}/opengraph-image?v=${stamp}`}
                      alt="" className="mt-2 w-full rounded-md border border-line" />
@@ -475,10 +475,10 @@ export default function ProfilePictures(
                             setTimeout(() => setCopied(false), 2500);
                           } catch { /* clipboard refused; nothing useful to say */ }
                         }}
-                        className="rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-[12.5px] text-accent hover:bg-accent/25">
+                        className="rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-ui text-accent hover:bg-accent/25">
                   {copied ? t("gallery.copied") : t("profile.shareFresh")}
                 </button>
-                <span className="text-[12px] leading-relaxed text-muted">
+                <span className="text-ui leading-relaxed text-muted">
                   {t("profile.shareFreshHint")}
                 </span>
               </div>
@@ -487,17 +487,17 @@ export default function ProfilePictures(
                           share ? t("profile.shareSwap") : t("profile.shareDrop"),
                           t("profile.picWideHint"))}
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[12px] text-muted">
+                <span className="text-ui text-muted">
                   {share ? t("profile.shareOwn") : t("profile.shareFromCover")}
                 </span>
                 <button onClick={() => openGallery("share")} disabled={busy}
-                        className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+                        className="rounded-lg border border-line px-3 py-1.5 text-ui text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                   {t("profile.picFromGallery")}
                 </button>
                 {uploadButton("share")}
                 {share && (
                   <button onClick={() => clear("share")} disabled={busy}
-                          className="rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili disabled:opacity-40">
+                          className="rounded-lg border border-line px-3 py-1.5 text-ui text-muted hover:border-chili hover:text-chili disabled:opacity-40">
                     {t("profile.picRemove")}
                   </button>
                 )}
@@ -507,7 +507,7 @@ export default function ProfilePictures(
         </div>
       )}
 
-      {err && <p className="mt-2 text-[12.5px] text-chili">{err}</p>}
+      {err && <p className="mt-2 text-ui text-chili">{err}</p>}
     </section>
   );
 }

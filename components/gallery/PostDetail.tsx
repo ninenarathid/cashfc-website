@@ -404,7 +404,7 @@ export default function PostDetail(
         // Over the whole post rather than one corner of it: the pointer could
         // be on the picture, on the caption or halfway down the comments, and
         // the answer to "will it take this?" is the same wherever it is.
-        <div className="pointer-events-none absolute inset-0 z-30 grid place-items-center rounded-xl border-2 border-dashed border-accent bg-bg/85 text-[13.5px] font-semibold text-accent">
+        <div className="pointer-events-none absolute inset-0 z-30 grid place-items-center rounded-xl border-2 border-dashed border-accent bg-bg/85 text-read font-semibold text-accent">
           {t("gallery.dropToAdd")}
         </div>
       )}
@@ -472,15 +472,15 @@ export default function PostDetail(
                 never signs in. */}
             {post.character_id ? (
               <Link href={`/member/${post.character_id}`}
-                    className="font-data text-[13.5px] font-semibold text-ink no-underline hover:text-accent">
+                    className="font-data text-read font-semibold text-ink no-underline hover:text-accent">
                 {shownName}
               </Link>
             ) : (
-              <span className="font-data text-[13.5px] font-semibold text-ink">
+              <span className="font-data text-read font-semibold text-ink">
                 {shownName}
               </span>
             )}
-            <div className="text-[11.5px] text-muted">{when}</div>
+            <div className="text-meta text-muted">{when}</div>
           </div>
         </div>
 
@@ -489,21 +489,21 @@ export default function PostDetail(
             <textarea value={caption} rows={3}
                       onChange={(e) => setCaption(e.target.value.slice(0, 300))}
                       placeholder={t("gallery.captionPlaceholder")}
-                      className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
+                      className="rounded-lg border border-line bg-card px-3 py-2 text-read text-ink placeholder:text-muted" />
             <div className="flex flex-wrap gap-2">
               <button onClick={saveCaption} disabled={busy}
-                      className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-50">
+                      className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-read text-accent hover:bg-accent/25 disabled:opacity-50">
                 {t("gallery.save")}
               </button>
               <button onClick={() => { setCaption(post.caption ?? ""); setEditing(false); }}
-                      className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-muted hover:text-ink">
+                      className="rounded-lg border border-line px-3.5 py-1.5 text-read text-muted hover:border-muted hover:text-ink">
                 {t("common.cancel")}
               </button>
             </div>
           </div>
         ) : (
           <div className="flex items-start gap-2">
-            <p className="min-w-0 flex-1 whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink/85">
+            <p className="min-w-0 flex-1 whitespace-pre-wrap text-read leading-relaxed text-ink/85">
               {post.caption || (
                 <span className="text-muted">{t("gallery.noCaption")}</span>
               )}
@@ -512,11 +512,11 @@ export default function PostDetail(
               <div className="flex shrink-0 gap-1.5">
                 <button onClick={() => setEditing(true)}
                         title={t("gallery.editCaption")}
-                        className="rounded-md border border-line px-2 py-0.5 text-[11.5px] text-muted hover:border-accent hover:text-accent">
+                        className="rounded-md border border-line px-2 py-0.5 text-meta text-muted hover:border-accent hover:text-accent">
                   {t("common.edit")}
                 </button>
                 <button onClick={() => addInput.current?.click()} disabled={busy}
-                        className="rounded-md border border-line px-2 py-0.5 text-[11.5px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+                        className="rounded-md border border-line px-2 py-0.5 text-meta text-muted hover:border-accent hover:text-accent disabled:opacity-40">
                   + {t("gallery.addImages")}
                 </button>
               </div>
@@ -525,7 +525,7 @@ export default function PostDetail(
         )}
 
         {isHidden && (
-          <p className="rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-ink/85">
+          <p className="rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-ui leading-relaxed text-ink/85">
             {post.hidden ? t("gallery.hiddenByAdmin") : t("gallery.hiddenByYou")}
           </p>
         )}
@@ -543,7 +543,7 @@ export default function PostDetail(
                   onReload={loadTags} onChanged={onChanged} />
 
         {tagErr && (
-          <p className="rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-chili">
+          <p className="rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-ui leading-relaxed text-chili">
             {tagErr}
           </p>
         )}
@@ -560,7 +560,7 @@ export default function PostDetail(
                     disabled={!me || busy || (!liked && !iHaveCharacter)}
                     title={!me ? t("gallery.signInToReact")
                       : !liked && !iHaveCharacter ? t("kudos.needCharacter") : undefined}
-                    className={`border px-3.5 py-1.5 text-[13px] transition-colors disabled:opacity-50 ${
+                    className={`border px-3.5 py-1.5 text-read transition-colors disabled:opacity-50 ${
                       likes ? "rounded-l-lg" : "rounded-lg"} ${
                       liked ? "border-accent bg-accent/15 text-accent"
                             : "border-line text-muted hover:border-accent hover:text-accent"}`}>
@@ -568,14 +568,14 @@ export default function PostDetail(
             </button>
             {!!likes && (
               <PopotoGivers kind="post" id={post.id} count={likes} className="-ml-px">
-                <span className="rounded-r-lg border border-line px-3 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
+                <span className="rounded-r-lg border border-line px-3 py-1.5 text-read text-muted transition-colors hover:border-accent hover:text-accent">
                   {likes}
                 </span>
               </PopotoGivers>
             )}
           </span>
           <button onClick={share}
-                  className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
+                  className="rounded-lg border border-line px-3.5 py-1.5 text-read text-muted transition-colors hover:border-accent hover:text-accent">
             {copied ? t("gallery.copied") : t("gallery.share")}
           </button>
           {/* Hiding first, because it is almost always the right one: the
@@ -593,7 +593,7 @@ export default function PostDetail(
                     }}
                     disabled={busy || lockedByAdmin}
                     title={lockedByAdmin ? t("gallery.hiddenByAdmin") : undefined}
-                    className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
+                    className="rounded-lg border border-line px-3.5 py-1.5 text-read text-muted hover:border-chili hover:text-chili disabled:opacity-50">
               {(isAdmin ? post.hidden : post.owner_hidden)
                 ? t("gallery.restore") : t("gallery.hide")}
             </button>
@@ -606,7 +606,7 @@ export default function PostDetail(
                       run: () => void remove(),
                     })}
                     disabled={busy}
-                    className="rounded-lg border border-chili/50 px-3.5 py-1.5 text-[13px] text-chili hover:bg-chili/10 disabled:opacity-50">
+                    className="rounded-lg border border-chili/50 px-3.5 py-1.5 text-read text-chili hover:bg-chili/10 disabled:opacity-50">
               {t("common.delete")}
             </button>
           )}
@@ -670,7 +670,7 @@ export default function PostDetail(
                     } : undefined} />
           {!me && (
             <Link href="/profile"
-                  className="text-[12.5px] text-accent no-underline hover:underline">
+                  className="text-ui text-accent no-underline hover:underline">
               {t("gallery.signInToReact")}
             </Link>
           )}

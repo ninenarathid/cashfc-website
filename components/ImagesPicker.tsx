@@ -95,7 +95,7 @@ export default function ImagesPicker(
                 </span>
                 <button type="button" aria-label="Remove"
                         onClick={() => onChange(value.filter((_, n) => n !== i))}
-                        className="rounded px-1.5 text-[13px] leading-none text-chili hover:bg-chili/10">
+                        className="rounded px-1.5 text-read leading-none text-chili hover:bg-chili/10">
                   ✕
                 </button>
               </div>
@@ -113,7 +113,7 @@ export default function ImagesPicker(
                     : "PNG or JPG, up to 5MB. The first one is the cover."} />
       )}
 
-      {err && <p className="text-[12.5px] text-chili">{err}</p>}
+      {err && <p className="text-ui text-chili">{err}</p>}
     </div>
   );
 }

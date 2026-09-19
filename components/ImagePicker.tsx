@@ -81,7 +81,7 @@ export default function ImagePicker(
         <DropZone size="sm" paste={false} onFiles={take} disabled={busy}
                   title={busy ? "Uploading…" : undefined}
                   hint="PNG or JPG, up to 5MB" />
-        {err && <p className="text-[12.5px] text-chili">{err}</p>}
+        {err && <p className="text-ui text-chili">{err}</p>}
       </div>
     );
   }
@@ -100,17 +100,17 @@ export default function ImagePicker(
              over ? "border-dashed border-accent opacity-60" : "border-line"}`} />
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[11.5px] text-muted">
+        <span className="text-meta text-muted">
           {over ? "Drop to replace it" : "Drag a picture onto it to replace it"}
         </span>
         <button type="button" onClick={() => { onChange(null); setErr(null); }}
                 disabled={busy}
-                className="rounded-lg border border-chili/50 px-3 py-1.5 text-[12.5px] text-chili hover:bg-chili/10 disabled:opacity-50">
+                className="rounded-lg border border-chili/50 px-3 py-1.5 text-ui text-chili hover:bg-chili/10 disabled:opacity-50">
           Remove
         </button>
       </div>
 
-      {err && <p className="text-[12.5px] text-chili">{err}</p>}
+      {err && <p className="text-ui text-chili">{err}</p>}
     </div>
   );
 }

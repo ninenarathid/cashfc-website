@@ -16,11 +16,11 @@ export default function FeedbackPage() {
   const { t } = useLang();
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
+      <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">
         {t("nav.feedback")}
       </div>
       <h1 className="font-display text-3xl font-bold">{t("feedback.title")}</h1>
-      <p className="mt-1 max-w-prose text-[13px] leading-relaxed text-muted">
+      <p className="mt-1 max-w-prose text-read leading-relaxed text-muted">
         {t("feedback.intro")}
       </p>
       <Feedback />

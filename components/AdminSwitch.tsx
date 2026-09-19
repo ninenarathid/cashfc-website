@@ -30,7 +30,7 @@ export default function AdminSwitch({ compact = false }: { compact?: boolean }) 
       )}
       <button onClick={() => setOn(!on)}
               role="switch" aria-checked={on}
-              className={`${compact ? "" : "mt-2.5 "}inline-flex items-center gap-2.5 rounded-lg border px-3.5 py-1.5 text-[13px] transition-colors ${
+              className={`${compact ? "" : "mt-2.5 "}inline-flex items-center gap-2.5 rounded-lg border px-3.5 py-1.5 text-read transition-colors ${
                 on ? "border-chili/60 bg-chili/10 text-chili hover:bg-chili/20"
                    : "border-line text-muted hover:border-muted hover:text-ink"}`}>
         <span aria-hidden

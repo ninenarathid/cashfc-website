@@ -222,7 +222,7 @@ export default function AdminFlavors(
       {/* The switch first: whether any of this can be received at all. */}
       <AdminRareSwitch ready={ready} />
       <h3 className="font-display text-[17px] font-semibold">{t("adm.flavors")}</h3>
-      <p className="text-[13px] leading-relaxed text-muted">{t("adm.flavorsWhy")}</p>
+      <p className="text-read leading-relaxed text-muted">{t("adm.flavorsWhy")}</p>
 
       {/* ── a new flavour ──────────────────────────────────────────────── */}
       {supabase && (
@@ -233,7 +233,7 @@ export default function AdminFlavors(
                     }} />
       )}
 
-      {err && <p className="text-[13px] text-chili">{err}</p>}
+      {err && <p className="text-read text-chili">{err}</p>}
 
       {/* ── by tier ────────────────────────────────────────────────────── */}
       {TIERS.map((x) => {
@@ -244,12 +244,12 @@ export default function AdminFlavors(
           <section key={x} className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <TierBadge tier={x} />
-              <span className="text-[12.5px] text-muted">
+              <span className="text-ui text-muted">
                 {t("adm.flavorTierOdds", { pct: x === "rare" ? 70 : x === "super" ? 25 : 5 })}
               </span>
             </div>
             {!live && (
-              <p className="rounded-lg border border-dashed border-line px-3 py-2 text-[12.5px] text-muted">
+              <p className="rounded-lg border border-dashed border-line px-3 py-2 text-ui text-muted">
                 {t(x === "rare" ? "adm.flavorEmptyRare" : "adm.flavorEmpty")}
               </p>
             )}
@@ -282,19 +282,19 @@ export default function AdminFlavors(
                                              color: r.color, image: r.image_url }} size={40} />
                       </span>
                       <span className="flex min-w-0 flex-col">
-                        <span className="text-[14px] font-medium leading-snug text-ink">{r.name}</span>
-                        <span className={`text-[12.5px] leading-snug ${r.name_en ? "text-ink/80" : "text-gold"}`}>
+                        <span className="text-lead font-medium leading-snug text-ink">{r.name}</span>
+                        <span className={`text-ui leading-snug ${r.name_en ? "text-ink/80" : "text-gold"}`}>
                           {r.name_en || t("adm.flavorNoEn")}
                         </span>
                         {(sent[r.id]?.length ?? 0) > 0 ? (
                           <button type="button"
                                   onClick={() => setShowSent(showSent === r.id ? null : r.id)}
-                                  className="mt-0.5 self-start text-[11.5px] text-muted underline decoration-dotted underline-offset-2 hover:text-accent">
+                                  className="mt-0.5 self-start text-meta text-muted underline decoration-dotted underline-offset-2 hover:text-accent">
                             {t("adm.flavorGiven", { n: sent[r.id].length })}
                             {" "}{showSent === r.id ? "\u25b4" : "\u25be"}
                           </button>
                         ) : (
-                          <span className="mt-0.5 text-[11.5px] text-muted">
+                          <span className="mt-0.5 text-meta text-muted">
                             {t("adm.flavorGiven", { n: 0 })}
                           </span>
                         )}
@@ -304,22 +304,22 @@ export default function AdminFlavors(
                     {parts ? (
                       <div className="flex flex-col gap-0.5 rounded-md bg-bg/40 px-2.5 py-2">
                         {parts.th
-                          ? <p className="text-[13px] leading-snug text-ink">“{parts.th}”</p>
-                          : <p className="text-[12px] text-gold">{t("adm.quoteNoTh")}</p>}
+                          ? <p className="text-read leading-snug text-ink">“{parts.th}”</p>
+                          : <p className="text-ui text-gold">{t("adm.quoteNoTh")}</p>}
                         {parts.en
-                          ? <p className="text-[12.5px] italic leading-snug text-ink/75">“{parts.en}”</p>
-                          : <p className="text-[12px] text-gold">{t("adm.quoteNoEn")}</p>}
-                        <span className="mt-0.5 text-[11.5px] text-gold">— {q!.author_name}</span>
+                          ? <p className="text-ui italic leading-snug text-ink/75">“{parts.en}”</p>
+                          : <p className="text-ui text-gold">{t("adm.quoteNoEn")}</p>}
+                        <span className="mt-0.5 text-meta text-gold">— {q!.author_name}</span>
                       </div>
                     ) : (
-                      <p className="rounded-md border border-dashed border-gold/50 px-2.5 py-2 text-[12px] text-gold">
+                      <p className="rounded-md border border-dashed border-gold/50 px-2.5 py-2 text-ui text-gold">
                         {t("adm.quoteNone")}
                       </p>
                     )}
 
                     {/* Who gave it to whom, and whether it has been opened. */}
                     {showSent === r.id && (
-                      <ul className="flex max-h-56 list-none flex-col gap-1 overflow-y-auto rounded-md bg-bg/40 px-2.5 py-2 text-[11.5px]">
+                      <ul className="flex max-h-56 list-none flex-col gap-1 overflow-y-auto rounded-md bg-bg/40 px-2.5 py-2 text-meta">
                         {sent[r.id].map((g) => (
                           <li key={g.id}
                               className="flex flex-wrap items-baseline gap-x-1.5 border-b border-line/60 pb-1 last:border-0 last:pb-0">
@@ -335,7 +335,7 @@ export default function AdminFlavors(
                       </ul>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-1.5 text-[12px]">
+                    <div className="flex flex-wrap items-center gap-1.5 text-ui">
                       <button type="button" onClick={() => setEditing(r.id)}
                               className="rounded-md border border-line px-2.5 py-0.5 text-muted hover:border-accent hover:text-accent">
                         ✎ {t("adm.edit")}
@@ -392,7 +392,7 @@ function FlavorForm(
     setBusy(false);
   };
 
-  const inputCls = "rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-ink placeholder:text-muted";
+  const inputCls = "rounded-lg border border-line bg-surface px-3 py-2 text-lead text-ink placeholder:text-muted";
 
   return (
     <div className={`flex w-full flex-col gap-2.5 rounded-lg bg-card p-3 ${
@@ -419,37 +419,37 @@ function FlavorForm(
             <TierBadge tier={x} />
           </button>
         ))}
-        <label className="ml-auto flex items-center gap-2 text-[13px] text-muted">
+        <label className="ml-auto flex items-center gap-2 text-read text-muted">
           {t("adm.flavorColor")}
           <input type="color" value={d.color} onChange={(e) => set("color", e.target.value)}
                  className="h-8 w-12 cursor-pointer rounded border border-line bg-transparent" />
         </label>
       </div>
       {editingTier && d.tier !== editingTier && (
-        <p className="text-[12px] text-gold">{t("adm.flavorTierMoved")}</p>
+        <p className="text-ui text-gold">{t("adm.flavorTierMoved")}</p>
       )}
 
       <ImagePicker supabase={supabase} value={d.image} onChange={(v) => set("image", v)} />
 
       <div className="flex flex-col gap-2 border-t border-line pt-2.5">
-        <span className="text-[13px] font-medium text-ink">{t("adm.quote")}</span>
+        <span className="text-read font-medium text-ink">{t("adm.quote")}</span>
         <QuoteFields th={d.th} en={d.en} onTh={(v) => set("th", v)} onEn={(v) => set("en", v)} />
         <AuthorField who={d.who} onWho={(v) => set("who", v)} memberOptions={memberOptions} />
-        {!hasLine && <p className="text-[12px] text-gold">{t("adm.quoteNone")}</p>}
-        {hasLine && !d.who && <p className="text-[12px] text-gold">{t("adm.quoteNeedAuthor")}</p>}
+        {!hasLine && <p className="text-ui text-gold">{t("adm.quoteNone")}</p>}
+        {hasLine && !d.who && <p className="text-ui text-gold">{t("adm.quoteNeedAuthor")}</p>}
       </div>
 
-      {sent && <p className="text-[12px] text-muted">{t("adm.flavorSentKept")}</p>}
+      {sent && <p className="text-ui text-muted">{t("adm.flavorSentKept")}</p>}
 
       <div className="flex items-center justify-end gap-2">
         {onCancel && (
           <button type="button" onClick={onCancel} disabled={busy}
-                  className="rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted hover:text-ink">
+                  className="rounded-lg border border-line px-3 py-1.5 text-read text-muted hover:text-ink">
             {t("adm.cancel")}
           </button>
         )}
         <button type="button" onClick={() => void submit()} disabled={!ok || busy}
-                className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
+                className="rounded-lg border border-accent bg-accent/15 px-4 py-1.5 text-read text-accent hover:bg-accent/25 disabled:opacity-40">
           {submitLabel}
         </button>
       </div>

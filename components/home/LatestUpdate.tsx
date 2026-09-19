@@ -34,7 +34,7 @@ export default function LatestUpdate() {
       </div>
       {more && (
         <button onClick={() => setOpen(!open)}
-                className="mt-3 text-[12.5px] text-accent hover:underline">
+                className="mt-3 text-ui text-accent hover:underline">
           {open ? t("log.less") : t("log.more")} {open ? "↑" : "↓"}
         </button>
       )}

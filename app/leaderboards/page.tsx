@@ -82,7 +82,7 @@ export default function LeaderboardsPage() {
         }))} />
 
       {boards.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-dashed border-line p-10 text-center text-[13.5px] leading-relaxed text-muted">
+        <div className="mt-6 rounded-xl border border-dashed border-line p-10 text-center text-read leading-relaxed text-muted">
           Nothing to rank yet. Scores appear once the pipeline has read achievements
           from FFXIV Collect for members who keep them public.
         </div>

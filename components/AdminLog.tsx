@@ -350,17 +350,17 @@ export default function AdminLog(
   return (
     <section className="mt-5 rounded-xl border border-line bg-surface p-4">
       <div className="font-display font-semibold">{t("adm.log")}</div>
-      <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+      <p className="mt-1 text-ui leading-relaxed text-muted">
         {t("adm.logHint")}
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <input value={who} onChange={(e) => setWho(e.target.value)}
                placeholder={t("adm.who")}
-               className="w-40 rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink placeholder:text-muted" />
+               className="w-40 rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink placeholder:text-muted" />
         <select value={kind} onChange={(e) => setKind(e.target.value)}
                 aria-label={t("adm.anything")}
-                className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink">
+                className="rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink">
           <option value="">{t("adm.anything")}</option>
           {FILTERS.map((f) => (
             <option key={f.value} value={f.value}>{t(f.label)}</option>
@@ -372,22 +372,22 @@ export default function AdminLog(
             spans are a click. */}
         <input type="date" value={since} max={until || undefined}
                onChange={(e) => setSince(e.target.value)} aria-label={t("adm.from")}
-               className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink" />
-        <span className="self-center text-[12.5px] text-muted">{t("adm.to")}</span>
+               className="rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink" />
+        <span className="self-center text-ui text-muted">{t("adm.to")}</span>
         <input type="date" value={until} min={since || undefined}
                onChange={(e) => setUntil(e.target.value)} aria-label={t("adm.to")}
-               className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink" />
+               className="rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink" />
 
         {SPANS.map((s) => (
           <button key={s.label} onClick={() => { setSince(s.from()); setUntil(today()); }}
-                  className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+                  className="rounded-lg border border-line px-2.5 py-1.5 text-ui text-muted hover:border-accent hover:text-accent">
             {t(s.label)}
           </button>
         ))}
         {/* The one question this screen is asked when something has gone
             missing, rather than a scroll through everything looking for it. */}
         <button onClick={() => setOnlyGone((v) => !v)}
-                className={`rounded-lg border px-2.5 py-1.5 text-[12.5px] transition-colors ${
+                className={`rounded-lg border px-2.5 py-1.5 text-ui transition-colors ${
                   onlyGone ? "border-chili bg-chili/10 text-chili"
                            : "border-line text-muted hover:border-chili hover:text-chili"}`}>
           {t("adm.onlyDeleted")}
@@ -395,7 +395,7 @@ export default function AdminLog(
 
         {(since || until) && (
           <button onClick={() => { setSince(""); setUntil(""); }}
-                  className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-chili hover:text-chili">
+                  className="rounded-lg border border-line px-2.5 py-1.5 text-ui text-muted hover:border-chili hover:text-chili">
             {t("adm.anyDate")}
           </button>
         )}
@@ -407,9 +407,9 @@ export default function AdminLog(
           const summary = summarise(l);
           return (
             <div key={l.id}
-                 className="rounded-lg border border-line bg-card px-3 py-2 text-[12.5px]">
+                 className="rounded-lg border border-line bg-card px-3 py-2 text-ui">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="font-data text-[11.5px] text-muted">{when(l.at)}</span>
+                <span className="font-data text-meta text-muted">{when(l.at)}</span>
                 <Actor who={actorOf(l, profiles, byName)} />
                 <span className="text-muted">{VERB[op] ? t(VERB[op]) : op}</span>
                 <span className="text-ink/85">
@@ -422,11 +422,11 @@ export default function AdminLog(
                     question. */}
                 {l.target_id && l.target_kind !== "profiles"
                   && l.target_kind !== "kudos" && l.target_kind !== "gallery_likes" && (
-                  <span className="font-data text-[11.5px] text-muted">#{l.target_id}</span>
+                  <span className="font-data text-meta text-muted">#{l.target_id}</span>
                 )}
                 {l.detail && (
                   <button onClick={() => setExpanded(expanded === l.id ? null : l.id)}
-                          className="ml-auto text-[11.5px] text-accent underline">
+                          className="ml-auto text-meta text-accent underline">
                     {expanded === l.id ? t("adm.less") : t("adm.detail")}
                   </button>
                 )}
@@ -439,11 +439,11 @@ export default function AdminLog(
                               ? t(THING[l.target_kind ?? ""]) : (l.target_kind ?? ""),
                           })}
                           disabled={putting === l.id || restored[l.id] === "restored"}
-                          className="rounded-md border border-jade/60 px-2.5 py-0.5 text-[11.5px] text-jade hover:bg-jade/10 disabled:opacity-40">
+                          className="rounded-md border border-jade/60 px-2.5 py-0.5 text-meta text-jade hover:bg-jade/10 disabled:opacity-40">
                     {putting === l.id ? t("adm.restoring") : t("adm.restore")}
                   </button>
                   {restored[l.id] && (
-                    <span className={`text-[11.5px] ${
+                    <span className={`text-meta ${
                       restored[l.id] === "restored" ? "text-jade" : "text-muted"}`}>
                       {restored[l.id]}
                     </span>
@@ -451,10 +451,10 @@ export default function AdminLog(
                 </div>
               )}
               {summary && expanded !== l.id && (
-                <div className="mt-0.5 truncate text-[12px] text-muted">{summary}</div>
+                <div className="mt-0.5 truncate text-ui text-muted">{summary}</div>
               )}
               {expanded === l.id && (
-                <pre className="mt-1.5 max-h-56 overflow-auto rounded-md border border-line bg-bg p-2 font-data text-[11px] leading-relaxed text-muted">
+                <pre className="mt-1.5 max-h-56 overflow-auto rounded-md border border-line bg-bg p-2 font-data text-meta leading-relaxed text-muted">
                   {JSON.stringify(l.detail, null, 2)}
                 </pre>
               )}
@@ -463,7 +463,7 @@ export default function AdminLog(
         })}
 
         {lines.length === 0 && !loading && (
-          <p className="py-4 text-center text-[12.5px] text-muted">{t("adm.nothingLogged")}</p>
+          <p className="py-4 text-center text-ui text-muted">{t("adm.nothingLogged")}</p>
         )}
       </div>
 
@@ -476,7 +476,7 @@ export default function AdminLog(
 
       {more && (
         <button onClick={() => fetchPage(lines.length, false)} disabled={loading}
-                className="mt-3 rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-accent hover:text-accent disabled:opacity-50">
+                className="mt-3 rounded-lg border border-line px-3.5 py-1.5 text-read text-muted hover:border-accent hover:text-accent disabled:opacity-50">
           {loading ? t("adm.loading") : t("adm.loadMore")}
         </button>
       )}

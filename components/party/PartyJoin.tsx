@@ -139,14 +139,14 @@ export default function PartyJoin(
     await onDone();
   };
 
-  const btn = "rounded-lg px-3 py-1.5 text-[15.5px] transition-colors disabled:opacity-50";
+  const btn = "rounded-lg px-3 py-1.5 text-title transition-colors disabled:opacity-50";
 
   return (
     <div className="flex flex-col gap-2.5">
       {/* ── The lead's side: who is waiting ────────────────────────────── */}
       {canLead && waiting.length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border border-gold/40 bg-gold/[0.07] p-2.5">
-          <p className="font-data text-[13.5px] uppercase tracking-[0.14em] text-gold">
+          <p className="font-data text-read uppercase tracking-[0.14em] text-gold">
             {t("party.waitingOnYou", { n: waiting.length })}
           </p>
           {waiting.map((w) => {
@@ -159,8 +159,8 @@ export default function PartyJoin(
                   ? <img src={src} alt="" width={30} height={30}
                          className="size-[30px] rounded-full object-cover" />
                   : <span className="size-[30px] rounded-full bg-card" />}
-                <span className="text-[16px] text-ink">{w.name}</span>
-                <span className="text-[15px] text-muted">
+                <span className="text-head text-ink">{w.name}</span>
+                <span className="text-title text-muted">
                   {/* What they asked for. One seat named is that seat — it is
                       carried in the flex rather than held, so this is the only
                       thing that reads it back — several is the list, and
@@ -197,7 +197,7 @@ export default function PartyJoin(
       {/* ── The lead's side: who has been asked and has not answered ───── */}
       {canLead && (party.invites ?? []).length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
-          <p className="font-data text-[13.5px] uppercase tracking-[0.14em] text-muted">
+          <p className="font-data text-read uppercase tracking-[0.14em] text-muted">
             {t("party.invitesOut", { n: (party.invites ?? []).length })}
           </p>
           {(party.invites ?? []).map((w) => {
@@ -220,9 +220,9 @@ export default function PartyJoin(
                   ? <img src={src} alt="" width={26} height={26}
                          className="size-[26px] rounded-full object-cover" />
                   : <span className="size-[26px] rounded-full bg-card" />}
-                <span className="text-[15.5px] text-ink">{w.name}</span>
+                <span className="text-title text-ink">{w.name}</span>
                 {where && (
-                  <span className="font-data text-[13px] uppercase tracking-[0.1em] text-steel">
+                  <span className="font-data text-read uppercase tracking-[0.1em] text-steel">
                     {where}
                   </span>
                 )}
@@ -242,20 +242,20 @@ export default function PartyJoin(
                 )}
                 <button disabled={busy}
                         onClick={() => run(() => dropSeat(supabase, w.seatRowId!))}
-                        className={`${isAdmin && w.characterId !== me.id ? "" : "ml-auto "}text-[14px] text-muted underline hover:text-chili`}>
+                        className={`${isAdmin && w.characterId !== me.id ? "" : "ml-auto "}text-lead text-muted underline hover:text-chili`}>
                   {t("party.withdrawInvite")}
                 </button>
               </span>
             );
           })}
-          <p className="text-[14px] text-muted">{t("party.invitesWhy")}</p>
+          <p className="text-lead text-muted">{t("party.invitesWhy")}</p>
         </div>
       )}
 
       {/* ── The reader's side ───────────────────────────────────────────── */}
       {!iAmOwner && mine && !mine.confirmedAt && mine.by === "self" && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[15.5px] text-muted">
+          <span className="text-title text-muted">
             {asked ? t("party.askedFor", { seat: asked }) : t("party.asked")}
           </span>
           <button disabled={busy}
@@ -268,7 +268,7 @@ export default function PartyJoin(
 
       {!iAmOwner && mine && !mine.confirmedAt && mine.by !== "self" && (
         <div className="flex flex-col gap-1.5">
-          <span className="text-[15.5px] text-muted">
+          <span className="text-title text-muted">
             {asked
               ? t("party.invitedTo", { seat: asked })
               : t("party.invited")}
@@ -276,7 +276,7 @@ export default function PartyJoin(
           {/* Which seat is theirs to decide, whether or not one was suggested:
               the lead asking about D4 is a suggestion, and somebody who would
               rather heal should not have to decline to say so. */}
-          <span className="text-[14.5px] text-muted">{t("party.invitedPick")}</span>
+          <span className="text-lead text-muted">{t("party.invitedPick")}</span>
           {/*
             * Said before they answer, not after.
             *
@@ -286,7 +286,7 @@ export default function PartyJoin(
             * rather than surprising them on the way in.
             */}
           {asked && seatGone && (
-            <span className="text-[15px] text-gold">
+            <span className="text-title text-gold">
               {t("party.seatGone", { seat: asked })}
             </span>
           )}
@@ -315,12 +315,12 @@ export default function PartyJoin(
       {mine?.confirmedAt && (
         <div className="flex flex-col gap-1.5">
           <span className="flex flex-wrap items-center gap-2">
-            <span className="text-[15.5px] text-jade">
+            <span className="text-title text-jade">
               {mine.seat ? t("party.youAreInAt", { seat: mine.seat })
                          : t("party.youAreIn")}
             </span>
             {started ? (
-              <span className="text-[15px] text-muted">{t("party.tooLateToLeave")}</span>
+              <span className="text-title text-muted">{t("party.tooLateToLeave")}</span>
             ) : (
               <button disabled={busy}
                       onClick={() => run(() => dropSeat(supabase, mine.seatRowId!))}
@@ -354,7 +354,7 @@ export default function PartyJoin(
         * party, and shutting the door on it would be the guess deciding.
         */}
       {party.endedAt && !mine && (
-        <span className="text-[15.5px] text-muted">{t("party.overNow")}</span>
+        <span className="text-title text-muted">{t("party.overNow")}</span>
       )}
 
       {/*
@@ -370,7 +370,7 @@ export default function PartyJoin(
         * help, and the way out is the Leave button they already have.
         */}
       {!party.endedAt && !mine && clash && (
-        <span className="rounded-lg border border-gold/45 bg-gold/10 px-3 py-2 text-[15.5px] text-gold">
+        <span className="rounded-lg border border-gold/45 bg-gold/10 px-3 py-2 text-title text-gold">
           {t("party.clash", { when: fmtDateTime(clash.startsAt) })}
         </span>
       )}

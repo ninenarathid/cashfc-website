@@ -15,5 +15,5 @@ import { useLang } from "@/lib/i18n";
  */
 export default function LbTopTen() {
   const { t } = useLang();
-  return <span className="text-[11.5px] text-muted">{t("lb.topTen")}</span>;
+  return <span className="text-meta text-muted">{t("lb.topTen")}</span>;
 }

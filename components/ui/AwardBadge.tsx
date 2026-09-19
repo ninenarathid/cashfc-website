@@ -148,7 +148,7 @@ export default function AwardBadge(
           ) : (
             // No emblem: the first letter, which is at least a way to tell two
             // plates of the same metal apart.
-            <span className="font-display text-[13px] font-bold leading-none">
+            <span className="font-display text-read font-bold leading-none">
               {label.trim().slice(0, 1).toUpperCase()}
             </span>
           )}
@@ -256,12 +256,12 @@ export default function AwardBadge(
           // sentence that wraps to three lines would push the name — the part
           // that matters — out of the middle of the plate. The whole of it is
           // still on the hover.
-          <span className="max-w-[20rem] truncate text-[10.5px] font-semibold
+          <span className="max-w-[20rem] truncate text-label font-semibold
                            uppercase leading-tight tracking-[0.08em] opacity-65">
             {reason}
           </span>
         )}
-        <span className="font-display text-[16px] font-bold leading-tight">
+        <span className="font-display text-head font-bold leading-tight">
           {label}
         </span>
       </span>

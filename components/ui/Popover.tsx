@@ -60,7 +60,7 @@ export function Popover(
            * and stays under ConfirmDialog at 120 — a question that has to be
            * answered should cover a card that is only being offered.
            */
-          className={`pop-in z-[100] w-[min(17rem,92vw)] rounded-xl border border-line bg-surface p-3 text-[14.5px] leading-relaxed text-ink shadow-xl shadow-black/50 ${className}`}
+          className={`pop-in z-[100] w-[min(17rem,92vw)] rounded-xl border border-line bg-surface p-3 text-lead leading-relaxed text-ink shadow-xl shadow-black/50 ${className}`}
         >
           {children}
           <Radix.Arrow className="fill-line" width={11} height={5} />

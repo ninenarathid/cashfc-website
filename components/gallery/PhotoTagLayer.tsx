@@ -103,7 +103,7 @@ export default function PhotoTagLayer(
             {/* Named in place while everyone is showing. A chip rather than the
                 full card: eight cards in a group shot would cover the group. */}
             {revealAll && !open && (
-              <div className="pointer-events-none absolute left-0 top-5 max-w-[40vw] -translate-x-1/2 truncate rounded-full border border-line bg-bg/85 px-2 py-0.5 font-data text-[11.5px] text-ink backdrop-blur">
+              <div className="pointer-events-none absolute left-0 top-5 max-w-[40vw] -translate-x-1/2 truncate rounded-full border border-line bg-bg/85 px-2 py-0.5 font-data text-meta text-ink backdrop-blur">
                 {face?.name ?? g.name}
               </div>
             )}
@@ -122,20 +122,20 @@ export default function PhotoTagLayer(
                   <div className="min-w-0">
                     {g.character_id != null ? (
                       <Link href={`/member/${g.character_id}`}
-                            className="block whitespace-nowrap font-data text-[13px] font-semibold text-ink no-underline hover:text-accent hover:underline">
+                            className="block whitespace-nowrap font-data text-read font-semibold text-ink no-underline hover:text-accent hover:underline">
                         {face?.name ?? g.name}
                       </Link>
                     ) : (
-                      <span className="block whitespace-nowrap font-data text-[13px] font-semibold text-ink">
+                      <span className="block whitespace-nowrap font-data text-read font-semibold text-ink">
                         {g.name}
                       </span>
                     )}
                     {g.character_id == null ? (
-                      <div className="whitespace-nowrap text-[11px] italic text-muted">
+                      <div className="whitespace-nowrap text-meta italic text-muted">
                         {t("gallery.tagGuest")}
                       </div>
                     ) : pending && (
-                      <div className="whitespace-nowrap text-[11px] italic text-muted">
+                      <div className="whitespace-nowrap text-meta italic text-muted">
                         {t("gallery.tagPending")}
                       </div>
                     )}
@@ -143,7 +143,7 @@ export default function PhotoTagLayer(
                   {canEdit && (
                     <button onClick={() => onRemove(g.id)}
                             aria-label={t("gallery.tagRemove")}
-                            className="ml-1 shrink-0 rounded-full border border-line px-1.5 text-[11px] text-muted hover:border-chili hover:text-chili">
+                            className="ml-1 shrink-0 rounded-full border border-line px-1.5 text-meta text-muted hover:border-chili hover:text-chili">
                       ✕
                     </button>
                   )}
@@ -165,7 +165,7 @@ export default function PhotoTagLayer(
                           placeholder={t("gallery.tagWho")}
                           onPick={onPlace} />
             <button onClick={onCancel}
-                    className="mt-2 text-[12px] text-muted hover:text-ink">
+                    className="mt-2 text-ui text-muted hover:text-ink">
               {t("common.cancel")}
             </button>
           </div>

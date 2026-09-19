@@ -62,7 +62,7 @@ function Face({ row, first }: {
           first ? "size-7" : "size-6"}`} />
       )}
       <span className={`truncate font-data text-ink transition-colors hover:text-accent ${
-        first ? "text-[12.5px] font-semibold" : "text-[12px] text-ink/75"}`}>
+        first ? "text-ui font-semibold" : "text-ui text-ink/75"}`}>
         {row.name}
       </span>
     </Link>
@@ -149,7 +149,7 @@ export default function TopThree(
       <h2 className="mb-2 flex flex-wrap items-baseline gap-3 font-display text-lg font-semibold">
         {t("lb.title")}
         <Link href="/leaderboards"
-              className="text-[12.5px] font-normal text-accent no-underline hover:underline">
+              className="text-ui font-normal text-accent no-underline hover:underline">
           {t("lb.full")} →
         </Link>
       </h2>
@@ -161,12 +161,12 @@ export default function TopThree(
             {/* The tag's own art rather than a coloured dot. A dot only says
                 "these are different"; the icon says which one, which is the
                 whole job of the thing sitting in front of a name. */}
-            <span className="flex items-center gap-1.5 truncate text-[12px] font-medium"
+            <span className="flex items-center gap-1.5 truncate text-ui font-medium"
                   style={{ color: `color-mix(in srgb, ${b.color} 78%, #ffffff)` }}>
               <span className="grid size-[18px] shrink-0 place-items-center rounded"
                     style={{ background: `${b.color}26` }}>
                 {b.emoji
-                  ? <span className="text-[11px] leading-none">{b.emoji}</span>
+                  ? <span className="text-meta leading-none">{b.emoji}</span>
                   : <TagIcon tag={b.key} size={13} />}
               </span>
               {b.label}

@@ -39,7 +39,7 @@ export function Tooltip(
       <Radix.Portal>
         <Radix.Content
           side={side} sideOffset={6} collisionPadding={10}
-          className="pop-in z-[90] max-w-[16rem] rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[12px] leading-snug text-ink shadow-lg shadow-black/40">
+          className="pop-in z-[90] max-w-[16rem] rounded-lg border border-line bg-surface px-2.5 py-1.5 text-ui leading-snug text-ink shadow-lg shadow-black/40">
           {content}
           <Radix.Arrow className="fill-line" width={10} height={4} />
         </Radix.Content>

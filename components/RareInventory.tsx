@@ -32,9 +32,9 @@ function GiftCard(
       <div className="flex w-60 items-center gap-3 rounded-xl border border-gold/60 bg-surface px-3.5 py-3 shadow-2xl shadow-black/50">
         <GiftIcon size={44} />
         <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="text-[14px] font-semibold text-gold">{t("rare.cardWrapped")}</span>
-          <span className="text-[12px] leading-snug text-muted">{t("rare.cardSecret")}</span>
-          <span className="mt-1 text-[11.5px] text-muted">
+          <span className="text-lead font-semibold text-gold">{t("rare.cardWrapped")}</span>
+          <span className="text-ui leading-snug text-muted">{t("rare.cardSecret")}</span>
+          <span className="mt-1 text-meta text-muted">
             {t("rare.cardGot")} {fmtDate(slot.at)}
           </span>
         </div>
@@ -52,7 +52,7 @@ function GiftCard(
         <div className="flex min-w-0 flex-col items-start gap-1">
           <TierBadge tier={slot.tier} small />
           {name && (
-            <span className="text-[15px] font-semibold leading-snug"
+            <span className="text-title font-semibold leading-snug"
                   style={{ color: slot.color ?? look.color }}>
               {name}
             </span>
@@ -61,16 +61,16 @@ function GiftCard(
       </div>
       {line ? (
         <>
-          <blockquote className="whitespace-pre-wrap border-l-2 pl-2.5 text-[13px] leading-relaxed text-ink"
+          <blockquote className="whitespace-pre-wrap border-l-2 pl-2.5 text-read leading-relaxed text-ink"
                       style={{ borderColor: `${look.color}99` }}>
             {line.body}
           </blockquote>
-          <span className="text-right text-[12px] font-medium text-gold">— {line.authorName}</span>
+          <span className="text-right text-ui font-medium text-gold">— {line.authorName}</span>
         </>
       ) : (
-        <span className="text-[12px] text-muted">…</span>
+        <span className="text-ui text-muted">…</span>
       )}
-      <div className="flex flex-wrap justify-between gap-x-3 border-t border-line pt-2 text-[11.5px] text-muted">
+      <div className="flex flex-wrap justify-between gap-x-3 border-t border-line pt-2 text-meta text-muted">
         <span>{t("rare.cardGot")} {fmtDate(slot.at)}</span>
         <span>{t("rare.cardOpened")} {fmtDate(slot.openedAt)}</span>
       </div>
@@ -210,11 +210,11 @@ export function RareInventory(
         <div className="font-display font-semibold">
           {t("rare.inventory")} · {slots.length}
         </div>
-        <span className="text-[12.5px] text-muted">
+        <span className="text-ui text-muted">
           {t("rare.onShow", { n: onShow.length, max: SHOWCASE_MAX })}
         </span>
       </div>
-      <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+      <p className="mt-1 text-ui leading-relaxed text-muted">
         {wrapped ? t("rare.inventoryWrapped", { n: wrapped }) : t("rare.inventoryHint")}
       </p>
 
@@ -227,7 +227,7 @@ export function RareInventory(
               <Tile slot={s} line={lineOf(s)}
                     onPress={() => setShowing({ id: s.id, opened: !!s.openedAt })}>
                 {shown && (
-                  <span className="pointer-events-none absolute -bottom-1.5 -left-1.5 grid size-5 place-items-center rounded-full bg-accent font-data text-[10.5px] font-bold text-bg shadow">
+                  <span className="pointer-events-none absolute -bottom-1.5 -left-1.5 grid size-5 place-items-center rounded-full bg-accent font-data text-label font-bold text-bg shadow">
                     {s.showcase}
                   </span>
                 )}
@@ -235,19 +235,19 @@ export function RareInventory(
               {s.openedAt ? (
                 <button type="button" onClick={() => void toggle(s)}
                         disabled={full || busy}
-                        className={`rounded-full border px-2 py-[1px] text-[11px] transition-colors disabled:opacity-35 ${
+                        className={`rounded-full border px-2 py-[1px] text-meta transition-colors disabled:opacity-35 ${
                           shown ? "border-accent bg-accent/15 text-accent"
                                 : "border-line text-muted hover:border-accent hover:text-accent"}`}>
                   {shown ? t("rare.shown") : t("rare.show")}
                 </button>
               ) : (
-                <span className="text-[11px] text-gold">{t("rare.tapToOpen")}</span>
+                <span className="text-meta text-gold">{t("rare.tapToOpen")}</span>
               )}
             </span>
           );
         })}
       </div>
-      {err && <p className="mt-2 text-[12.5px] text-chili">{err}</p>}
+      {err && <p className="mt-2 text-ui text-chili">{err}</p>}
 
       {showing && (demo ? (
         <PopotoRare preview={demo.find((g) => g.id === showing.id)} opened={showing.opened}
@@ -290,7 +290,7 @@ export function RareShowcase(
 
   return (
     <div className="mt-3 flex flex-col gap-1.5">
-      <span className="font-data text-[11px] uppercase tracking-[0.16em] text-gold">
+      <span className="font-data text-meta uppercase tracking-[0.16em] text-gold">
         {t("rare.shelf")}
       </span>
       <div className="flex flex-wrap gap-2.5">

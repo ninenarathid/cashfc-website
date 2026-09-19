@@ -60,11 +60,11 @@ export default function NewPlayer(
         </span>
       }>
       <div className="flex flex-col gap-1">
-        <div className="font-display text-[13px] font-semibold text-jade">
+        <div className="font-display text-read font-semibold text-jade">
           {t("new.label")}
         </div>
-        <p className="text-[12.5px] leading-relaxed text-muted">{t("new.why")}</p>
-        {where && <p className="text-[12.5px] text-ink/85">{where}</p>}
+        <p className="text-ui leading-relaxed text-muted">{t("new.why")}</p>
+        {where && <p className="text-ui text-ink/85">{where}</p>}
       </div>
     </HoverCard>
   );
@@ -95,7 +95,7 @@ export function MsqBadge(
   if (!msq.playing) return null;
 
   const pad = size === "md"
-    ? "px-3 py-1 text-[12.5px]" : "px-2.5 py-[3px] text-[11.5px]";
+    ? "px-3 py-1 text-ui" : "px-2.5 py-[3px] text-meta";
   const here = patches[msq.playing] ?? null;
 
   return (
@@ -117,17 +117,17 @@ export function MsqBadge(
         </span>
       }>
       <div className="flex flex-col gap-1">
-        <div className="text-[12.5px] leading-relaxed text-ink/90">
+        <div className="text-ui leading-relaxed text-ink/90">
           {t("new.playingMsq", { patch: msq.playing })}
           {here?.title ? ` — ${here.title}` : ""}
         </div>
         {msq.playing_name && (
           // What finishing it is called, which is the achievement this was all
           // read from in the first place.
-          <div className="text-[12px] text-muted">{msq.playing_name}</div>
+          <div className="text-ui text-muted">{msq.playing_name}</div>
         )}
         {msq.done && (
-          <div className="text-[12px] text-muted">
+          <div className="text-ui text-muted">
             {t("new.doneMsq", { patch: msq.done })}
           </div>
         )}

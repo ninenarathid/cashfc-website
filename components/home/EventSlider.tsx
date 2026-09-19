@@ -118,7 +118,7 @@ export default function EventSlider(
   return (
     <section className="mt-4 flex flex-col gap-2.5">
       <div className="flex items-center gap-3">
-        <h2 className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
+        <h2 className="font-data text-meta uppercase tracking-[0.22em] text-accent">
           {t("home.announcements")}
         </h2>
         {items.length > 1 && (
@@ -244,7 +244,7 @@ function Slide(
                className="relative mx-auto block max-h-[26rem] w-auto max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02] sm:max-h-[32rem]" />
 
           {pics.length > 1 && (
-            <span className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 rounded-full border border-line/60 bg-bg/80 px-2.5 py-1 font-data text-[11px] text-ink/90 backdrop-blur-sm">
+            <span className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 rounded-full border border-line/60 bg-bg/80 px-2.5 py-1 font-data text-meta text-ink/90 backdrop-blur-sm">
               <svg viewBox="0 0 24 24" width="12" height="12" fill="none"
                    stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"
                    strokeLinejoin="round" aria-hidden>
@@ -258,7 +258,7 @@ function Slide(
       )}
 
       <div className="flex flex-col gap-2 px-4 py-3.5 sm:px-5">
-        <div className="font-data text-[11px] uppercase tracking-[0.16em] text-muted">
+        <div className="font-data text-meta uppercase tracking-[0.16em] text-muted">
           {fmtDate(notice.created_at)}
         </div>
         <h3 className="font-display text-[19px] font-semibold leading-snug text-ink">
@@ -269,13 +269,13 @@ function Slide(
             itself. A notice that fits in two lines has been read by the time
             somebody decides whether to press. */}
         {body && (
-          <p className="line-clamp-2 whitespace-pre-wrap text-[14px] leading-relaxed text-muted">
+          <p className="line-clamp-2 whitespace-pre-wrap text-lead leading-relaxed text-muted">
             {body}
           </p>
         )}
 
         <div className="mt-1 flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/10 px-3 py-1.5 text-[13.5px] font-medium text-accent transition-colors group-hover:border-accent group-hover:bg-accent/20">
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/10 px-3 py-1.5 text-read font-medium text-accent transition-colors group-hover:border-accent group-hover:bg-accent/20">
             {t("home.readOn")}
             <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
                  stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
@@ -288,7 +288,7 @@ function Slide(
           {/* In words, not a speech-balloon emoji: that character is drawn
               differently on every platform and at this size is a smudge on
               most of them. */}
-          <span className="ml-auto flex items-center gap-1.5 text-[12.5px] text-muted">
+          <span className="ml-auto flex items-center gap-1.5 text-ui text-muted">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
                  stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
                  strokeLinejoin="round" aria-hidden>

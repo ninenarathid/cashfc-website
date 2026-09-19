@@ -45,7 +45,7 @@ export function TierBadge({ tier, small = false }: { tier: Flavor["tier"]; small
    */
   if (small) {
     return (
-      <span className={`inline-flex items-center whitespace-nowrap rounded-md px-1.5 py-[1px] font-data text-[10px] font-extrabold leading-none tracking-[0.06em] shadow-md shadow-black/50 ${
+      <span className={`inline-flex items-center whitespace-nowrap rounded-md px-1.5 py-[1px] font-data text-label font-extrabold leading-none tracking-[0.06em] shadow-md shadow-black/50 ${
         tier === "ultra" ? "rare-ultra-chip text-[#2a1600]" : "text-white"}`}
             style={tier === "ultra" ? undefined : {
               background: `linear-gradient(135deg, ${look.color}, ${look.color}b3)`,
@@ -62,14 +62,14 @@ export function TierBadge({ tier, small = false }: { tier: Flavor["tier"]; small
    * the spectrum, so the rarest one is the one that looks it.
    */
   return (
-    <span className={`relative inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1 font-display text-[12.5px] font-extrabold uppercase italic tracking-[0.16em] ${
+    <span className={`relative inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1 font-display text-ui font-extrabold uppercase italic tracking-[0.16em] ${
       tier === "ultra" ? "rare-ultra-chip text-[#2a1600]" : "text-white"}`}
           style={tier === "ultra" ? undefined : {
             background: `linear-gradient(90deg, ${look.color}d9, ${look.color}, ${look.color}d9)`,
             boxShadow: `inset 0 1px 0 rgba(255,255,255,.35), 0 0 14px ${look.color}66`,
             textShadow: "0 1px 2px rgba(0,0,0,.35)",
           }}>
-      <span aria-hidden className="text-[10px] not-italic">
+      <span aria-hidden className="text-label not-italic">
         {tier === "ultra" ? "✦✦✦" : tier === "super" ? "✦✦" : "✦"}
       </span>
       {look.label}
@@ -361,15 +361,15 @@ export default function PopotoRare(
           {stage === "wrapped" || stage === "charging" ? (
             <div className={`flex flex-col items-center gap-3 text-center transition-opacity ${
                    stage === "charging" ? "pointer-events-none opacity-40" : ""}`}>
-              <p className="text-[15px] text-ink/90">
+              <p className="text-title text-ink/90">
                 {sender ? t("rare.fromSender", { who: sender }) : t("rare.fromSomebody")}
               </p>
               <button type="button" onClick={() => void unwrap()}
-                      className="inline-flex items-center gap-2 rounded-xl border border-gold/60 bg-gold/15 py-2.5 pl-4 pr-6 text-[16px] font-semibold text-gold hover:bg-gold/25">
+                      className="inline-flex items-center gap-2 rounded-xl border border-gold/60 bg-gold/15 py-2.5 pl-4 pr-6 text-head font-semibold text-gold hover:bg-gold/25">
                 <GiftIcon size={24} />
                 {t("rare.unwrap")}
               </button>
-              {err && <p className="text-[13.5px] text-chili">{err}</p>}
+              {err && <p className="text-read text-chili">{err}</p>}
             </div>
           ) : gift && (
             <figure className="rare-card relative z-20 flex w-full max-w-md flex-col items-center gap-3 rounded-2xl border bg-surface/95 px-6 py-5 text-center shadow-2xl shadow-black/50"
@@ -387,7 +387,7 @@ export default function PopotoRare(
               <blockquote className="whitespace-pre-wrap text-[18px] leading-relaxed text-ink">
                 “{gift.body}”
               </blockquote>
-              <figcaption className="text-[14.5px] text-gold">
+              <figcaption className="text-lead text-gold">
                 —{" "}
                 {gift.authorCharacterId != null ? (
                   <Link href={`/member/${gift.authorCharacterId}`} onClick={onClose}
@@ -396,7 +396,7 @@ export default function PopotoRare(
                   </Link>
                 ) : gift.authorName}
               </figcaption>
-              <p className="font-data text-[11.5px] text-muted">
+              <p className="font-data text-meta text-muted">
                 {sender ? t("rare.fromSender", { who: sender }) : t("rare.fromSomebody")}
                 {" · "}{fmtDate(gift.at)}
               </p>
@@ -404,7 +404,7 @@ export default function PopotoRare(
           )}
 
           {stage === "open" && (
-            <Dialog.Close className="rounded-lg border border-line px-5 py-2 text-[15px] text-muted hover:border-muted hover:text-ink">
+            <Dialog.Close className="rounded-lg border border-line px-5 py-2 text-title text-muted hover:border-muted hover:text-ink">
               {t("common.close")}
             </Dialog.Close>
           )}

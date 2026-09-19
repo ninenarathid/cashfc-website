@@ -44,24 +44,24 @@ export default function PollCard() {
   return (
     <section className="mx-auto mt-4 w-full max-w-[1040px] rounded-2xl border border-accent/40 bg-surface p-4">
       <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
-        <span className="font-display text-[13px] font-semibold text-accent">
+        <span className="font-display text-read font-semibold text-accent">
           {t("poll.heading")}
         </span>
         {left != null && (
-          <span className="text-[12px] text-muted">
+          <span className="text-ui text-muted">
             {left >= 24
               ? t("poll.daysLeft", { n: Math.ceil(left / 24) })
               : t("poll.hoursLeft", { n: left })}
           </span>
         )}
-        {over && <span className="text-[12px] text-muted">{t("poll.closed")}</span>}
+        {over && <span className="text-ui text-muted">{t("poll.closed")}</span>}
       </div>
 
-      <p className="text-[14px] leading-relaxed text-ink">
+      <p className="text-lead leading-relaxed text-ink">
         {(th ? null : poll.question_en) || poll.question}
       </p>
       {(poll.note || poll.note_en) && (
-        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+        <p className="mt-1 text-ui leading-relaxed text-muted">
           {(th ? null : poll.note_en) || poll.note}
         </p>
       )}
@@ -76,7 +76,7 @@ export default function PollCard() {
                     disabled={!canVote || busy}
                     onClick={() => void vote(o.key)}
                     aria-pressed={picked}
-                    className={`relative overflow-hidden rounded-lg border px-3 py-2 text-left text-[13px] transition-colors ${
+                    className={`relative overflow-hidden rounded-lg border px-3 py-2 text-left text-read transition-colors ${
                       picked ? "border-accent text-ink" : "border-line text-ink/85"} ${
                       canVote ? "hover:border-accent" : "cursor-default"}`}>
               {/* The share, drawn behind the words rather than beside them, so
@@ -93,7 +93,7 @@ export default function PollCard() {
                   {(th ? o.th : o.en) || o.th}
                 </span>
                 {show && (
-                  <span className="shrink-0 font-data text-[12.5px] text-muted">
+                  <span className="shrink-0 font-data text-ui text-muted">
                     {pct}% <span className="opacity-70">({n})</span>
                   </span>
                 )}
@@ -103,7 +103,7 @@ export default function PollCard() {
         })}
       </div>
 
-      <p className="mt-2 text-[12px] text-muted">
+      <p className="mt-2 text-ui text-muted">
         {!signedIn ? t("poll.signIn")
           : !eligible ? t("poll.needCharacter")
           : mine && !over ? t("poll.canChange")

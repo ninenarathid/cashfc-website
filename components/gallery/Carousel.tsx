@@ -218,7 +218,7 @@ export default function Carousel(
 
       {picking && (
         <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center">
-          <span className="rounded-full border border-accent bg-bg/85 px-3 py-1 text-[12px] text-accent backdrop-blur">
+          <span className="rounded-full border border-accent bg-bg/85 px-3 py-1 text-ui text-accent backdrop-blur">
             {t("gallery.tagClickFace")}
           </span>
         </div>
@@ -237,7 +237,7 @@ export default function Carousel(
                   className="absolute right-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-bg/45 text-ink/85 opacity-0 shadow-lg backdrop-blur-sm transition-all duration-200 hover:bg-bg/80 hover:text-ink group-hover/photo:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100">
             <Chevron />
           </button>
-          <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-bg/55 px-2.5 py-1 font-data text-[11.5px] text-ink/90 opacity-0 backdrop-blur transition-opacity duration-200 group-hover/photo:opacity-100 [@media(hover:none)]:opacity-100">
+          <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-bg/55 px-2.5 py-1 font-data text-meta text-ink/90 opacity-0 backdrop-blur transition-opacity duration-200 group-hover/photo:opacity-100 [@media(hover:none)]:opacity-100">
             {t("gallery.imageOf", { n: i + 1, total: images.length })}
           </div>
           <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
@@ -259,7 +259,7 @@ export default function Carousel(
       )}
       {canEdit && onToggleHidden && (
         <button onClick={() => onToggleHidden(current.id, !current.hidden)}
-                className={`absolute left-2 top-2 rounded-lg border px-2.5 py-1 text-[12px] backdrop-blur ${
+                className={`absolute left-2 top-2 rounded-lg border px-2.5 py-1 text-ui backdrop-blur ${
                   current.hidden
                     ? "border-jade/60 bg-bg/85 text-jade hover:bg-jade/15"
                     : "border-line bg-bg/80 text-muted hover:border-chili hover:text-chili"}`}>
@@ -271,7 +271,7 @@ export default function Carousel(
         <button
           onClick={() => onRemove(current.id)}
           title={t("gallery.removeImage")}
-          className="absolute right-2 top-2 rounded-lg border border-chili/60 bg-bg/80 px-2.5 py-1 text-[12px] text-chili backdrop-blur hover:bg-chili/15">
+          className="absolute right-2 top-2 rounded-lg border border-chili/60 bg-bg/80 px-2.5 py-1 text-ui text-chili backdrop-blur hover:bg-chili/15">
           {t("gallery.removeImage")}
         </button>
       )}

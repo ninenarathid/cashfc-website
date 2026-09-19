@@ -151,7 +151,7 @@ function Tile(
               ) : (
                 <span className="size-5 shrink-0 rounded-full border border-line bg-card" />
               )}
-              <span className="truncate font-data text-[11.5px] font-semibold text-ink">
+              <span className="truncate font-data text-meta font-semibold text-ink">
                 {by.name}
               </span>
               {(others?.length ?? 0) > 0 && (
@@ -169,7 +169,7 @@ function Tile(
                     )
                   ))}
                   {others!.length > 3 && (
-                    <span className="pl-2 font-data text-[10.5px] text-ink/70">
+                    <span className="pl-2 font-data text-label text-ink/70">
                       +{others!.length - 3}
                     </span>
                   )}
@@ -178,12 +178,12 @@ function Tile(
             </div>
           )}
           {post.caption && (
-            <p className="line-clamp-2 text-[12px] leading-snug text-ink">
+            <p className="line-clamp-2 text-ui leading-snug text-ink">
               {post.caption}
             </p>
           )}
           {((post.like_count ?? 0) > 0 || (post.comment_count ?? 0) > 0) && (
-            <div className="mt-1 flex gap-2 text-[11.5px] font-medium text-ink/85">
+            <div className="mt-1 flex gap-2 text-meta font-medium text-ink/85">
               {(post.like_count ?? 0) > 0 && <span>🥔 {post.like_count}</span>}
               {(post.comment_count ?? 0) > 0 && <span>💬 {post.comment_count}</span>}
             </div>
@@ -311,7 +311,7 @@ export default function HotGallery() {
       <h2 className="mb-2 flex flex-wrap items-baseline gap-3 font-display text-lg font-semibold">
         {t("gallery.hotHeading")}
         <Link href="/gallery"
-              className="text-[12.5px] font-normal text-accent no-underline hover:underline">
+              className="text-ui font-normal text-accent no-underline hover:underline">
           {t("gallery.seeAll")} →
         </Link>
       </h2>

@@ -133,7 +133,7 @@ export default function EventBody(
     <div className="flex flex-col gap-3 pt-1">
       {heading && (
         <header className="flex flex-col gap-1">
-          <div className="font-data text-[11.5px] uppercase tracking-[0.16em] text-muted">
+          <div className="font-data text-meta uppercase tracking-[0.16em] text-muted">
             {fmtDate(notice.created_at)}
           </div>
           <h1 className="font-display text-3xl font-bold leading-tight">
@@ -191,7 +191,7 @@ export default function EventBody(
       )}
 
       {body && (
-        <p className="whitespace-pre-wrap text-[15.5px] leading-relaxed text-ink/85">
+        <p className="whitespace-pre-wrap text-title leading-relaxed text-ink/85">
           {body}
         </p>
       )}
@@ -200,7 +200,7 @@ export default function EventBody(
           have read it and decided it is worth sending, which is here. */}
       <div className="flex items-center">
         <button type="button" onClick={share}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted transition-colors hover:border-accent hover:text-accent">
+                className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-read text-muted transition-colors hover:border-accent hover:text-accent">
           {copied ? (
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
                  stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
@@ -266,7 +266,7 @@ export default function EventBody(
       )}
 
       {!me && (
-        <p className="text-[13.5px] text-muted">{t("home.signInToReply")}</p>
+        <p className="text-read text-muted">{t("home.signInToReply")}</p>
       )}
 
       {zoom !== null && (

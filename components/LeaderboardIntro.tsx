@@ -27,10 +27,10 @@ export default function LeaderboardIntro(
           they came to see who is at the top, and the answer was below a
           paragraph about arithmetic. */}
       <details className="mt-3 max-w-2xl rounded-xl border border-line bg-surface">
-        <summary className="cursor-pointer select-none px-4 py-2.5 text-[13.5px] font-medium text-muted marker:text-accent">
+        <summary className="cursor-pointer select-none px-4 py-2.5 text-read font-medium text-muted marker:text-accent">
           {t("lb.howScored")}
         </summary>
-        <div className="flex flex-col gap-2.5 px-4 pb-3.5 text-[13.5px] leading-relaxed text-muted">
+        <div className="flex flex-col gap-2.5 px-4 pb-3.5 text-read leading-relaxed text-muted">
           <p>
             {th ? (
               <>
@@ -46,7 +46,7 @@ export default function LeaderboardIntro(
               </>
             )}
           </p>
-          <ul className="flex flex-col gap-0.5 font-data text-[12.5px] text-ink/90">
+          <ul className="flex flex-col gap-0.5 font-data text-ui text-ink/90">
             <li>{th ? "1 คะแนน — achievement ที่ผู้เล่นในเกมได้ 10%"
                     : "1 point — an achievement 10% of players have"}</li>
             <li>{th ? "10 คะแนน — ที่ผู้เล่นได้ 1%"
@@ -87,7 +87,7 @@ export default function LeaderboardIntro(
                     : "Points each title starts at, by board"}
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full font-data text-[12.5px]">
+                <table className="w-full font-data text-ui">
                   <thead>
                     <tr className="text-left text-muted">
                       <th className="pb-1 pr-3 font-normal" />
@@ -126,7 +126,7 @@ export default function LeaderboardIntro(
 
         {/* Two boards, two counters, and the fact that they never mix is the
             surprising half — which is the half worth writing down. */}
-        <p className="border-t border-line px-4 py-3 text-[13.5px] leading-relaxed text-muted">
+        <p className="border-t border-line px-4 py-3 text-read leading-relaxed text-muted">
           {th ? (
             <>
               <b className="text-gold">🥔 Popoto</b> กับ{" "}

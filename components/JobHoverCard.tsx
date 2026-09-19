@@ -45,8 +45,8 @@ export default function JobHoverCard(
 
   const stat = (value: ReactNode, label: string) => (
     <div className="flex flex-col">
-      <span className="font-data text-[14px] text-ink">{value}</span>
-      <span className="text-[11px] text-muted">{label}</span>
+      <span className="font-data text-lead text-ink">{value}</span>
+      <span className="text-meta text-muted">{label}</span>
     </div>
   );
 
@@ -55,7 +55,7 @@ export default function JobHoverCard(
       <div className="flex flex-col gap-2.5">
         <div
           style={jobTierStyle(job, tier)}
-          className="inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium">
+          className="inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-ui font-medium">
           <JobIcon job={job} size={14} />
           {ACHV_TIER_LABEL[tier]} {jobLabel(job)}
         </div>
@@ -69,7 +69,7 @@ export default function JobHoverCard(
         {/* Said plainly, because a parse number with no qualifier invites the
             wrong comparison: it is weighted by how hard the fight was and how
             often they killed it, not a single best pull. */}
-        <p className="text-[11.5px] text-muted">
+        <p className="text-meta text-muted">
           {th
             ? `ถ่วงน้ำหนักตามความยากและจำนวนครั้งที่ฆ่า${
                 hardest ? ` · สูงสุดถึง ${CONTENT_LABEL[hardest] ?? hardest}` : ""}`

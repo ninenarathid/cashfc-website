@@ -68,7 +68,7 @@ export default function TellButton(
     return (
       <button type="button" onClick={copy}
               title={done ? t("tell.copied") : tellCommand(name, characterId, world)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border border-accent/60 bg-bg/40 px-3 py-1 text-[12.5px] text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${className}`}>
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border border-accent/60 bg-bg/40 px-3 py-1 text-ui text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${className}`}>
         <TagIcon tag="tell" size={15} />
         {done ? t("tell.copied") : t("tell.send")}
       </button>

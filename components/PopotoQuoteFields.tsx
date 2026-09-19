@@ -28,7 +28,7 @@ const oneLine = (s: string) => noBreaks(s).replace(/\s{2,}/g, " ").trim();
 export const joinBody = (th: string, en: string) =>
   [oneLine(th), oneLine(en)].filter(Boolean).join("\n");
 
-const inputCls = "rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-ink placeholder:text-muted";
+const inputCls = "rounded-lg border border-line bg-surface px-3 py-2 text-lead text-ink placeholder:text-muted";
 
 /** The two halves of a line, one box each. */
 export function QuoteFields(
@@ -38,12 +38,12 @@ export function QuoteFields(
   return (
     <div className="flex flex-col gap-2">
       <label className="flex flex-col gap-1">
-        <span className="text-[12px] text-muted">{t("adm.quoteTh")}</span>
+        <span className="text-ui text-muted">{t("adm.quoteTh")}</span>
         <textarea value={th} rows={2} maxLength={TH_MAX}
                   onChange={(e) => onTh(noBreaks(e.target.value))} className={inputCls} />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-[12px] text-muted">{t("adm.quoteEn")}</span>
+        <span className="text-ui text-muted">{t("adm.quoteEn")}</span>
         <textarea value={en} rows={2} maxLength={EN_MAX}
                   onChange={(e) => onEn(noBreaks(e.target.value))} className={inputCls} />
       </label>
@@ -69,11 +69,11 @@ export function AuthorField(
 
   if (who) {
     return (
-      <span className="flex flex-wrap items-center gap-2 text-[14px] text-ink">
+      <span className="flex flex-wrap items-center gap-2 text-lead text-ink">
         {t("adm.quoteAuthor")}: <b className="font-medium">{who.name}</b>
-        {who.id == null && <span className="text-[12px] text-muted">{t("adm.quoteAuthorTyped")}</span>}
+        {who.id == null && <span className="text-ui text-muted">{t("adm.quoteAuthorTyped")}</span>}
         <button type="button" onClick={() => { onWho(null); setQ(""); }}
-                className="rounded-md border border-line px-2 py-0.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+                className="rounded-md border border-line px-2 py-0.5 text-ui text-muted hover:border-accent hover:text-accent">
           {t("adm.quoteAuthorChange")}
         </button>
       </span>
@@ -86,13 +86,13 @@ export function AuthorField(
       <div className="flex flex-wrap gap-1.5">
         {found.map((m) => (
           <button key={m.id} type="button" onClick={() => onWho({ id: m.id, name: m.name })}
-                  className="rounded-full border border-line px-2.5 py-1 text-[13px] text-ink hover:border-accent">
+                  className="rounded-full border border-line px-2.5 py-1 text-read text-ink hover:border-accent">
             {m.name}
           </button>
         ))}
         {q.trim().length >= 2 && !found.length && (
           <button type="button" onClick={() => onWho({ id: null, name: q.trim() })}
-                  className="rounded-full border border-dashed border-line px-2.5 py-1 text-[13px] text-muted hover:border-accent">
+                  className="rounded-full border border-dashed border-line px-2.5 py-1 text-read text-muted hover:border-accent">
             “{q.trim()}”
           </button>
         )}

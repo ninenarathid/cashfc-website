@@ -129,7 +129,7 @@ export default function AdminBadges(
 
   return (
     <div className="mt-1">
-      <p className="text-[12.5px] leading-relaxed text-muted">
+      <p className="text-ui leading-relaxed text-muted">
         {t("adm.badgesHint")}
       </p>
 
@@ -137,7 +137,7 @@ export default function AdminBadges(
       <div ref={formRef}
            className={`mt-3 rounded-xl border bg-card p-3.5 transition-colors ${
              editing !== null ? "border-accent/60" : "border-line"}`}>
-        <div className="mb-2.5 text-[12.5px] font-semibold text-accent">
+        <div className="mb-2.5 text-ui font-semibold text-accent">
           {editing !== null
             ? t("adm.badgeEditing", {
                 label: badges.find((x) => x.id === editing)?.label ?? "" })
@@ -172,7 +172,7 @@ export default function AdminBadges(
                       aria-pressed={on}
                       style={{ background: sh.background, color: sh.ink,
                                borderColor: on ? "var(--color-ink)" : sh.border }}
-                      className={`rounded-lg border-2 px-3 py-1.5 font-display text-[12.5px] font-bold transition-transform ${
+                      className={`rounded-lg border-2 px-3 py-1.5 font-display text-ui font-bold transition-transform ${
                         on ? "scale-105" : "opacity-80 hover:scale-105 hover:opacity-100"}`}>
                 {c.label}
               </button>
@@ -184,20 +184,20 @@ export default function AdminBadges(
             same admin-only storage policy — a second bucket would be a second
             policy to keep in step for no gain. */}
         <div className="mt-3">
-          <div className="text-[12px] uppercase tracking-wider text-muted">
+          <div className="text-ui uppercase tracking-wider text-muted">
             {t("adm.badgeIcon")}
           </div>
           {/* Beside the picker rather than in the docs. Every one of these is
               something somebody would otherwise find out by uploading the
               wrong file and looking at the result. */}
-          <p className="mb-2 mt-1 max-w-prose text-[11.5px] leading-relaxed text-muted">
+          <p className="mb-2 mt-1 max-w-prose text-meta leading-relaxed text-muted">
             {t("adm.badgeIconHint")}
           </p>
           <ImagePicker supabase={supabase} value={icon} onChange={setIcon} />
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
-          <span className="text-[12px] uppercase tracking-wider text-muted">
+          <span className="text-ui uppercase tracking-wider text-muted">
             {t("adm.badgePreview")}
           </span>
           {/* Drawn from the form as it stands, in whichever language the admin
@@ -213,7 +213,7 @@ export default function AdminBadges(
           <div className="ml-auto flex flex-wrap items-center gap-2">
             {editing !== null && (
               <button onClick={clearForm}
-                      className="rounded-lg border border-line px-3 py-2 text-[13px] text-muted hover:border-muted hover:text-ink">
+                      className="rounded-lg border border-line px-3 py-2 text-read text-muted hover:border-muted hover:text-ink">
                 {t("adm.cancel")}
               </button>
             )}
@@ -239,7 +239,7 @@ export default function AdminBadges(
                 await refresh();
                 flash(t(wasEditing ? "adm.badgeSaved" : "adm.badgeCreated"));
               }}
-              className="rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-[13px] text-accent hover:bg-accent/25 disabled:cursor-not-allowed disabled:opacity-40">
+              className="rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-read text-accent hover:bg-accent/25 disabled:cursor-not-allowed disabled:opacity-40">
               {editing !== null ? t("adm.save") : t("adm.badgeCreate")}
             </button>
           </div>
@@ -248,7 +248,7 @@ export default function AdminBadges(
 
       {/* ── The badges that exist, and who has them ── */}
       {badges.length === 0 ? (
-        <p className="mt-4 text-[13px] text-muted">{t("adm.badgeNone")}</p>
+        <p className="mt-4 text-read text-muted">{t("adm.badgeNone")}</p>
       ) : (
         <div className="mt-4 flex flex-col gap-2">
           {badges.map((b) => {
@@ -258,13 +258,13 @@ export default function AdminBadges(
               <div key={b.id} className="rounded-xl border border-line bg-card p-3">
                 <div className="flex flex-wrap items-center gap-3">
                   <AwardBadge badge={b} />
-                  <span className="text-[12.5px] text-muted">
+                  <span className="text-ui text-muted">
                     {t("adm.badgeHolderCount", { n: holders.length })}
                   </span>
                   <div className="ml-auto flex flex-wrap gap-2">
                     <button
                       onClick={() => loadForEdit(b)}
-                      className={`rounded-md border px-2.5 py-1 text-[12px] ${
+                      className={`rounded-md border px-2.5 py-1 text-ui ${
                         editing === b.id
                           ? "border-accent text-accent"
                           : "border-line text-muted hover:border-accent hover:text-accent"}`}>
@@ -272,7 +272,7 @@ export default function AdminBadges(
                     </button>
                     <button
                       onClick={() => { setOpenId(open ? null : b.id); setPick(""); setNote(""); }}
-                      className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
+                      className="rounded-md border border-line px-2.5 py-1 text-ui text-muted hover:border-accent hover:text-accent">
                       {open ? t("adm.badgeDone") : t("adm.badgeGive")}
                     </button>
                     <button
@@ -290,7 +290,7 @@ export default function AdminBadges(
                           await refresh(); flash(t("adm.badgeDeleted"));
                         },
                       })}
-                      className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-chili hover:text-chili">
+                      className="rounded-md border border-line px-2.5 py-1 text-ui text-muted hover:border-chili hover:text-chili">
                       {t("adm.badgeDelete")}
                     </button>
                   </div>
@@ -301,10 +301,10 @@ export default function AdminBadges(
                     <div className="flex flex-wrap gap-2">
                       <input value={pick} onChange={(e) => setPick(e.target.value)}
                              placeholder={t("adm.searchMember")}
-                             className={`${inputCls} min-w-[160px] flex-1 py-1.5 text-[13px]`} />
+                             className={`${inputCls} min-w-[160px] flex-1 py-1.5 text-read`} />
                       <input value={note} onChange={(e) => setNote(e.target.value.slice(0, 120))}
                              placeholder={t("adm.badgeNote")}
-                             className={`${inputCls} min-w-[180px] flex-[2] py-1.5 text-[13px]`} />
+                             className={`${inputCls} min-w-[180px] flex-[2] py-1.5 text-read`} />
                     </div>
                     {suggestions.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -319,7 +319,7 @@ export default function AdminBadges(
                                     await refresh();
                                     flash(t("adm.badgeGiven", { name: s.name }));
                                   }}
-                                  className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] hover:border-accent hover:text-accent">
+                                  className="rounded-lg border border-line bg-surface px-3 py-1.5 text-read hover:border-accent hover:text-accent">
                             {s.name}
                           </button>
                         ))}
@@ -332,7 +332,7 @@ export default function AdminBadges(
                   <div className="mt-2.5 flex flex-wrap gap-1.5">
                     {holders.map((h) => (
                       <span key={h.character_id}
-                            className="inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-3 pr-1 text-[12.5px]">
+                            className="inline-flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-3 pr-1 text-ui">
                         <span className="font-data">{nameOf(h.character_id)}</span>
                         {/* The reason belongs to this award rather than to the
                             badge, so it is edited here rather than in the form
@@ -346,7 +346,7 @@ export default function AdminBadges(
                                      if (e.key === "Escape") setNoteEdit(null);
                                    }}
                                    placeholder={t("adm.badgeNote")}
-                                   className="w-48 rounded-md border border-line bg-card px-2 py-0.5 text-[12.5px] text-ink placeholder:text-muted" />
+                                   className="w-48 rounded-md border border-line bg-card px-2 py-0.5 text-ui text-ink placeholder:text-muted" />
                             <button
                               onClick={async () => {
                                 const { error } = await supabase.from("member_badges")
@@ -357,11 +357,11 @@ export default function AdminBadges(
                                 setNoteEdit(null);
                                 await refresh(); flash(t("adm.badgeNoteSaved"));
                               }}
-                              className="rounded-md border border-accent/60 px-2 py-0.5 text-[11.5px] text-accent hover:bg-accent/15">
+                              className="rounded-md border border-accent/60 px-2 py-0.5 text-meta text-accent hover:bg-accent/15">
                               {t("adm.save")}
                             </button>
                             <button onClick={() => setNoteEdit(null)}
-                                    className="px-1 text-[11.5px] text-muted hover:text-ink">
+                                    className="px-1 text-meta text-muted hover:text-ink">
                               {t("adm.cancel")}
                             </button>
                           </>
@@ -407,7 +407,7 @@ export default function AdminBadges(
         </div>
       )}
 
-      {msg && <div className="mt-3 text-[13px] text-jade">{msg}</div>}
+      {msg && <div className="mt-3 text-read text-jade">{msg}</div>}
 
       {confirm && (
         <ConfirmDialog message={confirm.text} confirmLabel={confirm.label}

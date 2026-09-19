@@ -108,7 +108,7 @@ function Maybes({ who }: { who: Floater[] }) {
             ? <img key={f.characterId ?? f.name} src={src} alt={f.name} width={34} height={34}
                    className="size-[34px] rounded-full border border-jade/50 object-cover opacity-85" />
             : <span key={f.characterId ?? f.name} title={f.name}
-                    className={`grid size-[34px] place-items-center rounded-full text-[16.5px] text-muted opacity-85 ${
+                    className={`grid size-[34px] place-items-center rounded-full text-head text-muted opacity-85 ${
                       f.characterId == null
                         ? "border border-dashed border-jade/50"
                         : "border border-jade/50 bg-card"}`}>
@@ -116,7 +116,7 @@ function Maybes({ who }: { who: Floater[] }) {
               </span>;
         })}
       </span>
-      <span className="font-data text-[11.5px] uppercase tracking-[0.08em] text-jade/80">
+      <span className="font-data text-meta uppercase tracking-[0.08em] text-jade/80">
         {who.length > 3 ? `+${who.length - 3} maybe` : "maybe"}
       </span>
     </span>
@@ -177,7 +177,7 @@ function FlexLine(
   const parts = flexBits(flex, open, seat);
   if (!parts) return null;
   return (
-    <span className="truncate font-data text-[12.5px] uppercase tracking-[0.1em] text-jade">
+    <span className="truncate font-data text-ui uppercase tracking-[0.1em] text-jade">
       {parts.flex && "Flex "}
       {/* The separator sits outside the crossed-out span on purpose: a line
           through the text runs through everything inside it, commas included,
@@ -244,7 +244,7 @@ function Seat(
       <span className="flex items-center gap-1.5">
         <span className="size-2 shrink-0 rounded-full"
               style={{ background: tint, opacity: state === "shut" ? 0.4 : 1 }} />
-        <span className="font-data text-[13px] uppercase tracking-[0.12em] text-muted">
+        <span className="font-data text-read uppercase tracking-[0.12em] text-muted">
           {slot.label}
         </span>
         {/* Helper, in the corner opposite the seat's name, on whoever the
@@ -253,7 +253,7 @@ function Seat(
             seat is somebody who has not said yes, and labelling them would
             advertise a helper the party does not have. */}
         {state === "taken" && who?.characterId != null && helpers?.has(who.characterId) && (
-          <span className="ml-auto rounded-full border border-jade/55 bg-jade/15 px-2 py-[1px] font-data text-[11px] font-semibold uppercase tracking-[0.1em] text-jade">
+          <span className="ml-auto rounded-full border border-jade/55 bg-jade/15 px-2 py-[1px] font-data text-meta font-semibold uppercase tracking-[0.1em] text-jade">
             {t("pf.helperTag")}
           </span>
         )}
@@ -286,20 +286,20 @@ function Seat(
                   <JobIcon key={j} job={j} size={26} />
                 ))}
                 {who.jobs.length > 3 && (
-                  <span className="pl-2 font-data text-[12.5px] text-muted">
+                  <span className="pl-2 font-data text-ui text-muted">
                     +{who.jobs.length - 3}
                   </span>
                 )}
               </span>
             ) : null}
-          <span className={`truncate text-[16px] ${
+          <span className={`truncate text-head ${
             state === "waiting" ? "text-ink/60" : "text-ink"}`}>
             {who?.name}
           </span>
         </span>
       ) : (
         <span className="flex min-w-0 flex-col gap-0.5">
-          <span className={`text-[14.5px] ${
+          <span className={`text-lead ${
             state === "open" ? "text-accent/80" : "text-muted"}`}>
             {state === "open" ? t("pf.open") : "—"}
           </span>
@@ -311,7 +311,7 @@ function Seat(
       )}
 
       {state === "waiting" && (
-        <span className="font-data text-[12.5px] uppercase tracking-[0.1em] text-gold">
+        <span className="font-data text-ui uppercase tracking-[0.1em] text-gold">
           {t("pf.awaitingReply")}
         </span>
       )}
@@ -322,7 +322,7 @@ function Seat(
           person: one line under their name, not four hints scattered across
           the grid saying the same thing. */}
       {state !== "open" && state !== "shut" && who?.characterId == null && (
-        <span className="font-data text-[12.5px] uppercase tracking-[0.1em] text-muted">
+        <span className="font-data text-ui uppercase tracking-[0.1em] text-muted">
           {t("pf.outsideFc")}
         </span>
       )}
@@ -381,10 +381,10 @@ function SeatAsk(
              onOpenChange={(v) => { setOpen(v); if (v) setJob(now ?? null); }}
              trigger={cell}>
       <div className="flex flex-col gap-2.5">
-        <p className="text-[15px] text-ink">{ask}</p>
+        <p className="text-title text-ink">{ask}</p>
         {jobs.length > 0 && (
           <div className="flex flex-col gap-1.5">
-            <span className="font-data text-[12px] uppercase tracking-[0.12em] text-muted">
+            <span className="font-data text-ui uppercase tracking-[0.12em] text-muted">
               {t(mine ? "party.jobPick" : "party.jobOptional")}
             </span>
             <div className="flex flex-wrap gap-1">
@@ -403,11 +403,11 @@ function SeatAsk(
         <div className="flex items-center gap-2">
           <button type="button" disabled={pick.busy || (mine && job === now)}
                   onClick={() => { setOpen(false); pick.take(slot, job); }}
-                  className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                  className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-title text-jade hover:bg-jade/25 disabled:opacity-50">
             {t(mine ? "party.saveJob" : "party.confirmSeat")}
           </button>
           <button type="button" onClick={() => setOpen(false)}
-                  className="rounded-lg px-2 py-1.5 text-[14.5px] text-muted hover:text-ink">
+                  className="rounded-lg px-2 py-1.5 text-lead text-muted hover:text-ink">
             {t("pf.cancel")}
           </button>
         </div>
@@ -428,7 +428,7 @@ function Block(
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       {wing && (
-        <span className="font-data text-[13px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-read uppercase tracking-[0.14em] text-muted">
           {t("pf.partyWing", { wing })}
         </span>
       )}
@@ -506,7 +506,7 @@ export default function PartySeats(
 
     return (
       <div className="flex flex-col gap-2 rounded-lg border border-dashed border-line px-3 py-2.5">
-        <p className="text-[15.5px] text-muted">
+        <p className="text-title text-muted">
           {per > 0 ? t("pf.queueInFours", { n: per })
             : t(kind === "community" ? "pf.openCommunityWhy"
               : kind === "pvp" ? "pf.openPvpWhy"
@@ -516,7 +516,7 @@ export default function PartySeats(
           (lot.length > 0 || per > 0) && (
             <div key={i} className="flex flex-wrap items-center gap-2">
               {per > 0 && (
-                <span className="font-data text-[12.5px] uppercase tracking-[0.12em] text-muted">
+                <span className="font-data text-ui uppercase tracking-[0.12em] text-muted">
                   {t("pf.groupN", { n: i + 1 })}
                 </span>
               )}
@@ -532,12 +532,12 @@ export default function PartySeats(
                 <span key={f.characterId ?? f.name}
                       className="flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-3">
                   <Face who={f} size={50} />
-                  <span className={`text-[15.5px] ${
+                  <span className={`text-title ${
                     f.confirmedAt ? "text-ink" : "text-ink/60"}`}>
                     {f.name}
                   </span>
                   {!f.confirmedAt && (
-                    <span className="font-data text-[12px] uppercase tracking-[0.1em] text-gold">
+                    <span className="font-data text-ui uppercase tracking-[0.1em] text-gold">
                       {t("pf.askedShort")}
                     </span>
                   )}
@@ -546,7 +546,7 @@ export default function PartySeats(
               {/* The room left in this one, so somebody reading knows whether
                   pressing the button puts them in it or starts the next. */}
               {per > 0 && lot.length < per && (
-                <span className="font-data text-[12.5px] text-muted">
+                <span className="font-data text-ui text-muted">
                   {t("pf.roomForN", { n: per - lot.length })}
                 </span>
               )}
@@ -566,7 +566,7 @@ export default function PartySeats(
           <BenchAsk res={res} pick={pick} ask={pick.benchAsk}
                     trigger={
                       <button type="button"
-                              className="self-start rounded-lg border border-accent/60 px-3 py-1 text-[14.5px] text-accent transition-colors hover:bg-accent/10">
+                              className="self-start rounded-lg border border-accent/60 px-3 py-1 text-lead text-accent transition-colors hover:bg-accent/10">
                         {t("pf.imComing")}
                       </button>} />
         )}
@@ -621,7 +621,7 @@ function Bench(
   const row = (
     <div className={`flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-line/70 px-2.5 py-2 text-left ${
       ask ? "hover:border-accent/60" : ""}`}>
-      <span className="font-data text-[12.5px] uppercase tracking-[0.12em] text-muted">
+      <span className="font-data text-ui uppercase tracking-[0.12em] text-muted">
         {t("party.bench")}
       </span>
       {who.map((f) => {
@@ -633,12 +633,12 @@ function Bench(
               ? <img src={src} alt="" width={24} height={24}
                      className="size-6 rounded-full border border-line object-cover" />
               : <span className="size-6 rounded-full border border-dashed border-line" />}
-            <span className="text-[14.5px] text-ink/85">{f.name}</span>
+            <span className="text-lead text-ink/85">{f.name}</span>
           </span>
         );
       })}
       {!who.length && (
-        <span className="text-[14.5px] text-muted">{t("party.benchEmpty")}</span>
+        <span className="text-lead text-muted">{t("party.benchEmpty")}</span>
       )}
       {/* Said, not merely hoverable.
           The seats advertise themselves — an empty one says "Open" in the
@@ -648,7 +648,7 @@ function Bench(
           it. A border that lights up under the pointer is not an answer to
           "how do I", and on a phone there is no pointer at all. */}
       {ask && (
-        <span className="ml-auto font-data text-[12.5px] uppercase tracking-[0.1em] text-accent">
+        <span className="ml-auto font-data text-ui uppercase tracking-[0.1em] text-accent">
           {t("party.standUp")}
         </span>
       )}
@@ -696,7 +696,7 @@ function BenchAsk(
              }}
              trigger={trigger}>
       <div className="flex flex-col gap-2.5">
-        <p className="text-[15px] text-ink">{ask}</p>
+        <p className="text-title text-ink">{ask}</p>
         {seats.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {seats.map((sl) => {
@@ -713,7 +713,7 @@ function BenchAsk(
                           ? { borderColor: c, color: c,
                               background: `color-mix(in srgb, ${c} 14%, transparent)` }
                           : undefined}
-                        className={`flex items-center gap-1 rounded-full border px-2.5 py-[2px] text-[14.5px] transition-colors ${
+                        className={`flex items-center gap-1 rounded-full border px-2.5 py-[2px] text-lead transition-colors ${
                           on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   <span style={{ background: c }}
                         className="size-1.5 shrink-0 rounded-full" />
@@ -723,7 +723,7 @@ function BenchAsk(
             })}
           </div>
         )}
-        <span className="text-[13.5px] text-muted">
+        <span className="text-read text-muted">
           {want.size ? t("party.benchThese") : t("party.benchAny")}
         </span>
         <div className="flex items-center gap-2">
@@ -732,11 +732,11 @@ function BenchAsk(
                     setOpen(false);
                     pick.bench?.(want.size ? { seats: [...want] } : { all: true });
                   }}
-                  className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                  className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-title text-jade hover:bg-jade/25 disabled:opacity-50">
             {t("party.confirmSeat")}
           </button>
           <button type="button" onClick={() => setOpen(false)}
-                  className="rounded-lg px-2 py-1.5 text-[14.5px] text-muted hover:text-ink">
+                  className="rounded-lg px-2 py-1.5 text-lead text-muted hover:text-ink">
             {t("pf.cancel")}
           </button>
         </div>
@@ -761,7 +761,7 @@ export function NeedLine({ party }: { party: Party }) {
   const { here, seats } = headcount(party);
   const count = seats ? (
     <span title={t("pf.headcount", { n: String(here), of: String(seats) })}
-          className="rounded-full border border-line px-2.5 py-[3px] font-data text-[13.5px] tabular-nums text-muted">
+          className="rounded-full border border-line px-2.5 py-[3px] font-data text-read tabular-nums text-muted">
       {here}/{seats}
     </span>
   ) : null;
@@ -784,7 +784,7 @@ export function NeedLine({ party }: { party: Party }) {
   // anybody can always join.
   if (party.shape === "open") {
     return (
-      <span className="looking rounded-full border border-jade/50 px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em] text-jade">
+      <span className="looking rounded-full border border-jade/50 px-2.5 py-[3px] font-data text-read uppercase tracking-[0.1em] text-jade">
         {t("pf.openToAll")}
       </span>
     );
@@ -795,12 +795,12 @@ export function NeedLine({ party }: { party: Party }) {
     return (
       <span className="flex flex-wrap items-center gap-1.5">
         {count}
-        <span className="text-[15.5px] text-muted">{t("pf.full")}</span>
+        <span className="text-title text-muted">{t("pf.full")}</span>
         {res.loose.length > 0 && (
           // Full, but not settled: the seats are spoken for and who sits where
           // is still being worked out between the people already in.
           <span title={t("pf.stillSettling")}
-                className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-[13.5px] uppercase tracking-[0.1em] text-jade">
+                className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-read uppercase tracking-[0.1em] text-jade">
             {t("pf.flexingN", { n: res.loose.length })}
           </span>
         )}
@@ -823,7 +823,7 @@ export function NeedLine({ party }: { party: Party }) {
         <span key={r}
               style={{ color: ROLE_COLOR[r],
                        borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 55%, transparent)` }}
-              className="looking rounded-full border px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em]">
+              className="looking rounded-full border px-2.5 py-[3px] font-data text-read uppercase tracking-[0.1em]">
           {t("pf.needRole", { n: cut.need[r], role: ROLE_LABEL[r] })}
         </span>
       ))}
@@ -832,7 +832,7 @@ export function NeedLine({ party }: { party: Party }) {
           about one role — and where every role is still going it stops naming
           them and says so, which is shorter and says more. */}
       {(cut.either || cut.spare > 0) && (
-        <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em] text-accent">
+        <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-read uppercase tracking-[0.1em] text-accent">
           {/* Every role still going is "anybody", and saying it as
               "TANK/HEALER/DPS" is twenty-one characters of chip for a word.
               On a row that is the difference between a readable title and one
@@ -849,13 +849,13 @@ export function NeedLine({ party }: { party: Party }) {
         // Every empty seat has somebody hovering over it, so there is no role
         // to name -- but only one of the seats each of them hovers over will
         // actually be theirs. What the party wants is bodies, any role.
-        <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-[13.5px] uppercase tracking-[0.1em] text-accent">
+        <span className="looking rounded-full border border-accent/55 px-2.5 py-[3px] font-data text-read uppercase tracking-[0.1em] text-accent">
           {t("pf.wantMore", { n: res.wanted })}
         </span>
       )}
       {res.loose.length > 0 && (
         <span title={t("pf.flexingWhy", { n: res.loose.length })}
-              className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-[13.5px] uppercase tracking-[0.1em] text-jade">
+              className="rounded-full border border-jade/45 px-2 py-[2px] font-data text-read uppercase tracking-[0.1em] text-jade">
           {t("pf.flexingN", { n: res.loose.length })}
         </span>
       )}

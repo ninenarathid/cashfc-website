@@ -200,7 +200,7 @@ export default function DropZone(
         <path d="m8.75 15.25 3.25-3.25 3.25 3.25" />
       </svg>
 
-      <div className={`font-display font-semibold ${lg ? "text-[15px]" : "text-[13.5px]"} ${
+      <div className={`font-display font-semibold ${lg ? "text-title" : "text-read"} ${
         over ? "text-accent" : "text-ink"}`}>
         {over ? t("drop.now") : title ?? t("drop.title")}
       </div>
@@ -209,7 +209,7 @@ export default function DropZone(
           rather than as another line of the sentence above it. */}
       <div className="flex w-full max-w-[16rem] items-center gap-3">
         <span className="h-px flex-1 bg-line" />
-        <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-label uppercase tracking-[0.14em] text-muted">
           {t("common.or")}
         </span>
         <span className="h-px flex-1 bg-line" />
@@ -218,11 +218,11 @@ export default function DropZone(
       <button type="button" disabled={disabled}
               onClick={(e) => { e.stopPropagation(); input.current?.click(); }}
               className={`rounded-lg border border-accent bg-accent/15 text-accent transition-colors hover:bg-accent/25 disabled:opacity-50 ${
-                lg ? "px-4 py-1.5 text-[13px]" : "px-3 py-1 text-[12.5px]"}`}>
+                lg ? "px-4 py-1.5 text-read" : "px-3 py-1 text-ui"}`}>
         {t("drop.browse")}
       </button>
 
-      <p className="text-[11.5px] leading-relaxed text-muted">
+      <p className="text-meta leading-relaxed text-muted">
         {paste && <>{t("drop.paste")}<span className="mx-1.5 opacity-50">·</span></>}
         {hint ?? t("gallery.limits")}
       </p>

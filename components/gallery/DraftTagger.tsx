@@ -51,11 +51,11 @@ export default function DraftTagger(
   return (
     <div className="flex flex-col gap-2.5 rounded-xl border border-accent/40 bg-card p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="font-data text-[11px] uppercase tracking-[0.14em] text-accent">
+        <div className="font-data text-meta uppercase tracking-[0.14em] text-accent">
           {t("gallery.tagClickFace")}
         </div>
         <button onClick={onClose}
-                className="rounded-md border border-line px-2.5 py-0.5 text-[12px] text-muted hover:border-muted hover:text-ink">
+                className="rounded-md border border-line px-2.5 py-0.5 text-ui text-muted hover:border-muted hover:text-ink">
           {t("gallery.tagDone")}
         </button>
       </div>
@@ -70,11 +70,11 @@ export default function DraftTagger(
           <div key={`${g.id}-${g.x}`} className="absolute"
                style={{ left: `${g.x * 100}%`, top: `${g.y * 100}%` }}>
             <div className="size-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-ink/85 shadow-[0_0_0_1px_rgba(0,0,0,0.35)]" />
-            <div className="absolute left-0 top-5 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-line bg-bg/85 py-0.5 pl-2.5 pr-1 font-data text-[11.5px] text-ink backdrop-blur">
+            <div className="absolute left-0 top-5 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full border border-line bg-bg/85 py-0.5 pl-2.5 pr-1 font-data text-meta text-ink backdrop-blur">
               {g.name}
               <button onClick={() => onChange(tags.filter((x) => x !== g))}
                       aria-label={t("gallery.tagRemove")}
-                      className="rounded-full border border-line px-1 text-[10px] text-muted hover:border-chili hover:text-chili">
+                      className="rounded-full border border-line px-1 text-label text-muted hover:border-chili hover:text-chili">
                 ✕
               </button>
             </div>
@@ -94,7 +94,7 @@ export default function DraftTagger(
                               setPlacing(null);
                             }} />
               <button onClick={() => setPlacing(null)}
-                      className="mt-2 text-[12px] text-muted hover:text-ink">
+                      className="mt-2 text-ui text-muted hover:text-ink">
                 {t("common.cancel")}
               </button>
             </div>
@@ -102,7 +102,7 @@ export default function DraftTagger(
         )}
       </div>
 
-      <p className="text-[11.5px] leading-relaxed text-muted">{t("gallery.tagHint")}</p>
+      <p className="text-meta leading-relaxed text-muted">{t("gallery.tagHint")}</p>
     </div>
   );
 }

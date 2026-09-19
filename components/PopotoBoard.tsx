@@ -153,7 +153,7 @@ function OneBoard({ board, names }: { board: Board; names: Names }) {
               style={{ color: `color-mix(in srgb, ${board.color} 78%, #ffffff)` }}>
           {t(board.title)}
         </span>
-        <span className="text-[11.5px] text-muted">{t(board.hint)}</span>
+        <span className="text-meta text-muted">{t(board.hint)}</span>
       </div>
       <ol className="flex flex-col gap-1 px-4 pb-4 pt-3">
         {rows.map((r, i) => (

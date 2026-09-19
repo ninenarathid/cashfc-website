@@ -25,7 +25,7 @@ export default function ActivityFeed({ feed }: { feed: FeedEvent[] }) {
     <section>
       <h2 className="mb-2 font-display text-lg font-semibold">{t("home.activity")}</h2>
       {feed.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] leading-relaxed text-muted">
+        <div className="rounded-xl border border-dashed border-line p-8 text-center text-read leading-relaxed text-muted">
           {t("home.activityEmpty")}
         </div>
       ) : (
@@ -33,13 +33,13 @@ export default function ActivityFeed({ feed }: { feed: FeedEvent[] }) {
           {feed.map((e, i) => (
             <div key={i} className="flex items-start gap-2.5 rounded-lg border border-line bg-surface px-3 py-2">
               <span className="text-base leading-6">{FEED_ICON[e.type] ?? "•"}</span>
-              <div className="min-w-0 text-[13.5px] leading-relaxed">
+              <div className="min-w-0 text-read leading-relaxed">
                 <Link href={`/member/${e.id}`}
                       className="font-data font-semibold text-ink no-underline hover:text-accent">
                   {e.name}
                 </Link>{" "}
                 <span className="text-muted">{e.text}</span>
-                <span className="ml-2 text-[11px] text-muted/70">
+                <span className="ml-2 text-meta text-muted/70">
                   {fmtShort(fromDay(e.date))}
                 </span>
               </div>

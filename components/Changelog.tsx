@@ -78,7 +78,7 @@ export default function Changelog({ limit }: { limit?: number }) {
   const all = useReleases();
   const releases = limit ? all.slice(0, limit) : all;
   if (!releases.length) {
-    return <p className="text-[13px] text-muted">{t("log.none")}</p>;
+    return <p className="text-read text-muted">{t("log.none")}</p>;
   }
 
   // Today and yesterday get a word instead of a date. It is the difference
@@ -100,11 +100,11 @@ export default function Changelog({ limit }: { limit?: number }) {
       {releases.map((r: Release) => (
         <section key={r.date}>
           <div className="flex flex-wrap items-baseline gap-x-2.5">
-            <span className="font-data text-[11px] uppercase tracking-[0.18em] text-accent">
+            <span className="font-data text-meta uppercase tracking-[0.18em] text-accent">
               {when(r.date)}
             </span>
             {r.title && (
-              <h3 className="font-display text-[15px] font-semibold">
+              <h3 className="font-display text-title font-semibold">
                 {r.title[lang]}
               </h3>
             )}
@@ -112,10 +112,10 @@ export default function Changelog({ limit }: { limit?: number }) {
           <ul className="mt-1.5 flex flex-col gap-1.5">
             {r.changes.map((c: Change, i) => (
               <li key={i} className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className={`shrink-0 rounded-full border px-2 py-0.5 font-data text-[10px] uppercase tracking-[0.1em] ${KIND_TONE[c.kind]}`}>
+                <span className={`shrink-0 rounded-full border px-2 py-0.5 font-data text-label uppercase tracking-[0.1em] ${KIND_TONE[c.kind]}`}>
                   {t(KIND_KEY[c.kind])}
                 </span>
-                <span className="min-w-0 flex-1 text-[13.5px] leading-relaxed text-ink/90">
+                <span className="min-w-0 flex-1 text-read leading-relaxed text-ink/90">
                   {c.what[lang]}
                 </span>
               </li>

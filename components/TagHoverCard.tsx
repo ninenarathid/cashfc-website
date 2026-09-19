@@ -45,7 +45,7 @@ export default function TagHoverCard(
   return (
     <HoverCard trigger={children}>
       <div className="flex flex-col gap-2">
-        <div className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium ${
+        <div className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-1 text-ui font-medium ${
           TAG_CLASS[tag] ?? "border-line text-muted"}`}>
           <TagIcon tag={tag} size={16} />
           {TAG_LABELS[tag] ?? tag}

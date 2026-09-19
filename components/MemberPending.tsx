@@ -26,11 +26,11 @@ export default function MemberPending({ m }: { m: PendingMember }) {
               {m.name ?? t("pending.character", { id: m.id })}
             </h1>
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-dashed border-line px-2 py-0.5 text-[11.5px] text-muted">
+              <span className="rounded-full border border-dashed border-line px-2 py-0.5 text-meta text-muted">
                 {verified ? t("pending.badge") : t("pending.badgeUnverified")}
               </span>
               {m.name && (
-                <span className="font-data text-[11.5px] text-muted">
+                <span className="font-data text-meta text-muted">
                   {t("pending.character", { id: m.id })}
                 </span>
               )}
@@ -38,24 +38,24 @@ export default function MemberPending({ m }: { m: PendingMember }) {
           </div>
         </div>
 
-        <p className="mt-5 max-w-prose text-[13.5px] leading-relaxed text-muted">
+        <p className="mt-5 max-w-prose text-read leading-relaxed text-muted">
           {verified ? t("pending.body") : t("pending.bodyUnverified")}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
           <a href={`https://na.finalfantasyxiv.com/lodestone/character/${m.id}/`}
              target="_blank" rel="noopener noreferrer"
-             className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-ink no-underline hover:border-accent hover:text-accent">
+             className="rounded-lg border border-line px-3.5 py-1.5 text-read text-ink no-underline hover:border-accent hover:text-accent">
             {t("pending.lodestone")}
           </a>
           {!verified && (
             <Link href="/profile"
-                  className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent no-underline hover:bg-accent/25">
+                  className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-read text-accent no-underline hover:bg-accent/25">
               {t("pending.verify")}
             </Link>
           )}
           <Link href="/members"
-                className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted no-underline hover:border-muted hover:text-ink">
+                className="rounded-lg border border-line px-3.5 py-1.5 text-read text-muted no-underline hover:border-muted hover:text-ink">
             {t("pending.back")}
           </Link>
         </div>

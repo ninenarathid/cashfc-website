@@ -296,7 +296,7 @@ function PartyDetail(
             {party.isStatic ? <StaticTag /> : <StatusPill status={partyStatus(party, now)} />}
             {party.outcome === "success" && <SuccessTag />}
             <WhenLine party={party} now={now}
-                      className="font-data text-[14.5px] text-white/85 drop-shadow" />
+                      className="font-data text-lead text-white/85 drop-shadow" />
             <span className="ml-auto flex items-center gap-1.5">
               {/*
                 * The lead's two, only for the lead.
@@ -310,7 +310,7 @@ function PartyDetail(
               {onEdit && (
                 <>
                   <button onClick={onEdit}
-                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-title text-ink/85 transition-colors hover:border-accent hover:text-accent">
                     ✎ {t("pf.edit")}
                   </button>
                   {/*
@@ -324,7 +324,7 @@ function PartyDetail(
                     */}
                   {party.outcome !== "success" && party.outcome !== "test" && (
                     <button onClick={() => setEnding(true)}
-                            className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-jade hover:text-jade">
+                            className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-title text-ink/85 transition-colors hover:border-jade hover:text-jade">
                       {t("pf.closeParty")}
                     </button>
                   )}
@@ -334,12 +334,12 @@ function PartyDetail(
                       board. Delete is still there beside it. */}
                   {party.endedAt && !isEmpty(party) && (
                     <button onClick={() => void run(() => finishParty(supabase!, party.id, false))}
-                            className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
+                            className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-title text-ink/85 transition-colors hover:border-accent hover:text-accent">
                       {t("pf.reopenParty")}
                     </button>
                   )}
                   <button onClick={() => setDropping(true)}
-                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-chili/90 transition-colors hover:border-chili hover:text-chili">
+                          className="rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-title text-chili/90 transition-colors hover:border-chili hover:text-chili">
                     {t("pf.deleteParty")}
                   </button>
                 </>
@@ -360,7 +360,7 @@ function PartyDetail(
                 */}
               {(isFight(def?.kind) || def?.kind === "legacy") && (
                 <button onClick={() => setPf(true)}
-                        className="flex items-center gap-1.5 rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-[15px] text-ink/85 transition-colors hover:border-accent hover:text-accent">
+                        className="flex items-center gap-1.5 rounded-lg border border-line/70 bg-bg/70 px-2.5 py-1 text-title text-ink/85 transition-colors hover:border-accent hover:text-accent">
                   {/* The same badge the "new party" button wears, because it
                       is the same act — putting a party up. That one puts it up
                       here and this one puts it up in the game, and a sword
@@ -368,7 +368,7 @@ function PartyDetail(
                       this button has nothing to do with. */}
                   <PartyIcon size={16} />
                   {t("pf.helper")}
-                  <span className="rounded-full border border-gold/50 px-1.5 font-data text-[10.5px] uppercase tracking-[0.1em] text-gold">
+                  <span className="rounded-full border border-gold/50 px-1.5 font-data text-label uppercase tracking-[0.1em] text-gold">
                     {t("pf.betaTag")}
                   </span>
                 </button>
@@ -411,7 +411,7 @@ function PartyDetail(
         )}
 
         {party.note && (
-          <p className="text-[16.5px] text-ink/80">{party.note}</p>
+          <p className="text-head text-ink/80">{party.note}</p>
         )}
 
         {/*
@@ -425,13 +425,13 @@ function PartyDetail(
           * never had.
           */}
         {edited && (
-          <p className="font-data text-[14px] text-muted">
+          <p className="font-data text-lead text-muted">
             {t("pf.editedAt", { at: `${fmtDay(party.updatedAt!)} ${fmtTime(party.updatedAt!)}` })}
           </p>
         )}
 
         {/* The terms of the evening, the way the row says them. */}
-        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px] text-muted">
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-title text-muted">
           <span className="flex items-center gap-1"
                 title={whyEstimate(party, def?.kind, t)}>
             {lengthIsEstimate(party, def?.kind) && <span className="opacity-70">~</span>}
@@ -659,7 +659,7 @@ function PartyDetail(
           {/* The boss, which neither the title nor the row has room for: the
               title leads with the duty you queue for, and this is the third
               name the same fight has. The clock is in the subtitle already. */}
-          <p className="text-[14.5px] text-muted">
+          <p className="text-lead text-muted">
             {def?.name && def.name !== def.badge && def.name !== def.duty && (
               <>{def.name}</>
             )}
@@ -1286,7 +1286,7 @@ export default function PartyBoard(
     + (adv.openOnly ? 1 : 0) + (adv.prog ? 1 : 0)
     + (adv.loot ? 1 : 0) + (adv.status ? 1 : 0) + (adv.free ? 1 : 0);
 
-  const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink";
+  const sel = "rounded-lg border border-line bg-surface px-3 py-2 text-title text-ink";
 
   /** One party as a row, on the schedule or in the Static finder. */
   const row = (p: Party) => {
@@ -1346,7 +1346,7 @@ export default function PartyBoard(
                 * away.
                 */}
               <WhenLine party={p} now={now}
-                        className="font-data text-[12px] text-white/80 drop-shadow" />
+                        className="font-data text-ui text-white/80 drop-shadow" />
             </span>
           </span>
 
@@ -1376,7 +1376,7 @@ export default function PartyBoard(
               {c?.badge && c.badge !== c.duty && (
                 <span style={{ color: tint,
                                borderColor: `color-mix(in srgb, ${tint} 45%, transparent)` }}
-                      className="rounded border px-1.5 font-data text-[12.5px] font-bold">
+                      className="rounded border px-1.5 font-data text-ui font-bold">
                   {c.badge}
                 </span>
               )}
@@ -1393,11 +1393,11 @@ export default function PartyBoard(
                 The stamp on the left is the start alone and the line
                 under it is relative — neither is the thing you copy
                 into a Discord post when you tell people to be there. */}
-            <span className="font-data text-[12.5px] tabular-nums text-muted">
+            <span className="font-data text-ui tabular-nums text-muted">
               {whenFull(p)}
             </span>
 
-            <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-muted">
+            <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-read text-muted">
               <span className="flex items-center gap-1"
                     title={whyEstimate(p, c?.kind, t)}>
                 {/* A map night has no end anybody chose — it runs until
@@ -1446,7 +1446,7 @@ export default function PartyBoard(
             </span>
 
             {p.note && (
-              <span className="truncate text-[14.5px] text-ink/70">{p.note}</span>
+              <span className="truncate text-lead text-ink/70">{p.note}</span>
             )}
           </span>
 
@@ -1481,14 +1481,14 @@ export default function PartyBoard(
                          className="size-[34px] rounded-full border-2 border-surface object-cover" />
                   ) : (
                     <span key={i} title={m.name}
-                          className={`grid size-[34px] place-items-center rounded-full border-2 border-surface text-[13.5px] text-muted ${
+                          className={`grid size-[34px] place-items-center rounded-full border-2 border-surface text-read text-muted ${
                             m.characterId == null ? "bg-bg" : "bg-card"}`}>
                       {m.characterId == null ? "?" : ""}
                     </span>
                   );
                 })}
                 {inIt.length > 6 && (
-                  <span className="grid size-[34px] place-items-center rounded-full border-2 border-surface bg-card font-data text-[12.5px] text-muted">
+                  <span className="grid size-[34px] place-items-center rounded-full border-2 border-surface bg-card font-data text-ui text-muted">
                     +{inIt.length - 6}
                   </span>
                 )}
@@ -1501,7 +1501,7 @@ export default function PartyBoard(
               {busy.has(p.id) && (
                 <span title={t("party.clash", {
                         when: fmtDateTime(busy.get(p.id)!.startsAt) })}
-                      className="rounded-full border border-gold/45 px-2 py-[2px] font-data text-[12.5px] uppercase tracking-[0.1em] text-gold">
+                      className="rounded-full border border-gold/45 px-2 py-[2px] font-data text-ui uppercase tracking-[0.1em] text-gold">
                   {t("pf.youAreBusy")}
                 </span>
               )}
@@ -1513,12 +1513,12 @@ export default function PartyBoard(
                   goes unanswered, and the lead is the one person who
                   has to notice without being told twice. */}
               {pendingAsks(p) > 0 && (
-                <span className="rounded-full border border-gold/50 bg-gold/10 px-1.5 font-data text-[12px] text-gold">
+                <span className="rounded-full border border-gold/50 bg-gold/10 px-1.5 font-data text-ui text-gold">
                   ✋ {pendingAsks(p)}
                 </span>
               )}
               {!!p.comments?.length && (
-                <span className="font-data text-[13px] text-muted">
+                <span className="font-data text-read text-muted">
                   💬 {p.comments.length}
                 </span>
               )}
@@ -1528,7 +1528,7 @@ export default function PartyBoard(
                      width={32} height={32}
                      className="size-8 rounded-full border border-line object-cover" />
               )}
-              <span className="text-[14px] text-muted">{owner?.name}</span>
+              <span className="text-lead text-muted">{owner?.name}</span>
             </span>
           </span>
           </span>
@@ -1547,13 +1547,13 @@ export default function PartyBoard(
           <h1 className="font-display text-[23.5px] font-semibold">
             {t("party.title")}
           </h1>
-          <p className="mt-1 text-[14px] text-muted">
+          <p className="mt-1 text-lead text-muted">
             {t("party.times")}
           </p>
         </div>
         {!writing && (
           <button onClick={() => setWriting(true)}
-                  className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-[14.5px] text-accent hover:bg-accent/25">
+                  className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-lead text-accent hover:bg-accent/25">
             {/* The game's own party badge. A plus said "something is being
                 added" about a page whose whole subject is parties being
                 arranged, and the Duty Finder hexagon was already the Dungeon
@@ -1642,7 +1642,7 @@ export default function PartyBoard(
       )}
 
       {err && (
-        <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-[14px] text-chili">
+        <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-lead text-chili">
           {err}
         </p>
       )}
@@ -1662,7 +1662,7 @@ export default function PartyBoard(
                     style={on ? { borderColor: KIND_COLOR[k], color: KIND_COLOR[k],
                                   background: `color-mix(in srgb, ${KIND_COLOR[k]} 12%, transparent)` }
                               : undefined}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[14px] transition-colors ${
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-lead transition-colors ${
                       on ? "" : "border-line text-muted hover:border-muted hover:text-ink"} ${
                       !n && !on ? "opacity-45" : ""}`}>
               {KIND_ICON[k] && <TagIcon tag={KIND_ICON[k]!} size={14} />}
@@ -1694,7 +1694,7 @@ export default function PartyBoard(
                     ? { borderColor: ROLE_COLOR[myRole], color: ROLE_COLOR[myRole],
                         background: `color-mix(in srgb, ${ROLE_COLOR[myRole]} 12%, transparent)` }
                     : undefined}
-                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[14px] transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-lead transition-colors ${
                     adv.role === myRole ? ""
                       : "border-line text-muted hover:border-muted hover:text-ink"}`}>
             <span style={{ background: ROLE_COLOR[myRole] }}
@@ -1720,7 +1720,7 @@ export default function PartyBoard(
       <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5">
         {advCount > 0 && (
           <button onClick={() => setAdv(EMPTY)}
-                  className="self-end text-[14px] text-muted underline hover:text-ink">
+                  className="self-end text-lead text-muted underline hover:text-ink">
             {t("party.clearN", { n: advCount })}
           </button>
         )}
@@ -1733,7 +1733,7 @@ export default function PartyBoard(
             * "where did Tuesday's raid go" is answered by the setting a reader
             * meets first.
             */}
-          <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-ui uppercase tracking-[0.14em] text-muted">
             {t("party.status")}
           </span>
           <select value={adv.status}
@@ -1743,7 +1743,7 @@ export default function PartyBoard(
             <option value="done">{t("party.stDone")}</option>
           </select>
 
-          <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-ui uppercase tracking-[0.14em] text-muted">
             {t("party.needs")}
           </span>
           <select value={adv.role}
@@ -1757,7 +1757,7 @@ export default function PartyBoard(
 
           {anyProgress && (
             <>
-              <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
+              <span className="font-data text-ui uppercase tracking-[0.14em] text-muted">
                 {t("party.progress")}
               </span>
               <select value={adv.prog}
@@ -1773,7 +1773,7 @@ export default function PartyBoard(
 
           {anyLoot && (
             <>
-              <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
+              <span className="font-data text-ui uppercase tracking-[0.14em] text-muted">
                 {t("party.loot")}
               </span>
               <select value={adv.loot}
@@ -1787,7 +1787,7 @@ export default function PartyBoard(
             </>
           )}
 
-          <span className="font-data text-[12px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-ui uppercase tracking-[0.14em] text-muted">
             {t("party.when")}
           </span>
           <select value={adv.when}
@@ -1799,7 +1799,7 @@ export default function PartyBoard(
             <option value="week">{t("party.within7")}</option>
           </select>
 
-          <label className="flex items-center gap-1.5 text-[14px] text-muted">
+          <label className="flex items-center gap-1.5 text-lead text-muted">
             <input type="checkbox" checked={adv.openOnly}
                    onChange={(e) => setAdv({ ...adv, openOnly: e.target.checked })} />
             {t("party.hasRoom")}
@@ -1809,7 +1809,7 @@ export default function PartyBoard(
             * a control that is simply absent is a feature nobody finds. It
             * cannot be switched on, and it says why.
             */}
-          <label className={`flex items-center gap-1.5 text-[14px] ${
+          <label className={`flex items-center gap-1.5 text-lead ${
             myHours ? "text-muted" : "text-muted/50"}`}
                  title={myHours ? undefined : t("party.setHours")}>
             <input type="checkbox" checked={adv.free} disabled={!myHours}
@@ -1824,7 +1824,7 @@ export default function PartyBoard(
         </div>
       </div>
 
-      <p className="text-[14px] text-muted">
+      <p className="text-lead text-muted">
         {shown.length === 1 ? t("party.countOne")
                             : t("party.countMany", { n: shown.length })}
       </p>
@@ -1853,18 +1853,18 @@ export default function PartyBoard(
 
       {/* ── The list, by day ─────────────────────────────────────────────── */}
       {loading && (
-        <p className="px-4 py-10 text-center text-[14.5px] text-muted">{t("party.loading")}</p>
+        <p className="px-4 py-10 text-center text-lead text-muted">{t("party.loading")}</p>
       )}
 
       {!loading && sections.length === 0 && (
-        <p className="rounded-xl border border-dashed border-line px-4 py-10 text-center text-[14.5px] text-muted">
+        <p className="rounded-xl border border-dashed border-line px-4 py-10 text-center text-lead text-muted">
           {t("party.none")}
         </p>
       )}
 
       {sections.map(([key, list]) => (
         <section key={key} className="flex flex-col gap-2">
-          <h2 className={`font-data text-[12.5px] uppercase tracking-[0.14em] ${
+          <h2 className={`font-data text-ui uppercase tracking-[0.14em] ${
             key === INVITED ? "text-gold"
             : key === MINE ? "text-accent"
             : key === ASKED ? "text-jade" : "text-muted"}`}>
@@ -1894,7 +1894,7 @@ export default function PartyBoard(
           {statics.length
             ? statics.map((p) => row(p))
             : (
-              <p className="rounded-xl border border-dashed border-line px-4 py-6 text-center text-[14px] text-muted">
+              <p className="rounded-xl border border-dashed border-line px-4 py-6 text-center text-lead text-muted">
                 {t("pf.staticNone")}
               </p>
             )}

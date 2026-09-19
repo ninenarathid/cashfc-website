@@ -107,7 +107,7 @@ function BadgedThumb(
       ) : (
         <span className={`block size-16 border border-line bg-card ${shape}`} />
       )}
-      <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full border border-line bg-surface text-[12px]">
+      <span className="absolute -bottom-1 -right-1 grid size-6 place-items-center rounded-full border border-line bg-surface text-ui">
         {badge}
       </span>
       {extra && (
@@ -989,7 +989,7 @@ export default function NotificationBell() {
         )}
 
         <div className="min-w-0 flex-1">
-          <p className="text-[13px] leading-snug text-ink/90">
+          <p className="text-read leading-snug text-ink/90">
             {/* The event line takes a count where the others take a name, and
                 nobody did it to you — so it is written straight rather than
                 threaded through the linked-name machinery. */}
@@ -1004,7 +1004,7 @@ export default function NotificationBell() {
               body is the number already spoken above and what belongs here is
               which draw earned it. */}
           {n.kind.startsWith("evercold") ? (
-            <p className="mt-1 font-data text-[11px] uppercase tracking-[0.1em] text-jade">
+            <p className="mt-1 font-data text-meta uppercase tracking-[0.1em] text-jade">
               {t("notif.evercoldEvent")}
             </p>
           ) : n.kind === "popoto_rare" ? (
@@ -1012,13 +1012,13 @@ export default function NotificationBell() {
             // line is the way to the inventory, where every parcel is opened.
             <div className="mt-1.5">
               <Link href={RARE_INVENTORY} onClick={dismiss}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-gold/60 bg-gold/15 py-0.5 pl-1.5 pr-2.5 text-[12.5px] font-medium text-gold no-underline transition-colors hover:bg-gold/25">
+                    className="inline-flex items-center gap-1.5 rounded-md border border-gold/60 bg-gold/15 py-0.5 pl-1.5 pr-2.5 text-ui font-medium text-gold no-underline transition-colors hover:bg-gold/25">
                 <GiftIcon size={16} />
                 {t("rare.openInInventory")}
               </Link>
             </div>
           ) : n.body ? (
-            <p className="mt-1 line-clamp-2 text-[12.5px] leading-snug text-muted">
+            <p className="mt-1 line-clamp-2 text-ui leading-snug text-muted">
               {n.body}
             </p>
           ) : null}
@@ -1028,7 +1028,7 @@ export default function NotificationBell() {
                 // Not a disabled button. There is nothing left to press, and a
                 // greyed-out control invites a click that will never do
                 // anything — a sentence says the same thing and does not lie.
-                <span className="inline-flex items-center gap-1.5 text-[12px] text-jade">
+                <span className="inline-flex items-center gap-1.5 text-ui text-jade">
                   🥔 {t("notif.backDone")}
                 </span>
               ) : (
@@ -1036,7 +1036,7 @@ export default function NotificationBell() {
                 // on the screen when its own potato lands.
                 <button onClick={(e) => { const btn = e.currentTarget; void sendBack(backTo, btn); }}
                         disabled={sending.has(backTo)} data-potato-from={backTo}
-                        className="rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-[12px] text-gold transition-colors hover:bg-gold/20 disabled:opacity-50">
+                        className="rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-ui text-gold transition-colors hover:bg-gold/20 disabled:opacity-50">
                   🥔 {sending.has(backTo) ? t("notif.backSending") : t("notif.back")}
                 </button>
               )}
@@ -1044,13 +1044,13 @@ export default function NotificationBell() {
           )}
 
           <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
-            <span className="text-[11.5px] text-muted">{when(n.created_at)}</span>
+            <span className="text-meta text-muted">{when(n.created_at)}</span>
             {/* Not only for pictures. A notification that names a thing and
                 then leaves you to find it is the reason somebody went hunting
                 through the wrong page. */}
             {!asking && href && (
               <Link href={href} onClick={dismiss}
-                    className="text-[11.5px] text-accent no-underline hover:underline">
+                    className="text-meta text-accent no-underline hover:underline">
                 {t("notif.open")}
               </Link>
             )}
@@ -1059,16 +1059,16 @@ export default function NotificationBell() {
           {asking && n.post_id && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               <button onClick={() => answerTag(n.post_id!, true)} disabled={busy}
-                      className="rounded-md border border-jade bg-jade/15 px-2.5 py-0.5 text-[12px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                      className="rounded-md border border-jade bg-jade/15 px-2.5 py-0.5 text-ui text-jade hover:bg-jade/25 disabled:opacity-50">
                 {t("gallery.tagConfirm")}
               </button>
               <button onClick={() => answerTag(n.post_id!, false)} disabled={busy}
-                      className="rounded-md border border-line px-2.5 py-0.5 text-[12px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
+                      className="rounded-md border border-line px-2.5 py-0.5 text-ui text-muted hover:border-chili hover:text-chili disabled:opacity-50">
                 {t("gallery.tagDecline")}
               </button>
               {href && (
                 <Link href={href} onClick={dismiss}
-                      className="px-1 py-0.5 text-[12px] text-accent no-underline hover:underline">
+                      className="px-1 py-0.5 text-ui text-accent no-underline hover:underline">
                   {t("notif.look")}
                 </Link>
               )}
@@ -1098,7 +1098,7 @@ export default function NotificationBell() {
           <path d="M10.3 20a2 2 0 003.4 0" />
         </svg>
         {unread > 0 && (
-          <span className="absolute -right-1 -top-1 grid min-w-[17px] place-items-center rounded-full bg-chili px-1 font-data text-[10px] font-semibold text-bg">
+          <span className="absolute -right-1 -top-1 grid min-w-[17px] place-items-center rounded-full bg-chili px-1 font-data text-label font-semibold text-bg">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
@@ -1108,7 +1108,7 @@ export default function NotificationBell() {
         <Popover.Content align="end" sideOffset={8} collisionPadding={10}
           className="pop-in z-50 w-[min(34rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-line bg-surface shadow-2xl shadow-black/50">
           <div className="flex items-center justify-between border-b border-line px-3.5 py-2.5">
-            <span className="font-display text-[13.5px] font-semibold">
+            <span className="font-display text-read font-semibold">
               {t("notif.title")}
             </span>
             {notes.length > 0 && (
@@ -1116,7 +1116,7 @@ export default function NotificationBell() {
               // button in this corner did, so the promise is worth making
               // before the press rather than after.
               <button onClick={clearAll} title={t("notif.clearTitle")}
-                      className="rounded-md px-2 py-0.5 text-[12px] text-muted transition-colors hover:bg-card hover:text-ink">
+                      className="rounded-md px-2 py-0.5 text-ui text-muted transition-colors hover:bg-card hover:text-ink">
                 {t("notif.clear")}
               </button>
             )}
@@ -1124,7 +1124,7 @@ export default function NotificationBell() {
 
           <div data-notif-list className="max-h-[min(46rem,72vh)] overflow-y-auto">
             {notes.length === 0 && (
-              <p className="px-3.5 py-6 text-center text-[12.5px] text-muted">
+              <p className="px-3.5 py-6 text-center text-ui text-muted">
                 {hidden > 0 ? t("notif.emptyCleared") : t("notif.empty")}
               </p>
             )}
@@ -1138,7 +1138,7 @@ export default function NotificationBell() {
           {owed.size > 0 && (
             <button onClick={(e) => { void sendBackAll(e.currentTarget.getBoundingClientRect()); }}
                     disabled={sending.size > 0}
-                    className="w-full border-t border-line bg-gold/5 px-3.5 py-2.5 text-center text-[12.5px] text-gold hover:bg-gold/15 disabled:opacity-50">
+                    className="w-full border-t border-line bg-gold/5 px-3.5 py-2.5 text-center text-ui text-gold hover:bg-gold/15 disabled:opacity-50">
               🥔 {t("notif.backAll", { n: owed.size })}
             </button>
           )}
@@ -1151,13 +1151,13 @@ export default function NotificationBell() {
           {process.env.NODE_ENV !== "production" && (
             <button data-potato-try
                     onClick={(e) => { const btn = e.currentTarget; void tryThrow(btn); }}
-                    className="w-full border-t border-dashed border-line px-3.5 py-2 text-center font-data text-[11px] uppercase tracking-[0.1em] text-muted transition-colors hover:bg-card hover:text-ink">
+                    className="w-full border-t border-dashed border-line px-3.5 py-2 text-center font-data text-meta uppercase tracking-[0.1em] text-muted transition-colors hover:bg-card hover:text-ink">
               🥔 throw (dev)
             </button>
           )}
 
           {backErr && (
-            <p className="border-t border-line px-3.5 py-2 text-[12px] text-chili">
+            <p className="border-t border-line px-3.5 py-2 text-ui text-chili">
               {backErr}
             </p>
           )}
@@ -1168,7 +1168,7 @@ export default function NotificationBell() {
               than by a guess at how long that is. */}
           {(notes.length >= SHOW || hidden > 0) && (
             <button onClick={openPast}
-                    className="w-full border-t border-line px-3.5 py-2.5 text-center text-[12.5px] text-accent hover:bg-card">
+                    className="w-full border-t border-line px-3.5 py-2.5 text-center text-ui text-accent hover:bg-card">
               {t("notif.seeAll")}
             </button>
           )}
@@ -1184,7 +1184,7 @@ export default function NotificationBell() {
           <Dialog.Overlay className="pop-in fixed inset-0 z-[60] bg-bg/80 backdrop-blur-sm" />
           <Dialog.Content
             className="pop-in fixed left-1/2 top-1/2 z-[61] flex max-h-[86vh] w-[calc(100vw-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-line bg-surface shadow-2xl shadow-black/60">
-            <Dialog.Title className="border-b border-line px-4 py-3 font-display text-[14px] font-semibold text-ink">
+            <Dialog.Title className="border-b border-line px-4 py-3 font-display text-lead font-semibold text-ink">
               {t("notif.past")}
             </Dialog.Title>
 
@@ -1195,19 +1195,19 @@ export default function NotificationBell() {
               }}
               data-notif-list className="min-h-0 flex-1 overflow-y-auto">
               {past?.length === 0 && !loadingPast && (
-                <p className="px-4 py-8 text-center text-[12.5px] text-muted">
+                <p className="px-4 py-8 text-center text-ui text-muted">
                   {t("notif.pastNone")}
                 </p>
               )}
               {(past ?? []).map(row)}
               {loadingPast && (
-                <p className="px-4 py-3 text-center text-[12px] text-muted">
+                <p className="px-4 py-3 text-center text-ui text-muted">
                   {t("common.loading")}
                 </p>
               )}
             </div>
 
-            <Dialog.Close className="border-t border-line px-4 py-2.5 text-[13px] text-muted hover:text-ink">
+            <Dialog.Close className="border-t border-line px-4 py-2.5 text-read text-muted hover:text-ink">
               {t("common.close")}
             </Dialog.Close>
           </Dialog.Content>

@@ -37,7 +37,7 @@ export default function AdminTabs(
           return (
             <button key={tab.key} type="button" role="tab" aria-selected={on}
                     onClick={() => setOpen(tab.key)}
-                    className={`rounded-lg px-3 py-1.5 font-display text-[13.5px] font-semibold transition-colors ${
+                    className={`rounded-lg px-3 py-1.5 font-display text-read font-semibold transition-colors ${
                       on ? "border border-accent bg-accent/15 text-accent"
                          : "border border-transparent text-muted hover:text-ink"}`}>
               {tab.label}

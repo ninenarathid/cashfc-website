@@ -57,12 +57,12 @@ export default function MemberPicker(
     <div>
       <input value={typed} onChange={(e) => setTyped(e.target.value)} autoFocus={autoFocus}
              placeholder={placeholder ?? t("gallery.findMember")}
-             className="w-full rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink placeholder:text-muted" />
+             className="w-full rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink placeholder:text-muted" />
       {hits.length > 0 && (
         <div className="mt-1.5 flex flex-wrap gap-1.5">
           {hits.map((o) => (
             <button key={o.id} onClick={() => { onPick(o); setTyped(""); }}
-                    className="flex items-center gap-1.5 rounded-md border border-line bg-card py-1 pl-1 pr-2.5 text-[12.5px] text-ink hover:border-accent hover:text-accent">
+                    className="flex items-center gap-1.5 rounded-md border border-line bg-card py-1 pl-1 pr-2.5 text-ui text-ink hover:border-accent hover:text-accent">
               {(faces[o.id] ?? o.avatar) && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={faces[o.id] ?? o.avatar ?? ""} alt=""
@@ -85,13 +85,13 @@ export default function MemberPicker(
           is the answer, and it should not look like one of them. */}
       {allowGuest && q.length >= 2 && (
         <button onClick={() => { onPick({ id: null, name: typed.trim() }); setTyped(""); }}
-                className="mt-1.5 w-full rounded-md border border-dashed border-line px-2.5 py-1 text-left text-[12px] text-muted hover:border-accent hover:text-accent">
+                className="mt-1.5 w-full rounded-md border border-dashed border-line px-2.5 py-1 text-left text-ui text-muted hover:border-accent hover:text-accent">
           {t("gallery.tagGuestAs", { name: typed.trim() })}
         </button>
       )}
 
       {q.length >= 2 && hits.length === 0 && !allowGuest && (
-        <p className="mt-1.5 text-[12px] text-muted">{t("gallery.nothingFound")}</p>
+        <p className="mt-1.5 text-ui text-muted">{t("gallery.nothingFound")}</p>
       )}
     </div>
   );

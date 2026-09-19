@@ -33,11 +33,11 @@ function Picker({ label, options, value, onPick }: {
         <div className="min-w-0 flex-1">
           <div className="truncate font-data font-semibold">{value.name}</div>
           {memberTitle(value) && (
-            <div className="text-[12px] text-muted">{memberTitle(value)}</div>
+            <div className="text-ui text-muted">{memberTitle(value)}</div>
           )}
         </div>
         <button onClick={() => onPick(null)}
-                className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:text-ink">
+                className="rounded-md border border-line px-2.5 py-1 text-ui text-muted hover:text-ink">
           Change
         </button>
       </div>
@@ -45,7 +45,7 @@ function Picker({ label, options, value, onPick }: {
   }
   return (
     <div className="rounded-xl border border-dashed border-line bg-surface px-4 py-3">
-      <div className="mb-1.5 text-[12.5px] text-muted">{label}</div>
+      <div className="mb-1.5 text-ui text-muted">{label}</div>
       <input value={q} onChange={(e) => setQ(e.target.value)}
              placeholder="Type at least 2 characters…"
              className="w-full rounded-lg border border-line bg-card px-3 py-2 text-ink placeholder:text-muted" />
@@ -53,7 +53,7 @@ function Picker({ label, options, value, onPick }: {
         <div className="mt-2 flex flex-wrap gap-2">
           {sug.map((s) => (
             <button key={s.id} onClick={() => { onPick(s); setQ(""); }}
-                    className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] hover:border-accent hover:text-accent">
+                    className="rounded-lg border border-line bg-card px-3 py-1.5 text-read hover:border-accent hover:text-accent">
               {s.name}
             </button>
           ))}
@@ -94,9 +94,9 @@ export default function CompareClient({ options }: { options: Slim[] }) {
 
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">Compare</div>
+      <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">Compare</div>
       <h1 className="font-display text-3xl font-bold">Compare two members</h1>
-      <p className="mt-1 text-[13.5px] text-muted">
+      <p className="mt-1 text-read text-muted">
         Put two members side by side — who collects more, who parses higher.
       </p>
 
@@ -119,7 +119,7 @@ export default function CompareClient({ options }: { options: Slim[] }) {
                   winA ? "text-accent" : "text-ink/80"}`}>
                   {va ?? "—"}{winA && " 🏆"}
                 </div>
-                <div className="text-center text-[12px] text-muted">{r.label}</div>
+                <div className="text-center text-ui text-muted">{r.label}</div>
                 <div className={`text-right font-data text-lg font-semibold ${
                   winB ? "text-accent" : "text-ink/80"}`}>
                   {winB && "🏆 "}{vb ?? "—"}
@@ -130,7 +130,7 @@ export default function CompareClient({ options }: { options: Slim[] }) {
           <div className="grid grid-cols-2 border-t border-line">
             {[a, b].map((s) => (
               <Link key={s!.id} href={`/member/${s!.id}`}
-                    className="py-2.5 text-center text-[12.5px] text-muted no-underline hover:text-accent">
+                    className="py-2.5 text-center text-ui text-muted no-underline hover:text-accent">
                 View {s!.name}&rsquo;s profile →
               </Link>
             ))}

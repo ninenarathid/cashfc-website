@@ -127,34 +127,34 @@ export default function WantList(
   return (
     <section className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="font-data text-[12.5px] uppercase tracking-[0.14em] text-muted">
+        <h2 className="font-data text-ui uppercase tracking-[0.14em] text-muted">
           {t("want.heading", { n: wants.length })}
         </h2>
         {!wants.length && (
-          <span className="text-[13.5px] text-muted">{t("want.none")}</span>
+          <span className="text-read text-muted">{t("want.none")}</span>
         )}
         {canPost && (
           <button onClick={() => setOpen((v) => !v)}
-                  className="rounded-full border border-accent/60 px-3 py-[3px] text-[14px] text-accent transition-colors hover:bg-accent/10">
+                  className="rounded-full border border-accent/60 px-3 py-[3px] text-lead text-accent transition-colors hover:bg-accent/10">
             {open ? t("pf.cancel") : t("want.post")}
           </button>
         )}
         {/* Said where the button would be, so somebody who has three does not
             go looking for a button that is deliberately not there. */}
         {!!me && userId && mine.length > 0 && !open && (
-          <span className="text-[13.5px] text-muted">{t("want.capped")}</span>
+          <span className="text-read text-muted">{t("want.capped")}</span>
         )}
       </div>
 
       {err && (
-        <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-[14px] text-chili">
+        <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-lead text-chili">
           {err}
         </p>
       )}
 
       {open && canPost && (
         <div className="flex flex-col gap-2.5 rounded-xl border border-line bg-surface p-3">
-          <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
             {t("want.what")}
           </span>
           <div className="flex flex-wrap gap-1.5">
@@ -167,7 +167,7 @@ export default function WantList(
                         style={on ? { borderColor: KIND_COLOR[k], color: KIND_COLOR[k],
                                       background: `color-mix(in srgb, ${KIND_COLOR[k]} 12%, transparent)` }
                                   : undefined}
-                        className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                        className={`rounded-full border px-3 py-[3px] text-lead transition-colors ${
                           on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   {kindSay(k, t)}
                 </button>
@@ -177,7 +177,7 @@ export default function WantList(
 
           {narrow.length > 0 && (
             <>
-              <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+              <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
                 {t("want.narrow")}
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -187,7 +187,7 @@ export default function WantList(
                     <button key={c.key} type="button"
                             onClick={() => setKeys((v) => on
                               ? v.filter((x) => x !== c.key) : [...v, c.key])}
-                            className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                            className={`rounded-full border px-3 py-[3px] text-lead transition-colors ${
                               on ? "border-accent bg-accent/15 text-accent"
                                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                       {c.badge ?? c.short ?? c.name}
@@ -198,7 +198,7 @@ export default function WantList(
             </>
           )}
 
-          <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
             {t("want.asWhat")}
           </span>
           <div className="flex flex-wrap gap-1.5">
@@ -211,14 +211,14 @@ export default function WantList(
                         style={on ? { borderColor: ROLE_COLOR[r], color: ROLE_COLOR[r],
                                       background: `color-mix(in srgb, ${ROLE_COLOR[r]} 14%, transparent)` }
                                   : undefined}
-                        className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                        className={`rounded-full border px-3 py-[3px] text-lead transition-colors ${
                           on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   {ROLE_LABEL[r]}
                 </button>
               );
             })}
             {!roles.length && (
-              <span className="self-center text-[13.5px] text-muted">
+              <span className="self-center text-read text-muted">
                 {t("want.anyRole")}
               </span>
             )}
@@ -240,9 +240,9 @@ export default function WantList(
             <input value={note} maxLength={NOTE_MAX}
                    onChange={(e) => setNote(e.target.value.slice(0, NOTE_MAX))}
                    placeholder={t("want.noteHint")}
-                   className="w-full rounded-lg border border-line bg-bg/40 px-3 py-2 pr-14 text-[15px] text-ink placeholder:text-muted" />
+                   className="w-full rounded-lg border border-line bg-bg/40 px-3 py-2 pr-14 text-title text-ink placeholder:text-muted" />
             {note.length > NOTE_MAX * 0.66 && (
-              <span className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-data text-[12.5px] tabular-nums ${
+              <span className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-data text-ui tabular-nums ${
                 note.length >= NOTE_MAX ? "text-gold" : "text-muted"}`}>
                 {note.length}/{NOTE_MAX}
               </span>
@@ -253,7 +253,7 @@ export default function WantList(
               answered: the grid on their profile is what the matcher reads,
               and asking a second time would give the site two answers to one
               question. Said here so an empty grid is not a silent surprise. */}
-          <p className="text-[13px] text-muted">{t("want.whenWhy")}</p>
+          <p className="text-read text-muted">{t("want.whenWhy")}</p>
 
           <div className="flex items-center gap-2">
             <button type="button" disabled={busy}
@@ -268,10 +268,10 @@ export default function WantList(
                       }
                       return r;
                     })}
-                    className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                    className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-title text-jade hover:bg-jade/25 disabled:opacity-50">
               {t("want.postIt")}
             </button>
-            <span className="text-[13px] text-muted">{t("want.twoDays")}</span>
+            <span className="text-read text-muted">{t("want.twoDays")}</span>
           </div>
         </div>
       )}
@@ -336,7 +336,7 @@ export default function WantList(
                   * the page.
                   */}
                 {w.note && (
-                  <p className="relative w-fit max-w-full rounded-xl border border-line bg-bg/60 px-3 py-1.5 text-[14.5px] leading-snug text-ink/90
+                  <p className="relative w-fit max-w-full rounded-xl border border-line bg-bg/60 px-3 py-1.5 text-lead leading-snug text-ink/90
                                 line-clamp-2
                                 after:absolute after:-bottom-[5px] after:left-5 after:size-2 after:rotate-45
                                 after:border-b after:border-r after:border-line after:bg-bg/60 after:content-['']">
@@ -353,7 +353,7 @@ export default function WantList(
 
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <span title={w.name} className="text-[16px] text-ink">
+                    <span title={w.name} className="text-head text-ink">
                       {shortName(w.name)}
                     </span>
                     {w.roles.map((r) => (
@@ -361,19 +361,19 @@ export default function WantList(
                             style={{ color: ROLE_COLOR[r],
                                      borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 50%, transparent)`,
                                      background: `color-mix(in srgb, ${ROLE_COLOR[r]} 10%, transparent)` }}
-                            className="rounded-full border px-2 py-[1px] font-data text-[11.5px] uppercase tracking-[0.1em]">
+                            className="rounded-full border px-2 py-[1px] font-data text-meta uppercase tracking-[0.1em]">
                         {ROLE_LABEL[r]}
                       </span>
                     ))}
                     {!w.roles.length && (
-                      <span className="font-data text-[11.5px] uppercase tracking-[0.1em] text-muted">
+                      <span className="font-data text-meta uppercase tracking-[0.1em] text-muted">
                         {t("want.anyRoleShort")}
                       </span>
                     )}
                   </div>
 
                   <p title={want.map((x) => x.text).join(" · ")}
-                     className="flex flex-wrap items-center gap-x-1.5 text-[14.5px]">
+                     className="flex flex-wrap items-center gap-x-1.5 text-lead">
                     {show.map((x, i) => (
                       <span key={x.text} style={x.tint ? { color: x.tint } : undefined}
                             className={x.tint ? "" : "text-accent"}>
@@ -388,7 +388,7 @@ export default function WantList(
 
                   <div className="flex flex-wrap items-center gap-2 pt-0.5">
                     {left && (
-                      <span className="font-data text-[12.5px] text-muted">
+                      <span className="font-data text-ui text-muted">
                         {t(left.key, { n: left.n })}
                       </span>
                     )}
@@ -396,12 +396,12 @@ export default function WantList(
                       <>
                         <button disabled={busy}
                                 onClick={() => void run(() => extendWant(supabase!, w.id))}
-                                className="rounded-lg border border-line px-2.5 py-1 text-[13.5px] text-muted transition-colors hover:border-jade hover:text-jade">
+                                className="rounded-lg border border-line px-2.5 py-1 text-read text-muted transition-colors hover:border-jade hover:text-jade">
                           {t("want.extend")}
                         </button>
                         <button disabled={busy}
                                 onClick={() => void run(() => dropWant(supabase!, w.id))}
-                                className="rounded-lg border border-line px-2.5 py-1 text-[13.5px] text-muted transition-colors hover:border-chili hover:text-chili">
+                                className="rounded-lg border border-line px-2.5 py-1 text-read text-muted transition-colors hover:border-chili hover:text-chili">
                           {t("want.withdraw")}
                         </button>
                       </>

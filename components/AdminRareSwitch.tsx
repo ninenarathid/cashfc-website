@@ -80,20 +80,20 @@ export default function AdminRareSwitch(
     <div className={`flex flex-wrap items-center gap-3 rounded-xl border-2 p-3 ${
       on ? "border-jade/60 bg-jade/10" : "border-line bg-card"}`}>
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className={`text-[16px] font-semibold ${on ? "text-jade" : "text-ink"}`}>
+        <span className={`text-head font-semibold ${on ? "text-jade" : "text-ink"}`}>
           {on ? t("adm.rareOn") : t("adm.rareOff")}
         </span>
-        <span className="text-[13px] text-muted">
+        <span className="text-read text-muted">
           {on ? t("adm.rareOnWhy", { pct: chance ?? "?" }) : t("adm.rareOffWhy")}
           {at && <> · {fmtDateTime(at)}</>}
         </span>
         {/* Turning on with nothing ready turns on a draw with nothing in it. */}
         {!on && ready === 0 && (
-          <span className="text-[13px] text-gold">{t("adm.rareNothingReady")}</span>
+          <span className="text-read text-gold">{t("adm.rareNothingReady")}</span>
         )}
       </div>
       <button type="button" onClick={() => setAsking(true)} disabled={on == null}
-              className={`rounded-lg border px-4 py-2 text-[14.5px] font-medium disabled:opacity-40 ${
+              className={`rounded-lg border px-4 py-2 text-lead font-medium disabled:opacity-40 ${
                 on ? "border-chili/60 text-chili hover:bg-chili/10"
                    : "border-jade/60 bg-jade/15 text-jade hover:bg-jade/25"}`}>
         {on ? t("adm.rareTurnOff") : t("adm.rareTurnOn")}
@@ -102,26 +102,26 @@ export default function AdminRareSwitch(
           ways: the percentage is what gets typed, and the count is what it
           actually means on an evening of giving. */}
       <div className="flex w-full flex-wrap items-center gap-2 border-t border-line pt-3">
-        <span className="text-[13.5px] text-ink">{t("adm.rareChance")}</span>
+        <span className="text-read text-ink">{t("adm.rareChance")}</span>
         <input type="number" min={0} max={100} step={0.1} value={draft}
                onChange={(e) => setDraft(e.target.value)}
-               className="w-24 rounded-lg border border-line bg-surface px-3 py-1.5 text-right text-[14px] text-ink" />
-        <span className="text-[13.5px] text-muted">%</span>
+               className="w-24 rounded-lg border border-line bg-surface px-3 py-1.5 text-right text-lead text-ink" />
+        <span className="text-read text-muted">%</span>
         {okChance && wanted > 0 && (
-          <span className="text-[12.5px] text-muted">
+          <span className="text-ui text-muted">
             {t("adm.rareChanceMeans", { n: Math.round(100 / wanted) })}
           </span>
         )}
         {okChance && wanted === 0 && (
-          <span className="text-[12.5px] text-gold">{t("adm.rareChanceZero")}</span>
+          <span className="text-ui text-gold">{t("adm.rareChanceZero")}</span>
         )}
-        {!okChance && <span className="text-[12.5px] text-chili">{t("adm.rareChanceBad")}</span>}
+        {!okChance && <span className="text-ui text-chili">{t("adm.rareChanceBad")}</span>}
         <button type="button" onClick={() => void saveChance()} disabled={!changed || saving}
-                className="ml-auto rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13.5px] text-accent hover:bg-accent/25 disabled:opacity-40">
+                className="ml-auto rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-read text-accent hover:bg-accent/25 disabled:opacity-40">
           {t("adm.save")}
         </button>
       </div>
-      {err && <p className="w-full text-[13px] text-chili">{err}</p>}
+      {err && <p className="w-full text-read text-chili">{err}</p>}
 
       {asking && (
         <ConfirmDialog z={120} danger={!!on}

@@ -73,7 +73,7 @@ export default function SignIn(
         {buttons.map((p) => (
           <button key={p.key} onClick={() => oauth(p.key)}
                   title={p.hint}
-                  className={`rounded-lg border px-5 py-2 text-[13.5px] transition-colors ${p.className}`}>
+                  className={`rounded-lg border px-5 py-2 text-read transition-colors ${p.className}`}>
             {compact ? p.label : `Continue with ${p.label}`}
           </button>
         ))}
@@ -81,33 +81,33 @@ export default function SignIn(
 
       {!compact && ENABLED.includes("email") && (
         sent ? (
-          <div className="rounded-lg border border-jade/40 bg-jade/5 px-3.5 py-2.5 text-[12.5px] leading-relaxed text-muted">
+          <div className="rounded-lg border border-jade/40 bg-jade/5 px-3.5 py-2.5 text-ui leading-relaxed text-muted">
             Check <b className="text-ink">{email}</b> — the link in that mail signs
             you in. It works once and expires shortly, so open it on the device you
             want to be signed in on.
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-3 py-1 text-[11.5px] uppercase tracking-[0.14em] text-muted">
+            <div className="flex items-center gap-3 py-1 text-meta uppercase tracking-[0.14em] text-muted">
               <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
             </div>
             <div className="flex flex-wrap gap-2">
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                      placeholder="you@example.com" aria-label="Email address"
-                     className="min-w-[200px] flex-1 rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
+                     className="min-w-[200px] flex-1 rounded-lg border border-line bg-card px-3 py-2 text-read text-ink placeholder:text-muted" />
               <button onClick={magicLink} disabled={busy || !email.includes("@")}
-                      className="rounded-lg border border-line px-4 py-2 text-[13.5px] text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40">
+                      className="rounded-lg border border-line px-4 py-2 text-read text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40">
                 {busy ? "Sending…" : "Email me a link"}
               </button>
             </div>
-            <p className="text-[12px] text-muted">
+            <p className="text-ui text-muted">
               No password — we mail you a one-time link instead.
             </p>
           </>
         )
       )}
 
-      {err && <p className="text-[12.5px] text-chili">{err}</p>}
+      {err && <p className="text-ui text-chili">{err}</p>}
     </div>
   );
 }

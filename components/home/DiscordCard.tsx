@@ -41,7 +41,7 @@ export default function DiscordCard() {
             href={invite}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-lg bg-[#5865F2] px-5 py-2 text-[14px] font-medium text-white no-underline transition-opacity hover:opacity-90"
+            className="rounded-lg bg-[#5865F2] px-5 py-2 text-lead font-medium text-white no-underline transition-opacity hover:opacity-90"
           >
             Join the Discord
           </a>

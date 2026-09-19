@@ -81,12 +81,12 @@ export default function AdminPoll() {
 
   return (
     <div className="mt-1">
-      <p className="text-[12.5px] leading-relaxed text-muted">
+      <p className="text-ui leading-relaxed text-muted">
         {t("adm.pollHint")}
       </p>
 
       {rows.length === 0 ? (
-        <p className="mt-3 text-[13px] text-muted">{t("adm.pollNone")}</p>
+        <p className="mt-3 text-read text-muted">{t("adm.pollNone")}</p>
       ) : (
         <div className="mt-3 flex flex-col gap-2">
           {rows.map((r) => {
@@ -97,15 +97,15 @@ export default function AdminPoll() {
             return (
               <div key={r.id} className="rounded-xl border border-line bg-card p-3.5">
                 <div className="flex flex-wrap items-baseline gap-x-3">
-                  <span className={`text-[12px] ${ended ? "text-muted" : "text-jade"}`}>
+                  <span className={`text-ui ${ended ? "text-muted" : "text-jade"}`}>
                     {ended ? t("adm.pollEnded") : t("adm.pollOpen")}
                   </span>
                   {r.closes_at && (
-                    <span className="text-[12px] text-muted">
+                    <span className="text-ui text-muted">
                       {t("adm.pollCloses", { when: fmtDateTime(r.closes_at) })}
                     </span>
                   )}
-                  <span className="text-[12px] text-muted">
+                  <span className="text-ui text-muted">
                     {t("adm.pollVotes", { n: total })}
                   </span>
                   {!ended && (
@@ -119,13 +119,13 @@ export default function AdminPoll() {
                           await refresh(); flash(t("adm.pollClosed"));
                         },
                       })}
-                      className="ml-auto rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                      className="ml-auto rounded-md border border-chili/50 px-2.5 py-1 text-ui text-chili hover:bg-chili/10">
                       {t("adm.pollClose")}
                     </button>
                   )}
                 </div>
 
-                <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink">
+                <p className="mt-1.5 text-read leading-relaxed text-ink">
                   {r.question}
                 </p>
 
@@ -135,7 +135,7 @@ export default function AdminPoll() {
                     const pct = total ? Math.round((n / total) * 100) : 0;
                     return (
                       <div key={o.key}
-                           className="relative overflow-hidden rounded-lg border border-line bg-surface px-3 py-1.5 text-[12.5px]">
+                           className="relative overflow-hidden rounded-lg border border-line bg-surface px-3 py-1.5 text-ui">
                         <span aria-hidden style={{ width: `${pct}%` }}
                               className="absolute inset-y-0 left-0 bg-accent/15" />
                         <span className="relative flex items-baseline justify-between gap-3">
@@ -151,11 +151,11 @@ export default function AdminPoll() {
 
                 {/* Folded, and it says what it holds before it is opened. */}
                 <details className="mt-2.5" onToggle={() => void showVoters(r.id)}>
-                  <summary className="cursor-pointer text-[12px] text-muted hover:text-ink">
+                  <summary className="cursor-pointer text-ui text-muted hover:text-ink">
                     {t("adm.pollWhoVoted")}
                   </summary>
                   {(voters[r.id]?.length ?? 0) === 0 ? (
-                    <p className="mt-1.5 text-[12px] text-muted">
+                    <p className="mt-1.5 text-ui text-muted">
                       {voters[r.id] ? t("adm.pollNoVotes") : t("adm.loading")}
                     </p>
                   ) : (
@@ -164,7 +164,7 @@ export default function AdminPoll() {
                         const opt = r.options.find((o) => o.key === v.choice);
                         return (
                           <div key={n}
-                               className="flex flex-wrap items-baseline justify-between gap-x-3 rounded-md border border-line bg-surface px-2.5 py-1 text-[12.5px]">
+                               className="flex flex-wrap items-baseline justify-between gap-x-3 rounded-md border border-line bg-surface px-2.5 py-1 text-ui">
                             <span className="font-data text-ink/90">{v.name}</span>
                             <span className="text-muted">{opt?.th ?? v.choice}</span>
                           </div>
@@ -179,7 +179,7 @@ export default function AdminPoll() {
         </div>
       )}
 
-      {msg && <div className="mt-3 text-[13px] text-jade">{msg}</div>}
+      {msg && <div className="mt-3 text-read text-jade">{msg}</div>}
       {ask && (
         <ConfirmDialog message={ask.text} confirmLabel={t("adm.pollClose")}
                        danger onConfirm={ask.run} onCancel={() => setAsk(null)} />

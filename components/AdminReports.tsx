@@ -204,7 +204,7 @@ function Person(
       ) : (
         <span className="flex min-w-0 items-baseline gap-1.5">
           <span className="truncate font-data text-ink/80">{row.name}</span>
-          <span className="shrink-0 whitespace-nowrap rounded-full border border-dashed border-line px-1.5 text-[10.5px] text-muted">
+          <span className="shrink-0 whitespace-nowrap rounded-full border border-dashed border-line px-1.5 text-label text-muted">
             {t("adm.noCharacter")}
           </span>
         </span>
@@ -358,14 +358,14 @@ export default function AdminReports(
     setDrawn(won);
   };
 
-  const box = "rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink";
+  const box = "rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink";
 
   // Bare: the tab it lives in supplies the card and the heading.
   return (
     <>
-      <p className="text-[13px] text-ink/85">
+      <p className="text-read text-ink/85">
         {t(report.title)}
-        <span className="ml-2 text-[12px] text-muted">{t(report.note)}</span>
+        <span className="ml-2 text-ui text-muted">{t(report.note)}</span>
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
@@ -380,14 +380,14 @@ export default function AdminReports(
         <input type="date" value={since} max={until || undefined}
                onChange={(e) => setSince(e.target.value)}
                aria-label={t("adm.from")} className={box} />
-        <span className="self-center text-[12.5px] text-muted">{t("adm.to")}</span>
+        <span className="self-center text-ui text-muted">{t("adm.to")}</span>
         <input type="date" value={until} min={since || undefined}
                onChange={(e) => setUntil(e.target.value)}
                aria-label={t("adm.to")} className={box} />
         {SPANS.map((sp) => (
           <button key={sp.label}
                   onClick={() => { setSince(sp.from()); setUntil(sp.to?.() ?? today()); }}
-                  className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+                  className="rounded-lg border border-line px-2.5 py-1.5 text-ui text-muted hover:border-accent hover:text-accent">
             {t(sp.label)}
           </button>
         ))}
@@ -395,7 +395,7 @@ export default function AdminReports(
           {SCOPES.map((sc) => (
             <button key={sc.key} type="button" onClick={() => { setScope(sc.key); setDrawn(null); }}
                     aria-pressed={scope === sc.key}
-                    className={`rounded-md px-2.5 py-1 text-[12.5px] transition-colors ${
+                    className={`rounded-md px-2.5 py-1 text-ui transition-colors ${
                       scope === sc.key ? "bg-accent/15 text-accent"
                                        : "text-muted hover:text-ink"}`}>
               {t(sc.label)}
@@ -406,35 +406,35 @@ export default function AdminReports(
 
       {/* ── The draw ── */}
       <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-gold/40 bg-gold/8 px-3 py-2.5">
-        <span className="text-[12.5px] font-medium text-gold">🎲 {t("adm.drawTitle")}</span>
+        <span className="text-ui font-medium text-gold">🎲 {t("adm.drawTitle")}</span>
         <input type="number" min={1} max={Math.max(people, 1)} value={howMany}
                onChange={(e) => setHowMany(e.target.value)}
                aria-label={t("adm.drawHowMany")}
-               className="w-20 rounded-lg border border-line bg-card px-2.5 py-1 text-[13px] text-ink" />
-        <span className="text-[12.5px] text-muted">{t("adm.drawOf", { n: people })}</span>
+               className="w-20 rounded-lg border border-line bg-card px-2.5 py-1 text-read text-ink" />
+        <span className="text-ui text-muted">{t("adm.drawOf", { n: people })}</span>
         <button onClick={draw} disabled={!people}
-                className="rounded-lg border border-gold bg-gold/15 px-3.5 py-1.5 text-[13px] text-gold hover:bg-gold/25 disabled:opacity-40">
+                className="rounded-lg border border-gold bg-gold/15 px-3.5 py-1.5 text-read text-gold hover:bg-gold/25 disabled:opacity-40">
           {drawn ? t("adm.drawAgain") : t("adm.draw")}
         </button>
         {drawn && (
           <button onClick={() => setDrawn(null)}
-                  className="text-[12.5px] text-muted underline hover:text-ink">
+                  className="text-ui text-muted underline hover:text-ink">
             {t("adm.drawClear")}
           </button>
         )}
-        <span className="w-full text-[11.5px] text-muted">{t("adm.drawHint")}</span>
+        <span className="w-full text-meta text-muted">{t("adm.drawHint")}</span>
       </div>
 
       {drawn && (
         <ol className="mt-2 flex flex-col gap-1 rounded-lg border border-gold/40 bg-gold/5 px-3 py-2.5">
           {drawn.map((r, i) => (
             <li key={r.key}
-                className="grid grid-cols-[20px_32px_1fr_auto] items-center gap-2 text-[13.5px]">
-              <span className="text-right font-data text-[11.5px] text-muted">{i + 1}</span>
+                className="grid grid-cols-[20px_32px_1fr_auto] items-center gap-2 text-read">
+              <span className="text-right font-data text-meta text-muted">{i + 1}</span>
               <Person row={r} portraits={portraits} />
               {/* How many chances they were holding, so a draw can be checked
                   against the list rather than taken on faith. */}
-              <span className="font-data text-[12px] text-muted">
+              <span className="font-data text-ui text-muted">
                 {t("adm.rpDays", {
                   n: shown.filter((x) => x.profileId === r.profileId).length,
                 })}
@@ -446,18 +446,18 @@ export default function AdminReports(
 
       {/* ── The entries ── */}
       <div className="mt-3">
-        {loading && <p className="text-[12.5px] text-muted">{t("adm.loading")}</p>}
+        {loading && <p className="text-ui text-muted">{t("adm.loading")}</p>}
         {!loading && failed && (
-          <p className="py-3 text-center text-[12.5px] text-chili">
+          <p className="py-3 text-center text-ui text-chili">
             {t("adm.rpFailed", { why: failed })}
           </p>
         )}
         {!loading && rows && shown.length === 0 && (
-          <p className="py-3 text-center text-[12.5px] text-muted">{t("adm.rpEmpty")}</p>
+          <p className="py-3 text-center text-ui text-muted">{t("adm.rpEmpty")}</p>
         )}
         {!loading && rows && shown.length > 0 && (
           <>
-            <div className="mb-2 text-[12.5px] text-muted">
+            <div className="mb-2 text-ui text-muted">
               {t("adm.rpSummary", { entries: shown.length, people, n: given })}
               <span className="ml-2 opacity-70">{t(report.partsLabel)}</span>
               {/* Named, not silently dropped: a total that quietly excludes
@@ -469,17 +469,17 @@ export default function AdminReports(
             <ol className="flex flex-col gap-1">
               {shown.map((r) => (
                 <li key={r.key}
-                    className="grid grid-cols-[76px_32px_1fr_auto] items-center gap-2 border-b border-line/40 py-1 text-[13.5px] last:border-0">
+                    className="grid grid-cols-[76px_32px_1fr_auto] items-center gap-2 border-b border-line/40 py-1 text-read last:border-0">
                   {/* The day, because the day is the entry — the same name on
                       three dates is three chances, and has to look like three
                       rows rather than a repeat somebody wants to tidy away. */}
-                  <span className="font-data text-[11.5px] text-muted">
+                  <span className="font-data text-meta text-muted">
                     {fmtDate(`${r.day}T00:00:00`)}
                   </span>
                   <Person row={r} portraits={portraits} />
-                  <span className="font-data text-[12.5px] text-ink">
+                  <span className="font-data text-ui text-ink">
                     🥔 {r.count}
-                    <span className="ml-1 text-[11.5px] text-muted">
+                    <span className="ml-1 text-meta text-muted">
                       ({r.parts.join("/")})
                     </span>
                   </span>

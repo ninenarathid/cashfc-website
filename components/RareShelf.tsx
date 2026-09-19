@@ -87,14 +87,14 @@ function Row(
         <span className="size-9 shrink-0 rounded-md border border-line bg-card" />
       )}
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13.5px] text-ink" title={name ?? ""}>
+        <div className="truncate text-read text-ink" title={name ?? ""}>
           {name ?? "—"}
         </div>
-        <div className="flex flex-wrap items-center gap-x-1.5 text-[11.5px] text-muted">
+        <div className="flex flex-wrap items-center gap-x-1.5 text-meta text-muted">
           {meta}
         </div>
       </div>
-      <span className="shrink-0 font-data text-[12.5px] font-semibold"
+      <span className="shrink-0 font-data text-ui font-semibold"
             style={{ color: rarityColor(pct) }}
             title={rarityLabel(pct, th)}>
         {pct == null ? "—" : pct < 0.05 ? "<0.1%" : `${pct}%`}
@@ -113,7 +113,7 @@ function List({ children, total, th }:
       </div>
       {total > SHOW_FIRST && (
         <button onClick={() => setExpanded((v) => !v)}
-                className="mt-2 text-[12.5px] text-accent underline-offset-2 hover:underline">
+                className="mt-2 text-ui text-accent underline-offset-2 hover:underline">
           {expanded
             ? (th ? "ย่อ" : "Show fewer")
             : (th ? `ดูทั้งหมด ${total}` : `Show all ${total}`)}
@@ -164,7 +164,7 @@ export default function RareShelf(
                      // Names the playstyle tag this one feeds, so the connection
                      // between "Legendary relic grinder" and the achievements
                      // behind it is visible.
-                     <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-[1px] text-[10px] ${
+                     <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-[1px] text-label ${
                        TAG_CLASS[a.bucket] ?? "border-line text-muted"}`}>
                        <TagIcon tag={a.bucket} size={11} />
                        {TAG_LABELS[a.bucket] ?? a.bucket}

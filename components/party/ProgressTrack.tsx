@@ -63,10 +63,10 @@ export default function ProgressTrack(
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-2.5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
           {t("pf.whereWeAre")}
         </span>
-        <span className="text-[13px] text-muted">{progressHelp(at, t)}</span>
+        <span className="text-read text-muted">{progressHelp(at, t)}</span>
       </div>
 
       {/* One row. The rules between the buttons are what make it read as a
@@ -93,7 +93,7 @@ export default function ProgressTrack(
                         ? { borderColor: tint, color: tint,
                             background: `color-mix(in srgb, ${tint} 14%, transparent)` }
                         : undefined}
-                      className={`rounded-full border px-3 py-[3px] text-[14px] transition-colors ${
+                      className={`rounded-full border px-3 py-[3px] text-lead transition-colors ${
                         on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                 {s.label}
               </button>
@@ -130,10 +130,10 @@ export default function ProgressTrack(
                         : undefined}
                       className={`flex flex-col items-start rounded-lg border px-2.5 py-1 leading-tight transition-colors ${
                         on ? "" : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-                <span className="font-data text-[13px] uppercase tracking-[0.1em]">
+                <span className="font-data text-read uppercase tracking-[0.1em]">
                   {/^\d/.test(ph.n) ? `P${ph.n}` : ph.n}
                 </span>
-                <span className="text-[12.5px] opacity-75">{ph.name}</span>
+                <span className="text-ui opacity-75">{ph.name}</span>
               </button>
             );
           })}
@@ -144,14 +144,14 @@ export default function ProgressTrack(
           The row appears and disappears as the rung changes, which is a
           behaviour worth one sentence rather than a thing to work out. */}
       {phases.length > 0 && (
-        <span className="text-[13px] text-muted">{t("pf.phaseWhy")}</span>
+        <span className="text-read text-muted">{t("pf.phaseWhy")}</span>
       )}
 
       {wantsMech && (
         <input value={value.mech ?? ""}
                onChange={(e) => onChange({ ...value, mech: e.target.value.slice(0, 80) })}
                placeholder={t(at === "a2c" ? "pf.mechA2c" : "pf.mechProg")}
-               className="rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink placeholder:text-muted" />
+               className="rounded-lg border border-line bg-surface px-3 py-2 text-title text-ink placeholder:text-muted" />
       )}
 
       {/* Whose strategy, which is the first thing somebody checks before
@@ -161,9 +161,9 @@ export default function ProgressTrack(
       <input value={value.plan ?? ""}
              onChange={(e) => onChange({ ...value, plan: e.target.value.slice(0, 40) })}
              placeholder={t("pf.planHint")}
-             className="rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink placeholder:text-muted" />
+             className="rounded-lg border border-line bg-surface px-3 py-2 text-title text-ink placeholder:text-muted" />
 
-      <span className="text-[13px]" style={{ color: tint }}>
+      <span className="text-read" style={{ color: tint }}>
         {t("pf.readsAs")} {progressText(value)}
       </span>
     </div>
@@ -181,7 +181,7 @@ export function ProgressChip({ progress }: { progress: Progress | undefined }) {
           style={{ color: tint,
                    borderColor: `color-mix(in srgb, ${tint} 45%, transparent)`,
                    background: `color-mix(in srgb, ${tint} 10%, transparent)` }}
-          className="rounded-full border px-2 py-[2px] font-data text-[12px] uppercase tracking-[0.1em]">
+          className="rounded-full border px-2 py-[2px] font-data text-ui uppercase tracking-[0.1em]">
       {text}
     </span>
   );

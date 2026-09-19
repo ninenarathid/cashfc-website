@@ -34,7 +34,7 @@ export default function MemberBio(
       bare
       className="max-w-[23rem] border-line/80 bg-bg/95 backdrop-blur"
       trigger={
-        <div className="mt-0.5 cursor-default truncate text-[12px] italic"
+        <div className="mt-0.5 cursor-default truncate text-ui italic"
              style={{ color: accent }}>
           &ldquo;{bio}&rdquo;
         </div>
@@ -55,13 +55,13 @@ export default function MemberBio(
           ) : (
             <span className="size-9 shrink-0 rounded-full border border-line bg-card" />
           )}
-          <span className="min-w-0 truncate font-display text-[13.5px] font-semibold group-hover:underline"
+          <span className="min-w-0 truncate font-display text-read font-semibold group-hover:underline"
                 style={{ color: accent }}>
             {m.name}
           </span>
         </Link>
 
-        <p className="mt-2.5 whitespace-pre-wrap text-[13px] italic leading-relaxed text-ink/90">
+        <p className="mt-2.5 whitespace-pre-wrap text-read italic leading-relaxed text-ink/90">
           &ldquo;{bio}&rdquo;
         </p>
       </div>

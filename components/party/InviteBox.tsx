@@ -75,7 +75,7 @@ export default function InviteBox(
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)}
-              className="self-start rounded-lg border border-accent/60 bg-accent/10 px-3 py-1.5 text-[15px] text-accent hover:bg-accent/20">
+              className="self-start rounded-lg border border-accent/60 bg-accent/10 px-3 py-1.5 text-title text-accent hover:bg-accent/20">
         + {t("party.inviteSomebody")}
       </button>
     );
@@ -84,19 +84,19 @@ export default function InviteBox(
   return (
     <div className="flex flex-col gap-2 rounded-lg border border-accent/40 bg-accent/[0.05] p-2.5">
       <div className="flex items-center gap-2">
-        <span className="font-data text-[13.5px] uppercase tracking-[0.14em] text-accent">
+        <span className="font-data text-read uppercase tracking-[0.14em] text-accent">
           {t("party.inviteSomebody")}
         </span>
         <button type="button" onClick={() => { setOpen(false); setQ(""); }}
                 aria-label={t("pf.cancel")}
-                className="ml-auto text-[15px] text-muted hover:text-ink">
+                className="ml-auto text-title text-muted hover:text-ink">
           ✕
         </button>
       </div>
 
       <input autoFocus value={q} onChange={(e) => setQ(e.target.value)}
              placeholder={t("pf.addFlexer")}
-             className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-[15px] text-ink placeholder:text-muted" />
+             className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-title text-ink placeholder:text-muted" />
 
       {found.map((p) => {
         const src = overrides[p.id] || p.avatar;
@@ -111,8 +111,8 @@ export default function InviteBox(
               ? <img src={src} alt="" width={30} height={30}
                      className="size-[30px] rounded-full object-cover" />
               : <span className="size-[30px] rounded-full bg-card" />}
-            <span className="text-[15.5px] text-ink">{p.name}</span>
-            <span className="ml-auto text-[14px] text-accent">{t("party.inviteThem")}</span>
+            <span className="text-title text-ink">{p.name}</span>
+            <span className="ml-auto text-lead text-accent">{t("party.inviteThem")}</span>
           </button>
         );
       })}
@@ -127,12 +127,12 @@ export default function InviteBox(
                   confirmedAt: new Date().toISOString(),
                 })}
                 className="flex items-center gap-2 rounded-lg border border-dashed border-line px-2.5 py-2 text-left hover:border-accent/60 disabled:opacity-50">
-          <span className="grid size-[30px] shrink-0 place-items-center rounded-full border border-dashed border-line text-[14px] text-muted">
+          <span className="grid size-[30px] shrink-0 place-items-center rounded-full border border-dashed border-line text-lead text-muted">
             ?
           </span>
           <span className="flex flex-col">
-            <span className="text-[14.5px] text-ink">{t("pf.addNamed", { name: q.trim() })}</span>
-            <span className="text-[13px] text-muted">{t("pf.outsiderHint")}</span>
+            <span className="text-lead text-ink">{t("pf.addNamed", { name: q.trim() })}</span>
+            <span className="text-read text-muted">{t("pf.outsiderHint")}</span>
           </span>
         </button>
       )}

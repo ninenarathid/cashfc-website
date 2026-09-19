@@ -133,9 +133,9 @@ export default function CollectionHelp(
   );
 
   return (
-    <div className="mt-3 rounded-xl border border-dashed border-line px-4 py-3.5 text-[12.5px] leading-[1.8] text-muted">
+    <div className="mt-3 rounded-xl border border-dashed border-line px-4 py-3.5 text-ui leading-[1.8] text-muted">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <b className="text-[13.5px] text-ink">
+        <b className="text-read text-ink">
           {unknown
             ? (th ? "ยังไม่มีข้อมูลของสะสมของตัวละครนี้"
                   : "No collection data for this character yet")
@@ -144,7 +144,7 @@ export default function CollectionHelp(
         </b>
         <button
           onClick={flip}
-          className="rounded-md border border-line px-2 py-0.5 font-data text-[11px] text-muted hover:border-muted hover:text-ink">
+          className="rounded-md border border-line px-2 py-0.5 font-data text-meta text-muted hover:border-muted hover:text-ink">
           {th ? "English" : "ภาษาไทย"}
         </button>
       </div>

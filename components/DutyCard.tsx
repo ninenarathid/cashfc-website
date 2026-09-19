@@ -139,7 +139,7 @@ export default function DutyCard(
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
           {badge}
-          <span className="truncate font-data text-[14px] font-semibold text-ink">
+          <span className="truncate font-data text-lead font-semibold text-ink">
             {name ?? "—"}
           </span>
         </div>
@@ -147,12 +147,12 @@ export default function DutyCard(
           // The boss under the duty. Both are wanted and neither replaces the
           // other: the duty is what you search the Party Finder for, the boss is
           // what the parse belongs to.
-          <div className="mt-0.5 truncate text-[12px] text-ink/75">{subtitle}</div>
+          <div className="mt-0.5 truncate text-ui text-ink/75">{subtitle}</div>
         )}
         {/* Wraps rather than truncating: somebody who killed an Ultimate on
             four jobs has earned all four being named, and this line is the only
             place on the card with room to spare. */}
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11.5px] text-muted">
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-meta text-muted">
           <span>{cleared && total != null ? `${total} kills` : "no log"}</span>
           {split.length > 0 ? (
             // The real answer: a number against each job, biggest first. The

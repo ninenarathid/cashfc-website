@@ -48,7 +48,7 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
     <section className="mt-6">
       <div className="mb-2 flex items-baseline gap-3">
         <h2 className="font-display text-lg font-semibold">{t("home.timeline")}</h2>
-        <span className="text-[12px] text-muted">
+        <span className="text-ui text-muted">
           <span className="text-accent">●</span> {t("home.timelineOfficial")} ·{" "}
           <span className="text-jade">●</span> {t("home.timelineFc")}
         </span>
@@ -60,7 +60,7 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
               className={`absolute -left-[21.5px] top-1.5 size-2.5 rounded-full ${
                 it.kind === "official" ? "bg-accent" : "bg-jade"}`}
             />
-            <div className="text-[11.5px] font-medium text-muted">
+            <div className="text-meta font-medium text-muted">
               {it.date &&
                 fmtDate(fromDay(it.date))}
               {it.kind === "fc" && (
@@ -69,14 +69,14 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
             </div>
             {it.url ? (
               <a href={it.url} target="_blank" rel="noopener noreferrer"
-                 className="text-[14px] text-ink no-underline hover:text-accent">
+                 className="text-lead text-ink no-underline hover:text-accent">
                 {it.title}
               </a>
             ) : (
-              <div className="text-[14px] text-ink">{it.title}</div>
+              <div className="text-lead text-ink">{it.title}</div>
             )}
             {it.body && (
-              <p className="mt-0.5 whitespace-pre-wrap text-[12.5px] leading-relaxed text-muted">
+              <p className="mt-0.5 whitespace-pre-wrap text-ui leading-relaxed text-muted">
                 {it.body}
               </p>
             )}

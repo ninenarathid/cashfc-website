@@ -48,7 +48,7 @@ export default function MemberGallery(
       <h2 className="mb-2 flex flex-wrap items-baseline gap-3 font-display text-lg font-semibold">
         {t("gallery.byMember")}
         <Link href="/gallery"
-              className="text-[12.5px] font-normal text-accent no-underline hover:underline">
+              className="text-ui font-normal text-accent no-underline hover:underline">
           {t("nav.gallery")} →
         </Link>
       </h2>

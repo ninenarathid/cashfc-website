@@ -20,7 +20,7 @@ import { useLang } from "@/lib/i18n";
 export function SuccessTag({ className = "" }: { className?: string }) {
   const { t } = useLang();
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border border-jade/60 bg-jade/15 px-2 py-[2px] font-data text-[12px] font-semibold uppercase tracking-[0.1em] text-jade ${className}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full border border-jade/60 bg-jade/15 px-2 py-[2px] font-data text-ui font-semibold uppercase tracking-[0.1em] text-jade ${className}`}>
       <svg viewBox="0 0 24 24" width="12" height="12" fill="none"
            stroke="currentColor" strokeWidth="3" strokeLinecap="round"
            strokeLinejoin="round" aria-hidden>
@@ -35,7 +35,7 @@ export function SuccessTag({ className = "" }: { className?: string }) {
 export function StaticTag({ className = "" }: { className?: string }) {
   const { t } = useLang();
   return (
-    <span className={`inline-flex items-center rounded-full border border-steel/60 bg-steel/15 px-2 py-[2px] font-data text-[12px] font-semibold uppercase tracking-[0.1em] text-steel ${className}`}>
+    <span className={`inline-flex items-center rounded-full border border-steel/60 bg-steel/15 px-2 py-[2px] font-data text-ui font-semibold uppercase tracking-[0.1em] text-steel ${className}`}>
       {t("pf.staticTag")}
     </span>
   );
@@ -75,7 +75,7 @@ function PendingPhotos(
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt="" className="h-28 w-auto rounded-lg border border-line" />
           <button type="button" onClick={() => onDrop(i)} aria-label={removeLabel}
-                  className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1.5 text-[14px] text-chili">
+                  className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1.5 text-lead text-chili">
             ✕
           </button>
         </span>
@@ -130,10 +130,10 @@ export default function CloseParty(
       <div className="flex flex-col gap-4 pt-1">
         <section className="flex flex-col gap-2.5 rounded-xl border border-jade/40 bg-jade/[0.06] p-3">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[16px] font-semibold text-jade">
+            <span className="text-head font-semibold text-jade">
               {t("pf.closeSuccess")}
             </span>
-            <span className="text-[13.5px] text-muted">{t("pf.closeSuccessWhy")}</span>
+            <span className="text-read text-muted">{t("pf.closeSuccessWhy")}</span>
           </div>
 
           <PendingPhotos previews={pending.previews} onDrop={pending.drop}
@@ -144,7 +144,7 @@ export default function CloseParty(
 
           <button type="button" disabled={busy}
                   onClick={() => void close("success")}
-                  className="self-start rounded-lg border border-jade/60 bg-jade/15 px-4 py-2 text-[15px] font-medium text-jade hover:bg-jade/25 disabled:opacity-50">
+                  className="self-start rounded-lg border border-jade/60 bg-jade/15 px-4 py-2 text-title font-medium text-jade hover:bg-jade/25 disabled:opacity-50">
             {busy && pending.files.length
               ? t("pf.uploading", { n: pending.files.length })
               : t("pf.closeAsSuccess")}
@@ -156,19 +156,19 @@ export default function CloseParty(
         {admin && (
           <section className="flex flex-wrap items-center gap-3 rounded-xl border border-dashed border-gold/50 p-3">
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="text-[15px] font-semibold text-gold">{t("pf.closeTest")}</span>
-              <span className="text-[13.5px] text-muted">{t("pf.closeTestWhy")}</span>
+              <span className="text-title font-semibold text-gold">{t("pf.closeTest")}</span>
+              <span className="text-read text-muted">{t("pf.closeTestWhy")}</span>
             </div>
             <button type="button" disabled={busy}
                     onClick={() => void close("test")}
-                    className="rounded-lg border border-gold/60 bg-gold/10 px-3 py-1.5 text-[14.5px] text-gold hover:bg-gold/20 disabled:opacity-50">
+                    className="rounded-lg border border-gold/60 bg-gold/10 px-3 py-1.5 text-lead text-gold hover:bg-gold/20 disabled:opacity-50">
               {t("pf.closeAsTest")}
             </button>
           </section>
         )}
 
         {err && (
-          <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-[14px] text-chili">
+          <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-lead text-chili">
             {err}
           </p>
         )}
@@ -220,12 +220,12 @@ export function GroupPhotos(
   return (
     <section className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <span className="font-data text-[12.5px] uppercase tracking-[0.14em] text-jade">
+        <span className="font-data text-ui uppercase tracking-[0.14em] text-jade">
           {t("pf.groupPhotoTitle")}
         </span>
         {canAdd && !adding && (
           <button type="button" onClick={() => setAdding(true)}
-                  className="ml-auto text-[13.5px] text-accent hover:underline">
+                  className="ml-auto text-read text-accent hover:underline">
             + {t("pf.addGroupPhoto")}
           </button>
         )}
@@ -255,16 +255,16 @@ export function GroupPhotos(
           <div className="flex items-center gap-2">
             <button type="button" disabled={busy || !pending.files.length}
                     onClick={() => void send()}
-                    className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[14.5px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                    className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-lead text-jade hover:bg-jade/25 disabled:opacity-50">
               {busy ? t("pf.uploading", { n: pending.files.length }) : t("pf.saveGroupPhotos")}
             </button>
             <button type="button" disabled={busy}
                     onClick={() => { pending.clear(); setAdding(false); setErr(null); }}
-                    className="text-[14px] text-muted hover:text-ink">
+                    className="text-lead text-muted hover:text-ink">
               {t("pf.cancel")}
             </button>
           </div>
-          {err && <p className="text-[13.5px] text-chili">{err}</p>}
+          {err && <p className="text-read text-chili">{err}</p>}
         </div>
       )}
 

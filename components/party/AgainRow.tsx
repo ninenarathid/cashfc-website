@@ -59,7 +59,7 @@ export default function AgainRow(
 
   return (
     <section className="flex flex-col gap-2">
-      <h3 className="font-data text-[11px] uppercase tracking-[0.16em] text-muted">
+      <h3 className="font-data text-meta uppercase tracking-[0.16em] text-muted">
         {t("pf.againTitle")}
       </h3>
 
@@ -107,11 +107,11 @@ export default function AgainRow(
                 <span aria-hidden
                       className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                 <span className="absolute inset-x-2 bottom-1.5 flex items-baseline gap-1.5">
-                  <span className="truncate font-display text-[15px] font-semibold text-white drop-shadow">
+                  <span className="truncate font-display text-title font-semibold text-white drop-shadow">
                     {name}
                   </span>
                   {badge && (
-                    <span className="shrink-0 rounded border border-white/40 px-1 font-data text-[10.5px] font-bold text-white/90">
+                    <span className="shrink-0 rounded border border-white/40 px-1 font-data text-label font-bold text-white/90">
                       {badge}
                     </span>
                   )}
@@ -122,7 +122,7 @@ export default function AgainRow(
                     is the reason this list exists, and the number is what tells
                     the reader which of them is that one. */}
                 {s.times > 1 && (
-                  <span className="absolute right-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 font-data text-[11px] tabular-nums text-white backdrop-blur-sm">
+                  <span className="absolute right-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 font-data text-meta tabular-nums text-white backdrop-blur-sm">
                     ×{s.times}
                   </span>
                 )}
@@ -132,18 +132,18 @@ export default function AgainRow(
                 {/* The headline, which is what tells two parties for the same
                     fight apart — "P1 only", "come if you still have it in you".
                     Where there is none, how far in the party was stands in. */}
-                <span className={`truncate text-[13.5px] ${
+                <span className={`truncate text-read ${
                   s.party.note?.trim() ? "text-ink" : "text-muted"}`}>
                   {s.party.note?.trim() || far || t("pf.againNoNote")}
                 </span>
 
-                <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-data text-[11.5px] text-muted">
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-data text-meta text-muted">
                   <span>{shapeLabel(s.party.shape, c.kind, c.queueIn)}</span>
                   <span aria-hidden className="opacity-40">·</span>
                   <span>{lengthSay(s.party, t)}</span>
                 </span>
 
-                <span className="font-data text-[11.5px] text-muted/80">
+                <span className="font-data text-meta text-muted/80">
                   {t("pf.againLast", { when: fmtDate(s.lastAt) })}
                 </span>
               </span>

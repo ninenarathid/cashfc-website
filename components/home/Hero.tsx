@@ -60,7 +60,7 @@ export default function Hero(
           {tagStats.map(({ tag, n }) => (
             <TagHoverCard key={tag} tag={tag}>
               <Link href={`/members?tag=${tag}`}
-                    className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-[11.5px] font-medium no-underline transition-opacity hover:opacity-80 ${
+                    className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-[3px] text-meta font-medium no-underline transition-opacity hover:opacity-80 ${
                       TAG_CLASS[tag] ?? "border-line text-muted"}`}>
                 <TagIcon tag={tag} size={16} />
                 {TAG_LABELS[tag] ?? tag}

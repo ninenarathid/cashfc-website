@@ -138,10 +138,10 @@ export default function PopotoGivers(
       ) : (
         <span className="size-6 shrink-0 rounded-full border border-line bg-card" />
       )}
-      <span className="min-w-0 flex-1 truncate font-data text-[12.5px] text-ink">
+      <span className="min-w-0 flex-1 truncate font-data text-ui text-ink">
         {g.name}
       </span>
-      <span className="shrink-0 text-[11.5px] text-muted">{fmtDateTime(g.at)}</span>
+      <span className="shrink-0 text-meta text-muted">{fmtDateTime(g.at)}</span>
     </div>
   );
 
@@ -158,11 +158,11 @@ export default function PopotoGivers(
           </Dialog.Trigger>
         }>
         <div className="flex flex-col gap-1">
-          <div className="mb-0.5 text-[12px] text-muted">
+          <div className="mb-0.5 text-ui text-muted">
             {t("popoto.whoGave", { n: count })}
           </div>
           {peek === null
-            ? <div className="text-[12px] text-muted">{t("common.loading")}</div>
+            ? <div className="text-ui text-muted">{t("common.loading")}</div>
             : peek.map(row)}
           {count > PEEK && (
             // A second way into the same dialog. The line was already telling
@@ -171,7 +171,7 @@ export default function PopotoGivers(
             // that answers to it.
             <Dialog.Trigger asChild>
               <button type="button"
-                      className="mt-1 w-full cursor-pointer border-t border-line/70 pt-1.5 text-left text-[11.5px] text-accent hover:underline">
+                      className="mt-1 w-full cursor-pointer border-t border-line/70 pt-1.5 text-left text-meta text-accent hover:underline">
                 {t("popoto.seeAll", { n: count })}
               </button>
             </Dialog.Trigger>
@@ -183,7 +183,7 @@ export default function PopotoGivers(
         <Dialog.Overlay className="pop-in fixed inset-0 z-[60] bg-bg/80 backdrop-blur-sm" />
         <Dialog.Content
           className="pop-in fixed left-1/2 top-1/2 z-[61] flex max-h-[80vh] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 flex-col rounded-2xl border border-line bg-surface shadow-2xl shadow-black/60">
-          <Dialog.Title className="border-b border-line px-4 py-3 font-display text-[14px] font-semibold text-ink">
+          <Dialog.Title className="border-b border-line px-4 py-3 font-display text-lead font-semibold text-ink">
             {t("popoto.whoGave", { n: count })}
           </Dialog.Title>
           {/* The list scrolls and asks for more when it nears the end, rather
@@ -197,12 +197,12 @@ export default function PopotoGivers(
             className="min-h-0 flex-1 overflow-y-auto px-4 py-2">
             {all.map(row)}
             {busy && (
-              <div className="py-2 text-center text-[12px] text-muted">
+              <div className="py-2 text-center text-ui text-muted">
                 {t("common.loading")}
               </div>
             )}
           </div>
-          <Dialog.Close className="border-t border-line px-4 py-2.5 text-[13px] text-muted hover:text-ink">
+          <Dialog.Close className="border-t border-line px-4 py-2.5 text-read text-muted hover:text-ink">
             {t("common.close")}
           </Dialog.Close>
         </Dialog.Content>

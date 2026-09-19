@@ -85,7 +85,7 @@ export default function PendingTags() {
   return (
     <section className="mt-3 rounded-xl border border-accent/40 bg-accent/5 p-4">
       <div className="font-display font-semibold">{t("gallery.pendingTitle")}</div>
-      <p className="mt-0.5 text-[12.5px] leading-relaxed text-muted">
+      <p className="mt-0.5 text-ui leading-relaxed text-muted">
         {t("gallery.pendingHint")}
       </p>
       <div className="mt-3 flex flex-col gap-2.5">
@@ -97,16 +97,16 @@ export default function PendingTags() {
               <img src={r.image} alt=""
                    className="size-16 rounded-md border border-line object-cover" />
             </Link>
-            <p className="min-w-0 flex-1 text-[13px] leading-relaxed text-ink/85">
+            <p className="min-w-0 flex-1 text-read leading-relaxed text-ink/85">
               {r.caption || <span className="text-muted">{t("gallery.noCaption")}</span>}
             </p>
             <div className="flex shrink-0 gap-2">
               <button onClick={() => answer(r.postId, true)} disabled={busy}
-                      className="rounded-lg border border-jade bg-jade/15 px-3 py-1.5 text-[13px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                      className="rounded-lg border border-jade bg-jade/15 px-3 py-1.5 text-read text-jade hover:bg-jade/25 disabled:opacity-50">
                 {t("gallery.tagConfirm")}
               </button>
               <button onClick={() => answer(r.postId, false)} disabled={busy}
-                      className="rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted hover:border-chili hover:text-chili disabled:opacity-50">
+                      className="rounded-lg border border-line px-3 py-1.5 text-read text-muted hover:border-chili hover:text-chili disabled:opacity-50">
                 {t("gallery.tagDecline")}
               </button>
             </div>

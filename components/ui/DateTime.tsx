@@ -63,7 +63,7 @@ const CAL = {
   months: "flex flex-col gap-3",
   month: "flex flex-col gap-3",
   month_caption: "flex items-center justify-center h-8",
-  caption_label: "font-display text-[13.5px] font-semibold text-ink",
+  caption_label: "font-display text-read font-semibold text-ink",
   nav: "flex items-center gap-1 absolute right-1 top-1",
   button_previous:
     "inline-flex size-7 items-center justify-center rounded-md border border-line"
@@ -76,11 +76,11 @@ const CAL = {
   month_grid: "w-full border-collapse",
   weekdays: "flex",
   weekday:
-    "w-9 font-data text-[10px] uppercase tracking-[0.1em] text-muted font-normal",
+    "w-9 font-data text-label uppercase tracking-[0.1em] text-muted font-normal",
   week: "flex w-full mt-1",
   day: "p-0",
   day_button:
-    "size-9 rounded-md text-[13px] text-ink transition-colors"
+    "size-9 rounded-md text-read text-ink transition-colors"
     + " hover:bg-surface disabled:cursor-not-allowed disabled:opacity-25"
     + " disabled:hover:bg-transparent",
   selected: "[&>button]:bg-accent/20 [&>button]:text-accent [&>button]:font-semibold",
@@ -167,7 +167,7 @@ export default function DateTime(
   const col = "flex h-[13.5rem] w-14 flex-col gap-0.5 overflow-y-auto"
     + " overscroll-contain pr-1";
   const tick = (on: boolean) =>
-    `shrink-0 rounded-md py-1 text-center font-data text-[13px] tabular-nums`
+    `shrink-0 rounded-md py-1 text-center font-data text-read tabular-nums`
     + ` transition-colors ${on ? "bg-accent/20 text-accent font-semibold"
                                : "text-muted hover:bg-surface hover:text-ink"}`;
 
@@ -194,7 +194,7 @@ export default function DateTime(
           picking 21 from a list is one press and typing it is four. */}
       <div className={`flex flex-col gap-1.5 ${
         phone ? "w-full border-t border-line pt-3" : "border-l border-line pl-3"}`}>
-        <span className="font-data text-[10px] uppercase tracking-[0.12em] text-muted">
+        <span className="font-data text-label uppercase tracking-[0.12em] text-muted">
           {t("pf.timeOfDay")}
         </span>
         <div ref={clock} className={`flex gap-1 ${phone ? "justify-center" : ""}`}>
@@ -216,7 +216,7 @@ export default function DateTime(
           </div>
         </div>
         <button type="button" onClick={() => setOpen(false)}
-                className={`mt-1 rounded-lg border border-accent/60 bg-accent/10 text-[12.5px] text-accent transition-colors hover:bg-accent/20 ${
+                className={`mt-1 rounded-lg border border-accent/60 bg-accent/10 text-ui text-accent transition-colors hover:bg-accent/20 ${
                   phone ? "w-full py-2.5" : "px-3 py-1"}`}>
           {t("pf.done")}
         </button>
@@ -226,7 +226,7 @@ export default function DateTime(
 
   const trigger = (
     <button type="button" onClick={phone ? () => setOpen(true) : undefined}
-            className={`flex items-center gap-2 rounded-lg border bg-surface px-3 py-2 text-left text-[13.5px] text-ink transition-colors hover:border-muted ${
+            className={`flex items-center gap-2 rounded-lg border bg-surface px-3 py-2 text-left text-read text-ink transition-colors hover:border-muted ${
               invalid ? "border-chili/60" : "border-line"} ${className}`}>
       {/* A calendar leaf, drawn rather than fetched: this is the site's own
           furniture, not the game's, and every other icon here is a duty badge

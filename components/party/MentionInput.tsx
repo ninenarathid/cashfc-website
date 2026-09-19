@@ -161,10 +161,10 @@ export default function MentionInput(
               <button type="button"
                       onMouseDown={(e) => { e.preventDefault(); put(h); }}
                       onMouseEnter={() => setHi(i)}
-                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[14.5px] ${
+                      className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-lead ${
                         i === hi ? "bg-accent/15 text-accent" : "text-ink"}`}>
                 {h.id == null ? (
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-gold/20 text-[13.5px] text-gold">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-gold/20 text-read text-gold">
                     @
                   </span>
                 ) : face(h.id, h.avatar) ? (
@@ -178,12 +178,12 @@ export default function MentionInput(
                 )}
                 <span className="truncate">{h.name}</span>
                 {h.id == null && (
-                  <span className="ml-auto shrink-0 font-data text-[11.5px] uppercase tracking-[0.1em] text-gold">
+                  <span className="ml-auto shrink-0 font-data text-meta uppercase tracking-[0.1em] text-gold">
                     {t("party.mentionAll")}
                   </span>
                 )}
                 {h.guest && (
-                  <span className="ml-auto shrink-0 font-data text-[11.5px] uppercase tracking-[0.1em] text-muted">
+                  <span className="ml-auto shrink-0 font-data text-meta uppercase tracking-[0.1em] text-muted">
                     {t("party.mentionGuest")}
                   </span>
                 )}

@@ -211,7 +211,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
+      <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">
         {t("nav.profile")}
       </div>
       <h1 className="font-display text-3xl font-bold">{t("profile.title")}</h1>
@@ -229,7 +229,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
             {charName ?? profile?.display_name ?? profile?.discord_username
               ?? user?.email ?? "Signed in"}
           </div>
-          <div className="text-[12px] text-muted">
+          <div className="text-ui text-muted">
             {charId
               ? `${inRoster ? t("profile.fcMember") : t("profile.guest")} · ${
                   verifiedAt ? t("profile.verified") : t("profile.notVerified")}`
@@ -242,13 +242,13 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
             back. */}
         {adminMode && (
           <Link href="/admin"
-                className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-1.5 text-[13px] text-chili no-underline hover:bg-chili/20">
+                className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-1.5 text-read text-chili no-underline hover:bg-chili/20">
             Admin panel
           </Link>
         )}
         <button
           onClick={async () => { await supabase!.auth.signOut(); location.href = "/"; }}
-          className="rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted hover:border-muted hover:text-ink">
+          className="rounded-lg border border-line px-3 py-1.5 text-read text-muted hover:border-muted hover:text-ink">
           Sign out
         </button>
       </div>
@@ -276,12 +276,12 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           <div className="font-display font-semibold">{t("profile.availability")}</div>
           {!isEmpty(availability) && (
             <button onClick={() => setAvailability(EMPTY)}
-                    className="text-[12.5px] text-muted underline hover:text-ink">
+                    className="text-ui text-muted underline hover:text-ink">
               {t("profile.availabilityClear")}
             </button>
           )}
         </div>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+        <p className="mt-1 text-ui leading-relaxed text-muted">
           {t("profile.availabilityHint")}
         </p>
         <div className="mt-2.5">
@@ -291,14 +291,14 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">{t("profile.language")}</div>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+        <p className="mt-1 text-ui leading-relaxed text-muted">
           {t("profile.languageHint")}
         </p>
         <div className="mt-2.5 flex flex-wrap gap-2">
           {LANGS.map((l) => (
             <button key={l.key} onClick={() => setLang(l.key)}
                     aria-pressed={lang === l.key}
-                    className={`rounded-lg border px-3.5 py-1.5 text-[13px] transition-colors ${
+                    className={`rounded-lg border px-3.5 py-1.5 text-read transition-colors ${
                       lang === l.key
                         ? "border-accent bg-accent/15 text-accent"
                         : "border-line text-muted hover:border-muted hover:text-ink"}`}>
@@ -311,7 +311,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       {/* Ways back in, so losing one account does not lose the profile. */}
       <section className="mt-3 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">{t("profile.waysToSignIn")}</div>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+        <p className="mt-1 text-ui leading-relaxed text-muted">
           {t("profile.waysHint")}
         </p>
         <div className="mt-2.5 flex flex-wrap gap-2">
@@ -334,7 +334,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
                         setLinking(null);
                         if (error) setLinkErr(error.message);
                       }}
-                      className={`rounded-lg border px-3.5 py-1.5 text-[12.5px] transition-colors ${
+                      className={`rounded-lg border px-3.5 py-1.5 text-ui transition-colors ${
                         linked ? "border-jade/40 bg-jade/5 text-jade"
                                : "border-line text-muted hover:border-accent hover:text-accent"} disabled:opacity-50`}>
                 {linked ? `${prov.label} ✓`
@@ -345,7 +345,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           })}
         </div>
         {linkErr && (
-          <p className="mt-2 text-[12.5px] leading-relaxed text-chili">
+          <p className="mt-2 text-ui leading-relaxed text-chili">
             {linkErr}
             {/^manual linking/i.test(linkErr) && (
               <>
@@ -374,7 +374,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
       {!charId && (
         <section className="mt-3 rounded-xl border border-line bg-surface p-4">
           <div className="font-display font-semibold">{t("profile.guestName")}</div>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+          <p className="mt-1 text-ui leading-relaxed text-muted">
             {t("profile.guestNameHint")}
           </p>
           <input value={displayName} onChange={(e) => setDisplayName(e.target.value)}
@@ -389,7 +389,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
         <div className="font-display font-semibold">{t("profile.customise")}</div>
 
         <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-4">
-          <label className="block text-[13px] text-muted">
+          <label className="block text-read text-muted">
             Nickname
             <input value={nickname}
                    onChange={(e) => setNickname(e.target.value.slice(0, 24))}
@@ -399,7 +399,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
           {/* Day and month only. The site just needs to know when to say happy
               birthday, so there is no year field to fill in. */}
-          <div className="text-[13px] text-muted">
+          <div className="text-read text-muted">
             Birthday <span className="text-muted/70">(day and month only)</span>
             <div className="mt-1 flex gap-2">
               <select value={birthDay} onChange={(e) => setBirthDay(e.target.value)}
@@ -421,7 +421,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
               {(birthDay || birthMonth) && (
                 <button type="button"
                         onClick={() => { setBirthDay(""); setBirthMonth(""); }}
-                        className="text-[12.5px] text-muted underline hover:text-ink">
+                        className="text-ui text-muted underline hover:text-ink">
                   clear
                 </button>
               )}
@@ -429,7 +429,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           </div>
         </div>
 
-        <label className="mt-3 block text-[13px] text-muted">
+        <label className="mt-3 block text-read text-muted">
           Bio / status (200 characters max)
           <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 200))}
                     rows={2}
@@ -439,7 +439,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
 
         <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-4">
 
-          <div className="text-[13px] text-muted">
+          <div className="text-read text-muted">
             {t("profile.accent")}
             {/* Wrapped and held at size: twenty-eight swatches in one line is
                 wider than the column, and a row that squeezes them to fit turns
@@ -457,7 +457,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           </div>
         </div>
 
-        <div className="mt-4 text-[13px] text-muted">
+        <div className="mt-4 text-read text-muted">
           &ldquo;Looking for&rdquo; status (shown on the board and usable as a filter)
           <div className="mt-1.5 flex flex-wrap gap-2">
             {LFG_OPTIONS.map((o) => {
@@ -466,7 +466,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
                 <button key={o.key}
                         onClick={() => setLfg(on ? lfg.filter((k) => k !== o.key)
                                                : [...lfg, o.key])}
-                        className={`rounded-full border px-3.5 py-1.5 text-[13px] ${
+                        className={`rounded-full border px-3.5 py-1.5 text-read ${
                           on ? "border-accent bg-accent/12 text-accent"
                              : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   {o.label}
@@ -482,7 +482,7 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
             {saving ? t("profile.saving") : t("profile.save")}
           </button>
           {msg && (
-            <span className={`text-[13px] ${msg.ok ? "text-jade" : "text-chili"}`}>
+            <span className={`text-read ${msg.ok ? "text-jade" : "text-chili"}`}>
               {msg.text}
             </span>
           )}

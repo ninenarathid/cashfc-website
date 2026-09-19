@@ -207,7 +207,7 @@ export default function GalleryUpload(
 
   if (gate !== "ok") {
     return (
-      <div className="rounded-xl border border-dashed border-line px-4 py-3.5 text-[13px] leading-relaxed text-muted">
+      <div className="rounded-xl border border-dashed border-line px-4 py-3.5 text-read leading-relaxed text-muted">
         {gate === "anon" ? t("gallery.gateAnon") : t("gallery.gateUnverified")}{" "}
         <Link href="/profile" className="text-accent no-underline hover:underline">
           {gate === "anon" ? t("nav.signIn") : t("nav.profile")}
@@ -228,22 +228,22 @@ export default function GalleryUpload(
           form is still empty the zone itself lights up instead, which is less
           shouting for the same answer. */}
       {over && previews.length > 0 && (
-        <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-xl border-2 border-dashed border-accent bg-bg/85 text-[13.5px] text-accent">
+        <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-xl border-2 border-dashed border-accent bg-bg/85 text-read text-accent">
           {t("drop.now")}
         </div>
       )}
 
       {isAdmin && (
         <div className="mt-2.5 rounded-lg border border-chili/30 bg-chili/5 px-3 py-2.5">
-          <div className="text-[12.5px] font-medium text-ink">{t("gallery.postFor")}</div>
-          <p className="mt-0.5 text-[12px] leading-relaxed text-muted">
+          <div className="text-ui font-medium text-ink">{t("gallery.postFor")}</div>
+          <p className="mt-0.5 text-ui leading-relaxed text-muted">
             {t("gallery.postForHint")}
           </p>
           {credited ? (
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className="font-data text-[13px] text-ink">{credited.name}</span>
+              <span className="font-data text-read text-ink">{credited.name}</span>
               <button onClick={() => { setCredited(null); setCreditPick(""); }}
-                      className="rounded-md border border-line px-2 py-0.5 text-[11.5px] text-muted hover:border-muted hover:text-ink">
+                      className="rounded-md border border-line px-2 py-0.5 text-meta text-muted hover:border-muted hover:text-ink">
                 {t("gallery.postForMe")}
               </button>
             </div>
@@ -251,7 +251,7 @@ export default function GalleryUpload(
             <div className="mt-2">
               <input value={creditPick} onChange={(e) => setCreditPick(e.target.value)}
                      placeholder={t("gallery.findMember")}
-                     className="w-full rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink placeholder:text-muted" />
+                     className="w-full rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink placeholder:text-muted" />
               {creditPick.trim().length >= 2 && (
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {memberOptions
@@ -260,7 +260,7 @@ export default function GalleryUpload(
                     .slice(0, 8)
                     .map((o) => (
                       <button key={o.id} onClick={() => { setCredited(o); setCreditPick(""); }}
-                              className="rounded-md border border-line bg-card px-2.5 py-1 text-[12.5px] text-ink hover:border-accent hover:text-accent">
+                              className="rounded-md border border-line bg-card px-2.5 py-1 text-ui text-ink hover:border-accent hover:text-accent">
                         {o.name}
                       </button>
                     ))}
@@ -286,11 +286,11 @@ export default function GalleryUpload(
                      className="h-32 w-auto rounded-lg border border-line object-contain" />
                 <button onClick={() => drop(i)} disabled={busy}
                         aria-label={t("gallery.removeImage")}
-                        className="absolute right-1 top-1 rounded-md border border-chili/60 bg-bg/85 px-1.5 text-[12px] text-chili disabled:opacity-40">
+                        className="absolute right-1 top-1 rounded-md border border-chili/60 bg-bg/85 px-1.5 text-ui text-chili disabled:opacity-40">
                   ✕
                 </button>
                 {i === 0 && previews.length > 1 && (
-                  <span className="absolute bottom-1 left-1 rounded bg-bg/80 px-1.5 py-0.5 text-[10px] text-muted">
+                  <span className="absolute bottom-1 left-1 rounded bg-bg/80 px-1.5 py-0.5 text-label text-muted">
                     {t("gallery.cover")}
                   </span>
                 )}
@@ -298,7 +298,7 @@ export default function GalleryUpload(
                     preview is barely wider than the words "Tag on the photo". */}
                 <button onClick={() => setTagging(tagging === i ? null : i)}
                         disabled={busy} title={t("gallery.tagOnPhoto")}
-                        className={`absolute bottom-1 right-1 rounded-md border px-1.5 py-0.5 text-[10.5px] backdrop-blur disabled:opacity-40 ${
+                        className={`absolute bottom-1 right-1 rounded-md border px-1.5 py-0.5 text-label backdrop-blur disabled:opacity-40 ${
                           draft[i]?.length
                             ? "border-accent bg-bg/85 text-accent"
                             : "border-line bg-bg/75 text-muted hover:border-accent hover:text-accent"}`}>
@@ -307,7 +307,7 @@ export default function GalleryUpload(
               </div>
             ))}
             <button onClick={() => input.current?.click()} disabled={busy}
-                    className="h-32 w-24 rounded-lg border border-dashed border-line text-[12px] text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40">
+                    className="h-32 w-24 rounded-lg border border-dashed border-line text-ui text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40">
               + {t("gallery.addImages")}
             </button>
           </div>
@@ -321,16 +321,16 @@ export default function GalleryUpload(
 
           <input value={caption} onChange={(e) => setCaption(e.target.value.slice(0, 300))}
                  placeholder={t("gallery.captionPlaceholder")}
-                 className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
+                 className="rounded-lg border border-line bg-card px-3 py-2 text-read text-ink placeholder:text-muted" />
           <div className="flex flex-wrap gap-2">
             <button onClick={upload} disabled={busy}
-                    className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-[13.5px] text-accent hover:bg-accent/25 disabled:opacity-50">
+                    className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-read text-accent hover:bg-accent/25 disabled:opacity-50">
               {busy
                 ? `${t("gallery.posting")} ${done}/${files.length}`
                 : `${t("gallery.post")} (${files.length})`}
             </button>
             <button onClick={clear} disabled={busy}
-                    className="rounded-lg border border-line px-4 py-2 text-[13.5px] text-muted hover:border-muted hover:text-ink disabled:opacity-40">
+                    className="rounded-lg border border-line px-4 py-2 text-read text-muted hover:border-muted hover:text-ink disabled:opacity-40">
               {t("common.cancel")}
             </button>
           </div>
@@ -340,7 +340,7 @@ export default function GalleryUpload(
                   title={t("gallery.dropZone")} className="mt-2.5" />
       )}
 
-      {err && <p className="mt-2 text-[12.5px] text-chili">{err}</p>}
+      {err && <p className="mt-2 text-ui text-chili">{err}</p>}
     </div>
   );
 }

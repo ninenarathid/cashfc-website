@@ -145,7 +145,7 @@ export default function MemberTags(
   const tiers = m.achv_tiers ?? {};
   const buckets = m.achv_buckets ?? {};
   const ults = m.ult_cleared ?? [];
-  const pad = size === "md" ? "px-3 py-1 text-[12.5px]" : "px-2.5 py-[3px] text-[11.5px]";
+  const pad = size === "md" ? "px-3 py-1 text-ui" : "px-2.5 py-[3px] text-meta";
 
   // Every job that reached a grade, not just the best one: plenty of people are a
   // Legendary Reaper *and* a Master Dancer, and collapsing that to one loses the

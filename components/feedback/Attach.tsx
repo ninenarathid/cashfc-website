@@ -70,7 +70,7 @@ export default function Attach(
         <DropZone size="sm" multiple paste={false} onFiles={take} disabled={disabled}
                   title={t("feedback.attachTitle")}
                   hint={t("feedback.attachLimit", { n: MAX_FEEDBACK_IMAGES })} />
-        {err && <p className="mt-1.5 text-[11.5px] text-chili">{err}</p>}
+        {err && <p className="mt-1.5 text-meta text-chili">{err}</p>}
       </div>
     );
   }
@@ -88,19 +88,19 @@ export default function Attach(
             <button onClick={() => onChange(files.filter((_, n) => n !== i))}
                     disabled={disabled}
                     aria-label={t("gallery.removeImage")}
-                    className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1 text-[11px] text-chili disabled:opacity-40">
+                    className="absolute right-1 top-1 rounded border border-chili/60 bg-bg/85 px-1 text-meta text-chili disabled:opacity-40">
               ✕
             </button>
           </div>
         ))}
         {files.length < MAX_FEEDBACK_IMAGES && (
-          <div className="grid h-20 flex-1 place-items-center px-2 text-center text-[11.5px] text-muted">
+          <div className="grid h-20 flex-1 place-items-center px-2 text-center text-meta text-muted">
             {over ? t("drop.now") : t("feedback.attachMore")}
           </div>
         )}
       </div>
 
-      {err && <p className="mt-1.5 text-[11.5px] text-chili">{err}</p>}
+      {err && <p className="mt-1.5 text-meta text-chili">{err}</p>}
     </div>
   );
 }

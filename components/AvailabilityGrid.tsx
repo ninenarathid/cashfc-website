@@ -95,12 +95,12 @@ export default function AvailabilityGrid(
           editable ? (
             <button key={d} type="button" onClick={() => fillDay(d)}
                     title={dayLabel(d, lang)}
-                    className="min-w-0 flex-1 rounded-md py-0.5 text-center text-[11.5px] text-muted transition-colors hover:bg-card hover:text-accent">
+                    className="min-w-0 flex-1 rounded-md py-0.5 text-center text-meta text-muted transition-colors hover:bg-card hover:text-accent">
               {dayShort(d, lang)}
             </button>
           ) : (
             <div key={d} title={dayLabel(d, lang)}
-                 className="min-w-0 flex-1 py-0.5 text-center text-[11.5px] text-muted">
+                 className="min-w-0 flex-1 py-0.5 text-center text-meta text-muted">
               {dayShort(d, lang)}
             </div>
           )
@@ -113,12 +113,12 @@ export default function AvailabilityGrid(
             <div className={`flex w-12 shrink-0 items-center justify-end pr-1 ${rowH}`}>
               {editable ? (
                 <button type="button" onClick={() => fillHour(h)}
-                        className={`font-data text-[10px] leading-none transition-colors hover:text-accent ${
+                        className={`font-data text-label leading-none transition-colors hover:text-accent ${
                           h % 3 === 0 ? "text-muted" : "text-muted/45"}`}>
                   {hourLabel(h)}
                 </button>
               ) : (
-                <span className={`font-data text-[10px] leading-none ${
+                <span className={`font-data text-label leading-none ${
                   h % 3 === 0 ? "text-muted" : "text-muted/45"}`}>
                   {hourLabel(h)}
                 </span>
@@ -165,7 +165,7 @@ export default function AvailabilityGrid(
       {/* The grid says when at a glance; this says it in words, which is what
           somebody reads out when they are arranging a night. */}
       {anyOn && (
-        <dl className="mt-3 flex flex-col gap-0.5 text-[12px] leading-relaxed">
+        <dl className="mt-3 flex flex-col gap-0.5 text-ui leading-relaxed">
           {DAYS.map((_, d) => {
             const text = describeDay(slots, d, lang);
             if (!text) return null;

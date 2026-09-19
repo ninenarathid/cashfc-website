@@ -28,7 +28,7 @@ export default function GuidesPage() {
 
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-accent">
+      <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">
         Guides
       </div>
       <h1 className="font-display text-3xl font-bold">{t("guide.title")}</h1>
@@ -42,26 +42,26 @@ export default function GuidesPage() {
               return (
                 <div key={category}
                      className="rounded-xl border border-line bg-surface p-3.5">
-                  <div className="font-data text-[11px] uppercase tracking-[0.14em] text-muted">
+                  <div className="font-data text-meta uppercase tracking-[0.14em] text-muted">
                     {CATEGORY_LABEL[category]}
                   </div>
                   <div className="mt-2 flex flex-col gap-1.5">
                     {rows.map((g) => (
                       <Link key={g.slug} href={`/guides/${g.slug}`}
-                            className="rounded-lg border border-line bg-card px-3 py-2 text-[13px] text-ink no-underline transition-colors hover:border-accent hover:text-accent">
+                            className="rounded-lg border border-line bg-card px-3 py-2 text-read text-ink no-underline transition-colors hover:border-accent hover:text-accent">
                         {g.short ?? g.name}
                         {g.boss && (
-                          <span className="ml-1.5 text-[12px] text-muted">{g.boss}</span>
+                          <span className="ml-1.5 text-ui text-muted">{g.boss}</span>
                         )}
                         {g.draft && (
-                          <span className="ml-1.5 rounded-full border border-line px-1.5 text-[10.5px] text-muted">
+                          <span className="ml-1.5 rounded-full border border-line px-1.5 text-label text-muted">
                             {t("guide.draftTag")}
                           </span>
                         )}
                       </Link>
                     ))}
                     {rows.length === 0 && (
-                      <span className="text-[12.5px] text-muted">{t("guide.none")}</span>
+                      <span className="text-ui text-muted">{t("guide.none")}</span>
                     )}
                   </div>
                 </div>

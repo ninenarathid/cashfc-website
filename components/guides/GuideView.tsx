@@ -163,28 +163,28 @@ export default function GuideView({ guide }: { guide: Guide }) {
     <div className="mt-4 flex flex-col gap-4">
       {/* ── Who you are, and what you are here for ── */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 rounded-xl border border-line bg-surface p-3">
-        <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-label uppercase tracking-[0.14em] text-muted">
           {t("guide.slot")}
         </span>
         <div className="flex flex-wrap gap-1.5">
           {SLOTS.map((s) => (
             <button key={s} onClick={() => chooseSlot(s)} aria-pressed={s === slot}
                     title={t("guide.group", { g: slotGroup(s) })}
-                    className={`rounded-md border px-2.5 py-1 font-data text-[12px] transition-colors ${
+                    className={`rounded-md border px-2.5 py-1 font-data text-ui transition-colors ${
                       s === slot ? "border-accent bg-accent/15 text-accent"
                                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
               {SLOT_LABEL[s]}
             </button>
           ))}
         </div>
-        <span className="font-data text-[11px] text-muted">
+        <span className="font-data text-meta text-muted">
           {t("guide.group", { g: slotGroup(slot) })}
         </span>
 
         <div className="ml-auto flex items-center gap-1.5">
           {(["read", "quiz"] as const).map((m) => (
             <button key={m} onClick={() => setMode(m)} aria-pressed={mode === m}
-                    className={`rounded-md border px-3 py-1 text-[12.5px] transition-colors ${
+                    className={`rounded-md border px-3 py-1 text-ui transition-colors ${
                       mode === m ? "border-accent bg-accent/15 text-accent"
                                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
               {t(m === "read" ? "guide.read" : "guide.quiz")}
@@ -203,14 +203,14 @@ export default function GuideView({ guide }: { guide: Guide }) {
               a choice — it is a row of chrome above every guide. */}
           {plans.length > 1 && (
             <div className="mb-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
-              <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              <span className="font-data text-label uppercase tracking-[0.14em] text-muted">
                 {t("guide.plan")}
               </span>
               {plans.map((p) => (
                 <button key={p.id} onClick={() => choosePlan(p.id)}
                         aria-pressed={p.id === shownPlan?.id}
                         title={p.note ? say(p.note, lang) : undefined}
-                        className={`rounded-md border px-2.5 py-1 text-[12px] transition-colors ${
+                        className={`rounded-md border px-2.5 py-1 text-ui transition-colors ${
                           p.id === shownPlan?.id
                             ? "border-accent bg-accent/15 text-accent"
                             : "border-line text-muted hover:border-muted hover:text-ink"}`}>
@@ -218,7 +218,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
                 </button>
               ))}
               {shownPlan?.note && (
-                <span className="text-[11.5px] text-muted">{say(shownPlan.note, lang)}</span>
+                <span className="text-meta text-muted">{say(shownPlan.note, lang)}</span>
               )}
             </div>
           )}
@@ -238,7 +238,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
                         onClick={() => { if (mode === "read" || i <= beat) setBeat(i); }}
                         disabled={mode === "quiz" && i > beat}
                         aria-current={i === beat}
-                        className={`rounded-md border px-2.5 py-1 text-[11.5px] transition-colors disabled:opacity-40 ${
+                        className={`rounded-md border px-2.5 py-1 text-meta transition-colors disabled:opacity-40 ${
                           i === beat ? "border-accent bg-accent/15 text-accent"
                                      : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   {say(st.label, lang)}
@@ -248,7 +248,7 @@ export default function GuideView({ guide }: { guide: Guide }) {
           )}
 
           {mode === "quiz" && step && (
-            <p className="mt-1.5 text-center text-[12px] text-muted">
+            <p className="mt-1.5 text-center text-ui text-muted">
               {!answer ? t("guide.noSpot", { slot: SLOT_LABEL[slot] })
                 : correct ? t("guide.right")
                 : reveal ? t("guide.shown")
@@ -261,30 +261,30 @@ export default function GuideView({ guide }: { guide: Guide }) {
         <div className="flex flex-col gap-3">
           <div className="rounded-xl border border-line bg-surface p-3.5">
             <div className="flex flex-wrap items-baseline gap-2">
-              <h2 className="font-display text-[15px] font-semibold">{mech.name}</h2>
+              <h2 className="font-display text-title font-semibold">{mech.name}</h2>
               {/* This occurrence's clock, not the skill's — the skill has no
                   single time, which is the entire reason it is written once. */}
-              <span className="font-data text-[11.5px] text-muted">
+              <span className="font-data text-meta text-muted">
                 {here.cue.cast && <span className="opacity-70">{here.cue.cast} → </span>}
                 {here.cue.at}
                 {here.cue.until && <span className="opacity-70"> → {here.cue.until}</span>}
               </span>
             </div>
-            <div className="mt-0.5 text-[11.5px] text-muted">
+            <div className="mt-0.5 text-meta text-muted">
               {say(here.phase.name, lang)}
               {sameSkill.length > 1 && (
                 <> · {t("guide.nth", { n: sameSkill.indexOf(at) + 1, of: sameSkill.length })}</>
               )}
             </div>
             {here.cue.note && (
-              <p className="mt-1 text-[12px] leading-relaxed text-muted">
+              <p className="mt-1 text-ui leading-relaxed text-muted">
                 {say(here.cue.note, lang)}
               </p>
             )}
             {(mech.tags?.length ?? 0) > 0 && (
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {mech.tags!.map((t) => (
-                  <span key={t} className={`rounded-full border px-2 py-0.5 text-[10.5px] ${TAG_TONE[t]}`}>
+                  <span key={t} className={`rounded-full border px-2 py-0.5 text-label ${TAG_TONE[t]}`}>
                     {TAG_LABEL[t]}
                   </span>
                 ))}
@@ -292,14 +292,14 @@ export default function GuideView({ guide }: { guide: Guide }) {
             )}
 
             {mode === "read" && mech.what && (
-              <p className="mt-2 text-[13.5px] leading-relaxed text-ink/90">{say(mech.what, lang)}</p>
+              <p className="mt-2 text-read leading-relaxed text-ink/90">{say(mech.what, lang)}</p>
             )}
 
             {/* Known skill, unwritten strategy. Said plainly rather than left as
                 an empty panel, because a reader has to be able to tell "nothing
                 happens here" from "nobody has written this down yet". */}
             {!variant && (
-              <p className="mt-2 rounded-lg border border-dashed border-line px-3 py-2.5 text-[12.5px] leading-relaxed text-muted">
+              <p className="mt-2 rounded-lg border border-dashed border-line px-3 py-2.5 text-ui leading-relaxed text-muted">
                 {t("guide.unwritten")}
               </p>
             )}
@@ -307,12 +307,12 @@ export default function GuideView({ guide }: { guide: Guide }) {
             {/* The beat: what is happening, then what this seat does about it. */}
             {(mode === "read" || showAnswers) && step && (
               <div className="mt-2 rounded-lg border border-line bg-card px-3 py-2">
-                <div className="font-data text-[10.5px] uppercase tracking-[0.14em] text-accent">
+                <div className="font-data text-label uppercase tracking-[0.14em] text-accent">
                   {say(step.label, lang)}
                 </div>
-                <p className="mt-1 text-[13px] leading-relaxed text-ink/90">{say(step.say, lang)}</p>
+                <p className="mt-1 text-read leading-relaxed text-ink/90">{say(step.say, lang)}</p>
                 {step.per?.[slot] && (
-                  <p className="mt-2 rounded-md border border-accent/40 bg-accent/5 px-2.5 py-1.5 text-[13px] leading-relaxed text-ink">
+                  <p className="mt-2 rounded-md border border-accent/40 bg-accent/5 px-2.5 py-1.5 text-read leading-relaxed text-ink">
                     <b className="text-accent">{SLOT_LABEL[slot]}</b> — {say(step.per[slot], lang)}
                   </p>
                 )}
@@ -321,22 +321,22 @@ export default function GuideView({ guide }: { guide: Guide }) {
 
             {mode === "quiz" && variant && step && (
               <>
-                <p className="mt-2 text-[13.5px] leading-relaxed text-ink/90">
+                <p className="mt-2 text-read leading-relaxed text-ink/90">
                   {say(variant.tell, lang)}
                 </p>
                 {!showAnswers && (
-                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted">
+                  <p className="mt-1.5 text-ui leading-relaxed text-muted">
                     {say(step.label, lang)}
                   </p>
                 )}
                 {pick && !correct && !reveal && (
-                  <p className="mt-2 rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-chili">
+                  <p className="mt-2 rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-ui leading-relaxed text-chili">
                     {say(step.wrong, lang) || t("guide.notThere")}
                   </p>
                 )}
                 {tries >= 2 && !correct && !reveal && (
                   <button onClick={() => { setReveal(true); setScore((s) => ({ ...s, asked: s.asked + 1 })); }}
-                          className="mt-2 rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+                          className="mt-2 rounded-lg border border-line px-3 py-1.5 text-ui text-muted hover:border-accent hover:text-accent">
                     {t("guide.giveUp")}
                   </button>
                 )}
@@ -344,19 +344,19 @@ export default function GuideView({ guide }: { guide: Guide }) {
             )}
 
             {(mode === "read" || showAnswers) && lastBeat && mech.dies && (
-              <p className="mt-2 rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-[12.5px] leading-relaxed text-ink/85">
+              <p className="mt-2 rounded-lg border border-chili/40 bg-chili/5 px-3 py-2 text-ui leading-relaxed text-ink/85">
                 <b className="text-chili">{t("guide.dies")}</b> {say(mech.dies, lang)}
               </p>
             )}
 
             {mode === "read" && (mech.variants?.length ?? 0) > 1 && variant && (
               <div className="mt-2.5 flex flex-col gap-1.5">
-                <span className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+                <span className="font-data text-label uppercase tracking-[0.14em] text-muted">
                   {t("guide.variants")}
                 </span>
                 {mech.variants!.map((v) => (
                   <button key={v.id} onClick={() => { setVariantId(v.id); setBeat(0); }}
-                          className={`rounded-lg border px-2.5 py-1.5 text-left text-[12.5px] transition-colors ${
+                          className={`rounded-lg border px-2.5 py-1.5 text-left text-ui transition-colors ${
                             v.id === variant.id
                               ? "border-accent bg-accent/10 text-ink"
                               : "border-line text-muted hover:border-muted hover:text-ink"}`}>
@@ -379,24 +379,24 @@ export default function GuideView({ guide }: { guide: Guide }) {
           {/* ── Getting about ── */}
           <div className="flex flex-wrap items-center gap-2">
             <button onClick={prev} disabled={at === 0 && beat === 0}
-                    className="rounded-lg border border-line px-3 py-1.5 text-[13px] text-muted hover:border-accent hover:text-accent disabled:opacity-40">
+                    className="rounded-lg border border-line px-3 py-1.5 text-read text-muted hover:border-accent hover:text-accent disabled:opacity-40">
               {t("guide.prev")}
             </button>
             <button onClick={next}
                     disabled={(lastBeat && at >= steps.length - 1) || blocked}
                     title={blocked ? t("guide.gate") : undefined}
-                    className="rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
+                    className="rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-read text-accent hover:bg-accent/25 disabled:opacity-40">
               {t("guide.next")}
             </button>
             {sameSkill.length > 1 && (
               <span className="flex flex-wrap items-center gap-1">
-                <span className="font-data text-[11px] text-muted">
+                <span className="font-data text-meta text-muted">
                   {t("guide.alsoAt")}
                 </span>
                 {sameSkill.map((i, n) => (
                   <button key={i} onClick={() => { setAt(i); setBeat(0); }}
                           aria-current={i === at}
-                          className={`rounded-md border px-1.5 py-0.5 font-data text-[11px] transition-colors ${
+                          className={`rounded-md border px-1.5 py-0.5 font-data text-meta transition-colors ${
                             i === at ? "border-accent bg-accent/15 text-accent"
                                      : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                     {n + 1}
@@ -404,12 +404,12 @@ export default function GuideView({ guide }: { guide: Guide }) {
                 ))}
               </span>
             )}
-            <span className="font-data text-[11.5px] text-muted">
+            <span className="font-data text-meta text-muted">
               {at + 1}/{steps.length}
               {beats > 1 && ` · ${beat + 1}/${beats}`}
             </span>
             {mode === "quiz" && (
-              <span className="ml-auto font-data text-[11.5px] text-muted">
+              <span className="ml-auto font-data text-meta text-muted">
                 {t("guide.scored", { r: score.right, a: score.asked })}
               </span>
             )}

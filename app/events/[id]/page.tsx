@@ -83,7 +83,7 @@ export default async function Page(
       {/* Back to where the rest of them are. A page reached from Discord has no
           history behind it, so the browser's own back button goes nowhere. */}
       <Link href="/"
-            className="inline-flex items-center gap-1.5 font-data text-[11px] uppercase tracking-[0.22em] text-accent no-underline hover:underline">
+            className="inline-flex items-center gap-1.5 font-data text-meta uppercase tracking-[0.22em] text-accent no-underline hover:underline">
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
              stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"
              strokeLinejoin="round" aria-hidden>

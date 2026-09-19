@@ -234,11 +234,11 @@ export default function AdminClaims(
     setDrawn(hat.slice(0, want));
   };
 
-  const box = "rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] text-ink";
+  const box = "rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink";
 
   return (
     <>
-      <p className="text-[12.5px] leading-relaxed text-muted">
+      <p className="text-ui leading-relaxed text-muted">
         {/* The count belongs above the table rather than under it: "how many
             have claimed a character" is a question about the whole list, and
             answering it after the list means scrolling to the end to find
@@ -263,7 +263,7 @@ export default function AdminClaims(
           {LODE.map((o) => (
             <button key={o.key} type="button" onClick={() => setOnly(o.key)}
                     aria-pressed={only === o.key}
-                    className={`rounded-md px-2.5 py-1 text-[12.5px] transition-colors ${
+                    className={`rounded-md px-2.5 py-1 text-ui transition-colors ${
                       only === o.key ? "bg-accent/15 text-accent"
                                      : "text-muted hover:text-ink"}`}>
               {t(o.label)}
@@ -273,43 +273,43 @@ export default function AdminClaims(
       </div>
 
       <div className={`mt-2 flex flex-wrap gap-2 ${only === "no" ? "opacity-40" : ""}`}>
-        <span className="self-center text-[12.5px] text-muted">{t("adm.colClaimed")}</span>
+        <span className="self-center text-ui text-muted">{t("adm.colClaimed")}</span>
         <input type="date" value={since} max={until || undefined} disabled={only === "no"}
                onChange={(e) => setSince(e.target.value)}
                aria-label={t("adm.from")} className={box} />
-        <span className="self-center text-[12.5px] text-muted">{t("adm.to")}</span>
+        <span className="self-center text-ui text-muted">{t("adm.to")}</span>
         <input type="date" value={until} min={since || undefined} disabled={only === "no"}
                onChange={(e) => setUntil(e.target.value)}
                aria-label={t("adm.to")} className={box} />
         {SPANS.map((sp) => (
           <button key={sp.label} type="button" disabled={only === "no"}
                   onClick={() => { setSince(sp.from()); setUntil(today()); }}
-                  className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:hover:border-line disabled:hover:text-muted">
+                  className="rounded-lg border border-line px-2.5 py-1.5 text-ui text-muted hover:border-accent hover:text-accent disabled:hover:border-line disabled:hover:text-muted">
             {t(sp.label)}
           </button>
         ))}
         <button type="button" disabled={only === "no"}
                 onClick={() => { setSince(""); setUntil(""); }}
-                className="rounded-lg border border-line px-2.5 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent disabled:hover:border-line disabled:hover:text-muted">
+                className="rounded-lg border border-line px-2.5 py-1.5 text-ui text-muted hover:border-accent hover:text-accent disabled:hover:border-line disabled:hover:text-muted">
           {t("adm.anyDate")}
         </button>
       </div>
 
       {/* ── The draw ── */}
       <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-gold/40 bg-gold/8 px-3 py-2.5">
-        <span className="text-[12.5px] font-medium text-gold">🎲 {t("adm.drawTitle")}</span>
+        <span className="text-ui font-medium text-gold">🎲 {t("adm.drawTitle")}</span>
         <input type="number" min={1} max={Math.max(rows.length, 1)} value={howMany}
                onChange={(e) => setHowMany(e.target.value)}
                aria-label={t("adm.drawHowMany")}
-               className="w-20 rounded-lg border border-line bg-card px-2.5 py-1 text-[13px] text-ink" />
-        <span className="text-[12.5px] text-muted">{t("adm.drawOf", { n: rows.length })}</span>
+               className="w-20 rounded-lg border border-line bg-card px-2.5 py-1 text-read text-ink" />
+        <span className="text-ui text-muted">{t("adm.drawOf", { n: rows.length })}</span>
         <button type="button" onClick={draw} disabled={!rows.length}
-                className="rounded-lg border border-gold bg-gold/15 px-3.5 py-1.5 text-[13px] text-gold hover:bg-gold/25 disabled:opacity-40">
+                className="rounded-lg border border-gold bg-gold/15 px-3.5 py-1.5 text-read text-gold hover:bg-gold/25 disabled:opacity-40">
           {drawn ? t("adm.drawAgain") : t("adm.draw")}
         </button>
         {drawn && (
           <button type="button" onClick={() => setDrawn(null)}
-                  className="text-[12.5px] text-muted underline hover:text-ink">
+                  className="text-ui text-muted underline hover:text-ink">
             {t("adm.drawClear")}
           </button>
         )}
@@ -319,8 +319,8 @@ export default function AdminClaims(
         <ol className="mt-2 flex flex-col gap-1 rounded-lg border border-gold/40 bg-gold/5 px-3 py-2.5">
           {drawn.map((c, i) => (
             <li key={c.id}
-                className="grid grid-cols-[20px_32px_1fr] items-center gap-2 text-[13.5px]">
-              <span className="text-right font-data text-[11.5px] text-muted">{i + 1}</span>
+                className="grid grid-cols-[20px_32px_1fr] items-center gap-2 text-read">
+              <span className="text-right font-data text-meta text-muted">{i + 1}</span>
               <Winner row={c} name={c.character_name ?? nameOf(c.character_id)}
                       portraits={portraits} />
             </li>
@@ -333,9 +333,9 @@ export default function AdminClaims(
           time. It scrolls inside itself on a narrow screen rather than
           stretching the page. */}
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[34rem] border-collapse text-[13px]">
+        <table className="w-full min-w-[34rem] border-collapse text-read">
           <thead>
-            <tr className="border-b border-line text-left font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+            <tr className="border-b border-line text-left font-data text-label uppercase tracking-[0.14em] text-muted">
               {([["character", "adm.colCharacter"],
                  ["provider", "adm.colProvider"],
                  ["lodestone", "adm.colLodestone"],
@@ -380,7 +380,7 @@ export default function AdminClaims(
                         {p.names.map((pname) => (
                           <span key={pname}
                                 title={p.sure ? undefined : t("adm.guessed")}
-                                className={`rounded-full border px-2 py-0.5 text-[11px] ${
+                                className={`rounded-full border px-2 py-0.5 text-meta ${
                                   PROVIDER_TONE[pname] ?? "border-line text-muted"} ${
                                   p.sure ? "" : "opacity-60"}`}>
                             {pname}{p.sure ? "" : "?"}
@@ -400,7 +400,7 @@ export default function AdminClaims(
                     <a href={lodestoneUrl(c.character_id)}
                        target="_blank" rel="noopener noreferrer"
                        title={t("adm.lodeOpen")}
-                       className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] no-underline transition-colors ${
+                       className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-meta no-underline transition-colors ${
                          c.character_verified_at
                            ? "border-jade/50 bg-jade/10 text-jade hover:bg-jade/20"
                            : "border-dashed border-line text-muted hover:border-muted hover:text-ink"}`}>
@@ -408,14 +408,14 @@ export default function AdminClaims(
                       {c.character_verified_at ? t("adm.lodeYes") : t("adm.lodeNo")}
                     </a>
                   </td>
-                  <td className="py-1.5 pr-3 font-data text-[11.5px] text-muted">
+                  <td className="py-1.5 pr-3 font-data text-meta text-muted">
                     {c.character_verified_at
                       ? fmtDate(c.character_verified_at)
                       : <span className="opacity-60">—</span>}
                   </td>
                   <td className="py-1.5 text-right">
                     <button type="button" onClick={() => void onRelease(c.id)}
-                            className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                            className="rounded-md border border-chili/50 px-2.5 py-1 text-ui text-chili hover:bg-chili/10">
                       {t("adm.release")}
                     </button>
                   </td>
@@ -425,7 +425,7 @@ export default function AdminClaims(
           </tbody>
         </table>
         {rows.length === 0 && (
-          <div className="py-2 text-[13px] text-muted">
+          <div className="py-2 text-read text-muted">
             {claims.length === 0 ? t("adm.noClaims") : t("adm.claimNoMatch")}
           </div>
         )}

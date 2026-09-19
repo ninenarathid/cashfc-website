@@ -185,10 +185,10 @@ export default function JobDonut(
         // biggest when two of them are close in size; naming it means the ring
         // never has to be measured by eye.
         <div className="flex flex-col items-center gap-0.5">
-          <span className="text-[10.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="text-label uppercase tracking-[0.14em] text-muted">
             {t("member.mostPlayed")}
           </span>
-          <span className="flex items-center gap-1.5 text-[13px]">
+          <span className="flex items-center gap-1.5 text-read">
             <JobIcon job={top.job} size={16} />
             <span style={{ color: top.color }}>{top.label}</span>
             <span className="text-muted">

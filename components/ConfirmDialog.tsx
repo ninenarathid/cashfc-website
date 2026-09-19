@@ -59,7 +59,7 @@ export default function ConfirmDialog(
           onEscapeKeyDown={(e) => e.stopPropagation()}
           style={{ zIndex: z + 1 }}
           className="pop-in fixed left-1/2 top-1/2 w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-surface p-4 shadow-2xl shadow-black/60">
-          <Alert.Description className="text-[13.5px] leading-relaxed text-ink">
+          <Alert.Description className="text-read leading-relaxed text-ink">
             {message}
           </Alert.Description>
           <div className="mt-3.5 flex flex-wrap justify-end gap-2">
@@ -67,13 +67,13 @@ export default function ConfirmDialog(
                 the confirming button, which put the irreversible answer under
                 the space bar of somebody who opened this by accident. */}
             <Alert.Cancel asChild>
-              <button className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted outline-none transition-colors hover:border-muted hover:text-ink focus-visible:border-accent">
+              <button className="rounded-lg border border-line px-3.5 py-1.5 text-read text-muted outline-none transition-colors hover:border-muted hover:text-ink focus-visible:border-accent">
                 {t("common.cancel")}
               </button>
             </Alert.Cancel>
             <Alert.Action asChild>
               <button onClick={onConfirm}
-                      className={`rounded-lg border px-3.5 py-1.5 text-[13px] outline-none transition-colors ${
+                      className={`rounded-lg border px-3.5 py-1.5 text-read outline-none transition-colors ${
                         danger
                           ? "border-chili bg-chili/15 text-chili hover:bg-chili/25"
                           : "border-accent bg-accent/15 text-accent hover:bg-accent/25"}`}>

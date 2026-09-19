@@ -102,16 +102,16 @@ export default function PfHelper(
     },
   ) => (
     <button type="button" onClick={onClick}
-            className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[14.5px] transition-colors ${
+            className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left text-lead transition-colors ${
               on ? "border-accent/60 bg-accent/10 text-ink"
                  : "border-line text-muted hover:border-muted hover:text-ink"}`}>
-      <span className={`grid size-4 shrink-0 place-items-center rounded border text-[11px] ${
+      <span className={`grid size-4 shrink-0 place-items-center rounded border text-meta ${
         on ? "border-accent bg-accent/20 text-accent" : "border-line"}`}>
         {on ? "✓" : ""}
       </span>
       <span className="min-w-0 flex-1">{say}</span>
       {!!cost && cost > 0 && (
-        <span className="shrink-0 font-data text-[12px] text-muted">+{cost}</span>
+        <span className="shrink-0 font-data text-ui text-muted">+{cost}</span>
       )}
     </button>
   );
@@ -154,16 +154,16 @@ export default function PfHelper(
           * is a draft — and keeps saying it until somebody has posted enough
           * of them to know which lines land.
           */}
-        <p className="rounded-lg border border-gold/45 bg-gold/10 px-3 py-2 text-[14.5px] text-gold">
+        <p className="rounded-lg border border-gold/45 bg-gold/10 px-3 py-2 text-lead text-gold">
           {t("pf.beta")}
         </p>
 
         {/* ── What to set in the game, which is not typed at all ────────── */}
         <div className="flex flex-col gap-2 rounded-lg border border-line bg-bg/40 p-3">
-          <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
             {t("pf.inGameSettings")}
           </span>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-[15px]">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-title">
             <dt className="text-muted">Duty</dt>
             <dd className="text-ink">
               {setup.dutyJa ?? setup.duty}
@@ -199,13 +199,13 @@ export default function PfHelper(
         {/* ── The one box that is typed ──────────────────────────────────── */}
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+            <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
               {t("pf.pfComment")}
             </span>
             <span className="flex gap-1">
               {(["ja", "en"] as const).map((l) => (
                 <button key={l} type="button" onClick={() => setLang(l)}
-                        className={`rounded-full border px-3 py-[2px] text-[14px] transition-colors ${
+                        className={`rounded-full border px-3 py-[2px] text-lead transition-colors ${
                           lang === l ? "border-accent bg-accent/15 text-accent"
                             : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                   {l === "ja" ? "日本語" : "English"}
@@ -216,23 +216,23 @@ export default function PfHelper(
 
           <textarea value={text} rows={3}
                     onChange={(e) => setEdited(e.target.value)}
-                    className={`rounded-lg border bg-surface px-3 py-2 text-[15.5px] leading-relaxed text-ink ${
+                    className={`rounded-lg border bg-surface px-3 py-2 text-title leading-relaxed text-ink ${
                       over ? "border-chili" : "border-line"}`} />
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Bytes, not characters. The game counts the box in bytes and a
                 kanji is three of them, so a counter of characters would say
                 sixty and let somebody paste a line the game truncates. */}
-            <span className={`font-data text-[13px] tabular-nums ${
+            <span className={`font-data text-read tabular-nums ${
               over ? "text-chili" : "text-muted"}`}>
               {bytes} / {PF_BYTES} bytes
             </span>
             {over && (
-              <span className="text-[14px] text-chili">{t("pf.tooLong")}</span>
+              <span className="text-lead text-chili">{t("pf.tooLong")}</span>
             )}
             <button type="button" disabled={!text}
                     onClick={() => void copy()}
-                    className="ml-auto flex items-center gap-1.5 rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-[15px] text-jade hover:bg-jade/25 disabled:opacity-50">
+                    className="ml-auto flex items-center gap-1.5 rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-title text-jade hover:bg-jade/25 disabled:opacity-50">
               <CopyMark done={copied} />
               {copied ? t("party.copied") : t("pf.copyComment")}
             </button>
@@ -241,7 +241,7 @@ export default function PfHelper(
 
         {/* ── The switches ───────────────────────────────────────────────── */}
         <div className="flex flex-col gap-2">
-          <span className="font-data text-[11.5px] uppercase tracking-[0.14em] text-muted">
+          <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
             {t("pf.extras")}
           </span>
           <div className="grid gap-1.5 sm:grid-cols-2">
@@ -295,18 +295,18 @@ export default function PfHelper(
                   onClick={() => flip("casual")} />
             {/* A number rather than a switch: "disband after some wipes" is
                 not a thing anybody says. */}
-            <label className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[14.5px] ${
+            <label className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-lead ${
               x.wipes ? "border-accent/60 bg-accent/10 text-ink"
                       : "border-line text-muted"}`}>
               <span className="min-w-0 flex-1">{t("pf.xWipes")}</span>
               <input type="number" min={0} max={20} value={x.wipes ?? ""}
                      onChange={(e) => flip("wipes", Number(e.target.value) || undefined)}
-                     className="w-14 rounded border border-line bg-surface px-1.5 py-0.5 text-right text-[14.5px] text-ink" />
+                     className="w-14 rounded border border-line bg-surface px-1.5 py-0.5 text-right text-lead text-ink" />
             </label>
           </div>
         </div>
 
-        <p className="text-[13.5px] text-muted">{t("pf.helperWhy")}</p>
+        <p className="text-read text-muted">{t("pf.helperWhy")}</p>
       </div>
     </Modal>
   );

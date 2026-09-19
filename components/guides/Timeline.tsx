@@ -123,7 +123,7 @@ export default function Timeline(
             <div key={s} className="absolute top-[14px]"
                  style={{ left: (s - t0) * PPS }}>
               <div className="h-2 w-px bg-line" />
-              <div className="absolute -top-[13px] -translate-x-1/2 font-data text-[10px] text-muted">
+              <div className="absolute -top-[13px] -translate-x-1/2 font-data text-label text-muted">
                 {clock(s)}
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function Timeline(
               {n > 0 && (
                 <div className="absolute bottom-0 top-[22px] w-px bg-accent/35" />
               )}
-              <div className="absolute top-0 whitespace-nowrap pl-1 font-data text-[10px] uppercase tracking-[0.14em] text-accent">
+              <div className="absolute top-0 whitespace-nowrap pl-1 font-data text-label uppercase tracking-[0.14em] text-accent">
                 {p.name}
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function Timeline(
               <button key={l.i} ref={on ? here : undefined}
                       onClick={() => onPick(l.i)} aria-current={on}
                       title={`${l.beat.mech.name} · ${l.beat.cue.at}`}
-                      className="absolute flex items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border px-1.5 text-left text-[11px] transition-colors"
+                      className="absolute flex items-center gap-1 overflow-hidden whitespace-nowrap rounded-md border px-1.5 text-left text-meta transition-colors"
                       style={{
                         left: l.left,
                         width: l.width,
@@ -181,7 +181,7 @@ export default function Timeline(
           click every chip to learn what green means. */}
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {(Object.keys(TAG_LABEL) as MechTag[]).map((t) => (
-          <span key={t} className="flex items-center gap-1 text-[10.5px] text-muted">
+          <span key={t} className="flex items-center gap-1 text-label text-muted">
             <span className="h-2 w-2 rounded-full"
                   style={{ background: TAG_COLOR[t] }} />
             {TAG_LABEL[t]}

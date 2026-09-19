@@ -188,7 +188,7 @@ export default function GalleryGrid(
 
   if (!posts.length) {
     return (
-      <div className="mt-4 rounded-xl border border-dashed border-line p-10 text-center text-[13.5px] leading-relaxed text-muted">
+      <div className="mt-4 rounded-xl border border-dashed border-line p-10 text-center text-read leading-relaxed text-muted">
         {t("gallery.empty")}
       </div>
     );
@@ -343,7 +343,7 @@ export default function GalleryGrid(
                 </button>
 
                 {many && (
-                  <span className="pointer-events-none absolute right-2 top-2 rounded-md bg-bg/75 px-1.5 py-0.5 font-data text-[11px] text-ink backdrop-blur">
+                  <span className="pointer-events-none absolute right-2 top-2 rounded-md bg-bg/75 px-1.5 py-0.5 font-data text-meta text-ink backdrop-blur">
                     {t("gallery.morePictures", { n: p.image_count ?? shots.length })}
                   </span>
                 )}
@@ -365,7 +365,7 @@ export default function GalleryGrid(
                         ) : (
                           <span className="size-6 shrink-0 rounded-full border border-line bg-card" />
                         )}
-                        <span className="truncate font-data text-[12.5px] font-semibold text-ink">
+                        <span className="truncate font-data text-ui font-semibold text-ink">
                           {byName}
                         </span>
                         {/* The faces of everybody else in the picture, at the
@@ -388,7 +388,7 @@ export default function GalleryGrid(
                               )
                             ))}
                             {others.length > 3 && (
-                              <span className="pl-2 font-data text-[11px] text-ink/70">
+                              <span className="pl-2 font-data text-meta text-ink/70">
                                 +{others.length - 3}
                               </span>
                             )}
@@ -397,12 +397,12 @@ export default function GalleryGrid(
                       </div>
                     )}
                     {p.caption && (
-                      <p className="line-clamp-2 text-[12.5px] leading-snug text-ink">
+                      <p className="line-clamp-2 text-ui leading-snug text-ink">
                         {p.caption}
                       </p>
                     )}
                     {(c?.likes || c?.comments) ? (
-                      <div className="mt-1 flex gap-2 text-[12px] font-medium text-ink/85">
+                      <div className="mt-1 flex gap-2 text-ui font-medium text-ink/85">
                         {c.likes > 0 && <span>🥔 {c.likes}</span>}
                         {c.comments > 0 && <span>💬 {c.comments}</span>}
                       </div>
@@ -417,13 +417,13 @@ export default function GalleryGrid(
                 {isAdmin && (p.hidden || p.owner_hidden) && (
                   <button onClick={() => setHidden(p.id, false)}
                           title={t("gallery.restore")}
-                          className="absolute right-2 top-2 rounded-md border border-jade/60 bg-bg/85 px-2 py-0.5 text-[11px] text-jade">
+                          className="absolute right-2 top-2 rounded-md border border-jade/60 bg-bg/85 px-2 py-0.5 text-meta text-jade">
                     {t("gallery.restore")}
                   </button>
                 )}
 
                 {(p.hidden || p.owner_hidden) && (
-                  <div className="pointer-events-none absolute left-2 top-2 rounded-md border border-chili/60 bg-bg/85 px-2 py-0.5 text-[11px] text-chili">
+                  <div className="pointer-events-none absolute left-2 top-2 rounded-md border border-chili/60 bg-bg/85 px-2 py-0.5 text-meta text-chili">
                     {t("gallery.hiddenTag")}
                   </div>
                 )}

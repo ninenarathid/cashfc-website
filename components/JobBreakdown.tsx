@@ -123,13 +123,13 @@ export default function JobBreakdown(
             <details key={r.job} className="group">
               <summary className="grid cursor-pointer list-none grid-cols-[104px_1fr_auto] items-center gap-3 rounded-lg py-1 marker:content-none hover:bg-card/60">
                 <span className="flex min-w-0 items-center gap-1.5" title={r.job}>
-                  <span className="text-[10px] text-muted transition-transform group-open:rotate-90">
+                  <span className="text-label text-muted transition-transform group-open:rotate-90">
                     ▶
                   </span>
                   <JobIcon job={r.job} size={18} />
                   {/* The same colour as this job's arc in the ring, which is
                       what lets the two be read together without a legend. */}
-                  <span className="truncate font-data text-[13px]"
+                  <span className="truncate font-data text-read"
                         style={{ color: `color-mix(in srgb, ${jobColor(r.job)} 78%, #e3e8ef)` }}>
                     {jobLabel(r.job)}
                   </span>
@@ -148,7 +148,7 @@ export default function JobBreakdown(
                       }}
                     />
                   </span>
-                  <span className="w-24 shrink-0 text-right text-[11.5px] text-muted">
+                  <span className="w-24 shrink-0 text-right text-meta text-muted">
                     {r.kills} kill{r.kills === 1 ? "" : "s"}{" "}· {r.fights} fight{r.fights === 1 ? "" : "s"}
                   </span>
                 </span>
@@ -158,7 +158,7 @@ export default function JobBreakdown(
                       title={`Proficiency ${s.score} of 100 — ${s.parse} difficulty- and kill-weighted parse over ${s.kills} kills across ${s.fights} fights` +
                         (s.hardest ? `, up to ${CONTENT_LABEL[s.hardest] ?? s.hardest}` : "")}
                       style={jobTierStyle(r.job, s.tier)}
-                      className="whitespace-nowrap rounded-full border px-2 py-[2px] text-[10.5px]">
+                      className="whitespace-nowrap rounded-full border px-2 py-[2px] text-label">
                       {ACHV_TIER_LABEL[s.tier]}
                     </span>
                   )}
@@ -173,17 +173,17 @@ export default function JobBreakdown(
               <div className="mb-1 ml-[104px] mt-1 flex flex-col gap-0.5 border-l border-line pl-3">
                 {r.entries.map((f, i) => (
                   <div key={`${f.name}-${i}`}
-                       className="grid grid-cols-[1fr_auto_auto] items-baseline gap-3 text-[12px]">
+                       className="grid grid-cols-[1fr_auto_auto] items-baseline gap-3 text-ui">
                     <span className="min-w-0 truncate text-muted">
                       {f.label && (
-                        <span className="mr-1.5 font-data text-[11px] text-ink/70">
+                        <span className="mr-1.5 font-data text-meta text-ink/70">
                           {f.label}
                         </span>
                       )}
                       {f.name}
-                      <span className="ml-1.5 text-[11px] text-muted/60">{f.where}</span>
+                      <span className="ml-1.5 text-meta text-muted/60">{f.where}</span>
                     </span>
-                    <span className="text-right text-[11.5px] text-muted">
+                    <span className="text-right text-meta text-muted">
                       {f.kills} kill{f.kills === 1 ? "" : "s"}
                     </span>
                     <span className="w-9 text-right font-data font-semibold"
@@ -198,10 +198,10 @@ export default function JobBreakdown(
         })}
         {folded.length > 0 && (
           <details className="mt-1 border-t border-line/60 pt-1.5">
-            <summary className="cursor-pointer list-none text-[12px] text-muted marker:content-none hover:text-ink">
+            <summary className="cursor-pointer list-none text-ui text-muted marker:content-none hover:text-ink">
               {folded.length} more job{folded.length === 1 ? "" : "s"}, a kill or two each
             </summary>
-            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-muted">
+            <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-ui text-muted">
               {folded.map((r) => (
                 <span key={r.job} className="inline-flex items-center gap-1.5">
                   <JobIcon job={r.job} size={14} />

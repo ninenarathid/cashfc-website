@@ -224,7 +224,7 @@ export default function ImageCropper(
       </div>
 
       <label className="flex items-center gap-3">
-        <span className="font-data text-[11px] uppercase tracking-[0.14em] text-muted">
+        <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
           {t("profile.picZoom")}
         </span>
         <input type="range" min={1} max={Math.max(1.01, maxZoom)} step={0.01}
@@ -234,18 +234,18 @@ export default function ImageCropper(
       </label>
 
       {tooSmall && (
-        <p className="text-[12px] leading-relaxed text-muted">
+        <p className="text-ui leading-relaxed text-muted">
           {t("profile.picSmall")}
         </p>
       )}
 
       <div className="flex flex-wrap gap-2">
         <button onClick={save} disabled={!img || busy}
-                className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-[13.5px] text-accent hover:bg-accent/25 disabled:opacity-50">
+                className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-read text-accent hover:bg-accent/25 disabled:opacity-50">
           {busy ? t("profile.picSaving") : t("gallery.save")}
         </button>
         <button onClick={onCancel} disabled={busy}
-                className="rounded-lg border border-line px-4 py-2 text-[13.5px] text-muted hover:border-muted hover:text-ink disabled:opacity-40">
+                className="rounded-lg border border-line px-4 py-2 text-read text-muted hover:border-muted hover:text-ink disabled:opacity-40">
           {t("common.cancel")}
         </button>
       </div>

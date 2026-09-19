@@ -214,7 +214,7 @@ export default function Feedback() {
   if (!ready) return null;
   if (!me) {
     return (
-      <p className="mt-6 rounded-xl border border-dashed border-line p-8 text-center text-[13.5px] leading-relaxed text-muted">
+      <p className="mt-6 rounded-xl border border-dashed border-line p-8 text-center text-read leading-relaxed text-muted">
         {t("feedback.signIn")}
       </p>
     );
@@ -253,7 +253,7 @@ export default function Feedback() {
       <div className="flex flex-col gap-2">
         {!isAdmin && !writing && (
           <button onClick={() => { setWriting(true); setOpenId(null); }}
-                  className="rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-[13.5px] text-accent hover:bg-accent/25">
+                  className="rounded-lg border border-accent bg-accent/15 px-3.5 py-2 text-read text-accent hover:bg-accent/25">
             + {t("feedback.new")}
           </button>
         )}
@@ -263,23 +263,23 @@ export default function Feedback() {
                className="flex flex-col gap-2 rounded-xl border border-accent/40 bg-surface p-3">
             <input value={subject} onChange={(e) => setSubject(e.target.value.slice(0, 120))}
                    placeholder={t("feedback.subject")}
-                   className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] text-ink placeholder:text-muted" />
+                   className="rounded-lg border border-line bg-card px-3 py-2 text-read text-ink placeholder:text-muted" />
             <textarea value={draft} rows={5}
                       onChange={(e) => setDraft(e.target.value.slice(0, 4000))}
                       placeholder={t("feedback.body")}
-                      className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] leading-relaxed text-ink placeholder:text-muted" />
+                      className="rounded-lg border border-line bg-card px-3 py-2 text-read leading-relaxed text-ink placeholder:text-muted" />
             <Attach files={draftFiles} onChange={setDraftFiles} disabled={busy}
                     scope={draftBox} />
             <div className="flex flex-wrap gap-2">
               <button onClick={start} disabled={busy || !subject.trim() || !draft.trim()}
-                      className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
+                      className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-read text-accent hover:bg-accent/25 disabled:opacity-40">
                 {t("feedback.send")}
               </button>
               <button onClick={() => {
                         setWriting(false); setSubject(""); setDraft("");
                         setDraftFiles([]);
                       }}
-                      className="rounded-lg border border-line px-3.5 py-1.5 text-[13px] text-muted hover:border-muted hover:text-ink">
+                      className="rounded-lg border border-line px-3.5 py-1.5 text-read text-muted hover:border-muted hover:text-ink">
                 {t("common.cancel")}
               </button>
             </div>
@@ -287,7 +287,7 @@ export default function Feedback() {
         )}
 
         {threads.length === 0 && !writing && (
-          <p className="rounded-xl border border-dashed border-line p-6 text-center text-[12.5px] leading-relaxed text-muted">
+          <p className="rounded-xl border border-dashed border-line p-6 text-center text-ui leading-relaxed text-muted">
             {isAdmin ? t("feedback.emptyAdmin") : t("feedback.empty")}
           </p>
         )}
@@ -298,14 +298,14 @@ export default function Feedback() {
                     x.id === openId ? "border-accent bg-accent/5"
                                     : "border-line bg-surface hover:border-muted"}`}>
             <div className="flex items-start gap-2">
-              <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-ink">
+              <span className="min-w-0 flex-1 truncate text-read font-medium text-ink">
                 {x.subject}
               </span>
               {unread(x) && (
                 <span className="mt-1 size-2 shrink-0 rounded-full bg-chili" />
               )}
             </div>
-            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-[11.5px] text-muted">
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-meta text-muted">
               {isAdmin && <span className="text-ink/70">{names[x.author_id] ?? "—"}</span>}
               <span>{when(x.updated_at)}</span>
               {x.status === "closed" && (
@@ -321,14 +321,14 @@ export default function Feedback() {
       {/* ── The conversation ── */}
       <div className="rounded-xl border border-line bg-surface p-4">
         {!current ? (
-          <p className="py-10 text-center text-[13px] text-muted">{t("feedback.pick")}</p>
+          <p className="py-10 text-center text-read text-muted">{t("feedback.pick")}</p>
         ) : (
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="font-display text-lg font-semibold">{current.subject}</h2>
               <button onClick={() => setStatus(current.id,
                                 current.status === "closed" ? "open" : "closed")}
-                      className="rounded-lg border border-line px-3 py-1 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+                      className="rounded-lg border border-line px-3 py-1 text-ui text-muted hover:border-accent hover:text-accent">
                 {current.status === "closed" ? t("feedback.reopen") : t("feedback.close")}
               </button>
             </div>
@@ -343,7 +343,7 @@ export default function Feedback() {
                          fromAuthor
                            ? "border-line bg-card"
                            : "border-accent/40 bg-accent/5"}`}>
-                    <div className="flex flex-wrap items-baseline gap-2 text-[11.5px]">
+                    <div className="flex flex-wrap items-baseline gap-2 text-meta">
                       <span className={fromAuthor ? "text-ink/80" : "text-accent"}>
                         {fromAuthor
                           ? (names[msg.author_id] ?? t("feedback.member"))
@@ -352,7 +352,7 @@ export default function Feedback() {
                       </span>
                       <span className="text-muted">{when(msg.created_at)}</span>
                     </div>
-                    <p className="mt-1 whitespace-pre-wrap text-[13.5px] leading-relaxed text-ink/90">
+                    <p className="mt-1 whitespace-pre-wrap text-read leading-relaxed text-ink/90">
                       {msg.body}
                     </p>
                     {msg.images.length > 0 && (
@@ -383,12 +383,12 @@ export default function Feedback() {
               <textarea value={reply} rows={3}
                         onChange={(e) => setReply(e.target.value.slice(0, 4000))}
                         placeholder={t("feedback.reply")}
-                        className="rounded-lg border border-line bg-card px-3 py-2 text-[13.5px] leading-relaxed text-ink placeholder:text-muted" />
+                        className="rounded-lg border border-line bg-card px-3 py-2 text-read leading-relaxed text-ink placeholder:text-muted" />
               <Attach files={replyFiles} onChange={setReplyFiles} disabled={busy}
                       scope={replyBox} />
               <div>
                 <button onClick={send} disabled={busy || !reply.trim()}
-                        className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-[13px] text-accent hover:bg-accent/25 disabled:opacity-40">
+                        className="rounded-lg border border-accent bg-accent/15 px-3.5 py-1.5 text-read text-accent hover:bg-accent/25 disabled:opacity-40">
                   {t("feedback.send")}
                 </button>
               </div>
@@ -403,7 +403,7 @@ export default function Feedback() {
                        onClose={() => setZoom(null)} />
       )}
 
-      {err && <p className="text-[12.5px] text-chili md:col-span-2">{err}</p>}
+      {err && <p className="text-ui text-chili md:col-span-2">{err}</p>}
     </div>
   );
 }

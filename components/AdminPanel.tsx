@@ -54,13 +54,13 @@ function Body({ text, id, open, toggle }: {
   const shown = open.has(id);
   return (
     <div className="mt-0.5">
-      <p className={`whitespace-pre-wrap text-[12.5px] leading-relaxed text-muted ${
+      <p className={`whitespace-pre-wrap text-ui leading-relaxed text-muted ${
         long && !shown ? "line-clamp-2" : ""}`}>
         {text}
       </p>
       {long && (
         <button onClick={() => toggle(id)}
-                className="mt-0.5 text-[11.5px] text-accent hover:underline">
+                className="mt-0.5 text-meta text-accent hover:underline">
           {shown ? "Show less" : "Show all"}
         </button>
       )}
@@ -245,9 +245,9 @@ export default function AdminPanel(
   if (!adminMode)
     return (
       <main className="pt-7">
-        <div className="font-data text-[11px] uppercase tracking-[0.22em] text-chili">Admin</div>
+        <div className="font-data text-meta uppercase tracking-[0.22em] text-chili">Admin</div>
         <h1 className="font-display text-3xl font-bold">{t("adm.title")}</h1>
-        <p className="mt-2 max-w-prose text-[13.5px] leading-relaxed text-muted">
+        <p className="mt-2 max-w-prose text-read leading-relaxed text-muted">
           {t("adm.poweredOff")}
         </p>
         <AdminSwitch />
@@ -256,9 +256,9 @@ export default function AdminPanel(
 
   return (
     <main className="pt-7">
-      <div className="font-data text-[11px] uppercase tracking-[0.22em] text-chili">Admin</div>
+      <div className="font-data text-meta uppercase tracking-[0.22em] text-chili">Admin</div>
       <h1 className="font-display text-3xl font-bold">{t("adm.title")}</h1>
-      {msg && <div className="mt-2 text-[13px] text-jade">{msg}</div>}
+      {msg && <div className="mt-2 text-read text-jade">{msg}</div>}
 
       {/* The panel itself follows the real flag rather than the switch: locking
           yourself out of the room the switch lives in would be a poor trick. */}
@@ -267,7 +267,7 @@ export default function AdminPanel(
       {/* ── Discord settings ── */}
       <section className="mt-5 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">{t("adm.discord")}</div>
-        <p className="mt-1 text-[12.5px] text-muted">
+        <p className="mt-1 text-ui text-muted">
           {t("adm.discordHint")}
         </p>
         <div className="mt-3 flex flex-wrap gap-2.5">
@@ -297,13 +297,13 @@ export default function AdminPanel(
       <AdminTabs tabs={[
         { key: "updates", label: t("adm.updates"), body: (
           <>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-muted">
+            <p className="mt-1 text-ui leading-relaxed text-muted">
               {t("adm.updatesHint")}
             </p>
 
             <div className="mt-3 flex flex-col gap-2">
               {uEditing !== null && (
-                <div className="text-[12.5px] text-accent">{t("adm.editingDay")}</div>
+                <div className="text-ui text-accent">{t("adm.editingDay")}</div>
               )}
               <div className="flex flex-wrap gap-2">
                 <input type="date" value={uDate} onChange={(e) => setUDate(e.target.value)}
@@ -324,7 +324,7 @@ export default function AdminPanel(
                               onClick={() => setUItems(uItems.map((x, n) =>
                                 n === i ? { ...x, kind: k } : x))}
                               aria-pressed={it.kind === k}
-                              className={`rounded-md border px-2.5 py-1 text-[12px] transition-colors ${
+                              className={`rounded-md border px-2.5 py-1 text-ui transition-colors ${
                                 it.kind === k ? "border-accent bg-accent/15 text-accent"
                                               : "border-line text-muted hover:border-muted hover:text-ink"}`}>
                         {k}
@@ -332,7 +332,7 @@ export default function AdminPanel(
                     ))}
                     {uItems.length > 1 && (
                       <button onClick={() => setUItems(uItems.filter((_, n) => n !== i))}
-                              className="ml-auto rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                              className="ml-auto rounded-md border border-chili/50 px-2.5 py-1 text-ui text-chili hover:bg-chili/10">
                         {t("adm.removeLine")}
                       </button>
                     )}
@@ -349,7 +349,7 @@ export default function AdminPanel(
               ))}
 
               <button onClick={() => setUItems([...uItems, { kind: "new", th: "", en: "" }])}
-                      className="self-start rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-muted hover:border-accent hover:text-accent">
+                      className="self-start rounded-lg border border-line px-3 py-1.5 text-ui text-muted hover:border-accent hover:text-accent">
                 {t("adm.addLine")}
               </button>
 
@@ -402,10 +402,10 @@ export default function AdminPanel(
                      className="flex items-start justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline gap-x-2">
-                      <span className="font-data text-[11.5px] text-muted">{u.on_date}</span>
+                      <span className="font-data text-meta text-muted">{u.on_date}</span>
                       <span className="font-medium">{u.title_th || u.title_en || ""}</span>
                     </div>
-                    <div className="mt-0.5 text-[12.5px] text-muted">
+                    <div className="mt-0.5 text-ui text-muted">
                       {t("adm.lines", { n: (u.items ?? []).length })}
                       {/* Flagged rather than blocked. Half an announcement is worth
                           posting; a reminder to come back and finish it is worth
@@ -425,7 +425,7 @@ export default function AdminPanel(
                               kind: i.kind ?? "new", th: i.th ?? "", en: i.en ?? "" }))
                           : [{ kind: "new", th: "", en: "" }]);
                       }}
-                      className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
+                      className="rounded-md border border-line px-2.5 py-1 text-ui text-muted hover:border-accent hover:text-accent">
                       {t("adm.edit")}
                     </button>
                     <button
@@ -434,14 +434,14 @@ export default function AdminPanel(
                         if (uEditing === u.id) resetUpdate();
                         await refresh(); flash(t("adm.updateDeleted"));
                       }}
-                      className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                      className="rounded-md border border-chili/50 px-2.5 py-1 text-ui text-chili hover:bg-chili/10">
                       {t("adm.delete")}
                     </button>
                   </div>
                 </div>
               ))}
               {updates.length === 0 && (
-                <div className="text-[13px] text-muted">
+                <div className="text-read text-muted">
                   {t("adm.noUpdates")}
                 </div>
               )}
@@ -452,13 +452,13 @@ export default function AdminPanel(
           <>
             <div className="mt-3 flex flex-col gap-2">
               {aEditing !== null && (
-                <div className="text-[12.5px] text-accent">{t("adm.editingAnn")}</div>
+                <div className="text-ui text-accent">{t("adm.editingAnn")}</div>
               )}
               {/* Thai first, because that is what gets written first and what
                   every existing announcement already holds. The English pair
                   sits under its own label rather than interleaved, so it is
                   obvious which box is which language at a glance. */}
-              <div className="font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              <div className="font-data text-label uppercase tracking-[0.14em] text-muted">
                 ไทย
               </div>
               <input value={aTitle} onChange={(e) => setATitle(e.target.value.slice(0, 120))}
@@ -466,7 +466,7 @@ export default function AdminPanel(
               <textarea value={aBody} onChange={(e) => setABody(e.target.value.slice(0, 2000))}
                         rows={3} placeholder={t("adm.details")} className={inputCls} />
 
-              <div className="mt-1 font-data text-[10.5px] uppercase tracking-[0.14em] text-muted">
+              <div className="mt-1 font-data text-label uppercase tracking-[0.14em] text-muted">
                 English <span className="normal-case tracking-normal opacity-70">
                   — {t("adm.annEnOptional")}
                 </span>
@@ -537,7 +537,7 @@ export default function AdminPanel(
                       <img src={picsOf(a)[0]} alt=""
                            className="h-24 w-20 rounded-md border border-line bg-bg object-contain" />
                       {picsOf(a).length > 1 && (
-                        <span className="absolute -bottom-1.5 -right-1.5 rounded-full border border-line bg-card px-1.5 py-0.5 font-data text-[10px] text-muted">
+                        <span className="absolute -bottom-1.5 -right-1.5 rounded-full border border-line bg-card px-1.5 py-0.5 font-data text-label text-muted">
                           {picsOf(a).length}
                         </span>
                       )}
@@ -548,7 +548,7 @@ export default function AdminPanel(
                       <span className="font-medium">{a.title}</span>
                       {/* The date the notification quoted, so an admin holding one
                           can tell which announcement it was about. */}
-                      <span className="font-data text-[11px] text-muted">
+                      <span className="font-data text-meta text-muted">
                         {fmtDateTime(a.created_at)}
                       </span>
                     </div>
@@ -561,7 +561,7 @@ export default function AdminPanel(
                         setATitleEn(a.title_en ?? ""); setABodyEn(a.body_en ?? "");
                         setAImages(picsOf(a));
                       }}
-                      className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
+                      className="rounded-md border border-line px-2.5 py-1 text-ui text-muted hover:border-accent hover:text-accent">
                       {t("adm.edit")}
                     </button>
                     <button
@@ -572,13 +572,13 @@ export default function AdminPanel(
                         }
                         await refresh(); flash(t("adm.annDeleted"));
                       }}
-                      className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                      className="rounded-md border border-chili/50 px-2.5 py-1 text-ui text-chili hover:bg-chili/10">
                       {t("adm.delete")}
                     </button>
                   </div>
                 </div>
               ))}
-              {anns.length === 0 && <div className="text-[13px] text-muted">{t("adm.noAnns")}</div>}
+              {anns.length === 0 && <div className="text-read text-muted">{t("adm.noAnns")}</div>}
             </div>
           </>
         ) },
@@ -642,13 +642,13 @@ export default function AdminPanel(
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="font-medium">
-                      <span className="mr-2 font-data text-[11.5px] text-muted">{p.posted_at}</span>
+                      <span className="mr-2 font-data text-meta text-muted">{p.posted_at}</span>
                       {p.title}
                     </div>
                     {p.body && <Body text={p.body} id={`p:${p.id}`} open={open} toggle={toggle} />}
                     {p.url && (
                       <a href={p.url} target="_blank" rel="noopener noreferrer"
-                         className="mt-0.5 block truncate text-[11.5px] text-accent hover:underline">
+                         className="mt-0.5 block truncate text-meta text-accent hover:underline">
                         {p.url}
                       </a>
                     )}
@@ -659,7 +659,7 @@ export default function AdminPanel(
                         setPEditing(p.id); setPTitle(p.title); setPBody(p.body ?? "");
                         setPUrl(p.url ?? ""); setPDate(p.posted_at); setPImage(p.image_url);
                       }}
-                      className="rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-accent hover:text-accent">
+                      className="rounded-md border border-line px-2.5 py-1 text-ui text-muted hover:border-accent hover:text-accent">
                       {t("adm.edit")}
                     </button>
                     <button
@@ -670,13 +670,13 @@ export default function AdminPanel(
                         }
                         await refresh(); flash(t("adm.postDeleted"));
                       }}
-                      className="rounded-md border border-chili/50 px-2.5 py-1 text-[12px] text-chili hover:bg-chili/10">
+                      className="rounded-md border border-chili/50 px-2.5 py-1 text-ui text-chili hover:bg-chili/10">
                       {t("adm.delete")}
                     </button>
                   </div>
                 </div>
               ))}
-              {posts.length === 0 && <div className="text-[13px] text-muted">{t("adm.noPosts")}</div>}
+              {posts.length === 0 && <div className="text-read text-muted">{t("adm.noPosts")}</div>}
             </div>
           </>
         ) },
@@ -696,7 +696,7 @@ export default function AdminPanel(
                         setSelected(s); setPick(s.name);
                         setNote(overrides.find((o) => o.character_id === s.id)?.note ?? "");
                       }}
-                      className="rounded-lg border border-line bg-card px-3 py-1.5 text-[13px] hover:border-accent hover:text-accent">
+                      className="rounded-lg border border-line bg-card px-3 py-1.5 text-read hover:border-accent hover:text-accent">
                 {s.name}
               </button>
             ))}
@@ -707,7 +707,7 @@ export default function AdminPanel(
             <span className="font-data font-semibold">{selected.name}</span>
             <input value={note} onChange={(e) => setNote(e.target.value.slice(0, 200))}
                    placeholder={t("adm.note")}
-                   className={`${inputCls} min-w-[180px] flex-1 py-1.5 text-[13px]`} />
+                   className={`${inputCls} min-w-[180px] flex-1 py-1.5 text-read`} />
             {[false, true].map((h) => (
               <button key={String(h)}
                       onClick={async () => {
@@ -719,7 +719,7 @@ export default function AdminPanel(
                         await refresh();
                         flash(h ? t("adm.hidden") : t("adm.savedVisible"));
                       }}
-                      className={`rounded-lg border px-3 py-1.5 text-[13px] ${
+                      className={`rounded-lg border px-3 py-1.5 text-read ${
                         h ? "border-chili/50 text-chili hover:bg-chili/10"
                           : "border-jade/50 text-jade hover:bg-jade/10"}`}>
                 {h ? t("adm.hideFromBoard") : t("adm.keepVisible")}
@@ -729,10 +729,10 @@ export default function AdminPanel(
         )}
         {overrides.length > 0 && (
           <div className="mt-4 flex flex-col gap-1.5">
-            <div className="text-[12px] uppercase tracking-wider text-muted">{t("adm.overrides")}</div>
+            <div className="text-ui uppercase tracking-wider text-muted">{t("adm.overrides")}</div>
             {overrides.map((o) => (
               <div key={o.character_id}
-                   className="flex items-center justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2 text-[13px]">
+                   className="flex items-center justify-between gap-3 rounded-lg border border-line bg-card px-3 py-2 text-read">
                 <span className="min-w-0 truncate">
                   <b className="font-data">{nameOf(o.character_id)}</b>
                   {o.hidden && <span className="ml-2 text-chili">{t("adm.isHidden")}</span>}
@@ -744,7 +744,7 @@ export default function AdminPanel(
                       .eq("character_id", o.character_id);
                     await refresh(); flash(t("adm.cleared"));
                   }}
-                  className="shrink-0 rounded-md border border-line px-2.5 py-1 text-[12px] text-muted hover:border-muted hover:text-ink">
+                  className="shrink-0 rounded-md border border-line px-2.5 py-1 text-ui text-muted hover:border-muted hover:text-ink">
                   {t("adm.clear")}
                 </button>
               </div>

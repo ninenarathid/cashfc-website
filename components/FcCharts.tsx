@@ -184,8 +184,8 @@ export default function FcCharts({
       <div className="grid gap-6 px-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-            <span className="text-[13px] font-medium text-muted">Activity</span>
-            <span className="text-[11.5px] text-muted/70">
+            <span className="text-read font-medium text-muted">Activity</span>
+            <span className="text-meta text-muted/70">
               tap to include or exclude — every chart below follows
             </span>
           </div>
@@ -198,12 +198,12 @@ export default function FcCharts({
                     () => setShowGuests(!showGuests))}
           </div>
           {total === 0 && (
-            <p className="mt-2 text-[12.5px] text-muted">
+            <p className="mt-2 text-ui text-muted">
               Nothing selected — turn one back on to see the charts.
             </p>
           )}
           {total > 0 && (!showActive || !showVacation) && (
-            <p className="mt-2 text-[12.5px] text-muted">
+            <p className="mt-2 text-ui text-muted">
               Showing {total} of {members.length + guests.length}
               {!showVacation && " — active only"}
               {!showActive && " — on vacation only"}
@@ -215,7 +215,7 @@ export default function FcCharts({
           <>
             {/* Player-type split */}
             <div>
-              <div className="mb-1 text-[13px] font-medium text-muted">Player types</div>
+              <div className="mb-1 text-read font-medium text-muted">Player types</div>
               <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -227,7 +227,7 @@ export default function FcCharts({
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-muted">
+              <div className="flex flex-wrap gap-x-3 gap-y-1 text-meta text-muted">
                 {tagCounts.map((s) => (
                   <span key={s.name} className="inline-flex items-center gap-1">
                     <span className="size-2 rounded-full" style={{ background: s.color }} />
@@ -240,7 +240,7 @@ export default function FcCharts({
 
             {/* Race breakdown */}
             <div>
-              <div className="mb-1 text-[13px] font-medium text-muted">Races</div>
+              <div className="mb-1 text-read font-medium text-muted">Races</div>
               {racedTotal ? (
                 <>
                   <div className="h-52">
@@ -254,7 +254,7 @@ export default function FcCharts({
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-muted">
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-meta text-muted">
                     {raceCounts.map((s) => (
                       <span key={s.name} className="inline-flex items-center gap-1">
                         <span className="size-2 rounded-full" style={{ background: s.color }} />
@@ -265,7 +265,7 @@ export default function FcCharts({
                   </div>
                 </>
               ) : (
-                <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line px-4 text-center text-[13px] leading-relaxed text-muted">
+                <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line px-4 text-center text-read leading-relaxed text-muted">
                   Race data arrives once the pipeline has walked the character pages.
                 </div>
               )}
@@ -275,14 +275,14 @@ export default function FcCharts({
                 one roster-wide row a night and cannot re-cut the past. */}
             <div className="sm:col-span-2">
               <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
-                <span className="text-[13px] font-medium text-muted">
+                <span className="text-read font-medium text-muted">
                   FC history over time{" "}
-                  <span className="text-[11px] text-muted/70">
+                  <span className="text-meta text-muted/70">
                     (whole FC — the toggles above do not apply)
                   </span>
                 </span>
                 {history.length >= 2 && (
-                  <span className="text-[11.5px] text-muted/70">
+                  <span className="text-meta text-muted/70">
                     tap a name to add or remove its line
                   </span>
                 )}
@@ -310,12 +310,12 @@ export default function FcCharts({
                       to have them — a chart that quietly began mid-line would
                       look like the FC appeared out of nowhere that day. */}
                   {firstCounted && (
-                    <p className="mt-1 text-[11px] text-muted/70">
+                    <p className="mt-1 text-meta text-muted/70">
                       Whole FC, Active, On vacation and Guests are recorded from{" "}
                       {firstCounted} onwards.
                     </p>
                   )}
-                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11.5px]">
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-meta">
                     {series.map((s) => {
                       const on = shownSeries.has(s.key);
                       return (
@@ -333,7 +333,7 @@ export default function FcCharts({
                   </div>
                 </>
               ) : (
-                <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line px-4 text-center text-[13px] leading-relaxed text-muted">
+                <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line px-4 text-center text-read leading-relaxed text-muted">
                   The chart starts drawing once at least two days have accumulated
                   — the pipeline records one row a night.
                 </div>
@@ -344,12 +344,12 @@ export default function FcCharts({
                 with raiding, and an overview that leads with parse percentages says
                 otherwise. Open it if you want it. */}
             <details className="rounded-xl border border-line bg-card sm:col-span-2">
-              <summary className="cursor-pointer select-none px-3 py-2 text-[13px] font-medium text-muted marker:text-accent">
+              <summary className="cursor-pointer select-none px-3 py-2 text-read font-medium text-muted marker:text-accent">
                 ⚔️ Raiding — parse distribution and tier progress
               </summary>
               <div className="grid gap-6 px-3 pb-3 pt-1 sm:grid-cols-2">
                 <div>
-                  <div className="mb-1 text-[13px] font-medium text-muted">
+                  <div className="mb-1 text-read font-medium text-muted">
                     Parse distribution (best)
                   </div>
                   {anyParse ? (
@@ -369,20 +369,20 @@ export default function FcCharts({
                       </ResponsiveContainer>
                     </div>
                   ) : (
-                    <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line text-[13px] text-muted">
+                    <div className="flex h-52 items-center justify-center rounded-lg border border-dashed border-line text-read text-muted">
                       No parses in this selection yet
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <div className="mb-1 text-[13px] font-medium text-muted">
+                  <div className="mb-1 text-read font-medium text-muted">
                     Current tier progress
                   </div>
                   <div className="flex flex-col gap-2.5">
                     {prog.map((p) => (
                       <div key={p.label}>
-                        <div className="mb-0.5 flex justify-between font-data text-[12px]">
+                        <div className="mb-0.5 flex justify-between font-data text-ui">
                           <span className="text-ink">{p.label}</span>
                           <span className="text-muted">
                             {p.cleared}/{total} cleared · {share(p.cleared)}
@@ -397,7 +397,7 @@ export default function FcCharts({
                       </div>
                     ))}
                     {!anyProg && (
-                      <div className="text-[12px] text-muted">
+                      <div className="text-ui text-muted">
                         No clears in this selection yet
                       </div>
                     )}
