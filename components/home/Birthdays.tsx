@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Member } from "@/lib/types";
 import { isOnVacation } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
+import { useWarm } from "@/lib/warm";
 import { useLang } from "@/lib/i18n";
 import { fmtShort } from "@/lib/dates";
 
@@ -28,6 +29,13 @@ import { fmtShort } from "@/lib/dates";
 
 /** How far ahead to look. A week is enough notice to organise something. */
 const AHEAD = 7;
+
+/** One row as the profiles table gives it, before today's date is applied. */
+interface BirthRow {
+  character_id: number;
+  birth_month: number | null;
+  birth_day: number | null;
+}
 
 interface Day {
   id: number;
@@ -55,7 +63,25 @@ function until(month: number, day: number, from: Date): { inDays: number; on: Da
 
 export default function Birthdays({ members }: { members: Member[] }) {
   const { t } = useLang();
-  const [days, setDays] = useState<Day[]>([]);
+  /*
+   * The rows, kept in the shared cache rather than fetched again per visit.
+   *
+   * Raw rows on purpose: what is cached is the answer Supabase gave, and the
+   * shaping into days happens below from that plus today's date. Caching the
+   * shaped list would mean a cache that goes wrong at midnight.
+   */
+  const rows = useWarm<BirthRow[]>("profiles:birthdays", async () => {
+    const supabase = createClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("character_id, birth_month, birth_day")
+      .not("character_id", "is", null)
+      .not("birth_month", "is", null);
+    // Silently absent before migration_v3.sql adds the columns.
+    if (error || !data) return [];
+    return data as BirthRow[];
+  });
   // Today, as the reader's browser reckons it. Deliberately not read during
   // render: this page is prerendered, so a date taken there is the date of the
   // last deploy, and the section would quietly go stale between builds — worst
@@ -67,30 +93,18 @@ export default function Birthdays({ members }: { members: Member[] }) {
     () => new Map(members.filter((m) => !isOnVacation(m)).map((m) => [m.id, m])),
     [members]);
 
-  useEffect(() => {
-    const supabase = createClient();
-    if (!supabase || !now) return;
-    supabase
-      .from("profiles")
-      .select("character_id, birth_month, birth_day")
-      .not("character_id", "is", null)
-      .not("birth_month", "is", null)
-      .then(({ data, error }) => {
-        // Silently absent before migration_v3.sql adds the columns.
-        if (error || !data) return;
-        const out: Day[] = [];
-        for (const r of data as {
-          character_id: number; birth_month: number | null; birth_day: number | null;
-        }[]) {
-          const m = playing.get(r.character_id);
-          if (!m || !r.birth_month || !r.birth_day) continue;
-          const { inDays, on } = until(r.birth_month, r.birth_day, now);
-          if (inDays <= AHEAD) out.push({ id: m.id, name: m.name, inDays, on });
-        }
-        out.sort((a, b) => a.inDays - b.inDays || a.name.localeCompare(b.name));
-        setDays(out);
-      });
-  }, [playing, now]);
+  const days = useMemo<Day[]>(() => {
+    if (!rows || !now) return [];
+    const out: Day[] = [];
+    for (const r of rows) {
+      const m = playing.get(r.character_id);
+      if (!m || !r.birth_month || !r.birth_day) continue;
+      const { inDays, on } = until(r.birth_month, r.birth_day, now);
+      if (inDays <= AHEAD) out.push({ id: m.id, name: m.name, inDays, on });
+    }
+    out.sort((a, b) => a.inDays - b.inDays || a.name.localeCompare(b.name));
+    return out;
+  }, [rows, playing, now]);
 
   if (!days.length) return null;
 
@@ -117,7 +131,7 @@ export default function Birthdays({ members }: { members: Member[] }) {
               <Name d={d} />
             </span>
           ))}
-          <span className="text-[13px] text-muted"> — {t("bday.wish")}</span>
+          <span className="text-read text-muted"> — {t("bday.wish")}</span>
         </p>
       )}
 
@@ -125,7 +139,7 @@ export default function Birthdays({ members }: { members: Member[] }) {
           people share is one date you notice instead of two lines you read. */}
       {soon.length > 0 && (
         <div className={today.length > 0 ? "mt-2.5 border-t border-gold/20 pt-2.5" : ""}>
-          <div className="font-data text-[11px] uppercase tracking-[0.18em] text-gold/80">
+          <div className="font-data text-meta uppercase tracking-[0.18em] text-gold/80">
             {t("bday.soon", { n: AHEAD })}
           </div>
           <ul className="mt-1.5 flex flex-col gap-1.5">
@@ -133,8 +147,8 @@ export default function Birthdays({ members }: { members: Member[] }) {
               const on = soon.filter((d) => d.inDays === inDays);
               return (
                 <li key={inDays}
-                    className="flex flex-wrap items-baseline gap-x-2 text-[13.5px]">
-                  <span className="font-data text-[11.5px] text-muted">
+                    className="flex flex-wrap items-baseline gap-x-2 text-read">
+                  <span className="font-data text-meta text-muted">
                     {when(on[0])}
                     <span className="ml-1.5">
                       {inDays === 1 ? t("bday.tomorrow") : t("bday.inDays", { n: inDays })}
