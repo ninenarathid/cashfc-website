@@ -45,10 +45,10 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
           cache: pip
@@ -60,6 +60,7 @@ jobs:
       # questions, and a bad night on one host should not cost the answers to
       # the other two. The commit step runs regardless and keeps whatever landed.
       - name: Chase missing collections
+        id: collect
         if: always()
         continue-on-error: true
         timeout-minutes: 30
@@ -68,6 +69,7 @@ jobs:
             ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Guest stats and tags
+        id: guests
         if: always()
         continue-on-error: true
         timeout-minutes: 30
@@ -82,6 +84,7 @@ jobs:
       # The tag it decides is only rendered on the pipeline's next run, which is
       # within four hours either way.
       - name: Verify achievement privacy on The Lodestone
+        id: privacy
         if: always()
         continue-on-error: true
         timeout-minutes: 45
@@ -112,3 +115,27 @@ jobs:
             echo "Push rejected, retrying (attempt $attempt)"
           done
           exit 1
+
+      # One failed sweep is a bad night on somebody else's host, which is what
+      # continue-on-error above is for. All three failing is not weather: it is
+      # this workflow being broken, and it used to report success anyway — a run
+      # where nothing worked looked exactly like a run where nothing had changed.
+      #
+      # After the commit on purpose, so whatever did land is still saved first.
+      #
+      # The outcomes go through env rather than being pasted into the script.
+      # They can only ever be one of a handful of words GitHub chooses, so this
+      # is not a live injection risk — it is the same habit applied everywhere so
+      # that the one place it matters is not the exception.
+      - name: Fail if every sweep failed
+        if: always()
+        env:
+          COLLECT: ${{ steps.collect.outcome }}
+          GUESTS: ${{ steps.guests.outcome }}
+          PRIVACY: ${{ steps.privacy.outcome }}
+        run: |
+          echo "collect=$COLLECT guests=$GUESTS privacy=$PRIVACY"
+          if [ "$COLLECT" != "success" ]             && [ "$GUESTS" != "success" ]             && [ "$PRIVACY" != "success" ]; then
+            echo "::error::All three sweeps failed - nothing was collected tonight."
+            exit 1
+          fi

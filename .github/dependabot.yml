@@ -1,0 +1,35 @@
+version: 2
+
+# Keeping the pins current.
+#
+# A commit-pinned action is immutable, which is the point of pinning it — and
+# also means it never picks up a fix on its own. Dependabot reads the "# vX.Y.Z"
+# comment beside each pin and opens a pull request that moves both the SHA and
+# the comment together, so the pin stays a decision rather than becoming a
+# forgotten version.
+#
+# pip is here for the same reason and matters more: pipeline/requirements.txt is
+# installed unpinned into a job that holds the FF Logs and Supabase secrets, so
+# it is the largest dependency surface in the repository that nothing was
+# watching.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: pip
+    directory: /pipeline
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Next and its transitive postcss/sharp are the ones worth hearing about
+    # promptly; the Radix packages move constantly and a weekly batch of those
+    # is noise that trains people to close these unread.
+    groups:
+      radix:
+        patterns: ["@radix-ui/*"]
