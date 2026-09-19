@@ -139,7 +139,7 @@ export default function MemberView({
   // From the real flavours when they can be read; see useRareDemo.
   const shelfGifts = useRareDemo(shelfDemo);
   const [kudosMsg, setKudosMsg] = useState("");
-  /** Whether the reader has claimed a character, which giving a popoto needs. */
+  /** Whether the reader holds a verified character, which giving a popoto needs. */
   const [iHaveCharacter, setIHaveCharacter] = useState(false);
   /** The viewer's own character, which the draw counts entries against. */
   const [myCharacter, setMyCharacter] = useState<number | null>(null);
@@ -191,9 +191,11 @@ export default function MemberView({
       setUser(data.user);
       if (data.user) {
         const { data: me } = await supabase.from("profiles")
-          .select("character_id").eq("id", data.user.id).single();
+          .select("character_id, character_verified_at").eq("id", data.user.id).single();
         setIsOwner(me?.character_id === m.id);
-        setIHaveCharacter(me?.character_id != null);
+        // Verified, the same bar the rest of the site now holds anything
+        // written or given to: a claim nobody has proved names no one.
+        setIHaveCharacter(me?.character_id != null && !!me.character_verified_at);
         setMyCharacter(me?.character_id ?? null);
       }
     });

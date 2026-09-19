@@ -148,16 +148,20 @@ export default function PostDetail(
        * whole question the moment the comments became messages.
        */
       const { data: mine } = await supabase.from("profiles")
-        .select("character_id, character_name, display_name, discord_username,"
-          + " discord_avatar, avatar_url")
+        .select("character_id, character_verified_at, character_name,"
+          + " display_name, discord_username, discord_avatar, avatar_url")
         .eq("id", uid).maybeSingle();
       const p = mine as {
-        character_id?: number | null; character_name?: string | null;
+        character_id?: number | null; character_verified_at?: string | null;
+        character_name?: string | null;
         display_name?: string | null; discord_username?: string | null;
         discord_avatar?: string | null; avatar_url?: string | null;
       } | null;
-      setIHaveCharacter(p?.character_id != null);
-      setMePerson(p?.character_id != null ? {
+      // Verified, not merely claimed. A popoto and a comment both say who gave
+      // them, and a claim nobody has proved is a name off a list.
+      const held = p?.character_id != null && !!p.character_verified_at;
+      setIHaveCharacter(held);
+      setMePerson(held ? {
         id: p.character_id!,
         name: p.character_name ?? p.display_name ?? p.discord_username ?? "—",
         avatar: p.avatar_url ?? p.discord_avatar ?? null,

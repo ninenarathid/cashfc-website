@@ -75,17 +75,23 @@ export default function EventBody(
        *
        * Their name and face go on what they send and on every reaction they
        * give, the same as under a photograph or a raid plan.
+       *
+       * A verified character, not a claimed one: this is the name the FC will
+       * read the message under, and an unproven claim is a name somebody
+       * picked off a list. Null leaves the conversation readable and takes
+       * away the box, which says why.
        */
       const { data: p } = await supabase.from("profiles")
-        .select("character_id, character_name, display_name, discord_username,"
-          + " discord_avatar, avatar_url")
+        .select("character_id, character_verified_at, character_name,"
+          + " display_name, discord_username, discord_avatar, avatar_url")
         .eq("id", uid).maybeSingle();
       const r = p as {
-        character_id?: number | null; character_name?: string | null;
+        character_id?: number | null; character_verified_at?: string | null;
+        character_name?: string | null;
         display_name?: string | null; discord_username?: string | null;
         discord_avatar?: string | null; avatar_url?: string | null;
       } | null;
-      setWho(r?.character_id != null ? {
+      setWho(r?.character_id != null && r.character_verified_at ? {
         id: r.character_id,
         name: r.character_name ?? r.display_name ?? r.discord_username ?? "—",
         avatar: r.avatar_url ?? r.discord_avatar ?? null,

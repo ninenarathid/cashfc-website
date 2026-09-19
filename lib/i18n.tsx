@@ -1025,8 +1025,8 @@ const DICT = {
     th: "เข้าสู่ระบบด้วย Discord ก่อน",
   },
   "kudos.needCharacter": {
-    en: "Link your character first — go to your profile and claim the one you play.",
-    th: "ผูกตัวละครก่อน — ไปที่หน้าโปรไฟล์แล้วเลือกตัวละครที่คุณเล่น",
+    en: "Link and verify your character first — go to your profile and claim the one you play.",
+    th: "ผูกและยืนยันตัวละครก่อน — ไปที่หน้าโปรไฟล์แล้วเลือกตัวละครที่คุณเล่น",
   },
   "kudos.already": {
     en: "Already sent to this member today — you can send again after 00:00 UTC (07:00 Thai time)",
@@ -2592,6 +2592,18 @@ const DICT = {
   },
   "party.msgSave": { en: "Save", th: "บันทึก" },
   "pf.react": { en: "React", th: "แสดงความรู้สึก" },
+  /*
+   * Said wherever a signed-in reader is stopped at a box they cannot write in.
+   *
+   * The reason and not the rule: "you may not post" invites an argument, and
+   * the honest sentence is that the site cannot put a name on it. One string
+   * for the whole site, because it is one rule — the message that let somebody
+   * comment as "You" is the same message under a picture and under a notice.
+   */
+  "gate.needCharacter": {
+    en: "Link the character you play and verify it before you can write anything — until then the site cannot say who wrote it.",
+    th: "ต้องผูกตัวละครที่คุณเล่นและยืนยันก่อนถึงจะเขียนอะไรได้ — ก่อนหน้านั้นระบบยืนยันไม่ได้ว่าใครเป็นคนเขียน",
+  },
   "pf.commentBox": {
     en: "Message everybody in this party…",
     th: "ส่งข้อความหาสมาชิก Party นี้…",

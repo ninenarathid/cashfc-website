@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import type { PartyComment } from "@/lib/party";
 import { REACTIONS, blockId, sameSpeaker } from "@/lib/party";
 import type { PersonOption } from "@/lib/people";
@@ -143,6 +144,18 @@ export default function Messages(
   const facesBy = useMemo(
     () => new Map(people.map((p) => [p.id, p.avatar])), [people]);
 
+  /*
+   * Whether this reader may add to the conversation, as against read it.
+   *
+   * Signed in is not enough. `me` is the reader as a character — the party
+   * finder, the gallery and the notices all hand in null for an account that
+   * has not verified one — and a message, a reaction or a correction from an
+   * account like that is unattributable the moment it is stored. So the same
+   * flag decides the box at the foot, the buttons on every bubble, and the
+   * writes behind both.
+   */
+  const mayWrite = !!userId && !!me;
+
   const [text, setText] = useState("");
   const [shots, setShots] = useState<string[]>([]);
   const [zoom, setZoom] = useState<{ images: string[]; at: number } | null>(null);
@@ -246,8 +259,8 @@ export default function Messages(
    * page.
    */
   const react = (c: PartyComment, emoji: string) => {
-    if (!supabase || !userId) return;
-    const who = { characterId: me?.id ?? null, name: me?.name ?? "You" };
+    if (!supabase || !userId || !me) return;
+    const who = { characterId: me.id, name: me.name };
     const on = c.reactions?.find((r) => r.emoji === emoji);
     const mine = !!on?.by.some((w) => w.characterId === who.characterId
                                    && w.name === who.name);
@@ -260,13 +273,20 @@ export default function Messages(
 
   const send = () => {
     if (!text.trim() && !shots.length) return;
+    /*
+     * Nobody writes here without a character behind them.
+     *
+     * This used to send as "You" for a reader who was signed in and had not
+     * claimed one — the name is the component's own word for the reader, and
+     * stored on the row it became what everybody else saw: a message from
+     * somebody the FC could not identify, under a party they were signing up
+     * to. The box is not drawn in that state any more; this is the same rule
+     * where the write happens, and the database holds it too.
+     */
+    if (!me) return;
     void onAdd({
       id: blockId(),
-      author: me
-        ? { characterId: me.id, name: me.name, avatar: me.avatar }
-        // Signed in but with no character verified. The reply is still
-        // theirs to make; it simply has no face to put on it.
-        : { characterId: null, name: "You", avatar: null },
+      author: { characterId: me.id, name: me.name, avatar: me.avatar },
       text: text.trim(),
       images: shots.length ? shots : undefined,
       at: new Date().toISOString(),
@@ -513,7 +533,7 @@ export default function Messages(
                 {/* Mostly above the bubble rather than sunk into it: at
                     twenty-eight across, a control centred on the edge sits
                     squarely on the name and the time. */}
-                {userId && !c.deletedAt && (
+                {mayWrite && !c.deletedAt && (
                   <span className={`absolute -top-4 z-[1] flex items-center ${
                     mine ? "left-1" : "right-1"}`}>
                     {picking === c.id ? (
@@ -579,7 +599,7 @@ export default function Messages(
                        */
                       <HoverCard key={r.emoji} side="top"
                                  trigger={
-                        <button type="button" disabled={!userId}
+                        <button type="button" disabled={!mayWrite}
                                 onClick={() => react(c, r.emoji)}
                                 className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[14.5px] leading-none transition-colors ${
                                   isMine
@@ -646,8 +666,21 @@ export default function Messages(
         * could reach an event, type an answer, watch it appear and never find
         * out it was not sent — every write here needs a session, so a box with
         * no session behind it can only tell a lie.
+        *
+        * A session is half of it. Somebody signed in who has not verified a
+        * character is in the same position one step further along: the write
+        * would go through and land under a name nobody in the FC can place.
+        * They get the reason and the way out of it instead of a box.
         */}
-      {userId && (
+      {userId && !me && (
+        <div className="rounded-lg border border-dashed border-line px-3 py-2.5 text-[14.5px] leading-relaxed text-muted">
+          {t("gate.needCharacter")}{" "}
+          <Link href="/profile" className="text-accent no-underline hover:underline">
+            {t("nav.profile")}
+          </Link>
+        </div>
+      )}
+      {mayWrite && (
         <div {...handlers} ref={pad}
              className={`flex flex-col gap-2 rounded-lg border p-2.5 transition-colors ${
                over ? "border-accent bg-accent/5" : "border-line bg-bg/40"}`}>
