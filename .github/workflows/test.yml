@@ -32,7 +32,7 @@ jobs:
       # controls it, and a pin is the only reference that means one exact tree.
       # The trailing comment is what Dependabot reads to bump it.
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # No push to make, so the token has no reason to stay on disk.
           persist-credentials: false
