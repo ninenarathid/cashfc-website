@@ -15,6 +15,7 @@ import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
 import GiftIcon from "@/components/ui/GiftIcon";
 import { RARE_INVENTORY } from "@/lib/popoto-rare";
+import { throwPotato } from "@/components/ui/throwPotato";
 
 interface Note {
   id: number;
@@ -79,12 +80,21 @@ function said(
  * actually reading.
  */
 function BadgedThumb(
-  { src, badge, extra, href, onGo, round = true }: {
+  { src, badge, extra, href, onGo, round = true, face = null }: {
     src: string | null; badge: React.ReactNode; href: string | null; onGo: () => void;
     /** A second thing in the other corner — the parcel that came with a popoto. */
     extra?: React.ReactNode;
     /** Round for a face; square for a picture, which is not one. */
     round?: boolean;
+    /**
+     * Whose face this is, when a popoto can be thrown back at it.
+     *
+     * A mark rather than a ref: the rows are drawn by one function for the
+     * panel and for the archive, and the picture being aimed at is whichever
+     * copy is on the screen at the moment of the throw. Asking the page then
+     * is the only way that question has one answer.
+     */
+    face?: number | null;
   },
 ) {
   const shape = round ? "rounded-full" : "rounded-md";
@@ -107,15 +117,84 @@ function BadgedThumb(
       )}
     </span>
   );
+  const mark = face == null ? undefined : String(face);
+  // Every picture is marked, not only the ones a potato can be thrown at for
+  // real: the console command below throws at them, and a panel with nothing
+  // to answer today is still a panel the animation has to be looked at in.
   return href
-    ? <Link href={href} onClick={onGo} className="shrink-0">{body}</Link>
-    : <span className="shrink-0">{body}</span>;
+    ? <Link href={href} onClick={onGo} className="shrink-0"
+            data-notif-thumb data-potato-face={mark}>
+        {body}
+      </Link>
+    : <span className="shrink-0" data-notif-thumb data-potato-face={mark}>{body}</span>;
 }
 
 /** Enough to be worth scrolling, few enough to arrive instantly. */
 const SHOW = 20;
 /** How many more the archive fetches each time it is scrolled to the end. */
 const PAGE = 30;
+/**
+ * The beat between two potatoes leaving the "send them all back" button.
+ *
+ * Long enough that they are a handful of separate things thrown and not one
+ * potato-shaped blur, short enough that a panel of six is answered in about a
+ * second. They overlap in the air, which is what a volley looks like.
+ */
+const VOLLEY = 190;
+
+/**
+ * A row brought into the list before anything is thrown at it.
+ *
+ * Sending one back to everybody can aim at a row that has been scrolled past,
+ * and a potato landing below the panel, on the page behind it, has landed on
+ * nothing. Moving the list first also means the person who pressed the button
+ * watches each one arrive rather than being told that six went somewhere.
+ */
+async function intoView(el: Element | null) {
+  const list = el?.closest("[data-notif-list]");
+  if (!el || !list) return;
+  const box = el.getBoundingClientRect();
+  const view = list.getBoundingClientRect();
+  if (box.top >= view.top && box.bottom <= view.bottom) return;
+  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+  if (!reduce) await new Promise((r) => setTimeout(r, 340));
+}
+
+/**
+ * The throw with nothing thrown, for looking at it.
+ *
+ * Local development only. It aims at every picture in whichever list is open
+ * rather than only at the people who sent one today, which is the point of it:
+ * answering a popoto is the one thing on the site nobody can arrange on their
+ * own — somebody else has to have sent you one, this morning — so without this
+ * the animation could only be tuned on a day the FC happened to provide.
+ *
+ * Nothing is written: no popoto, no notification, no day counted towards the
+ * draw. What it shows is the flight and the landing, and those are the same
+ * ones the real button uses.
+ *
+ * A row that really can be answered is thrown at from its own "send one back",
+ * because that is where its potato would come from if the button were pressed
+ * — which is the whole point of a trial. `from` is for the rest: the rows with
+ * no such button, which have no launching point of their own and take the one
+ * the trial was started from.
+ */
+async function tryThrow(from: Element | DOMRect, only?: number) {
+  const list = document.querySelector("[data-notif-list]");
+  const faces = Array.from(list?.querySelectorAll("[data-notif-thumb]") ?? []);
+  if (!faces.length) {
+    console.warn("Open the bell first: there is nothing on screen to throw at.");
+    return;
+  }
+  for (const face of only == null ? faces : [faces[only] ?? faces[0]]) {
+    await intoView(face);
+    // The picture is a child of the row, so the row is where its own button is.
+    const own = face.parentElement?.querySelector("[data-potato-from]");
+    void throwPotato(own ?? from, face);
+    await new Promise((r) => setTimeout(r, VOLLEY));
+  }
+}
 
 /**
  * Where each kind of notification leads, and what it looks like.
@@ -715,22 +794,75 @@ export default function NotificationBell() {
    * already exists, that is not an error to report: it means the answer is
    * already yes, so the button simply becomes the sentence saying so.
    */
-  async function sendBack(characterId: number) {
+  async function sendBack(characterId: number, from: Element | DOMRect | null) {
     if (!supabase || !me || sending.has(characterId)) return;
     setBackErr(null);
     setSending((v) => new Set(v).add(characterId));
     const { error } = await supabase.from("kudos")
       .insert({ sender_id: me, receiver_character_id: characterId });
-    setSending((v) => { const n = new Set(v); n.delete(characterId); return n; });
+    const idle = () =>
+      setSending((v) => { const n = new Set(v); n.delete(characterId); return n; });
     if (error && error.code !== "23505") {
+      idle();
       setBackErr(error.message);
       return;
     }
+    /*
+     * And it is thrown, the way it is thrown on somebody's page: out of the
+     * button, over in an arc, onto the face of the person who sent you one,
+     * which flinches. Answering a potato with a line of green text was the
+     * panel describing a gesture instead of making it.
+     *
+     * After the insert, not on the press: a potato that flew and was then
+     * refused would be the panel saying two opposite things a second apart.
+     * And the button stays a button until it lands — it is the thing the potato
+     * came out of, and swapping it for "sent already" first would take the
+     * launching point away mid-throw.
+     */
+    const face = faceOf(characterId);
+    await intoView(face);
+    await throwPotato(from, face);
+    idle();
     setGiven((v) => new Set(v).add(characterId));
     // Sending one back is giving one, so it earns the day the same as any
     // other. Fired and forgotten: the potato has landed either way.
     void markEntry(supabase, me, character);
   }
+
+  /** The picture a potato thrown from this panel is aimed at. */
+  const faceOf = (cid: number) =>
+    document.querySelector(`[data-potato-face="${cid}"]`);
+
+  /*
+   * The same trial throw, typed instead of pressed: `testBackPotato()` and
+   * `testBackAll()` in the console, locally, with the bell open. They aim from
+   * the button below, so a throw that was typed still comes out of the place a
+   * throw comes out of — and nothing has to be aimed from a corner of the panel
+   * that nobody can press.
+   */
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const w = window as unknown as {
+      testBackPotato?: (i?: number) => Promise<void>;
+      testBackAll?: () => Promise<void>;
+    };
+    // The trial button when the panel is open, a row's own "send one back" when
+    // the archive window is the thing being looked at instead.
+    const launcher = () =>
+      document.querySelector("[data-potato-try]")
+      ?? document.querySelector("[data-potato-from]");
+    const go = (i?: number) => {
+      const from = launcher();
+      if (!from) {
+        console.warn("Open the bell first: there is no button to throw from.");
+        return Promise.resolve();
+      }
+      return tryThrow(from, i);
+    };
+    w.testBackPotato = (i = 0) => go(i);
+    w.testBackAll = () => go();
+    return () => { delete w.testBackPotato; delete w.testBackAll; };
+  }, []);
 
   /** Everybody in the panel who sent one today and has not had one back. */
   const owed = (() => {
@@ -745,6 +877,26 @@ export default function NotificationBell() {
     }
     return out;
   })();
+
+  /**
+   * Everybody at once: a volley, rather than all of them in the same instant.
+   *
+   * The same as pressing each button in turn, which is what it has always been
+   * — but pressed all in one moment they were one event with one animation on
+   * top of another, and a potato each to six people looked like less than a
+   * potato to one. So they leave a beat apart, land on six different faces, and
+   * the ones in front are still in the air when the next goes.
+   *
+   * Thrown from where the button was standing when it was pressed, not from the
+   * button: the last person answered is the one who makes the button disappear,
+   * and by then there may still be potatoes to launch.
+   */
+  async function sendBackAll(from: DOMRect) {
+    for (const cid of owed.keys()) {
+      void sendBack(cid, from);
+      await new Promise((r) => setTimeout(r, VOLLEY));
+    }
+  }
 
   /** Going somewhere puts away whichever list you were reading. */
   const dismiss = () => { setOpen(false); setPast(null); };
@@ -822,7 +974,7 @@ export default function NotificationBell() {
         ) : facing && (actorFace || actorHref || n.kind === "popoto_rare") ? (
           <BadgedThumb src={actorFace} badge={facing} href={actorHref ?? (n.kind === "popoto_rare" ? href : null)}
                        extra={n.kind === "popoto_rare" ? <GiftIcon size={15} /> : undefined}
-                       onGo={dismiss} />
+                       face={backTo} onGo={dismiss} />
         ) : cover ? (
           // The picture answers "which one?", and the badge on it answers what
           // happened to it — a pin for a tag, a speech bubble for a comment.
@@ -880,8 +1032,10 @@ export default function NotificationBell() {
                   🥔 {t("notif.backDone")}
                 </span>
               ) : (
-                <button onClick={() => sendBack(backTo)}
-                        disabled={sending.has(backTo)}
+                // The element, not a copy of where it is: this one is still
+                // on the screen when its own potato lands.
+                <button onClick={(e) => { const btn = e.currentTarget; void sendBack(backTo, btn); }}
+                        disabled={sending.has(backTo)} data-potato-from={backTo}
                         className="rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-[12px] text-gold transition-colors hover:bg-gold/20 disabled:opacity-50">
                   🥔 {sending.has(backTo) ? t("notif.backSending") : t("notif.back")}
                 </button>
@@ -968,7 +1122,7 @@ export default function NotificationBell() {
             )}
           </div>
 
-          <div className="max-h-[min(46rem,72vh)] overflow-y-auto">
+          <div data-notif-list className="max-h-[min(46rem,72vh)] overflow-y-auto">
             {notes.length === 0 && (
               <p className="px-3.5 py-6 text-center text-[12.5px] text-muted">
                 {hidden > 0 ? t("notif.emptyCleared") : t("notif.empty")}
@@ -982,10 +1136,23 @@ export default function NotificationBell() {
               same thing as pressing each button in turn, and pressed by
               somebody who has just read a panel full of them. */}
           {owed.size > 0 && (
-            <button onClick={() => { for (const cid of owed.keys()) void sendBack(cid); }}
+            <button onClick={(e) => { void sendBackAll(e.currentTarget.getBoundingClientRect()); }}
                     disabled={sending.size > 0}
                     className="w-full border-t border-line bg-gold/5 px-3.5 py-2.5 text-center text-[12.5px] text-gold hover:bg-gold/15 disabled:opacity-50">
               🥔 {t("notif.backAll", { n: owed.size })}
+            </button>
+          )}
+
+          {/* The throw, to be looked at. Local development only — it is the
+              animation and nothing else, and the deployed panel has no such
+              button — and it is a button rather than a line typed into the
+              console because what is being tried out is a thing that comes out
+              of a button when it is pressed. */}
+          {process.env.NODE_ENV !== "production" && (
+            <button data-potato-try
+                    onClick={(e) => { const btn = e.currentTarget; void tryThrow(btn); }}
+                    className="w-full border-t border-dashed border-line px-3.5 py-2 text-center font-data text-[11px] uppercase tracking-[0.1em] text-muted transition-colors hover:bg-card hover:text-ink">
+              🥔 throw (dev)
             </button>
           )}
 
@@ -1026,7 +1193,7 @@ export default function NotificationBell() {
                 const el = e.currentTarget;
                 if (el.scrollTop + el.clientHeight > el.scrollHeight - 120) void morePages();
               }}
-              className="min-h-0 flex-1 overflow-y-auto">
+              data-notif-list className="min-h-0 flex-1 overflow-y-auto">
               {past?.length === 0 && !loadingPast && (
                 <p className="px-4 py-8 text-center text-[12.5px] text-muted">
                   {t("notif.pastNone")}

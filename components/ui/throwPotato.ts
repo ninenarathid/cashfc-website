@@ -7,6 +7,10 @@
  * tossed: from the button, over in an arc, spinning, onto their picture, which
  * flinches, with a "+1" that rises off it.
  *
+ * From a member's page, and from the notification panel, where answering
+ * somebody who sent you one is a potato thrown at their face in the row — one
+ * button, or one for each of them in turn.
+ *
  * Drawn on a layer of its own over the page and taken down after, rather than
  * as part of the React tree. Nothing about it is state anybody reads — it is
  * the half-second between pressing and landing — and holding it in a
@@ -21,11 +25,17 @@
  * the landing — the picture's nudge and the "+1" — which says the same thing
  * without anything crossing the screen.
  */
-export async function throwPotato(from: Element | null, to: Element | null): Promise<void> {
+export async function throwPotato(
+  from: Element | DOMRect | null, to: Element | null,
+): Promise<void> {
   if (typeof window === "undefined" || !from) return;
-  const target = to ?? from;
-  const a = from.getBoundingClientRect();
-  const b = target.getBoundingClientRect();
+  // A rectangle rather than an element, for a button that may not outlive the
+  // throw: the notification panel's "send them all back" fires a potato at each
+  // person in turn, and the button itself goes once the last one has landed.
+  // Where it was standing when it was pressed is all a throw needs from it.
+  const a = from instanceof Element ? from.getBoundingClientRect() : from;
+  const target = to ?? (from instanceof Element ? from : null);
+  const b = target ? target.getBoundingClientRect() : a;
   const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
   const x0 = a.left + a.width / 2;
@@ -102,13 +112,17 @@ export async function throwPotato(from: Element | null, to: Element | null): Pro
         ring.animate(
           [{ transform: "scale(1)", opacity: 0.9 }, { transform: "scale(7)", opacity: 0 }],
           { duration: 520, easing: "ease-out", fill: "forwards" }).finished,
-        target.animate([
+      );
+      // The flinch belongs to the thing that was hit, so there is none when
+      // nothing was named — a throw with only a place to land still lands.
+      if (target) {
+        landing.push(target.animate([
           { transform: "none" },
           { transform: "scale(.94) rotate(-2.5deg)", offset: 0.25 },
           { transform: "scale(1.03) rotate(1deg)", offset: 0.6 },
           { transform: "none" },
-        ], { duration: 420, easing: "ease-out" }).finished,
-      );
+        ], { duration: 420, easing: "ease-out" }).finished);
+      }
     } else {
       ring.remove();
     }

@@ -591,6 +591,24 @@ export default function MemberView({
                   </PopotoGivers>
                 )}
               </span>
+              {/* The throw, to be looked at, without one being sent.
+                  `testPotato()` in the console has always done this; a button
+                  does it because the thing being tried out is what comes out of
+                  a button when it is pressed, and because the real one beside
+                  it can only be pressed once a day — every press after the
+                  first is "already sent today" and no potato at all, which is
+                  the wrong half of the afternoon to be tuning an animation in.
+                  Local development only: no popoto, no notification, no day
+                  counted towards the draw, and no such button on the site. */}
+              {process.env.NODE_ENV !== "production" && (
+                <button onClick={(e) => {
+                          const btn = e.currentTarget;
+                          void throwPotato(btn, portrait.current);
+                        }}
+                        className="rounded-md border border-dashed border-line bg-bg/40 px-3 py-1 font-data text-[11px] uppercase tracking-[0.1em] text-muted transition-colors hover:border-muted hover:text-ink">
+                  🥔 throw (dev)
+                </button>
+              )}
               {/* Copies the page with a throwaway query on the end. Discord
                   keeps what it has already unfurled, keyed by the address, so a
                   link it has seen before shows whatever card it saw then — a
