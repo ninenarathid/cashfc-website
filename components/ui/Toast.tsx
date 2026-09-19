@@ -136,7 +136,7 @@ export default function ToastHost() {
                         it.tone === "good" ? "var(--color-jade)" : "var(--color-accent)"
                       } 10%, var(--color-surface))`,
                     }}
-                    className={`pop-in flex items-center gap-3.5 rounded-2xl border-2 border-l-[6px] p-4 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.7)] ring-1 ${
+                    className={`toast-slide flex items-center gap-3.5 rounded-2xl border-2 border-l-[6px] p-4 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.7)] ring-1 ${
                       it.tone === "good"
                         ? "border-jade/70 border-l-jade ring-jade/25"
                         : "border-accent/70 border-l-accent ring-accent/25"

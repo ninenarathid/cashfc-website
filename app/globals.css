@@ -552,3 +552,105 @@ body { overflow-x: clip; }
      for as long as the toast is up. */
   .toast-sheen { display: none; }
 }
+
+/* ── The tap landing ──────────────────────────────────────────────────────
+   Every pressable thing on this site says where the cursor is and none of them
+   confirmed that the press arrived. On a phone there is no hover to stand in
+   for it, so a tap on a card that takes a moment to navigate looked like a tap
+   that missed.
+
+   The `scale` property rather than `transform: scale()`, which matters: six of
+   these buttons are centred with -translate-y-1/2, and a transform here would
+   replace that and throw them half their own height up the page. `scale`
+   composes with transform instead of overwriting it.
+
+   In @layer base, so a component that sets its own `transition` utility still
+   wins. Those buttons get the press instantly rather than eased — feedback
+   either way, and nothing already on the page changes behaviour to get it.
+
+   :where() keeps the specificity at zero, so any component can opt out with an
+   ordinary class. Disabled buttons are excluded: there is nothing to confirm. */
+@layer base {
+  :where(button, [role="button"]):not(:disabled):not([aria-disabled="true"]) {
+    transition: scale 160ms ease-out;
+  }
+}
+
+:where(button, [role="button"]):not(:disabled):not([aria-disabled="true"]):active {
+  scale: 0.97;
+}
+
+/* ── Panels that used to teleport ─────────────────────────────────────────
+   Only the open tab's panel is mounted, so switching tabs swapped one list for
+   another with nothing in between. Short, because a tab row is something people
+   work through rather than admire: long enough to say the content changed, not
+   long enough to wait for. The row of triggers keeps its colour-only change —
+   it was never the part that jumped. */
+@keyframes tab-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+.tab-in[data-state="active"] { animation: tab-in 150ms ease-out; }
+
+/* ── Toasts arrive from the edge they leave by ────────────────────────────
+   This used to wear pop-in, the 110ms scale meant for a popover opening beside
+   the thing that opened it. A toast has no such anchor, and the result was a
+   notice that grew out of the middle of itself, faded when it left, and was
+   thrown to the right when swiped — three different stories about where it
+   came from.
+
+   Now it comes in from the right and leaves the same way, which is also the
+   direction the swipe throws it. Percentages, not pixels, so a wide toast and
+   a narrow one both travel exactly their own width. 400ms in — a toast is
+   occasional and uninvited, and is allowed the longer end of the modal budget
+   to announce itself — and quicker out, because leaving is not news. */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+.toast-slide[data-state="open"] {
+  animation: toast-in 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.toast-slide[data-state="closed"] { animation: toast-out 200ms ease-in; }
+
+/* ── Details that used to snap ────────────────────────────────────────────
+   Eight of these across the site — the leaderboard explainer, the hot-ranking
+   note, a member's expansion breakdown — and every one of them appeared at full
+   height in a single frame, shoving whatever was below it down the page.
+   ProfilePictures already animates its own height with motion; these eight were
+   the inconsistency, not the pattern.
+
+   interpolate-size is what lets a height transition end at `auto`, so the
+   panel does not need its height measured in JavaScript first. Browsers without
+   ::details-content simply keep today's instant open.
+
+   Inside a no-preference query rather than switched off again further down:
+   somebody who has asked for less movement should not have this built for them
+   and then taken away, and an instant open is the correct answer for them. */
+@media (prefers-reduced-motion: no-preference) {
+  :root { interpolate-size: allow-keywords; }
+
+  details::details-content {
+    height: 0;
+    opacity: 0;
+    overflow: clip;
+    transition: height 220ms ease-out, opacity 180ms ease-out,
+                content-visibility 220ms allow-discrete;
+  }
+
+  details[open]::details-content { height: auto; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The press stays. It is confirmation that the tap landed rather than
+     decoration, and it is the only such signal a touch user gets — the blanket
+     `transition: none` above already removes the easing, which leaves an
+     instant state change and no movement to speak of. */
+  .tab-in[data-state="active"],
+  .toast-slide[data-state="open"],
+  .toast-slide[data-state="closed"] { animation: none; }
+}

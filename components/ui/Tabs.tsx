@@ -53,7 +53,8 @@ export default function Tabs(
       </Radix.List>
 
       {tabs.map((tab) => (
-        <Radix.Content key={tab.key} value={tab.key} className="pt-3 outline-none">
+        <Radix.Content key={tab.key} value={tab.key}
+                       className="tab-in pt-3 outline-none">
           {tab.body}
         </Radix.Content>
       ))}

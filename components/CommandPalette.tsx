@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Drawer } from "vaul";
-import { motion } from "motion/react";
 import { useLang } from "@/lib/i18n";
 
 /**
@@ -144,17 +143,19 @@ export default function CommandPalette({ members }: { members: PaletteMember[] }
 
         <Command.Group heading={t("palette.members")}
                        className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pb-1 [&_[cmdk-group-heading]]:pt-1.5 [&_[cmdk-group-heading]]:font-data [&_[cmdk-group-heading]]:text-[10.5px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-[0.14em] [&_[cmdk-group-heading]]:text-muted">
-          {shown.map((m, i) => (
+          {shown.map((m) => (
             <Command.Item key={m.id} value={`${m.name}#${m.id}`}
                           onSelect={() => go(`/member/${m.id}`)}
                           asChild>
-              {/* Staggered, but only just: enough that the list reads as
-                  arriving rather than blinking, and capped so the twentieth
-                  result is not still waiting its turn. */}
-              <motion.div
-                initial={{ opacity: 0, y: -3 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.14, delay: Math.min(i, 8) * 0.012 }}
+              {/* Deliberately not animated.
+                  This list re-renders on every keystroke, so a staggered
+                  entrance re-ran per character and the results arrived behind
+                  the typing that asked for them — at 140ms plus up to 96ms of
+                  delay, the last row landed a fifth of a second late, every
+                  time. A palette is opened from the keyboard dozens of times a
+                  day and the only thing it owes anybody is being there already.
+                  Raycast does not animate this either. */}
+              <div
                 className="flex cursor-pointer items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-[13.5px] text-ink data-[selected=true]:bg-card data-[selected=true]:text-accent">
                 <span className="truncate font-data">{m.name}</span>
                 <span className="flex shrink-0 items-center gap-1.5">
@@ -167,7 +168,7 @@ export default function CommandPalette({ members }: { members: PaletteMember[] }
                   )}
                   <span className="font-data text-[11px] text-muted">#{m.id}</span>
                 </span>
-              </motion.div>
+              </div>
             </Command.Item>
           ))}
         </Command.Group>
