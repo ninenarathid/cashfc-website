@@ -984,6 +984,57 @@ export default function NotificationBell() {
     }
   }
 
+  /*
+   * `testPrizeNotice()` in the console, locally, on any page.
+   *
+   * A prize notification is the hardest thing on this site to see on purpose:
+   * somebody has to send a popoto, it has to come up a winner, and you have
+   * to be looking at the page — so the card and the toast were being tuned
+   * blind. This pushes one through the real machinery instead of drawing a
+   * mock: a row goes into the list the bell already holds, which makes the
+   * toast effect below fire as though it had just arrived, and both are then
+   * the real components reading the real fields.
+   *
+   * Nothing is written anywhere. The row exists in this tab until the next
+   * poll replaces the list with what the database actually says, which is
+   * about a minute and a half and is also how you put it away.
+   *
+   *   testPrizeNotice()              you won something
+   *   testPrizeNotice("prize_talk")  an admin answered
+   *   testPrizeNotice("prize_done")  it has been handed over
+   *   testPrizeNotice("prize_claim") somebody claimed one (the admin's side)
+   *   testPrizeNotice("prize_ask")   they said something about it
+   */
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production" || !supabase) return;
+    const w = window as unknown as { testPrizeNotice?: (kind?: string) => void };
+    w.testPrizeNotice = (kind = "prize_win") => {
+      // A real prize's picture where there is one, so the card is the size
+      // and shape the real thing will be. The admin's half shows a face
+      // instead, which is their own here — it is the only one to hand.
+      void supabase.from("prizes").select("icon_url, name")
+        .not("icon_url", "is", null).limit(1).maybeSingle()
+        .then(({ data }) => {
+          const got = data as { icon_url: string | null; name: string } | null;
+          // Negative, so it cannot collide with a row the database has and
+          // cannot be mistaken for one in anything that logs it.
+          const id = -Date.now();
+          // Only when there is one: an empty string here would be a picture
+          // that fails to load rather than a prize with no picture, and the
+          // second of those is a case the row is supposed to handle.
+          if (got?.icon_url) setPrizeArt((v) => ({ ...v, [id]: got.icon_url as string }));
+          setNotes((v) => [{
+            id, kind, actor: PRIZE_FACE.has(kind) ? me : null,
+            actor_name: PRIZE_FACE.has(kind) ? "ตัวอย่างทดสอบ" : null,
+            post_id: null, party_id: null, announcement_id: null,
+            body: String(id), created_at: new Date().toISOString(),
+            read_at: null, answered_at: null, cleared_at: null,
+          } as Note, ...v]);
+        });
+    };
+    return () => { delete w.testPrizeNotice; };
+  }, [supabase, me]);
+
   /** Going somewhere puts away whichever list you were reading. */
   const dismiss = () => { setOpen(false); setPast(null); };
 
