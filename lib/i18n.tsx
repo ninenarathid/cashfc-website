@@ -520,6 +520,16 @@ const DICT = {
     th: "0% — เปิดอยู่แต่จะไม่มีใครได้แรร์เลย",
   },
   "adm.rareChanceBad": { en: "0 to 100 only", th: "กรอกได้ 0 ถึง 100 เท่านั้น" },
+  /* How good it is, once it is rare. Rare takes whatever the other two
+     leave, so there are two boxes and three tiers. See v86. */
+  "adm.rareTiers": { en: "Which tier a rare comes out", th: "แรร์ที่ออก จะเป็นระดับไหน" },
+  "adm.rareTiersRest": { en: "whatever is left", th: "ส่วนที่เหลือ" },
+  "adm.rareTiersSum": {
+    en: "Super and ultra together cannot pass 100%",
+    th: "SR กับ UR รวมกันเกิน 100% ไม่ได้",
+  },
+  "adm.rareEvery": { en: "1 in {n} popotos", th: "1 ใน {n} ลูก" },
+  "adm.rareNever": { en: "never", th: "ไม่ออกเลย" },
   "adm.rareTurnOff": { en: "Turn off", th: "ปิดการใช้งาน" },
   "adm.rareOnAsk": {
     en: "Turn rare popoto on? From the next popoto sent, anybody in the FC can receive one. {n} flavour(s) are ready.",
@@ -531,8 +541,8 @@ const DICT = {
   },
   "adm.flavors": { en: "Flavours", th: "รสของ Popoto แรร์" },
   "adm.flavorsWhy": {
-    en: "When a popoto comes up rare, the tier is rolled first (Rare 70%, Super rare 25%, Ultra rare 5%), then a flavour from that tier that has its line written, and that line is the one inside. A tier with no such flavour steps down to the next one that has one; with none anywhere, the popoto stays ordinary. A flavour with no picture shows the potato tinted to its colour.",
-    th: "เมื่อ popoto ออกแรร์ ระบบสุ่มระดับก่อน (Rare 70%, Super rare 25%, Ultra rare 5%) แล้วสุ่มรสในระดับนั้นที่เขียนคำคมไว้แล้ว คำคมของรสนั้นคือข้อความในห่อ ถ้าระดับไหนยังไม่มีรสที่พร้อม จะลดลงไปใช้ระดับถัดลงมา ถ้าไม่มีเลยสักระดับ popoto จะเป็นลูกธรรมดา รสที่ยังไม่มีรูปจะแสดงเป็น 🥔 ย้อมตามสีของรส",
+    en: "When a popoto comes up rare, the tier is rolled first — at the odds set above — then a flavour from that tier that has its line written, and that line is the one inside. A tier with no such flavour steps down to the next one that has one; with none anywhere, the popoto stays ordinary. A flavour with no picture shows the potato tinted to its colour.",
+    th: "เมื่อ popoto ออกแรร์ ระบบสุ่มระดับก่อน ตามสัดส่วนที่ตั้งไว้ด้านบน แล้วสุ่มรสในระดับนั้นที่เขียนคำคมไว้แล้ว คำคมของรสนั้นคือข้อความในห่อ ถ้าระดับไหนยังไม่มีรสที่พร้อม จะลดลงไปใช้ระดับถัดลงมา ถ้าไม่มีเลยสักระดับ popoto จะเป็นลูกธรรมดา รสที่ยังไม่มีรูปจะแสดงเป็น 🥔 ย้อมตามสีของรส",
   },
   "adm.flavorName": { en: "Full name (Thai), e.g. Popoto รสส้ม", th: "ชื่อเต็ม (ไทย) เช่น Popoto รสส้ม" },
   "adm.flavorNameEn": { en: "Full name (English), e.g. Orange Popoto", th: "ชื่อเต็ม (อังกฤษ) เช่น Orange Popoto" },

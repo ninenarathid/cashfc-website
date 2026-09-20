@@ -1,15 +1,19 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * A rare popoto: one in a hundred arrives wrapped, with a line from somebody in
- * the Free Company inside. See v77.
+ * A rare popoto: every so often one arrives wrapped, with a line from somebody
+ * in the Free Company inside. See v77.
  *
  * The line is only ever handed over by open_rare_popoto, which checks the
  * person asking is the one it was sent to. Listing what somebody has received
  * reads the popoto rows and leaves the line out, so a shelf of gifts can be
  * drawn without the page holding the words before they are unwrapped.
  */
-/** How rare. See v77: Rare 70, Super rare 25, Ultra rare 5, of the one in a hundred. */
+/**
+ * How rare. How often a popoto is rare at all, and how the rares are split
+ * between these three, are both the keeper's to set — see v83 and v86, and
+ * the admin panel for what they are today.
+ */
 export type RareTier = "rare" | "super" | "ultra";
 
 /** What the popoto turned out to be. A flavour, or none yet — the plain golden one. */

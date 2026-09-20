@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import ImagePicker from "@/components/ImagePicker";
 import { fmtDate } from "@/lib/dates";
-import AdminRareSwitch from "@/components/AdminRareSwitch";
+import AdminRareSwitch, { type TierOdds } from "@/components/AdminRareSwitch";
 import { FlavorArt, TierBadge } from "@/components/PopotoRare";
 import { TIER_LOOK, type RareTier } from "@/lib/popoto-rare";
 import {
@@ -88,6 +88,12 @@ export default function AdminFlavors(
   const [err, setErr] = useState<string | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
   const [addKey, setAddKey] = useState(0);
+  /**
+   * How the rares are split between the tiers, read from the switch below and
+   * shown beside each tier's flavours — so "5% of rares" is never last year's
+   * number. The old fixed split until it has answered. See v86.
+   */
+  const [odds, setOdds] = useState<TierOdds>({ rare: 70, super: 25, ultra: 5 });
 
   const refresh = useCallback(async () => {
     if (!supabase) return;
@@ -220,7 +226,7 @@ export default function AdminFlavors(
   return (
     <div className="flex flex-col gap-4">
       {/* The switch first: whether any of this can be received at all. */}
-      <AdminRareSwitch ready={ready} />
+      <AdminRareSwitch ready={ready} onOdds={setOdds} />
       <h3 className="font-display text-[17px] font-semibold">{t("adm.flavors")}</h3>
       <p className="text-read leading-relaxed text-muted">{t("adm.flavorsWhy")}</p>
 
@@ -245,7 +251,7 @@ export default function AdminFlavors(
             <div className="flex items-center gap-2">
               <TierBadge tier={x} />
               <span className="text-ui text-muted">
-                {t("adm.flavorTierOdds", { pct: x === "rare" ? 70 : x === "super" ? 25 : 5 })}
+                {t("adm.flavorTierOdds", { pct: odds[x] })}
               </span>
             </div>
             {!live && (
