@@ -2388,7 +2388,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -2401,7 +2401,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -3742,7 +3742,7 @@
   "jobs": {
    "Viper": "legendary",
    "Summoner": "legendary",
-   "RedMage": "master",
+   "RedMage": "expert",
    "DarkKnight": "master",
    "Gunbreaker": "expert",
    "Reaper": "legendary",
@@ -3862,7 +3862,9 @@
   "jobs": {
    "BlackMage": "legendary",
    "Pictomancer": "legendary",
-   "RedMage": "legendary"
+   "Bard": "master",
+   "RedMage": "legendary",
+   "Samurai": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -4027,6 +4029,7 @@
    "Warrior": "legendary",
    "Gunbreaker": "legendary",
    "Ninja": "master",
+   "Scholar": "expert",
    "Dancer": "expert",
    "WhiteMage": "expert",
    "Monk": "expert"
@@ -5717,6 +5720,7 @@
   "tiers": {},
   "jobs": {
    "Astrologian": "master",
+   "WhiteMage": "expert",
    "Scholar": "expert",
    "Summoner": "expert"
   },
@@ -6815,7 +6819,8 @@
    "Gunbreaker": "legendary",
    "Warrior": "legendary",
    "Astrologian": "expert",
-   "BlackMage": "expert"
+   "BlackMage": "expert",
+   "Samurai": "expert"
   },
   "ex": [
    "Queen Eternal",
@@ -7528,7 +7533,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7573,7 +7578,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7894,7 +7899,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 81,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -7907,7 +7912,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "33608576": {
   "name": "Verles Eisner",
