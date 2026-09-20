@@ -545,6 +545,7 @@ const DICT = {
     en: "The rare popoto's own chance is not shown: those numbers belong to whoever keeps the flavours, and this screen does not make an exception of them. The bar above counts the prizes only.",
     th: "ไม่ได้แสดงโอกาสของ popoto แรร์ เพราะตัวเลขชุดนั้นเป็นของผู้ดูแลรสชาติ หน้านี้ไม่ยกเว้นให้ แถบด้านบนจึงนับเฉพาะของรางวัล",
   },
+  "prize.openInInventory": { en: "See it in your profile", th: "ไปดูที่หน้าโปรไฟล์" },
   "prize.inventory": { en: "Popoto prizes", th: "ของรางวัลจากการส่ง Popoto" },
   "prize.inventoryNew": {
     en: "{n} waiting to be claimed. Press claim and an admin will arrange to hand it over in game.",

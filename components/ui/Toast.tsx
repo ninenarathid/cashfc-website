@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import * as Radix from "@radix-ui/react-toast";
 import Link from "next/link";
 import GiftIcon from "@/components/ui/GiftIcon";
-import { RARE_INVENTORY } from "@/lib/popoto-rare";
+import { RARE_INVENTORY, type RareTier } from "@/lib/popoto-rare";
+import PrizeToast from "@/components/ui/PrizeToast";
 import { useLang } from "@/lib/i18n";
 
 /**
@@ -56,8 +57,15 @@ export interface ToastRequest {
    * card: gold foil, turning light, sparks. It is allowed to be that loud
    * because it happens to one popoto in a hundred, and because the thing it is
    * announcing looks exactly like this when it opens.
+   *
+   * "prize" is winning something an admin has to hand over, and it is the
+   * one card that knows its own tier: the sentence has already named the
+   * prize, so there is nothing left for the card to give away. See
+   * PrizeToast, which is why it is not this one with a flag on it.
    */
-  tone?: "accent" | "good" | "rare";
+  tone?: "accent" | "good" | "rare" | "prize";
+  /** Only for "prize": how loud. R, SR or UR, the rare popoto's own ladder. */
+  tier?: RareTier;
 }
 
 const EVENT = "toast:show";
@@ -124,6 +132,9 @@ export default function ToastHost() {
     <Radix.Provider duration={LINGER} swipeDirection="right">
       {items.map((it) => it.tone === "rare" ? (
         <RareToast key={it.id} it={it} onClose={() => close(it.id)} />
+      ) : it.tone === "prize" ? (
+        <PrizeToast key={it.id} it={it} linger={LINGER_RARE}
+                    onClose={() => close(it.id)} />
       ) : (
         <Radix.Root key={it.id} duration={LINGER}
                     onOpenChange={(open) => { if (!open) close(it.id); }}

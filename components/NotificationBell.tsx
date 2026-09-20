@@ -14,7 +14,7 @@ import { useAdmin } from "@/lib/admin";
 import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
 import GiftIcon from "@/components/ui/GiftIcon";
-import { RARE_INVENTORY } from "@/lib/popoto-rare";
+import { RARE_INVENTORY, type RareTier } from "@/lib/popoto-rare";
 import { PRIZE_INVENTORY } from "@/lib/prizes";
 import { throwPotato } from "@/components/ui/throwPotato";
 
@@ -542,6 +542,12 @@ export default function NotificationBell() {
    */
   /** A won prize's picture, by win id. See PRIZE_PICTURE. */
   const [prizeArt, setPrizeArt] = useState<Record<number, string>>({});
+  /**
+   * And how loud it is. Only the toast reads this: the bell's own rows are a
+   * list to be scanned, and a list where three of the entries are shouting
+   * is a list nobody can scan.
+   */
+  const [prizeTier, setPrizeTier] = useState<Record<number, RareTier>>({});
   /** That picture for one notification, or null when it is not about a prize. */
   const prizePic = useCallback((n: { kind: string; body: string | null }) =>
     (PRIZE_PICTURE.has(n.kind) && n.body ? prizeArt[Number(n.body)] ?? null : null),
@@ -639,12 +645,17 @@ export default function NotificationBell() {
       .filter((id) => Number.isFinite(id) && id > 0))];
     if (won.length) {
       const { data: prizes } = await supabase.from("prize_wins")
-        .select("id, prize_icon").in("id", won);
+        .select("id, prize_icon, prize_tier").in("id", won);
       const map: Record<number, string> = {};
-      for (const r of (prizes ?? []) as { id: number; prize_icon: string | null }[]) {
+      const tiers: Record<number, RareTier> = {};
+      for (const r of (prizes ?? []) as
+           { id: number; prize_icon: string | null; prize_tier: string | null }[]) {
         if (r.prize_icon) map[r.id] = r.prize_icon;
+        tiers[r.id] = r.prize_tier === "super" || r.prize_tier === "ultra"
+          ? r.prize_tier : "rare";
       }
       setPrizeArt((v) => ({ ...v, ...map }));
+      setPrizeTier((v) => ({ ...v, ...tiers }));
     }
     return rows;
   }, [supabase]);
@@ -742,12 +753,22 @@ export default function NotificationBell() {
         // which is the other: it draws its own card, and it earns it — one
         // popoto in a hundred arrives like this, and the corner of the screen
         // is the only warning anybody gets while they are still on the page.
-        // Green, and winning something is the third. A prize is not a card
-        // the way a wrapped popoto is — there is nothing to open, only
-        // somebody to talk to — so it takes the ordinary good tone.
+        /*
+         * Green for the draw. Gold foil for the wrapped popoto. And its own
+         * card for winning a prize, at the tier the prize was given — it is
+         * a real thing somebody is about to hand over in game, which is at
+         * least as worth crossing the room for as a potato, and unlike the
+         * popoto there is nothing left to spoil by saying how good it is.
+         *
+         * Only the winning. Being answered and being handed the thing are
+         * both good news and neither is the moment.
+         */
         tone: n.kind === "popoto_rare" ? "rare"
-          : n.kind.startsWith("evercold") || n.kind === "prize_win"
-            || n.kind === "prize_done" ? "good" : "accent",
+          : n.kind === "prize_win" ? "prize"
+            : n.kind.startsWith("evercold") || n.kind === "prize_done"
+              ? "good" : "accent",
+        tier: n.kind === "prize_win" && n.body
+          ? prizeTier[Number(n.body)] ?? "rare" : undefined,
         href: hrefOf(n, character, postPath),
       });
     }
@@ -1007,8 +1028,10 @@ export default function NotificationBell() {
    */
   useEffect(() => {
     if (process.env.NODE_ENV === "production" || !supabase) return;
-    const w = window as unknown as { testPrizeNotice?: (kind?: string) => void };
-    w.testPrizeNotice = (kind = "prize_win") => {
+    const w = window as unknown as {
+      testPrizeNotice?: (kind?: string, tier?: RareTier) => void;
+    };
+    w.testPrizeNotice = (kind = "prize_win", tier: RareTier = "ultra") => {
       // A real prize's picture where there is one, so the card is the size
       // and shape the real thing will be. The admin's half shows a face
       // instead, which is their own here — it is the only one to hand.
@@ -1023,6 +1046,7 @@ export default function NotificationBell() {
           // that fails to load rather than a prize with no picture, and the
           // second of those is a case the row is supposed to handle.
           if (got?.icon_url) setPrizeArt((v) => ({ ...v, [id]: got.icon_url as string }));
+          setPrizeTier((v) => ({ ...v, [id]: tier }));
           setNotes((v) => [{
             id, kind, actor: PRIZE_FACE.has(kind) ? me : null,
             actor_name: PRIZE_FACE.has(kind) ? "ตัวอย่างทดสอบ" : null,
