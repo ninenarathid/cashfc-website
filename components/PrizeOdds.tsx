@@ -17,6 +17,16 @@ interface Slice {
   /** Who it lands on. */
   who: string;
   off: boolean;
+  /**
+   * Why it is off, when it is.
+   *
+   * "Off" on its own was the wrong word to say to somebody who has just
+   * turned a prize on: theirs was on, and the thing holding it back was the
+   * master switch at the top of the tab, which they had scrolled past. A
+   * state that cannot say which control to go and press is a state that
+   * reads as a bug.
+   */
+  why: "" | "master" | "paused" | "empty";
 }
 
 /**
@@ -95,6 +105,7 @@ export default function PrizeOdds(
         key: "rare", label: t("prize.oddsPopoto"),
         pct: rare.on ? rare.chance : 0, ifOn: rare.chance, color: RARE_GOLD,
         who: t("prize.oddsToReceiver"), off: !rare.on,
+        why: rare.on ? "" : "paused",
       });
     }
 
@@ -104,14 +115,17 @@ export default function PrizeOdds(
     // pretending to be the same as the other three.
     for (const p of prizes) {
       if (p.draw === "daily") continue;
-      const live = prizesOn && p.active && p.stock !== 0;
+      // In the order somebody would have to fix them: the switch over all of
+      // them first, then this one, then whether there are any left.
+      const why = !prizesOn ? "master" : !p.active ? "paused"
+        : p.stock === 0 ? "empty" : "";
       out.push({
         key: `prize-${p.id}`,
         label: (lang === "en" ? p.nameEn : null) || p.name,
-        pct: live ? p.chance : 0, ifOn: p.chance, color: p.color,
+        pct: why ? 0 : p.chance, ifOn: p.chance, color: p.color,
         who: p.draw === "give" ? t("prize.oddsToSender")
           : p.draw === "both" ? t("prize.oddsToBoth") : t("prize.oddsToReceiver"),
-        off: !live,
+        off: !!why, why,
       });
     }
     return out;
@@ -226,7 +240,9 @@ export default function PrizeOdds(
             <span className="ml-auto flex items-center gap-2">
               {s.off ? (
                 <span className="text-gold">
-                  {t("prize.oddsPaused", { pct: say(s.ifOn) })}
+                  {t(s.why === "master" ? "prize.oddsWaitingSwitch"
+                    : s.why === "empty" ? "prize.oddsSoldOut"
+                      : "prize.oddsPaused", { pct: say(s.ifOn) })}
                 </span>
               ) : (
                 <>

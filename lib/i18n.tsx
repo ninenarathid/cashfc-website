@@ -528,7 +528,15 @@ const DICT = {
   "prize.oddsToReceiver": { en: "to whoever received it", th: "คนรับได้" },
   "prize.oddsToSender": { en: "to whoever sent it", th: "คนส่งได้" },
   "prize.oddsToBoth": { en: "to both of them", th: "ได้ทั้งคู่" },
-  "prize.oddsPaused": { en: "off · would be {pct}%", th: "ปิดอยู่ · ถ้าเปิดคือ {pct}%" },
+  "prize.oddsPaused": { en: "paused · would be {pct}%", th: "พักอยู่ · ถ้าเปิดคือ {pct}%" },
+  // Its own switch is on and the one over all of them is not, which is the
+  // state somebody reaches by turning a prize on and scrolling past the top
+  // of the tab. Saying only "off" there reads as the site not having noticed.
+  "prize.oddsWaitingSwitch": {
+    en: "on, but the draw is switched off up top · would be {pct}%",
+    th: "เปิดแล้ว แต่สวิตช์ใหญ่ด้านบนยังปิด · ถ้าเปิดคือ {pct}%",
+  },
+  "prize.oddsSoldOut": { en: "none left", th: "ของหมดแล้ว" },
   "prize.oddsDaily": {
     en: "Drawn once a day rather than once a popoto, so they are not on the bar: {list}",
     th: "สุ่มวันละครั้ง ไม่ได้สุ่มต่อ popoto จึงไม่อยู่บนแถบ: {list}",
