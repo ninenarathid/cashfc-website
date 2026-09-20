@@ -372,12 +372,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 37,
     "kills": 1,
     "job": "Reaper",
-    "cleared": true,
-    "encounter_id": 1068
+    "cleared": true
    },
    {
     "zone": "Dragonsong's Reprise",
@@ -7002,7 +7002,25 @@
       "best": 59,
       "median": 41,
       "kills": 8,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 2,
+        "best": 59
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 50
+       },
+       "Warrior": {
+        "kills": 4,
+        "best": 45
+       },
+       "Scholar": {
+        "kills": 1,
+        "best": 10
+       }
+      }
      },
      {
       "label": "E10S",
@@ -7011,7 +7029,17 @@
       "best": 63,
       "median": 46,
       "kills": 5,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Samurai": {
+        "kills": 1,
+        "best": 31
+       },
+       "Warrior": {
+        "kills": 4,
+        "best": 63
+       }
+      }
      },
      {
       "label": "E11S",
@@ -7020,7 +7048,13 @@
       "best": 57,
       "median": 33,
       "kills": 2,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 2,
+        "best": 57
+       }
+      }
      },
      {
       "label": "E12S",
@@ -7029,7 +7063,17 @@
       "best": 11,
       "median": 10,
       "kills": 5,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Samurai": {
+        "kills": 2,
+        "best": 10
+       },
+       "Warrior": {
+        "kills": 3,
+        "best": 11
+       }
+      }
      },
      {
       "label": null,
@@ -7038,7 +7082,13 @@
       "best": 17,
       "median": 10,
       "kills": 3,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 3,
+        "best": 17
+       }
+      }
      }
     ]
    },
@@ -21570,12 +21620,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 49,
     "kills": 7,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1068,
     "job_kills": {
      "Machinist": {
       "kills": 7,
@@ -38117,7 +38167,17 @@
       "best": 41,
       "median": 15,
       "kills": 10,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 7,
+        "best": 41
+       },
+       "Paladin": {
+        "kills": 3,
+        "best": 18
+       }
+      }
      },
      {
       "label": "E6S",
@@ -38126,7 +38186,13 @@
       "best": 60,
       "median": 21,
       "kills": 9,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 9,
+        "best": 60
+       }
+      }
      },
      {
       "label": "E7S",
@@ -43889,7 +43955,21 @@
       "best": 95,
       "median": 81,
       "kills": 17,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 14,
+        "best": 95
+       },
+       "RedMage": {
+        "kills": 2,
+        "best": 47
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 10
+       }
+      }
      },
      {
       "label": "E10S",
@@ -43898,7 +43978,17 @@
       "best": 94,
       "median": 66,
       "kills": 18,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 14,
+        "best": 94
+       },
+       "RedMage": {
+        "kills": 4,
+        "best": 51
+       }
+      }
      },
      {
       "label": "E11S",
@@ -43907,7 +43997,17 @@
       "best": 91,
       "median": 67,
       "kills": 20,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 19,
+        "best": 91
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 22
+       }
+      }
      },
      {
       "label": "E12S",
@@ -43916,7 +44016,17 @@
       "best": 96,
       "median": 54,
       "kills": 28,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "RedMage": {
+        "kills": 2,
+        "best": 86
+       },
+       "Dancer": {
+        "kills": 26,
+        "best": 96
+       }
+      }
      },
      {
       "label": null,
@@ -43925,7 +44035,17 @@
       "best": 86,
       "median": 57,
       "kills": 17,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "RedMage": {
+        "kills": 2,
+        "best": 49
+       },
+       "Dancer": {
+        "kills": 15,
+        "best": 86
+       }
+      }
      }
     ]
    },
@@ -48015,12 +48135,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 37,
     "kills": 18,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1068,
     "job_kills": {
      "Warrior": {
       "kills": 17,
@@ -64248,12 +64368,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 86,
     "kills": 16,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1068,
     "job_kills": {
      "Ninja": {
       "kills": 16,
@@ -81819,5 +81939,8 @@
    }
   ],
   "_status": "ok"
+ },
+ "47525984": {
+  "_status": "none"
  }
 }

@@ -33,7 +33,7 @@
   "mounts": 281,
   "minions": 486,
   "rare": 487,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -105,6 +105,7 @@
    2766,
    2785,
    2803,
+   2810,
    2811,
    2815,
    2816,
@@ -122,7 +123,6 @@
    3704,
    3706,
    3707,
-   3708,
    3709,
    3712,
    3714,
@@ -170,7 +170,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -434,7 +434,6 @@
    3766,
    3767,
    3768,
-   3769,
    3770,
    3771,
    3772,
@@ -444,6 +443,7 @@
    3796,
    3797,
    3798,
+   3799,
    3800,
    3801,
    3823,
@@ -764,8 +764,8 @@
   "name": "Kori Kona",
   "parse": 15,
   "ult": 0,
-  "mounts": 159,
-  "minions": 426,
+  "mounts": 186,
+  "minions": 452,
   "rare": null,
   "level": 100,
   "cc": [
@@ -783,7 +783,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-09-20"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -1274,9 +1274,9 @@
   "name": "Allen Crist",
   "parse": 18,
   "ult": 0,
-  "mounts": 136,
-  "minions": 376,
-  "rare": 240,
+  "mounts": 137,
+  "minions": 377,
+  "rare": 241,
   "level": 100,
   "cc": [
    false,
@@ -1337,6 +1337,7 @@
    3784,
    3846,
    3847,
+   3853,
    3902,
    3903,
    3904,
@@ -1379,7 +1380,6 @@
    4017,
    4018,
    4022,
-   4025,
    4026,
    4027,
    4031,
@@ -1400,7 +1400,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -1718,9 +1718,9 @@
   "name": "Dessiny Valkyrie",
   "parse": 97,
   "ult": 5,
-  "mounts": 105,
-  "minions": 135,
-  "rare": 59,
+  "mounts": 106,
+  "minions": 136,
+  "rare": 62,
   "level": 100,
   "cc": [
    true,
@@ -1778,6 +1778,7 @@
    3805,
    3823,
    3824,
+   3842,
    3849,
    3867,
    3868,
@@ -1788,7 +1789,9 @@
    3979,
    3998,
    4002,
-   4014
+   4014,
+   4023,
+   4024
   ],
   "tiers": {},
   "jobs": {
@@ -1816,7 +1819,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -1824,7 +1827,7 @@
   "ult": 5,
   "mounts": 81,
   "minions": 104,
-  "rare": 56,
+  "rare": 59,
   "level": 100,
   "cc": [
    true,
@@ -1855,10 +1858,12 @@
    3650,
    3652,
    3655,
+   3656,
    3657,
    3658,
    3673,
    3753,
+   3754,
    3755,
    3756,
    3757,
@@ -1871,6 +1876,7 @@
    3772,
    3823,
    3843,
+   3844,
    3846,
    3847,
    3850,
@@ -1915,7 +1921,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-20"
  },
  "39199441": {
   "name": "Dodoco Chocodoco",
@@ -2388,7 +2394,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2410,7 +2416,7 @@
   "mounts": 102,
   "minions": 261,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2438,7 +2444,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "38808156": {
   "name": "Kwiyo Ki",
@@ -3775,7 +3781,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 99,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3883,7 +3889,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4094,6 +4100,7 @@
    1352,
    1381,
    1382,
+   1727,
    1859,
    1860,
    1861,
@@ -4103,8 +4110,8 @@
    1865,
    1866,
    1869,
+   2148,
    2166,
-   2168,
    2357,
    2358,
    2359,
@@ -4168,8 +4175,7 @@
    3547,
    3714,
    3951,
-   3964,
-   4026
+   3964
   ],
   "tiers": {
    "gatherer": "expert",
@@ -4192,7 +4198,7 @@
   "mounts": 264,
   "minions": 336,
   "rare": 522,
-  "level": 50,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    847,
@@ -4584,7 +4590,7 @@
   ],
   "tiers": {
    "relic": "master",
-   "explorer": "master"
+   "explorer": "expert"
   },
   "jobs": {
    "Machinist": "legendary",
@@ -4836,6 +4842,7 @@
    3846,
    3847,
    3848,
+   3849,
    3850,
    3851,
    3852,
@@ -4893,7 +4900,6 @@
    4022,
    4024,
    4025,
-   4028,
    4029,
    4030,
    4033,
@@ -5441,7 +5447,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -5767,7 +5773,7 @@
   "mounts": 175,
   "minions": 358,
   "rare": 160,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5808,6 +5814,7 @@
    3369,
    3370,
    3371,
+   3372,
    3467,
    3468,
    3469,
@@ -5825,7 +5832,6 @@
    3735,
    3736,
    3763,
-   3769,
    3793,
    3794,
    3795,
@@ -5884,7 +5890,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6268,7 +6274,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6568,7 +6574,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -6589,7 +6595,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -6642,7 +6648,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 52,
   "cc": [
    false,
    false,
@@ -6658,7 +6664,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -6689,7 +6695,7 @@
   "mounts": 57,
   "minions": 194,
   "rare": null,
-  "level": 75,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -6702,7 +6708,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "16099244": {
   "name": "Luna Froggo",
@@ -6877,8 +6883,8 @@
    3756,
    3757,
    3758,
-   3760,
    3762,
+   3763,
    3770,
    3771,
    3778,
@@ -7533,7 +7539,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -7709,7 +7715,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 90,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -7740,7 +7746,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -7899,7 +7905,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 85,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8090,6 +8096,22 @@
   "ults": [],
   "chg": "2026-09-18"
  },
+ "47525984": {
+  "name": "Dasei Mizumoto",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 81,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-09-20"
+ },
  "54419512": {
   "name": "Film Nio",
   "parse": null,
@@ -8097,7 +8119,7 @@
   "mounts": 6,
   "minions": 19,
   "rare": null,
-  "level": 89,
+  "level": 77,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8210,7 +8232,7 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 24,
+  "level": 37,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -9811,7 +9833,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "RedMage": "master",
+   "RedMage": "expert",
    "Dancer": "legendary"
   },
   "ex": [],
@@ -9973,7 +9995,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Samurai": "master",
+   "Samurai": "expert",
    "Scholar": "master"
   },
   "ex": [],
