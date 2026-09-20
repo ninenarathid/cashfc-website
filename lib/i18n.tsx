@@ -495,7 +495,7 @@ const DICT = {
     en: "Your prize has been handed over. Enjoy it.",
     th: "ส่งของรางวัลให้คุณเรียบร้อยแล้ว ขอให้สนุกนะ",
   },
-  "prize.inventory": { en: "Prizes", th: "ของรางวัล" },
+  "prize.inventory": { en: "Popoto prizes", th: "ของรางวัลจากการส่ง Popoto" },
   "prize.inventoryNew": {
     en: "{n} waiting to be claimed. Press claim and an admin will arrange to hand it over in game.",
     th: "มี {n} ชิ้นที่ยังไม่ได้กดรับ กดรับแล้วแอดมินจะนัดส่งของให้ในเกม",
@@ -525,11 +525,7 @@ const DICT = {
   "prize.sideWinner": { en: "The winner", th: "ผู้ได้รับรางวัล" },
   "prize.sideAdmin": { en: "Admin", th: "แอดมิน" },
   /* ── Admin: the prize cupboard ────────────────────────────────────── */
-  "adm.prizes": { en: "Prizes", th: "ของรางวัล" },
-  "adm.prizesWhy": {
-    en: "Things an admin hands over in game: a minion, some gil, a glamour set. Each one has its own chance, with no relation to the rare popoto's. A win goes into somebody's inventory; when they claim it, it appears in the queue below and you arrange the handover there.",
-    th: "ของที่แอดมินต้องส่งให้ในเกม เช่น มินเนี่ยน กิล หรือชุดกลาเมอร์ แต่ละชิ้นตั้ง % เองได้ ไม่เกี่ยวกับ popoto แรร์ เมื่อมีคนได้ ของจะไปอยู่ใน inventory ของเขา พอเขากดรับ รายการจะขึ้นในคิวด้านล่างให้นัดส่งกัน",
-  },
+  "adm.prizes": { en: "Popoto prizes", th: "ของรางวัลจากการส่ง Popoto" },
   "adm.prizeNoRoster": {
     en: "The database does not know who is in the FC yet, so only prizes open to everybody can be won. Reloading this tab fixes it.",
     th: "ฐานข้อมูลยังไม่รู้ว่าใครอยู่ใน FC ตอนนี้จึงออกได้เฉพาะรางวัลที่เปิดให้ทุกคน โหลดแท็บนี้ใหม่อีกครั้งจะแก้ให้เอง",
@@ -558,6 +554,48 @@ const DICT = {
   "adm.prizeDrawDailyWhy": {
     en: "One roll a day, on the first popoto somebody gives somebody else. The Evercold rule: turning up counts, clicking does not.",
     th: "สุ่มวันละครั้ง ตอนที่ให้ popoto คนอื่นเป็นลูกแรกของวัน กติกาเดียวกับ Evercold คือนับที่มาเล่น ไม่ใช่นับที่กดรัวๆ",
+  },
+  "adm.prizeDrawBoth": { en: "Both, on one popoto", th: "ได้ทั้งคู่ จาก popoto ลูกเดียว" },
+  "adm.prizeDrawBothWhy": {
+    en: "One roll on a popoto sent, and both of them win it — the sender and the person it went to. Stock leaves two at a time, so it has to be an even number.",
+    th: "สุ่มครั้งเดียวตอนส่ง popoto แล้วได้ทั้งคนส่งและคนรับ ของจะถูกหักทีละ 2 ชิ้น จำนวนจึงต้องเป็นเลขคู่",
+  },
+  "adm.prizeStockEven": {
+    en: "An even number, or blank — this one is won by two people at once",
+    th: "ต้องเป็นเลขคู่ หรือเว้นว่าง เพราะรางวัลนี้ออกทีละ 2 คน",
+  },
+  "adm.prizeTier": { en: "How it arrives", th: "เอฟเฟกต์ตอนได้" },
+  "adm.prizeTierWhy": {
+    en: "The rare popoto's three, and the same fanfare: R is a glow, SR shakes the screen, UR takes it over. It is a costume and not a chance — it changes nothing about how often this comes up. What suits each one, as a suggestion only: R about 1–5%, SR about 0.2–1%, UR about 0.05–0.2%. Any number is allowed.",
+    th: "ใช้ระดับเดียวกับ popoto แรร์และเอฟเฟกต์ชุดเดียวกัน: R เรืองแสง SR สั่นทั้งจอ UR จัดเต็ม เป็นแค่หน้าตา ไม่ได้เปลี่ยนโอกาสออก ถ้าจะให้เข้ากันแนะนำ R ราว 1–5%, SR ราว 0.2–1%, UR ราว 0.05–0.2% แต่ตั้งนอกนี้ก็ได้",
+  },
+  "adm.prizeTierOff": {
+    en: "{tier} is usually {low}–{high}% — not a rule, just what it looks like beside the others",
+    th: "{tier} ปกติอยู่ราว {low}–{high}% — ไม่ใช่กฎ แค่ให้เทียบกับชิ้นอื่นได้",
+  },
+  "adm.prizeSwitchOn": { en: "The prize draw is ON", th: "การสุ่มของรางวัล: เปิดใช้งาน" },
+  "adm.prizeSwitchOff": { en: "The prize draw is OFF", th: "การสุ่มของรางวัล: ปิดอยู่" },
+  "adm.prizeSwitchOnWhy": {
+    en: "Every popoto sent to somebody else rolls for the prizes below.",
+    th: "popoto ทุกลูกที่ส่งให้คนอื่นจะสุ่มของรางวัลด้านล่างนี้",
+  },
+  "adm.prizeSwitchOffWhy": {
+    en: "Nothing is won while this is off, whatever the prizes below say. Fill the cupboard first.",
+    th: "ตราบใดที่ปิดอยู่จะไม่มีใครได้ของ ไม่ว่ารายการด้านล่างจะตั้งไว้ยังไง เติมของให้ครบก่อนได้เลย",
+  },
+  "adm.prizeTurnOn": { en: "Turn on", th: "เปิดใช้งาน" },
+  "adm.prizeTurnOff": { en: "Turn off", th: "ปิดการใช้งาน" },
+  "adm.prizeOnAsk": {
+    en: "Turn the prize draw on? From the next popoto sent, anybody can win one of these — and each one somebody wins is something you have to hand over in game.",
+    th: "เปิดการสุ่มของรางวัลไหม? ตั้งแต่ popoto ลูกถัดไป ทุกคนมีสิทธิ์ได้ และทุกชิ้นที่มีคนได้คือของที่ต้องส่งให้จริงในเกม",
+  },
+  "adm.prizeOffAsk": {
+    en: "Turn the prize draw off? Prizes already won stay in their inventories and still have to be handed over.",
+    th: "ปิดการสุ่มของรางวัลไหม? ของที่มีคนได้ไปแล้วยังอยู่ใน inventory ของเขาและยังต้องส่งให้อยู่",
+  },
+  "adm.prizeSwitchMissing": {
+    en: "The prize tables are not on the database yet — run the migration in supabase/.",
+    th: "ยังไม่มีตารางของรางวัลในฐานข้อมูล ต้องรัน migration ใน supabase/ ก่อน",
   },
   "adm.prizeAudience": { en: "Who can win it", th: "ใครได้บ้าง" },
   "adm.prizeForFc": { en: "The FC only", th: "เฉพาะคนใน FC" },
@@ -1182,24 +1220,6 @@ const DICT = {
   },
   // ── Custom badges ──────────────────────────────────────────────────
   // ── Polls ──────────────────────────────────────────────────────────
-  "adm.poll": { en: "Poll", th: "โหวต" },
-  "adm.pollHint": {
-    en: "The question the FC is being asked on the gallery page, and how it is going. Individual answers are folded away below each poll, and the poll card tells members an admin can see them.",
-    th: "คำถามที่ถาม FC อยู่ในหน้าแกลเลอรี และผลปัจจุบัน ส่วนคำตอบรายคนพับเก็บไว้ใต้แต่ละโหวต และการ์ดโหวตบอกสมาชิกไว้แล้วว่าแอดมินดูได้",
-  },
-  "adm.pollWhoVoted": { en: "Who voted what", th: "ใครโหวตอะไร" },
-  "adm.pollNoVotes": { en: "Nobody has voted yet.", th: "ยังไม่มีใครโหวต" },
-  "adm.pollNone": { en: "No polls.", th: "ยังไม่มีโหวต" },
-  "adm.pollOpen": { en: "Open", th: "เปิดอยู่" },
-  "adm.pollEnded": { en: "Ended", th: "จบแล้ว" },
-  "adm.pollCloses": { en: "closes {when}", th: "ปิด {when}" },
-  "adm.pollVotes": { en: "{n} votes", th: "{n} เสียง" },
-  "adm.pollClose": { en: "End it now", th: "ปิดโหวตเลย" },
-  "adm.pollClosed": { en: "Poll ended", th: "ปิดโหวตแล้ว" },
-  "adm.pollConfirmClose": {
-    en: "End this poll now? The result stays on the gallery page and nobody can change their answer after this.",
-    th: "ปิดโหวตเลยไหม? ผลจะยังอยู่ในหน้าแกลเลอรี และหลังจากนี้จะเปลี่ยนคำตอบไม่ได้แล้ว",
-  },
   "adm.badges": { en: "Badges", th: "Badge" },
   "adm.badgesHint": {
     en: "Make a badge once, then give it to as many members as you like. It shows in full on their own page and as a chip at the end of their row on the member list.",

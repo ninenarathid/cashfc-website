@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { RareTier } from "@/lib/popoto-rare";
 
 /**
  * Prizes that somebody has to hand over. See v87.
@@ -17,13 +18,36 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  */
 
 /** When a prize is rolled, and therefore who wins it. */
-export type PrizeDraw = "receive" | "give" | "daily";
+export type PrizeDraw = "receive" | "give" | "daily" | "both";
 
 /** Who may win it. */
 export type PrizeAudience = "fc" | "guest" | "all";
 
-export const DRAWS: PrizeDraw[] = ["receive", "give", "daily"];
+export const DRAWS: PrizeDraw[] = ["give", "receive", "both", "daily"];
 export const AUDIENCES: PrizeAudience[] = ["fc", "guest", "all"];
+
+/**
+ * A prize won by two people at once leaves stock two at a time, so an odd
+ * number would end with one nobody can win. The database refuses it; this is
+ * so the form can say so before the save rather than after.
+ */
+export const stockFits = (draw: PrizeDraw, stock: number | null): boolean =>
+  draw !== "both" || stock === null || stock % 2 === 0;
+
+/**
+ * What each tier is worth suggesting, as a chance.
+ *
+ * Advice and nothing more — the tier is the costume a win arrives in and the
+ * chance is how often it arrives, and the database lets any pair of them
+ * through. These are the rare popoto's own proportions read back as whole
+ * percentages, so a prize dressed as an SR turns up about as often against
+ * the others as an SR popoto does.
+ */
+export const TIER_ADVICE: Record<RareTier, { low: number; high: number }> = {
+  rare: { low: 1, high: 5 },
+  super: { low: 0.2, high: 1 },
+  ultra: { low: 0.05, high: 0.2 },
+};
 
 /** One thing that can be won, as the admin panel edits it. */
 export interface Prize {
@@ -37,6 +61,8 @@ export interface Prize {
   chance: number;
   draw: PrizeDraw;
   audience: PrizeAudience;
+  /** Which of the three a win of it looks like. See TIER_LOOK, TIER_FX. */
+  tier: RareTier;
   /** How many are left, or null for unlimited. */
   stock: number | null;
   active: boolean;
@@ -55,6 +81,7 @@ export interface Win {
   detailEn: string | null;
   icon: string | null;
   color: string;
+  tier: RareTier;
   draw: PrizeDraw;
   at: string;
   claimedAt: string | null;
@@ -81,17 +108,17 @@ export const PRIZE_COLOR = "#f3c969";
 
 const PRIZE_COLS =
   "id, name, name_en, detail, detail_en, icon_url, color, chance_pct, draw,"
-  + " audience, stock, active, created_at";
+  + " audience, tier, stock, active, created_at";
 
 const WIN_COLS =
   "id, prize_id, winner, character_id, prize_name, prize_name_en, prize_detail,"
-  + " prize_detail_en, prize_icon, prize_color, draw, won_at, claimed_at,"
-  + " delivered_at, seen_winner, seen_admin";
+  + " prize_detail_en, prize_icon, prize_color, prize_tier, draw, won_at,"
+  + " claimed_at, delivered_at, seen_winner, seen_admin";
 
 interface PrizeRow {
   id: number; name: string; name_en: string | null; detail: string | null;
   detail_en: string | null; icon_url: string | null; color: string | null;
-  chance_pct: number | string; draw: string; audience: string;
+  chance_pct: number | string; draw: string; audience: string; tier: string;
   stock: number | null; active: boolean; created_at: string;
 }
 
@@ -99,19 +126,22 @@ interface WinRow {
   id: number; prize_id: number | null; winner: string; character_id: number | null;
   prize_name: string; prize_name_en: string | null; prize_detail: string | null;
   prize_detail_en: string | null; prize_icon: string | null; prize_color: string | null;
+  prize_tier: string | null;
   draw: string; won_at: string; claimed_at: string | null; delivered_at: string | null;
   seen_winner: string | null; seen_admin: string | null;
 }
 
 const asDraw = (s: string): PrizeDraw =>
-  s === "give" || s === "daily" ? s : "receive";
+  s === "give" || s === "daily" || s === "both" ? s : "receive";
 const asAudience = (s: string): PrizeAudience =>
   s === "guest" || s === "all" ? s : "fc";
+const asTier = (s: string | null): RareTier =>
+  s === "super" || s === "ultra" ? s : "rare";
 
 const toPrize = (r: PrizeRow): Prize => ({
   id: r.id, name: r.name, nameEn: r.name_en, detail: r.detail, detailEn: r.detail_en,
   icon: r.icon_url, color: r.color ?? PRIZE_COLOR, chance: Number(r.chance_pct) || 0,
-  draw: asDraw(r.draw), audience: asAudience(r.audience),
+  draw: asDraw(r.draw), audience: asAudience(r.audience), tier: asTier(r.tier),
   stock: r.stock, active: r.active, at: r.created_at,
 });
 
@@ -119,6 +149,7 @@ const toWin = (r: WinRow): Win => ({
   id: r.id, prizeId: r.prize_id, winner: r.winner, characterId: r.character_id,
   name: r.prize_name, nameEn: r.prize_name_en, detail: r.prize_detail,
   detailEn: r.prize_detail_en, icon: r.prize_icon, color: r.prize_color ?? PRIZE_COLOR,
+  tier: asTier(r.prize_tier),
   draw: asDraw(r.draw), at: r.won_at, claimedAt: r.claimed_at,
   deliveredAt: r.delivered_at, seenWinner: r.seen_winner, seenAdmin: r.seen_admin,
 });
@@ -249,6 +280,37 @@ export async function syncRoster(
   const { data: n, error: e2 } = await supabase.rpc("sync_fc_roster", { p_ids: ids });
   if (e2) return null;
   return typeof n === "number" ? n : want.size;
+}
+
+/** Whether the draw runs at all, and when that was last changed. See v88. */
+export interface PrizeSwitch { on: boolean; at: string | null }
+
+/**
+ * The master switch.
+ *
+ * A prize per-row `active` says whether that one is in the draw; this says
+ * whether there is a draw. Same shape as the rare popoto's (v79) and off to
+ * start with for the same reason — the cupboard can be filled and looked at
+ * before anybody can win out of it.
+ *
+ * Null when it cannot be read, which for an admin means v88 has not been run.
+ */
+export async function readSwitch(supabase: SupabaseClient): Promise<PrizeSwitch | null> {
+  const { data, error } = await supabase.from("prize_switch")
+    .select("enabled, changed_at").eq("id", 1).maybeSingle();
+  if (error) return null;
+  const r = data as { enabled: boolean; changed_at: string } | null;
+  return r ? { on: !!r.enabled, at: r.changed_at } : null;
+}
+
+/** Turn the whole draw on or off. */
+export async function flipSwitch(
+  supabase: SupabaseClient, on: boolean, by: string | null,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.from("prize_switch")
+    .update({ enabled: on, changed_at: new Date().toISOString(), changed_by: by })
+    .eq("id", 1);
+  return error ? { error: error.message } : {};
 }
 
 /**

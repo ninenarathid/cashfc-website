@@ -7,10 +7,13 @@ import { fmtDate, fmtDateTime } from "@/lib/dates";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ImagePicker from "@/components/ImagePicker";
 import PrizeChat from "@/components/PrizeChat";
+import { TierBadge } from "@/components/PopotoRare";
+import { TIER_LOOK, type RareTier } from "@/lib/popoto-rare";
 import fcIds from "@/data/fc-ids.json";
 import {
-  AUDIENCES, DRAWS, PRIZE_COLOR, allPrizes, allWins, deliver, oneIn, syncRoster,
-  type Prize, type PrizeAudience, type PrizeDraw, type Win,
+  AUDIENCES, DRAWS, PRIZE_COLOR, TIER_ADVICE, allPrizes, allWins, deliver,
+  flipSwitch, oneIn, readSwitch, stockFits, syncRoster,
+  type Prize, type PrizeAudience, type PrizeDraw, type PrizeSwitch, type Win,
 } from "@/lib/prizes";
 
 const inputCls =
@@ -27,13 +30,16 @@ interface Draft {
   chance: string;
   draw: PrizeDraw;
   audience: PrizeAudience;
+  tier: RareTier;
   stock: string;
 }
 
 const EMPTY: Draft = {
   name: "", nameEn: "", detail: "", detailEn: "", icon: null, color: PRIZE_COLOR,
-  chance: "1", draw: "receive", audience: "fc", stock: "",
+  chance: "1", draw: "give", audience: "fc", tier: "rare", stock: "",
 };
+
+const TIERS: RareTier[] = ["rare", "super", "ultra"];
 
 const num = (s: string) => Number(s.replace(",", "."));
 
@@ -42,11 +48,13 @@ const num = (s: string) => Number(s.replace(",", "."));
 const DRAW_LABEL: Record<PrizeDraw, Key> = {
   receive: "adm.prizeDrawReceive",
   give: "adm.prizeDrawGive",
+  both: "adm.prizeDrawBoth",
   daily: "adm.prizeDrawDaily",
 };
 const DRAW_WHY: Record<PrizeDraw, Key> = {
   receive: "adm.prizeDrawReceiveWhy",
   give: "adm.prizeDrawGiveWhy",
+  both: "adm.prizeDrawBothWhy",
   daily: "adm.prizeDrawDailyWhy",
 };
 const AUDIENCE_LABEL: Record<PrizeAudience, Key> = {
@@ -77,6 +85,9 @@ export default function AdminPrizes() {
   const [names, setNames] = useState<Record<string, string>>({});
   /** How many characters the database has as the FC. undefined until asked. */
   const [roster, setRoster] = useState<number | null | undefined>(undefined);
+  /** The master switch. undefined until read, null when v88 has not been run. */
+  const [master, setMaster] = useState<PrizeSwitch | null | undefined>(undefined);
+  const [asking, setAsking] = useState(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -97,9 +108,11 @@ export default function AdminPrizes() {
 
   const refresh = useCallback(async () => {
     if (!supabase) return;
-    const [p, w] = await Promise.all([allPrizes(supabase), allWins(supabase)]);
+    const [p, w, sw] = await Promise.all([
+      allPrizes(supabase), allWins(supabase), readSwitch(supabase)]);
     setPrizes(p);
     setWins(w);
+    setMaster(sw);
     const ids = [...new Set(w.map((x) => x.winner))];
     if (ids.length) {
       const { data } = await supabase.from("profiles")
@@ -134,7 +147,7 @@ export default function AdminPrizes() {
     setD({
       name: p.name, nameEn: p.nameEn ?? "", detail: p.detail ?? "",
       detailEn: p.detailEn ?? "", icon: p.icon, color: p.color,
-      chance: String(p.chance), draw: p.draw, audience: p.audience,
+      chance: String(p.chance), draw: p.draw, audience: p.audience, tier: p.tier,
       stock: p.stock == null ? "" : String(p.stock),
     });
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -145,8 +158,9 @@ export default function AdminPrizes() {
   const okChance = d.chance.trim() !== "" && Number.isFinite(chance)
     && chance >= 0 && chance <= 100;
   const okStock = stock === null || (Number.isFinite(stock) && stock >= 0);
+  const evenStock = okStock && stockFits(d.draw, stock);
   const okName = d.name.trim().length > 0 && d.name.trim().length <= 60;
-  const ok = okName && okChance && okStock;
+  const ok = okName && okChance && okStock && evenStock;
 
   const save = async () => {
     if (!supabase || !ok || busy) return;
@@ -163,6 +177,7 @@ export default function AdminPrizes() {
       chance_pct: chance,
       draw: d.draw,
       audience: d.audience,
+      tier: d.tier,
       stock,
     };
     const r = editing
@@ -189,6 +204,15 @@ export default function AdminPrizes() {
     if (editing === p.id) clear();
     await refresh();
     flash(t("adm.prizeGone"));
+  };
+
+  const flipMaster = async () => {
+    if (!supabase || !master) return;
+    setErr(null);
+    const { data: u } = await supabase.auth.getUser();
+    const r = await flipSwitch(supabase, !master.on, u.user?.id ?? null);
+    if (r.error) { setErr(r.error); return; }
+    await refresh();
   };
 
   const handOver = async (w: Win) => {
@@ -225,10 +249,35 @@ export default function AdminPrizes() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* ── What can be won ─────────────────────────────────────────────── */}
-      <p className="max-w-prose text-ui leading-relaxed text-muted">
-        {t("adm.prizesWhy")}
-      </p>
+      {/* ── Whether any of it runs ──────────────────────────────────────
+          Above everything, because it is the answer to the first question
+          anybody opening this tab has, and because a cupboard full of prizes
+          with the draw switched off looks exactly like one that is working. */}
+      {master === null && (
+        <p className="rounded-lg border border-chili/50 bg-chili/10 px-3 py-2 text-ui text-chili">
+          {t("adm.prizeSwitchMissing")}
+        </p>
+      )}
+      {master && (
+        <div className={`flex flex-wrap items-center gap-3 rounded-xl border-2 p-3 ${
+          master.on ? "border-jade/60 bg-jade/10" : "border-line bg-card"}`}>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className={`text-head font-semibold ${master.on ? "text-jade" : "text-ink"}`}>
+              {master.on ? t("adm.prizeSwitchOn") : t("adm.prizeSwitchOff")}
+            </span>
+            <span className="text-read text-muted">
+              {master.on ? t("adm.prizeSwitchOnWhy") : t("adm.prizeSwitchOffWhy")}
+              {master.at && <> · {fmtDateTime(master.at)}</>}
+            </span>
+          </div>
+          <button type="button" onClick={() => setAsking(true)}
+                  className={`rounded-lg border px-4 py-2 text-lead font-medium ${
+                    master.on ? "border-chili/60 text-chili hover:bg-chili/10"
+                              : "border-jade/60 bg-jade/15 text-jade hover:bg-jade/25"}`}>
+            {master.on ? t("adm.prizeTurnOff") : t("adm.prizeTurnOn")}
+          </button>
+        </div>
+      )}
       {(roster === 0 || roster === null) && (
         <p className="rounded-lg border border-gold/50 bg-gold/10 px-3 py-2 text-ui text-gold">
           {t("adm.prizeNoRoster")}
@@ -294,6 +343,16 @@ export default function AdminPrizes() {
           </label>
 
           <label className="flex flex-col gap-1">
+            <span className="text-ui text-muted">{t("adm.prizeTier")}</span>
+            <select value={d.tier} className={inputCls}
+                    onChange={(e) => setD({ ...d, tier: e.target.value as RareTier })}>
+              {TIERS.map((k) => (
+                <option key={k} value={k}>{TIER_LOOK[k].label}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="flex flex-col gap-1">
             <span className="text-ui text-muted">{t("adm.prizeStock")}</span>
             <input type="number" min={0} step={1} value={d.stock}
                    onChange={(e) => setD({ ...d, stock: e.target.value })}
@@ -308,6 +367,25 @@ export default function AdminPrizes() {
                    className="h-10 w-16 rounded-lg border border-line bg-card" />
           </label>
         </div>
+
+        {/* The guide, under the row it is about. A suggestion in a sentence
+            rather than a validation, because the tier is what a win looks
+            like and the chance is how often it happens, and nobody but the
+            person giving the thing away can say how those should line up. */}
+        <p className="max-w-prose text-ui leading-relaxed text-muted">
+          {t("adm.prizeTierWhy")}
+        </p>
+        {okChance && chance > 0
+          && (chance < TIER_ADVICE[d.tier].low || chance > TIER_ADVICE[d.tier].high) && (
+          <p className="text-ui text-gold">
+            {t("adm.prizeTierOff", {
+              tier: TIER_LOOK[d.tier].label,
+              low: TIER_ADVICE[d.tier].low,
+              high: TIER_ADVICE[d.tier].high,
+            })}
+          </p>
+        )}
+        {!evenStock && <p className="text-ui text-chili">{t("adm.prizeStockEven")}</p>}
 
         <div className="flex flex-col gap-1">
           <span className="text-ui text-muted">{t("adm.prizeIcon")}</span>
@@ -363,8 +441,11 @@ export default function AdminPrizes() {
                         : <span className="text-xl">🎁</span>}
                     </span>
                     <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <span className="text-lead font-semibold" style={{ color: p.color }}>
-                        {name}
+                      <span className="flex flex-wrap items-center gap-2">
+                        <TierBadge tier={p.tier} small />
+                        <span className="text-lead font-semibold" style={{ color: p.color }}>
+                          {name}
+                        </span>
                       </span>
                       {detail && <span className="text-ui text-ink/75">{detail}</span>}
                       <span className="flex flex-wrap gap-x-2 text-meta text-muted">
@@ -444,6 +525,7 @@ export default function AdminPrizes() {
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="flex flex-wrap items-center gap-2">
+                    <TierBadge tier={w.tier} small />
                     <span className="text-lead font-semibold text-ink">
                       {names[w.winner] ?? "—"}
                     </span>
@@ -499,6 +581,14 @@ export default function AdminPrizes() {
       </section>
 
       {err && <p className="text-read text-chili">{err}</p>}
+
+      {asking && master && (
+        <ConfirmDialog z={120} danger={master.on}
+                       message={master.on ? t("adm.prizeOffAsk") : t("adm.prizeOnAsk")}
+                       confirmLabel={master.on ? t("adm.prizeTurnOff") : t("adm.prizeTurnOn")}
+                       onCancel={() => setAsking(false)}
+                       onConfirm={() => { setAsking(false); void flipMaster(); }} />
+      )}
 
       {confirm && (
         <ConfirmDialog z={120} danger={!!confirm.danger}

@@ -76,7 +76,6 @@ import AdminReports from "@/components/AdminReports";
 import AdminClaims, { type ClaimedProfile } from "@/components/AdminClaims";
 import AdminTabs from "@/components/AdminTabs";
 import AdminBadges from "@/components/AdminBadges";
-import AdminPoll from "@/components/AdminPoll";
 import { fmtDateTime } from "@/lib/dates";
 
 /**
@@ -759,6 +758,13 @@ export default function AdminPanel(
           rather than with something to change — and the second is where you
           go when the first surprises you. */}
       <AdminTabs tabs={[
+        // First, and so the one this card opens on: it is the only tab with a
+        // queue in it — somebody is waiting at the other end of every row —
+        // and the others are all things you come to with a question.
+        //
+        // Every admin, not just the popoto keeper: this is the FC's prize
+        // cupboard, not one person's surprise (compare the flavours below).
+        { key: "prizes", label: t("adm.prizes"), body: <AdminPrizes /> },
         { key: "claims", label: t("adm.claims"), body: (
           <AdminClaims claims={claims} nameOf={nameOf} portraits={portraits}
                        onRelease={async (id) => {
@@ -775,10 +781,6 @@ export default function AdminPanel(
         { key: "badges", label: t("adm.badges"), body: (
           <AdminBadges memberOptions={memberOptions} nameOf={nameOf} />
         ) },
-        { key: "poll", label: t("adm.poll"), body: <AdminPoll /> },
-        // Every admin, not just the popoto keeper: this is the FC's prize
-        // cupboard and the queue of things somebody still has to hand over.
-        { key: "prizes", label: t("adm.prizes"), body: <AdminPrizes /> },
         // Only for whoever keeps the rare popoto, not for every admin: the
         // flavours and their lines are a surprise kept from the other admins
         // too. The database refuses everybody else the same way (v77).

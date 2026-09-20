@@ -1,19 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { inQueueOrder, oneIn, type Win } from "@/lib/prizes";
+import { inQueueOrder, oneIn, stockFits, type Win } from "@/lib/prizes";
 
 /**
- * The two bits of prize arithmetic that are quietly wrong rather than broken.
+ * The three bits of prize arithmetic that are quietly wrong rather than broken.
  *
  * The queue order decides which person an admin serves next, and a queue that
  * serves the newest arrival first looks like a working list right up until
  * somebody has been waiting a fortnight. The one-in-N is the sentence that
  * catches a decimal point in the wrong place before a prize goes live at ten
- * times the chance it was meant to have.
+ * times the chance it was meant to have. And a prize won by two people at
+ * once leaves stock two at a time, so an odd number ends with one nobody can
+ * ever win — a promise to one of a pair.
  */
 
 const win = (o: Partial<Win> & { id: number; at: string }): Win => ({
   prizeId: 1, winner: "u", characterId: 1, name: "x", nameEn: null, detail: null,
-  detailEn: null, icon: null, color: "#fff", draw: "receive",
+  detailEn: null, icon: null, color: "#fff", tier: "rare", draw: "give",
   claimedAt: null, deliveredAt: null, seenWinner: null, seenAdmin: null, ...o,
 });
 
@@ -66,5 +68,28 @@ describe("oneIn", () => {
 
   it("has no answer for a prize that is never drawn", () => {
     expect(oneIn(0)).toBeNull();
+  });
+});
+
+describe("stockFits", () => {
+  it("lets any number through for the draws with one winner", () => {
+    for (const draw of ["give", "receive", "daily"] as const) {
+      expect(stockFits(draw, 1)).toBe(true);
+      expect(stockFits(draw, 7)).toBe(true);
+      expect(stockFits(draw, 0)).toBe(true);
+      expect(stockFits(draw, null)).toBe(true);
+    }
+  });
+
+  it("wants an even number when two people win at once", () => {
+    expect(stockFits("both", 2)).toBe(true);
+    expect(stockFits("both", 10)).toBe(true);
+    expect(stockFits("both", 0)).toBe(true);
+    expect(stockFits("both", 1)).toBe(false);
+    expect(stockFits("both", 7)).toBe(false);
+  });
+
+  it("counts unlimited as fitting, because it never runs out mid-pair", () => {
+    expect(stockFits("both", null)).toBe(true);
   });
 });
