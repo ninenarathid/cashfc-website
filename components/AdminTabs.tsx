@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 /**
  * One card, several panels, a row of tabs to pick between them.
@@ -28,6 +28,20 @@ export default function AdminTabs(
   { tabs, className = "mt-3" }: { tabs: Tab[]; className?: string },
 ) {
   const [open, setOpen] = useState(tabs[0]?.key ?? "");
+
+  /*
+   * A tab can be linked to: /admin#prizes opens the prizes one.
+   *
+   * There are three of these cards on the admin page, so each only answers
+   * for a key it actually holds and the other two leave the address alone.
+   * Written this way rather than by putting the open tab in the address,
+   * because clicking through the tabs should not fill up the back button.
+   */
+  const keys = tabs.map((x) => x.key).join(",");
+  useEffect(() => {
+    const want = window.location.hash.slice(1);
+    if (want && keys.split(",").includes(want)) setOpen(want);
+  }, [keys]);
 
   return (
     <section className={`${className} rounded-xl border border-line bg-surface p-4`}>

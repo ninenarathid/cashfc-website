@@ -15,6 +15,7 @@ import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
 import GiftIcon from "@/components/ui/GiftIcon";
 import { RARE_INVENTORY } from "@/lib/popoto-rare";
+import { PRIZE_INVENTORY } from "@/lib/prizes";
 import { throwPotato } from "@/components/ui/throwPotato";
 
 interface Note {
@@ -218,6 +219,19 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   // One in a hundred arrives wrapped. Its row leads to the inventory on the
   // edit-profile page, where every parcel is opened (see hrefOf).
   popoto_rare: { say: "notif.popotoRare", icon: "🎁", href: "" },
+  /*
+   * A prize an admin has to hand over. Four kinds for one thing, because the
+   * four sentences are addressed to two different people and lead to two
+   * different places: the winner's are answered in their inventory, the
+   * admins' in the admin panel. One kind for both sides would have to guess
+   * which one is reading, and a bell that guesses wrong sends somebody to a
+   * page with nothing on it. See v87.
+   */
+  prize_win: { say: "notif.prizeWin", icon: "🎉", href: "" },
+  prize_done: { say: "notif.prizeDone", icon: "✅", href: "" },
+  prize_talk: { say: "notif.prizeTalk", icon: "💬", href: "" },
+  prize_claim: { say: "notif.prizeClaim", icon: "🎁", href: "/admin#prizes" },
+  prize_ask: { say: "notif.prizeAsk", icon: "💬", href: "/admin#prizes" },
   announcement: { say: "notif.announced", icon: "📣", href: "/" },
   // Somebody answered a notice you posted. The speech bubble, the same mark a
   // reply wears everywhere else on this site. The href is filled in per
@@ -299,6 +313,9 @@ const hrefOf = (
 ): string | null => (
   // A parcel is opened in one place, the inventory on the edit-profile page.
   n.kind === "popoto_rare" ? RARE_INVENTORY
+  // And a prize is claimed in one place, beside it.
+  : n.kind.startsWith("prize_") && n.kind !== "prize_claim" && n.kind !== "prize_ask"
+    ? PRIZE_INVENTORY
   : n.kind === "popoto"
     ? (character != null ? `/member/${character}` : "/profile")
     : n.party_id ? `/party?p=${n.party_id}`
@@ -660,8 +677,12 @@ export default function NotificationBell() {
         // which is the other: it draws its own card, and it earns it — one
         // popoto in a hundred arrives like this, and the corner of the screen
         // is the only warning anybody gets while they are still on the page.
+        // Green, and winning something is the third. A prize is not a card
+        // the way a wrapped popoto is — there is nothing to open, only
+        // somebody to talk to — so it takes the ordinary good tone.
         tone: n.kind === "popoto_rare" ? "rare"
-          : n.kind.startsWith("evercold") ? "good" : "accent",
+          : n.kind.startsWith("evercold") || n.kind === "prize_win"
+            || n.kind === "prize_done" ? "good" : "accent",
         href: hrefOf(n, character, postPath),
       });
     }

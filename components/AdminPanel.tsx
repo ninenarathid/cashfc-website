@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import ImagePicker from "@/components/ImagePicker";
 import AdminFlavors from "@/components/AdminFlavors";
+import AdminPrizes from "@/components/AdminPrizes";
 import { usePopotoKeeper } from "@/lib/popoto-keeper";
 import ImagesPicker from "@/components/ImagesPicker";
 import { picsOf } from "@/lib/events";
@@ -775,6 +776,9 @@ export default function AdminPanel(
           <AdminBadges memberOptions={memberOptions} nameOf={nameOf} />
         ) },
         { key: "poll", label: t("adm.poll"), body: <AdminPoll /> },
+        // Every admin, not just the popoto keeper: this is the FC's prize
+        // cupboard and the queue of things somebody still has to hand over.
+        { key: "prizes", label: t("adm.prizes"), body: <AdminPrizes /> },
         // Only for whoever keeps the rare popoto, not for every admin: the
         // flavours and their lines are a surprise kept from the other admins
         // too. The database refuses everybody else the same way (v77).
