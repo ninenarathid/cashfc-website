@@ -343,28 +343,34 @@ export default function AdminPrizes() {
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-ui text-muted">{t("adm.prizeTier")}</span>
-            <select value={d.tier} className={inputCls}
-                    onChange={(e) => setD({ ...d, tier: e.target.value as RareTier })}>
-              {TIERS.map((k) => (
-                <option key={k} value={k}>{TIER_LOOK[k].label}</option>
-              ))}
-            </select>
-          </label>
-
-          <label className="flex flex-col gap-1">
             <span className="text-ui text-muted">{t("adm.prizeStock")}</span>
             <input type="number" min={0} step={1} value={d.stock}
                    onChange={(e) => setD({ ...d, stock: e.target.value })}
                    placeholder={t("adm.prizeStockAny")}
                    className={`${inputCls} w-32 text-right`} />
           </label>
+        </div>
 
-          <label className="flex flex-col gap-1">
-            <span className="text-ui text-muted">{t("adm.prizeColor")}</span>
+        {/* The tier, picked the way a flavour's is (AdminFlavors): the three
+            badges themselves, ringed when chosen. One control for one ladder
+            — somebody who has set a flavour's tier already knows this one,
+            and a dropdown reading "ULTRA RARE" says less than the chip that
+            is actually going to turn up on the card. */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-ui text-muted">{t("adm.prizeTier")}</span>
+          {TIERS.map((x) => (
+            <button key={x} type="button" onClick={() => setD({ ...d, tier: x })}
+                    className={`rounded-full border-2 p-0.5 ${
+                      d.tier === x ? "" : "border-transparent opacity-60 hover:opacity-100"}`}
+                    style={d.tier === x ? { borderColor: TIER_LOOK[x].color } : undefined}>
+              <TierBadge tier={x} />
+            </button>
+          ))}
+          <label className="ml-auto flex items-center gap-2 text-read text-muted">
+            {t("adm.prizeColor")}
             <input type="color" value={d.color}
                    onChange={(e) => setD({ ...d, color: e.target.value })}
-                   className="h-10 w-16 rounded-lg border border-line bg-card" />
+                   className="h-8 w-12 cursor-pointer rounded border border-line bg-transparent" />
           </label>
         </div>
 
