@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { useLang } from "@/lib/i18n";
-import { TIER_LOOK, type RareTier } from "@/lib/popoto-rare";
 import { oneIn, readRareOdds, type Prize, type RareOdds } from "@/lib/prizes";
 
 /** One thing a popoto can turn into, and how often. */
@@ -35,8 +34,11 @@ function inkOn(hex: string): string {
   return lum > 0.55 ? "#1b1005" : "#f7f3ea";
 }
 
-/** R, SR, UR: the order the ladder is read in everywhere else. */
-const TIER_ORDER: RareTier[] = ["rare", "super", "ultra"];
+/**
+ * The gold a wrapped popoto arrives in — the site's own, so the slice for it
+ * is the colour the thing itself is rather than one of its three tiers'.
+ */
+const RARE_GOLD = "#e5cc80";
 
 /** Percentages, rounded the way a small chance has to be to stay true. */
 const say = (n: number): string =>
@@ -82,17 +84,18 @@ export default function PrizeOdds(
   const slices = useMemo<Slice[]>(() => {
     const out: Slice[] = [];
 
-    // The rare popoto, one slice per tier: they are three different things to
-    // receive, and the whole point of the ladder is that they are not one.
+    // The rare popoto as one slice rather than three. Which tier it comes out
+    // is a second roll inside this one and a separate question: what this bar
+    // is for is how often a popoto is anything other than a popoto, and
+    // splitting the one entry everybody already knows the number of into
+    // thirds made the bar harder to read for a fact nobody came here for.
+    // The split is still on the rare popoto's own tab, where it is set.
     if (rare) {
-      for (const x of TIER_ORDER) {
-        const ifOn = rare.chance * (rare.split[x] / 100);
-        out.push({
-          key: `rare-${x}`, label: `${t("prize.oddsPopoto")} · ${TIER_LOOK[x].short}`,
-          pct: rare.on ? ifOn : 0, ifOn, color: TIER_LOOK[x].color,
-          who: t("prize.oddsToReceiver"), off: !rare.on,
-        });
-      }
+      out.push({
+        key: "rare", label: t("prize.oddsPopoto"),
+        pct: rare.on ? rare.chance : 0, ifOn: rare.chance, color: RARE_GOLD,
+        who: t("prize.oddsToReceiver"), off: !rare.on,
+      });
     }
 
     // Then the prizes. The daily ones are left out on purpose: they are not
