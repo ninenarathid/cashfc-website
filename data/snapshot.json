@@ -401,7 +401,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 128,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -519,7 +519,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -4011,7 +4011,7 @@
   "mounts": 215,
   "minions": 404,
   "rare": null,
-  "level": 100,
+  "level": 47,
   "cc": [
    true,
    true,
@@ -4052,7 +4052,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "44133352": {
   "name": "Seville Beoulve",
@@ -4192,7 +4192,7 @@
   "mounts": 264,
   "minions": 336,
   "rare": 522,
-  "level": 100,
+  "level": 50,
   "cc": null,
   "rare_ids": [
    847,
@@ -4312,7 +4312,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-17"
+  "chg": "2026-09-20"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -5441,7 +5441,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5563,7 +5563,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6179,7 +6179,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 74,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6193,7 +6193,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -6268,7 +6268,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6281,7 +6281,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "39850923": {
   "name": "Hiro Hikari",
@@ -7233,7 +7233,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "master",
+   "WhiteMage": "expert",
    "Astrologian": "legendary"
   },
   "ex": [],
@@ -7466,7 +7466,7 @@
   "mounts": 29,
   "minions": 121,
   "rare": null,
-  "level": 71,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -7479,7 +7479,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "33387937": {
   "name": "R'bael Senkou",
@@ -7621,7 +7621,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "master",
-   "Samurai": "master"
+   "Samurai": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -7723,7 +7723,7 @@
    "Viper": "legendary",
    "Reaper": "legendary",
    "Gunbreaker": "master",
-   "DarkKnight": "legendary"
+   "DarkKnight": "master"
   },
   "ex": [
    "Doomtrain",
@@ -7899,7 +7899,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 83,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -8097,14 +8097,14 @@
   "mounts": 6,
   "minions": 19,
   "rare": null,
-  "level": 77,
+  "level": 89,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-20"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8210,14 +8210,14 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 100,
+  "level": 24,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-20"
  },
  "29389419": {
   "name": "Osilit Bloodhood",

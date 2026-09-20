@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-09-20",
+   "type": "level_100",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "reached level 100 on Armorer!"
+  },
+  {
+   "date": "2026-09-20",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-20",
+   "type": "level_100",
+   "id": 47494518,
+   "name": "Farcia Soluna",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
+   "date": "2026-09-20",
    "type": "job_up",
    "id": 9444020,
    "name": "Non Elemental",
@@ -1378,27 +1399,6 @@
    "id": 47494518,
    "name": "Farcia Soluna",
    "text": "reached level 100 on Astrologian!"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "rare_up",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "earned Onward and Upward — only 1.6% of players have it, and 20 more"
-  },
-  {
-   "date": "2026-09-11",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-11",
-   "type": "ex_clear",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "cleared Doomtrain (Extreme)"
   }
  ]
 }
