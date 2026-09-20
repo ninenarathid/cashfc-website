@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-09-20",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-09-20",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1392,13 +1399,6 @@
    "id": 43864764,
    "name": "Shinonome Kamemaru",
    "text": "earned Blood Born V — only 2.3% of players have it"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned R&D: Cross-pein Hyperhammer"
   }
  ]
 }

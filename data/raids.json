@@ -55827,12 +55827,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 17,
     "kills": 5,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Samurai": {
       "kills": 4,
@@ -62414,12 +62414,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 24,
     "kills": 2,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Samurai": {
       "kills": 2,
@@ -71547,12 +71547,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 48,
     "kills": 4,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "DarkKnight": {
       "kills": 4,
