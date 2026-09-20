@@ -315,6 +315,24 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
 const FACELESS = new Set(["prize_talk", "prize_done"]);
 
 /**
+ * The prize notifications that show the prize, and the ones that show a face.
+ *
+ * Which picture answers "which one?" depends on who is reading. To a winner,
+ * every one of these is about the same thing — the item they are waiting for
+ * — and the admin at the other end is deliberately nobody (see FACELESS), so
+ * the picture is the prize. To an admin, the queue is people: two rows about
+ * two different prizes are easy to tell apart, and two rows about two members
+ * are not unless their faces are on them.
+ *
+ * Both take the kind's own mark in the corner, which is what happened.
+ */
+const PRIZE_PICTURE = new Set(["prize_win", "prize_talk", "prize_done"]);
+const PRIZE_FACE = new Set(["prize_claim", "prize_ask"]);
+
+/** Every prize notification's body is the win it is about, not a line to read. */
+const PRIZE_KINDS = new Set([...PRIZE_PICTURE, ...PRIZE_FACE]);
+
+/**
  * Where one notification leads.
  *
  * A picture is its own address; a party is an address with the party in it; a
@@ -522,6 +540,12 @@ export default function NotificationBell() {
    * somebody looking for one thing from three weeks ago should not wait for
    * three weeks of everything first.
    */
+  /** A won prize's picture, by win id. See PRIZE_PICTURE. */
+  const [prizeArt, setPrizeArt] = useState<Record<number, string>>({});
+  /** That picture for one notification, or null when it is not about a prize. */
+  const prizePic = useCallback((n: { kind: string; body: string | null }) =>
+    (PRIZE_PICTURE.has(n.kind) && n.body ? prizeArt[Number(n.body)] ?? null : null),
+  [prizeArt]);
   /** How many are cleared, which is only ever used to decide what to offer. */
   const [hidden, setHidden] = useState(0);
   const [past, setPast] = useState<Note[] | null>(null);
@@ -603,6 +627,24 @@ export default function NotificationBell() {
         map[r.id] = r.thumb_url || r.image_url;
       }
       setCovers((v) => ({ ...v, ...map }));
+    }
+
+    // And the prize a notification is about, for the same reason: the picture
+    // is the answer to "which one?". Fetched here rather than when a row is
+    // drawn, so it is already in hand by the time the toast goes up — a
+    // notification about winning something that arrives as a blank square is
+    // the one moment this has to look like something.
+    const won = [...new Set(rows.filter((n) => PRIZE_PICTURE.has(n.kind))
+      .map((n) => Number(n.body))
+      .filter((id) => Number.isFinite(id) && id > 0))];
+    if (won.length) {
+      const { data: prizes } = await supabase.from("prize_wins")
+        .select("id, prize_icon").in("id", won);
+      const map: Record<number, string> = {};
+      for (const r of (prizes ?? []) as { id: number; prize_icon: string | null }[]) {
+        if (r.prize_icon) map[r.id] = r.prize_icon;
+      }
+      setPrizeArt((v) => ({ ...v, ...map }));
     }
     return rows;
   }, [supabase]);
@@ -690,7 +732,10 @@ export default function NotificationBell() {
         text: n.kind.startsWith("evercold")
           ? `${t("notif.evercoldEvent")} — ${line}` : line,
         image: n.kind.startsWith("evercold") ? EVENT_POSTER
-          : n.post_id ? covers[n.post_id] ?? face : face,
+          : prizePic(n) ?? (n.post_id ? covers[n.post_id] ?? face : face),
+        // A game item's icon is a square with its corners doing work, so it is
+        // shown whole rather than cropped into the circle a face wears.
+        square: !!prizePic(n),
         badge: kind?.icon,
         // Green, because earning a ticket is the one thing the bell says that
         // is unambiguously a bit of luck. Gold foil for the wrapped popoto,
@@ -985,11 +1030,17 @@ export default function NotificationBell() {
         // party you are in. Who it was is the first thing you want, and a
         // column of identical speech bubbles was the one thing it said.
         : n.kind.startsWith("party_") ? (kind?.icon ?? "🔔")
-          : null;
+          // The admin's half of a prize: who claimed it, who is asking. Two
+          // rows about two members read as one column of speech bubbles
+          // unless their faces are on them.
+          : PRIZE_FACE.has(n.kind) ? (kind?.icon ?? "🎁")
+            : null;
     // An announcement with a picture on it shows that picture, squarely,
     // because it is a poster and not a face.
     const poster = n.kind === "announcement" && n.body
       ? posters[n.body] ?? null : eventPoster;
+    // What the winner's half of a prize shows: the thing itself.
+    const prize = prizePic(n);
     // Answered tags keep their line and their picture and lose their buttons.
     // Taking the whole notification away took the photograph with it, which is
     // the thing somebody who has just agreed to be named in one is most likely
@@ -1016,6 +1067,11 @@ export default function NotificationBell() {
           <BadgedThumb src={actorFace} badge={facing} href={actorHref ?? (n.kind === "popoto_rare" ? href : null)}
                        extra={n.kind === "popoto_rare" ? <GiftIcon size={15} /> : undefined}
                        face={backTo} onGo={dismiss} />
+        ) : prize ? (
+          // Square and whole: an item icon is not a face, and the corners of
+          // one are usually where the thing actually is.
+          <BadgedThumb src={prize} badge={kind?.icon ?? "🎁"} round={false}
+                       href={href} onGo={dismiss} />
         ) : cover ? (
           // The picture answers "which one?", and the badge on it answers what
           // happened to it — a pin for a tag, a speech bubble for a comment.
@@ -1058,6 +1114,11 @@ export default function NotificationBell() {
                 {t("rare.openInInventory")}
               </Link>
             </div>
+          ) : PRIZE_KINDS.has(n.kind) ? (
+            // The body is which win it was, which is a row id and not a thing
+            // to read. The line above already says what happened, and where
+            // it leads is the picture and the whole row being a link.
+            null
           ) : n.body ? (
             <p className="mt-1 line-clamp-2 text-ui leading-snug text-muted">
               {n.body}

@@ -30,6 +30,15 @@ export interface ToastRequest {
   text: string;
   /** Drawn at 40px, round. A face, usually. */
   image?: string | null;
+  /**
+   * Square and whole rather than round and cropped.
+   *
+   * A face survives a circle — it is the shape a face is drawn in everywhere
+   * — and a game item's icon does not: it is a square PNG with its corners
+   * doing work, and `object-cover` in a circle eats them. So a prize shows
+   * the picture rather than the middle of it.
+   */
+  square?: boolean;
   /** The small mark in the corner of the picture — 🥔, 📍, and so on. */
   badge?: string;
   /** Where it goes when clicked. Nothing means it is only an announcement. */
@@ -146,10 +155,13 @@ export default function ToastHost() {
               {it.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={it.image} alt=""
-                     className={`size-14 rounded-full border object-cover ${
+                     className={`size-14 border ${
+                       it.square ? "rounded-md bg-card/60 object-contain p-0.5"
+                                 : "rounded-full object-cover"} ${
                        it.tone === "good" ? "border-jade/40" : "border-accent/40"}`} />
               ) : (
-                <span className={`block size-14 rounded-full border bg-card ${
+                <span className={`block size-14 border bg-card ${
+                  it.square ? "rounded-md" : "rounded-full"} ${
                   it.tone === "good" ? "border-jade/40" : "border-accent/40"}`} />
               )}
               {it.badge && (
