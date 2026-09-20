@@ -483,9 +483,11 @@ const DICT = {
     en: "{who} has claimed a prize and is waiting to be handed it.",
     th: "{who} กดรับของรางวัลแล้ว รอนัดรับอยู่",
   },
+  // No name: which admin answered is not part of the conversation. See
+  // FACELESS in NotificationBell and v89.
   "notif.prizeTalk": {
-    en: "{who} answered about your prize.",
-    th: "{who} ตอบเรื่องของรางวัลของคุณแล้ว",
+    en: "An admin answered about your prize.",
+    th: "แอดมินตอบเรื่องของรางวัลของคุณแล้ว",
   },
   "notif.prizeAsk": {
     en: "{who} said something about the prize they claimed.",

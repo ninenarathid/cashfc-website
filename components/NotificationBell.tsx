@@ -295,6 +295,26 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
 };
 
 /**
+ * Kinds whose actor is nobody in particular to whoever is reading them.
+ *
+ * A prize thread has two sides and only one of them is a person: the winner
+ * is somebody the admins are about to meet in game, and the other side is
+ * "the admins", not whichever of them happened to be at the keyboard. The
+ * thread itself has always said only "admin" over that side; the bell used to
+ * say the name and draw the face, which made one screen anonymous and the
+ * other not, which is the same as neither.
+ *
+ * Read here rather than trusted to the row, so notifications written before
+ * v89 — which carry the name, and which notifications_guard quite rightly
+ * will not let anybody rewrite — are drawn the new way too.
+ *
+ * Same argument the announcements make one function down, and the same
+ * asymmetry: the notifications that go the other way, to the admins, keep the
+ * winner's name, because a queue of unnamed claims is a queue nobody can work.
+ */
+const FACELESS = new Set(["prize_talk", "prize_done"]);
+
+/**
  * Where one notification leads.
  *
  * A picture is its own address; a party is an address with the party in it; a
@@ -661,7 +681,7 @@ export default function NotificationBell() {
         : n.kind.startsWith("evercold") && kind
           ? t(kind.say, { n: n.body ?? "?" })
           : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something");
-      const actor = n.actor ? people[n.actor] : undefined;
+      const actor = n.actor && !FACELESS.has(n.kind) ? people[n.actor] : undefined;
       const face = actor?.characterId != null
         ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
       toast({
@@ -946,7 +966,7 @@ export default function NotificationBell() {
     // The one notification with nobody in it: nothing was done to you, you did
     // something, and the poster is what it is about.
     const eventPoster = n.kind.startsWith("evercold") ? EVENT_POSTER : null;
-    const actor = n.actor ? people[n.actor] : undefined;
+    const actor = n.actor && !FACELESS.has(n.kind) ? people[n.actor] : undefined;
     const actorFace = actor?.characterId != null
       ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
     const actorHref = actor?.characterId != null
