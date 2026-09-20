@@ -135,6 +135,27 @@ export default function PrizeOdds(
   const marginal = live.reduce((n, s) => n + s.pct, 0);
   const share = (s: Slice) => (marginal > 0 ? (s.pct / marginal) * something : 0);
 
+  /*
+   * The same sum with every switch on, for the question somebody is actually
+   * asking while they look at this: what happens if I turn that back on. The
+   * alternative is turning it on to find out, which on a live site is a
+   * strange way to ask a question.
+   */
+  const paused = slices.some((s) => s.off && s.ifOn > 0);
+  const nothingAll = slices.reduce((n, s) => n * (1 - s.ifOn / 100), 1) * 100;
+
+  /*
+   * How much of the bar is popotos that did two things at once.
+   *
+   * The rolls are separate, so one popoto can be rare AND win a prize; the
+   * chance of that is the gap between adding the outcomes up and the real
+   * answer. It is a couple of hundredths today and nobody would find it on
+   * their own, which is exactly why it is written down — a total that is not
+   * a hundred minus the sum looks like an arithmetic mistake until it says
+   * why it is not one.
+   */
+  const overlap = marginal - something;
+
   if (rare === undefined) return null;
 
   return (
@@ -161,6 +182,17 @@ export default function PrizeOdds(
               pct: say(something), n: (oneIn(something) ?? 0).toLocaleString() })
             : t("prize.oddsNothing")}
         </p>
+        {paused && (
+          <p className="mt-0.5 text-ui text-gold">
+            {t("prize.oddsIfAllOn", {
+              pct: say(100 - nothingAll), rest: say(nothingAll) })}
+          </p>
+        )}
+        {overlap >= 0.005 && (
+          <p className="mt-0.5 text-ui leading-relaxed text-muted">
+            {t("prize.oddsOverlap", { pct: say(overlap) })}
+          </p>
+        )}
       </div>
 
       {/* ── and the same thing with the sliver filling the bar ──────────── */}

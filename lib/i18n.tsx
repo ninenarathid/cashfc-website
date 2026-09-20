@@ -513,6 +513,14 @@ const DICT = {
     en: "Nothing can happen at the moment: every switch above is off.",
     th: "ตอนนี้ยังไม่มีอะไรออกได้เลย เพราะสวิตช์ด้านบนปิดอยู่ทั้งหมด",
   },
+  "prize.oddsIfAllOn": {
+    en: "With everything switched on: something happens {pct}% of the time, ordinary {rest}%.",
+    th: "ถ้าเปิดทั้งหมด: มีอะไรเกิดขึ้น {pct}% · ธรรมดา {rest}%",
+  },
+  "prize.oddsOverlap": {
+    en: "These are separate rolls, so one popoto can do two things at once — a {pct}% chance of that. It is why the total is not a hundred minus the sum.",
+    th: "แต่ละอย่างสุ่มแยกกัน popoto ลูกเดียวจึงออกได้มากกว่าหนึ่งอย่าง (โอกาส {pct}%) ตัวเลขรวมจึงไม่ใช่ 100 ลบผลรวมพอดี",
+  },
   "prize.oddsOfThose": {
     en: "Of the ones that do turn into something:",
     th: "ในบรรดาลูกที่ออกอะไรสักอย่าง แบ่งเป็น:",
