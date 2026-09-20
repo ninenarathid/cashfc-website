@@ -497,6 +497,38 @@ const DICT = {
     en: "Your prize has been handed over. Enjoy it.",
     th: "ส่งของรางวัลให้คุณเรียบร้อยแล้ว ขอให้สนุกนะ",
   },
+  /* ── What one popoto can turn into, on one bar ────────────────────── */
+  "prize.oddsTitle": { en: "What one popoto can turn into", th: "popoto 1 ลูก ออกอะไรได้บ้าง" },
+  "prize.oddsSub": {
+    en: "as it is set right now, per popoto sent to somebody else",
+    th: "ตามที่ตั้งไว้ตอนนี้ ต่อ popoto 1 ลูกที่ส่งให้คนอื่น",
+  },
+  "prize.oddsPopoto": { en: "Rare popoto", th: "Popoto แรร์" },
+  "prize.oddsOrdinary": { en: "ordinary", th: "ธรรมดา" },
+  "prize.oddsSomething": {
+    en: "Something happens on {pct}% of them — about one popoto in {n}.",
+    th: "มีอะไรเกิดขึ้น {pct}% — ประมาณ 1 ใน {n} ลูก",
+  },
+  "prize.oddsNothing": {
+    en: "Nothing can happen at the moment: every switch above is off.",
+    th: "ตอนนี้ยังไม่มีอะไรออกได้เลย เพราะสวิตช์ด้านบนปิดอยู่ทั้งหมด",
+  },
+  "prize.oddsOfThose": {
+    en: "Of the ones that do turn into something:",
+    th: "ในบรรดาลูกที่ออกอะไรสักอย่าง แบ่งเป็น:",
+  },
+  "prize.oddsToReceiver": { en: "to whoever received it", th: "คนรับได้" },
+  "prize.oddsToSender": { en: "to whoever sent it", th: "คนส่งได้" },
+  "prize.oddsToBoth": { en: "to both of them", th: "ได้ทั้งคู่" },
+  "prize.oddsPaused": { en: "off · would be {pct}%", th: "ปิดอยู่ · ถ้าเปิดคือ {pct}%" },
+  "prize.oddsDaily": {
+    en: "Drawn once a day rather than once a popoto, so they are not on the bar: {list}",
+    th: "สุ่มวันละครั้ง ไม่ได้สุ่มต่อ popoto จึงไม่อยู่บนแถบ: {list}",
+  },
+  "prize.oddsNoRare": {
+    en: "The rare popoto's own chance is not shown: those numbers belong to whoever keeps the flavours, and this screen does not make an exception of them. The bar above counts the prizes only.",
+    th: "ไม่ได้แสดงโอกาสของ popoto แรร์ เพราะตัวเลขชุดนั้นเป็นของผู้ดูแลรสชาติ หน้านี้ไม่ยกเว้นให้ แถบด้านบนจึงนับเฉพาะของรางวัล",
+  },
   "prize.inventory": { en: "Popoto prizes", th: "ของรางวัลจากการส่ง Popoto" },
   "prize.inventoryNew": {
     en: "{n} waiting to be claimed. Press claim and an admin will arrange to hand it over in game.",

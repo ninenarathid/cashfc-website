@@ -7,6 +7,7 @@ import { fmtDate, fmtDateTime } from "@/lib/dates";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import ImagePicker from "@/components/ImagePicker";
 import PrizeChat from "@/components/PrizeChat";
+import PrizeOdds from "@/components/PrizeOdds";
 import { TierBadge } from "@/components/PopotoRare";
 import { TIER_LOOK, type RareTier } from "@/lib/popoto-rare";
 import fcIds from "@/data/fc-ids.json";
@@ -278,6 +279,15 @@ export default function AdminPrizes() {
           </button>
         </div>
       )}
+      {/* Everything a popoto can turn into, the rare ones included, on one
+          bar. Under the switch because the switch is what it is reporting
+          on, and above the form because it is the answer to "is this too
+          generous?" — which is the question somebody is about to change a
+          number without having asked. */}
+      {master !== null && (
+        <PrizeOdds supabase={supabase} prizes={prizes} prizesOn={!!master?.on} />
+      )}
+
       {(roster === 0 || roster === null) && (
         <p className="rounded-lg border border-gold/50 bg-gold/10 px-3 py-2 text-ui text-gold">
           {t("adm.prizeNoRoster")}

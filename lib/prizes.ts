@@ -314,6 +314,47 @@ export async function flipSwitch(
 }
 
 /**
+ * What a rare popoto costs a popoto, for the odds summary.
+ *
+ * Its own switch, its own chance and its own three-way split (v79, v83, v86),
+ * read here so one screen can show everything a single popoto can turn into
+ * rather than making somebody hold two tabs side by side and multiply.
+ *
+ * Null when it cannot be read, which is the ordinary answer for an admin who
+ * is not the popoto keeper: the whole of that feature is deliberately one
+ * person's to see (v77), and this does not make an exception of the numbers.
+ */
+export interface RareOdds {
+  on: boolean;
+  /** How often any popoto is rare at all, as a percentage. */
+  chance: number;
+  /** The three shares of that, in the order they are shown. */
+  split: Record<RareTier, number>;
+}
+
+export async function readRareOdds(supabase: SupabaseClient): Promise<RareOdds | null> {
+  const { data, error } = await supabase.from("popoto_rare_switch")
+    .select("enabled, chance_pct, super_pct, ultra_pct").eq("id", 1).maybeSingle();
+  if (error || !data) return null;
+  const r = data as {
+    enabled: boolean; chance_pct?: number | string;
+    super_pct?: number | string; ultra_pct?: number | string;
+  };
+  const one = (v: number | string | undefined, fallback: number) => {
+    const n = v == null ? fallback : Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  // The same fallbacks the roll itself uses for a database missing v83 or v86.
+  const sup = one(r.super_pct, 25);
+  const ult = one(r.ultra_pct, 5);
+  return {
+    on: !!r.enabled,
+    chance: one(r.chance_pct, 1),
+    split: { rare: Math.max(0, 100 - sup - ult), super: sup, ultra: ult },
+  };
+}
+
+/**
  * How often this prize actually lands, said in popotos rather than in percent.
  *
  * A percentage under one is a number nobody can feel. "One popoto in two
