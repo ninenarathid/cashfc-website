@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-09-20",
+   "type": "parse_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "set a new best parse: 85 on Enuo as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-20",
    "type": "level_100",
    "id": 60852230,
    "name": "Lucienvt Yenslayer",
@@ -1392,13 +1399,6 @@
    "id": 44133352,
    "name": "Seville Beoulve",
    "text": "earned With Axe in Hand VII — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned Blood Born V — only 2.3% of players have it"
   }
  ]
 }
