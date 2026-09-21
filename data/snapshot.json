@@ -5114,7 +5114,7 @@
   "mounts": 21,
   "minions": 97,
   "rare": 1,
-  "level": 52,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -5129,7 +5129,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-09-21"
  },
  "8836061": {
   "name": "Allusia Heartfilia",
@@ -6574,7 +6574,7 @@
   "mounts": 30,
   "minions": 68,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6595,7 +6595,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-09-21"
  },
  "46739693": {
   "name": "Lins Miyuki",
@@ -6648,7 +6648,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 53,
+  "level": 54,
   "cc": [
    false,
    false,
@@ -6664,7 +6664,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-09-21"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7242,7 +7242,9 @@
    "WhiteMage": "expert",
    "Astrologian": "legendary"
   },
-  "ex": [],
+  "ex": [
+   "Queen Eternal"
+  ],
   "ults": [
    "The Weapon's Refrain"
   ],
@@ -8103,14 +8105,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 81,
+  "level": 82,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-09-21"
  },
  "54419512": {
   "name": "Film Nio",
@@ -8135,14 +8137,14 @@
   "mounts": 5,
   "minions": 14,
   "rare": 0,
-  "level": 80,
+  "level": 31,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-21"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

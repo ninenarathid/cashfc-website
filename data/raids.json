@@ -12810,12 +12810,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 95,
     "kills": 12,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Gunbreaker": {
       "kills": 12,
@@ -41245,12 +41245,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 71,
     "kills": 14,
     "job": "Dancer",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Dancer": {
       "kills": 14,
@@ -41656,12 +41656,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 33,
     "kills": 14,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Scholar": {
       "kills": 14,
@@ -45576,7 +45576,19 @@
     }
    }
   ],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 57,
+    "kills": 4,
+    "job": "Dancer",
+    "cleared": true
+   }
+  ],
   "legacy": [
    {
     "zone": "Abyssos",
@@ -57098,9 +57110,9 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 3,
-    "last": "2026-09-13",
-    "last_ts": 1789303764
+    "pulls": 20,
+    "last": "2026-09-20",
+    "last_ts": 1789900646
    }
   ]
  },
@@ -66548,7 +66560,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 23,
+    "kills": 26,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -66597,8 +66609,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 78,
-    "kills": 33,
+    "best": 79,
+    "kills": 36,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -66631,7 +66643,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 20,
+    "kills": 23,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -66660,7 +66672,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 90,
-    "kills": 23,
+    "kills": 28,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {

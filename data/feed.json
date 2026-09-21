@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-09-21",
+   "type": "level_100",
+   "id": 31155521,
+   "name": "Ketchup Love",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-21",
+   "type": "ex_clear",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
    "date": "2026-09-20",
    "type": "parse_up",
    "id": 42976317,
@@ -1385,20 +1399,6 @@
    "id": 36183541,
    "name": "Nagi Amano",
    "text": "earned Eighth Rank III — only 0.1% of players have it, and 5 more"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "level_100",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned With Axe in Hand VII — only 2.9% of players have it"
   }
  ]
 }
