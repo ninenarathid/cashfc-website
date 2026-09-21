@@ -4501,12 +4501,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 31,
     "kills": 6,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Gunbreaker": {
       "kills": 6,
@@ -4518,12 +4518,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 30,
     "kills": 6,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "WhiteMage": {
       "kills": 6,
@@ -16087,12 +16087,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 50,
     "kills": 14,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Bard": {
       "kills": 14,
@@ -16104,12 +16104,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 21,
     "kills": 8,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Bard": {
       "kills": 8,
@@ -43933,12 +43933,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 10,
     "kills": 1,
     "job": "Dancer",
-    "cleared": true,
-    "encounter_id": 1048
+    "cleared": true
    }
   ],
   "extremes": [],
@@ -57201,8 +57201,12 @@
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 7,
-      "best": 85
+      "kills": 9,
+      "best": 93
+     },
+     "Viper": {
+      "kills": 1,
+      "best": 49
      }
     }
    },
@@ -66565,8 +66569,16 @@
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 6,
+      "kills": 10,
       "best": 83
+     },
+     "Ninja": {
+      "kills": 2,
+      "best": 35
+     },
+     "RedMage": {
+      "kills": 1,
+      "best": 19
      },
      "Astrologian": {
       "kills": 12,
@@ -66577,8 +66589,8 @@
       "best": 51
      },
      "Scholar": {
-      "kills": 3,
-      "best": 31
+      "kills": 10,
+      "best": 55
      }
     }
    },
@@ -66593,6 +66605,10 @@
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
+     "RedMage": {
+      "kills": 1,
+      "best": 41
+     },
      "Summoner": {
       "kills": 2,
       "best": 39
@@ -66619,8 +66635,8 @@
       "best": 63
      },
      "Astrologian": {
-      "kills": 21,
-      "best": 78
+      "kills": 24,
+      "best": 79
      },
      "WhiteMage": {
       "kills": 1,
@@ -66678,6 +66694,10 @@
     "job_kills": {
      "Summoner": {
       "kills": 3,
+      "best": 72
+     },
+     "Bard": {
+      "kills": 1,
       "best": 72
      },
      "Reaper": {
@@ -67805,8 +67825,8 @@
     "cleared": true,
     "job_kills": {
      "WhiteMage": {
-      "kills": 5,
-      "best": 80
+      "kills": 7,
+      "best": 85
      }
     }
    },
