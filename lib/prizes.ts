@@ -345,6 +345,50 @@ export async function readRareOdds(supabase: SupabaseClient): Promise<RareOdds |
 }
 
 /**
+ * How many popotos the Free Company sends on an ordinary day.
+ *
+ * A percentage is a number nobody can feel. "One in five hundred" is better
+ * and still abstract; "about once a day" is the sentence somebody setting a
+ * prize is actually trying to write, and it cannot be worked out without
+ * knowing how many popotos there are to roll on.
+ *
+ * A fortnight, because a week is one quiet stretch away from being wrong and
+ * a month has the shape of an old FC in it. Counted rather than stored: it is
+ * one count over an indexed column, asked when an admin opens a tab.
+ *
+ * Every popoto, including the handful given to one's own character, which are
+ * counted and never rolled. They are about two in a hundred here, which is
+ * inside the noise of an estimate that is the shape of a fortnight anyway.
+ */
+export async function popotoPerDay(
+  supabase: SupabaseClient, days = 14,
+): Promise<number | null> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const { count, error } = await supabase.from("kudos")
+    .select("id", { count: "exact", head: true }).gte("created_at", since);
+  if (error || count == null) return null;
+  return count / days;
+}
+
+/**
+ * A chance, said as how often it will actually happen.
+ *
+ * Wins a day while that is a number worth saying, then days between, then
+ * months — the unit changes because "0.04 times a day" and "once every two
+ * months" are the same fact and only one of them is a sentence.
+ */
+export function howOften(
+  pct: number, perDay: number,
+): { every: "day" | "days" | "months"; n: number } | null {
+  const rate = perDay * (pct / 100);
+  if (!(rate > 0)) return null;
+  if (rate >= 0.9) return { every: "day", n: Math.round(rate * 10) / 10 };
+  const days = 1 / rate;
+  if (days <= 45) return { every: "days", n: Math.round(days) };
+  return { every: "months", n: Math.round(days / 30.4) };
+}
+
+/**
  * How often this prize actually lands, said in popotos rather than in percent.
  *
  * A percentage under one is a number nobody can feel. "One popoto in two

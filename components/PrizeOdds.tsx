@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { useLang } from "@/lib/i18n";
-import { oneIn, readRareOdds, type Prize, type RareOdds } from "@/lib/prizes";
+import {
+  howOften, oneIn, popotoPerDay, readRareOdds, type Prize, type RareOdds,
+} from "@/lib/prizes";
 
 /** One thing a popoto can turn into, and how often. */
 interface Slice {
@@ -16,6 +18,8 @@ interface Slice {
   color: string;
   /** Who it lands on. */
   who: string;
+  /** How many are left, for saying how long that is in days. Null: no limit. */
+  stock: number | null;
   off: boolean;
   /**
    * Why it is off, when it is.
@@ -86,9 +90,12 @@ export default function PrizeOdds(
 ) {
   const { t, lang } = useLang();
   const [rare, setRare] = useState<RareOdds | null | undefined>(undefined);
+  /** Popotos a day, so a percentage can be said as a frequency. */
+  const [perDay, setPerDay] = useState<number | null>(null);
 
   useEffect(() => {
     void readRareOdds(supabase).then(setRare);
+    void popotoPerDay(supabase).then(setPerDay);
   }, [supabase]);
 
   const slices = useMemo<Slice[]>(() => {
@@ -104,7 +111,7 @@ export default function PrizeOdds(
       out.push({
         key: "rare", label: t("prize.oddsPopoto"),
         pct: rare.on ? rare.chance : 0, ifOn: rare.chance, color: RARE_GOLD,
-        who: t("prize.oddsToReceiver"), off: !rare.on,
+        who: t("prize.oddsToReceiver"), stock: null, off: !rare.on,
         why: rare.on ? "" : "paused",
       });
     }
@@ -125,7 +132,7 @@ export default function PrizeOdds(
         pct: why ? 0 : p.chance, ifOn: p.chance, color: p.color,
         who: p.draw === "give" ? t("prize.oddsToSender")
           : p.draw === "both" ? t("prize.oddsToBoth") : t("prize.oddsToReceiver"),
-        off: !!why, why,
+        stock: p.stock, off: !!why, why,
       });
     }
     return out;
@@ -144,7 +151,17 @@ export default function PrizeOdds(
    * segment is a number somebody could check.
    */
   const live = slices.filter((s) => s.pct > 0);
-  const nothing = live.reduce((n, s) => n * (1 - s.pct / 100), 1) * 100;
+  /*
+   * Two rolls, not one per outcome. Since v90 every prize a popoto could
+   * produce shares a single number, so the prizes add up between themselves;
+   * the rare popoto is its own feature with its own roll and compounds with
+   * the lot of them. Adding all of it up as though it were one roll would
+   * overstate it, and compounding each prize separately would understate it.
+   */
+  const rarePct = live.find((s) => s.key === "rare")?.pct ?? 0;
+  const prizePct = Math.min(100,
+    live.filter((s) => s.key !== "rare").reduce((n, s) => n + s.pct, 0));
+  const nothing = (1 - rarePct / 100) * (1 - prizePct / 100) * 100;
   const something = 100 - nothing;
   const marginal = live.reduce((n, s) => n + s.pct, 0);
   const share = (s: Slice) => (marginal > 0 ? (s.pct / marginal) * something : 0);
@@ -156,7 +173,9 @@ export default function PrizeOdds(
    * strange way to ask a question.
    */
   const paused = slices.some((s) => s.off && s.ifOn > 0);
-  const nothingAll = slices.reduce((n, s) => n * (1 - s.ifOn / 100), 1) * 100;
+  const nothingAll = (1 - (slices.find((s) => s.key === "rare")?.ifOn ?? 0) / 100)
+    * (1 - Math.min(100, slices.filter((s) => s.key !== "rare")
+      .reduce((n, s) => n + s.ifOn, 0)) / 100) * 100;
 
   /*
    * How much of the bar is popotos that did two things at once.
@@ -169,6 +188,19 @@ export default function PrizeOdds(
    * why it is not one.
    */
   const overlap = marginal - something;
+
+  /** "about 4 a day" / "about every 5 days" / "about every 2 months". */
+  const pace = (pct: number): { n: number } & Record<string, string | number> | null => {
+    if (perDay == null) return null;
+    const got = howOften(pct, perDay);
+    return got ? { n: got.n, every: got.every } : null;
+  };
+  const paceKey = (pct: number) => {
+    const got = perDay == null ? null : howOften(pct, perDay);
+    return got?.every === "day" ? "prize.oddsPerDay"
+      : got?.every === "days" ? "prize.oddsEveryDays"
+        : got?.every === "months" ? "prize.oddsEveryMonths" : null;
+  };
 
   if (rare === undefined) return null;
 
@@ -190,6 +222,15 @@ export default function PrizeOdds(
             {t("prize.oddsOrdinary")} {say(nothing)}%
           </span>
         </div>
+        {perDay != null && (
+          <p className="mt-1.5 text-ui text-muted">
+            {t("prize.oddsPace", { n: Math.round(perDay).toLocaleString() })}
+            {paceKey(something) && (
+              <> · {t("prize.oddsPaceSomething",
+                { when: t(paceKey(something)!, pace(something)!) })}</>
+            )}
+          </p>
+        )}
         <p className="mt-1.5 text-ui text-muted">
           {something > 0
             ? t("prize.oddsSomething", {
@@ -250,6 +291,24 @@ export default function PrizeOdds(
                   {oneIn(s.pct) != null && (
                     <span className="text-muted">
                       {t("adm.prizeChanceMeans", { n: (oneIn(s.pct) ?? 0).toLocaleString() })}
+                    </span>
+                  )}
+                  {/* The same fact in days, which is the one somebody can
+                      picture: a percentage cannot say whether this is a
+                      Tuesday thing or a Christmas thing. */}
+                  {paceKey(s.pct) && (
+                    <span className="text-jade">
+                      {t(paceKey(s.pct)!, pace(s.pct)!)}
+                    </span>
+                  )}
+                  {/* And how long the shelf lasts at that rate, which is the
+                      other question a frequency answers and the one that
+                      decides whether this is an event or a giveaway. */}
+                  {s.stock != null && perDay != null && s.pct > 0 && (
+                    <span className="text-muted">
+                      {t("prize.oddsRunsOut", {
+                        n: Math.max(1, Math.round(s.stock / (perDay * s.pct / 100))),
+                      })}
                     </span>
                   )}
                 </>

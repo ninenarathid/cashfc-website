@@ -228,21 +228,21 @@ export default function AdminPrizes() {
   };
 
   /**
-   * What each group of prizes adds up to.
+   * What the whole cupboard adds up to.
    *
-   * The roll lays them end to end on one number, so the total is how often
-   * anything is won from that group — and anything past a hundred is a prize
-   * that can never come up, which is worth saying rather than leaving to be
-   * discovered by nobody ever winning it.
+   * One number for all four groups, because since v90 they share one roll:
+   * every prize a popoto could produce is laid end to end on a single number
+   * and at most one comes up, so the total is how often a popoto wins
+   * anything at all. It used to be a total per group, which was right while
+   * the groups rolled separately and would now read as four chances.
+   *
+   * Anything past a hundred is a prize at the end of the line that can never
+   * come up, which is worth saying rather than leaving to be discovered by
+   * nobody ever winning it.
    */
-  const totals = useMemo(() => {
-    const out = {} as Record<PrizeDraw, number>;
-    for (const k of DRAWS) {
-      out[k] = prizes.filter((p) => p.active && p.draw === k)
-        .reduce((n, p) => n + p.chance, 0);
-    }
-    return out;
-  }, [prizes]);
+  const total = useMemo(
+    () => prizes.filter((p) => p.active).reduce((n, p) => n + p.chance, 0),
+    [prizes]);
 
   const waiting = wins.filter((w) => !w.deliveredAt).length;
 
@@ -425,19 +425,23 @@ export default function AdminPrizes() {
       </div>
 
       {/* ── The cupboard, by when it is drawn ───────────────────────────── */}
+      {/* The total is over all of them together and said once, because one
+          popoto draws one prize out of the whole cupboard. Grouping below is
+          about who wins, not about which draw it is. */}
+      {prizes.some((p) => p.active) && (
+        <p className={`text-ui ${total > 100 ? "text-chili" : "text-muted"}`}>
+          {t("adm.prizeTotal", { pct: Math.round(total * 1000) / 1000 })}
+          {total > 100 && ` · ${t("adm.prizeOverflow")}`}
+        </p>
+      )}
       {DRAWS.map((k) => {
         const inDraw = prizes.filter((p) => p.draw === k);
         if (!inDraw.length) return null;
-        const total = totals[k];
         return (
           <section key={k} className="flex flex-col gap-2">
             <div className="flex flex-wrap items-baseline gap-2">
               <span className="font-display font-semibold">
                 {t(DRAW_LABEL[k])}
-              </span>
-              <span className={`text-ui ${total > 100 ? "text-chili" : "text-muted"}`}>
-                {t("adm.prizeTotal", { pct: Math.round(total * 1000) / 1000 })}
-                {total > 100 && ` · ${t("adm.prizeOverflow")}`}
               </span>
             </div>
             <div className="flex flex-col gap-2">

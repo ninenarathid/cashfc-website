@@ -513,6 +513,21 @@ const DICT = {
     en: "Nothing can happen at the moment: every switch above is off.",
     th: "ตอนนี้ยังไม่มีอะไรออกได้เลย เพราะสวิตช์ด้านบนปิดอยู่ทั้งหมด",
   },
+  // A percentage cannot say whether a thing is a Tuesday event or a Christmas
+  // one. These turn it into the sentence somebody setting a prize is trying
+  // to write, using how many popotos the FC actually sends.
+  "prize.oddsPace": {
+    en: "The FC sends about {n} popotos a day",
+    th: "FC ส่ง popoto เฉลี่ยวันละ ~{n} ลูก",
+  },
+  "prize.oddsPaceSomething": {
+    en: "so something lands {when}",
+    th: "จึงมีคนได้อะไรสักอย่าง {when}",
+  },
+  "prize.oddsPerDay": { en: "≈ {n}/day", th: "≈ {n} ครั้ง/วัน" },
+  "prize.oddsEveryDays": { en: "≈ every {n} days", th: "≈ ทุก {n} วัน" },
+  "prize.oddsEveryMonths": { en: "≈ every {n} months", th: "≈ ทุก {n} เดือน" },
+  "prize.oddsRunsOut": { en: "stock lasts ~{n} days", th: "ของหมดใน ~{n} วัน" },
   "prize.oddsIfAllOn": {
     en: "With everything switched on: something happens {pct}% of the time, ordinary {rest}%.",
     th: "ถ้าเปิดทั้งหมด: มีอะไรเกิดขึ้น {pct}% · ธรรมดา {rest}%",
@@ -658,7 +673,10 @@ const DICT = {
   "adm.prizeColor": { en: "Colour", th: "สี" },
   "adm.prizeIcon": { en: "Picture", th: "รูป" },
   "adm.prizeAdd": { en: "Add it", th: "เพิ่ม" },
-  "adm.prizeTotal": { en: "{pct}% of these go out in total", th: "รวมทั้งกลุ่มออก {pct}%" },
+  "adm.prizeTotal": {
+    en: "{pct}% of popotos win one of these — one popoto draws one prize",
+    th: "รวมทุกชิ้น popoto มีโอกาสออก {pct}% — 1 ลูกได้ไม่เกิน 1 ชิ้น",
+  },
   "adm.prizeOverflow": {
     en: "over 100%: the ones at the bottom can never come up",
     th: "เกิน 100% รางวัลท้ายๆ จะไม่มีวันออก",
