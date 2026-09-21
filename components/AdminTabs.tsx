@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
  * One card, several panels, a row of tabs to pick between them.
@@ -28,6 +28,7 @@ export default function AdminTabs(
   { tabs, className = "mt-3" }: { tabs: Tab[]; className?: string },
 ) {
   const [open, setOpen] = useState(tabs[0]?.key ?? "");
+  const card = useRef<HTMLElement>(null);
 
   /*
    * A tab can be linked to: /admin#prizes opens the prizes one.
@@ -39,12 +40,31 @@ export default function AdminTabs(
    */
   const keys = tabs.map((x) => x.key).join(",");
   useEffect(() => {
-    const want = window.location.hash.slice(1);
-    if (want && keys.split(",").includes(want)) setOpen(want);
+    const jump = () => {
+      // Everything after a colon belongs to whatever is inside the tab: the
+      // inbox links at one prize claim, not at the prizes tab in general, and
+      // the panel that holds it reads that part for itself.
+      const want = window.location.hash.slice(1).split(":")[0];
+      if (!want || !keys.split(",").includes(want)) return;
+      setOpen(want);
+      // And brought into view, because nothing on the page has that id for the
+      // browser to scroll to: a tab three cards down that quietly changed is a
+      // link that did nothing as far as the person who clicked it can tell.
+      card.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    jump();
+    // And again whenever the address changes without the page doing so. A link
+    // from one part of the admin page to another — the inbox sending somebody to
+    // the prizes queue — moves the hash and nothing else, so a tab card that only
+    // read the hash when it mounted sat on whichever tab it happened to be on and
+    // the link appeared to do nothing at all.
+    window.addEventListener("hashchange", jump);
+    return () => window.removeEventListener("hashchange", jump);
   }, [keys]);
 
   return (
-    <section className={`${className} rounded-xl border border-line bg-surface p-4`}>
+    <section ref={card}
+             className={`${className} rounded-xl border border-line bg-surface p-4`}>
       <div role="tablist" className="flex flex-wrap gap-1.5 border-b border-line pb-3">
         {tabs.map((tab) => {
           const on = tab.key === open;

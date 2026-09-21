@@ -145,6 +145,37 @@ export default function Feedback() {
   }, [supabase, loadThreads]);
 
   /**
+   * One thread, linked to from elsewhere: /feedback#t12 opens number twelve.
+   *
+   * The admin inbox is the one place that does this, and it is what the link
+   * on a feedback notification is for: somebody wrote in about a thing, and
+   * the useful place to land is that conversation rather than a list of every
+   * conversation with it somewhere in it.
+   *
+   * Not until the list has arrived, because a thread opened before its card is
+   * on the page is a thread with nothing to scroll to. Once per address, so
+   * that clicking a different thread afterwards is not dragged back to this one
+   * by an effect that can still see the hash that started it.
+   */
+  const jumped = useRef<string | null>(null);
+  useEffect(() => {
+    if (!ready) return;
+    const go = () => {
+      const hash = window.location.hash.slice(1);
+      const m = /^t(\d+)$/.exec(hash);
+      if (!m || jumped.current === hash) return;
+      jumped.current = hash;
+      setWriting(false);
+      void openThread(Number(m[1]));
+      setTimeout(() => document.getElementById(`fb-${m[1]}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" }), 60);
+    };
+    go();
+    window.addEventListener("hashchange", go);
+    return () => window.removeEventListener("hashchange", go);
+  }, [ready, openThread]);
+
+  /**
    * The attached files, uploaded, as URLs — or null if one of them would not go.
    *
    * All or nothing on purpose. A message that arrives saying "here is the
@@ -293,7 +324,8 @@ export default function Feedback() {
         )}
 
         {threads.map((x) => (
-          <button key={x.id} onClick={() => { setWriting(false); void openThread(x.id); }}
+          <button key={x.id} id={`fb-${x.id}`}
+                  onClick={() => { setWriting(false); void openThread(x.id); }}
                   className={`rounded-xl border p-3 text-left transition-colors ${
                     x.id === openId ? "border-accent bg-accent/5"
                                     : "border-line bg-surface hover:border-muted"}`}>

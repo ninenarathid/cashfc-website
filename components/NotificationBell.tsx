@@ -11,6 +11,7 @@ import { eventPath } from "@/lib/events";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
+import { ADMIN_KIND_LIST } from "@/lib/notifications";
 import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
 import GiftIcon from "@/components/ui/GiftIcon";
@@ -484,7 +485,11 @@ export default function NotificationBell() {
   // announcement names the admin who wrote it is a matter of what this screen
   // shows, and an admin who turns their powers off asked to see what everybody
   // else sees.
-  const { isAdmin } = useAdmin();
+  // realAdmin, not the switch: which of the two lists a notification belongs in
+  // is a fact about the row and not about what this screen is currently showing,
+  // and an admin looking at the site as a member would otherwise find the prize
+  // queue back in their bell and marked read by opening it.
+  const { isAdmin, realAdmin } = useAdmin();
   const [me, setMe] = useState<string | null>(null);
   const [character, setCharacter] = useState<number | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -584,6 +589,8 @@ export default function NotificationBell() {
       // eslint-disable-next-line max-len
       .select("id, kind, actor, actor_name, post_id, party_id, announcement_id, body, created_at, read_at, answered_at, cleared_at");
     if (!withCleared) q = q.is("cleared_at", null);
+    // An admin reads the admins' half on the admin page. See lib/notifications.
+    if (realAdmin) q = q.not("kind", "in", ADMIN_KIND_LIST);
     const { data } = await q
       .order("created_at", { ascending: false })
       .range(from, from + take - 1);
@@ -658,7 +665,7 @@ export default function NotificationBell() {
       setPrizeTier((v) => ({ ...v, ...tiers }));
     }
     return rows;
-  }, [supabase]);
+  }, [supabase, realAdmin]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -689,10 +696,16 @@ export default function NotificationBell() {
     // without this the button that leads to the cleared ones would be hidden by
     // the act of clearing them, which is the one way to make a soft clear feel
     // exactly like a delete.
-    const { count } = await supabase.from("notifications")
+    // And counting only what this bell would have shown: for an admin a cleared
+    // prize claim is behind the admin inbox, not behind this panel. Branched
+    // rather than reassigned, because the query builder carries its filters in
+    // its own type and `q = q.not(…)` asks it to widen into itself.
+    const counted = supabase.from("notifications")
       .select("id", { count: "exact", head: true }).not("cleared_at", "is", null);
+    const { count } = await (realAdmin
+      ? counted.not("kind", "in", ADMIN_KIND_LIST) : counted);
     setHidden(count ?? 0);
-  }, [supabase, page]);
+  }, [supabase, page, realAdmin]);
 
 
 
@@ -812,8 +825,13 @@ export default function NotificationBell() {
     if (!next || !supabase || !unread) return;
     const now = new Date().toISOString();
     setNotes((v) => v.map((n) => (n.read_at ? n : { ...n, read_at: now })));
-    await supabase.from("notifications")
+    // What was looked at, which is what the panel drew. An admin opening their
+    // bell has not looked at the prize queue, and marking it read from here
+    // would empty the admin inbox of the only thing that says it needs opening.
+    let mark = supabase.from("notifications")
       .update({ read_at: now }).is("read_at", null);
+    if (realAdmin) mark = mark.not("kind", "in", ADMIN_KIND_LIST);
+    await mark;
   }
 
   async function answerTag(postId: number, yes: boolean) {
@@ -862,8 +880,12 @@ export default function NotificationBell() {
     const now = new Date().toISOString();
     // No recipient filter: the policy is the filter, and naming the column
     // twice is one more place for the two to disagree.
-    const { error } = await supabase.from("notifications")
+    let wipe = supabase.from("notifications")
       .update({ cleared_at: now, read_at: now }).is("cleared_at", null);
+    // The same line the panel is drawn along: clearing the bell is somebody
+    // saying they have dealt with what is on the bell.
+    if (realAdmin) wipe = wipe.not("kind", "in", ADMIN_KIND_LIST);
+    const { error } = await wipe;
     // Put them back rather than leave the panel lying about what the server
     // holds. Nothing was destroyed either way, so this is only the screen
     // catching up with a refusal.

@@ -1334,6 +1334,74 @@ const DICT = {
   "member.killsUnit": { en: "kills", th: "ครั้งที่ฆ่า" },
   "member.otherJobs": { en: "{n} other jobs", th: "อีก {n} อาชีพ" },
 
+  // ── The admins' own post, and the shape of the giving ───────────────
+  "adm.inbox": { en: "Waiting for an admin", th: "รอแอดมินจัดการ" },
+  "adm.inboxNote": {
+    en: "Prize claims, questions about a prize and anything written on the "
+        + "feedback page. These used to ring the bell; they live here now, so "
+        + "the bell is only ever about you.",
+    th: "คนกดรับของรางวัล คำถามเรื่องของรางวัล และข้อความจากหน้า Feedback "
+        + "เมื่อก่อนเด้งที่กระดิ่ง ตอนนี้ย้ายมาอยู่ตรงนี้ กระดิ่งจะได้เหลือแต่เรื่องส่วนตัว",
+  },
+  "adm.inboxUnread": { en: "{n} new", th: "ใหม่ {n}" },
+  "adm.inboxMarkRead": { en: "Mark all read", th: "อ่านแล้วทั้งหมด" },
+  "adm.inboxEmpty": { en: "Nothing waiting.", th: "ไม่มีอะไรรออยู่" },
+  "adm.inboxOlder": { en: "Older", th: "เก่ากว่านี้" },
+  "adm.inboxNew": { en: "Not read yet", th: "ยังไม่ได้อ่าน" },
+  "adm.inboxGoTo": { en: "opens {where}", th: "ไปที่ {where}" },
+
+  "adm.inboxAllDays": { en: "All days", th: "ทุกวัน" },
+  "adm.inboxNoneInRange": {
+    en: "Nothing in those days.",
+    th: "ไม่มีอะไรในช่วงวันที่เลือก",
+  },
+  "adm.popotoChart": { en: "Popoto activity", th: "กราฟ Popoto" },
+  "adm.pcNote": {
+    en: "How much giving is actually happening, and who it is between. "
+        + "A potato on a profile and a potato on a picture are counted apart, "
+        + "because they are two different buttons.",
+    th: "ภาพรวมว่ามีการส่ง popoto มากแค่ไหน และระหว่างใครกับใคร "
+        + "แยกนับระหว่าง popoto ที่ส่งบนโปรไฟล์กับที่ส่งบนรูป เพราะเป็นคนละปุ่มกัน",
+  },
+  "adm.pcDays": { en: "{n} days", th: "{n} วัน" },
+  "adm.pcRefresh": { en: "Refresh", th: "โหลดใหม่" },
+  "adm.pcLoading": { en: "Counting…", th: "กำลังนับ…" },
+  "adm.pcFailed": {
+    en: "Could not count them all: {why}",
+    th: "นับไม่ครบ: {why}",
+  },
+  "adm.pcTotal": { en: "Given", th: "ส่งทั้งหมด" },
+  "adm.pcOnProfiles": { en: "On profiles", th: "บนโปรไฟล์" },
+  "adm.pcOnPictures": { en: "On pictures", th: "บนรูป" },
+  "adm.pcAverage": { en: "A day", th: "เฉลี่ยต่อวัน" },
+  "adm.pcGivers": { en: "Gave", th: "คนส่ง" },
+  "adm.pcReceivers": { en: "Got one", th: "คนรับ" },
+  "adm.pcRare": { en: "Rare drawn", th: "Rare ที่ออก" },
+  "adm.pcPerDay": { en: "Popoto given, by day", th: "Popoto ที่ส่ง แยกตามวัน" },
+  "adm.pcPeoplePerDay": { en: "People, by day", th: "จำนวนคน แยกตามวัน" },
+  "adm.pcPeoplePerDayNote": {
+    en: "how many different people gave one that day, and how many were given one",
+    th: "วันนั้นมีคนส่งกี่คน และมีคนได้รับกี่คน",
+  },
+  "adm.pcTopGivers": { en: "Gave the most", th: "ส่งมากที่สุด" },
+  "adm.pcTopGiversNote": {
+    en: "presses, profiles and pictures together",
+    th: "นับจำนวนครั้ง รวมทั้งบนโปรไฟล์และบนรูป",
+  },
+  "adm.pcTopReceivers": { en: "Got the most", th: "ได้รับมากที่สุด" },
+  "adm.pcTopReceiversNote": {
+    en: "counted the way the leaderboard counts",
+    th: "นับแบบเดียวกับกระดานอันดับ",
+  },
+  "adm.pcPopoto": { en: "popoto", th: "popoto" },
+  "adm.pcSomebody": { en: "somebody", th: "บางคน" },
+  "adm.pcShareNote": {
+    en: "A potato on a picture of several people is divided between them, the "
+        + "same as on the leaderboard, so the two agree. Days are Bangkok days.",
+    th: "popoto ที่ให้รูปที่มีหลายคนจะถูกหารแบ่งกันเหมือนในกระดานอันดับ ตัวเลขสองที่จะได้ตรงกัน "
+        + "และนับวันตามเวลาไทย",
+  },
+
   "adm.reports": {
     en: "Popoto: Road to Evercold",
     th: "Popoto: Road to Evercold",

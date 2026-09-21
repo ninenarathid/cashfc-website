@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { useMyFace } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
+import { useAdminUnread } from "@/lib/notifications";
 
 /**
  * Who you are, in the header, and where that can take you.
@@ -33,6 +34,9 @@ export default function AuthButton() {
   // uses for this member. The account's own details only stand in for a guest.
   const me = useMyFace();
   const { isAdmin } = useAdmin();
+  // What is waiting on the admin page, which deliberately no longer rings the
+  // bell. See lib/notifications.
+  const waiting = useAdminUnread(isAdmin);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -132,8 +136,14 @@ export default function AuthButton() {
           </Menu.Item>
           {isAdmin && (
             <Menu.Item asChild>
-              <Link href="/admin" className={`${item} text-chili hover:text-chili`}>
-                {t("nav.admin")}
+              <Link href="/admin"
+                    className={`${item} flex items-center justify-between gap-2 text-chili hover:text-chili`}>
+                <span>{t("nav.admin")}</span>
+                {waiting > 0 && (
+                  <span className="rounded-full bg-chili px-1.5 font-data text-meta font-bold text-ink">
+                    {waiting > 9 ? "9+" : waiting}
+                  </span>
+                )}
               </Link>
             </Menu.Item>
           )}

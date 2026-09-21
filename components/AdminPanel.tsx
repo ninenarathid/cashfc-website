@@ -73,6 +73,8 @@ import { useAdmin } from "@/lib/admin";
 import { useLang } from "@/lib/i18n";
 import AdminLog from "@/components/AdminLog";
 import AdminReports from "@/components/AdminReports";
+import AdminInbox from "@/components/AdminInbox";
+import AdminPopotoChart from "@/components/AdminPopotoChart";
 import AdminClaims, { type ClaimedProfile } from "@/components/AdminClaims";
 import AdminTabs from "@/components/AdminTabs";
 import AdminBadges from "@/components/AdminBadges";
@@ -263,6 +265,11 @@ export default function AdminPanel(
       {/* The panel itself follows the real flag rather than the switch: locking
           yourself out of the room the switch lives in would be a poor trick. */}
       <AdminSwitch />
+
+      {/* ── What is waiting ── */}
+      {/* First on the page, because it is the only thing on it that somebody is
+          waiting at the other end of, and it no longer rings the bell. */}
+      <AdminInbox />
 
       {/* ── Discord settings ── */}
       <section className="mt-5 rounded-xl border border-line bg-surface p-4">
@@ -764,7 +771,21 @@ export default function AdminPanel(
         //
         // Every admin, not just the popoto keeper: this is the FC's prize
         // cupboard, not one person's surprise (compare the flavours below).
-        { key: "prizes", label: t("adm.prizes"), body: <AdminPrizes /> },
+        //
+        // The charts go inside it rather than in a tab of their own, up beside
+        // the odds bar: what the prizes are for is people giving potatoes, and
+        // how much of that is happening is the question anybody about to change
+        // a chance has next.
+        { key: "prizes", label: t("adm.prizes"), body: (
+          <AdminPrizes chart={
+            <div className="rounded-xl border border-line bg-card p-3">
+              <div className="font-display text-lead font-semibold">
+                {t("adm.popotoChart")}
+              </div>
+              <AdminPopotoChart nameOf={nameOf} />
+            </div>
+          } />
+        ) },
         { key: "claims", label: t("adm.claims"), body: (
           <AdminClaims claims={claims} nameOf={nameOf} portraits={portraits}
                        onRelease={async (id) => {

@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback, useEffect, useMemo, useRef, useState, type ReactNode,
+} from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
 import { fmtDate, fmtDateTime } from "@/lib/dates";
@@ -76,11 +78,33 @@ const AUDIENCE_LABEL: Record<PrizeAudience, Key> = {
  * surprise (v77) and this is the FC's cupboard. The database agrees: these
  * tables ask is_admin() and nothing else.
  */
-export default function AdminPrizes() {
+export default function AdminPrizes(
+  { chart }: {
+    /**
+     * The giving, drawn, above the odds bar.
+     *
+     * Passed in rather than imported here because it needs the roster to put
+     * names on its bars and this screen has never needed the roster. It sits
+     * where it does because the two answer the same question from opposite
+     * ends: how much giving there is, and what that giving can turn into.
+     */
+    chart?: ReactNode;
+  } = {},
+) {
   const { t, lang } = useLang();
   const supabase = useMemo(() => createClient(), []);
 
   const [me, setMe] = useState<string | null>(null);
+  /**
+   * The claim somebody followed a link to, until it has been scrolled to.
+   *
+   * The admin inbox links at one claim rather than at this tab in general
+   * (/admin#prizes:24), and the queue it is in may still be loading when the
+   * link arrives. Kept as its own piece of state rather than scrolling to
+   * whatever is open, so that opening a thread by hand does not move the page
+   * under the hand that opened it.
+   */
+  const [jumpTo, setJumpTo] = useState<number | null>(null);
   const [prizes, setPrizes] = useState<Prize[]>([]);
   const [wins, setWins] = useState<Win[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
@@ -106,6 +130,38 @@ export default function AdminPrizes() {
     if (!supabase) return;
     void supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
   }, [supabase]);
+
+  /**
+   * A claim linked to from the admin inbox: /admin#prizes:24.
+   *
+   * The tab card reads the part before the colon and opens this tab; the rest
+   * is ours. Listened for as well as read once, because both ends of that link
+   * are on the same page: a second click, on another claim, moves the address
+   * and nothing else.
+   */
+  useEffect(() => {
+    const want = () => {
+      const [key, id] = window.location.hash.slice(1).split(":");
+      if (key !== "prizes" || !id) return;
+      const n = Number(id);
+      if (!Number.isFinite(n)) return;
+      setOpenWin(n);
+      setJumpTo(n);
+    };
+    want();
+    window.addEventListener("hashchange", want);
+    return () => window.removeEventListener("hashchange", want);
+  }, []);
+
+  // And scrolled to once the queue holding it has been drawn, which is normally
+  // a fetch later than the link that asked for it.
+  useEffect(() => {
+    if (jumpTo == null) return;
+    const el = document.getElementById(`win-${jumpTo}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    setJumpTo(null);
+  }, [jumpTo, wins]);
 
   const refresh = useCallback(async () => {
     if (!supabase) return;
@@ -279,6 +335,12 @@ export default function AdminPrizes() {
           </button>
         </div>
       )}
+      {/* How much giving there actually is, above the bar that says what that
+          giving can turn into: the two are the same question from opposite
+          ends, and a chance per popoto means nothing until you know how many
+          popoto a day there are. */}
+      {chart}
+
       {/* Everything a popoto can turn into, the rare ones included, on one
           bar. Under the switch because the switch is what it is reporting
           on, and above the form because it is the answer to "is this too
@@ -531,7 +593,7 @@ export default function AdminPrizes() {
             && (!w.seenAdmin || w.seenAdmin < (w.claimedAt ?? ""));
           const state = w.deliveredAt ? "done" : w.claimedAt ? "claimed" : "won";
           return (
-            <div key={w.id}
+            <div key={w.id} id={`win-${w.id}`}
                  className={`rounded-xl border p-3 ${
                    state === "claimed" ? "border-accent/50 bg-accent/5"
                      : state === "done" ? "border-line bg-surface opacity-70"
