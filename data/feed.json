@@ -3,6 +3,13 @@
   {
    "date": "2026-09-21",
    "type": "level_100",
+   "id": 29907674,
+   "name": "Ranjoe Tp'",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-21",
+   "type": "level_100",
    "id": 57375278,
    "name": "Komi Kona",
    "text": "reached level 100 on Black Mage!"
@@ -1392,13 +1399,6 @@
    "id": 6173187,
    "name": "Motochita Muses",
    "text": "reached level 100 on Astrologian!"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "level_100",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "reached level 100 on Warrior!"
   }
  ]
 }
