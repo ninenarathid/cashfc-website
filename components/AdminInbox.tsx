@@ -37,8 +37,16 @@ const SAY: Record<string, { key: Key; icon: string; where: Key }> = {
   feedback: { key: "notif.feedback", icon: "✉️", where: "nav.feedback" },
 };
 
-/** One page of them. Longer than the bell's, because this is the record too. */
-const SHOW = 30;
+/**
+ * One page of them.
+ *
+ * Ten, which is a glance rather than a scroll. It was thirty, on the reasoning
+ * that this list is the record as well as the queue — which is true, and is
+ * what the button underneath is for. What it cost was that the thing anybody
+ * opens this page to do next was under three weeks of things they had already
+ * done.
+ */
+const SHOW = 10;
 
 const box = "rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink";
 

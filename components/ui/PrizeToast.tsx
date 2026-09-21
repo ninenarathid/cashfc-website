@@ -133,8 +133,14 @@ export default function PrizeToast(
                  className="relative size-16 rounded-lg border-2 bg-card/60 object-contain p-0.5"
                  style={{ borderColor: hue, boxShadow: `0 0 20px ${hue}a6` }} />
           ) : (
-            <span className="relative block size-16 rounded-lg border-2 bg-card"
-                  style={{ borderColor: hue, boxShadow: `0 0 20px ${hue}a6` }} />
+            // Nothing to show is not the same as nothing to say: a prize with
+            // no picture — money, most often — gets the mark of what happened
+            // rather than an empty frame, which reads as a picture that failed
+            // to load.
+            <span className="relative grid size-16 place-items-center rounded-lg border-2 bg-card text-[28px]"
+                  style={{ borderColor: hue, boxShadow: `0 0 20px ${hue}a6` }}>
+              {it.badge ?? ""}
+            </span>
           )}
           <span className={`absolute -bottom-2 -right-2 ${ultra ? "rare-wobble" : ""}`}>
             <TierChip tier={tier} />

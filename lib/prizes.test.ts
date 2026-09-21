@@ -16,6 +16,7 @@ import { inQueueOrder, oneIn, stockFits, type Win } from "@/lib/prizes";
 const win = (o: Partial<Win> & { id: number; at: string }): Win => ({
   prizeId: 1, winner: "u", characterId: 1, name: "x", nameEn: null, detail: null,
   detailEn: null, icon: null, color: "#fff", tier: "rare", draw: "give",
+  fx: "tier", gilAmount: null,
   claimedAt: null, deliveredAt: null, seenWinner: null, seenAdmin: null, ...o,
 });
 

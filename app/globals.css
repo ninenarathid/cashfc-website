@@ -540,6 +540,121 @@ body { overflow-x: clip; }
   .rare-aura, .rare-aura.rare-ultra-glow { animation: none; opacity: var(--aura, .2); }
 }
 
+/* ── Aqua, handing it over ────────────────────────────────────────────────
+ *
+ * The three cards she appears on (components/ui/WalletToast.tsx). Two drawings
+ * each and one loop each, going round for as long as the toast is up.
+ *
+ * Every swap is a hard cut, not a fade. Two drawings dissolving into each
+ * other is a dissolve; two drawings replaced on a frame is animation, and the
+ * frame it happens on is the one the action lands on, where a change reads as
+ * impact rather than as a change. That is why these are step-shaped opacity
+ * keyframes and not transitions.
+ *
+ * What differs between the three is the shape of the beat, and it has to: a
+ * throw is a jump, an offer is a push towards you, and putting sunglasses on
+ * is a thing you do once and then stand still having done.
+ */
+
+/* Coins in the air: crouch, leap, hang while they fall, land. 1400ms. */
+@keyframes aqua-hop {
+  0%   { transform: translateY(0) scale(1, 1); }
+  26%  { transform: translateY(2%) scale(1.05, .95); }
+  36%  { transform: translateY(-11%) scale(.96, 1.06); }
+  52%  { transform: translateY(-14%) scale(1, 1); }
+  70%  { transform: translateY(0) scale(1.05, .95); }
+  80%  { transform: translateY(0) scale(1, 1); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+.aqua-hop { animation: aqua-hop 1400ms cubic-bezier(.33,.8,.4,1) infinite; }
+@keyframes aqua-hop-a {
+  0%, 33.9% { opacity: 1; } 34%, 81.9% { opacity: 0; } 82%, 100% { opacity: 1; }
+}
+@keyframes aqua-hop-b {
+  0%, 33.9% { opacity: 0; } 34%, 81.9% { opacity: 1; } 82%, 100% { opacity: 0; }
+}
+.aqua-hop-a { animation: aqua-hop-a 1400ms linear infinite; }
+.aqua-hop-b { animation: aqua-hop-b 1400ms linear infinite; }
+
+/* The purse: drawn back, then pushed at you and held there. 1800ms. */
+@keyframes aqua-push {
+  0%   { transform: translateY(0) scale(1); }
+  20%  { transform: translateY(2%) scale(.97); }
+  30%  { transform: translateY(-2%) scale(1.07); }
+  46%  { transform: translateY(-1%) scale(1.03); }
+  86%  { transform: translateY(0) scale(1); }
+  100% { transform: translateY(0) scale(1); }
+}
+.aqua-push { animation: aqua-push 1800ms cubic-bezier(.3,.85,.35,1) infinite; }
+@keyframes aqua-push-a {
+  0%, 27.9% { opacity: 1; } 28%, 89.9% { opacity: 0; } 90%, 100% { opacity: 1; }
+}
+@keyframes aqua-push-b {
+  0%, 27.9% { opacity: 0; } 28%, 89.9% { opacity: 1; } 90%, 100% { opacity: 0; }
+}
+.aqua-push-a { animation: aqua-push-a 1800ms linear infinite; }
+.aqua-push-b { animation: aqua-push-b 1800ms linear infinite; }
+
+/*
+ * The black card: hat down, then up in sunglasses, and stand there.
+ *
+ * Slower than the other two and held far longer on the second drawing, because
+ * the joke is the pose and a pose needs to be looked at. A loop that spent
+ * half its time on each would be somebody putting sunglasses on and taking
+ * them off, over and over, which is a different and much worse joke. 2600ms.
+ */
+@keyframes aqua-cool {
+  0%   { transform: translateY(0) scale(1); }
+  11%  { transform: translateY(1%) scale(.99); }
+  18%  { transform: translateY(-4%) scale(1.05); }
+  30%  { transform: translateY(0) scale(1); }
+  62%  { transform: translateY(-1.5%) scale(1); }
+  92%  { transform: translateY(0) scale(1); }
+  100% { transform: translateY(0) scale(1); }
+}
+.aqua-cool { animation: aqua-cool 2600ms cubic-bezier(.3,.9,.35,1) infinite; }
+@keyframes aqua-cool-a {
+  0%, 15.9% { opacity: 1; } 16%, 93.9% { opacity: 0; } 94%, 100% { opacity: 1; }
+}
+@keyframes aqua-cool-b {
+  0%, 15.9% { opacity: 0; } 16%, 93.9% { opacity: 1; } 94%, 100% { opacity: 0; }
+}
+.aqua-cool-a { animation: aqua-cool-a 2600ms linear infinite; }
+.aqua-cool-b { animation: aqua-cool-b 2600ms linear infinite; }
+
+/*
+ * Arriving. One rise as the card appears, and then the loop takes over.
+ *
+ * Without it she is simply there on the first frame, which is the difference
+ * between a drawing that was placed and a person who turned up. It is on the
+ * box rather than on her, so it composes with whichever loop is running
+ * inside it rather than fighting it for the transform.
+ */
+@keyframes aqua-enter {
+  0%   { transform: translateY(24%) scale(.96); opacity: 0; }
+  55%  { opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.aqua-enter { animation: aqua-enter 560ms cubic-bezier(.22,1,.36,1) both; }
+
+/* The light she is standing in. One shape for all three, at each one's own
+   speed — the duration is set on the element, so the swell arrives a little
+   after whichever beat that card has. */
+@keyframes aqua-lamp {
+  0%, 30%  { opacity: .45; transform: scale(.94); }
+  40%      { opacity: 1; transform: scale(1.08); }
+  70%      { opacity: .6; transform: scale(1); }
+  100%     { opacity: .45; transform: scale(.94); }
+}
+.aqua-lamp { animation: aqua-lamp 1400ms ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* She still arrives, in the pose that says what happened, and stays still. */
+  .aqua-hop, .aqua-push, .aqua-cool, .aqua-lamp, .aqua-enter { animation: none; }
+  .aqua-hop-a, .aqua-push-a, .aqua-cool-a { animation: none; opacity: 0; }
+  .aqua-hop-b, .aqua-push-b, .aqua-cool-b { animation: none; opacity: 1; }
+}
+
 /* Ultra rare: the word runs through the spectrum, and the light behind the
    potato turns with it. Once, slowly — enough to say this is the one. */
 @keyframes rare-ultra-hue {

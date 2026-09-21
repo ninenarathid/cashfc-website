@@ -6,6 +6,7 @@ import Link from "next/link";
 import GiftIcon from "@/components/ui/GiftIcon";
 import { RARE_INVENTORY, type RareTier } from "@/lib/popoto-rare";
 import PrizeToast from "@/components/ui/PrizeToast";
+import WalletToast, { aquaReady, type AquaArt } from "@/components/ui/WalletToast";
 import { useLang } from "@/lib/i18n";
 
 /**
@@ -63,9 +64,25 @@ export interface ToastRequest {
    * prize, so there is nothing left for the card to give away. See
    * PrizeToast, which is why it is not this one with a flag on it.
    */
-  tone?: "accent" | "good" | "rare" | "prize";
+  tone?: "accent" | "good" | "rare" | "prize" | "wallet";
   /** Only for "prize": how loud. R, SR or UR, the rare popoto's own ladder. */
   tier?: RareTier;
+  /**
+   * What the button on the card says, for the cards that have one.
+   *
+   * Aqua's card was the wallet's alone and said so; since v92 a minion can
+   * arrive on it too, and "open the wallet" under a minion is a door to the
+   * wrong room. The caller knows which room, so the caller says.
+   */
+  cta?: string;
+  /**
+   * Only for "wallet": which of her is standing on it.
+   *
+   * Three drawings of three different things being handed over, not three
+   * volumes of one — see AQUA. Absent means the coins, which is the one the
+   * wallet itself has always used.
+   */
+  aqua?: AquaArt;
 }
 
 const EVENT = "toast:show";
@@ -116,10 +133,30 @@ export default function ToastHost() {
 
   useEffect(() => {
     let next = 1;
-    const on = (e: Event) => {
+    const on = async (e: Event) => {
       const detail = (e as CustomEvent<ToastRequest>).detail;
       if (!detail?.text) return;
+      // The id is taken before any waiting, so two arriving together keep the
+      // order they arrived in.
       const id = next++;
+      /*
+       * Aqua's card is held until she can move.
+       *
+       * Her hop begins the moment the card is painted and swaps drawing a
+       * third of a second later, so a card that arrives before its pictures do
+       * is a card that starts with a hole in it. Waiting is the honest fix:
+       * a notification is worth a quarter of a second, and the thing it
+       * announces is worth arriving whole.
+       *
+       * With a ceiling, because the other half of that bargain is that a
+       * picture which never comes must not swallow the notification.
+       */
+      if (detail.tone === "wallet") {
+        await Promise.race([
+          aquaReady(detail.aqua),
+          new Promise((r) => setTimeout(r, 2500)),
+        ]);
+      }
       setItems((v) => [...v, { ...detail, id }].slice(-AT_ONCE));
     };
     window.addEventListener(EVENT, on);
@@ -135,6 +172,11 @@ export default function ToastHost() {
       ) : it.tone === "prize" ? (
         <PrizeToast key={it.id} it={it} linger={LINGER_RARE}
                     onClose={() => close(it.id)} />
+      ) : it.tone === "wallet" ? (
+        // Its own card because Aqua stands outside the frame of it, which is
+        // not something the other two can be talked into. See WalletToast.
+        <WalletToast key={it.id} it={it} linger={LINGER_RARE}
+                     onClose={() => close(it.id)} />
       ) : (
         <Radix.Root key={it.id} duration={LINGER}
                     onOpenChange={(open) => { if (!open) close(it.id); }}

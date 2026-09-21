@@ -16,7 +16,9 @@ import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
 import GiftIcon from "@/components/ui/GiftIcon";
 import { RARE_INVENTORY, type RareTier } from "@/lib/popoto-rare";
-import { PRIZE_INVENTORY } from "@/lib/prizes";
+import { PRIZE_INVENTORY, aquaArt, type PrizeFx } from "@/lib/prizes";
+import { WALLET, fmtGil } from "@/lib/wallet";
+import { warmAqua } from "@/components/ui/WalletToast";
 import { throwPotato } from "@/components/ui/throwPotato";
 
 interface Note {
@@ -233,6 +235,15 @@ const KIND: Record<string, { say: Key; icon: string; href: string }> = {
   prize_talk: { say: "notif.prizeTalk", icon: "💬", href: "" },
   prize_claim: { say: "notif.prizeClaim", icon: "🎁", href: "/admin#prizes" },
   prize_ask: { say: "notif.prizeAsk", icon: "💬", href: "/admin#prizes" },
+  /*
+   * The wallet filling, and the wallet being full. Two sentences because they
+   * ask for two different things: the first is news and the second is a thing
+   * to go and press, and a run of identical "you got some gil" lines would
+   * bury the one day it was worth opening the page for. Both carry the figure
+   * as their body, the way an Evercold notice carries its count. See v91.
+   */
+  wallet_drop: { say: "notif.walletDrop", icon: "💰", href: "" },
+  wallet_full: { say: "notif.walletFull", icon: "💰", href: "" },
   announcement: { say: "notif.announced", icon: "📣", href: "/" },
   // Somebody answered a notice you posted. The speech bubble, the same mark a
   // reply wears everywhere else on this site. The href is filled in per
@@ -334,6 +345,32 @@ const PRIZE_FACE = new Set(["prize_claim", "prize_ask"]);
 const PRIZE_KINDS = new Set([...PRIZE_PICTURE, ...PRIZE_FACE]);
 
 /**
+ * The kinds whose body is a number to be read out in the sentence.
+ *
+ * An Evercold notice carries its count and a wallet payment carries its gil.
+ * Both are spoken in the line itself — "you were paid 10,000 gil" — rather
+ * than printed underneath it, where a bare number is a line of nonsense.
+ */
+const amountKind = (kind: string) =>
+  kind.startsWith("evercold") || kind.startsWith("wallet_");
+
+/**
+ * The figure out of a wallet notification's body, and the tier beside it.
+ *
+ * The body is written "aqua:30000" or "ultra:30000" — which card the payment
+ * wants and what it was worth (v91, v92, v93). Either half may be missing from
+ * an older row: a body that is only a figure is read as the quietest card,
+ * which is what one written before any of this looks like.
+ */
+const walletBody = (body: string | null): { card: PrizeFx | RareTier; n: number } => {
+  const [a, b] = (body ?? "").split(":");
+  const card = a === "aqua" || a === "aqua_purse" || a === "aqua_card"
+    || a === "ultra" || a === "super" || a === "rare" ? a : ("rare" as const);
+  const n = Number(b ?? a);
+  return { card, n: Number.isFinite(n) ? n : 0 };
+};
+
+/**
  * Where one notification leads.
  *
  * A picture is its own address; a party is an address with the party in it; a
@@ -352,6 +389,8 @@ const hrefOf = (
 ): string | null => (
   // A parcel is opened in one place, the inventory on the edit-profile page.
   n.kind === "popoto_rare" ? RARE_INVENTORY
+  // And a wallet is emptied in one place, above both of them.
+  : n.kind.startsWith("wallet_") ? WALLET
   // And a prize is claimed in one place, beside it.
   : n.kind.startsWith("prize_") && n.kind !== "prize_claim" && n.kind !== "prize_ask"
     ? PRIZE_INVENTORY
@@ -564,6 +603,14 @@ export default function NotificationBell() {
    */
   const [prizeTier, setPrizeTier] = useState<Record<number, RareTier>>({});
   /**
+   * And which card it arrives on, by win id. See prizes.fx and v92.
+   *
+   * Read for the same reason as the tier and in the same breath: by the time
+   * the toast goes up it has to already know whether it is a card with light
+   * on it or one with Aqua standing out of the top of it — and which of her.
+   */
+  const [prizeFx, setPrizeFx] = useState<Record<number, PrizeFx>>({});
+  /**
    * And what it is called, by win id.
    *
    * "You have won something" was true and useless: the thing is sitting in the
@@ -694,22 +741,33 @@ export default function NotificationBell() {
       .map((n) => Number(n.body))
       .filter((id) => Number.isFinite(id) && id > 0))];
     if (won.length) {
-      const { data: prizes } = await supabase.from("prize_wins")
-        .select("id, prize_icon, prize_tier, prize_name, prize_name_en").in("id", won);
+      // prize_fx arrived with v92 and a database without it must not take the
+      // whole select down with it — the same fallback lib/prizes.ts makes, for
+      // the same reason: a missing column here is a bell with nothing in it.
+      const cols = "id, prize_icon, prize_tier, prize_name, prize_name_en";
+      const ask = (c: string) => supabase.from("prize_wins").select(c).in("id", won);
+      let got = await ask(`${cols}, prize_fx`);
+      if (got.error) got = await ask(cols);
+      const prizes = got.data;
       const map: Record<number, string> = {};
       const tiers: Record<number, RareTier> = {};
+      const fxs: Record<number, PrizeFx> = {};
       const named: Record<number, { th: string; en: string | null }> = {};
-      for (const r of (prizes ?? []) as {
+      for (const r of (prizes ?? []) as unknown as {
         id: number; prize_icon: string | null; prize_tier: string | null;
         prize_name: string | null; prize_name_en: string | null;
+        prize_fx?: string | null;
       }[]) {
         if (r.prize_icon) map[r.id] = r.prize_icon;
         tiers[r.id] = r.prize_tier === "super" || r.prize_tier === "ultra"
           ? r.prize_tier : "rare";
+        fxs[r.id] = r.prize_fx === "aqua" || r.prize_fx === "aqua_purse"
+          || r.prize_fx === "aqua_card" ? r.prize_fx : "tier";
         if (r.prize_name) named[r.id] = { th: r.prize_name, en: r.prize_name_en };
       }
       setPrizeArt((v) => ({ ...v, ...map }));
       setPrizeTier((v) => ({ ...v, ...tiers }));
+      setPrizeFx((v) => ({ ...v, ...fxs }));
       setPrizeName((v) => ({ ...v, ...named }));
     }
     return rows;
@@ -762,6 +820,29 @@ export default function NotificationBell() {
     return () => clearInterval(id);
   }, [load]);
 
+  /*
+   * Aqua, fetched before the money is.
+   *
+   * Her card swaps between two drawings every 1400ms from the moment it
+   * appears, so a picture that is still downloading is a hole in the first
+   * throw — and the first throw is the one somebody actually watches. Fetched
+   * here as well as there, because the card now waits for them (aquaReady) and
+   * a card that waits is a card that arrives late: warming them while the page
+   * is idle is what turns that wait into nothing. Gated on being signed in,
+   * because nobody else can ever be paid, and off the critical path — two
+   * small pictures, once per session.
+   */
+  useEffect(() => {
+    if (!me) return;
+    const warm = () => { warmAqua(); };
+    const idle = (window as unknown as {
+      requestIdleCallback?: (fn: () => void, o?: { timeout: number }) => number;
+    }).requestIdleCallback;
+    if (idle) { idle(warm, { timeout: 4000 }); return; }
+    const t = setTimeout(warm, 2500);
+    return () => clearTimeout(t);
+  }, [me]);
+
   /**
    * Anything new in the list, said in the corner as well as filed in the bell.
    *
@@ -792,12 +873,27 @@ export default function NotificationBell() {
       const line = prizeSaid(n)
         ?? (n.kind === "announcement"
           ? t("notif.announced")
-          : n.kind.startsWith("evercold") && kind
-            ? t(kind.say, { n: n.body ?? "?" })
+          : n.kind.startsWith("wallet_") && kind
+            ? t(kind.say, { n: fmtGil(walletBody(n.body).n) })
+            : amountKind(n.kind) && kind
+              ? t(kind.say, { n: Number(n.body ?? 0).toLocaleString("en-US") })
             : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something"));
       const actor = n.actor && !FACELESS.has(n.kind) ? people[n.actor] : undefined;
       const face = actor?.characterId != null
         ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
+      /*
+       * Which of Aqua's cards this arrives on, or none of them.
+       *
+       * A win says so in its row and a payment into a wallet says so in the
+       * first half of its body, because a payment has no row to go and look
+       * at. Both answer the same question, so both are asked here and the
+       * card below reads one answer.
+       */
+      const art = n.kind === "prize_win"
+        ? aquaArt(prizeFx[Number(n.body)] ?? "tier")
+        : n.kind === "wallet_drop"
+          ? aquaArt(walletBody(n.body).card as PrizeFx)
+          : null;
       toast({
         // The toast has one line for both facts, so the event goes in front —
         // it is the thing that makes the sentence after it mean anything.
@@ -824,12 +920,28 @@ export default function NotificationBell() {
          * Only the winning. Being answered and being handed the thing are
          * both good news and neither is the moment.
          */
+        /*
+         * Which card. Since v92 this is the prize's own choice rather than
+         * something read off the kind: anything can be set to arrive on Aqua's
+         * card, and money can be set to arrive on the ordinary one. A win says
+         * so in its row; a payment into a wallet says so in the first half of
+         * its body, because there is no row to go and look at.
+         */
         tone: n.kind === "popoto_rare" ? "rare"
-          : n.kind === "prize_win" ? "prize"
+          : n.kind === "prize_win" || n.kind === "wallet_drop"
+            ? (art ? "wallet" : "prize")
             : n.kind.startsWith("evercold") || n.kind === "prize_done"
+              || n.kind === "wallet_full"
               ? "good" : "accent",
-        tier: n.kind === "prize_win" && n.body
-          ? prizeTier[Number(n.body)] ?? "rare" : undefined,
+        aqua: art ?? undefined,
+        tier: art ? undefined
+          : n.kind === "prize_win" && n.body
+            ? prizeTier[Number(n.body)] ?? "rare"
+            : n.kind === "wallet_drop"
+              ? (walletBody(n.body).card as RareTier)
+              : undefined,
+        // Her card is a door, and since v92 it is not always the wallet's.
+        cta: n.kind === "prize_win" ? t("prize.openInInventory") : undefined,
         href: hrefOf(n, character, postPath),
       });
     }
@@ -1095,6 +1207,8 @@ export default function NotificationBell() {
    *   testPrizeNotice("prize_done")  it has been handed over
    *   testPrizeNotice("prize_claim") somebody claimed one (the admin's side)
    *   testPrizeNotice("prize_ask")   they said something about it
+   *   testPrizeNotice("wallet_drop") gil into the wallet, at that tier
+   *   testPrizeNotice("wallet_full") and the wallet reaching the bar
    */
   useEffect(() => {
     if (process.env.NODE_ENV === "production" || !supabase) return;
@@ -1102,6 +1216,19 @@ export default function NotificationBell() {
       testPrizeNotice?: (kind?: string, tier?: RareTier) => void;
     };
     w.testPrizeNotice = (kind = "prize_win", tier: RareTier = "ultra") => {
+      // A wallet notification carries its own figure and its own tier, so it
+      // needs nothing fetched and nothing kept: the row is the whole of it.
+      if (kind.startsWith("wallet_")) {
+        const id = -Date.now();
+        setNotes((v) => [{
+          id, kind, actor: null, actor_name: null,
+          post_id: null, party_id: null, announcement_id: null,
+          body: `${tier}:${kind === "wallet_full" ? 260_000 : 30_000}`,
+          created_at: new Date().toISOString(),
+          read_at: null, answered_at: null, cleared_at: null,
+        } as Note, ...v]);
+        return;
+      }
       // A real prize's picture where there is one, so the card is the size
       // and shape the real thing will be. The admin's half shows a face
       // instead, which is their own here — it is the only one to hand.
@@ -1237,12 +1364,14 @@ export default function NotificationBell() {
                 threaded through the linked-name machinery. */}
             {/* A prize says which prize, and nobody did it to you, so it is
                 written straight as well. */}
-            {prizeSaid(n) ?? (n.kind.startsWith("evercold") && say
-              ? t(say, { n: n.body ?? "?" })
-              : say
-                ? said(t(say, { who: SLOT }), n.actor_name ?? "—",
-                       actorHref, dismiss)
-                : t("notif.something"))}
+            {prizeSaid(n) ?? (n.kind.startsWith("wallet_") && say
+              ? t(say, { n: fmtGil(walletBody(n.body).n) })
+              : amountKind(n.kind) && say
+                ? t(say, { n: Number(n.body ?? 0).toLocaleString("en-US") })
+                : say
+                  ? said(t(say, { who: SLOT }), n.actor_name ?? "—",
+                         actorHref, dismiss)
+                  : t("notif.something"))}
           </p>
           {/* The second line is the body everywhere except the event, where the
               body is the number already spoken above and what belongs here is
@@ -1261,10 +1390,10 @@ export default function NotificationBell() {
                 {t("rare.openInInventory")}
               </Link>
             </div>
-          ) : PRIZE_KINDS.has(n.kind) ? (
+          ) : PRIZE_KINDS.has(n.kind) || n.kind.startsWith("wallet_") ? (
             // The body is which win it was, which is a row id and not a thing
-            // to read. The line above already says what happened, and where
-            // it leads is the picture and the whole row being a link.
+            // to read — or, for a wallet, the figure the line above has just
+            // said. Either way there is nothing left to print underneath.
             null
           ) : n.body ? (
             <p className="mt-1 line-clamp-2 text-ui leading-snug text-muted">

@@ -29,8 +29,18 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+/**
+ * Everything except the files.
+ *
+ * A request that reaches this waits on a round trip to Supabase before
+ * anything is served, which is the right price for a page and an absurd one
+ * for a picture. webp and avif were missing from the list, so every one of the
+ * three hundred-odd webp files on this site — the emotes, and Aqua — paid for
+ * a token refresh before it could be drawn. It showed: her card arrived before
+ * she did.
+ */
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|ico|json)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico|json)$).*)",
   ],
 };

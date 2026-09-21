@@ -271,6 +271,62 @@ export default function AdminPanel(
           waiting at the other end of, and it no longer rings the bell. */}
       <AdminInbox />
 
+      {/* ── The prizes, and the people ── */}
+      {/* Second on the page, under the inbox, because its first tab is the
+          other half of what the inbox says: a claim in there is a row in here
+          with somebody waiting at the end of it, and two clicks apart is two
+          clicks too far for the one job on this page that has a person on the
+          other side of it.
+          
+          It used to be last, on the reasoning that these are screens you come
+          to with a question rather than with something to change. That was
+          true of the tabs beside it and was never true of the first one. */}
+      <AdminTabs tabs={[
+        // First, and so the one this card opens on: it is the only tab with a
+        // queue in it — somebody is waiting at the other end of every row —
+        // and the others are all things you come to with a question.
+        //
+        // Every admin, not just the popoto keeper: this is the FC's prize
+        // cupboard, not one person's surprise (compare the flavours below).
+        //
+        // The charts go inside it rather than in a tab of their own, up beside
+        // the odds bar: what the prizes are for is people giving potatoes, and
+        // how much of that is happening is the question anybody about to change
+        // a chance has next.
+        { key: "prizes", label: t("adm.prizes"), body: (
+          <AdminPrizes chart={
+            <div className="rounded-xl border border-line bg-card p-3">
+              <div className="font-display text-lead font-semibold">
+                {t("adm.popotoChart")}
+              </div>
+              <AdminPopotoChart nameOf={nameOf} />
+            </div>
+          } />
+        ) },
+        { key: "claims", label: t("adm.claims"), body: (
+          <AdminClaims claims={claims} nameOf={nameOf} portraits={portraits}
+                       onRelease={async (id) => {
+                         await supabase!.from("profiles")
+                           .update({ character_id: null, character_name: null })
+                           .eq("id", id);
+                         await refresh(); flash(t("adm.released"));
+                       }} />
+        ) },
+        { key: "popoto", label: t("adm.reports"), body: (
+          <AdminReports portraits={portraits}
+ />
+        ) },
+        { key: "badges", label: t("adm.badges"), body: (
+          <AdminBadges memberOptions={memberOptions} nameOf={nameOf} />
+        ) },
+        // Only for whoever keeps the rare popoto, not for every admin: the
+        // flavours and their lines are a surprise kept from the other admins
+        // too. The database refuses everybody else the same way (v77).
+        ...(keeper ? [{ key: "blessings", label: t("adm.blessings"), body: (
+          <AdminFlavors memberOptions={memberOptions} />
+        ) }] : []),
+      ]} />
+
       {/* ── Discord settings ── */}
       <section className="mt-5 rounded-xl border border-line bg-surface p-4">
         <div className="font-display font-semibold">{t("adm.discord")}</div>
@@ -759,56 +815,6 @@ export default function AdminPanel(
           </div>
         )}
       </section>
-
-      {/* ── The people ── */}
-      {/* Last, because these are the screens you come to with a question
-          rather than with something to change — and the second is where you
-          go when the first surprises you. */}
-      <AdminTabs tabs={[
-        // First, and so the one this card opens on: it is the only tab with a
-        // queue in it — somebody is waiting at the other end of every row —
-        // and the others are all things you come to with a question.
-        //
-        // Every admin, not just the popoto keeper: this is the FC's prize
-        // cupboard, not one person's surprise (compare the flavours below).
-        //
-        // The charts go inside it rather than in a tab of their own, up beside
-        // the odds bar: what the prizes are for is people giving potatoes, and
-        // how much of that is happening is the question anybody about to change
-        // a chance has next.
-        { key: "prizes", label: t("adm.prizes"), body: (
-          <AdminPrizes chart={
-            <div className="rounded-xl border border-line bg-card p-3">
-              <div className="font-display text-lead font-semibold">
-                {t("adm.popotoChart")}
-              </div>
-              <AdminPopotoChart nameOf={nameOf} />
-            </div>
-          } />
-        ) },
-        { key: "claims", label: t("adm.claims"), body: (
-          <AdminClaims claims={claims} nameOf={nameOf} portraits={portraits}
-                       onRelease={async (id) => {
-                         await supabase!.from("profiles")
-                           .update({ character_id: null, character_name: null })
-                           .eq("id", id);
-                         await refresh(); flash(t("adm.released"));
-                       }} />
-        ) },
-        { key: "popoto", label: t("adm.reports"), body: (
-          <AdminReports portraits={portraits}
- />
-        ) },
-        { key: "badges", label: t("adm.badges"), body: (
-          <AdminBadges memberOptions={memberOptions} nameOf={nameOf} />
-        ) },
-        // Only for whoever keeps the rare popoto, not for every admin: the
-        // flavours and their lines are a surprise kept from the other admins
-        // too. The database refuses everybody else the same way (v77).
-        ...(keeper ? [{ key: "blessings", label: t("adm.blessings"), body: (
-          <AdminFlavors memberOptions={memberOptions} />
-        ) }] : []),
-      ]} />
 
       <AdminLog nameOf={nameOf} />
     </main>

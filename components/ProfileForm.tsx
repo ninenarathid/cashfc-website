@@ -12,6 +12,7 @@ import PendingTags from "@/components/gallery/PendingTags";
 import ProfilePictures from "@/components/ProfilePictures";
 import { RareInventory } from "@/components/RareInventory";
 import PrizeInventory from "@/components/PrizeInventory";
+import Wallet from "@/components/Wallet";
 import { useRareDemo } from "@/lib/popoto-rare-demo";
 import AdminSwitch from "@/components/AdminSwitch";
 import { useMyFace } from "@/lib/avatars";
@@ -267,6 +268,13 @@ export default function ProfileForm({ memberOptions }: { memberOptions: Option[]
           pick up to ten to show on their profile. Renders nothing for somebody
           who has never had one. */}
       <RareInventory characterId={charId} demo={inventoryGifts} />
+
+      {/* The small money, adding up. Above the prizes rather than below them
+          because it is the one of the two that is never finished: a prize is a
+          thing to be claimed and forgotten, and this is a bar somebody came
+          here to look at. Renders nothing while the wallet is switched off.
+          See v91. */}
+      <Wallet verified={!!verifiedAt} />
 
       {/* And the prizes somebody still has to hand over in game: claim one and
           the conversation about meeting up opens underneath it. Renders

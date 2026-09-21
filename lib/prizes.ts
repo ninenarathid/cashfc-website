@@ -23,8 +23,76 @@ export type PrizeDraw = "receive" | "give" | "daily" | "both";
 /** Who may win it. */
 export type PrizeAudience = "fc" | "guest" | "all";
 
+/**
+ * What winning it gets you.
+ *
+ * An item is the original: a minion, a glamour set, a thing an admin has to
+ * meet somebody in game to hand over. Gil is paid into the winner's wallet
+ * instead (lib/wallet.ts) and nobody is interrupted — it adds up there until it
+ * is worth a meeting, and the meeting is arranged once for the lot of it.
+ *
+ * Both are drawn the same way, off the same line, out of the same cupboard.
+ * See v91.
+ */
+export type PrizeKind = "item" | "gil";
+
+/**
+ * Who has to be at the other end of the popoto.
+ *
+ * `audience` is about the person who wins; this is about the person they sent
+ * it to, or the person it came from — the other end of the same popoto, read
+ * as whichever of those two questions the draw makes it. See v91.
+ *
+ * 'anyone' is the old behaviour and what every prize made before this has.
+ */
+export type PrizeOtherSide = "anyone" | "fc" | "fc_verified";
+
+/**
+ * Which card a win arrives on.
+ *
+ * 'tier' is the R/SR/UR one, which everything wore until v92: light, sparks
+ * and a chip, as loud as the tier says. The rest are hers — she stands out of
+ * the top of the card, on a loop, for as long as it is up, throwing coins or
+ * pushing a purse at you or holding out a black card in sunglasses.
+ *
+ * Not a fourth tier, and the difference matters: the tier is a ladder whose
+ * rungs mean the same amount of noise everywhere on this site, and a rung that
+ * is not louder than the one below it but merely different is not a rung. A
+ * prize keeps its tier when it is dressed as Aqua — the chip on it and the
+ * card in the winner's inventory still use it. This is the moment it lands.
+ */
+export type PrizeFx = "tier" | "aqua" | "aqua_purse" | "aqua_card";
+
+/**
+ * The three of her, and which drawing each one means.
+ *
+ * 'aqua' is the coins, and keeps its plain name rather than becoming
+ * 'aqua_shower': it is already written on every gil prize in the cupboard and
+ * on every win anybody is holding, and renaming a stored value to make a set
+ * look tidy is a change that can only break things. See v93.
+ */
+export const AQUA_FX: PrizeFx[] = ["aqua", "aqua_purse", "aqua_card"];
+
+export const aquaArt = (fx: PrizeFx): "shower" | "purse" | "card" | null =>
+  fx === "aqua" ? "shower"
+    : fx === "aqua_purse" ? "purse"
+      : fx === "aqua_card" ? "card" : null;
+
 export const DRAWS: PrizeDraw[] = ["give", "receive", "both", "daily"];
 export const AUDIENCES: PrizeAudience[] = ["fc", "guest", "all"];
+export const KINDS: PrizeKind[] = ["item", "gil"];
+export const OTHER_SIDES: PrizeOtherSide[] = ["anyone", "fc", "fc_verified"];
+
+/**
+ * Whether the other end of the popoto is a question this prize can ask.
+ *
+ * Only the two draws with two ends and one winner. A pair is both ends at once
+ * and already asks `audience` of both of them, and a once-a-day roll is about
+ * somebody's day rather than about one popoto — so on those the setting is
+ * kept and not read, and the form does not offer it.
+ */
+export const otherSideApplies = (draw: PrizeDraw): boolean =>
+  draw === "give" || draw === "receive";
 
 /**
  * A prize won by two people at once leaves stock two at a time, so an odd
@@ -63,6 +131,14 @@ export interface Prize {
   audience: PrizeAudience;
   /** Which of the three a win of it looks like. See TIER_LOOK, TIER_FX. */
   tier: RareTier;
+  /** A thing to hand over, or gil into the winner's wallet. */
+  kind: PrizeKind;
+  /** How much gil, for the ones that are gil. Null for the rest. */
+  gilAmount: number | null;
+  /** Who the popoto has to have gone to, or come from. See otherSideApplies. */
+  otherSide: PrizeOtherSide;
+  /** Which card a win of it arrives on. See PrizeFx. */
+  fx: PrizeFx;
   /** How many are left, or null for unlimited. */
   stock: number | null;
   active: boolean;
@@ -82,7 +158,17 @@ export interface Win {
   icon: string | null;
   color: string;
   tier: RareTier;
+  /** Which card it arrived on, as it was set at the moment it was won. */
+  fx: PrizeFx;
   draw: PrizeDraw;
+  /**
+   * What a cash-out was worth, or null for everything else.
+   *
+   * A wallet emptied becomes a win like any other, and this is the only thing
+   * about it that is not on the row already: its name is "เงินสะสม" and the
+   * figure is the whole of what it is. See v91.
+   */
+  gilAmount: number | null;
   at: string;
   claimedAt: string | null;
   deliveredAt: string | null;
@@ -106,19 +192,40 @@ export const PRIZE_INVENTORY = `/profile#${PRIZE_INVENTORY_ID}`;
 /** The default colour of a new prize, the same gold a wrapped popoto wears. */
 export const PRIZE_COLOR = "#f3c969";
 
-const PRIZE_COLS =
+/**
+ * The columns, and the columns a migration has not necessarily made yet.
+ *
+ * A select that names a column which is not there fails whole — it does not
+ * skip the column, it returns nothing — and an error here has always been read
+ * as an empty cupboard, which is the right answer for a database that has
+ * never had prizes and the wrong one for a database that has four and has not
+ * been given v91 yet. That is not a hypothetical: adding the wallet's columns
+ * to this list emptied the cupboard and the queue on a live site between the
+ * code going out and the migration being run.
+ *
+ * So each read asks for everything, and asks again without the newer half if
+ * the database says no. The row types make the newer half optional and the
+ * converters below default it, so the rest of the file never has to know which
+ * of the two answers it is holding.
+ */
+const PRIZE_COLS_BASE =
   "id, name, name_en, detail, detail_en, icon_url, color, chance_pct, draw,"
   + " audience, tier, stock, active, created_at";
+const PRIZE_COLS = `${PRIZE_COLS_BASE}, kind, gil_amount, other_side, fx`;
 
-const WIN_COLS =
+const WIN_COLS_BASE =
   "id, prize_id, winner, character_id, prize_name, prize_name_en, prize_detail,"
-  + " prize_detail_en, prize_icon, prize_color, prize_tier, draw, won_at,"
-  + " claimed_at, delivered_at, seen_winner, seen_admin";
+  + " prize_detail_en, prize_icon, prize_color, prize_tier, draw,"
+  + " won_at, claimed_at, delivered_at, seen_winner, seen_admin";
+const WIN_COLS = `${WIN_COLS_BASE}, gil_amount, prize_fx`;
 
 interface PrizeRow {
   id: number; name: string; name_en: string | null; detail: string | null;
   detail_en: string | null; icon_url: string | null; color: string | null;
   chance_pct: number | string; draw: string; audience: string; tier: string;
+  /** v91 and v92, and absent on a database that has not had them. */
+  kind?: string | null; gil_amount?: number | string | null;
+  other_side?: string | null; fx?: string | null;
   stock: number | null; active: boolean; created_at: string;
 }
 
@@ -127,6 +234,8 @@ interface WinRow {
   prize_name: string; prize_name_en: string | null; prize_detail: string | null;
   prize_detail_en: string | null; prize_icon: string | null; prize_color: string | null;
   prize_tier: string | null;
+  /** v91 and v92, and absent on a database that has not had them. */
+  gil_amount?: number | string | null; prize_fx?: string | null;
   draw: string; won_at: string; claimed_at: string | null; delivered_at: string | null;
   seen_winner: string | null; seen_admin: string | null;
 }
@@ -137,11 +246,25 @@ const asAudience = (s: string): PrizeAudience =>
   s === "guest" || s === "all" ? s : "fc";
 const asTier = (s: string | null): RareTier =>
   s === "super" || s === "ultra" ? s : "rare";
+const asKind = (s: string | null | undefined): PrizeKind =>
+  (s === "gil" ? "gil" : "item");
+const asOtherSide = (s: string | null | undefined): PrizeOtherSide =>
+  (s === "fc" || s === "fc_verified" ? s : "anyone");
+const asFx = (s: string | null | undefined): PrizeFx =>
+  (s === "aqua" || s === "aqua_purse" || s === "aqua_card" ? s : "tier");
+/** A bigint arrives as a number or a string, and an absent one as null. */
+const asGil = (v: number | string | null | undefined): number | null => {
+  if (v == null) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
 
 const toPrize = (r: PrizeRow): Prize => ({
   id: r.id, name: r.name, nameEn: r.name_en, detail: r.detail, detailEn: r.detail_en,
   icon: r.icon_url, color: r.color ?? PRIZE_COLOR, chance: Number(r.chance_pct) || 0,
   draw: asDraw(r.draw), audience: asAudience(r.audience), tier: asTier(r.tier),
+  kind: asKind(r.kind), gilAmount: asGil(r.gil_amount),
+  otherSide: asOtherSide(r.other_side), fx: asFx(r.fx),
   stock: r.stock, active: r.active, at: r.created_at,
 });
 
@@ -149,7 +272,7 @@ const toWin = (r: WinRow): Win => ({
   id: r.id, prizeId: r.prize_id, winner: r.winner, characterId: r.character_id,
   name: r.prize_name, nameEn: r.prize_name_en, detail: r.prize_detail,
   detailEn: r.prize_detail_en, icon: r.prize_icon, color: r.prize_color ?? PRIZE_COLOR,
-  tier: asTier(r.prize_tier),
+  tier: asTier(r.prize_tier), fx: asFx(r.prize_fx), gilAmount: asGil(r.gil_amount),
   draw: asDraw(r.draw), at: r.won_at, claimedAt: r.claimed_at,
   deliveredAt: r.delivered_at, seenWinner: r.seen_winner, seenAdmin: r.seen_admin,
 });
@@ -165,19 +288,23 @@ const toWin = (r: WinRow): Win => ({
  * is the truth about a site that cannot have given one.
  */
 export async function allPrizes(supabase: SupabaseClient): Promise<Prize[]> {
-  const { data, error } = await supabase.from("prizes")
-    .select(PRIZE_COLS).order("id", { ascending: true });
-  if (error) return [];
-  return ((data ?? []) as unknown as PrizeRow[]).map(toPrize);
+  const ask = (cols: string) => supabase.from("prizes")
+    .select(cols).order("id", { ascending: true });
+  let got = await ask(PRIZE_COLS);
+  if (got.error) got = await ask(PRIZE_COLS_BASE);
+  if (got.error) return [];
+  return ((got.data ?? []) as unknown as PrizeRow[]).map(toPrize);
 }
 
 /** What one person is holding: won, not yet handed over. */
 export async function myWins(supabase: SupabaseClient, me: string): Promise<Win[]> {
-  const { data, error } = await supabase.from("prize_wins")
-    .select(WIN_COLS).eq("winner", me).is("delivered_at", null)
+  const ask = (cols: string) => supabase.from("prize_wins")
+    .select(cols).eq("winner", me).is("delivered_at", null)
     .order("won_at", { ascending: false }).limit(200);
-  if (error) return [];
-  return ((data ?? []) as unknown as WinRow[]).map(toWin);
+  let got = await ask(WIN_COLS);
+  if (got.error) got = await ask(WIN_COLS_BASE);
+  if (got.error) return [];
+  return ((got.data ?? []) as unknown as WinRow[]).map(toWin);
 }
 
 /**
@@ -199,10 +326,12 @@ export function inQueueOrder(wins: Win[]): Win[] {
 
 /** Every win, for the admins, in that order. */
 export async function allWins(supabase: SupabaseClient): Promise<Win[]> {
-  const { data, error } = await supabase.from("prize_wins")
-    .select(WIN_COLS).order("won_at", { ascending: false }).limit(500);
-  if (error) return [];
-  return inQueueOrder(((data ?? []) as unknown as WinRow[]).map(toWin));
+  const ask = (cols: string) => supabase.from("prize_wins")
+    .select(cols).order("won_at", { ascending: false }).limit(500);
+  let got = await ask(WIN_COLS);
+  if (got.error) got = await ask(WIN_COLS_BASE);
+  if (got.error) return [];
+  return inQueueOrder(((got.data ?? []) as unknown as WinRow[]).map(toWin));
 }
 
 /** Everything said about one win, oldest first. */

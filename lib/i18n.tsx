@@ -507,6 +507,17 @@ const DICT = {
     en: "Your prize has been handed over. Enjoy it.",
     th: "ส่งของรางวัลให้คุณเรียบร้อยแล้ว ขอให้สนุกนะ",
   },
+  /* ── The wallet filling up ────────────────────────────────────────── */
+  // Two sentences, because one is news and the other is something to go and
+  // do. See v91.
+  "notif.walletDrop": {
+    en: "{n} gil into your wallet.",
+    th: "ได้เงิน {n} gil เข้ากระเป๋าสะสมแล้ว",
+  },
+  "notif.walletFull": {
+    en: "Your wallet is at {n} gil — enough to cash out whenever you like.",
+    th: "กระเป๋าเงินสะสมมี {n} gil แล้ว กดแลกเป็นรางวัลได้เลยเมื่อไหร่ก็ได้",
+  },
   /* ── What one popoto can turn into, on one bar ────────────────────── */
   "prize.oddsTitle": { en: "What one popoto can turn into", th: "popoto 1 ลูก ออกอะไรได้บ้าง" },
   "prize.oddsSub": {
@@ -562,6 +573,13 @@ const DICT = {
     th: "เปิดแล้ว แต่สวิตช์ใหญ่ด้านบนยังปิด · ถ้าเปิดคือ {pct}%",
   },
   "prize.oddsSoldOut": { en: "none left", th: "ของหมดแล้ว" },
+  // A gil prize is on, and the wallet it pays into is not. Its own state, for
+  // the same reason as the one above: a line that cannot say which control to
+  // go and press reads as a bug.
+  "prize.oddsWaitingWallet": {
+    en: "on, but the wallet is switched off · would be {pct}%",
+    th: "เปิดแล้ว แต่กระเป๋าเงินยังปิดอยู่ · ถ้าเปิดคือ {pct}%",
+  },
   "prize.oddsDaily": {
     en: "Drawn once a day rather than once a popoto, so they are not on the bar: {list}",
     th: "สุ่มวันละครั้ง ไม่ได้สุ่มต่อ popoto จึงไม่อยู่บนแถบ: {list}",
@@ -600,6 +618,39 @@ const DICT = {
   },
   "prize.sideWinner": { en: "The winner", th: "ผู้ได้รับรางวัล" },
   "prize.sideAdmin": { en: "Admin", th: "แอดมิน" },
+  /* ── The wallet on the profile page ───────────────────────────────── */
+  "wallet.title": { en: "Gil wallet", th: "กระเป๋าเงินสะสม" },
+  "wallet.what": {
+    en: "Small gil from popotos you send lands here and adds up. Cash it out whenever it is past the line.",
+    th: "เงินก้อนเล็กๆ จากการส่ง popoto จะเข้ามาสะสมตรงนี้ พอเลยเส้นแล้วจะกดแลกเมื่อไหร่ก็ได้",
+  },
+  // Past the bar the percentage carries on climbing, because leaving it to
+  // fill is a thing somebody might choose and the screen should say so.
+  "wallet.ready": {
+    en: "Ready to cash out · {pct}% of the line",
+    th: "พร้อมแลกแล้ว · {pct}% ของเกณฑ์",
+  },
+  "wallet.toGo": { en: "{n} gil to go", th: "อีก {n} gil ถึงจะแลกได้" },
+  "wallet.earned": { en: "{n} gil earned in all", th: "ได้มาทั้งหมด {n} gil" },
+  "wallet.take": { en: "Cash it out", th: "แลกเป็นรางวัล" },
+  "wallet.takeAsk": {
+    en: "Cash out {n} gil? It becomes a prize an admin hands over in game, and the wallet starts again from nought — anything that lands after this goes into the next one.",
+    th: "แลก {n} gil เลยไหม? จะกลายเป็นของรางวัลที่แอดมินนัดส่งให้ในเกม แล้วกระเป๋าจะเริ่มนับใหม่จาก 0 — เงินที่ได้หลังจากนี้จะเข้ากระเป๋าใบถัดไป",
+  },
+  "wallet.tookIt": {
+    en: "{n} gil is on its way — it is in your prizes below, and an admin will arrange to hand it over.",
+    th: "แลก {n} gil เรียบร้อย ดูได้ที่รายการของรางวัลด้านล่าง แอดมินจะนัดส่งให้",
+  },
+  "wallet.needVerify": {
+    en: "Verify your character first. Nothing is paid into a wallet the site cannot hand gil to — the ✦ beside your name is what says which character that is.",
+    th: "ต้องยืนยันตัวละครก่อน ระบบจะไม่จ่ายเงินเข้ากระเป๋าของคนที่ยังไม่รู้ว่าต้องส่งของให้ตัวละครไหน เครื่องหมาย ✦ ข้างชื่อคือตัวบอกว่ายืนยันแล้ว",
+  },
+  "wallet.openInProfile": { en: "Open the wallet", th: "ไปดูกระเป๋าเงินสะสม" },
+  "wallet.lately": { en: "Lately", th: "ล่าสุด" },
+  "wallet.nothingYet": {
+    en: "Nothing in it yet. Send a popoto to somebody and see what turns up.",
+    th: "ยังไม่มีเงินในกระเป๋า ลองส่ง popoto ให้เพื่อนดู เผื่อมีอะไรหล่นมา",
+  },
   /* ── Admin: the prize cupboard ────────────────────────────────────── */
   "adm.prizes": { en: "Popoto prizes", th: "ของรางวัลจากการส่ง Popoto" },
   "adm.prizeNoRoster": {
@@ -610,8 +661,6 @@ const DICT = {
   "adm.prizeEditing": { en: "Editing a prize", th: "กำลังแก้ของรางวัล" },
   "adm.prizeName": { en: "Name (Thai)", th: "ชื่อ (ไทย)" },
   "adm.prizeNameEn": { en: "Name (English)", th: "ชื่อ (อังกฤษ)" },
-  "adm.prizeDetail": { en: "What it actually is (Thai)", th: "ของจริงคืออะไร (ไทย)" },
-  "adm.prizeDetailEn": { en: "What it actually is (English)", th: "ของจริงคืออะไร (อังกฤษ)" },
   "adm.prizeChance": { en: "Chance", th: "โอกาสออก" },
   "adm.prizeChanceMeans": { en: "1 in {n}", th: "1 ใน {n}" },
   "adm.prizeChanceNever": { en: "0% — never drawn", th: "0% — จะไม่ออกเลย" },
@@ -645,6 +694,19 @@ const DICT = {
     en: "The rare popoto's three, and the same fanfare: R is a glow, SR shakes the screen, UR takes it over. It is a costume and not a chance — it changes nothing about how often this comes up. What suits each one, as a suggestion only: R about 1–5%, SR about 0.2–1%, UR about 0.05–0.2%. Any number is allowed.",
     th: "ใช้ระดับเดียวกับ popoto แรร์และเอฟเฟกต์ชุดเดียวกัน: R เรืองแสง SR สั่นทั้งจอ UR จัดเต็ม เป็นแค่หน้าตา ไม่ได้เปลี่ยนโอกาสออก ถ้าจะให้เข้ากันแนะนำ R ราว 1–5%, SR ราว 0.2–1%, UR ราว 0.05–0.2% แต่ตั้งนอกนี้ก็ได้",
   },
+  // The same three steps, playing somewhere else. A prize plays its fanfare on
+  // its card in the inventory; a wallet payment plays it on the wallet.
+  "adm.prizeTierGilWhy": {
+    en: "The rare popoto's three, playing on the wallet when the money lands: R is a glow, SR shakes it, UR takes over the card. It is a costume and not a chance — it changes nothing about how often this comes up. Small and often suits R; save UR for the one worth looking up from the game for.",
+    th: "ใช้ระดับเดียวกับ popoto แรร์ และจะเล่นเอฟเฟกต์ที่กระเป๋าเงินตอนเงินเข้า: R เรืองแสง SR สั่น UR จัดเต็มทั้งการ์ด เป็นแค่หน้าตา ไม่ได้เปลี่ยนโอกาสออก ก้อนเล็กที่ออกบ่อยเหมาะกับ R ส่วน UR เก็บไว้ให้ก้อนที่คุ้มกับการละสายตาจากเกม",
+  },
+  /* ── Which card a win arrives on ──────────────────────────────────── */
+  // A fourth button beside R, SR and UR, and deliberately not a fourth rung of
+  // that ladder: the three are how loud, and this is a different card.
+  "adm.prizeFxAqua": { en: "Aqua Coin Shower", th: "Aqua โปรยเงิน" },
+  "adm.prizeFxPurse": { en: "Aqua Coin Purse", th: "Aqua ยื่นถุงเงิน" },
+  "adm.prizeFxCard": { en: "Aqua Black Card", th: "Aqua ยื่นบัตรเครดิต" },
+  "adm.prizeTestToast": { en: "Preview", th: "ดูตัวอย่าง" },
   "adm.prizeTierOff": {
     en: "{tier} is usually {low}–{high}% — not a rule, just what it looks like beside the others",
     th: "{tier} ปกติอยู่ราว {low}–{high}% — ไม่ใช่กฎ แค่ให้เทียบกับชิ้นอื่นได้",
@@ -673,10 +735,105 @@ const DICT = {
     en: "The prize tables are not on the database yet — run the migration in supabase/.",
     th: "ยังไม่มีตารางของรางวัลในฐานข้อมูล ต้องรัน migration ใน supabase/ ก่อน",
   },
+  /* ── Admin: the wallet, and the prizes that pay into it ───────────── */
+  "adm.walletMissing": {
+    en: "The wallet is not on the database yet — run v91 in supabase/.",
+    th: "ยังไม่มีตารางกระเป๋าเงินในฐานข้อมูล ต้องรัน v91 ใน supabase/ ก่อน",
+  },
+  "adm.walletOn": { en: "The gil wallet is ON", th: "กระเป๋าเงินสะสม: เปิดใช้งาน" },
+  "adm.walletOff": { en: "The gil wallet is OFF", th: "กระเป๋าเงินสะสม: ปิดอยู่" },
+  "adm.walletOnWhy": {
+    en: "Members have a wallet on their profile, and the gil prizes below are in the draw.",
+    th: "สมาชิกจะเห็นกระเป๋าเงินในหน้าโปรไฟล์ และรางวัลแบบเงินด้านล่างจะถูกสุ่มด้วย",
+  },
+  "adm.walletOffWhy": {
+    en: "No wallet is shown and no gil prize is drawn, whatever the list below says.",
+    th: "จะไม่มีกระเป๋าเงินขึ้นให้ใครเห็น และรางวัลแบบเงินจะไม่ถูกสุ่มเลย ไม่ว่ารายการด้านล่างจะตั้งไว้ยังไง",
+  },
+  "adm.walletOnAsk": {
+    en: "Turn the gil wallet on? Everybody with a verified character gets a wallet, and the gil prizes below start paying into them.",
+    th: "เปิดกระเป๋าเงินสะสมไหม? ทุกคนที่ยืนยันตัวละครแล้วจะมีกระเป๋าเงิน และรางวัลแบบเงินด้านล่างจะเริ่มจ่ายเข้ากระเป๋า",
+  },
+  "adm.walletOffAsk": {
+    en: "Turn the gil wallet off? Nothing more is paid in and the wallets disappear from view — what is in them is kept, and comes back when this is turned on again.",
+    th: "ปิดกระเป๋าเงินสะสมไหม? จะไม่มีเงินเข้าเพิ่มและกระเป๋าจะหายไปจากหน้าจอ เงินที่สะสมไว้ยังอยู่ครบและจะกลับมาเมื่อเปิดใหม่",
+  },
+  "adm.walletBar": { en: "Cash out at", th: "แลกได้เมื่อถึง" },
+  "adm.walletBarWhy": {
+    en: "A minimum, not a price: the button hands over everything in the wallet, so somebody sitting on 380,000 gets 380,000. Changing it moves the line for everybody at once, including wallets already past it.",
+    th: "เป็นขั้นต่ำ ไม่ใช่ราคา: กดแลกทีเดียวได้ทั้งก้อนที่มี ใครสะสมไว้ 380,000 ก็ได้ 380,000 ถ้าแก้ตัวเลขนี้ เส้นจะขยับพร้อมกันทุกคน รวมถึงคนที่เลยเส้นไปแล้ว",
+  },
+  "adm.walletNeedsDraw": {
+    en: "The wallet is on but the prize draw above is off, so nothing is paid into it: the gil is drawn by the same roll as the prizes.",
+    th: "กระเป๋าเปิดอยู่ แต่สวิตช์สุ่มของรางวัลด้านบนปิด จึงยังไม่มีเงินเข้าเลย เพราะเงินใช้การสุ่มชุดเดียวกับของรางวัล",
+  },
+  "adm.prizeKind": { en: "What it is", th: "เป็นรางวัลแบบไหน" },
+  "adm.prizeKindItem": { en: "Item", th: "Item" },
+  "adm.prizeKindGil": { en: "Gil (saved up)", th: "เงิน (สะสมได้)" },
+  "adm.prizeKindItemWhy": {
+    en: "Won whole, and an admin hands it over in game: a minion, a mount, a glamour set.",
+    th: "ได้ทั้งชิ้น แล้วแอดมินนัดส่งให้ในเกม เช่น มินเนี่ยน เมาท์ หรือชุดแกลมัวร์",
+  },
+  "adm.prizeKindGilWhy": {
+    en: "Paid into the winner's wallet and left to add up.",
+    th: "จ่ายเข้ากระเป๋าเงินสะสมของคนที่ได้ แล้วปล่อยให้สะสมไปเรื่อยๆ",
+  },
+  "adm.prizeGilAmount": { en: "How much", th: "ได้เงินเท่าไหร่" },
+  "adm.prizeGilNeeded": {
+    en: "A whole number of gil, more than nothing",
+    th: "ต้องเป็นจำนวนเงินเต็มจำนวนและมากกว่า 0",
+  },
+  // The sentence somebody setting this is actually trying to write. It is the
+  // one that catches a decimal point in the wrong place, the way "1 in 200"
+  // does for a prize that is a thing.
+  "adm.prizeGilPace": {
+    en: "≈ {n} popotos to reach {bar} gil on this one alone",
+    th: "≈ ส่ง popoto {n} ลูก ถึงจะครบ {bar} gil ถ้านับเฉพาะชิ้นนี้",
+  },
+  "adm.prizeGilWaiting": {
+    en: "the wallet is off",
+    th: "กระเป๋าเงินปิดอยู่",
+  },
   "adm.prizeAudience": { en: "Who can win it", th: "ใครได้บ้าง" },
-  "adm.prizeForFc": { en: "The FC only", th: "เฉพาะคนใน FC" },
-  "adm.prizeForGuest": { en: "Outside the FC only", th: "เฉพาะคนนอก FC" },
-  "adm.prizeForAll": { en: "Anybody", th: "ทุกคน" },
+  /* ── Who has to be at the other end of the popoto ─────────────────── */
+  // One setting, read as the opposite question depending on which way the
+  // prize is drawn. See otherSideApplies.
+  "adm.prizeSentTo": { en: "Only when sent to", th: "นับเฉพาะตอนส่งให้" },
+  "adm.prizeGotFrom": { en: "Only when it came from", th: "นับเฉพาะตอนได้รับจาก" },
+  "adm.prizeSentToShort": { en: "sent to {who}", th: "ส่งให้{who}" },
+  "adm.prizeGotFromShort": { en: "from {who}", th: "ได้รับจาก{who}" },
+  // When it is drawn and who had to be at the other end, as one phrase. On
+  // every prize in the cupboard, so the answer is never left to be inferred
+  // from the setting being absent.
+  "adm.prizeDrawGiveTo": {
+    en: "on a popoto sent to {who}",
+    th: "ตอนส่ง popoto ให้{who}",
+  },
+  "adm.prizeDrawReceiveFrom": {
+    en: "on a popoto received from {who}",
+    th: "ตอนได้รับ popoto จาก{who}",
+  },
+  "adm.prizeSideAnyone": { en: "Anybody", th: "ทุกคน" },
+  "adm.prizeSideFc": { en: "Somebody in the FC", th: "คนใน FC" },
+  "adm.prizeSideFcVerified": {
+    en: "Somebody in the FC with a verified character",
+    th: "คนใน FC ที่ยืนยันตัวละครแล้ว",
+  },
+  "adm.prizeOtherSideFcWhy": {
+    en: "And only when the other person is in the FC.",
+    th: "และนับเฉพาะตอนที่อีกฝ่ายเป็นคนใน FC",
+  },
+  "adm.prizeOtherSideVerifiedWhy": {
+    en: "And only when the other person is in the FC and has proved their character — which is what stops popotos to an alt counting.",
+    th: "และนับเฉพาะตอนที่อีกฝ่ายอยู่ใน FC และยืนยันตัวละครแล้ว — กันการส่งหา alt ตัวเองเพื่อฟาร์ม",
+  },
+  // "and verified" on all three, because that is what all three have always
+  // meant: the roll refuses an account that has not proved a character before
+  // it looks at the audience at all (v87, v91). A fourth option saying so
+  // would be a copy of the first that changed nothing.
+  "adm.prizeForFc": { en: "FC members (verified)", th: "คนใน FC ที่ยืนยันแล้ว" },
+  "adm.prizeForGuest": { en: "Guests (verified)", th: "คนนอก FC ที่ยืนยันแล้ว" },
+  "adm.prizeForAll": { en: "Anybody verified", th: "ทุกคนที่ยืนยันแล้ว" },
   "adm.prizeStock": { en: "How many", th: "มีกี่ชิ้น" },
   "adm.prizeStockAny": { en: "unlimited", th: "ไม่จำกัด" },
   "adm.prizeLeft": { en: "{n} left", th: "เหลือ {n}" },

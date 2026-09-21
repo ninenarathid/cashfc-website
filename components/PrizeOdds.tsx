@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { useLang } from "@/lib/i18n";
 import {
-  howOften, oneIn, popotoPerDay, readRareOdds, type Prize, type RareOdds,
+  howOften, oneIn, otherSideApplies, popotoPerDay, readRareOdds,
+  type Prize, type RareOdds,
 } from "@/lib/prizes";
 
 /** One thing a popoto can turn into, and how often. */
@@ -30,7 +31,7 @@ interface Slice {
    * state that cannot say which control to go and press is a state that
    * reads as a bug.
    */
-  why: "" | "master" | "paused" | "empty";
+  why: "" | "master" | "paused" | "empty" | "wallet";
 }
 
 /**
@@ -81,11 +82,18 @@ const say = (n: number): string =>
  * counted it would be answering a different question than the one asked.
  */
 export default function PrizeOdds(
-  { supabase, prizes, prizesOn }: {
+  { supabase, prizes, prizesOn, walletOn }: {
     supabase: SupabaseClient;
     prizes: Prize[];
     /** The master prize switch. Off means none of them are in play. */
     prizesOn: boolean;
+    /**
+     * The wallet's own switch (v91). The gil prizes share this bar because
+     * they share the roll, and they leave it when the wallet is off — a
+     * second switch above one of the entries, said in the one place the
+     * entries are added up.
+     */
+    walletOn: boolean;
   },
 ) {
   const { t, lang } = useLang();
@@ -125,18 +133,28 @@ export default function PrizeOdds(
       // In the order somebody would have to fix them: the switch over all of
       // them first, then this one, then whether there are any left.
       const why = !prizesOn ? "master" : !p.active ? "paused"
-        : p.stock === 0 ? "empty" : "";
+        : p.kind === "gil" && !walletOn ? "wallet"
+          : p.stock === 0 ? "empty" : "";
       out.push({
         key: `prize-${p.id}`,
         label: (lang === "en" ? p.nameEn : null) || p.name,
         pct: why ? 0 : p.chance, ifOn: p.chance, color: p.color,
-        who: p.draw === "give" ? t("prize.oddsToSender")
-          : p.draw === "both" ? t("prize.oddsToBoth") : t("prize.oddsToReceiver"),
+        // Who wins it, and — where the prize asks for one — who had to be at
+        // the other end for it to count. Both on the one line, because "the
+        // sender wins" and "only on popotos sent to the FC" are halves of the
+        // same sentence and a legend that says the first without the second
+        // overstates how often this comes up.
+        who: (p.draw === "give" ? t("prize.oddsToSender")
+          : p.draw === "both" ? t("prize.oddsToBoth") : t("prize.oddsToReceiver"))
+          + (otherSideApplies(p.draw) && p.otherSide !== "anyone"
+            ? ` · ${t(p.draw === "give" ? "adm.prizeSentToShort" : "adm.prizeGotFromShort",
+              { who: t(p.otherSide === "fc" ? "adm.prizeSideFc" : "adm.prizeSideFcVerified") })}`
+            : ""),
         stock: p.stock, off: !!why, why,
       });
     }
     return out;
-  }, [rare, prizes, prizesOn, lang, t]);
+  }, [rare, prizes, prizesOn, walletOn, lang, t]);
 
   const daily = prizes.filter((p) => p.draw === "daily");
 
@@ -283,7 +301,8 @@ export default function PrizeOdds(
                 <span className="text-gold">
                   {t(s.why === "master" ? "prize.oddsWaitingSwitch"
                     : s.why === "empty" ? "prize.oddsSoldOut"
-                      : "prize.oddsPaused", { pct: say(s.ifOn) })}
+                      : s.why === "wallet" ? "prize.oddsWaitingWallet"
+                        : "prize.oddsPaused", { pct: say(s.ifOn) })}
                 </span>
               ) : (
                 <>
