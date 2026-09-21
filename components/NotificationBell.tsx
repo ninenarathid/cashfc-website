@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
 import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import { eventPath } from "@/lib/events";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
-import { ADMIN_KIND_LIST } from "@/lib/notifications";
+import { bellHides, listOf } from "@/lib/notifications";
 import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
 import GiftIcon from "@/components/ui/GiftIcon";
@@ -478,7 +478,7 @@ const todayUtc = () => new Date().toISOString().slice(0, 10);
  * to also click "mark as read" is asking them to do the same thing twice.
  */
 export default function NotificationBell() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [supabase] = useState(createClient);
   const faces = useAvatarOverrides();
   // The switch-adjusted answer rather than the database's: whether an
@@ -490,6 +490,16 @@ export default function NotificationBell() {
   // and an admin looking at the site as a member would otherwise find the prize
   // queue back in their bell and marked read by opening it.
   const { isAdmin, realAdmin } = useAdmin();
+  /**
+   * The kinds this bell is not the place for. See lib/notifications.
+   *
+   * Two of them go whether or not the answer about being an admin has arrived
+   * yet, because nobody else is ever sent them — the first version waited for
+   * that answer and a claim arriving in the meantime still rang. The third
+   * needs it, so it joins the moment it is known.
+   */
+  const hideKinds = useMemo(() => new Set(bellHides(realAdmin)), [realAdmin]);
+  const hiddenList = useMemo(() => listOf(bellHides(realAdmin)), [realAdmin]);
   const [me, setMe] = useState<string | null>(null);
   const [character, setCharacter] = useState<number | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -553,10 +563,39 @@ export default function NotificationBell() {
    * is a list nobody can scan.
    */
   const [prizeTier, setPrizeTier] = useState<Record<number, RareTier>>({});
+  /**
+   * And what it is called, by win id.
+   *
+   * "You have won something" was true and useless: the thing is sitting in the
+   * cupboard with a name on it, the row already carries its picture, and the
+   * first question anybody asks a notification like that is which one. Both
+   * languages are kept rather than the one in use, because the language can be
+   * changed with the panel open and a name fetched under the old one would
+   * then be the only Thai line in an English list.
+   */
+  const [prizeName, setPrizeName] =
+    useState<Record<number, { th: string; en: string | null }>>({});
   /** That picture for one notification, or null when it is not about a prize. */
   const prizePic = useCallback((n: { kind: string; body: string | null }) =>
     (PRIZE_PICTURE.has(n.kind) && n.body ? prizeArt[Number(n.body)] ?? null : null),
   [prizeArt]);
+  /**
+   * The line for a prize that says which prize, or null for everything else.
+   *
+   * Written once and read by both the toast and the row, because those are the
+   * same sentence twice and the copy nobody is looking at is the copy that
+   * stops matching. Null when the name has not arrived, which the caller
+   * answers with the wording that says nothing about which one: a name that is
+   * one fetch late should be a sentence late, not a blank in the middle of one.
+   */
+  const prizeSaid = useCallback((n: { kind: string; body: string | null }): string | null => {
+    if (n.kind !== "prize_win" && n.kind !== "prize_done") return null;
+    const got = n.body ? prizeName[Number(n.body)] : undefined;
+    if (!got) return null;
+    const name = (lang === "en" ? got.en : null) || got.th;
+    return t(n.kind === "prize_win" ? "notif.prizeWinNamed" : "notif.prizeDoneNamed",
+             { prize: name });
+  }, [prizeName, lang, t]);
   /** How many are cleared, which is only ever used to decide what to offer. */
   const [hidden, setHidden] = useState(0);
   const [past, setPast] = useState<Note[] | null>(null);
@@ -590,11 +629,15 @@ export default function NotificationBell() {
       .select("id, kind, actor, actor_name, post_id, party_id, announcement_id, body, created_at, read_at, answered_at, cleared_at");
     if (!withCleared) q = q.is("cleared_at", null);
     // An admin reads the admins' half on the admin page. See lib/notifications.
-    if (realAdmin) q = q.not("kind", "in", ADMIN_KIND_LIST);
+    q = q.not("kind", "in", hiddenList);
     const { data } = await q
       .order("created_at", { ascending: false })
       .range(from, from + take - 1);
-    const rows = (data as Note[]) ?? [];
+    // Filtered twice: once by the database, once here. The second is for the
+    // page that was loaded before the answer about being an admin arrived and
+    // fetched a list with the feedback still in it — this list is redrawn from
+    // these rows the moment that answer lands, and a belt costs one pass.
+    const rows = ((data as Note[]) ?? []).filter((n) => !hideKinds.has(n.kind));
     if (!rows.length) return [];
 
     const actors = [...new Set(rows.map((n) => n.actor).filter(Boolean) as string[])];
@@ -652,20 +695,25 @@ export default function NotificationBell() {
       .filter((id) => Number.isFinite(id) && id > 0))];
     if (won.length) {
       const { data: prizes } = await supabase.from("prize_wins")
-        .select("id, prize_icon, prize_tier").in("id", won);
+        .select("id, prize_icon, prize_tier, prize_name, prize_name_en").in("id", won);
       const map: Record<number, string> = {};
       const tiers: Record<number, RareTier> = {};
-      for (const r of (prizes ?? []) as
-           { id: number; prize_icon: string | null; prize_tier: string | null }[]) {
+      const named: Record<number, { th: string; en: string | null }> = {};
+      for (const r of (prizes ?? []) as {
+        id: number; prize_icon: string | null; prize_tier: string | null;
+        prize_name: string | null; prize_name_en: string | null;
+      }[]) {
         if (r.prize_icon) map[r.id] = r.prize_icon;
         tiers[r.id] = r.prize_tier === "super" || r.prize_tier === "ultra"
           ? r.prize_tier : "rare";
+        if (r.prize_name) named[r.id] = { th: r.prize_name, en: r.prize_name_en };
       }
       setPrizeArt((v) => ({ ...v, ...map }));
       setPrizeTier((v) => ({ ...v, ...tiers }));
+      setPrizeName((v) => ({ ...v, ...named }));
     }
     return rows;
-  }, [supabase, realAdmin]);
+  }, [supabase, hideKinds, hiddenList]);
 
   const load = useCallback(async () => {
     if (!supabase) return;
@@ -702,10 +750,9 @@ export default function NotificationBell() {
     // its own type and `q = q.not(…)` asks it to widen into itself.
     const counted = supabase.from("notifications")
       .select("id", { count: "exact", head: true }).not("cleared_at", "is", null);
-    const { count } = await (realAdmin
-      ? counted.not("kind", "in", ADMIN_KIND_LIST) : counted);
+    const { count } = await counted.not("kind", "in", hiddenList);
     setHidden(count ?? 0);
-  }, [supabase, page, realAdmin]);
+  }, [supabase, page, hiddenList]);
 
 
 
@@ -742,11 +789,12 @@ export default function NotificationBell() {
       seen.current.add(n.id);
       if (n.read_at) continue;
       const kind = KIND[n.kind];
-      const line = n.kind === "announcement"
-        ? t("notif.announced")
-        : n.kind.startsWith("evercold") && kind
-          ? t(kind.say, { n: n.body ?? "?" })
-          : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something");
+      const line = prizeSaid(n)
+        ?? (n.kind === "announcement"
+          ? t("notif.announced")
+          : n.kind.startsWith("evercold") && kind
+            ? t(kind.say, { n: n.body ?? "?" })
+            : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something"));
       const actor = n.actor && !FACELESS.has(n.kind) ? people[n.actor] : undefined;
       const face = actor?.characterId != null
         ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
@@ -830,7 +878,7 @@ export default function NotificationBell() {
     // would empty the admin inbox of the only thing that says it needs opening.
     let mark = supabase.from("notifications")
       .update({ read_at: now }).is("read_at", null);
-    if (realAdmin) mark = mark.not("kind", "in", ADMIN_KIND_LIST);
+    mark = mark.not("kind", "in", hiddenList);
     await mark;
   }
 
@@ -884,7 +932,7 @@ export default function NotificationBell() {
       .update({ cleared_at: now, read_at: now }).is("cleared_at", null);
     // The same line the panel is drawn along: clearing the bell is somebody
     // saying they have dealt with what is on the bell.
-    if (realAdmin) wipe = wipe.not("kind", "in", ADMIN_KIND_LIST);
+    wipe = wipe.not("kind", "in", hiddenList);
     const { error } = await wipe;
     // Put them back rather than leave the panel lying about what the server
     // holds. Nothing was destroyed either way, so this is only the screen
@@ -1187,12 +1235,14 @@ export default function NotificationBell() {
             {/* The event line takes a count where the others take a name, and
                 nobody did it to you — so it is written straight rather than
                 threaded through the linked-name machinery. */}
-            {n.kind.startsWith("evercold") && say
+            {/* A prize says which prize, and nobody did it to you, so it is
+                written straight as well. */}
+            {prizeSaid(n) ?? (n.kind.startsWith("evercold") && say
               ? t(say, { n: n.body ?? "?" })
               : say
                 ? said(t(say, { who: SLOT }), n.actor_name ?? "—",
                        actorHref, dismiss)
-                : t("notif.something")}
+                : t("notif.something"))}
           </p>
           {/* The second line is the body everywhere except the event, where the
               body is the number already spoken above and what belongs here is

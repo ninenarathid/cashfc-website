@@ -493,6 +493,16 @@ const DICT = {
     en: "{who} said something about the prize they claimed.",
     th: "{who} ส่งข้อความเรื่องของรางวัลที่กดรับไว้",
   },
+  // Which prize, when the row has been told which: "you have won something"
+  // was true and useless, and the name is sitting on the win.
+  "notif.prizeWinNamed": {
+    en: "You have won {prize}. It is waiting in your inventory.",
+    th: "คุณได้รับ {prize}! ไปดูได้ที่ inventory ของคุณ",
+  },
+  "notif.prizeDoneNamed": {
+    en: "{prize} has been handed over. Enjoy it.",
+    th: "ส่ง {prize} ให้คุณเรียบร้อยแล้ว ขอให้สนุกนะ",
+  },
   "notif.prizeDone": {
     en: "Your prize has been handed over. Enjoy it.",
     th: "ส่งของรางวัลให้คุณเรียบร้อยแล้ว ขอให้สนุกนะ",

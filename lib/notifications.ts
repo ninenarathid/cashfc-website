@@ -22,19 +22,50 @@ import { createClient } from "@/lib/supabase/client";
  * feedback table knows which is which. It is still read, one page away, and the
  * alternative is a column and a migration for two rows a year.
  */
-export const ADMIN_KINDS = ["prize_claim", "prize_ask", "feedback"] as const;
+/**
+ * Kinds nobody but an admin is ever sent.
+ *
+ * The prize thread has two sides and they are different kinds: the winner is
+ * told prize_win and prize_done, the admins prize_claim and prize_ask (v87).
+ * So these two can leave the bell for everybody, without asking the database
+ * who is reading — which matters, because asking is a second query that can
+ * be slow, fail, or answer after the bell has already drawn itself. It did:
+ * the first version of this waited for that answer, and four claims rang the
+ * bell of the one person the move was meant to spare.
+ */
+export const ADMIN_ONLY_KINDS = ["prize_claim", "prize_ask"] as const;
+
+/**
+ * And the kind that is the admins' only when an admin is reading it.
+ *
+ * Both halves of a feedback thread are `feedback`: the copy that goes to every
+ * admin when somebody writes in, and the copy that goes back to the author
+ * when one of them answers. A member's is the answer to something they wrote,
+ * which is as personal as a notification gets, so this one is filtered by who
+ * is reading and not by kind alone.
+ */
+export const ADMIN_WHEN_ADMIN_KINDS = ["feedback"] as const;
+
+/** Everything the admin inbox holds. */
+export const ADMIN_KINDS = [...ADMIN_ONLY_KINDS, ...ADMIN_WHEN_ADMIN_KINDS];
 
 export const ADMIN_KIND_SET: ReadonlySet<string> = new Set(ADMIN_KINDS);
+
+/** What the bell leaves out, for a reader who is or is not an admin. */
+export function bellHides(realAdmin: boolean): readonly string[] {
+  return realAdmin ? ADMIN_KINDS : ADMIN_ONLY_KINDS;
+}
 
 /**
  * The same list as PostgREST wants it, for `.in` and `.not(…, "in", …)`.
  *
- * Written once here rather than spelled out at each of the five queries that
+ * Written once here rather than spelled out at each of the four queries that
  * need it: the day a fourth kind is added, a list that was copied is a list
- * where one copy is still three long — and the symptom would be a notification
+ * where one copy is still three long, and the symptom would be a notification
  * appearing in both places, or in neither.
  */
-export const ADMIN_KIND_LIST = `(${ADMIN_KINDS.join(",")})`;
+export const listOf = (kinds: readonly string[]) => `(${kinds.join(",")})`;
+export const ADMIN_KIND_LIST = listOf(ADMIN_KINDS);
 
 /**
  * How many of the admins' notifications nobody has read yet.
