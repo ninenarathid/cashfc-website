@@ -947,12 +947,12 @@
     "zone": "The Weapon's Refrain",
     "zone_id": 23,
     "expansion": "Stormblood",
+    "encounter_id": 1042,
     "name": "The Weapon's Refrain",
     "best": 77,
     "kills": 3,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1042,
     "job_kills": {
      "Warrior": {
       "kills": 3,
@@ -45586,7 +45586,17 @@
     "best": 57,
     "kills": 4,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 3,
+      "best": 57
+     },
+     "RedMage": {
+      "kills": 1,
+      "best": 42
+     }
+    }
    }
   ],
   "legacy": [

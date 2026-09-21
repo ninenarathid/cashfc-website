@@ -851,7 +851,7 @@
   "mounts": 264,
   "minions": 487,
   "rare": 417,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -981,7 +981,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-21"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -1277,7 +1277,7 @@
   "mounts": 137,
   "minions": 378,
   "rare": 244,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -2394,7 +2394,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3547,7 +3547,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 60,
-  "level": 100,
+  "level": 96,
   "cc": [
    true,
    true,
@@ -3783,7 +3783,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 100,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -3891,7 +3891,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-20"
+  "chg": "2026-09-21"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4019,7 +4019,7 @@
   "mounts": 215,
   "minions": 404,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -4797,7 +4797,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -4927,7 +4927,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-21"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5449,7 +5449,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 94,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -5571,7 +5571,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-20"
+  "chg": "2026-09-21"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -5776,7 +5776,7 @@
   "mounts": 175,
   "minions": 358,
   "rare": 160,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5893,7 +5893,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-09-21"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6188,7 +6188,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 75,
+  "level": 66,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6420,7 +6420,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 100,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -6555,7 +6555,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": null,
-  "level": 94,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -6570,7 +6570,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-19"
+  "chg": "2026-09-21"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6653,7 +6653,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 55,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6700,7 +6700,7 @@
   "mounts": 57,
   "minions": 194,
   "rare": null,
-  "level": 94,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -6713,7 +6713,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-09-21"
  },
  "16099244": {
   "name": "Luna Froggo",
@@ -7343,7 +7343,7 @@
   "mounts": 131,
   "minions": 271,
   "rare": 120,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -7470,7 +7470,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-18"
+  "chg": "2026-09-21"
  },
  "43116127": {
   "name": "Piyo Stellar",
@@ -7546,7 +7546,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 93,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -7591,7 +7591,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-09-21"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7722,7 +7722,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -8142,7 +8142,7 @@
   "mounts": 5,
   "minions": 14,
   "rare": 0,
-  "level": 32,
+  "level": 81,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8239,7 +8239,7 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 31,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},

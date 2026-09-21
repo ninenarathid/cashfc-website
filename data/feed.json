@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-09-21",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-09-21",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-09-21",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-21",
    "type": "rare_up",
    "id": 58199536,
    "name": "Areeya Lovekin",
@@ -1378,27 +1399,6 @@
    "id": 36183541,
    "name": "Nagi Amano",
    "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "level_100",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "level_100",
-   "id": 11603711,
-   "name": "Takamina Aamin",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-09-12",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100 on Monk!"
   }
  ]
 }
