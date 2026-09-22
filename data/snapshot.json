@@ -851,7 +851,7 @@
   "mounts": 264,
   "minions": 487,
   "rare": 417,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -981,7 +981,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -1277,7 +1277,7 @@
   "mounts": 137,
   "minions": 378,
   "rare": 244,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -1400,7 +1400,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -5449,7 +5449,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 83,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5571,7 +5571,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "13860363": {
   "name": "Ayino Kun",
