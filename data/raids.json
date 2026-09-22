@@ -1297,6 +1297,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 96,
+      "median": 67,
+      "kills": 13,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 90,
+      "median": 76,
+      "kills": 15,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 98,
+      "median": 79,
+      "kills": 16,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 81,
+      "median": 32,
+      "kills": 18,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 93,
+      "median": 46,
+      "kills": 14,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -13920,6 +13972,31 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 69,
+      "median": 39,
+      "kills": 2,
+      "job": "BlackMage"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 62,
+      "median": 62,
+      "kills": 1,
+      "job": "BlackMage"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -19539,6 +19616,31 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 22,
+      "median": 13,
+      "kills": 7,
+      "job": "Paladin"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 50,
+      "median": 22,
+      "kills": 5,
+      "job": "Paladin"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -22853,7 +22955,13 @@
       "best": 57,
       "median": 43,
       "kills": 5,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 5,
+        "best": 57
+       }
+      }
      },
      {
       "label": "P2S",
@@ -22862,7 +22970,13 @@
       "best": 40,
       "median": 17,
       "kills": 5,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 5,
+        "best": 40
+       }
+      }
      },
      {
       "label": "P3S",
@@ -22871,7 +22985,13 @@
       "best": 50,
       "median": 19,
       "kills": 6,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 6,
+        "best": 50
+       }
+      }
      },
      {
       "label": "P4S",
@@ -22880,7 +23000,13 @@
       "best": 38,
       "median": 9,
       "kills": 8,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 8,
+        "best": 38
+       }
+      }
      },
      {
       "label": null,
@@ -22889,7 +23015,13 @@
       "best": 33,
       "median": 4,
       "kills": 3,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 3,
+        "best": 33
+       }
+      }
      }
     ]
    }
@@ -46991,6 +47123,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 92,
+      "median": 78,
+      "kills": 9,
+      "job": "Samurai"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 82,
+      "median": 54,
+      "kills": 10,
+      "job": "Samurai"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 86,
+      "median": 18,
+      "kills": 10,
+      "job": "Samurai"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 72,
+      "median": 11,
+      "kills": 14,
+      "job": "Samurai"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 74,
+      "median": 63,
+      "kills": 7,
+      "job": "Samurai"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -50230,6 +50414,31 @@
       "job": "Samurai"
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 33,
+      "median": 17,
+      "kills": 6,
+      "job": "Samurai"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 20,
+      "median": 14,
+      "kills": 3,
+      "job": "Samurai"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -52166,6 +52375,40 @@
         "best": 54
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 16,
+      "median": 13,
+      "kills": 2,
+      "job": "BlackMage"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 10,
+      "median": 9,
+      "kills": 4,
+      "job": "BlackMage"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 10,
+      "median": 10,
+      "kills": 2,
+      "job": "BlackMage"
      }
     ]
    }
@@ -57687,6 +57930,22 @@
         "best": 80
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 87,
+      "median": 87,
+      "kills": 8,
+      "job": "RedMage"
      }
     ]
    }

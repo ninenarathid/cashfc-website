@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-09-22",
+   "type": "parse_up",
+   "id": 34228206,
+   "name": "Cystal Wingsky",
+   "text": "set a new best parse: 33 on Cloud of Darkness as Samurai"
+  },
+  {
+   "date": "2026-09-22",
+   "type": "job_up",
+   "id": 32046284,
+   "name": "Ene Shy",
+   "text": "is now a Master Samurai"
+  },
+  {
+   "date": "2026-09-22",
    "type": "level_100",
    "id": 29339718,
    "name": "Ashe Fantine",
@@ -1385,20 +1399,6 @@
    "id": 28679378,
    "name": "Tong Topspeed",
    "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned Wild Child III — only 2.4% of players have it, and 1 more"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "level_100",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "reached level 100 on Paladin!"
   }
  ]
 }

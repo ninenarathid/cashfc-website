@@ -6587,7 +6587,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 59,
   "cc": [
    false,
    false,
@@ -6603,7 +6603,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -9998,7 +9998,7 @@
  },
  "34228206": {
   "name": "Cystal Wingsky",
-  "parse": 14,
+  "parse": 33,
   "ult": 0,
   "mounts": 18,
   "minions": 63,
@@ -10016,7 +10016,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-22"
  },
  "40990512": {
   "name": "Dat Duc",
@@ -10550,6 +10550,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Samurai": "master",
    "Machinist": "legendary"
   },
   "ex": [],
