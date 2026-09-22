@@ -1560,6 +1560,14 @@ const DICT = {
     en: "counted the way the leaderboard counts",
     th: "นับแบบเดียวกับกระดานอันดับ",
   },
+  "adm.pcLuck": { en: "Luck of the draw", th: "ดวงในการสุ่ม rare" },
+  "adm.pcLucky": { en: "Luckiest", th: "ดวงดี" },
+  "adm.pcUnlucky": { en: "Unluckiest", th: "ดวงไม่ดี" },
+  "adm.pcHitRate": { en: "rare out of the draw", th: "อัตราออก rare" },
+  "adm.pcLuckThin": {
+    en: "Nobody has {n} popotos in these days yet.",
+    th: "ยังไม่มีใครมี popoto ถึง {n} ใบในช่วงวันที่เลือก",
+  },
   "adm.pcPopoto": { en: "popoto", th: "popoto" },
   "adm.pcSomebody": { en: "somebody", th: "บางคน" },
   "adm.pcShareNote": {
