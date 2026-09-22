@@ -66,7 +66,9 @@ New-Item -ItemType Directory -Force $dst | Out-Null
 New-Item -ItemType Directory -Force "$dst\memory" | Out-Null
 
 Copy-Item "$env:USERPROFILE\.claude\settings.json" $dst
-Copy-Item "$env:USERPROFILE\.claude\skills" "$dst\skills" -Recurse -Force
+# สกิลส่วนตัว — เนื้อไฟล์จริงอยู่ที่ ~\.agents\skills
+# (ใน ~\.claude\skills เป็นแค่ symlink ชี้มาที่นี่ copy ตรงนั้นจะได้ลิงก์เสีย)
+Copy-Item "$env:USERPROFILE\.agents\skills\*" "$dst\skills" -Recurse -Force
 Copy-Item "$env:USERPROFILE\.claude\projects\e--NinenineProject-fcnext\memory\*" "$dst\memory"
 
 Compress-Archive "$dst\*" "$env:USERPROFILE\Desktop\claude-transfer.zip" -Force
@@ -85,7 +87,9 @@ $src = "$env:USERPROFILE\Desktop\claude-transfer"
 # settings: เปิด plugin ui-ux-pro-max + fullstack-dev-skills, effortLevel = max
 Copy-Item "$src\settings.json" "$env:USERPROFILE\.claude\settings.json" -Force
 
-# skills ส่วนตัว 17 ตัว (supabase, vitest, agent-browser, vercel-*, ฯลฯ)
+# skills ส่วนตัว 16 ตัว (supabase, vitest, agent-browser, vercel-*, ฯลฯ)
+# วางเนื้อไฟล์ตรงเข้า .claude\skills ได้เลย ไม่ต้องทำ symlink ตามเครื่องเดิม
+New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills" | Out-Null
 Copy-Item "$src\skills\*" "$env:USERPROFILE\.claude\skills\" -Recurse -Force
 
 # ความจำของโปรเจกต์ — หาโฟลเดอร์ที่ Claude เพิ่งสร้างให้ ไม่ต้องเดาชื่อ
@@ -94,6 +98,13 @@ $proj = Get-ChildItem "$env:USERPROFILE\.claude\projects" -Directory |
 New-Item -ItemType Directory -Force "$($proj.FullName)\memory" | Out-Null
 Copy-Item "$src\memory\*" "$($proj.FullName)\memory\" -Force
 ```
+
+> **เรื่อง symlink ที่ต้องรู้:** เครื่องเดิมเก็บสกิลจริงไว้ที่ `~\.agents\skills\` แล้วทำ symlink
+> เข้าไปใน `~\.claude\skills\` (ตัวติดตั้งสกิลทำให้ ดูแหล่งที่มาแต่ละตัวได้ใน `~\.agents\.skill-lock.json`)
+> เครื่องใหม่ไม่ต้องทำตามโครงนี้ — วางโฟลเดอร์สกิลจริงลง `~\.claude\skills\` ตรง ๆ Claude อ่านได้เหมือนกัน
+>
+> โฟลเดอร์ `~\.claude\skills\synced\` (docs, docx, pdf, pptx, xlsx, skill-creator) **ไม่ต้องย้าย** —
+> มันซิงก์จากบัญชีเองหลัง `/login`
 
 ### 4.3 login
 
