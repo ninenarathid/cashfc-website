@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-09-22",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned In Pot Pursuit II — only 3.9% of players have it"
+  },
+  {
+   "date": "2026-09-22",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned R&D: Stellar Cross-pein Hammer"
+  },
+  {
+   "date": "2026-09-22",
+   "type": "level_100",
+   "id": 12058921,
+   "name": "Heidi Fox",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-22",
+   "type": "level_100",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-09-22",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned Cut Above the Rest: Tonfa Occultum — only 1.1% of players have it, and 15 more"
+  },
+  {
+   "date": "2026-09-22",
    "type": "level_100",
    "id": 38152072,
    "name": "Parker Thonhart",
@@ -1364,41 +1399,6 @@
    "id": 29918404,
    "name": "Zarass Gierlos",
    "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-13",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Fit for a Queen: Blade's Providence"
-  },
-  {
-   "date": "2026-09-13",
-   "type": "level_100",
-   "id": 31155521,
-   "name": "Ketchup Love",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-13",
-   "type": "rare_up",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "earned Built Different I — only 0.1% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-09-13",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-13",
-   "type": "level_100",
-   "id": 34790386,
-   "name": "Mikote Menphina",
-   "text": "reached level 100 on Paladin!"
   }
  ]
 }
