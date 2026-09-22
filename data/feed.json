@@ -3,6 +3,27 @@
   {
    "date": "2026-09-22",
    "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-22",
+   "type": "parse_up",
+   "id": 25504317,
+   "name": "Achel Clay",
+   "text": "set a new best parse: 57 on Erichthonios as Gunbreaker"
+  },
+  {
+   "date": "2026-09-22",
+   "type": "parse_up",
+   "id": 3256238,
+   "name": "Ai Tsukuyomi",
+   "text": "set a new best parse: 37 on Erichthonios as Blac\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-22",
+   "type": "level_100",
    "id": 36183541,
    "name": "Nagi Amano",
    "text": "reached level 100 on Samurai!"
@@ -1378,27 +1399,6 @@
    "id": 58199536,
    "name": "Areeya Lovekin",
    "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "level_100",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "job_up",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "ex_clear",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "cleared Zoraal Ja (Extreme)"
   }
  ]
 }

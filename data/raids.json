@@ -1722,6 +1722,58 @@
     ]
    },
    {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 37,
+      "median": 11,
+      "kills": 19,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 21,
+      "median": 11,
+      "kills": 19,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 10,
+      "median": 7,
+      "kills": 9,
+      "job": "BlackMage"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 21,
+      "median": 4,
+      "kills": 26,
+      "job": "BlackMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 3,
+      "median": 1,
+      "kills": 8,
+      "job": "BlackMage"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -16121,6 +16173,31 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 96,
+      "median": 84,
+      "kills": 6,
+      "job": "Bard"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 71,
+      "median": 62,
+      "kills": 5,
+      "job": "Bard"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -22763,8 +22840,61 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 57,
+      "median": 43,
+      "kills": 5,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 40,
+      "median": 17,
+      "kills": 5,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 50,
+      "median": 19,
+      "kills": 6,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P4S",
+      "encounter_id": 81,
+      "name": "Hesperos",
+      "best": 38,
+      "median": 9,
+      "kills": 8,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": null,
+      "encounter_id": 82,
+      "name": "Hesperos II",
+      "best": 33,
+      "median": 4,
+      "kills": 3,
+      "job": "Gunbreaker"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  },
  "25506828": {
   "current": {
@@ -30070,6 +30200,40 @@
   "ultimates": [],
   "extremes": [],
   "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 45,
+      "median": 43,
+      "kills": 3,
+      "job": "Monk"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 28,
+      "median": 17,
+      "kills": 2,
+      "job": "Monk"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 2,
+      "median": 2,
+      "kills": 1,
+      "job": "Monk"
+     }
+    ]
+   },
    {
     "zone": "Eden's Promise",
     "zone_id": 38,
@@ -45597,6 +45761,10 @@
      "RedMage": {
       "kills": 1,
       "best": 42
+     },
+     "Scholar": {
+      "kills": 1,
+      "best": 8
      }
     }
    }

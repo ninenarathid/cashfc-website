@@ -5383,7 +5383,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8319,7 +8319,7 @@
  },
  "25504317": {
   "name": "Achel Clay",
-  "parse": null,
+  "parse": 57,
   "ult": 0,
   "mounts": 11,
   "minions": 69,
@@ -8337,7 +8337,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-22"
  },
  "5297796": {
   "name": "Aem Sejuro",
@@ -8407,7 +8407,7 @@
  },
  "3256238": {
   "name": "Ai Tsukuyomi",
-  "parse": 25,
+  "parse": 37,
   "ult": 0,
   "mounts": 30,
   "minions": 101,
@@ -8427,7 +8427,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-22"
  },
  "45150763": {
   "name": "Aiqing Kumamon",
