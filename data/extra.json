@@ -2516,74 +2516,144 @@
    "day": 7
   },
   "47525984": {
-   "text": "12th Sun of the 6th Astral Moon",
-   "month": 11,
+   "text": "12th Sun of the 5th Umbral Moon",
+   "month": 10,
    "day": 12
   }
  },
  "pipeline": {
   "legacy_cursor": 1,
-  "zone_cursor": 3,
+  "zone_cursor": 4,
   "fflogs_cycle": [
+   "11603711",
    "11950156",
+   "12058921",
    "12478532",
    "13533056",
+   "13860363",
+   "14476396",
    "14959902",
    "15308846",
+   "15543487",
    "15912826",
+   "16099244",
+   "16192933",
    "19827594",
    "21620195",
    "22425670",
    "22461237",
    "22767255",
+   "24114157",
+   "24123541",
    "24186600",
    "24228478",
    "25506828",
    "26268800",
+   "26298391",
    "26699926",
+   "26844665",
    "28120733",
+   "2852829",
    "28579232",
    "28789661",
    "28950119",
+   "29090821",
    "29152036",
    "29325838",
+   "29339718",
    "29511615",
+   "2957360",
+   "29795820",
+   "29907674",
+   "29918255",
+   "29918404",
    "29998658",
+   "30293847",
+   "30596644",
    "30667251",
    "30864049",
+   "31001697",
+   "31001781",
+   "31155521",
    "31236337",
+   "31592995",
    "31628293",
+   "31831003",
+   "31899766",
    "31902843",
    "32147756",
+   "33387937",
+   "33807451",
+   "34376591",
+   "34434658",
    "34509521",
+   "34522645",
+   "34546216",
+   "34790386",
+   "35158574",
    "35634484",
+   "35854535",
    "36130968",
+   "36183378",
    "36183541",
    "36248712",
    "36261473",
    "37056222",
+   "37061370",
    "38041221",
    "38152072",
+   "38335568",
+   "38488824",
+   "38796459",
+   "38802422",
    "38808156",
+   "3902073",
    "39199441",
    "3968346",
+   "39850923",
+   "39959181",
+   "40394823",
    "42021700",
+   "42053180",
+   "42215185",
+   "42215186",
    "42948817",
+   "42976317",
    "43037186",
+   "43116127",
+   "43335087",
    "43864764",
    "44133352",
+   "44143115",
    "44970350",
    "45938803",
+   "46243891",
+   "46739693",
+   "47218599",
    "47221226",
+   "47494518",
    "47540663",
    "50821570",
    "51922514",
    "5294880",
+   "53933347",
    "5435582",
+   "56108574",
+   "5644067",
    "57375278",
    "57885671",
    "58199536",
+   "58202955",
+   "60599300",
+   "60619924",
+   "60852230",
+   "60873337",
    "6173187",
+   "6951533",
+   "7283668",
+   "8113158",
+   "8286372",
+   "8836061",
    "9444020"
   ],
   "collect_at": 1790084786.9664369,
@@ -3111,30 +3181,55 @@
    "9444020"
   ],
   "job_detail_cycle": [
+   "11603711",
+   "11950156",
    "12478532",
    "13533056",
+   "14476396",
    "15308846",
+   "15912826",
+   "16099244",
    "19827594",
+   "21620195",
+   "22425670",
    "22461237",
    "22767255",
+   "24123541",
    "24186600",
    "24228478",
    "25506828",
+   "26268800",
+   "26298391",
    "26699926",
+   "26844665",
    "28120733",
    "28579232",
    "28789661",
    "28950119",
+   "29090821",
    "29152036",
+   "29325838",
+   "29339718",
    "29511615",
+   "29918404",
+   "29998658",
+   "30667251",
    "30864049",
+   "31001697",
+   "31001781",
+   "31155521",
    "31236337",
    "31628293",
    "31902843",
    "32147756",
+   "34434658",
    "34509521",
+   "34522645",
+   "34546216",
    "35634484",
    "36130968",
+   "36183378",
+   "36183541",
    "36248712",
    "36261473",
    "37056222",
@@ -3142,15 +3237,29 @@
    "38808156",
    "39199441",
    "3968346",
+   "39959181",
+   "40394823",
    "42021700",
+   "42053180",
    "42948817",
+   "42976317",
    "44970350",
    "45938803",
+   "47218599",
    "47221226",
    "47540663",
    "50821570",
+   "51922514",
    "5294880",
-   "58199536"
+   "5435582",
+   "58199536",
+   "58202955",
+   "60852230",
+   "60873337",
+   "6173187",
+   "6951533",
+   "8286372",
+   "9444020"
   ]
  },
  "chara": {
@@ -3516,7 +3625,7 @@
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "The Alpha Legend",
-   "at": 1790004557.7815728
+   "at": 1790106743.1479294
   },
   "9444020": {
    "race": "Miqo'te",
@@ -3600,7 +3709,7 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The New Sun",
-   "at": 1790022817.7677977
+   "at": 1790106850.4024973
   },
   "11603711": {
    "race": "Lalafell",
@@ -3740,7 +3849,7 @@
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1790022711.6830063
+   "at": 1790106745.000811
   },
   "4026627": {
    "race": "Hyur",
@@ -3754,42 +3863,42 @@
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": null,
-   "at": 1790022713.6967833
+   "at": 1790106747.016982
   },
   "34376591": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Storm Stalker",
-   "at": 1790022717.6115484
+   "at": 1790106750.994472
   },
   "38488824": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Of the Longest Hunt",
-   "at": 1790022719.5005255
+   "at": 1790106752.8864894
   },
   "34546216": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1790022721.3771331
+   "at": 1790106754.8337798
   },
   "30293847": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Monster Hunter",
-   "at": 1790022723.3694303
+   "at": 1790106756.759939
   },
   "39959181": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": "Echo of a Fallen Star",
-   "at": 1790022727.212159
+   "at": 1790106760.4580154
   },
   "35601257": {
    "race": "Au Ra",
@@ -3803,49 +3912,49 @@
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": null,
-   "at": 1790022729.0832593
+   "at": 1790106762.2871718
   },
   "42053180": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": "Genesis of Legends",
-   "at": 1790022715.7616346
+   "at": 1790106749.0636551
   },
   "15543487": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Polis Raider",
-   "at": 1790022732.8395395
+   "at": 1790106766.0257466
   },
   "16192933": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1790022734.7683275
+   "at": 1790106767.9185083
   },
   "47494518": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "The New Sun",
-   "at": 1790022736.6730042
+   "at": 1790106769.8146808
   },
   "31899766": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Under the Moonlight",
-   "at": 1790022738.693312
+   "at": 1790106771.6607792
   },
   "31001697": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": "Barista at the End of the Universe",
-   "at": 1790022740.57432
+   "at": 1790106773.7435703
   },
   "29585811": {
    "race": "Miqo'te",
@@ -3859,231 +3968,231 @@
    "clan": "Xaela",
    "gender": "Male",
    "title": "Gambler",
-   "at": 1790022742.4464848
+   "at": 1790106775.8009517
   },
   "39850923": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Omniscient Obscurant",
-   "at": 1790022746.3053186
+   "at": 1790106779.5142746
   },
   "31001781": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": null,
-   "at": 1790022748.2000723
+   "at": 1790106781.5001478
   },
   "26844665": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Knight of Alexandria",
-   "at": 1790022752.04542
+   "at": 1790106785.296988
   },
   "36183378": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Flame Puppy",
-   "at": 1790022753.9347506
+   "at": 1790106787.143612
   },
   "24114157": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Riftdancer",
-   "at": 1790022755.79064
+   "at": 1790106789.0005462
   },
   "31155521": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "The Meat Shield",
-   "at": 1790022759.5918539
+   "at": 1790106792.7574298
   },
   "46739693": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1790022761.457852
+   "at": 1790106794.6245105
   },
   "53933347": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Skysinger",
-   "at": 1790022763.4631655
+   "at": 1790106796.5719903
   },
   "60852230": {
    "race": "Elezen",
    "clan": "Wildwood",
    "gender": "Male",
    "title": "Shadowbringer",
-   "at": 1790022765.3302588
+   "at": 1790106798.4366584
   },
   "35854535": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": null,
-   "at": 1790022767.2836094
+   "at": 1790106800.314894
   },
   "33807451": {
    "race": "Hrothgar",
    "clan": "Helions",
    "gender": "Male",
    "title": "Barista at the End of the Universe",
-   "at": 1790022769.1421351
+   "at": 1790106802.24148
   },
   "16099244": {
    "race": "Roegadyn",
    "clan": "Hellsguard",
    "gender": "Male",
    "title": "Genesis of Legends",
-   "at": 1790022771.0720816
+   "at": 1790106804.1006625
   },
   "29918255": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Shepherd to the Stars",
-   "at": 1790022773.1396375
+   "at": 1790106805.9614358
   },
   "46243891": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The White Wraith",
-   "at": 1790022775.2747
+   "at": 1790106807.7969177
   },
   "34790386": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Wyrm Whisperer",
-   "at": 1790022777.1348674
+   "at": 1790106809.8033571
   },
   "38796459": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1790022778.97975
+   "at": 1790106811.8621538
   },
   "31592995": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Under the Moonlight",
-   "at": 1790022780.9274256
+   "at": 1790106813.7147589
   },
   "42215185": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Tracklayer",
-   "at": 1790022782.7985902
+   "at": 1790106815.5659459
   },
   "30596644": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Z",
-   "at": 1790022786.5997717
+   "at": 1790106819.4307337
   },
   "31831003": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "Jack of All Cards",
-   "at": 1790022788.4649487
+   "at": 1790106821.478291
   },
   "7283668": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Z",
-   "at": 1790022790.3558326
+   "at": 1790106823.3466785
   },
   "8113158": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Z",
-   "at": 1790022792.2690756
+   "at": 1790106825.276
   },
   "2852829": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Builder of the Realm",
-   "at": 1790022794.181696
+   "at": 1790106827.1488109
   },
   "37061370": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": "Partner in Teatime",
-   "at": 1790022796.0880232
+   "at": 1790106829.1455235
   },
   "33387937": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1790022800.3050196
+   "at": 1790106832.8601444
   },
   "60599300": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": null,
-   "at": 1790022802.1852012
+   "at": 1790106834.807745
   },
   "29907674": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Of the Golden Scales",
-   "at": 1790022804.2000625
+   "at": 1790106836.8943496
   },
   "35158574": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "The Perfect Legend",
-   "at": 1790022806.0727499
+   "at": 1790106838.8541474
   },
   "8713004": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1790022811.9937384
+   "at": 1790106844.7037296
   },
   "36363091": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Genesis of Legends",
-   "at": 1790022813.9507687
+   "at": 1790106846.561248
   },
   "49929911": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": null,
-   "at": 1790022815.7980092
+   "at": 1790106848.4940233
   },
   "30582341": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "The Necromancer",
-   "at": 1790022819.683711
+   "at": 1790106852.3102117
   },
   "30253575": {
    "race": "Miqo'te",
@@ -4097,49 +4206,49 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The Final Fish",
-   "at": 1790022821.5246885
+   "at": 1790106854.1634007
   },
   "55640987": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1790022825.2515097
+   "at": 1790106857.9726195
   },
   "29991345": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Goddess of Magic",
-   "at": 1790022827.1734426
+   "at": 1790106859.8357887
   },
   "33608576": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Z",
-   "at": 1790022829.0268948
+   "at": 1790106861.686331
   },
   "31806535": {
    "race": "Hrothgar",
    "clan": "The Lost",
    "gender": "Female",
    "title": "Sworn Protector",
-   "at": 1790022831.0709593
+   "at": 1790106863.6207578
   },
   "42845691": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "Moonwalker",
-   "at": 1790022834.973762
+   "at": 1790106867.4431846
   },
   "15932791": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": "The Wings of Time",
-   "at": 1790022836.8977628
+   "at": 1790106869.3873851
   },
   "60814172": {
    "race": "Au Ra",
@@ -4153,42 +4262,42 @@
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1790022842.5258787
+   "at": 1790106875.1017013
   },
   "60873337": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
    "title": "Storm Puppy",
-   "at": 1790022750.072164
+   "at": 1790106783.3626761
   },
   "60475540": {
    "race": "Elezen",
    "clan": "Duskwight",
    "gender": "Female",
    "title": null,
-   "at": 1790022846.559283
+   "at": 1790106878.8489332
   },
   "61758559": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Male",
    "title": null,
-   "at": 1790022850.5008469
+   "at": 1790106882.732689
   },
   "60972300": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Endwalker",
-   "at": 1790022854.248859
+   "at": 1790106886.4806497
   },
   "29389419": {
    "race": "Hyur",
    "clan": "Highlander",
    "gender": "Male",
    "title": "Z",
-   "at": 1790022856.1734612
+   "at": 1790106888.3541555
   },
   "60933255": {
    "race": "Lalafell",
@@ -4209,21 +4318,21 @@
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": null,
-   "at": 1790022858.0452766
+   "at": 1790106890.2475052
   },
   "60211788": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Male",
    "title": "Shadowbringer",
-   "at": 1790022810.1042771
+   "at": 1790106842.7141209
   },
   "31685121": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Gambler",
-   "at": 1790022859.9160767
+   "at": 1790106892.2344124
   },
   "57419573": {
    "race": "Miqo'te",
@@ -4755,7 +4864,7 @@
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "Master of the Sea",
-   "at": 1790022725.2861595
+   "at": 1790106758.6070228
   },
   "9155192": {
    "race": "Miqo'te",
@@ -4811,7 +4920,7 @@
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Under the Moonlight",
-   "at": 1790022730.9783654
+   "at": 1790106764.1478226
   },
   "34522644": {
    "race": "Miqo'te",
@@ -5056,7 +5165,7 @@
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Lightingway",
-   "at": 1790022744.3574855
+   "at": 1790106777.6675515
   },
   "30333493": {
    "race": "Miqo'te",
@@ -5259,7 +5368,7 @@
    "clan": "Xaela",
    "gender": "Female",
    "title": null,
-   "at": 1790022757.696571
+   "at": 1790106790.864299
   },
   "28679815": {
    "race": "Miqo'te",
@@ -5665,7 +5774,7 @@
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Makai Machinist",
-   "at": 1790022784.6662097
+   "at": 1790106817.4865048
   },
   "10638899": {
    "race": "Miqo'te",
@@ -5973,7 +6082,7 @@
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Mammeteer",
-   "at": 1790022798.3872101
+   "at": 1790106831.001907
   },
   "57711304": {
    "race": "Lalafell",
@@ -6141,7 +6250,7 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Mammeteer",
-   "at": 1790022808.2134387
+   "at": 1790106840.8132322
   },
   "42053451": {
    "race": "Lalafell",
@@ -6323,7 +6432,7 @@
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1790022823.3740869
+   "at": 1790106856.1434774
   },
   "29992221": {
    "race": "Au Ra",
@@ -6540,7 +6649,7 @@
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1790022832.9360325
+   "at": 1790106865.563382
   },
   "47423083": {
    "race": "Hyur",
@@ -6631,7 +6740,7 @@
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Sleepless in Cyberspace",
-   "at": 1790022838.7603586
+   "at": 1790106871.4117258
   },
   "43412434": {
    "race": "Lalafell",
@@ -6652,35 +6761,35 @@
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1790022861.8079638
+   "at": 1790106894.0696425
   },
   "60994518": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1790022848.5955508
+   "at": 1790106880.7112567
   },
   "44085912": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": null,
-   "at": 1790022852.3629365
+   "at": 1790106884.6319377
   },
   "45513833": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Defender of Eorzea",
-   "at": 1790022844.4255412
+   "at": 1790106876.9788573
   },
   "47525984": {
    "race": "Hyur",
    "clan": "Highlander",
    "gender": "Male",
    "title": null,
-   "at": 1790022840.6337013
+   "at": 1790106873.2611427
   }
  },
  "lala": {

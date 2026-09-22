@@ -4463,7 +4463,7 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "none"
  },
  "5720080": {
   "current": {
@@ -33020,6 +33020,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 50,
       "median": 50,
@@ -33028,6 +33029,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 78,
       "median": 48,
@@ -36852,7 +36854,7 @@
     "cleared": true,
     "job_kills": {
      "Warrior": {
-      "kills": 10,
+      "kills": 11,
       "best": 41
      }
     }
@@ -45584,7 +45586,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 57,
-    "kills": 4,
+    "kills": 5,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -52258,6 +52260,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 84,
       "median": 56,
@@ -52266,6 +52269,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 72,
       "median": 59,
@@ -52274,6 +52278,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 72,
       "median": 50,
@@ -52281,7 +52286,8 @@
       "job": "Sage"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 67,
       "median": 41,
@@ -52289,7 +52295,8 @@
       "job": "Sage"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 79,
       "median": 60,
@@ -57120,9 +57127,9 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 20,
-    "last": "2026-09-20",
-    "last_ts": 1789900646
+    "pulls": 27,
+    "last": "2026-09-21",
+    "last_ts": 1790000703
    }
   ]
  },
@@ -65653,6 +65660,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 13,
       "median": 11,
@@ -66574,7 +66582,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 26,
+    "kills": 39,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -66594,13 +66602,13 @@
       "kills": 12,
       "best": 66
      },
+     "Scholar": {
+      "kills": 12,
+      "best": 67
+     },
      "WhiteMage": {
       "kills": 2,
       "best": 51
-     },
-     "Scholar": {
-      "kills": 10,
-      "best": 55
      }
     }
    },
@@ -66610,9 +66618,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1081,
     "name": "Necron",
-    "best": 39,
-    "kills": 3,
-    "job": "Summoner",
+    "best": 41,
+    "kills": 4,
+    "job": "RedMage",
     "cleared": true,
     "job_kills": {
      "RedMage": {

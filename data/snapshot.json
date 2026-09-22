@@ -3547,7 +3547,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 60,
-  "level": 97,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3664,6 +3664,52 @@
   "ults": [],
   "chg": "2026-09-14"
  },
+ "5644067": {
+  "name": "Ninenine Everdark",
+  "parse": 99,
+  "ult": 4,
+  "mounts": 76,
+  "minions": 137,
+  "rare": 65,
+  "level": 100,
+  "cc": [
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Viper": "legendary",
+   "Summoner": "legendary",
+   "RedMage": "expert",
+   "DarkKnight": "master",
+   "Gunbreaker": "expert",
+   "Reaper": "legendary",
+   "Machinist": "legendary",
+   "Bard": "expert",
+   "Dancer": "expert"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut"
+  ],
+  "chg": "2026-09-22"
+ },
  "9444020": {
   "name": "Non Elemental",
   "parse": 100,
@@ -3671,7 +3717,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 94,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3779,7 +3825,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -3907,7 +3953,7 @@
   "mounts": 215,
   "minions": 404,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3948,7 +3994,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "44133352": {
   "name": "Seville Beoulve",
@@ -3957,7 +4003,7 @@
   "mounts": 173,
   "minions": 416,
   "rare": 432,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4079,7 +4125,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-09-22"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -5617,8 +5663,8 @@
   "jobs": {
    "Bard": "expert",
    "Astrologian": "master",
-   "WhiteMage": "expert",
    "Scholar": "expert",
+   "WhiteMage": "expert",
    "Summoner": "expert"
   },
   "ex": [
@@ -6076,7 +6122,7 @@
   "mounts": 28,
   "minions": 104,
   "rare": 6,
-  "level": 76,
+  "level": 60,
   "cc": null,
   "rare_ids": [
    1613,
@@ -6147,7 +6193,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 1,
-  "level": 46,
+  "level": 90,
   "cc": null,
   "rare_ids": [
    3874
@@ -7231,7 +7277,7 @@
   "mounts": 131,
   "minions": 271,
   "rare": 120,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7358,7 +7404,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "43116127": {
   "name": "Piyo Stellar",
@@ -7434,7 +7480,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 100,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -7479,7 +7525,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7610,7 +7656,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 92,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -7641,7 +7687,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -7800,7 +7846,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 89,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -7813,7 +7859,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8030,14 +8076,14 @@
   "mounts": 5,
   "minions": 14,
   "rare": 0,
-  "level": 81,
+  "level": 83,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-21"
+  "chg": "2026-09-22"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8127,7 +8173,7 @@
   "mounts": 14,
   "minions": 46,
   "rare": null,
-  "level": 59,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},

@@ -847,33 +847,33 @@
   },
   {
    "date": "2026-09-22",
-   "total": 504,
+   "total": 505,
    "tags": {
     "veteran": 149,
-    "extreme": 141,
-    "ultimate": 118,
-    "tier-clear": 41,
+    "extreme": 142,
+    "ultimate": 119,
+    "tier-clear": 42,
     "gatherer": 10,
-    "crafter": 16,
+    "crafter": 15,
     "relic": 25,
     "explorer": 19,
     "treasure": 17,
     "goldsaucer": 7,
-    "seasonal": 31,
-    "pvp": 17,
+    "seasonal": 32,
+    "pvp": 16,
     "private": 229,
     "prog": 23,
     "casual": 27,
     "oldtimer": 1
    },
-   "raider": 64,
-   "ultimate": 118,
-   "extreme": 141,
+   "raider": 65,
+   "ultimate": 119,
+   "extreme": 142,
    "unknown": 0,
-   "final_boss": 41,
-   "active": 158,
+   "final_boss": 42,
+   "active": 159,
    "vacation": 346,
-   "guests": 12
+   "guests": 13
   }
  ]
 }
