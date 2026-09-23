@@ -5383,7 +5383,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5505,7 +5505,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-22"
+  "chg": "2026-09-23"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6211,7 +6211,7 @@
   "mounts": 8,
   "minions": 19,
   "rare": 0,
-  "level": 82,
+  "level": 35,
   "cc": [
    false,
    false,
@@ -6224,7 +6224,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-22"
+  "chg": "2026-09-23"
  },
  "39850923": {
   "name": "Hiro Hikari",
@@ -8042,16 +8042,16 @@
   "parse": null,
   "ult": 0,
   "mounts": 6,
-  "minions": 26,
-  "rare": null,
-  "level": 84,
+  "minions": 28,
+  "rare": 0,
+  "level": 86,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-22"
+  "chg": "2026-09-23"
  },
  "54419512": {
   "name": "Film Nio",
@@ -12129,7 +12129,7 @@
  },
  "12003402": {
   "name": "Kei Chan",
-  "parse": 92,
+  "parse": 97,
   "ult": 0,
   "mounts": 23,
   "minions": 35,
@@ -12145,11 +12145,11 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "master"
+   "WhiteMage": "legendary"
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-23"
  },
  "44081209": {
   "name": "Kelfa Kalifula",
@@ -12283,7 +12283,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Summoner": "master"
+   "Summoner": "legendary"
   },
   "ex": [],
   "ults": [],
@@ -12578,7 +12578,7 @@
  },
  "24747734": {
   "name": "Liora Verasch",
-  "parse": 24,
+  "parse": 29,
   "ult": 0,
   "mounts": 47,
   "minions": 240,
@@ -12632,7 +12632,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-23"
  },
  "31685046": {
   "name": "Lipwan Superior",
@@ -12842,7 +12842,7 @@
  },
  "27412308": {
   "name": "Masahiro Dixon",
-  "parse": 50,
+  "parse": 56,
   "ult": 0,
   "mounts": 70,
   "minions": 130,
@@ -12860,7 +12860,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-04"
+  "chg": "2026-09-23"
  },
  "29764422": {
   "name": "Masakujung Crystalys",
@@ -12973,7 +12973,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Paladin": "master",
+   "Paladin": "legendary",
    "DarkKnight": "legendary"
   },
   "ex": [],
@@ -15061,7 +15061,7 @@
   "ult": 0,
   "mounts": 25,
   "minions": 82,
-  "rare": null,
+  "rare": 3,
   "level": 90,
   "cc": [
    false,
@@ -15070,14 +15070,18 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   560,
+   572,
+   573
+  ],
   "tiers": {},
   "jobs": {
    "RedMage": "expert"
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-23"
  },
  "30472222": {
   "name": "Rossete Sacrifar",

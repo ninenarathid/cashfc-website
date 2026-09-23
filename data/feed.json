@@ -1,6 +1,55 @@
 {
  "events": [
   {
+   "date": "2026-09-23",
+   "type": "parse_up",
+   "id": 12003402,
+   "name": "Kei Chan",
+   "text": "set a new best parse: 97 on Ramuh as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-23",
+   "type": "job_up",
+   "id": 12003402,
+   "name": "Kei Chan",
+   "text": "is now a Legendary White Mage"
+  },
+  {
+   "date": "2026-09-23",
+   "type": "job_up",
+   "id": 29659200,
+   "name": "Kleenex Tissue",
+   "text": "is now a Legendary Summoner"
+  },
+  {
+   "date": "2026-09-23",
+   "type": "parse_up",
+   "id": 24747734,
+   "name": "Liora Verasch",
+   "text": "set a new best parse: 29 on Ramuh as Dragoon"
+  },
+  {
+   "date": "2026-09-23",
+   "type": "parse_up",
+   "id": 27412308,
+   "name": "Masahiro Dixon",
+   "text": "set a new best parse: 56 on Ramuh as Astrologian"
+  },
+  {
+   "date": "2026-09-23",
+   "type": "job_up",
+   "id": 31655994,
+   "name": "Meki Mekino",
+   "text": "is now a Legendary Paladin"
+  },
+  {
+   "date": "2026-09-23",
+   "type": "rare_up",
+   "id": 36225854,
+   "name": "Roku Roku",
+   "text": "earned The Willow Leaf — only 4.4% of players have it, and 2 more"
+  },
+  {
    "date": "2026-09-22",
    "type": "parse_up",
    "id": 34228206,
@@ -1350,55 +1399,6 @@
    "id": 36183378,
    "name": "K' Potassium",
    "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Phantom of the Umbra: Rapier Umbrae, and 1 more"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "level_100",
-   "id": 51060767,
-   "name": "Yatchy Concreategirls",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "level_100",
-   "id": 5435582,
-   "name": "Mog Hikarino",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "level_100",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "level_100",
-   "id": 60211788,
-   "name": "Shikihara Catlover",
-   "text": "reached level 100 on Ninja!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "level_100",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-14",
-   "type": "level_100",
-   "id": 28679378,
-   "name": "Tong Topspeed",
-   "text": "reached level 100 on Summoner!"
   }
  ]
 }

@@ -9492,6 +9492,49 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 97,
+      "median": 90,
+      "kills": 70,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 97,
+      "median": 79,
+      "kills": 47,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 95,
+      "median": 66,
+      "kills": 42,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 87,
+      "median": 54,
+      "kills": 26,
+      "job": "WhiteMage"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -14867,6 +14910,49 @@
     ]
    },
    {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 97,
+      "median": 86,
+      "kills": 11,
+      "job": "Warrior"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 93,
+      "median": 86,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 96,
+      "median": 84,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 87,
+      "median": 75,
+      "kills": 7,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Gate",
     "zone_id": 29,
     "expansion": "Shadowbringers",
@@ -16083,6 +16169,7 @@
     "encounters": [
      {
       "label": "E5S",
+      "encounter_id": 69,
       "name": "Ramuh",
       "best": 98,
       "median": 95,
@@ -16091,6 +16178,7 @@
      },
      {
       "label": "E6S",
+      "encounter_id": 70,
       "name": "Ifrit and Garuda",
       "best": 97,
       "median": 85,
@@ -16099,6 +16187,7 @@
      },
      {
       "label": "E7S",
+      "encounter_id": 71,
       "name": "The Idol of Darkness",
       "best": 90,
       "median": 76,
@@ -16107,6 +16196,7 @@
      },
      {
       "label": "E8S",
+      "encounter_id": 72,
       "name": "Shiva",
       "best": 83,
       "median": 78,
@@ -22866,6 +22956,31 @@
       "job": "Dragoon"
      }
     ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 29,
+      "median": 23,
+      "kills": 2,
+      "job": "Dragoon"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 12,
+      "median": 12,
+      "kills": 1,
+      "job": "Dragoon"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -26720,6 +26835,49 @@
         "best": 50
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 56,
+      "median": 52,
+      "kills": 5,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 47,
+      "median": 46,
+      "kills": 5,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 27,
+      "median": 27,
+      "kills": 1,
+      "job": "Astrologian"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 33,
+      "median": 24,
+      "kills": 7,
+      "job": "Astrologian"
      }
     ]
    },
@@ -35236,6 +35394,49 @@
       "median": 17,
       "kills": 13,
       "job": "Reaper"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 65,
+      "median": 36,
+      "kills": 11,
+      "job": "Summoner"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 64,
+      "median": 33,
+      "kills": 11,
+      "job": "Summoner"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 49,
+      "median": 42,
+      "kills": 4,
+      "job": "Summoner"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 52,
+      "median": 52,
+      "kills": 1,
+      "job": "Summoner"
      }
     ]
    }
@@ -45384,6 +45585,40 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 15,
+      "median": 9,
+      "kills": 11,
+      "job": "Paladin"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 25,
+      "median": 10,
+      "kills": 14,
+      "job": "Paladin"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 9,
+      "median": 9,
+      "kills": 1,
+      "job": "Paladin"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -50427,7 +50662,13 @@
       "best": 33,
       "median": 17,
       "kills": 6,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 6,
+        "best": 33
+       }
+      }
      },
      {
       "label": "E10S",
@@ -50436,7 +50677,13 @@
       "best": 20,
       "median": 14,
       "kills": 3,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 3,
+        "best": 20
+       }
+      }
      }
     ]
    }
