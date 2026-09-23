@@ -2416,7 +2416,7 @@
   "mounts": 102,
   "minions": 261,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2444,7 +2444,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-20"
+  "chg": "2026-09-23"
  },
  "38808156": {
   "name": "Kwiyo Ki",

@@ -3173,12 +3173,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 51,
     "kills": 10,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Summoner": {
       "kills": 10,
@@ -7543,12 +7543,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 51,
     "kills": 5,
     "job": "RedMage",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "RedMage": {
       "kills": 5,
@@ -10182,12 +10182,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 60,
     "kills": 1,
     "job": "RedMage",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -11187,12 +11187,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 84,
     "kills": 1,
     "job": "Warrior",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    },
    {
     "zone": "Ultimates",
@@ -11936,12 +11936,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 48,
     "kills": 3,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Monk": {
       "kills": 3,
@@ -15308,12 +15308,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 68,
     "kills": 4,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Dancer": {
       "kills": 3,
@@ -17439,12 +17439,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 12,
     "kills": 6,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Warrior": {
       "kills": 6,
@@ -20786,12 +20786,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 39,
     "kills": 9,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "WhiteMage": {
       "kills": 9,
@@ -25104,9 +25104,9 @@
     "state": "learning",
     "pct": 29.99,
     "phase": 3,
-    "pulls": 95,
-    "last": "2026-09-21",
-    "last_ts": 1790010213
+    "pulls": 65,
+    "last": "2026-09-23",
+    "last_ts": 1790183059
    }
   ]
  },
@@ -26026,12 +26026,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 25,
     "kills": 3,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Summoner": {
       "kills": 3,
@@ -27587,12 +27587,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 61,
     "kills": 6,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "DarkKnight": {
       "kills": 6,
@@ -28612,12 +28612,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 27,
     "kills": 6,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Warrior": {
       "kills": 6,
@@ -29672,12 +29672,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 96,
     "kills": 13,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Ninja": {
       "kills": 3,
@@ -31308,9 +31308,9 @@
     "state": "learning",
     "pct": 29.99,
     "phase": 3,
-    "pulls": 140,
-    "last": "2026-09-21",
-    "last_ts": 1790010213
+    "pulls": 115,
+    "last": "2026-09-23",
+    "last_ts": 1790183059
    }
   ]
  },
@@ -32334,12 +32334,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 96,
     "kills": 24,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "RedMage": {
       "kills": 4,
@@ -33534,11 +33534,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 78.86,
+    "pct": 64.77,
     "phase": 5,
-    "pulls": 86,
-    "last": "2026-09-19",
-    "last_ts": 1789837680
+    "pulls": 80,
+    "last": "2026-09-21",
+    "last_ts": 1790008368
    }
   ]
  },
@@ -37494,7 +37494,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 41,
-    "kills": 10,
+    "kills": 11,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -37575,12 +37575,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 65,
     "kills": 12,
     "job": "Monk",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Monk": {
       "kills": 12,
@@ -40851,12 +40851,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 83,
     "kills": 11,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Bard": {
       "kills": 11,
@@ -42991,12 +42991,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 68,
     "kills": 11,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "WhiteMage": {
       "kills": 11,
@@ -45036,12 +45036,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 35,
     "kills": 11,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Scholar": {
       "kills": 11,
@@ -46744,12 +46744,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 83,
     "kills": 22,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Warrior": {
       "kills": 22,
@@ -51394,12 +51394,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 56,
     "kills": 21,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Samurai": {
       "kills": 1,
@@ -58366,12 +58366,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 51,
     "kills": 1,
     "job": "Reaper",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -58959,12 +58959,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 59,
     "kills": 5,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Astrologian": {
       "kills": 5,
@@ -59398,9 +59398,9 @@
     "state": "learning",
     "pct": 1.38,
     "phase": 5,
-    "pulls": 76,
-    "last": "2026-09-21",
-    "last_ts": 1790009105
+    "pulls": 96,
+    "last": "2026-09-22",
+    "last_ts": 1790094557
    }
   ]
  },
@@ -63577,12 +63577,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 5,
     "kills": 1,
     "job": "Dragoon",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -67404,7 +67404,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 39,
+    "kills": 42,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -71126,12 +71126,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 23,
     "kills": 2,
     "job": "Bard",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Bard": {
       "kills": 2,
@@ -73265,20 +73265,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1075,
-    "name": "The Epic of Alexander",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 5.46,
-    "phase": 1,
-    "pulls": 49,
-    "last": "2026-09-13",
-    "last_ts": 1789311534
-   }
-  ]
+  "_status": "ok"
  },
  "51044792": {
   "current": {
