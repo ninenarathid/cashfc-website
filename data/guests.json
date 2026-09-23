@@ -219,7 +219,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-22",
+   "stats_seen": "2026-09-23",
    "lode_achv_public": true
   },
   "31441339": {
@@ -447,7 +447,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-22",
+   "stats_seen": "2026-09-23",
    "lode_achv_public": true
   },
   "42349146": {
@@ -563,7 +563,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22"
+   "stats_seen": "2026-09-23"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -630,7 +630,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22"
+   "stats_seen": "2026-09-23"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -739,7 +739,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22"
+   "stats_seen": "2026-09-23"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -992,7 +992,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22"
+   "stats_seen": "2026-09-23"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -1001,10 +1001,10 @@
    "fc": "Fat Cat",
    "seen": "2026-09-22",
    "mounts": 175,
-   "minions": 264,
-   "rare_achv": 248,
+   "minions": 266,
+   "rare_achv": 252,
    "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1789546600",
+   "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790059748",
    "collect_seen": "2026-09-22",
    "tags": [
     "ultimate",
@@ -1018,7 +1018,7 @@
    "achv_tiers": {
     "relic": "legendary",
     "explorer": "legendary",
-    "treasure": "master"
+    "treasure": "legendary"
    },
    "parse": 100,
    "savage_kills": 5,
@@ -1164,7 +1164,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22"
+   "stats_seen": "2026-09-23"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1270,7 +1270,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22"
+   "stats_seen": "2026-09-23"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1346,7 +1346,7 @@
    "job_scores": {
     "Ninja": {
      "fights": 32,
-     "kills": 401,
+     "kills": 402,
      "parse": 98.8,
      "score": 98.8,
      "tier": "legendary",
@@ -1419,7 +1419,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22",
+   "stats_seen": "2026-09-23",
    "mounts": 114,
    "minions": 328,
    "rare_achv": 125,
@@ -1494,7 +1494,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-09-22",
+   "stats_seen": "2026-09-23",
    "mounts": 63,
    "minions": 125,
    "rare_achv": null,
@@ -1574,7 +1574,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22"
+   "stats_seen": "2026-09-23"
   },
   "35413272": {
    "name": "Poppy Lydian",
@@ -1664,7 +1664,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-22"
+   "stats_seen": "2026-09-23"
   }
  },
  "generated_at": "2026-09-22T23:14:04Z",
