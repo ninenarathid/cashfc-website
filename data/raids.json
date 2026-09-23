@@ -43849,12 +43849,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 22,
     "kills": 1,
     "job": "Ninja",
-    "cleared": true,
-    "encounter_id": 1068
+    "cleared": true
    },
    {
     "zone": "Dragonsong's Reprise",

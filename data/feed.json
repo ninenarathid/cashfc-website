@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-09-23",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-23",
    "type": "rare_up",
    "id": 58199536,
    "name": "Areeya Lovekin",
@@ -1392,13 +1399,6 @@
    "id": 36183541,
    "name": "Nagi Amano",
    "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "level_100",
-   "id": 5644067,
-   "name": "Ninenine The'phantom",
-   "text": "reached level 100 on Summoner!"
   }
  ]
 }
