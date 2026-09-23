@@ -22901,6 +22901,49 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 97,
+      "median": 81,
+      "kills": 16,
+      "job": "Summoner"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 96,
+      "median": 61,
+      "kills": 18,
+      "job": "Summoner"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 98,
+      "median": 76,
+      "kills": 15,
+      "job": "Summoner"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 93,
+      "median": 58,
+      "kills": 16,
+      "job": "Summoner"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -22969,7 +23012,13 @@
       "best": 29,
       "median": 23,
       "kills": 2,
-      "job": "Dragoon"
+      "job": "Dragoon",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 2,
+        "best": 29
+       }
+      }
      },
      {
       "label": "E6S",
@@ -23943,6 +23992,40 @@
         "best": 10
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 35,
+      "median": 15,
+      "kills": 8,
+      "job": "Ninja"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 9,
+      "median": 9,
+      "kills": 2,
+      "job": "Ninja"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 9,
+      "median": 9,
+      "kills": 2,
+      "job": "Ninja"
      }
     ]
    }
@@ -25751,6 +25834,49 @@
         "best": 39
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 28,
+      "median": 28,
+      "kills": 2,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 73,
+      "median": 19,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 49,
+      "median": 40,
+      "kills": 11,
+      "job": "RedMage"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 51,
+      "median": 35,
+      "kills": 18,
+      "job": "WhiteMage"
      }
     ]
    }
@@ -35409,7 +35535,17 @@
       "best": 65,
       "median": 36,
       "kills": 11,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 9,
+        "best": 65
+       },
+       "WhiteMage": {
+        "kills": 2,
+        "best": 10
+       }
+      }
      },
      {
       "label": "E6S",
@@ -35418,7 +35554,13 @@
       "best": 64,
       "median": 33,
       "kills": 11,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 11,
+        "best": 64
+       }
+      }
      },
      {
       "label": "E7S",
@@ -35427,7 +35569,13 @@
       "best": 49,
       "median": 42,
       "kills": 4,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 4,
+        "best": 49
+       }
+      }
      },
      {
       "label": "E8S",
