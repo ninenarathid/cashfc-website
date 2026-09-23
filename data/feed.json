@@ -3,6 +3,13 @@
   {
    "date": "2026-09-23",
    "type": "level_100",
+   "id": 47494518,
+   "name": "Farcia Soluna",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-09-23",
+   "type": "level_100",
    "id": 25506828,
    "name": "Kururuki Tzuzaku",
    "text": "reached level 100 on Gunbreaker!"
@@ -1392,13 +1399,6 @@
    "id": 28579232,
    "name": "Dessiny Valkyrie",
    "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Machinist!"
   }
  ]
 }

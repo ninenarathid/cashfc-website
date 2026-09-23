@@ -12946,12 +12946,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 36,
     "kills": 1,
     "job": "Gunbreaker",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    },
    {
     "zone": "Ultimates",
@@ -34086,12 +34086,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 56,
     "kills": 3,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Ninja": {
       "kills": 3,
@@ -34103,12 +34103,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 1,
     "kills": 1,
     "job": "Sage",
-    "cleared": true,
-    "encounter_id": 1061
+    "cleared": true
    }
   ],
   "extremes": [
@@ -39637,12 +39637,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 95,
     "kills": 4,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Summoner": {
       "kills": 4,
@@ -42286,12 +42286,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 28,
     "kills": 9,
     "job": "Sage",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Sage": {
       "kills": 9,
@@ -42714,15 +42714,15 @@
   "_status": "ok",
   "progress": [
    {
-    "encounter_id": 104,
-    "name": "Lindwurm",
+    "encounter_id": 105,
+    "name": "Lindwurm II",
     "kind": "savage",
     "state": "learning",
-    "pct": 4.08,
+    "pct": 60.33,
     "phase": 0,
-    "pulls": 17,
-    "last": "2026-09-18",
-    "last_ts": 1789747890
+    "pulls": 38,
+    "last": "2026-09-23",
+    "last_ts": 1790177213
    }
   ]
  },
@@ -46239,12 +46239,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 81,
     "kills": 5,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "WhiteMage": {
       "kills": 4,
@@ -48812,12 +48812,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 81,
     "kills": 1,
     "job": "RedMage",
-    "cleared": true,
-    "encounter_id": 1062
+    "cleared": true
    }
   ],
   "extremes": [
@@ -53251,12 +53251,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 36,
     "kills": 6,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Machinist": {
       "kills": 6,
@@ -54359,12 +54359,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 33,
     "kills": 6,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Samurai": {
       "kills": 6,
@@ -54376,12 +54376,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 30,
     "kills": 3,
     "job": "Dragoon",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Dragoon": {
       "kills": 2,
@@ -54397,12 +54397,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 68,
     "kills": 8,
     "job": "Dragoon",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Dragoon": {
       "kills": 6,
@@ -59565,12 +59565,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 77,
     "kills": 11,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Gunbreaker": {
       "kills": 11,
@@ -60070,11 +60070,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 46.95,
+    "pct": 30.27,
     "phase": 5,
-    "pulls": 95,
-    "last": "2026-09-18",
-    "last_ts": 1789748457
+    "pulls": 96,
+    "last": "2026-09-23",
+    "last_ts": 1790180158
    }
   ]
  },
@@ -61286,12 +61286,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 77,
     "kills": 17,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "WhiteMage": {
       "kills": 17,
@@ -61303,12 +61303,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 37,
     "kills": 15,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Astrologian": {
       "kills": 15,
@@ -61320,12 +61320,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 51,
     "kills": 15,
     "job": "WhiteMage",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "WhiteMage": {
       "kills": 15,
@@ -64667,12 +64667,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1062,
     "name": "The Epic of Alexander",
     "best": 19,
     "kills": 9,
     "job": "Dancer",
     "cleared": true,
-    "encounter_id": 1062,
     "job_kills": {
      "Dancer": {
       "kills": 9,
@@ -64684,12 +64684,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1060,
     "name": "The Unending Coil of Bahamut",
     "best": 46,
     "kills": 15,
     "job": "Dancer",
     "cleared": true,
-    "encounter_id": 1060,
     "job_kills": {
      "Dancer": {
       "kills": 15,
@@ -64701,12 +64701,12 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
+    "encounter_id": 1061,
     "name": "The Weapon's Refrain",
     "best": 41,
     "kills": 17,
     "job": "Dancer",
     "cleared": true,
-    "encounter_id": 1061,
     "job_kills": {
      "Dancer": {
       "kills": 16,
