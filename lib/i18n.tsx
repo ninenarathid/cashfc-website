@@ -335,8 +335,65 @@ const DICT = {
     en: "Claim and verify your character to vote — this decides a leaderboard, so one vote has to mean one member.",
     th: "ต้องอ้างสิทธิ์และยืนยันตัวละครก่อนจึงจะโหวตได้ เพราะผลโหวตมีผลกับ leaderboards หนึ่งเสียงจึงต้องเท่ากับหนึ่งคน",
   },
+  // ── The domain vote on the front page ──────────────────────────────
+  "domain.heading": { en: "The FC is choosing a domain", th: "FC กำลังโหวตโดเมน" },
+  "domain.question": {
+    en: "Which domain should this site move to?",
+    th: "เว็บนี้ควรย้ายไปใช้โดเมนอะไรดี?",
+  },
+  "domain.howTo": {
+    en: "One vote each, and you can change it until the vote closes. Not on the list? Suggest it — with what it costs a year in USD, if you know.",
+    th: "โหวตได้คนละ 1 ชื่อ เปลี่ยนใจได้จนกว่าจะปิดโหวต ถ้ายังไม่มีชื่อที่อยากได้ เสนอเพิ่มเองได้เลย ใส่ราคาต่อปี (USD) ด้วยถ้ารู้",
+  },
+  "domain.perYear": { en: "/yr", th: "/ปี" },
+  "domain.noPrice": { en: "no price yet", th: "ยังไม่ระบุราคา" },
+  "domain.by": { en: "suggested by {name}", th: "เสนอโดย {name}" },
+  "domain.empty": {
+    en: "No names yet — the first suggestion is yours to make.",
+    th: "ยังไม่มีใครเสนอชื่อ เสนอเป็นคนแรกได้เลย",
+  },
+  "domain.top": { en: "most votes", th: "คะแนนสูงสุด" },
+  "domain.name": { en: "Domain", th: "ชื่อโดเมน" },
+  "domain.placeholder": { en: "e.g. cashfc.com", th: "เช่น cashfc.com" },
+  "domain.price": { en: "Price a year (USD)", th: "ราคาต่อปี (USD)" },
+  "domain.add": { en: "Suggest", th: "เสนอชื่อ" },
+  "domain.addsLeft": {
+    en: "You can suggest {n} more.",
+    th: "เสนอได้อีก {n} ชื่อ",
+  },
+  "domain.addsDone": {
+    en: "You've suggested {n} names, which is as many as one member can.",
+    th: "คุณเสนอครบ {n} ชื่อแล้ว",
+  },
+  "domain.invalid": {
+    en: "That doesn't look like a domain — something like cashfc.com.",
+    th: "ชื่อโดเมนไม่ถูกต้อง ลองพิมพ์แบบ cashfc.com",
+  },
+  "domain.badPrice": {
+    en: "The price should be a number of US dollars, like 12.99.",
+    th: "ราคาต้องเป็นตัวเลขหน่วย USD เช่น 12.99",
+  },
+  "domain.taken": { en: "That one is already on the list.", th: "มีคนเสนอชื่อนี้แล้ว" },
+  "domain.refused": {
+    en: "It didn't go through — the vote may have just closed.",
+    th: "เพิ่มไม่สำเร็จ โหวตอาจเพิ่งปิดไป",
+  },
+  "domain.takeBack": { en: "Take back", th: "ถอนชื่อ" },
+  "domain.takeBackHint": {
+    en: "Only until somebody else votes for it",
+    th: "ถอนได้จนกว่าจะมีคนอื่นโหวตชื่อนี้",
+  },
+  "domain.backed": {
+    en: "Somebody else has voted for it, so it stays on the list.",
+    th: "มีคนอื่นโหวตชื่อนี้แล้ว จึงถอนออกไม่ได้",
+  },
+  "domain.needCharacter": {
+    en: "Link and verify your character to vote or suggest a name — one vote has to mean one member.",
+    th: "ต้องผูกและยืนยันตัวละครก่อนถึงจะโหวตหรือเสนอชื่อได้ เพื่อให้หนึ่งเสียงเท่ากับสมาชิกหนึ่งคน",
+  },
+  "domain.verify": { en: "Verify on your profile", th: "ไปยืนยันที่โปรไฟล์" },
   // ── Who gave the potatoes ──────────────────────────────────────────
-  "popoto.whoGave": { en: "{n} popoto, from", th: "popoto {n} ครั้ง จาก" },
+  "popoto.whoGave":{ en: "{n} popoto, from", th: "popoto {n} ครั้ง จาก" },
   "popoto.seeAll": { en: "Click to see all {n}", th: "กดเพื่อดูทั้ง {n} คน" },
   "lb.topTen": { en: "Top 10 in the FC", th: "10 อันดับแรกของ FC" },
   "lb.full": { en: "See all", th: "ดูทั้งหมด" },

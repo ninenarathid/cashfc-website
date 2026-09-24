@@ -7,6 +7,7 @@ import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
 import Birthdays from "@/components/home/Birthdays";
 import Hero from "@/components/home/Hero";
+import DomainVote from "@/components/home/DomainVote";
 import ActivityFeed from "@/components/home/ActivityFeed";
 import HotGallery from "@/components/home/HotGallery";
 import TopThree from "@/components/home/TopThree";
@@ -37,6 +38,7 @@ export default function Home() {
   return (
     <main>
       <Hero fc={data.fc} total={data.fc.total} active={activeCount} tagStats={tagStats} />
+      <DomainVote />
 
       <EventSlider people={everyone(data)} />
       <DiscordCard />
