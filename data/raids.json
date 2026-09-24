@@ -913,12 +913,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 95,
     "kills": 9,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Gunbreaker": {
       "kills": 9,
@@ -6914,12 +6914,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 32,
     "kills": 1,
     "job": "Warrior",
-    "cleared": true,
-    "encounter_id": 1050
+    "cleared": true
    },
    {
     "zone": "Ultimates (Stormblood)",
@@ -44559,12 +44559,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 50,
     "kills": 23,
     "job": "RedMage",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "RedMage": {
       "kills": 21,
@@ -47458,12 +47458,12 @@
     "zone": "Ultimates",
     "zone_id": 32,
     "expansion": "Shadowbringers",
+    "encounter_id": 1050,
     "name": "The Epic of Alexander",
     "best": 83,
     "kills": 15,
     "job": "Machinist",
     "cleared": true,
-    "encounter_id": 1050,
     "job_kills": {
      "Machinist": {
       "kills": 15,

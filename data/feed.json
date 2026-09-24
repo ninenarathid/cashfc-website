@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-09-24",
+   "type": "level_100",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "rare_up",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "earned Witness to the Stars — only 4.2% of players have it, and 2 more"
+  },
+  {
    "date": "2026-09-23",
    "type": "level_100",
    "id": 47494518,
@@ -1385,20 +1399,6 @@
    "id": 29918255,
    "name": "Lyndanisse Vymmaith",
    "text": "earned A Show of Fork IV — only 0.2% of players have it, and 17 more"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "level_100",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "reached level 100 on Paladin!"
   }
  ]
 }
