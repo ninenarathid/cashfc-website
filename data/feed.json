@@ -3,6 +3,13 @@
   {
    "date": "2026-09-24",
    "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "level_100",
    "id": 39199441,
    "name": "Dodoco Chocodoco",
    "text": "reached level 100 on Viper!"
@@ -1392,13 +1399,6 @@
    "id": 31831003,
    "name": "North Nostafari",
    "text": "reached level 100 on Scholar!"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned An Eye for Detail: Weaver IV — only 2.9% of players have it, and 1 more"
   }
  ]
 }
