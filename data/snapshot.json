@@ -416,7 +416,6 @@
    3646,
    3648,
    3649,
-   3652,
    3656,
    3657,
    3752,
@@ -438,6 +437,7 @@
    3770,
    3771,
    3772,
+   3792,
    3793,
    3794,
    3795,
@@ -851,7 +851,7 @@
   "mounts": 264,
   "minions": 487,
   "rare": 417,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -981,7 +981,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-23"
+  "chg": "2026-09-24"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -1274,9 +1274,9 @@
   "name": "Allen Crist",
   "parse": 18,
   "ult": 0,
-  "mounts": 137,
+  "mounts": 138,
   "minions": 378,
-  "rare": 244,
+  "rare": 246,
   "level": 100,
   "cc": [
    false,
@@ -1400,7 +1400,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-22"
+  "chg": "2026-09-24"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -2394,7 +2394,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -2407,7 +2407,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-21"
+  "chg": "2026-09-24"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -2807,11 +2807,11 @@
    3770,
    3771,
    3772,
-   3793,
    3794,
    3795,
    3796,
    3797,
+   3798,
    3811,
    3818,
    3819,
@@ -4199,7 +4199,7 @@
   "ult": 3,
   "mounts": 265,
   "minions": 338,
-  "rare": 532,
+  "rare": 536,
   "level": 100,
   "cc": null,
   "rare_ids": [
@@ -4222,7 +4222,6 @@
    2056,
    2216,
    2217,
-   2354,
    2355,
    2356,
    2515,
@@ -4292,6 +4291,7 @@
    3835,
    3952,
    3956,
+   3961,
    3962,
    3963,
    4000,
@@ -4320,7 +4320,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-21"
+  "chg": "2026-09-24"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -5284,7 +5284,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5848,7 +5848,7 @@
    3735,
    3736,
    3763,
-   3769,
+   3792,
    3793,
    3794,
    3795,
@@ -6433,7 +6433,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 16,
-  "level": 75,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -6465,7 +6465,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-23"
+  "chg": "2026-09-24"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -7559,7 +7559,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 98,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -7604,7 +7604,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-22"
+  "chg": "2026-09-24"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8123,7 +8123,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 89,
+  "level": 90,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8293,6 +8293,22 @@
    "The Weapon's Refrain"
   ],
   "chg": "2026-08-29"
+ },
+ "61997211": {
+  "name": "Punipi Puni",
+  "parse": null,
+  "ult": 0,
+  "mounts": 4,
+  "minions": 14,
+  "rare": null,
+  "level": 63,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-09-24"
  },
  "61748681": {
   "name": "Qzarel Lumina",

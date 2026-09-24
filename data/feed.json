@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-09-24",
+   "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned R&D: Stellar Saw"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "level_100",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned R&D: Stellar Alembic"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Cut Above the Rest: Fans Occultum — only 1.8% of players have it"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "rare_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "earned R&D: Stellar Saw"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "new_member",
+   "id": 61997211,
+   "name": "Punipi Puni",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-09-24",
    "type": "level_100",
    "id": 29918404,
    "name": "Zarass Gierlos",
@@ -1350,55 +1399,6 @@
    "id": 34509521,
    "name": "Liliya Quintilis",
    "text": "reached level 100 on Scholar!"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "rare_up",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "earned Unbreakable III — only 0.1% of players have it, and 3 more"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "level_100",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned With Saw in Hand IV — only 3.0% of players have it"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "rare_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "earned Wild Child IV — only 2.2% of players have it, and 8 more"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "level_100",
-   "id": 26844665,
-   "name": "J'atoh Nunh",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "grade_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-09-15",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned A Show of Fork IV — only 0.2% of players have it, and 17 more"
   }
  ]
 }

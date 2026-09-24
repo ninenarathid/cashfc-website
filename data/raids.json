@@ -16086,12 +16086,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 64,
     "kills": 4,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Scholar": {
       "kills": 4,
@@ -52307,12 +52307,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 25,
     "kills": 6,
     "job": "Warrior",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Warrior": {
       "kills": 6,
@@ -63190,12 +63190,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 75,
     "kills": 1,
     "job": "Samurai",
-    "cleared": true,
-    "encounter_id": 1047
+    "cleared": true
    }
   ],
   "extremes": [],
@@ -82800,6 +82800,9 @@
   "_status": "ok"
  },
  "47525984": {
+  "_status": "none"
+ },
+ "61997211": {
   "_status": "none"
  }
 }
