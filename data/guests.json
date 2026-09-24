@@ -1672,8 +1672,15 @@
    "dc": "Elemental",
    "fc": null,
    "seen": "2026-09-24"
+  },
+  "22590312": {
+   "name": "Siegcross Avalontear",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Eidolons",
+   "seen": "2026-09-24"
   }
  },
- "generated_at": "2026-09-24T14:06:17Z",
- "count": 13
+ "generated_at": "2026-09-24T20:08:24Z",
+ "count": 14
 }
