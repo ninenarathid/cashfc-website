@@ -572,6 +572,11 @@ export default function NotificationBell() {
    * Null until the first load has been read: everything in that first page is
    * from before this session, and announcing twenty things somebody has already
    * seen the moment they open a page is worse than announcing none of them.
+   *
+   * Filled by the load itself, not by the effect that watches the list. That
+   * effect also runs once on mount, over the empty list the bell starts with,
+   * and seeding from that meant the first real page was all "new" — every
+   * unread notification announced again on every reload.
    */
   const seen = useRef<Set<number> | null>(null);
   /**
@@ -795,6 +800,7 @@ export default function NotificationBell() {
       .map((k) => k.receiver_character_id)));
 
     const rows = await page(0, SHOW);
+    if (seen.current === null) seen.current = new Set(rows.map((n) => n.id));
     setNotes(rows);
 
     // Counted rather than fetched. The archive link only appears when there is
@@ -860,15 +866,17 @@ export default function NotificationBell() {
    * misunderstood which of the two it is.
    */
   useEffect(() => {
-    if (seen.current === null) {
-      seen.current = new Set(notes.map((n) => n.id));
-      return;
-    }
+    if (seen.current === null) return;
     // Oldest first, so two arriving together stack in the order they happened.
     for (const n of [...notes].reverse()) {
       if (seen.current.has(n.id)) continue;
       seen.current.add(n.id);
       if (n.read_at) continue;
+      // The admins' half, from a load that set off before the answer about
+      // being an admin arrived and landed after the one that knew. It is work
+      // for the admin page, unread until somebody opens it there, and was
+      // being announced in the corner on every reload for as long as it was.
+      if (hideKinds.has(n.kind)) continue;
       const kind = KIND[n.kind];
       const line = prizeSaid(n)
         ?? (n.kind === "announcement"
