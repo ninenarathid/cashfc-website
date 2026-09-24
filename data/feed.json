@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-09-24",
+   "type": "ult_clear",
+   "id": 36261473,
+   "name": "Cheryl Klenovich",
+   "text": "cleared Dancing Mad 🏆"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "job_up",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "is now a Legendary Viper"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "parse_up",
+   "id": 24123541,
+   "name": "Zeren Dragonia",
+   "text": "set a new best parse: 100 on Sugar Riot as Reaper"
+  },
+  {
+   "date": "2026-09-24",
+   "type": "job_up",
+   "id": 14476396,
+   "name": "Arawn A'nnwn",
+   "text": "is now a Expert Paladin"
+  },
+  {
+   "date": "2026-09-24",
    "type": "level_100",
    "id": 61014734,
    "name": "Hanna Doss",
@@ -1371,34 +1399,6 @@
    "id": 29918255,
    "name": "Lyndanisse Vymmaith",
    "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-09-16",
-   "type": "level_100",
-   "id": 51060767,
-   "name": "Yatchy Concreategirls",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-09-16",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-16",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-16",
-   "type": "level_100",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "reached level 100 on Scholar!"
   }
  ]
 }

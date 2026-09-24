@@ -1991,6 +1991,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 48,
       "median": 48,
@@ -1999,6 +2000,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 1,
       "median": 1,
@@ -2007,6 +2009,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 5,
       "median": 5,
@@ -2015,6 +2018,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 3,
       "median": 3,
@@ -3273,6 +3277,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 67,
+      "median": 45,
+      "kills": 7,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 31,
+      "median": 17,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 52,
+      "median": 30,
+      "kills": 6,
+      "job": "Dancer"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 31,
+      "median": 28,
+      "kills": 4,
+      "job": "Dancer"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -5430,6 +5477,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 48,
+      "median": 26,
+      "kills": 11,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 61,
+      "median": 37,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 59,
+      "median": 29,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 24,
+      "median": 19,
+      "kills": 3,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
@@ -6385,6 +6475,31 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 50,
+      "median": 6,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 19,
+      "median": 11,
+      "kills": 6,
+      "job": "Dancer"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -7765,6 +7880,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 98,
+      "median": 87,
+      "kills": 21,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 99,
+      "median": 91,
+      "kills": 18,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 98,
+      "median": 59,
+      "kills": 20,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 100,
+      "median": 85,
+      "kills": 20,
+      "job": "Pictomancer"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
@@ -8453,6 +8611,22 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 68,
+      "median": 55,
+      "kills": 4,
+      "job": "Scholar"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
@@ -9063,6 +9237,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 71,
+      "median": 44,
+      "kills": 17,
+      "job": "Sage"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 64,
+      "median": 37,
+      "kills": 13,
+      "job": "Sage"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 53,
+      "median": 24,
+      "kills": 9,
+      "job": "Sage"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 8,
+      "median": 8,
+      "kills": 2,
+      "job": "Dragoon"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -9869,6 +10086,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 44,
       "median": 32,
@@ -10034,9 +10252,9 @@
     "state": "learning",
     "pct": 64.77,
     "phase": 5,
-    "pulls": 81,
-    "last": "2026-09-21",
-    "last_ts": 1790008368
+    "pulls": 78,
+    "last": "2026-09-24",
+    "last_ts": 1790271103
    }
   ]
  },
@@ -10346,6 +10564,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 96,
       "median": 79,
@@ -10354,6 +10573,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 92,
       "median": 73,
@@ -10362,6 +10582,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 69,
       "median": 41,
@@ -10370,6 +10591,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 70,
       "median": 37,
@@ -10929,6 +11151,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 51,
+      "median": 44,
+      "kills": 7,
+      "job": "Paladin"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 37,
+      "median": 32,
+      "kills": 7,
+      "job": "Paladin"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 62,
+      "median": 31,
+      "kills": 5,
+      "job": "Paladin"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 20,
+      "median": 20,
+      "kills": 1,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
@@ -11370,6 +11635,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 92,
       "median": 86,
@@ -11378,6 +11644,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 82,
       "median": 65,
@@ -11386,6 +11653,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 62,
       "median": 62,
@@ -11394,6 +11662,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 23,
       "median": 23,
@@ -12189,6 +12458,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 98,
+      "median": 74,
+      "kills": 12,
+      "job": "Paladin"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 84,
+      "median": 62,
+      "kills": 11,
+      "job": "Paladin"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 92,
+      "median": 57,
+      "kills": 10,
+      "job": "Paladin"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 77,
+      "median": 59,
+      "kills": 8,
+      "job": "Paladin"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -15518,6 +15830,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 92,
       "median": 68,
@@ -15526,6 +15839,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 69,
       "median": 41,
@@ -15534,6 +15848,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 49,
       "median": 17,
@@ -15542,6 +15857,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 86,
       "median": 44,
@@ -17238,6 +17554,22 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 67,
+      "median": 67,
+      "kills": 1,
+      "job": "Bard"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
@@ -17676,6 +18008,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 71,
+      "median": 49,
+      "kills": 6,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 47,
+      "median": 47,
+      "kills": 8,
+      "job": "Scholar"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 14,
+      "median": 7,
+      "kills": 6,
+      "job": "Warrior"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 43,
+      "median": 19,
+      "kills": 6,
+      "job": "Warrior"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -18319,6 +18694,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 39,
       "median": 35,
@@ -18327,6 +18703,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 70,
       "median": 34,
@@ -18335,6 +18712,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 34,
       "median": 12,
@@ -18343,6 +18721,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 4,
       "median": 4,
@@ -20076,7 +20455,7 @@
     "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 55,
-    "kills": 3,
+    "kills": 4,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -20179,6 +20558,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 99,
+      "median": 92,
+      "kills": 12,
+      "job": "Reaper"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 100,
+      "median": 96,
+      "kills": 12,
+      "job": "Reaper"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 97,
+      "median": 82,
+      "kills": 11,
+      "job": "Reaper"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 94,
+      "median": 85,
+      "kills": 8,
+      "job": "Reaper"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -20948,6 +21370,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 57,
       "median": 44,
@@ -20956,6 +21379,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 38,
       "median": 31,
@@ -20964,6 +21388,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 33,
       "median": 27,
@@ -23429,6 +23854,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 77,
       "median": 50,
@@ -23437,6 +23863,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 52,
       "median": 9,
@@ -23445,6 +23872,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 24,
       "median": 16,
@@ -23453,6 +23881,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 15,
       "median": 15,
@@ -24606,6 +25035,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 100,
+      "median": 77,
+      "kills": 18,
+      "job": "Viper"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 94,
+      "median": 74,
+      "kills": 14,
+      "job": "Viper"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 87,
+      "median": 62,
+      "kills": 12,
+      "job": "Viper"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 100,
+      "median": 89,
+      "kills": 7,
+      "job": "Viper"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -25102,11 +25574,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 29.99,
+    "pct": 29,
     "phase": 3,
-    "pulls": 65,
-    "last": "2026-09-23",
-    "last_ts": 1790183059
+    "pulls": 89,
+    "last": "2026-09-24",
+    "last_ts": 1790269441
    }
   ]
  },
@@ -25356,6 +25828,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 80,
+      "median": 60,
+      "kills": 18,
+      "job": "Paladin"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 78,
+      "median": 48,
+      "kills": 13,
+      "job": "Paladin"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 77,
+      "median": 52,
+      "kills": 11,
+      "job": "Paladin"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 50,
+      "median": 24,
+      "kills": 6,
+      "job": "Paladin"
+     }
+    ]
+   },
    {
     "zone": "Abyssos",
     "zone_id": 49,
@@ -26223,6 +26738,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 93,
       "median": 35,
@@ -26231,6 +26747,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 82,
       "median": 53,
@@ -26239,6 +26756,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 85,
       "median": 62,
@@ -26247,6 +26765,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 77,
       "median": 61,
@@ -26680,9 +27199,9 @@
     "state": "learning",
     "pct": 64.77,
     "phase": 5,
-    "pulls": 82,
-    "last": "2026-09-21",
-    "last_ts": 1790008368
+    "pulls": 79,
+    "last": "2026-09-24",
+    "last_ts": 1790271103
    }
   ]
  },
@@ -27793,6 +28312,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 80,
       "median": 74,
@@ -27801,6 +28321,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 85,
       "median": 74,
@@ -27809,6 +28330,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 77,
       "median": 59,
@@ -27817,6 +28339,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 85,
       "median": 51,
@@ -28936,6 +29459,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 95,
       "median": 47,
@@ -28944,6 +29468,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 79,
       "median": 29,
@@ -28952,6 +29477,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 50,
       "median": 17,
@@ -28960,6 +29486,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 79,
       "median": 47,
@@ -29861,6 +30388,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 100,
       "median": 94,
@@ -29869,6 +30397,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 98,
       "median": 91,
@@ -29877,6 +30406,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 97,
       "median": 90,
@@ -29885,6 +30415,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 95,
       "median": 66,
@@ -30406,9 +30937,9 @@
     "state": "learning",
     "pct": 64.77,
     "phase": 5,
-    "pulls": 81,
-    "last": "2026-09-21",
-    "last_ts": 1790008368
+    "pulls": 78,
+    "last": "2026-09-24",
+    "last_ts": 1790271103
    }
   ]
  },
@@ -30988,6 +31519,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 97,
       "median": 66,
@@ -30996,6 +31528,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 80,
       "median": 41,
@@ -31004,6 +31537,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 85,
       "median": 22,
@@ -31012,6 +31546,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 76,
       "median": 47,
@@ -31306,11 +31841,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 29.99,
+    "pct": 29,
     "phase": 3,
-    "pulls": 115,
-    "last": "2026-09-23",
-    "last_ts": 1790183059
+    "pulls": 116,
+    "last": "2026-09-24",
+    "last_ts": 1790269441
    }
   ]
  },
@@ -31818,6 +32353,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 97,
       "median": 57,
@@ -31826,6 +32362,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 85,
       "median": 67,
@@ -31834,6 +32371,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 73,
       "median": 43,
@@ -31842,6 +32380,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 67,
       "median": 47,
@@ -32668,6 +33207,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 100,
+      "median": 58,
+      "kills": 9,
+      "job": "Viper"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 96,
+      "median": 77,
+      "kills": 9,
+      "job": "Viper"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 87,
+      "median": 69,
+      "kills": 9,
+      "job": "Viper"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 95,
+      "median": 49,
+      "kills": 8,
+      "job": "Viper"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -33536,9 +34118,9 @@
     "state": "learning",
     "pct": 64.77,
     "phase": 5,
-    "pulls": 80,
-    "last": "2026-09-21",
-    "last_ts": 1790008368
+    "pulls": 77,
+    "last": "2026-09-24",
+    "last_ts": 1790271103
    }
   ]
  },
@@ -35024,6 +35606,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 89,
       "median": 55,
@@ -35032,6 +35615,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 92,
       "median": 77,
@@ -35040,6 +35624,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 46,
       "median": 36,
@@ -35048,6 +35633,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 29,
       "median": 21,
@@ -37036,6 +37622,22 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 80,
+      "median": 78,
+      "kills": 2,
+      "job": "DarkKnight"
+     }
+    ]
+   },
+   {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
     "expansion": "Dawntrail",
@@ -37900,6 +38502,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 92,
+      "median": 73,
+      "kills": 6,
+      "job": "Monk"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 90,
+      "median": 79,
+      "kills": 7,
+      "job": "Monk"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 93,
+      "median": 32,
+      "kills": 6,
+      "job": "Monk"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 94,
+      "median": 62,
+      "kills": 6,
+      "job": "Monk"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -41150,6 +41795,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 84,
       "median": 65,
@@ -41158,6 +41804,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 86,
       "median": 51,
@@ -41166,6 +41813,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 63,
       "median": 42,
@@ -41174,6 +41822,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 53,
       "median": 37,
@@ -41848,9 +42497,9 @@
     "state": "learning",
     "pct": 64.77,
     "phase": 5,
-    "pulls": 82,
-    "last": "2026-09-21",
-    "last_ts": 1790008368
+    "pulls": 79,
+    "last": "2026-09-24",
+    "last_ts": 1790271103
    }
   ]
  },
@@ -43203,6 +43852,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 91,
       "median": 51,
@@ -43211,6 +43861,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 85,
       "median": 61,
@@ -43219,6 +43870,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 96,
       "median": 67,
@@ -43227,6 +43879,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 74,
       "median": 55,
@@ -43824,9 +44477,9 @@
     "state": "learning",
     "pct": 64.77,
     "phase": 5,
-    "pulls": 81,
-    "last": "2026-09-21",
-    "last_ts": 1790008368
+    "pulls": 78,
+    "last": "2026-09-24",
+    "last_ts": 1790271103
    }
   ]
  },
@@ -47057,6 +47710,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 99,
       "median": 80,
@@ -47065,6 +47719,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 97,
       "median": 81,
@@ -47073,6 +47728,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 88,
       "median": 55,
@@ -47081,6 +47737,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 84,
       "median": 45,
@@ -48162,6 +48819,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 51,
       "median": 42,
@@ -51718,6 +52376,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 75,
       "median": 60,
@@ -51726,6 +52385,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 57,
       "median": 36,
@@ -51734,6 +52394,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 41,
       "median": 21,
@@ -51742,6 +52403,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 36,
       "median": 36,
@@ -55903,6 +56565,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 86,
       "median": 32,
@@ -55911,6 +56574,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 51,
       "median": 28,
@@ -55919,6 +56583,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 55,
       "median": 21,
@@ -55927,6 +56592,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 57,
       "median": 16,
@@ -58911,6 +59577,17 @@
   },
   "ultimates": [
    {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "best": 54,
+    "kills": 1,
+    "job": "Astrologian",
+    "cleared": true
+   },
+   {
     "zone": "Futures Rewritten",
     "zone_id": 65,
     "expansion": "Dawntrail",
@@ -59090,6 +59767,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 94,
       "median": 70,
@@ -59098,6 +59776,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 93,
       "median": 81,
@@ -59106,6 +59785,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 82,
       "median": 70,
@@ -59114,6 +59794,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 94,
       "median": 67,
@@ -60597,6 +61278,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 60,
       "median": 34,
@@ -60605,6 +61287,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 37,
       "median": 26,
@@ -62999,6 +63682,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 91,
       "median": 72,
@@ -63007,6 +63691,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 64,
       "median": 37,
@@ -63015,6 +63700,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 86,
       "median": 48,
@@ -63023,6 +63709,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 74,
       "median": 60,
@@ -63712,6 +64399,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 40,
       "median": 40,
@@ -67404,7 +68092,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 42,
+    "kills": 43,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -67528,7 +68216,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 90,
-    "kills": 28,
+    "kills": 30,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
@@ -70394,6 +71082,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 97,
       "median": 81,
@@ -70402,6 +71091,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 92,
       "median": 83,
@@ -70410,6 +71100,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 91,
       "median": 63,
@@ -70418,6 +71109,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 74,
       "median": 41,
@@ -71329,6 +72021,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 92,
       "median": 85,
@@ -71337,6 +72030,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 73,
       "median": 64,
@@ -71345,6 +72039,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 72,
       "median": 45,
@@ -71353,6 +72048,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 54,
       "median": 32,
@@ -71945,6 +72641,7 @@
     "encounters": [
      {
       "label": "M5S",
+      "encounter_id": 97,
       "name": "Dancing Green",
       "best": 94,
       "median": 50,
@@ -71953,6 +72650,7 @@
      },
      {
       "label": "M6S",
+      "encounter_id": 98,
       "name": "Sugar Riot",
       "best": 91,
       "median": 50,
@@ -71961,6 +72659,7 @@
      },
      {
       "label": "M7S",
+      "encounter_id": 99,
       "name": "Brute Abombinator",
       "best": 51,
       "median": 40,
@@ -71969,6 +72668,7 @@
      },
      {
       "label": "M8S",
+      "encounter_id": 100,
       "name": "Howling Blade",
       "best": 61,
       "median": 30,
