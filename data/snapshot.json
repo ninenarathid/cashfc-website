@@ -13660,7 +13660,7 @@
  },
  "17723972": {
   "name": "Naruga Vagrant",
-  "parse": 82,
+  "parse": 95,
   "ult": 0,
   "mounts": 55,
   "minions": 106,
@@ -13676,14 +13676,14 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "BlackMage": "expert"
+   "BlackMage": "legendary"
   },
   "ex": [
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-25"
  },
  "29128390": {
   "name": "Naskdin Ykorn",
@@ -13709,7 +13709,7 @@
  },
  "30421228": {
   "name": "Natsuki Tri",
-  "parse": 79,
+  "parse": 89,
   "ult": 0,
   "mounts": 29,
   "minions": 73,
@@ -13725,11 +13725,12 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "Summoner": "expert",
    "WhiteMage": "expert"
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-25"
  },
  "37815847": {
   "name": "Necro Himawari",
@@ -13837,7 +13838,7 @@
  },
  "32150308": {
   "name": "Nene Mumu",
-  "parse": 10,
+  "parse": 26,
   "ult": 0,
   "mounts": 19,
   "minions": 53,
@@ -13855,11 +13856,11 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-25"
  },
  "36149590": {
   "name": "Neo Anderson",
-  "parse": 92,
+  "parse": 99,
   "ult": 1,
   "mounts": 67,
   "minions": 98,
@@ -13886,6 +13887,8 @@
   "tiers": {},
   "jobs": {
    "Warrior": "legendary",
+   "DarkKnight": "legendary",
+   "Gunbreaker": "master",
    "Machinist": "expert"
   },
   "ex": [
@@ -13896,7 +13899,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-25"
  },
  "39001402": {
   "name": "Nes Brio",
@@ -13922,7 +13925,7 @@
  },
  "27302476": {
   "name": "Nesies Ashwood",
-  "parse": null,
+  "parse": 5,
   "ult": 0,
   "mounts": 21,
   "minions": 65,
@@ -13942,7 +13945,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-09-25"
  },
  "43707810": {
   "name": "New Skills",
@@ -14146,7 +14149,8 @@
   "tiers": {},
   "jobs": {
    "Summoner": "expert",
-   "Gunbreaker": "master"
+   "Gunbreaker": "master",
+   "Warrior": "master"
   },
   "ex": [],
   "ults": [

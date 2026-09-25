@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-09-25",
+   "type": "parse_up",
+   "id": 17723972,
+   "name": "Naruga Vagrant",
+   "text": "set a new best parse: 95 on Phoinix as Blac\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 17723972,
+   "name": "Naruga Vagrant",
+   "text": "is now a Legendary Black Mage"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "parse_up",
+   "id": 30421228,
+   "name": "Natsuki Tri",
+   "text": "set a new best parse: 89 on Erichthonios as Summoner"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 30421228,
+   "name": "Natsuki Tri",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "parse_up",
+   "id": 32150308,
+   "name": "Nene Mumu",
+   "text": "set a new best parse: 26 on Hesperos as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "parse_up",
+   "id": 36149590,
+   "name": "Neo Anderson",
+   "text": "set a new best parse: 99 on Erichthonios as Gunbreaker"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 36149590,
+   "name": "Neo Anderson",
+   "text": "is now a Legendary Dark Knight"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 36149590,
+   "name": "Neo Anderson",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "parse_up",
+   "id": 27302476,
+   "name": "Nesies Ashwood",
+   "text": "set a new best parse: 5 on Erichthonios as Paladin"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 37731936,
+   "name": "Null Skyrage",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-09-25",
    "type": "level_100",
    "id": 8286372,
    "name": "Aloha Banana",
@@ -1329,76 +1399,6 @@
    "id": 29918404,
    "name": "Zarass Gierlos",
    "text": "earned Clare Obscurum: Twinfangs Obscurum — only 4.6% of players have it"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Resplendent: Brilliant Saw"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 31155521,
-   "name": "Ketchup Love",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "rare_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "earned Eighth Rank II — only 0.8% of players have it, and 3 more"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 42146242,
-   "name": "Zxazi Rowan",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Scholar!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "reached level 100 on Gunbreaker!"
   }
  ]
 }
