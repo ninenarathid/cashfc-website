@@ -5122,7 +5122,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 100,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -5244,7 +5244,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-25"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -6932,7 +6932,7 @@
   "mounts": 198,
   "minions": 420,
   "rare": 271,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -7059,7 +7059,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-22"
+  "chg": "2026-09-25"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -8229,7 +8229,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 70,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -15874,7 +15874,10 @@
   "tiers": {},
   "jobs": {
    "Viper": "master",
+   "Ninja": "legendary",
    "Samurai": "legendary",
+   "DarkKnight": "legendary",
+   "Scholar": "legendary",
    "Reaper": "legendary",
    "Paladin": "expert"
   },

@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-09-25",
+   "type": "job_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "is now a Legendary Ninja"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "is now a Legendary Dark Knight"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 31239994,
+   "name": "Sopier Kit",
+   "text": "is now a Legendary Scholar"
+  },
+  {
+   "date": "2026-09-25",
    "type": "parse_up",
    "id": 17723972,
    "name": "Naruga Vagrant",
@@ -1378,27 +1399,6 @@
    "id": 28579232,
    "name": "Dessiny Valkyrie",
    "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "grade_up",
-   "id": 22425670,
-   "name": "Shizuna-pan Misurugi",
-   "text": "is now a Master Explorer ✨"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Clare Obscurum: Twinfangs Obscurum — only 4.6% of players have it"
   }
  ]
 }

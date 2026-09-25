@@ -20089,6 +20089,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 93,
+      "median": 66,
+      "kills": 20,
+      "job": "Ninja"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 86,
+      "median": 51,
+      "kills": 16,
+      "job": "Ninja"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 75,
+      "median": 46,
+      "kills": 16,
+      "job": "Ninja"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 88,
+      "median": 60,
+      "kills": 20,
+      "job": "Ninja"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 94,
+      "median": 76,
+      "kills": 4,
+      "job": "Ninja"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -27759,7 +27811,13 @@
       "best": 5,
       "median": 3,
       "kills": 2,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 2,
+        "best": 5
+       }
+      }
      }
     ]
    }
@@ -45690,6 +45748,58 @@
     ]
    },
    {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 98,
+      "median": 58,
+      "kills": 68,
+      "job": "Ninja"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 99,
+      "median": 90,
+      "kills": 117,
+      "job": "Scholar"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 99,
+      "median": 90,
+      "kills": 123,
+      "job": "Samurai"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 99,
+      "median": 99,
+      "kills": 58,
+      "job": "DarkKnight"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 96,
+      "median": 56,
+      "kills": 30,
+      "job": "Scholar"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Verse",
     "zone_id": 33,
     "expansion": "Shadowbringers",
@@ -58708,6 +58818,58 @@
         "best": 83
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 85,
+      "median": 65,
+      "kills": 6,
+      "job": "Samurai"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 81,
+      "median": 75,
+      "kills": 7,
+      "job": "Samurai"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 81,
+      "median": 55,
+      "kills": 5,
+      "job": "Samurai"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 86,
+      "median": 76,
+      "kills": 9,
+      "job": "Samurai"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 93,
+      "median": 62,
+      "kills": 2,
+      "job": "Samurai"
      }
     ]
    }
