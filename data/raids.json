@@ -29132,6 +29132,58 @@
     ]
    },
    {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 97,
+      "median": 83,
+      "kills": 11,
+      "job": "Dragoon"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 97,
+      "median": 71,
+      "kills": 11,
+      "job": "Dragoon"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 95,
+      "median": 83,
+      "kills": 11,
+      "job": "Dragoon"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 97,
+      "median": 62,
+      "kills": 19,
+      "job": "Dragoon"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 87,
+      "median": 70,
+      "kills": 10,
+      "job": "Dragoon"
+     }
+    ]
+   },
+   {
     "zone": "Asphodelos",
     "zone_id": 44,
     "expansion": "Endwalker",
@@ -36330,6 +36382,31 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 75,
+      "median": 59,
+      "kills": 3,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 87,
+      "median": 53,
+      "kills": 3,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Asphodelos",
     "zone_id": 44,
     "expansion": "Endwalker",
@@ -39568,6 +39645,58 @@
   ],
   "extremes": [],
   "legacy": [
+   {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 76,
+      "median": 43,
+      "kills": 8,
+      "job": "Scholar"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 60,
+      "median": 55,
+      "kills": 6,
+      "job": "Scholar"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 48,
+      "median": 37,
+      "kills": 7,
+      "job": "Scholar"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 41,
+      "median": 38,
+      "kills": 16,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 43,
+      "median": 43,
+      "kills": 2,
+      "job": "Sage"
+     }
+    ]
+   },
    {
     "zone": "Asphodelos",
     "zone_id": 44,
@@ -48495,6 +48624,58 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 85,
+      "median": 53,
+      "kills": 7,
+      "job": "Summoner"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 89,
+      "median": 56,
+      "kills": 6,
+      "job": "Summoner"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 76,
+      "median": 51,
+      "kills": 6,
+      "job": "Summoner"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 61,
+      "median": 20,
+      "kills": 17,
+      "job": "Summoner"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 73,
+      "median": 28,
+      "kills": 5,
+      "job": "Summoner"
+     }
+    ]
+   },
+   {
     "zone": "Asphodelos",
     "zone_id": 44,
     "expansion": "Endwalker",
@@ -49918,6 +50099,58 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 51,
+      "median": 36,
+      "kills": 18,
+      "job": "Sage"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 60,
+      "median": 24,
+      "kills": 17,
+      "job": "Sage"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 54,
+      "median": 25,
+      "kills": 16,
+      "job": "Sage"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 32,
+      "median": 10,
+      "kills": 24,
+      "job": "Sage"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 25,
+      "median": 18,
+      "kills": 6,
+      "job": "Sage"
+     }
+    ]
+   },
+   {
     "zone": "Asphodelos",
     "zone_id": 44,
     "expansion": "Endwalker",
@@ -51303,6 +51536,22 @@
         "best": 6
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 28,
+      "median": 28,
+      "kills": 1,
+      "job": "Scholar"
      }
     ]
    },
@@ -56926,6 +57175,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 64,
       "median": 35,
@@ -56934,6 +57184,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 63,
       "median": 33,
@@ -56942,6 +57193,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 56,
       "median": 28,
@@ -56949,7 +57201,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 74,
       "median": 27,
@@ -56957,7 +57210,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 51,
       "median": 32,
@@ -58992,6 +59246,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 98,
       "median": 80,
@@ -59000,6 +59255,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 97,
       "median": 88,
@@ -59008,6 +59264,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 98,
       "median": 59,
@@ -59015,7 +59272,8 @@
       "job": "Machinist"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 92,
       "median": 53,
@@ -59023,7 +59281,8 @@
       "job": "Machinist"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 83,
       "median": 53,
@@ -68383,6 +68642,58 @@
     ]
    },
    {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 70,
+      "median": 27,
+      "kills": 12,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 60,
+      "median": 25,
+      "kills": 14,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 60,
+      "median": 18,
+      "kills": 12,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 39,
+      "median": 12,
+      "kills": 10,
+      "job": "WhiteMage"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 31,
+      "median": 29,
+      "kills": 6,
+      "job": "WhiteMage"
+     }
+    ]
+   },
+   {
     "zone": "Asphodelos",
     "zone_id": 44,
     "expansion": "Endwalker",
@@ -72217,7 +72528,17 @@
       "best": 51,
       "median": 24,
       "kills": 17,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 16,
+        "best": 51
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 5
+       }
+      }
      },
      {
       "label": "P10S",
@@ -72226,7 +72547,13 @@
       "best": 71,
       "median": 19,
       "kills": 16,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 16,
+        "best": 71
+       }
+      }
      },
      {
       "label": "P11S",
@@ -72235,7 +72562,13 @@
       "best": 38,
       "median": 9,
       "kills": 14,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 14,
+        "best": 38
+       }
+      }
      },
      {
       "label": "P12S",
@@ -72244,7 +72577,13 @@
       "best": 10,
       "median": 3,
       "kills": 14,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 14,
+        "best": 10
+       }
+      }
      },
      {
       "label": null,
@@ -72253,7 +72592,13 @@
       "best": 5,
       "median": 2,
       "kills": 7,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 7,
+        "best": 5
+       }
+      }
      }
     ]
    }

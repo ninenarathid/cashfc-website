@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-09-25",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 30333493,
+   "name": "Haruko Sho",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "parse_up",
+   "id": 33272037,
+   "name": "Hermanita Imouto",
+   "text": "set a new best parse: 60 on Hegemone as Sage"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 33272037,
+   "name": "Hermanita Imouto",
+   "text": "is now a Expert Sage"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "parse_up",
+   "id": 40652404,
+   "name": "Jade Solaire",
+   "text": "set a new best parse: 70 on Proto-Carbuncle as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 40652404,
+   "name": "Jade Solaire",
+   "text": "is now a Expert White Mage"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 28127069,
+   "name": "Jim Carried",
+   "text": "is now a Legendary Dragoon"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "parse_up",
+   "id": 31923628,
+   "name": "Kakigori Kyrielight",
+   "text": "set a new best parse: 89 on Hegemone as Summoner"
+  },
+  {
+   "date": "2026-09-25",
+   "type": "job_up",
+   "id": 31923628,
+   "name": "Kakigori Kyrielight",
+   "text": "is now a Master Summoner"
+  },
+  {
+   "date": "2026-09-25",
    "type": "rare_up",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1329,76 +1399,6 @@
    "id": 25506828,
    "name": "Kururuki Tzuzaku",
    "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "ex_clear",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "cleared Necron (Extreme)"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "minions_up",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "passed 200 minions"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "rare_up",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "earned That Wasn't Wine — only 1.3% of players have it, and 50 more"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "level_100",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "reached level 100 on Fisher!"
-  },
-  {
-   "date": "2026-09-17",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Pictomancer!"
-  },
-  {
-   "date": "2026-09-17",
-   "type": "level_100",
-   "id": 47494518,
-   "name": "Farcia Soluna",
-   "text": "reached level 100 on Ninja!"
-  },
-  {
-   "date": "2026-09-17",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Mightier than the Raven"
-  },
-  {
-   "date": "2026-09-17",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Clare Obscurum: Cane Obscurum — only 4.9% of players have it"
   }
  ]
 }

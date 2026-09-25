@@ -1829,7 +1829,7 @@
   "mounts": 81,
   "minions": 104,
   "rare": 59,
-  "level": 100,
+  "level": 23,
   "cc": [
    true,
    true,
@@ -1922,7 +1922,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-20"
+  "chg": "2026-09-25"
  },
  "39199441": {
   "name": "Dodoco Chocodoco",
@@ -3752,7 +3752,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 71,
-  "level": 96,
+  "level": 97,
   "cc": [
    true,
    true,
@@ -3860,7 +3860,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-24"
+  "chg": "2026-09-25"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4696,7 +4696,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 100,
+  "level": 76,
   "cc": [
    true,
    true,
@@ -4723,7 +4723,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-17"
+  "chg": "2026-09-25"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -5014,14 +5014,14 @@
   "mounts": 125,
   "minions": 274,
   "rare": null,
-  "level": 100,
+  "level": 35,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-22"
+  "chg": "2026-09-25"
  },
  "38335568": {
   "name": "Vivienne Yhisa",
@@ -5253,7 +5253,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5432,7 +5432,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -5554,7 +5554,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-24"
+  "chg": "2026-09-25"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6731,7 +6731,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 61,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -6747,7 +6747,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-24"
+  "chg": "2026-09-25"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7990,7 +7990,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 95,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8003,7 +8003,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-24"
+  "chg": "2026-09-25"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8197,7 +8197,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 93,
+  "level": 94,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8229,7 +8229,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 69,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8445,14 +8445,14 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 83,
+  "level": 85,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-22"
+  "chg": "2026-09-25"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -11519,7 +11519,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Scholar": "expert",
+   "Scholar": "master",
    "Warrior": "master",
    "Gunbreaker": "expert"
   },
@@ -11578,7 +11578,7 @@
  },
  "33272037": {
   "name": "Hermanita Imouto",
-  "parse": 13,
+  "parse": 60,
   "ult": 0,
   "mounts": 33,
   "minions": 65,
@@ -11593,10 +11593,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Sage": "expert"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-25"
  },
  "27875326": {
   "name": "Hez King",
@@ -11766,7 +11768,7 @@
  },
  "40652404": {
   "name": "Jade Solaire",
-  "parse": 32,
+  "parse": 70,
   "ult": 1,
   "mounts": 52,
   "minions": 107,
@@ -11781,12 +11783,14 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "WhiteMage": "expert"
+  },
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-09-25"
  },
  "33966579": {
   "name": "James Jasper",
@@ -11897,7 +11901,8 @@
   "tiers": {},
   "jobs": {
    "Bard": "master",
-   "BlackMage": "legendary"
+   "BlackMage": "legendary",
+   "Dragoon": "legendary"
   },
   "ex": [
    "Valigarmanda",
@@ -12071,7 +12076,7 @@
  },
  "31923628": {
   "name": "Kakigori Kyrielight",
-  "parse": 37,
+  "parse": 89,
   "ult": 0,
   "mounts": 69,
   "minions": 186,
@@ -12086,10 +12091,12 @@
   ],
   "rare_ids": [],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Summoner": "master"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-09-25"
  },
  "57387464": {
   "name": "Kanao Rin",
