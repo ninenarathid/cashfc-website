@@ -455,7 +455,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": null,
-   "seen": "2026-09-18",
+   "seen": "2026-09-25",
    "mounts": 44,
    "minions": 81,
    "rare_achv": 13,
@@ -570,7 +570,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Cult of the Lalafell",
-   "seen": "2026-09-18",
+   "seen": "2026-09-25",
    "mounts": 84,
    "minions": 325,
    "rare_achv": 114,
@@ -637,7 +637,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "HebitsuchuS",
-   "seen": "2026-09-18",
+   "seen": "2026-09-25",
    "mounts": 72,
    "minions": 115,
    "rare_achv": 36,
@@ -746,7 +746,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "TRASTASA",
-   "seen": "2026-09-18",
+   "seen": "2026-09-25",
    "mounts": 153,
    "minions": 270,
    "rare_achv": 195,
@@ -1737,6 +1737,6 @@
    "stats_seen": "2026-09-25"
   }
  },
- "generated_at": "2026-09-24T23:21:47Z",
+ "generated_at": "2026-09-25T05:17:12Z",
  "count": 14
 }

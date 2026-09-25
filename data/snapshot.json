@@ -5285,7 +5285,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5309,7 +5309,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-24"
+  "chg": "2026-09-25"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -7353,7 +7353,7 @@
  },
  "37061370": {
   "name": "Peonies Dunieres",
-  "parse": 80,
+  "parse": 83,
   "ult": 0,
   "mounts": 131,
   "minions": 271,
@@ -7485,7 +7485,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-22"
+  "chg": "2026-09-25"
  },
  "43116127": {
   "name": "Piyo Stellar",
@@ -7610,7 +7610,7 @@
  },
  "35158574": {
   "name": "Rikka Haulia",
-  "parse": 90,
+  "parse": 95,
   "ult": 3,
   "mounts": 59,
   "minions": 154,
@@ -7660,7 +7660,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-25"
  },
  "43374218": {
   "name": "Sakura Stellar",
@@ -8424,7 +8424,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "expert",
+   "Viper": "master",
    "Reaper": "master"
   },
   "ex": [
