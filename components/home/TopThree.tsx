@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { allRows } from "@/lib/rows";
@@ -9,6 +9,7 @@ import { useAvatar } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { TAG_COLOR, TAG_LABELS } from "@/lib/tags";
 import TagIcon from "@/components/TagIcon";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 import type { BucketRow } from "@/lib/leaderboards";
 
 /**
@@ -40,7 +41,7 @@ interface Board {
   label: string;
   color: string;
   /** The potato boards bring their own; the rest use the game's own tag art. */
-  emoji?: string;
+  icon?: ReactNode;
   rows: { id: number; name: string; avatar: string | null }[];
 }
 
@@ -117,7 +118,7 @@ export default function TopThree(
       const profile = count(kudos.map((k) => [k.receiver_character_id, 1]));
       if (profile.length) {
         made.push({ key: "popoto", label: t("lb.popoto"), color: "#e5cc80",
-                    emoji: "🥔", rows: profile });
+                    icon: <PopotoIcon size={16} />, rows: profile });
       }
       // Everybody in the picture, sharing it — the same rule the leaderboard
       // uses, from the same place, so the front page cannot disagree with the
@@ -127,7 +128,7 @@ export default function TopThree(
       )].map(([id, v]) => [id, v.score] as [number, number]));
       if (gallery.length) {
         made.push({ key: "gallery", label: t("lb.gallery"), color: "#4fb8a8",
-                    emoji: "🥔", rows: gallery });
+                    icon: <PopotoIcon size={16} />, rows: gallery });
       }
       setPotato(made);
     })();
@@ -165,9 +166,7 @@ export default function TopThree(
                   style={{ color: `color-mix(in srgb, ${b.color} 78%, #ffffff)` }}>
               <span className="grid size-[18px] shrink-0 place-items-center rounded"
                     style={{ background: `${b.color}26` }}>
-                {b.emoji
-                  ? <span className="text-meta leading-none">{b.emoji}</span>
-                  : <TagIcon tag={b.key} size={13} />}
+                {b.icon ?? <TagIcon tag={b.key} size={13} />}
               </span>
               {b.label}
             </span>

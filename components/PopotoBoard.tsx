@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { allRows } from "@/lib/rows";
 import { useLang, type Key } from "@/lib/i18n";
 import LeaderRow, { type Leader } from "@/components/LeaderRow";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 import { popotoText, splitPopoto,
          type PopotoPost, type PopotoTag } from "@/lib/popoto";
 
@@ -36,7 +37,7 @@ type Totals = Map<number, { score: number; n: number }>;
 interface Board {
   key: string;
   color: string;
-  icon: string;
+  icon: ReactNode;
   title: Key;
   hint: Key;
   /** What the bracketed number under the total means, for the tooltip. */
@@ -49,7 +50,7 @@ const BOARDS: Board[] = [
     key: "profile",
     // The site's gold, which is already the potato's colour everywhere else.
     color: "#e5cc80",
-    icon: "🥔",
+    icon: <PopotoIcon />,
     title: "lb.popoto",
     hint: "lb.popotoHint",
     unit: (n) => `from ${n} member${n === 1 ? "" : "s"}`,
@@ -83,7 +84,7 @@ const BOARDS: Board[] = [
   {
     key: "gallery",
     color: "#4fb8a8",
-    icon: "🥔",
+    icon: <PopotoIcon />,
     title: "lb.gallery",
     hint: "lb.galleryHint",
     unit: (n) => `across ${n} picture${n === 1 ? "" : "s"}`,
@@ -158,7 +159,7 @@ function OneBoard({ board, names }: { board: Board; names: Names }) {
       <ol className="flex flex-col gap-1 px-4 pb-4 pt-3">
         {rows.map((r, i) => (
           <LeaderRow key={r.id} row={r} place={i + 1}
-                     value={`${board.icon} ${popotoText(r.score)}`}
+                     value={<>{board.icon} {popotoText(r.score)}</>}
                      title={board.unit(r.n)} />
         ))}
       </ol>

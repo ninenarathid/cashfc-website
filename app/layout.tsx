@@ -6,6 +6,7 @@ import Nav from "@/components/Nav";
 import CommandPalette from "@/components/CommandPalette";
 import ToastHost from "@/components/ui/Toast";
 import RareDevTools from "@/components/RareDevTools";
+import PopotoWarmup from "@/components/ui/PopotoWarmup";
 import { TooltipProvider } from "@/components/ui/Tooltip";
 import roster from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
@@ -98,6 +99,9 @@ export default function RootLayout({
           {/* Local-only: the testRarePotato() console command. Renders nothing
               on the deployed site. */}
           <RareDevTools />
+          {/* Every popoto pose, fetched while nothing else is happening, so the
+              one a button turns into is already there when it does. */}
+          <PopotoWarmup />
           {/* Extra room at the foot on a phone, where the tab bar is fixed over
               the bottom of the page and would otherwise sit on the footer. */}
           <div className="mx-auto max-w-5xl px-4 pb-32 sm:pb-16">

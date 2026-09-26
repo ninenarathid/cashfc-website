@@ -14,9 +14,14 @@ const nextConfig: NextConfig = {
    * asking the CDN for our own file, one round trip that can time out, to
    * answer something the disk already knows. Twenty pictures, a megabyte in
    * total.
+   *
+   * The popoto on a member's card is the same problem in a smaller size: one
+   * three-kilobyte picture read off the disk, which is only there if it is
+   * named here.
    */
   outputFileTracingIncludes: {
     "/party/[id]/opengraph-image": ["./public/duty/**/*"],
+    "/member/[id]/opengraph-image": ["./assets/popoto/popoto-og.png"],
   },
 };
 

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import raw from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
@@ -101,6 +103,22 @@ const INK = "#e3e8ef";
 const MUTED = "#98a4b5";
 /** Used when a member has never picked one, and the site's own accent besides. */
 const DEFAULT_ACCENT = "#6aa9e0";
+
+/**
+ * The popoto as the site draws it, rather than the emoji from whichever set
+ * Satori reaches for — the same reason the site stopped using the emoji.
+ * Inlined like every other picture here, and read once rather than per card.
+ * It lives outside public/, so next.config.ts traces it into the function;
+ * missing all the same, the card falls back to the emoji rather than failing.
+ */
+const POPOTO = (() => {
+  try {
+    const png = readFileSync(join(process.cwd(), "assets/popoto/popoto-og.png"));
+    return `data:image/png;base64,${png.toString("base64")}`;
+  } catch {
+    return null;
+  }
+})();
 
 async function inline(url: string | null | undefined): Promise<string | null> {
   if (!url) return null;
@@ -342,12 +360,17 @@ export default async function Image(
                         saying something. */}
                     {popoto > 0 && (
                       <div style={{
-                        display: "flex", borderRadius: 999, padding: "7px 20px",
+                        display: "flex", alignItems: "center", gap: 8,
+                        borderRadius: 999, padding: "7px 20px 7px 14px",
                         fontSize: 21, color: mix("#e5cc80", "#ffffff", 0.55),
                         background: mix("#e5cc80", "#0b0f15", 0.22),
                         border: `1px solid ${mix("#e5cc80", "#0b0f15", 0.62)}`,
                       }}>
-                        🥔 {popoto}
+                        {POPOTO
+                          // eslint-disable-next-line @next/next/no-img-element
+                          ? <img src={POPOTO} alt="" width={30} height={30} />
+                          : "🥔"}
+                        {popoto}
                       </div>
                     )}
                     {tags.map((t) => (

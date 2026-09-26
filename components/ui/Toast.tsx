@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import * as Radix from "@radix-ui/react-toast";
 import Link from "next/link";
 import GiftIcon from "@/components/ui/GiftIcon";
@@ -41,8 +41,8 @@ export interface ToastRequest {
    * the picture rather than the middle of it.
    */
   square?: boolean;
-  /** The small mark in the corner of the picture — 🥔, 📍, and so on. */
-  badge?: string;
+  /** The small mark in the corner of the picture — the popoto, 📍, and so on. */
+  badge?: ReactNode;
   /** Where it goes when clicked. Nothing means it is only an announcement. */
   href?: string | null;
   /**

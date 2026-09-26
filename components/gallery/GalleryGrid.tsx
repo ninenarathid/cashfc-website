@@ -9,6 +9,7 @@ import type { MemberOption } from "@/components/gallery/MemberPicker";
 import PostDetail from "@/components/gallery/PostDetail";
 import { useAdmin } from "@/lib/admin";
 import { useCycle } from "@/components/gallery/useCycle";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
 export interface Counts { likes: number; comments: number }
@@ -403,7 +404,7 @@ export default function GalleryGrid(
                     )}
                     {(c?.likes || c?.comments) ? (
                       <div className="mt-1 flex gap-2 text-ui font-medium text-ink/85">
-                        {c.likes > 0 && <span>🥔 {c.likes}</span>}
+                        {c.likes > 0 && <span><PopotoIcon label="popoto" /> {c.likes}</span>}
                         {c.comments > 0 && <span>💬 {c.comments}</span>}
                       </div>
                     ) : null}

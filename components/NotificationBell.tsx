@@ -20,6 +20,7 @@ import { PRIZE_INVENTORY, aquaArt, type PrizeFx } from "@/lib/prizes";
 import { WALLET, fmtGil } from "@/lib/wallet";
 import { warmAqua } from "@/components/ui/WalletToast";
 import { throwPotato } from "@/components/ui/throwPotato";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 import { todayUtc } from "@/lib/kudos";
 
 interface Note {
@@ -211,15 +212,16 @@ async function tryThrow(from: Element | DOMRect, only?: number) {
  * that was never there. An unknown kind now says only that something happened,
  * which is true, and a new kind is one row here.
  */
-const KIND: Record<string, { say: Key; icon: string; href: string }> = {
+const KIND: Record<string, { say: Key; icon: React.ReactNode; href: string }> = {
   // A pin, because that is what a tag is on the photograph itself and on
   // the button that places one. One idea, one mark.
   tag: { say: "notif.tagged", icon: "📍", href: "" },
   comment: { say: "notif.commented", icon: "💬", href: "" },
   // The href is filled in per notification: a potato on your profile leads to
-  // your page, and which page that is depends on the character you hold.
-  popoto: { say: "notif.popoto", icon: "🥔", href: "" },
-  popoto_post: { say: "notif.popotoPost", icon: "🥔", href: "" },
+  // your page, and which page that is depends on the character you hold. The
+  // potato holding a heart, because it is one arriving rather than one sent.
+  popoto: { say: "notif.popoto", icon: <PopotoIcon pose="heart" />, href: "" },
+  popoto_post: { say: "notif.popotoPost", icon: <PopotoIcon pose="heart" />, href: "" },
   // One in a hundred arrives wrapped. Its row leads to the inventory on the
   // edit-profile page, where every parcel is opened (see hrefOf).
   popoto_rare: { say: "notif.popotoRare", icon: "🎁", href: "" },
@@ -1295,7 +1297,7 @@ export default function NotificationBell() {
     // A popoto that came with something: the sender, the potato, and the
     // parcel, which is the part that says this one is not like the others.
     const facing = n.kind === "popoto" || n.kind === "popoto_post" || n.kind === "popoto_rare"
-      ? "🥔" : n.kind === "feedback" ? "✉️"
+      ? <PopotoIcon pose="heart" /> : n.kind === "feedback" ? "✉️"
         // Everything the party finder sends is one person doing something to
         // your evening — asking for a seat, saying yes, leaving, speaking in a
         // party you are in. Who it was is the first thing you want, and a
@@ -1406,7 +1408,7 @@ export default function NotificationBell() {
                 // greyed-out control invites a click that will never do
                 // anything — a sentence says the same thing and does not lie.
                 <span className="inline-flex items-center gap-1.5 text-ui text-jade">
-                  🥔 {t("notif.backDone")}
+                  <PopotoIcon pose="sleep" /> {t("notif.backDone")}
                 </span>
               ) : (
                 // The element, not a copy of where it is: this one is still
@@ -1414,7 +1416,7 @@ export default function NotificationBell() {
                 <button onClick={(e) => { const btn = e.currentTarget; void sendBack(backTo, btn); }}
                         disabled={sending.has(backTo)} data-potato-from={backTo}
                         className="rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-ui text-gold transition-colors hover:bg-gold/20 disabled:opacity-50">
-                  🥔 {sending.has(backTo) ? t("notif.backSending") : t("notif.back")}
+                  <PopotoIcon /> {sending.has(backTo) ? t("notif.backSending") : t("notif.back")}
                 </button>
               )}
             </div>
@@ -1516,7 +1518,7 @@ export default function NotificationBell() {
             <button onClick={(e) => { void sendBackAll(e.currentTarget.getBoundingClientRect()); }}
                     disabled={sending.size > 0}
                     className="w-full border-t border-line bg-gold/5 px-3.5 py-2.5 text-center text-ui text-gold hover:bg-gold/15 disabled:opacity-50">
-              🥔 {t("notif.backAll", { n: owed.size })}
+              <PopotoIcon /> {t("notif.backAll", { n: owed.size })}
             </button>
           )}
 
@@ -1529,7 +1531,7 @@ export default function NotificationBell() {
             <button data-potato-try
                     onClick={(e) => { const btn = e.currentTarget; void tryThrow(btn); }}
                     className="w-full border-t border-dashed border-line px-3.5 py-2 text-center font-data text-meta uppercase tracking-[0.1em] text-muted transition-colors hover:bg-card hover:text-ink">
-              🥔 throw (dev)
+              <PopotoIcon /> throw (dev)
             </button>
           )}
 

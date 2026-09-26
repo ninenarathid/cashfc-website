@@ -1,0 +1,15 @@
+{
+  "note": "Written by scripts/popoto-art.mjs. The body's size as a share of each canvas.",
+  "icon": {
+    "w": 0.8313,
+    "h": 0.7408
+  },
+  "fly": {
+    "w": 0.7607,
+    "h": 0.5894
+  },
+  "hug": {
+    "w": 0.788,
+    "h": 0.5414
+  }
+}

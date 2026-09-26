@@ -41,7 +41,7 @@ export default function LeaderRow(
     row: Leader;
     place: number;
     /** The number this board ranks by, already formatted. */
-    value: string;
+    value: ReactNode;
     /** The smaller number in brackets after it. */
     sub?: string;
     /** What the number means, on hover. */

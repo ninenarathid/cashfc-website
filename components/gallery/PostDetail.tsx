@@ -24,6 +24,7 @@ import { useAdmin } from "@/lib/admin";
 import Messages from "@/components/ui/Messages";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import { fmtDate } from "@/lib/dates";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 
 interface Author { id: string; name: string; characterId: number | null; avatar: string | null }
 
@@ -564,7 +565,7 @@ export default function PostDetail(
                       likes ? "rounded-l-lg" : "rounded-lg"} ${
                       liked ? "border-accent bg-accent/15 text-accent"
                             : "border-line text-muted hover:border-accent hover:text-accent"}`}>
-              🥔 {liked ? t("gallery.popotoSent") : t("gallery.popoto")}
+              <PopotoIcon /> {liked ? t("gallery.popotoSent") : t("gallery.popoto")}
             </button>
             {!!likes && (
               <PopotoGivers kind="post" id={post.id} count={likes} className="-ml-px">

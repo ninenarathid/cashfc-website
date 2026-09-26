@@ -36,6 +36,7 @@ import MemberBio from "@/components/MemberBio";
 import NewPlayer, { MsqBadge } from "@/components/NewPlayer";
 import { useMemberBadges } from "@/lib/member-badges";
 import { throwPotato } from "@/components/ui/throwPotato";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 import { toast } from "@/components/ui/Toast";
 import { markEntry } from "@/lib/evercold";
 import { todayUtc } from "@/lib/kudos";
@@ -447,6 +448,43 @@ export default function MemberBoard({ data }: { data: BoardData }) {
     // A day of giving for the draw, the same as a popoto sent anywhere else.
     void markEntry(supabase, giver.id, giver.character);
   }
+
+  /*
+   * The same throw with nothing sent, for looking at it. Local development
+   * only: `testListPotato()` in the console throws at the first row on the
+   * page, `testListPotato(3)` at the fourth, and `testListPotato(3, 4)` does
+   * it four times slower. No popoto, no notification, no day towards the draw.
+   *
+   * It leaves from the row's own button when there is one — signed in, with a
+   * verified character — and the row then says "sent today" the way a real
+   * throw leaves it, until the page is reloaded: nothing was written, so
+   * nothing stays. Signed out there is no button, so it leaves from the end of
+   * the row, where the button would be.
+   */
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const w = window as unknown as {
+      testListPotato?: (row?: number, slow?: number) => Promise<void>;
+    };
+    w.testListPotato = async (row = 0, slow = 1) => {
+      const rows = document.querySelectorAll("[data-board-row]");
+      const at = rows[row];
+      if (!at) {
+        console.warn(`There is no row ${row}: the list has ${rows.length}.`);
+        return;
+      }
+      at.scrollIntoView({ block: "center", behavior: "instant" });
+      // Two frames for the scroll to land, so it is aimed at where the row is now.
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const face = at.querySelector<HTMLElement>("[data-face]");
+      const btn = at.querySelector("[data-popoto-send]");
+      const box = at.getBoundingClientRect();
+      await throwPotato(btn ?? new DOMRect(box.right - 60, box.top + 18, 0, 0), face, { slow });
+      const id = Number(face?.dataset.face);
+      if (btn && id) setGiven((v) => new Set(v).add(id));
+    };
+    return () => { delete w.testListPotato; };
+  }, []);
 
   /**
    * People who verified a character that is not on the FC roster.
@@ -1223,16 +1261,16 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     {giver && m.id !== giver.character && (
                       given.has(m.id) ? (
                         <span className="ml-auto whitespace-nowrap rounded-md border border-jade/40 px-2.5 py-0.5 text-ui text-jade">
-                          🥔 {t("kudos.sentToday")}
+                          <PopotoIcon pose="sleep" /> {t("kudos.sentToday")}
                         </span>
                       ) : (
                         <button onClick={(e) => {
                                   const btn = e.currentTarget;
                                   void sendPopoto(m.id, btn);
                                 }}
-                                disabled={sending.has(m.id)}
+                                disabled={sending.has(m.id)} data-popoto-send
                                 className="ml-auto whitespace-nowrap rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-ui text-gold transition-colors hover:bg-gold/20 disabled:opacity-50">
-                          🥔 {sending.has(m.id) ? t("kudos.sending") : t("kudos.send")}
+                          <PopotoIcon /> {sending.has(m.id) ? t("kudos.sending") : t("kudos.send")}
                         </button>
                       )
                     )}

@@ -8,6 +8,7 @@ import { EVENT_FROM, EVENT_TO, bangkokDay } from "@/lib/evercold";
 import { isFcMember } from "@/lib/people";
 import { allRowsOrThrow } from "@/lib/rows";
 import { fmtDate } from "@/lib/dates";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 import { useLang, type Key } from "@/lib/i18n";
 
 /**
@@ -478,7 +479,7 @@ export default function AdminReports(
                   </span>
                   <Person row={r} portraits={portraits} />
                   <span className="font-data text-ui text-ink">
-                    🥔 {r.count}
+                    <PopotoIcon /> {r.count}
                     <span className="ml-1 text-meta text-muted">
                       ({r.parts.join("/")})
                     </span>

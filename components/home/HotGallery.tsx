@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import { useAvatarOverrides } from "@/lib/avatars";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 import { GALLERY_PUBLIC_KEY, postPath, thumbOf,
          type GalleryPost } from "@/lib/gallery";
 
@@ -184,7 +185,7 @@ function Tile(
           )}
           {((post.like_count ?? 0) > 0 || (post.comment_count ?? 0) > 0) && (
             <div className="mt-1 flex gap-2 text-meta font-medium text-ink/85">
-              {(post.like_count ?? 0) > 0 && <span>🥔 {post.like_count}</span>}
+              {(post.like_count ?? 0) > 0 && <span><PopotoIcon label="popoto" /> {post.like_count}</span>}
               {(post.comment_count ?? 0) > 0 && <span>💬 {post.comment_count}</span>}
             </div>
           )}

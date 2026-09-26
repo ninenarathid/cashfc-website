@@ -3,6 +3,7 @@
 import { useLang } from "@/lib/i18n";
 import { ACHV_TIER_STYLE } from "@/lib/tags";
 import { ACHV_TIER_LABEL } from "@/lib/types";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 
 /**
  * The leaderboards page is a server component so it can read the roster at build
@@ -129,8 +130,8 @@ export default function LeaderboardIntro(
         <p className="border-t border-line px-4 py-3 text-read leading-relaxed text-muted">
           {th ? (
             <>
-              <b className="text-gold">🥔 Popoto</b> กับ{" "}
-              <b style={{ color: "#4fb8a8" }}>🥔 Popoto จากรูป</b>{" "}
+              <b className="text-gold"><PopotoIcon /> Popoto</b> กับ{" "}
+              <b style={{ color: "#4fb8a8" }}><PopotoIcon /> Popoto จากรูป</b>{" "}
               เป็นสองอันที่ไม่ได้มาจากในเกม แต่มาจากสมาชิกใน FC กดให้กัน{" "}
               <b className="text-ink">และนับแยกกันคนละที่</b>
               <br />
@@ -144,8 +145,8 @@ export default function LeaderboardIntro(
             </>
           ) : (
             <>
-              <b className="text-gold">🥔 Popoto</b> and{" "}
-              <b style={{ color: "#4fb8a8" }}>🥔 Gallery popoto</b> are the two boards
+              <b className="text-gold"><PopotoIcon /> Popoto</b> and{" "}
+              <b style={{ color: "#4fb8a8" }}><PopotoIcon /> Gallery popoto</b> are the two boards
               the game had no hand in — they are members saying something to each
               other — and they are{" "}
               <b className="text-ink">counted entirely separately</b>.

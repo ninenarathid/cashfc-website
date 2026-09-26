@@ -27,6 +27,7 @@ import DutyCard from "@/components/DutyCard";
 import AwardBadge from "@/components/ui/AwardBadge";
 import PopotoGivers from "@/components/PopotoGivers";
 import { throwPotato } from "@/components/ui/throwPotato";
+import PopotoIcon from "@/components/ui/PopotoIcon";
 import { FACE_MORPH } from "@/lib/morph";
 import { useAvatar } from "@/lib/avatars";
 import { useRareDemo } from "@/lib/popoto-rare-demo";
@@ -39,6 +40,7 @@ import { memberTitle } from "@/lib/tags";
 import { GUEST_RANK, guestHome } from "@/lib/guest-data";
 import { parseColor } from "@/lib/parse";
 import { markEntry } from "@/lib/evercold";
+import { todayUtc } from "@/lib/kudos";
 import TellButton from "@/components/TellButton";
 
 /**
@@ -107,6 +109,15 @@ export default function MemberView({
   const portrait = useRef<HTMLImageElement>(null);
   /** Between the press and the landing, so one press is one potato. */
   const [throwing, setThrowing] = useState(false);
+  /**
+   * Whether the reader has already given this member one today, which turns
+   * the button into "sent today" the way the member list does. Kept as the
+   * member it was true of, so moving to somebody else's page cannot carry it.
+   */
+  const [sentTo, setSentTo] = useState<number | null>(null);
+  const sentToday = sentTo === m.id;
+  /** The "sent today" line, which the test throw leaves from once there is no button. */
+  const sentSpot = useRef<HTMLSpanElement>(null);
 
   /*
    * The face this page opens with.
@@ -134,12 +145,14 @@ export default function MemberView({
    * this page's button onto this page's picture and writes nothing — no
    * popoto, no notification, no day counted towards the draw. It does not
    * exist in the deployed site, so nobody can use it to make a potato appear
-   * to land that was never given.
+   * to land that was never given. `testPotato(4)` is the same throw four
+   * times slower, for watching the potato change pose as it lands.
    */
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
-    const w = window as unknown as { testPotato?: () => Promise<void> };
-    w.testPotato = () => throwPotato(kudosBtn.current, portrait.current);
+    const w = window as unknown as { testPotato?: (slow?: number) => Promise<void> };
+    w.testPotato = (slow = 1) =>
+      throwPotato(kudosBtn.current ?? sentSpot.current, portrait.current, { slow });
     return () => { delete w.testPotato; };
   }, []);
 
@@ -211,8 +224,17 @@ export default function MemberView({
     supabase.auth.getUser().then(async ({ data }) => {
       setUser(data.user);
       if (data.user) {
-        const { data: me } = await supabase.from("profiles")
-          .select("character_id, character_verified_at").eq("id", data.user.id).single();
+        // Beside it, not after it: whether one has gone to this member today
+        // needs only who is asking, and every moment it waits is a moment the
+        // button offers something it is about to take back.
+        const [{ data: me }, { count: mine }] = await Promise.all([
+          supabase.from("profiles")
+            .select("character_id, character_verified_at").eq("id", data.user.id).single(),
+          supabase.from("kudos").select("*", { count: "exact", head: true })
+            .eq("sender_id", data.user.id).eq("receiver_character_id", m.id)
+            .eq("day", todayUtc()),
+        ]);
+        if (mine) setSentTo(m.id);
         setIsOwner(me?.character_id === m.id);
         // Verified, the same bar the rest of the site now holds anything
         // written or given to: a claim nobody has proved names no one.
@@ -223,7 +245,7 @@ export default function MemberView({
   }, [supabase, m.id]);
 
   async function sendKudos() {
-    if (throwing) return;
+    if (throwing || sentToday) return;
     if (!supabase || !user) {
       setKudosMsg(t("kudos.signIn"));
       return;
@@ -242,7 +264,11 @@ export default function MemberView({
       .insert({ sender_id: user.id, receiver_character_id: m.id });
     if (error) {
       setThrowing(false);
-      setKudosMsg(error.code === "23505" ? t("kudos.already") : t("kudos.failed"));
+      // Already given today — from another tab, or from the member list. Not
+      // an error: the answer is already yes, so the button becomes the line
+      // that says so, as it does on the list.
+      if (error.code === "23505") setSentTo(m.id);
+      else setKudosMsg(t("kudos.failed"));
     } else {
       /*
        * Thrown once the database has it, not on the press. A potato that
@@ -251,12 +277,13 @@ export default function MemberView({
        * a moment; the throw is worth waiting that moment for.
        *
        * The count goes up when it lands rather than when it leaves, which is
-       * when the person watching expects it to.
+       * when the person watching expects it to — and the button says "sent
+       * today" then too, not before: it is where the potato came out of.
        */
       await throwPotato(kudosBtn.current, portrait.current);
       setThrowing(false);
       setKudos((k) => (k ?? 0) + 1);
-      setKudosMsg(t("kudos.sent"));
+      setSentTo(m.id);
       // The draw counts a day of giving, and this is one. Not awaited: the
       // potato has landed, and the congratulation can arrive a moment later.
       void markEntry(supabase, user.id, myCharacter);
@@ -605,11 +632,23 @@ export default function MemberView({
                     end of the wheel this button was writing in the ground it
                     sits on. Its other half already used ink, so the pair now
                     matches as well as being legible. */}
-                <button ref={kudosBtn} onClick={sendKudos} disabled={throwing}
-                        className={`border border-accent/60 bg-bg/40 px-3 py-1 text-ui text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${
+                {sentToday ? (
+                  // Given today: a line rather than a button, the way the
+                  // member list says it, because there is nothing to press
+                  // until 07:00. The frame stays the button's, so the count
+                  // beside it is still joined to the same shape.
+                  <span ref={sentSpot}
+                        className={`border border-accent/60 bg-bg/40 px-3 py-1 text-ui text-jade ${
                           kudos ? "rounded-l-md" : "rounded-md"}`}>
-                  🥔 Send popoto
-                </button>
+                    <PopotoIcon pose="sleep" /> {t("kudos.sentToday")}
+                  </span>
+                ) : (
+                  <button ref={kudosBtn} onClick={sendKudos} disabled={throwing}
+                          className={`border border-accent/60 bg-bg/40 px-3 py-1 text-ui text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink ${
+                            kudos ? "rounded-l-md" : "rounded-md"}`}>
+                    <PopotoIcon /> {throwing ? t("kudos.sending") : t("kudos.send")}
+                  </button>
+                )}
                 {!!kudos && (
                   <PopotoGivers kind="profile" id={m.id} count={kudos} className="-ml-px">
                     <span className="rounded-r-md border border-accent/60 bg-bg/40 px-3 py-1 text-ui text-ink/75 transition-colors hover:bg-accent/15 hover:text-ink">
@@ -633,7 +672,7 @@ export default function MemberView({
                           void throwPotato(btn, portrait.current);
                         }}
                         className="rounded-md border border-dashed border-line bg-bg/40 px-3 py-1 font-data text-meta uppercase tracking-[0.1em] text-muted transition-colors hover:border-muted hover:text-ink">
-                  🥔 throw (dev)
+                  <PopotoIcon /> throw (dev)
                 </button>
               )}
               {/* Copies the page with a throwaway query on the end. Discord
