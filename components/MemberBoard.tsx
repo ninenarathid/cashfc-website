@@ -1118,6 +1118,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
               // chips: an award is not another measurement of the character,
               // and a seal in the corner is how one is actually worn.
               const mBadges = badgesByMember[m.id] ?? [];
+              // Whether this row offers a popoto, and whether that button has to
+              // share the right-hand edge with the seals. See the button below.
+              const sendable = !!giver && m.id !== giver.character;
+              const underSeals = sendable && mBadges.length > 0;
               // Where a guest actually plays. It is the first thing anybody
               // wants to know about a name that is not on the roster, and the
               // FC's own members would only ever repeat the same two words.
@@ -1173,7 +1177,10 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                           and exactly what stops Motion being able to measure a
                           row it is meant to be moving. Dropped only while the
                           list is short enough to be animating anyway. */
-                       animateLayout ? "" : "[content-visibility:auto]"}`}>
+                       animateLayout ? "" : "[content-visibility:auto]"} ${
+                       /* Tall enough for the seals above and the popoto button
+                          under them, both at the right-hand edge. */
+                       underSeals ? "sm:min-h-[86px]" : ""}`}>
                   <Link href={`/member/${m.id}`} onClick={() => markFaceMorph(m.id)}
                         className="contents">
                     <Avatar m={m} />
@@ -1242,7 +1249,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     {ov?.bio && <MemberBio m={m} bio={ov.bio} accent={accent} />}
                   </div>
                   <div className={`col-start-2 flex flex-wrap items-center gap-1.5 sm:col-start-auto ${
-                    mBadges.length ? "sm:pr-28" : ""}`}>
+                    underSeals ? "sm:pr-32" : mBadges.length ? "sm:pr-28" : ""}`}>
                     <MemberTags m={m} extremeTotal={extremes.length} />
                     {(ov?.lfg ?? []).map((k) => {
                       const o = LFG_OPTIONS.find((x) => x.key === k);
@@ -1257,10 +1264,16 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         buttons stand in one column rather than wherever each
                         row's tags happen to stop. Not on your own row. Once
                         given, it keeps the button's shape and says so — there
-                        is nothing left to press until 07:00 Thai time. */}
-                    {giver && m.id !== giver.character && (
+                        is nothing left to press until 07:00 Thai time.
+
+                        On a row wearing seals, under them at the same edge
+                        instead. The tags there stop short to leave the seals
+                        room, and a button that stopped with them stood a seal's
+                        width out of the column every other row keeps. */}
+                    {sendable && (
                       given.has(m.id) ? (
-                        <span className="ml-auto whitespace-nowrap rounded-md border border-jade/40 px-2.5 py-0.5 text-ui text-jade">
+                        <span className={`ml-auto whitespace-nowrap rounded-md border border-jade/40 px-2.5 py-0.5 text-ui text-jade ${
+                          underSeals ? "sm:absolute sm:bottom-2.5 sm:right-4" : ""}`}>
                           <PopotoIcon pose="sleep" /> {t("kudos.sentToday")}
                         </span>
                       ) : (
@@ -1269,7 +1282,8 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                                   void sendPopoto(m.id, btn);
                                 }}
                                 disabled={sending.has(m.id)} data-popoto-send
-                                className="ml-auto whitespace-nowrap rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-ui text-gold transition-colors hover:bg-gold/20 disabled:opacity-50">
+                                className={`ml-auto whitespace-nowrap rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-ui text-gold transition-colors hover:bg-gold/20 disabled:opacity-50 ${
+                                  underSeals ? "sm:absolute sm:bottom-2.5 sm:right-4" : ""}`}>
                           <PopotoIcon /> {sending.has(m.id) ? t("kudos.sending") : t("kudos.send")}
                         </button>
                       )
