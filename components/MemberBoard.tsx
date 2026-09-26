@@ -35,6 +35,10 @@ import AwardBadge from "@/components/ui/AwardBadge";
 import MemberBio from "@/components/MemberBio";
 import NewPlayer, { MsqBadge } from "@/components/NewPlayer";
 import { useMemberBadges } from "@/lib/member-badges";
+import { throwPotato } from "@/components/ui/throwPotato";
+import { toast } from "@/components/ui/Toast";
+import { markEntry } from "@/lib/evercold";
+import { todayUtc } from "@/lib/kudos";
 
 
 // Defaults to Active. Nearly two thirds of the roster is marked On vacation, so
@@ -376,6 +380,73 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       .then(({ data: rows }) =>
         setHiddenIds(new Set((rows ?? []).map((r) => r.character_id as number))));
   }, []);
+
+  /**
+   * A popoto from the list, without opening anybody's page first.
+   *
+   * Only offered to somebody who could send one: signed in, with a verified
+   * character — the same bar the database holds the insert to. A button on
+   * five hundred rows that can only answer "sign in first" is five hundred
+   * buttons of noise; the member's own page still says that to whoever asks.
+   *
+   * Who has already had one from me today is read once, like the bell does,
+   * so a row can say "sent today" before it is pressed rather than after.
+   */
+  const [giver, setGiver] =
+    useState<{ id: string; character: number } | null>(null);
+  const [given, setGiven] = useState<Set<number>>(new Set());
+  const [sending, setSending] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+    supabase.auth.getUser().then(async ({ data }) => {
+      const uid = data.user?.id;
+      if (!uid) return;
+      const { data: prof } = await supabase.from("profiles")
+        .select("character_id, character_verified_at").eq("id", uid).maybeSingle();
+      const p = prof as {
+        character_id?: number | null; character_verified_at?: string | null;
+      } | null;
+      if (p?.character_id == null || !p.character_verified_at) return;
+      const { data: mine } = await supabase.from("kudos")
+        .select("receiver_character_id").eq("sender_id", uid).eq("day", todayUtc());
+      // Before the giver, so no row ever flashes a button it is about to take back.
+      setGiven(new Set(((mine ?? []) as { receiver_character_id: number }[])
+        .map((k) => k.receiver_character_id)));
+      setGiver({ id: uid, character: p.character_id });
+    });
+  }, []);
+
+  async function sendPopoto(characterId: number, btn: HTMLElement) {
+    const supabase = createClient();
+    if (!supabase || !giver || sending.has(characterId) || given.has(characterId)) return;
+    setSending((v) => new Set(v).add(characterId));
+    const idle = () =>
+      setSending((v) => { const n = new Set(v); n.delete(characterId); return n; });
+    const { error } = await supabase.from("kudos")
+      .insert({ sender_id: giver.id, receiver_character_id: characterId });
+    if (error) {
+      idle();
+      // Already there — from another tab, or the member's own page. Not an
+      // error: the answer is already yes, so the button becomes the sentence.
+      if (error.code === "23505") setGiven((v) => new Set(v).add(characterId));
+      else toast({ text: t("kudos.failed") });
+      return;
+    }
+    /*
+     * Thrown the way it is on a member's page: out of the button, over in an
+     * arc, onto this row's face, which flinches. After the insert, so a potato
+     * is never seen to land that the database then refused, and the button
+     * stays a button until it lands — it is where the potato comes out of.
+     */
+    const face = btn.closest("[data-board-row]")?.querySelector("[data-face]") ?? null;
+    await throwPotato(btn, face);
+    idle();
+    setGiven((v) => new Set(v).add(characterId));
+    // A day of giving for the draw, the same as a popoto sent anywhere else.
+    void markEntry(supabase, giver.id, giver.character);
+  }
 
   /**
    * People who verified a character that is not on the FC roster.
@@ -1019,7 +1090,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                 if (home?.fc) meta.push(home.fc);
               }
               return (
-                <motion.div key={m.id}
+                <motion.div key={m.id} data-board-row
                      /**
                       * Rows travel to their new place when a filter changes,
                       * rather than vanishing and leaving the ones below to jump
@@ -1144,6 +1215,27 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         </span>
                       ) : null;
                     })}
+                    {/* Pushed to the end of the line, so down the list the
+                        buttons stand in one column rather than wherever each
+                        row's tags happen to stop. Not on your own row. Once
+                        given, it keeps the button's shape and says so — there
+                        is nothing left to press until 07:00 Thai time. */}
+                    {giver && m.id !== giver.character && (
+                      given.has(m.id) ? (
+                        <span className="ml-auto whitespace-nowrap rounded-md border border-jade/40 px-2.5 py-0.5 text-ui text-jade">
+                          🥔 {t("kudos.sentToday")}
+                        </span>
+                      ) : (
+                        <button onClick={(e) => {
+                                  const btn = e.currentTarget;
+                                  void sendPopoto(m.id, btn);
+                                }}
+                                disabled={sending.has(m.id)}
+                                className="ml-auto whitespace-nowrap rounded-md border border-gold/60 bg-gold/10 px-2.5 py-0.5 text-ui text-gold transition-colors hover:bg-gold/20 disabled:opacity-50">
+                          🥔 {sending.has(m.id) ? t("kudos.sending") : t("kudos.send")}
+                        </button>
+                      )
+                    )}
                   </div>
 
                   {/* On a line of its own, last. The tags above say what somebody

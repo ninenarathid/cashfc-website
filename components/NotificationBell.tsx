@@ -20,6 +20,7 @@ import { PRIZE_INVENTORY, aquaArt, type PrizeFx } from "@/lib/prizes";
 import { WALLET, fmtGil } from "@/lib/wallet";
 import { warmAqua } from "@/components/ui/WalletToast";
 import { throwPotato } from "@/components/ui/throwPotato";
+import { todayUtc } from "@/lib/kudos";
 
 interface Note {
   id: number;
@@ -487,16 +488,6 @@ function useTitleCount(n: number) {
     };
   }, [n]);
 }
-
-/**
- * Today, as the kudos table reckons it.
- *
- * A popoto is one per person per day and the database enforces that on a `day`
- * column defaulting to current_date, which on this server is UTC. toISOString
- * is UTC too, so these are the same day boundary rather than two that agree
- * most of the time and disagree for seven hours every night.
- */
-const todayUtc = () => new Date().toISOString().slice(0, 10);
 
 /**
  * What happened while you were away.

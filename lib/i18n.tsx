@@ -1511,6 +1511,10 @@ const DICT = {
     en: "Popoto sent 🥔",
     th: "ส่ง popoto แล้ว 🥔",
   },
+  // The button on each row of the member list.
+  "kudos.send": { en: "Send popoto", th: "ส่ง popoto" },
+  "kudos.sending": { en: "Sending…", th: "กำลังส่ง…" },
+  "kudos.sentToday": { en: "Sent today", th: "วันนี้ส่งไปแล้ว" },
   // ── Custom badges ──────────────────────────────────────────────────
   // ── Polls ──────────────────────────────────────────────────────────
   "adm.badges": { en: "Badges", th: "Badge" },
