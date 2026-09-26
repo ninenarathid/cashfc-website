@@ -2,6 +2,48 @@
  "events": [
   {
    "date": "2026-09-26",
+   "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned The Might Phantastick: Index Penumbrae"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned R&D: Raising Hammer of Stars — only 3.9% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "rare_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "earned Hounding the Rock V — only 0.6% of players have it, and 10 more"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Shadowbring Your S Game II — only 2.3% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-26",
    "type": "level_100",
    "id": 25506828,
    "name": "Kururuki Tzuzaku",
@@ -1357,48 +1399,6 @@
    "id": 29998658,
    "name": "Shippei Astana",
    "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "level_100",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "job_up",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "is now a Master Astrologian"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "job_up",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "is now a Expert Scholar"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "job_up",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-09-18",
-   "type": "grade_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "is now a Legendary Gatherer ✨"
   }
  ]
 }
