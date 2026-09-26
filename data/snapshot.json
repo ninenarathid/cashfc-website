@@ -2451,7 +2451,7 @@
   "mounts": 102,
   "minions": 261,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2479,7 +2479,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-24"
+  "chg": "2026-09-26"
  },
  "38808156": {
   "name": "Kwiyo Ki",
@@ -4900,7 +4900,7 @@
  },
  "42976317": {
   "name": "Zeadz Stellar",
-  "parse": 85,
+  "parse": 95,
   "ult": 0,
   "mounts": 55,
   "minions": 129,
@@ -4972,7 +4972,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-23"
+  "chg": "2026-09-26"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5014,14 +5014,14 @@
   "mounts": 125,
   "minions": 274,
   "rare": null,
-  "level": 35,
+  "level": 39,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "38335568": {
   "name": "Vivienne Yhisa",
@@ -5122,7 +5122,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 91,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -5244,7 +5244,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -5718,6 +5718,7 @@
   },
   "ex": [
    "Doomtrain",
+   "Enuo",
    "Necron",
    "Queen Eternal",
    "Valigarmanda",
@@ -6633,7 +6634,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": null,
-  "level": 90,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -6648,7 +6649,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-21"
+  "chg": "2026-09-26"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7557,7 +7558,7 @@
   "mounts": 29,
   "minions": 121,
   "rare": null,
-  "level": 70,
+  "level": 57,
   "cc": [
    false,
    false,
@@ -7570,7 +7571,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-09-26"
  },
  "33387937": {
   "name": "R'bael Senkou",
@@ -7990,7 +7991,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -8003,7 +8004,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "33608576": {
   "name": "Verles Eisner",
