@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-09-26",
+   "type": "level_100",
+   "id": 25506828,
+   "name": "Kururuki Tzuzaku",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "level_100",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "level_100",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "new_member",
+   "id": 62539607,
+   "name": "Kross Astra",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-09-26",
+   "type": "level_100",
+   "id": 28679378,
+   "name": "Tong Topspeed",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-26",
    "type": "rare_up",
    "id": 58199536,
    "name": "Areeya Lovekin",
@@ -1364,41 +1399,6 @@
    "id": 29918404,
    "name": "Zarass Gierlos",
    "text": "earned Worqor and Peace II — only 4.7% of players have it"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "parse_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "set a new best parse: 80 on Enuo as Whit\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "level_100",
-   "id": 34376591,
-   "name": "Crashbone Noudenet",
-   "text": "reached level 100 on Monk!"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "level_100",
-   "id": 33608576,
-   "name": "Verles Eisner",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "level_100",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "reached level 100 on Warrior!"
   }
  ]
 }

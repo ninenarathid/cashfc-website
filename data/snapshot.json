@@ -1652,7 +1652,7 @@
   "mounts": 87,
   "minions": 220,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -1682,7 +1682,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-24"
+  "chg": "2026-09-26"
  },
  "36130968": {
   "name": "Chu Celestial",
@@ -2429,7 +2429,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 80,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -2451,7 +2451,7 @@
   "mounts": 102,
   "minions": 261,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4696,7 +4696,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 76,
+  "level": 79,
   "cc": [
    true,
    true,
@@ -4723,7 +4723,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -4766,7 +4766,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 292,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4896,7 +4896,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5122,7 +5122,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 94,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6732,7 +6732,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 62,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -6748,7 +6748,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -6933,7 +6933,7 @@
   "mounts": 198,
   "minions": 420,
   "rare": 271,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7060,7 +7060,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7991,7 +7991,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 99,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -8163,7 +8163,7 @@
   "mounts": 30,
   "minions": 89,
   "rare": 12,
-  "level": 100,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -8189,7 +8189,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "47525984": {
   "name": "Dasei Mizumoto",
@@ -8198,7 +8198,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 95,
+  "level": 31,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8230,7 +8230,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 73,
+  "level": 79,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8286,6 +8286,22 @@
   "ex": [],
   "ults": [],
   "chg": "2026-09-03"
+ },
+ "62539607": {
+  "name": "Kross Astra",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 38,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-09-26"
  },
  "61758559": {
   "name": "Lree Thai",
@@ -8343,7 +8359,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 3,
-  "level": 100,
+  "level": 39,
   "cc": null,
   "rare_ids": [
    3874,
@@ -8446,14 +8462,14 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 85,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-26"
  },
  "57419573": {
   "name": "A'kane Dorothy",
