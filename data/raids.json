@@ -79115,20 +79115,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 72.44,
-    "phase": 4,
-    "pulls": 48,
-    "last": "2026-09-15",
-    "last_ts": 1789484218
-   }
-  ]
+  "_status": "ok"
  },
  "31441339": {
   "current": {
@@ -81392,11 +81379,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 78.86,
+    "pct": 47.45,
     "phase": 5,
-    "pulls": 86,
-    "last": "2026-09-19",
-    "last_ts": 1789837680
+    "pulls": 70,
+    "last": "2026-09-25",
+    "last_ts": 1790358824
    }
   ]
  },
@@ -82188,11 +82175,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 78.86,
+    "pct": 47.45,
     "phase": 5,
-    "pulls": 86,
-    "last": "2026-09-19",
-    "last_ts": 1789837680
+    "pulls": 71,
+    "last": "2026-09-25",
+    "last_ts": 1790358824
    }
   ]
  },
@@ -83516,8 +83503,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1076,
     "name": "Dragonsong's Reprise",
-    "best": 54,
-    "kills": 2,
+    "best": 65,
+    "kills": 3,
     "job": "DarkKnight",
     "cleared": true
    }
@@ -83602,20 +83589,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1074,
-    "name": "The Weapon's Refrain",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 11.71,
-    "phase": 3,
-    "pulls": 23,
-    "last": "2026-09-15",
-    "last_ts": 1789491887
-   }
-  ]
+  "_status": "ok"
  },
  "43284378": {
   "current": {
@@ -83739,12 +83713,12 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 82,
-    "kills": 5,
+    "kills": 7,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
      "Ninja": {
-      "kills": 6,
+      "kills": 7,
       "best": 82
      }
     }
@@ -84847,6 +84821,17 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 77,
+    "kills": 1,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 96,
@@ -85134,9 +85119,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 42,
-    "kills": 5,
-    "job": "Paladin",
+    "best": 70,
+    "kills": 6,
+    "job": "Viper",
     "cleared": true
    },
    {
@@ -85416,5 +85401,409 @@
  },
  "61014734": {
   "_status": "none"
+ },
+ "60429500": {
+  "_status": "none"
+ },
+ "22590312": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 85,
+     "median": 57,
+     "kills": 9,
+     "job": "Warrior",
+     "job_kills": {
+      "Warrior": {
+       "kills": 9,
+       "best": 85
+      }
+     }
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 55,
+     "median": 32,
+     "kills": 9,
+     "job": "Warrior",
+     "job_kills": {
+      "Warrior": {
+       "kills": 9,
+       "best": 55
+      }
+     }
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 81,
+     "median": 71,
+     "kills": 8,
+     "job": "Warrior",
+     "job_kills": {
+      "Warrior": {
+       "kills": 8,
+       "best": 81
+      }
+     }
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 90,
+     "median": 67,
+     "kills": 12,
+     "job": "Warrior",
+     "job_kills": {
+      "Warrior": {
+       "kills": 12,
+       "best": 90
+      }
+     }
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 76,
+     "median": 61,
+     "kills": 7,
+     "job": "Warrior",
+     "job_kills": {
+      "Warrior": {
+       "kills": 7,
+       "best": 76
+      }
+     }
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 60,
+    "kills": 8,
+    "job": "Paladin",
+    "cleared": true,
+    "job_kills": {
+     "Paladin": {
+      "kills": 8,
+      "best": 60
+     }
+    }
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "encounter_id": 1068,
+    "name": "The Omega Protocol",
+    "best": 80,
+    "kills": 21,
+    "job": "Paladin",
+    "cleared": true,
+    "job_kills": {
+     "Dragoon": {
+      "kills": 14,
+      "best": 15
+     },
+     "Warrior": {
+      "kills": 3,
+      "best": 50
+     },
+     "Paladin": {
+      "kills": 4,
+      "best": 80
+     }
+    }
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "encounter_id": 1065,
+    "name": "Dragonsong's Reprise",
+    "best": 75,
+    "kills": 7,
+    "job": "Paladin",
+    "cleared": true,
+    "job_kills": {
+     "Paladin": {
+      "kills": 7,
+      "best": 75
+     }
+    }
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1062,
+    "name": "The Epic of Alexander",
+    "best": 71,
+    "kills": 8,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 8,
+      "best": 71
+     }
+    }
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1060,
+    "name": "The Unending Coil of Bahamut",
+    "best": 37,
+    "kills": 12,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 12,
+      "best": 37
+     }
+    }
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1061,
+    "name": "The Weapon's Refrain",
+    "best": 94,
+    "kills": 30,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 25,
+      "best": 94
+     },
+     "Gunbreaker": {
+      "kills": 4,
+      "best": 39
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 3
+     }
+    }
+   },
+   {
+    "zone": "Ultimates",
+    "zone_id": 32,
+    "expansion": "Shadowbringers",
+    "encounter_id": 1050,
+    "name": "The Epic of Alexander",
+    "best": 59,
+    "kills": 13,
+    "job": "Dragoon",
+    "cleared": true,
+    "job_kills": {
+     "Dragoon": {
+      "kills": 13,
+      "best": 59
+     }
+    }
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "encounter_id": 1048,
+    "name": "The Weapon's Refrain",
+    "best": 38,
+    "kills": 5,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 5,
+      "best": 38
+     }
+    }
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 92,
+    "kills": 46,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 46,
+      "best": 92
+     }
+    }
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 84,
+    "kills": 47,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 47,
+      "best": 84
+     }
+    }
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1082,
+    "name": "Guardian Arkveld",
+    "best": 93,
+    "kills": 10,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 10,
+      "best": 93
+     }
+    }
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 84,
+    "kills": 5,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 5,
+      "best": 84
+     }
+    }
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 98,
+    "kills": 14,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 14,
+      "best": 98
+     }
+    }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 97,
+    "kills": 26,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 20,
+      "best": 97
+     },
+     "Gunbreaker": {
+      "kills": 5,
+      "best": 51
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 20
+     }
+    }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 98,
+    "kills": 33,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 31,
+      "best": 98
+     },
+     "Paladin": {
+      "kills": 2,
+      "best": 76
+     }
+    }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 100,
+    "kills": 48,
+    "job": "Warrior",
+    "cleared": true,
+    "job_kills": {
+     "BlackMage": {
+      "kills": 5,
+      "best": 29
+     },
+     "Warrior": {
+      "kills": 43,
+      "best": 100
+     }
+    }
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
  }
 }
