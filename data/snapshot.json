@@ -2382,7 +2382,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 74,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2409,7 +2409,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-27"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -3737,7 +3737,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 70,
-  "level": 97,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4677,7 +4677,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 100,
+  "level": 77,
   "cc": [
    true,
    true,
@@ -5100,7 +5100,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 97,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -5488,7 +5488,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6152,7 +6152,7 @@
   "mounts": 130,
   "minions": 208,
   "rare": 50,
-  "level": 97,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6423,7 +6423,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 0,
-  "level": 16,
+  "level": 22,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -6779,7 +6779,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 64,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6791,6 +6791,7 @@
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Valigarmanda",
    "Zoraal Ja"
   ],
@@ -7847,7 +7848,7 @@
   "mounts": 109,
   "minions": 168,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8242,7 +8243,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 60,
+  "level": 63,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8274,7 +8275,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 78,
+  "level": 82,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8338,7 +8339,7 @@
   "mounts": 4,
   "minions": 3,
   "rare": null,
-  "level": 41,
+  "level": 48,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8368,6 +8369,22 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-29"
+ },
+ "60535954": {
+  "name": "Luminar Varensia",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 55,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-09-27"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8403,7 +8420,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 19,
   "cc": null,
   "rare_ids": [
    3935,
@@ -8451,7 +8468,7 @@
   "mounts": 4,
   "minions": 14,
   "rare": null,
-  "level": 66,
+  "level": 1,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8505,14 +8522,14 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 100,
+  "level": 89,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-26"
+  "chg": "2026-09-27"
  },
  "57419573": {
   "name": "A'kane Dorothy",

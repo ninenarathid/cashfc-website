@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-09-27",
+   "type": "level_100",
+   "id": 42948817,
+   "name": "Karuma Amamiya",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "level_100",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "level_100",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "ex_clear",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "cleared Doomtrain (Extreme)"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "level_100",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "new_member",
+   "id": 60535954,
+   "name": "Luminar Varensia",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-09-27",
    "type": "rare_up",
    "id": 38152072,
    "name": "Parker Thonhart",
@@ -1343,62 +1399,6 @@
    "id": 39959181,
    "name": "El Blung",
    "text": "set a new best parse: 97 on Erichthonios as Dancer"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "parse_up",
-   "id": 31001781,
-   "name": "Ician Wyra'li",
-   "text": "set a new best parse: 53 on Erichthonios as Scholar"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "parse_up",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "set a new best parse: 5 on Zoraal Ja as Dragoon"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "parse_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "set a new best parse: 69 on Hesperos as Summoner"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "job_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "job_up",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "job_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "is now a Expert Astrologian"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "job_up",
-   "id": 35158574,
-   "name": "Rikka Haulia",
-   "text": "is now a Master Samurai"
   }
  ]
 }

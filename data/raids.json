@@ -44078,11 +44078,11 @@
     "name": "Lindwurm II",
     "kind": "savage",
     "state": "learning",
-    "pct": 29.49,
+    "pct": 22.3,
     "phase": 0,
-    "pulls": 62,
-    "last": "2026-09-24",
-    "last_ts": 1790266908
+    "pulls": 69,
+    "last": "2026-09-26",
+    "last_ts": 1790435584
    }
   ]
  },
@@ -77867,6 +77867,17 @@
   "ultimates": [],
   "extremes": [
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 0,
+    "kills": 1,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -85818,6 +85829,9 @@
   "_status": "ok"
  },
  "62539607": {
+  "_status": "none"
+ },
+ "60535954": {
   "_status": "none"
  }
 }
