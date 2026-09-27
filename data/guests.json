@@ -197,7 +197,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-26",
+   "stats_seen": "2026-09-27",
    "lode_achv_public": true
   },
   "31441339": {
@@ -425,7 +425,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-09-26",
+   "stats_seen": "2026-09-27",
    "lode_achv_public": true
   },
   "42349146": {
@@ -541,7 +541,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -608,7 +608,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -717,7 +717,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -970,7 +970,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -1142,7 +1142,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1226,7 +1226,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1375,7 +1375,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26",
+   "stats_seen": "2026-09-27",
    "mounts": 114,
    "minions": 328,
    "rare_achv": 125,
@@ -1450,7 +1450,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-09-26",
+   "stats_seen": "2026-09-27",
    "mounts": 63,
    "minions": 125,
    "rare_achv": null,
@@ -1539,7 +1539,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "35413272": {
    "name": "Poppy Lydian",
@@ -1637,7 +1637,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "60429500": {
    "name": "Jin Theape",
@@ -1647,10 +1647,10 @@
    "seen": "2026-09-24",
    "mounts": 33,
    "minions": 173,
-   "rare_achv": null,
-   "ach_public": false,
-   "portrait": "https://img2.finalfantasyxiv.com/f/2f51fdaa4e542a947148fb445074d044_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790310132",
-   "collect_seen": "2026-09-26",
+   "rare_achv": 4,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/2f51fdaa4e542a947148fb445074d044_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790467803",
+   "collect_seen": "2026-09-27",
    "tags": [
     "private"
    ],
@@ -1672,7 +1672,7 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": false,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   },
   "22590312": {
    "name": "Siegcross Avalontear",
@@ -1780,7 +1780,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-09-26"
+   "stats_seen": "2026-09-27"
   }
  },
  "generated_at": "2026-09-26T23:07:02Z",
