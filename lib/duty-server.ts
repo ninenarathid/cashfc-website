@@ -25,7 +25,7 @@ import { NO_ART, type DutyArt, type DutyKind } from "@/lib/duty";
  */
 const KINDS: DutyKind[] = [
   "extreme", "savage", "ultimate", "alliance", "criterion",
-  "dungeon", "legacy", "field", "pvp",
+  "dungeon", "legacy", "field", "pvp", "chaotic",
 ];
 const ART = new Set([".webp", ".jpg", ".jpeg", ".png", ".avif"]);
 

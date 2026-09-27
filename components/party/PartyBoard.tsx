@@ -766,8 +766,8 @@ function PartyDetail(
 }
 
 export default function PartyBoard(
-  { people, extremes, savage, ultimates, alliances, criterions, art, me, userId,
-    openParty, suggest, labels }: {
+  { people, extremes, savage, ultimates, alliances, chaotics, criterions, art,
+    me, userId, openParty, suggest, labels }: {
     people: PersonOption[];
     extremes: ContentSeed[];
     savage: ContentSeed[];
@@ -777,6 +777,7 @@ export default function PartyBoard(
     labels?: string[];
     ultimates: ContentSeed[];
     alliances: ContentSeed[];
+    chaotics: ContentSeed[];
     criterions: ContentSeed[];
     art: DutyArt;
     /** Whoever is reading, for "I am in it" and for taking a seat. */
@@ -799,8 +800,10 @@ export default function PartyBoard(
     (id != null && overrides[id]) || fallback || null;
 
   const content = useMemo(
-    () => catalogue({ extremes, savage, ultimates, alliances, criterions, art }),
-    [extremes, savage, ultimates, alliances, criterions, art]);
+    () => catalogue({
+      extremes, savage, ultimates, alliances, chaotics, criterions, art,
+    }),
+    [extremes, savage, ultimates, alliances, chaotics, criterions, art]);
   const byKey = useMemo(
     () => Object.fromEntries(content.map((c) => [c.key, c])) as Record<string, ContentDef>,
     [content]);

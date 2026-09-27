@@ -3,7 +3,8 @@ import type { BoardData } from "@/lib/types";
 import { ULTIMATE_ABBR } from "@/lib/types";
 import { dutyArtMap } from "@/lib/duty-server";
 import {
-  ALLIANCE_RAIDS, CRITERION_DUNGEONS, byReleaseOrder, dutyOf, savageDuty,
+  ALLIANCE_RAIDS, CHAOTIC_RAIDS, CRITERION_DUNGEONS, byReleaseOrder, dutyOf,
+  savageDuty,
 } from "@/lib/duties";
 import { catalogue, type ContentDef, type ContentSeed } from "@/lib/party";
 import type { DutyArt } from "@/lib/duty";
@@ -100,6 +101,7 @@ export interface PartySeeds {
   savage: ContentSeed[];
   ultimates: ContentSeed[];
   alliances: ContentSeed[];
+  chaotics: ContentSeed[];
   criterions: ContentSeed[];
   art: DutyArt;
   /** Who plays what, for the seat suggestions. See lib/suggest.ts. */
@@ -144,6 +146,10 @@ export function partySeeds(): PartySeeds {
     // The patch is the badge: it is the only short handle these have, and it
     // puts them in order for free.
     alliances: ALLIANCE_RAIDS.map((a) => ({
+      name: a.duty, badge: a.patch, duty: a.duty,
+    })),
+    // The same arrangement for the same reason.
+    chaotics: CHAOTIC_RAIDS.map((a) => ({
       name: a.duty, badge: a.patch, duty: a.duty,
     })),
     // Which of the three a dungeon is goes in the shorthand rather than the

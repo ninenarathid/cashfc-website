@@ -21,7 +21,9 @@ export type DutyKind =
   // And PvP, which the duty finder draws a banner for like everything else.
   // It is not a fight anybody progs, so nothing here reads a boss name out of
   // it — the slug is the mode: frontline, crystalline-conflict.
-  | "pvp";
+  | "pvp"
+  // The chaotic alliance raids, which the game files apart from the others.
+  | "chaotic";
 
 export function dutySlug(name: string | null | undefined): string {
   return (name ?? "")
@@ -35,7 +37,7 @@ export type DutyArt = Record<DutyKind, Record<string, string>>;
 
 export const NO_ART: DutyArt = {
   extreme: {}, savage: {}, ultimate: {}, alliance: {}, criterion: {},
-  dungeon: {}, legacy: {}, field: {}, pvp: {},
+  dungeon: {}, legacy: {}, field: {}, pvp: {}, chaotic: {},
 };
 
 

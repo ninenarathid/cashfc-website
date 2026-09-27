@@ -155,7 +155,7 @@ export const SHAPE_LABEL: Record<Shape, string> = {
 
 export type ContentKind =
   | "extreme" | "savage" | "ultimate"
-  | "alliance" | "treasure" | "fate" | "hunt" | "criterion" | "pvp"
+  | "alliance" | "chaotic" | "treasure" | "fate" | "hunt" | "criterion" | "pvp"
   | "community" | "field" | "dungeon" | "mentor" | "roulette" | "legacy"
   | "other";
 
@@ -239,6 +239,7 @@ export const KIND_LABEL: Record<ContentKind, string> = {
   savage: "Savage",
   ultimate: "Ultimate",
   alliance: "Alliance raid",
+  chaotic: "Chaotic alliance raid",
   treasure: "Treasure hunt",
   fate: "FATE farm",
   hunt: "Hunt train",
@@ -255,7 +256,10 @@ export const KIND_LABEL: Record<ContentKind, string> = {
 
 export const KIND_ORDER: ContentKind[] = [
   "extreme", "savage", "ultimate",
-  "alliance", "treasure", "criterion", "legacy", "dungeon", "field", "pvp",
+  // Beside the alliance raids rather than up with the savage tier: somebody
+  // looking for it goes to the other twenty-four-player heading first.
+  "alliance", "chaotic",
+  "treasure", "criterion", "legacy", "dungeon", "field", "pvp",
   "community",
   "fate", "hunt", "roulette", "mentor", "other",
 ];
@@ -273,6 +277,7 @@ export const KIND_ICON: Partial<Record<ContentKind, string>> = {
   savage: "tier-clear",
   ultimate: "ultimate",
   alliance: "alliance",
+  chaotic: "chaotic",
   criterion: "criterion",
   dungeon: "dungeon",
   // The extreme maw, because that is what most of this list used to be and
@@ -322,6 +327,9 @@ export const KIND_COLOR: Record<ContentKind, string> = {
   savage: "#d14b3a",
   ultimate: "#a87fd8",
   alliance: "#7ea6c9",
+  // A deeper blue than the alliance raids': the same twenty-four people, the
+  // hard way, and the two chips sit side by side and must not be mistaken.
+  chaotic: "#3d8bd9",
   treasure: "#c9a227",
   fate: "#6aa84f",
   hunt: "#4fb8a8",
@@ -349,12 +357,13 @@ export const KIND_COLOR: Record<ContentKind, string> = {
  * wrong in the one place people would be trying to use it.
  */
 export function catalogue(
-  { extremes = [], savage = [], ultimates = [], alliances = [], criterions = [],
-    art }: {
+  { extremes = [], savage = [], ultimates = [], alliances = [], chaotics = [],
+    criterions = [], art }: {
     extremes?: ContentSeed[];
     savage?: ContentSeed[];
     ultimates?: ContentSeed[];
     alliances?: ContentSeed[];
+    chaotics?: ContentSeed[];
     criterions?: ContentSeed[];
     /** kind -> slug -> path, straight from dutyArtMap(). */
     art?: Partial<Record<DutyKind, Record<string, string>>>;
@@ -410,6 +419,17 @@ export function catalogue(
       key: `all:${a.name}`, kind: "alliance", name: a.name, short: a.short,
       badge: a.badge, duty: a.duty ?? a.name,
       shape: "alliance", fixedShape: true, ...shot("alliance", a.name),
+    });
+  }
+
+  // The same twenty-four seats, three parties of eight, because the game
+  // builds a chaotic alliance exactly as it builds any other. Only the kind is
+  // different, and that is the game's doing too — see CHAOTIC_RAIDS.
+  for (const c of chaotics) {
+    out.push({
+      key: `cha:${c.name}`, kind: "chaotic", name: c.name, short: c.short,
+      badge: c.badge, duty: c.duty ?? c.name,
+      shape: "alliance", fixedShape: true, ...shot("chaotic", c.name),
     });
   }
 
@@ -626,9 +646,10 @@ export type LengthUnit = "hours" | "food" | "runs" | "maps";
  * claims about the content and are false for most of it:
  *
  * Food is Well-Fed, and Well-Fed is a thing you keep up because a wipe costs
- * you the buff. That is a savage tier, an extreme, an ultimate or a criterion
- * dungeon. Nobody eats for a photo shoot, and "three food of Group pose" is a
- * unit borrowed from an evening it has nothing to do with.
+ * you the buff. That is a savage tier, an extreme, an ultimate, a chaotic
+ * alliance raid or a criterion dungeon. Nobody eats for a photo shoot, and
+ * "three food of Group pose" is a unit borrowed from an evening it has nothing
+ * to do with.
  *
  * Runs need something countable that ends. A fight, a dungeon, a match — you
  * can say four of those and mean it. A hunt train and a FATE farm have no
@@ -650,14 +671,16 @@ export const lengthUnitsFor = (kind: ContentKind | undefined): LengthUnit[] =>
  *   runs   A legacy trial is however many goes it takes — you are there until
  *          the mount drops or until everybody has had enough, and "two hours
  *          of the Bowl of Embers" is a number nobody would say out loud.
- *   food   An extreme, a savage tier and an ultimate are measured in Well-Fed,
- *          because that is the clock everybody in the party is watching. One,
- *          which is thirty minutes and the shortest honest answer.
+ *   food   An extreme, a savage tier, an ultimate and a chaotic alliance raid
+ *          are measured in Well-Fed, because that is the clock everybody in
+ *          the party is watching. One, which is thirty minutes and the
+ *          shortest honest answer.
  */
 export const defaultUnitFor = (kind: ContentKind | undefined): LengthUnit =>
   kind === "treasure" ? "maps"
     : kind === "legacy" ? "runs"
-      : (kind === "extreme" || kind === "savage" || kind === "ultimate")
+      : (kind === "extreme" || kind === "savage" || kind === "ultimate"
+         || kind === "chaotic")
           ? "food"
           : "hours";
 
@@ -667,7 +690,7 @@ function unitsFor(kind: ContentKind | undefined): LengthUnit[] {
   // content cannot keep.
   if (kind === "treasure") return ["maps"];
   const fed = kind === "extreme" || kind === "savage" || kind === "ultimate"
-    || kind === "criterion";
+    || kind === "chaotic" || kind === "criterion";
   const countable = fed || kind === "dungeon" || kind === "pvp"
     || kind === "alliance" || kind === "legacy";
   return [
@@ -715,8 +738,8 @@ export const DEFAULT_AMOUNT: Record<LengthUnit, number> = {
  * history while people are still in it.
  */
 export const RUN_MINUTES: Partial<Record<ContentKind, number>> = {
-  extreme: 20, savage: 30, ultimate: 45, alliance: 30, criterion: 40,
-  dungeon: 40, treasure: 25, fate: 30, hunt: 45, pvp: 25,
+  extreme: 20, savage: 30, ultimate: 45, alliance: 30, chaotic: 30,
+  criterion: 40, dungeon: 40, treasure: 25, fate: 30, hunt: 45, pvp: 25,
 };
 export const DEFAULT_RUN_MINUTES = 30;
 
@@ -1665,7 +1688,7 @@ export function progressText(p: Progress | undefined): string | null {
  */
 export const isFight = (kind: ContentKind | undefined): boolean =>
   kind === "extreme" || kind === "savage" || kind === "ultimate"
-  || kind === "alliance" || kind === "criterion";
+  || kind === "alliance" || kind === "chaotic" || kind === "criterion";
 
 /**
  * A place in the game, with the coordinates players give each other.

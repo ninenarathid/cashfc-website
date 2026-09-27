@@ -33,6 +33,7 @@ export default function PartyFinder(
     savage: ContentSeed[];
     ultimates: ContentSeed[];
     alliances: ContentSeed[];
+    chaotics: ContentSeed[];
     criterions: ContentSeed[];
     art: DutyArt;
     /** Opened straight away, when the address named one. See app/party/[id]. */

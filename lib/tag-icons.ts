@@ -84,6 +84,11 @@ export const TAG_ICON: Record<string, { path: string; alt: string; square?: bool
   // every 24-player raid. Found by rendering 061801 through 061860 and looking
   // at the sheet, which is how every other path in this file was picked.
   alliance:     { path: "061000/061844", alt: "alliance raid", square: true },
+  // The game's own Chaotic Alliance Raid icon -- the savage badge's fanged
+  // face, drawn in green. Not picked by eye: ContentType row 37 is called
+  // "Chaotic Alliance Raid" and names this file as its own, the same way row
+  // 2 named the dungeon cave.
+  chaotic:      { path: "061000/061850", alt: "chaotic alliance raid", square: true },
   // The game's own Variant and Criterion icon — three figures under the arch.
   // Found the same way as the one above it: rendered the range and looked.
   criterion:    { path: "061000/061846", alt: "criterion dungeon", square: true },

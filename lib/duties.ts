@@ -113,6 +113,24 @@ export const ALLIANCE_RAIDS: AllianceRaid[] = [
 
 
 /**
+ * The chaotic alliance raids: the same twenty-four, at savage difficulty.
+ *
+ * Kept apart from the list above because the game keeps them apart. The Duty
+ * Finder gives chaotic a content type of its own (ContentType 37, "Chaotic
+ * Alliance Raid") with its own badge, and marks it high-end the way it marks
+ * a savage tier — minimum item level 710, food and a strat, and nothing like
+ * the evening a Walk is.
+ *
+ * A list of one. ContentType 37 has exactly one row in XIVAPI's Duty Finder
+ * table, checked against the Console Games Wiki in September 2026; it
+ * arrived in 7.15, a week after the patch itself. A second one is a row here.
+ */
+export const CHAOTIC_RAIDS: AllianceRaid[] = [
+  { duty: "The Cloud of Darkness (Chaotic)", patch: "7.15" },
+];
+
+
+/**
  * Every Variant and Criterion dungeon, newest first.
  *
  * Hand-written for the reason the two tables above are: this is four-player

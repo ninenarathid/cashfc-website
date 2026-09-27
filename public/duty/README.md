@@ -9,6 +9,7 @@ full.
     public/duty/savage/     the current savage tier
     public/duty/ultimate/   every Ultimate, current and legacy
     public/duty/alliance/   the alliance raids
+    public/duty/chaotic/    the chaotic alliance raids
     public/duty/criterion/  Variant and Criterion dungeons
     public/duty/dungeon/    every dungeon in the game
     public/duty/legacy/     every older raid and trial
