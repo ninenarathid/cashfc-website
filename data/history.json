@@ -1011,11 +1011,11 @@
     "explorer": 18,
     "treasure": 17,
     "goldsaucer": 7,
-    "seasonal": 34,
+    "seasonal": 12,
     "pvp": 16,
     "private": 226,
+    "casual": 30,
     "prog": 23,
-    "casual": 28,
     "oldtimer": 1
    },
    "raider": 65,
