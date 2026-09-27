@@ -1829,7 +1829,7 @@
   "mounts": 81,
   "minions": 104,
   "rare": 59,
-  "level": 23,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1922,7 +1922,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-25"
+  "chg": "2026-09-27"
  },
  "39199441": {
   "name": "Dodoco Chocodoco",
@@ -3833,9 +3833,7 @@
    4007,
    4074
   ],
-  "tiers": {
-   "explorer": "expert"
-  },
+  "tiers": {},
   "jobs": {
    "BlackMage": "legendary",
    "Pictomancer": "legendary",
@@ -4560,8 +4558,7 @@
    3823
   ],
   "tiers": {
-   "relic": "master",
-   "explorer": "expert"
+   "relic": "master"
   },
   "jobs": {
    "Machinist": "legendary",
@@ -5122,7 +5119,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 91,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -5244,7 +5241,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-26"
+  "chg": "2026-09-27"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -5397,7 +5394,7 @@
   "ult": 0,
   "mounts": 118,
   "minions": 321,
-  "rare": null,
+  "rare": 76,
   "level": 100,
   "cc": [
    true,
@@ -5406,8 +5403,87 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   939,
+   1132,
+   1562,
+   1563,
+   1581,
+   1586,
+   1588,
+   1626,
+   2043,
+   2095,
+   2156,
+   2225,
+   2228,
+   2229,
+   2393,
+   2637,
+   2671,
+   2683,
+   2684,
+   2685,
+   2686,
+   2879,
+   2885,
+   2886,
+   2993,
+   3530,
+   3630,
+   3641,
+   3644,
+   3645,
+   3646,
+   3653,
+   3658,
+   3677,
+   3683,
+   3753,
+   3755,
+   3759,
+   3767,
+   3772,
+   3805,
+   3843,
+   3845,
+   3849,
+   3857,
+   3862,
+   3867,
+   3868,
+   3869,
+   3874,
+   3889,
+   3898,
+   3937,
+   3938,
+   3941,
+   3944,
+   3950,
+   3952,
+   3956,
+   3964,
+   3969,
+   3979,
+   3997,
+   3998,
+   3999,
+   4000,
+   4002,
+   4003,
+   4004,
+   4005,
+   4006,
+   4007,
+   4014,
+   4017,
+   4018,
+   4074
+  ],
+  "tiers": {
+   "explorer": "legendary"
+  },
   "jobs": {
    "Gunbreaker": "master",
    "Paladin": "expert",
@@ -5423,7 +5499,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-09-27"
  },
  "29339718": {
   "name": "Ashe Fantine",
@@ -7312,7 +7388,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 100,
+  "level": 57,
   "cc": [
    false,
    false,
@@ -7332,7 +7408,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-16"
+  "chg": "2026-09-27"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -8198,14 +8274,14 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 40,
+  "level": 50,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-26"
+  "chg": "2026-09-27"
  },
  "54419512": {
   "name": "Film Nio",

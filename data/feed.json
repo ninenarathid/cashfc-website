@@ -1,6 +1,27 @@
 {
  "events": [
   {
+   "date": "2026-09-27",
+   "type": "level_100",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "grade_up",
+   "id": 14476396,
+   "name": "Arawn A'nnwn",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-09-27",
+   "type": "rare_up",
+   "id": 14476396,
+   "name": "Arawn A'nnwn",
+   "text": "earned Occult Enlightenment IV — only 0.5% of players have it, and 75 more"
+  },
+  {
    "date": "2026-09-26",
    "type": "level_100",
    "id": 60852230,
@@ -1377,27 +1398,6 @@
    "type": "level_100",
    "id": 39199441,
    "name": "Dodoco Chocodoco",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "ex_clear",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "cleared Necron (Extreme)"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "rare_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "earned A Beast in the Hand III — only 3.8% of players have it, and 4 more"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "level_100",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
    "text": "reached level 100 on Viper!"
   }
  ]
