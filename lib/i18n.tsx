@@ -193,6 +193,9 @@ const DICT = {
      linked to from inside the site; this is the one place that has to warn
      somebody before they arrive. */
   "nav.guidesWip": { en: "Guides (WIP)", th: "ไกด์ (WIP)" },
+  "nav.marketWip": { en: "Market (WIP)", th: "ตลาด (WIP)" },
+  "nav.market": { en: "Market", th: "ตลาด" },
+  "nav.aqua": { en: "Aqua's page", th: "หน้าของ Aqua" },
   "nav.party": { en: "Party finder", th: "หาปาร์ตี้" },
   // The hamburger, and the sheet it opens. Only ever seen on a narrow screen.
   "nav.menu": { en: "Menu", th: "เมนู" },
@@ -1637,6 +1640,285 @@ const DICT = {
     th: "popoto ที่ให้รูปที่มีหลายคนจะถูกหารแบ่งกันเหมือนในกระดานอันดับ ตัวเลขสองที่จะได้ตรงกัน "
         + "และนับวันตามเวลาไทย",
   },
+
+  // ── Aqua's page ─────────────────────────────────────────────────────
+  // The gil in the wallets is hers, so what it adds up to is said to her
+  // directly: how much, how fast, and who is waiting.
+  "aqua.link": {
+    en: "Aqua's page: what is owed, how fast it grows, and what is waiting to be handed over",
+    th: "หน้าของ Aqua: ยอดที่ต้องจ่าย ยอดเพิ่มเร็วแค่ไหน และของที่รอส่งมอบ",
+  },
+  "aqua.back": { en: "← Admin", th: "← หน้าแอดมิน" },
+  "aqua.eyebrow": { en: "Aqua · event gil", th: "Aqua · เงินกิจกรรม" },
+  "aqua.owedTitle": { en: "Owed right now", th: "ยอดที่ต้องจ่ายตอนนี้" },
+  "aqua.inWallets": {
+    en: "{gil} gil sitting in wallets · {n} people",
+    th: "อยู่ในกระเป๋าสมาชิก {gil} gil · {n} คน",
+  },
+  "aqua.waiting": {
+    en: "{gil} gil cashed out, not handed over yet · {n}",
+    th: "ถอนแล้ว รอส่งมอบ {gil} gil · {n} รายการ",
+  },
+  "aqua.today": { en: "Today so far +{gil}", th: "วันนี้ +{gil}" },
+  "aqua.ready": { en: "{n} can cash out now · {gil} gil", th: "{n} คนถอนได้แล้ว · {gil} gil" },
+  "aqua.updated": { en: "Updated {time}", th: "อัปเดต {time}" },
+  "aqua.kPaid": { en: "Paid into wallets", th: "จ่ายเข้ากระเป๋า" },
+  "aqua.kPaidSub": { en: "{n} payments", th: "{n} ครั้ง" },
+  "aqua.kPerDay": { en: "A day", th: "เฉลี่ยต่อวัน" },
+  "aqua.kPerDaySub": { en: "days that have ended", th: "ไม่นับวันนี้ที่ยังไม่จบ" },
+  "aqua.kTop": { en: "Biggest day", th: "วันที่จ่ายมากที่สุด" },
+  "aqua.kPerSend": { en: "Per popoto given", th: "ต่อ popoto 1 ครั้งที่ส่ง" },
+  "aqua.kPerSendSub": { en: "gil paid ÷ popoto given", th: "gil ที่จ่าย ÷ popoto ที่ส่ง" },
+  "aqua.cPaid": { en: "Gil paid in, by day", th: "gil ที่จ่ายเข้ากระเป๋า แยกตามวัน" },
+  "aqua.cPaidNote": {
+    en: "Split by the size of each payment, so an expensive day shows whether it was "
+        + "many small ones or one big one.",
+    th: "แยกตามขนาดของแต่ละครั้ง วันไหนจ่ายเยอะจะได้เห็นว่ามาจากครั้งเล็กๆ จำนวนมาก "
+        + "หรือมีคนได้ก้อนใหญ่",
+  },
+  "aqua.small": { en: "Small · under 10,000", th: "เล็ก · ต่ำกว่า 10,000" },
+  "aqua.medium": { en: "Middle · 10,000–29,999", th: "กลาง · 10,000–29,999" },
+  "aqua.large": { en: "Large · 30,000 and up", th: "ใหญ่ · 30,000 ขึ้นไป" },
+  "aqua.cSends": { en: "Popoto given, by day", th: "popoto ที่ส่ง แยกตามวัน" },
+  "aqua.cSendsNote": {
+    en: "Gil is paid on giving, so these two move together. When both jump on the same "
+        + "day it was more giving, not more luck.",
+    th: "รางวัล gil ออกตอนส่ง popoto สองกราฟนี้เลยขึ้นลงด้วยกัน ถ้าพุ่งวันเดียวกัน "
+        + "แปลว่าคนส่งเยอะขึ้น ไม่ได้มีใครดวงดีผิดปกติ",
+  },
+  "aqua.cOwed": { en: "Wallet gil owed at the end of each day", th: "ยอดค้างจ่ายของกระเป๋าเงิน ณ สิ้นวัน" },
+  "aqua.cOwedNote": {
+    en: "Wallets plus cash-outs not handed over yet, without the prizes filed as items. It "
+        + "only comes down when something is handed over.",
+    th: "เงินในกระเป๋ารวมกับยอดถอนที่ยังไม่ได้ส่ง (ไม่รวมของรางวัลที่ส่งเป็นชิ้น) "
+        + "ยอดนี้จะลดก็ต่อเมื่อส่งมอบให้สมาชิกแล้ว",
+  },
+  "aqua.todaySoFar": { en: "today, not over yet", th: "วันนี้ (ยังไม่จบวัน)" },
+  "aqua.tTotal": { en: "Total", th: "รวม" },
+  "aqua.tSends": { en: "{n} popoto given", th: "ส่ง popoto {n} ครั้ง" },
+  "aqua.tPerSend": { en: "{gil} gil per popoto", th: "{gil} gil ต่อ popoto" },
+  "aqua.tOwed": { en: "Owed at the end of the day", th: "ค้างจ่าย ณ สิ้นวัน" },
+  "aqua.lWho": { en: "Paid the most", th: "ได้รับมากที่สุด" },
+  "aqua.lWhoNote": { en: "in these days", th: "ในช่วงวันที่เลือก" },
+  "aqua.lPrize": { en: "Which prizes paid it", th: "รางวัลไหนจ่ายไปเท่าไร" },
+  "aqua.colPrize": { en: "Prize", th: "รางวัล" },
+  "aqua.colTimes": { en: "Times", th: "ครั้ง" },
+  "aqua.colGil": { en: "Gil", th: "gil" },
+  "aqua.colShare": { en: "Share", th: "สัดส่วน" },
+  "aqua.noData": { en: "Nothing has been paid in these days.", th: "ช่วงวันที่เลือกยังไม่มีการจ่าย" },
+  "aqua.qTitle": { en: "Waiting to be handed over", th: "รอ Aqua ส่งมอบ" },
+  "aqua.qNote": {
+    en: "Asked for and not handed over yet, one person to a row, the longest wait first. "
+        + "Meet once, hand over the lot.",
+    th: "สมาชิกกดรับแล้วแต่ยังไม่ได้ส่งให้ รวมเป็นคนละแถว เรียงจากคนที่รอนานที่สุด "
+        + "นัดเจอครั้งเดียวส่งให้ครบได้เลย",
+  },
+  "aqua.qEmpty": {
+    en: "Nothing waiting. Everybody has what they asked for.",
+    th: "ไม่มีอะไรค้างส่ง ทุกคนได้ของครบแล้ว",
+  },
+  "aqua.qCash": { en: "Cash-out", th: "ถอนเงิน" },
+  "aqua.qItem": { en: "Prize", th: "ของรางวัล" },
+  "aqua.qWaited": { en: "waiting {n} days", th: "รอมา {n} วัน" },
+  "aqua.qToday": { en: "asked today", th: "เพิ่งกดวันนี้" },
+  "aqua.qTalk": { en: "Talk", th: "คุย" },
+  "aqua.gItems": { en: "{n} waiting", th: "{n} รายการ" },
+  "aqua.deliverAll": { en: "All {n} handed over", th: "ส่งครบ {n} รายการ" },
+  "aqua.deliverAllAsk": {
+    en: "Confirm all {n} have been handed to {who}? ({gil} gil) Each thread closes and they "
+        + "leave the inventory.",
+    th: "ยืนยันว่าส่งครบทั้ง {n} รายการให้ {who} แล้วใช่ไหม? (รวม {gil} gil) ห้องแชทของแต่ละรายการ"
+        + "จะปิด และของจะหายจาก inventory ของเขา",
+  },
+  "aqua.items": {
+    en: "{n} prizes still to hand over · about {gil} gil, read off their names",
+    th: "ของรางวัลรอส่ง {n} ชิ้น · ประมาณ {gil} gil (อ่านจากชื่อรางวัล)",
+  },
+  "aqua.itemsUnpriced": { en: "{n} with no figure in the name", th: "{n} ชิ้นไม่มีจำนวนเงินในชื่อ" },
+  "aqua.soldOut": { en: "none left", th: "หมดแล้ว" },
+  "aqua.qUnclaimed": {
+    en: "{n} more won and not asked for yet.",
+    th: "มีอีก {n} รายการที่ได้รางวัลแล้วแต่ยังไม่กดรับ",
+  },
+  "aqua.pTitle": { en: "Fullest wallets", th: "กระเป๋าที่มีเงินมากที่สุด" },
+  "aqua.pNote": {
+    en: "Anybody past the bar can cash out whenever they like, so this is who to have gil ready for.",
+    th: "คนที่เกินเส้นกดถอนได้ทุกเมื่อ เตรียม gil ไว้ให้คนกลุ่มนี้ได้เลย",
+  },
+  "aqua.pEmpty": { en: "Every wallet is empty.", th: "ยังไม่มีใครมีเงินในกระเป๋า" },
+  "aqua.pReady": { en: "can cash out", th: "ถอนได้แล้ว" },
+  "aqua.cTitle": { en: "Prizes and money", th: "ตั้งค่ารางวัลและเงิน" },
+  "aqua.cNote": {
+    en: "Changes apply from the next popoto. Type a new chance or amount and what a day "
+        + "would cost is worked out before anything is saved.",
+    th: "แก้แล้วมีผลตั้งแต่ popoto ครั้งถัดไป ลองพิมพ์โอกาสหรือจำนวนเงินใหม่ ระบบจะคำนวณก่อนว่า"
+        + "วันหนึ่งจะต้องจ่ายเท่าไร แล้วค่อยกดบันทึก",
+  },
+  "aqua.fNow": { en: "As set, a day costs about", th: "ตั้งแบบนี้ จะจ่ายประมาณ" },
+  "aqua.fIfSaved": { en: "If you save this, a day costs about", th: "ถ้าบันทึกแบบนี้ จะจ่ายประมาณ" },
+  "aqua.fGilDay": { en: "gil a day", th: "gil ต่อวัน" },
+  "aqua.fWas": { en: "about {gil} a day as it is now", th: "ตอนนี้ประมาณ {gil} ต่อวัน" },
+  "aqua.fActual": {
+    en: "the last 7 days actually paid {gil} a day",
+    th: "7 วันล่าสุดจ่ายจริงเฉลี่ย {gil} ต่อวัน",
+  },
+  "aqua.fChance": {
+    en: "a popoto that rolls wins something {pct}% of the time",
+    th: "popoto ที่ได้สุ่มมีโอกาสได้รางวัลรวม {pct}%",
+  },
+  "aqua.fOver": {
+    en: "Over 100% in total: the prizes at the end of the list can never come up.",
+    th: "โอกาสรวมเกิน 100% รางวัลท้ายรายการจะไม่มีวันออก",
+  },
+  "aqua.fUnknown": {
+    en: "{n} prize(s) have no payouts yet to measure by, so they are not in this figure.",
+    th: "มี {n} รางวัลที่ยังไม่มีข้อมูลการจ่ายให้ประมาณ จึงยังไม่นับรวมในตัวเลขนี้",
+  },
+  "aqua.fPerDay": { en: "{n} a day", th: "{n} ครั้ง/วัน" },
+  "aqua.fEvery": { en: "every {n} days", th: "ทุก {n} วัน" },
+  "aqua.gilPrizes": { en: "Gil into the wallet", th: "รางวัล gil (เข้ากระเป๋า)" },
+  "aqua.itemPrizes": { en: "Handed over in game", th: "ของรางวัล (ส่งให้ในเกม)" },
+  "aqua.itemPrizesNote": {
+    en: "Won as something to hand over yourself, so each one costs whatever the prize is.",
+    th: "ผู้ชนะได้เป็นของที่ต้องส่งมอบเอง ต้นทุนเท่ากับของรางวัลชิ้นนั้น",
+  },
+  "aqua.colOn": { en: "On", th: "เปิด" },
+  "aqua.colAmount": { en: "Gil each", th: "gil ต่อครั้ง" },
+  "aqua.colChance": { en: "Chance %", th: "โอกาส %" },
+  "aqua.colStock": { en: "Left", th: "เหลือ" },
+  "aqua.colOften": { en: "How often", th: "ออกบ่อยแค่ไหน" },
+  "aqua.colCost": { en: "Gil a day", th: "จ่ายต่อวัน" },
+  "aqua.colSide": { en: "Has to be sent to", th: "ต้องส่งให้" },
+  "aqua.saveN": { en: "Save {n} changes", th: "บันทึก {n} รายการ" },
+  "aqua.undo": { en: "Undo", th: "ยกเลิกที่แก้" },
+  "aqua.fullEditor": {
+    en: "New prize, or its name, picture and tier →",
+    th: "เพิ่มรางวัลใหม่ / แก้ชื่อ รูป tier →",
+  },
+  "aqua.saveAsk": {
+    en: "Save {n} changes? A day goes from about {from} to about {to} gil, from the next popoto.",
+    th: "บันทึก {n} รายการไหม? ค่าใช้จ่ายต่อวันจะเปลี่ยนจากประมาณ {from} เป็น {to} gil "
+        + "มีผลตั้งแต่ popoto ครั้งถัดไป",
+  },
+  "aqua.savedPrizes": { en: "Saved {n} changes.", th: "บันทึกแล้ว {n} รายการ" },
+  "aqua.badChance": { en: "A chance goes from 0 to 100.", th: "โอกาสต้องอยู่ระหว่าง 0–100" },
+  "aqua.badGil": { en: "A whole number of gil, 1 or more.", th: "จำนวน gil ต้องเป็นจำนวนเต็มตั้งแต่ 1" },
+  "aqua.badStock": {
+    en: "Leave it empty for no limit, or a whole number.",
+    th: "เว้นว่าง = ไม่จำกัด หรือใส่เป็นจำนวนเต็ม",
+  },
+  "aqua.badBar": { en: "The cash-out bar has to be above 0.", th: "ยอดขั้นต่ำการถอนต้องมากกว่า 0" },
+  "aqua.eTitle": { en: "Events", th: "กิจกรรม" },
+  "aqua.eOn": { en: "on now · {n} days left", th: "กำลังจัด · เหลืออีก {n} วัน" },
+  "aqua.eLastDay": { en: "on now · last day", th: "กำลังจัด · วันสุดท้าย" },
+  "aqua.eOver": { en: "over · time for the draw", th: "จบแล้ว · ถึงเวลาจับรางวัล" },
+  "aqua.eSoon": { en: "starts {date}", th: "เริ่ม {date}" },
+  "aqua.eEntries": { en: "Who has entries →", th: "ดูรายชื่อผู้มีสิทธิ์ลุ้น →" },
+  "aqua.eAnns": { en: "Post an event on the front page →", th: "ลงประกาศกิจกรรมหน้าแรก →" },
+  "aqua.statsTitle": { en: "How the money moves", th: "สถิติเงินรางวัล" },
+  "aqua.tableTitle": { en: "Every day as numbers", th: "ตัวเลขรายวันทั้งหมด" },
+  "aqua.colDay": { en: "Day", th: "วันที่" },
+  "aqua.colSends": { en: "Popoto", th: "popoto" },
+  "aqua.colPayments": { en: "Payments", th: "จ่ายกี่ครั้ง" },
+  "aqua.colPaid": { en: "Gil paid", th: "gil ที่จ่าย" },
+  "aqua.colPerSend": { en: "Per popoto", th: "ต่อ popoto" },
+  "aqua.colOwed": { en: "Owed at end", th: "ค้างจ่ายสิ้นวัน" },
+
+  // ── Popoto Market, while it is being built ──────────────────────────
+  "market.title": { en: "Popoto Market", th: "Popoto Market" },
+  "market.pitch": {
+    en: "Turn popoto into HQ Popoto, and trade items, services and rare popoto for gil or HQ.",
+    th: "แลก popoto เป็น HQ Popoto แล้วใช้ซื้อขายของ บริการ และ rare popoto กันด้วย gil หรือ HQ",
+  },
+  "market.wipNote": {
+    en: "Being built. Only admins can see this page.",
+    th: "กำลังสร้างอยู่ หน้านี้เห็นเฉพาะแอดมิน",
+  },
+  "market.closed": { en: "The market is not open yet.", th: "ตลาดยังไม่เปิด" },
+  "market.boardTitle": { en: "Today's HQ board (a preview)", th: "ป้ายราคา HQ วันนี้ (ตัวอย่าง)" },
+  "market.boardNote": {
+    en: "Worked out from today's prices on Tonberry. Nothing here is saved: when the "
+        + "market opens these are set on the admin page, and the board uses the "
+        + "three-day median of HQ sales.",
+    th: "คำนวณจากราคาจริงบน Tonberry วันนี้ ยังไม่บันทึกอะไรทั้งนั้น ตอนเปิดจริงจะตั้งค่า"
+        + "ในหน้าแอดมิน และใช้ค่ากลาง 3 วันของราคาขาย HQ",
+  },
+  "market.follow": { en: "Price follows", th: "ผูกราคากับ" },
+  "market.avg": { en: "Average of the four", th: "ค่าเฉลี่ย 4 สาย" },
+  "market.popotoGil": { en: "One popoto is worth (gil)", th: "ค่าของ popoto 1 ลูก (gil)" },
+  "market.spread": { en: "Taken off selling back (%)", th: "ส่วนต่างตอนแลกคืน (%)" },
+  "market.sell": { en: "Buy HQ · popoto → HQ", th: "ขายออก · popoto → HQ" },
+  "market.buy": { en: "Sell HQ back · HQ → popoto", th: "รับซื้อ · HQ → popoto" },
+  "market.perHq": { en: "popoto per HQ", th: "popoto ต่อ 1 HQ" },
+  "market.pegPrice": { en: "Reference price", th: "ราคาอ้างอิง" },
+  "market.breakEven": {
+    en: "Buying HQ and selling it back only pays if the price rises more than {pct}%. "
+        + "The difference is burned.",
+    th: "แลกเป็น HQ แล้วแลกคืนจะคุ้มก็ต่อเมื่อราคาขึ้นเกิน {pct}% ส่วนต่างถูกเผาทิ้ง",
+  },
+  "market.pricesFailed": {
+    en: "Could not read today's prices from Universalis.",
+    th: "ดึงราคาจาก Universalis ไม่ได้",
+  },
+  "market.loadingPrices": { en: "Reading today's prices…", th: "กำลังดึงราคาวันนี้…" },
+  "market.decided": { en: "Decided so far", th: "สิ่งที่ตกลงกันแล้ว" },
+  "market.d1": {
+    en: "HQ lives in its own ledger. Moving any amount of it is never a popoto sent, so "
+        + "prizes, rare draws, Evercold and the boards do not move.",
+    th: "HQ อยู่ในบัญชีแยก ย้ายกี่ลูกก็ไม่นับเป็นการส่ง popoto รางวัล การสุ่ม rare "
+        + "Evercold และกระดานอันดับจึงไม่ขยับ",
+  },
+  "market.d2": {
+    en: "Popoto ⇄ HQ both ways, like a gold shop: selling HQ back pays less, and the "
+        + "difference is burned.",
+    th: "แลก popoto ⇄ HQ ได้ทั้งไปและกลับแบบร้านทอง แลกคืนจะได้น้อยกว่า ส่วนต่างถูกเผาทิ้ง",
+  },
+  "market.d3": {
+    en: "The price follows the newest potions on Tonberry: one of them, or the average "
+        + "of four. What one popoto is worth and the spread are admin settings.",
+    th: "ราคาผูกกับ pot tier ล่าสุดบน Tonberry เลือกได้ทีละตัวหรือค่าเฉลี่ย 4 สาย "
+        + "ค่าของ popoto และส่วนต่างปรับได้ในหน้าแอดมิน",
+  },
+  "market.d4": {
+    en: "Popoto you were given become at most 5 HQ a week. Popoto that came back from "
+        + "HQ can go again without a limit.",
+    th: "popoto ที่ได้รับแลกเป็น HQ ได้ไม่เกิน 5 ลูกต่อสัปดาห์ ส่วน popoto ที่ได้จากการแลกคืน"
+        + "แลกกลับได้ไม่จำกัด",
+  },
+  "market.d5": {
+    en: "Gil is paid in game between players. The site holds only HQ and rare popoto, "
+        + "and never touches Aqua's wallet.",
+    th: "gil จ่ายกันเองในเกม เว็บพักไว้ให้เฉพาะ HQ กับ rare popoto และไม่แตะ wallet ของ Aqua",
+  },
+  "market.d6": {
+    en: "Rare popoto can be traded, at a price for each tier.",
+    th: "rare popoto ซื้อขายได้ มีราคาตาม tier",
+  },
+  "market.d7": {
+    en: "Admins can see a deal that has gone quiet, and reach both sides.",
+    th: "แอดมินเห็นดีลที่เงียบไป และติดต่อได้ทั้งผู้ซื้อและผู้ขาย",
+  },
+  "market.d8": {
+    en: "Open to everybody with a verified character to start with, and decided again "
+        + "once it has run for a while.",
+    th: "เปิดให้ทุกคนที่ยืนยันตัวละครแล้วก่อน แล้วค่อยตัดสินใจอีกทีหลังลองใช้",
+  },
+  "market.phases": { en: "Order of work", th: "ลำดับการสร้าง" },
+  "market.p1": {
+    en: "Phase 1 · HQ, converting both ways, giving HQ, and the admin settings",
+    th: "เฟส 1 · HQ แลกไปกลับ ส่ง HQ และหน้าตั้งค่าแอดมิน",
+  },
+  "market.p2": {
+    en: "Phase 2 · Listings and buy requests, paid in game, with reputation",
+    th: "เฟส 2 · ประกาศขาย/รับซื้อ จ่ายกันในเกม พร้อมคะแนนความน่าเชื่อถือ",
+  },
+  "market.p3": {
+    en: "Phase 3 · Rare popoto for sale, priced by tier",
+    th: "เฟส 3 · ซื้อขาย rare popoto ราคาตาม tier",
+  },
+  "market.p4": { en: "Phase 4 · The FC shop", th: "เฟส 4 · ร้าน FC" },
+  "market.now": { en: "next", th: "ทำต่อไป" },
+  "market.queued": { en: "queued", th: "รอคิว" },
 
   "adm.reports": {
     en: "Popoto: Road to Evercold",

@@ -116,6 +116,18 @@ export function GuidesIcon({ className, size = 20 }: Props) {
   );
 }
 
+/** A stall with an awning, for the market. */
+export function MarketIcon({ className, size = 20 }: Props) {
+  return (
+    <svg {...svg(size, className)}>
+      <path d="M4 9.5 5.6 4.5h12.8L20 9.5" />
+      <path d="M4 9.5c0 1.4 1.1 2.5 2.7 2.5s2.6-1.1 2.6-2.5c0 1.4 1.2 2.5 2.7 2.5s2.7-1.1 2.7-2.5c0 1.4 1 2.5 2.6 2.5S20 10.9 20 9.5" />
+      <path d="M5.5 12.5v7h13v-7" />
+      <path d="M10 19.5v-4h4v4" />
+    </svg>
+  );
+}
+
 /** The rest of them. */
 export function MoreIcon({ className, size = 20 }: Props) {
   return (
@@ -134,5 +146,6 @@ export const NAV_ICON: Record<string, (p: Props) => React.ReactElement> = {
   "/party": PartyIcon,
   "/gallery": GalleryIcon,
   "/feedback": FeedbackIcon,
+  "/market": MarketIcon,
   "/guides": GuidesIcon,
 };

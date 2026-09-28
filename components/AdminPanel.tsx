@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import ImagePicker from "@/components/ImagePicker";
 import AdminFlavors from "@/components/AdminFlavors";
@@ -265,6 +266,18 @@ export default function AdminPanel(
       {/* The panel itself follows the real flag rather than the switch: locking
           yourself out of the room the switch lives in would be a poor trick. */}
       <AdminSwitch />
+
+      {/* ── Aqua's page ── */}
+      {/* The gil is hers, so what it adds up to has a page of its own rather
+          than a place halfway down the prize tab. */}
+      <Link href="/admin/aqua"
+            className="mt-4 flex items-center gap-3 rounded-xl border border-gold/40 bg-gold/5 py-2 pl-2 pr-4 no-underline transition-colors hover:border-gold/70 hover:bg-gold/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/wallet/aqua-purse-1.webp" alt="" aria-hidden
+             className="h-14 w-10 shrink-0 object-contain object-bottom" />
+        <span className="text-read text-ink">{t("aqua.link")}</span>
+        <span aria-hidden className="ml-auto text-lead text-gold">→</span>
+      </Link>
 
       {/* ── What is waiting ── */}
       {/* First on the page, because it is the only thing on it that somebody is

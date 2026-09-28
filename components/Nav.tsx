@@ -45,6 +45,10 @@ const FEEDBACK_TAB: Tab = { href: "/feedback", label: "nav.feedback" };
 // they do. Admins only while they are being written. A half-finished guide is worse
 // than none, because somebody will stand where it says.
 const GUIDES_TAB: Tab = { href: "/guides", label: "nav.guidesWip", short: "nav.guides" };
+// The same arrangement as the guides, for the same reason: admins only while
+// it is being built, and saying so on the tab. On a phone it lands in the
+// sheet, past the four the bar holds.
+const MARKET_TAB: Tab = { href: "/market", label: "nav.marketWip", short: "nav.market" };
 // Open to everybody, and near the front. A board of parties is only worth
 // having if the person short of a healer at eight o'clock can find it, and a
 // tab an admin can see is a tab nobody is looking at.
@@ -109,7 +113,7 @@ export default function Nav() {
     PARTY_TAB,
     ...(showGallery ? [GALLERY_TAB] : []),
     ...(signedIn ? [FEEDBACK_TAB] : []),
-    ...(isAdmin ? [GUIDES_TAB] : []),
+    ...(isAdmin ? [MARKET_TAB, GUIDES_TAB] : []),
   ];
 
   const isActive = (tab: Tab) =>

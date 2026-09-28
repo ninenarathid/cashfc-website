@@ -147,6 +147,15 @@ export default function AuthButton() {
               </Link>
             </Menu.Item>
           )}
+          {/* Right under Admin, because it is the gil half of it and Aqua is
+              the one who will want it without going through the panel. */}
+          {isAdmin && (
+            <Menu.Item asChild>
+              <Link href="/admin/aqua" className={`${item} text-gold hover:text-gold`}>
+                {t("nav.aqua")}
+              </Link>
+            </Menu.Item>
+          )}
           {/* Below a rule, because it is the one entry here that is not a place
               to go — and the one nobody wants to hit while reaching for the one
               above it. */}
