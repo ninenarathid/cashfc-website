@@ -2,7 +2,7 @@
 
 import type { Party, SeatRule, SlotDef, SlotRole } from "@/lib/party";
 import { openTo } from "@/lib/party";
-import JobIcon, { ALL_JOBS, ROLE_GROUP } from "@/components/JobIcon";
+import JobIcon, { ALL_JOBS, ROLE_GROUP, jobRoleGroup } from "@/components/JobIcon";
 import { useLang } from "@/lib/i18n";
 
 /**
@@ -33,6 +33,22 @@ import { useLang } from "@/lib/i18n";
 export function jobsForSlot(slot: SlotDef): string[] {
   if (!slot.free) return jobsForRole(slot.role);
   return (["tank", "healer", "dps"] as SlotRole[]).flatMap(jobsForRole);
+}
+
+/**
+ * Whether somebody's job can play a seat — a Paladin in H1 cannot.
+ *
+ * Asked when the lead moves somebody: their job goes with them where the new
+ * seat's role can play it, and is left for them to pick again where it cannot.
+ * No job, no seat (Flex), a seat with no role, and a job this site does not
+ * know are all a fit, because there is nothing in any of them to be wrong
+ * about.
+ */
+export function jobFits(job: string | null | undefined, slot: SlotDef | undefined): boolean {
+  if (!job || !slot || slot.free) return true;
+  const group = jobRoleGroup(job);
+  const want = slot.role === "tank" ? "Tanks" : slot.role === "healer" ? "Healers" : "DPS";
+  return !group || group === want;
 }
 
 export function jobsForRole(role: SlotRole): string[] {

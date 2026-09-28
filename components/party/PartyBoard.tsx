@@ -13,6 +13,7 @@ import {
   LOOT_LABEL, PROGRESS_LABEL, catalogue, dayKey, endsAt, fmtDay,
   fmtTime, hasBody, lengthIsEstimate, lootText, mapsText,
   clashFor,
+  heldSeat,
   isFight,
   needsByRole, partyStatus, placeOf, isEmpty, progressText, resolveParty, slotsOf, spotText,
   worldText,
@@ -26,6 +27,7 @@ import {
   leaveSeat, loadParties, takeSeat, setSeatJob,
   finishParty,
   inviteMembers,
+  moveMember,
   setOwnSeat,
   updateParty,
   recentSetups,
@@ -41,7 +43,7 @@ import {
   headSay, kindSay, lengthSay, lootLine, whenFull, whyEstimate,
 } from "@/lib/party-i18n";
 import PartySeats, { NeedLine, seatState } from "@/components/party/PartySeats";
-import { OneEachMark } from "@/components/party/JobRule";
+import { OneEachMark, jobFits } from "@/components/party/JobRule";
 import TagIcon from "@/components/TagIcon";
 import PartyIcon from "@/components/party/PartyIcon";
 import { jobRoleGroup } from "@/components/JobIcon";
@@ -193,6 +195,16 @@ function PartyDetail(
     [suggest, party.seats, party.floating, def, labels]);
   /** Whether the test option is offered when closing. See CloseParty. */
   const { isAdmin } = useAdmin();
+  /*
+   * Theirs to arrange: the lead, or an admin standing in for one, moving the
+   * people already in it — the last ten minutes of "you go MT, I'll take ST".
+   *
+   * Not once it is over or has been called either way, when there is no
+   * evening left for the seats to be about. A static is the exception to the
+   * clock rather than to this: its start is only its first session.
+   */
+  const canArrange = (iAmOwner || isAdmin) && !party.endedAt && !party.outcome
+    && (!!party.isStatic || partyStatus(party, now) !== "done");
   /*
    * Already promised those hours to somebody else.
    *
@@ -647,6 +659,38 @@ function PartyDetail(
                           const r = await leaveSeat(supabase, mine.rowId, flex);
                           setSeating(false);
                           if (r.error) { setErr(r.error); return; }
+                          await refresh();
+                        })(),
+                        /*
+                         * The lead moving somebody else. Their own place is
+                         * left to the presses above, which already say what
+                         * a lead pressing their own chair means.
+                         */
+                        moveAsk: (who) => (canArrange && who.seatRowId != null
+                          && who.characterId !== me.id
+                          ? t("party.moveWho", { who: who.name }) : null),
+                        move: (who, to) => void (async () => {
+                          if (who.seatRowId == null) return;
+                          const from = heldSeat(party, who.seatRowId);
+                          const holder = to ? party.seats[to] ?? null : null;
+                          const seatOf = (id: string | null) =>
+                            (id ? slotsOf(party.shape).find((s) => s.id === id) : undefined);
+                          setSeating(true);
+                          const r = await moveMember(supabase, who.seatRowId, to, {
+                            holder: holder?.seatRowId ?? null,
+                            keepJob: jobFits(who.job, seatOf(to)),
+                            keepTheirJob: jobFits(holder?.job, seatOf(from)),
+                          });
+                          setSeating(false);
+                          if ("error" in r) {
+                            // A board ahead of its migration. Said in words
+                            // rather than as a schema-cache message.
+                            setErr(/party_move/.test(r.error)
+                              && /schema cache|could not find/i.test(r.error)
+                              ? t("party.moveNotYet") : r.error);
+                            return;
+                          }
+                          if (r.got === "changed") setErr(t("party.moveChanged"));
                           await refresh();
                         })(),
                       } : undefined} />

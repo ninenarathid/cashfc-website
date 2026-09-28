@@ -281,6 +281,14 @@ const KIND: Record<string, { say: Key; icon: React.ReactNode; href: string }> = 
   // now a different one, which is why it is told rather than withdrawn.
   party_seat_gone: { say: "notif.partySeatGone", icon: "🪑", href: "/party" },
   /*
+   * The lead moved you: another seat, a swap, or out to Flex (v95).
+   *
+   * Told and not asked — the seats are the lead's to arrange — so it has no
+   * buttons, only where you are now. The body is that seat and is said in the
+   * sentence; see movedSay. Arrows crossing, because a move is usually a swap.
+   */
+  party_moved: { say: "notif.partyMoved", icon: "🔀", href: "/party" },
+  /*
    * Your own party, filling and emptying, told to you and to nobody else.
    *
    * A lead who asked four people about D4 and went to make dinner used to come
@@ -356,6 +364,18 @@ const PRIZE_KINDS = new Set([...PRIZE_PICTURE, ...PRIZE_FACE]);
  */
 const amountKind = (kind: string) =>
   kind.startsWith("evercold") || kind.startsWith("wallet_");
+
+/**
+ * The line for being moved, which has the seat in it.
+ *
+ * "Ninenine moved you to ST" is the whole message, and the same sentence with
+ * "ST" printed on a line of its own underneath reads like two notifications.
+ * No seat is Flex, which is its own sentence rather than a blank in this one.
+ * Null for every other kind.
+ */
+const movedSay = (n: { kind: string; body: string | null }): Key | null =>
+  n.kind !== "party_moved" ? null
+    : n.body ? "notif.partyMoved" : "notif.partyMovedFlex";
 
 /**
  * The figure out of a wallet notification's body, and the tier beside it.
@@ -878,7 +898,9 @@ export default function NotificationBell() {
             ? t(kind.say, { n: fmtGil(walletBody(n.body).n) })
             : amountKind(n.kind) && kind
               ? t(kind.say, { n: Number(n.body ?? 0).toLocaleString("en-US") })
-            : kind ? t(kind.say, { who: n.actor_name ?? "—" }) : t("notif.something"));
+            : kind
+              ? t(movedSay(n) ?? kind.say, { who: n.actor_name ?? "—", seat: n.body ?? "" })
+              : t("notif.something"));
       const actor = n.actor && !FACELESS.has(n.kind) ? people[n.actor] : undefined;
       const face = actor?.characterId != null
         ? faces[actor.characterId] ?? actor.avatar : actor?.avatar ?? null;
@@ -1280,7 +1302,7 @@ export default function NotificationBell() {
      */
     const say = n.kind === "announcement"
       ? (isAdmin ? ("notif.announcedBy" as const) : ("notif.announced" as const))
-      : kind?.say;
+      : movedSay(n) ?? kind?.say;
     // The one notification with nobody in it: nothing was done to you, you did
     // something, and the poster is what it is about.
     const eventPoster = n.kind.startsWith("evercold") ? EVENT_POSTER : null;
@@ -1370,7 +1392,7 @@ export default function NotificationBell() {
               : amountKind(n.kind) && say
                 ? t(say, { n: Number(n.body ?? 0).toLocaleString("en-US") })
                 : say
-                  ? said(t(say, { who: SLOT }), n.actor_name ?? "—",
+                  ? said(t(say, { who: SLOT, seat: n.body ?? "" }), n.actor_name ?? "—",
                          actorHref, dismiss)
                   : t("notif.something"))}
           </p>
@@ -1391,10 +1413,12 @@ export default function NotificationBell() {
                 {t("rare.openInInventory")}
               </Link>
             </div>
-          ) : PRIZE_KINDS.has(n.kind) || n.kind.startsWith("wallet_") ? (
+          ) : PRIZE_KINDS.has(n.kind) || n.kind.startsWith("wallet_")
+              || movedSay(n) ? (
             // The body is which win it was, which is a row id and not a thing
             // to read — or, for a wallet, the figure the line above has just
-            // said. Either way there is nothing left to print underneath.
+            // said, and for a move the seat it has just named. Either way
+            // there is nothing left to print underneath.
             null
           ) : n.body ? (
             <p className="mt-1 line-clamp-2 text-ui leading-snug text-muted">

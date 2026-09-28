@@ -1053,6 +1053,46 @@ export async function setSeatJob(
 }
 
 /**
+ * What happened when the lead moved somebody. See v95.
+ *
+ * "changed" is the board being out of date rather than anything going wrong:
+ * the seat is not as the lead last saw it — somebody sat down in it, or the
+ * person they meant to swap with has moved since — and nobody has been
+ * touched. The answer is to look again, which the reload does.
+ */
+export type Moved = "moved" | "swapped" | "same" | "changed" | "gone";
+
+/**
+ * The lead moving somebody in their own party.
+ *
+ * Into a free seat, into a taken one — which swaps the two — or to Flex when
+ * `seat` is null. Nobody is asked: the seats are the lead's to arrange, the
+ * same as they are in the game. The person moved is told, by a trigger on the
+ * seat itself rather than by this, so they hear about it whichever way their
+ * chair changed.
+ *
+ * One statement in the database, because a swap is three writes and half of
+ * one is two people in the wrong chairs. `holder` is who the lead saw in the
+ * seat, and the database refuses to swap with anybody else. The jobs go with
+ * the two people only where their new seats can play them — which is the
+ * page's to say, since which job heals is a fact kept beside the icons.
+ */
+export async function moveMember(
+  supabase: SupabaseClient, seatRowId: number, seat: string | null,
+  o: { holder: number | null; keepJob: boolean; keepTheirJob: boolean },
+): Promise<{ got: Moved } | { error: string }> {
+  const { data, error } = await supabase.rpc("party_move", {
+    p_member: seatRowId,
+    p_seat: seat,
+    p_with: o.holder,
+    p_keep_job: o.keepJob,
+    p_keep_their_job: o.keepTheirJob,
+  });
+  if (error) return { error: error.message };
+  return { got: (data as Moved) ?? "changed" };
+}
+
+/**
  * Take a seat back: turned down, withdrawn, or somebody leaving.
  *
  * A real delete rather than a tombstone, for the reason v39 gives: a seat is

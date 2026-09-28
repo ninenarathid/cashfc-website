@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_RUN_MINUTES, FOOD_MINUTES, RUN_MINUTES, SHAPE_SIZE, fmtFood,
-  fmtLength, fmtRuns, foodToMinutes, mapsToMinutes, minutesToFood,
-  minutesToRuns, runsToMinutes, shapeFits, slotsOf,
+  fmtLength, fmtRuns, foodToMinutes, heldSeat, mapsToMinutes, minutesToFood,
+  minutesToRuns, resolveParty, runsToMinutes, shapeFits, slotsOf,
 } from "@/lib/party";
-import type { Shape } from "@/lib/party";
+import type { Party, Shape } from "@/lib/party";
 
 /**
  * The arithmetic and the seat maths behind a listing.
@@ -225,5 +225,47 @@ describe("saying a length out loud", () => {
     [1440, "24h"],
   ])("writes %i minutes as %s", (minutes, want) => {
     expect(fmtLength(minutes)).toBe(want);
+  });
+});
+
+describe("where somebody is, for the lead moving them", () => {
+  const at = "2026-09-28T12:00:00Z";
+  /*
+   * An eight-man with MT held, and one person flexing who can only play ST —
+   * so the resolver draws her in ST, a chair she does not hold.
+   */
+  const party: Party = {
+    id: "1", contentKey: "ex:test", shape: "full", startsAt: at,
+    lengthMinutes: 60, lengthUnit: "hours", ownerCharacterId: 1, createdAt: at,
+    closed: ["H1", "H2", "D1", "D2", "D3", "D4"],
+    seats: {
+      MT: { characterId: 1, name: "Lead Person", avatar: null, confirmedAt: at, seatRowId: 10 },
+    },
+    floating: [
+      { characterId: 2, name: "Aqua Eleison", avatar: null, confirmedAt: at,
+        seatRowId: 11, flex: { seats: ["ST"] } },
+    ],
+  };
+
+  it("finds the seat a row holds", () => {
+    expect(heldSeat(party, 10)).toBe("MT");
+  });
+
+  /*
+   * Drawn in ST and holding nothing: a swap with her sends the other person
+   * to Flex, not into a chair nobody was ever in.
+   */
+  it("says Flex for somebody the board only draws in a seat", () => {
+    expect(resolveParty(party).seats.ST?.name).toBe("Aqua Eleison");
+    expect(heldSeat(party, 11)).toBeNull();
+    expect(heldSeat(party, undefined)).toBeNull();
+  });
+
+  /*
+   * The seat she is drawn in still knows her row, which is what lets the lead
+   * press it and move her like anybody sitting down.
+   */
+  it("keeps the row on a seat the resolver filled", () => {
+    expect(resolveParty(party).seats.ST?.seatRowId).toBe(11);
   });
 });

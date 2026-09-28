@@ -1,16 +1,16 @@
 "use client";
 
 import type {
-  ContentKind, Flex, Floater, Party, Resolved, SlotDef, SlotRole, Wing,
+  ContentKind, Flex, Floater, Party, Resolved, SlotDef, SlotRole, SlotTaken, Wing,
 } from "@/lib/party";
 import {
-  ROLE_COLOR, ROLE_LABEL, flexBits, headcount, openTo, resolveParty,
+  ROLE_COLOR, ROLE_LABEL, flexBits, headcount, heldSeat, openTo, resolveParty,
   shortfallOf,
   slotsOf,
 } from "@/lib/party";
 import { Fragment, useState } from "react";
 import JobIcon, { jobLabel } from "@/components/JobIcon";
-import { jobsForSlot } from "@/components/party/JobRule";
+import { jobFits, jobsForSlot } from "@/components/party/JobRule";
 import { Popover } from "@/components/ui/Popover";
 import { RuleMark } from "@/components/party/JobRule";
 import { useAvatarOverrides } from "@/lib/avatars";
@@ -153,6 +153,18 @@ export interface SeatPick {
   /** What they are offering now, so the chips open where they left them. */
   benchNow?: Flex | null;
   bench?: (flex: Flex) => void;
+  /**
+   * The lead's other use for the grid: moving somebody already in the party.
+   *
+   * The question to put about this person, or null where the reader may not
+   * move them — anybody who is not the lead or an admin, and the lead's own
+   * place, which their own press already answers. Asked before `ask`: the lead
+   * pressing somebody else's chair means that somebody, and a seat with a
+   * person in it is not a question about the chair.
+   */
+  moveAsk?: (who: SlotTaken | Floater) => string | null;
+  /** Do it. `to` is a seat id, or null for Flex. See MoveAsk. */
+  move?: (who: SlotTaken | Floater, to: string | null) => void;
   busy?: boolean;
 }
 
@@ -223,19 +235,22 @@ function Seat(
                               background: "color-mix(in srgb, #c9a227 8%, transparent)" }
     : {};
 
-  const ask = pick && !onPick ? pick.ask(slot) : null;
-  const Tag = onPick || ask ? "button" : "div";
+  // The lead's question about whoever is here, before the seat's own. See
+  // SeatPick.moveAsk.
+  const moveQ = pick && !onPick && who && pick.move ? pick.moveAsk?.(who) ?? null : null;
+  const ask = pick && !onPick && !moveQ ? pick.ask(slot) : null;
+  const Tag = onPick || ask || moveQ ? "button" : "div";
   const cell = (
     <Tag
       {...(onPick ? { onClick: () => onPick(slot), type: "button" as const } : {})}
-      {...(ask ? { type: "button" as const } : {})}
+      {...(ask || moveQ ? { type: "button" as const } : {})}
       style={ring}
       className={`flex min-w-0 items-stretch gap-2 rounded-lg border px-2 py-1.5 text-left transition-colors ${
         compact ? "" : "min-h-[4.6rem]"} ${
         state === "open" ? "border-dashed border-line/80 hover:border-accent/60"
         : state === "shut" ? "border-dashed border-line/40 opacity-40"
-        : "border"} ${onPick || ask ? "cursor-pointer" : ""} ${
-        ask ? "hover:border-accent/60" : ""}`}>
+        : "border"} ${onPick || ask || moveQ ? "cursor-pointer" : ""} ${
+        ask || moveQ ? "hover:border-accent/60" : ""}`}>
 
       <span className="flex min-w-0 flex-1 flex-col gap-1">
       {/* The seat's name is the constant thing — it is there whether or not
@@ -339,8 +354,163 @@ function Seat(
     </Tag>
   );
 
+  if (moveQ && pick && who) {
+    return <MoveAsk who={who} party={party} pick={pick} ask={moveQ} trigger={cell} />;
+  }
   if (!ask || !pick) return cell;
   return <SeatAsk slot={slot} party={party} pick={pick} ask={ask} cell={cell} />;
+}
+
+/**
+ * Where the lead moves somebody, asked from the person themselves.
+ *
+ * The party again, small — the same rows of four, with who holds each chair
+ * now — because "move Aqua to ST" is only half a question when somebody is
+ * already sitting in ST, and the grid is the one picture where the other half
+ * is drawn. Pick a free seat and she goes there; pick a taken one and the two
+ * swap; Flex takes her out of her chair and keeps her in the party.
+ *
+ * Only held chairs count as taken. Somebody flexing who is drawn in a seat on
+ * the big grid holds nothing (see heldSeat), so that chair is offered as the
+ * free seat it is — and moving somebody into it leaves them to be placed again
+ * by the resolver, which is what flexing already meant.
+ *
+ * Nothing is asked of the person moved, and the card says so before the press
+ * rather than after it. The seats are the lead's to arrange; what the people
+ * in them are owed is to be told, which the database does whichever way a
+ * chair changed (v95).
+ */
+function MoveAsk(
+  { who, party, pick, ask, trigger }: {
+    who: SlotTaken | Floater; party: Party; pick: SeatPick; ask: string;
+    trigger: React.ReactNode;
+  },
+) {
+  const { t } = useLang();
+  const [open, setOpen] = useState(false);
+  // Undefined is nothing picked yet; null is Flex.
+  const [to, setTo] = useState<string | null | undefined>(undefined);
+  const from = heldSeat(party, who.seatRowId);
+  const shut = new Set(party.closed ?? []);
+  const slots = slotsOf(party.shape);
+  const seatOf = (id: string | null | undefined) =>
+    (id ? slots.find((s) => s.id === id) : undefined);
+  const holder = to ? party.seats[to] ?? null : null;
+  const target = seatOf(to);
+  /*
+   * A job the new chair cannot play, said before it happens.
+   *
+   * The job is cleared rather than carried, and its owner picks another from
+   * their own seat — but a lead who moved their White Mage to D2 on purpose
+   * should hear what that does to her job while they can still change their
+   * mind, not find a blank where her icon was.
+   */
+  const mineGoes = !!target && !!who.job && !jobFits(who.job, target);
+  const theirsGoes = !!holder?.job && !!from && !jobFits(holder.job, seatOf(from));
+  // Somebody on this site is about to be told. Not a promise the page can
+  // keep for a friend from off it, who has nowhere to be told.
+  const told = who.characterId != null || holder?.characterId != null;
+  const wings: (Wing | undefined)[] = party.shape === "alliance" ? ["A", "B", "C"] : [undefined];
+  const first = (name: string) => name.split(/\s+/)[0];
+
+  return (
+    <Popover open={open}
+             onOpenChange={(v) => { setOpen(v); if (v) setTo(undefined); }}
+             trigger={trigger}>
+      <div className="flex flex-col gap-2.5">
+        <p className="text-title text-ink">{ask}</p>
+        {wings.map((wing) => (
+          <div key={wing ?? "one"} className="flex flex-col gap-1">
+            {wing && (
+              <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
+                {t("pf.partyWing", { wing })}
+              </span>
+            )}
+            <div className="grid grid-cols-4 gap-1">
+              {slots.filter((s) => s.wing === wing).map((s) => {
+                const sat = party.seats[s.id];
+                const here = s.id === from;
+                const off = here || shut.has(s.id);
+                const on = to === s.id;
+                const c = s.free ? "#8b93a1" : ROLE_COLOR[s.role];
+                return (
+                  <button key={s.id} type="button" disabled={off}
+                          title={sat?.name}
+                          onClick={() => setTo(on ? undefined : s.id)}
+                          style={on
+                            ? { borderColor: c,
+                                background: `color-mix(in srgb, ${c} 16%, transparent)` }
+                            : undefined}
+                          className={`flex min-w-0 flex-col items-start gap-0.5 rounded-md border px-1.5 py-1 text-left transition-colors ${
+                            here ? "border-accent/60 bg-accent/10"
+                            : off ? "border-dashed border-line/40 opacity-40"
+                            : on ? ""
+                            : sat ? "border-line hover:border-muted"
+                            : "border-dashed border-line hover:border-muted"}`}>
+                    <span className="flex items-center gap-1 font-data text-meta uppercase tracking-[0.1em] text-muted">
+                      <span style={{ background: c }} className="size-1.5 shrink-0 rounded-full" />
+                      {s.label}
+                    </span>
+                    <span className={`w-full truncate text-ui ${
+                      here ? "text-accent" : sat ? "text-ink/85" : "text-muted/60"}`}>
+                      {sat ? first(sat.name) : "—"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+        {/* Out of the chair and still in the party — only for somebody who
+            holds one to be taken out of. */}
+        {from && (
+          <button type="button" onClick={() => setTo(to === null ? undefined : null)}
+                  className={`rounded-md border px-2 py-1 text-lead transition-colors ${
+                    to === null ? "border-jade bg-jade/15 text-jade"
+                      : "border-dashed border-line text-muted hover:border-muted hover:text-ink"}`}>
+            {t("party.bench")}
+          </button>
+        )}
+        {/* Everything else the press does, said before it. */}
+        {holder && (
+          <span className="text-read text-muted">
+            {from ? t("party.moveSwap", { who: holder.name, seat: from })
+                  : t("party.moveSwapFlex", { who: holder.name })}
+          </span>
+        )}
+        {to === null && (
+          <span className="text-read text-muted">{t("party.moveToFlex")}</span>
+        )}
+        {mineGoes && (
+          <span className="text-read text-gold">
+            {t("party.moveNewJob", { who: who.name, job: jobLabel(who.job!), seat: target!.id })}
+          </span>
+        )}
+        {theirsGoes && (
+          <span className="text-read text-gold">
+            {t("party.moveNewJob", { who: holder!.name, job: jobLabel(holder!.job!), seat: from! })}
+          </span>
+        )}
+        {told && to !== undefined && (
+          <span className="text-read text-muted">{t("party.moveTold")}</span>
+        )}
+        <div className="flex items-center gap-2">
+          <button type="button" disabled={pick.busy || to === undefined}
+                  onClick={() => {
+                    setOpen(false);
+                    if (to !== undefined) pick.move?.(who, to);
+                  }}
+                  className="rounded-lg border border-jade/60 bg-jade/15 px-3 py-1.5 text-title text-jade hover:bg-jade/25 disabled:opacity-50">
+            {t("party.moveGo")}
+          </button>
+          <button type="button" onClick={() => setOpen(false)}
+                  className="rounded-lg px-2 py-1.5 text-lead text-muted hover:text-ink">
+            {t("pf.cancel")}
+          </button>
+        </div>
+      </div>
+    </Popover>
+  );
 }
 
 /**
@@ -591,7 +761,7 @@ export default function PartySeats(
   return (
     <div className="flex flex-col gap-2">
       {grid}
-      <Bench who={res.loose} pick={pick} res={res} />
+      <Bench who={res.loose} pick={pick} res={res} party={party} />
     </div>
   );
 }
@@ -609,32 +779,59 @@ export default function PartySeats(
  * other half of sitting down and there was nowhere to do it from.
  */
 function Bench(
-  { who, pick, res }: {
-    who: readonly Floater[]; pick?: SeatPick; res: Resolved;
+  { who, pick, res, party }: {
+    who: readonly Floater[]; pick?: SeatPick; res: Resolved; party: Party;
   },
 ) {
   const { t } = useLang();
   const face = useFace();
   const ask = pick?.benchAsk ?? null;
+  /*
+   * Which of them the lead can move, each asked from their own name.
+   *
+   * A name that can be pressed is a button, and a button cannot sit inside
+   * the one this whole row becomes for the reader's own offer — that would be
+   * two answers to one press. So where anybody here can be moved, the row
+   * stops being a button and the reader's own way in or out moves onto the
+   * words at the end of it, which were already what said where to press.
+   */
+  const moves = who.map((f) => (pick?.move ? pick.moveAsk?.(f) ?? null : null));
+  const split = moves.some((q) => q != null);
   if (!who.length && !ask) return null;
 
   const row = (
     <div className={`flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-line/70 px-2.5 py-2 text-left ${
-      ask ? "hover:border-accent/60" : ""}`}>
+      ask && !split ? "hover:border-accent/60" : ""}`}>
       <span className="font-data text-ui uppercase tracking-[0.12em] text-muted">
         {t("party.bench")}
       </span>
-      {who.map((f) => {
+      {who.map((f, i) => {
         const src = face(f.characterId, f.avatar);
-        return (
-          <span key={f.seatRowId ?? f.name} className="flex items-center gap-1.5">
+        const body = (
+          <>
             {src
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={src} alt="" width={24} height={24}
                      className="size-6 rounded-full border border-line object-cover" />
               : <span className="size-6 rounded-full border border-dashed border-line" />}
             <span className="text-lead text-ink/85">{f.name}</span>
-          </span>
+          </>
+        );
+        const q = moves[i];
+        if (!q || !pick) {
+          return (
+            <span key={f.seatRowId ?? f.name} className="flex items-center gap-1.5">
+              {body}
+            </span>
+          );
+        }
+        return (
+          <MoveAsk key={f.seatRowId ?? f.name} who={f} party={party} pick={pick} ask={q}
+                   trigger={
+                     <button type="button"
+                             className="flex items-center gap-1.5 rounded-full border border-line/70 bg-surface/60 py-0.5 pl-0.5 pr-2.5 transition-colors hover:border-accent/60">
+                       {body}
+                     </button>} />
         );
       })}
       {!who.length && (
@@ -647,15 +844,22 @@ function Bench(
           wanted to give the seat back had nothing telling them where to do
           it. A border that lights up under the pointer is not an answer to
           "how do I", and on a phone there is no pointer at all. */}
-      {ask && (
+      {ask && (split && pick?.bench ? (
+        <BenchAsk res={res} pick={pick} ask={ask}
+                  trigger={
+                    <button type="button"
+                            className="ml-auto rounded-md px-1.5 py-0.5 font-data text-ui uppercase tracking-[0.1em] text-accent transition-colors hover:bg-accent/10">
+                      {t("party.standUp")}
+                    </button>} />
+      ) : (
         <span className="ml-auto font-data text-ui uppercase tracking-[0.1em] text-accent">
           {t("party.standUp")}
         </span>
-      )}
+      ))}
     </div>
   );
 
-  if (!ask || !pick?.bench) return row;
+  if (split || !ask || !pick?.bench) return row;
   return (
     <BenchAsk res={res} pick={pick} ask={ask}
               trigger={

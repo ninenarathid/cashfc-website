@@ -1078,6 +1078,16 @@ const DICT = {
     en: "The seat you were asked about has been taken.",
     th: "ตำแหน่งที่คุณถูกชวนมาลง มีคนลงแล้ว",
   },
+  // The lead moved you (v95). The seat is the news, so it goes in the
+  // sentence rather than on a line of its own underneath it.
+  "notif.partyMoved": {
+    en: "{who} moved you to {seat} in the party.",
+    th: "{who} ย้ายคุณไปตำแหน่ง {seat} ในปาร์ตี้",
+  },
+  "notif.partyMovedFlex": {
+    en: "{who} moved you out of your seat to Flex — you are still in the party.",
+    th: "{who} ย้ายคุณออกจากที่นั่งไปเป็น Flex (ยังอยู่ในปาร์ตี้)",
+  },
   "notif.partyIn": {
     en: "{who} joined your party.",
     th: "{who} เข้าร่วมปาร์ตี้ของคุณแล้ว",
@@ -3235,6 +3245,46 @@ const DICT = {
   "party.theyWouldMove": {
     en: " {who} offered to move, and would give it up.",
     th: " {who} เสนอไว้ว่าย้ายตำแหน่งได้ และจะสละที่นั่งนี้ให้",
+  },
+  /* ── The lead moving somebody (v95) ────────────────────────────────
+     Told, not asked: the seats are the lead's to arrange, so the person
+     moved gets a notification with nothing on it to answer — and the card
+     says so before the press, not after it. */
+  "party.moveWho": { en: "Move {who} to…", th: "ย้าย {who} ไปตำแหน่งไหน?" },
+  "party.moveSwap": {
+    en: "Swaps with {who}, who goes to {seat}.",
+    th: "สลับที่กับ {who} — {who} จะย้ายไป {seat}",
+  },
+  "party.moveSwapFlex": {
+    en: "{who} goes to Flex in their place.",
+    th: "{who} จะย้ายไปเป็น Flex แทน",
+  },
+  "party.moveToFlex": {
+    en: "Out of the seat, still in the party.",
+    th: "ออกจากที่นั่ง แต่ยังอยู่ในปาร์ตี้",
+  },
+  // Said before the press. The job is cleared rather than carried into a seat
+  // it cannot play, and its owner picks another from their own seat.
+  "party.moveNewJob": {
+    en: "{who} is on {job}, which cannot play {seat} — they will pick another job.",
+    th: "{who} เล่น {job} อยู่ ซึ่งลง {seat} ไม่ได้ — เขาจะเลือกอาชีพใหม่เอง",
+  },
+  "party.moveTold": {
+    en: "Whoever is moved gets a notification — nothing to confirm.",
+    th: "คนที่ถูกย้ายจะได้รับแจ้งเตือน โดยไม่ต้องกดยืนยัน",
+  },
+  "party.moveGo": { en: "Move", th: "ย้าย" },
+  // The board was a minute behind: somebody sat down in that seat, or the
+  // person being swapped with had already moved. Nothing happened, and the
+  // grid underneath has just been redrawn as it is now.
+  "party.moveChanged": {
+    en: "That seat changed before the move, so nobody was moved — this is where everybody is now.",
+    th: "ตำแหน่งนี้เพิ่งเปลี่ยนไปก่อนกดย้าย เลยยังไม่ได้ย้ายใคร — นี่คือตำแหน่งล่าสุดของทุกคน",
+  },
+  // A page that arrived before v95 did.
+  "party.moveNotYet": {
+    en: "Moving people is not switched on yet.",
+    th: "ยังย้ายตำแหน่งไม่ได้ในตอนนี้",
   },
   /*
    * Joining, asked by the seat rather than by a row of chips under the grid.

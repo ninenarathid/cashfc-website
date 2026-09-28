@@ -1411,6 +1411,9 @@ export function resolveParty(p: Party): Resolved {
     seats[seatId] = {
       characterId: f.characterId, name: f.name, avatar: f.avatar,
       job: f.job ?? null, flex: f.flex, confirmedAt: f.confirmedAt,
+      // Still their row, so the lead pressing the seat they were drawn in can
+      // move them like anybody sitting down. See heldSeat for the difference.
+      ...(f.seatRowId != null ? { seatRowId: f.seatRowId } : {}),
     };
     free.delete(seatId);
     loose = loose.filter((x) => x !== f);
@@ -2338,6 +2341,25 @@ export function placeOf(
   return i
     ? { rowId: i.seatRowId, seat: null, flex: i.flex ?? null, invited: true as const }
     : null;
+}
+
+/**
+ * The seat somebody actually holds, which is not always the one they are drawn in.
+ *
+ * Somebody flexing is drawn in whatever chair the resolver has left for them
+ * and holds none of them: the chair is the board's arithmetic, not a row. The
+ * lead moving them is moving somebody out of Flex, and a swap with them sends
+ * the other person to Flex rather than into a seat nobody was ever in — so
+ * anything that moves people asks this, not the grid.
+ *
+ * Null for Flex, and for a row that is not in a seat at all.
+ */
+export function heldSeat(p: Party, rowId: number | undefined): string | null {
+  if (rowId == null) return null;
+  for (const [seat, w] of Object.entries(p.seats)) {
+    if (w.seatRowId === rowId) return seat;
+  }
+  return null;
 }
 
 /**
