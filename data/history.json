@@ -1043,7 +1043,7 @@
     "treasure": 17,
     "goldsaucer": 7,
     "seasonal": 12,
-    "pvp": 16,
+    "pvp": 18,
     "private": 227,
     "casual": 30,
     "prog": 23,
@@ -1056,7 +1056,7 @@
    "final_boss": 42,
    "active": 164,
    "vacation": 345,
-   "guests": 14
+   "guests": 15
   }
  ]
 }
