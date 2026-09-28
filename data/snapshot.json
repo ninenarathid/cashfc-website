@@ -2358,7 +2358,7 @@
  },
  "36183378": {
   "name": "K' Potassium",
-  "parse": 39,
+  "parse": 98,
   "ult": 0,
   "mounts": 48,
   "minions": 163,
@@ -2385,9 +2385,11 @@
   ],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-09-28"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -5114,7 +5116,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 94,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -7373,7 +7375,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -7686,7 +7688,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 81,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -8222,7 +8224,7 @@
   "mounts": 30,
   "minions": 89,
   "rare": 12,
-  "level": 67,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8257,7 +8259,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 78,
+  "level": 82,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8289,7 +8291,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 87,
+  "level": 88,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -9944,8 +9946,8 @@
   "name": "Cannes Ferragamo",
   "parse": 45,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 41,
+  "minions": 85,
   "rare": null,
   "level": 90,
   "cc": [
@@ -9960,7 +9962,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-28"
  },
  "36320452": {
   "name": "Cappu Chino",

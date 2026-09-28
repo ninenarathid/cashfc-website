@@ -8469,9 +8469,9 @@
     "state": "learning",
     "pct": 7.79,
     "phase": 3,
-    "pulls": 153,
-    "last": "2026-09-26",
-    "last_ts": 1790442075
+    "pulls": 171,
+    "last": "2026-09-28",
+    "last_ts": 1790615040
    }
   ]
  },
@@ -9339,9 +9339,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 49,
-    "kills": 4,
-    "job": "Monk",
+    "best": 71,
+    "kills": 9,
+    "job": "Sage",
     "cleared": true,
     "job_kills": {
      "Monk": {
@@ -10386,11 +10386,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.88,
+    "pct": 3.16,
     "phase": 5,
-    "pulls": 93,
-    "last": "2026-09-26",
-    "last_ts": 1790448588
+    "pulls": 107,
+    "last": "2026-09-28",
+    "last_ts": 1790617617
    }
   ]
  },
@@ -17735,7 +17735,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 96,
-    "kills": 56,
+    "kills": 61,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -25963,9 +25963,9 @@
     "state": "learning",
     "pct": 24.28,
     "phase": 3,
-    "pulls": 84,
-    "last": "2026-09-26",
-    "last_ts": 1790442659
+    "pulls": 107,
+    "last": "2026-09-28",
+    "last_ts": 1790614434
    }
   ]
  },
@@ -27584,11 +27584,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.88,
+    "pct": 3.16,
     "phase": 5,
-    "pulls": 95,
-    "last": "2026-09-26",
-    "last_ts": 1790448588
+    "pulls": 109,
+    "last": "2026-09-28",
+    "last_ts": 1790617617
    }
   ]
  },
@@ -31397,11 +31397,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.88,
+    "pct": 3.16,
     "phase": 5,
-    "pulls": 95,
-    "last": "2026-09-26",
-    "last_ts": 1790448588
+    "pulls": 109,
+    "last": "2026-09-28",
+    "last_ts": 1790617617
    }
   ]
  },
@@ -32305,9 +32305,9 @@
     "state": "learning",
     "pct": 24.28,
     "phase": 3,
-    "pulls": 112,
-    "last": "2026-09-26",
-    "last_ts": 1790442659
+    "pulls": 109,
+    "last": "2026-09-28",
+    "last_ts": 1790614434
    }
   ]
  },
@@ -34578,11 +34578,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.88,
+    "pct": 3.16,
     "phase": 5,
-    "pulls": 95,
-    "last": "2026-09-26",
-    "last_ts": 1790448588
+    "pulls": 109,
+    "last": "2026-09-28",
+    "last_ts": 1790617617
    }
   ]
  },
@@ -43120,11 +43120,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.88,
+    "pct": 3.16,
     "phase": 5,
-    "pulls": 95,
-    "last": "2026-09-26",
-    "last_ts": 1790448588
+    "pulls": 109,
+    "last": "2026-09-28",
+    "last_ts": 1790617617
    }
   ]
  },
@@ -45186,11 +45186,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 39.88,
+    "pct": 3.16,
     "phase": 5,
-    "pulls": 95,
-    "last": "2026-09-26",
-    "last_ts": 1790448588
+    "pulls": 109,
+    "last": "2026-09-28",
+    "last_ts": 1790617617
    }
   ]
  },
@@ -59979,7 +59979,19 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 98,
+    "kills": 7,
+    "job": "BlackMage",
+    "cleared": true
+   }
+  ],
   "legacy": [],
   "_status": "ok",
   "progress": [
@@ -59990,7 +60002,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 27,
+    "pulls": 23,
     "last": "2026-09-21",
     "last_ts": 1790000703
    }
@@ -60076,7 +60088,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 93,
-    "kills": 10,
+    "kills": 13,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -60152,7 +60164,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 23,
+    "pulls": 20,
     "last": "2026-09-21",
     "last_ts": 1790000703
    }
@@ -60842,20 +60854,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 104,
-    "name": "Lindwurm",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 34.82,
-    "phase": 0,
-    "pulls": 22,
-    "last": "2026-09-18",
-    "last_ts": 1789760818
-   }
-  ]
+  "_status": "ok"
  },
  "36260815": {
   "current": {
@@ -62676,9 +62675,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 29,
-    "kills": 7,
-    "job": "Paladin",
+    "best": 42,
+    "kills": 11,
+    "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
      "Paladin": {
@@ -69727,7 +69726,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 88,
-    "kills": 21,
+    "kills": 26,
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
@@ -69760,7 +69759,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 80,
-    "kills": 5,
+    "kills": 6,
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
@@ -69892,7 +69891,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 79,
-    "kills": 37,
+    "kills": 42,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -69925,7 +69924,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 23,
+    "kills": 28,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -71129,7 +71128,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 95,
-    "kills": 19,
+    "kills": 28,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
