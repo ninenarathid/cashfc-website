@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-09-28",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
    "date": "2026-09-27",
    "type": "level_100",
    "id": 42948817,
@@ -1392,13 +1399,6 @@
    "id": 42053180,
    "name": "Chu'ny On-duty",
    "text": "cleared Futures Rewritten 🏆"
-  },
-  {
-   "date": "2026-09-19",
-   "type": "parse_up",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "set a new best parse: 97 on Erichthonios as Dancer"
   }
  ]
 }

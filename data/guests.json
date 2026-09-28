@@ -1774,8 +1774,15 @@
    "fflogs": "ok",
    "lode_achv_public": false,
    "stats_seen": "2026-09-28"
+  },
+  "10769690": {
+   "name": "Monkey Pub",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Cat Aggro",
+   "seen": "2026-09-28"
   }
  },
- "generated_at": "2026-09-27T23:20:12Z",
- "count": 14
+ "generated_at": "2026-09-28T05:45:51Z",
+ "count": 15
 }

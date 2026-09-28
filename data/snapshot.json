@@ -2418,7 +2418,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2431,7 +2431,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-09-28"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -5100,7 +5100,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 94,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -5222,7 +5222,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-27"
+  "chg": "2026-09-28"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -8243,14 +8243,14 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 67,
+  "level": 71,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-09-28"
  },
  "54419512": {
   "name": "Film Nio",
