@@ -1,15 +1,14 @@
 // The domain vote on the front page: what it says now, and starting its clock.
 //
-//   node scripts/domain-poll.mjs            # the open round, its names and the count
-//   node scripts/domain-poll.mjs open       # a fresh three-day round from this moment
-//   node scripts/domain-poll.mjs open 5     # the same, for five days
-//   node scripts/domain-poll.mjs close      # take the round off the front page
+//   node scripts/domain-poll.mjs                          # the open round, its names and the count
+//   node scripts/domain-poll.mjs open 2 a.com b.app c.party
+//                                                         # a fresh two-day round with those names
+//   node scripts/domain-poll.mjs close                    # take the round off the front page
 //
-// v94 opens the first round when it is run, which may be days before the card
-// is live for everybody. `open` is how the three days start when the vote goes
-// out for real: it closes whatever round is open — its names and votes stay in
-// the database, off the page — and starts an empty one, so a test round cannot
-// leak its names or its head start into the real one.
+// The names are set here and nowhere else: members vote, they do not add to the
+// ballot (v97). `open` closes whatever round is open — its names and votes stay
+// in the database, off the page — and starts a new one from this moment, so an
+// old round cannot leak its names or its head start into the new one.
 //
 // Totals only, never who voted for what: the same line the page draws.
 import { readFileSync } from "node:fs";
@@ -43,32 +42,50 @@ async function show() {
   if (!round) { console.log("No round open."); return; }
   const over = new Date(round.closes_at) <= new Date();
   console.log(`Round ${round.id}: ${bangkok(round.opens_at)} → ${bangkok(round.closes_at)} (Bangkok)${over ? " — time is up" : ""}`);
-  const choices = await rest(`domain_choices?poll_id=eq.${round.id}&select=id,domain,price_usd,profiles(character_name)&order=created_at`);
+  const choices = await rest(`domain_choices?poll_id=eq.${round.id}&select=id,domain&order=created_at`);
   const tally = await rest("rpc/domain_poll_tally", { method: "POST", body: JSON.stringify({ p_poll: round.id }) });
   const votes = Object.fromEntries(tally.map((r) => [r.choice_id, Number(r.votes)]));
   const total = Object.values(votes).reduce((n, v) => n + v, 0);
-  if (!choices.length) console.log("  no names yet");
+  if (!choices.length) console.log("  no names — the card is hidden");
   for (const c of [...choices].sort((a, b) => (votes[b.id] ?? 0) - (votes[a.id] ?? 0))) {
-    const price = c.price_usd == null ? "no price" : `$${Number(c.price_usd)}/yr`;
-    console.log(`  ${String(votes[c.id] ?? 0).padStart(3)}  ${c.domain.padEnd(28)} ${price.padEnd(12)} ${c.profiles?.character_name ?? ""}`);
+    console.log(`  ${String(votes[c.id] ?? 0).padStart(3)}  ${c.domain}`);
   }
   console.log(`  ${total} vote(s)`);
 }
 
-const [cmd, arg] = process.argv.slice(2);
+const [cmd, arg, ...names] = process.argv.slice(2);
+
+// The same pattern as the check on domain_choices.domain.
+const DOMAIN_RE = /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]([a-z0-9-]*[a-z0-9])?$/;
 
 if (cmd === "open") {
-  const days = Number(arg ?? 3);
+  const days = Number(arg);
   if (!(days > 0 && days <= 30)) { console.error("days should be between 0 and 30"); process.exit(1); }
+  const ballot = [...new Set(names.map((n) => n.trim().toLowerCase()))];
+  if (ballot.length < 2) { console.error("name at least two domains to vote between"); process.exit(1); }
+  const bad = ballot.filter((n) => !DOMAIN_RE.test(n));
+  if (bad.length) { console.error(`not a domain: ${bad.join(", ")}`); process.exit(1); }
+  // domain_choices.added_by has to be somebody; an admin, since the ballot is theirs.
+  const [admin] = await rest("profiles?is_admin=eq.true&select=id&limit=1");
+  if (!admin) { console.error("no admin profile to put the names on"); process.exit(1); }
+
   await rest("domain_polls?closed=eq.false", { method: "PATCH", body: JSON.stringify({ closed: true }) });
   const now = new Date();
-  await rest("domain_polls", {
+  const [round] = await rest("domain_polls", {
     method: "POST",
+    headers: { Prefer: "return=representation" },
     body: JSON.stringify({
       opens_at: now.toISOString(),
       closes_at: new Date(now.getTime() + days * 86_400_000).toISOString(),
     }),
   });
+  // One at a time so they keep this order on the card, which reads created_at.
+  for (const domain of ballot) {
+    await rest("domain_choices", {
+      method: "POST",
+      body: JSON.stringify({ poll_id: round.id, domain, added_by: admin.id }),
+    });
+  }
   await show();
 } else if (cmd === "close") {
   await show();
