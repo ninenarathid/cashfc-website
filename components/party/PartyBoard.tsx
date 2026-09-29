@@ -62,7 +62,9 @@ import Messages from "@/components/ui/Messages";
 import { useAvatarOverrides } from "@/lib/avatars";
 import PartyCreate from "@/components/party/PartyCreate";
 import PartyJoin, { pendingAsks } from "@/components/party/PartyJoin";
-import Modal from "@/components/ui/Modal";
+import Modal, {
+  SHEET_WIDE, Sheet, useIsPhone, useRoomBeside,
+} from "@/components/ui/Modal";
 import { StatusPill, WhenLine, useNow } from "@/components/party/PartyClock";
 import CloseParty, { GroupPhotos, StaticTag, SuccessTag } from "@/components/party/CloseParty";
 import { useAdmin } from "@/lib/admin";
@@ -217,6 +219,42 @@ function PartyDetail(
     [parties, me, party]);
   /** Whether the in-game party finder helper is open over the party. */
   const [pf, setPf] = useState(false);
+  /*
+   * Whether the conversation is open beside the party.
+   *
+   * It used to be the last thing on this window, under the picture, the clock,
+   * the seat grid and the write-up — which put the newest message, the thing
+   * people open a party for twice an evening, off the bottom of the screen. A
+   * panel of its own opens on it. See ui/Messages, `chat`.
+   */
+  const [chatting, setChatting] = useState(false);
+  /** Whether this screen is wide enough for the two to stand side by side. */
+  const roomBeside = useRoomBeside();
+  /** And where they share the height instead. See Modal's `beside`. */
+  const phone = useIsPhone();
+  /*
+   * And open with the party, where there is room for it.
+   *
+   * The conversation is half of why anybody opens a party at eight o'clock, so
+   * on a screen that can hold both it is not something to go and fetch — the
+   * window arrives with the plan on the left and what people are saying about
+   * it on the right. Where there is no room it stays behind its door: a panel
+   * that covers the seat grid the moment you open the party is the old problem
+   * with the sides swapped.
+   *
+   * Once, and only on the way in. Somebody who closes it has closed it, and the
+   * media query settling a moment after the first render must not count as a
+   * reason to open it over them.
+   */
+  const greeted = useRef(false);
+  useEffect(() => {
+    if (!roomBeside || greeted.current) return;
+    greeted.current = true;
+    setChatting(true);
+  }, [roomBeside]);
+  /** The conversation, and the last thing said in it, for the door into it. */
+  const talk = party.comments ?? [];
+  const last = talk.length ? talk[talk.length - 1] : null;
 
   /** Do it, say so if it failed, and read the board back either way. */
   const run = async (go: () => Promise<{ error?: string }>) => {
@@ -240,6 +278,13 @@ function PartyDetail(
        and the whole conversation underneath. At the form's width the grid
        wrapped and the pictures came out postage stamps. */
     <Modal open wide onOpenChange={(v) => { if (!v) onClose(); }}
+           /* Out from under the conversation while it is open: "which seat am
+              I in" and "what did they just say" are the same question at eight
+              o'clock, and a panel over the seat grid makes you close it to
+              answer half of it. */
+           beside={chatting ? SHEET_WIDE : undefined}
+           /* And the pair keeps one ✕, the panel's: see Modal's `hideClose`. */
+           hideClose={chatting && roomBeside}
            title={def?.duty ?? def?.name ?? party.contentKey}
            subtitle={party.lengthUnit === "runs" || party.lengthUnit === "maps"
              // No end time, because that is the point of counting in runs.
@@ -716,94 +761,161 @@ function PartyDetail(
             )}
           </p>
 
-          <Messages comments={party.comments ?? []} people={people} me={me}
-                         userId={userId}
-                         /* Where this page keeps its pictures and its
-                            reactions. The conversation does not know and does
-                            not need to — see ui/Messages. */
-                         upload={(f) => uploadPartyImage(supabase!, userId!, f)}
-                         write={(cid, emoji, mine, who) =>
-                           void toggleReaction(supabase!, userId!, cid, emoji, who, mine)}
-                         /* The start time has come and the party is still on:
-                            somebody has to send the invites, and the moment
-                            that has to happen is the moment everybody stops
-                            watching the board and starts watching the game. */
-                         notice={partyStatus(party, now) === "live"
-                           ? t("party.timeToInvite") : undefined}
-                         onReact={(cid, emoji, on, who) =>
-                           // Shown at once; the write and the
-                           // realtime event follow behind it.
-                           setParties((v) => v.map((x) => (x.id === party.id ? {
-                             ...x,
-                             comments: (x.comments ?? []).map((c) => {
-                               if (c.id !== cid) return c;
-                               const rs = [...(c.reactions ?? [])];
-                               const i = rs.findIndex((r) => r.emoji === emoji);
-                               if (on) {
-                                 if (i < 0) rs.push({ emoji, by: [who] });
-                                 else rs[i] = { ...rs[i], by: [...rs[i].by, who] };
-                               } else if (i >= 0) {
-                                 const by = rs[i].by.filter(
-                                   (w) => w.characterId !== who.characterId);
-                                 if (by.length) rs[i] = { ...rs[i], by };
-                                 else rs.splice(i, 1);
-                               }
-                               return { ...c, reactions: rs };
-                             }),
-                           } : x)))}
-                         onAdd={async (c: PartyComment) => {
-                           // On the screen first: a reply that waits
-                           // for a round trip before appearing reads
-                           // as a reply that did not send.
-                           setParties((v) => v.map((x) => (x.id === party.id
-                             ? { ...x, comments: [...(x.comments ?? []), c] }
-                             : x)));
-                           if (!supabase || !userId) return;
-                           const r = await addComment(supabase, userId, party.id, {
-                             characterId: c.author.characterId,
-                             name: c.author.name,
-                             avatar: c.author.avatar,
-                             text: c.text,
-                             images: c.images ?? [],
-                             mentions: c.mentions,
-                             mentionsAll: c.mentionsAll,
-                             replyTo: c.replyTo,
-                           });
-                           if ("error" in r) { setErr(r.error); void refresh(); }
-                         }}
-                         /*
-                          * Both the same shape as the reply above: on the
-                          * screen at once, the write behind it. A correction
-                          * that waits for a round trip reads as a correction
-                          * that did not take, which is the thing somebody
-                          * fixing a typo is least patient about.
-                          */
-                         onEdit={supabase && userId
-                           ? async (cid, text) => {
-                               const at = new Date().toISOString();
-                               setParties((v) => v.map((x) => (x.id === party.id ? {
-                                 ...x,
-                                 comments: (x.comments ?? []).map((c) => (
-                                   c.id === cid ? { ...c, text, editedAt: at } : c)),
-                               } : x)));
-                               const r = await editComment(supabase, cid, text);
-                               if (r.error) { setErr(r.error); void refresh(); }
-                             }
-                           : undefined}
-                         onDrop={supabase && userId
-                           ? async (cid) => {
-                               const at = new Date().toISOString();
-                               setParties((v) => v.map((x) => (x.id === party.id ? {
-                                 ...x,
-                                 comments: (x.comments ?? []).map((c) => (
-                                   c.id === cid
-                                     ? { ...c, text: "", images: undefined, deletedAt: at }
-                                     : c)),
-                               } : x)));
-                               const r = await dropComment(supabase, cid);
-                               if (r.error) { setErr(r.error); void refresh(); }
-                             }
-                           : undefined} />
+          {/*
+            * The conversation, as a door rather than as a thread.
+            *
+            * What it says is the last thing anybody said, because that is the
+            * question the button is answering — somebody opening a party at
+            * eight o'clock wants to know whether the plan changed since they
+            * read it, and a count of messages does not tell them.
+            */}
+          {!chatting && (
+          <button type="button" onClick={() => setChatting(true)}
+                  className="flex items-center gap-3 rounded-xl border border-line bg-card/40 px-3 py-2.5 text-left transition-colors hover:border-accent/60">
+            <span aria-hidden
+                  className="grid size-9 shrink-0 place-items-center rounded-full border border-line bg-surface text-[18px]">
+              💬
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="font-data text-read uppercase tracking-[0.12em] text-muted">
+                {talk.length ? t("pf.commentsN", { n: talk.length })
+                  : t("party.chatNone")}
+              </span>
+              {last && (
+                <span className="truncate text-lead text-ink/80">
+                  <span className="text-accent/80">{last.author.name}</span>
+                  {": "}
+                  {last.deletedAt ? t("party.msgGone") : last.text || "🖼"}
+                </span>
+              )}
+            </span>
+            <span className="ml-auto shrink-0 text-lead text-accent">
+              {t("party.chatOpen")} →
+            </span>
+          </button>
+          )}
+
+          {/* In from the right on a desktop, up from the bottom on a phone,
+              and on a screen with room for both the party moves over rather
+              than being covered — see ui/Modal, Sheet and `beside` above. */}
+          <Sheet open={chatting}
+                 /*
+                  * Side by side the two are one thing, and this is its ✕: the
+                  * party's own is hidden while they stand together, so closing
+                  * the conversation closes the pair rather than leaving half of
+                  * it on the screen with no way out of it.
+                  *
+                  * Where they are not side by side they are two things — the
+                  * panel was opened from the party and the party is still
+                  * behind it — so it only closes itself.
+                  */
+                 onOpenChange={(v) => {
+                   setChatting(v);
+                   if (!v && roomBeside) onClose();
+                 }}
+                 wide flush split
+                 /*
+                  * One ✕ for the pair, at the top right of it. Beside the party
+                  * that is this panel's; above the party — a phone, where the
+                  * two share the height — it is the party's own, so this one
+                  * goes. Dragging the panel down still puts it away, which is
+                  * the gesture a sheet on a phone already has.
+                  */
+                 hideClose={phone}
+                 /* No scrim wherever the party has made room to be read —
+                    moved over beside it, or moved up above it. */
+                 quiet={roomBeside || phone}
+                 title={t("party.chat")}
+                 subtitle={def?.duty ?? def?.name ?? party.contentKey}>
+            <Messages chat comments={talk} people={people} me={me}
+                      userId={userId}
+                      /* Where this page keeps its pictures and its
+                         reactions. The conversation does not know and does
+                         not need to — see ui/Messages. */
+                      upload={(f) => uploadPartyImage(supabase!, userId!, f)}
+                      write={(cid, emoji, mine, who) =>
+                        void toggleReaction(supabase!, userId!, cid, emoji, who, mine)}
+                      /* The start time has come and the party is still on:
+                         somebody has to send the invites, and the moment
+                         that has to happen is the moment everybody stops
+                         watching the board and starts watching the game. */
+                      notice={partyStatus(party, now) === "live"
+                        ? t("party.timeToInvite") : undefined}
+                      onReact={(cid, emoji, on, who) =>
+                        // Shown at once; the write and the
+                        // realtime event follow behind it.
+                        setParties((v) => v.map((x) => (x.id === party.id ? {
+                          ...x,
+                          comments: (x.comments ?? []).map((c) => {
+                            if (c.id !== cid) return c;
+                            const rs = [...(c.reactions ?? [])];
+                            const i = rs.findIndex((r) => r.emoji === emoji);
+                            if (on) {
+                              if (i < 0) rs.push({ emoji, by: [who] });
+                              else rs[i] = { ...rs[i], by: [...rs[i].by, who] };
+                            } else if (i >= 0) {
+                              const by = rs[i].by.filter(
+                                (w) => w.characterId !== who.characterId);
+                              if (by.length) rs[i] = { ...rs[i], by };
+                              else rs.splice(i, 1);
+                            }
+                            return { ...c, reactions: rs };
+                          }),
+                        } : x)))}
+                      onAdd={async (c: PartyComment) => {
+                        // On the screen first: a reply that waits
+                        // for a round trip before appearing reads
+                        // as a reply that did not send.
+                        setParties((v) => v.map((x) => (x.id === party.id
+                          ? { ...x, comments: [...(x.comments ?? []), c] }
+                          : x)));
+                        if (!supabase || !userId) return;
+                        const r = await addComment(supabase, userId, party.id, {
+                          characterId: c.author.characterId,
+                          name: c.author.name,
+                          avatar: c.author.avatar,
+                          text: c.text,
+                          images: c.images ?? [],
+                          mentions: c.mentions,
+                          mentionsAll: c.mentionsAll,
+                          replyTo: c.replyTo,
+                        });
+                        if ("error" in r) { setErr(r.error); void refresh(); }
+                      }}
+                      /*
+                       * Both the same shape as the reply above: on the
+                       * screen at once, the write behind it. A correction
+                       * that waits for a round trip reads as a correction
+                       * that did not take, which is the thing somebody
+                       * fixing a typo is least patient about.
+                       */
+                      onEdit={supabase && userId
+                        ? async (cid, text) => {
+                            const at = new Date().toISOString();
+                            setParties((v) => v.map((x) => (x.id === party.id ? {
+                              ...x,
+                              comments: (x.comments ?? []).map((c) => (
+                                c.id === cid ? { ...c, text, editedAt: at } : c)),
+                            } : x)));
+                            const r = await editComment(supabase, cid, text);
+                            if (r.error) { setErr(r.error); void refresh(); }
+                          }
+                        : undefined}
+                      onDrop={supabase && userId
+                        ? async (cid) => {
+                            const at = new Date().toISOString();
+                            setParties((v) => v.map((x) => (x.id === party.id ? {
+                              ...x,
+                              comments: (x.comments ?? []).map((c) => (
+                                c.id === cid
+                                  ? { ...c, text: "", images: undefined, deletedAt: at }
+                                  : c)),
+                            } : x)));
+                            const r = await dropComment(supabase, cid);
+                            if (r.error) { setErr(r.error); void refresh(); }
+                          }
+                        : undefined} />
+          </Sheet>
       </div>
     </Modal>
   );

@@ -164,6 +164,33 @@ body { overflow-x: clip; }
 .no-bar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-bar::-webkit-scrollbar { display: none; }
 
+/* ── A scrollbar in the site's own colours ─────────────────────────────────
+   The operating system draws its own in its own colours and at its own width,
+   which on Windows is a pale plank sixteen pixels wide down the side of a dark
+   panel — the loudest thing on the screen in a window whose whole content is
+   quiet. Where the bar is the only clue that something scrolls it has to stay,
+   so this makes it half the width and the colour of every other line on the
+   site, on nothing, firming up under the pointer.
+
+   Firefox understands the two standard properties and nothing else; the rest is
+   WebKit's, where the transparent border and background-clip are what keep the
+   thumb from touching the edges of its own track. */
+.slim-bar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+.slim-bar::-webkit-scrollbar { width: 10px; height: 10px; }
+.slim-bar::-webkit-scrollbar-track { background: transparent; }
+.slim-bar::-webkit-scrollbar-thumb {
+  background-color: var(--color-line);
+  background-clip: content-box;
+  border: 3px solid transparent;
+  border-radius: 999px;
+}
+.slim-bar:hover::-webkit-scrollbar-thumb {
+  background-color: var(--color-line-lit);
+}
+
 /* ── The strip of screenshots on the front page ────────────────────────────
    The columns are rendered twice and the track travels exactly half its own
    width, so at the instant the animation restarts the second copy is sitting

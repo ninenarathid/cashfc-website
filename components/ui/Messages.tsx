@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
+} from "react";
 import Link from "next/link";
 import type { PartyComment } from "@/lib/party";
 import { REACTIONS, blockId, sameSpeaker } from "@/lib/party";
@@ -72,13 +74,28 @@ function ReactFace({ size = 20 }: { size?: number }) {
   );
 }
 
+/**
+ * How much of a conversation is drawn to begin with.
+ *
+ * A thread that has been running for a week is a hundred messages, and every
+ * one of them was on the page: the newest — the one somebody opened the party
+ * for — sat at the bottom of a screen and a half of history on a desktop, and
+ * four screens of it on a phone. Twenty is the conversation as anybody joining
+ * it thinks of it; everything before that is history, and history is something
+ * you go looking for rather than something you scroll past to reach today.
+ */
+const PAGE = 20;
+
+/** Near enough the foot that the thread should follow the conversation. */
+const SLACK = 80;
+
 const ctl = (extra: string) =>
   "grid size-9 shrink-0 place-items-center rounded-full border border-line"
   + ` bg-surface text-[20px] leading-none shadow-sm transition-colors ${extra}`;
 
 export default function Messages(
   { comments, people, me, userId, notice, onAdd, onReact, onEdit, onDrop,
-    upload, write }: {
+    upload, write, chat = false }: {
     comments: PartyComment[];
     /**
      * Something the clock has to say, at the foot of the conversation.
@@ -126,6 +143,22 @@ export default function Messages(
     upload: (file: File) => Promise<{ url: string } | { error: string }>;
     write: (commentId: string, emoji: string, mine: boolean,
             who: { characterId: number | null; name: string }) => void;
+    /**
+     * A room of its own, rather than a section at the foot of a page.
+     *
+     * The same conversation either way — this is about who owns the height. On
+     * a page the thread is one more thing below the others and the page scrolls
+     * it; asked for, the thread takes the height it is given, keeps the box you
+     * type in pinned to the bottom of it, opens at the newest message and
+     * follows the conversation from there.
+     *
+     * Which is the difference between reading a party's chat and finding it.
+     * Under a write-up and a seat grid the newest message is the furthest thing
+     * from where the window opens, so the one thing everybody came for is the
+     * one thing they have to go looking for. Given its own panel it is the
+     * first thing on the screen, the way every chat anybody uses behaves.
+     */
+    chat?: boolean;
   },
 ) {
   const { t } = useLang();
@@ -268,6 +301,140 @@ export default function Messages(
     write(c.id, emoji, mine, who);
   };
 
+  /*
+   * How far back this is currently showing, and what that leaves out.
+   *
+   * Counted from the newest end, always: the window is "the last so many", so a
+   * message arriving never pushes another out of view. See PAGE.
+   */
+  const [cap, setCap] = useState(PAGE);
+  const view = comments.length > cap
+    ? comments.slice(comments.length - cap) : comments;
+  const hidden = comments.length - view.length;
+
+  /** The thread's own scrollbox and the block inside it, in chat mode. */
+  const scroller = useRef<HTMLDivElement>(null);
+  const pane = useRef<HTMLDivElement>(null);
+  /*
+   * Whether the reader is at the foot of the conversation.
+   *
+   * Which is the whole difference between a message arriving and a message
+   * interrupting. At the foot, the thread should move as people talk; ten
+   * messages up, somebody is reading something and the page moving under them
+   * is the rudest thing it could do — so instead they are told how many they
+   * have not seen and given a button back down.
+   */
+  const [atFoot, setAtFoot] = useState(true);
+  /** Said on that button: how many arrived while they were reading elsewhere. */
+  const [missed, setMissed] = useState(0);
+  /** For the pinning below, which must not re-subscribe on every scroll. */
+  const footed = useRef(true);
+  useEffect(() => { footed.current = atFoot; }, [atFoot]);
+
+  /*
+   * Down to the newest message.
+   *
+   * Put there rather than animated there. The thread is held at the foot by an
+   * observer while the reader is at it — see the pinning below — so an animated
+   * scroll is overridden by the first picture that finishes loading during it,
+   * which is an animation that sometimes plays. And a jump is what this is for
+   * in the first place: somebody who presses "jump to present", or who is at
+   * the foot when somebody speaks, has already decided where they want to be.
+   */
+  const toFoot = useCallback(() => {
+    const el = scroller.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+    setAtFoot(true);
+    setMissed(0);
+  }, []);
+
+  const track = () => {
+    const el = scroller.current;
+    if (!el) return;
+    const at = el.scrollHeight - el.scrollTop - el.clientHeight < SLACK;
+    setAtFoot(at);
+    if (at) setMissed(0);
+  };
+
+  /*
+   * Older messages, without the screen going anywhere.
+   *
+   * Twenty bubbles appearing above what you are looking at moves it twenty
+   * bubbles down the page, which loses the line you pressed the button while
+   * reading. So the distance from the foot is held across the render and the
+   * scrollbox is put back to it — the new messages land above the view, which
+   * is where they belong.
+   */
+  const anchor = useRef<number | null>(null);
+  const earlier = () => {
+    const el = scroller.current;
+    anchor.current = el ? el.scrollHeight - el.scrollTop : null;
+    setCap((c) => c + PAGE);
+  };
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (!el || anchor.current == null) return;
+    el.scrollTop = el.scrollHeight - anchor.current;
+    anchor.current = null;
+  }, [cap]);
+
+  /*
+   * What happens when somebody says something.
+   *
+   * The window grows by however many arrived, so that nothing already read
+   * scrolls out of existence behind "show earlier" while it is being read. Then
+   * either the thread follows it down or the reader is told it is there.
+   */
+  const seen = useRef(comments.length);
+  const landed = useRef(false);
+  useLayoutEffect(() => {
+    const grew = comments.length - seen.current;
+    seen.current = comments.length;
+    if (grew > 0) setCap((c) => c + grew);
+    if (!chat) return;
+    // Opened at the newest. Before paint, so nobody sees the panel start at
+    // last Tuesday and travel down to today.
+    if (!landed.current) { landed.current = true; toFoot(); return; }
+    if (grew <= 0) return;
+    if (footed.current) toFoot();
+    else setMissed((n) => n + grew);
+  }, [comments.length, chat, toFoot]);
+
+  /*
+   * And stays at the foot while the thread finishes drawing itself.
+   *
+   * Screenshots, emotes and a YouTube frame all arrive after the text does, and
+   * each one makes the thread taller — so a jump to the foot on open lands
+   * above the last message the moment the first picture finishes loading. While
+   * the reader is at the foot, the foot is where they stay.
+   */
+  useEffect(() => {
+    const el = scroller.current;
+    const block = pane.current;
+    if (!chat || !el || !block) return;
+    const ro = new ResizeObserver(() => {
+      if (footed.current) el.scrollTop = el.scrollHeight;
+    });
+    ro.observe(block);
+    return () => ro.disconnect();
+  }, [chat]);
+
+  /*
+   * A phone holding a panel is not a desktop with less room in it.
+   *
+   * Seventy pixels of portrait beside a bubble is right on a screen a thousand
+   * wide. On a 390px phone — with the panel holding half the height as well —
+   * it is a fifth of every line gone before the first word, and what is left
+   * wraps every four of them. So in a panel, and only on a phone, the face
+   * drops to forty and the conversation drops one step down the scale. The same
+   * messages under a photograph on a page keep the whole width and are left
+   * alone.
+   */
+  const facing = chat ? "size-10 sm:size-[70px]" : "size-[70px]";
+  const saying = chat ? "text-lead sm:text-head" : "text-head";
+  const said = chat ? "text-meta sm:text-read" : "text-read";
+
   /** By id, for the line a reply quotes. */
   const byId = new Map(comments.map((c) => [c.id, c]));
 
@@ -301,13 +468,25 @@ export default function Messages(
     setAnswering(null);
   };
 
-  return (
-    <section className="flex flex-col items-stretch gap-3 border-t border-line pt-3">
-      <span className="font-data text-read uppercase tracking-[0.14em] text-muted">
-        {comments.length === 0 ? t("pf.comments")
-          : comments.length === 1 ? t("pf.commentOne")
-            : t("pf.commentsN", { n: comments.length })}
-      </span>
+  /*
+   * The conversation: what came before it, then it, then the clock's word.
+   *
+   * Held as a value rather than written into the return because there are two
+   * shapes for it now — a section at the foot of a page, and a panel that owns
+   * its own height. Only the frame differs. See `chat`.
+   */
+  const thread = (
+    <>
+      {/* The way back into the history, at the top of what is shown, which is
+          the edge somebody scrolling up arrives at. It says how much is behind
+          it: "show earlier" over a thread with four hundred messages in it is a
+          button with no idea how long the road is. */}
+      {hidden > 0 && (
+        <button type="button" onClick={earlier}
+                className="mx-auto shrink-0 rounded-full border border-line bg-surface px-3.5 py-1 font-data text-read uppercase tracking-[0.1em] text-muted transition-colors hover:border-accent/60 hover:text-accent">
+          {t("party.msgOlder", { n: hidden })}
+        </button>
+      )}
 
       {/*
         * A conversation, laid out as one.
@@ -328,13 +507,13 @@ export default function Messages(
         * faces down the margin says they have — so the face and the name go on
         * the first of a run and the rest are more of it.
         */}
-      {comments.map((c, i) => {
+      {view.map((c, i) => {
         const src = face(c.author.characterId, c.author.avatar);
         const mine = !!me && c.author.characterId === me.id;
-        const cont = sameSpeaker(c, comments[i - 1]);
+        const cont = sameSpeaker(c, view[i - 1]);
         // Whether the next one carries on, so the tail of a run keeps its
         // corner square and only the last bubble is rounded off.
-        const goes = sameSpeaker(comments[i + 1] ?? c, c) && i + 1 < comments.length;
+        const goes = sameSpeaker(view[i + 1] ?? c, c) && i + 1 < view.length;
         return (
           <article key={c.id}
                    className={`flex w-[min(46rem,100%)] max-w-full gap-2.5 ${
@@ -344,17 +523,17 @@ export default function Messages(
                 run — so the bubbles stay in their column instead of sliding
                 under the avatar. */}
             {cont ? (
-              <span aria-hidden className="size-[70px] shrink-0" />
+              <span aria-hidden className={`${facing} shrink-0`} />
             ) : src ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={src} alt="" width={70} height={70}
-                   className="size-[70px] shrink-0 rounded-full border border-line object-cover" />
+                   className={`${facing} shrink-0 rounded-full border border-line object-cover`} />
             ) : (
               /* The same seventy across. It was thirty where the picture was
                  thirty-six, so a run of messages stepped in and out depending
                  on who had a portrait — and at seventy that gap would be the
                  width of a thumb. */
-              <span className={`grid size-[70px] shrink-0 place-items-center rounded-full text-[28px] text-muted ${
+              <span className={`grid ${facing} shrink-0 place-items-center rounded-full text-[16px] text-muted sm:text-[28px] ${
                 c.author.characterId == null
                   ? "border border-dashed border-line" : "border border-line bg-card"}`}>
                 {c.author.characterId == null ? "?" : ""}
@@ -371,7 +550,7 @@ export default function Messages(
                 * than as a stack of boxes. Inside a run the squared corner is
                 * kept on every bubble, so the run reads as one shape.
                 */}
-              <div className={`group/msg relative flex min-w-0 flex-col gap-1 rounded-2xl border px-3 py-2 ${
+              <div className={`group/msg relative flex min-w-0 max-w-full flex-col gap-1 rounded-2xl border px-3 py-2 ${
                 mine
                   ? `border-accent/40 bg-accent/[0.09] ${cont || goes ? "rounded-tr-sm" : "rounded-tr-sm"}`
                   : `border-line bg-card/50 ${cont || goes ? "rounded-tl-sm" : "rounded-tl-sm"}`}`}>
@@ -381,9 +560,9 @@ export default function Messages(
                     {/* Your own name is the one thing on the line you already
                         know. The side says it, so the space goes to the time. */}
                     {!mine && (
-                      <span className="text-head text-ink">{c.author.name}</span>
+                      <span className={`${saying} text-ink`}>{c.author.name}</span>
                     )}
-                    <span className="font-data text-read text-muted">
+                    <span className={`font-data ${said} text-muted`}>
                       {fmtDateTime(c.at)}
                     </span>
                     {/* Beside the time it was said, because that is the fact
@@ -391,7 +570,7 @@ export default function Messages(
                         read it earlier. Not on a deleted one — "edited" about
                         a message that is gone is a detail about nothing. */}
                     {c.editedAt && !c.deletedAt && (
-                      <span className="font-data text-read text-muted/70"
+                      <span className={`font-data ${said} text-muted/70`}
                             title={fmtDateTime(c.editedAt)}>
                         {t("party.msgEdited", { at: fmtDateTime(c.editedAt) })}
                       </span>
@@ -411,10 +590,31 @@ export default function Messages(
                   const to = byId.get(c.replyTo);
                   if (!to) return null;
                   return (
-                    <span className={`flex min-w-0 items-center gap-1.5 border-l-2 border-accent/40 pl-2 text-lead text-muted ${
+                    /* Never wider than the bubble it is in. A line that hugs
+                       its own contents is measured against a bubble whose own
+                       width is still being worked out, so "as wide as it likes"
+                       came out as the whole quoted sentence — off the side of
+                       the panel, and off the screen with it. */
+                    <span className={`flex min-w-0 max-w-full items-center gap-1.5 border-l-2 border-accent/40 pl-2 text-lead text-muted ${
                       mine ? "self-end" : ""}`}>
-                      <span className="shrink-0 text-accent/80">{to.author.name}</span>
-                      <span className="truncate opacity-80">
+                      {/*
+                        * Both halves have to be allowed to give way.
+                        *
+                        * A span that does not wrap is as wide as its whole
+                        * string unless it is told it may be narrower, and a
+                        * flex item is never narrower than its content unless
+                        * it is told the same — so between them the quoted line
+                        * set the width of the bubble, and a bubble in a panel
+                        * that is as wide as somebody's sentence hangs off the
+                        * side of the screen with the message in it. The name
+                        * keeps its place but not more than its share of the
+                        * line; the quote takes what is left and ends in an
+                        * ellipsis, which is what a one-line quote is for.
+                        */}
+                      <span className="max-w-[45%] shrink-0 truncate text-accent/80">
+                        {to.author.name}
+                      </span>
+                      <span className="min-w-0 truncate opacity-80">
                         {to.deletedAt ? t("party.msgGone") : to.text || "🖼"}
                       </span>
                     </span>
@@ -431,7 +631,7 @@ export default function Messages(
                   * happened and stops.
                   */}
                 {c.deletedAt ? (
-                  <p className={`text-head italic leading-relaxed text-muted ${
+                  <p className={`${saying} italic leading-relaxed text-muted ${
                     mine ? "text-right" : ""}`}>
                     {t("party.msgGone")}
                   </p>
@@ -460,7 +660,20 @@ export default function Messages(
                     </span>
                   </span>
                 ) : c.text ? (
-                  <p className={`whitespace-pre-wrap break-words text-head leading-relaxed text-ink/85 ${
+                  /*
+                   * Broken anywhere rather than only where it is polite.
+                   *
+                   * `break-word` lets a long word wrap when the line runs out,
+                   * but it does not change what the browser thinks the
+                   * narrowest possible line is — and a bubble is as wide as its
+                   * narrowest possible line. So one pasted link with no spaces
+                   * in it made the bubble six hundred pixels wide inside a
+                   * panel three hundred wide, and every line of that message
+                   * hung off the side of the screen. `anywhere` wraps the same
+                   * way and counts towards the measurement, which is the whole
+                   * of the difference between the two.
+                   */
+                  <p className={`whitespace-pre-wrap wrap-anywhere ${saying} leading-relaxed text-ink/85 ${
                     mine ? "text-right" : ""}`}>
                     <MessageText text={c.text} people={people} />
                   </p>
@@ -490,8 +703,12 @@ export default function Messages(
                     {c.images.map((src2, n) => (
                       <button key={src2} onClick={() => setZoom({ images: c.images!, at: n })}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {/* Wide as it likes up to the width of the bubble:
+                            a panoramic screenshot at this height is a picture
+                            several hundred pixels wider than the panel, and it
+                            took the message with it. */}
                         <img src={src2} alt=""
-                             className="h-24 w-auto rounded-md border border-line object-cover" />
+                             className="h-24 w-auto max-w-full rounded-md border border-line object-cover" />
                       </button>
                     ))}
                   </div>
@@ -656,7 +873,12 @@ export default function Messages(
           <span aria-hidden className="h-px flex-1 bg-jade/25" />
         </span>
       )}
+    </>
+  );
 
+  /* Writing one, which in a panel is the one part that does not scroll. */
+  const composer = (
+    <>
       {/* Writing one. Dropping a picture anywhere on the box attaches it, which
           is where somebody's cursor already is when they have the screenshot. */}
       {/*
@@ -672,11 +894,32 @@ export default function Messages(
         * would go through and land under a name nobody in the FC can place.
         * They get the reason and the way out of it instead of a box.
         */}
-      {userId && !me && (
+      {!chat && userId && !me && (
         <div className="rounded-lg border border-dashed border-line px-3 py-2.5 text-lead leading-relaxed text-muted">
           {t("gate.needCharacter")}{" "}
           <Link href="/profile" className="text-accent no-underline hover:underline">
             {t("nav.profile")}
+          </Link>
+        </div>
+      )}
+      {/*
+        * And in a panel, something there always.
+        *
+        * A chat with nothing along the bottom of it is a chat you have been
+        * given no way to answer, which is how it read to anybody signed out:
+        * the conversation, and then the edge of the panel. So the strip is
+        * always drawn and always the shape of the box it stands in for — what
+        * changes is whether it is a box or the one sentence saying why it is
+        * not, with the way out of that beside it.
+        */}
+      {chat && !mayWrite && (
+        <div className="flex flex-col gap-2 rounded-lg border border-dashed border-line bg-bg/40 p-2.5">
+          <span className="rounded-lg border border-line bg-surface/60 px-3 py-2 text-head leading-relaxed text-muted">
+            {userId ? t("gate.needCharacter") : t("gate.needSignIn")}
+          </span>
+          <Link href="/profile"
+                className="self-start rounded-lg border border-accent/60 bg-accent/10 px-3 py-1 text-title text-accent no-underline transition-colors hover:bg-accent/20">
+            {userId ? t("nav.profile") : t("nav.signIn")}
           </Link>
         </div>
       )}
@@ -690,8 +933,10 @@ export default function Messages(
           {answering && (
             <span className="flex min-w-0 items-center gap-2 rounded-lg border-l-2 border-accent/50 bg-surface/60 px-2 py-1 text-lead text-muted">
               <span className="shrink-0 text-accent/80">{t("party.replyingTo")}</span>
-              <span className="shrink-0 text-ink/80">{answering.author.name}</span>
-              <span className="truncate opacity-80">
+              <span className="max-w-[45%] shrink-0 truncate text-ink/80">
+                {answering.author.name}
+              </span>
+              <span className="min-w-0 truncate opacity-80">
                 {answering.deletedAt ? t("party.msgGone") : answering.text || "🖼"}
               </span>
               <button type="button" aria-label={t("pf.cancel")}
@@ -751,7 +996,12 @@ export default function Messages(
           </div>
         </div>
       )}
+    </>
+  );
 
+  /* Over everything, wherever the thread is. */
+  const dialogs = (
+    <>
       {dropping && (
         <ConfirmDialog z={120} danger
                        message={t("party.msgDeleteAsk")}
@@ -769,6 +1019,81 @@ export default function Messages(
                        onMove={(at) => setZoom({ ...zoom, at })}
                        onClose={() => setZoom(null)} />
       )}
+    </>
+  );
+
+  /*
+   * A room: the thread scrolls, the box you type in does not.
+   *
+   * Which is the arrangement of every chat anybody here already uses, and the
+   * reason is the one thing the page version cannot do — the newest message and
+   * the place you answer it are both on screen when it opens, so neither has to
+   * be found.
+   */
+  if (chat) {
+    return (
+      <section className="flex min-h-0 flex-1 flex-col">
+        <div ref={scroller} onScroll={track}
+             /* Room at the top for the controls that sit above a bubble: at
+                py-3 the reply and reaction buttons on the first message were
+                clipped by the scrollbox's own edge. */
+             /* A little more room on the side the bar is on, so the longest
+                line and the scrollbar are never the same pixels. */
+             className="slim-bar flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pb-3 pl-4 pr-2.5 pt-5">
+          {/*
+            * The block, watched for growing: see the pinning above. The
+            * scrollbox itself cannot be — it is the same size all evening.
+            *
+            * Pushed to the foot while there is room for it, so a party with two
+            * messages under it opens with them above the box you answer in
+            * rather than stranded at the top of a panel of empty. Once there is
+            * more conversation than room the margin resolves to nothing and it
+            * scrolls like any other thread.
+            */}
+          <div ref={pane} className="mt-auto flex flex-col items-stretch gap-3">
+            {thread}
+          </div>
+        </div>
+
+        {/*
+          * Back to the present.
+          *
+          * Only while they are not there, and it says how many it has to show
+          * them when there are any — "3 new" is the reason to press it, where a
+          * bare arrow is a control you have to guess at. Sat in a strip of no
+          * height so it floats over the last bubble instead of standing between
+          * the conversation and the box.
+          */}
+        {(!atFoot || missed > 0) && (
+          <span className="pointer-events-none relative z-[2] block h-0">
+            <button type="button" onClick={() => toFoot()}
+                    className="pointer-events-auto absolute bottom-2.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-accent/60 bg-surface px-3.5 py-1.5 text-lead text-accent shadow-lg shadow-black/40 hover:bg-accent/15">
+              {missed > 0 ? t("party.msgNewN", { n: missed })
+                : t("party.msgToFoot")}
+              <span aria-hidden>↓</span>
+            </button>
+          </span>
+        )}
+
+        {/* Always there, whoever is reading: see the composer's own note. */}
+        <div className="shrink-0 border-t border-line px-4 pb-4 pt-3">
+          {composer}
+        </div>
+        {dialogs}
+      </section>
+    );
+  }
+
+  return (
+    <section className="flex flex-col items-stretch gap-3 border-t border-line pt-3">
+      <span className="font-data text-read uppercase tracking-[0.14em] text-muted">
+        {comments.length === 0 ? t("pf.comments")
+          : comments.length === 1 ? t("pf.commentOne")
+            : t("pf.commentsN", { n: comments.length })}
+      </span>
+      {thread}
+      {composer}
+      {dialogs}
     </section>
   );
 }

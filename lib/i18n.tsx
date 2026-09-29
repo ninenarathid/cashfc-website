@@ -3456,6 +3456,22 @@ const DICT = {
     th: "ลบข้อความนี้ไหม จะเหลือบรรทัดที่บอกว่าข้อความถูกลบ",
   },
   "party.msgSave": { en: "Save", th: "บันทึก" },
+  /* The conversation in a panel of its own, and the way in and out of it. */
+  "party.chat": { en: "Chat", th: "แชท" },
+  "party.chatOpen": { en: "Open", th: "เปิด" },
+  "party.chatNone": { en: "No messages yet", th: "ยังไม่มีข้อความ" },
+  /*
+   * How much history is behind the top of the thread.
+   *
+   * The number is the point: "show earlier" over four hundred messages is a
+   * button with no idea how long the road behind it is.
+   */
+  "party.msgOlder": {
+    en: "Show {n} earlier",
+    th: "ดูก่อนหน้า {n} ข้อความ",
+  },
+  "party.msgToFoot": { en: "Jump to present", th: "ไปข้อความล่าสุด" },
+  "party.msgNewN": { en: "{n} new", th: "ใหม่ {n} ข้อความ" },
   "pf.react": { en: "React", th: "แสดงความรู้สึก" },
   /*
    * Said wherever a signed-in reader is stopped at a box they cannot write in.
@@ -3465,6 +3481,11 @@ const DICT = {
    * for the whole site, because it is one rule — the message that let somebody
    * comment as "You" is the same message under a picture and under a notice.
    */
+  /* The step before that one, for a reader with no account at all. */
+  "gate.needSignIn": {
+    en: "Sign in to say something here.",
+    th: "เข้าสู่ระบบก่อนถึงจะพิมพ์ได้",
+  },
   "gate.needCharacter": {
     en: "Link the character you play and verify it before you can write anything — until then the site cannot say who wrote it.",
     th: "ต้องผูกตัวละครที่คุณเล่นและยืนยันก่อนถึงจะเขียนอะไรได้ — ก่อนหน้านั้นระบบยืนยันไม่ได้ว่าใครเป็นคนเขียน",
