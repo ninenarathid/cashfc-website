@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-09-29",
+   "type": "grade_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned Solid Crystal — only 2.8% of players have it"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned Stay Gold, Cenote III — only 4.0% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "level_100",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "level_100",
+   "id": 31831003,
+   "name": "North Nostafari",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-09-29",
    "type": "ex_clear",
    "id": 60211788,
    "name": "Shikihara Catlover",
@@ -1350,55 +1399,6 @@
    "id": 29918404,
    "name": "Zarass Gierlos",
    "text": "earned Clare Obscurum: Twinfangs Obscurum — only 4.7% of players have it"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Vrandtastic: Lodestar Fishing Rod"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 43335087,
-   "name": "Haru Senbonzakura",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Phantom of the Umbra: Arquebus Umbrae"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "new_member",
-   "id": 47525984,
-   "name": "Dasei Mizumoto",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "reached level 100 on Armorer!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on White Mage!"
   }
  ]
 }

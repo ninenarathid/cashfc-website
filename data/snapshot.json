@@ -147,7 +147,7 @@
    "gatherer": "legendary",
    "crafter": "legendary",
    "relic": "master",
-   "explorer": "master",
+   "explorer": "legendary",
    "goldsaucer": "legendary",
    "pvp": "legendary"
   },
@@ -916,6 +916,7 @@
    2996,
    3044,
    3045,
+   3051,
    3267,
    3268,
    3269,
@@ -934,7 +935,6 @@
    3834,
    3835,
    3949,
-   3950,
    3951,
    3952,
    3953,
@@ -1292,9 +1292,11 @@
    3469,
    3477,
    3479,
+   3555,
    3556,
    3674,
    3680,
+   3683,
    3684,
    3686,
    3703,
@@ -1350,7 +1352,6 @@
    3912,
    3913,
    3916,
-   3917,
    3918,
    3922,
    3923,
@@ -1380,7 +1381,6 @@
    4018,
    4022,
    4027,
-   4031,
    4034,
    4043
   ],
@@ -2434,7 +2434,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -2447,7 +2447,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -2987,8 +2987,8 @@
   "name": "Metatron Vtretikh",
   "parse": 81,
   "ult": 4,
-  "mounts": 160,
-  "minions": 284,
+  "mounts": 164,
+  "minions": 287,
   "rare": 143,
   "level": 100,
   "cc": [
@@ -3121,7 +3121,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-09-29"
  },
  "5294880": {
   "name": "Mithra Muses",
@@ -6795,7 +6795,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 66,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6997,7 +6997,7 @@
   "mounts": 198,
   "minions": 420,
   "rare": 270,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7124,7 +7124,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-09-29"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7375,7 +7375,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7395,7 +7395,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -8055,7 +8055,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 83,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -8068,7 +8068,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8130,7 +8130,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 100,
+  "level": 58,
   "cc": [
    false,
    false,
@@ -8143,7 +8143,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-16"
+  "chg": "2026-09-29"
  },
  "42845691": {
   "name": "Yuukizuz Akino",
@@ -8225,7 +8225,7 @@
   "mounts": 30,
   "minions": 89,
   "rare": 12,
-  "level": 100,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -8251,7 +8251,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "47525984": {
   "name": "Dasei Mizumoto",
@@ -8260,7 +8260,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 85,
+  "level": 89,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8292,14 +8292,14 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 88,
+  "level": 90,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8437,7 +8437,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 61,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    3935,
@@ -8447,7 +8447,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8539,14 +8539,14 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 89,
+  "level": 91,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-09-29"
  },
  "57419573": {
   "name": "A'kane Dorothy",
