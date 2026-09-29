@@ -1,7 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function proxy(request: NextRequest) {
+/*
+ * middleware.ts, not proxy.ts, on purpose and against Next's deprecation notice.
+ *
+ * Next 16 renamed this file proxy.ts, and a proxy runs on Node only — "the
+ * runtime config option is not available in Proxy files". The adapter that runs
+ * the site on Cloudflare (OpenNext) cannot run Node middleware yet, only the
+ * older edge kind, which is what this name still gets. Vercel runs either.
+ * When OpenNext can, this goes back to proxy.ts; nothing below changes.
+ */
+export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return NextResponse.next();

@@ -30,6 +30,13 @@ Any of `.webp`, `.jpg`, `.png` or `.avif` — the folders are read at build time
 so the extension does not have to be agreed with anybody. WebP is the smallest
 of them for a screenshot.
 
+Every build reads them through `scripts/prebuild.mjs`, which writes the index
+the pages use to `lib/duty-art.json` and makes the JPEGs the party link-preview
+card draws. The build does this on its own, but run it once yourself after
+adding a picture (`node scripts/prebuild.mjs`) and commit the updated
+`lib/duty-art.json`: the copy in the repository is what the tests and a fresh
+checkout read, and a test fails while it is behind the folders.
+
 ## Shape
 
 Wide and short — around 1000x319, which is what doomtrain.webp is. A 16:9 shot

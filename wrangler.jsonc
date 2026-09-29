@@ -1,0 +1,37 @@
+/**
+ * The Worker the site runs as on Cloudflare.
+ *
+ * Built by `npm run cf:build` (OpenNext turns the Next build into a Worker and
+ * its static assets) and deployed by .github/workflows/cloudflare.yml only.
+ * Secrets are not here: they are set on the Worker itself, in the dashboard or
+ * with `wrangler secret put`.
+ *
+ * Never deploy a build made on your own machine. OpenNext folds every .env
+ * file it finds into the Worker (.open-next/cloudflare/next-env.mjs), and
+ * .env.local holds the Supabase service key; the workflow builds from a clean
+ * checkout, which has none. `npm run cf:preview` is safe — it runs the Worker
+ * locally and uploads nothing.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cashfc-website",
+  "main": ".open-next/worker.js",
+  // No later than the workerd that wrangler ships with, or local preview refuses it.
+  "compatibility_date": "2026-09-25",
+  // nodejs_compat for what Next and supabase-js expect of Node (Buffer, crypto,
+  // process.env); global_fetch_strictly_public so a fetch to our own domain goes
+  // out and back through the internet rather than looping inside the zone.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // public/ and Next's own build output, served before the Worker runs. The
+  // binding is how a card reaches them from inside it (lib/public-file.ts).
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    { "binding": "WORKER_SELF_REFERENCE", "service": "cashfc-website" }
+  ],
+  // Workers Logs: what the site writes with console, kept and searchable in the
+  // dashboard — the "party card: no picture" warning, for one.
+  "observability": { "enabled": true }
+}

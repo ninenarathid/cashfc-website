@@ -1,0 +1,30 @@
+# Cache headers for the static files, on Cloudflare only.
+#
+# Cloudflare serves these before the Worker runs, so next.config.ts never sees
+# them; this file says there what its headers() says on Vercel, where this is
+# just a text file nobody asks for. A rule here matches files only, so /guides/*
+# keeps a week on the maps without touching the guide pages.
+
+# Named by their content hash: they never change under the same name.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The pictures in public/, kept by the browser for a week. See next.config.ts.
+/duty/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/guides/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/wallet/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/emotes/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/ui/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/logo.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/logo-header.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/icon-512.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/sprout.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400

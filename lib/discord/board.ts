@@ -37,9 +37,11 @@ const SITE = "https://cashfc-website.vercel.app";
  * went on showing the version with no picture in it. A deploy can change how
  * the card looks, so a deploy changes its address.
  *
- * "dev" off Vercel, where there is no deployment and nothing cached.
+ * The commit comes from Vercel's own variable there, and from GIT_COMMIT_SHA on
+ * Cloudflare, which the deploy workflow sets. "dev" anywhere else, where there
+ * is no deployment and nothing cached.
  */
-const BUILD = (process.env.VERCEL_GIT_COMMIT_SHA ?? "dev").slice(0, 7);
+const BUILD = (process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GIT_COMMIT_SHA ?? "dev").slice(0, 7);
 
 /**
  * Who is running it, by character id.

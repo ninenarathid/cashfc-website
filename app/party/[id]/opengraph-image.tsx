@@ -1,7 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
-import sharp from "sharp";
 import { ImageResponse } from "next/og";
+import { publicFile } from "@/lib/public-file";
 import {
   KIND_COLOR, KIND_LABEL, PROGRESS_LABEL, ROLE_COLOR, ROLE_LABEL, SHAPE_LABEL,
   endsAt, fmtDay, fmtTime,
@@ -42,14 +40,9 @@ const MUTED = "#8b93a1";
 const ART_H = 360;
 
 /**
- * The still, read off disk, cropped, and handed over as a PNG.
+ * The still, as a JPEG the renderer can read, handed over for it to crop.
  *
- * Off disk rather than over the network: these live in public/ and the renderer
- * is on the same machine, so fetching our own file through a URL would be a
- * round trip that can time out to answer a question the filesystem already
- * knows.
- *
- * As a JPEG because the card renderer cannot read WebP, and every picture in
+ * A JPEG because the card renderer cannot read WebP, and every picture in
  * public/duty is one. JPEG rather than PNG for the same reason the game uses
  * WebP: these are photographs of a screen, and a lossless copy of one is eight
  * hundred kilobytes of base64 inside a document that has to be rasterised on
@@ -58,42 +51,37 @@ const ART_H = 360;
  * rasteriser, so a link to any fight with a picture unfurled as nothing at all
  * while the one fight without a picture worked perfectly.
  *
- * Cropped here as well, to the box it is going into. The renderer would do it,
- * but a 1200-wide PNG of the whole screenshot is several megabytes of base64
- * inside a document that has to be rasterised on every request.
+ * Converted before the build rather than here: scripts/prebuild.mjs writes a
+ * 1200-wide JPEG of every picture a party can have to public/og/duty. This
+ * used to be sharp, per request — native code, and on Cloudflare there is none.
+ * The crop went with it, to the renderer: object-fit, anchored where the site
+ * anchors the same picture, percentages and all.
  *
  * A file that will not read leaves the card without a picture, which is a card
  * that still says everything it was for.
  */
-async function inlineArt(
-  url: string | undefined, focus: string | undefined, height: number,
-): Promise<string | null> {
-  if (!url?.startsWith("/")) return null;
-  try {
-    const file = path.join(process.cwd(), "public", decodeURIComponent(url));
-    // Where the crop keeps: a game screenshot almost always has its subject in
-    // the upper half, which is why the board anchors these to the top.
-    const position = /bottom/.test(focus ?? "") ? "bottom"
-      : /top/.test(focus ?? "") ? "top" : "centre";
-    const png = await sharp(fs.readFileSync(file))
-      .resize(size.width, height, { fit: "cover", position })
-      .jpeg({ quality: 82, mozjpeg: true })
-      .toBuffer();
-    return `data:image/jpeg;base64,${png.toString("base64")}`;
-  } catch (e) {
+async function inlineArt(url: string | undefined): Promise<string | null> {
+  if (!url?.startsWith("/duty/")) return null;
+  // The same rule as cardArtPath in scripts/prebuild.mjs.
+  const jpeg = decodeURIComponent(url)
+    .replace(/^\/duty\//, "/og/duty/").replace(/\.[a-z0-9]+$/i, ".jpg");
+  const bytes = await publicFile(jpeg);
+  if (!bytes) {
     /*
      * Not silent, because silent cost a production bug.
      *
      * public/ is served by the CDN and is not on a serverless function's
-     * filesystem, so this read found nothing once deployed — and since a
+     * filesystem, so a read like this found nothing once deployed — and since a
      * missing picture is a card that still works, every party link unfurled
      * with a flat colour where the screenshot should be and looked deliberate.
-     * next.config.ts traces the folder in; if that key ever stops matching the
-     * route, this line is how anybody finds out.
+     * On Vercel next.config.ts traces the folder in; if that key ever stops
+     * matching the route, or the build stops making the file, this line is how
+     * anybody finds out.
      */
-    console.warn("party card: no picture for", url, "—", (e as Error).message);
+    console.warn("party card: no picture for", url, "at", jpeg);
     return null;
   }
+  return `data:image/jpeg;base64,${Buffer.from(bytes).toString("base64")}`;
 }
 
 export default async function Image(
@@ -142,9 +130,7 @@ export default async function Image(
    * thing to go was the line with the lead's name on it.
    */
   const artH = needs.length ? ART_H - 64 : ART_H;
-  // Cropped to the box it is going into, which is why it is read after the
-  // height is known rather than alongside the card.
-  const art = await inlineArt(def?.art, def?.focus, artH);
+  const art = await inlineArt(def?.art);
   const terms = [
     // The length as the party said it. A run count is not a duration and the
     // card should not turn it into one.
@@ -187,9 +173,13 @@ export default async function Image(
         }}>
           {art && (
             // eslint-disable-next-line @next/next/no-img-element
-            /* Already cropped to this box, so it goes in as it is. */
+            /* Cropped to the box here, where the site would crop it. Never an
+               undefined position: see the note above about undefined values. */
             <img src={art} alt="" width={size.width} height={artH}
-                 style={{ width: size.width, height: artH }} />
+                 style={{
+                   width: size.width, height: artH,
+                   objectFit: "cover", objectPosition: def?.focus ?? "center top",
+                 }} />
           )}
           <div style={{
             position: "absolute", inset: 0, display: "flex",

@@ -1,0 +1,87 @@
+name: Cloudflare
+
+# Builds the site for Cloudflare Workers (OpenNext) and deploys it.
+#
+# While Vercel still serves the site, this runs for the cloudflare branch and
+# deploys to the workers.dev address, to be tried out there. The day the domain
+# moves, the push trigger below becomes main. Until CLOUDFLARE_API_TOKEN and
+# CLOUDFLARE_ACCOUNT_ID are in the repository secrets it builds, reports the
+# Worker's size, and stops short of deploying.
+on:
+  push:
+    branches: [cloudflare]
+  workflow_dispatch:
+  # The data workflows push with the workflow token, and a push made with that
+  # token starts no other workflow — so a new day's data would never reach
+  # Cloudflare on its own. Their finishing starts this instead. A workflow_run
+  # trigger only fires from the workflow files on the default branch, so this
+  # part does nothing until this file is on main.
+  workflow_run:
+    workflows: ["Update FC data", "Daily guest and privacy sweeps"]
+    types: [completed]
+    branches: [main]
+
+# Nothing is written to the repository: it checks out, builds, and uploads to
+# Cloudflare with Cloudflare's own token. A public repository needs no token to
+# read, as in the Tests workflow.
+permissions: {}
+
+# One deploy at a time, and the newest wins: an older build still running is
+# about to upload a site that is already out of date.
+concurrency:
+  group: cloudflare-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # A data run that failed changed nothing worth deploying.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Whether there is anywhere to deploy to yet. A secret cannot be read in a
+      # step's `if`, so the answer is carried in as a plain value.
+      HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+    steps:
+      # Pinned to a commit rather than a tag, like every workflow here; the
+      # trailing comment is what Dependabot reads to bump it.
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # NEXT_PUBLIC_ values only: they are written into the pages, and they are
+      # what every browser is sent anyway. The server's secrets are set on the
+      # Worker itself and never pass through a build — OpenNext folds any .env
+      # file it finds into the Worker (see wrangler.jsonc), and a clean checkout
+      # has none. The other NEXT_PUBLIC_ variables are left unset on purpose:
+      # an unset repository variable arrives as "", which is not missing to the
+      # `??` fallbacks that read them, and the fallbacks are the right values.
+      - name: Build
+        run: npm run cf:build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # Prints the Worker's size. The paid plan allows 10 MiB compressed, the
+      # free one 3; on 29 September it was 3.9.
+      - name: Size
+        run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
+
+      # The commit goes in as GIT_COMMIT_SHA, which the Discord board puts in the
+      # address of every party card so a deploy changes what Discord has cached.
+      - name: Deploy
+        if: env.HAS_CLOUDFLARE == 'true'
+        run: npx opennextjs-cloudflare deploy --var "GIT_COMMIT_SHA:${GITHUB_SHA}"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

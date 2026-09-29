@@ -1,6 +1,5 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { publicFile } from "@/lib/public-file";
 import raw from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
@@ -108,17 +107,21 @@ const DEFAULT_ACCENT = "#6aa9e0";
  * The popoto as the site draws it, rather than the emoji from whichever set
  * Satori reaches for — the same reason the site stopped using the emoji.
  * Inlined like every other picture here, and read once rather than per card.
- * It lives outside public/, so next.config.ts traces it into the function;
- * missing all the same, the card falls back to the emoji rather than failing.
+ * scripts/prebuild.mjs copies it to public/og/popoto.png, where next.config.ts
+ * traces it in on Vercel and the Worker's assets have it on Cloudflare; missing
+ * all the same, the card falls back to the emoji rather than failing.
+ *
+ * The finished string is what is kept, never the read in flight: a Worker will
+ * not let one request wait on I/O that another request started.
  */
-const POPOTO = (() => {
-  try {
-    const png = readFileSync(join(process.cwd(), "assets/popoto/popoto-og.png"));
-    return `data:image/png;base64,${png.toString("base64")}`;
-  } catch {
-    return null;
+let popotoPicture: string | null | undefined;
+async function popotoArt(): Promise<string | null> {
+  if (popotoPicture === undefined) {
+    const png = await publicFile("/og/popoto.png");
+    popotoPicture = png ? `data:image/png;base64,${Buffer.from(png).toString("base64")}` : null;
   }
-})();
+  return popotoPicture;
+}
 
 async function inline(url: string | null | undefined): Promise<string | null> {
   if (!url) return null;
@@ -227,7 +230,7 @@ export default async function Image(
   // world. The card should say whose company they are actually in.
   const home = m ? undefined : guestHome(Number(id));
 
-  const [mine, popoto] = await Promise.all([chosen(id), potatoes(id)]);
+  const [mine, popoto, popotoPng] = await Promise.all([chosen(id), potatoes(id), popotoArt()]);
   const accent = mine.accent;
   // Their choice first, then the Lodestone — the same order the site uses
   // everywhere else, so the card matches the page it points at.
@@ -366,9 +369,9 @@ export default async function Image(
                         background: mix("#e5cc80", "#0b0f15", 0.22),
                         border: `1px solid ${mix("#e5cc80", "#0b0f15", 0.62)}`,
                       }}>
-                        {POPOTO
+                        {popotoPng
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img src={POPOTO} alt="" width={30} height={30} />
+                          ? <img src={popotoPng} alt="" width={30} height={30} />
                           : "🥔"}
                         {popoto}
                       </div>

@@ -8,3 +8,11 @@ __pycache__/
 
 # TypeScript incremental build info
 tsconfig.tsbuildinfo
+
+# Cloudflare: OpenNext's build, wrangler's state, local Worker secrets
+.open-next/
+.wrangler/
+.dev.vars
+
+# Made by scripts/prebuild.mjs before every build
+public/og/
