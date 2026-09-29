@@ -5247,7 +5247,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5271,7 +5271,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-25"
+  "chg": "2026-09-29"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -8260,7 +8260,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 83,
+  "level": 85,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
