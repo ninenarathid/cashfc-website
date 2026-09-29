@@ -30,17 +30,28 @@ export async function proxy(request: NextRequest) {
 }
 
 /**
- * Everything except the files.
+ * Only where the server reads the session.
  *
- * A request that reaches this waits on a round trip to Supabase before
- * anything is served, which is the right price for a page and an absurd one
- * for a picture. webp and avif were missing from the list, so every one of the
- * three hundred-odd webp files on this site — the emotes, and Aqua — paid for
- * a token refresh before it could be drawn. It showed: her card arrived before
- * she did.
+ * Two pages render with the reader's session on the server, an event and a
+ * gallery post, and two routes act on it: the character claim and the sign-in
+ * callback. Every other page is the same for everybody, and the browser client
+ * keeps its own session fresh.
+ *
+ * This used to run in front of every page, and on Vercel that is an invocation
+ * and a round trip to Supabase Auth for each page view and each prefetch —
+ * the cached pages included, which would otherwise cost nothing to serve.
+ *
+ * A page that starts reading the session on the server has to be added here.
+ * With nothing refreshing in front of it, a server component that finds an
+ * expired token refreshes it itself and cannot write the result back, which
+ * leaves the browser holding a spent refresh token — and Supabase answers that
+ * by signing the member out.
  */
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico|json)$).*)",
+    "/events/:id",
+    "/gallery/:id",
+    "/api/verify-character",
+    "/auth/:path*",
   ],
 };

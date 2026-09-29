@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { Member } from "@/lib/types";
-import { isOnVacation } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 import { useWarm } from "@/lib/warm";
 import { useLang } from "@/lib/i18n";
@@ -61,7 +60,10 @@ function until(month: number, day: number, from: Date): { inDays: number; on: Da
   return { inDays: Infinity, on: midnight };
 }
 
-export default function Birthdays({ members }: { members: Member[] }) {
+export default function Birthdays({ people }: {
+  /** The members still playing: the page leaves out whoever is on vacation. */
+  people: Pick<Member, "id" | "name">[];
+}) {
   const { t } = useLang();
   /*
    * The rows, kept in the shared cache rather than fetched again per visit.
@@ -90,8 +92,8 @@ export default function Birthdays({ members }: { members: Member[] }) {
   useEffect(() => { setNow(new Date()); }, []);
 
   const playing = useMemo(
-    () => new Map(members.filter((m) => !isOnVacation(m)).map((m) => [m.id, m])),
-    [members]);
+    () => new Map(people.map((m) => [m.id, m])),
+    [people]);
 
   const days = useMemo<Day[]>(() => {
     if (!rows || !now) return [];

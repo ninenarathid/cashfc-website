@@ -43,7 +43,13 @@ export default function Home() {
       <EventSlider people={everyone(data)} />
       <DiscordCard />
 
-      <Birthdays members={members} />
+      <Birthdays
+        // Who is still playing, by id and name, which is all the section reads.
+        // Handed the whole roster it was three quarters of this page — 775 KB
+        // of a megabyte — and every other page fetches this one ahead of time
+        // for the link on its logo.
+        people={members.filter((m) => !isOnVacation(m)).map(({ id, name }) => ({ id, name }))}
+      />
 
       <HotGallery />
 
