@@ -3,6 +3,27 @@
   {
    "date": "2026-09-29",
    "type": "job_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "is now a Master White Mage"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "job_up",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "is now a Master Scholar"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "job_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Expert Monk"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "job_up",
    "id": 42021700,
    "name": "Josuke Mizumoto",
    "text": "is now a Expert Paladin"
@@ -1378,27 +1399,6 @@
    "id": 28579232,
    "name": "Dessiny Valkyrie",
    "text": "earned Wild Child II — only 4.3% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "rare_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "earned Clare Obscurum: Guillotine Obscurum — only 4.6% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "reached level 100 on Gunbreaker!"
   }
  ]
 }

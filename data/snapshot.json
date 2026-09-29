@@ -4958,7 +4958,7 @@
   ],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "expert"
+   "WhiteMage": "master"
   },
   "ex": [
    "Doomtrain",
@@ -5617,9 +5617,9 @@
   },
   "jobs": {
    "WhiteMage": "legendary",
+   "Dancer": "expert",
+   "Scholar": "master",
    "Summoner": "expert",
-   "Dancer": "master",
-   "Scholar": "expert",
    "Astrologian": "master",
    "RedMage": "expert"
   },
@@ -6094,7 +6094,8 @@
    "DarkKnight": "expert",
    "Samurai": "legendary",
    "Sage": "legendary",
-   "Astrologian": "master"
+   "Astrologian": "master",
+   "Monk": "expert"
   },
   "ex": [
    "Necron",
@@ -6796,7 +6797,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -8261,7 +8262,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 94,
+  "level": 95,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8293,7 +8294,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 90,
+  "level": 91,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -14919,13 +14920,19 @@
   "minions": 28,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-29"
  },
  "60933255": {
   "name": "Priya Heartfilia",
@@ -14935,13 +14942,19 @@
   "minions": 27,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-29"
  },
  "48050166": {
   "name": "Promptpay Legend",
@@ -15017,13 +15030,19 @@
   "minions": 14,
   "rare": null,
   "level": 54,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-29"
  },
  "41098683": {
   "name": "Qxrt Xq",
