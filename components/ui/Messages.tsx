@@ -10,6 +10,7 @@ import type { PersonOption } from "@/lib/people";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import ImageLightbox from "@/components/ui/ImageLightbox";
+import ToMember from "@/components/ui/ToMember";
 import { HoverCard } from "@/components/ui/HoverCard";
 import { useDropTarget, usePasteImages } from "@/components/ui/DropZone";
 import { createClient } from "@/lib/supabase/client";
@@ -522,22 +523,27 @@ export default function Messages(
             {/* The gap where the face was, on everything after the first of a
                 run — so the bubbles stay in their column instead of sliding
                 under the avatar. */}
+            {/* The face goes to their page, and so does the name beside it. */}
             {cont ? (
               <span aria-hidden className={`${facing} shrink-0`} />
-            ) : src ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={src} alt="" width={70} height={70}
-                   className={`${facing} shrink-0 rounded-full border border-line object-cover`} />
             ) : (
-              /* The same seventy across. It was thirty where the picture was
-                 thirty-six, so a run of messages stepped in and out depending
-                 on who had a portrait — and at seventy that gap would be the
-                 width of a thumb. */
-              <span className={`grid ${facing} shrink-0 place-items-center rounded-full text-[16px] text-muted sm:text-[28px] ${
-                c.author.characterId == null
-                  ? "border border-dashed border-line" : "border border-line bg-card"}`}>
-                {c.author.characterId == null ? "?" : ""}
-              </span>
+              <ToMember id={c.author.characterId} className="shrink-0 self-start">
+                {src ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={src} alt="" width={70} height={70}
+                       className={`block ${facing} rounded-full border border-line object-cover`} />
+                ) : (
+                  /* The same seventy across. It was thirty where the picture
+                     was thirty-six, so a run of messages stepped in and out
+                     depending on who had a portrait — and at seventy that gap
+                     would be the width of a thumb. */
+                  <span className={`grid ${facing} place-items-center rounded-full text-[16px] text-muted sm:text-[28px] ${
+                    c.author.characterId == null
+                      ? "border border-dashed border-line" : "border border-line bg-card"}`}>
+                    {c.author.characterId == null ? "?" : ""}
+                  </span>
+                )}
+              </ToMember>
             )}
 
             <div className={`flex min-w-0 flex-col gap-1 ${mine ? "items-end" : "items-start"}`}>
@@ -560,7 +566,11 @@ export default function Messages(
                     {/* Your own name is the one thing on the line you already
                         know. The side says it, so the space goes to the time. */}
                     {!mine && (
-                      <span className={`${saying} text-ink`}>{c.author.name}</span>
+                      <ToMember id={c.author.characterId}
+                                className={`${saying} text-ink transition-colors ${
+                                  c.author.characterId != null ? "hover:text-accent" : ""}`}>
+                        {c.author.name}
+                      </ToMember>
                     )}
                     <span className={`font-data ${said} text-muted`}>
                       {fmtDateTime(c.at)}

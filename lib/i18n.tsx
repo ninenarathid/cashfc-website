@@ -3274,6 +3274,9 @@ const DICT = {
     th: "คนที่ถูกย้ายจะได้รับแจ้งเตือน โดยไม่ต้องกดยืนยัน",
   },
   "party.moveGo": { en: "Move", th: "ย้าย" },
+  // In the question a pressed seat asks, where the seat itself is a button and
+  // so cannot also be the link to whoever is in it.
+  "party.seeProfile": { en: "See their profile →", th: "ดูโปรไฟล์ →" },
   // The board was a minute behind: somebody sat down in that seat, or the
   // person being swapped with had already moved. Nothing happened, and the
   // grid underneath has just been redrawn as it is now.

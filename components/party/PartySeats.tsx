@@ -13,6 +13,7 @@ import JobIcon, { jobLabel } from "@/components/JobIcon";
 import { jobFits, jobsForSlot } from "@/components/party/JobRule";
 import { Popover } from "@/components/ui/Popover";
 import { RuleMark } from "@/components/party/JobRule";
+import ToMember from "@/components/ui/ToMember";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 
@@ -54,6 +55,38 @@ function useFace() {
   const overrides = useAvatarOverrides();
   return (characterId: number | null | undefined, fallback: string | null) =>
     (characterId != null && overrides[characterId]) || fallback || null;
+}
+
+/** A face and a name in a row, and their page where there is one to go to. */
+function SeatPerson(
+  { id, children }: { id: number | null | undefined; children: React.ReactNode },
+) {
+  return (
+    // The hover only where there is somewhere to go: a name that lights up and
+    // then does nothing when pressed is worse than one that never lit.
+    <ToMember id={id}
+              className={`flex min-w-0 items-center gap-1.5 ${id != null ? "group/who" : ""}`}>
+      {children}
+    </ToMember>
+  );
+}
+
+/**
+ * "Their profile", inside the question a pressed seat asks.
+ *
+ * For the seats that are buttons already — the lead's, where pressing a person
+ * moves them, and a seat its sitter offered to swap out of. The face and name
+ * cannot be the link there, so the popover the press opens carries it.
+ */
+function Whose({ id }: { id: number | null | undefined }) {
+  const { t } = useLang();
+  if (id == null) return null;
+  return (
+    <ToMember id={id}
+              className="self-start text-lead text-accent hover:underline">
+      {t("party.seeProfile")}
+    </ToMember>
+  );
 }
 
 /**
@@ -275,7 +308,11 @@ function Seat(
       </span>
 
       {state === "taken" || state === "waiting" ? (
-        <span className="flex min-w-0 items-center gap-1.5">
+        /* Their page, from their face and name — where the seat is not
+           itself a button. A link cannot sit inside one, so a seat that is
+           pressed for something else says where to find them in the question
+           it opens instead (see Whose). */
+        <SeatPerson id={Tag === "div" ? who?.characterId : null}>
           {src ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={src} alt="" width={44} height={44}
@@ -307,11 +344,11 @@ function Seat(
                 )}
               </span>
             ) : null}
-          <span className={`truncate text-head ${
+          <span className={`truncate text-head transition-colors group-hover/who:text-accent ${
             state === "waiting" ? "text-ink/60" : "text-ink"}`}>
             {who?.name}
           </span>
-        </span>
+        </SeatPerson>
       ) : (
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className={`text-lead ${
@@ -358,7 +395,8 @@ function Seat(
     return <MoveAsk who={who} party={party} pick={pick} ask={moveQ} trigger={cell} />;
   }
   if (!ask || !pick) return cell;
-  return <SeatAsk slot={slot} party={party} pick={pick} ask={ask} cell={cell} />;
+  return <SeatAsk slot={slot} party={party} pick={pick} ask={ask} cell={cell}
+                  sitter={who?.characterId} />;
 }
 
 /**
@@ -419,6 +457,7 @@ function MoveAsk(
              trigger={trigger}>
       <div className="flex flex-col gap-2.5">
         <p className="text-title text-ink">{ask}</p>
+        <Whose id={who.characterId} />
         {wings.map((wing) => (
           <div key={wing ?? "one"} className="flex flex-col gap-1">
             {wing && (
@@ -526,9 +565,11 @@ function MoveAsk(
  * chips they may ignore, and the seat is taken either way.
  */
 function SeatAsk(
-  { slot, party, pick, ask, cell }: {
+  { slot, party, pick, ask, cell, sitter }: {
     slot: SlotDef; party: Party; pick: SeatPick; ask: string;
     cell: React.ReactNode;
+    /** Whoever is in the seat now, where it is somebody offering to swap. */
+    sitter?: number | null;
   },
 ) {
   const { t } = useLang();
@@ -552,6 +593,8 @@ function SeatAsk(
              trigger={cell}>
       <div className="flex flex-col gap-2.5">
         <p className="text-title text-ink">{ask}</p>
+        {/* Not on your own seat: you know where your page is. */}
+        {!mine && <Whose id={sitter} />}
         {jobs.length > 0 && (
           <div className="flex flex-col gap-1.5">
             <span className="font-data text-ui uppercase tracking-[0.12em] text-muted">
@@ -699,10 +742,11 @@ export default function PartySeats(
                    pixels the seat grid uses they were too small to tell two
                    Miqo'te apart. The chip grows with it rather than padding
                    staying put around a larger picture. */
-                <span key={f.characterId ?? f.name}
-                      className="flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-3">
+                <ToMember key={f.characterId ?? f.name} id={f.characterId}
+                          className={`flex items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-3 ${
+                            f.characterId != null ? "group/who transition-colors hover:border-accent/60" : ""}`}>
                   <Face who={f} size={50} />
-                  <span className={`text-title ${
+                  <span className={`text-title transition-colors group-hover/who:text-accent ${
                     f.confirmedAt ? "text-ink" : "text-ink/60"}`}>
                     {f.name}
                   </span>
@@ -711,7 +755,7 @@ export default function PartySeats(
                       {t("pf.askedShort")}
                     </span>
                   )}
-                </span>
+                </ToMember>
               ))}
               {/* The room left in this one, so somebody reading knows whether
                   pressing the button puts them in it or starts the next. */}
@@ -794,9 +838,12 @@ function Bench(
    * two answers to one press. So where anybody here can be moved, the row
    * stops being a button and the reader's own way in or out moves onto the
    * words at the end of it, which were already what said where to press.
+   *
+   * The same for anybody here with a page: their name is a link to it, and a
+   * link cannot sit inside that button either.
    */
   const moves = who.map((f) => (pick?.move ? pick.moveAsk?.(f) ?? null : null));
-  const split = moves.some((q) => q != null);
+  const split = moves.some((q) => q != null) || who.some((f) => f.characterId != null);
   if (!who.length && !ask) return null;
 
   const row = (
@@ -814,15 +861,19 @@ function Bench(
               ? <img src={src} alt="" width={24} height={24}
                      className="size-6 rounded-full border border-line object-cover" />
               : <span className="size-6 rounded-full border border-dashed border-line" />}
-            <span className="text-lead text-ink/85">{f.name}</span>
+            <span className="text-lead text-ink/85 transition-colors group-hover/who:text-accent">
+              {f.name}
+            </span>
           </>
         );
         const q = moves[i];
         if (!q || !pick) {
           return (
-            <span key={f.seatRowId ?? f.name} className="flex items-center gap-1.5">
+            <ToMember key={f.seatRowId ?? f.name} id={f.characterId}
+                      className={`flex items-center gap-1.5 ${
+                        f.characterId != null ? "group/who" : ""}`}>
               {body}
-            </span>
+            </ToMember>
           );
         }
         return (
