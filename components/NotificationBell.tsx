@@ -1690,7 +1690,6 @@ export default function NotificationBell() {
                   </label>
                 );
               })}
-              <p className="text-ui text-muted/80">{t("notif.quietAlways")}</p>
               {tuneErr && <p className="text-ui text-chili">{tuneErr}</p>}
               <button onClick={() => setTuning(false)}
                       className="self-end rounded-lg border border-line px-3 py-1 text-ui text-ink transition-colors hover:border-muted">

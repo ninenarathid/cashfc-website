@@ -83,7 +83,9 @@ export const ADMIN_KIND_LIST = listOf(ADMIN_KINDS);
  * the thing they needed to answer: a tag waiting for yes or no, somebody asking
  * to join your party, an invitation or the seat it was about, being named in a
  * conversation, a wrapped popoto, a prize or a full wallet to cash out, an
- * announcement, and the admins answering feedback.
+ * announcement, and the admins answering feedback. The Evercold draw is left
+ * out too, by the admins' choice: its tickets are the event, and a member who
+ * turned them off would be the one asking afterwards why they were not told.
  *
  * Stored on the profile by key, so a kind added to a group later is covered for
  * everybody who already turned the group off.
@@ -99,8 +101,6 @@ export const QUIET_GROUPS = [
     label: "notif.qParty", hint: "notif.qPartyHint" },
   { key: "comments", kinds: ["comment", "event_talk"],
     label: "notif.qComments", hint: "notif.qCommentsHint" },
-  { key: "draw", kinds: ["evercold", "evercold_fix"],
-    label: "notif.qDraw", hint: "notif.qDrawHint" },
 ] as const satisfies readonly {
   key: string; kinds: readonly string[]; label: Key; hint: Key;
 }[];

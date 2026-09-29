@@ -526,18 +526,6 @@ const DICT = {
     en: "Somebody replied under your picture or your announcement.",
     th: "มีคนตอบใต้รูปหรือประกาศของคุณ",
   },
-  "notif.qDraw": { en: "Evercold", th: "Evercold" },
-  "notif.qDrawHint": {
-    en: "Your ticket count for the Road to Evercold draw.",
-    th: "จำนวนตั๋วจับรางวัล Popoto: Road to Evercold",
-  },
-  "notif.quietAlways": {
-    en: "Always on, because they ask something of you: tag requests, requests "
-        + "to join and invitations, being named in a chat, wrapped popoto, "
-        + "prizes and a full wallet, announcements, and answers to feedback.",
-    th: "แจ้งเสมอ เพราะต้องตอบหรือกดรับ: คำขอแท็กรูป, คำขอเข้าปาร์ตี้และคำเชิญ, มีคนเรียกชื่อคุณในแชท, "
-        + "popoto แรร์, ของรางวัลและกระเป๋าเต็ม, ประกาศ, และคำตอบ feedback",
-  },
   "notif.quietDone": { en: "Done", th: "เสร็จ" },
   "notif.quietFail": {
     en: "That did not save. Try again in a moment.",
