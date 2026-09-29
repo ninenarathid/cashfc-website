@@ -490,6 +490,59 @@ const DICT = {
     en: "Nothing here yet.",
     th: "ยังไม่มีการแจ้งเตือน",
   },
+  // The archive's own filter, before the group chips. See QUIET_GROUPS.
+  "notif.pastAll": { en: "All", th: "ทั้งหมด" },
+  /*
+   * Which news the bell counts (v96). Said once at the top of the list what
+   * turning one off does and does not do, because "off" on a notification
+   * setting usually means "never tell me", and here it means "don't count it".
+   */
+  "notif.quietTitle": { en: "Notification settings", th: "ตั้งค่าการแจ้งเตือน" },
+  "notif.quietWhy": {
+    en: "Untick a kind to take it out of the bell and the red count. It still "
+        + "pops up in the corner while you are on the site, and it is still in "
+        + "all notifications.",
+    th: "ติ๊กออกเพื่อไม่ให้ขึ้นในกระดิ่งและไม่นับในตัวเลขสีแดง ถ้าเข้ามาตอนเปิดเว็บอยู่จะยังเด้งที่มุมจอ "
+        + "และยังดูย้อนหลังได้ในการแจ้งเตือนทั้งหมด",
+  },
+  "notif.qPopoto": { en: "Popoto", th: "Popoto" },
+  "notif.qPopotoHint": {
+    en: "Somebody sent a popoto to you, or to a picture you are in.",
+    th: "มีคนส่ง popoto ให้คุณ หรือให้รูปที่มีคุณอยู่",
+  },
+  "notif.qWallet": { en: "Gil", th: "เงิน gil" },
+  "notif.qWalletHint": {
+    en: "Gil into your wallet. The total is always on the wallet itself.",
+    th: "ได้เงินเข้ากระเป๋าสะสม (ยอดรวมดูได้ที่กระเป๋าเสมอ)",
+  },
+  "notif.qParty": { en: "Parties", th: "ปาร์ตี้" },
+  "notif.qPartyHint": {
+    en: "Chat in your parties, people joining or dropping out, an hour to go, "
+        + "being moved, and a party you were looking for going up.",
+    th: "แชทในปาร์ตี้, มีคนเข้า/ออก, ใกล้เวลาเริ่ม, ถูกย้ายที่นั่ง, มีปาร์ตี้ที่คุณหาอยู่เปิดแล้ว",
+  },
+  "notif.qComments": { en: "Replies", th: "ความเห็น" },
+  "notif.qCommentsHint": {
+    en: "Somebody replied under your picture or your announcement.",
+    th: "มีคนตอบใต้รูปหรือประกาศของคุณ",
+  },
+  "notif.qDraw": { en: "Evercold", th: "Evercold" },
+  "notif.qDrawHint": {
+    en: "Your ticket count for the Road to Evercold draw.",
+    th: "จำนวนตั๋วจับรางวัล Popoto: Road to Evercold",
+  },
+  "notif.quietAlways": {
+    en: "Always on, because they ask something of you: tag requests, requests "
+        + "to join and invitations, being named in a chat, wrapped popoto, "
+        + "prizes and a full wallet, announcements, and answers to feedback.",
+    th: "แจ้งเสมอ เพราะต้องตอบหรือกดรับ: คำขอแท็กรูป, คำขอเข้าปาร์ตี้และคำเชิญ, มีคนเรียกชื่อคุณในแชท, "
+        + "popoto แรร์, ของรางวัลและกระเป๋าเต็ม, ประกาศ, และคำตอบ feedback",
+  },
+  "notif.quietDone": { en: "Done", th: "เสร็จ" },
+  "notif.quietFail": {
+    en: "That did not save. Try again in a moment.",
+    th: "บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง",
+  },
   // The event line. Written as a running total rather than as "+1", because
   // the number somebody wants after a month of this is how many they have, and
   // "+1" makes them do the addition themselves every evening.

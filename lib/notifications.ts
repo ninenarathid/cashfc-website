@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import type { Key } from "@/lib/i18n";
 
 /**
  * The notifications addressed to "the admins" rather than to a person.
@@ -66,6 +67,49 @@ export function bellHides(realAdmin: boolean): readonly string[] {
  */
 export const listOf = (kinds: readonly string[]) => `(${kinds.join(",")})`;
 export const ADMIN_KIND_LIST = listOf(ADMIN_KINDS);
+
+/**
+ * The news a member may turn down, in groups (v96).
+ *
+ * Feedback #13 asked for the gil to get out of the way of the popoto, and the
+ * next member will want the popoto out of the way of the gil — so each member
+ * says which of these they do not want counted. A group turned off leaves the
+ * bell and the red number; it still arrives in the corner of the screen while
+ * they are here, and it is still in the archive.
+ *
+ * Groups rather than kinds, because there are more than twenty-five kinds and
+ * a list that long is a settings page nobody reads to the end. And every kind
+ * that asks for something is left out of all of them, so nobody can turn off
+ * the thing they needed to answer: a tag waiting for yes or no, somebody asking
+ * to join your party, an invitation or the seat it was about, being named in a
+ * conversation, a wrapped popoto, a prize or a full wallet to cash out, an
+ * announcement, and the admins answering feedback.
+ *
+ * Stored on the profile by key, so a kind added to a group later is covered for
+ * everybody who already turned the group off.
+ */
+export const QUIET_GROUPS = [
+  { key: "popoto", kinds: ["popoto", "popoto_post"],
+    label: "notif.qPopoto", hint: "notif.qPopotoHint" },
+  { key: "wallet", kinds: ["wallet_drop"],
+    label: "notif.qWallet", hint: "notif.qWalletHint" },
+  { key: "party",
+    kinds: ["party_talk", "party_ok", "party_in", "party_out", "party_soon",
+            "party_moved", "party_match"],
+    label: "notif.qParty", hint: "notif.qPartyHint" },
+  { key: "comments", kinds: ["comment", "event_talk"],
+    label: "notif.qComments", hint: "notif.qCommentsHint" },
+  { key: "draw", kinds: ["evercold", "evercold_fix"],
+    label: "notif.qDraw", hint: "notif.qDrawHint" },
+] as const satisfies readonly {
+  key: string; kinds: readonly string[]; label: Key; hint: Key;
+}[];
+
+/** The kinds a member's turned-off groups hold. Unknown keys are ignored. */
+export function quietKinds(groups: readonly string[]): string[] {
+  const off = new Set(groups);
+  return QUIET_GROUPS.filter((g) => off.has(g.key)).flatMap((g) => [...g.kinds]);
+}
 
 /**
  * How many of the admins' notifications nobody has read yet.

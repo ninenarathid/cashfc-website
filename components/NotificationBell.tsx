@@ -11,7 +11,7 @@ import { eventPath } from "@/lib/events";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
-import { bellHides, listOf } from "@/lib/notifications";
+import { QUIET_GROUPS, bellHides, listOf, quietKinds } from "@/lib/notifications";
 import { EVENT_POSTER, markEntry } from "@/lib/evercold";
 import { toast } from "@/components/ui/Toast";
 import GiftIcon from "@/components/ui/GiftIcon";
@@ -555,6 +555,28 @@ export default function NotificationBell() {
   const [me, setMe] = useState<string | null>(null);
   const [character, setCharacter] = useState<number | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
+  /**
+   * The groups this member turned off (v96), and whether they can.
+   *
+   * Can only once the column exists: the settings are hidden until v96 has
+   * run, rather than offered and then failing to save.
+   */
+  const [quiet, setQuiet] = useState<string[]>([]);
+  const [canQuiet, setCanQuiet] = useState(false);
+  const hush = useMemo(() => quietKinds(quiet), [quiet]);
+  /** Whether the panel is showing the settings instead of the list. */
+  const [tuning, setTuning] = useState(false);
+  const [tuneErr, setTuneErr] = useState<string | null>(null);
+  /**
+   * What arrived in a turned-off group since this page was opened.
+   *
+   * Kept apart from the bell's list, which is fetched without them so that
+   * twenty rows are twenty rows somebody wanted. These are only for the toast:
+   * turning a group off takes it out of the count, not out of the moment.
+   */
+  const [murmurs, setMurmurs] = useState<Note[]>([]);
+  /** From when those are asked for. Set by the first load. */
+  const since = useRef<string | null>(null);
   const [covers, setCovers] = useState<Record<number, string>>({});
   /**
    * The people who did these things: their face, and the page their name goes to.
@@ -666,6 +688,10 @@ export default function NotificationBell() {
   const [past, setPast] = useState<Note[] | null>(null);
   const [morePast, setMorePast] = useState(true);
   const [loadingPast, setLoadingPast] = useState(false);
+  /** The archive's filter: a group's key, or null for everything. */
+  const [pastOnly, setPastOnly] = useState<string | null>(null);
+  /** Which archive fetch is the latest, so a slow answer to an old filter is dropped. */
+  const pastAsk = useRef(0);
 
   /**
    * One page of notifications, with the faces and pictures they need.
@@ -684,7 +710,19 @@ export default function NotificationBell() {
      * of things still wanting attention, so clearing takes them off it; the
      * archive is what happened, and nothing is ever off that.
      */
-    { withCleared = false }: { withCleared?: boolean } = {},
+    { withCleared = false, except = [], only = null, after = null }: {
+      withCleared?: boolean;
+      /**
+       * More kinds to leave out: the groups a member turned off, for the bell.
+       * In the query rather than after it, so twenty rows are twenty rows
+       * somebody wanted and not twenty with the gil taken out of them.
+       */
+      except?: readonly string[];
+      /** Only these kinds: one group, for the archive's filter or the toasts. */
+      only?: readonly string[] | null;
+      /** Only what arrived from here on. */
+      after?: string | null;
+    } = {},
   ): Promise<Note[]> => {
     if (!supabase) return [];
     let q = supabase.from("notifications")
@@ -694,7 +732,9 @@ export default function NotificationBell() {
       .select("id, kind, actor, actor_name, post_id, party_id, announcement_id, body, created_at, read_at, answered_at, cleared_at");
     if (!withCleared) q = q.is("cleared_at", null);
     // An admin reads the admins' half on the admin page. See lib/notifications.
-    q = q.not("kind", "in", hiddenList);
+    q = q.not("kind", "in", except.length ? listOf([...hideKinds, ...except]) : hiddenList);
+    if (only) q = q.in("kind", [...only]);
+    if (after) q = q.gte("created_at", after);
     const { data } = await q
       .order("created_at", { ascending: false })
       .range(from, from + take - 1);
@@ -702,7 +742,8 @@ export default function NotificationBell() {
     // page that was loaded before the answer about being an admin arrived and
     // fetched a list with the feedback still in it — this list is redrawn from
     // these rows the moment that answer lands, and a belt costs one pass.
-    const rows = ((data as Note[]) ?? []).filter((n) => !hideKinds.has(n.kind));
+    const rows = ((data as Note[]) ?? [])
+      .filter((n) => !hideKinds.has(n.kind) && !except.includes(n.kind));
     if (!rows.length) return [];
 
     const actors = [...new Set(rows.map((n) => n.actor).filter(Boolean) as string[])];
@@ -798,12 +839,24 @@ export default function NotificationBell() {
     setMe(uid);
     if (!uid) { setNotes([]); return; }
 
-    const { data: prof } = await supabase.from("profiles")
-      .select("character_id, character_verified_at").eq("id", uid).maybeSingle();
-    const p = prof as {
+    // With the groups they turned off, where the database has the column. It
+    // arrived with v96, and asking for a column that is not there fails the
+    // whole select — which here would be the character too, and with it every
+    // "send one back" button.
+    const ask = (cols: string) => supabase.from("profiles")
+      .select(cols).eq("id", uid).maybeSingle();
+    let prof = await ask("character_id, character_verified_at, notif_quiet");
+    const quietReady = !prof.error;
+    if (prof.error) prof = await ask("character_id, character_verified_at");
+    const p = prof.data as unknown as {
       character_id?: number | null; character_verified_at?: string | null;
+      notif_quiet?: string[] | null;
     } | null;
     setCharacter(p?.character_verified_at ? p.character_id ?? null : null);
+    const off = p?.notif_quiet ?? [];
+    setCanQuiet(quietReady);
+    setQuiet(off);
+    const muted = quietKinds(off);
 
     // Who has already had one from me today, so the button can say so before it
     // is pressed rather than after.
@@ -812,9 +865,17 @@ export default function NotificationBell() {
     setGiven(new Set(((mine ?? []) as { receiver_character_id: number }[])
       .map((k) => k.receiver_character_id)));
 
-    const rows = await page(0, SHOW);
-    if (seen.current === null) seen.current = new Set(rows.map((n) => n.id));
+    const rows = await page(0, SHOW, { except: muted });
+    // A minute before the page opened, so one that landed while it was loading
+    // is not lost between the two — `seen` stops it being announced twice.
+    since.current ??= new Date(Date.now() - 60_000).toISOString();
+    const quietNew = muted.length
+      ? await page(0, 10, { only: muted, after: since.current }) : [];
+    if (seen.current === null) {
+      seen.current = new Set([...rows, ...quietNew].map((n) => n.id));
+    }
     setNotes(rows);
+    setMurmurs(quietNew);
 
     // Counted rather than fetched. The archive link only appears when there is
     // something behind the panel, and after a clear the panel is empty — so
@@ -881,7 +942,11 @@ export default function NotificationBell() {
   useEffect(() => {
     if (seen.current === null) return;
     // Oldest first, so two arriving together stack in the order they happened.
-    for (const n of [...notes].reverse()) {
+    // The turned-off groups too: they are out of the count, not out of the
+    // moment (see murmurs).
+    const fresh = [...notes, ...murmurs]
+      .sort((a, b) => a.created_at.localeCompare(b.created_at));
+    for (const n of fresh) {
       if (seen.current.has(n.id)) continue;
       seen.current.add(n.id);
       if (n.read_at) continue;
@@ -968,10 +1033,10 @@ export default function NotificationBell() {
         href: hrefOf(n, character, postPath),
       });
     }
-    // Only the list matters. The faces and pictures are read as they are at the
+    // Only the lists matter. The faces and pictures are read as they are at the
     // moment a row appears, and a toast is not redrawn when one arrives later.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notes]);
+  }, [notes, murmurs]);
 
   /**
    * Told rather than asked, for the moment somebody is actually here.
@@ -1005,12 +1070,18 @@ export default function NotificationBell() {
   async function reveal() {
     const next = !open;
     setOpen(next);
+    // Opened on the list, always: the settings are a detour, not a place the
+    // bell stays.
+    if (next) { setTuning(false); setTuneErr(null); }
     if (!next || !supabase || !unread) return;
     const now = new Date().toISOString();
     setNotes((v) => v.map((n) => (n.read_at ? n : { ...n, read_at: now })));
     // What was looked at, which is what the panel drew. An admin opening their
     // bell has not looked at the prize queue, and marking it read from here
     // would empty the admin inbox of the only thing that says it needs opening.
+    // The groups a member turned off are marked with it: nothing counts them,
+    // and left unread they would all come back as a red "9+" on the day the
+    // group is turned on again.
     let mark = supabase.from("notifications")
       .update({ read_at: now }).is("read_at", null);
     mark = mark.not("kind", "in", hiddenList);
@@ -1066,8 +1137,9 @@ export default function NotificationBell() {
     let wipe = supabase.from("notifications")
       .update({ cleared_at: now, read_at: now }).is("cleared_at", null);
     // The same line the panel is drawn along: clearing the bell is somebody
-    // saying they have dealt with what is on the bell.
-    wipe = wipe.not("kind", "in", hiddenList);
+    // saying they have dealt with what is on the bell, which the groups they
+    // turned off are not.
+    wipe = wipe.not("kind", "in", hush.length ? listOf([...hideKinds, ...hush]) : hiddenList);
     const { error } = await wipe;
     // Put them back rather than leave the panel lying about what the server
     // holds. Nothing was destroyed either way, so this is only the screen
@@ -1075,20 +1147,67 @@ export default function NotificationBell() {
     if (error) void load();
   }
 
-  async function openPast() {
-    setOpen(false);
-    if (past) return;
+  /**
+   * Turn one group of news off or back on (v96).
+   *
+   * Shown at once and written behind, and put back if the write is refused.
+   * What is already unread in the group is marked read either way: turning it
+   * off, it is leaving the count anyway; turning it back on, whatever arrived
+   * while it was off would otherwise land on the badge all at once.
+   */
+  async function hushGroup(key: string, off: boolean) {
+    if (!supabase || !me) return;
+    const before = quiet;
+    const next = off ? [...new Set([...quiet, key])] : quiet.filter((k) => k !== key);
+    setQuiet(next);
+    setTuneErr(null);
+    const { error } = await supabase.from("profiles")
+      .update({ notif_quiet: next }).eq("id", me);
+    if (error) { setQuiet(before); setTuneErr(t("notif.quietFail")); return; }
+    const group = QUIET_GROUPS.find((g) => g.key === key);
+    if (group) {
+      await supabase.from("notifications")
+        .update({ read_at: new Date().toISOString() })
+        .is("read_at", null).in("kind", [...group.kinds]);
+    }
+    void load();
+  }
+
+  /**
+   * The archive's filter: everything, or one group.
+   *
+   * The ask behind feedback #13, as well as the settings: somebody looking for
+   * who sent them a popoto last week wants the popoto and nothing else, whether
+   * or not they have ever turned anything off.
+   */
+  const kindsOf = (key: string | null) =>
+    QUIET_GROUPS.find((g) => g.key === key)?.kinds ?? null;
+
+  async function showPast(key: string | null) {
+    const ask = ++pastAsk.current;
+    setPastOnly(key);
+    setPast([]);
     setLoadingPast(true);
-    const first = await page(0, PAGE, { withCleared: true });
+    const first = await page(0, PAGE, { withCleared: true, only: kindsOf(key) });
+    if (ask !== pastAsk.current) return;
     setPast(first);
     setMorePast(first.length === PAGE);
     setLoadingPast(false);
   }
 
+  async function openPast() {
+    setOpen(false);
+    if (past) return;
+    await showPast(null);
+  }
+
   async function morePages() {
     if (loadingPast || !morePast || !past) return;
+    const ask = pastAsk.current;
     setLoadingPast(true);
-    const next = await page(past.length, PAGE, { withCleared: true });
+    const next = await page(past.length, PAGE,
+      { withCleared: true, only: kindsOf(pastOnly) });
+    if (ask !== pastAsk.current) return;
     setPast([...past, ...next]);
     setMorePast(next.length === PAGE);
     setLoadingPast(false);
@@ -1279,8 +1398,14 @@ export default function NotificationBell() {
     return () => { delete w.testPrizeNotice; };
   }, [supabase, me]);
 
+  /**
+   * The archive put away. Any fetch still out is disowned, or its answer would
+   * land after the close and open the window again.
+   */
+  const closePast = () => { pastAsk.current++; setPast(null); setLoadingPast(false); };
+
   /** Going somewhere puts away whichever list you were reading. */
-  const dismiss = () => { setOpen(false); setPast(null); };
+  const dismiss = () => { setOpen(false); closePast(); };
 
   /**
    * One notification, drawn the same wherever it is read.
@@ -1510,21 +1635,69 @@ export default function NotificationBell() {
       <Popover.Portal>
         <Popover.Content align="end" sideOffset={8} collisionPadding={10}
           className="pop-in z-50 w-[min(34rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-line bg-surface shadow-2xl shadow-black/50">
-          <div className="flex items-center justify-between border-b border-line px-3.5 py-2.5">
+          <div className="flex items-center justify-between gap-2 border-b border-line px-3.5 py-2.5">
             <span className="font-display text-read font-semibold">
-              {t("notif.title")}
+              {t(tuning ? "notif.quietTitle" : "notif.title")}
             </span>
-            {notes.length > 0 && (
-              // Quiet, and it says on hover that it does not delete — the last
-              // button in this corner did, so the promise is worth making
-              // before the press rather than after.
-              <button onClick={clearAll} title={t("notif.clearTitle")}
-                      className="rounded-md px-2 py-0.5 text-ui text-muted transition-colors hover:bg-card hover:text-ink">
-                {t("notif.clear")}
-              </button>
-            )}
+            <span className="flex items-center gap-1">
+              {!tuning && notes.length > 0 && (
+                // Quiet, and it says on hover that it does not delete — the last
+                // button in this corner did, so the promise is worth making
+                // before the press rather than after.
+                <button onClick={clearAll} title={t("notif.clearTitle")}
+                        className="rounded-md px-2 py-0.5 text-ui text-muted transition-colors hover:bg-card hover:text-ink">
+                  {t("notif.clear")}
+                </button>
+              )}
+              {/* Which news counts. Only once the database can keep the answer
+                  (v96): a setting that cannot be saved is worse than none. */}
+              {canQuiet && (
+                <button onClick={() => { setTuning((v) => !v); setTuneErr(null); }}
+                        aria-label={t("notif.quietTitle")} title={t("notif.quietTitle")}
+                        aria-pressed={tuning}
+                        className={`grid size-7 place-items-center rounded-md transition-colors ${
+                          tuning ? "bg-card text-accent" : "text-muted hover:bg-card hover:text-ink"}`}>
+                  <svg viewBox="0 0 24 24" aria-hidden width="16" height="16"
+                       fill="none" stroke="currentColor" strokeWidth="1.8"
+                       strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+                  </svg>
+                </button>
+              )}
+            </span>
           </div>
 
+          {tuning ? (
+            /* In the panel rather than on a page of its own: the moment
+               somebody decides the gil is in the way is the moment they are
+               scrolling past it, here. */
+            <div className="flex max-h-[min(46rem,72vh)] flex-col gap-2 overflow-y-auto px-3.5 py-3">
+              <p className="text-ui text-muted">{t("notif.quietWhy")}</p>
+              {QUIET_GROUPS.map((g) => {
+                const on = !quiet.includes(g.key);
+                return (
+                  <label key={g.key}
+                         className={`flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2 transition-colors ${
+                           on ? "border-accent/40 bg-accent/5" : "border-line bg-bg/40 hover:border-muted"}`}>
+                    <input type="checkbox" checked={on}
+                           onChange={(e) => { void hushGroup(g.key, !e.target.checked); }}
+                           className="mt-1" />
+                    <span className="flex flex-col gap-0.5">
+                      <span className="text-read font-medium text-ink">{t(g.label)}</span>
+                      <span className="text-ui text-muted">{t(g.hint)}</span>
+                    </span>
+                  </label>
+                );
+              })}
+              <p className="text-ui text-muted/80">{t("notif.quietAlways")}</p>
+              {tuneErr && <p className="text-ui text-chili">{tuneErr}</p>}
+              <button onClick={() => setTuning(false)}
+                      className="self-end rounded-lg border border-line px-3 py-1 text-ui text-ink transition-colors hover:border-muted">
+                {t("notif.quietDone")}
+              </button>
+            </div>
+          ) : (
           <div data-notif-list className="max-h-[min(46rem,72vh)] overflow-y-auto">
             {notes.length === 0 && (
               <p className="px-3.5 py-6 text-center text-ui text-muted">
@@ -1534,11 +1707,12 @@ export default function NotificationBell() {
 
             {notes.map(row)}
           </div>
+          )}
 
           {/* Everybody at once, when there is more than nothing to answer. The
               same thing as pressing each button in turn, and pressed by
               somebody who has just read a panel full of them. */}
-          {owed.size > 0 && (
+          {!tuning && owed.size > 0 && (
             <button onClick={(e) => { void sendBackAll(e.currentTarget.getBoundingClientRect()); }}
                     disabled={sending.size > 0}
                     className="w-full border-t border-line bg-gold/5 px-3.5 py-2.5 text-center text-ui text-gold hover:bg-gold/15 disabled:opacity-50">
@@ -1551,7 +1725,7 @@ export default function NotificationBell() {
               button — and it is a button rather than a line typed into the
               console because what is being tried out is a thing that comes out
               of a button when it is pressed. */}
-          {process.env.NODE_ENV !== "production" && (
+          {!tuning && process.env.NODE_ENV !== "production" && (
             <button data-potato-try
                     onClick={(e) => { const btn = e.currentTarget; void tryThrow(btn); }}
                     className="w-full border-t border-dashed border-line px-3.5 py-2 text-center font-data text-meta uppercase tracking-[0.1em] text-muted transition-colors hover:bg-card hover:text-ink">
@@ -1569,7 +1743,9 @@ export default function NotificationBell() {
               for somebody the FC talks to and a year for somebody it does not,
               so the offer is made by whether the page came back full rather
               than by a guess at how long that is. */}
-          {(notes.length >= SHOW || hidden > 0) && (
+          {/* And whenever a group is turned off, since its rows are all
+              behind it however short the list in front is. */}
+          {!tuning && (notes.length >= SHOW || hidden > 0 || hush.length > 0) && (
             <button onClick={openPast}
                     className="w-full border-t border-line px-3.5 py-2.5 text-center text-ui text-accent hover:bg-card">
               {t("notif.seeAll")}
@@ -1582,7 +1758,7 @@ export default function NotificationBell() {
           read sitting down wants the room, and the panel is not the place to
           scroll through a year. Fetched a page at a time as it nears the end,
           so opening it costs one page however long the year was. */}
-      <Dialog.Root open={past !== null} onOpenChange={(o) => { if (!o) setPast(null); }}>
+      <Dialog.Root open={past !== null} onOpenChange={(o) => { if (!o) closePast(); }}>
         <Dialog.Portal>
           <Dialog.Overlay className="pop-in fixed inset-0 z-[60] bg-bg/80 backdrop-blur-sm" />
           <Dialog.Content
@@ -1590,6 +1766,23 @@ export default function NotificationBell() {
             <Dialog.Title className="border-b border-line px-4 py-3 font-display text-lead font-semibold text-ink">
               {t("notif.past")}
             </Dialog.Title>
+
+            {/* One group at a time, the same groups the settings use. */}
+            <div className="flex flex-wrap gap-1.5 border-b border-line px-4 py-2.5">
+              {[null, ...QUIET_GROUPS.map((g) => g.key)].map((key) => {
+                const on = pastOnly === key;
+                const g = QUIET_GROUPS.find((x) => x.key === key);
+                return (
+                  <button key={key ?? "all"} type="button" aria-pressed={on}
+                          onClick={() => { if (!on) void showPast(key); }}
+                          className={`rounded-full border px-3 py-[3px] text-ui transition-colors ${
+                            on ? "border-accent bg-accent/15 text-accent"
+                               : "border-line text-muted hover:border-muted hover:text-ink"}`}>
+                    {g ? t(g.label) : t("notif.pastAll")}
+                  </button>
+                );
+              })}
+            </div>
 
             <div
               onScroll={(e) => {
