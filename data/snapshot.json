@@ -6795,7 +6795,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -6812,7 +6812,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-09-29"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7830,6 +7830,7 @@
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Queen Eternal",
    "Valigarmanda"
   ],
   "ults": [],
@@ -8259,14 +8260,14 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 82,
+  "level": 83,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "54419512": {
   "name": "Film Nio",

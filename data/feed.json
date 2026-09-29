@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-09-29",
+   "type": "ex_clear",
+   "id": 60211788,
+   "name": "Shikihara Catlover",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
    "date": "2026-09-28",
    "type": "parse_up",
    "id": 36183378,
@@ -1392,13 +1399,6 @@
    "id": 29339718,
    "name": "Ashe Fantine",
    "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 47494518,
-   "name": "Farcia Soluna",
-   "text": "reached level 100 on Ninja!"
   }
  ]
 }
