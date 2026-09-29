@@ -221,8 +221,12 @@ export default function PopotoRare(
     <Dialog.Root open onOpenChange={(o) => { if (!o) onClose(); }}>
       <Dialog.Portal>
         <Dialog.Overlay className="pop-in fixed inset-0 z-[120] bg-bg/90 backdrop-blur-sm" />
+        {/* Centred only while it fits. A long line on a short phone makes all
+            this taller than the screen, and plain centring splits what spills
+            over between the top and the bottom — so the top of it, the potato
+            the whole thing is about, went above where scrolling can reach. */}
         <Dialog.Content aria-describedby={undefined}
-                        className={`pop-in fixed inset-0 z-[121] flex flex-col items-center justify-center gap-6 overflow-y-auto overflow-x-hidden p-5 outline-none ${
+                        className={`pop-in fixed inset-0 z-[121] flex flex-col items-center justify-center-safe gap-6 overflow-y-auto overflow-x-hidden p-5 outline-none ${
                           burstNow && fx.shake ? `rare-shake-${fx.shake}` : ""}`}>
           <Dialog.Title className="sr-only">{t("rare.title")}</Dialog.Title>
 
@@ -241,7 +245,9 @@ export default function PopotoRare(
           )}
 
           {/* ── the parcel, and what is in it ───────────────────────────── */}
-          <div className={`relative grid size-56 place-items-center ${revealed ? "rare-open" : ""}`}>
+          {/* Its full size even when the screen is short: it was the one thing
+              in the column that could shrink, so a long line squeezed it flat. */}
+          <div className={`relative grid size-56 shrink-0 place-items-center ${revealed ? "rare-open" : ""}`}>
             {/* Straining: light pours out of the seams, harder the rarer. */}
             {stage === "charging" && (
               <>
