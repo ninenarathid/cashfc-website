@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-09-29",
+   "type": "job_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "is now a Expert Paladin"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "job_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "is now a Master White Mage"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-09-29",
+   "type": "level_100",
+   "id": 42146242,
+   "name": "Zxazi Rowan",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-29",
    "type": "grade_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1371,34 +1399,6 @@
    "id": 25506828,
    "name": "Kururuki Tzuzaku",
    "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "reached level 100 on Monk!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned I Made That: Alchemist V — only 3.0% of players have it, and 1 more"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "level_100",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Clare Obscurum: Twinfangs Obscurum — only 4.7% of players have it"
   }
  ]
 }

@@ -2341,6 +2341,7 @@
    "explorer": "legendary"
   },
   "jobs": {
+   "Paladin": "expert",
    "Gunbreaker": "master"
   },
   "ex": [
@@ -2673,9 +2674,9 @@
    "Scholar": "expert",
    "Astrologian": "master",
    "WhiteMage": "master",
-   "Summoner": "master",
+   "Summoner": "expert",
    "RedMage": "master",
-   "Pictomancer": "legendary"
+   "Pictomancer": "master"
   },
   "ex": [
    "Doomtrain",
@@ -2822,7 +2823,7 @@
    "Scholar": "master",
    "Sage": "master",
    "RedMage": "expert",
-   "WhiteMage": "expert",
+   "WhiteMage": "master",
    "Astrologian": "expert"
   },
   "ex": [
@@ -3753,7 +3754,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 70,
-  "level": 100,
+  "level": 98,
   "cc": [
    true,
    true,
@@ -3858,7 +3859,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-27"
+  "chg": "2026-09-29"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -5247,7 +5248,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7688,7 +7689,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 82,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -7733,7 +7734,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8055,7 +8056,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 87,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8130,7 +8131,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 58,
+  "level": 59,
   "cc": [
    false,
    false,
@@ -8225,7 +8226,7 @@
   "mounts": 30,
   "minions": 89,
   "rare": 12,
-  "level": 68,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8260,7 +8261,7 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 89,
+  "level": 94,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8308,14 +8309,14 @@
   "mounts": 5,
   "minions": 14,
   "rare": 0,
-  "level": 70,
+  "level": 84,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-26"
+  "chg": "2026-09-29"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8485,14 +8486,14 @@
   "mounts": 4,
   "minions": 14,
   "rare": null,
-  "level": 67,
+  "level": 26,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-29"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -14440,13 +14441,19 @@
   "minions": 26,
   "rare": null,
   "level": 68,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-29"
  },
  "26433344": {
   "name": "Oppa' Pkz",
