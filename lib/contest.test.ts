@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   contestError, countsShown, datesProblem, defaultDates, fileUrl, fromLocalInput,
-  inPlay, isNewEntry, isPending, phaseOf, placeEntries, shuffleFor, talkClosedToOwner,
+  inPlay, isNewEntry, isPending, lookPath, phaseOf, placeEntries, shuffleFor, talkClosedToOwner,
   toLocalInput, type Contest,
 } from "@/lib/contest";
 
@@ -275,6 +275,14 @@ describe("what a refusal means", () => {
 describe("where a picture lives", () => {
   it("keeps the slashes and encodes the rest", () => {
     expect(fileUrl("12/ab cd/x.webp")).toMatch(/\/storage\/v1\/object\/public\/contest\/12\/ab%20cd\/x\.webp$/);
+  });
+});
+
+describe("where a look lives", () => {
+  // The bell's link for a message under your look (v100). ContestView opens
+  // whatever ?look= names once the contest has loaded.
+  it("is its contest's page, opened on it", () => {
+    expect(lookPath(3, 41)).toBe("/contest/3?look=41");
   });
 });
 

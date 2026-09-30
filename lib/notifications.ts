@@ -99,7 +99,9 @@ export const QUIET_GROUPS = [
     kinds: ["party_talk", "party_ok", "party_in", "party_out", "party_soon",
             "party_moved", "party_match"],
     label: "notif.qParty", hint: "notif.qPartyHint" },
-  { key: "comments", kinds: ["comment", "event_talk"],
+  // A message under your contest look is the same news as one under your
+  // picture, so it is quieted with it (v100).
+  { key: "comments", kinds: ["comment", "event_talk", "contest_talk"],
     label: "notif.qComments", hint: "notif.qCommentsHint" },
 ] as const satisfies readonly {
   key: string; kinds: readonly string[]; label: Key; hint: Key;

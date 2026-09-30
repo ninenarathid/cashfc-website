@@ -482,8 +482,8 @@ const DICT = {
   },
   "notif.qComments": { en: "Replies", th: "ความเห็น" },
   "notif.qCommentsHint": {
-    en: "Somebody replied under your picture or your announcement.",
-    th: "มีคนตอบใต้รูปหรือประกาศของคุณ",
+    en: "Somebody replied under your picture, your contest look or your announcement.",
+    th: "มีคนตอบใต้รูป ผลงานประกวด หรือประกาศของคุณ",
   },
   "notif.quietDone": { en: "Done", th: "เสร็จ" },
   "notif.quietFail": {
@@ -522,6 +522,11 @@ const DICT = {
   "notif.commented": {
     en: "{who} commented on your picture.",
     th: "{who} คอมเมนต์รูปของคุณ",
+  },
+  // Only ever sent to whoever entered the look (v100).
+  "notif.contestTalk": {
+    en: "{who} commented on your contest look.",
+    th: "{who} คอมเมนต์ผลงานประกวดของคุณ",
   },
   "notif.popoto": {
     en: "{who} sent you a popoto.",

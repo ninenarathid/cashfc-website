@@ -7,6 +7,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useLang, type Key } from "@/lib/i18n";
 import { postPath } from "@/lib/gallery";
+import { lookPath, thumbUrl } from "@/lib/contest";
 import { eventPath } from "@/lib/events";
 import { fmtDateTime } from "@/lib/dates";
 import { useAvatarOverrides } from "@/lib/avatars";
@@ -217,6 +218,10 @@ const KIND: Record<string, { say: Key; icon: React.ReactNode; href: string }> = 
   // the button that places one. One idea, one mark.
   tag: { say: "notif.tagged", icon: "📍", href: "" },
   comment: { say: "notif.commented", icon: "💬", href: "" },
+  // The same thing under a contest look, told only to whoever entered it
+  // (v100). Its link is the look itself, worked out per notification (see
+  // `looks`); the contest page is the fallback while that is not known.
+  contest_talk: { say: "notif.contestTalk", icon: "💬", href: "/contest" },
   // The href is filled in per notification: a potato on your profile leads to
   // your page, and which page that is depends on the character you hold. The
   // potato holding a heart, because it is one arriving rather than one sent.
@@ -409,9 +414,13 @@ const hrefOf = (
   },
   character: number | null,
   postPath: (id: number) => string,
+  /** A contest look's own address, once `looks` has it. */
+  look?: string | null,
 ): string | null => (
+  // A look opens in its contest, which only the look knows.
+  n.kind === "contest_talk" && look ? look
   // A parcel is opened in one place, the inventory on the edit-profile page.
-  n.kind === "popoto_rare" ? RARE_INVENTORY
+  : n.kind === "popoto_rare" ? RARE_INVENTORY
   // And a wallet is emptied in one place, above both of them.
   : n.kind.startsWith("wallet_") ? WALLET
   // And a prize is claimed in one place, beside it.
@@ -578,6 +587,15 @@ export default function NotificationBell() {
   /** From when those are asked for. Set by the first load. */
   const since = useRef<string | null>(null);
   const [covers, setCovers] = useState<Record<number, string>>({});
+  /**
+   * A contest look's picture and address, by notification.
+   *
+   * By notification rather than by look, because the look is not in the
+   * bell's own select: its column arrived with v100, and a select naming a
+   * column the database does not have yet is a bell with nothing in it. So it
+   * is asked for separately, for the rows that are about a look.
+   */
+  const [looks, setLooks] = useState<Record<number, { href: string; cover: string | null }>>({});
   /**
    * The people who did these things: their face, and the page their name goes to.
    *
@@ -791,6 +809,34 @@ export default function NotificationBell() {
       setCovers((v) => ({ ...v, ...map }));
     }
 
+    // A contest look, the same way, and the way to it: which contest it is in
+    // is not on the row either. One question, following the row's link to the
+    // look and the look's to its pictures. Only its author is ever sent one
+    // of these, and an author can always read their own look.
+    const talk = rows.filter((n) => n.kind === "contest_talk").map((n) => n.id);
+    if (talk.length) {
+      const { data: about } = await supabase.from("notifications")
+        .select("id, contest_entry_id, contest_entries(contest_id, contest_images(path, thumb_path, position))")
+        .in("id", talk);
+      const map: Record<number, { href: string; cover: string | null }> = {};
+      for (const r of (about ?? []) as unknown as {
+        id: number; contest_entry_id: number | null;
+        contest_entries: {
+          contest_id: number;
+          contest_images: { path: string; thumb_path: string | null; position: number }[];
+        } | null;
+      }[]) {
+        const look = r.contest_entries;
+        if (r.contest_entry_id == null || !look) continue;
+        const first = [...(look.contest_images ?? [])].sort((a, b) => a.position - b.position)[0];
+        map[r.id] = {
+          href: lookPath(look.contest_id, r.contest_entry_id),
+          cover: first ? thumbUrl(first) : null,
+        };
+      }
+      setLooks((v) => ({ ...v, ...map }));
+    }
+
     // And the prize a notification is about, for the same reason: the picture
     // is the answer to "which one?". Fetched here rather than when a row is
     // drawn, so it is already in hand by the time the toast goes up — a
@@ -988,7 +1034,8 @@ export default function NotificationBell() {
         text: n.kind.startsWith("evercold")
           ? `${t("notif.evercoldEvent")} — ${line}` : line,
         image: n.kind.startsWith("evercold") ? EVENT_POSTER
-          : prizePic(n) ?? (n.post_id ? covers[n.post_id] ?? face : face),
+          : prizePic(n) ?? (n.post_id ? covers[n.post_id] ?? face
+            : looks[n.id]?.cover ?? face),
         // A game item's icon is a square with its corners doing work, so it is
         // shown whole rather than cropped into the circle a face wears.
         square: !!prizePic(n),
@@ -1030,7 +1077,7 @@ export default function NotificationBell() {
               : undefined,
         // Her card is a door, and since v92 it is not always the wallet's.
         cta: n.kind === "prize_win" ? t("prize.openInInventory") : undefined,
-        href: hrefOf(n, character, postPath),
+        href: hrefOf(n, character, postPath, looks[n.id]?.href),
       });
     }
     // Only the lists matter. The faces and pictures are read as they are at the
@@ -1415,9 +1462,9 @@ export default function NotificationBell() {
    * looked at is the copy that quietly stops matching.
    */
   const row = (n: Note) => {
-    const cover = n.post_id ? covers[n.post_id] : null;
+    const cover = n.post_id ? covers[n.post_id] : looks[n.id]?.cover ?? null;
     const kind = KIND[n.kind];
-    const href = hrefOf(n, character, postPath);
+    const href = hrefOf(n, character, postPath, looks[n.id]?.href);
     /*
      * An announcement is from the admins, and which of them wrote it is not the
      * Free Company's business. It is the other admins' business: they are the

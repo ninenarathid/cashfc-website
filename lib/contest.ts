@@ -126,6 +126,10 @@ export const thumbUrl = (img: Pick<ContestImage, "path" | "thumb_path">): string
 /** Where a contest lives. */
 export const contestPath = (id: number) => `/contest/${id}`;
 
+/** One look, opened in its contest. ContestView reads `?look=` on arrival. */
+export const lookPath = (contest: number, entry: number) =>
+  `${contestPath(contest)}?look=${entry}`;
+
 /* ── where a contest is ──────────────────────────────────────────────────── */
 
 /**
