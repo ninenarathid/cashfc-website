@@ -2435,7 +2435,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 92,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2448,7 +2448,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-29"
+  "chg": "2026-09-30"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -5248,7 +5248,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5272,7 +5272,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-29"
+  "chg": "2026-09-30"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -7623,7 +7623,7 @@
   "mounts": 29,
   "minions": 121,
   "rare": null,
-  "level": 57,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -7636,7 +7636,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-26"
+  "chg": "2026-09-30"
  },
  "33387937": {
   "name": "R'bael Senkou",
@@ -8203,8 +8203,8 @@
   "parse": null,
   "ult": 0,
   "mounts": 107,
-  "minions": 305,
-  "rare": null,
+  "minions": 307,
+  "rare": 19,
   "level": 100,
   "cc": [
    false,
@@ -8213,12 +8213,32 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   846,
+   1439,
+   1444,
+   1463,
+   1464,
+   1626,
+   1681,
+   1750,
+   1933,
+   1934,
+   1938,
+   3317,
+   3341,
+   3875,
+   3895,
+   4023,
+   4024,
+   4028,
+   4029
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-09-30"
  },
  "42146242": {
   "name": "Zxazi Rowan",
@@ -8262,14 +8282,14 @@
   "mounts": 6,
   "minions": 28,
   "rare": 0,
-  "level": 95,
+  "level": 99,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-29"
+  "chg": "2026-09-30"
  },
  "54419512": {
   "name": "Film Nio",

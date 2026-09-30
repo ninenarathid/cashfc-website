@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-09-30",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
+   "date": "2026-09-30",
+   "type": "rare_up",
+   "id": 15932791,
+   "name": "Yuziris Andra'nov",
+   "text": "earned A Wolf in Dark Robes III — only 3.0% of players have it, and 18 more"
+  },
+  {
    "date": "2026-09-29",
    "type": "job_up",
    "id": 42976317,
@@ -1385,20 +1399,6 @@
    "id": 58199536,
    "name": "Areeya Lovekin",
    "text": "earned R&D: Stellar Frypan"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Clare Obscurum: Musketoon Obscurum — only 3.8% of players have it"
-  },
-  {
-   "date": "2026-09-20",
-   "type": "rare_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "earned Wild Child II — only 4.3% of players have it, and 2 more"
   }
  ]
 }
