@@ -96,8 +96,18 @@ const ctl = (extra: string) =>
 
 export default function Messages(
   { comments, people, me, userId, notice, onAdd, onReact, onEdit, onDrop,
-    upload, write, chat = false }: {
+    upload, write, chat = false, closed }: {
     comments: PartyComment[];
+    /**
+     * Readable but not writable by this reader, and why, in one sentence.
+     *
+     * For a rule about this conversation rather than about the reader: a
+     * contest that hides names closes a look's own conversation to the person
+     * who entered it (v99), and they are otherwise a perfectly good writer.
+     * Their box, their reactions and their buttons go; the reason stands where
+     * the box was.
+     */
+    closed?: string;
     /**
      * Something the clock has to say, at the foot of the conversation.
      *
@@ -188,7 +198,7 @@ export default function Messages(
    * flag decides the box at the foot, the buttons on every bubble, and the
    * writes behind both.
    */
-  const mayWrite = !!userId && !!me;
+  const mayWrite = !!userId && !!me && !closed;
 
   const [text, setText] = useState("");
   const [shots, setShots] = useState<string[]>([]);
@@ -922,7 +932,14 @@ export default function Messages(
         * changes is whether it is a box or the one sentence saying why it is
         * not, with the way out of that beside it.
         */}
-      {chat && !mayWrite && (
+      {/* Closed to this reader for a reason that is not theirs to fix, so the
+          sentence and nothing else — there is no page to send them to. */}
+      {closed && userId && me && (
+        <div className="rounded-lg border border-dashed border-line bg-bg/40 px-3 py-2.5 text-lead leading-relaxed text-muted">
+          {closed}
+        </div>
+      )}
+      {chat && !mayWrite && !(closed && userId && me) && (
         <div className="flex flex-col gap-2 rounded-lg border border-dashed border-line bg-bg/40 p-2.5">
           <span className="rounded-lg border border-line bg-surface/60 px-3 py-2 text-head leading-relaxed text-muted">
             {userId ? t("gate.needCharacter") : t("gate.needSignIn")}

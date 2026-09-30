@@ -20,8 +20,11 @@ import PopotoVote from "@/components/contest/PopotoVote";
  */
 export default function LookCard(
   { id, cover, pictures, name, avatar, anonymous = false, caption, votes, given, place,
-    awards = [], isNew = false, mine = false, hidden = false, pending = false, vote, onOpen }: {
+    awards = [], isNew = false, mine = false, hidden = false, pending = false, comments = 0,
+    vote, onOpen }: {
     id: number;
+    /** Messages under it, not counting ones taken back. See v99. */
+    comments?: number;
     cover: ContestImage | undefined;
     pictures: number;
     name: string;
@@ -136,6 +139,13 @@ export default function LookCard(
           <span className="size-6 shrink-0 rounded-full border border-line bg-card" />
         )}
         <span className="min-w-0 flex-1 truncate font-data text-ui font-semibold text-ink">{name}</span>
+        {/* The same mark the gallery's tiles use for their comments. */}
+        {comments > 0 && (
+          <span className="shrink-0 font-data text-meta tabular-nums text-muted"
+                title={comments === 1 ? t("pf.commentOne") : t("pf.commentsN", { n: comments })}>
+            💬 {comments}
+          </span>
+        )}
       </div>
       {caption ? (
         <p className="line-clamp-2 px-3 pb-3 text-ui leading-snug text-muted">{caption}</p>

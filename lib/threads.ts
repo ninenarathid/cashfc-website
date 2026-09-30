@@ -38,6 +38,13 @@ export const NOTICE_THREAD: Thread = {
   key: "announcement_id",
 };
 
+/** What is said under a glamour contest look. See v99. */
+export const CONTEST_THREAD: Thread = {
+  table: "contest_comments",
+  reactions: "contest_comment_reactions",
+  key: "entry_id",
+};
+
 /** The same shape the party board's messages are in. See ui/Messages. */
 export interface Message {
   id: string;

@@ -2268,7 +2268,6 @@ const DICT = {
   "gallery.postForMe": { en: "Post as myself", th: "โพสต์ในนามตัวเอง" },
   "gallery.findMember": { en: "Type a character name…", th: "พิมพ์ชื่อตัวละคร…" },
   "gallery.morePictures": { en: "{n} pictures", th: "{n} รูป" },
-  "gallery.close": { en: "Close", th: "ปิด" },
   "gallery.dropToAdd": {
     en: "Drop to add it to this post",
     th: "วางเพื่อเพิ่มรูปนี้เข้าโพสต์",
@@ -3575,6 +3574,10 @@ const DICT = {
   "contest.pendingHint": {
     en: "Only you and the admins can see it until an admin lets it in.",
     th: "ตอนนี้เห็นแค่คุณกับแอดมิน จะขึ้นให้ทุกคนเห็นเมื่อแอดมินอนุมัติ",
+  },
+  "contest.talkClosedOwn": {
+    en: "Names are hidden in this contest, so you can't comment on your own look until the result is out — a comment would say whose it is.",
+    th: "งานนี้ซ่อนชื่อคนส่งอยู่ เลยยังคอมเมนต์ใต้ผลงานตัวเองไม่ได้จนกว่าจะประกาศผล ไม่งั้นทุกคนจะรู้ว่าเป็นของใคร",
   },
   "contest.enteredPending": {
     en: "Your look is in. It shows once an admin has approved it.",

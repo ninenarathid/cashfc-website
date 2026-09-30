@@ -1,38 +1,51 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { useLang, type Key } from "@/lib/i18n";
 import { fileUrl, MAX_CAPTION, type ContestImage } from "@/lib/contest";
-import type { GalleryImage } from "@/lib/gallery";
+import { uploadOne, type GalleryImage } from "@/lib/gallery";
+import {
+  CONTEST_THREAD, addToThread, dropFromThread, editInThread, loadThread,
+  reactInThread, type Message,
+} from "@/lib/threads";
+import type { PersonOption } from "@/lib/people";
 import Carousel from "@/components/gallery/Carousel";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import Messages from "@/components/ui/Messages";
+import TalkWindow from "@/components/ui/TalkWindow";
 import PopotoVote from "@/components/contest/PopotoVote";
 
 /**
- * One look, opened.
+ * One look, opened: a window of its own with its conversation beside it, the
+ * way a party opens on the party finder (see ui/TalkWindow).
  *
  * Every picture of it at full size, through the gallery's own carousel so a
- * set of four behaves exactly the way a gallery post of four does. Beside it
- * the things that are only worth doing with the look in front of you: giving
- * it a popoto, and for its author fixing the caption or withdrawing it, and
- * for an admin taking it down.
+ * set of four behaves exactly the way a gallery post of four does. Beside
+ * that, the things only worth doing with the look in front of you: giving it
+ * a popoto, and for its author fixing the caption or withdrawing it, and for
+ * an admin letting it in or taking it down. And beside the window, what
+ * people are saying about it (v99).
  *
  * Withdrawing asks first, because it takes the popoto with it and cannot be
  * undone; hiding does not, because an admin can put it back.
  */
 export default function LookDialog(
-  { images, name, avatar, characterId, caption, votes, given, place, awards,
-    mine, canEditCaption, canWithdraw, admin, hidden, pending = false, vote,
-    onSaveCaption, onWithdraw, onSetHidden, onApprove, onClose }: {
+  { supabase, entryId, contestTitle, number, images, name, avatar, characterId, caption,
+    votes, given, place, awards, mine, canEditCaption, canWithdraw, admin, hidden,
+    pending = false, vote, people, userId, me, talkClosed,
+    onSaveCaption, onWithdraw, onSetHidden, onApprove, onTalk, onClose }: {
+    supabase: SupabaseClient;
+    entryId: number;
+    contestTitle: string;
+    /** The look's number in its contest, which is what the window calls it. */
+    number: number;
     images: ContestImage[];
     name: string;
     avatar: string | null;
     /** Null while names are hidden: there is no page to link to by then. */
     characterId: number | null;
-    /** Waiting for an admin; only its author and admins are sent it. */
-    pending?: boolean;
-    onApprove: () => Promise<void>;
     caption: string | null;
     votes: number | null;
     given: boolean;
@@ -43,10 +56,22 @@ export default function LookDialog(
     canWithdraw: boolean;
     admin: boolean;
     hidden: boolean;
+    /** Waiting for an admin; only its author and admins are sent it. */
+    pending?: boolean;
     vote?: { disabled: boolean; why?: string; onToggle: (b: HTMLButtonElement) => Promise<void> };
+    /** The roster, for names in the conversation. */
+    people: PersonOption[];
+    userId: string | null;
+    /** The reader as the conversation needs them, or null without a verified character. */
+    me: PersonOption | null;
+    /** Their own look in a contest hiding names: readable, not writable (v99). */
+    talkClosed: boolean;
     onSaveCaption: (caption: string) => Promise<Key | null>;
     onWithdraw: () => Promise<Key | null>;
     onSetHidden: (hidden: boolean) => Promise<void>;
+    onApprove: () => Promise<void>;
+    /** Something was said or taken back, for the count on the card. */
+    onTalk: () => void;
     onClose: () => void;
   },
 ) {
@@ -56,18 +81,12 @@ export default function LookDialog(
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<Key | null>(null);
   const [asking, setAsking] = useState(false);
+  const [talk, setTalk] = useState<Message[]>([]);
 
-  // Escape closes, and the page underneath does not scroll while this is up.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
+  const loadTalk = useCallback(async () => {
+    setTalk(await loadThread(supabase, CONTEST_THREAD, entryId));
+  }, [supabase, entryId]);
+  useEffect(() => { void loadTalk(); }, [loadTalk]);
 
   // The carousel speaks the gallery's shape. A look keeps paths, so the
   // addresses are made here, and the small copy stands in while the full one
@@ -78,23 +97,68 @@ export default function LookDialog(
     width: img.width, height: img.height, position: img.position,
   })), [images]);
 
-  return (
-    <div role="dialog" aria-modal="true" aria-label={name}
-         onClick={onClose}
-         className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-bg/90 p-2 backdrop-blur-sm sm:p-4">
-      <div onClick={(e) => e.stopPropagation()}
-           className="relative w-full max-w-[1200px] rounded-2xl border border-line bg-surface p-3 shadow-2xl sm:p-4">
-        <div className="mb-1 flex items-center justify-end">
-          <button onClick={onClose} aria-label={t("contest.close")} title={t("contest.close")}
-                  className="grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-card hover:text-ink">
-            <svg viewBox="0 0 24 24" aria-hidden width="19" height="19"
-                 fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-        </div>
+  // A portrait shot, in a window the conversation has narrowed, is a strip
+  // down the middle with empty width either side, and the popoto was below
+  // it, out of sight. The details can have that width. A wide shot needs the
+  // whole window to itself, so it keeps them underneath until there is room.
+  const cover = images[0];
+  const tall = !!cover?.width && !!cover.height && cover.height > cover.width;
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+  const conversation = (
+    <Messages chat comments={talk} people={people} me={me} userId={userId}
+              closed={talkClosed ? t("contest.talkClosedOwn") : undefined}
+              // A picture in a message goes where a gallery comment's does,
+              // under the writer's own folder: it is theirs, and they are
+              // speaking as themselves.
+              upload={(f: File) => uploadOne(supabase, userId!, f)}
+              write={(cid, emoji, mineToo, who) =>
+                void reactInThread(supabase, CONTEST_THREAD, userId!, cid, emoji, who, mineToo)}
+              onAdd={async (c) => {
+                setTalk((v) => [...v, c]);
+                if (!userId) return;
+                await addToThread(supabase, CONTEST_THREAD, entryId, userId, {
+                  text: c.text, images: c.images,
+                  mentions: c.mentions, mentionsAll: c.mentionsAll,
+                  replyTo: c.replyTo,
+                });
+                await loadTalk();
+                onTalk();
+              }}
+              onReact={(cid, emoji, on, who) =>
+                setTalk((v) => v.map((c) => {
+                  if (c.id !== cid) return c;
+                  const rs = [...(c.reactions ?? [])];
+                  const i = rs.findIndex((r) => r.emoji === emoji);
+                  if (on) {
+                    if (i < 0) rs.push({ emoji, by: [who] });
+                    else rs[i] = { ...rs[i], by: [...rs[i].by, who] };
+                  } else if (i >= 0) {
+                    const by = rs[i].by.filter((w) => w.characterId !== who.characterId);
+                    if (by.length) rs[i] = { ...rs[i], by };
+                    else rs.splice(i, 1);
+                  }
+                  return { ...c, reactions: rs };
+                }))}
+              onEdit={userId ? async (cid, text) => {
+                await editInThread(supabase, CONTEST_THREAD, cid, text);
+                await loadTalk();
+              } : undefined}
+              onDrop={userId ? async (cid) => {
+                await dropFromThread(supabase, CONTEST_THREAD, cid);
+                await loadTalk();
+                onTalk();
+              } : undefined} />
+  );
+
+  return (
+    <TalkWindow onClose={onClose} title={contestTitle}
+                subtitle={t("contest.lookNo", { n: number })}
+                talk={{ messages: talk, title: t("gallery.comments"), body: conversation }}>
+      {/* Two columns while the window is wide enough to hold them, one when
+          the conversation has taken half the screen: the window's own width
+          decides, not the screen's. */}
+      <div className="@container">
+        <div className={`grid gap-4 ${tall ? "@2xl:grid-cols-[minmax(0,1fr)_16rem]" : ""} @4xl:grid-cols-[minmax(0,1fr)_18rem]`}>
           <Carousel images={shots} />
 
           <aside className="flex flex-col gap-3">
@@ -236,24 +300,21 @@ export default function LookDialog(
             {err && <p className="text-ui text-chili">{t(err)}</p>}
           </aside>
         </div>
-
-        {/* Inside the box that stops clicks, not beside it. The question is
-            drawn in a portal, but React still carries its clicks up through
-            this tree, and one reaching the backdrop would close the look the
-            question was about. */}
-        {asking && (
-          <ConfirmDialog z={70} danger
-                         message={mine ? t("contest.confirmWithdraw") : t("contest.adm.confirmRemove")}
-                         confirmLabel={mine ? t("contest.withdraw") : t("contest.adm.remove")}
-                         onCancel={() => setAsking(false)}
-                         onConfirm={async () => {
-                           setAsking(false); setBusy(true); setErr(null);
-                           const bad = await onWithdraw();
-                           setBusy(false);
-                           if (bad) setErr(bad);
-                         }} />
-        )}
       </div>
-    </div>
+
+      {/* Over the window as well as the page, or it would open behind it. */}
+      {asking && (
+        <ConfirmDialog z={120} danger
+                       message={mine ? t("contest.confirmWithdraw") : t("contest.adm.confirmRemove")}
+                       confirmLabel={mine ? t("contest.withdraw") : t("contest.adm.remove")}
+                       onCancel={() => setAsking(false)}
+                       onConfirm={async () => {
+                         setAsking(false); setBusy(true); setErr(null);
+                         const bad = await onWithdraw();
+                         setBusy(false);
+                         if (bad) setErr(bad);
+                       }} />
+      )}
+    </TalkWindow>
   );
 }

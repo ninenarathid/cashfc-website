@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   contestError, countsShown, datesProblem, defaultDates, fileUrl, fromLocalInput,
-  inPlay, isNewEntry, isPending, phaseOf, placeEntries, shuffleFor, toLocalInput,
-  type Contest,
+  inPlay, isNewEntry, isPending, phaseOf, placeEntries, shuffleFor, talkClosedToOwner,
+  toLocalInput, type Contest,
 } from "@/lib/contest";
 
 /**
@@ -275,5 +275,21 @@ describe("what a refusal means", () => {
 describe("where a picture lives", () => {
   it("keeps the slashes and encodes the rest", () => {
     expect(fileUrl("12/ab cd/x.webp")).toMatch(/\/storage\/v1\/object\/public\/contest\/12\/ab%20cd\/x\.webp$/);
+  });
+});
+
+describe("talking under your own look", () => {
+  it("is closed while the contest hides names", () => {
+    expect(talkClosedToOwner(contest({ hide_names: true }), { mine: true })).toBe(true);
+  });
+
+  it("opens once the result is out", () => {
+    const c = contest({ hide_names: true, announced_at: new Date(T0).toISOString() });
+    expect(talkClosedToOwner(c, { mine: true })).toBe(false);
+  });
+
+  it("is never closed where names show, or on somebody else's look", () => {
+    expect(talkClosedToOwner(contest({ hide_names: false }), { mine: true })).toBe(false);
+    expect(talkClosedToOwner(contest({ hide_names: true }), { mine: false })).toBe(false);
   });
 });

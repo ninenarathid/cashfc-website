@@ -164,19 +164,8 @@ export default function GalleryGrid(
   const [supabase] = useState(createClient);
   const [open, setOpen] = useState<number | null>(initialOpen ?? null);
   const current = posts.find((p) => p.id === open) ?? null;
-
-  // Escape closes, and the page underneath must not scroll while it is open.
-  useEffect(() => {
-    if (!current) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(null); };
-    window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [current]);
+  // Escape, the scroll lock and clicking away are the window's own now: a
+  // picture opens in ui/Modal the way a party does (see PostDetail).
 
   async function setHidden(id: number, hidden: boolean) {
     if (!supabase) return;
@@ -490,33 +479,11 @@ export default function GalleryGrid(
       </div>
 
       {current && (
-        <div role="dialog" aria-modal="true"
-             onClick={() => setOpen(null)}
-             className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-bg/90 p-2 backdrop-blur-sm sm:p-4">
-          <div onClick={(e) => e.stopPropagation()}
-               className="relative w-full max-w-[1400px] rounded-2xl border border-line bg-surface p-3 shadow-2xl sm:p-4">
-            {/* Its own row rather than floated over the picture. Thirty pixels
-                is a cheaper price than a button sitting on somebody's
-                screenshot, which is what everybody opened this to look at.
-                A cross and nothing else: a frame and a word around it were two
-                more things drawn next to a photograph that wanted the room. */}
-            <div className="mb-1 flex items-center justify-end">
-              <button onClick={() => setOpen(null)} aria-label={t("gallery.close")}
-                      title={t("gallery.close")}
-                      className="grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-card hover:text-ink">
-                <svg viewBox="0 0 24 24" aria-hidden width="19" height="19"
-                     fill="none" stroke="currentColor" strokeWidth="1.9"
-                     strokeLinecap="round">
-                  <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
-              </button>
-            </div>
-            <PostDetail post={current} authors={authors} roster={roster}
-                        memberOptions={memberOptions}
-                        onDeleted={() => { setOpen(null); onChanged(); }}
-                        onChanged={onChanged} />
-          </div>
-        </div>
+        <PostDetail key={current.id} post={current} authors={authors} roster={roster}
+                    memberOptions={memberOptions}
+                    onDeleted={() => { setOpen(null); onChanged(); }}
+                    onChanged={onChanged}
+                    onClose={() => setOpen(null)} />
       )}
     </>
   );

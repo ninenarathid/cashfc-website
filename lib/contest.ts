@@ -416,6 +416,8 @@ export interface Board {
   mine: Set<number>;
   awards: ContestAward[];
   turnout: { entries: number; voters: number; votes: number } | null;
+  /** How many messages each look has, not counting ones taken back. See v99. */
+  talk: Map<number, number>;
 }
 
 /**
@@ -452,14 +454,27 @@ export async function loadBoard(
   }));
 
   const images = new Map<number, ContestImage[]>();
+  const talk = new Map<number, number>();
   if (entries.length) {
-    const { data } = await supabase.from("contest_images")
-      .select("id, entry_id, path, thumb_path, width, height, position")
-      .in("entry_id", entries.map((x) => x.id))
-      .order("position", { ascending: true });
+    const ids = entries.map((x) => x.id);
+    // The messages are counted, not read: the card only says there are some,
+    // and a look's conversation is fetched when it is opened. A database
+    // without v99 answers with an error here, which is simply no counts.
+    const [{ data }, { data: said }] = await Promise.all([
+      supabase.from("contest_images")
+        .select("id, entry_id, path, thumb_path, width, height, position")
+        .in("entry_id", ids)
+        .order("position", { ascending: true }),
+      supabase.from("contest_comments").select("entry_id")
+        .in("entry_id", ids).is("deleted_at", null),
+    ]);
     for (const img of (data ?? []) as ContestImage[]) {
       const list = images.get(img.entry_id);
       if (list) list.push(img); else images.set(img.entry_id, [img]);
+    }
+    for (const r of (said ?? []) as { entry_id: number }[]) {
+      const id = Number(r.entry_id);
+      talk.set(id, (talk.get(id) ?? 0) + 1);
     }
   }
 
@@ -478,8 +493,17 @@ export async function loadBoard(
     turnout: turn
       ? { entries: Number(turn.entries), voters: Number(turn.voters), votes: Number(turn.votes) }
       : null,
+    talk,
   };
 }
+
+/**
+ * Whether the reader's own look is closed to them for talking: a contest
+ * hiding names, not yet announced. The same rule contest_talk_open applies
+ * (v99), asked here so the box can say so rather than refuse.
+ */
+export const talkClosedToOwner = (c: Contest, e: Pick<ContestEntry, "mine">): boolean =>
+  e.mine && c.hide_names && !c.announced_at;
 
 /* ── writing ─────────────────────────────────────────────────────────────── */
 

@@ -11,7 +11,7 @@ import { fmtDateTime } from "@/lib/dates";
 import {
   castPopoto, countsShown, inPlay as lookInPlay, isNewEntry, isPending,
   loadBoard, loadContest, phaseOf, placeEntries, saveCaption,
-  shuffleFor, thumbUrl, withdrawLook, type Board, type Contest, type ContestEntry,
+  shuffleFor, talkClosedToOwner, thumbUrl, withdrawLook, type Board, type Contest, type ContestEntry,
   type Stage,
 } from "@/lib/contest";
 import { throwPotato } from "@/components/ui/throwPotato";
@@ -36,7 +36,11 @@ import ContestResults, { type ResultLook } from "@/components/contest/ContestRes
  * change it.
  */
 
-type Me = { id: string; characterId: number | null; verified: boolean };
+type Me = {
+  id: string; characterId: number | null; verified: boolean;
+  /** The reader as a conversation needs them: null without a verified character. */
+  person: PersonOption | null;
+};
 
 export const STAGE_TONE: Record<Stage, string> = {
   draft: "border-chili/60 text-chili",
@@ -102,12 +106,27 @@ export default function ContestView(
       let who: Me | null = null;
       if (uid) {
         const { data: p } = await supabase.from("profiles")
-          .select("character_id, character_verified_at").eq("id", uid).maybeSingle();
-        const row = p as { character_id?: number | null; character_verified_at?: string | null } | null;
+          .select("character_id, character_verified_at, character_name, display_name,"
+            + " discord_username, discord_avatar, avatar_url")
+          .eq("id", uid).maybeSingle();
+        const row = p as {
+          character_id?: number | null; character_verified_at?: string | null;
+          character_name?: string | null; display_name?: string | null;
+          discord_username?: string | null; discord_avatar?: string | null;
+          avatar_url?: string | null;
+        } | null;
+        const verified = !!(row?.character_id && row?.character_verified_at);
         who = {
           id: uid,
           characterId: row?.character_id ?? null,
-          verified: !!(row?.character_id && row?.character_verified_at),
+          verified,
+          // Named and pictured the way lib/threads resolves everybody else in
+          // a conversation, so the reader's own lines match on the way back.
+          person: verified ? {
+            id: row!.character_id!,
+            name: row?.character_name ?? row?.display_name ?? row?.discord_username ?? "—",
+            avatar: row?.avatar_url ?? row?.discord_avatar ?? null,
+          } : null,
         };
       }
       const c = await loadContest(supabase, contestId);
@@ -434,6 +453,7 @@ export default function ContestView(
                           mine={e.mine}
                           hidden={e.hidden}
                           pending={isPending(e, contest)}
+                          comments={board.talk.get(e.id) ?? 0}
                           vote={voteFor(e)}
                           onOpen={() => setOpen(e.id)} />
               );
@@ -475,7 +495,12 @@ export default function ContestView(
         const who = whoOf(current);
         const isMine = current.mine;
         return (
-          <LookDialog images={board.images.get(current.id) ?? []}
+          <LookDialog key={current.id} supabase={supabase} entryId={current.id}
+                      contestTitle={title} number={current.number}
+                      people={memberOptions} userId={me?.id ?? null} me={me?.person ?? null}
+                      talkClosed={talkClosedToOwner(contest, current)}
+                      onTalk={() => void reload()}
+                      images={board.images.get(current.id) ?? []}
                       name={who.name} avatar={who.avatar}
                       characterId={who.anonymous ? null : current.character_id}
                       caption={current.caption}

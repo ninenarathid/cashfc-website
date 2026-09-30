@@ -22,6 +22,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import PopotoGivers from "@/components/PopotoGivers";
 import { useAdmin } from "@/lib/admin";
 import Messages from "@/components/ui/Messages";
+import TalkWindow from "@/components/ui/TalkWindow";
 import type { MemberOption } from "@/components/gallery/MemberPicker";
 import { fmtDate } from "@/lib/dates";
 import PopotoIcon from "@/components/ui/PopotoIcon";
@@ -31,10 +32,14 @@ interface Author { id: string; name: string; characterId: number | null; avatar:
 /**
  * One picture, everything attached to it, and the ways to react.
  *
- * The same component fills the lightbox on the gallery grid and the body of the
+ * The same component fills the window on the gallery grid and the body of the
  * shareable page. A shared link has to show what the person who sent it was
  * looking at, and two implementations of "a picture with its comments" would
  * have drifted apart by the second change.
+ *
+ * A window of its own with the conversation beside it, the way a party opens
+ * on the party finder (see ui/TalkWindow): the picture and what belongs to it
+ * on the left, what people are saying about it on the right.
  *
  * Popoto is the FC's own currency, already used to thank people on their member
  * page — here it counts per picture rather than per person per day. One each,
@@ -42,7 +47,7 @@ interface Author { id: string; name: string; characterId: number | null; avatar:
  */
 export default function PostDetail(
   { post, authors, roster = {}, memberOptions = [],
-    onDeleted, onChanged, compact = false }: {
+    onDeleted, onChanged, onClose, compact = false }: {
     post: GalleryPost;
     authors: Record<string, Author>;
     roster?: Roster;
@@ -50,6 +55,8 @@ export default function PostDetail(
     memberOptions?: MemberOption[];
     onDeleted?: (id: number) => void;
     onChanged?: () => void;
+    /** The window is closed: see ui/TalkWindow, which this is drawn in. */
+    onClose: () => void;
     compact?: boolean;
   },
 ) {
@@ -399,7 +406,60 @@ export default function PostDetail(
     onFiles: addImages, disabled: busy || !canEditCaption,
   });
 
+  /*
+   * The same conversation the party board has, in the panel beside the
+   * picture. See components/ui/Messages: it holds the conversation, and this
+   * page hands it the messages and the writes that know where they are.
+   */
+  const conversation = (
+    <Messages chat comments={comments} people={people} me={mePerson}
+              userId={me}
+              upload={(f: File) => uploadOne(supabase!, me!, f)}
+              write={(cid, emoji, mine, who) =>
+                void reactInThread(
+                  supabase!, GALLERY_THREAD, me!, cid, emoji, who, mine)}
+              onAdd={async (c) => {
+                // On the screen first, then written: a reply that waits for a
+                // round trip before appearing reads as one that did not send.
+                setComments((v) => [...v, c]);
+                if (!supabase || !me) return;
+                await addToThread(supabase, GALLERY_THREAD, post.id, me, {
+                  text: c.text, images: c.images,
+                  mentions: c.mentions, mentionsAll: c.mentionsAll,
+                  replyTo: c.replyTo,
+                });
+                await load();
+              }}
+              onReact={(cid, emoji, on, who) =>
+                setComments((v) => v.map((c) => {
+                  if (c.id !== cid) return c;
+                  const rs = [...(c.reactions ?? [])];
+                  const i = rs.findIndex((r) => r.emoji === emoji);
+                  if (on) {
+                    if (i < 0) rs.push({ emoji, by: [who] });
+                    else rs[i] = { ...rs[i], by: [...rs[i].by, who] };
+                  } else if (i >= 0) {
+                    const by = rs[i].by.filter((w) => w.characterId !== who.characterId);
+                    if (by.length) rs[i] = { ...rs[i], by };
+                    else rs.splice(i, 1);
+                  }
+                  return { ...c, reactions: rs };
+                }))}
+              onEdit={me ? async (cid, text) => {
+                if (!supabase) return;
+                await editInThread(supabase, GALLERY_THREAD, cid, text);
+                await load();
+              } : undefined}
+              onDrop={me ? async (cid) => {
+                if (!supabase) return;
+                await dropFromThread(supabase, GALLERY_THREAD, cid);
+                await load();
+              } : undefined} />
+  );
+
   return (
+    <TalkWindow onClose={onClose} title={t("gallery.title")} subtitle={when}
+                talk={{ messages: comments, title: t("gallery.comments"), body: conversation }}>
     <div {...dropHandlers} className="relative flex flex-col gap-4">
       {dropping && (
         // Over the whole post rather than one corner of it: the pointer could
@@ -481,7 +541,6 @@ export default function PostDetail(
                 {shownName}
               </span>
             )}
-            <div className="text-meta text-muted">{when}</div>
           </div>
         </div>
 
@@ -613,77 +672,16 @@ export default function PostDetail(
           )}
         </div>
 
-        {/*
-          * The same conversation the party board has.
-          *
-          * It was a list of boxes with a name and a body in them, and a
-          * single-line input underneath — no pictures, no replies, no
-          * reactions, and no way to take back a thing said in haste under a
-          * photograph of somebody's house. See components/ui/Messages: the
-          * component holds the conversation and this page hands it the
-          * messages and the two writes that know where they are.
-          */}
-        <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
-          <Messages comments={comments} people={people} me={mePerson}
-                    userId={me}
-                    upload={(f: File) => uploadOne(supabase!, me!, f)}
-                    write={(cid, emoji, mine, who) =>
-                      void reactInThread(
-                        supabase!, GALLERY_THREAD, me!, cid, emoji, who, mine)}
-                    onAdd={async (c) => {
-                      // On the screen first, then written: a reply that waits
-                      // for a round trip before appearing reads as one that
-                      // did not send.
-                      setComments((v) => [...v, c]);
-                      if (!supabase || !me) return;
-                      await addToThread(supabase, GALLERY_THREAD, post.id, me, {
-                        text: c.text, images: c.images,
-                        mentions: c.mentions, mentionsAll: c.mentionsAll,
-                        replyTo: c.replyTo,
-                      });
-                      await load();
-                    }}
-                    onReact={(cid, emoji, on, who) =>
-                      setComments((v) => v.map((c) => {
-                        if (c.id !== cid) return c;
-                        const rs = [...(c.reactions ?? [])];
-                        const i = rs.findIndex((r) => r.emoji === emoji);
-                        if (on) {
-                          if (i < 0) rs.push({ emoji, by: [who] });
-                          else rs[i] = { ...rs[i], by: [...rs[i].by, who] };
-                        } else if (i >= 0) {
-                          const by = rs[i].by.filter(
-                            (w) => w.characterId !== who.characterId);
-                          if (by.length) rs[i] = { ...rs[i], by };
-                          else rs.splice(i, 1);
-                        }
-                        return { ...c, reactions: rs };
-                      }))}
-                    onEdit={me ? async (cid, text) => {
-                      if (!supabase) return;
-                      await editInThread(supabase, GALLERY_THREAD, cid, text);
-                      await load();
-                    } : undefined}
-                    onDrop={me ? async (cid) => {
-                      if (!supabase) return;
-                      await dropFromThread(supabase, GALLERY_THREAD, cid);
-                      await load();
-                    } : undefined} />
-          {!me && (
-            <Link href="/profile"
-                  className="text-ui text-accent no-underline hover:underline">
-              {t("gallery.signInToReact")}
-            </Link>
-          )}
-        </div>
       </div>
 
+      {/* Over the window as well as the page, or it would open behind it. */}
       {ask && (
-        <ConfirmDialog message={ask.message} confirmLabel={ask.label}
+        <ConfirmDialog z={120} message={ask.message} confirmLabel={ask.label}
                        danger={ask.danger}
                        onConfirm={() => { ask.run(); setAsk(null); }}
                        onCancel={() => setAsk(null)} />
       )}
     </div>
+    </TalkWindow>
   );
 }
