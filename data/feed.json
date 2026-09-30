@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-09-30",
+   "type": "level_100",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-09-30",
+   "type": "ex_clear",
+   "id": 42053180,
+   "name": "Chu'ny On-duty",
+   "text": "cleared Zelenia (Extreme)"
+  },
+  {
+   "date": "2026-09-30",
+   "type": "level_100",
+   "id": 29907674,
+   "name": "Ranjoe Tp'",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-09-30",
+   "type": "ult_clear",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "cleared Dancing Mad 🏆"
+  },
+  {
+   "date": "2026-09-30",
+   "type": "level_100",
+   "id": 42146242,
+   "name": "Zxazi Rowan",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-09-30",
+   "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-09-30",
+   "type": "job_up",
+   "id": 17723972,
+   "name": "Naruga Vagrant",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-09-30",
+   "type": "job_up",
+   "id": 36149590,
+   "name": "Neo Anderson",
+   "text": "is now a Legendary Gunbreaker"
+  },
+  {
+   "date": "2026-09-30",
    "type": "grade_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1343,62 +1399,6 @@
    "id": 36183541,
    "name": "Nagi Amano",
    "text": "earned Cut Above the Rest: Twinfangs Occultum — only 1.9% of players have it, and 1 more"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "level_100",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "level_100",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned Tour de Fork IV — only 0.1% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned Fit for a Queen: Blade's Serenity, and 1 more"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned R&D: Hyperhatchet — only 4.8% of players have it"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "job_up",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "is now a Expert Bard"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Phantom of the Umbra: Crook Umbrae"
   }
  ]
 }

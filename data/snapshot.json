@@ -1026,7 +1026,7 @@
   "mounts": 75,
   "minions": 144,
   "rare": 41,
-  "level": 100,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -2183,7 +2183,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 40,
+  "level": 43,
   "cc": [
    true,
    true,
@@ -3742,7 +3742,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 69,
-  "level": 98,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4681,7 +4681,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 76,
+  "level": 84,
   "cc": [
    true,
    true,
@@ -4708,7 +4708,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-30"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -5490,7 +5490,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -5612,7 +5612,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-27"
+  "chg": "2026-09-30"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -5776,6 +5776,7 @@
    "Necron",
    "Queen Eternal",
    "Valigarmanda",
+   "Zelenia",
    "Zoraal Ja"
   ],
   "ults": [
@@ -6333,7 +6334,13 @@
   "minions": 104,
   "rare": 5,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [
    1613,
    1675,
@@ -6345,7 +6352,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-09-30"
  },
  "31899766": {
   "name": "Firenna Dragist",
@@ -6425,13 +6432,19 @@
   "minions": 35,
   "rare": 0,
   "level": 22,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-09-30"
  },
  "43335087": {
   "name": "Haru Senbonzakura",
@@ -7656,13 +7669,19 @@
   "minions": 15,
   "rare": null,
   "level": 70,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-06"
+  "chg": "2026-09-30"
  },
  "29907674": {
   "name": "Ranjoe Tp'",
@@ -7671,7 +7690,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 83,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7716,7 +7735,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-29"
+  "chg": "2026-09-30"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -7844,7 +7863,7 @@
  "36363091": {
   "name": "Snow Winsfield",
   "parse": 98,
-  "ult": 3,
+  "ult": 4,
   "mounts": 109,
   "minions": 168,
   "rare": null,
@@ -7859,7 +7878,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "legendary",
+   "Viper": "master",
    "Reaper": "legendary",
    "Gunbreaker": "master",
    "DarkKnight": "master"
@@ -7875,11 +7894,12 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dancing Mad",
    "Dragonsong's Reprise",
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-27"
+  "chg": "2026-09-30"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -8113,7 +8133,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 60,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -8227,7 +8247,7 @@
   "mounts": 30,
   "minions": 89,
   "rare": 11,
-  "level": 69,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8293,7 +8313,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
@@ -8438,7 +8458,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 40,
   "cc": null,
   "rare_ids": [
    3935,
@@ -8448,7 +8468,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-29"
+  "chg": "2026-09-30"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -13772,6 +13792,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
+   "RedMage": "expert",
    "BlackMage": "legendary"
   },
   "ex": [
@@ -13984,7 +14005,7 @@
   "jobs": {
    "Warrior": "legendary",
    "DarkKnight": "legendary",
-   "Gunbreaker": "master",
+   "Gunbreaker": "legendary",
    "Machinist": "expert"
   },
   "ex": [
