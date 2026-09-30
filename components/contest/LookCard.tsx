@@ -2,18 +2,23 @@
 
 import { useState } from "react";
 import { useLang } from "@/lib/i18n";
-import { thumbUrl, type ContestImage } from "@/lib/contest";
+import { shapeOf, thumbUrl, type ContestImage } from "@/lib/contest";
 import PopotoVote from "@/components/contest/PopotoVote";
 
 /**
  * One look on the wall.
  *
- * Every card is the same size, which is the one place this departs from the
- * gallery's wall. There a picture keeps its shape because the wall is for
- * looking; here the wall is for choosing, and a look drawn twice the size of
- * the one beside it has been given an advantage nobody voted for. Glamour
- * shots are mostly GPose portraits, so the frame is portrait too, and a wide
- * shot is cropped to it — the whole picture is one click away.
+ * The picture is shown whole, at its own shape, the way the gallery's wall
+ * shows one. Every card was one size at first, cropped to a 4:5 portrait so
+ * no look was drawn bigger than the one beside it — and that cut the head off
+ * a 9:16 GPose shot, which is most of them. A look judged from a picture you
+ * cannot see all of is being judged on something else (asked for on
+ * 2026-09-30). The wall stacks the cards in columns so their different
+ * heights leave no holes (lib/contest intoLanes).
+ *
+ * The frame is sized from the stored width and height before the file
+ * arrives, so the column does not jump as pictures load. One never measured
+ * gets the old 4:5 frame, fitted inside it rather than cropped.
  *
  * The badges say what a member would want to know before opening it: whose
  * it is if it is theirs, that it arrived late, and where it placed.
@@ -50,6 +55,7 @@ export default function LookCard(
 ) {
   const { t } = useLang();
   const [shown, setShown] = useState(false);
+  const shape = shapeOf(cover);
 
   return (
     <article className={`group flex flex-col overflow-hidden rounded-xl border bg-surface transition-colors ${
@@ -60,12 +66,16 @@ export default function LookCard(
           picture's own button, so the two share a positioned box. */}
       <div className="relative">
       <button type="button" onClick={onOpen}
-              className="relative block aspect-[4/5] w-full overflow-hidden bg-card text-left">
+              style={shape ? { aspectRatio: String(shape) } : undefined}
+              className={`relative block w-full overflow-hidden bg-card text-left ${
+                shape ? "" : "aspect-[4/5]"}`}>
         {cover && (
           // eslint-disable-next-line @next/next/no-img-element
           <img id={`look-${id}`} src={thumbUrl(cover)} alt={caption ?? ""} loading="lazy"
+               width={cover.width ?? undefined} height={cover.height ?? undefined}
                onLoad={() => setShown(true)}
-               className={`size-full object-cover transition-[opacity,transform] duration-500 group-hover:scale-[1.02] ${
+               className={`size-full transition-[opacity,transform] duration-500 group-hover:scale-[1.02] ${
+                 shape ? "object-cover" : "object-contain"} ${
                  shown ? "opacity-100" : "opacity-0"} ${hidden ? "grayscale" : ""}`} />
         )}
 

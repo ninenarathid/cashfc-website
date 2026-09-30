@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   contestError, countsShown, datesProblem, defaultDates, fileUrl, fromLocalInput,
-  inPlay, isNewEntry, isPending, lookPath, phaseOf, placeEntries, shuffleFor, talkClosedToOwner,
+  inPlay, intoLanes, isNewEntry, isPending, lookPath, phaseOf, placeEntries, shapeOf,
+  shuffleFor, talkClosedToOwner,
   toLocalInput, type Contest,
 } from "@/lib/contest";
 
@@ -275,6 +276,29 @@ describe("what a refusal means", () => {
 describe("where a picture lives", () => {
   it("keeps the slashes and encodes the rest", () => {
     expect(fileUrl("12/ab cd/x.webp")).toMatch(/\/storage\/v1\/object\/public\/contest\/12\/ab%20cd\/x\.webp$/);
+  });
+});
+
+describe("the wall's columns", () => {
+  const tall = 9 / 16, wide = 16 / 9;
+  it("puts the first row across the top, left to right", () => {
+    expect(intoLanes([1, 2, 3, 4], 4, () => tall)).toEqual([[1], [2], [3], [4]]);
+  });
+  it("then fills whichever column is shortest", () => {
+    // 1 is tall, 2 is wide: 3 goes under the wide one, and so does 4.
+    const shapes: Record<number, number> = { 1: tall, 2: wide, 3: wide, 4: tall };
+    expect(intoLanes([1, 2, 3, 4], 2, (n) => shapes[n])).toEqual([[1], [2, 3, 4]]);
+  });
+  it("counts a picture nobody measured as the 4:5 frame", () => {
+    expect(intoLanes(["a", "b", "c"], 2, (s) => (s === "b" ? 16 / 9 : null))).toEqual([["a"], ["b", "c"]]);
+  });
+  it("never has fewer than one column", () => {
+    expect(intoLanes([1, 2], 0, () => 1)).toEqual([[1, 2]]);
+  });
+  it("reads a picture's shape from its size", () => {
+    expect(shapeOf({ width: 1080, height: 1920 })).toBeCloseTo(0.5625);
+    expect(shapeOf({ width: null, height: 1920 })).toBeNull();
+    expect(shapeOf(undefined)).toBeNull();
   });
 });
 

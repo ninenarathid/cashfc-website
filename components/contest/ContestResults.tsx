@@ -1,7 +1,7 @@
 "use client";
 
 import { useLang } from "@/lib/i18n";
-import { thumbUrl, type ContestImage } from "@/lib/contest";
+import { shapeOf, thumbUrl, type ContestImage } from "@/lib/contest";
 
 export interface ResultLook {
   id: number;
@@ -43,18 +43,22 @@ export default function ContestResults(
       <h3 className="font-display text-xl font-semibold text-gold">{t("contest.results")}</h3>
 
       {podium.length > 0 && (
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        // Whole pictures, as on the wall (see LookCard), so the cards are
+        // each their own height and line up along the top.
+        <div className="mt-3 grid grid-cols-2 items-start gap-3 sm:grid-cols-3">
           {podium.map((l) => {
             const m = METAL[l.place] ?? METAL[3];
+            const shape = shapeOf(l.cover);
             return (
               <button key={l.id} type="button" onClick={() => onOpen(l.id)}
                       className={`group flex flex-col overflow-hidden rounded-xl border-2 bg-surface text-left transition-transform hover:-translate-y-0.5 ${m.ring} ${
                         l.place === 1 ? "col-span-2 sm:col-span-1" : ""}`}>
-                <span className="relative block aspect-[4/5] w-full overflow-hidden bg-card">
+                <span style={shape ? { aspectRatio: String(shape) } : undefined}
+                      className={`relative block w-full overflow-hidden bg-card ${shape ? "" : "aspect-[4/5]"}`}>
                   {l.cover && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={thumbUrl(l.cover)} alt="" loading="lazy"
-                         className="size-full object-cover" />
+                         className={`size-full ${shape ? "object-cover" : "object-contain"}`} />
                   )}
                   <span className={`absolute left-2 top-2 rounded-md px-2 py-0.5 font-data text-ui font-semibold ${m.chip}`}>
                     {t("contest.place", { n: l.place })}

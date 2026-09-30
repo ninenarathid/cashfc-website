@@ -130,6 +130,39 @@ export const contestPath = (id: number) => `/contest/${id}`;
 export const lookPath = (contest: number, entry: number) =>
   `${contestPath(contest)}?look=${entry}`;
 
+/** A picture's width over its height, or null when it was never measured. */
+export const shapeOf = (img: Pick<ContestImage, "width" | "height"> | undefined): number | null =>
+  img?.width && img.height ? img.width / img.height : null;
+
+/**
+ * Looks into columns, each to whichever column is shortest so far.
+ *
+ * The wall shows every picture whole, so a card is as tall as its picture and
+ * a plain grid would leave a hole under every short one. Filling the shortest
+ * column keeps the order reading along the rows — the first few across the
+ * top, left to right — which matters once the wall is in finishing order.
+ * CSS columns would read down each column instead, and put second place under
+ * first.
+ *
+ * Heights are counted in column widths: a picture is one over its shape, and
+ * the name and caption under it are about `words` more. A picture never
+ * measured counts as the 4:5 frame it is drawn in.
+ */
+export function intoLanes<T>(
+  items: readonly T[], lanes: number, shape: (item: T) => number | null, words = 0.3,
+): T[][] {
+  const out: T[][] = Array.from({ length: Math.max(1, Math.floor(lanes)) }, () => []);
+  const tall = out.map(() => 0);
+  for (const item of items) {
+    let i = 0;
+    for (let k = 1; k < tall.length; k++) if (tall[k] < tall[i]) i = k;
+    out[i].push(item);
+    const r = shape(item);
+    tall[i] += (r && r > 0 ? 1 / r : 1.25) + words;
+  }
+  return out;
+}
+
 /* ── where a contest is ──────────────────────────────────────────────────── */
 
 /**

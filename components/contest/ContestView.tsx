@@ -9,8 +9,8 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import { isFcMember, type PersonOption } from "@/lib/people";
 import { fmtDateTime } from "@/lib/dates";
 import {
-  castPopoto, countsShown, inPlay as lookInPlay, isNewEntry, isPending,
-  loadBoard, loadContest, phaseOf, placeEntries, saveCaption,
+  castPopoto, countsShown, inPlay as lookInPlay, intoLanes, isNewEntry, isPending,
+  loadBoard, loadContest, phaseOf, placeEntries, saveCaption, shapeOf,
   shuffleFor, talkClosedToOwner, thumbUrl, withdrawLook, type Board, type Contest, type ContestEntry,
   type Stage,
 } from "@/lib/contest";
@@ -53,6 +53,31 @@ export const STAGE_TONE: Record<Stage, string> = {
   announced: "border-gold/60 text-gold",
 };
 
+/**
+ * How many columns the wall has room for: the two, three and four across the
+ * grid it replaced used, at the same widths.
+ *
+ * Asked of the screen once the page is in the browser. The wall is empty
+ * until the looks arrive, which is later, so nothing is drawn at the wrong
+ * count and moved.
+ */
+function useLanes(): number {
+  const [lanes, setLanes] = useState(2);
+  useEffect(() => {
+    const four = window.matchMedia("(min-width: 1024px)");
+    const three = window.matchMedia("(min-width: 768px)");
+    const set = () => setLanes(four.matches ? 4 : three.matches ? 3 : 2);
+    set();
+    four.addEventListener("change", set);
+    three.addEventListener("change", set);
+    return () => {
+      four.removeEventListener("change", set);
+      three.removeEventListener("change", set);
+    };
+  }, []);
+  return lanes;
+}
+
 /** How long until something, in the one unit that reads best for its size. */
 function until(ms: number, t: (k: Key, v?: Record<string, string | number>) => string): string {
   const min = Math.max(1, Math.round(ms / 60_000));
@@ -83,6 +108,7 @@ export default function ContestView(
   const [board, setBoard] = useState<Board | null>(null);
   const [open, setOpen] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const lanes = useLanes();
 
   const roster = useMemo(() => {
     const m = new Map<number, { name: string; avatar: string | null }>();
@@ -437,27 +463,33 @@ export default function ContestView(
           <h3 className="mb-3 font-display text-lead font-semibold">{t("contest.allLooks")}</h3>
         )}
         {wall.length ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {wall.map((e) => {
-              const who = whoOf(e);
-              const pics = board.images.get(e.id) ?? [];
-              return (
-                <LookCard key={e.id} id={e.id} cover={pics[0]} pictures={pics.length}
-                          name={who.name} avatar={who.avatar} anonymous={who.anonymous}
-                          caption={e.caption}
-                          votes={shown && lookInPlay(e, contest) ? board.votes.get(e.id) ?? 0 : null}
-                          given={board.mine.has(e.id)}
-                          place={placeOf.get(e.id) ?? null}
-                          awards={contest.announced_at ? awardsOf.get(e.id) ?? [] : []}
-                          isNew={lookInPlay(e, contest) && isNewEntry(e, contest, now)}
-                          mine={e.mine}
-                          hidden={e.hidden}
-                          pending={isPending(e, contest)}
-                          comments={board.talk.get(e.id) ?? 0}
-                          vote={voteFor(e)}
-                          onOpen={() => setOpen(e.id)} />
-              );
-            })}
+          // Columns rather than a grid, because every picture is whole and so
+          // every card is its own height. See intoLanes.
+          <div className="flex items-start gap-3 sm:gap-4">
+            {intoLanes(wall, lanes, (e) => shapeOf(board.images.get(e.id)?.[0])).map((lane, i) => (
+              <div key={i} className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
+                {lane.map((e) => {
+                  const who = whoOf(e);
+                  const pics = board.images.get(e.id) ?? [];
+                  return (
+                    <LookCard key={e.id} id={e.id} cover={pics[0]} pictures={pics.length}
+                              name={who.name} avatar={who.avatar} anonymous={who.anonymous}
+                              caption={e.caption}
+                              votes={shown && lookInPlay(e, contest) ? board.votes.get(e.id) ?? 0 : null}
+                              given={board.mine.has(e.id)}
+                              place={placeOf.get(e.id) ?? null}
+                              awards={contest.announced_at ? awardsOf.get(e.id) ?? [] : []}
+                              isNew={lookInPlay(e, contest) && isNewEntry(e, contest, now)}
+                              mine={e.mine}
+                              hidden={e.hidden}
+                              pending={isPending(e, contest)}
+                              comments={board.talk.get(e.id) ?? 0}
+                              vote={voteFor(e)}
+                              onOpen={() => setOpen(e.id)} />
+                  );
+                })}
+              </div>
+            ))}
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-line p-10 text-center text-read text-muted">
