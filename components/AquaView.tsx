@@ -11,6 +11,7 @@ import { useLang, type Key, type Lang } from "@/lib/i18n";
 import { AQUA } from "@/components/ui/WalletToast";
 import AquaControls from "@/components/aqua/AquaControls";
 import AquaQueue from "@/components/aqua/AquaQueue";
+import ContestDesk from "@/components/contest/ContestDesk";
 import { fmtGil } from "@/lib/wallet";
 import { EVENT_FROM, EVENT_OPENS, EVENT_SHUTS, EVENT_TO } from "@/lib/evercold";
 import {
@@ -289,6 +290,11 @@ export default function AquaView(
       <Link href="/admin" className="text-ui text-muted no-underline hover:text-ink">
         {t("aqua.back")}
       </Link>
+
+      {/* ── The glamour contest ──────────────────────────────────────────── */}
+      {/* Hers to run as well, so the way in is here and not only on the admin
+          panel. Above the gil, which has a figure standing out of its top. */}
+      <ContestDesk supabase={supabase} />
 
       {/* ── How much, right now ──────────────────────────────────────────── */}
       <section className="relative mt-14 sm:mt-20">

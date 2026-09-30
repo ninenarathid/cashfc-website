@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/party/[id]/opengraph-image": ["./public/duty/**/*"],
     "/member/[id]/opengraph-image": ["./assets/popoto/popoto-og.png"],
+    // A contest's card is written in Kanit, the only Thai the renderer gets.
+    "/contest/[id]/opengraph-image": ["./assets/fonts/**/*", "./assets/popoto/popoto-og.png"],
+    "/contest/opengraph-image": ["./assets/fonts/**/*", "./assets/popoto/popoto-og.png"],
   },
 
   /*

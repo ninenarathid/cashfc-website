@@ -185,6 +185,18 @@ export function intoLanes<T>(
 export type Stage =
   | "draft" | "soon" | "entries" | "both" | "between" | "voting" | "counting" | "announced";
 
+/** The colour a stage's chip wears, wherever one is drawn. */
+export const STAGE_TONE: Record<Stage, string> = {
+  draft: "border-chili/60 text-chili",
+  soon: "border-steel/60 text-steel",
+  entries: "border-jade/60 text-jade",
+  both: "border-jade/60 text-jade",
+  between: "border-steel/60 text-steel",
+  voting: "border-accent/60 text-accent",
+  counting: "border-gold/60 text-gold",
+  announced: "border-gold/60 text-gold",
+};
+
 /** The next thing the clock will change, for the countdown. */
 export type NextChange = "entries-open" | "voting-open" | "entries-close" | "voting-close";
 

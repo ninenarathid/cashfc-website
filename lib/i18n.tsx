@@ -1664,6 +1664,15 @@ const DICT = {
     th: "หน้าของ Aqua: ยอดที่ต้องจ่าย ยอดเพิ่มเร็วแค่ไหน และของที่รอส่งมอบ",
   },
   "aqua.back": { en: "← Admin", th: "← หน้าแอดมิน" },
+  // The contest card at the top of her page (ContestDesk).
+  "aqua.contestEyebrow": { en: "Glamour contest", th: "งานประกวด Glamour" },
+  "aqua.contestManage": { en: "Manage the contest", th: "จัดการงานประกวด" },
+  "aqua.contestOpen": { en: "See its page", th: "ดูหน้างาน" },
+  "aqua.contestNone": {
+    en: "No contest yet. Start the first one: its theme, dates and rules.",
+    th: "ยังไม่มีงานประกวด เริ่มงานแรกได้เลย ตั้งธีม วันที่ และกติกา",
+  },
+  "aqua.contestStart": { en: "Start one", th: "สร้างงานประกวด" },
   "aqua.eyebrow": { en: "Aqua · event gil", th: "Aqua · เงินกิจกรรม" },
   "aqua.owedTitle": { en: "Owed right now", th: "ยอดที่ต้องจ่ายตอนนี้" },
   "aqua.inWallets": {

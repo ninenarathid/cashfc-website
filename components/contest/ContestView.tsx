@@ -9,7 +9,7 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import { isFcMember, type PersonOption } from "@/lib/people";
 import { fmtDateTime } from "@/lib/dates";
 import {
-  castPopoto, countsShown, inPlay as lookInPlay, intoLanes, isNewEntry, isPending,
+  STAGE_TONE, castPopoto, countsShown, inPlay as lookInPlay, intoLanes, isNewEntry, isPending,
   loadBoard, loadContest, phaseOf, placeEntries, saveCaption, shapeOf,
   shuffleFor, talkClosedToOwner, thumbUrl, withdrawLook, type Board, type Contest, type ContestEntry,
   type Stage,
@@ -42,16 +42,8 @@ type Me = {
   person: PersonOption | null;
 };
 
-export const STAGE_TONE: Record<Stage, string> = {
-  draft: "border-chili/60 text-chili",
-  soon: "border-steel/60 text-steel",
-  entries: "border-jade/60 text-jade",
-  both: "border-jade/60 text-jade",
-  between: "border-steel/60 text-steel",
-  voting: "border-accent/60 text-accent",
-  counting: "border-gold/60 text-gold",
-  announced: "border-gold/60 text-gold",
-};
+// Kept under this name for GalleryPage, which imports it from here.
+export { STAGE_TONE };
 
 /**
  * How many columns the wall has room for: the two, three and four across the

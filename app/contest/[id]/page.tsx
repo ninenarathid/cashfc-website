@@ -14,6 +14,9 @@ import { everyone } from "@/lib/people";
  * announced with a link should arrive as its name and poster rather than as
  * the site's own description. Drafts are not sent to a reader with no session
  * (v98), so a draft's link unfurls as the plain page and opens the gallery.
+ *
+ * The picture is opengraph-image beside this file — the poster with the name,
+ * the stage and the dates set beside it — so none is named here.
  */
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> },
@@ -24,10 +27,10 @@ export async function generateMetadata(
   if (!supabase) return fallback;
 
   const { data } = await supabase.from("contests")
-    .select("title, body, poster_url")
+    .select("title, body")
     .eq("id", Number(id) || -1)
     .maybeSingle();
-  const c = data as { title?: string; body?: string | null; poster_url?: string | null } | null;
+  const c = data as { title?: string; body?: string | null } | null;
   if (!c?.title) return fallback;
 
   const title = `${c.title} · Cafe And SHabu`;
@@ -35,15 +38,8 @@ export async function generateMetadata(
   return {
     title,
     description,
-    openGraph: {
-      title, description,
-      ...(c.poster_url ? { images: [{ url: c.poster_url }] } : {}),
-    },
-    twitter: {
-      card: c.poster_url ? "summary_large_image" : "summary",
-      title, description,
-      ...(c.poster_url ? { images: [c.poster_url] } : {}),
-    },
+    openGraph: { title, description },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

@@ -10,7 +10,7 @@ import { syncRoster } from "@/lib/prizes";
 import type { PersonOption } from "@/lib/people";
 import fcIds from "@/data/fc-ids.json";
 import {
-  CONTEST_BUCKET, contestPath, datesProblem, defaultDates, fromLocalInput, inPlay as lookInPlay,
+  CONTEST_BUCKET, STAGE_TONE, contestPath, datesProblem, defaultDates, fromLocalInput, inPlay as lookInPlay,
   isPending, listContests, loadBoard, phaseOf, placeEntries, thumbUrl, toLocalInput,
   withdrawLook, type Board, type Contest, type Stage,
 } from "@/lib/contest";
@@ -84,17 +84,6 @@ function formOf(c: Contest): Form {
 }
 
 const inputCls = "rounded-lg border border-line bg-card px-3 py-2 text-read text-ink placeholder:text-muted";
-
-const STAGE_TONE: Record<Stage, string> = {
-  draft: "border-chili/60 text-chili",
-  soon: "border-steel/60 text-steel",
-  entries: "border-jade/60 text-jade",
-  both: "border-jade/60 text-jade",
-  between: "border-steel/60 text-steel",
-  voting: "border-accent/60 text-accent",
-  counting: "border-gold/60 text-gold",
-  announced: "border-gold/60 text-gold",
-};
 
 function Toggle({ on, onChange, label, hint }: {
   on: boolean; onChange: (v: boolean) => void; label: string; hint?: string;
@@ -333,7 +322,7 @@ export default function AdminContests({ memberOptions = [] }: { memberOptions?: 
               <span className="text-ui text-muted">{t("contest.adm.titleTh")}</span>
               <input value={form.title} maxLength={120}
                      onChange={(e) => setForm({ ...form, title: e.target.value })}
-                     placeholder="Halloween 2026: ชุดผีสุดหลอน" className={inputCls} />
+                     className={inputCls} />
             </label>
             <label className="grid gap-1">
               <span className="text-ui text-muted">{t("contest.adm.titleEn")}</span>
