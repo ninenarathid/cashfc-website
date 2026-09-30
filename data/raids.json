@@ -20492,7 +20492,21 @@
       "best": 93,
       "median": 66,
       "kills": 20,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 13,
+        "best": 93
+       },
+       "Dragoon": {
+        "kills": 5,
+        "best": 59
+       },
+       "RedMage": {
+        "kills": 2,
+        "best": 28
+       }
+      }
      },
      {
       "label": "E10S",
@@ -20501,7 +20515,13 @@
       "best": 86,
       "median": 51,
       "kills": 16,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 16,
+        "best": 86
+       }
+      }
      },
      {
       "label": "E11S",
@@ -20510,7 +20530,17 @@
       "best": 75,
       "median": 46,
       "kills": 16,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 14,
+        "best": 75
+       },
+       "Machinist": {
+        "kills": 2,
+        "best": 18
+       }
+      }
      },
      {
       "label": "E12S",
@@ -20519,7 +20549,13 @@
       "best": 88,
       "median": 60,
       "kills": 20,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 20,
+        "best": 88
+       }
+      }
      },
      {
       "label": null,
@@ -20528,7 +20564,13 @@
       "best": 94,
       "median": 76,
       "kills": 4,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 4,
+        "best": 94
+       }
+      }
      }
     ]
    },
@@ -45061,7 +45103,23 @@
   "_status": "ok"
  },
  "31010962": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "31012021": {
   "current": {
@@ -47182,7 +47240,45 @@
       "best": 98,
       "median": 58,
       "kills": 68,
-      "job": "Ninja"
+      "job": "Ninja",
+      "job_kills": {
+       "Ninja": {
+        "kills": 5,
+        "best": 98
+       },
+       "Samurai": {
+        "kills": 16,
+        "best": 97
+       },
+       "Dragoon": {
+        "kills": 1,
+        "best": 89
+       },
+       "Scholar": {
+        "kills": 23,
+        "best": 97
+       },
+       "Gunbreaker": {
+        "kills": 5,
+        "best": 94
+       },
+       "DarkKnight": {
+        "kills": 6,
+        "best": 97
+       },
+       "Paladin": {
+        "kills": 6,
+        "best": 92
+       },
+       "Warrior": {
+        "kills": 5,
+        "best": 97
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 80
+       }
+      }
      },
      {
       "label": "E10S",
@@ -47191,7 +47287,53 @@
       "best": 99,
       "median": 90,
       "kills": 117,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Samurai": {
+        "kills": 28,
+        "best": 99
+       },
+       "Ninja": {
+        "kills": 7,
+        "best": 98
+       },
+       "Machinist": {
+        "kills": 1,
+        "best": 84
+       },
+       "Dragoon": {
+        "kills": 1,
+        "best": 25
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 10
+       },
+       "Scholar": {
+        "kills": 28,
+        "best": 99
+       },
+       "Gunbreaker": {
+        "kills": 9,
+        "best": 94
+       },
+       "Paladin": {
+        "kills": 9,
+        "best": 93
+       },
+       "Warrior": {
+        "kills": 6,
+        "best": 96
+       },
+       "DarkKnight": {
+        "kills": 16,
+        "best": 97
+       },
+       "WhiteMage": {
+        "kills": 11,
+        "best": 86
+       }
+      }
      },
      {
       "label": "E11S",
@@ -47200,7 +47342,53 @@
       "best": 99,
       "median": 90,
       "kills": 123,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 33,
+        "best": 99
+       },
+       "Ninja": {
+        "kills": 11,
+        "best": 96
+       },
+       "Dragoon": {
+        "kills": 2,
+        "best": 55
+       },
+       "RedMage": {
+        "kills": 3,
+        "best": 71
+       },
+       "Scholar": {
+        "kills": 27,
+        "best": 98
+       },
+       "Gunbreaker": {
+        "kills": 10,
+        "best": 90
+       },
+       "DarkKnight": {
+        "kills": 20,
+        "best": 98
+       },
+       "Paladin": {
+        "kills": 5,
+        "best": 93
+       },
+       "Warrior": {
+        "kills": 5,
+        "best": 95
+       },
+       "WhiteMage": {
+        "kills": 6,
+        "best": 91
+       },
+       "Astrologian": {
+        "kills": 1,
+        "best": 68
+       }
+      }
      },
      {
       "label": "E12S",
@@ -47209,7 +47397,49 @@
       "best": 99,
       "median": 99,
       "kills": 58,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "Samurai": {
+        "kills": 18,
+        "best": 92
+       },
+       "Ninja": {
+        "kills": 1,
+        "best": 24
+       },
+       "Dragoon": {
+        "kills": 1,
+        "best": 10
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 10
+       },
+       "Gunbreaker": {
+        "kills": 2,
+        "best": 93
+       },
+       "DarkKnight": {
+        "kills": 3,
+        "best": 99
+       },
+       "Scholar": {
+        "kills": 14,
+        "best": 96
+       },
+       "Warrior": {
+        "kills": 4,
+        "best": 86
+       },
+       "Paladin": {
+        "kills": 12,
+        "best": 61
+       },
+       "WhiteMage": {
+        "kills": 2,
+        "best": 39
+       }
+      }
      },
      {
       "label": null,
@@ -47218,7 +47448,45 @@
       "best": 96,
       "median": 56,
       "kills": 30,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Samurai": {
+        "kills": 9,
+        "best": 93
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 34
+       },
+       "Dragoon": {
+        "kills": 1,
+        "best": 17
+       },
+       "Ninja": {
+        "kills": 1,
+        "best": 10
+       },
+       "Scholar": {
+        "kills": 9,
+        "best": 96
+       },
+       "Gunbreaker": {
+        "kills": 1,
+        "best": 80
+       },
+       "Warrior": {
+        "kills": 3,
+        "best": 95
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 38
+       },
+       "Paladin": {
+        "kills": 4,
+        "best": 65
+       }
+      }
      }
     ]
    },
@@ -60942,7 +61210,13 @@
       "best": 85,
       "median": 65,
       "kills": 6,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 6,
+        "best": 85
+       }
+      }
      },
      {
       "label": "E10S",
@@ -60951,7 +61225,13 @@
       "best": 81,
       "median": 75,
       "kills": 7,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 7,
+        "best": 81
+       }
+      }
      },
      {
       "label": "E11S",
@@ -60960,7 +61240,13 @@
       "best": 81,
       "median": 55,
       "kills": 5,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 5,
+        "best": 81
+       }
+      }
      },
      {
       "label": "E12S",
@@ -60969,7 +61255,13 @@
       "best": 86,
       "median": 76,
       "kills": 9,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 9,
+        "best": 86
+       }
+      }
      },
      {
       "label": null,
@@ -60978,7 +61270,13 @@
       "best": 93,
       "median": 62,
       "kills": 2,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 2,
+        "best": 93
+       }
+      }
      }
     ]
    }
@@ -79406,7 +79704,23 @@
   "_status": "none"
  },
  "54419512": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "55476354": {
   "current": {
@@ -80635,7 +80949,23 @@
   "legacy": []
  },
  "60475540": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "60599300": {
   "_status": "none",
@@ -80732,7 +81062,23 @@
   "legacy": []
  },
  "60814172": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "60852230": {
   "_status": "ok",
@@ -80883,10 +81229,42 @@
   "legacy": []
  },
  "60972300": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "61748681": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "61758559": {
   "current": {
@@ -80908,10 +81286,42 @@
   "_status": "none"
  },
  "28679378": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "60994518": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "44085912": {
   "current": {
@@ -85158,7 +85568,23 @@
   ]
  },
  "45513833": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "31445625": {
   "current": {
@@ -88368,13 +88794,61 @@
   "_status": "ok"
  },
  "47525984": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "61997211": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "61014734": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "60429500": {
   "_status": "none"
@@ -88781,10 +89255,42 @@
   "_status": "ok"
  },
  "62539607": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "60535954": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "10769690": {
   "current": {

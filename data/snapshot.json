@@ -6994,7 +6994,7 @@
   "mounts": 198,
   "minions": 420,
   "rare": 269,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -8282,7 +8282,13 @@
   "minions": 28,
   "rare": 0,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
@@ -8298,13 +8304,19 @@
   "minions": 19,
   "rare": null,
   "level": 77,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-09-30"
  },
  "61014734": {
   "name": "Hanna Doss",
@@ -8314,7 +8326,13 @@
   "minions": 68,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
@@ -8330,13 +8348,19 @@
   "minions": 14,
   "rare": 0,
   "level": 84,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-29"
+  "chg": "2026-09-30"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8346,13 +8370,19 @@
   "minions": 15,
   "rare": null,
   "level": 77,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-08"
+  "chg": "2026-09-30"
  },
  "60994518": {
   "name": "John Konesarn",
@@ -8362,13 +8392,19 @@
   "minions": 27,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-03"
+  "chg": "2026-09-30"
  },
  "62539607": {
   "name": "Kross Astra",
@@ -8378,13 +8414,19 @@
   "minions": 3,
   "rare": null,
   "level": 50,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-09-30"
  },
  "61758559": {
   "name": "Lree Thai",
@@ -8416,7 +8458,13 @@
   "minions": 7,
   "rare": null,
   "level": 57,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
@@ -8459,7 +8507,13 @@
   "minions": 48,
   "rare": 2,
   "level": 40,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [
    3935,
    3943
@@ -8507,7 +8561,13 @@
   "minions": 14,
   "rare": null,
   "level": 30,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
@@ -8523,13 +8583,19 @@
   "minions": 17,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-30"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -8561,13 +8627,19 @@
   "minions": 16,
   "rare": null,
   "level": 91,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-29"
+  "chg": "2026-09-30"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -9163,13 +9235,19 @@
   "minions": 2,
   "rare": 0,
   "level": 70,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-09-30"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -9679,13 +9757,19 @@
   "minions": 52,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-27"
+  "chg": "2026-09-30"
  },
  "17473430": {
   "name": "Bigon Truesilver",
@@ -16015,12 +16099,16 @@
   "tiers": {},
   "jobs": {
    "Viper": "master",
-   "Ninja": "legendary",
+   "Ninja": "master",
    "Samurai": "legendary",
    "DarkKnight": "legendary",
    "Scholar": "legendary",
    "Reaper": "legendary",
-   "Paladin": "expert"
+   "WhiteMage": "master",
+   "Gunbreaker": "master",
+   "Paladin": "master",
+   "Warrior": "master",
+   "Machinist": "expert"
   },
   "ex": [
    "Valigarmanda",
