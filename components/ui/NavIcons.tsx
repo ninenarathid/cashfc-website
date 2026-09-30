@@ -128,6 +128,16 @@ export function MarketIcon({ className, size = 20 }: Props) {
   );
 }
 
+/** A coat hanger, for the glamour contest: it is a contest of outfits. */
+export function ContestIcon({ className, size = 20 }: Props) {
+  return (
+    <svg {...svg(size, className)}>
+      <path d="M12 8.5V7.3a2.2 2.2 0 1 0-2.2-2.2" />
+      <path d="M12 8.5 3.6 15.3a1.4 1.4 0 0 0 .9 2.5h15a1.4 1.4 0 0 0 .9-2.5Z" />
+    </svg>
+  );
+}
+
 /** The rest of them. */
 export function MoreIcon({ className, size = 20 }: Props) {
   return (

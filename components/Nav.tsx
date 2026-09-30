@@ -35,8 +35,12 @@ const TABS: Tab[] = [
 ];
 
 // Shown only to whoever the gallery is open to, so the header never offers a
-// tab that answers with a 404.
-const GALLERY_TAB: Tab = { href: "/gallery", label: "nav.gallery" };
+// tab that answers with a 404. Lit on a contest's own address too, because a
+// contest is a view of the gallery rather than a page of its own.
+const GALLERY_TAB: Tab = {
+  href: "/gallery", label: "nav.gallery",
+  match: (p) => p.startsWith("/gallery") || p.startsWith("/contest"),
+};
 // Signed in only: a feedback thread needs somebody to reply to, and there is
 // nothing on that page for a visitor who has not said who they are.
 const FEEDBACK_TAB: Tab = { href: "/feedback", label: "nav.feedback" };
@@ -53,6 +57,24 @@ const MARKET_TAB: Tab = { href: "/market", label: "nav.marketWip", short: "nav.m
 // having if the person short of a healer at eight o'clock can find it, and a
 // tab an admin can see is a tab nobody is looking at.
 const PARTY_TAB: Tab = { href: "/party", label: "nav.party", short: "nav.partyShort" };
+
+/**
+ * A green dot: something is happening behind this tab right now.
+ *
+ * Green because on this site it has only ever meant good news, and a ping
+ * rather than a number because there is nothing to count — the point is that
+ * a contest is on. Said in words for a screen reader, and held still for
+ * anybody who has asked for less motion.
+ */
+function LiveDot({ label }: { label: string }) {
+  return (
+    <span className="relative inline-flex size-2 shrink-0" title={label}>
+      <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-jade/60 motion-reduce:hidden" />
+      <span aria-hidden className="relative size-2 rounded-full bg-jade" />
+      <span className="sr-only">{label}</span>
+    </span>
+  );
+}
 
 /**
  * How many tabs the bottom bar will carry before it starts folding them away.
@@ -81,6 +103,28 @@ export default function Nav() {
     })();
   }, []);
   const showGallery = open || isAdmin;
+
+  /*
+   * Whether a glamour contest is running, for the dot on the gallery tab.
+   *
+   * The contest lives inside the gallery, so the tab is how anybody finds out
+   * there is one on. Published contests only: an admin's draft is not news,
+   * and nobody else is sent one anyway (v98).
+   */
+  const [contestLive, setContestLive] = useState(false);
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) return;
+    void (async () => {
+      const { data } = await supabase.from("contests")
+        .select("vote_closes_at, announced_at")
+        .not("published_at", "is", null)
+        .order("submit_opens_at", { ascending: false }).limit(1).maybeSingle();
+      const c = data as { vote_closes_at: string; announced_at: string | null } | null;
+      setContestLive(!!c && !c.announced_at && Date.parse(c.vote_closes_at) > Date.now());
+    })();
+  }, []);
+  const dotOn = (tab: Tab) => contestLive && tab.href === GALLERY_TAB.href;
 
   const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
@@ -212,6 +256,7 @@ export default function Nav() {
       >
         {Icon && <Icon className="relative shrink-0" size={sheet ? 20 : 16} active={active} />}
         <span className="relative">{t(tab.label)}</span>
+        {dotOn(tab) && <LiveDot label={t("nav.contestLive")} />}
         {active && !sheet && (
           <motion.span
             layoutId="nav-caret"
@@ -255,6 +300,11 @@ export default function Nav() {
           />
         )}
         {Icon && <Icon className="relative" size={21} active={active} />}
+        {dotOn(tab) && (
+          <span className="absolute left-1/2 top-2 ml-2.5">
+            <LiveDot label={t("nav.contestLive")} />
+          </span>
+        )}
         {/* font-data, not the body face: the body one is looped Thai and at 10px
             the loops fill in and the word turns to a smudge. Bai Jamjuree has no
             loops and was drawn for small sizes. */}

@@ -79,6 +79,7 @@ import AdminPopotoChart from "@/components/AdminPopotoChart";
 import AdminClaims, { type ClaimedProfile } from "@/components/AdminClaims";
 import AdminTabs from "@/components/AdminTabs";
 import AdminBadges from "@/components/AdminBadges";
+import { ContestIcon } from "@/components/ui/NavIcons";
 import { fmtDateTime } from "@/lib/dates";
 
 /**
@@ -277,6 +278,16 @@ export default function AdminPanel(
              className="h-14 w-10 shrink-0 object-contain object-bottom" />
         <span className="text-read text-ink">{t("aqua.link")}</span>
         <span aria-hidden className="ml-auto text-lead text-gold">→</span>
+      </Link>
+
+      {/* ── The glamour contests ── */}
+      {/* Beside Aqua's page because they are mostly hers as well, and a page of
+          their own for the same reason: running one is a job, not a setting. */}
+      <Link href="/admin/contest"
+            className="mt-2 flex items-center gap-3 rounded-xl border border-accent/40 bg-accent/5 px-4 py-3 no-underline transition-colors hover:border-accent/70 hover:bg-accent/10">
+        <ContestIcon size={22} className="shrink-0 text-accent" />
+        <span className="text-read text-ink">{t("contest.adm.link")}</span>
+        <span aria-hidden className="ml-auto text-lead text-accent">→</span>
       </Link>
 
       {/* ── What is waiting ── */}

@@ -171,14 +171,21 @@ export interface GalleryPost {
  * Puts one chosen file in the gallery bucket and hands back what the row needs.
  * Shared by posting and by adding to a post that already exists, so both file
  * uploads the same way and under the same folder rule.
+ *
+ * `where` is for the glamour contest, whose pictures go in a bucket of their
+ * own under <contest>/<uploader>/ (see v98) but want exactly this treatment:
+ * the same WebP re-encoding, the same small copy. The paths come back as well
+ * as the addresses, because a contest look keeps only the path.
  */
 export async function uploadOne(
   supabase: import("@supabase/supabase-js").SupabaseClient,
   userId: string,
   file: File,
+  where: { bucket: string; folder: string } = { bucket: GALLERY_BUCKET, folder: userId },
 ): Promise<{
   url: string; thumb: string | null;
   width: number | null; height: number | null;
+  path: string; thumbPath: string | null;
 } | { error: string }> {
   if (!file.type.startsWith("image/")) return { error: "not-image" };
   if (file.size > MAX_UPLOAD_BYTES) return { error: "too-big" };
@@ -194,32 +201,37 @@ export async function uploadOne(
   } catch { /* the original will do */ }
   // Filed under the uploader's id because the storage policy requires it, and
   // named by time so two people posting screenshot.png cannot collide.
-  const stem = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const up = await supabase.storage.from(GALLERY_BUCKET)
-    .upload(`${stem}.${ext}`, body,
+  const stem = `${where.folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const path = `${stem}.${ext}`;
+  const up = await supabase.storage.from(where.bucket)
+    .upload(path, body,
             { cacheControl: "31536000", upsert: false, contentType: type });
   if (up.error) return { error: up.error.message };
-  const url = supabase.storage.from(GALLERY_BUCKET)
-    .getPublicUrl(`${stem}.${ext}`).data.publicUrl;
+  const url = supabase.storage.from(where.bucket).getPublicUrl(path).data.publicUrl;
 
   // The small copy is a convenience, never a requirement. If making it or
   // storing it fails, the post is still a post and the grid falls back to the
   // original — the same thing it did before thumbnails existed.
   let thumb: string | null = null;
+  let thumbPath: string | null = null;
   try {
     const small = await makeThumb(file);
     if (small) {
       const at = `${stem}.thumb.webp`;
-      const put = await supabase.storage.from(GALLERY_BUCKET)
+      const put = await supabase.storage.from(where.bucket)
         .upload(at, small, { cacheControl: "31536000", upsert: false,
                              contentType: THUMB_TYPE });
       if (!put.error) {
-        thumb = supabase.storage.from(GALLERY_BUCKET).getPublicUrl(at).data.publicUrl;
+        thumb = supabase.storage.from(where.bucket).getPublicUrl(at).data.publicUrl;
+        thumbPath = at;
       }
     }
   } catch { /* the original will do */ }
 
-  return { url, thumb, width: dims?.width ?? null, height: dims?.height ?? null };
+  return {
+    url, thumb, width: dims?.width ?? null, height: dims?.height ?? null,
+    path, thumbPath,
+  };
 }
 
 /**
