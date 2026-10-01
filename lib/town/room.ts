@@ -1,6 +1,7 @@
 "use client";
 
-import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
+import { createClient as createSupabase, type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 
 /**
  * The town's room: who is here and where they are going (presence), and the
@@ -11,8 +12,9 @@ import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
  * admins, and the channel is private, so Realtime checks the same rule on
  * every join. Both, because Supabase only promises private channels are
  * enforced when public access is switched off for the whole project, and the
- * party board and the bell still use public ones. The introductions carry
- * network addresses; they are not for anybody outside.
+ * party board and the bell still use public ones. (Tried on 2026-10-01: a
+ * public channel of the same name hears nothing from the private one, so the
+ * secret name is the second lock rather than the only one.)
  */
 
 export interface Townsfolk {
@@ -32,7 +34,12 @@ export interface Townsfolk {
   at: number;
 }
 
-export type RoomStatus = "connecting" | "ready" | "needs-migration" | "denied" | "error" | "closed";
+/**
+ * `reconnecting` is the ordinary hiccup (a sleepy tab, a dropped Wi-Fi): the
+ * client is already trying again and the town keeps working meanwhile. The
+ * last three are the ones a person has to do something about.
+ */
+export type RoomStatus = "connecting" | "ready" | "reconnecting" | "needs-migration" | "denied" | "error";
 
 export interface RoomHandlers {
   onPeople(people: Townsfolk[]): void;
@@ -43,7 +50,32 @@ export interface RoomHandlers {
 export interface Room {
   update(state: Townsfolk): Promise<void>;
   signal(to: string, data: unknown): void;
+  /** Make sure the room still lists me; track again if it lost me. */
+  check(): void;
   leave(): Promise<void>;
+}
+
+/**
+ * A Supabase client of the town's own, for its realtime connection.
+ *
+ * Its own socket rather than the site's, so the town can keep it alive in a
+ * tab nobody is looking at: browsers slow a hidden tab's timers to once a
+ * minute, the keep-alive misses its turn, and the server hangs up — which is
+ * what members saw as Aqua vanishing until a reload. `worker: true` sends the
+ * keep-alive from a Web Worker, which browsers do not slow down.
+ *
+ * It signs in with whatever session the site has, asked afresh on every
+ * keep-alive, so a private channel never rejoins on an expired token.
+ */
+export function townClient(site: SupabaseClient | null, onBeat?: (status: string) => void): SupabaseClient {
+  return createSupabase(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    accessToken: async () => {
+      if (!site) return null;
+      const { data } = await site.auth.getSession();
+      return data.session?.access_token ?? null;
+    },
+    realtime: { worker: true, heartbeatCallback: onBeat ? (s) => onBeat(String(s)) : undefined },
+  });
 }
 
 export async function joinTown(
@@ -57,20 +89,19 @@ export async function joinTown(
   // the first join off before it opens a channel.
   await Promise.resolve();
   if (opts.cancelled?.()) return null;
-  h.onStatus("connecting");
 
   let topic = opts.testTopic ?? null;
   if (!topic) {
     const { data, error } = await supabase.rpc("town_topic");
     if (error) {
       // PGRST202: the function is not there, so v101 has not been run.
-      h.onStatus(error.code === "PGRST202" ? "needs-migration" : "error", error.message);
+      h.onStatus(error.code === "PGRST202" ? "needs-migration" : "reconnecting", error.message);
       return null;
     }
     if (!data) { h.onStatus("denied"); return null; }
     topic = data as string;
     // A private channel is checked against the signed-in member's token.
-    try { await supabase.realtime.setAuth(); } catch { /* the client keeps its own */ }
+    try { await supabase.realtime.setAuth(); } catch { /* the callback supplies it anyway */ }
   }
   if (opts.cancelled?.()) return null;
 
@@ -90,6 +121,7 @@ export async function joinTown(
   });
 
   let latest = me;
+  let leaving = false;
 
   channel.on("presence", { event: "sync" }, () => {
     const state = channel.presenceState<Townsfolk>();
@@ -110,15 +142,18 @@ export async function joinTown(
     if (p?.to === me.id && p.from) h.onSignal(p.from, p.data);
   });
 
+  // Called again after every rejoin, which is when the room has forgotten me
+  // and I must say where I am once more.
   channel.subscribe(async (status, err) => {
+    if (leaving) return;
     if (status === "SUBSCRIBED") {
       await channel.track(latest);
       h.onStatus("ready");
     } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
       const text = err?.message ?? status;
-      h.onStatus(/unauthori[sz]ed|denied|policy/i.test(text) ? "denied" : "error", text);
+      h.onStatus(/unauthori[sz]ed|denied|policy|permission/i.test(text) ? "denied" : "reconnecting", text);
     } else if (status === "CLOSED") {
-      h.onStatus("closed");
+      h.onStatus("reconnecting");
     }
   });
 
@@ -130,7 +165,13 @@ export async function joinTown(
     signal(to, data) {
       void channel.send({ type: "broadcast", event: "rtc", payload: { from: me.id, to, data } });
     },
+    check() {
+      if (channel.state !== "joined") return;
+      const mine = channel.presenceState()[me.id];
+      if (!mine || mine.length === 0) void channel.track(latest);
+    },
     async leave() {
+      leaving = true;
       // Only if it is still ours: a newer join may already have replaced it.
       if (!supabase.getChannels().includes(channel)) return;
       try { await channel.untrack(); } catch { /* already gone */ }

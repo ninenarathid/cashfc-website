@@ -11,7 +11,7 @@ import {
   toIso, walkable, type Building, type Vec,
 } from "@/lib/town/world";
 import { VoiceMesh, type Signal } from "@/lib/town/voice";
-import { joinTown, type Room, type RoomStatus, type Townsfolk } from "@/lib/town/room";
+import { joinTown, townClient, type Room, type RoomStatus, type Townsfolk } from "@/lib/town/room";
 
 /**
  * Cash Town, the prototype: one district, everybody's avatar, tap to walk,
@@ -39,7 +39,12 @@ interface Avatar {
   pos: Vec;
   path: Vec[];
   img: HTMLImageElement | null;
+  /** When they dropped out of the room, if they have; they get a grace period. */
+  lost?: number;
 }
+
+/** How long somebody who dropped out stays, faded, before they are gone. */
+const LOST_GRACE_MS = 20_000;
 
 const ISO_MIN_X = -ROWS * (TILE_W / 2);
 const ISO_MAX_X = COLS * (TILE_W / 2);
@@ -83,7 +88,9 @@ function useWords() {
     needsMigration: th ? "ยังเข้าเมืองไม่ได้: ต้องรัน supabase/v101 ใน SQL editor ก่อน" : "Can't enter yet: run supabase/v101 in the SQL editor first",
     denied: th ? "ยังไม่มีสิทธิ์เข้า Cash Town (ตอนนี้เปิดเฉพาะแอดมิน)" : "No access to Cash Town yet (admins only for now)",
     error: th ? "เชื่อมต่อเมืองไม่สำเร็จ ลองรีเฟรชอีกครั้ง" : "Couldn't connect to the town. Try refreshing.",
-    closed: th ? "หลุดจากเมือง กำลังลองใหม่…" : "Disconnected. Retrying…",
+    online: th ? "ออนไลน์" : "Online",
+    reconnecting: th ? "กำลังต่อใหม่…" : "Reconnecting…",
+    returning: th ? "หลุดไปแป๊บ กำลังกลับมา…" : "dropped out, coming back…",
     micDenied: th ? "เบราว์เซอร์ไม่อนุญาตให้ใช้ไมค์ — กดรูปกุญแจข้างช่อง URL แล้วอนุญาตไมโครโฟน" : "The browser blocked the microphone. Allow it from the lock icon by the address bar.",
     noMic: th ? "ไม่พบไมโครโฟนในเครื่องนี้" : "No microphone found on this device",
     micFailed: th ? "เปิดไมค์ไม่สำเร็จ" : "Couldn't start the microphone",
@@ -106,6 +113,9 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
   const fontRef = useRef("sans-serif");
 
   const [status, setStatus] = useState<RoomStatus>("connecting");
+  // Whether we have ever got in: before that "connecting" is a wait worth a
+  // banner; after it, reconnecting is a hiccup worth a small pill.
+  const everReady = useRef(false);
   const [people, setPeople] = useState<Townsfolk[]>([]);
   const [voiceOn, setVoiceOn] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -144,10 +154,16 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
     return true;
   }, [publish]);
 
-  /* ── entering the town ───────────────────────────────────────────────── */
+  /** Keep a voice connection to everybody in voice, including those briefly away. */
+  const syncVoice = useCallback(() => {
+    const voice = mesh.current;
+    if (!voice?.active) return;
+    voice.sync([...avatars.current.values()].filter((a) => a.info.voice).map((a) => a.info.id));
+  }, []);
+
+  /* ── entering the town, and staying in it ────────────────────────────── */
   useEffect(() => {
-    const supabase = createClient();
-    if (!supabase) { setStatus("error"); return; }
+    const site = createClient();
 
     const start = spawnFor(me.id);
     const info: Townsfolk = {
@@ -157,47 +173,120 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
     self.current = { info, pos: { ...start }, path: [], img: loadFace(me.face) };
     fontRef.current = getComputedStyle(document.body).getPropertyValue("--font-body-face").trim() || "sans-serif";
 
-    const voice = new VoiceMesh(me.id, (to, s) => room.current?.signal(to, s), bump);
+    let disposed = false;
+    let gen = 0;
+    let current: Room | null = null;
+    let lastStatus: RoomStatus = "connecting";
+    // When it was last fine, or when we last started over: the watchdog's clock.
+    let settledAt = Date.now();
+    let attempts = 0;
+
+    const report = (s: RoomStatus) => {
+      if (disposed) return;
+      lastStatus = s;
+      if (s === "ready") { settledAt = Date.now(); attempts = 0; everReady.current = true; }
+      setStatus(s);
+    };
+
+    // The keep-alive says when the line has gone quiet before the channel does.
+    const client = townClient(site, (beat) => {
+      if ((beat === "timeout" || beat === "error") && lastStatus === "ready") report("reconnecting");
+    });
+    const voice = new VoiceMesh(me.id, (to, s) => current?.signal(to, s), bump);
     mesh.current = voice;
 
-    let cancelled = false;
-    void joinTown(supabase, info, {
-      onStatus: (s) => { if (!cancelled) setStatus(s); },
-      onSignal: (from, data) => { void voice.receive(from, data as Signal); },
-      onPeople: (list) => {
-        if (cancelled) return;
-        const seen = new Set<string>();
-        for (const p of list) {
-          if (p.id === me.id) continue;
-          seen.add(p.id);
-          const known = avatars.current.get(p.id);
-          if (!known) {
-            // Somebody already here, or just arrived: put them where they are going.
-            avatars.current.set(p.id, { info: p, pos: { x: p.x, y: p.y }, path: [], img: loadFace(p.face) });
-          } else {
-            if (known.info.x !== p.x || known.info.y !== p.y) {
-              known.path = findPath(known.pos, { x: p.x, y: p.y }) ?? [{ x: p.x, y: p.y }];
-            }
-            if (known.info.face !== p.face) known.img = loadFace(p.face);
-            known.info = p;
+    const onPeople = (list: Townsfolk[]) => {
+      const now = Date.now();
+      const seen = new Set<string>();
+      for (const p of list) {
+        if (p.id === me.id) continue;
+        seen.add(p.id);
+        const known = avatars.current.get(p.id);
+        if (!known) {
+          // Somebody already here, or just arrived: put them where they are going.
+          avatars.current.set(p.id, { info: p, pos: { x: p.x, y: p.y }, path: [], img: loadFace(p.face) });
+        } else {
+          if (known.info.x !== p.x || known.info.y !== p.y) {
+            known.path = findPath(known.pos, { x: p.x, y: p.y }) ?? [{ x: p.x, y: p.y }];
           }
+          if (known.info.face !== p.face) known.img = loadFace(p.face);
+          known.info = p;
+          known.lost = undefined;
         }
-        for (const id of [...avatars.current.keys()]) if (!seen.has(id)) avatars.current.delete(id);
-        setPeople(list);
-        if (voice.active) voice.sync(list.filter((p) => p.voice).map((p) => p.id));
-      },
-    }, { testTopic, cancelled: () => cancelled }).then((r) => {
-      if (cancelled) { void r?.leave(); return; }
+      }
+      // Gone from the room is not gone yet: a sleepy tab or a dropped Wi-Fi
+      // comes back in seconds. Keep them, faded, and keep their voice line.
+      for (const a of avatars.current.values()) {
+        if (!seen.has(a.info.id) && a.lost === undefined) a.lost = now;
+      }
+      setPeople(list);
+      syncVoice();
+    };
+
+    const connect = async () => {
+      const mine = ++gen;
+      const old = current;
+      current = null;
+      room.current = null;
+      if (old) await old.leave();
+      if (disposed || mine !== gen) return;
+      const r = await joinTown(client, self.current!.info, {
+        onStatus: (s) => { if (mine === gen) report(s); },
+        onSignal: (from, data) => { if (mine === gen) void voice.receive(from, data as Signal); },
+        onPeople: (list) => { if (!disposed && mine === gen) onPeople(list); },
+      }, { testTopic, cancelled: () => disposed || mine !== gen });
+      if (!r) return;
+      if (disposed || mine !== gen) { void r.leave(); return; }
+      current = r;
       room.current = r;
-    });
+    };
+    void connect();
+
+    // The watchdog. Supabase reconnects by itself and usually that is enough;
+    // this is for when it is not, so nobody has to reload to find a friend.
+    const tick = window.setInterval(() => {
+      if (disposed) return;
+      const now = Date.now();
+      let changed = false;
+      for (const [id, a] of avatars.current) {
+        if (a.lost !== undefined && now - a.lost > LOST_GRACE_MS) { avatars.current.delete(id); changed = true; }
+      }
+      if (changed) { syncVoice(); bump(); }
+      if (lastStatus === "ready") {
+        current?.check();
+        voice.repair();
+        return;
+      }
+      if (lastStatus === "needs-migration" || lastStatus === "denied") return;
+      if (now - settledAt > Math.min(30_000, 10_000 + attempts * 5_000)) {
+        attempts++;
+        settledAt = now;
+        report("reconnecting");
+        void connect();
+      }
+    }, 3000);
+
+    // Coming back to the tab, or back online: check at once rather than waiting.
+    const wake = () => {
+      if (disposed || document.visibilityState !== "visible") return;
+      if (lastStatus === "ready") { current?.check(); voice.repair(); return; }
+      if (lastStatus === "needs-migration" || lastStatus === "denied") return;
+      settledAt = Date.now();
+      void connect();
+    };
+    document.addEventListener("visibilitychange", wake);
+    window.addEventListener("online", wake);
 
     return () => {
-      cancelled = true;
+      disposed = true;
+      window.clearInterval(tick);
+      document.removeEventListener("visibilitychange", wake);
+      window.removeEventListener("online", wake);
       voice.stop();
-      void room.current?.leave();
+      void current?.leave().finally(() => client.realtime.disconnect());
       room.current = null;
     };
-  }, [me.id, me.name, me.face, me.color, testTopic, bump]);
+  }, [me.id, me.name, me.face, me.color, testTopic, bump, syncVoice]);
 
   /* ── drawing, every frame ────────────────────────────────────────────── */
   useEffect(() => {
@@ -431,6 +520,9 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
     const voice = mesh.current;
     const level = voice?.active ? voice.level(isMe ? "me" : a.info.id) : 0;
     const headY = p.y - 38;
+    // Somebody who dropped out is drawn faded until they come back or go.
+    ctx.save();
+    if (a.lost !== undefined) ctx.globalAlpha = 0.4;
 
     ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.beginPath();
@@ -485,8 +577,16 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
       ctx.fillText(a.info.muted ? "✕" : "🎤", p.x + 14, headY + 10.5);
     }
 
+    ctx.restore();
+
     const name = isMe ? `${a.info.name} (${w.you})` : a.info.name;
-    names.push(() => label(ctx, name, p.x, p.y + 15, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)"));
+    const faded = a.lost !== undefined;
+    names.push(() => {
+      ctx.save();
+      if (faded) ctx.globalAlpha = 0.5;
+      label(ctx, name, p.x, p.y + 15, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
+      ctx.restore();
+    });
   }
 
   function label(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, fg: string, bg: string) {
@@ -570,12 +670,12 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
       setVoiceOn(true);
       setMuted(false);
       publish({ voice: true, muted: false });
-      voice.sync(people.filter((p) => p.voice).map((p) => p.id));
+      syncVoice();
     } catch (e) {
       const name = (e as { name?: string })?.name;
       setVoiceError(name === "NotAllowedError" ? w.micDenied : name === "NotFoundError" ? w.noMic : w.micFailed);
     }
-  }, [people, publish, w.micDenied, w.noMic, w.micFailed]);
+  }, [publish, syncVoice, w.micDenied, w.noMic, w.micFailed]);
 
   const toggleMute = useCallback(() => {
     const voice = mesh.current;
@@ -598,20 +698,27 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
     (window as unknown as { __cashTown?: unknown }).__cashTown = {
       status: () => status,
       me: () => self.current && { ...self.current.info, pos: self.current.pos },
-      people: () => [...avatars.current.values()].map((a) => ({ id: a.info.id, name: a.info.name, voice: a.info.voice, pos: a.pos })),
+      people: () => [...avatars.current.values()].map((a) => ({
+        id: a.info.id, name: a.info.name, voice: a.info.voice, pos: a.pos, lost: a.lost !== undefined,
+      })),
       voice: () => mesh.current?.stats() ?? [],
       walkTo: (x: number, y: number) => walkTo({ x, y }),
     };
   }, [status, walkTo]);
 
-  const others = people.filter((p) => p.id !== me.id);
+  // From the avatars rather than the last room list, so somebody who dropped
+  // out for a moment stays listed (faded) through their grace period.
+  void people;
+  const others = [...avatars.current.values()];
+  // A banner only for what needs a person: the first wait, or a door that
+  // will not open. Reconnecting is a pill; the town goes on meanwhile.
   const banner =
-    status === "connecting" ? w.connecting
+    status === "connecting" && !everReady.current ? w.connecting
     : status === "needs-migration" ? w.needsMigration
     : status === "denied" ? w.denied
     : status === "error" ? w.error
-    : status === "closed" ? w.closed
     : null;
+  const live = status === "ready";
 
   return (
     <div className="mt-4">
@@ -627,25 +734,31 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
           <span className="w-fit rounded-full border border-gold/50 bg-bg/80 px-2 py-0.5 font-data text-label uppercase tracking-wider text-gold">
             {testTopic ? w.testBadge : w.badge}
           </span>
+          {everReady.current && (
+            <span role="status" className={`w-fit rounded-full bg-bg/80 px-2 py-0.5 text-label ${live ? "text-jade" : "text-gold"}`}>
+              {live ? `● ${w.online}` : `◌ ${w.reconnecting}`}
+            </span>
+          )}
         </div>
 
         {/* Who is here */}
         <aside className="absolute right-3 top-3 w-52 max-w-[60%] rounded-xl border border-line bg-bg/85 p-2 text-ui backdrop-blur-sm">
           <button type="button" onClick={() => setListOpen((o) => !o)} aria-expanded={listOpen}
                   className="flex w-full items-center gap-1 font-data text-label uppercase tracking-wider text-muted">
-            <span>👥 {w.here} · {people.length || 1}</span>
+            <span>👥 {w.here} · {others.length + 1}</span>
             <span aria-hidden className="ml-auto">{listOpen ? "▴" : "▾"}</span>
           </button>
           {listOpen && <>
           <ul className="mt-1 flex flex-col gap-1">
             <PersonRow name={`${me.name} (${w.you})`} face={me.face} voice={voiceOn} muted={muted} />
-            {others.map((p) => {
+            {others.map((a) => {
+              const p = a.info;
               const state = voiceOn && p.voice ? mesh.current?.connectionState(p.id) : null;
-              const a = avatars.current.get(p.id);
-              const gain = voiceOn && p.voice && a && self.current ? hearing(distance(self.current.pos, a.pos)) : null;
+              const gain = voiceOn && p.voice && self.current ? hearing(distance(self.current.pos, a.pos)) : null;
               return (
-                <PersonRow key={p.id} name={p.name} face={p.face} voice={p.voice} muted={p.muted}
-                  note={state === "failed" ? `⚠️ ${w.iceFailed}`
+                <PersonRow key={p.id} name={p.name} face={p.face} voice={p.voice} muted={p.muted} faded={a.lost !== undefined}
+                  note={a.lost !== undefined ? w.returning
+                    : state === "failed" ? `⚠️ ${w.iceFailed}`
                     : state && state !== "connected" ? w.connectingVoice
                     : gain !== null ? w.hearing(Math.round(gain * 100)) : undefined} />
               );
@@ -687,7 +800,7 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
           {voiceError && <div className="max-w-md rounded-lg bg-chili/20 px-3 py-1.5 text-center text-ui text-ink">{voiceError}</div>}
           <div className="flex flex-wrap items-center justify-center gap-2">
             {!voiceOn ? (
-              <button type="button" onClick={() => void joinVoice()} disabled={status !== "ready"}
+              <button type="button" onClick={() => void joinVoice()} disabled={!everReady.current}
                       className="rounded-full bg-jade px-5 py-2.5 text-read font-semibold text-bg shadow-lg disabled:opacity-40">
                 {w.join}
               </button>
@@ -713,11 +826,11 @@ export default function Town({ me, testTopic }: { me: TownMe; testTopic?: string
   );
 }
 
-function PersonRow({ name, face, voice, muted, note }: {
-  name: string; face: string | null; voice: boolean; muted: boolean; note?: string;
+function PersonRow({ name, face, voice, muted, note, faded }: {
+  name: string; face: string | null; voice: boolean; muted: boolean; note?: string; faded?: boolean;
 }) {
   return (
-    <li className="flex items-center gap-2">
+    <li className={`flex items-center gap-2 ${faded ? "opacity-50" : ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {face ? <img src={face} alt="" className="size-6 shrink-0 rounded-full object-cover" />
         : <span className="size-6 shrink-0 rounded-full bg-card" />}

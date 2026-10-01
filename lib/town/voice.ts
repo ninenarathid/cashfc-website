@@ -17,15 +17,23 @@
  * range is also `muted`, which iOS does honour.
  *
  * The introductions follow WebRTC's "perfect negotiation": both sides may
- * start at once, and the polite one gives way.
+ * start at once, and the polite one gives way. Every connection also carries
+ * a name of its own (`pc`), because the first prototype taught that a
+ * connection can die on one side only: a tab sleeps, the other side gives up
+ * and starts a new one, and the sleeper wakes holding the old one. Messages
+ * now say which connection they belong to. An offer from a new one means the
+ * other side started over, so we do too; anything addressed to a connection
+ * that no longer exists is dropped.
  */
 
-export type Signal =
+export type Signal = { pc: string } & (
   | { description: RTCSessionDescriptionInit }
-  | { candidate: RTCIceCandidateInit | null };
+  | { candidate: RTCIceCandidateInit | null }
+);
 
 export interface PeerInfo {
   id: string;
+  pc: string;
   state: RTCPeerConnectionState;
   bytesIn: number;
   bytesOut: number;
@@ -42,13 +50,23 @@ const ICE: RTCIceServer[] = [
   { urls: ["stun:stun.cloudflare.com:3478", "stun:stun.l.google.com:19302"] },
 ];
 
+/** How long a connection may be down before it is replaced, not repaired. */
+const GIVE_UP_MS = 15_000;
+
+const newId = () => Math.random().toString(36).slice(2, 10);
+
 class Peer {
   readonly pc: RTCPeerConnection;
+  readonly pcId = newId();
+  /** The other side's connection this one is paired with, once known. */
+  remotePc: string | null = null;
   private makingOffer = false;
   private ignoreOffer = false;
   audio: HTMLAudioElement | null = null;
   analyser: AnalyserNode | null = null;
   gain = 0;
+  /** Since when it has not been connected; null while it is. */
+  badSince: number | null = Date.now();
 
   constructor(
     readonly id: string,
@@ -65,16 +83,20 @@ class Peer {
       try {
         this.makingOffer = true;
         await this.pc.setLocalDescription();
-        if (this.pc.localDescription) this.send({ description: this.pc.localDescription.toJSON() });
+        if (this.pc.localDescription) this.send({ pc: this.pcId, description: this.pc.localDescription.toJSON() });
       } catch { /* the other side's offer wins; nothing to undo */ } finally {
         this.makingOffer = false;
       }
     };
-    this.pc.onicecandidate = ({ candidate }) => this.send({ candidate: candidate ? candidate.toJSON() : null });
+    this.pc.onicecandidate = ({ candidate }) =>
+      this.send({ pc: this.pcId, candidate: candidate ? candidate.toJSON() : null });
     this.pc.ontrack = ({ streams }) => { if (streams[0]) this.onRemote(this, streams[0]); };
     this.pc.onconnectionstatechange = () => {
-      // A network change (Wi-Fi to 4G) can be recovered by gathering again.
-      if (this.pc.connectionState === "failed") this.pc.restartIce();
+      const s = this.pc.connectionState;
+      if (s === "connected") this.badSince = null;
+      else if (this.badSince === null) this.badSince = Date.now();
+      // A network change (Wi-Fi to 4G) can often be recovered by gathering again.
+      if (s === "failed") this.pc.restartIce();
       this.onState();
     };
   }
@@ -88,7 +110,7 @@ class Peer {
       await this.pc.setRemoteDescription(d);
       if (d.type === "offer") {
         await this.pc.setLocalDescription();
-        if (this.pc.localDescription) this.send({ description: this.pc.localDescription.toJSON() });
+        if (this.pc.localDescription) this.send({ pc: this.pcId, description: this.pc.localDescription.toJSON() });
       }
     } else {
       try {
@@ -100,6 +122,7 @@ class Peer {
   }
 
   close() {
+    this.pc.onconnectionstatechange = null;
     this.pc.close();
     if (this.audio) {
       this.audio.srcObject = null;
@@ -177,10 +200,40 @@ export class VoiceMesh {
     this.onChange();
   }
 
+  /**
+   * Replace any connection that has been down too long. Repairing in place
+   * (restartIce) is tried first, when the connection says it failed; this is
+   * for when that did not work, or when the introductions never got through.
+   */
+  repair() {
+    if (!this.stream) return;
+    const now = Date.now();
+    for (const [id, p] of [...this.peers]) {
+      if (p.badSince !== null && now - p.badSince > GIVE_UP_MS) {
+        p.close();
+        this.peers.delete(id);
+        this.open(id);
+      }
+    }
+  }
+
   /** A message from somebody else's browser about connecting to us. */
-  async receive(from: string, s: Signal) {
+  async receive(from: string, raw: unknown) {
     if (!this.stream || from === this.selfId) return;
-    const peer = this.peers.get(from) ?? this.open(from);
+    const s = raw as Signal;
+    if (!s || typeof s !== "object" || typeof s.pc !== "string") return;
+    let peer = this.peers.get(from);
+    const isOffer = "description" in s && s.description?.type === "offer";
+    if (peer && peer.remotePc && peer.remotePc !== s.pc) {
+      // From a connection we are not paired with. An offer means they started
+      // over, so start over too; anything else is left over from the old one.
+      if (!isOffer) return;
+      peer.close();
+      this.peers.delete(from);
+      peer = undefined;
+    }
+    peer ??= this.open(from);
+    peer.remotePc ??= s.pc;
     try {
       await peer.signal(s);
     } catch { /* a stale candidate or offer; the next one will do */ }
@@ -219,7 +272,7 @@ export class VoiceMesh {
           if (r.type === "outbound-rtp" && r.kind === "audio") bytesOut += r.bytesSent ?? 0;
         });
       } catch { /* closed */ }
-      out.push({ id, state: p.pc.connectionState, bytesIn, bytesOut, level: this.level(id), gain: p.gain });
+      out.push({ id, pc: p.pcId, state: p.pc.connectionState, bytesIn, bytesOut, level: this.level(id), gain: p.gain });
     }
     return out;
   }
