@@ -16,8 +16,8 @@ export const CHAT_MAX = 200;
 /** How long a bubble stays over somebody's head, ms. */
 export const BUBBLE_MS = 6_000;
 
-/** How many lines the log keeps. */
-export const LOG_MAX = 100;
+/** How many lines the log keeps, to scroll back through (since this tab came into town). */
+export const LOG_MAX = 200;
 
 /**
  * Deliveries a second the whole room's chat may cost, at most, if everybody
@@ -26,9 +26,12 @@ export const LOG_MAX = 100;
  */
 export const CHAT_BUDGET = 150;
 
+/** The fastest anybody may send lines, ms apart: chatEvery's floor. */
+export const CHAT_MIN_EVERY = 700;
+
 /** How often somebody may send a line, ms, with `n` people in the room. */
 export function chatEvery(n: number): number {
-  return Math.max(700, Math.ceil((n * (n - 1) * 1000) / CHAT_BUDGET));
+  return Math.max(CHAT_MIN_EVERY, Math.ceil((n * (n - 1) * 1000) / CHAT_BUDGET));
 }
 
 const grapheme = typeof Intl !== "undefined" && "Segmenter" in Intl
@@ -66,10 +69,16 @@ export function cleanChat(raw: unknown): string {
 /**
  * Not too many lines from one person: at most `max` in any `windowMs`. For
  * lines arriving from others; what this browser sends is paced by chatEvery.
+ *
+ * The default lets through everything an honest browser can send, one line
+ * every CHAT_MIN_EVERY bunched a little by the network, and stops only a
+ * tampered one. It used to stop at five in five seconds, below what the box
+ * allows, so a quick typist's lines went missing on everybody else's screen
+ * while their own showed them sent (found 2026-10-01).
  */
 export class Flood {
   private seen = new Map<string, number[]>();
-  constructor(private readonly max = 5, private readonly windowMs = 5_000) {}
+  constructor(private readonly max = Math.ceil(5_000 / CHAT_MIN_EVERY) + 2, private readonly windowMs = 5_000) {}
 
   allow(id: string, now: number): boolean {
     const recent = (this.seen.get(id) ?? []).filter((t) => now - t < this.windowMs);

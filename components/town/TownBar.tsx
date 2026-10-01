@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { rememberTown, resumable } from "@/lib/town/active";
 import { BUBBLE_MS } from "@/lib/town/chat";
 import { currentSession, openSession, type TownSession } from "@/lib/town/session";
+import ChatHistory from "./ChatHistory";
 
 /**
  * The dock: still in Cash Town while you look at another page of the site.
@@ -30,6 +31,7 @@ function useWords() {
   const { lang } = useLang();
   const th = lang === "th";
   return {
+    th,
     region: "Cash Town",
     here: (n: number) => (th ? `${n} คนในเมือง` : `${n} in town`),
     mic: th ? "เปิดไมค์อยู่" : "mic on",
@@ -42,10 +44,8 @@ function useWords() {
     hear: th ? "แตะเพื่อฟังเสียง" : "Tap to hear",
     chat: th ? "แชท" : "Chat",
     unread: (n: number) => (th ? `${n} ข้อความใหม่` : `${n} new`),
-    noChat: th ? "ยังไม่มีใครพิมพ์อะไร ทักก่อนเลย" : "Nobody has typed yet. Say hi!",
     placeholder: th ? "พิมพ์คุยกับทุกคนในเมือง…" : "Say something to everyone in town…",
     send: th ? "ส่ง" : "Send",
-    you: th ? "คุณ" : "You",
     slow: th ? "พิมพ์เร็วไปนิด รอแป๊บนึงนะ" : "A little fast. Wait a moment.",
     offline: th ? "ยังส่งไม่ได้ กำลังต่อใหม่" : "Can't send while reconnecting.",
     connecting: th ? "กำลังกลับเข้าเมือง…" : "Getting back in…",
@@ -63,7 +63,6 @@ export default function TownBar() {
   const [note, setNote] = useState<string | null>(null);
   const [, setTick] = useState(0);
   const [lift, setLift] = useState(0);
-  const logRef = useRef<HTMLDivElement>(null);
 
   // Back into town after a reload, if this tab was there a moment ago and the
   // same member is still signed in (signing out loads a whole page too).
@@ -94,11 +93,9 @@ export default function TownBar() {
     if (session && !session.closed && (session.status === "denied" || session.status === "needs-migration")) session.close();
   }, [session, version]);
 
-  // While the chat is open, what arrives is read, and the newest line is in view.
+  // While the chat is open, what arrives is read (ChatHistory keeps it in view).
   useEffect(() => {
-    if (!chatOpen) return;
-    session?.readChat();
-    logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
+    if (chatOpen) session?.readChat();
   }, [chatOpen, session, version]);
 
   // Typing on a phone: the keyboard covers the bottom of the page, and a dock
@@ -153,15 +150,7 @@ export default function TownBar() {
       {chatOpen && (
         <div data-state="open" className="pop-in mb-2 overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm"
              onKeyDown={(e) => { if (e.key === "Escape") setChatOpen(false); }}>
-          <div ref={logRef} className="max-h-60 overflow-y-auto px-3 py-2 text-ui leading-relaxed">
-            {s.chat.length === 0 ? <p className="text-muted">{w.noChat}</p> : s.chat.map((l) => (
-              <p key={l.key} className="break-words">
-                <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
-                <span className="text-muted">: </span>
-                <span className="text-ink">{l.text}</span>
-              </p>
-            ))}
-          </div>
+          <ChatHistory lines={s.chat} th={w.th} className="max-h-60" />
           <form onSubmit={send} className="flex items-center gap-2 border-t border-line p-2">
             <input value={draft} onChange={(e) => { setDraft(e.target.value); setNote(null); }} autoFocus
                    maxLength={600} placeholder={w.placeholder} aria-label={w.placeholder} enterKeyHint="send"

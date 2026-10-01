@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CHAT_BUDGET, CHAT_MAX, Flood, chatEvery, cleanChat, wrapLines } from "./chat";
+import { CHAT_BUDGET, CHAT_MAX, CHAT_MIN_EVERY, Flood, chatEvery, cleanChat, wrapLines } from "./chat";
 
 describe("cleaning a line", () => {
   it("keeps one plain line", () => {
@@ -43,6 +43,22 @@ describe("pacing", () => {
     expect(fromA).toEqual([true, true, true, true, true, false]);
     expect(f.allow("b", now + 6)).toBe(true);
     expect(f.allow("a", now + 5_001)).toBe(true);
+  });
+
+  it("never drops a line an honest browser was allowed to send, even bunched by the network", () => {
+    const f = new Flood();
+    // As fast as the box allows, for a minute, each line held up 0-400 ms on the way.
+    let held = 0;
+    for (let i = 0; i < 86; i++) {
+      held = (held * 7 + 131) % 401;
+      expect(f.allow("quick", i * CHAT_MIN_EVERY + held)).toBe(true);
+    }
+  });
+
+  it("still stops a tampered browser sending far faster", () => {
+    const f = new Flood();
+    const got = Array.from({ length: 40 }, (_, i) => f.allow("spam", i * 100));
+    expect(got.filter(Boolean).length).toBeLessThan(20);
   });
 });
 

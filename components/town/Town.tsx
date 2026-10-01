@@ -16,6 +16,7 @@ import type { Identity } from "@/lib/town/room";
 import { resumable } from "@/lib/town/active";
 import { BUBBLE_MS, wrapLines } from "@/lib/town/chat";
 import { ROOM_CAP, openSession, type Avatar, type TownSession } from "@/lib/town/session";
+import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 
 /**
@@ -132,6 +133,9 @@ function useWords() {
     chat: th ? "แชท" : "Chat",
     chatPlaceholder: th ? "พิมพ์คุยกับทุกคน… (Enter)" : "Say something to everyone… (Enter)",
     chatPlaceholderPhone: th ? "พิมพ์คุยกับทุกคน…" : "Say something to everyone…",
+    history: th ? "ประวัติแชท" : "Chat history",
+    historyClose: th ? "ย่อประวัติแชท" : "Hide chat history",
+    historyOpen: th ? "แตะเพื่อเลื่อนดูประวัติแชท" : "Tap to scroll back through the chat",
     send: th ? "ส่ง" : "Send",
     chatLog: th ? "แชทล่าสุด" : "Recent chat",
     slow: th ? "พิมพ์เร็วไปนิด รอแป๊บนึงนะ" : "A little fast. Wait a moment.",
@@ -192,6 +196,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [draft, setDraft] = useState("");
   const [chatNote, setChatNote] = useState<string | null>(null);
   const [lift, setLift] = useState(0);
+  /** The chat's history panel (on a phone, part of the open chat). */
+  const [historyOpen, setHistoryOpen] = useState(false);
+  /** How tall the part of the screen above a phone's keyboard is. */
+  const [visibleH, setVisibleH] = useState(0);
   const chatRef = useRef<HTMLInputElement>(null);
 
   /** The stay already going in this tab, or a new one (resumed, after a reload). */
@@ -257,7 +265,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   useEffect(() => {
     const vv = window.visualViewport;
     if (!chatOpen || !vv) { setLift(0); return; }
-    const update = () => setLift(Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)));
+    const update = () => {
+      setLift(Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)));
+      setVisibleH(Math.round(vv.height));
+    };
     update();
     vv.addEventListener("resize", update);
     vv.addEventListener("scroll", update);
@@ -732,6 +743,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   const tap = (x: number, y: number) => {
     setHint(false);
+    setHistoryOpen(false);
     const who = personAt(x, y);
     if (who) { setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return; }
     setCard(null);
@@ -846,7 +858,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
-      if (e.key === "Escape") { setCard(null); setPopover(null); setPeopleOpen(false); return; }
+      if (e.key === "Escape") { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); return; }
       // Enter starts typing, as in a game; Esc in the box gives the keys back to walking.
       if (e.key === "Enter" && !(target && /^(BUTTON|A)$/.test(target.tagName))) {
         e.preventDefault();
@@ -885,7 +897,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   };
 
   const openWardrobe = () => {
-    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false);
+    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false);
     turn.current = 0;
     zoomBefore.current = cam.current.s;
     const v = cam.current;
@@ -1145,40 +1157,78 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         </div>
       )}
 
-      {/* Bottom left: the chat. A slim bar on a wide screen; a button on a phone. */}
-      {s && !wardrobeOpen && (
-        <div className="pointer-events-none absolute left-3 flex w-[min(26rem,calc(100%-1.5rem))] flex-col items-start gap-1"
-             style={{ bottom: chatOpen || !phone ? chatBottom : "var(--hud-b)" }}>
-          {recent.length > 0 && (
-            <ul aria-label={w.chatLog} className={`flex max-w-full flex-col items-start gap-0.5 ${phone && !chatOpen ? "max-w-[70%]" : ""}`}>
-              {recent.map((l) => (
-                <li key={l.key} className="max-w-full truncate rounded-lg bg-bg/75 px-2 py-0.5 text-meta backdrop-blur-sm">
-                  <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
-                  <span className="text-muted">: </span>
-                  <span className="text-ink">{l.text}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          {chatNote && <div role="status" className="rounded-full bg-bg/85 px-3 py-0.5 text-label text-gold">{chatNote}</div>}
-          {phone && !chatOpen ? (
-            <button type="button" onClick={() => { setChatOpen(true); window.setTimeout(() => chatRef.current?.focus(), 0); }}
-                    aria-label={w.chat} className={`${hudBtn} pointer-events-auto size-11`}>💬</button>
-          ) : (
-            <form onSubmit={sendChat} className="pointer-events-auto flex w-full items-center gap-1.5">
-              <input ref={chatRef} value={draft} maxLength={600} enterKeyHint="send"
-                     onChange={(e) => { setDraft(e.target.value); setChatNote(null); }}
-                     onKeyDown={(e) => { if (e.key === "Escape") { e.currentTarget.blur(); if (phone) setChatOpen(false); } }}
-                     onBlur={() => { if (phone && !draft) setChatOpen(false); }}
-                     placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
-                     className="h-10 min-w-0 flex-1 rounded-full border border-line-strong bg-bg/85 px-4 text-read text-ink outline-none backdrop-blur-sm placeholder:text-muted focus:border-accent" />
-              <button type="submit" className="pressable h-10 shrink-0 rounded-full bg-accent/25 px-4 text-ui font-semibold text-accent backdrop-blur-sm hover:bg-accent/35">
-                {w.send}
-              </button>
-            </form>
-          )}
-        </div>
-      )}
+      {/* Bottom left: the chat. A slim bar on a wide screen, with its history a
+          tap away; a button on a phone, opening the history and the box. While
+          the history is shut, the last few lines show over the map. */}
+      {s && !wardrobeOpen && (() => {
+        const showHistory = phone ? chatOpen : historyOpen;
+        // A phone's history fits between the top bar and the box over the keyboard.
+        const screenH = visibleH || cam.current.ch;
+        const room = phone ? Math.max(140, Math.min(screenH * 0.5, screenH - 150)) : undefined;
+        const openHistory = () => {
+          if (phone) { setChatOpen(true); window.setTimeout(() => chatRef.current?.focus(), 0); }
+          else setHistoryOpen(true);
+        };
+        return (
+          <div className="pointer-events-none absolute left-3 flex w-[min(26rem,calc(100%-1.5rem))] flex-col gap-1"
+               style={{ bottom: chatOpen || !phone ? chatBottom : "var(--hud-b)" }}>
+            {showHistory ? (
+              <div className={`pop-in pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
+                   style={room ? { maxHeight: room } : undefined} data-state="open">
+                <div className="flex items-center gap-2 border-b border-line py-1 pl-3 pr-1">
+                  <span className="font-data text-label uppercase tracking-wider text-muted">💬 {w.history} · {s.chat.length}</span>
+                  <button type="button" onClick={() => { if (phone) setChatOpen(false); else setHistoryOpen(false); }}
+                          aria-label={w.historyClose} title={w.historyClose}
+                          className="pressable ml-auto grid size-8 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink">▾</button>
+                </div>
+                <ChatHistory lines={s.chat} th={w.th} className="min-h-0 flex-1" />
+              </div>
+            ) : recent.length > 0 && (
+              <ul aria-label={w.chatLog} title={w.historyOpen}
+                  className={`pointer-events-auto flex max-w-full cursor-pointer flex-col items-start gap-0.5 ${phone ? "max-w-[70%]" : ""}`}
+                  onClick={openHistory}>
+                {recent.map((l) => (
+                  <li key={l.key} className="max-w-full truncate rounded-lg bg-bg/75 px-2 py-0.5 text-meta backdrop-blur-sm">
+                    <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
+                    <span className="text-muted">: </span>
+                    <span className="text-ink">{l.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {chatNote && <div role="status" className="w-fit rounded-full bg-bg/85 px-3 py-0.5 text-label text-gold">{chatNote}</div>}
+            {phone && !chatOpen ? (
+              <button type="button" onClick={openHistory}
+                      aria-label={w.chat} className={`${hudBtn} pointer-events-auto size-11`}>💬</button>
+            ) : (
+              <form onSubmit={sendChat} className="pointer-events-auto flex w-full items-center gap-1.5">
+                {!phone && (
+                  <button type="button" onClick={() => setHistoryOpen((o) => !o)} aria-pressed={historyOpen}
+                          title={historyOpen ? w.historyClose : w.history}
+                          className={`pressable grid size-10 shrink-0 place-items-center rounded-full border backdrop-blur-sm transition-colors ${historyOpen
+                            ? "border-accent bg-accent/20 text-accent" : "border-line-strong bg-bg/85 text-ink hover:border-accent"}`}>
+                    🕘<span className="sr-only">{historyOpen ? w.historyClose : w.history}</span>
+                  </button>
+                )}
+                <input ref={chatRef} value={draft} maxLength={600} enterKeyHint="send"
+                       onChange={(e) => { setDraft(e.target.value); setChatNote(null); }}
+                       onKeyDown={(e) => { if (e.key === "Escape") { e.currentTarget.blur(); setHistoryOpen(false); if (phone) setChatOpen(false); } }}
+                       onBlur={(e) => {
+                         // On a phone the open chat closes with the keyboard, unless the
+                         // tap that took the focus was in the history (to scroll it).
+                         const next = e.relatedTarget as HTMLElement | null;
+                         if (phone && !draft && !next?.closest("[role=log]")) setChatOpen(false);
+                       }}
+                       placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
+                       className="h-10 min-w-0 flex-1 rounded-full border border-line-strong bg-bg/85 px-4 text-read text-ink outline-none backdrop-blur-sm placeholder:text-muted focus:border-accent" />
+                <button type="submit" className="pressable h-10 shrink-0 rounded-full bg-accent/25 px-4 text-ui font-semibold text-accent backdrop-blur-sm hover:bg-accent/35">
+                  {w.send}
+                </button>
+              </form>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Bottom right: the microphone */}
       {s && !wardrobeOpen && !(phone && chatOpen) && (
