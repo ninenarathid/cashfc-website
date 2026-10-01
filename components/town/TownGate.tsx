@@ -7,6 +7,7 @@ import { useAdmin } from "@/lib/admin";
 import { useMyFace } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
+import { resumable, useTownActive, type TownRecord } from "@/lib/town/active";
 import type { TownMe } from "./Town";
 
 /**
@@ -19,10 +20,14 @@ import type { TownMe } from "./Town";
  * fetched only once somebody is let through, so the rest of the site pays
  * nothing for it.
  *
+ * A tab already in town (TownSession, still going while you looked at other
+ * pages) goes straight back to it, with nothing to check again.
+ *
  * In `next dev` only, `?townTest=A` skips the gate and uses a throwaway public
  * room, so two browsers can test walking and voice without anybody signing
  * in, and `&townCap=N` makes the room full at N so a test can reach that
- * without thirty browsers. A production build compiles the switch away (the
+ * without thirty browsers. A tester keeps one identity per tab, across
+ * reloads, the way a member does. A production build compiles the switch away (the
  * address is never read there), so the test room cannot be reached.
  */
 const Town = dynamic(() => import("./Town"), {
@@ -43,13 +48,19 @@ export default function TownGate() {
   const [checked, setChecked] = useState(false);
   const [test, setTest] = useState<string | null>(null);
   const [testCap, setTestCap] = useState<number | undefined>(undefined);
-  const [testId] = useState(() => `test-${Math.random().toString(36).slice(2, 10)}`);
+  const [testId, setTestId] = useState<string | null>(null);
+  // A tester coming back after a reload of /town without ?townTest (dev only).
+  const [testBack, setTestBack] = useState<TownRecord | null>(null);
+  const active = useTownActive();
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
       const q = new URLSearchParams(window.location.search);
-      setTest(q.get("townTest"));
+      const letter = q.get("townTest");
+      setTest(letter);
       setTestCap(Number(q.get("townCap")) || undefined);
+      if (letter) setTestId(testerId(letter));
+      else { const rec = resumable(); if (rec?.testTopic) setTestBack(rec); }
     }
   }, []);
 
@@ -74,8 +85,13 @@ export default function TownGate() {
 
   let body: React.ReactNode;
   if (test) {
-    const me: TownMe = { id: testId, name: th ? `ทดสอบ ${test}` : `Tester ${test}`, face: null, color: test === "B" ? "#c98a5b" : "#4fb8a8" };
-    body = <Town me={me} testTopic={TEST_TOPIC} cap={testCap} />;
+    const me: TownMe = { id: testId ?? "", name: th ? `ทดสอบ ${test}` : `Tester ${test}`, face: null, color: test === "B" ? "#c98a5b" : "#4fb8a8" };
+    body = testId ? <Town me={me} testTopic={TEST_TOPIC} cap={testCap} /> : <Waiting />;
+  } else if (testBack) {
+    body = <Town me={testBack.me} testTopic={testBack.testTopic} cap={testBack.cap} />;
+  } else if (active) {
+    // Already in town in this tab (the dock brought you back): straight to it.
+    body = <Town me={active.me} testTopic={active.testTopic} cap={active.cap} />;
   } else if (!ready || !checked || !face.ready) {
     body = <Waiting />;
   } else if (!userId || !(verified || realAdmin)) {
@@ -104,6 +120,18 @@ export default function TownGate() {
       {body}
     </main>
   );
+}
+
+/** One tester identity per tab and letter, kept across reloads (dev only). */
+function testerId(letter: string): string {
+  const key = `cashTown:test:${letter}`;
+  const fresh = `test-${letter}-${Math.random().toString(36).slice(2, 8)}`;
+  try {
+    const known = sessionStorage.getItem(key);
+    if (known) return known;
+    sessionStorage.setItem(key, fresh);
+  } catch { /* storage blocked: a new tester each time */ }
+  return fresh;
 }
 
 function Waiting() {

@@ -20,10 +20,23 @@ verified character** (v102; admins since v101). It has:
 - a peer-to-peer voice mesh, STUN only, no TURN relay yet;
 - at most `ROOM_CAP` (30) people; the 31st is told the room is full and gets
   in by themselves when somebody leaves;
-- a 📊 panel with each voice line's RTT, jitter, loss, kbit/s and path.
+- a 📊 panel with each voice line's RTT, jitter, loss, kbit/s and path;
+- **a stay that outlives the page** (`lib/town/session.ts`): another page of
+  the site keeps you in town and talking, with the dock (`TownBar`) at the
+  foot of every page, and others see you as "on another page" (`away`). A
+  reload, or a link that loads a whole page, resumes it by itself, microphone
+  included, if the tab was in town within `RESUME_MS` (a minute; sessionStorage,
+  `lib/town/active.ts`), so reopened tabs never walk anybody in. Leaving is
+  the town's button or the dock's ✕, or closing the tab;
+- **typed chat** (`lib/town/chat.ts`): a bubble over the speaker's head for a
+  few seconds, a short log over the map, and the dock's chat with an unread
+  count on other pages. Never stored, cleaned on the way in and out, paced by
+  room size (`chatEvery`, like `moveEvery`).
 
-The code is in `components/town/` (`Town.tsx`, `TownGate.tsx`) and
-`lib/town/` (`world.ts` is pure and tested, plus `voice.ts` and `room.ts`).
+The code is in `components/town/` (`Town.tsx` the map, `TownGate.tsx`,
+`TownBar.tsx` the dock, `TownDock.tsx` the few lines in the root layout that
+load the dock only for a tab in town) and `lib/town/` (`world.ts`, `chat.ts`
+and `active.ts` are pure and tested; `session.ts`, `voice.ts`, `room.ts`).
 The account menu links to it. In `next dev`, `/town?townTest=A` opens a public
 test room with no sign-in, and `&townCap=N` makes it full at N (production
 compiles both away).
@@ -36,9 +49,10 @@ limits, because breaking them is what made people drop:
 
 So:
 - **presence** carries who you are (name, face, colour), once per join;
-- **room broadcasts** carry what you do: `hi` on arriving (with where you are
-  and your microphone), `mv` for a destination (at most every 300ms), `st` for
-  a change, `bye` on leaving;
+- **room broadcasts** carry what you do: `hi` on arriving (with where you are,
+  your microphone, and whether you are on another page), `mv` for a
+  destination (every 300ms at most, less often as the room fills), `st` for a
+  change, `bye` on leaving, and `chat` for a typed line;
 - **letterboxes** carry what is for one person: a private channel per member
   (`<room>:u:<id>`; anybody in the town may post, only the owner may read)
   for the replies to `hi` and the two messages that connect two microphones
@@ -57,6 +71,7 @@ name.
 | Script | What it does | What it touches |
 |---|---|---|
 | `node town-e2e.mjs http://localhost:3100 <out> [two\|crowd\|all]` | Headless Chromes with fake microphones on the `next dev` test room. Two: enter, see each other, walk, voice both ways, still full volume from opposite corners, the 📊 panel, **a tab frozen 75s and a network cut 40s, recovered without a reload**. Then six: everybody hears everybody (15 lines), a seventh is turned away by a full room and gets in later, and leaving is timed: closing the tab, a killed browser, walking off to another page. 28 checks. | nothing |
+| `node town-stay.mjs http://localhost:3100 <out>` | Two Chromes on the dev test room: typing both ways; another page in the same tab keeps the same stay (the dock shows, others see "on another page", voice keeps flowing); a line arriving there is counted and read from the dock, which replies; back to the map with nothing reconnected; a reload on the map and on another page each resume with the microphone; leaving from the dock is gone in 0.1s and stays gone after a reload. 24 checks. | nothing |
 | `node town-live.mjs full <out> [--freeze] [--crowd N]` | Production with **throwaway verified members (not admins)**: enter the private room, talk, opposite corners, one closes the tab. `--freeze` sleeps a tab 75s; `--crowd N` fills the room to N in voice. **Refuses to run while real members are in the room** (the probes' fake microphones beep into everyone's ears); `--even-if-busy` overrides. | creates the accounts and deletes them in `finally` |
 | `node town-who.mjs` | Production. How many are in the room now, and whether any are test probes. Listens without being listed, prints counts only. | nothing |
 | `node town-isolation.mjs` | Production. Unverified: told no name, refused even with it, cannot post. Verified: told the name, let in, refused somebody else's letterbox but can post into it. A public channel with the same name hears nothing. | three throwaway accounts, deleted |
@@ -81,12 +96,17 @@ those.
   underneath realtime-js, hangs up the socket on `pagehide`. A goodbye sent
   after that falls back to HTTP, which the browser cancels on a closing page.
   Listeners on `window` run in the order they were added, capture or not
-  (tried in Chrome), so `Town.tsx` adds its listener before it creates the
+  (tried in Chrome), so `TownSession` adds its listener before it creates the
   town's client. `cast` never sends while the socket is down, so nothing
   falls back to HTTP quietly.
 - **A goodbye hides, the room removes.** `bye` hides somebody at once; they are
   removed when presence agrees, and shown again if presence still lists them
   after `BYE_TRUST_MS` (another tab of theirs).
+- **A resumed microphone may play nothing at first.** After a reload the
+  microphone comes back without a tap where the browser remembers the
+  permission, but playing what arrives can still need one (autoplay):
+  `VoiceMesh.audioBlocked`, a "tap to hear" button, and any tap on the page
+  resumes it.
 - **Hello only when the letterbox is open.** The replies to `hi` go there; one
   sent before it opens is lost, and a newcomer who missed who has a
   microphone on would hang up on every line the others opened.
@@ -126,7 +146,7 @@ Zheza and Gather do well, the proposed pillars, and the open questions.
 7. **The cost is checked before shipping anything realtime.** Run
    `node .claude/skills/fc-cash-town/scripts/town-cost.mjs` with the
    expected numbers. Click-to-move, a Durable Object per zone and the
-   Cloudflare SFU keep it near the $5 a month the Cloudflare move already
+   Cloudflare SFU keep it near the 5 US dollars a month the Cloudflare move already
    pays. Streaming positions over Supabase Realtime does not work at all
    ([references/costs.md](references/costs.md)).
 

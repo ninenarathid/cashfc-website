@@ -7,6 +7,7 @@ import CommandPalette from "@/components/CommandPalette";
 import ToastHost from "@/components/ui/Toast";
 import RareDevTools from "@/components/RareDevTools";
 import PopotoWarmup from "@/components/ui/PopotoWarmup";
+import TownDock from "@/components/town/TownDock";
 import { TooltipProvider } from "@/components/ui/Tooltip";
 import roster from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
@@ -102,6 +103,9 @@ export default function RootLayout({
           {/* Every popoto pose, fetched while nothing else is happening, so the
               one a button turns into is already there when it does. */}
           <PopotoWarmup />
+          {/* Still in Cash Town while looking at another page: the dock, for a
+              tab that is in town, and nothing at all for one that is not. */}
+          <TownDock />
           {/* Extra room at the foot on a phone, where the tab bar is fixed over
               the bottom of the page and would otherwise sit on the footer. */}
           <div className="mx-auto max-w-5xl px-4 pb-32 sm:pb-16">

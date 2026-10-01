@@ -2,6 +2,7 @@
 
 import { createClient as createSupabase, type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
+import { cleanChat } from "./chat";
 
 /**
  * The town's room on Supabase Realtime, written around the plan's limits
@@ -19,7 +20,7 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
  *   · presence says only who is here: name, face, colour, sent once per join;
  *   · where somebody walks, and whether their microphone is on, are broadcasts
  *     in the room: `hi` on arriving, `mv` for a destination, `st` for a
- *     change, `bye` on leaving;
+ *     change, `bye` on leaving; and what they type, `chat`;
  *   · things meant for one person go to their letterbox, not the room:
  *     a private channel only they can read (v102). Those are the replies to
  *     `hi` and the two messages that connect two microphones. Sent to the
@@ -38,12 +39,17 @@ export interface Identity {
   color: string;
 }
 
-/** What somebody is doing: where they are walking to, and their microphone. */
+/**
+ * What somebody is doing: where they are walking to, their microphone, and
+ * whether they are looking at another page of the site (still in town, and
+ * still talking, but not watching the map).
+ */
 export interface Doing {
   x: number;
   y: number;
   voice: boolean;
   muted: boolean;
+  away: boolean;
 }
 
 /**
@@ -62,6 +68,8 @@ export interface RoomHandlers {
   onHello(id: string): void;
   /** Somebody closed the page: gone now, not after a timeout. */
   onBye(id: string): void;
+  /** Somebody typed a line (raw: clean it before showing it). */
+  onChat(id: string, text: unknown): void;
   onSignal(from: string, data: unknown): void;
   onStatus(status: RoomStatus, detail?: string): void;
 }
@@ -71,6 +79,8 @@ export interface Room {
   say(d: Doing): void;
   /** Into one person's letterbox: where I am, for somebody who just arrived. */
   tell(to: string, d: Doing): void;
+  /** Type a line to everybody in the room; false when not connected (nothing was sent). */
+  chat(text: string): boolean;
   signal(to: string, data: unknown): void;
   bye(): void;
   /** Make sure the room still lists me; say who I am again if it lost me. */
@@ -105,10 +115,11 @@ const bool = (v: unknown) => (typeof v === "boolean" ? v : undefined);
 /** Only the fields we know, of the types we expect: these come from other browsers. */
 function readDoing(p: Record<string, unknown>): Partial<Doing> {
   const d: Partial<Doing> = {};
-  const x = num(p.x), y = num(p.y), voice = bool(p.voice), muted = bool(p.muted);
+  const x = num(p.x), y = num(p.y), voice = bool(p.voice), muted = bool(p.muted), away = bool(p.away);
   if (x !== undefined && y !== undefined) { d.x = x; d.y = y; }
   if (voice !== undefined) d.voice = voice;
   if (muted !== undefined) d.muted = muted;
+  if (away !== undefined) d.away = away;
   return d;
 }
 
@@ -173,7 +184,8 @@ export async function joinTown(
       if (!m) continue;
       people.push({
         id,
-        name: typeof m.n === "string" ? m.n : "…",
+        // From another browser, like a chat line: one clean line, and short.
+        name: Array.from(cleanChat(m.n)).slice(0, 40).join("") || "…",
         face: typeof m.f === "string" ? m.f : null,
         color: typeof m.c === "string" && /^#[0-9a-f]{6}$/i.test(m.c) ? m.c : "#6aa9e0",
       });
@@ -198,6 +210,10 @@ export async function joinTown(
     const p = payload as Record<string, unknown>;
     if (typeof p?.id === "string" && p.id !== me.id) h.onBye(p.id);
   });
+  room.on("broadcast", { event: "chat" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === "string" && p.id !== me.id) h.onChat(p.id, p.t);
+  });
 
   /* ── my letterbox ── */
   const box: RealtimeChannel = supabase.channel(boxOf(me.id), {
@@ -217,10 +233,10 @@ export async function joinTown(
   // Into the room only while joined and connected; otherwise the client
   // quietly falls back to one HTTP request per message. Missed moves are not
   // lost: where I am is announced again (`hi`) the moment the room is back.
-  const cast = (event: string, payload: Record<string, unknown>) => {
-    if (room.state === "joined" && supabase.realtime.isConnected()) {
-      void room.send({ type: "broadcast", event, payload });
-    }
+  const cast = (event: string, payload: Record<string, unknown>): boolean => {
+    if (room.state !== "joined" || !supabase.realtime.isConnected()) return false;
+    void room.send({ type: "broadcast", event, payload });
+    return true;
   };
   // Hello only once my letterbox is open too: the replies go there, and a
   // reply sent before it opens is lost. A newcomer who missed them would not
@@ -272,6 +288,7 @@ export async function joinTown(
     move(x, y) { cast("mv", { id: me.id, x, y }); },
     say(d) { cast("st", { id: me.id, ...d }); },
     tell(to, d) { post(to, "st", { id: me.id, ...d }); },
+    chat(text) { return cast("chat", { id: me.id, t: text }); },
     signal(to, data) { post(to, "rtc", { from: me.id, data }); },
     bye() { cast("bye", { id: me.id }); },
     check() {

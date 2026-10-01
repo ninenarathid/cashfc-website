@@ -189,6 +189,7 @@ export class VoiceMesh {
   private peers = new Map<string, Peer>();
   private box: HTMLDivElement | null = null;
   private muted = false;
+  private blocked = false;
 
   constructor(
     private readonly selfId: string,
@@ -198,6 +199,11 @@ export class VoiceMesh {
 
   get active() { return this.stream !== null; }
   get isMuted() { return this.muted; }
+  /**
+   * The browser would not play what arrives: autoplay needs a tap on the page
+   * first, which a voice resumed after a reload has not had yet.
+   */
+  get audioBlocked() { return this.blocked; }
   /** Whom there is a line to now, open or still connecting. */
   get lines(): ReadonlySet<string> { return new Set(this.peers.keys()); }
 
@@ -224,7 +230,17 @@ export class VoiceMesh {
     this.onChange();
   }
 
+  /** After a tap: play what was held back, and wake the speaking rings. */
+  resumeAudio() {
+    if (!this.blocked && this.ctx?.state !== "suspended") return;
+    this.blocked = false;
+    void this.ctx?.resume().catch(() => {});
+    for (const p of this.peers.values()) this.play(p);
+    this.onChange();
+  }
+
   stop() {
+    this.blocked = false;
     for (const p of this.peers.values()) p.close();
     this.peers.clear();
     this.stream?.getTracks().forEach((t) => t.stop());
@@ -395,13 +411,19 @@ export class VoiceMesh {
       peer.audio = el;
     }
     peer.audio.srcObject = stream;
-    void peer.audio.play().catch(() => {});
+    this.play(peer);
     // For the speaking ring only: the analyser listens, it does not play.
     peer.analyser = this.analyse(stream);
     peer.buffer = peer.analyser ? new Float32Array(peer.analyser.fftSize) : null;
     peer.audio.dataset.set = "";
     this.setGain(peer.id, peer.gain);
     this.onChange();
+  }
+
+  private play(peer: Peer) {
+    void peer.audio?.play().catch((e: { name?: string }) => {
+      if (e?.name === "NotAllowedError" && !this.blocked) { this.blocked = true; this.onChange(); }
+    });
   }
 
   private analyse(stream: MediaStream): AnalyserNode | null {

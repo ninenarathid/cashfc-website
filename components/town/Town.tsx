@@ -1,74 +1,39 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BUILDINGS, COLS, FAR, FOUNTAIN, NEAR, PROXIMITY, ROWS, SPEED, TILE_H, TILE_W, TREES,
-  distance, findPath, fromIso, groundAt, hearing, moveEvery, pickLines, spawnFor, stepAlong,
-  toIso, walkable, type Building, type Vec,
+  BUILDINGS, COLS, FAR, FOUNTAIN, NEAR, PROXIMITY, ROWS, TILE_H, TILE_W, TREES,
+  distance, fromIso, groundAt, hearing, toIso, walkable, type Building, type Vec,
 } from "@/lib/town/world";
-import { VoiceMesh, type PeerInfo, type Signal } from "@/lib/town/voice";
-import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "@/lib/town/room";
+import type { PeerInfo } from "@/lib/town/voice";
+import type { Identity } from "@/lib/town/room";
+import { resumable } from "@/lib/town/active";
+import { BUBBLE_MS, wrapLines } from "@/lib/town/chat";
+import { ROOM_CAP, openSession, type Avatar, type TownSession } from "@/lib/town/session";
 
 /**
- * Cash Town, the prototype: one room, everybody's avatar, tap to walk, and a
- * microphone everybody in the room can hear.
+ * Cash Town's page: the map, who is here, and the microphone.
+ *
+ * The stay in town is a TownSession (lib/town/session), which outlives this
+ * page: go to another page and you are still in town and still talking, with
+ * the dock (TownBar) at the foot of it; come back and this page picks up the
+ * same stay, with nothing to reconnect. Leaving is a button here or the dock's
+ * ✕, or closing the tab.
  *
  * Drawn on one canvas with plain 2D calls rather than a game engine: the
  * prototype is a few dozen shapes and a handful of faces, and an engine would
  * be a few hundred kilobytes to draw them. The fc-cash-town skill weighs
  * PixiJS and Phaser for when the town grows.
  *
- * Positions and the voice live in refs and are drawn every frame; React state
- * is only what the panels around the canvas show, so a walking avatar never
+ * Positions live in the session and are drawn every frame; React state is
+ * only what the panels around the canvas show, so a walking avatar never
  * re-renders the page.
- *
- * Who is shown is who is really here. Somebody who closes the page says
- * goodbye and is gone at once; somebody whose connection dies is gone a few
- * seconds after the room notices, the wait being only long enough to ride out
- * the room re-listing somebody who reconnected.
  */
 
 export type TownMe = Identity;
-
-interface Person extends Identity, Doing {}
-
-interface Avatar {
-  info: Person;
-  pos: Vec;
-  path: Vec[];
-  img: HTMLImageElement | null;
-  /** Whether we have heard where they are yet; until then they stand where they arrived. */
-  placed: boolean;
-  /** When the room stopped listing them without a goodbye. */
-  goneAt?: number;
-  /** When they said goodbye: hidden from then on, gone once the room agrees. */
-  byeAt?: number;
-}
-
-/** How long somebody the room stopped listing (without a goodbye) stays. */
-const GONE_MS = 4_000;
-
-/**
- * How long a goodbye hides somebody the room still lists. Long after one,
- * they are still here: it came from another tab of theirs, or from somebody
- * else pretending (a goodbye carries a name, not a proof), so they come back.
- */
-const BYE_TRUST_MS = 8_000;
-
-/**
- * At most this many in the room. A guard for the whole site rather than a
- * design: every step anybody takes is delivered to everybody, and the
- * project's realtime allowance (500 deliveries a second, shared with the
- * party board and the bell) runs out somewhere past this.
- */
-const ROOM_CAP = 30;
-
-/** How often to knock again on a full room. */
-const FULL_RETRY_MS = 30_000;
 
 const ISO_MIN_X = -ROWS * (TILE_W / 2);
 const ISO_MAX_X = COLS * (TILE_W / 2);
@@ -89,27 +54,37 @@ const KEYS: Record<string, [number, number]> = {
   ArrowLeft: [-1, 1], a: [-1, 1], A: [-1, 1],
 };
 
+const noSubscribe = () => () => {};
+
+/** How long a line stays in the log over the map. */
+const LOG_SHOWN_MS = 120_000;
+/** How many lines the log over the map shows. */
+const LOG_LINES = 4;
+
 function useWords() {
   const { lang } = useLang();
   const th = lang === "th";
   return {
     th,
-    badge: th ? "ทดลอง (Beta)" : "Beta",
     testBadge: th ? "โหมดทดสอบ (dev)" : "Test mode (dev)",
     hint: th ? "แตะพื้นเพื่อเดิน · กดเปิดไมค์เพื่อคุยกับทุกคนในห้อง" : "Tap the ground to walk · turn your mic on to talk with everyone here",
     join: th ? "🎤 เปิดไมค์ เข้าคุย" : "🎤 Turn mic on & join voice",
     mute: th ? "ปิดเสียงตัวเอง" : "Mute me",
     unmute: th ? "เปิดเสียงตัวเอง" : "Unmute me",
     leave: th ? "ออกจากเสียง" : "Leave voice",
-    together: th ? "ทุกคนที่เปิดไมค์ในห้องได้ยินกันหมด" : "Everyone with their mic on hears everyone",
+    leaveTown: th ? "ออกจากเมือง" : "Leave town",
+    left: th ? "ออกจากเมืองแล้ว" : "You left the town",
+    reenter: th ? "เข้าเมืองอีกครั้ง" : "Enter again",
+    together: th ? "ทุกคนที่เปิดไมค์ได้ยินกันหมด · ไปดูหน้าอื่นได้ เสียงไม่หลุด" : "Everyone with a mic on hears everyone · browse other pages, your voice stays on",
     near: th ? `ได้ยินชัดในระยะ ~${NEAR} ช่อง จางหายที่ ${FAR} ช่อง` : `Clear within ~${NEAR} tiles, silent at ${FAR}`,
     here: th ? "ในห้องตอนนี้" : "Here now",
     you: th ? "คุณ" : "you",
     places: th ? "สถานที่" : "Places",
-    go: th ? "ไปที่หน้านี้ ↗" : "Open this page ↗",
+    go: th ? "ไปที่หน้านี้" : "Go to this page",
     close: th ? "ปิด" : "Close",
     hearing: (n: number) => (th ? `ได้ยิน ${n}%` : `${n}% volume`),
     connected: th ? "ต่อเสียงแล้ว" : "voice connected",
+    away: th ? "อยู่หน้าอื่นของเว็บ" : "on another page",
     connecting: th ? "กำลังเข้าเมือง…" : "Entering town…",
     needsMigration: th ? "ยังเข้าเมืองไม่ได้: ต้องรัน migration ของ Cash Town ใน SQL editor ก่อน" : "Can't enter yet: the Cash Town migration has to be run first",
     denied: th ? "ยังเข้าเมืองไม่ได้ ต้องยืนยันตัวละครก่อน" : "You need a verified character to enter",
@@ -120,6 +95,7 @@ function useWords() {
     micDenied: th ? "เบราว์เซอร์ไม่อนุญาตให้ใช้ไมค์ — กดรูปกุญแจข้างช่อง URL แล้วอนุญาตไมโครโฟน" : "The browser blocked the microphone. Allow it from the lock icon by the address bar.",
     noMic: th ? "ไม่พบไมโครโฟนในเครื่องนี้" : "No microphone found on this device",
     micFailed: th ? "เปิดไมค์ไม่สำเร็จ" : "Couldn't start the microphone",
+    tapToHear: th ? "🔊 แตะเพื่อฟังเสียง" : "🔊 Tap to hear",
     iceFailed: th ? "ต่อเสียงกับคนนี้ไม่สำเร็จ (เครือข่ายอาจกั้น P2P)" : "Voice couldn't connect to this person (the network may block peer-to-peer)",
     connectingVoice: th ? "กำลังต่อเสียง…" : "connecting voice…",
     canvasLabel: th ? "แผนที่ Cash Town แตะเพื่อเดิน" : "Cash Town map. Tap to walk.",
@@ -131,6 +107,11 @@ function useWords() {
     statsCols: th ? ["ใคร", "สถานะ", "RTT", "jitter", "หาย", "kbps", "ทาง"] : ["Who", "State", "RTT", "Jitter", "Lost", "kbps", "Path"],
     direct: th ? "ตรง" : "direct",
     relay: "relay",
+    chatPlaceholder: th ? "พิมพ์คุยกับทุกคน… (กด Enter)" : "Say something to everyone… (Enter)",
+    send: th ? "ส่ง" : "Send",
+    chatLog: th ? "แชทล่าสุด" : "Recent chat",
+    slow: th ? "พิมพ์เร็วไปนิด รอแป๊บนึงนะ" : "A little fast. Wait a moment.",
+    offline: th ? "ยังส่งไม่ได้ กำลังต่อใหม่" : "Can't send while reconnecting.",
   };
 }
 
@@ -139,321 +120,74 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const w = useWords();
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const avatars = useRef(new Map<string, Avatar>());
-  const self = useRef<Avatar | null>(null);
-  const room = useRef<Room | null>(null);
-  const mesh = useRef<VoiceMesh | null>(null);
   const view = useRef({ s: 1, ox: 0, oy: 0, camX: 0, camY: 0, follow: false, cw: 0, ch: 0 });
   const hover = useRef<Building | null>(null);
   const fontRef = useRef("sans-serif");
   const fpsRef = useRef(0);
 
-  const [status, setStatus] = useState<RoomStatus>("connecting");
-  const statusRef = useRef<RoomStatus>("connecting");
-  // Whether we have ever got in: before that "connecting" is a wait worth a
-  // banner; after it, reconnecting is a hiccup worth a small pill.
-  const everReady = useRef(false);
-  const [voiceOn, setVoiceOn] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [session, setSession] = useState<TownSession | null>(null);
+  const sessionRef = useRef<TownSession | null>(null);
   const [popover, setPopover] = useState<{ b: Building; x: number; y: number } | null>(null);
   // Open on a wide screen; on a phone the list folds away to leave the map.
   const [listOpen, setListOpen] = useState(() => typeof window === "undefined" || window.innerWidth >= 640);
   const [statsOpen, setStatsOpen] = useState(false);
   const [stats, setStats] = useState<PeerInfo[]>([]);
   const [, setTick] = useState(0);
-  const bump = useCallback(() => setTick((n) => n + 1), []);
+  const [draft, setDraft] = useState("");
+  const [chatNote, setChatNote] = useState<string | null>(null);
+  const chatRef = useRef<HTMLInputElement>(null);
 
-  /** What I am doing, as the room has been told. */
-  const doing = useCallback((): Doing => {
-    const a = self.current!;
-    return { x: a.info.x, y: a.info.y, voice: a.info.voice, muted: a.info.muted };
-  }, []);
+  /** The stay already going in this tab, or a new one (resumed, after a reload). */
+  const enter = useCallback(() => {
+    const rec = resumable();
+    const resume = rec && rec.me.id === me.id && rec.testTopic === testTopic
+      ? { voice: rec.voice, muted: rec.muted } : undefined;
+    setSession(openSession(me, { testTopic, cap, resume }));
+    // The stay is keyed by who you are; a new name or face waits for the next one.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [me.id, testTopic, cap]);
+  useEffect(() => { enter(); }, [enter]);
+  useEffect(() => { sessionRef.current = session; }, [session]);
 
-  /** A line to everybody I should hear (everybody in voice, for now). */
-  const syncVoice = useCallback(() => {
-    const voice = mesh.current;
-    const mine = self.current;
-    if (!voice?.active || !mine) return;
-    const others = [...avatars.current.values()]
-      .filter((a) => a.info.voice)
-      .map((a) => ({ id: a.info.id, pos: a.pos }));
-    voice.sync(pickLines(mine.pos, others, voice.lines));
-  }, []);
+  useSyncExternalStore(session?.subscribe ?? noSubscribe, () => session?.version ?? 0, () => 0);
+  // This page showing the stay is what tells the others we are looking at the map.
+  useEffect(() => session?.attachView(), [session]);
 
-  /* ── announcing my steps: a few a second, fewer as the room fills ─────── */
-  const moveTimer = useRef<number | null>(null);
-  const lastMoveAt = useRef(0);
-  const announceMove = useCallback(() => {
-    const send = () => {
-      moveTimer.current = null;
-      lastMoveAt.current = Date.now();
-      const a = self.current;
-      if (a) room.current?.move(a.info.x, a.info.y);
-    };
-    const wait = moveEvery(avatars.current.size + 1) - (Date.now() - lastMoveAt.current);
-    if (wait <= 0) send();
-    else if (moveTimer.current === null) moveTimer.current = window.setTimeout(send, wait);
-  }, []);
-
-  /** Walk my avatar to a tile, if there is a way there. */
-  const walkTo = useCallback((tile: Vec) => {
-    const a = self.current;
-    if (!a) return false;
-    const goal = { x: Math.floor(tile.x) + 0.5, y: Math.floor(tile.y) + 0.5 };
-    const path = findPath(a.pos, goal);
-    if (!path) return false;
-    a.path = path;
-    a.info = { ...a.info, x: goal.x, y: goal.y };
-    announceMove();
-    return true;
-  }, [announceMove]);
-
-  /* ── entering the town, and staying in it ────────────────────────────── */
   useEffect(() => {
-    const site = createClient();
-
-    const start = spawnFor(me.id);
-    self.current = {
-      info: { ...me, x: start.x, y: start.y, voice: false, muted: false },
-      pos: { ...start }, path: [], img: loadFace(me.face), placed: true,
-    };
     fontRef.current = getComputedStyle(document.body).getPropertyValue("--font-body-face").trim() || "sans-serif";
+  }, []);
 
-    let disposed = false;
-    let gen = 0;
-    let current: Room | null = null;
-    let lastStatus: RoomStatus = "connecting";
-    // When it was last fine, or when we last started over: the watchdog's clock.
-    let settledAt = Date.now();
-    let attempts = 0;
-    // Things somebody did before the room listed them; applied when it does.
-    const early = new Map<string, Partial<Doing>>();
-    // Whom the room lists right now.
-    let listed = new Set<string>();
-
-    // Closing the page (or the browser): say goodbye, so nobody is left
-    // looking at somebody who has gone. Added before the town's realtime
-    // client exists, on purpose: the client hangs up its connection on
-    // pagehide too, and listeners on window run in the order they were added
-    // (capture or not; tried in Chrome). After the hang-up a goodbye would go
-    // by HTTP, which the browser cancels on a closing page. Nothing is torn
-    // down here: a closing page takes the connection with it, and a page kept
-    // for the back button rejoins when it comes back, its `hi` showing it
-    // again to everybody it said goodbye to.
-    const goodbye = () => current?.bye();
-    window.addEventListener("pagehide", goodbye);
-
-    const report = (s: RoomStatus) => {
-      if (disposed) return;
-      lastStatus = s;
-      statusRef.current = s;
-      if (s === "ready") { settledAt = Date.now(); attempts = 0; everReady.current = true; }
-      setStatus(s);
-    };
-
-    // The keep-alive says when the line has gone quiet before the channel does.
-    const client = townClient(site, (beat) => {
-      if ((beat === "timeout" || beat === "error") && lastStatus === "ready") report("reconnecting");
-    });
-    const voice = new VoiceMesh(me.id, (to, s) => current?.signal(to, s), bump);
-    mesh.current = voice;
-
-    const apply = (a: Avatar, d: Partial<Doing>) => {
-      if (d.x !== undefined && d.y !== undefined) {
-        if (!a.placed) {
-          // The first we hear of where somebody is: put them there, rather
-          // than walk them over from where they appeared.
-          a.pos = { x: d.x, y: d.y };
-          a.path = [];
-          a.placed = true;
-        } else if (d.x !== a.info.x || d.y !== a.info.y) {
-          a.path = findPath(a.pos, { x: d.x, y: d.y }) ?? [{ x: d.x, y: d.y }];
-        }
-      }
-      const voiceChanged = d.voice !== undefined && d.voice !== a.info.voice;
-      a.info = { ...a.info, ...d };
-      return voiceChanged;
-    };
-
-    // Whether this join has been counted in: "ready" waits for the first
-    // headcount, so a full room never flashes open before it says it is full.
-    let admitted = false;
-    let readyHeld = false;
-
-    const onMembers = (people: Identity[]) => {
-      const now = Date.now();
-      const others = people.filter((p) => p.id !== me.id);
-      // The room was full when I arrived: say so and go again.
-      if (!admitted) {
-        admitted = true;
-        if (readyHeld) { readyHeld = false; if (others.length < cap) report("ready"); }
-        if (others.length >= cap) {
-          report("full");
-          settledAt = now;
-          gen++;
-          const r = current;
-          current = null;
-          room.current = null;
-          r?.bye();
-          void r?.leave();
-          return;
-        }
-      }
-      const seen = new Set<string>();
-      for (const p of others) {
-        seen.add(p.id);
-        const known = avatars.current.get(p.id);
-        if (!known) {
-          const d = early.get(p.id) ?? {};
-          early.delete(p.id);
-          const spot = d.x !== undefined && d.y !== undefined ? { x: d.x, y: d.y } : spawnFor(p.id);
-          avatars.current.set(p.id, {
-            info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false },
-            pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
-          });
-        } else {
-          if (known.info.face !== p.face) known.img = loadFace(p.face);
-          known.info = { ...known.info, name: p.name, face: p.face, color: p.color };
-          known.goneAt = undefined;
-        }
-      }
-      for (const a of avatars.current.values()) {
-        if (!seen.has(a.info.id) && a.goneAt === undefined) a.goneAt = now;
-      }
-      listed = seen;
-      syncVoice();
-      bump();
-    };
-
-    const onDoing = (id: string, d: Partial<Doing>) => {
-      const a = avatars.current.get(id);
-      if (!a) { early.set(id, { ...early.get(id), ...d }); return; }
-      if (apply(a, d)) syncVoice();
-      bump();
-    };
-
-    // Hidden at once, so nobody is left looking at somebody who has gone; the
-    // room's own word removes them a moment later (see BYE_TRUST_MS).
-    const onBye = (id: string) => {
-      early.delete(id);
-      const a = avatars.current.get(id);
-      if (!a || a.byeAt !== undefined) return;
-      a.byeAt = Date.now();
-      bump();
-    };
-
-    const connect = async () => {
-      const mine = ++gen;
-      const old = current;
-      current = null;
-      room.current = null;
-      if (old) await old.leave();
-      if (disposed || mine !== gen) return;
-      admitted = false;
-      readyHeld = false;
-      const r = await joinTown(client, me, {
-        onStatus: (s) => {
-          if (mine !== gen) return;
-          if (s === "ready" && !admitted) { readyHeld = true; return; }
-          report(s);
-        },
-        onMembers: (list) => { if (!disposed && mine === gen) onMembers(list); },
-        onDoing: (id, d) => { if (!disposed && mine === gen) onDoing(id, d); },
-        onHello: (id) => {
-          if (disposed || mine !== gen) return;
-          // Back after a goodbye (a reload): show them again.
-          const a = avatars.current.get(id);
-          if (a?.byeAt !== undefined) { a.byeAt = undefined; bump(); }
-          current?.tell(id, doing());
-        },
-        onBye: (id) => { if (!disposed && mine === gen) onBye(id); },
-        onSignal: (from, data) => { if (mine === gen) void voice.receive(from, data as Signal); },
-      }, { testTopic, cancelled: () => disposed || mine !== gen, doing });
-      if (!r) return;
-      if (disposed || mine !== gen) { void r.leave(); return; }
-      current = r;
-      room.current = r;
-    };
-    void connect();
-
-    // The watchdog. Supabase reconnects by itself and usually that is enough;
-    // this is for when it is not, so nobody has to reload to find a friend.
-    const tick = window.setInterval(() => {
-      if (disposed) return;
-      const now = Date.now();
-      let changed = false;
-      for (const [id, a] of avatars.current) {
-        if (a.goneAt !== undefined && now - a.goneAt > GONE_MS) { avatars.current.delete(id); changed = true; }
-        else if (a.byeAt !== undefined && now - a.byeAt > BYE_TRUST_MS) {
-          if (listed.has(id)) a.byeAt = undefined;
-          else avatars.current.delete(id);
-          changed = true;
-        }
-      }
-      if (changed) bump();
-      syncVoice();
-      if (lastStatus === "ready") {
-        current?.check();
-        voice.repair();
-        return;
-      }
-      if (lastStatus === "needs-migration" || lastStatus === "denied") return;
-      if (lastStatus === "full") {
-        // Knock again now and then; the banner stays until we are in.
-        if (now - settledAt > FULL_RETRY_MS) { settledAt = now; void connect(); }
-        return;
-      }
-      if (now - settledAt > Math.min(30_000, 10_000 + attempts * 5_000)) {
-        attempts++;
-        settledAt = now;
-        report("reconnecting");
-        void connect();
-      }
-    }, 1000);
-
-    // Coming back to the tab, or back online: check at once rather than waiting.
-    const wake = () => {
-      if (disposed || document.visibilityState !== "visible") return;
-      if (lastStatus === "ready") { current?.check(); voice.repair(); return; }
-      if (lastStatus === "needs-migration" || lastStatus === "denied" || lastStatus === "full") return;
-      settledAt = Date.now();
-      void connect();
-    };
-    document.addEventListener("visibilitychange", wake);
-    window.addEventListener("online", wake);
-
-    return () => {
-      disposed = true;
-      window.clearInterval(tick);
-      document.removeEventListener("visibilitychange", wake);
-      window.removeEventListener("online", wake);
-      window.removeEventListener("pagehide", goodbye);
-      if (moveTimer.current !== null) window.clearTimeout(moveTimer.current);
-      voice.stop();
-      current?.bye();
-      void (current?.leave() ?? Promise.resolve()).finally(() => client.realtime.disconnect());
-      room.current = null;
-    };
-  }, [me, testTopic, cap, bump, syncVoice, doing]);
+  const s = session && !session.closed ? session : null;
+  const voiceOn = !!s && s.self.info.voice && s.voice.active;
 
   /* ── the stats panel, refreshed while it is open ─────────────────────── */
   useEffect(() => {
-    if (!statsOpen) return;
+    if (!statsOpen || !s) return;
     let alive = true;
-    const read = async () => { const s = (await mesh.current?.stats()) ?? []; if (alive) setStats(s); };
+    const read = async () => { const r = await s.stats(); if (alive) setStats(r); };
     void read();
     const id = window.setInterval(read, 2000);
     return () => { alive = false; window.clearInterval(id); };
-  }, [statsOpen]);
+  }, [statsOpen, s]);
 
   // In voice, the list says how each line is doing; twice a second is often
-  // enough to read and cheap enough to ignore.
+  // enough to read and cheap enough to ignore. With chat, old lines leave the
+  // log over the map without anybody typing.
+  const chatting = !!s && s.chat.length > 0;
   useEffect(() => {
-    if (!voiceOn) return;
-    const id = window.setInterval(bump, 500);
+    if (!voiceOn && !chatting) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), voiceOn ? 500 : 2000);
     return () => window.clearInterval(id);
-  }, [voiceOn, bump]);
+  }, [voiceOn, chatting]);
+
+  const sendChat = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!s) return;
+    const r = s.sendChat(draft);
+    if (r === "sent") { setDraft(""); setChatNote(null); }
+    else if (r === "slow") setChatNote(w.slow);
+    else if (r === "offline") setChatNote(w.offline);
+  };
 
   /* ── drawing, every frame ────────────────────────────────────────────── */
   useEffect(() => {
@@ -486,19 +220,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       last = now;
       frames++;
       if (now - fpsSince >= 1000) { fpsRef.current = Math.round((frames * 1000) / (now - fpsSince)); frames = 0; fpsSince = now; }
-      const mine = self.current;
-      // Walk everybody along their paths.
-      if (mine && mine.path.length) Object.assign(mine, stepAlong(mine.pos, mine.path, SPEED * dt));
-      for (const a of avatars.current.values()) {
-        if (a.path.length) Object.assign(a, stepAlong(a.pos, a.path, SPEED * dt));
-      }
-      // Each voice as loud as the town's rules say (all the same, for now).
-      const voice = mesh.current;
-      if (mine && voice?.active) {
-        for (const a of avatars.current.values()) {
-          if (a.info.voice) voice.setGain(a.info.id, hearing(distance(mine.pos, a.pos)));
-        }
-      }
+      const live = sessionRef.current;
+      if (live && !live.closed) live.step(now, dt);
       draw(ctx, canvas, fallback, now);
       raf = requestAnimationFrame(frame);
     };
@@ -509,8 +232,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   function project(v: Vec): Vec {
     const iso = toIso(v.x, v.y);
-    const { s, ox, oy } = view.current;
-    return { x: ox + iso.x * s, y: oy + iso.y * s };
+    const { s: k, ox, oy } = view.current;
+    return { x: ox + iso.x * k, y: oy + iso.y * k };
   }
 
   function draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, fallback: HTMLImageElement, now: number) {
@@ -518,14 +241,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const { cw, ch } = v;
     if (!cw || !ch) return;
     const dpr = canvas.width / cw;
+    const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
+    const mine = stay?.self ?? null;
 
     // Fit the whole district if it fits; otherwise follow me around it.
     const fit = Math.min(cw / (ISO_MAX_X - ISO_MIN_X), ch / (ISO_MAX_Y - ISO_MIN_Y));
     v.follow = fit < MIN_SCALE;
     v.s = v.follow ? MIN_SCALE : fit;
     const mapW = (ISO_MAX_X - ISO_MIN_X) * v.s, mapH = (ISO_MAX_Y - ISO_MIN_Y) * v.s;
-    if (v.follow && self.current) {
-      const iso = toIso(self.current.pos.x, self.current.pos.y);
+    if (v.follow && mine) {
+      const iso = toIso(mine.pos.x, mine.pos.y);
       v.camX += (iso.x - v.camX) * 0.12;
       v.camY += (iso.y - v.camY) * 0.12;
       // Centre on me, but never show past the edge of the district.
@@ -558,11 +283,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       }
     }
 
-    const mine = self.current;
-    const voice = mesh.current;
-
     // How far a voice carries, when distance matters at all.
-    if (PROXIMITY && mine && voice?.active) {
+    if (PROXIMITY && mine && stay?.voice.active) {
       const c = project(mine.pos);
       for (const [r, a] of [[FAR, 0.05], [NEAR, 0.1]] as const) {
         ctx.beginPath();
@@ -596,24 +318,28 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const names: Array<() => void> = [];
     // While I am not connected, nobody can see me, so the others are drawn
     // faded: what I see of them is no longer live.
-    const live = statusRef.current === "ready";
+    const live = stay?.status === "ready";
+    // Chat times are wall-clock; the frame's `now` is not.
+    const wall = Date.now();
     for (const b of BUILDINGS) things.push({ depth: b.x + b.y + (b.w + b.h) / 2, draw: () => drawBuilding(ctx, b, signs) });
     for (const t of TREES) things.push({ depth: t.x + t.y + 1, draw: () => drawTree(ctx, t) });
     things.push({ depth: FOUNTAIN.x + FOUNTAIN.y + 2, draw: () => drawFountain(ctx, now) });
-    for (const a of avatars.current.values()) {
-      if (a.byeAt !== undefined) continue;
-      things.push({ depth: a.pos.x + a.pos.y, draw: () => drawAvatar(ctx, a, false, fallback, names, !live) });
+    if (stay) {
+      for (const a of stay.avatars.values()) {
+        if (a.byeAt !== undefined) continue;
+        things.push({ depth: a.pos.x + a.pos.y, draw: () => drawAvatar(ctx, a, false, fallback, names, !live, wall) });
+      }
     }
-    if (mine) things.push({ depth: mine.pos.x + mine.pos.y, draw: () => drawAvatar(ctx, mine, true, fallback, names, false) });
+    if (mine) things.push({ depth: mine.pos.x + mine.pos.y, draw: () => drawAvatar(ctx, mine, true, fallback, names, false, wall) });
     things.sort((a, b) => a.depth - b.depth);
     for (const t of things) t.draw();
-    for (const s of signs) s();
+    for (const sign of signs) sign();
     for (const n of names) n();
   }
 
   function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, signs: Array<() => void>) {
-    const s = view.current.s;
-    const H = b.height * s;
+    const k = view.current.s;
+    const H = b.height * k;
     const top = project({ x: b.x, y: b.y });
     const right = project({ x: b.x + b.w, y: b.y });
     const bottom = project({ x: b.x + b.w, y: b.y + b.h });
@@ -627,7 +353,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // A door on the left wall, facing the plaza.
     const door = mid(left, bottom);
     ctx.fillStyle = "rgba(0,0,0,0.35)";
-    ctx.fillRect(door.x - 7 * s, door.y - 22 * s, 14 * s, 18 * s);
+    ctx.fillRect(door.x - 7 * k, door.y - 22 * k, 14 * k, 18 * k);
     // The sign.
     const roof = mid(up(top), up(bottom));
     signs.push(() => label(ctx, `${b.icon} ${w.th ? b.name.th : b.name.en}`, roof.x, roof.y - 14,
@@ -635,55 +361,58 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }
 
   function drawTree(ctx: CanvasRenderingContext2D, t: Vec) {
-    const s = view.current.s;
+    const k = view.current.s;
     const c = project({ x: t.x + 0.5, y: t.y + 0.5 });
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.beginPath();
-    ctx.ellipse(c.x, c.y, 16 * s, 7 * s, 0, 0, Math.PI * 2);
+    ctx.ellipse(c.x, c.y, 16 * k, 7 * k, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#5b4130";
-    ctx.fillRect(c.x - 3 * s, c.y - 26 * s, 6 * s, 26 * s);
+    ctx.fillRect(c.x - 3 * k, c.y - 26 * k, 6 * k, 26 * k);
     ctx.fillStyle = "#2f6b4f";
     ctx.beginPath();
-    ctx.arc(c.x, c.y - 36 * s, 18 * s, 0, Math.PI * 2);
+    ctx.arc(c.x, c.y - 36 * k, 18 * k, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#3d8562";
     ctx.beginPath();
-    ctx.arc(c.x - 5 * s, c.y - 41 * s, 9 * s, 0, Math.PI * 2);
+    ctx.arc(c.x - 5 * k, c.y - 41 * k, 9 * k, 0, Math.PI * 2);
     ctx.fill();
   }
 
   function drawFountain(ctx: CanvasRenderingContext2D, now: number) {
-    const s = view.current.s;
+    const k = view.current.s;
     const c = project({ x: FOUNTAIN.x + FOUNTAIN.w / 2, y: FOUNTAIN.y + FOUNTAIN.h / 2 });
-    const rx = FOUNTAIN.w * (TILE_W / 2) * s * 0.92, ry = FOUNTAIN.h * (TILE_H / 2) * s * 0.92;
+    const rx = FOUNTAIN.w * (TILE_W / 2) * k * 0.92, ry = FOUNTAIN.h * (TILE_H / 2) * k * 0.92;
     ctx.fillStyle = "#59606e";
     ctx.beginPath();
     ctx.ellipse(c.x, c.y, rx, ry, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#2f6f9a";
     ctx.beginPath();
-    ctx.ellipse(c.x, c.y - 2 * s, rx * 0.8, ry * 0.8, 0, 0, Math.PI * 2);
+    ctx.ellipse(c.x, c.y - 2 * k, rx * 0.8, ry * 0.8, 0, 0, Math.PI * 2);
     ctx.fill();
     const t = (now / 900) % 1;
     ctx.strokeStyle = `rgba(160,210,240,${0.5 - t * 0.5})`;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.ellipse(c.x, c.y - 2 * s, rx * 0.8 * t, ry * 0.8 * t, 0, 0, Math.PI * 2);
+    ctx.ellipse(c.x, c.y - 2 * k, rx * 0.8 * t, ry * 0.8 * t, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.fillStyle = "#8fc3e6";
-    ctx.fillRect(c.x - 2 * s, c.y - 30 * s, 4 * s, 28 * s);
+    ctx.fillRect(c.x - 2 * k, c.y - 30 * k, 4 * k, 28 * k);
   }
 
   function drawAvatar(ctx: CanvasRenderingContext2D, a: Avatar, isMe: boolean, fallback: HTMLImageElement,
-    names: Array<() => void>, faded: boolean) {
+    names: Array<() => void>, faded: boolean, wall: number) {
     const p = project(a.pos);
     const color = a.info.color || "#6aa9e0";
-    const voice = mesh.current;
+    const voice = sessionRef.current?.voice;
     const level = voice?.active ? voice.level(isMe ? "me" : a.info.id) : 0;
     const headY = p.y - 38;
+    // On another page of the site: still here, still talking, not watching.
+    const away = !isMe && a.info.away;
     ctx.save();
     if (faded) ctx.globalAlpha = 0.4;
+    else if (away) ctx.globalAlpha = 0.6;
 
     ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.beginPath();
@@ -725,27 +454,63 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
+    ctx.font = `10px ${fontRef.current}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     // The microphone, when they are in voice.
     if (a.info.voice) {
       ctx.beginPath();
       ctx.arc(p.x + 14, headY + 10, 8, 0, Math.PI * 2);
       ctx.fillStyle = a.info.muted ? "#d14b3a" : "#2a7d6f";
       ctx.fill();
-      ctx.font = `10px ${fontRef.current}`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
       ctx.fillStyle = "#fff";
       ctx.fillText(a.info.muted ? "✕" : "🎤", p.x + 14, headY + 10.5);
+    }
+    // Looking at another page.
+    if (away) {
+      ctx.beginPath();
+      ctx.arc(p.x - 14, headY - 12, 8, 0, Math.PI * 2);
+      ctx.fillStyle = "#36414f";
+      ctx.fill();
+      ctx.fillText("📄", p.x - 14, headY - 11.5);
     }
     ctx.restore();
 
     const name = isMe ? `${a.info.name} (${w.you})` : a.info.name;
+    const said = a.said && wall - a.said.at < BUBBLE_MS ? a.said : null;
     names.push(() => {
       ctx.save();
-      if (faded) ctx.globalAlpha = 0.5;
+      if (faded || away) ctx.globalAlpha = 0.6;
       label(ctx, name, p.x, p.y + 15, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
       ctx.restore();
+      // What they just typed, over their head; it fades in its last moment.
+      if (said) bubble(ctx, said.text, p.x, headY - 22, Math.min(1, (BUBBLE_MS - (wall - said.at)) / 800));
     });
+  }
+
+  function bubble(ctx: CanvasRenderingContext2D, text: string, x: number, bottom: number, alpha: number) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = `500 12px ${fontRef.current}`;
+    const lines = wrapLines(text, 168, (t) => ctx.measureText(t).width, 3);
+    const lh = 16;
+    const width = Math.max(...lines.map((l) => ctx.measureText(l).width)) + 18;
+    const height = lines.length * lh + 10;
+    const top = bottom - height - 6;
+    ctx.fillStyle = "rgba(227,232,239,0.96)";
+    roundRect(ctx, x - width / 2, top, width, height, 10);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x - 6, top + height - 1);
+    ctx.lineTo(x, top + height + 6);
+    ctx.lineTo(x + 6, top + height - 1);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#0f1319";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    lines.forEach((l, i) => ctx.fillText(l, x, top + 5 + lh / 2 + i * lh + 0.5));
+    ctx.restore();
   }
 
   function label(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, fg: string, bg: string) {
@@ -764,8 +529,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const tileAt = useCallback((clientX: number, clientY: number): Vec | null => {
     const r = canvasRef.current?.getBoundingClientRect();
     if (!r) return null;
-    const { s, ox, oy } = view.current;
-    const t = fromIso((clientX - r.left - ox) / s, (clientY - r.top - oy) / s);
+    const { s: k, ox, oy } = view.current;
+    const t = fromIso((clientX - r.left - ox) / k, (clientY - r.top - oy) / k);
     return { x: Math.floor(t.x), y: Math.floor(t.y) };
   }, []);
 
@@ -773,12 +538,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const buildingAt = useCallback((clientX: number, clientY: number): Building | null => {
     const r = canvasRef.current?.getBoundingClientRect();
     if (!r) return null;
-    const { s, ox, oy } = view.current;
+    const { s: k, ox, oy } = view.current;
     for (const b of BUILDINGS) {
       // Walk down from the pointer through the wall's height: if any point
       // lands on the footprint, the pointer is on the building.
       for (let lift = 0; lift <= b.height; lift += 6) {
-        const t = fromIso((clientX - r.left - ox) / s, (clientY - r.top - oy) / s + lift);
+        const t = fromIso((clientX - r.left - ox) / k, (clientY - r.top - oy) / k + lift);
         if (t.x >= b.x && t.x < b.x + b.w && t.y >= b.y && t.y < b.y + b.h) return b;
       }
     }
@@ -794,8 +559,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     setPopover(null);
     const t = tileAt(e.clientX, e.clientY);
-    if (t && walkable(t.x, t.y)) walkTo(t);
-  }, [buildingAt, tileAt, walkTo]);
+    if (t && walkable(t.x, t.y)) sessionRef.current?.walkTo(t);
+  }, [buildingAt, tileAt]);
 
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const b = buildingAt(e.clientX, e.clientY);
@@ -805,88 +570,50 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const step = KEYS[e.key];
-      const a = self.current;
-      if (!step || !a) return;
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      // Enter starts typing, as in a game; Esc in the box gives the keys back to walking.
+      if (e.key === "Enter" && !(target && /^(BUTTON|A)$/.test(target.tagName)) && chatRef.current) {
+        e.preventDefault();
+        chatRef.current.focus();
+        return;
+      }
+      const step = KEYS[e.key];
+      const stay = sessionRef.current;
+      if (!step || !stay || stay.closed) return;
       e.preventDefault();
+      const a = stay.self;
       const from = a.path.length ? a.path[a.path.length - 1] : a.pos;
       const next = { x: Math.floor(from.x) + step[0], y: Math.floor(from.y) + step[1] };
-      if (walkable(next.x, next.y)) walkTo(next);
+      if (walkable(next.x, next.y)) stay.walkTo(next);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [walkTo]);
+  }, []);
 
-  /* ── voice ───────────────────────────────────────────────────────────── */
-  const tellRoom = useCallback((patch: Partial<Doing>) => {
-    const a = self.current;
-    if (!a) return;
-    a.info = { ...a.info, ...patch };
-    room.current?.say(doing());
-  }, [doing]);
-
-  const joinVoice = useCallback(async () => {
-    const voice = mesh.current;
-    if (!voice) return;
-    setVoiceError(null);
-    try {
-      await voice.start();
-      setVoiceOn(true);
-      setMuted(false);
-      tellRoom({ voice: true, muted: false });
-      syncVoice();
-    } catch (e) {
-      const name = (e as { name?: string })?.name;
-      setVoiceError(name === "NotAllowedError" ? w.micDenied : name === "NotFoundError" ? w.noMic : w.micFailed);
-    }
-  }, [tellRoom, syncVoice, w.micDenied, w.noMic, w.micFailed]);
-
-  const toggleMute = useCallback(() => {
-    const voice = mesh.current;
-    if (!voice) return;
-    const next = !voice.isMuted;
-    voice.setMuted(next);
-    setMuted(next);
-    tellRoom({ muted: next });
-  }, [tellRoom]);
-
-  const leaveVoice = useCallback(() => {
-    mesh.current?.stop();
-    setVoiceOn(false);
-    setMuted(false);
-    tellRoom({ voice: false, muted: false });
-  }, [tellRoom]);
-
-  /* ── a handle for testing from the console or a script ───────────────── */
-  useEffect(() => {
-    (window as unknown as { __cashTown?: unknown }).__cashTown = {
-      status: () => statusRef.current,
-      me: () => self.current && { ...self.current.info, pos: self.current.pos },
-      people: () => [...avatars.current.values()].filter((a) => a.byeAt === undefined).map((a) => ({
-        id: a.info.id, name: a.info.name, voice: a.info.voice, pos: a.pos, going: a.goneAt !== undefined,
-      })),
-      voice: () => mesh.current?.stats() ?? [],
-      lines: () => mesh.current?.lines.size ?? 0,
-      walkTo: (x: number, y: number) => walkTo({ x, y }),
-    };
-  }, [walkTo]);
-
-  const others = [...avatars.current.values()].filter((a) => a.byeAt === undefined);
+  /* ── what the panels show ────────────────────────────────────────────── */
+  const left = !!session && session.closed;
+  const status = s?.status ?? "connecting";
+  const everReady = s?.everReady ?? false;
+  const muted = !!s?.self.info.muted;
+  const others = s ? s.people : [];
   // A banner only for what needs a person: the first wait, or a door that
   // will not open. Reconnecting is a pill; the town goes on meanwhile.
   const banner =
-    status === "connecting" && !everReady.current ? w.connecting
+    left ? null
+    : status === "connecting" && !everReady ? w.connecting
     : status === "needs-migration" ? w.needsMigration
     : status === "denied" ? w.denied
-    : status === "full" ? w.full(cap)
+    : status === "full" ? w.full(s?.cap ?? cap)
     : status === "error" ? w.error
     : null;
   const live = status === "ready";
   const lines = stats.length;
-  const linesUp = stats.filter((s) => s.state === "connected").length;
-  const nameOf = (id: string) => avatars.current.get(id)?.info.name ?? id.slice(0, 6);
+  const linesUp = stats.filter((l) => l.state === "connected").length;
+  const nameOf = (id: string) => s?.avatars.get(id)?.info.name ?? id.slice(0, 6);
+  const micProblem = s?.micProblem === "denied" ? w.micDenied : s?.micProblem === "no-mic" ? w.noMic
+    : s?.micProblem === "failed" ? w.micFailed : null;
+  const recent = s ? s.chat.filter((l) => Date.now() - l.at < LOG_SHOWN_MS).slice(-LOG_LINES) : [];
 
   return (
     <div className="mt-4">
@@ -896,19 +623,29 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 className="absolute inset-0 touch-none select-none"
                 onPointerDown={onPointerDown} onPointerMove={onPointerMove} />
 
-        {/* Beta, and whether we are connected */}
-        <div className="pointer-events-none absolute left-3 top-3 flex flex-col gap-1">
-          <span className="w-fit rounded-full border border-gold/50 bg-bg/80 px-2 py-0.5 font-data text-label uppercase tracking-wider text-gold">
-            {testTopic ? w.testBadge : w.badge}
-          </span>
-          {everReady.current && (
+        {/* Whether we are connected, and the way out */}
+        <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-1">
+          {/* The page already says Beta; the dev test room says so here. */}
+          {testTopic && (
+            <span className="w-fit rounded-full border border-gold/50 bg-bg/80 px-2 py-0.5 font-data text-label uppercase tracking-wider text-gold">
+              {w.testBadge}
+            </span>
+          )}
+          {s && everReady && (
             <span role="status" className={`w-fit rounded-full bg-bg/80 px-2 py-0.5 text-label ${live ? "text-jade" : "text-gold"}`}>
               {live ? `● ${w.online}` : `◌ ${w.reconnecting}`}
             </span>
           )}
+          {s && (
+            <button type="button" onClick={() => s.close()}
+                    className="pointer-events-auto mt-0.5 w-fit rounded-full border border-line-strong bg-bg/85 px-2.5 py-1 text-label text-muted transition-colors hover:text-ink">
+              🚪 {w.leaveTown}
+            </button>
+          )}
         </div>
 
         {/* Who is here */}
+        {s && (
         <aside className="absolute right-3 top-3 w-56 max-w-[64%] rounded-xl border border-line bg-bg/85 p-2 text-ui backdrop-blur-sm">
           <div className="flex items-center gap-1">
             <button type="button" onClick={() => setListOpen((o) => !o)} aria-expanded={listOpen}
@@ -926,31 +663,33 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             <PersonRow name={`${me.name} (${w.you})`} face={me.face} voice={voiceOn} muted={muted} />
             {others.map((a) => {
               const p = a.info;
-              const state = voiceOn && p.voice ? mesh.current?.connectionState(p.id) : null;
-              const gain = PROXIMITY && voiceOn && p.voice && self.current ? hearing(distance(self.current.pos, a.pos)) : null;
+              const state = voiceOn && p.voice ? s.voice.connectionState(p.id) : null;
+              const gain = PROXIMITY && voiceOn && p.voice ? hearing(distance(s.self.pos, a.pos)) : null;
+              const voiceNote = state === "failed" ? `⚠️ ${w.iceFailed}`
+                : state && state !== "connected" ? w.connectingVoice
+                : gain !== null ? w.hearing(Math.round(gain * 100))
+                : state === "connected" ? w.connected : null;
               return (
-                <PersonRow key={p.id} name={p.name} face={p.face} voice={p.voice} muted={p.muted}
-                  note={state === "failed" ? `⚠️ ${w.iceFailed}`
-                    : state && state !== "connected" ? w.connectingVoice
-                    : gain !== null ? w.hearing(Math.round(gain * 100))
-                    : state === "connected" ? w.connected : undefined} />
+                <PersonRow key={p.id} name={p.name} face={p.face} voice={p.voice} muted={p.muted} away={p.away}
+                  note={[voiceNote, p.away ? `📄 ${w.away}` : null].filter(Boolean).join(" · ") || undefined} />
               );
             })}
           </ul>
           <div className="mt-2 border-t border-line pt-1.5 font-data text-label uppercase tracking-wider text-muted">{w.places}</div>
           <div className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5">
             {BUILDINGS.map((b) => (
-              <Link key={b.id} href={b.href} target="_blank" className="text-meta text-accent no-underline hover:underline">
+              <Link key={b.id} href={b.href} className="text-meta text-accent no-underline hover:underline">
                 {b.icon} {(w.th ? b.name.th : b.name.en).split(" · ")[0]}
               </Link>
             ))}
           </div>
           </>}
         </aside>
+        )}
 
         {/* The stats: what the network is doing to each voice line */}
-        {statsOpen && (
-          <div className="absolute bottom-24 left-3 z-10 max-h-[45%] w-[min(30rem,calc(100%-1.5rem))] overflow-auto rounded-xl border border-line bg-bg/92 p-2 text-meta text-ink backdrop-blur-sm">
+        {s && statsOpen && (
+          <div className="absolute left-3 top-28 z-10 max-h-[40%] w-[min(30rem,calc(100%-1.5rem))] overflow-auto rounded-xl border border-line bg-bg/92 p-2 text-meta text-ink backdrop-blur-sm">
             <div className="mb-1 text-muted">{w.statsHead(others.length + 1, linesUp, lines, fpsRef.current)}</div>
             {stats.length === 0 ? <div className="text-muted">{w.statsNone}</div> : (
               <table className="w-full font-data">
@@ -958,15 +697,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                   <tr>{w.statsCols.map((c) => <th key={c} className="px-1 text-left font-normal">{c}</th>)}</tr>
                 </thead>
                 <tbody>
-                  {stats.map((s) => (
-                    <tr key={s.id}>
-                      <td className="max-w-[8rem] truncate px-1">{nameOf(s.id)}</td>
-                      <td className={`px-1 ${s.state === "connected" ? "text-jade" : "text-gold"}`}>{s.state}</td>
-                      <td className="px-1">{s.rtt ?? "–"}</td>
-                      <td className="px-1">{s.jitter ?? "–"}</td>
-                      <td className={`px-1 ${(s.loss ?? 0) > 3 ? "text-chili" : ""}`}>{s.loss === null ? "–" : `${s.loss}%`}</td>
-                      <td className="px-1">{s.kbpsIn ?? "–"}</td>
-                      <td className="px-1">{s.path === "relay" ? w.relay : s.path === "direct" ? w.direct : "–"}</td>
+                  {stats.map((l) => (
+                    <tr key={l.id}>
+                      <td className="max-w-[8rem] truncate px-1">{nameOf(l.id)}</td>
+                      <td className={`px-1 ${l.state === "connected" ? "text-jade" : "text-gold"}`}>{l.state}</td>
+                      <td className="px-1">{l.rtt ?? "–"}</td>
+                      <td className="px-1">{l.jitter ?? "–"}</td>
+                      <td className={`px-1 ${(l.loss ?? 0) > 3 ? "text-chili" : ""}`}>{l.loss === null ? "–" : `${l.loss}%`}</td>
+                      <td className="px-1">{l.kbpsIn ?? "–"}</td>
+                      <td className="px-1">{l.path === "relay" ? w.relay : l.path === "direct" ? w.direct : "–"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -981,7 +720,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                style={{ left: Math.min(popover.x, (view.current.cw || 300) - 232), top: Math.max(8, popover.y - 96) }}>
             <div className="text-read font-semibold text-ink">{popover.b.icon} {w.th ? popover.b.name.th : popover.b.name.en}</div>
             <div className="mt-2 flex items-center gap-2">
-              <Link href={popover.b.href} target="_blank"
+              <Link href={popover.b.href}
                     className="rounded-lg bg-accent/15 px-3 py-1.5 text-ui text-accent no-underline hover:bg-accent/25">{w.go}</Link>
               <button type="button" onClick={() => setPopover(null)} className="ml-auto px-2 py-1.5 text-ui text-muted">{w.close}</button>
             </div>
@@ -995,22 +734,62 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           </div>
         )}
 
-        {/* Voice */}
+        {/* Left: the empty town behind, and the way back in */}
+        {left && (
+          <div className="absolute inset-x-0 top-1/2 mx-auto flex w-fit max-w-[90%] -translate-y-1/2 flex-col items-center gap-2 rounded-xl border border-line bg-bg/90 px-5 py-4 text-center">
+            <div className="text-read text-ink">{w.left}</div>
+            <button type="button" onClick={enter}
+                    className="rounded-full bg-jade px-5 py-2 text-read font-semibold text-bg">
+              {w.reenter}
+            </button>
+          </div>
+        )}
+
+        {/* Chat and voice */}
+        {s && (
         <div className="absolute inset-x-0 bottom-3 flex flex-col items-center gap-1.5 px-3">
-          {voiceError && <div className="max-w-md rounded-lg bg-chili/20 px-3 py-1.5 text-center text-ui text-ink">{voiceError}</div>}
+          {recent.length > 0 && (
+            <ul aria-label={w.chatLog} className="pointer-events-none flex w-full max-w-xl flex-col items-start gap-0.5">
+              {recent.map((l) => (
+                <li key={l.key} className="max-w-full truncate rounded-lg bg-bg/80 px-2 py-0.5 text-meta">
+                  <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
+                  <span className="text-muted">: </span>
+                  <span className="text-ink">{l.text}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <form onSubmit={sendChat} className="flex w-full max-w-xl items-center gap-2">
+            <input ref={chatRef} value={draft} maxLength={600} enterKeyHint="send"
+                   onChange={(e) => { setDraft(e.target.value); setChatNote(null); }}
+                   onKeyDown={(e) => { if (e.key === "Escape") e.currentTarget.blur(); }}
+                   placeholder={w.chatPlaceholder} aria-label={w.chatPlaceholder}
+                   className="min-w-0 flex-1 rounded-full border border-line-strong bg-bg/85 px-4 py-2 text-read text-ink outline-none placeholder:text-muted focus:border-accent" />
+            <button type="submit" className="shrink-0 rounded-full bg-accent/20 px-4 py-2 text-ui font-semibold text-accent hover:bg-accent/30">
+              {w.send}
+            </button>
+          </form>
+          {chatNote && <div role="status" className="rounded-full bg-bg/80 px-3 py-0.5 text-label text-gold">{chatNote}</div>}
+          {micProblem && <div className="max-w-md rounded-lg bg-chili/20 px-3 py-1.5 text-center text-ui text-ink">{micProblem}</div>}
+          {voiceOn && s.voice.audioBlocked && (
+            <button type="button" onClick={() => s.voice.resumeAudio()}
+                    className="rounded-full bg-gold px-4 py-1.5 text-ui font-semibold text-bg shadow-lg">
+              {w.tapToHear}
+            </button>
+          )}
           <div className="flex flex-wrap items-center justify-center gap-2">
             {!voiceOn ? (
-              <button type="button" onClick={() => void joinVoice()} disabled={!everReady.current || status === "full"}
+              <button type="button" onClick={() => void s.joinVoice()} disabled={!everReady || status === "full"}
                       className="rounded-full bg-jade px-5 py-2.5 text-read font-semibold text-bg shadow-lg disabled:opacity-40">
                 {w.join}
               </button>
             ) : (
               <>
-                <button type="button" onClick={toggleMute}
+                <button type="button" onClick={() => s.toggleMute()}
                         className={`rounded-full px-4 py-2.5 text-read font-semibold shadow-lg ${muted ? "bg-chili text-white" : "bg-surface text-ink border border-line-strong"}`}>
                   {muted ? `🔇 ${w.unmute}` : `🎤 ${w.mute}`}
                 </button>
-                <button type="button" onClick={leaveVoice}
+                <button type="button" onClick={() => s.leaveVoice()}
                         className="rounded-full border border-line-strong bg-surface px-4 py-2.5 text-read text-muted shadow-lg">
                   {w.leave}
                 </button>
@@ -1021,16 +800,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             {voiceOn ? (PROXIMITY ? w.near : w.together) : w.hint}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
 }
 
-function PersonRow({ name, face, voice, muted, note }: {
-  name: string; face: string | null; voice: boolean; muted: boolean; note?: string;
+function PersonRow({ name, face, voice, muted, away, note }: {
+  name: string; face: string | null; voice: boolean; muted: boolean; away?: boolean; note?: string;
 }) {
   return (
-    <li className="flex items-center gap-2">
+    <li className={`flex items-center gap-2 ${away ? "opacity-70" : ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {face ? <img src={face} alt="" className="size-6 shrink-0 rounded-full object-cover" />
         : <span className="size-6 shrink-0 rounded-full bg-card" />}
@@ -1044,14 +824,6 @@ function PersonRow({ name, face, voice, muted, note }: {
 }
 
 /* ── small drawing helpers ──────────────────────────────────────────────── */
-
-function loadFace(url: string | null): HTMLImageElement | null {
-  if (!url) return null;
-  const img = new Image();
-  img.decoding = "async";
-  img.src = url;
-  return img;
-}
 
 function diamond(ctx: CanvasRenderingContext2D, a: Vec, b: Vec, c: Vec, d: Vec) {
   ctx.beginPath();
