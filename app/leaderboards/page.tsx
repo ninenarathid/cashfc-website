@@ -16,8 +16,59 @@ import LbRowNote from "@/components/LbRowNote";
 import extraRaw from "@/data/extra.json";
 import PopotoBoards from "@/components/PopotoBoard";
 import { allGuestIds, guestHome } from "@/lib/guest-data";
+import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
+import { periodStart } from "@/lib/popoto";
+import { galleryTotals, profileTotals, rank,
+         type FirstLook, type Names } from "@/lib/popoto-board";
 
 export const metadata = { title: "Leaderboards — Cafe And SHabu" };
+
+/*
+ * Static, said out loud. The popoto copy below is fetched with no-store so every
+ * build asks the database again, and a no-store fetch would otherwise turn this
+ * into a page rendered afresh on every visit.
+ */
+export const dynamic = "force-static";
+
+/**
+ * This month's two popoto boards as they stand while the page is built.
+ *
+ * The page is made ahead of time and potatoes are given all day, so the boards
+ * always ask again in the browser. This is what they show while they ask, out
+ * of focus, so a reload finds them already in place instead of empty frames
+ * that fill in after the rest of the page. The roster's own updates rebuild
+ * the site several times a day, so the copy is hours old at most, which is
+ * fresh enough for something drawn blurred.
+ *
+ * Asked fresh at every build. Left to itself, Next keeps a build's fetches in
+ * .next/cache, which outlives deploys, and hands them to the next build for a
+ * year: the first copy of a month would have been the copy all month.
+ *
+ * Never allowed to fail the build. A slow or unreachable database means no
+ * copy, everything giving up after fifteen seconds, and the boards then load
+ * the way they did before there was one.
+ */
+async function popotoSoFar(names: Names): Promise<FirstLook | null> {
+  if (!supabaseConfigured) return null;
+  try {
+    const deadline = AbortSignal.timeout(15_000);
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: {
+        fetch: (input, init) =>
+          fetch(input, { ...init, cache: "no-store", signal: deadline }),
+      },
+    });
+    const from = periodStart("month");
+    const [profile, gallery] = await Promise.all([
+      profileTotals(supabase, from), galleryTotals(supabase, from)]);
+    return { profile: rank(profile, names), gallery: rank(gallery, names) };
+  } catch (e) {
+    console.warn("leaderboards: built without this month's popoto boards:", e);
+    return null;
+  }
+}
 
 /**
  * Ten, not twenty.
@@ -48,7 +99,7 @@ const tiersFor = (key: string) =>
         tier, points: Math.round(ceilings[key]! * share),
       }));
 
-export default function LeaderboardsPage() {
+export default async function LeaderboardsPage() {
   const data = raw as unknown as BoardData;
 
   const boards = BUCKETS
@@ -63,7 +114,7 @@ export default function LeaderboardsPage() {
   // else — it reads likes from the database and the roster lives in this file.
   // Guests are not on the roster, so a potato of theirs used to be credited to
   // a bare character id. They have a name too.
-  const who: Record<number, { name: string; avatar: string | null }> = {
+  const who: Names = {
     ...Object.fromEntries(allGuestIds().map((id) => {
       const g = guestHome(id);
       return [id, { name: g?.name ?? `#${id}`, avatar: g?.portrait ?? null }];
@@ -71,6 +122,7 @@ export default function LeaderboardsPage() {
     ...Object.fromEntries(data.members.map((m) =>
       [m.id, { name: m.name, avatar: m.avatar ?? null }])),
   };
+  const first = await popotoSoFar(who);
 
   return (
     <main className="pt-7">
@@ -90,7 +142,7 @@ export default function LeaderboardsPage() {
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           {/* First, because these two are what the FC awards rather than what
               the game does. */}
-          <PopotoBoards names={who} />
+          <PopotoBoards names={who} first={first} />
 
           {boards.map(({ key, rows }) => (
             // Each board wears its own colour, on the edge and under the

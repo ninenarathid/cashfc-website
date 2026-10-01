@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { supabaseConfigured } from "@/lib/supabase/config";
-import { allRowsOrThrow } from "@/lib/rows";
 import { useLang, type Key } from "@/lib/i18n";
-import LeaderRow, { type Leader } from "@/components/LeaderRow";
+import LeaderRow from "@/components/LeaderRow";
 import PopotoIcon from "@/components/ui/PopotoIcon";
 import Skeleton from "@/components/ui/Skeleton";
-import { periodStart, popotoText, splitPopoto, splitPopotoLikes,
-         type PopotoPeriod, type PopotoPost, type PopotoTag } from "@/lib/popoto";
+import { periodStart, popotoText, type PopotoPeriod } from "@/lib/popoto";
+import { TOP_N, galleryTotals, profileTotals, rank,
+         type BoardRow, type FirstLook, type Names, type Totals } from "@/lib/popoto-board";
 
 /**
  * The two boards the game had no hand in.
@@ -35,9 +36,11 @@ import { periodStart, popotoText, splitPopoto, splitPopotoLikes,
  * can still win. This year and all time are one press away; the all-time
  * numbers are the ones each member's own page shows, and that page still shows
  * them.
+ *
+ * The counting is in lib/popoto-board.ts, because the page asks it too while
+ * it is built: that copy is what the boards show, out of focus, while they ask
+ * for the numbers as they are now.
  */
-
-const TOP_N = 10;
 
 const PERIODS: { key: PopotoPeriod; label: Key; none: Key }[] = [
   { key: "month", label: "lb.thisMonth", none: "lb.noneMonth" },
@@ -45,11 +48,8 @@ const PERIODS: { key: PopotoPeriod; label: Key; none: Key }[] = [
   { key: "all", label: "lb.allTime", none: "lb.noneAll" },
 ];
 
-/** Who received how many, and from how many distinct places. */
-type Totals = Map<number, { score: number; n: number }>;
-
 interface Board {
-  key: string;
+  key: keyof FirstLook;
   color: string;
   icon: ReactNode;
   title: Key;
@@ -57,8 +57,7 @@ interface Board {
   /** What the bracketed number under the total means, for the tooltip. */
   unit: (n: number) => string;
   /** Everybody's total since `from`, or ever when it is null. */
-  load: (supabase: NonNullable<ReturnType<typeof createClient>>,
-         from: string | null) => Promise<Totals>;
+  load: (supabase: SupabaseClient, from: string | null) => Promise<Totals>;
 }
 
 const BOARDS: Board[] = [
@@ -70,36 +69,7 @@ const BOARDS: Board[] = [
     title: "lb.popoto",
     hint: "lb.popotoHint",
     unit: (n) => `from ${n} member${n === 1 ? "" : "s"}`,
-    // One row per sender per person per day, which the table enforces, so
-    // counting rows counts potatoes and counting senders counts people.
-    load: async (supabase, from) => {
-      // Paged. This used to be one select, which meant the board counted the
-      // first thousand rows of the table and then quietly stopped — every
-      // total on the page was short from the day kudos passed that mark, while
-      // each member's own page, which filters to one person, stayed right.
-      // In id order, so no page can repeat or skip a row of the one before.
-      const data = await allRowsOrThrow<{ receiver_character_id: number; sender_id: string }>(
-        (a, b) => {
-          let q = supabase.from("kudos").select("receiver_character_id, sender_id");
-          if (from) q = q.gte("created_at", from);
-          return q.order("id").range(a, b);
-        });
-      const out: Totals = new Map();
-      const senders = new Map<number, Set<string>>();
-      for (const k of data) {
-        const at = out.get(k.receiver_character_id) ?? { score: 0, n: 0 };
-        at.score += 1;
-        out.set(k.receiver_character_id, at);
-        const s = senders.get(k.receiver_character_id) ?? new Set<string>();
-        s.add(k.sender_id);
-        senders.set(k.receiver_character_id, s);
-      }
-      for (const [id, s] of senders) {
-        const at = out.get(id);
-        if (at) at.n = s.size;
-      }
-      return out;
-    },
+    load: profileTotals,
   },
   {
     key: "gallery",
@@ -108,90 +78,80 @@ const BOARDS: Board[] = [
     title: "lb.gallery",
     hint: "lb.galleryHint",
     unit: (n) => `across ${n} picture${n === 1 ? "" : "s"}`,
-    // Divided between everybody in the picture, which the FC voted for. The
-    // rule itself is in lib/popoto.ts, shared with the front page so the two
-    // boards can never come to different answers about the same photograph.
-    //
-    // Not filtered to posts with a character on them any more: a picture posted
-    // for nobody in particular still belongs to whoever is tagged in it.
-    load: async (supabase, from) => {
-      // Paged for the same reason, before it becomes the same bug: these two
-      // are in the dozens today and the gallery only grows.
-      const [posts, tags, likes] = await Promise.all([
-        allRowsOrThrow<PopotoPost>((a, b) => supabase.from("gallery_posts")
-          .select("id, character_id, like_count").order("id").range(a, b)),
-        allRowsOrThrow<PopotoTag>((a, b) => supabase.from("gallery_tags")
-          .select("post_id, character_id, confirmed_at")
-          .order("post_id").order("character_id").range(a, b)),
-        // All time is already counted on each picture. A month needs the
-        // potatoes themselves, to know when each one was pressed.
-        from == null ? null
-          : allRowsOrThrow<{ post_id: number }>((a, b) => supabase.from("gallery_likes")
-              .select("post_id").gte("created_at", from)
-              .order("post_id").order("profile_id").range(a, b)),
-      ]);
-      return likes ? splitPopotoLikes(posts, tags, likes) : splitPopoto(posts, tags);
-    },
+    load: galleryTotals,
   },
 ];
 
-export type Names = Record<number, { name: string; avatar: string | null }>;
-
-/** The top of a board, from everybody's totals. */
-const rank = (got: Totals, names: Names): Leader[] =>
-  [...got.entries()]
-    .map(([id, v]) => ({
-      id,
-      name: names[id]?.name ?? `#${id}`,
-      avatar: names[id]?.avatar ?? null,
-      score: v.score,
-      n: v.n,
-    }))
-    // Nobody on zero, so a quiet month is an empty board rather than a
-    // ranking of people nobody has given one to.
-    .filter((r) => r.score > 0)
-    .sort((a, b) => b.score - a.score || b.n - a.n)
-    .slice(0, TOP_N);
-
-/**
- * Ten rows of nothing yet, drawn the size the ten rows will be, so the boards
- * below stay where they are when the numbers arrive.
- */
-function Placeholder() {
-  const { t } = useLang();
+/** A place on a board with nobody in it yet, the size a LeaderRow will be. */
+function SkeletonRow({ place }: { place: number }) {
+  const top = place <= 3;
   return (
-    <>
-      <span role="status" className="sr-only">{t("common.loading")}</span>
-      <ol aria-hidden className="flex flex-col gap-1 px-4 pb-4 pt-3">
-        {Array.from({ length: TOP_N }, (_, i) => (
-          <li key={i} className={`grid items-center gap-2 text-read ${
-            i < 3 ? "grid-cols-[22px_78px_1fr_auto] py-2" : "grid-cols-[22px_1fr_auto]"}`}>
-            <span className="text-right font-data text-meta text-muted/50">{i + 1}</span>
-            {i < 3 && <Skeleton rounded="rounded-full" className="size-[78px]" />}
-            {/* A line of text tall, the height a name takes. */}
-            <span className="flex h-[1.5em] items-center">
-              <Skeleton className={i < 3 ? "h-4 w-32" : "h-3 w-28"} />
-            </span>
-            <Skeleton className="h-3 w-10" />
-          </li>
-        ))}
-      </ol>
-    </>
+    <li aria-hidden className={`grid items-center gap-2 text-read ${
+      top ? "grid-cols-[22px_78px_1fr_auto] py-2" : "grid-cols-[22px_1fr_auto]"}`}>
+      <span className="text-right font-data text-meta text-muted/50">{place}</span>
+      {top && <Skeleton rounded="rounded-full" className="size-[78px]" />}
+      {/* A line of text tall, the height a name takes. */}
+      <span className="flex h-[1.5em] items-center">
+        <Skeleton className={top ? "h-4 w-32" : "h-3 w-28"} />
+      </span>
+      <Skeleton className="h-3 w-10" />
+    </li>
   );
 }
 
-function OneBoard({ board, names, period }: {
+/**
+ * Ten rows of nothing yet, drawn the size the ten rows will be, so the boards
+ * below stay where they are when the numbers arrive. Only for when there is no
+ * earlier copy of the board to show instead.
+ */
+function Placeholder() {
+  return (
+    <ol aria-hidden className="flex flex-col gap-1 px-4 pb-4 pt-3">
+      {Array.from({ length: TOP_N }, (_, i) => <SkeletonRow key={i} place={i + 1} />)}
+    </ol>
+  );
+}
+
+/**
+ * What the blur means, said over it.
+ *
+ * A board out of focus with nothing on it could be a board that broke; a
+ * board out of focus with this on it is a board on its way. The ring stops
+ * under reduced motion and the words stay, which is the part that says it.
+ */
+function Counting() {
+  const { t } = useLang();
+  return (
+    <span role="status"
+          className="absolute left-1/2 top-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-line-strong bg-card/90 px-3.5 py-1.5 text-ui text-ink shadow-lg">
+      <span aria-hidden
+            className="size-3.5 animate-spin rounded-full border-2 border-line border-t-accent motion-reduce:animate-none" />
+      {t("lb.counting")}
+    </span>
+  );
+}
+
+function OneBoard({ board, names, period, first }: {
   board: Board; names: Names; period: PopotoPeriod;
+  /** This month as the page was built, if the build could read it. */
+  first: BoardRow[] | null;
 }) {
   const { t } = useLang();
   // Every period read so far, kept while the page is open. Going back to one
   // is the same question asked twice, and all time is forty pages of rows.
-  const [lists, setLists] = useState<Partial<Record<PopotoPeriod, Leader[]>>>({});
+  const [lists, setLists] = useState<Partial<Record<PopotoPeriod, BoardRow[]>>>({});
   const [failed, setFailed] = useState<Partial<Record<PopotoPeriod, boolean>>>({});
   const [attempt, setAttempt] = useState(0);
   // Asked for and not back yet counts as asked, so pressing back and forth
   // while a period is on its way does not send for it a second time.
   const asked = useRef(new Set<PopotoPeriod>());
+  // The board as it last stood: the build's copy until the live numbers land,
+  // then whichever period was on screen last. It stays up, out of focus,
+  // while the next numbers come, so a reload or a switch never empties the
+  // board and fills it again — which read as the boards vanishing and coming
+  // back after the rest of the page.
+  const [behind, setBehind] = useState<{ period: PopotoPeriod; rows: BoardRow[] } | null>(
+    first ? { period: "month", rows: first } : null);
 
   useEffect(() => {
     if (asked.current.has(period)) return;
@@ -205,14 +165,28 @@ function OneBoard({ board, names, period }: {
       () => setFailed((had) => ({ ...had, [period]: true })));
   }, [board, names, period, attempt]);
 
+  const rows = lists[period];
+  useEffect(() => { if (rows) setBehind({ period, rows }); }, [period, rows]);
+
   const retry = () => {
     asked.current.delete(period);
     setFailed((had) => ({ ...had, [period]: false }));
     setAttempt((n) => n + 1);
   };
 
-  const rows = lists[period];
   const { label, none } = PERIODS.find((p) => p.key === period)!;
+  const loading = !rows && !failed[period];
+  // The same list either way, so the change from waiting to here is the blur
+  // lifting off the rows already on screen rather than one list swapped for
+  // another.
+  const shown = rows?.length ? rows
+    : loading && behind?.rows.length ? behind.rows : null;
+  // Another period's rows stand in for this one's, so the board is made up to
+  // a full ten while it waits: a month with three names in it is about to
+  // become a year with ten, and growing now, as the press lands, is better
+  // than pushing everything below down four seconds later.
+  const pad = loading && behind && behind.period !== period
+    ? TOP_N - behind.rows.length : 0;
 
   return (
     <section style={{ borderTopColor: board.color }}
@@ -239,27 +213,37 @@ function OneBoard({ board, names, period }: {
         </span>
         <span className="text-meta text-muted">{t(board.hint)}</span>
       </div>
-      {rows ? (
-        // Keyed by the period, so a different span arrives as a new panel with
-        // the tab panel's short entrance rather than as numbers changing in
-        // place, which is easy to miss.
-        <div key={period} data-state="active" className="tab-in">
-          {rows.length ? (
-            <ol className="flex flex-col gap-1 px-4 pb-4 pt-3">
-              {rows.map((r, i) => (
-                <LeaderRow key={r.id} row={r} place={i + 1}
-                           value={<>{board.icon} {popotoText(r.score)}</>}
-                           title={board.unit(r.n)} />
-              ))}
-            </ol>
-          ) : (
-            // Early on the 1st this is every board, so it is a quiet moment
-            // rather than a broken one: the potato is asleep, not missing.
-            <div className="flex flex-col items-center gap-2 px-4 py-8 text-center text-read leading-relaxed text-muted">
-              <PopotoIcon pose="sleep" size={40} />
-              {t(none)}
-            </div>
-          )}
+      {shown ? (
+        <div className="relative" aria-busy={loading}>
+          {/* Out of focus and out of reach while it is the old copy: these
+              numbers are about to change, and a name on them is not one to
+              open yet. A small blur, lifted in 200ms; under reduced motion it
+              simply goes. */}
+          <ol inert={loading}
+              className={`flex flex-col gap-1 px-4 pb-4 pt-3 transition-[filter,opacity] duration-200 ease-[var(--ease-settle)] ${
+                loading ? "opacity-55 blur-[3px]" : ""}`}>
+            {/* Keyed by place, not by person. When the numbers land the
+                places stay put and who is in them changes; keyed by person,
+                somebody who was first this month and fifth all year was a row
+                moved four places down, and the browser counted that as the
+                page jumping. */}
+            {shown.map((r, i) => (
+              <LeaderRow key={i} row={r} place={i + 1}
+                         value={<>{board.icon} {popotoText(r.score)}</>}
+                         title={board.unit(r.n)} />
+            ))}
+            {Array.from({ length: Math.max(0, pad) }, (_, i) => (
+              <SkeletonRow key={`wait-${i}`} place={shown.length + i + 1} />
+            ))}
+          </ol>
+          {loading && <Counting />}
+        </div>
+      ) : rows ? (
+        // Early on the 1st this is every board, so it is a quiet moment
+        // rather than a broken one: the potato is asleep, not missing.
+        <div className="flex flex-col items-center gap-2 px-4 py-8 text-center text-read leading-relaxed text-muted">
+          <PopotoIcon pose="sleep" size={40} />
+          {t(none)}
         </div>
       ) : failed[period] ? (
         <div className="flex flex-col items-center gap-2.5 px-4 py-8 text-center text-read text-muted">
@@ -270,13 +254,20 @@ function OneBoard({ board, names, period }: {
           </button>
         </div>
       ) : (
-        <Placeholder />
+        <div className="relative" aria-busy>
+          <Placeholder />
+          <Counting />
+        </div>
       )}
     </section>
   );
 }
 
-export default function PopotoBoards({ names }: { names: Names }) {
+export default function PopotoBoards({ names, first = null }: {
+  names: Names;
+  /** This month's boards as the page was built, shown while the live ones load. */
+  first?: FirstLook | null;
+}) {
   const { t } = useLang();
   const [period, setPeriod] = useState<PopotoPeriod>("month");
   // Without a database there are no potatoes to count, and the achievement
@@ -301,7 +292,8 @@ export default function PopotoBoards({ names }: { names: Names }) {
         ))}
       </div>
       {BOARDS.map((b) => (
-        <OneBoard key={b.key} board={b} names={names} period={period} />
+        <OneBoard key={b.key} board={b} names={names} period={period}
+                  first={first?.[b.key] ?? null} />
       ))}
     </>
   );
