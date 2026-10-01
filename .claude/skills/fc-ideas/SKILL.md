@@ -112,6 +112,10 @@ An idea that breaks one of these needs a very good reason, stated.
    too, one line each with its score, and say why any idea was set aside
    (for example, decided against in the code).
 5. **Shape each keeper** as an idea card (below).
+   For an idea with rewards, odds, a currency, competition or a mini-game,
+   shape its mechanics with **fc-game-design** before the card is final.
+   Anything about the virtual town (avatars, voice, farm, homes) belongs to
+   **fc-cash-town**.
 6. **Offer a next step:**
    - ask the members (a poll in the gallery's PollCard, which has no admin UI
      yet, or Discord);

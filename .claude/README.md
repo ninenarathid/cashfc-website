@@ -10,6 +10,8 @@ skill อยู่ใน `.claude/skills/` — Claude จะหยิบไป�
 | `/fc-security` | ทุกครั้งที่แตะ auth, RLS, upload, API, bot หรือข้อมูลส่วนตัว และตอน audit | threat model, checklist ตามชนิดงาน, `db-audit.sql` (อ่าน catalog อย่างเดียว), วิธี probe ที่ไม่แตะข้อมูลจริง, ชุด header/CSP, `scripts/scan.mjs` |
 | `/fc-perf` | เว็บช้า บิลแพง หรือก่อน-หลังเพิ่มของหนัก | งบประมาณ, วิธีวัด, playbook เรียงตามความคุ้ม, สรุป caching ของ Next 16.3, `db-perf.sql`, `scripts/payload.mjs` |
 | `/fc-migration` | ทุกการแก้ฐานข้อมูล (ตาราง, คอลัมน์, policy, RPC, bucket) | template SQL ตามสไตล์ repo, PGlite harness ที่ทดสอบ RLS ในเครื่องได้ |
+| `/fc-game-design` | ออกแบบให้เว็บเป็นเกม ทุกคนคือผู้เล่น: ลูป รางวัล อัตราดรอป เศรษฐกิจ popoto/gil และจิตวิทยาผู้เล่นแบบไม่ใช้ dark pattern | frameworks, psychology, economy, site-as-game, วิธีวัดผล, `scripts/odds.mjs` (คำนวณว่าอัตราดรอปรู้สึกยังไงจริง) |
+| `/fc-cash-town` | วางแผนและสร้าง Cash Town เมือง isometric แบบ Zheza คุยด้วยไมค์เมื่อเดินใกล้แบบ Gather มีฟาร์ม popoto บ้าน สัตว์เลี้ยง | วิสัยทัศน์จาก feedback #12, สถานะเบต้าที่ `/town`, สถาปัตยกรรม, เสียง, มินิเกม, ราคาที่เช็กแล้ว, `scripts/town-cost.mjs` (คำนวณค่าใช้จ่ายรายเดือน), สคริปต์ทดสอบเมืองด้วย Chrome จริง (`town-e2e`, `town-live`, `town-isolation`, `town-who`) |
 
 สคริปต์ทุกตัวใช้แค่ Node 24 กับ Chrome ที่มีอยู่แล้ว ไม่ต้อง `npm install` อะไรเพิ่มในโปรเจกต์
 (ยกเว้น PGlite ซึ่งติดตั้งใน scratchpad ตามขั้นตอนใน fc-migration)
