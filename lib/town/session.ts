@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { rememberTown, setTownActive } from "./active";
 import { Flood, LOG_MAX, chatEvery, cleanChat } from "./chat";
+import { defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look";
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
 import {
@@ -79,6 +80,12 @@ const FULL_RETRY_MS = 30_000;
 /** How often the tab's note of being in town is refreshed, for resuming after a reload. */
 const SEEN_EVERY_MS = 10_000;
 
+/**
+ * How long the wardrobe waits after the last change before telling the room:
+ * trying on ten colours in a row is one message to everybody, not ten.
+ */
+const LOOK_SETTLE_MS = 1_200;
+
 export type MicProblem = "denied" | "no-mic" | "failed";
 
 export interface SessionOptions {
@@ -141,6 +148,7 @@ export class TownSession {
   private readonly flood = new Flood();
   private lastChatAt = 0;
   private chatKey = 0;
+  private lookTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly subs = new Set<() => void>();
   private readonly tick: ReturnType<typeof setInterval>;
 
@@ -149,8 +157,9 @@ export class TownSession {
     this.testTopic = opts.testTopic;
     this.cap = opts.cap ?? ROOM_CAP;
     const start = spawnFor(me.id);
+    const look = encodeLook(savedLook(me.id) ?? defaultLook(me.id));
     this.self = {
-      info: { ...me, x: start.x, y: start.y, voice: false, muted: false, away: true },
+      info: { ...me, x: start.x, y: start.y, voice: false, muted: false, away: true, look },
       pos: { ...start }, path: [], img: loadFace(me.face), placed: true,
     };
 
@@ -203,7 +212,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -317,6 +326,30 @@ export class TownSession {
     return "sent";
   }
 
+  /**
+   * A new look from the wardrobe: on my avatar at once, kept on this device,
+   * and told to the room once the changes settle (LOOK_SETTLE_MS) or the
+   * wardrobe closes (settleLook).
+   */
+  setLook(look: Look) {
+    if (this.closed) return;
+    const code = encodeLook(look);
+    if (code === this.self.info.look) return;
+    this.self.info = { ...this.self.info, look: code };
+    saveLook(this.me.id, look);
+    if (this.lookTimer !== null) clearTimeout(this.lookTimer);
+    this.lookTimer = setTimeout(() => this.settleLook(), LOOK_SETTLE_MS);
+    this.notify();
+  }
+
+  /** Tell the room about a look still waiting to be told. */
+  settleLook() {
+    if (this.lookTimer === null) return;
+    clearTimeout(this.lookTimer);
+    this.lookTimer = null;
+    this.tell({});
+  }
+
   /** Somebody is looking at the chat: nothing is waiting to be read. */
   readChat() {
     if (!this.unread) return;
@@ -330,6 +363,7 @@ export class TownSession {
     this.closed = true;
     clearInterval(this.tick);
     if (this.moveTimer !== null) clearTimeout(this.moveTimer);
+    if (this.lookTimer !== null) clearTimeout(this.lookTimer);
     window.removeEventListener("pagehide", this.onPageHide);
     document.removeEventListener("visibilitychange", this.onVisibility);
     window.removeEventListener("online", this.onWake);
@@ -418,7 +452,7 @@ export class TownSession {
         this.early.delete(p.id);
         const spot = d.x !== undefined && d.y !== undefined ? { x: d.x, y: d.y } : spawnFor(p.id);
         this.avatars.set(p.id, {
-          info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false },
+          info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
         });
       } else {
@@ -599,7 +633,7 @@ export class TownSession {
       status: () => this.status,
       me: () => ({ ...this.self.info, pos: this.self.pos }),
       people: () => this.people.map((a) => ({
-        id: a.info.id, name: a.info.name, voice: a.info.voice, away: a.info.away, pos: a.pos,
+        id: a.info.id, name: a.info.name, voice: a.info.voice, away: a.info.away, pos: a.pos, look: a.info.look,
         going: a.goneAt !== undefined,
       })),
       voice: () => this.voice.stats(),

@@ -84,6 +84,9 @@ export default function TownGate() {
   }, []);
 
   let body: React.ReactNode;
+  // The town (or the wait for it) fills the window; only a message for
+  // somebody who cannot come in sits on the page under its title.
+  let stage = true;
   if (test) {
     const me: TownMe = { id: testId ?? "", name: th ? `ทดสอบ ${test}` : `Tester ${test}`, face: null, color: test === "B" ? "#c98a5b" : "#4fb8a8" };
     body = testId ? <Town me={me} testTopic={TEST_TOPIC} cap={testCap} /> : <Waiting />;
@@ -95,6 +98,7 @@ export default function TownGate() {
   } else if (!ready || !checked || !face.ready) {
     body = <Waiting />;
   } else if (!userId || !(verified || realAdmin)) {
+    stage = false;
     body = (
       <div className="mt-6 rounded-2xl border border-line bg-surface p-6 text-center">
         <div className="text-4xl" aria-hidden>🏙️</div>
@@ -115,8 +119,10 @@ export default function TownGate() {
 
   return (
     <main className="pt-7">
-      <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">{th ? "ทดลอง · Beta" : "Beta"}</div>
-      <h1 className="font-display text-3xl font-bold">Cash Town</h1>
+      <div className={stage ? "sr-only" : ""}>
+        <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">{th ? "ทดลอง · Beta" : "Beta"}</div>
+        <h1 className="font-display text-3xl font-bold">Cash Town</h1>
+      </div>
       {body}
     </main>
   );
@@ -134,6 +140,7 @@ function testerId(letter: string): string {
   return fresh;
 }
 
+/** The town's shape while it loads: the window under the header, as the town will fill it. */
 function Waiting() {
-  return <div className="skeleton mt-4 block h-[min(74dvh,700px)] min-h-[440px] w-full rounded-2xl" aria-hidden />;
+  return <div className="skeleton fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30] block" aria-hidden />;
 }

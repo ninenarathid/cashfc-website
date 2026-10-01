@@ -3,6 +3,7 @@
 import { createClient as createSupabase, type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 import { cleanChat } from "./chat";
+import { decodeLook } from "./look";
 
 /**
  * The town's room on Supabase Realtime, written around the plan's limits
@@ -42,7 +43,9 @@ export interface Identity {
 /**
  * What somebody is doing: where they are walking to, their microphone, and
  * whether they are looking at another page of the site (still in town, and
- * still talking, but not watching the map).
+ * still talking, but not watching the map). And how they look (lib/town/look):
+ * it changes in the wardrobe, rarely, and rides along with the rest rather
+ * than in presence, which allows only five updates in thirty seconds.
  */
 export interface Doing {
   x: number;
@@ -50,6 +53,8 @@ export interface Doing {
   voice: boolean;
   muted: boolean;
   away: boolean;
+  /** encodeLook's eleven characters; missing from a browser older than the wardrobe. */
+  look?: string;
 }
 
 /**
@@ -120,6 +125,7 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (voice !== undefined) d.voice = voice;
   if (muted !== undefined) d.muted = muted;
   if (away !== undefined) d.away = away;
+  if (decodeLook(p.look)) d.look = p.look as string;
   return d;
 }
 

@@ -31,12 +31,29 @@ verified character** (v102; admins since v101). It has:
 - **typed chat** (`lib/town/chat.ts`): a bubble over the speaker's head for a
   few seconds, a short log over the map, and the dock's chat with an unread
   count on other pages. Never stored, cleaned on the way in and out, paced by
-  room size (`chatEvery`, like `moveEvery`).
+  room size (`chatEvery`, like `moveEvery`);
+- **the page as a game screen** (redesign, 2026-10-01): the map fills the
+  window under the header and runs under the phone's tab bar, with a
+  fullscreen button; small controls in the corners, so chat (a slim bar, a 💬
+  button on a phone) and the microphone never cover the town; wheel, pinch
+  and button zoom, drag to look around (`lib/town/camera.ts`, pure and tested);
+- **avatars are Lalafell paper dolls** (`lib/town/doll.ts`, `lib/town/look.ts`):
+  chosen in the wardrobe (`Wardrobe.tsx`; free, change any time), drawn from
+  one picture (`public/town/doll-<hash>.webp` and `doll.json`, built by
+  `scripts/art/build-town-atlas.mjs`), facing the way they walk, blinking, and
+  talking when their microphone hears them. A look is eleven characters in
+  `Doing.look`, told to the room once the wardrobe settles (`LOOK_SETTLE_MS`)
+  and kept on the device (localStorage); somebody who never chose gets a look
+  of their own from their id. Profile pictures are only in the card a tap on
+  somebody opens; names are on the map.
 
 The code is in `components/town/` (`Town.tsx` the map, `TownGate.tsx`,
 `TownBar.tsx` the dock, `TownDock.tsx` the few lines in the root layout that
-load the dock only for a tab in town) and `lib/town/` (`world.ts`, `chat.ts`
-and `active.ts` are pure and tested; `session.ts`, `voice.ts`, `room.ts`).
+load the dock only for a tab in town, `Wardrobe.tsx`) and `lib/town/`
+(`world.ts`, `chat.ts`, `active.ts`, `look.ts` and `camera.ts` are pure and
+tested; `session.ts`, `voice.ts`, `room.ts`, `doll.ts`). In `next dev`,
+`window.__townView.screenOf(id)` says where somebody stands on the screen, for
+scripts that tap them.
 The account menu links to it. In `next dev`, `/town?townTest=A` opens a public
 test room with no sign-in, and `&townCap=N` makes it full at N (production
 compiles both away).

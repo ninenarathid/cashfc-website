@@ -46,7 +46,8 @@ const nextConfig: NextConfig = {
       value: "public, max-age=604800, stale-while-revalidate=86400",
     }];
     return [
-      { source: "/:dir(duty|guides|wallet|emotes|ui)/:path*.:ext(png|jpg|jpeg|webp|avif|gif|svg)", headers: week },
+      // town: Cash Town's doll picture, named by its content (build-town-atlas.mjs).
+      { source: "/:dir(duty|guides|wallet|emotes|ui|town)/:path*.:ext(png|jpg|jpeg|webp|avif|gif|svg)", headers: week },
       { source: "/:name(logo|logo-header|icon-512|sprout).png", headers: week },
     ];
   },
