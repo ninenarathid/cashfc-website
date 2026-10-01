@@ -82473,9 +82473,9 @@
     "state": "learning",
     "pct": 62.25,
     "phase": 4,
-    "pulls": 24,
-    "last": "2026-09-29",
-    "last_ts": 1790693952
+    "pulls": 39,
+    "last": "2026-09-30",
+    "last_ts": 1790780670
    }
   ]
  },
@@ -82900,13 +82900,17 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 17,
+    "kills": 18,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
      "RedMage": {
       "kills": 2,
       "best": 84
+     },
+     "Dancer": {
+      "kills": 1,
+      "best": 30
      },
      "Paladin": {
       "kills": 3,
@@ -84288,7 +84292,7 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 15,
+    "best": 14,
     "kills": 1,
     "job": "DarkKnight",
     "cleared": true
@@ -84889,7 +84893,7 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 48,
+    "best": 47,
     "kills": 1,
     "job": "Scholar",
     "cleared": true
@@ -85561,7 +85565,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 53,
+    "pulls": 27,
     "last": "2026-09-29",
     "last_ts": 1790690223
    }
