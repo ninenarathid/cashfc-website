@@ -39837,7 +39837,7 @@
     "cleared": true,
     "job_kills": {
      "Warrior": {
-      "kills": 11,
+      "kills": 12,
       "best": 41
      }
     }
@@ -72775,8 +72775,12 @@
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
+     "Bard": {
+      "kills": 2,
+      "best": 59
+     },
      "Astrologian": {
-      "kills": 14,
+      "kills": 16,
       "best": 56
      },
      "WhiteMage": {
@@ -72784,7 +72788,7 @@
       "best": 33
      },
      "Scholar": {
-      "kills": 4,
+      "kills": 5,
       "best": 34
      }
     }
@@ -72823,7 +72827,13 @@
     "best": 39,
     "kills": 2,
     "job": "Astrologian",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 2,
+      "best": 39
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -72884,6 +72894,10 @@
      "Astrologian": {
       "kills": 12,
       "best": 82
+     },
+     "WhiteMage": {
+      "kills": 2,
+      "best": 77
      },
      "Scholar": {
       "kills": 4,

@@ -1353,11 +1353,11 @@
    3912,
    3913,
    3916,
+   3917,
    3918,
    3922,
    3923,
    3924,
-   3937,
    3938,
    3949,
    3950,
@@ -2183,7 +2183,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 43,
+  "level": 57,
   "cc": [
    true,
    true,
@@ -2229,7 +2229,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2435,7 +2435,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -2598,6 +2598,7 @@
    2996,
    3074,
    3162,
+   3307,
    3309,
    3338,
    3348,
@@ -2655,7 +2656,6 @@
    4025,
    4026,
    4027,
-   4028,
    4029,
    4030,
    4031,
@@ -4297,6 +4297,7 @@
    1469,
    1582,
    1583,
+   2092,
    2213,
    2393,
    2766,
@@ -4340,7 +4341,6 @@
    3770,
    3771,
    3802,
-   3823,
    3832,
    3842,
    3843,
@@ -4681,7 +4681,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 84,
+  "level": 75,
   "cc": [
    true,
    true,
@@ -4708,7 +4708,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -5235,7 +5235,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5259,7 +5259,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -5490,7 +5490,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 93,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -5612,7 +5612,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6792,7 +6792,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 66,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -6994,7 +6994,7 @@
   "mounts": 198,
   "minions": 420,
   "rare": 269,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7121,7 +7121,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7130,7 +7130,7 @@
   "mounts": 68,
   "minions": 102,
   "rare": 47,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -7196,7 +7196,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8058,7 +8058,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 90,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -8071,7 +8071,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8506,7 +8506,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 40,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8522,7 +8522,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8626,7 +8626,7 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -8639,7 +8639,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "57419573": {
   "name": "A'kane Dorothy",

@@ -2,6 +2,48 @@
  "events": [
   {
    "date": "2026-10-01",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned R&D: Mallet of Stars — only 4.0% of players have it"
+  },
+  {
+   "date": "2026-10-01",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned Resplendent: Brilliant Raising Hammer"
+  },
+  {
+   "date": "2026-10-01",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned I've Got It: Elemental Grimoire"
+  },
+  {
+   "date": "2026-10-01",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-10-01",
+   "type": "level_100",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-10-01",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-01",
    "type": "level_100",
    "id": 57375278,
    "name": "Komi Kona",
@@ -1357,48 +1399,6 @@
    "id": 12058921,
    "name": "Heidi Fox",
    "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Cut Above the Rest: Tonfa Occultum — only 1.1% of players have it, and 15 more"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-21",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100 on Warrior!"
   }
  ]
 }
