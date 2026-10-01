@@ -3865,6 +3865,12 @@ const DICT = {
     th: "คุณเห็นคะแนนเพราะเป็นแอดมิน",
   },
 
+  /* Cash Town, while it is a prototype the admins try first. */
+  "town.adm.link": {
+    en: "Cash Town (prototype): walk around and talk by microphone",
+    th: "Cash Town (ทดลอง) เดินเล่นและคุยกันด้วยไมค์",
+  },
+
   "common.edit": { en: "Edit", th: "แก้ไข" },
   "common.noData": { en: "No data", th: "ไม่มีข้อมูล" },
 } satisfies Record<string, Entry>;
