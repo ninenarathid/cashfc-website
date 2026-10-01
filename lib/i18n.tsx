@@ -389,6 +389,8 @@ const DICT = {
   "lb.failed": { en: "This board didn't load.", th: "โหลดอันดับไม่สำเร็จ" },
   "lb.retry": { en: "Try again", th: "ลองใหม่" },
   "lb.counting": { en: "Counting popoto…", th: "กำลังนับ popoto…" },
+  // Under the popoto rows on the front page, which count this month too.
+  "lb.monthNote": { en: "(this month)", th: "(เดือนนี้)" },
   "gallery.cover": { en: "Cover", th: "รูปหน้าปก" },
   "gallery.openPoster": { en: "Post a picture", th: "โพสต์รูป" },
   "gallery.closePoster": { en: "Not now", th: "ไว้ก่อน" },

@@ -3,8 +3,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { allRows } from "@/lib/rows";
-import { splitPopoto, type PopotoPost, type PopotoTag } from "@/lib/popoto";
+import { periodStart } from "@/lib/popoto";
+import { galleryTotals, profileTotals, rank, type BoardRow } from "@/lib/popoto-board";
 import { useAvatar } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { TAG_COLOR, TAG_LABELS } from "@/lib/tags";
@@ -39,6 +39,8 @@ const SHOW = 3;
 interface Board {
   key: string;
   label: string;
+  /** A word under the label: the potato boards say which stretch they count. */
+  note?: string;
   color: string;
   /** The potato boards bring their own; the rest use the game's own tag art. */
   icon?: ReactNode;
@@ -78,64 +80,35 @@ export default function TopThree(
   },
 ) {
   const { t } = useLang();
-  const [potato, setPotato] = useState<Board[]>([]);
+  const [potato, setPotato] = useState<{ profile: BoardRow[]; gallery: BoardRow[] } | null>(null);
 
   // The two potato boards live in the database and change daily, so they are
-  // read here rather than baked in at deploy time like the rest.
+  // read here rather than baked in at deploy time like the rest. This month,
+  // the way the leaderboards open, counted by the same functions and ranked by
+  // the same rule, so the front page and the page it links to agree on who is
+  // ahead. It used to count every potato ever given, which was also every page
+  // of the kudos table on every visit to the front page.
   useEffect(() => {
     const supabase = createClient();
     if (!supabase) return;
-    void (async () => {
-      // Paged: a plain select stops at a thousand rows and says nothing, so
-      // the day kudos passed that mark this panel started showing a top three
-      // built from part of the table. See lib/rows.
-      const [kudos, posts, tags] = await Promise.all([
-        allRows<{ receiver_character_id: number }>((from, to) =>
-          supabase.from("kudos").select("receiver_character_id").range(from, to)),
-        allRows<{ id: number; character_id: number | null; like_count: number | null }>(
-          (from, to) => supabase.from("gallery_posts")
-            .select("id, character_id, like_count").range(from, to)),
-        allRows<{ post_id: number; character_id: number | null; confirmed_at: string | null }>(
-          (from, to) => supabase.from("gallery_tags")
-            .select("post_id, character_id, confirmed_at").range(from, to)),
-      ]);
+    const from = periodStart("month");
+    Promise.all([profileTotals(supabase, from), galleryTotals(supabase, from)]).then(
+      ([profile, gallery]) => setPotato({
+        profile: rank(profile, names).slice(0, SHOW),
+        gallery: rank(gallery, names).slice(0, SHOW),
+      }),
+      // A front page without its potato rows is still a front page.
+      () => {});
+  }, [names]);
 
-      const count = (pairs: [number, number][]) => {
-        const total = new Map<number, number>();
-        for (const [id, n] of pairs) total.set(id, (total.get(id) ?? 0) + n);
-        return [...total.entries()]
-          .filter(([, n]) => n > 0)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, SHOW)
-          .map(([id]) => ({
-            id,
-            name: names[id]?.name ?? `#${id}`,
-            avatar: names[id]?.avatar ?? null,
-          }));
-      };
-
-      const made: Board[] = [];
-      const profile = count(kudos.map((k) => [k.receiver_character_id, 1]));
-      if (profile.length) {
-        made.push({ key: "popoto", label: t("lb.popoto"), color: "#e5cc80",
-                    icon: <PopotoIcon size={16} />, rows: profile });
-      }
-      // Everybody in the picture, sharing it — the same rule the leaderboard
-      // uses, from the same place, so the front page cannot disagree with the
-      // page it links to.
-      const gallery = count([...splitPopoto(
-        posts as unknown as PopotoPost[], tags as unknown as PopotoTag[],
-      )].map(([id, v]) => [id, v.score] as [number, number]));
-      if (gallery.length) {
-        made.push({ key: "gallery", label: t("lb.gallery"), color: "#4fb8a8",
-                    icon: <PopotoIcon size={16} />, rows: gallery });
-      }
-      setPotato(made);
-    })();
-  }, [names, t]);
-
+  const month = t("lb.monthNote");
   const boards: Board[] = [
-    ...potato,
+    ...(potato?.profile.length ? [{
+      key: "popoto", label: t("lb.popoto"), note: month, color: "#e5cc80",
+      icon: <PopotoIcon size={16} />, rows: potato.profile }] : []),
+    ...(potato?.gallery.length ? [{
+      key: "gallery", label: t("lb.gallery"), note: month, color: "#4fb8a8",
+      icon: <PopotoIcon size={16} />, rows: potato.gallery }] : []),
     ...buckets.filter((b) => b.rows.length).map((b) => ({
       key: b.key,
       label: TAG_LABELS[b.key] ?? b.key,
@@ -168,7 +141,17 @@ export default function TopThree(
                     style={{ background: `${b.color}26` }}>
                 {b.icon ?? <TagIcon tag={b.key} size={13} />}
               </span>
-              {b.label}
+              {b.note ? (
+                // Under the label rather than after it: on a phone the three
+                // names beside it are already down to a few letters each, and
+                // a longer label would take the rest.
+                <span className="min-w-0">
+                  <span className="block truncate">{b.label}</span>
+                  <span className="block font-data text-label font-normal text-muted">
+                    {b.note}
+                  </span>
+                </span>
+              ) : b.label}
             </span>
             {/* Equal columns rather than a flowing row, so the leaders line up
                 down the page and the second and third names do not wander
