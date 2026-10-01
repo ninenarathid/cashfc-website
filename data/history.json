@@ -1120,14 +1120,14 @@
   },
   {
    "date": "2026-10-01",
-   "total": 509,
+   "total": 510,
    "tags": {
     "veteran": 156,
     "extreme": 142,
     "ultimate": 119,
     "tier-clear": 41,
-    "gatherer": 10,
-    "crafter": 15,
+    "gatherer": 11,
+    "crafter": 17,
     "relic": 25,
     "explorer": 18,
     "treasure": 17,
@@ -1135,7 +1135,7 @@
     "seasonal": 12,
     "pvp": 17,
     "private": 226,
-    "casual": 30,
+    "casual": 31,
     "prog": 23,
     "oldtimer": 1
    },
@@ -1144,7 +1144,7 @@
    "extreme": 142,
    "unknown": 0,
    "final_boss": 41,
-   "active": 164,
+   "active": 165,
    "vacation": 345,
    "guests": 15
   }

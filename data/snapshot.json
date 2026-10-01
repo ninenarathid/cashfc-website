@@ -2183,7 +2183,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 57,
+  "level": 58,
   "cc": [
    true,
    true,
@@ -2435,7 +2435,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 95,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3520,7 +3520,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 58,
-  "level": 100,
+  "level": 83,
   "cc": [
    true,
    true,
@@ -3602,7 +3602,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -4681,7 +4681,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 8,
-  "level": 75,
+  "level": 76,
   "cc": [
    true,
    true,
@@ -5235,7 +5235,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5490,7 +5490,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 94,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -7130,7 +7130,7 @@
   "mounts": 68,
   "minions": 102,
   "rare": 47,
-  "level": 80,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -7690,7 +7690,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 100,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -7735,7 +7735,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8362,6 +8362,22 @@
   "ults": [],
   "chg": "2026-09-30"
  },
+ "60429500": {
+  "name": "Jin Theape",
+  "parse": null,
+  "ult": 0,
+  "mounts": 33,
+  "minions": 173,
+  "rare": 3,
+  "level": 81,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-10-01"
+ },
  "60475540": {
   "name": "Joaline Auchefornei",
   "parse": null,
@@ -8457,7 +8473,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 57,
+  "level": 58,
   "cc": [
    false,
    false,
@@ -8470,7 +8486,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-01"
  },
  "44085912": {
   "name": "Mayu Ferguson",

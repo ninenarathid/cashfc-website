@@ -1664,41 +1664,6 @@
    "lode_achv_public": true,
    "stats_seen": "2026-10-01"
   },
-  "60429500": {
-   "name": "Jin Theape",
-   "world": "Tonberry",
-   "dc": "Elemental",
-   "fc": null,
-   "seen": "2026-10-01",
-   "mounts": 33,
-   "minions": 173,
-   "rare_achv": 3,
-   "ach_public": true,
-   "portrait": "https://img2.finalfantasyxiv.com/f/2f51fdaa4e542a947148fb445074d044_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790467803",
-   "collect_seen": "2026-10-01",
-   "tags": [
-    "casual"
-   ],
-   "achv_tiers": {},
-   "parse": null,
-   "savage_kills": 0,
-   "ult_clears": 0,
-   "ult_cleared": [],
-   "ult_achv": [],
-   "ult_achv_only": [],
-   "legacy_clears": 0,
-   "ex_cleared": [],
-   "ex_kills": 0,
-   "current_clears": null,
-   "current_seen": false,
-   "progress": null,
-   "progress_all": null,
-   "job_top": null,
-   "job_scores": {},
-   "fflogs": "none",
-   "lode_achv_public": true,
-   "stats_seen": "2026-10-01"
-  },
   "22590312": {
    "name": "Siegcross Avalontear",
    "world": "Tonberry",
@@ -1905,6 +1870,6 @@
    "stats_seen": "2026-10-01"
   }
  },
- "generated_at": "2026-10-01T16:06:09Z",
- "count": 15
+ "generated_at": "2026-10-01T21:17:05Z",
+ "count": 14
 }

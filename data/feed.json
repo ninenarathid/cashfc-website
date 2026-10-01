@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-10-01",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-10-01",
+   "type": "new_member",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-10-01",
    "type": "rare_up",
    "id": 44970350,
    "name": "Allen Crist",
@@ -1385,20 +1399,6 @@
    "id": 44970350,
    "name": "Allen Crist",
    "text": "earned In Pot Pursuit II — only 3.9% of players have it"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned R&D: Stellar Cross-pein Hammer"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 12058921,
-   "name": "Heidi Fox",
-   "text": "reached level 100 on Viper!"
   }
  ]
 }
