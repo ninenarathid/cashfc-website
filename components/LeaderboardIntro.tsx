@@ -136,12 +136,19 @@ export default function LeaderboardIntro(
               <b className="text-ink">และนับแยกกันคนละที่</b>
               <br />
               อันแรกนับจากปุ่ม Send popoto ในหน้าโปรไฟล์ กดได้วันละครั้งต่อคน
-              ตัวเลขจึงตรงกับที่ขึ้นในหน้าโปรไฟล์ของคนนั้นเป๊ะๆ ส่วนอันที่สอง{" "}
+              ตัวเลขช่อง <b className="text-ink">{t("lb.allTime")}</b>{" "}
+              จึงตรงกับที่ขึ้นในหน้าโปรไฟล์ของคนนั้นเป๊ะๆ ส่วนอันที่สอง{" "}
               <b className="text-ink">แบ่งกันทุกคนที่อยู่ในรูป</b> —
               เจ้าของรูปกับทุกคนที่ถูกแท็กและยืนยันแล้ว หารเท่ากัน
               (5 popoto ในรูปที่มีสามคน ได้คนละ 1.67) FC โหวตเปลี่ยนเป็นแบบนี้
               10 ต่อ 6 เพราะการกดใต้รูปที่มีคนห้าคน คือการพูดถึงรูปนั้น
               และรูปนั้นเป็นของทั้งห้าคน
+              <br />
+              ทั้งสองอันเลือกได้ว่าจะดู <b className="text-ink">{t("lb.thisMonth")}</b>{" "}
+              <b className="text-ink">{t("lb.thisYear")}</b> หรือ{" "}
+              <b className="text-ink">{t("lb.allTime")}</b> (เปิดมาจะเป็นเดือนนี้)
+              นับตามวันที่กดให้ตามเวลาไทย popoto จากรูปก็นับวันที่กด
+              ไม่ใช่วันที่โพสต์รูป
             </>
           ) : (
             <>
@@ -152,14 +159,20 @@ export default function LeaderboardIntro(
               <b className="text-ink">counted entirely separately</b>.
               <br />
               The first is Send popoto on somebody&rsquo;s profile, once per person per
-              day, so its total matches the number on that member&rsquo;s own page
-              exactly. The second is{" "}
+              day, so its <b className="text-ink">{t("lb.allTime")}</b> total matches
+              the number on that member&rsquo;s own page exactly. The second is{" "}
               <b className="text-ink">divided between everybody in the picture</b> —
               whoever it is credited to, and everyone tagged in it who has agreed
               to the tag, in equal shares (five potatoes on a photo of three
               people is 1.67 each). The FC voted for that, ten to six: pressing
               the button under a picture of five people is saying something about
               the picture, and the picture is five people&rsquo;s.
+              <br />
+              Both can be read for <b className="text-ink">{t("lb.thisMonth")}</b>,{" "}
+              <b className="text-ink">{t("lb.thisYear")}</b> or{" "}
+              <b className="text-ink">{t("lb.allTime")}</b>, and open on this month.
+              A popoto counts on the day it was given, Thai time — on a picture
+              too, however long ago the picture was posted.
             </>
           )}
         </p>

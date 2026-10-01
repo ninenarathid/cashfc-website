@@ -32,6 +32,8 @@
  * people sharing five is 1.67 each, and three times 2 is not five.
  */
 
+import { bangkokDay } from "@/lib/evercold";
+
 export interface PopotoPost {
   id: number;
   character_id: number | null;
@@ -90,6 +92,41 @@ export function splitPopoto(
     }
   }
   return out;
+}
+
+/**
+ * The same split, for only the potatoes given since a moment.
+ *
+ * like_count is every potato a picture has ever had, so a board for this month
+ * counts the likes themselves, by the day each one was pressed: a picture from
+ * August that the FC finds again in October earns its potatoes in October. They
+ * still go to whoever is in the picture now, by the rule above.
+ */
+export function splitPopotoLikes(
+  posts: PopotoPost[], tags: PopotoTag[], likes: { post_id: number }[],
+): Map<number, PopotoTotal> {
+  const given = new Map<number, number>();
+  for (const l of likes) given.set(l.post_id, (given.get(l.post_id) ?? 0) + 1);
+  return splitPopoto(
+    posts.map((p) => ({ ...p, like_count: given.get(p.id) ?? 0 })), tags);
+}
+
+/** How far back a popoto board counts. */
+export type PopotoPeriod = "month" | "year" | "all";
+
+/**
+ * The moment a period starts, or null for all of it.
+ *
+ * Midnight in Bangkok, the same midnight the draw and the bell count from: a
+ * month that began at seven in the morning, Thai time, would hand the first
+ * hours of every month to the one before. Bangkok keeps no summer time, so the
+ * "+07:00" is the whole of the time-zone arithmetic.
+ */
+export function periodStart(period: PopotoPeriod, now = new Date()): string | null {
+  if (period === "all") return null;
+  const today = bangkokDay(now.toISOString());
+  const first = period === "month" ? today.slice(0, 7) : `${today.slice(0, 4)}-01`;
+  return `${first}-01T00:00:00+07:00`;
 }
 
 /**

@@ -369,6 +369,25 @@ const DICT = {
     en: "shared between everybody in each picture",
     th: "แบ่งกันทุกคนที่อยู่ในรูป",
   },
+  // The popoto boards' three spans. The profile page keeps its all-time count.
+  "lb.period": { en: "Which popoto to count", th: "ช่วงเวลาที่นับ popoto" },
+  "lb.thisMonth": { en: "This month", th: "เดือนนี้" },
+  "lb.thisYear": { en: "This year", th: "ปีนี้" },
+  "lb.allTime": { en: "All time", th: "ทั้งหมด" },
+  "lb.noneMonth": {
+    en: "Nobody yet this month. Yours could be the first.",
+    th: "เดือนนี้ยังไม่มีใครได้เลย เป็นคนแรกที่ส่งให้ก็ได้นะ",
+  },
+  "lb.noneYear": {
+    en: "Nobody yet this year. Yours could be the first.",
+    th: "ปีนี้ยังไม่มีใครได้เลย เป็นคนแรกที่ส่งให้ก็ได้นะ",
+  },
+  "lb.noneAll": {
+    en: "Nobody yet. Yours could be the first.",
+    th: "ยังไม่มีใครได้เลย เป็นคนแรกที่ส่งให้ก็ได้นะ",
+  },
+  "lb.failed": { en: "This board didn't load.", th: "โหลดอันดับไม่สำเร็จ" },
+  "lb.retry": { en: "Try again", th: "ลองใหม่" },
   "gallery.cover": { en: "Cover", th: "รูปหน้าปก" },
   "gallery.openPoster": { en: "Post a picture", th: "โพสต์รูป" },
   "gallery.closePoster": { en: "Not now", th: "ไว้ก่อน" },
