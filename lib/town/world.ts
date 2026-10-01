@@ -23,9 +23,36 @@ export const TILE_H = 32;
 export const SPEED = 3.5;
 
 /**
- * Hearing: full volume within NEAR tiles, fading to nothing at FAR. Close
- * enough to feel like walking up to somebody, far enough that two people on
- * either side of the plaza are not in each other's ear.
+ * Deliveries a second the whole room's steps may cost, at most: half the
+ * project's realtime allowance (500 a second, shared with the party board and
+ * the bell), even if everybody clicks as fast as they can.
+ */
+export const MOVE_BUDGET = 250;
+
+/**
+ * How often somebody's steps may be announced, ms, with `n` people in the
+ * room. Every announcement is delivered to the n − 1 others, so a room of n
+ * all clicking nonstop costs n × (n − 1) × 1000 / every deliveries a second.
+ * A step after standing still goes at once; only a burst of taps waits, and
+ * then sends the last one.
+ */
+export function moveEvery(n: number): number {
+  return Math.max(300, Math.ceil((n * (n - 1) * 1000) / MOVE_BUDGET));
+}
+
+/**
+ * Whether distance matters to the voice. Off for now (the owner's call on
+ * 2026-10-01): one room where everybody in voice hears everybody at full
+ * volume, while the FC finds out how many one room holds. On, a voice fades
+ * with distance (NEAR, FAR) and lines open nearest first (pickLines), the way
+ * Gather works; everything for that is kept below.
+ */
+export const PROXIMITY = false;
+
+/**
+ * Hearing, when PROXIMITY is on: full volume within NEAR tiles, fading to
+ * nothing at FAR. Close enough to feel like walking up to somebody, far enough
+ * that two people on either side of the plaza are not in each other's ear.
  */
 export const NEAR = 3.5;
 export const FAR = 7;
@@ -208,10 +235,54 @@ export function stepAlong(pos: Vec, path: Vec[], dist: number): { pos: Vec; path
 export const distance = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
 
 /** Volume (0–1) of somebody `d` tiles away. */
-export function hearing(d: number): number {
+export function hearing(d: number, proximity = PROXIMITY): number {
+  if (!proximity) return 1;
   if (d <= NEAR) return 1;
   if (d >= FAR) return 0;
   return 1 - (d - NEAR) / (FAR - NEAR);
+}
+
+/* ── who to keep a voice line to ────────────────────────────────────────── */
+
+/**
+ * Lines open to people within FAR (where they become audible), and stay open
+ * until they are past DROP: the gap stops a line flapping open and shut as
+ * somebody walks along the edge, and covers the fraction of a tile by which
+ * two screens may disagree about where somebody is.
+ */
+export const DROP = 9.5;
+
+/**
+ * At most this many lines are opened, nearest first. Each line uploads the
+ * microphone once more, so the cap is what lets a crowded room work on a
+ * phone: in a crowd you talk to the people around you, as in life.
+ */
+export const MAX_LINES = 8;
+
+/**
+ * Who to have a voice line to: everybody already connected and still within
+ * DROP, plus the nearest within FAR up to MAX_LINES in all. Lines the other
+ * side opened are kept the same way, so both ends agree without talking it
+ * over.
+ */
+export function pickLines(
+  me: Vec,
+  others: Array<{ id: string; pos: Vec }>,
+  connected: ReadonlySet<string>,
+  proximity = PROXIMITY,
+): Set<string> {
+  // One room, everybody together: a line to everybody in voice.
+  if (!proximity) return new Set(others.map((o) => o.id));
+  const near = others
+    .map((o) => ({ id: o.id, d: distance(me, o.pos) }))
+    .sort((a, b) => a.d - b.d || (a.id < b.id ? -1 : 1));
+  const keep = new Set<string>();
+  for (const o of near) if (connected.has(o.id) && o.d <= DROP) keep.add(o.id);
+  for (const o of near) {
+    if (keep.size >= MAX_LINES) break;
+    if (o.d <= FAR) keep.add(o.id);
+  }
+  return keep;
 }
 
 /* ── arriving ───────────────────────────────────────────────────────────── */

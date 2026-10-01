@@ -186,6 +186,7 @@ const DICT = {
     th: "ยังไม่มีข้อมูลใน FFXIV Collect",
   },
   "nav.editProfile": { en: "Edit profile", th: "แก้ไขโปรไฟล์" },
+  "nav.town": { en: "🏙️ Cash Town (beta)", th: "🏙️ Cash Town (ทดลอง)" },
   "nav.admin": { en: "Admin panel", th: "หน้าผู้ดูแล" },
   "nav.language": { en: "Language", th: "ภาษา" },
   "nav.gallery": { en: "Gallery", th: "แกลเลอรี" },
@@ -3865,10 +3866,10 @@ const DICT = {
     th: "คุณเห็นคะแนนเพราะเป็นแอดมิน",
   },
 
-  /* Cash Town, while it is a prototype the admins try first. */
+  /* Cash Town, a beta for verified members (v102). */
   "town.adm.link": {
-    en: "Cash Town (prototype): walk around and talk by microphone",
-    th: "Cash Town (ทดลอง) เดินเล่นและคุยกันด้วยไมค์",
+    en: "Cash Town (beta, open to verified members): walk around and talk by microphone",
+    th: "Cash Town (ทดลอง เปิดให้สมาชิกที่ยืนยันตัวแล้ว) เดินเล่นและคุยกันด้วยไมค์",
   },
 
   "common.edit": { en: "Edit", th: "แก้ไข" },

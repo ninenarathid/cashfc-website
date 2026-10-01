@@ -291,7 +291,8 @@ export default function AdminPanel(
       </Link>
 
       {/* ── Cash Town ── */}
-      {/* Admins only while it is a prototype; nothing else links to it yet. */}
+      {/* A beta for every verified member since v102; the account menu has
+          the same door. */}
       <Link href="/town"
             className="mt-2 flex items-center gap-3 rounded-xl border border-jade/40 bg-jade/5 px-4 py-3 no-underline transition-colors hover:border-jade/70 hover:bg-jade/10">
         <span aria-hidden className="shrink-0 text-[22px] leading-none">🏙️</span>

@@ -4,53 +4,76 @@ import { createClient as createSupabase, type RealtimeChannel, type SupabaseClie
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 
 /**
- * The town's room: who is here and where they are going (presence), and the
- * messages that introduce two microphones (broadcast). Nothing in it is kept;
- * a room is as long as somebody is in it.
+ * The town's room on Supabase Realtime, written around the plan's limits
+ * (checked 2026-10-01), because breaking them is what made the first version
+ * drop people:
  *
- * Its name comes from the database (town_topic, v101), which tells it only to
- * admins, and the channel is private, so Realtime checks the same rule on
- * every join. Both, because Supabase only promises private channels are
- * enforced when public access is switched off for the whole project, and the
- * party board and the bell still use public ones. (Tried on 2026-10-01: a
- * public channel of the same name hears nothing from the private one, so the
- * secret name is the second lock rather than the only one.)
+ *   · presence may be updated 5 times per 30 seconds per person, with at most
+ *     10 fields, and 50 presence deliveries a second for the whole project;
+ *   · every message delivered counts towards 500 a second for the whole
+ *     project, shared with the party board and the bell.
+ *
+ * The first version re-sent its presence on every step and lost the room
+ * after a few clicks. So:
+ *
+ *   · presence says only who is here: name, face, colour, sent once per join;
+ *   · where somebody walks, and whether their microphone is on, are broadcasts
+ *     in the room: `hi` on arriving, `mv` for a destination, `st` for a
+ *     change, `bye` on leaving;
+ *   · things meant for one person go to their letterbox, not the room:
+ *     a private channel only they can read (v102). Those are the replies to
+ *     `hi` and the two messages that connect two microphones. Sent to the
+ *     room, each would be delivered to everybody.
+ *
+ * Nothing in any of it is stored. The room's name comes from the database
+ * (town_topic), which tells it only to verified members, and the channels are
+ * private, so Realtime checks the same rule on every join. A public channel of
+ * the same name hears nothing from the private one (tried 2026-10-01).
  */
 
-export interface Townsfolk {
+export interface Identity {
   id: string;
   name: string;
   face: string | null;
   color: string;
-  /** Where they are walking to, in tiles. */
+}
+
+/** What somebody is doing: where they are walking to, and their microphone. */
+export interface Doing {
   x: number;
   y: number;
-  /** Where they set off from. */
-  fx: number;
-  fy: number;
   voice: boolean;
   muted: boolean;
-  /** When they sent this, by their clock. Only compared with their own. */
-  at: number;
 }
 
 /**
  * `reconnecting` is the ordinary hiccup (a sleepy tab, a dropped Wi-Fi): the
  * client is already trying again and the town keeps working meanwhile. The
- * last three are the ones a person has to do something about.
+ * last ones need a person to do something.
  */
-export type RoomStatus = "connecting" | "ready" | "reconnecting" | "needs-migration" | "denied" | "error";
+export type RoomStatus = "connecting" | "ready" | "reconnecting" | "full" | "needs-migration" | "denied" | "error";
 
 export interface RoomHandlers {
-  onPeople(people: Townsfolk[]): void;
+  /** Everybody the room lists now, from presence. */
+  onMembers(people: Identity[]): void;
+  /** What somebody is doing, or a change to it. */
+  onDoing(id: string, doing: Partial<Doing>): void;
+  /** Somebody just arrived and wants to know where everybody is. */
+  onHello(id: string): void;
+  /** Somebody closed the page: gone now, not after a timeout. */
+  onBye(id: string): void;
   onSignal(from: string, data: unknown): void;
   onStatus(status: RoomStatus, detail?: string): void;
 }
 
 export interface Room {
-  update(state: Townsfolk): Promise<void>;
+  move(x: number, y: number): void;
+  say(d: Doing): void;
+  /** Into one person's letterbox: where I am, for somebody who just arrived. */
+  tell(to: string, d: Doing): void;
   signal(to: string, data: unknown): void;
-  /** Make sure the room still lists me; track again if it lost me. */
+  bye(): void;
+  /** Make sure the room still lists me; say who I am again if it lost me. */
   check(): void;
   leave(): Promise<void>;
 }
@@ -60,11 +83,9 @@ export interface Room {
  *
  * Its own socket rather than the site's, so the town can keep it alive in a
  * tab nobody is looking at: browsers slow a hidden tab's timers to once a
- * minute, the keep-alive misses its turn, and the server hangs up — which is
- * what members saw as Aqua vanishing until a reload. `worker: true` sends the
- * keep-alive from a Web Worker, which browsers do not slow down.
- *
- * It signs in with whatever session the site has, asked afresh on every
+ * minute, the keep-alive misses its turn, and the server hangs up.
+ * `worker: true` sends the keep-alive from a Web Worker, which browsers do not
+ * slow. It signs in with whatever session the site has, asked afresh on every
  * keep-alive, so a private channel never rejoins on an expired token.
  */
 export function townClient(site: SupabaseClient | null, onBeat?: (status: string) => void): SupabaseClient {
@@ -78,11 +99,25 @@ export function townClient(site: SupabaseClient | null, onBeat?: (status: string
   });
 }
 
+const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : undefined);
+const bool = (v: unknown) => (typeof v === "boolean" ? v : undefined);
+
+/** Only the fields we know, of the types we expect: these come from other browsers. */
+function readDoing(p: Record<string, unknown>): Partial<Doing> {
+  const d: Partial<Doing> = {};
+  const x = num(p.x), y = num(p.y), voice = bool(p.voice), muted = bool(p.muted);
+  if (x !== undefined && y !== undefined) { d.x = x; d.y = y; }
+  if (voice !== undefined) d.voice = voice;
+  if (muted !== undefined) d.muted = muted;
+  return d;
+}
+
 export async function joinTown(
   supabase: SupabaseClient,
-  me: Townsfolk,
+  me: Identity,
   h: RoomHandlers,
-  opts: { testTopic?: string; cancelled?: () => boolean } = {},
+  /** `doing` is asked afresh whenever the room needs to be told where I am. */
+  opts: { testTopic?: string; cancelled?: () => boolean; doing?: () => Doing } = {},
 ): Promise<Room | null> {
   // A tick before anything else, so a page that mounts and unmounts at once
   // (React's development double-mount, or a quick back-and-forth) can call
@@ -105,77 +140,154 @@ export async function joinTown(
   }
   if (opts.cancelled?.()) return null;
 
+  const isPrivate = !opts.testTopic;
+  const boxOf = (id: string) => `${topic}:u:${id}`;
+
   // The client hands back an existing channel for the same name, already
   // subscribed, which cannot take new listeners. Close any left over first.
   for (const old of supabase.getChannels()) {
-    if (old.topic === `realtime:${topic}`) await supabase.removeChannel(old);
+    if (old.topic === `realtime:${topic}` || old.topic === `realtime:${boxOf(me.id)}`) {
+      await supabase.removeChannel(old);
+    }
   }
   if (opts.cancelled?.()) return null;
 
-  const channel: RealtimeChannel = supabase.channel(topic, {
+  let leaving = false;
+  const outboxes = new Map<string, RealtimeChannel>();
+
+  /* ── the room ── */
+  const room: RealtimeChannel = supabase.channel(topic, {
     config: {
-      private: !opts.testTopic,
+      private: isPrivate,
       presence: { key: me.id },
       broadcast: { self: false, ack: false },
     },
   });
+  // Three short fields, well inside presence's ten.
+  const identity = { n: me.name.slice(0, 40), f: me.face, c: me.color };
 
-  let latest = me;
-  let leaving = false;
-
-  channel.on("presence", { event: "sync" }, () => {
-    const state = channel.presenceState<Townsfolk>();
-    const people: Townsfolk[] = [];
-    for (const metas of Object.values(state)) {
-      // The same person in two tabs: the newest state wins.
-      const newest = [...metas].sort((a, b) => (b.at ?? 0) - (a.at ?? 0))[0];
-      if (newest) {
-        const { presence_ref: _ref, ...p } = newest as Townsfolk & { presence_ref?: string };
-        people.push(p);
-      }
+  room.on("presence", { event: "sync" }, () => {
+    const people: Identity[] = [];
+    for (const [id, metas] of Object.entries(room.presenceState<{ n?: string; f?: string | null; c?: string }>())) {
+      const m = metas[metas.length - 1];
+      if (!m) continue;
+      people.push({
+        id,
+        name: typeof m.n === "string" ? m.n : "…",
+        face: typeof m.f === "string" ? m.f : null,
+        color: typeof m.c === "string" && /^#[0-9a-f]{6}$/i.test(m.c) ? m.c : "#6aa9e0",
+      });
     }
-    h.onPeople(people);
+    h.onMembers(people);
+  });
+  room.on("broadcast", { event: "hi" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id !== "string" || p.id === me.id) return;
+    h.onDoing(p.id, readDoing(p));
+    h.onHello(p.id);
+  });
+  room.on("broadcast", { event: "mv" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
+  });
+  room.on("broadcast", { event: "st" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
+  });
+  room.on("broadcast", { event: "bye" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === "string" && p.id !== me.id) h.onBye(p.id);
   });
 
-  channel.on("broadcast", { event: "rtc" }, ({ payload }) => {
-    const p = payload as { from?: string; to?: string; data?: unknown };
-    if (p?.to === me.id && p.from) h.onSignal(p.from, p.data);
+  /* ── my letterbox ── */
+  const box: RealtimeChannel = supabase.channel(boxOf(me.id), {
+    config: { private: isPrivate, broadcast: { self: false, ack: false } },
   });
+  box.on("broadcast", { event: "st" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
+  });
+  box.on("broadcast", { event: "rtc" }, ({ payload }) => {
+    const p = payload as { from?: unknown; data?: unknown };
+    if (typeof p?.from === "string" && p.from !== me.id) h.onSignal(p.from, p.data);
+  });
+
+  let roomUp = false;
+  let boxUp = false;
+  // Into the room only while joined and connected; otherwise the client
+  // quietly falls back to one HTTP request per message. Missed moves are not
+  // lost: where I am is announced again (`hi`) the moment the room is back.
+  const cast = (event: string, payload: Record<string, unknown>) => {
+    if (room.state === "joined" && supabase.realtime.isConnected()) {
+      void room.send({ type: "broadcast", event, payload });
+    }
+  };
+  // Hello only once my letterbox is open too: the replies go there, and a
+  // reply sent before it opens is lost. A newcomer who missed them would not
+  // know who has a microphone on, and would hang up on every line the others
+  // opened to them.
+  const settle = () => {
+    if (leaving || !roomUp || !boxUp) return;
+    const d = opts.doing?.();
+    if (d) cast("hi", { id: me.id, ...d });
+    h.onStatus("ready");
+  };
+  const trouble = (status: string, err?: Error) => {
+    if (leaving) return;
+    const text = err?.message ?? status;
+    h.onStatus(/unauthori[sz]ed|denied|policy|permission/i.test(text) ? "denied" : "reconnecting", text);
+  };
 
   // Called again after every rejoin, which is when the room has forgotten me
-  // and I must say where I am once more.
-  channel.subscribe(async (status, err) => {
+  // and I must say who and where I am once more.
+  room.subscribe(async (status, err) => {
     if (leaving) return;
     if (status === "SUBSCRIBED") {
-      await channel.track(latest);
-      h.onStatus("ready");
-    } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-      const text = err?.message ?? status;
-      h.onStatus(/unauthori[sz]ed|denied|policy|permission/i.test(text) ? "denied" : "reconnecting", text);
-    } else if (status === "CLOSED") {
-      h.onStatus("reconnecting");
+      await room.track(identity);
+      if (leaving) return;
+      roomUp = true;
+      settle();
+    } else {
+      roomUp = false;
+      trouble(status, err);
     }
   });
+  box.subscribe((status, err) => {
+    if (leaving) return;
+    if (status === "SUBSCRIBED") { boxUp = true; settle(); }
+    else { boxUp = false; trouble(status, err); }
+  });
+
+  /** Post into somebody's letterbox, over HTTP: one message, one delivery. */
+  const post = (to: string, event: string, payload: Record<string, unknown>) => {
+    let ch = outboxes.get(to);
+    if (!ch) {
+      ch = supabase.channel(boxOf(to), { config: { private: isPrivate } });
+      outboxes.set(to, ch);
+    }
+    void ch.httpSend(event, payload).catch(() => { /* they left; the next one will do */ });
+  };
 
   return {
-    async update(state) {
-      latest = state;
-      await channel.track(state);
-    },
-    signal(to, data) {
-      void channel.send({ type: "broadcast", event: "rtc", payload: { from: me.id, to, data } });
-    },
+    move(x, y) { cast("mv", { id: me.id, x, y }); },
+    say(d) { cast("st", { id: me.id, ...d }); },
+    tell(to, d) { post(to, "st", { id: me.id, ...d }); },
+    signal(to, data) { post(to, "rtc", { from: me.id, data }); },
+    bye() { cast("bye", { id: me.id }); },
     check() {
-      if (channel.state !== "joined") return;
-      const mine = channel.presenceState()[me.id];
-      if (!mine || mine.length === 0) void channel.track(latest);
+      if (room.state !== "joined") return;
+      const mine = room.presenceState()[me.id];
+      if (!mine || mine.length === 0) void room.track(identity);
     },
     async leave() {
       leaving = true;
+      for (const ch of outboxes.values()) void supabase.removeChannel(ch);
+      outboxes.clear();
+      if (supabase.getChannels().includes(box)) await supabase.removeChannel(box);
       // Only if it is still ours: a newer join may already have replaced it.
-      if (!supabase.getChannels().includes(channel)) return;
-      try { await channel.untrack(); } catch { /* already gone */ }
-      await supabase.removeChannel(channel);
+      if (!supabase.getChannels().includes(room)) return;
+      try { await room.untrack(); } catch { /* already gone */ }
+      await supabase.removeChannel(room);
     },
   };
 }

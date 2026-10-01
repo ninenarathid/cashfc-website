@@ -12,15 +12,18 @@ import type { TownMe } from "./Town";
 /**
  * Who may walk into Cash Town, and the town itself loaded only for them.
  *
- * Admins only while it is a prototype (2026-10). This gate is the courtesy;
- * the lock is in the database (v101): the room's name is told only to admins
- * and its channel only lets admins in. The town's code is a separate chunk,
+ * Members with a verified character, and the admins (v102, 2026-10-01: open
+ * to the FC to find out how many one room holds). This gate is the courtesy;
+ * the lock is in the database: the room's name is told only to those members
+ * and its channel only lets them in. The town's code is a separate chunk,
  * fetched only once somebody is let through, so the rest of the site pays
  * nothing for it.
  *
  * In `next dev` only, `?townTest=A` skips the gate and uses a throwaway public
  * room, so two browsers can test walking and voice without anybody signing
- * in. A production build compiles that branch away.
+ * in, and `&townCap=N` makes the room full at N so a test can reach that
+ * without thirty browsers. A production build compiles the switch away (the
+ * address is never read there), so the test room cannot be reached.
  */
 const Town = dynamic(() => import("./Town"), {
   ssr: false,
@@ -35,14 +38,18 @@ export default function TownGate() {
   const { realAdmin, ready } = useAdmin();
   const face = useMyFace();
   const [userId, setUserId] = useState<string | null>(null);
+  const [verified, setVerified] = useState(false);
   const [color, setColor] = useState("#6aa9e0");
   const [checked, setChecked] = useState(false);
   const [test, setTest] = useState<string | null>(null);
+  const [testCap, setTestCap] = useState<number | undefined>(undefined);
   const [testId] = useState(() => `test-${Math.random().toString(36).slice(2, 10)}`);
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") {
-      setTest(new URLSearchParams(window.location.search).get("townTest"));
+      const q = new URLSearchParams(window.location.search);
+      setTest(q.get("townTest"));
+      setTestCap(Number(q.get("townCap")) || undefined);
     }
   }, []);
 
@@ -53,9 +60,13 @@ export default function TownGate() {
       const id = data.user?.id ?? null;
       setUserId(id);
       if (id) {
-        const { data: p } = await supabase.from("profiles").select("accent_color").eq("id", id).maybeSingle();
-        const accent = (p as { accent_color?: string | null } | null)?.accent_color;
-        if (accent) setColor(accent);
+        const { data: p } = await supabase.from("profiles")
+          .select("accent_color, character_id, character_verified_at").eq("id", id).maybeSingle();
+        const row = p as {
+          accent_color?: string | null; character_id?: number | null; character_verified_at?: string | null;
+        } | null;
+        if (row?.accent_color) setColor(row.accent_color);
+        setVerified(!!row?.character_id && !!row?.character_verified_at);
       }
       setChecked(true);
     });
@@ -64,32 +75,32 @@ export default function TownGate() {
   let body: React.ReactNode;
   if (test) {
     const me: TownMe = { id: testId, name: th ? `ทดสอบ ${test}` : `Tester ${test}`, face: null, color: test === "B" ? "#c98a5b" : "#4fb8a8" };
-    body = <Town me={me} testTopic={TEST_TOPIC} />;
+    body = <Town me={me} testTopic={TEST_TOPIC} cap={testCap} />;
   } else if (!ready || !checked || !face.ready) {
     body = <Waiting />;
-  } else if (!realAdmin || !userId) {
+  } else if (!userId || !(verified || realAdmin)) {
     body = (
       <div className="mt-6 rounded-2xl border border-line bg-surface p-6 text-center">
         <div className="text-4xl" aria-hidden>🏙️</div>
         <p className="mt-2 text-read text-ink">
-          {th ? "Cash Town ยังไม่เปิดนะ ตอนนี้แอดมินกำลังทดลองกันอยู่" : "Cash Town isn't open yet — the admins are trying it out."}
+          {!userId
+            ? (th ? "เข้าสู่ระบบด้วย Discord แล้วยืนยันตัวละครก่อน ถึงจะเข้า Cash Town ได้" : "Sign in with Discord and verify your character to enter Cash Town.")
+            : (th ? "Cash Town เปิดให้สมาชิกที่ยืนยันตัวละครแล้ว ยืนยันที่หน้าโปรไฟล์ได้เลย ใช้เวลาแป๊บเดียว" : "Cash Town is open to members with a verified character. Verify yours on your profile; it only takes a moment.")}
         </p>
-        <Link href="/" className="mt-3 inline-block text-ui text-accent no-underline hover:underline">
-          {th ? "กลับหน้าแรก" : "Back home"}
+        <Link href="/profile" className="mt-3 inline-block text-ui text-accent no-underline hover:underline">
+          {!userId ? (th ? "เข้าสู่ระบบ" : "Sign in") : (th ? "ไปยืนยันตัวละคร" : "Verify a character")}
         </Link>
       </div>
     );
   } else {
-    const me: TownMe = { id: userId, name: face.name ?? "Admin", face: face.avatar, color };
+    const me: TownMe = { id: userId, name: face.name ?? "Member", face: face.avatar, color };
     body = <Town me={me} />;
   }
 
   return (
     <main className="pt-7">
-      <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">Cash Town</div>
-      <h1 className="font-display text-3xl font-bold">
-        {th ? "เมืองของร้าน" : "The FC's town"}
-      </h1>
+      <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">{th ? "ทดลอง · Beta" : "Beta"}</div>
+      <h1 className="font-display text-3xl font-bold">Cash Town</h1>
       {body}
     </main>
   );

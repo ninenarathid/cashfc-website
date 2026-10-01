@@ -134,6 +134,11 @@ export default function AuthButton() {
           <Menu.Item asChild>
             <Link href="/profile" className={item}>{t("nav.editProfile")}</Link>
           </Menu.Item>
+          {/* Here rather than in the header's tabs while it is a beta: a door
+              for the members who go looking, not a promise to everybody. */}
+          <Menu.Item asChild>
+            <Link href="/town" className={item}>{t("nav.town")}</Link>
+          </Menu.Item>
           {isAdmin && (
             <Menu.Item asChild>
               <Link href="/admin"
