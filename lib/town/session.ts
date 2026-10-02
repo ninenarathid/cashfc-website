@@ -8,7 +8,7 @@ import { defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look"
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
 import {
-  BENCHES, FRONT, SPEED, distance, findPath, hearing, moveEvery, pickLines, spawnFor, stepAlong, type Vec,
+  BENCHES, FRONT, SIT_HERE, SPEED, distance, findPath, hearing, moveEvery, pickLines, spawnFor, stepAlong, type Vec,
 } from "./world";
 
 /**
@@ -149,7 +149,7 @@ export class TownSession {
   private views = 0;
   private steppedAt = 0;
   private moveTimer: ReturnType<typeof setTimeout> | null = null;
-  /** The bench (index into BENCHES) to sit on once I have walked up to it. */
+  /** The bench (index into BENCHES) to sit on once I have walked up to it, or SIT_HERE where I stop. */
   private sitWhenThere: number | null = null;
   private lastMoveAt = 0;
   private seenAt = 0;
@@ -282,11 +282,31 @@ export class TownSession {
     if (!path) return false;
     // Walking anywhere gets up from a bench, or forgets the one I was heading for.
     this.sitWhenThere = null;
-    if ((a.info.sit ?? -1) >= 0) this.tell({ sit: -1 });
+    if ((a.info.sit ?? -1) !== -1) this.tell({ sit: -1 });
     a.path = path;
     a.info = { ...a.info, x: goal.x, y: goal.y };
     this.announceMove();
     return true;
+  }
+
+  /** Sit down on the ground where I stand (from the emote window), or where I stop if I am walking. */
+  sitHere(): boolean {
+    if (this.closed) return false;
+    // At a bench, on the bench: sat on the ground there, the doll and the bench were drawn over each other
+    // (the owner, 2026-10-03: "นั่งแล้ว ภาพซ้อน")
+    if (!this.self.path.length) {
+      const near = benchNear(this.self.pos);
+      if (near >= 0) return this.sitOn(near);
+    }
+    if (this.self.path.length) { this.sitWhenThere = SIT_HERE; return true; }
+    if ((this.self.info.sit ?? -1) !== SIT_HERE) this.tell({ sit: SIT_HERE });
+    return true;
+  }
+
+  /** Get up, from a bench or the ground, and stay where I am. */
+  standUp() {
+    this.sitWhenThere = null;
+    if (!this.closed && (this.self.info.sit ?? -1) !== -1) this.tell({ sit: -1 });
   }
 
   /** Walk to the tile in front of a bench (an index into BENCHES), then sit on it. */
@@ -689,6 +709,8 @@ export class TownSession {
       lines: () => this.voice.lines.size,
       walkTo: (x: number, y: number) => this.walkTo({ x, y }),
       sitOn: (bench: number) => this.sitOn(bench),
+      sitHere: () => this.sitHere(),
+      standUp: () => this.standUp(),
       chat: (text: string) => this.sendChat(text),
       chatLog: () => this.chat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
       unread: () => this.unread,
@@ -718,4 +740,18 @@ export function openSession(me: Identity, opts: SessionOptions = {}): TownSessio
   const fresh = new TownSession(me, opts);
   (globalThis as Slot)[SLOT] = fresh;
   return fresh;
+}
+
+/** The bench whose seat or front tile is within a tile of somewhere, as an index into BENCHES, or −1. */
+export function benchNear(p: Vec): number {
+  let best = -1, bestD = 1.2;
+  BENCHES.forEach((b, i) => {
+    if (!b.facing) return;
+    const f = FRONT[b.facing];
+    for (const t of [{ x: b.x + 0.5, y: b.y + 0.5 }, { x: b.x + f.x + 0.5, y: b.y + f.y + 0.5 }]) {
+      const d = distance(p, t);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+  });
+  return best;
 }

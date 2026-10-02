@@ -23,7 +23,7 @@ verified character** (v102; admins since v101). It has:
 - **life in town, from the clock alone** (everybody sees the same, nothing sent):
   - popoto outings by the hour (`lib/town/popotos.ts`): morning a runner with toast, noon a picnic, evening football or badminton, late night a tired office popoto; about one every nine minutes in their hours. `?townPopoto=lunch` brings one out in `next dev`;
   - birds in the trees, butterflies round the flowers, a dog chasing a cat (`lib/town/critters.ts`); none in the rain, birds and butterflies by day.
-- **Bangkok's weather, unannounced** (`lib/town/weather.ts`, `app/api/town/weather`: Open-Meteo, a static route revalidated every 15 min, the page asks every 10): fine weather sways the trees and blows pixel leaves across the scene (in the world, not on the screen); rain falls, puddles ring, everything looks wet; mist hazes. `?townWeather=rain|storm|windy|fog` in `next dev`.
+- **Bangkok's weather, unannounced** (`lib/town/weather.ts`, `app/api/town/weather`: Open-Meteo, a static route revalidated every 15 min, the page asks every 10): fine weather sways the trees gently (only that: the owner turned down trees shaking in the gusts) and moves pixel leaves in the world, not on the screen: some drop from the trees in view and lie under them a while, others blow in from the windward side, spinning, most of them in gusts that also stir the fallen ones; rain falls, puddles ring, everything looks wet; mist hazes. `?townWeather=rain|storm|windy|fog` in `next dev`.
 - **lofi music, a piece for every hour** (`lib/town/music.ts`, `TownMusicButton.tsx`): composed in code (keys, chords, a seed) and played by a Web Audio synth (electric piano, swung beat, vinyl crackle); on and soft by default, starting with the first tap; on/off and volume kept on the device.
 - **every icon is pixel art made for the town** (`TownIcon.tsx`, `lib/town/icon-atlas.json`, built by `scripts/pixel/build-icons.mjs`): no emoji anywhere in Cash Town.
 - **typing shows "…"** over your head (`Doing.typing`, told once and again every 6 s at most, gone after 10 s without word).
@@ -32,7 +32,8 @@ verified character** (v102; admins since v101). It has:
   - AI-made props at the characters' pixel size;
   - top-down ground textures laid onto the isometric ground in 512 px chunks, as they come into view;
   - the fountain's water in drawn frames.
-- **sitting:** tap a bench to walk up and sit (`Doing.sit`, an index into `BENCHES`, or −1); walking anywhere gets you up.
+- **sitting:** tap a bench (anywhere on its picture; the cursor turns into a bench over one) to walk up and sit, or sit on the ground where you stand from the **emote window** (the smiling bubble above the microphone): `Doing.sit` is an index into `BENCHES`, `SIT_HERE` (−2) on the ground, or −1. Walking anywhere gets you up. The sitting pose is drawn on the ground; a bench lifts it onto its seat.
+- **the custom cursor** is drawn on the canvas from the icon atlas (arrow, hand, bench, fist), two CSS pixels to a picture pixel.
 - **day and night by the real clock** (`lib/town/daylight.ts`, Thai time, pure and tested): the scene is multiplied by the sky's tint and the lamps glow from dusk. A clock (`TownClock.tsx`) sits beside the Cash Town pill. In `next dev`, `?townHour=21` shows any hour.
 - **a close start** (`START_DESK` 1.6, `START_PHONE` 1.3), with the camera following you;
 - tap to walk, with the A\* path computed the same way on every client;
@@ -46,7 +47,9 @@ verified character** (v102; admins since v101). It has:
 - a 📊 panel with each voice line's RTT, jitter, loss, kbit/s and path;
 - **a stay that outlives the page** (`lib/town/session.ts`): another page of
   the site keeps you in town and talking, with the dock (`TownBar`) at the
-  foot of every page, and others see you as "on another page" (`away`). A
+  foot of every page (a member who may go in but is not there gets a door to
+  the town in the same place, `TownDock`, read from the profile row
+  `AdminProvider` already fetches: `canEnterTown`), and others see you as "on another page" (`away`). A
   reload, or a link that loads a whole page, resumes it by itself, microphone
   included, if the tab was in town within `RESUME_MS` (a minute; sessionStorage,
   `lib/town/active.ts`), so reopened tabs never walk anybody in. Leaving is
@@ -60,21 +63,23 @@ verified character** (v102; admins since v101). It has:
   fullscreen button; small controls in the corners, so chat (a slim bar, a 💬
   button on a phone) and the microphone never cover the town; wheel, pinch
   and button zoom, drag to look around (`lib/town/camera.ts`, pure and tested);
-- **avatars are pixel Lalafell** (`lib/town/pixeldoll.ts`, `lib/town/look.ts`;
+- **avatars are pixel dolls of the game's races** (`lib/town/pixeldoll.ts`, `lib/town/look.ts`;
   since 2026-10-02):
+  - **The races:** the Lalafell first; the others each have their own picture (`public/town/pixel-<race>-<hash>.png` and `pixel-<race>.json`, built by `scripts/pixel/build-race-atlas.mjs` from sheets made by `gen-race.mjs`) and open in the wardrobe when `race-data.mjs --open` writes them into `lib/town/races.json`. Each race is drawn whole at one scale, its body (feet to the top of the head, ears left out) at the game's own height against a Lalafell, with the Lalafell drawn at `LALAFELL_SIZE` (0.6) so the tallest fit the map: the owner's call, after trying chibi heads and squeezed heights. The builder refuses a doll with a missing pixel (every step, every eye shape; `--allow-holes` to look anyway): "ห้ามให้มีจุดผิดพลาดเด็ดขาด".
   - **The look:** male or female in the game's own starter outfit (Lalafellin attire), with the character creator's own hairstyles: 14 for girls, 13 for boys, each gender its own list. Also 26 hair colours, 8 skins, 6 eye shapes and 18 eye colours, chosen in the wardrobe (`Wardrobe.tsx`; free, change any time).
-  - **The wardrobe** also lists the other 7 races, locked.
+  - **The wardrobe** lists every race; those not built yet are locked.
   - **The art:** one picture, `public/town/pixel-<hash>.png` and `pixel.json`, built by `scripts/pixel/build-pixel-atlas.mjs` from AI sheets (see its README).
   - **Walking:** four steps each way, three-quarter front and back, mirrored for the left. Each step's body carries one head cut from the standing step, so hair and faces never shimmer.
   - **The face:** blinks, and the mouth opens while the microphone hears them.
   - **Layers:** body, then face (per gender × eye shape), then hair. Skin is one ramp of exact colours, found on the bodies by an AI skin-key copy (cyan skin), so the tan boots never change with the skin.
-  - **The look string:** seven characters (`"4"` + 6 digits) in `Doing.look`; versions 1–3 are still read. It is told to the room once the wardrobe settles (`LOOK_SETTLE_MS`) and kept on the device (localStorage).
+  - **The look string:** eight characters (`"5"` + race + 6 digits) in `Doing.look`; versions 1–4 are still read (as Lalafell). It is told to the room once the wardrobe settles (`LOOK_SETTLE_MS`) and kept on the device (localStorage).
   - **Nobody chose?** They get a look of their own from their id.
   - **Profile pictures** are only in the card a tap on somebody opens; names are on the map.
 
 The code is in `components/town/` (`Town.tsx` the map, `TownGate.tsx`,
 `TownBar.tsx` the dock, `TownDock.tsx` the few lines in the root layout that
-load the dock only for a tab in town, `Wardrobe.tsx`) and `lib/town/`
+load the dock only for a tab in town and show the door to everybody else who
+may go in, `Wardrobe.tsx`) and `lib/town/`
 (`world.ts`, `chat.ts`, `active.ts`, `look.ts` and `camera.ts` are pure and
 tested; `session.ts`, `voice.ts`, `room.ts`, `pixeldoll.ts`). In `next dev`,
 `window.__townView.screenOf(id)` says where somebody stands on the screen, for

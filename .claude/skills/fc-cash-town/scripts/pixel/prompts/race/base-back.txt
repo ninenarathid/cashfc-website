@@ -1,0 +1,11 @@
+Edit the attached pixel art sprite sheet. Keep the same canvas, the same four figures at the same positions, exactly the same size, height and proportions (the same long legs, the same body and the same head size), the same chunky square pixel size, the same thick dark outline, the same skin, the same bald head, the same plain clothes and the same pixel art style.
+
+Change only which way they face: turn every figure around to a three-quarter BACK view, walking away from the viewer, up and towards the viewer's right. We see the smooth bald back of the head, __BACKNOTE__the back of the light-blue tunic with the brown belt, the cream shorts and the brown boots. The face is not visible.
+Frames from left to right, as now:
+1) right foot stepping forward, left foot behind;
+2) feet passing under the body, body raised by one pixel;
+3) left foot stepping forward, right foot behind;
+4) feet passing under the body, body raised by one pixel.
+Arms swing opposite to the legs. Every frame is exactly as tall as the figures are now.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no frame borders, no ground shadow, no other characters.

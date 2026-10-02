@@ -104,11 +104,13 @@ export default function RootLayout({
               one a button turns into is already there when it does. */}
           <PopotoWarmup />
           {/* Still in Cash Town while looking at another page: the dock, for a
-              tab that is in town, and nothing at all for one that is not. */}
+              tab that is in town; the way in, for a member who may go; nothing
+              for anybody else. */}
           <TownDock />
-          {/* Extra room at the foot on a phone, where the tab bar is fixed over
-              the bottom of the page and would otherwise sit on the footer. */}
-          <div className="mx-auto max-w-5xl px-4 pb-32 sm:pb-16">
+          {/* Extra room at the foot, where the town's dock (and on a phone the
+              tab bar under it) is fixed over the bottom of the page and would
+              otherwise sit on the footer. */}
+          <div className="mx-auto max-w-5xl px-4 pb-40 sm:pb-24">
             <Nav />
             {/*
               The page itself, as something that can be transitioned rather than

@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BOARD, BUILDINGS, FAR, FOUNTAIN, NEAR, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, TILE_H, TILE_W, riverMiddle,
-  benchAt, distance, fromIso, groundAt, hearing, toIso, walkable, type Building, type Facing, type Vec,
+  BENCHES, BOARD, BUILDINGS, FAR, FOUNTAIN, NEAR, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, riverMiddle,
+  benchAt, distance, fromIso, groundAt, hearing, toIso, walkable, type Building, type Facing, type Prop, type Vec,
 } from "@/lib/town/world";
-import { clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
+import { START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { daylight, daylightAt } from "@/lib/town/daylight";
@@ -70,6 +70,19 @@ const DRIFT = [
 ].map((d, i) => ({ ...d, t0: i * 21, across: ((i * 0.618) % 1) * 1.8 - 0.9, flip: i % 2 === 1 }));
 /** Leaves blowing in fine weather, from the scenery picture: mostly green, some turning, a petal. */
 const LEAVES = ["lf1", "lf1", "lf2", "lf2", "lf3", "lf4", "lf5", "lf6"];
+/** The most leaves at once, falling, blowing and lying together. */
+const LEAVES_MOST = 60;
+/** The trees leaves fall from (pines keep theirs). */
+const LEAF_TREES = PROPS.filter((p) => p.kind === "tree");
+/**
+ * A leaf: dropped from a tree ("fall"), on the steady wind ("wind"), or brought by a gust and gone with it
+ * ("gust"). Where over the map (tiles), how high (unscaled pixels), its own rhythm, and once down, how long
+ * it has lain (seconds) against how long it will.
+ */
+type Leaf = {
+  kind: "fall" | "wind" | "gust"; x: number; y: number; h: number; ph: number; k: number; art: string;
+  flutter: number; landed: number; rest: number; speed: number; spin: number; born?: number;
+};
 /** Where puddles lie when it rains: a fixed scatter over the plaza and the paths near it. */
 const PUDDLES: Vec[] = (() => {
   const out: Vec[] = [];
@@ -81,6 +94,12 @@ const PUDDLES: Vec[] = (() => {
   }
   return out;
 })();
+/** What the mouse cursor shows: the arrow, the pointing hand, a bench to sit on, the fist while dragging. */
+type CursorMode = "arrow" | "hand" | "sit" | "grab";
+/** Each bench prop's place in BENCHES (a tap sits on it by that number). */
+const benchIndex = new Map(BENCHES.map((b, i) => [b, i]));
+/** How tall somebody sitting is against standing, for their name and the box a tap finds them in. */
+const SIT_HEIGHT = 0.72;
 /** Props drawn a little smaller than their pictures, to sit within a tile. */
 const PROP_K: Partial<Record<string, number>> = { bin: 0.75, flowerbed: 0.8, signpost: 0.85 };
 /** Popoto are drawn smaller than their pictures: about half a Lalafell tall. */
@@ -187,6 +206,9 @@ function useWords() {
     slow: th ? "พิมพ์เร็วไปนิด รอแป๊บนึงนะ" : "A little fast. Wait a moment.",
     offline: th ? "ยังส่งไม่ได้ กำลังต่อใหม่" : "Can't send while reconnecting.",
     wardrobe: th ? "แต่งตัว" : "Wardrobe",
+    emote: th ? "ท่าทาง" : "Emotes",
+    sitDown: th ? "นั่งลง" : "Sit down",
+    standUp: th ? "ลุกขึ้น" : "Stand up",
     fullscreen: th ? "เต็มจอ" : "Fullscreen",
     exitFullscreen: th ? "ออกจากเต็มจอ" : "Exit fullscreen",
     zoomIn: th ? "ซูมเข้า" : "Zoom in",
@@ -213,11 +235,45 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const fontRef = useRef("sans-serif");
   const fpsRef = useRef(0);
   const reducedRef = useRef(false);
-  const kitRef = useRef<PixelKit | null>(null);
+  /** The dolls' pictures, one per race, each fetched the first time somebody of that race is drawn. */
+  const kits = useRef(new Map<number, PixelKit>());
+  const kitFor = (race: number): PixelKit | null => {
+    const k = kits.current.get(race);
+    if (k) return k;
+    if (!asked.current.has(race)) {
+      asked.current.add(race);
+      loadPixelKit(race).then((got) => { kits.current.set(race, got); }).catch(() => { asked.current.delete(race); });
+    }
+    return null;
+  };
+  const asked = useRef(new Set<number>());
+  /** How tall somebody's doll stands, in picture pixels (the Lalafell's picture does not say: 77). */
+  const dollH = (a: Avatar | undefined) => {
+    if (!a) return DOLL_H;
+    const look = lookOf(a);
+    return kits.current.get(look.race)?.heightOf(look) ?? DOLL_H;
+  };
   const sceneryRef = useRef<SceneryKit | null>(null);
   /** The site's own popoto (components/ui/PopotoIcon), for signs drawn on the map. */
   const popotoImg = useRef<HTMLImageElement | null>(null);
   useEffect(() => { const i = new Image(); i.src = popotoArt.src; popotoImg.current = i; }, []);
+  /**
+   * The town's own mouse cursor (the owner's call, 2026-10-02: "skin cursor mouse ... เป็น animation มีหลาย frame"):
+   * browsers will not animate a cursor picture, so over the map the system's is hidden and this one is drawn
+   * last in every frame: an arrow whose sparkle twinkles, a hand that taps over what can be clicked (pressing
+   * as it clicks), a fist while dragging the map. A mouse only: fingers have no cursor.
+   */
+  const mouse = useRef<{ x: number; y: number; mode: CursorMode; inside: boolean; pressAt: number } | null>(null);
+  /**
+   * The benches on the screen, as drawn this frame: a tap anywhere on a bench's picture (not just the tile under
+   * it) walks there and sits down (the owner, 2026-10-02: "กดนั่งยากไปหน่อย"), the front one when they overlap.
+   */
+  const benchBoxes = useRef<Array<{ i: number; x0: number; y0: number; x1: number; y1: number; depth: number }>>([]);
+  const benchUnder = (x: number, y: number) => {
+    let best: { i: number; depth: number } | null = null;
+    for (const b of benchBoxes.current) if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 && (!best || b.depth > best.depth)) best = b;
+    return best ? best.i : -1;
+  };
   /** The town's icons (components/town/TownIcon), for badges drawn on the map. */
   const iconImg = useRef<HTMLImageElement | null>(null);
   useEffect(() => { const i = new Image(); i.src = ICON_ATLAS.image; iconImg.current = i; }, []);
@@ -252,8 +308,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    */
   const weather = useRef<Weather>(FINE);
   const effects = useRef<Effects>(effectsOf(FINE));
-  /** Leaves in the air: where over the map (tiles), how high (unscaled pixels), and how they fall. */
-  const leaves = useRef<Array<{ x: number; y: number; h: number; ph: number; k: number; art: string; flutter: number; landed: number }>>([]);
+  /** Leaves in the air and on the ground: where over the map (tiles), how high (unscaled pixels), and how they move. */
+  const leaves = useRef<Leaf[]>([]);
+  /** The wind's gusts: when the last one came, when the next will, and how hard it blows now (0 to 1). */
+  const gust = useRef({ at: -1e9, next: 0, strength: 0 });
   const drops = useRef<Array<{ x: number; y: number; v: number }>>([]);
   useEffect(() => {
     const forced = process.env.NODE_ENV === "production" ? null : forcedWeather(new URLSearchParams(location.search).get("townWeather"));
@@ -289,6 +347,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [peopleOpen, setPeopleOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
+  /** The emote window: what my avatar can do where it stands (sit, for now). */
+  const [emoteOpen, setEmoteOpen] = useState(false);
   const [boardOpen, setBoardOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [immersive, setImmersive] = useState(false);
@@ -329,7 +389,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // The dolls: one picture, fetched once per tab.
   useEffect(() => {
     let alive = true;
-    loadPixelKit().then((k) => { if (alive) kitRef.current = k; }).catch(() => { /* simple figures until a reload */ });
+    // the Lalafell's at once (most people); other races' when somebody of theirs comes
+    loadPixelKit(0).then((k) => { if (alive) kits.current.set(0, k); }).catch(() => { /* simple figures until a reload */ });
     // The ground, trees and fountain in pixel art, the same way; plain shapes until they come.
     loadScenery().then((k) => { if (alive) sceneryRef.current = k; }).catch(() => { /* plain shapes until a reload */ });
     return () => { alive = false; };
@@ -433,9 +494,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const v = cam.current;
     const iso = toIso(a.pos.x, a.pos.y);
     v.follow = id === me.id;
-    setCam({ s: Math.max(v.s, 1.2), cx: iso.x, cy: iso.y - DOLL_H * 0.5 });
+    setCam({ s: Math.max(v.s, 1.2), cx: iso.x, cy: iso.y - dollH(a) * 0.5 });
     const p = toScreen(camNow(), iso, v.cw, v.ch);
-    setCard({ id, x: p.x, top: p.y - DOLL_H * v.s * 1.12, bottom: p.y + 22 });
+    setCard({ id, x: p.x, top: p.y - dollH(a) * v.s * 1.12, bottom: p.y + 22 });
     setPeopleOpen(false);
   };
 
@@ -630,6 +691,27 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
   }
 
+  /** The mouse cursor, over everything (and the sky's tint): see `mouse`. */
+  function drawCursor(ctx: CanvasRenderingContext2D, now: number, dpr: number) {
+    const m = mouse.current, img = iconImg.current;
+    if (!m?.inside || !img?.complete || !img.naturalWidth) return;
+    const t = reducedRef.current ? 0 : now, pressed = now - m.pressAt < 170;
+    const name: IconName = m.mode === "grab" ? "grab"
+      : m.mode === "sit" ? (pressed ? "sit3" : (["sit1", "sit2"] as const)[Math.floor(t / 300) % 2])
+      : m.mode === "hand" ? (pressed ? "hand2" : (["hand1", "hand1", "hand3", "hand1"] as const)[Math.floor(t / 260) % 4])
+      : pressed ? "cur1" : (["cur1", "cur2", "cur3", "cur2", "cur1", "cur4"] as const)[Math.floor(t / 150) % 6];
+    const [x, y, w, h] = ICON_ATLAS.icons[name], [hx, hy] = ICON_ATLAS.cursor[name] ?? [0, 0];
+    // two CSS pixels to a picture pixel (the owner's call: "Cursor ขอขนาดใหญ่กว่านี้"), crisp on any screen
+    const k = 2;
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, x, y, w, h, Math.round((m.x - hx * k) * dpr) / dpr, Math.round((m.y - hy * k) * dpr) / dpr, w * k, h * k);
+    ctx.restore();
+  }
+
   /** How far a tree, a pine or a bush leans in the wind now: a steady lean and a sway of its own. */
   function swayOf(p: { kind: string; x: number; y: number }, now: number): number {
     if (reducedRef.current || (p.kind !== "tree" && p.kind !== "pine" && p.kind !== "bush")) return 0;
@@ -707,50 +789,108 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         }
         ctx.stroke();
       }
-      // Leaves on the breeze, in the town itself (not on the screen): each has a place
-      // over the map and a height, drifts with the wind, rocks and turns over as it
-      // falls, settles on the ground and fades; new ones blow in from the windward side.
+      // Leaves, in the town itself (not on the screen), two ways (the owner, 2026-10-02: "ใบไม้ร่วงจากต้นไม้ ใบไม้ที่
+      // ปลิวมาตามลม ตอนนี้มันดูนิ่งเกินไป"): dropping from the trees in view, rocking down to the ground under them
+      // and lying there a while; and blown in from the windward side, faster and spinning, most of them in gusts
+      // that also stir the leaves lying on the ground (not the trees: they sway gently as before, the owner, 2026-10-02).
       const scenery = sceneryRef.current, dpr = window.devicePixelRatio || 1, v = cam.current;
-      const world = (sx: number, sy: number) => { const iso = toIsoPoint(v, sx, sy, cw, ch); return fromIso(iso.x, iso.y); };
-      const L = leaves.current, n = scenery?.has("lf1") ? Math.round(e.leaves * 20 * Math.min(1.5, (cw * ch) / (1280 * 800))) : 0;
-      const spawn = (anywhere: boolean) => {
-        // anywhere in view to begin with; after that, in from the left (where the wind comes from) or above
-        const sx = anywhere ? Math.random() * cw : Math.random() < 0.6 ? -30 : Math.random() * cw;
-        const sy = anywhere ? Math.random() * ch : sx < 0 ? Math.random() * ch : -30;
-        const p = world(sx, sy + 70 * v.s);
-        return { x: p.x, y: p.y, h: 50 + Math.random() * 60, ph: Math.random() * 6.28, k: 0.36 + Math.random() * 0.12,
-          art: LEAVES[Math.floor(Math.random() * LEAVES.length)], flutter: 0.6 + Math.random() * 0.8, landed: 0 };
-      };
-      while (L.length < n) L.push(spawn(true));
-      if (L.length > n) L.length = n;
-      for (let i = 0; i < L.length; i++) {
-        const l = L[i];
-        const t = now / 1000 * l.flutter + l.ph;
-        // a pendulum's sway along the wind, falling faster at the bottom of each swing
-        const swing = Math.sin(t * 1.6);
-        if (l.landed) l.landed += sec;
-        else {
-          // the wind blows to the right of the screen: one way along x, the other along y
-          const go = ((30 + 120 * e.wind) * (0.75 + 0.25 * Math.sin(l.ph)) + swing * 35) * sec / TILE_W;
-          l.x += go; l.y -= go;
-          l.h -= (8 + 14 * (1 - Math.abs(swing))) * sec;
-          if (l.h <= 0) { l.h = 0; l.landed = sec; }
+      const L = leaves.current, G = gust.current;
+      if (!scenery?.has("lf1") || e.leaves <= 0.01) { L.length = 0; G.strength = 0; }
+      else {
+        const world = (sx: number, sy: number) => { const iso = toIsoPoint(v, sx, sy, cw, ch); return fromIso(iso.x, iso.y); };
+        // how much of the town is in view, against a 1280×800 window at the starting zoom: the leaves are in the
+        // town, so a closer look shows fewer of them, not the same number crowded together
+        const area = Math.max(0.3, Math.min(1.6, ((cw * ch) / (1280 * 800)) * (START_DESK / v.s) ** 2));
+        const art = () => LEAVES[Math.floor(Math.random() * LEAVES.length)];
+        // the gusts: every several seconds, sooner in more wind; one rises in half a second and dies away over three
+        if (!G.next) G.next = now + 2500;
+        if (now >= G.next) {
+          G.at = now;
+          G.next = now + (6000 + Math.random() * 9000) * (1.25 - 0.55 * e.wind);
+          for (let k = Math.round((4 + Math.random() * 5) * area * e.leaves); k > 0 && L.length < LEAVES_MOST; k--) L.push(blown("gust", false));
         }
-        const g = project({ x: l.x, y: l.y }), c = { x: g.x, y: g.y - l.h * v.s };
-        // gone: settled a while, or blown well off the screen
-        if (l.landed > 2.5 || c.x > cw + 80 || c.y > ch + 120 || c.x < -160 || c.y < -160) { L[i] = spawn(false); continue; }
-        const fade = l.landed ? Math.max(0, 1 - l.landed / 2.5) : Math.min(1, (c.x + 30) / 50, (c.y + 30) / 50);
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, fade);
-        ctx.translate(Math.round(c.x), Math.round(c.y));
-        if (!l.landed) {
-          ctx.rotate(swing * 0.55);
-          // turning over: squashed one way, then the other, never to nothing
-          const flip = Math.cos(t * 0.9);
-          ctx.scale(Math.sign(flip || 1) * (0.35 + 0.65 * Math.abs(flip)), 1);
-        } else ctx.scale(1, 0.6);
-        scenery!.drawProp(ctx, l.art, 0, 0, v.s * l.k, dpr);
-        ctx.restore();
+        const ga = now - G.at;
+        G.strength = ga < 500 ? ga / 500 : Math.max(0, 1 - (ga - 500) / 3000);
+        // from a tree in view: somewhere in its crown
+        const [tw] = scenery.sizeOf("tree"), [, tay] = scenery.anchorOf("tree");
+        const crowns = LEAF_TREES.filter((p) => { const c = project({ x: p.x + 0.5, y: p.y + 0.5 }); return c.x > -20 && c.x < cw + 20 && c.y > 20 && c.y < ch + tay * v.s; });
+        function dropped(): Leaf | null {
+          if (!crowns.length) return null;
+          const p = crowns[Math.floor(Math.random() * crowns.length)];
+          // across the crown (along the screen), and a little in front of or behind the trunk
+          const across = (Math.random() - 0.5) * tw * 0.5 / TILE_W, deep = (Math.random() - 0.5) * 0.4;
+          return { kind: "fall", x: p.x + 0.5 + across + deep, y: p.y + 0.5 - across + deep, h: tay * (0.4 + Math.random() * 0.4),
+            ph: Math.random() * 6.28, k: 0.34 + Math.random() * 0.12, art: art(), flutter: 0.6 + Math.random() * 0.8,
+            landed: 0, rest: 2 + Math.random() * 2.5, speed: 1, spin: 0 };
+        }
+        // on the wind: anywhere in view to begin with; after that, in from the left (where it comes from) or above
+        function blown(kind: "wind" | "gust", anywhere: boolean): Leaf {
+          const sx = anywhere ? Math.random() * cw : Math.random() < 0.7 ? -30 - Math.random() * 120 : Math.random() * cw * 0.7;
+          const sy = anywhere ? Math.random() * ch : sx < 0 ? Math.random() * ch * 0.9 : -30;
+          const p = world(sx, sy + 70 * v.s);
+          return { kind, x: p.x, y: p.y, h: 25 + Math.random() * 75, ph: Math.random() * 6.28, k: 0.32 + Math.random() * 0.12,
+            art: art(), flutter: 0.9 + Math.random() * 0.9, landed: 0, rest: 1 + Math.random() * 2,
+            speed: 0.7 + Math.random() * 0.6, spin: (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 5) };
+        }
+        // how many, for the size of the view and how windy it is (a gust's own come on top and are not replaced);
+        // a tree lets a leaf or two go at a time, never a heap (the owner, 2026-10-02: "ใบไม้กองรวมกันแบบนี้")
+        const wantFall = Math.min(Math.round((3 + 7 * e.leaves) * area), Math.round(crowns.length * 1.5));
+        const wantWind = Math.round((2 + 4 * e.leaves) * area);
+        let fall = 0, wind = 0;
+        for (const l of L) { if (l.kind === "fall") fall++; else if (l.kind === "wind") wind++; }
+        const first = L.length === 0;
+        for (; fall < wantFall; fall++) { const l = dropped(); if (!l) break; if (!first) l.h = Math.max(l.h, tay * 0.55); L.push(l); }
+        for (; wind < wantWind; wind++) L.push(blown("wind", first));
+        // the wind blows to the right of the screen: one way along x, the other along y
+        const gs = G.strength;
+        for (let i = L.length - 1; i >= 0; i--) {
+          const l = L[i];
+          const t = now / 1000 * l.flutter + l.ph;
+          // a pendulum's sway along the wind, falling faster at the bottom of each swing
+          const swing = Math.sin(t * 1.6);
+          if (l.landed) {
+            l.landed += sec;
+            // a gust takes the ones lying on the ground a little way along, tumbling
+            if (gs > 0.25) { const go = (gs - 0.25) * 70 * l.speed * sec / TILE_W; l.x += go; l.y -= go; }
+          } else if (l.kind === "fall") {
+            const go = ((8 + 30 * e.wind + 120 * gs) * (0.75 + 0.25 * Math.sin(l.ph)) + swing * 26) * sec / TILE_W;
+            l.x += go; l.y -= go;
+            l.h -= (11 + 16 * (1 - Math.abs(swing))) * sec;
+          } else {
+            const go = ((70 + 150 * e.wind) * l.speed + 240 * gs + swing * 20) * sec / TILE_W;
+            l.x += go; l.y -= go;
+            // skimming along, rising a little on each lift of the wind, coming down as it drops
+            l.h += (Math.sin(t * 2.2) * 14 - (l.kind === "gust" ? 2 + 5 * (1 - gs) : 6)) * sec;
+          }
+          if (!l.landed && l.h <= 0) { l.h = 0; l.landed = sec; }
+          const g = project({ x: l.x, y: l.y }), c = { x: g.x, y: g.y - l.h * v.s };
+          // gone: lain there its while, or blown well off the screen; the ones that fell from a tree, from another one
+          const off = c.x > cw + 80 || c.y > ch + 140 || c.x < -200 || c.y < -160;
+          if (l.landed > l.rest + 1.5 || off) {
+            if (l.kind === "gust") { L.splice(i, 1); continue; }
+            const next = l.kind === "fall" ? dropped() : blown("wind", false);
+            if (!next) { L.splice(i, 1); continue; }
+            L[i] = next;
+            continue;
+          }
+          const fade = l.landed > l.rest ? Math.max(0, 1 - (l.landed - l.rest) / 1.5)
+            : l.kind === "fall" ? Math.min(1, (now - (l.born ??= now)) / 400) : Math.min(1, (c.x + 30) / 50, (c.y + 30) / 50);
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, fade);
+          ctx.translate(Math.round(c.x), Math.round(c.y));
+          if (!l.landed) {
+            // fallen from a tree: rocking; on the wind: spinning as it goes
+            ctx.rotate(l.kind === "fall" ? swing * 0.55 : t * l.spin * 0.3 + swing * 0.3);
+            // turning over: squashed one way, then the other, never to nothing
+            const flip = Math.cos(t * (l.kind === "fall" ? 0.9 : 1.8));
+            ctx.scale(Math.sign(flip || 1) * (0.35 + 0.65 * Math.abs(flip)), 1);
+          } else {
+            if (gs > 0.25) ctx.rotate(Math.sin(t * 6) * 0.5 * gs);
+            ctx.scale(1, 0.6);
+          }
+          scenery.drawProp(ctx, l.art, 0, 0, v.s * l.k, dpr);
+          ctx.restore();
+        }
       }
     }
     ctx.restore();
@@ -824,7 +964,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (v.follow && mine) {
       const iso = toIso(mine.pos.x, mine.pos.y);
       const f = focus.current ?? { x: cw / 2, y: ch / 2 };
-      const tx = iso.x - (f.x - cw / 2) / v.s, ty = iso.y - DOLL_H * 0.45 - (f.y - ch / 2) / v.s;
+      const tx = iso.x - (f.x - cw / 2) / v.s, ty = iso.y - dollH(mine) * 0.45 - (f.y - ch / 2) / v.s;
       const ease = Math.min(1, dt * 7);
       setCam({ s: v.s, cx: v.cx + (tx - v.cx) * ease, cy: v.cy + (ty - v.cy) * ease });
     }
@@ -836,6 +976,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, cw, ch);
 
+    benchBoxes.current = [];
     // The ground: the pixel-art picture of it, or plain tiles until it has come.
     const scenery = sceneryRef.current;
     if (scenery) {
@@ -909,7 +1050,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         if (p.kind === "bench" && scenery) {
           // drawn facing down-right (front) and up-right (back); mirrored for the left
           const back = p.facing === "NE" || p.facing === "NW", mirror = p.facing === "SW" || p.facing === "NW";
-          scenery.drawProp(ctx, back ? "bench_back" : "bench", c.x, c.y, v.s, dpr, 0, mirror);
+          const name = back ? "bench_back" : "bench";
+          scenery.drawProp(ctx, name, c.x, c.y, v.s, dpr, 0, mirror);
+          // where it is on the screen, a little larger, for taps and the cursor
+          const [w, h] = scenery.sizeOf(name), [ax, ay] = scenery.anchorOf(name), pad = 6;
+          const left = mirror ? c.x - (w - ax) * v.s : c.x - ax * v.s;
+          benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, x0: left - pad, y0: c.y - ay * v.s - pad, x1: left + w * v.s + pad, y1: c.y - (ay - h) * v.s + pad, depth: p.x + p.y });
         } else if (scenery?.has(p.kind)) scenery.drawProp(ctx, p.kind, c.x, c.y, v.s * (PROP_K[p.kind] ?? 1), dpr, 0, false, swayOf(p, now));
         else if (p.kind === "tree" || p.kind === "pine") drawTree(ctx, p);
       } });
@@ -1014,6 +1160,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     for (const sign of signs) sign();
     for (const n of names) n();
     hits.current = boxes;
+    drawCursor(ctx, now, dpr);
   }
 
   function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, signs: Array<() => void>) {
@@ -1086,6 +1233,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     return i >= 0 && !a.path.length ? BENCHES[i] : undefined;
   }
 
+  /** Whether somebody is sitting, on a bench or on the ground (not while walking off). */
+  function sitting(a: Avatar) {
+    return !!seatOf(a) || ((a.info.sit ?? -1) === SIT_HERE && !a.path.length);
+  }
+
   /** Where somebody is drawn in the back-to-front order. */
   function depthOf(a: Avatar): number {
     const b = seatOf(a);
@@ -1136,14 +1288,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const v = cam.current;
     const p = spotOf(a);
     const k = v.s;
-    const h = DOLL_H * k;
+    const look = lookOf(a);
+    const kit = kitFor(look.race);
+    // sitting, the name and the tap box come down with the head
+    const h = (kit?.heightOf(look) ?? DOLL_H) * k * (sitting(a) ? SIT_HEIGHT : 1);
     const voice = sessionRef.current?.voice;
     const level = voice?.active ? voice.level(isMe ? "me" : a.info.id) : 0;
     const talking = a.info.voice && !a.info.muted && level > 0.06;
     // On another page of the site: still here, still talking, not watching.
     const away = !isMe && a.info.away;
     const moving = a.path.length > 0;
-    const kit = kitRef.current;
     // The dolls' steps carry their own bounce; the stand-in figure bobs.
     const bob = !kit && moving && !reducedRef.current ? Math.abs(Math.sin(now / 1000 * Math.PI * 2.4)) * 3.2 * k : 0;
     ctx.save();
@@ -1165,7 +1319,6 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.stroke();
     }
 
-    const look = lookOf(a);
     const face = facingOf(a, isMe, now);
     // Blinks, now and then, each on their own clock.
     let blink = false;
@@ -1179,7 +1332,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
-      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, sit: !!seatOf(a) }, dpr);
+      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, sit: sitting(a) }, dpr);
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -1396,6 +1549,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (b) { setPopover({ b, x, y }); return; }
     const bb = boardBox.current;
     if (bb && x >= bb.x0 && x <= bb.x1 && y >= bb.y0 && y <= bb.y1) { setPopover(null); openBoard(); return; }
+    // a bench, anywhere on its picture: walk up to it and sit down
+    const seat = benchUnder(x, y);
+    if (seat >= 0) { setPopover(null); setPeopleOpen(false); if (sessionRef.current?.sitOn(seat)) cam.current.follow = true; return; }
     setPopover(null);
     setPeopleOpen(false);
     const t = tileAt(x, y);
@@ -1406,6 +1562,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const p = local(e.clientX, e.clientY);
+    if (e.pointerType === "mouse") { mouseAt(e.currentTarget, p, mouse.current?.mode ?? "arrow"); mouse.current!.pressAt = performance.now(); }
     e.currentTarget.setPointerCapture(e.pointerId);
     pointers.current.set(e.pointerId, p);
     const g = gesture.current;
@@ -1420,6 +1577,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
   };
 
+  /** The mouse over the map: where, and which cursor; the system's hidden once ours can be drawn. */
+  const mouseAt = (canvas: HTMLCanvasElement, p: { x: number; y: number }, mode: CursorMode) => {
+    const was = mouse.current;
+    mouse.current = { x: p.x, y: p.y, mode, inside: true, pressAt: was?.pressAt ?? -1e9 };
+    const ours = !!iconImg.current?.complete && !!iconImg.current.naturalWidth;
+    canvas.style.cursor = ours ? "none" : mode === "hand" ? "pointer" : mode === "grab" ? "grabbing" : "grab";
+  };
+
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const p = local(e.clientX, e.clientY);
     const g = gesture.current;
@@ -1429,7 +1594,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (e.pointerType === "mouse") {
         const b = personAt(p.x, p.y) ? null : buildingAt(p.x, p.y);
         hover.current = b;
-        e.currentTarget.style.cursor = b || personAt(p.x, p.y) ? "pointer" : "grab";
+        const bb = boardBox.current, t = tileAt(p.x, p.y);
+        const someone = !!personAt(p.x, p.y);
+        const seat = !someone && (benchUnder(p.x, p.y) >= 0 || benchAt(t.x, t.y) >= 0);
+        const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1);
+        mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
       }
       return;
     }
@@ -1446,7 +1615,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (g.mode === "pan") {
       setCam({ s: v.s, cx: v.cx - (p.x - g.lx) / v.s, cy: v.cy - (p.y - g.ly) / v.s });
       v.follow = false;
-      e.currentTarget.style.cursor = "grabbing";
+      if (e.pointerType === "mouse") mouseAt(e.currentTarget, p, "grab");
+      else e.currentTarget.style.cursor = "grabbing";
     }
     g.lx = p.x; g.ly = p.y;
   };
@@ -1458,7 +1628,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (pointers.current.size === 0) {
       if (g.mode === "tap" && e.type === "pointerup") tap(g.sx, g.sy);
       g.mode = "none";
-      if (e.pointerType === "mouse") e.currentTarget.style.cursor = "grab";
+      if (e.pointerType === "mouse") mouseAt(e.currentTarget, local(e.clientX, e.clientY), "arrow");
     } else if (g.mode === "pinch") {
       // One finger left after a pinch: it pans from here, it is not a tap.
       const [rest] = [...pointers.current.values()];
@@ -1494,13 +1664,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         const a = id === me.id ? stay?.self : stay?.avatars.get(id);
         if (!a) return null;
         const p = project(a.pos);
-        return { x: p.x, y: p.y - DOLL_H * cam.current.s * 0.5 };
+        return { x: p.x, y: p.y - dollH(a) * cam.current.s * 0.5 };
       },
       cam: () => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy, follow: cam.current.follow }),
       /** Look at a tile without walking there (the camera stops following me). */
       lookAt: (x: number, y: number) => { const p = toIso(x, y); cam.current.follow = false; setCam({ s: cam.current.s, cx: p.x, cy: p.y }); },
       /** The popoto out now: what, and where. */
       outings: () => outingsNow(Date.now(), forcedPopoto.current).map((o) => ({ activity: o.activity, at: o.spots?.[0] ?? alongRoute(o, Date.now())?.pos })),
+      /** The benches on the screen this frame, and what the mouse cursor shows now. */
+      benches: () => benchBoxes.current.map((b) => ({ ...b })),
+      cursor: () => mouse.current?.mode ?? null,
+      /** The leaves now: how many of each kind, and how many lie on the ground. */
+      leaves: () => ({ fall: leaves.current.filter((l) => l.kind === "fall").length, wind: leaves.current.filter((l) => l.kind === "wind").length, gust: leaves.current.filter((l) => l.kind === "gust").length, down: leaves.current.filter((l) => l.landed > 0).length }),
       /** The Popoto Board's middle on the screen, if it is drawn. */
       board: () => (boardBox.current ? { x: (boardBox.current.x0 + boardBox.current.x1) / 2, y: (boardBox.current.y0 + boardBox.current.y1) / 2 } : null),
     };
@@ -1639,7 +1814,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               className="absolute inset-0 touch-none select-none"
               onPointerDown={onPointerDown} onPointerMove={onPointerMove}
               onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
-              onPointerLeave={() => { hover.current = null; }} />
+              onPointerLeave={() => { hover.current = null; if (mouse.current) mouse.current.inside = false; }} />
 
       {/* Top left: where this is, whether we are connected, and who is here (a tap lists them) */}
       <div className="pointer-events-none absolute left-3 top-3 flex max-w-[calc(100%-11.5rem)] items-center gap-1.5">
@@ -1662,10 +1837,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* Top right: the wardrobe, the numbers, fullscreen, the way out */}
       {s && (
         <div className="absolute right-3 top-3 flex items-center gap-1.5">
-          <button type="button" onClick={() => (wardrobeOpen ? closeWardrobe() : openWardrobe())} aria-pressed={wardrobeOpen}
-                  className={`pressable flex h-10 items-center gap-1.5 rounded-full border px-3 text-ui font-semibold shadow-lg shadow-black/30 backdrop-blur-sm transition-colors ${wardrobeOpen
-                    ? "border-accent bg-accent/20 text-accent" : "border-line-strong bg-bg/80 text-ink hover:border-accent hover:text-accent"}`}>
-            <TownIcon name="wardrobe" size={20} /><span className={phone ? "sr-only" : ""}>{w.wardrobe}</span>
+          {/* the icon alone, like the buttons beside it: the word took too much room (the owner, 2026-10-02) */}
+          <button type="button" onClick={() => (wardrobeOpen ? closeWardrobe() : openWardrobe())} aria-pressed={wardrobeOpen} title={w.wardrobe}
+                  className={wardrobeOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
+            <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
           </button>
           <TownMusicButton th={w.th} hour={forcedHour.current} className={hudBtn} />
           {!phone && (
@@ -1898,9 +2073,26 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         );
       })()}
 
-      {/* Bottom right: the microphone */}
+      {/* Bottom right: the emotes, and the microphone */}
       {s && !wardrobeOpen && !(phone && (chatOpen || boardOpen)) && (
         <div className="absolute right-3 flex flex-col items-end gap-1.5" style={{ bottom: "var(--hud-b)" }}>
+          {/* The emote window (the owner, 2026-10-02: "ช่วยทำหน้าต่าง Emote ให้สามารถกดท่านั่งได้"): sit down on
+              the ground where I stand, or get up; walking anywhere gets up too */}
+          {emoteOpen && (() => {
+            const down = (s.self.info.sit ?? -1) !== -1;
+            return (
+              <div role="menu" aria-label={w.emote} className="pop-in flex gap-1.5 rounded-2xl border border-line-lit bg-surface/95 p-1.5 shadow-xl shadow-black/40 backdrop-blur-sm" data-state="open">
+                <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
+                        className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
+                  <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
+                </button>
+              </div>
+            );
+          })()}
+          <button type="button" onClick={() => setEmoteOpen((o) => !o)} aria-expanded={emoteOpen} title={w.emote}
+                  className={emoteOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
+            <TownIcon name="emote" size={22} /><span className="sr-only">{w.emote}</span>
+          </button>
           {micProblem && <div className="max-w-[16rem] rounded-lg bg-chili/25 px-3 py-1.5 text-right text-ui text-ink backdrop-blur-sm">{micProblem}</div>}
           {voiceOn && s.voice.audioBlocked && (
             <button type="button" onClick={() => s.voice.resumeAudio()}

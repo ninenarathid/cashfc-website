@@ -1,0 +1,1410 @@
+[
+ {
+  "id": "elezen",
+  "open": true,
+  "hairs": [
+   {
+    "g": 0,
+    "id": "f01",
+    "th": "บ็อบปัดข้าง",
+    "en": "Side-swept bob"
+   },
+   {
+    "g": 0,
+    "id": "f02",
+    "th": "เปียคาดศีรษะ",
+    "en": "Crown braid"
+   },
+   {
+    "g": 0,
+    "id": "f03",
+    "th": "หางม้าต่ำสั้น",
+    "en": "Short low tail"
+   },
+   {
+    "g": 0,
+    "id": "f04",
+    "th": "บ็อบเสยหลัง",
+    "en": "Swept-back bob"
+   },
+   {
+    "g": 0,
+    "id": "f05",
+    "th": "ผมประบ่าทัดหู",
+    "en": "Tucked shoulder-length"
+   },
+   {
+    "g": 0,
+    "id": "f06",
+    "th": "พิกซี่เปียข้าง",
+    "en": "Side-braid pixie"
+   },
+   {
+    "g": 0,
+    "id": "f07",
+    "th": "หางม้าต่ำผูกขาว",
+    "en": "Low tail, white tie"
+   },
+   {
+    "g": 0,
+    "id": "f08",
+    "th": "ผมเกรียน",
+    "en": "Buzz cut"
+   },
+   {
+    "g": 0,
+    "id": "f09",
+    "th": "เปียถักรวบตึง",
+    "en": "Braided updo"
+   },
+   {
+    "g": 0,
+    "id": "f10",
+    "th": "บ็อบหน้าม้า",
+    "en": "Bowl bob"
+   },
+   {
+    "g": 0,
+    "id": "f11",
+    "th": "บ็อบติดกิ๊บเงิน",
+    "en": "Pinned bob, silver"
+   },
+   {
+    "g": 0,
+    "id": "f15",
+    "th": "ผมยาวปัดข้าง",
+    "en": "Long, side bangs"
+   },
+   {
+    "g": 0,
+    "id": "f16",
+    "th": "ผมยาวเสยหลัง",
+    "en": "Long slicked back"
+   },
+   {
+    "g": 1,
+    "id": "m01",
+    "th": "ผมแสกกลาง",
+    "en": "Centre-parted"
+   },
+   {
+    "g": 1,
+    "id": "m02",
+    "th": "ผมซอยยุ่งปิดตา",
+    "en": "Shaggy over eyes"
+   },
+   {
+    "g": 1,
+    "id": "m03",
+    "th": "มวยเล็กเสยหลัง",
+    "en": "Slick knot"
+   },
+   {
+    "g": 1,
+    "id": "m04",
+    "th": "หางม้าต่ำเสยหลัง",
+    "en": "Slick low ponytail"
+   },
+   {
+    "g": 1,
+    "id": "m05",
+    "th": "ผมเสยหลังปลายงอน",
+    "en": "Swept back, flicked"
+   },
+   {
+    "g": 1,
+    "id": "m06",
+    "th": "ผมตั้งชี้",
+    "en": "Tall spikes"
+   },
+   {
+    "g": 1,
+    "id": "m07",
+    "th": "ผมซอยปัดข้าง",
+    "en": "Asymmetric fringe"
+   },
+   {
+    "g": 1,
+    "id": "m08",
+    "th": "เสยหลังจุกสั้น",
+    "en": "Slick short tail"
+   },
+   {
+    "g": 1,
+    "id": "m09",
+    "th": "ผมชี้สั้น",
+    "en": "Spiky widow's peak"
+   },
+   {
+    "g": 1,
+    "id": "m10",
+    "th": "เสยเรียบ",
+    "en": "Slicked back"
+   },
+   {
+    "g": 1,
+    "id": "m11",
+    "th": "ผมสั้นหน้าม้า",
+    "en": "Short with fringe"
+   },
+   {
+    "g": 1,
+    "id": "m12",
+    "th": "ผมชี้ถักเปีย",
+    "en": "Braided spikes"
+   }
+  ],
+  "skins": [
+   {
+    "hex": "#FEE6D4",
+    "th": "porcelain",
+    "en": "porcelain"
+   },
+   {
+    "hex": "#F9D7BF",
+    "th": "fair peach",
+    "en": "fair peach"
+   },
+   {
+    "hex": "#D1AC8B",
+    "th": "warm beige",
+    "en": "warm beige"
+   },
+   {
+    "hex": "#A0A5A2",
+    "th": "ash grey",
+    "en": "ash grey"
+   },
+   {
+    "hex": "#BD9B74",
+    "th": "golden tan",
+    "en": "golden tan"
+   },
+   {
+    "hex": "#657788",
+    "th": "slate blue-grey",
+    "en": "slate blue-grey"
+   },
+   {
+    "hex": "#855C43",
+    "th": "warm brown",
+    "en": "warm brown"
+   },
+   {
+    "hex": "#553423",
+    "th": "deep brown",
+    "en": "deep brown"
+   }
+  ],
+  "height": {
+   "f": 2.14,
+   "m": 2.24
+  }
+ },
+ {
+  "id": "hrothgar",
+  "open": true,
+  "hairs": [
+   {
+    "g": 0,
+    "id": "f01",
+    "th": "แผงคอปัดหลัง",
+    "en": "Swept Mane"
+   },
+   {
+    "g": 0,
+    "id": "f03",
+    "th": "ถักเปียข้าง",
+    "en": "Side Braid"
+   },
+   {
+    "g": 0,
+    "id": "f05",
+    "th": "แผงคอฟูยุ่ง",
+    "en": "Wild Mane"
+   },
+   {
+    "g": 0,
+    "id": "f06",
+    "th": "แผงคอฟูเปียเดียว",
+    "en": "Wild Mane, Braid"
+   },
+   {
+    "g": 0,
+    "id": "f07",
+    "th": "ผมประบ่าเสยหลัง",
+    "en": "Swept Bob"
+   },
+   {
+    "g": 0,
+    "id": "f09",
+    "th": "ผมยาวตรงหน้าม้าบาง",
+    "en": "Long Straight, Thin Fringe"
+   },
+   {
+    "g": 0,
+    "id": "f10",
+    "th": "มวยต่ำถักเปีย",
+    "en": "Low Braided Bun"
+   },
+   {
+    "g": 0,
+    "id": "f11",
+    "th": "แผงคอหยักฟู",
+    "en": "Crimped Mane"
+   },
+   {
+    "g": 0,
+    "id": "f13",
+    "th": "ผมตั้งปอยยาว",
+    "en": "Spiked Top, Long Locks"
+   },
+   {
+    "g": 0,
+    "id": "f14",
+    "th": "ผมตั้งเปียคู่",
+    "en": "Spiked Top, Twin Braids"
+   },
+   {
+    "g": 0,
+    "id": "f15",
+    "th": "หางม้าสูงลอนเกลียว",
+    "en": "High Ponytail, Ringlets"
+   },
+   {
+    "g": 1,
+    "id": "m01",
+    "th": "แผงคอปัดหลัง",
+    "en": "Swept Mane"
+   },
+   {
+    "g": 1,
+    "id": "m03",
+    "th": "แผงคอสั้นปัดหลัง",
+    "en": "Short Swept Mane"
+   },
+   {
+    "g": 1,
+    "id": "m05",
+    "th": "แผงคอฟูยุ่ง",
+    "en": "Wild Mane"
+   },
+   {
+    "g": 1,
+    "id": "m06",
+    "th": "แผงคอฟูยุ่งเปียเดียว",
+    "en": "Wild Mane, Braid"
+   },
+   {
+    "g": 1,
+    "id": "m07",
+    "th": "หงอนตั้ง",
+    "en": "Spiked Crest"
+   },
+   {
+    "g": 1,
+    "id": "m09",
+    "th": "ผมตั้งปัดหลัง",
+    "en": "Spiky Pompadour"
+   },
+   {
+    "g": 1,
+    "id": "m10",
+    "th": "ผมตั้งมัดหางพับ",
+    "en": "Pompadour, Looped Tail"
+   },
+   {
+    "g": 1,
+    "id": "m11",
+    "th": "แผงคอเสยหลัง",
+    "en": "Slicked-Back Mane"
+   },
+   {
+    "g": 1,
+    "id": "m13",
+    "th": "ผมตั้งปอยยาว",
+    "en": "Spiked Top, Long Locks"
+   },
+   {
+    "g": 1,
+    "id": "m14",
+    "th": "ผมตั้งเปียคู่",
+    "en": "Spiked Top, Twin Braids"
+   },
+   {
+    "g": 1,
+    "id": "m15",
+    "th": "จุกบนหัว",
+    "en": "Topknot Mane"
+   },
+   {
+    "g": 1,
+    "id": "m16",
+    "th": "จุกบนหัวหงอนตั้ง",
+    "en": "Topknot, Spiked Crest"
+   }
+  ],
+  "skins": [
+   {
+    "hex": "#E9E9E9",
+    "th": "snow white",
+    "en": "snow white"
+   },
+   {
+    "hex": "#C6AF3B",
+    "th": "golden",
+    "en": "golden"
+   },
+   {
+    "hex": "#9DA8B3",
+    "th": "blue grey",
+    "en": "blue grey"
+   },
+   {
+    "hex": "#B35A5A",
+    "th": "rust red",
+    "en": "rust red"
+   },
+   {
+    "hex": "#886C43",
+    "th": "tawny",
+    "en": "tawny"
+   },
+   {
+    "hex": "#7A5E40",
+    "th": "lion brown",
+    "en": "lion brown"
+   },
+   {
+    "hex": "#4D3B29",
+    "th": "dark brown",
+    "en": "dark brown"
+   },
+   {
+    "hex": "#2B2B2B",
+    "th": "charcoal black",
+    "en": "charcoal black"
+   }
+  ],
+  "height": {
+   "f": 2.13,
+   "m": 2.27
+  }
+ },
+ {
+  "id": "aura",
+  "open": true,
+  "hairs": [
+   {
+    "g": 0,
+    "id": "f01",
+    "th": "ยาวปัดข้างกิ๊บดาว",
+    "en": "Side-Swept Long, Star Clip"
+   },
+   {
+    "g": 0,
+    "id": "f02",
+    "th": "ยาวปักขนนก",
+    "en": "Long with Feather Fan"
+   },
+   {
+    "g": 0,
+    "id": "f03",
+    "th": "หน้าม้าตรงกิ๊บเปลือกหอย",
+    "en": "Blunt Bangs, Shell Clips"
+   },
+   {
+    "g": 0,
+    "id": "f04",
+    "th": "บ็อบหน้ายาว",
+    "en": "A-Line Bob"
+   },
+   {
+    "g": 0,
+    "id": "f05",
+    "th": "บ็อบปัดข้าง",
+    "en": "Side-Swept Bob"
+   },
+   {
+    "g": 0,
+    "id": "f06",
+    "th": "สั้นปอยหน้ายาว",
+    "en": "Short with Long Front Locks"
+   },
+   {
+    "g": 0,
+    "id": "f07",
+    "th": "บ็อบกุหลาบดำ",
+    "en": "Bob with Black Roses"
+   },
+   {
+    "g": 0,
+    "id": "f08",
+    "th": "ยาวตรงหน้าม้าเต็ม",
+    "en": "Long Hime Cut"
+   },
+   {
+    "g": 0,
+    "id": "f09",
+    "th": "ยาวปัดข้าง",
+    "en": "Long Side-Swept"
+   },
+   {
+    "g": 0,
+    "id": "f10",
+    "th": "ประบ่าปลายงอน",
+    "en": "Flipped Shoulder Length"
+   },
+   {
+    "g": 0,
+    "id": "f11",
+    "th": "หางม้าต่ำหลวม",
+    "en": "Loose Low Tail"
+   },
+   {
+    "g": 0,
+    "id": "f12",
+    "th": "บ็อบคาดผม",
+    "en": "Bob with Hairband"
+   },
+   {
+    "g": 1,
+    "id": "m01",
+    "th": "ปัดขึ้นแหลม",
+    "en": "Swept-Up Spikes"
+   },
+   {
+    "g": 1,
+    "id": "m02",
+    "th": "แผงคอยาวเปีย",
+    "en": "Wild Mane with Braids"
+   },
+   {
+    "g": 1,
+    "id": "m03",
+    "th": "ชั้นยุ่งแหลม",
+    "en": "Messy Spiky Layers"
+   },
+   {
+    "g": 1,
+    "id": "m04",
+    "th": "ยาวตรงเปิดหน้าผาก",
+    "en": "Long Straight, Bare Brow"
+   },
+   {
+    "g": 1,
+    "id": "m05",
+    "th": "มวยต่ำปอยข้างยาว",
+    "en": "Low Knot, Long Side Locks"
+   },
+   {
+    "g": 1,
+    "id": "m06",
+    "th": "ทรงเปลวไฟหางพัน",
+    "en": "Flame Top, Wrapped Tail"
+   },
+   {
+    "g": 1,
+    "id": "m07",
+    "th": "ตั้งแหลมเปียข้าง",
+    "en": "Spiky Crest, Side Braid"
+   },
+   {
+    "g": 1,
+    "id": "m08",
+    "th": "แผงคอปลิวลม",
+    "en": "Windswept Mane"
+   },
+   {
+    "g": 1,
+    "id": "m09",
+    "th": "สั้นซอยเรียบร้อย",
+    "en": "Neat Layered Short"
+   },
+   {
+    "g": 1,
+    "id": "m10",
+    "th": "ยาวคางซอยปลาย",
+    "en": "Ragged Jaw Length"
+   },
+   {
+    "g": 1,
+    "id": "m11",
+    "th": "สั้นฟูขนนก",
+    "en": "Feathery Crop"
+   },
+   {
+    "g": 1,
+    "id": "m12",
+    "th": "ยาวเสยหลัง",
+    "en": "Long Slicked Back"
+   }
+  ],
+  "skins": [
+   {
+    "hex": "#EAC9B8",
+    "th": "porcelain pink (Raen)",
+    "en": "porcelain pink (Raen)"
+   },
+   {
+    "hex": "#D7C4BB",
+    "th": "pale ash (Raen and Xaela)",
+    "en": "pale ash (Raen and Xaela)"
+   },
+   {
+    "hex": "#E8BDA1",
+    "th": "light peach (Raen)",
+    "en": "light peach (Raen)"
+   },
+   {
+    "hex": "#C69982",
+    "th": "warm tan (Xaela and Raen)",
+    "en": "warm tan (Xaela and Raen)"
+   },
+   {
+    "hex": "#8B868D",
+    "th": "lavender grey (Xaela)",
+    "en": "lavender grey (Xaela)"
+   },
+   {
+    "hex": "#6B6D81",
+    "th": "slate blue-grey (Xaela)",
+    "en": "slate blue-grey (Xaela)"
+   },
+   {
+    "hex": "#886250",
+    "th": "cocoa brown (Xaela)",
+    "en": "cocoa brown (Xaela)"
+   },
+   {
+    "hex": "#2E3240",
+    "th": "blue-black charcoal (Xaela)",
+    "en": "blue-black charcoal (Xaela)"
+   }
+  ],
+  "height": {
+   "f": 1.69,
+   "m": 2.33
+  }
+ },
+ {
+  "id": "hyur",
+  "open": true,
+  "hairs": [
+   {
+    "g": 0,
+    "id": "f01",
+    "th": "ผมบ็อบแสกข้าง",
+    "en": "Side-Part Bob"
+   },
+   {
+    "g": 0,
+    "id": "f02",
+    "th": "ผมบ็อบยาวหน้ายาว",
+    "en": "Angled Lob"
+   },
+   {
+    "g": 0,
+    "id": "f03",
+    "th": "ผมถักข้างรวบหลัง",
+    "en": "Braided Back Tuft"
+   },
+   {
+    "g": 0,
+    "id": "f04",
+    "th": "มวยต่ำ",
+    "en": "Low Chignon"
+   },
+   {
+    "g": 0,
+    "id": "f05",
+    "th": "ผมเกล้าเสยสูง",
+    "en": "Pompadour Updo"
+   },
+   {
+    "g": 0,
+    "id": "f06",
+    "th": "ผมรวบต่ำสั้น",
+    "en": "Short Low Tail"
+   },
+   {
+    "g": 0,
+    "id": "f07",
+    "th": "หางม้าต่ำยาว",
+    "en": "Long Low Ponytail"
+   },
+   {
+    "g": 0,
+    "id": "f08",
+    "th": "ผมยาวทัดหู",
+    "en": "Long Tucked"
+   },
+   {
+    "g": 0,
+    "id": "f09",
+    "th": "ผมประบ่าแสกข้าง",
+    "en": "Shoulder Side-Part"
+   },
+   {
+    "g": 0,
+    "id": "f10",
+    "th": "ผมยาวสลวย",
+    "en": "Long Flowing"
+   },
+   {
+    "g": 0,
+    "id": "f11",
+    "th": "บ็อบหน้าม้าสั้น",
+    "en": "Micro-Bang Bob"
+   },
+   {
+    "g": 0,
+    "id": "f12",
+    "th": "หางม้าสูงโบว์ขาว",
+    "en": "Ribbon High Ponytail"
+   },
+   {
+    "g": 0,
+    "id": "f13",
+    "th": "ถักเปียมวยสูง",
+    "en": "Cornrow Top Bun"
+   },
+   {
+    "g": 1,
+    "id": "m01",
+    "th": "ผมสั้นยุ่ง",
+    "en": "Tousled Crop"
+   },
+   {
+    "g": 1,
+    "id": "m02",
+    "th": "ผมสั้นตั้งชี้",
+    "en": "Spiky Brush-Up"
+   },
+   {
+    "g": 1,
+    "id": "m03",
+    "th": "ผมเลเยอร์ปัดข้าง",
+    "en": "Side-Swept Layers"
+   },
+   {
+    "g": 1,
+    "id": "m04",
+    "th": "ผมเกรียนลายข้าง",
+    "en": "Buzz Cut with Design"
+   },
+   {
+    "g": 1,
+    "id": "m05",
+    "th": "ผมถักคอร์นโรว์",
+    "en": "Cornrows"
+   },
+   {
+    "g": 1,
+    "id": "m06",
+    "th": "ผมหวีเรียบแสกข้าง",
+    "en": "Slick Side Part"
+   },
+   {
+    "g": 1,
+    "id": "m07",
+    "th": "ผมทรงกะลาฟู",
+    "en": "Soft Mop"
+   },
+   {
+    "g": 1,
+    "id": "m08",
+    "th": "ผมควิฟ",
+    "en": "Quiff"
+   },
+   {
+    "g": 1,
+    "id": "m09",
+    "th": "ผมรุงรังหน้าม้ายาว",
+    "en": "Shaggy Long Bangs"
+   },
+   {
+    "g": 1,
+    "id": "m10",
+    "th": "ผมเสยสูงปอยข้าง",
+    "en": "Swept-Up Mane"
+   },
+   {
+    "g": 1,
+    "id": "m11",
+    "th": "ผมฟูปลิวลม",
+    "en": "Windswept Shag"
+   },
+   {
+    "g": 1,
+    "id": "m12",
+    "th": "ผมหยิกสั้นไถข้าง",
+    "en": "Curly High-Top"
+   }
+  ],
+  "skins": [
+   {
+    "hex": "#F9DAC1",
+    "th": "porcelain",
+    "en": "porcelain"
+   },
+   {
+    "hex": "#EACBAC",
+    "th": "fair peach",
+    "en": "fair peach"
+   },
+   {
+    "hex": "#D5B694",
+    "th": "light beige",
+    "en": "light beige"
+   },
+   {
+    "hex": "#B88D70",
+    "th": "warm tan",
+    "en": "warm tan"
+   },
+   {
+    "hex": "#9B8060",
+    "th": "olive tan",
+    "en": "olive tan"
+   },
+   {
+    "hex": "#815E49",
+    "th": "medium brown",
+    "en": "medium brown"
+   },
+   {
+    "hex": "#634B37",
+    "th": "dark brown",
+    "en": "dark brown"
+   },
+   {
+    "hex": "#413730",
+    "th": "deep umber",
+    "en": "deep umber"
+   }
+  ],
+  "height": {
+   "f": 1.82,
+   "m": 1.94
+  }
+ },
+ {
+  "id": "miqote",
+  "open": true,
+  "hairs": [
+   {
+    "g": 0,
+    "id": "f01",
+    "th": "พิกซี่ฟู",
+    "en": "Fluffy Pixie"
+   },
+   {
+    "g": 0,
+    "id": "f02",
+    "th": "บ็อบหน้าม้าตรง",
+    "en": "Blunt Bob"
+   },
+   {
+    "g": 0,
+    "id": "f03",
+    "th": "เสยหลังปอยข้างยาว",
+    "en": "Swept-back Locks"
+   },
+   {
+    "g": 0,
+    "id": "f04",
+    "th": "ซอยแหลมปัดข้าง",
+    "en": "Feathered Spikes"
+   },
+   {
+    "g": 0,
+    "id": "f05",
+    "th": "บ็อบคาดผมขาว",
+    "en": "Hairband Bob"
+   },
+   {
+    "g": 0,
+    "id": "f06",
+    "th": "หางม้าข้าง",
+    "en": "Side Ponytail"
+   },
+   {
+    "g": 0,
+    "id": "f07",
+    "th": "เสยตั้งปอยยาว",
+    "en": "Upswept Crest"
+   },
+   {
+    "g": 0,
+    "id": "f08",
+    "th": "จุกบนหัวเปียข้าง",
+    "en": "Bun and Braids"
+   },
+   {
+    "g": 0,
+    "id": "f09",
+    "th": "เกล้าหลังเปียข้าง",
+    "en": "Wavy Updo Braid"
+   },
+   {
+    "g": 0,
+    "id": "f10",
+    "th": "บ็อบหยักเชือกทอง",
+    "en": "Wavy Bob, Gold Cord"
+   },
+   {
+    "g": 0,
+    "id": "f14",
+    "th": "บ็อบปอยข้างห่วงเงิน",
+    "en": "Bob, Silver Cuffs"
+   },
+   {
+    "g": 0,
+    "id": "f16",
+    "th": "ผมยาวถักข้างมัดต่ำ",
+    "en": "Long Side Braids"
+   },
+   {
+    "g": 0,
+    "id": "f17",
+    "th": "ผมยาวแสกกลางถักข้าง",
+    "en": "Long Braids, Parted"
+   },
+   {
+    "g": 1,
+    "id": "m01",
+    "th": "ผมสั้นยุ่ง",
+    "en": "Tousled Short"
+   },
+   {
+    "g": 1,
+    "id": "m02",
+    "th": "เสยหลังสั้น",
+    "en": "Swept-back Short"
+   },
+   {
+    "g": 1,
+    "id": "m03",
+    "th": "ผมสั้นแหลม",
+    "en": "Spiky Crop"
+   },
+   {
+    "g": 1,
+    "id": "m04",
+    "th": "ผมยุ่งเปียข้างหู",
+    "en": "Tousled, Ear Braid"
+   },
+   {
+    "g": 1,
+    "id": "m05",
+    "th": "บ็อบลอนแสกกลาง",
+    "en": "Wavy Bob"
+   },
+   {
+    "g": 1,
+    "id": "m06",
+    "th": "ผมซอยยุ่งประคอ",
+    "en": "Shaggy Layers"
+   },
+   {
+    "g": 1,
+    "id": "m07",
+    "th": "หวีเสยข้าง",
+    "en": "Side-swept Back"
+   },
+   {
+    "g": 1,
+    "id": "m08",
+    "th": "บ็อบตรง",
+    "en": "Straight Bob"
+   },
+   {
+    "g": 1,
+    "id": "m09",
+    "th": "ถักเปียติดหนังศีรษะมวย",
+    "en": "Cornrow Bun"
+   },
+   {
+    "g": 1,
+    "id": "m10",
+    "th": "ผมแหลมยุ่งปิดหน้า",
+    "en": "Spiky Shag"
+   },
+   {
+    "g": 1,
+    "id": "m11",
+    "th": "ผมเสยตั้งแหลม",
+    "en": "Wild Upswept"
+   },
+   {
+    "g": 1,
+    "id": "m12",
+    "th": "ปัดปิดตาหางเล็ก",
+    "en": "Peekaboo, Little Tail"
+   }
+  ],
+  "skins": [
+   {
+    "hex": "#FEE4D1",
+    "th": "moon-pale ivory (Keeper)",
+    "en": "moon-pale ivory (Keeper)"
+   },
+   {
+    "hex": "#F0D0B5",
+    "th": "light peach (Seeker)",
+    "en": "light peach (Seeker)"
+   },
+   {
+    "hex": "#DCBB9D",
+    "th": "warm beige (Seeker)",
+    "en": "warm beige (Seeker)"
+   },
+   {
+    "hex": "#CAA380",
+    "th": "golden tan (Seeker)",
+    "en": "golden tan (Seeker)"
+   },
+   {
+    "hex": "#A3A4A0",
+    "th": "ash grey (Keeper)",
+    "en": "ash grey (Keeper)"
+   },
+   {
+    "hex": "#936C4D",
+    "th": "bronze (Seeker)",
+    "en": "bronze (Seeker)"
+   },
+   {
+    "hex": "#657077",
+    "th": "slate blue-grey (Keeper)",
+    "en": "slate blue-grey (Keeper)"
+   },
+   {
+    "hex": "#553827",
+    "th": "deep brown (Seeker)",
+    "en": "deep brown (Seeker)"
+   }
+  ],
+  "height": {
+   "f": 1.73,
+   "m": 1.85
+  }
+ },
+ {
+  "id": "roegadyn",
+  "open": true,
+  "hairs": [
+   {
+    "g": 0,
+    "id": "f01",
+    "th": "บ็อบปัดข้าง",
+    "en": "Side-swept bob"
+   },
+   {
+    "g": 0,
+    "id": "f02",
+    "th": "ผมเสยหลังลอน",
+    "en": "Swept-back waves"
+   },
+   {
+    "g": 0,
+    "id": "f03",
+    "th": "ผมลอนฟูประบ่า",
+    "en": "Wavy mane"
+   },
+   {
+    "g": 0,
+    "id": "f04",
+    "th": "ถักเปียหางม้าสูง",
+    "en": "Braided high tail"
+   },
+   {
+    "g": 0,
+    "id": "f05",
+    "th": "ผมสั้นคาดผม",
+    "en": "Hairband crop"
+   },
+   {
+    "g": 0,
+    "id": "f06",
+    "th": "ผมยาวเสยหลัง",
+    "en": "Long swept-back"
+   },
+   {
+    "g": 0,
+    "id": "f07",
+    "th": "ผมสั้นปัดข้าง",
+    "en": "Asymmetric crop"
+   },
+   {
+    "g": 0,
+    "id": "f08",
+    "th": "ผมยาวสลวยปัดข้าง",
+    "en": "Long flowing sweep"
+   },
+   {
+    "g": 0,
+    "id": "f09",
+    "th": "บ็อบเรียบแสกข้าง",
+    "en": "Sleek bob"
+   },
+   {
+    "g": 0,
+    "id": "f10",
+    "th": "ผมพิกซี่",
+    "en": "Pixie cut"
+   },
+   {
+    "g": 0,
+    "id": "f11",
+    "th": "บ็อบติดกิ๊บ",
+    "en": "Pinned bob"
+   },
+   {
+    "g": 0,
+    "id": "f12",
+    "th": "เปียเส้นเดียว",
+    "en": "Single braid"
+   },
+   {
+    "g": 1,
+    "id": "m01",
+    "th": "ผมเสยหลังระต้นคอ",
+    "en": "Swept-back mane"
+   },
+   {
+    "g": 1,
+    "id": "m02",
+    "th": "ผมเสยลอนข้าง",
+    "en": "Wavy comb-back"
+   },
+   {
+    "g": 1,
+    "id": "m03",
+    "th": "ผมแหลมฟูเสย",
+    "en": "Wild spiky mane"
+   },
+   {
+    "g": 1,
+    "id": "m04",
+    "th": "ผมถักแถวหลังฟู",
+    "en": "Braided crest"
+   },
+   {
+    "g": 1,
+    "id": "m05",
+    "th": "ผมตั้งสั้นไถข้าง",
+    "en": "Spiky undercut"
+   },
+   {
+    "g": 1,
+    "id": "m06",
+    "th": "ผมปอมปาดัวร์",
+    "en": "Pompadour"
+   },
+   {
+    "g": 1,
+    "id": "m08",
+    "th": "ผมยาวหน้าม้าปิดตา",
+    "en": "Shaggy long bangs"
+   },
+   {
+    "g": 1,
+    "id": "m09",
+    "th": "ผมถักเปียข้างหน้า",
+    "en": "Braids and knot"
+   },
+   {
+    "g": 1,
+    "id": "m10",
+    "th": "ผมยาวปล่อยแสกกลาง",
+    "en": "Long and loose"
+   },
+   {
+    "g": 1,
+    "id": "m11",
+    "th": "ผมตั้งแหลม",
+    "en": "Spiky crest"
+   },
+   {
+    "g": 1,
+    "id": "m12",
+    "th": "ผมเสยหลังลอน กิ๊บทอง",
+    "en": "Combed-back waves (gold clasp)"
+   },
+   {
+    "g": 1,
+    "id": "m15",
+    "th": "ผมเถิกเสยหลัง อัญมณีหน้าผาก",
+    "en": "Receding sweep (star jewel)"
+   },
+   {
+    "g": 1,
+    "id": "m17",
+    "th": "หัวล้านผมข้างยาว อัญมณีหน้าผาก",
+    "en": "Bald crown, long sides (star jewel)"
+   }
+  ],
+  "skins": [
+   {
+    "hex": "#D1D8C3",
+    "th": "pale sage green",
+    "en": "pale sage green"
+   },
+   {
+    "hex": "#D0C1C0",
+    "th": "pale ashen rose",
+    "en": "pale ashen rose"
+   },
+   {
+    "hex": "#B6C3AE",
+    "th": "soft grey-green (Sea Wolf default)",
+    "en": "soft grey-green (Sea Wolf default)"
+   },
+   {
+    "hex": "#839992",
+    "th": "grey sea-green",
+    "en": "grey sea-green"
+   },
+   {
+    "hex": "#978573",
+    "th": "warm tan",
+    "en": "warm tan"
+   },
+   {
+    "hex": "#686A69",
+    "th": "slate grey",
+    "en": "slate grey"
+   },
+   {
+    "hex": "#815D51",
+    "th": "brick red-brown (Hellsguard default)",
+    "en": "brick red-brown (Hellsguard default)"
+   },
+   {
+    "hex": "#5A3D31",
+    "th": "deep umber",
+    "en": "deep umber"
+   }
+  ],
+  "height": {
+   "f": 2.3,
+   "m": 2.47
+  }
+ },
+ {
+  "id": "viera",
+  "open": true,
+  "hairs": [
+   {
+    "g": 0,
+    "id": "f01",
+    "th": "ยาวปัดหลัง",
+    "en": "Swept-Back Long"
+   },
+   {
+    "g": 0,
+    "id": "f03",
+    "th": "ฟูเป็นชั้นมีหน้าม้า",
+    "en": "Fluffy Layers with Bangs"
+   },
+   {
+    "g": 0,
+    "id": "f04",
+    "th": "แสกกลางเป็นลอน",
+    "en": "Parted Wavy Layers"
+   },
+   {
+    "g": 0,
+    "id": "f05",
+    "th": "บ็อบหน้าม้าตรง",
+    "en": "Blunt Bangs Bob"
+   },
+   {
+    "g": 0,
+    "id": "f06",
+    "th": "แสกข้างติดดอกไม้",
+    "en": "Side Part with Flowers"
+   },
+   {
+    "g": 0,
+    "id": "f07",
+    "th": "ยาวลอนฟู",
+    "en": "Long Wild Waves"
+   },
+   {
+    "g": 0,
+    "id": "f08",
+    "th": "ยาวหน้าม้าซอย",
+    "en": "Long with Wispy Fringe"
+   },
+   {
+    "g": 0,
+    "id": "f09",
+    "th": "สั้นชี้ปัดหลัง",
+    "en": "Spiky Pixie"
+   },
+   {
+    "g": 0,
+    "id": "f10",
+    "th": "สั้นถักเปียข้าง",
+    "en": "Short with Braided Lock"
+   },
+   {
+    "g": 0,
+    "id": "f11",
+    "th": "ยาวแสกข้างลึก",
+    "en": "Deep Side Part Long"
+   },
+   {
+    "g": 0,
+    "id": "f12",
+    "th": "ยาวหน้าม้าสั้น",
+    "en": "Long with Short Bangs"
+   },
+   {
+    "g": 0,
+    "id": "f13",
+    "th": "ยาวรวบครึ่งหัว",
+    "en": "Long Half-Up"
+   },
+   {
+    "g": 0,
+    "id": "f15",
+    "th": "แกละต่ำติดดอกไม้",
+    "en": "Low Twin Tails with Flowers"
+   },
+   {
+    "g": 0,
+    "id": "f16",
+    "th": "แกละต่ำมีหน้าม้า",
+    "en": "Twin Tails with Bangs"
+   },
+   {
+    "g": 1,
+    "id": "m01",
+    "th": "ประบ่าหน้าม้ายาว",
+    "en": "Shaggy with Long Bangs"
+   },
+   {
+    "g": 1,
+    "id": "m03",
+    "th": "สั้นซอยหน้าม้าหนา",
+    "en": "Short Shag with Bangs"
+   },
+   {
+    "g": 1,
+    "id": "m04",
+    "th": "สั้นปัดหลังปอยข้าง",
+    "en": "Swept-Back Short Layers"
+   },
+   {
+    "g": 1,
+    "id": "m05",
+    "th": "หางเล็กผูกริบบิ้น",
+    "en": "Ribbon-Tied Tail"
+   },
+   {
+    "g": 1,
+    "id": "m06",
+    "th": "บ็อบแสกข้าง",
+    "en": "Sleek Side-Part Bob"
+   },
+   {
+    "g": 1,
+    "id": "m07",
+    "th": "ลอนยุ่ง",
+    "en": "Tousled Waves"
+   },
+   {
+    "g": 1,
+    "id": "m08",
+    "th": "ลอนหวีปัดหลัง",
+    "en": "Combed-Back Waves"
+   },
+   {
+    "g": 1,
+    "id": "m10",
+    "th": "เสยหลัง",
+    "en": "Slicked Back"
+   },
+   {
+    "g": 1,
+    "id": "m11",
+    "th": "หน้าม้าเฉียงติดขนนก",
+    "en": "Fringe with Feather"
+   },
+   {
+    "g": 1,
+    "id": "m12",
+    "th": "บ็อบหน้าม้ายาว",
+    "en": "Long Fringe Bob"
+   },
+   {
+    "g": 1,
+    "id": "m13",
+    "th": "ยาวซอยยุ่ง",
+    "en": "Long Wild Layers"
+   },
+   {
+    "g": 1,
+    "id": "m15",
+    "th": "เปียเส้นเล็กปอยหน้า",
+    "en": "Braids and Forelock"
+   },
+   {
+    "g": 1,
+    "id": "m16",
+    "th": "ปัดหลังเปียเส้นเล็ก",
+    "en": "Swept Back with Braids"
+   }
+  ],
+  "skins": [
+   {
+    "hex": "#ECCCBB",
+    "th": "ครีมซีด",
+    "en": "pale cream"
+   },
+   {
+    "hex": "#F8C2A5",
+    "th": "พีชอ่อน",
+    "en": "light peach"
+   },
+   {
+    "hex": "#DAAA8D",
+    "th": "เบจอุ่น",
+    "en": "warm beige"
+   },
+   {
+    "hex": "#C6997B",
+    "th": "ผิวแทน",
+    "en": "tan"
+   },
+   {
+    "hex": "#9A705D",
+    "th": "น้ำตาลอ่อน",
+    "en": "light brown"
+   },
+   {
+    "hex": "#7B5A49",
+    "th": "น้ำตาลกลาง",
+    "en": "medium brown"
+   },
+   {
+    "hex": "#573E32",
+    "th": "น้ำตาลเข้ม",
+    "en": "dark brown"
+   },
+   {
+    "hex": "#36271D",
+    "th": "น้ำตาลเข้มจัด",
+    "en": "deep umber"
+   }
+  ],
+  "height": {
+   "f": 2.06,
+   "m": 1.99
+  }
+ }
+]

@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same figures at the same positions and the same size, the same poses, the same clothes, boots, belts and bags in their same colours, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only the colour of all the bare __SKINWORD__ (the head, face, ears, neck, hands, arms, legs and any __SKINWORD__ showing between the clothes__SKINEXTRA__): paint it flat bright cyan, shaded only with darker cyans. Leave every piece of clothing, the boots, the belts, the bags and the eyes exactly as they are__KEEP__.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

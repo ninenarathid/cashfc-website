@@ -276,6 +276,9 @@ const REF = {};
 for (const t of ["front", "back"]) {
   const g = grids[`f-bald-${t}`], idle = figs[`f-bald-${t}`][IDLE];
   REF[t] = { g, idle, ...chinOf(rawSkull[t], idle) };
+  // the line from which a body frame keeps its own lower head too, under the shared one, so no seam opens
+  // where the model drew a step's head a cell apart from the shared skull
+  { const ys = [...idle].map((i) => (i / g.GW) | 0).filter((y) => y <= REF[t].cut), top = Math.min(...ys); REF[t].low = Math.round(top + (REF[t].cut - top) * 0.6); }
   console.log(`${t}: chin cut ${REF[t].cut}, head x ${REF[t].hx}`);
 }
 
@@ -307,6 +310,8 @@ const faceSkin = (g, set) => { for (const i of set) if (isWarm(g.c, i * 4)) skin
 const copyOf = g => ({ GW: g.GW, GH: g.GH, c: Uint8Array.from(g.c) });
 
 const bodies = []; // [name, grid, set, ax, ay]
+/** Every walking step, to check its body and the shared head leave no hole (see "hole check" below). */
+const checks = [];
 for (const gnd of GENDERS) {
   meta.walk[gnd] = {};
   for (const t of ["front", "back"]) {
@@ -319,7 +324,7 @@ for (const gnd of GENDERS) {
       const s = headShift(R.g, R.idle, R.cut, g, F[k]);
       const ground = L.bbox(g, F[k]).y1;
       const ax = R.hx + s.sx, ay = ground;
-      const body = subset(g, F[k], (x, y) => y > R.cut + s.sy);
+      const body = subset(g, F[k], (x, y) => y >= R.low + s.sy);
       if (key) {
         const ks = keyShift(g, key, body);
         let n = 0;
@@ -331,6 +336,7 @@ for (const gnd of GENDERS) {
       }
       const name = `body-${gnd}-${t}-${k}`;
       bodies.push([name, g, body, ax, ay]);
+      checks.push({ gnd, t, k, g, frame: F[k], body, s, cut: R.low });
       // the head's reference point (the skull's centre at its chin cut) from this step's feet
       frames.push({ body: name, hx: 0, hy: R.cut + s.sy - ay });
     }
@@ -364,7 +370,7 @@ meta.sit = {};
       const s = headShift(R.g, R.idle, R.cut, g, F[k]);
       const ground = L.bbox(g, F[k]).y1;
       const ax = R.hx + s.sx, ay = ground;
-      const body = subset(g, F[k], (x, y) => y > R.cut + s.sy);
+      const body = subset(g, F[k], (x, y) => y >= R.low + s.sy);
       if (key) {
         const ks = keyShift(g, key, body);
         for (const i of body) {
@@ -395,6 +401,28 @@ for (const gnd of GENDERS) for (const e of EYES) {
   const g = copyOf(grids["f-bald-back"]), set = subset(g, figs["f-bald-back"][IDLE], (x, y) => y <= REF.back.cut);
   faceSkin(g, set);
   faces.push(["face-back", g, set]);
+}
+
+// hole check (as build-race-atlas.mjs): every cell of a step's figure from the chin down, and any cell of it
+// inside the doll, must be covered by the body or the shared head laid on it
+{
+  let all = 0;
+  for (const { gnd, t, k, g, frame, body, s, cut } of checks) {
+    const head = faces.find(([n]) => n === (t === "front" ? `face-${gnd}-round` : "face-back"));
+    const covered = new Set(body);
+    if (head) for (const i of head[2]) { const x = (i % head[1].GW) + s.sx, y = ((i / head[1].GW) | 0) + s.sy; if (x >= 0 && y >= 0 && x < g.GW && y < g.GH) covered.add(y * g.GW + x); }
+    const holes = [...frame].filter((i) => !covered.has(i) && ((i / g.GW) | 0) >= cut + s.sy);
+    let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+    for (const i of covered) { const x = i % g.GW, y = (i / g.GW) | 0; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    x0--; y0--; x1++; y1++;
+    const W2 = x1 - x0 + 1, out = new Uint8Array(W2 * (y1 - y0 + 1)), st = [0], at = (x, y) => (y - y0) * W2 + (x - x0);
+    out[0] = 1;
+    while (st.length) { const q = st.pop(), x = (q % W2) + x0, y = ((q / W2) | 0) + y0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy; if (X < x0 || Y < y0 || X > x1 || Y > y1) continue; const j = at(X, Y); if (out[j] || covered.has(Y * g.GW + X)) continue; out[j] = 1; st.push(j); } }
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const i = y * g.GW + x; if (!out[at(x, y)] && !covered.has(i) && frame.has(i) && !holes.includes(i)) holes.push(i); }
+    if (holes.length) { all += holes.length; console.log(`  HOLES ${gnd} ${t} step ${k}: ${holes.length} cell(s), e.g. ${holes.slice(0, 6).map((i) => `(${i % g.GW},${(i / g.GW) | 0})`).join(" ")}`); }
+  }
+  console.log(all ? `hole check: ${all} missing cell(s)` : "hole check: every step whole");
 }
 
 // the ramp: six shades by lightness, from every skin cell

@@ -1,0 +1,9 @@
+Edit the attached pixel art sprite sheet. Keep the same character: exactly the same size and proportions (the same long legs, the same body and the same head size), the same chunky square pixel size, the same thick dark outline, the same skin, the same bald head, the same plain clothes and the same pixel art style, on the same canvas.
+
+Change only the four walking frames into four poses, in one row, left to right:
+1) sitting on the ground with legs stretched forward, three-quarter view turned to the viewer's right, hands resting on the lap, a calm face;
+2) sitting on the ground the same way, but in a three-quarter back view turned away from the viewer towards the right;
+3) lying asleep on the side on the ground, eyes closed, head resting on an arm, legs slightly bent;
+4) standing and waving one hand high above the head, three-quarter view turned to the viewer's right.
+__POSENOTE__
+The head stays exactly the size it is now in every pose; the body and legs keep their length. All four poses evenly spaced in one row on the same ground line, not overlapping, with clear empty space between them. Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no frame borders, no ground shadow, no props, no other characters.

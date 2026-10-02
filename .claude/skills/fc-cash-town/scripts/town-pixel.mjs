@@ -118,7 +118,7 @@ try {
   await A.shot(join(OUT, "pixel-A-wardrobe-back.png"));
   ok("A closes the wardrobe", await A.evaluate(clickText(`/^(เสร็จ|Done)$/`), true));
   // version 4: gender 1 (m), hair 21 (m08 = l), hair colour 11 (ruby = b), eye colour 6 (amber), skin 6, eyes 4 (cat)
-  const want = "41lb664";
+  const want = "501lb664"; // v5: Lalafell (race 0), then as before
   const aId = (await A.evaluate(`${T}.me()`)).id;
   const got = await until("B sees A's new look", async () => {
     // by id: a stale "A" from an earlier run may still be listed for a while

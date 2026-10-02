@@ -308,6 +308,12 @@ export const PROPS: Prop[] = (() => {
 /** The benches, in a fixed order: somebody sitting is told to the room by this index. */
 export const BENCHES: Prop[] = PROPS.filter((p) => p.kind === "bench");
 
+/**
+ * Sitting on the ground where you stand (the emote window, the owner's call, 2026-10-02), told to the room in
+ * place of a bench's index. The sitting pose is drawn on the ground already; a bench only lifts it onto its seat.
+ */
+export const SIT_HERE = -2;
+
 /** The bench on a tile, as an index into BENCHES, or −1. */
 export function benchAt(tx: number, ty: number): number {
   return BENCHES.findIndex((b) => b.x === tx && b.y === ty);

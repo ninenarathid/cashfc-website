@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small user interface icons for that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Four icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+These are mouse cursors for the game, so each must read clearly on grass, stone and dark ground: a thick dark outline all round and light colours inside. 1) a small cute wooden park bench seen from the front three-quarter angle, with a soft cream cushion, and a small gold arrow above it pointing straight down onto the seat; 2) the same bench with the gold arrow a little lower, almost touching the cushion; 3) the same bench with a tiny cream chibi figure sitting on it, happy; 4) the same bench with the arrow back up high.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

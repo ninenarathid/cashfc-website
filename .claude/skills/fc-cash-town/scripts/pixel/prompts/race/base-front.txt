@@ -1,0 +1,14 @@
+Pixel art sprite sheet for a cozy 2D isometric game. The attached picture is a finished sheet of a small Lalafell character from this same game: use it as the exact reference for the pixel art style, the chunky square pixel size, the thick dark outline, the flat shading with a few tones per colour, the three-quarter view turned towards the viewer's right, the layout and the walk.
+
+Draw a new character in that same style and layout: __WHO__. __FEATURES__ __BUILD__ Keep the same chunky pixel size as the reference, so a taller character is drawn with more pixels, not bigger ones.
+
+Completely bald: a smooth, round bald head in the same skin colour as the face, like a doll before its wig goes on, with a clean dark outline. __BALD__ __SKIN__. A calm, neutral face: relaxed open eyes with violet irises, a small closed mouth drawn as a short flat line, no smile, no blush__FACENOTE__. Plain base clothes like the reference's: a simple light-blue tunic with a cream collar and cuffs, cream shorts, a brown belt with a gold buckle and brown boots.
+
+Draw a 4-frame walking animation in a three-quarter view, turned to face down and towards the viewer's right, frames from left to right:
+1) right foot stepping forward, left foot behind, left arm forward;
+2) feet passing under the body, body raised by one pixel;
+3) left foot stepping forward, right foot behind, right arm forward;
+4) feet passing under the body, body raised by one pixel.
+The head and face look identical in all four frames, only moved up or down by one pixel.
+
+All four frames are the same size, evenly spaced in one row, standing on the same ground line, not overlapping, with clear empty space between them. Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no frame borders, no ground shadow, no other characters.

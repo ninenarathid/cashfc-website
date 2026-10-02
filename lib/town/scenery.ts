@@ -150,6 +150,12 @@ export class SceneryKit {
     return p ? { src: this.img.src, sheet: this.json.size, at: [p[0], p[1], p[2], p[3]] } : null;
   }
 
+  /** Where a prop stands in its picture: its ground point, from the picture's top-left corner. */
+  anchorOf(name: string): [number, number] {
+    const p = this.json.props[name];
+    return p ? [p[4], p[5]] : [0, 0];
+  }
+
   /** A prop's size in picture pixels: [width, height]. */
   sizeOf(name: string): [number, number] {
     const p = this.json.props[name];

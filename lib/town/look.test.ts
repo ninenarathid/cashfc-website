@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
-  EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, LOOK_LENGTH, SKINS,
-  decodeLook, defaultLook, encodeLook, hairForGender, hairsFor, randomLook, type Look,
+  EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, LOOK_LENGTH, RACES, SKINS,
+  decodeLook, defaultLook, encodeLook, hairForGender, hairsFor, lookAsRace, randomLook, type Look,
 } from "./look";
 
 const at = (id: string) => HAIRS.findIndex((h) => h.id === id);
 const every: Look = {
-  gender: GENDERS.length - 1, hair: HAIRS.length - 1, hairColor: HAIR_COLORS.length - 1, eyeColor: EYE_COLORS.length - 1,
+  race: 0, gender: GENDERS.length - 1, hair: HAIRS.length - 1, hairColor: HAIR_COLORS.length - 1, eyeColor: EYE_COLORS.length - 1,
   skin: SKINS.length - 1, eyes: EYES.length - 1,
 };
-const plain = { skin: 4, eyes: 0 };
+const plain = { race: 0, skin: 4, eyes: 0 };
 
 describe("the hairstyles", () => {
   it("are the creator's own lists: 14 for girls, 13 for boys", () => {
@@ -46,18 +46,44 @@ describe("a look, written down and read back", () => {
 
   it("refuses what another browser could send instead", () => {
     const good = encodeLook(every);
-    for (const bad of [null, 42, "", "5" + good.slice(1), good + "0", good.slice(0, -1), good.toUpperCase(),
-      // One past the end of the skin list (the fifth field).
-      good.slice(0, 5) + SKINS.length.toString(36) + good.slice(6),
-      // One past the end of a list (hair colours, the third field).
-      good.slice(0, 3) + HAIR_COLORS.length.toString(36) + good.slice(4),
-      good.slice(0, 2) + "!" + good.slice(3)]) {
+    for (const bad of [null, 42, "", "6" + good.slice(1), good + "0", good.slice(0, -1), good.toUpperCase(),
+      // No such race (the first field).
+      good.slice(0, 1) + RACES.length.toString(36) + good.slice(2),
+      // One past the end of the skin list (the sixth field).
+      good.slice(0, 6) + SKINS.length.toString(36) + good.slice(7),
+      // One past the end of a list (hair colours, the fourth field).
+      good.slice(0, 4) + HAIR_COLORS.length.toString(36) + good.slice(5),
+      good.slice(0, 3) + "!" + good.slice(4)]) {
       expect(decodeLook(bad)).toBeNull();
     }
   });
 });
 
+describe("races", () => {
+  it("are the game's eight, Lalafell first and always open", () => {
+    expect(RACES.map((r) => r.id)).toEqual(["lalafell", "hyur", "elezen", "miqote", "roegadyn", "aura", "hrothgar", "viera"]);
+    expect(RACES[0].open).toBe(true);
+    for (const r of RACES) if (r.open) for (const g of [0, 1]) expect(r.hairs.some((h) => h.g === g)).toBe(true);
+  });
+
+  it("keep the look's colours when it changes race, and stay a Lalafell with no race to go to", () => {
+    const look: Look = { race: 0, gender: 1, hair: at("m05"), hairColor: 7, eyeColor: 3, skin: 2, eyes: 4 };
+    for (let r = 0; r < RACES.length; r++) {
+      if (!RACES[r].hairs.length) continue;
+      const as = lookAsRace(look, r);
+      expect(as).toMatchObject({ race: r, gender: 1, hairColor: 7, eyeColor: 3, eyes: 4 });
+      expect(RACES[r].hairs[as.hair].g).toBe(1);
+      expect(decodeLook(encodeLook(as))).toEqual(as);
+    }
+  });
+});
+
 describe("looks written before", () => {
+  it("version 4 (before races) is a Lalafell, everything kept", () => {
+    expect(decodeLook("41lb664")).toEqual({ race: 0, gender: 1, hair: at("m08"), hairColor: 11, eyeColor: 6, skin: 6, eyes: 4 });
+    for (const bad of ["41zb664", "41lb66", "41lb6649", "41lbz64"]) expect(decodeLook(bad)).toBeNull();
+  });
+
   it("version 3 keeps everything, with the skin as drawn and round eyes", () => {
     expect(decodeLook("31lb6")).toEqual({ gender: 1, hair: at("m08"), hairColor: 11, eyeColor: 6, ...plain });
     expect(HAIRS[decodeLook("310b6")!.hair].id).toBe("m01");

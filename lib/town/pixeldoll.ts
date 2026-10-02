@@ -1,13 +1,14 @@
 "use client";
 
-import { EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, SKINS, type Look } from "./look";
+import { EYES, EYE_COLORS, GENDERS, HAIR_COLORS, RACES, hairsOf, raceOf, skinsOf, type Look } from "./look";
 
 /**
- * Drawing a Cash Town avatar: a pixel Lalafell.
+ * Drawing a Cash Town avatar: a pixel character of one of the game's races.
  *
- * One picture in public/town holds every piece, cut and packed by the
- * fc-cash-town skill's scripts/pixel/build-pixel-atlas.mjs from AI-made
- * sheets; pixel.json says where each piece is and which picture (named by its
+ * One picture per race in public/town holds every piece, cut and packed by the
+ * fc-cash-town skill's scripts/pixel/build-pixel-atlas.mjs (the Lalafell) or
+ * build-race-atlas.mjs (every other race) from AI-made sheets; its map
+ * (pixel.json, pixel-<race>.json) says where each piece is and which picture (named by its
  * content, so the browser keeps it a week and a new map never meets an old
  * picture).
  *
@@ -34,7 +35,7 @@ type G = "f" | "m";
 type RGB = [number, number, number];
 
 interface AtlasJson {
-  v: 2;
+  v: 2 | 3;
   image: string;
   size: [number, number];
   frames: Record<string, Frame>;
@@ -42,8 +43,16 @@ interface AtlasJson {
   walk: Record<G, Record<View, Array<{ body: string; hx: number; hy: number }>>>;
   /** Per gender and way, sitting: the body (its bottom is the seat) and the head's reference point. */
   sit?: Record<G, Record<View, { body: string; hx: number; hy: number }>>;
-  /** Face pieces per gender and eye shape (front), and the back of the head. */
-  face: Record<G, Record<string, string>> & { back: string };
+  /** Face pieces per gender and eye shape (front), and the back of the head (shared by the Lalafell, per gender for the rest). */
+  face: Record<G, Record<string, string>> & { back?: string };
+  /** How tall a standing doll is, per gender, in picture pixels (not given for the Lalafell). */
+  height?: Partial<Record<G, number>>;
+  /** How big this race's picture pixels are against the Lalafell's, per gender: drawn that much larger (not given for the Lalafell). */
+  scale?: Partial<Record<G, number>>;
+  /** Per gender, from the feet to the top of the head, ears left out (not given for the Lalafell). */
+  body?: Partial<Record<G, number>>;
+  /** The race's green is fur too (Miqo'te ears and tail): recoloured with the hair everywhere. */
+  furKey?: boolean;
   /** Hair pieces per hairstyle and way. */
   hair: Record<string, Partial<Record<View, string>>>;
   /** A face's eyes, mouth and skin colour, in its own pixels; only faces that can blink. */
@@ -65,6 +74,21 @@ export interface DrawState {
   /** Sitting (on a bench): drawn with its seat at (x, y). */
   sit?: boolean;
 }
+
+/** How tall a standing Lalafell is in its picture's pixels: the measure the other races are sized by. */
+const LALAFELL_H = 77;
+/**
+ * The measure the other races are sized by: a Lalafell of the game's own height against them, three fifths of the
+ * Lalafell picture, so a game Lalafell stands about 46 of the town's pixels and the tallest of the others (a
+ * Roegadyn man, 2.47 Lalafell) about a street lamp's height.
+ */
+const GAME_LALAFELL = 0.6;
+/**
+ * The Lalafell themselves are drawn a little larger than that, the top of their head at about a Viera's waist (the
+ * owner, 2026-10-02: "lalafell ตัวเล็กเกินไป ปรับแค่ lalafell ให้ตัวใหญ่ขึ้น สูงถึงประมาณเอว เผ่า Viera"; a Viera's
+ * belt is at 0.54 of her height, 2.03 game Lalafell). Nobody else changes size.
+ */
+const LALAFELL_SIZE = 0.67;
 
 /** Steps a second while walking. */
 export const WALK_FPS = 10;
@@ -138,7 +162,7 @@ export class PixelKit {
   private readonly kept = new Map<string, HTMLCanvasElement[]>();
   private readonly skinRamp: { keys: Map<string, RGB>; base: [number, number] };
 
-  constructor(readonly atlas: AtlasJson, img: HTMLImageElement) {
+  constructor(readonly atlas: AtlasJson, img: HTMLImageElement, readonly race = 0) {
     const [W, H] = atlas.size;
     const c = document.createElement("canvas");
     c.width = W; c.height = H;
@@ -181,12 +205,42 @@ export class PixelKit {
     return made;
   }
 
+  /** The look's skin swatch in this race's list. */
+  private skinHex(look: Look) {
+    const skins = skinsOf(this.race);
+    return (skins[look.skin] ?? skins[0]).hex;
+  }
+
   private body(name: string, look: Look) {
-    return this.keep(`${name}|${look.skin}`, () => {
+    return this.keep(`${name}|${look.skin}|${this.atlas.furKey ? look.hairColor : ""}`, () => {
       const img = this.read(name);
-      this.paintSkin(img.data, this.skinTo(SKINS[look.skin].hex));
+      this.paintSkin(img.data, this.skinTo(this.skinHex(look)));
+      if (this.atlas.furKey) recolourWhere(img.data, isHair, HAIR_COLORS[look.hairColor].hex);
       return [canvasOf(img)];
     })[0];
+  }
+
+  /**
+   * How much larger than its picture a gender of this race is drawn: whole, in its own proportions, so its
+   * body (feet to the top of the head, ears left out) stands at the race's height in the game against a
+   * Lalafell (lib/town/look RACES), and the Lalafell are drawn small enough for the tallest to fit the map
+   * (the owner, 2026-10-02: "scale ตามเกมเหมือนเดิม ตามที่ดีไซน์ แต่ lalafell ต้องตัวเล็กลง"). Body and head
+   * are kept apart so a race could be drawn more chibi one day; today they are the same size.
+   */
+  private sizesOf(g: G): { body: number; head: number } {
+    if (this.race === 0) return { body: LALAFELL_SIZE, head: LALAFELL_SIZE };
+    const want = raceOf(this.race).height?.[g], total = this.atlas.body?.[g];
+    const k = want && total ? (LALAFELL_H * GAME_LALAFELL * want) / total : this.atlas.scale?.[g] ?? 1;
+    return { body: k, head: k };
+  }
+
+  /** How tall a doll of this look stands, ears included, in Lalafell picture pixels, if the picture says. */
+  heightOf(look: Look): number | undefined {
+    const g = (GENDERS[look.gender]?.id ?? "f") as G, h = this.atlas.height?.[g];
+    if (this.race === 0) return LALAFELL_H * LALAFELL_SIZE;
+    if (h === undefined) return undefined;
+    const k = this.sizesOf(g), neck = -(this.atlas.walk[g]?.front?.[STAND]?.hy ?? 0);
+    return neck * k.body + (h - neck) * k.head;
   }
 
   private hair(name: string, look: Look) {
@@ -199,11 +253,12 @@ export class PixelKit {
 
   /** A face in a look's colours: as it is, eyes shut, mouth open, both (the last three only where it can blink). */
   private face(name: string, look: Look): HTMLCanvasElement[] {
-    return this.keep(`${name}|${look.skin}|${look.eyeColor}`, () => {
+    return this.keep(`${name}|${look.skin}|${look.eyeColor}|${this.atlas.furKey ? look.hairColor : ""}`, () => {
       const base = this.read(name), { width: w, height: h } = base;
-      const skin = this.skinTo(SKINS[look.skin].hex);
+      const skin = this.skinTo(this.skinHex(look));
       this.paintSkin(base.data, skin);
       recolourWhere(base.data, isEye, EYE_COLORS[look.eyeColor].hex);
+      if (this.atlas.furKey) recolourWhere(base.data, isHair, HAIR_COLORS[look.hairColor].hex);
       const out = [canvasOf(base)];
       const face = this.atlas.faceData[name];
       if (!face) return out;
@@ -254,38 +309,48 @@ export class PixelKit {
     const g = (GENDERS[look.gender]?.id ?? "f") as G;
     const steps = A.walk[g][view];
     const step = (state.sit && A.sit?.[g]?.[view]) || steps[state.step === undefined ? STAND : ((state.step % 4) + 4) % 4];
-    const faceName = view === "back" ? A.face.back : (A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round);
-    const hairName = A.hair[HAIRS[look.hair]?.id ?? ""]?.[view];
+    const faceName = view === "back" ? (A.face[g].back ?? A.face.back!) : (A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round);
+    const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.[view];
     const faces = this.face(faceName, look);
     const face = faces[faces.length > 1 ? (state.blink ? 1 : 0) + (state.talk ? 2 : 0) : 0];
 
     ctx.save();
     // Hard pixels while a picture pixel covers at least a screen pixel; zoomed
     // further out, nearest-neighbour would drop whole rows of the outline.
-    ctx.imageSmoothingEnabled = scale * px < 1;
+    const sizes = this.sizesOf(g), kb = scale * sizes.body, kh = scale * sizes.head;
     ctx.imageSmoothingQuality = "high";
     ctx.translate(Math.round(x * px) / px, Math.round(y * px) / px);
     if (mirror) ctx.scale(-1, 1);
-    ctx.scale(scale, scale);
+    // the body, then the head on its neck, each at its own size
+    ctx.save();
+    ctx.imageSmoothingEnabled = kb * px < 1;
+    ctx.scale(kb, kb);
     const [, , , , box, boy] = A.frames[step.body];
     ctx.drawImage(this.body(step.body, look), box, boy);
+    ctx.restore();
+    ctx.translate(step.hx * kb, step.hy * kb);
+    ctx.imageSmoothingEnabled = kh * px < 1;
+    ctx.scale(kh, kh);
     const [, , , , fox, foy] = A.frames[faceName];
-    ctx.drawImage(face, step.hx + fox, step.hy + foy);
+    ctx.drawImage(face, fox, foy);
     if (hairName) {
       const [, , , , hox, hoy] = A.frames[hairName];
-      ctx.drawImage(this.hair(hairName, look), step.hx + hox, step.hy + hoy);
+      ctx.drawImage(this.hair(hairName, look), hox, hoy);
     }
     ctx.restore();
   }
 }
 
-let kit: Promise<PixelKit> | null = null;
+const kits = new Map<number, Promise<PixelKit>>();
 
-/** The pixel kit, fetched once per tab: one picture and its map. */
-export function loadPixelKit(): Promise<PixelKit> {
-  kit ??= (async () => {
-    const r = await fetch("/town/pixel.json");
-    if (!r.ok) throw new Error(`pixel.json ${r.status}`);
+/** A race's pixel kit (the Lalafell's by default), fetched once per tab: one picture and its map. */
+export function loadPixelKit(race = 0): Promise<PixelKit> {
+  let kit = kits.get(race);
+  if (kit) return kit;
+  const atlas = RACES[race]?.atlas ?? RACES[0].atlas;
+  kit = (async () => {
+    const r = await fetch(atlas);
+    if (!r.ok) throw new Error(`${atlas} ${r.status}`);
     const json = await r.json() as AtlasJson;
     const img = await new Promise<HTMLImageElement>((ok, no) => {
       const i = new Image();
@@ -294,10 +359,11 @@ export function loadPixelKit(): Promise<PixelKit> {
       i.onerror = () => no(new Error(`${json.image} did not load`));
       i.src = `/town/${json.image}`;
     });
-    return new PixelKit(json, img);
+    return new PixelKit(json, img, race);
   })();
+  kits.set(race, kit);
   // A failed fetch may be tried again later rather than remembered.
-  kit.catch(() => { kit = null; });
+  kit.catch(() => { kits.delete(race); });
   return kit;
 }
 

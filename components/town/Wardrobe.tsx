@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, RACES, SKINS, hairForGender, hairsFor, randomLook,
+  EYES, EYE_COLORS, GENDERS, HAIR_COLORS, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, randomLook, skinsOf,
   type Look, type Named, type Swatch,
 } from "@/lib/town/look";
 import TownIcon from "./TownIcon";
@@ -32,7 +32,7 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
     <section aria-labelledby="wardrobe-h" className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">
         <h2 id="wardrobe-h" className="font-display text-title font-semibold text-ink"><span className="flex items-center gap-2"><TownIcon name="wardrobe" size={22} />{th ? "แต่งตัว" : "Wardrobe"}</span></h2>
-        <button type="button" onClick={() => onChange(randomLook())}
+        <button type="button" onClick={() => onChange(randomLook(look.race))}
                 className="pressable ml-auto rounded-full border border-line-strong px-3 py-1.5 text-ui text-ink hover:border-accent hover:text-accent">
           <span className="flex items-center gap-1.5"><TownIcon name="dice" size={16} />{th ? "สุ่ม" : "Surprise me"}</span>
         </button>
@@ -53,12 +53,13 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
           </div>
         </Group>
 
-        {/* Only Lalafell can be played yet: the other races are there, locked. */}
+        {/* The game's races: each opens when its pictures are made; the rest are there, locked. */}
         <Group label={th ? "เผ่า" : "Race"}>
           <div role="group" aria-label={th ? "เผ่า" : "Race"} className="flex flex-wrap gap-1.5">
-            {RACES.map((r) => r.open ? (
-              <button key={r.id} type="button" aria-pressed="true"
-                      className="pressable rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent ring-1 ring-accent/60">
+            {RACES.map((r, i) => r.open ? (
+              <button key={r.id} type="button" aria-pressed={look.race === i} onClick={() => onChange(lookAsRace(look, i))}
+                      className={`pressable rounded-full px-3 py-1.5 text-ui ${look.race === i
+                        ? "bg-accent/20 font-semibold text-accent ring-1 ring-accent/60" : "border border-line-strong text-ink hover:border-accent"}`}>
                 {t(r)}
               </button>
             ) : (
@@ -73,11 +74,11 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
         </Group>
 
         <Choices label={th ? "เพศ" : "Body"} items={GENDERS} value={look.gender} t={t}
-                 onPick={(gender) => set({ gender, hair: hairForGender(look.hair, gender) })} />
-        {/* The game's character creator's own hairstyles, each gender its own list. */}
-        <Choices label={th ? "ทรงผม" : "Hairstyle"} items={HAIRS} only={hairsFor(look.gender)} value={look.hair} t={t} onPick={(hair) => set({ hair })} />
+                 onPick={(gender) => set({ gender, hair: hairForGender(look.hair, gender, look.race) })} />
+        {/* The game's character creator's own hairstyles, each race and gender its own list. */}
+        <Choices label={th ? "ทรงผม" : "Hairstyle"} items={hairsOf(look.race)} only={hairsFor(look.gender, look.race)} value={look.hair} t={t} onPick={(hair) => set({ hair })} />
         <Swatches label={th ? "สีผม" : "Hair colour"} items={HAIR_COLORS} value={look.hairColor} t={t} onPick={(hairColor) => set({ hairColor })} />
-        <Swatches label={th ? "สีผิว" : "Skin"} items={SKINS} value={look.skin} t={t} onPick={(skin) => set({ skin })} />
+        <Swatches label={th ? "สีผิว" : "Skin"} items={skinsOf(look.race)} value={look.skin} t={t} onPick={(skin) => set({ skin })} />
         <Choices label={th ? "ทรงตา" : "Eyes"} items={EYES} value={look.eyes} t={t} onPick={(eyes) => set({ eyes })} />
         <Swatches label={th ? "สีตา" : "Eye colour"} items={EYE_COLORS} value={look.eyeColor} t={t} onPick={(eyeColor) => set({ eyeColor })} />
       </div>

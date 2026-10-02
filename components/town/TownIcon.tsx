@@ -8,7 +8,11 @@ import atlas from "@/lib/town/icon-atlas.json";
 export type IconName = keyof typeof atlas.icons;
 
 /** The picture and where each icon sits in it, for drawing one on a canvas. */
-export const ICON_ATLAS = atlas as { image: string; size: [number, number]; icons: Record<IconName, [number, number, number, number]> };
+export const ICON_ATLAS = atlas as {
+  image: string; size: [number, number]; icons: Record<IconName, [number, number, number, number]>;
+  /** The mouse cursor's frames: where in each the click lands (the arrow's tip, the finger's tip). */
+  cursor: Partial<Record<IconName, [number, number]>>;
+};
 
 export default function TownIcon({ name, size = 20, className = "" }: {
   name: IconName;

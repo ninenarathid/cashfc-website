@@ -1,0 +1,1460 @@
+{
+ "race": "aura",
+ "name": {
+  "en": "Au Ra",
+  "th": "เอาร่า"
+ },
+ "clans": {
+  "en": [
+   "Raen",
+   "Xaela"
+  ],
+  "th": [
+   "เรน",
+   "ซาเอลา"
+  ]
+ },
+ "height": {
+  "f": {
+   "cm": [
+    146,
+    158.5
+   ],
+   "typical_cm": 152.2,
+   "scale": 1.69
+  },
+  "m": {
+   "cm": [
+    203,
+    216.9
+   ],
+   "typical_cm": 209.8,
+   "scale": 2.33
+  }
+ },
+ "features": {
+  "f": "Petite and slender with narrow shoulders, a soft heart-shaped face, big eyes and a small chin. No human ears: a pair of smooth horns grows from the sides of the head where the ears would be and sweeps back and down to about the jaw like small crescents (the chosen face sets the shape: curved crescent, flat pointed blade, broad scaly fin, or a round ram's curl). Horns, scales and tail are ivory white for Raen and glossy black for Xaela; small scale plates make a tiny crest between the brows, line the cheekbones and jaw under the horns and form a scaly collar round the throat, and a long, thick, scaly tail tapering to a point hangs from the lower back to about the calves.",
+  "m": "Huge, broad-shouldered and heavily muscled (deep chest, thick arms, long legs), with a long angular face, heavy brow and strong jaw; nearly half again as tall as the dainty women. Big ridged horns grow from the sides of the head where the ears would be and curl back then forward around the face toward the jaw (the face sets the shape: ram's curl, jagged flaring blades, or long hooks reaching below the chin, some with darker tips). Ivory-white horns, scales and tail for Raen, black for Xaela; thick scale plates cover the jaw and chin like a beard and run down the neck, with a crest on the brow and patches on the cheekbones, and a long, heavy, scaly tail reaches about the ankles."
+ },
+ "attire": {
+  "f": {
+   "items": [
+    "Auri Gown",
+    "Auri Halfgloves",
+    "Auri Pantalettes",
+    "Auri Buskins"
+   ],
+   "desc": "An off-the-shoulder, knee-length charcoal-grey dress with a white folded band across the shoulders, spiky silver scale-plate pauldrons on both shoulders, a round silver brooch with a little red bow at the chest and a brown strip down the front; a dark woven belt with a big silver buckle laced with red X stitches and a hanging charm of red beads and white-and-green feathers, and a white pleated underskirt with brown X stitches peeking out on one side under the ragged, pointed hem. A brown fingerless half-glove wraps her left forearm (a thin bracelet on the right wrist), and knee-high dark olive-brown wrapped boots with folded ragged tops, small silver claw spikes at the sides and open toes finish the look."
+  },
+  "m": {
+   "items": [
+    "Auri Harness",
+    "Auri Armguards",
+    "Auri Breeches",
+    "Auri Sandals"
+   ],
+   "desc": "A bare-midriff warrior look: a torn white crop top crossed by a dark studded leather strap with a red cross emblem and a round buckle, one spiked silver pauldron on his right shoulder with a dark band round that upper arm, and dark grey wrapped arm guards with ragged cuffs (a red cord at the right wrist). Below, wide baggy olive-green trousers with ragged ankle hems, a broad black corset belt laced with silver criss-cross, a torn rust-orange cloth hanging over the hips and a dark panel with a spiky silver ornament down one leg, over open brown sandals with dark ankle wraps."
+  }
+ },
+ "skins": {
+  "f": [
+   {
+    "hex": "#EAC9B8",
+    "en": "porcelain pink (Raen)"
+   },
+   {
+    "hex": "#D7C4BB",
+    "en": "pale ash (Raen and Xaela)"
+   },
+   {
+    "hex": "#E8BDA1",
+    "en": "light peach (Raen)"
+   },
+   {
+    "hex": "#C69982",
+    "en": "warm tan (Xaela and Raen)"
+   },
+   {
+    "hex": "#8B868D",
+    "en": "lavender grey (Xaela)"
+   },
+   {
+    "hex": "#6B6D81",
+    "en": "slate blue-grey (Xaela)"
+   },
+   {
+    "hex": "#886250",
+    "en": "cocoa brown (Xaela)"
+   },
+   {
+    "hex": "#2E3240",
+    "en": "blue-black charcoal (Xaela)"
+   }
+  ],
+  "m": [
+   {
+    "hex": "#D0D0CE",
+    "en": "pale ash white (Xaela)"
+   },
+   {
+    "hex": "#CA9B85",
+    "en": "light peach tan (Raen)"
+   },
+   {
+    "hex": "#B09289",
+    "en": "dusty rose (Raen)"
+   },
+   {
+    "hex": "#85949A",
+    "en": "blue-grey (Xaela)"
+   },
+   {
+    "hex": "#5A5A6F",
+    "en": "slate violet-grey (Xaela)"
+   },
+   {
+    "hex": "#7E4C47",
+    "en": "ruddy rose-brown (Raen)"
+   },
+   {
+    "hex": "#4E2F25",
+    "en": "dark umber (Xaela)"
+   },
+   {
+    "hex": "#20202F",
+    "en": "blue-black (Xaela)"
+   }
+  ]
+ },
+ "hairs": {
+  "f": [
+   {
+    "id": "f01",
+    "en": "Side-Swept Long, Star Clip",
+    "th": "ยาวปัดข้างกิ๊บดาว",
+    "desc": "long straight hair parted on one side and swept smoothly over the top, one lock framing the face and the rest falling past the shoulders behind the horns, with a white geometric star-flower clip on the side of the head just above the horn",
+    "ties": "except the white star-flower clip",
+    "fid": 1,
+    "shared": false,
+    "customizeRow": 1691,
+    "icon": "ui/icon/136000/136201.tex"
+   },
+   {
+    "id": "f02",
+    "en": "Long with Feather Fan",
+    "th": "ยาวปักขนนก",
+    "desc": "long straight hair parted in the middle with the forehead bare, drawn loosely back behind the horns and falling past the shoulders, with a fan of white feathers on a small black base at the back of the head above the horn",
+    "ties": "except the white feather fan and its black base",
+    "fid": 2,
+    "shared": false,
+    "customizeRow": 1692,
+    "icon": "ui/icon/136000/136202.tex"
+   },
+   {
+    "id": "f03",
+    "en": "Blunt Bangs, Shell Clips",
+    "th": "หน้าม้าตรงกิ๊บเปลือกหอย",
+    "desc": "straight blunt bangs with longer side locks to the chin, the rest flowing long down the back past the horns, and two silver-white shell-shaped fan ornaments on the top sides of the head",
+    "ties": "except the two silver-white shell ornaments",
+    "fid": 3,
+    "shared": false,
+    "customizeRow": 1693,
+    "icon": "ui/icon/136000/136203.tex"
+   },
+   {
+    "id": "f04",
+    "en": "A-Line Bob",
+    "th": "บ็อบหน้ายาว",
+    "desc": "a straight A-line bob with blunt bangs, the front locks longer at the jaw and the back shorter above the horns, with two small black clips at the sides above the bangs",
+    "ties": "except the two small black clips",
+    "fid": 4,
+    "shared": false,
+    "customizeRow": 1694,
+    "icon": "ui/icon/136000/136204.tex"
+   },
+   {
+    "id": "f05",
+    "en": "Side-Swept Bob",
+    "th": "บ็อบปัดข้าง",
+    "desc": "a chin-length layered bob with long side-swept bangs over one eye and wispy ends at the neck",
+    "ties": "",
+    "fid": 5,
+    "shared": false,
+    "customizeRow": 1695,
+    "icon": "ui/icon/136000/136205.tex"
+   },
+   {
+    "id": "f06",
+    "en": "Short with Long Front Locks",
+    "th": "สั้นปอยหน้ายาว",
+    "desc": "a short layered cut with blunt bangs, flaring out at the back above the horns, and two long thin locks hanging in front of the shoulders to the chest",
+    "ties": "",
+    "fid": 6,
+    "shared": false,
+    "customizeRow": 1696,
+    "icon": "ui/icon/136000/136206.tex"
+   },
+   {
+    "id": "f07",
+    "en": "Bob with Black Roses",
+    "th": "บ็อบกุหลาบดำ",
+    "desc": "a rounded chin-length bob with side-swept bangs and a black rose ornament on each side of the top of the head",
+    "ties": "except the two black roses",
+    "fid": 7,
+    "shared": false,
+    "customizeRow": 1697,
+    "icon": "ui/icon/136000/136207.tex"
+   },
+   {
+    "id": "f08",
+    "en": "Long Hime Cut",
+    "th": "ยาวตรงหน้าม้าเต็ม",
+    "desc": "very long straight hair with full blunt bangs, falling straight to the chest in front of and behind the horns",
+    "ties": "",
+    "fid": 8,
+    "shared": false,
+    "customizeRow": 1698,
+    "icon": "ui/icon/136000/136208.tex"
+   },
+   {
+    "id": "f09",
+    "en": "Long Side-Swept",
+    "th": "ยาวปัดข้าง",
+    "desc": "long straight hair past the shoulders with long side-swept bangs falling over one eye",
+    "ties": "",
+    "fid": 9,
+    "shared": false,
+    "customizeRow": 1699,
+    "icon": "ui/icon/136000/136209.tex"
+   },
+   {
+    "id": "f10",
+    "en": "Flipped Shoulder Length",
+    "th": "ประบ่าปลายงอน",
+    "desc": "shoulder-length hair parted in the middle with the forehead bare, the ends flipping outward at the shoulders below the horns",
+    "ties": "",
+    "fid": 10,
+    "shared": false,
+    "customizeRow": 1700,
+    "icon": "ui/icon/136000/136210.tex"
+   },
+   {
+    "id": "f11",
+    "en": "Loose Low Tail",
+    "th": "หางม้าต่ำหลวม",
+    "desc": "wispy side bangs and thin face-framing locks, the rest gathered into a loose low tail hanging at the back behind the horn",
+    "ties": "",
+    "fid": 11,
+    "shared": false,
+    "customizeRow": 1701,
+    "icon": "ui/icon/136000/136211.tex"
+   },
+   {
+    "id": "f12",
+    "en": "Bob with Hairband",
+    "th": "บ็อบคาดผม",
+    "desc": "a chin-length straight bob with full bangs and a plain white hairband",
+    "ties": "except the white hairband",
+    "fid": 12,
+    "shared": false,
+    "customizeRow": 1702,
+    "icon": "ui/icon/136000/136212.tex"
+   }
+  ],
+  "m": [
+   {
+    "id": "m01",
+    "en": "Swept-Up Spikes",
+    "th": "ปัดขึ้นแหลม",
+    "desc": "short hair swept up and back from the forehead into long spiky flicked points, one long thin lock falling loose beside the forehead, and a thin tail at the nape bound in a black wrap below the horns",
+    "ties": "except the black wrap on the nape tail",
+    "fid": 1,
+    "shared": false,
+    "customizeRow": 1561,
+    "icon": "ui/icon/136000/136001.tex"
+   },
+   {
+    "id": "m02",
+    "en": "Wild Mane with Braids",
+    "th": "แผงคอยาวเปีย",
+    "desc": "a long wild windswept mane swept back from the forehead and streaming past the shoulders behind the horns, two thin braids hanging in front of the horns to the chest ending in black cylinder beads, and two black curved crescent clips on top of the head",
+    "ties": "except the black beads and the two black crescent clips",
+    "fid": 2,
+    "shared": false,
+    "customizeRow": 1562,
+    "icon": "ui/icon/136000/136002.tex"
+   },
+   {
+    "id": "m03",
+    "en": "Messy Spiky Layers",
+    "th": "ชั้นยุ่งแหลม",
+    "desc": "messy layered shoulder-length hair with long spiky bangs falling over the eyes, one cowlick strand standing straight up from the crown and spiky ends flaring out at the sides above the horns",
+    "ties": "",
+    "fid": 3,
+    "shared": false,
+    "customizeRow": 1563,
+    "icon": "ui/icon/136000/136003.tex"
+   },
+   {
+    "id": "m04",
+    "en": "Long Straight, Bare Brow",
+    "th": "ยาวตรงเปิดหน้าผาก",
+    "desc": "very long straight hair parted in the middle with the forehead bare and no bangs, falling straight past the shoulders behind the horns, with two small black diamond clips on one side of the crown",
+    "ties": "except the two black diamond clips",
+    "fid": 4,
+    "shared": false,
+    "customizeRow": 1564,
+    "icon": "ui/icon/136000/136004.tex"
+   },
+   {
+    "id": "m05",
+    "en": "Low Knot, Long Side Locks",
+    "th": "มวยต่ำปอยข้างยาว",
+    "desc": "long straight side locks hanging past the chin in front of the horns, the rest drawn back into a low knot tied with a black ribbon bow at the back of the head, and one thin strand curling up from the crown",
+    "ties": "except the black ribbon bow",
+    "fid": 5,
+    "shared": false,
+    "customizeRow": 1565,
+    "icon": "ui/icon/136000/136005.tex"
+   },
+   {
+    "id": "m06",
+    "en": "Flame Top, Wrapped Tail",
+    "th": "ทรงเปลวไฟหางพัน",
+    "desc": "hair swept up into tall spiky flame-like points above the forehead, the rest pulled back into a long tail behind the horns bound in black criss-cross wrapping, with a small white pointed clip at the back of the head",
+    "ties": "except the black criss-cross wrapping and the white clip",
+    "fid": 6,
+    "shared": false,
+    "customizeRow": 1566,
+    "icon": "ui/icon/136000/136006.tex"
+   },
+   {
+    "id": "m07",
+    "en": "Spiky Crest, Side Braid",
+    "th": "ตั้งแหลมเปียข้าง",
+    "desc": "tall spiky hair standing straight up at the front like a crest, a thin braid running back along the side of the head above the horn, and longer spiky strands at the nape",
+    "ties": "",
+    "fid": 7,
+    "shared": false,
+    "customizeRow": 1567,
+    "icon": "ui/icon/136000/136007.tex"
+   },
+   {
+    "id": "m08",
+    "en": "Windswept Mane",
+    "th": "แผงคอปลิวลม",
+    "desc": "a big windswept mane swept up and back from the forehead and streaming far behind the head over the horns, with a black crescent-shaped ornament at each temple",
+    "ties": "except the two black crescent ornaments",
+    "fid": 8,
+    "shared": false,
+    "customizeRow": 1568,
+    "icon": "ui/icon/136000/136008.tex"
+   },
+   {
+    "id": "m09",
+    "en": "Neat Layered Short",
+    "th": "สั้นซอยเรียบร้อย",
+    "desc": "neat softly layered short hair with long side-swept bangs over the brow, ending at the nape above the horns",
+    "ties": "",
+    "fid": 9,
+    "shared": false,
+    "customizeRow": 1569,
+    "icon": "ui/icon/136000/136009.tex"
+   },
+   {
+    "id": "m10",
+    "en": "Ragged Jaw Length",
+    "th": "ยาวคางซอยปลาย",
+    "desc": "jaw-length straight hair with long ragged bangs falling over the eyes and pointed side locks hanging in front of the horns",
+    "ties": "",
+    "fid": 10,
+    "shared": false,
+    "customizeRow": 1570,
+    "icon": "ui/icon/136000/136010.tex"
+   },
+   {
+    "id": "m11",
+    "en": "Feathery Crop",
+    "th": "สั้นฟูขนนก",
+    "desc": "a short thick feathery tousled crop with short choppy bangs over the forehead",
+    "ties": "",
+    "fid": 11,
+    "shared": false,
+    "customizeRow": 1571,
+    "icon": "ui/icon/136000/136011.tex"
+   },
+   {
+    "id": "m12",
+    "en": "Long Slicked Back",
+    "th": "ยาวเสยหลัง",
+    "desc": "long hair slicked straight back from the forehead with no bangs, falling smoothly down the back behind the horns",
+    "ties": "",
+    "fid": 12,
+    "shared": false,
+    "customizeRow": 1572,
+    "icon": "ui/icon/136000/136012.tex"
+   }
+  ]
+ },
+ "notes": "Hairs: XIVAPI v2 CharaMakeType rows 20/21 (Raen m/f) and 22/23 (Xaela m/f), Gender 0 = male. The Hairstyle menu (Lobby 234) holds 47 entries for each gender, identical for both clans, so there are no clan-only extras. Every listed CharaMakeCustomize row has IsPurchasable=false and no HintItem/UnlockLink, while the rows left out of the menu (e.g. 1573 Pulse, 1577 Ceremony of Eternal Bonding, 1582 Ponytails) are Modern Aesthetics or event unlocks, so all 47 are free at creation. Race-own styles are f01-f12 and m01-m12 (FeatureID 1-12; Au Ra have no 51+ extras); f13-f47 and m13-m47 (FeatureID 102-178, shared:true) are the shared all-race styles the creator also offers free. For parity with a Lalafell set built only from race-own styles (1-13 + 51-53), take f01-f12 / m01-m12. Shared FeatureIDs are not the same cut across genders (e.g. 103 is a side ponytail for women, a short spiky tousle for men). Icons: front three-quarter view only, hair rendered grey, and every icon wears face 1's horns (women: small ivory crescents; men: a big ivory ram's curl wrapping forward along the jaw), so backs of tails, buns and braids are partly inferred. In all icons the horns grow out under the hair at ear level: short cuts stop above them, long hair falls behind them, and side locks or braids hang in front of them. Accessory colours are as the icons show them (some may tint with the hair or highlight colour in game); the black crescent pieces on m02/m08 are read as hair ornaments, not extra horns. Horns: Au Ra pick horns through the Face menu (4 faces per gender, each with its own horn shape and scale pattern); the Tail Shape menu offers 4 tails (plain tapering, one with a side spike, a broad finned ridge, a forked claw tip) plus a tail-length slider. Raen and Xaela face, tail and hair icons are byte-identical, so the white (Raen) vs black (Xaela) horn, scale and tail colour comes from the wiki and lore, not from the icons. Attire: CharaMakeType Equipment[0] is model 257 v2 (m) / 258 v2 (f) for both clans; an Item search on those ModelMain values returns the Auri set, the creator outfit for Raen and Xaela alike. Colours from the ffxivcollection renders (undyed). The Auri Pantalettes are hidden under the gown, so they are not described. Heights: from the vhpg.com height chart (min 146.0 / avg 152.2 / max 158.5 cm for women, 203.0 / 209.8 / 216.9 cm for men; same for both clans); scale = average / 90 cm. Skins: the creator's own swatch (interface) colours from human.cmp via the xivdyetools data, checked against a creator screenshot of the Au Ra palettes (pudgy-puk tumblr); rendered skin in game looks a little lighter and softer. Palettes differ by clan and gender: Raen women run peach, tan, olive, pale pink and blue-grey; Raen men are ruddier (rose to deep red-brown, olive, mauve-grey) with no very pale tones; Xaela run lavender-grey to navy, pale ash to dark slate, and tan to dark brown. The 8 swatches per gender mix both clans. Thai race name: เอาร่า is a transliteration; Thai players also write ออร่า.",
+ "sources": [
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/20",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/21",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/22",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/23",
+  "https://v2.xivapi.com/api/sheet/CharaMakeCustomize?rows=1561,1691",
+  "https://v2.xivapi.com/api/search?sheets=Item&query=ModelMain=131329%20ModelMain=131330",
+  "https://v2.xivapi.com/api/asset?path=ui/icon/136000/136001_hr1.tex&format=png",
+  "https://ffxiv.consolegameswiki.com/wiki/Racial_Starting_Glamour_Set",
+  "https://www.ffxivcollection.com/en/auri-gown/",
+  "https://www.ffxivcollection.com/wp-content/uploads/images/patch-3/種族装束（アウラ♂）/種族装束（アウラ♂）-square-male.jpg",
+  "https://ffxiv.consolegameswiki.com/wiki/Au_Ra",
+  "https://ffxiv.consolegameswiki.com/wiki/Raen",
+  "https://ffxiv.consolegameswiki.com/wiki/Xaela",
+  "http://www.vhpg.com/ffxiv-race-heights/",
+  "https://github.com/FlashGalatine/xivdyetools/blob/main/packages/core/src/data/character_colors/race_specific/skin_colors.json",
+  "https://github.com/FlashGalatine/xivdyetools/blob/main/packages/core/scripts/build-character-colors.ts",
+  "https://pudgy-puk.tumblr.com/post/177929225722"
+ ],
+ "allHairs": {
+  "f": [
+   {
+    "id": "f01",
+    "en": "Side-Swept Long, Star Clip",
+    "th": "ยาวปัดข้างกิ๊บดาว",
+    "desc": "long straight hair parted on one side and swept smoothly over the top, one lock framing the face and the rest falling past the shoulders behind the horns, with a white geometric star-flower clip on the side of the head just above the horn",
+    "ties": "except the white star-flower clip",
+    "fid": 1,
+    "shared": false,
+    "customizeRow": 1691,
+    "icon": "ui/icon/136000/136201.tex"
+   },
+   {
+    "id": "f02",
+    "en": "Long with Feather Fan",
+    "th": "ยาวปักขนนก",
+    "desc": "long straight hair parted in the middle with the forehead bare, drawn loosely back behind the horns and falling past the shoulders, with a fan of white feathers on a small black base at the back of the head above the horn",
+    "ties": "except the white feather fan and its black base",
+    "fid": 2,
+    "shared": false,
+    "customizeRow": 1692,
+    "icon": "ui/icon/136000/136202.tex"
+   },
+   {
+    "id": "f03",
+    "en": "Blunt Bangs, Shell Clips",
+    "th": "หน้าม้าตรงกิ๊บเปลือกหอย",
+    "desc": "straight blunt bangs with longer side locks to the chin, the rest flowing long down the back past the horns, and two silver-white shell-shaped fan ornaments on the top sides of the head",
+    "ties": "except the two silver-white shell ornaments",
+    "fid": 3,
+    "shared": false,
+    "customizeRow": 1693,
+    "icon": "ui/icon/136000/136203.tex"
+   },
+   {
+    "id": "f04",
+    "en": "A-Line Bob",
+    "th": "บ็อบหน้ายาว",
+    "desc": "a straight A-line bob with blunt bangs, the front locks longer at the jaw and the back shorter above the horns, with two small black clips at the sides above the bangs",
+    "ties": "except the two small black clips",
+    "fid": 4,
+    "shared": false,
+    "customizeRow": 1694,
+    "icon": "ui/icon/136000/136204.tex"
+   },
+   {
+    "id": "f05",
+    "en": "Side-Swept Bob",
+    "th": "บ็อบปัดข้าง",
+    "desc": "a chin-length layered bob with long side-swept bangs over one eye and wispy ends at the neck",
+    "ties": "",
+    "fid": 5,
+    "shared": false,
+    "customizeRow": 1695,
+    "icon": "ui/icon/136000/136205.tex"
+   },
+   {
+    "id": "f06",
+    "en": "Short with Long Front Locks",
+    "th": "สั้นปอยหน้ายาว",
+    "desc": "a short layered cut with blunt bangs, flaring out at the back above the horns, and two long thin locks hanging in front of the shoulders to the chest",
+    "ties": "",
+    "fid": 6,
+    "shared": false,
+    "customizeRow": 1696,
+    "icon": "ui/icon/136000/136206.tex"
+   },
+   {
+    "id": "f07",
+    "en": "Bob with Black Roses",
+    "th": "บ็อบกุหลาบดำ",
+    "desc": "a rounded chin-length bob with side-swept bangs and a black rose ornament on each side of the top of the head",
+    "ties": "except the two black roses",
+    "fid": 7,
+    "shared": false,
+    "customizeRow": 1697,
+    "icon": "ui/icon/136000/136207.tex"
+   },
+   {
+    "id": "f08",
+    "en": "Long Hime Cut",
+    "th": "ยาวตรงหน้าม้าเต็ม",
+    "desc": "very long straight hair with full blunt bangs, falling straight to the chest in front of and behind the horns",
+    "ties": "",
+    "fid": 8,
+    "shared": false,
+    "customizeRow": 1698,
+    "icon": "ui/icon/136000/136208.tex"
+   },
+   {
+    "id": "f09",
+    "en": "Long Side-Swept",
+    "th": "ยาวปัดข้าง",
+    "desc": "long straight hair past the shoulders with long side-swept bangs falling over one eye",
+    "ties": "",
+    "fid": 9,
+    "shared": false,
+    "customizeRow": 1699,
+    "icon": "ui/icon/136000/136209.tex"
+   },
+   {
+    "id": "f10",
+    "en": "Flipped Shoulder Length",
+    "th": "ประบ่าปลายงอน",
+    "desc": "shoulder-length hair parted in the middle with the forehead bare, the ends flipping outward at the shoulders below the horns",
+    "ties": "",
+    "fid": 10,
+    "shared": false,
+    "customizeRow": 1700,
+    "icon": "ui/icon/136000/136210.tex"
+   },
+   {
+    "id": "f11",
+    "en": "Loose Low Tail",
+    "th": "หางม้าต่ำหลวม",
+    "desc": "wispy side bangs and thin face-framing locks, the rest gathered into a loose low tail hanging at the back behind the horn",
+    "ties": "",
+    "fid": 11,
+    "shared": false,
+    "customizeRow": 1701,
+    "icon": "ui/icon/136000/136211.tex"
+   },
+   {
+    "id": "f12",
+    "en": "Bob with Hairband",
+    "th": "บ็อบคาดผม",
+    "desc": "a chin-length straight bob with full bangs and a plain white hairband",
+    "ties": "except the white hairband",
+    "fid": 12,
+    "shared": false,
+    "customizeRow": 1702,
+    "icon": "ui/icon/136000/136212.tex"
+   },
+   {
+    "id": "f13",
+    "en": "Side Ponytail",
+    "th": "หางม้าเอียง",
+    "desc": "full bangs with long side locks framing the face, and a long ponytail from the back of the crown swept to one side above the horns, tied with a small white ornament",
+    "ties": "except the small white ornament at the tie",
+    "fid": 103,
+    "shared": true,
+    "customizeRow": 1704,
+    "icon": "ui/icon/136000/136216.tex"
+   },
+   {
+    "id": "f14",
+    "en": "Long Swept Back",
+    "th": "ยาวเสยข้าง",
+    "desc": "long straight hair swept back from a side part with the forehead bare, long locks falling in front of and behind the horns past the shoulders",
+    "ties": "",
+    "fid": 105,
+    "shared": true,
+    "customizeRow": 1705,
+    "icon": "ui/icon/136000/136217.tex"
+   },
+   {
+    "id": "f15",
+    "en": "Long Soft Waves",
+    "th": "ยาวลอนหน้าม้า",
+    "desc": "long soft wavy hair with full bangs, the waves falling past the shoulders",
+    "ties": "",
+    "fid": 102,
+    "shared": true,
+    "customizeRow": 1706,
+    "icon": "ui/icon/136000/136215.tex"
+   },
+   {
+    "id": "f16",
+    "en": "Ringed Dreadlocks",
+    "th": "เดรดล็อกห่วงเงิน",
+    "desc": "long thin dreadlocks pulled back off the forehead and hanging past the shoulders, threaded with several silver rings",
+    "ties": "except the silver rings",
+    "fid": 106,
+    "shared": true,
+    "customizeRow": 1708,
+    "icon": "ui/icon/136000/136218.tex"
+   },
+   {
+    "id": "f17",
+    "en": "High Ponytail",
+    "th": "หางม้าสูง",
+    "desc": "side-swept bangs and chin-length side locks, with a high ponytail at the back of the crown whose tips fan up above the tie and a long tail falling down the back behind the horns",
+    "ties": "",
+    "fid": 107,
+    "shared": true,
+    "customizeRow": 1709,
+    "icon": "ui/icon/136000/136219.tex"
+   },
+   {
+    "id": "f18",
+    "en": "Long with Hairband",
+    "th": "ยาวคาดผม",
+    "desc": "long straight hair past the shoulders with side-swept bangs and a plain white hairband",
+    "ties": "except the white hairband",
+    "fid": 108,
+    "shared": true,
+    "customizeRow": 1710,
+    "icon": "ui/icon/136000/136220.tex"
+   },
+   {
+    "id": "f19",
+    "en": "Choppy Pixie",
+    "th": "พิกซี่ซอย",
+    "desc": "a short choppy layered pixie cut with jagged bangs, short at the nape",
+    "ties": "",
+    "fid": 111,
+    "shared": true,
+    "customizeRow": 1711,
+    "icon": "ui/icon/136000/136222.tex"
+   },
+   {
+    "id": "f20",
+    "en": "Twin Front Braids",
+    "th": "เปียคู่หน้า",
+    "desc": "side-swept bangs with two long braids hanging down in front of the shoulders below the horns",
+    "ties": "",
+    "fid": 110,
+    "shared": true,
+    "customizeRow": 1713,
+    "icon": "ui/icon/136000/136221.tex"
+   },
+   {
+    "id": "f21",
+    "en": "Sleek High Ponytail",
+    "th": "หางม้าสูงเรียบ",
+    "desc": "full bangs and long side locks to the chin, with a sleek high ponytail at the top back of the head",
+    "ties": "",
+    "fid": 115,
+    "shared": true,
+    "customizeRow": 1714,
+    "icon": "ui/icon/136000/136224.tex"
+   },
+   {
+    "id": "f22",
+    "en": "Long Centre-Part Waves",
+    "th": "ลอนยาวแสกกลาง",
+    "desc": "long voluminous wavy hair parted in the middle with the forehead bare, falling past the shoulders",
+    "ties": "",
+    "fid": 118,
+    "shared": true,
+    "customizeRow": 1715,
+    "icon": "ui/icon/136000/136225.tex"
+   },
+   {
+    "id": "f23",
+    "en": "Long Loose Waves",
+    "th": "ลอนยาวปัดข้าง",
+    "desc": "long loose waves falling past the shoulders from a side part, with a short side-swept fringe",
+    "ties": "",
+    "fid": 119,
+    "shared": true,
+    "customizeRow": 1716,
+    "icon": "ui/icon/136000/136226.tex"
+   },
+   {
+    "id": "f24",
+    "en": "Tousled Pixie",
+    "th": "พิกซี่ยุ่ง",
+    "desc": "a short tousled pixie cut swept to one side, short at the nape above the horns",
+    "ties": "",
+    "fid": 120,
+    "shared": true,
+    "customizeRow": 1717,
+    "icon": "ui/icon/136000/136227.tex"
+   },
+   {
+    "id": "f25",
+    "en": "Centre-Part Chin Length",
+    "th": "ยาวคางแสกกลาง",
+    "desc": "chin-length hair parted in the middle and swept to the sides, the forehead bare and wispy ends at the jaw",
+    "ties": "",
+    "fid": 121,
+    "shared": true,
+    "customizeRow": 1718,
+    "icon": "ui/icon/136000/136228.tex"
+   },
+   {
+    "id": "f26",
+    "en": "Centre-Part Shag",
+    "th": "แชกแสกกลาง",
+    "desc": "neck-to-shoulder-length shaggy layers parted in the middle, with feathery flicked ends",
+    "ties": "",
+    "fid": 122,
+    "shared": true,
+    "customizeRow": 1722,
+    "icon": "ui/icon/136000/136232.tex"
+   },
+   {
+    "id": "f27",
+    "en": "Blunt-Bang Shag",
+    "th": "แชกหน้าม้าตรง",
+    "desc": "straight full bangs with chin-length layers and feathery ends flicking out at the back",
+    "ties": "",
+    "fid": 126,
+    "shared": true,
+    "customizeRow": 1723,
+    "icon": "ui/icon/136000/136233.tex"
+   },
+   {
+    "id": "f28",
+    "en": "Spiky Tousle",
+    "th": "ยุ่งแหลม",
+    "desc": "spiky tousled medium-length hair with a big spiky top swept to one side and long spiky bangs over one eye",
+    "ties": "",
+    "fid": 127,
+    "shared": true,
+    "customizeRow": 1724,
+    "icon": "ui/icon/136000/136234.tex"
+   },
+   {
+    "id": "f29",
+    "en": "Spiky Slick-Back",
+    "th": "เสยหลังแหลม",
+    "desc": "spiky hair swept up and back off the face, a few thin strands falling over the forehead, short to medium at the back",
+    "ties": "",
+    "fid": 131,
+    "shared": true,
+    "customizeRow": 1725,
+    "icon": "ui/icon/136000/136235.tex"
+   },
+   {
+    "id": "f30",
+    "en": "Twin Twisted Tails",
+    "th": "หางบิดคู่",
+    "desc": "full bangs with two long thick rope-twisted spiral tails hanging in front of the shoulders, joined by a twisted band round the back of the head",
+    "ties": "",
+    "fid": 132,
+    "shared": true,
+    "customizeRow": 1726,
+    "icon": "ui/icon/136000/136236.tex"
+   },
+   {
+    "id": "f31",
+    "en": "Round Bob with Tuft",
+    "th": "บ็อบกลมจุก",
+    "desc": "a rounded chin-length bob with bangs, a small tuft sticking up on top and ends flicking out at the neck",
+    "ties": "",
+    "fid": 124,
+    "shared": true,
+    "customizeRow": 1727,
+    "icon": "ui/icon/136000/136237.tex"
+   },
+   {
+    "id": "f32",
+    "en": "Swept Side with Braid",
+    "th": "ปัดข้างเปียหลัง",
+    "desc": "hair swept back and to one side with a long loose side lock over one side of the face, and a braid hanging down the back",
+    "ties": "",
+    "fid": 135,
+    "shared": true,
+    "customizeRow": 1728,
+    "icon": "ui/icon/136000/136238.tex"
+   },
+   {
+    "id": "f33",
+    "en": "Pompadour",
+    "th": "ปอมปาดัวร์",
+    "desc": "a big rounded pompadour quiff on top with short sides and longer spiky strands at the nape",
+    "ties": "",
+    "fid": 136,
+    "shared": true,
+    "customizeRow": 1729,
+    "icon": "ui/icon/136000/136239.tex"
+   },
+   {
+    "id": "f34",
+    "en": "Wispy Shag",
+    "th": "แชกปลายพลิ้ว",
+    "desc": "shaggy jaw-to-shoulder-length layers with spiky side-swept bangs and wispy ends",
+    "ties": "",
+    "fid": 137,
+    "shared": true,
+    "customizeRow": 1730,
+    "icon": "ui/icon/136000/136240.tex"
+   },
+   {
+    "id": "f35",
+    "en": "Low Bun",
+    "th": "มวยต่ำ",
+    "desc": "side-parted hair swept smoothly back into a small low bun at the back, with a short sweeping fringe",
+    "ties": "",
+    "fid": 123,
+    "shared": true,
+    "customizeRow": 1732,
+    "icon": "ui/icon/136000/136242.tex"
+   },
+   {
+    "id": "f36",
+    "en": "Long-Fringe Bob",
+    "th": "บ็อบหน้าม้ายาว",
+    "desc": "straight jaw-length hair with a long fringe falling across the forehead to the eyes",
+    "ties": "",
+    "fid": 141,
+    "shared": true,
+    "customizeRow": 1733,
+    "icon": "ui/icon/136000/136243.tex"
+   },
+   {
+    "id": "f37",
+    "en": "Spiky Mullet",
+    "th": "มัลเล็ตแหลม",
+    "desc": "spiky hair slicked up and back on top with longer strands trailing down the back of the neck",
+    "ties": "",
+    "fid": 142,
+    "shared": true,
+    "customizeRow": 1734,
+    "icon": "ui/icon/136000/136244.tex"
+   },
+   {
+    "id": "f38",
+    "en": "Blunt Bangs, Long Back",
+    "th": "หน้าม้าตรงผมยาว",
+    "desc": "thick blunt bangs and straight side locks to the shoulders, the rest falling long and straight down the back",
+    "ties": "",
+    "fid": 146,
+    "shared": true,
+    "customizeRow": 1736,
+    "icon": "ui/icon/136000/136246.tex"
+   },
+   {
+    "id": "f39",
+    "en": "Over One Eye",
+    "th": "ปัดข้างปิดตา",
+    "desc": "straight chin-to-shoulder-length hair with a long side-swept fringe over one eye and flicked ends",
+    "ties": "",
+    "fid": 148,
+    "shared": true,
+    "customizeRow": 1737,
+    "icon": "ui/icon/136000/136247.tex"
+   },
+   {
+    "id": "f40",
+    "en": "Spiky Pixie",
+    "th": "พิกซี่แหลม",
+    "desc": "a short spiky textured pixie crop with short sides",
+    "ties": "",
+    "fid": 140,
+    "shared": true,
+    "customizeRow": 1740,
+    "icon": "ui/icon/136000/136250.tex"
+   },
+   {
+    "id": "f41",
+    "en": "Spiky Layered Short",
+    "th": "สั้นซอยแหลม",
+    "desc": "short spiky layers with side bangs over one eye and a tuft flicking up at the back",
+    "ties": "",
+    "fid": 149,
+    "shared": true,
+    "customizeRow": 1741,
+    "icon": "ui/icon/136000/136251.tex"
+   },
+   {
+    "id": "f42",
+    "en": "Forelock, High Tail",
+    "th": "ปอยข้างหางม้าสูง",
+    "desc": "a long curved forelock falling down one side of the face, the rest pulled into a spiky high ponytail at the crown with long strands down the back",
+    "ties": "",
+    "fid": 138,
+    "shared": true,
+    "customizeRow": 1742,
+    "icon": "ui/icon/136000/136252.tex"
+   },
+   {
+    "id": "f43",
+    "en": "Half-Up Bun",
+    "th": "ครึ่งหัวมวย",
+    "desc": "long straight hair past the shoulders with long side bangs and a small half-up bun at the top back of the head",
+    "ties": "",
+    "fid": 151,
+    "shared": true,
+    "customizeRow": 1743,
+    "icon": "ui/icon/136000/136253.tex"
+   },
+   {
+    "id": "f44",
+    "en": "Round Bob, Long Bangs",
+    "th": "บ็อบกลมหน้าม้า",
+    "desc": "a rounded straight chin-length bob with long bangs to the eyes",
+    "ties": "",
+    "fid": 152,
+    "shared": true,
+    "customizeRow": 1744,
+    "icon": "ui/icon/136000/136254.tex"
+   },
+   {
+    "id": "f45",
+    "en": "Very Long Hime",
+    "th": "ยาวมากหน้าม้าตรง",
+    "desc": "very long straight hair with blunt straight bangs, falling to the chest",
+    "ties": "",
+    "fid": 153,
+    "shared": true,
+    "customizeRow": 1745,
+    "icon": "ui/icon/136000/136255.tex"
+   },
+   {
+    "id": "f46",
+    "en": "Feathery Shag",
+    "th": "แชกขนนก",
+    "desc": "shaggy jaw-length hair with feathery bangs over the eyes",
+    "ties": "",
+    "fid": 161,
+    "shared": true,
+    "customizeRow": 1753,
+    "icon": "ui/icon/136000/136263.tex"
+   },
+   {
+    "id": "f47",
+    "en": "Messy Swept-Back Waves",
+    "th": "ลอนยุ่งเสยหลัง",
+    "desc": "messy wavy medium-length hair swept back, with two thin strands framing the face",
+    "ties": "",
+    "fid": 178,
+    "shared": true,
+    "customizeRow": 1771,
+    "icon": "ui/icon/136000/136281.tex"
+   }
+  ],
+  "m": [
+   {
+    "id": "m01",
+    "en": "Swept-Up Spikes",
+    "th": "ปัดขึ้นแหลม",
+    "desc": "short hair swept up and back from the forehead into long spiky flicked points, one long thin lock falling loose beside the forehead, and a thin tail at the nape bound in a black wrap below the horns",
+    "ties": "except the black wrap on the nape tail",
+    "fid": 1,
+    "shared": false,
+    "customizeRow": 1561,
+    "icon": "ui/icon/136000/136001.tex"
+   },
+   {
+    "id": "m02",
+    "en": "Wild Mane with Braids",
+    "th": "แผงคอยาวเปีย",
+    "desc": "a long wild windswept mane swept back from the forehead and streaming past the shoulders behind the horns, two thin braids hanging in front of the horns to the chest ending in black cylinder beads, and two black curved crescent clips on top of the head",
+    "ties": "except the black beads and the two black crescent clips",
+    "fid": 2,
+    "shared": false,
+    "customizeRow": 1562,
+    "icon": "ui/icon/136000/136002.tex"
+   },
+   {
+    "id": "m03",
+    "en": "Messy Spiky Layers",
+    "th": "ชั้นยุ่งแหลม",
+    "desc": "messy layered shoulder-length hair with long spiky bangs falling over the eyes, one cowlick strand standing straight up from the crown and spiky ends flaring out at the sides above the horns",
+    "ties": "",
+    "fid": 3,
+    "shared": false,
+    "customizeRow": 1563,
+    "icon": "ui/icon/136000/136003.tex"
+   },
+   {
+    "id": "m04",
+    "en": "Long Straight, Bare Brow",
+    "th": "ยาวตรงเปิดหน้าผาก",
+    "desc": "very long straight hair parted in the middle with the forehead bare and no bangs, falling straight past the shoulders behind the horns, with two small black diamond clips on one side of the crown",
+    "ties": "except the two black diamond clips",
+    "fid": 4,
+    "shared": false,
+    "customizeRow": 1564,
+    "icon": "ui/icon/136000/136004.tex"
+   },
+   {
+    "id": "m05",
+    "en": "Low Knot, Long Side Locks",
+    "th": "มวยต่ำปอยข้างยาว",
+    "desc": "long straight side locks hanging past the chin in front of the horns, the rest drawn back into a low knot tied with a black ribbon bow at the back of the head, and one thin strand curling up from the crown",
+    "ties": "except the black ribbon bow",
+    "fid": 5,
+    "shared": false,
+    "customizeRow": 1565,
+    "icon": "ui/icon/136000/136005.tex"
+   },
+   {
+    "id": "m06",
+    "en": "Flame Top, Wrapped Tail",
+    "th": "ทรงเปลวไฟหางพัน",
+    "desc": "hair swept up into tall spiky flame-like points above the forehead, the rest pulled back into a long tail behind the horns bound in black criss-cross wrapping, with a small white pointed clip at the back of the head",
+    "ties": "except the black criss-cross wrapping and the white clip",
+    "fid": 6,
+    "shared": false,
+    "customizeRow": 1566,
+    "icon": "ui/icon/136000/136006.tex"
+   },
+   {
+    "id": "m07",
+    "en": "Spiky Crest, Side Braid",
+    "th": "ตั้งแหลมเปียข้าง",
+    "desc": "tall spiky hair standing straight up at the front like a crest, a thin braid running back along the side of the head above the horn, and longer spiky strands at the nape",
+    "ties": "",
+    "fid": 7,
+    "shared": false,
+    "customizeRow": 1567,
+    "icon": "ui/icon/136000/136007.tex"
+   },
+   {
+    "id": "m08",
+    "en": "Windswept Mane",
+    "th": "แผงคอปลิวลม",
+    "desc": "a big windswept mane swept up and back from the forehead and streaming far behind the head over the horns, with a black crescent-shaped ornament at each temple",
+    "ties": "except the two black crescent ornaments",
+    "fid": 8,
+    "shared": false,
+    "customizeRow": 1568,
+    "icon": "ui/icon/136000/136008.tex"
+   },
+   {
+    "id": "m09",
+    "en": "Neat Layered Short",
+    "th": "สั้นซอยเรียบร้อย",
+    "desc": "neat softly layered short hair with long side-swept bangs over the brow, ending at the nape above the horns",
+    "ties": "",
+    "fid": 9,
+    "shared": false,
+    "customizeRow": 1569,
+    "icon": "ui/icon/136000/136009.tex"
+   },
+   {
+    "id": "m10",
+    "en": "Ragged Jaw Length",
+    "th": "ยาวคางซอยปลาย",
+    "desc": "jaw-length straight hair with long ragged bangs falling over the eyes and pointed side locks hanging in front of the horns",
+    "ties": "",
+    "fid": 10,
+    "shared": false,
+    "customizeRow": 1570,
+    "icon": "ui/icon/136000/136010.tex"
+   },
+   {
+    "id": "m11",
+    "en": "Feathery Crop",
+    "th": "สั้นฟูขนนก",
+    "desc": "a short thick feathery tousled crop with short choppy bangs over the forehead",
+    "ties": "",
+    "fid": 11,
+    "shared": false,
+    "customizeRow": 1571,
+    "icon": "ui/icon/136000/136011.tex"
+   },
+   {
+    "id": "m12",
+    "en": "Long Slicked Back",
+    "th": "ยาวเสยหลัง",
+    "desc": "long hair slicked straight back from the forehead with no bangs, falling smoothly down the back behind the horns",
+    "ties": "",
+    "fid": 12,
+    "shared": false,
+    "customizeRow": 1572,
+    "icon": "ui/icon/136000/136012.tex"
+   },
+   {
+    "id": "m13",
+    "en": "Short Spiky Tousle",
+    "th": "สั้นยุ่งแหลม",
+    "desc": "short thick spiky tousled hair standing up on top with jagged bangs over the forehead",
+    "ties": "",
+    "fid": 103,
+    "shared": true,
+    "customizeRow": 1574,
+    "icon": "ui/icon/136000/136016.tex"
+   },
+   {
+    "id": "m14",
+    "en": "Long Side-Parted",
+    "th": "ยาวแสกข้าง",
+    "desc": "long straight hair from a side part with the forehead mostly bare, long locks falling in front of the horns past the shoulders",
+    "ties": "",
+    "fid": 105,
+    "shared": true,
+    "customizeRow": 1575,
+    "icon": "ui/icon/136000/136017.tex"
+   },
+   {
+    "id": "m15",
+    "en": "Deep Side Fringe",
+    "th": "หน้าม้าเฉียงลึก",
+    "desc": "shoulder-length straight hair with a deep side-swept fringe over one eye and a single strand sticking up from the crown",
+    "ties": "",
+    "fid": 102,
+    "shared": true,
+    "customizeRow": 1576,
+    "icon": "ui/icon/136000/136015.tex"
+   },
+   {
+    "id": "m16",
+    "en": "Long with Circlet",
+    "th": "ยาวคาดมงกุฎ",
+    "desc": "very long straight hair parted in the middle and falling to the chest in front of and behind the horns, with a thin gold circlet across the forehead",
+    "ties": "except the gold circlet",
+    "fid": 106,
+    "shared": true,
+    "customizeRow": 1578,
+    "icon": "ui/icon/136000/136018.tex"
+   },
+   {
+    "id": "m17",
+    "en": "Wavy Quiff",
+    "th": "ลอนสั้นปอยงอน",
+    "desc": "short wavy tousled hair with a curled quiff flicking up at the front",
+    "ties": "",
+    "fid": 107,
+    "shared": true,
+    "customizeRow": 1579,
+    "icon": "ui/icon/136000/136019.tex"
+   },
+   {
+    "id": "m18",
+    "en": "Ragged Chin Length",
+    "th": "ยาวคางปัดข้าง",
+    "desc": "chin-length straight hair with a long ragged side-swept fringe",
+    "ties": "",
+    "fid": 108,
+    "shared": true,
+    "customizeRow": 1580,
+    "icon": "ui/icon/136000/136020.tex"
+   },
+   {
+    "id": "m19",
+    "en": "Layered Jaw Length",
+    "th": "ซอยยาวกราม",
+    "desc": "layered jaw-length hair with a jagged fringe over the forehead",
+    "ties": "",
+    "fid": 111,
+    "shared": true,
+    "customizeRow": 1581,
+    "icon": "ui/icon/136000/136022.tex"
+   },
+   {
+    "id": "m20",
+    "en": "Side-Combed Short",
+    "th": "สั้นหวีข้าง",
+    "desc": "short neat hair combed back and to one side, gentleman style",
+    "ties": "",
+    "fid": 109,
+    "shared": true,
+    "customizeRow": 1583,
+    "icon": "ui/icon/136000/136021.tex"
+   },
+   {
+    "id": "m21",
+    "en": "Spiky Top Tail",
+    "th": "หางม้าแหลมกลางหัว",
+    "desc": "hair swept back from the forehead into a short spiky tail at the back of the crown that fans upward, with a small white clip at the side and one short loose strand at the temple",
+    "ties": "except the small white clip",
+    "fid": 114,
+    "shared": true,
+    "customizeRow": 1584,
+    "icon": "ui/icon/136000/136024.tex"
+   },
+   {
+    "id": "m22",
+    "en": "Brushed-Back Crop",
+    "th": "สั้นปัดหลัง",
+    "desc": "short thick hair brushed back from the forehead",
+    "ties": "",
+    "fid": 116,
+    "shared": true,
+    "customizeRow": 1585,
+    "icon": "ui/icon/136000/136025.tex"
+   },
+   {
+    "id": "m23",
+    "en": "Spiky Crop",
+    "th": "สั้นแหลม",
+    "desc": "a short spiky textured crop with short bangs",
+    "ties": "",
+    "fid": 117,
+    "shared": true,
+    "customizeRow": 1586,
+    "icon": "ui/icon/136000/136026.tex"
+   },
+   {
+    "id": "m24",
+    "en": "Textured Fringe Crop",
+    "th": "สั้นปัดหน้าม้า",
+    "desc": "short neat textured hair with a light fringe swept across the forehead",
+    "ties": "",
+    "fid": 120,
+    "shared": true,
+    "customizeRow": 1587,
+    "icon": "ui/icon/136000/136027.tex"
+   },
+   {
+    "id": "m25",
+    "en": "Centre-Part Chin Length",
+    "th": "ยาวคางแสกกลาง",
+    "desc": "straight chin-length hair parted in the middle",
+    "ties": "",
+    "fid": 121,
+    "shared": true,
+    "customizeRow": 1588,
+    "icon": "ui/icon/136000/136028.tex"
+   },
+   {
+    "id": "m26",
+    "en": "Centre-Part Shag",
+    "th": "แชกแสกกลาง",
+    "desc": "shoulder-length shaggy hair parted in the middle with flicked ends",
+    "ties": "",
+    "fid": 122,
+    "shared": true,
+    "customizeRow": 1591,
+    "icon": "ui/icon/136000/136031.tex"
+   },
+   {
+    "id": "m27",
+    "en": "Blunt-Bang Shag",
+    "th": "แชกหน้าม้าตรง",
+    "desc": "thick straight blunt bangs with neck-length shaggy layers flicking out at the back",
+    "ties": "",
+    "fid": 126,
+    "shared": true,
+    "customizeRow": 1592,
+    "icon": "ui/icon/136000/136032.tex"
+   },
+   {
+    "id": "m28",
+    "en": "Spiky Tousle",
+    "th": "ยุ่งแหลม",
+    "desc": "medium-length spiky tousled hair with a big spiky top and long spiky strands over the face",
+    "ties": "",
+    "fid": 127,
+    "shared": true,
+    "customizeRow": 1593,
+    "icon": "ui/icon/136000/136033.tex"
+   },
+   {
+    "id": "m29",
+    "en": "Spiky Slick-Back",
+    "th": "เสยหลังแหลม",
+    "desc": "spiky hair slicked back with a few thin strands falling on the forehead, medium length at the back",
+    "ties": "",
+    "fid": 131,
+    "shared": true,
+    "customizeRow": 1594,
+    "icon": "ui/icon/136000/136034.tex"
+   },
+   {
+    "id": "m30",
+    "en": "Blunt Bangs, Long Back",
+    "th": "หน้าม้าตรงผมยาว",
+    "desc": "straight full bangs with long hair falling down the back behind the horns",
+    "ties": "",
+    "fid": 132,
+    "shared": true,
+    "customizeRow": 1595,
+    "icon": "ui/icon/136000/136035.tex"
+   },
+   {
+    "id": "m31",
+    "en": "Round Bob with Tuft",
+    "th": "บ็อบกลมจุก",
+    "desc": "a rounded layered chin-length bob with bangs and a small tuft sticking up on top",
+    "ties": "",
+    "fid": 124,
+    "shared": true,
+    "customizeRow": 1596,
+    "icon": "ui/icon/136000/136036.tex"
+   },
+   {
+    "id": "m32",
+    "en": "Swept Side with Braid",
+    "th": "ปัดข้างเปียหลัง",
+    "desc": "hair swept back and to one side with a long side lock, and a long braid hanging down the back",
+    "ties": "",
+    "fid": 135,
+    "shared": true,
+    "customizeRow": 1597,
+    "icon": "ui/icon/136000/136037.tex"
+   },
+   {
+    "id": "m33",
+    "en": "Pompadour",
+    "th": "ปอมปาดัวร์",
+    "desc": "a big tall rounded pompadour quiff with short sides",
+    "ties": "",
+    "fid": 136,
+    "shared": true,
+    "customizeRow": 1598,
+    "icon": "ui/icon/136000/136038.tex"
+   },
+   {
+    "id": "m34",
+    "en": "Shaggy Layers",
+    "th": "แชกซอยชั้น",
+    "desc": "medium shaggy layers with spiky side-swept bangs",
+    "ties": "",
+    "fid": 137,
+    "shared": true,
+    "customizeRow": 1599,
+    "icon": "ui/icon/136000/136039.tex"
+   },
+   {
+    "id": "m35",
+    "en": "Swept Back, Small Knot",
+    "th": "เสยหลังมวยเล็ก",
+    "desc": "straight hair combed back from a near-centre part into a small knot at the back",
+    "ties": "",
+    "fid": 123,
+    "shared": true,
+    "customizeRow": 1601,
+    "icon": "ui/icon/136000/136041.tex"
+   },
+   {
+    "id": "m36",
+    "en": "Long-Fringe Bob",
+    "th": "บ็อบหน้าม้ายาว",
+    "desc": "straight chin-length hair with a long fringe covering the forehead to the eyes",
+    "ties": "",
+    "fid": 141,
+    "shared": true,
+    "customizeRow": 1602,
+    "icon": "ui/icon/136000/136042.tex"
+   },
+   {
+    "id": "m37",
+    "en": "Spiky Mullet",
+    "th": "มัลเล็ตแหลม",
+    "desc": "a spiky slicked-back top with long thin strands trailing down the back of the neck",
+    "ties": "",
+    "fid": 142,
+    "shared": true,
+    "customizeRow": 1603,
+    "icon": "ui/icon/136000/136043.tex"
+   },
+   {
+    "id": "m38",
+    "en": "Blunt Bangs, Low Tail",
+    "th": "หน้าม้าตรงหางต่ำ",
+    "desc": "thick blunt bangs with long hair gathered into a low ponytail down the back",
+    "ties": "",
+    "fid": 146,
+    "shared": true,
+    "customizeRow": 1605,
+    "icon": "ui/icon/136000/136045.tex"
+   },
+   {
+    "id": "m39",
+    "en": "Over One Eye",
+    "th": "ปัดข้างปิดตา",
+    "desc": "straight shoulder-length hair from a side part falling over one eye",
+    "ties": "",
+    "fid": 148,
+    "shared": true,
+    "customizeRow": 1606,
+    "icon": "ui/icon/136000/136046.tex"
+   },
+   {
+    "id": "m40",
+    "en": "Spiky Crew",
+    "th": "สั้นตั้งแหลม",
+    "desc": "a short spiky crop combed straight up",
+    "ties": "",
+    "fid": 140,
+    "shared": true,
+    "customizeRow": 1609,
+    "icon": "ui/icon/136000/136049.tex"
+   },
+   {
+    "id": "m41",
+    "en": "Spiky Side-Swept",
+    "th": "ปัดข้างแหลม",
+    "desc": "spiky side-swept short hair with a tuft flicking up at the back",
+    "ties": "",
+    "fid": 149,
+    "shared": true,
+    "customizeRow": 1610,
+    "icon": "ui/icon/136000/136050.tex"
+   },
+   {
+    "id": "m42",
+    "en": "Forelock, High Tail",
+    "th": "ปอยข้างหางม้าสูง",
+    "desc": "a long curved forelock falling down one side of the face, the rest pulled into a spiky high ponytail at the crown",
+    "ties": "",
+    "fid": 138,
+    "shared": true,
+    "customizeRow": 1611,
+    "icon": "ui/icon/136000/136051.tex"
+   },
+   {
+    "id": "m43",
+    "en": "Half-Up Bun",
+    "th": "ครึ่งหัวมวย",
+    "desc": "long straight hair past the shoulders with long side bangs and a half-up bun on top",
+    "ties": "",
+    "fid": 151,
+    "shared": true,
+    "customizeRow": 1612,
+    "icon": "ui/icon/136000/136052.tex"
+   },
+   {
+    "id": "m44",
+    "en": "Round Bob, Long Bangs",
+    "th": "บ็อบกลมหน้าม้า",
+    "desc": "a straight rounded chin-length bob with long bangs to the eyes",
+    "ties": "",
+    "fid": 152,
+    "shared": true,
+    "customizeRow": 1613,
+    "icon": "ui/icon/136000/136053.tex"
+   },
+   {
+    "id": "m45",
+    "en": "Very Long Hime",
+    "th": "ยาวมากหน้าม้าตรง",
+    "desc": "very long straight hair with blunt straight bangs, falling to the chest",
+    "ties": "",
+    "fid": 153,
+    "shared": true,
+    "customizeRow": 1614,
+    "icon": "ui/icon/136000/136054.tex"
+   },
+   {
+    "id": "m46",
+    "en": "Feathery Shag",
+    "th": "แชกขนนก",
+    "desc": "shaggy jaw-length hair with long feathery bangs over the eyes",
+    "ties": "",
+    "fid": 161,
+    "shared": true,
+    "customizeRow": 1622,
+    "icon": "ui/icon/136000/136062.tex"
+   },
+   {
+    "id": "m47",
+    "en": "Messy Swept-Back Waves",
+    "th": "ลอนยุ่งเสยหลัง",
+    "desc": "messy wavy medium-length hair swept back, with two thin strands framing the face",
+    "ties": "",
+    "fid": 178,
+    "shared": true,
+    "customizeRow": 1639,
+    "icon": "ui/icon/136000/136079.tex"
+   }
+  ]
+ },
+ "picked": "the race-own styles (f01-f12, m01-m12)"
+}

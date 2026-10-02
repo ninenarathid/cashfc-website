@@ -143,11 +143,12 @@ export default function TownBar() {
     else if (r === "offline") setNote(w.offline);
   };
 
-  const iconBtn = "grid size-9 shrink-0 place-items-center rounded-full text-read transition-colors";
+  // a size bigger than it was (the owner, 2026-10-02: "ใหญ่ขึ้น"), and the same footprint as the door (TownDock)
+  const iconBtn = "grid size-11 shrink-0 place-items-center rounded-full text-read transition-colors";
 
   return (
     <div role="region" aria-label={w.region} style={lift > 40 ? { bottom: lift + 8 } : undefined}
-         className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[45] mx-auto max-w-md sm:inset-x-auto sm:bottom-5 sm:left-5 sm:mx-0 sm:w-[23rem]">
+         className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[45] mx-auto max-w-md sm:inset-x-auto sm:bottom-5 sm:left-5 sm:mx-0 sm:w-[26rem]">
       {chatOpen && (
         <div data-state="open" className="pop-in mb-2 overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm"
              onKeyDown={(e) => { if (e.key === "Escape") setChatOpen(false); }}>
@@ -166,24 +167,27 @@ export default function TownBar() {
       )}
 
       {/* data-state: the site's quiet pop-in (globals.css), off for reduced motion. */}
-      <div data-state="open" className="pop-in flex items-center gap-1 rounded-2xl border border-line-lit bg-surface/95 p-1.5 pl-3 shadow-xl shadow-black/40 backdrop-blur-sm">
-        <Link href="/town" title={w.back} className="flex min-w-0 flex-1 items-center gap-2 no-underline">
-          <span aria-hidden className={`size-2 shrink-0 rounded-full ${ready ? "bg-jade" : "bg-gold"}`} />
+      <div data-state="open" className="pop-in flex items-center gap-1 rounded-2xl border border-line-lit bg-surface/95 p-2 pl-3 shadow-xl shadow-black/40 backdrop-blur-sm">
+        <Link href="/town" title={w.back} className="flex min-w-0 flex-1 items-center gap-3 no-underline">
+          <span className="relative shrink-0">
+            <TownIcon name="town" size={30} />
+            <span aria-hidden className={`absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full ring-2 ring-surface ${ready ? "bg-jade" : "bg-gold"}`} />
+          </span>
           <span className="min-w-0 flex-1">
-            <span className="flex items-center gap-1.5 truncate text-ui font-semibold text-ink"><TownIcon name="town" size={16} />Cash Town</span>
-            <span aria-live="polite" className={`block truncate text-label ${fresh ? "text-ink" : "text-muted"}`}>{line}</span>
+            <span className="block truncate text-read font-semibold text-ink">Cash Town</span>
+            <span aria-live="polite" className={`block truncate text-ui ${fresh ? "text-ink" : "text-muted"}`}>{line}</span>
           </span>
           <span aria-hidden className="shrink-0 text-lead text-muted">›</span>
         </Link>
 
         {voiceOn && s.voice.audioBlocked && (
           <button type="button" onClick={() => s.voice.resumeAudio()} aria-label={w.hear} title={w.hear}
-                  className={`${iconBtn} bg-gold text-bg`}><TownIcon name="speaker" size={18} /></button>
+                  className={`${iconBtn} bg-gold text-bg`}><TownIcon name="speaker" size={22} /></button>
         )}
         <button type="button" onClick={() => setChatOpen((o) => !o)} aria-expanded={chatOpen}
                 aria-label={s.unread ? `${w.chat} (${w.unread(s.unread)})` : w.chat} title={w.chat}
                 className={`${iconBtn} relative ${chatOpen ? "bg-accent/20 text-accent" : "text-muted hover:bg-card hover:text-ink"}`}>
-          <TownIcon name="chat" size={18} />
+          <TownIcon name="chat" size={22} />
           {s.unread > 0 && !chatOpen && (
             <span aria-hidden className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-chili px-1 font-data text-label leading-4 text-ink">
               {s.unread > 9 ? "9+" : s.unread}
@@ -194,15 +198,15 @@ export default function TownBar() {
           <button type="button" onClick={() => s.toggleMute()} aria-pressed={muted}
                   aria-label={muted ? w.unmute : w.mute} title={muted ? w.unmute : w.mute}
                   className={`${iconBtn} ${muted ? "bg-chili text-ink" : "bg-jade/20 text-jade hover:bg-jade/30"}`}>
-            <TownIcon name={muted ? "muted" : "mic"} size={18} />
+            <TownIcon name={muted ? "muted" : "mic"} size={22} />
           </button>
         ) : (
           <button type="button" onClick={() => void s.joinVoice()} disabled={!ready}
                   aria-label={w.micOn} title={w.micOn}
-                  className={`${iconBtn} text-muted hover:bg-card hover:text-ink disabled:opacity-40`}><TownIcon name="mic" size={18} /></button>
+                  className={`${iconBtn} text-muted hover:bg-card hover:text-ink disabled:opacity-40`}><TownIcon name="mic" size={22} /></button>
         )}
         <button type="button" onClick={() => s.close()} aria-label={w.leave} title={w.leave}
-                className={`${iconBtn} text-muted hover:bg-card hover:text-ink`}><TownIcon name="close" size={14} /></button>
+                className={`${iconBtn} text-muted hover:bg-card hover:text-ink`}><TownIcon name="close" size={16} /></button>
       </div>
     </div>
   );

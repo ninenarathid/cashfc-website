@@ -6,7 +6,7 @@ import path from "node:path";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
 const ENV = "E:/NinenineProject/fcnext/.env.local";
-const BUDGET = 10; // US dollars; refuse to call past this
+const BUDGET = 25; // US dollars; refuse to call past this (10, then 15 for the other races, then 25 when the owner added credit, 2026-10-02)
 // gpt-image-2 / 2.5 token rates, per 1M (checked 2026-10-02)
 const RATE = { text: 5, image: 8, out: 30 };
 

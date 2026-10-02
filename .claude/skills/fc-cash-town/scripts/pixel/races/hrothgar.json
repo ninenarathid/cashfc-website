@@ -1,0 +1,823 @@
+{
+ "race": "hrothgar",
+ "name": {
+  "en": "Hrothgar",
+  "th": "ฮรอธการ์"
+ },
+ "height": {
+  "f": {
+   "cm": [
+    184.4,
+    199.4
+   ],
+   "typical_cm": 191.8,
+   "scale": 2.13
+  },
+  "m": {
+   "cm": [
+    196.2,
+    212.9
+   ],
+   "typical_cm": 204.6,
+   "scale": 2.27
+  }
+ },
+ "features": {
+  "f": "A tall, muscular big-cat woman who stands upright with no hunch and is leaner than the male: a slimmer lioness- or cheetah-like face with a shorter muzzle and small dark nose, larger rounded-triangle cat ears standing up on top of the head, and no chin or chest ruff. Fur covers the whole body (plain, tiger-striped or leopard-spotted, often with dark tear lines), with clawed hands, paw-like clawed feet, and a long thin tail ending in a dark tuft.",
+  "m": "A huge, hulking big-cat man with very broad shoulders, a thick neck and a slight forward hunch: a wide lion-like head with a broad flat nose, short heavy muzzle and small fangs, small rounded ears set low on the sides of the head and half hidden in the mane, and a shaggy pale fur ruff on the chin and chest. Fur covers the whole body (plain lion, tiger-striped or leopard-spotted), with big clawed paw-like hands and feet, and a long thin lion tail ending in a dark tuft."
+ },
+ "attire": {
+  "f": {
+   "items": [
+    "Hrothgar Vest",
+    "Hrothgar Vambraces",
+    "Hrothgar Tights",
+    "Hrothgar Caligae"
+   ],
+   "desc": "A sleeveless, high-necked black vest of draped fabric with a green collar-mantle patterned in gold zigzags, gold piping, a silver tasselled pendant on the chest and a silver-trimmed slit showing a little waist, worn with a dark belt carrying two big black hip pouches studded with gold arrowheads and dangling gold-tipped cords. Green-and-gold zigzag rings on the upper arms, green-and-gold lattice vambraces over black fingerless gloves, black tights with round dark knee pads and lacing down the shins, and black open-toe strappy sandals with a silver medallion."
+  },
+  "m": {
+   "items": [
+    "Hrothgar Harness",
+    "Hrothgar Wristguards",
+    "Hrothgar Subligar",
+    "Hrothgar Sandals"
+   ],
+   "desc": "A bare, furry chest crossed by one brown leather strap with a brass medallion clasp, a black fur-edged leather pauldron over one shoulder, and a dark laced leather girdle with two brown belts and brass buckles. Below, a short dark-grey pleated leather kilt with a maroon front flap bearing a silver emblem, big olive-grey leather pouches on the hips, wrapped black leather bracers on the forearms, and dark open-toe strappy sandals with thick grey-white fur cuffs around the shins."
+  }
+ },
+ "skins": {
+  "f": [
+   {
+    "hex": "#E9E9E9",
+    "en": "snow white"
+   },
+   {
+    "hex": "#C6AF3B",
+    "en": "golden"
+   },
+   {
+    "hex": "#9DA8B3",
+    "en": "blue grey"
+   },
+   {
+    "hex": "#B35A5A",
+    "en": "rust red"
+   },
+   {
+    "hex": "#886C43",
+    "en": "tawny"
+   },
+   {
+    "hex": "#7A5E40",
+    "en": "lion brown"
+   },
+   {
+    "hex": "#4D3B29",
+    "en": "dark brown"
+   },
+   {
+    "hex": "#2B2B2B",
+    "en": "charcoal black"
+   }
+  ],
+  "m": [
+   {
+    "hex": "#E9E9E9",
+    "en": "snow white"
+   },
+   {
+    "hex": "#C6AF3B",
+    "en": "golden"
+   },
+   {
+    "hex": "#9DA8B3",
+    "en": "blue grey"
+   },
+   {
+    "hex": "#B35A5A",
+    "en": "rust red"
+   },
+   {
+    "hex": "#886C43",
+    "en": "tawny"
+   },
+   {
+    "hex": "#7A5E40",
+    "en": "lion brown"
+   },
+   {
+    "hex": "#4D3B29",
+    "en": "dark brown"
+   },
+   {
+    "hex": "#2B2B2B",
+    "en": "charcoal black"
+   }
+  ]
+ },
+ "hairs": {
+  "f": [
+   {
+    "id": "f01",
+    "en": "Swept Mane",
+    "th": "แผงคอปัดหลัง",
+    "desc": "a long mane swept back from the forehead with a few strands framing the face, falling in long wavy layers down the back past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f03",
+    "en": "Side Braid",
+    "th": "ถักเปียข้าง",
+    "desc": "shoulder-length layered hair with a braid running back along one side from the temple, loose strands falling at the front",
+    "ties": ""
+   },
+   {
+    "id": "f05",
+    "en": "Wild Mane",
+    "th": "แผงคอฟูยุ่ง",
+    "desc": "a wild voluminous mane of spiky locks swept up and back from the forehead, spilling in shaggy layers past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f06",
+    "en": "Wild Mane, Braid",
+    "th": "แผงคอฟูเปียเดียว",
+    "desc": "a wild voluminous mane of spiky locks swept up and back and spilling past the shoulders, with one thin braid hanging in front, tied near the end with a dark bronze band above a tufted tip",
+    "ties": "except the dark bronze band"
+   },
+   {
+    "id": "f07",
+    "en": "Swept Bob",
+    "th": "ผมประบ่าเสยหลัง",
+    "desc": "neck-length hair swept back with volume at the crown, the ends falling in fluffy layers",
+    "ties": ""
+   },
+   {
+    "id": "f09",
+    "en": "Long Straight, Thin Fringe",
+    "th": "ผมยาวตรงหน้าม้าบาง",
+    "desc": "long straight hair with a thin wispy fringe parted at the center, falling past the shoulders at the sides",
+    "ties": ""
+   },
+   {
+    "id": "f10",
+    "en": "Low Braided Bun",
+    "th": "มวยต่ำถักเปีย",
+    "desc": "straight hair with a wispy fringe, the back gathered into a small braided bun at the nape whose tail is wrapped in a dark bronze cuff",
+    "ties": "except the dark bronze cuff"
+   },
+   {
+    "id": "f11",
+    "en": "Crimped Mane",
+    "th": "แผงคอหยักฟู",
+    "desc": "a big voluminous mane of crimped waves swept back from the forehead, falling thick past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f13",
+    "en": "Spiked Top, Long Locks",
+    "th": "ผมตั้งปอยยาว",
+    "desc": "short spiky hair swept up and back on top, with long thin locks hanging at the sides to the shoulders, one small lock tied with a dark bronze band",
+    "ties": "except the dark bronze band"
+   },
+   {
+    "id": "f14",
+    "en": "Spiked Top, Twin Braids",
+    "th": "ผมตั้งเปียคู่",
+    "desc": "short spiky hair swept up and back on top, with braided side locks hanging in front of the shoulders, each wrapped with a dark bronze band just above a tufted tip",
+    "ties": "except the dark bronze bands"
+   },
+   {
+    "id": "f15",
+    "en": "High Ponytail, Ringlets",
+    "th": "หางม้าสูงลอนเกลียว",
+    "desc": "a high ponytail on the crown with swept bangs and long side locks falling past the shoulders in spiral ringlets",
+    "ties": ""
+   }
+  ],
+  "m": [
+   {
+    "id": "m01",
+    "en": "Swept Mane",
+    "th": "แผงคอปัดหลัง",
+    "desc": "a long voluminous mane swept up and back from the forehead, falling in thick layered locks behind the ears down past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "m03",
+    "en": "Short Swept Mane",
+    "th": "แผงคอสั้นปัดหลัง",
+    "desc": "a medium-length mane brushed back from the forehead, flaring out in layered tufts behind the ears to the nape",
+    "ties": ""
+   },
+   {
+    "id": "m05",
+    "en": "Wild Mane",
+    "th": "แผงคอฟูยุ่ง",
+    "desc": "a wild shaggy mane of spiky locks rising off the forehead and spilling down past the shoulders, with long strands framing the face",
+    "ties": ""
+   },
+   {
+    "id": "m06",
+    "en": "Wild Mane, Braid",
+    "th": "แผงคอฟูยุ่งเปียเดียว",
+    "desc": "a wild shaggy mane of spiky locks rising off the forehead and spilling past the shoulders, with one thin braid hanging in front of the shoulder, tipped with a small brass cap",
+    "ties": "except the brass cap on the braid"
+   },
+   {
+    "id": "m07",
+    "en": "Spiked Crest",
+    "th": "หงอนตั้ง",
+    "desc": "a tall spiky crest standing up and back from the forehead, with stiff tufts flaring backwards from the sides behind the ears",
+    "ties": ""
+   },
+   {
+    "id": "m09",
+    "en": "Spiky Pompadour",
+    "th": "ผมตั้งปัดหลัง",
+    "desc": "spiky locks swept high and back off the forehead into a pompadour, with a long tail of hair falling down the back of the neck",
+    "ties": ""
+   },
+   {
+    "id": "m10",
+    "en": "Pompadour, Looped Tail",
+    "th": "ผมตั้งมัดหางพับ",
+    "desc": "spiky locks swept high and back off the forehead, with the back hair gathered into a thick tail folded up into a loop, pinned with a round bronze disc and bound with a bronze cuff",
+    "ties": "except the bronze disc and cuff"
+   },
+   {
+    "id": "m11",
+    "en": "Slicked-Back Mane",
+    "th": "แผงคอเสยหลัง",
+    "desc": "hair combed smoothly straight back from the forehead with a ridge on top, the ends flowing down behind the ears into long strands at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m13",
+    "en": "Spiked Top, Long Locks",
+    "th": "ผมตั้งปอยยาว",
+    "desc": "short spiky hair swept up and back on top, with long straight locks hanging down behind the ears to the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "m14",
+    "en": "Spiked Top, Twin Braids",
+    "th": "ผมตั้งเปียคู่",
+    "desc": "short spiky hair swept up and back on top, with two long braids hanging in front of the shoulders, each bound at the temple with an engraved gold band",
+    "ties": "except the gold bands"
+   },
+   {
+    "id": "m15",
+    "en": "Topknot Mane",
+    "th": "จุกบนหัว",
+    "desc": "short flared tufts sweeping back over the ears and a small round topknot bun on the crown bound with a brass band",
+    "ties": "except the brass band"
+   },
+   {
+    "id": "m16",
+    "en": "Topknot, Spiked Crest",
+    "th": "จุกบนหัวหงอนตั้ง",
+    "desc": "a tall spiky crest rising off the forehead, short flared tufts sweeping back over the ears and a small round topknot bun on the crown bound with a brass band",
+    "ties": "except the brass band"
+   }
+  ]
+ },
+ "notes": "Hairs: XIVAPI CharaMakeType rows 24/25 (Helions m/f) and 26/27 (The Lost m/f), Gender 0 = male; the Hairstyle menu (Lobby 234) is identical for both clans, so there are no clan-only extras. Creator lists 45 male and 27 female styles, all CharaMakeCustomize IsPurchasable=false; the aesthetician sheet HairMakeType holds 90/60, and the extras are IsPurchasable=true Modern Aesthetics unlocks, so they are left out. Order is the creator's: feature ids 9,17,10,18 ... 16,24 are eight base manes each followed by a variant, then the shared styles (feature 101+ and 178). m11/m12 icons differ only by one stray lock (the variant may differ more from behind); whether the thin band across m20's forehead is a braid of hair or a cord is unclear. Icons show the front only, so backs (e.g. how long m38's tail is) are partly guessed. Skins: taken from the creator's 'Skin Color' menu (customize index 8), which colours the body fur; the creator interface palette from human.cmp via xivdyetools. The male and female palettes are identical; Helions offer warm browns, tawny, mustard gold, rose-brown and red, The Lost offer white, greys, blue-greys, lavender, sage and periwinkle-to-indigo. The 8 swatches mix both clans. The mane uses the separate 'Fur Color' menu (customize index 10, the hair-colour slot) = the key colour; in the creator icons the male chin/chest ruff matches the mane, but that is not verified in data. Attire: item names from the Race sheet (RSEM*/RSEF*), confirmed as the creator outfit because CharaMakeType Equipment set 0 equals their models (e0597 v1 male, e0829 v1 female); colours from official renders, undyed. Heights from the consolegameswiki Races table (0%/50%/100%), scale = 50% height / 90 cm.",
+ "sources": [
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/24",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/25",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/26",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/27",
+  "https://v2.xivapi.com/api/sheet/CharaMakeCustomize/1821",
+  "https://v2.xivapi.com/api/sheet/HairMakeType/24",
+  "https://v2.xivapi.com/api/sheet/Race/7",
+  "https://v2.xivapi.com/api/sheet/Item/25212",
+  "https://v2.xivapi.com/api/sheet/Item/41790",
+  "https://v2.xivapi.com/api/asset?path=ui/icon/137000/137001_hr1.tex&format=png",
+  "https://ffxiv.consolegameswiki.com/wiki/Racial_Starting_Sets",
+  "https://ffxiv.consolegameswiki.com/wiki/Hrothgar_Harness",
+  "https://ffxiv.consolegameswiki.com/wiki/Hrothgar_Vest",
+  "https://ffxiv.consolegameswiki.com/mediawiki/images/3/33/Helions_concept_render1.jpg",
+  "https://ffxiv.consolegameswiki.com/mediawiki/images/4/4d/The_lost_concept_render1.jpg",
+  "https://ffxiv.consolegameswiki.com/mediawiki/images/b/b3/Hrothgar_female_concept_art1.jpg",
+  "https://ffxiv.consolegameswiki.com/mediawiki/images/b/bd/Hrothgar_female_concept_art2.jpg",
+  "https://na.finalfantasyxiv.com/lodestone/playguide/db/item/49290cb6490/",
+  "https://na.finalfantasyxiv.com/lodestone/playguide/db/item/cc34616b123/",
+  "https://ffxiv.consolegameswiki.com/wiki/Races",
+  "https://forum.square-enix.com/ffxiv/threads/497073",
+  "http://www.vhpg.com/ffxiv-race-heights/",
+  "https://github.com/FlashGalatine/xivdyetools/blob/main/packages/core/src/data/character_colors/race_specific/skin_colors.json"
+ ],
+ "allHairs": {
+  "f": [
+   {
+    "id": "f01",
+    "en": "Swept Mane",
+    "th": "แผงคอปัดหลัง",
+    "desc": "a long mane swept back from the forehead with a few strands framing the face, falling in long wavy layers down the back past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f02",
+    "en": "Swept Mane, Side Locks",
+    "th": "แผงคอปัดหลังปอยข้าง",
+    "desc": "a long mane swept back from the forehead and falling in long wavy layers past the shoulders, with loose locks hanging down on both sides of the face",
+    "ties": ""
+   },
+   {
+    "id": "f03",
+    "en": "Side Braid",
+    "th": "ถักเปียข้าง",
+    "desc": "shoulder-length layered hair with a braid running back along one side from the temple, loose strands falling at the front",
+    "ties": ""
+   },
+   {
+    "id": "f04",
+    "en": "Side Braid, Long Lock",
+    "th": "ถักเปียข้างปอยยาว",
+    "desc": "shoulder-length layered hair with a braid running back along one side from the temple and a long loose lock falling in front of one shoulder",
+    "ties": ""
+   },
+   {
+    "id": "f05",
+    "en": "Wild Mane",
+    "th": "แผงคอฟูยุ่ง",
+    "desc": "a wild voluminous mane of spiky locks swept up and back from the forehead, spilling in shaggy layers past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f06",
+    "en": "Wild Mane, Braid",
+    "th": "แผงคอฟูเปียเดียว",
+    "desc": "a wild voluminous mane of spiky locks swept up and back and spilling past the shoulders, with one thin braid hanging in front, tied near the end with a dark bronze band above a tufted tip",
+    "ties": "except the dark bronze band"
+   },
+   {
+    "id": "f07",
+    "en": "Swept Bob",
+    "th": "ผมประบ่าเสยหลัง",
+    "desc": "neck-length hair swept back with volume at the crown, the ends falling in fluffy layers",
+    "ties": ""
+   },
+   {
+    "id": "f08",
+    "en": "Swept Bob, Side Bangs",
+    "th": "ผมประบ่าปัดปิดตา",
+    "desc": "neck-length fluffy layered hair with long bangs swept across the forehead over one eye",
+    "ties": ""
+   },
+   {
+    "id": "f09",
+    "en": "Long Straight, Thin Fringe",
+    "th": "ผมยาวตรงหน้าม้าบาง",
+    "desc": "long straight hair with a thin wispy fringe parted at the center, falling past the shoulders at the sides",
+    "ties": ""
+   },
+   {
+    "id": "f10",
+    "en": "Low Braided Bun",
+    "th": "มวยต่ำถักเปีย",
+    "desc": "straight hair with a wispy fringe, the back gathered into a small braided bun at the nape whose tail is wrapped in a dark bronze cuff",
+    "ties": "except the dark bronze cuff"
+   },
+   {
+    "id": "f11",
+    "en": "Crimped Mane",
+    "th": "แผงคอหยักฟู",
+    "desc": "a big voluminous mane of crimped waves swept back from the forehead, falling thick past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f12",
+    "en": "Crimped Mane, Forelock",
+    "th": "แผงคอหยักฟูปอยหน้า",
+    "desc": "a big voluminous mane of crimped waves swept back from the forehead and falling past the shoulders, with one long lock falling down the middle of the face",
+    "ties": ""
+   },
+   {
+    "id": "f13",
+    "en": "Spiked Top, Long Locks",
+    "th": "ผมตั้งปอยยาว",
+    "desc": "short spiky hair swept up and back on top, with long thin locks hanging at the sides to the shoulders, one small lock tied with a dark bronze band",
+    "ties": "except the dark bronze band"
+   },
+   {
+    "id": "f14",
+    "en": "Spiked Top, Twin Braids",
+    "th": "ผมตั้งเปียคู่",
+    "desc": "short spiky hair swept up and back on top, with braided side locks hanging in front of the shoulders, each wrapped with a dark bronze band just above a tufted tip",
+    "ties": "except the dark bronze bands"
+   },
+   {
+    "id": "f15",
+    "en": "High Ponytail, Ringlets",
+    "th": "หางม้าสูงลอนเกลียว",
+    "desc": "a high ponytail on the crown with swept bangs and long side locks falling past the shoulders in spiral ringlets",
+    "ties": ""
+   },
+   {
+    "id": "f16",
+    "en": "High Ponytail, Face Strand",
+    "th": "หางม้าสูงปอยแก้ม",
+    "desc": "a high ponytail on the crown with swept bangs, a thin loose strand framing one cheek, and long side locks falling past the shoulders in spiral ringlets",
+    "ties": ""
+   },
+   {
+    "id": "f17",
+    "en": "Combed Back",
+    "th": "เสยหลังปอยหน้า",
+    "desc": "short-to-medium hair combed straight back with a couple of thin strands falling over the forehead, the ends flicking out at the nape",
+    "ties": ""
+   },
+   {
+    "id": "f18",
+    "en": "Long Straight, Blunt Bangs",
+    "th": "ผมยาวตรงหน้าม้าตัด",
+    "desc": "long straight hair with full blunt bangs, falling well past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f19",
+    "en": "Side Ponytail",
+    "th": "หางม้าข้าง",
+    "desc": "blunt straight bangs and chin-length side locks, with the back tied into a long ponytail that falls to one side",
+    "ties": ""
+   },
+   {
+    "id": "f20",
+    "en": "Long Side Part",
+    "th": "ผมยาวแสกข้าง",
+    "desc": "long straight hair with a deep side part sweeping over the forehead, falling past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f21",
+    "en": "Long Locs",
+    "th": "ผมเดรดล็อก",
+    "desc": "long thin twisted locks falling past the shoulders, several of them ringed with small silver cuffs",
+    "ties": "except the silver cuffs"
+   },
+   {
+    "id": "f22",
+    "en": "Ponytail, Side Bangs",
+    "th": "หางม้าหน้าม้าปิดตา",
+    "desc": "long side-swept bangs over one eye and a ponytail tied high at the back, falling long behind",
+    "ties": ""
+   },
+   {
+    "id": "f23",
+    "en": "Twin Plaits",
+    "th": "เปียคู่",
+    "desc": "hair with straight bangs and two long plaits hanging in front of the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f24",
+    "en": "Spiky Shag",
+    "th": "ผมซอยชี้",
+    "desc": "short-to-medium spiky layered hair with choppy bangs, jaw-length at the sides",
+    "ties": ""
+   },
+   {
+    "id": "f25",
+    "en": "High Ponytail, Bangs",
+    "th": "หางม้าสูงหน้าม้า",
+    "desc": "a ponytail tied high at the back of the crown, with full straight bangs and long side locks down to the chest",
+    "ties": ""
+   },
+   {
+    "id": "f26",
+    "en": "Long Waves",
+    "th": "ผมยาวลอน",
+    "desc": "long wavy hair with soft side-parted bangs, falling past the shoulders with curled ends",
+    "ties": ""
+   },
+   {
+    "id": "f27",
+    "en": "Pixie Crop",
+    "th": "ผมสั้นพิกซี่",
+    "desc": "a short layered pixie crop with side-swept choppy bangs and wispy jaw-length sides",
+    "ties": ""
+   }
+  ],
+  "m": [
+   {
+    "id": "m01",
+    "en": "Swept Mane",
+    "th": "แผงคอปัดหลัง",
+    "desc": "a long voluminous mane swept up and back from the forehead, falling in thick layered locks behind the ears down past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "m02",
+    "en": "Swept Mane, Loose Locks",
+    "th": "แผงคอปัดหลังปอยหน้า",
+    "desc": "a long voluminous mane swept up and back from the forehead into thick layered locks past the shoulders, with a few long loose strands falling down over the brow and cheek",
+    "ties": ""
+   },
+   {
+    "id": "m03",
+    "en": "Short Swept Mane",
+    "th": "แผงคอสั้นปัดหลัง",
+    "desc": "a medium-length mane brushed back from the forehead, flaring out in layered tufts behind the ears to the nape",
+    "ties": ""
+   },
+   {
+    "id": "m04",
+    "en": "Short Mane, Side Bangs",
+    "th": "แผงคอสั้นปัดปิดตา",
+    "desc": "a medium-length layered mane with heavy side-swept bangs falling over one eye, flaring out in tufts behind the ears to the nape",
+    "ties": ""
+   },
+   {
+    "id": "m05",
+    "en": "Wild Mane",
+    "th": "แผงคอฟูยุ่ง",
+    "desc": "a wild shaggy mane of spiky locks rising off the forehead and spilling down past the shoulders, with long strands framing the face",
+    "ties": ""
+   },
+   {
+    "id": "m06",
+    "en": "Wild Mane, Braid",
+    "th": "แผงคอฟูยุ่งเปียเดียว",
+    "desc": "a wild shaggy mane of spiky locks rising off the forehead and spilling past the shoulders, with one thin braid hanging in front of the shoulder, tipped with a small brass cap",
+    "ties": "except the brass cap on the braid"
+   },
+   {
+    "id": "m07",
+    "en": "Spiked Crest",
+    "th": "หงอนตั้ง",
+    "desc": "a tall spiky crest standing up and back from the forehead, with stiff tufts flaring backwards from the sides behind the ears",
+    "ties": ""
+   },
+   {
+    "id": "m08",
+    "en": "Spiked Crest, Forelock",
+    "th": "หงอนตั้งปอยหน้า",
+    "desc": "a tall spiky crest standing up and back from the forehead with a spiky forelock falling between the eyes, stiff tufts flaring backwards from the sides",
+    "ties": ""
+   },
+   {
+    "id": "m09",
+    "en": "Spiky Pompadour",
+    "th": "ผมตั้งปัดหลัง",
+    "desc": "spiky locks swept high and back off the forehead into a pompadour, with a long tail of hair falling down the back of the neck",
+    "ties": ""
+   },
+   {
+    "id": "m10",
+    "en": "Pompadour, Looped Tail",
+    "th": "ผมตั้งมัดหางพับ",
+    "desc": "spiky locks swept high and back off the forehead, with the back hair gathered into a thick tail folded up into a loop, pinned with a round bronze disc and bound with a bronze cuff",
+    "ties": "except the bronze disc and cuff"
+   },
+   {
+    "id": "m11",
+    "en": "Slicked-Back Mane",
+    "th": "แผงคอเสยหลัง",
+    "desc": "hair combed smoothly straight back from the forehead with a ridge on top, the ends flowing down behind the ears into long strands at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m12",
+    "en": "Slicked-Back, Stray Lock",
+    "th": "แผงคอเสยหลังปอยชี้",
+    "desc": "hair combed smoothly straight back from the forehead, the ends flowing down behind the ears into long strands at the nape, with one stray lock flicking out behind the ear",
+    "ties": ""
+   },
+   {
+    "id": "m13",
+    "en": "Spiked Top, Long Locks",
+    "th": "ผมตั้งปอยยาว",
+    "desc": "short spiky hair swept up and back on top, with long straight locks hanging down behind the ears to the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "m14",
+    "en": "Spiked Top, Twin Braids",
+    "th": "ผมตั้งเปียคู่",
+    "desc": "short spiky hair swept up and back on top, with two long braids hanging in front of the shoulders, each bound at the temple with an engraved gold band",
+    "ties": "except the gold bands"
+   },
+   {
+    "id": "m15",
+    "en": "Topknot Mane",
+    "th": "จุกบนหัว",
+    "desc": "short flared tufts sweeping back over the ears and a small round topknot bun on the crown bound with a brass band",
+    "ties": "except the brass band"
+   },
+   {
+    "id": "m16",
+    "en": "Topknot, Spiked Crest",
+    "th": "จุกบนหัวหงอนตั้ง",
+    "desc": "a tall spiky crest rising off the forehead, short flared tufts sweeping back over the ears and a small round topknot bun on the crown bound with a brass band",
+    "ties": "except the brass band"
+   },
+   {
+    "id": "m17",
+    "en": "Shaggy Side Bangs",
+    "th": "ผมยาวประบ่าปิดตา",
+    "desc": "shoulder-length shaggy layered hair with long heavy bangs swept down over one eye and a single strand sticking up on top",
+    "ties": ""
+   },
+   {
+    "id": "m18",
+    "en": "Feathered Shag",
+    "th": "ผมสั้นฟูยุ่ง",
+    "desc": "a short messy feathered shag with thick choppy bangs falling over the eyes",
+    "ties": ""
+   },
+   {
+    "id": "m19",
+    "en": "Long Side Sweep, Feather Braid",
+    "th": "ผมยาวปัดข้างเปียขนนก",
+    "desc": "long straight hair swept to one side and falling over the face to the chin, with a small braid behind one ear tied off with dark feathers",
+    "ties": "except the dark feathers"
+   },
+   {
+    "id": "m20",
+    "en": "Long Straight, Brow Braid",
+    "th": "ผมยาวตรงแสกกลาง",
+    "desc": "very long straight hair parted in the middle and falling past the shoulders, with a thin braided band across the forehead",
+    "ties": ""
+   },
+   {
+    "id": "m21",
+    "en": "Fluffy Crop",
+    "th": "ผมสั้นฟูหยัก",
+    "desc": "short thick fluffy hair with soft wavy volume on top, a curl flicking out at the front and the sides covering the ears",
+    "ties": ""
+   },
+   {
+    "id": "m22",
+    "en": "Spiky Shag",
+    "th": "ผมชี้ยุ่งหน้าม้า",
+    "desc": "medium-short spiky messy hair with pointed bangs over the forehead and jagged sides to the jaw",
+    "ties": ""
+   },
+   {
+    "id": "m23",
+    "en": "Swept-Back Flicks",
+    "th": "ผมสั้นเสยปลายงอน",
+    "desc": "short hair brushed back with wavy wings flicking out over the ears and a slight wave at the front",
+    "ties": ""
+   },
+   {
+    "id": "m24",
+    "en": "Fanned Crest",
+    "th": "หงอนพัด",
+    "desc": "short hair swept back at the sides with a tall fan of spiky locks shooting up and back from the crown, two small silver rings clipped in at the side",
+    "ties": "except the silver rings"
+   },
+   {
+    "id": "m25",
+    "en": "Tousled Crop",
+    "th": "ผมสั้นยุ่ง",
+    "desc": "a short tousled crop, messy and fluffy on top and close at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m26",
+    "en": "Short Fringe",
+    "th": "ผมสั้นหน้าม้า",
+    "desc": "short layered hair with a soft fringe brushed across the forehead to the brows, ear-length at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m27",
+    "en": "Combed Back, Loose Strands",
+    "th": "เสยหลังปอยหน้า",
+    "desc": "medium-length hair combed straight back and flaring out at the nape, with a few long thin strands falling across the forehead",
+    "ties": ""
+   },
+   {
+    "id": "m28",
+    "en": "Side-Parted",
+    "th": "ผมแสกข้าง",
+    "desc": "neat side-parted hair falling to the jaw, with bangs swept across the forehead and the back flicking out at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m29",
+    "en": "Center Part Layers",
+    "th": "ผมแสกกลางประคอ",
+    "desc": "center-parted medium hair falling in soft layers over the ears to the neck, the ends curling out",
+    "ties": ""
+   },
+   {
+    "id": "m30",
+    "en": "Swept, Long Bangs",
+    "th": "ผมปัดหลังหน้าม้ายาว",
+    "desc": "messy medium hair swept back, with long curving bangs hanging down one side of the face to the chin",
+    "ties": ""
+   },
+   {
+    "id": "m31",
+    "en": "Spiky Crop",
+    "th": "ผมสั้นเกรียนชี้",
+    "desc": "a very short spiky textured crop",
+    "ties": ""
+   },
+   {
+    "id": "m32",
+    "en": "Neat Crop",
+    "th": "ผมสั้นเรียบ",
+    "desc": "a short neat crop combed back close to the head",
+    "ties": ""
+   },
+   {
+    "id": "m33",
+    "en": "Heavy Side Fringe",
+    "th": "ผมสั้นปัดปิดตา",
+    "desc": "short hair with a long heavy fringe swept across one eye and a small stubby tuft sticking out at the back",
+    "ties": ""
+   },
+   {
+    "id": "m34",
+    "en": "Layered Shag",
+    "th": "ผมซอยฟู",
+    "desc": "a feathery layered shag with choppy bangs falling to the eyes, ear-length at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m35",
+    "en": "Bowl Bob",
+    "th": "ผมบ๊อบกะลา",
+    "desc": "a rounded bob with full straight bangs and the ends falling to the jaw, one stray strand sticking up on top",
+    "ties": ""
+   },
+   {
+    "id": "m36",
+    "en": "Wolf Cut",
+    "th": "ผมวูล์ฟคัต",
+    "desc": "a layered wolf cut with blunt choppy bangs and longer feathered layers flaring out at the back of the neck",
+    "ties": ""
+   },
+   {
+    "id": "m37",
+    "en": "Spiky, Brow Strands",
+    "th": "ผมชี้ปอยหน้าผาก",
+    "desc": "spiky hair swept back with flared sides and a few thin strands hanging down over the forehead",
+    "ties": ""
+   },
+   {
+    "id": "m38",
+    "en": "Bob with Long Tail",
+    "th": "ผมบ๊อบหางยาว",
+    "desc": "a bob with straight bangs and chin-length sides, with a long flat tail of hair trailing down the back",
+    "ties": ""
+   },
+   {
+    "id": "m39",
+    "en": "Messy Spikes",
+    "th": "ผมชี้ยุ่ง",
+    "desc": "messy spiky medium hair with long jagged bangs and spiky locks sticking out at the top and sides",
+    "ties": ""
+   },
+   {
+    "id": "m40",
+    "en": "Wispy Layers",
+    "th": "ผมซอยปัดข้าง",
+    "desc": "medium layered hair with wispy side-swept bangs, longer and shaggy at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m41",
+    "en": "Big Pompadour",
+    "th": "ทรงป๊อมปาดัวร์",
+    "desc": "a huge pompadour quiff jutting forward over the forehead, with the sides and back slicked back",
+    "ties": ""
+   },
+   {
+    "id": "m42",
+    "en": "Spiky Ponytail",
+    "th": "หางม้าชี้",
+    "desc": "hair pulled up into a spiky high ponytail fanning up and back from the crown, with one long curved lock falling in front of the face to the chin",
+    "ties": ""
+   },
+   {
+    "id": "m43",
+    "en": "Split Bangs",
+    "th": "ผมหน้าม้าแหวกกลาง",
+    "desc": "medium-length straight layered hair with heavy bangs split in the middle over the eyes, falling to the jaw at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m44",
+    "en": "Long Spiky Mane",
+    "th": "แผงคอยาวชี้",
+    "desc": "a long spiky mane swept back from the forehead and falling in layers down to the shoulders behind",
+    "ties": ""
+   },
+   {
+    "id": "m45",
+    "en": "Straight Bob",
+    "th": "ผมบ๊อบตรง",
+    "desc": "a straight bob with blunt bangs and chin-length sides, a little longer at the back",
+    "ties": ""
+   }
+  ]
+ },
+ "picked": "the race-own manes (the first 16 per gender: eight bases and their variants), dropping variants that differ by a lock"
+}

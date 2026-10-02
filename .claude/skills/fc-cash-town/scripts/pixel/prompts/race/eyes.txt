@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same poses, the same bald head with exactly the same outline and size, __EARS__, the same eyebrows, the same small flat mouth, the same body and clothes, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only the eyes, keeping each one exactly where it is and exactly the same size as now, the same width and height, never bigger and never smaller: __EYES__ The irises stay the same violet colour. __LASH__The same eyes in all four frames.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

@@ -31,16 +31,23 @@ interface AdminState {
   setOn: (v: boolean) => void;
   /** The one to ask before drawing an admin control. */
   isAdmin: boolean;
+  /**
+   * Whether Cash Town's door is open to this member: a proved character, or an admin (v102). Read from the same
+   * row as the rest, so the dock on every page (components/town/TownDock) costs no query of its own. A view
+   * like the rest of this: the town's room checks for itself.
+   */
+  canEnterTown: boolean;
   ready: boolean;
 }
 
 const KEY = "cashfc_admin_mode";
 const AdminCtx = createContext<AdminState>({
-  realAdmin: false, on: true, setOn: () => {}, isAdmin: false, ready: false,
+  realAdmin: false, on: true, setOn: () => {}, isAdmin: false, canEnterTown: false, ready: false,
 });
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [realAdmin, setRealAdmin] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [on, setOnState] = useState(true);
   const [ready, setReady] = useState(false);
 
@@ -56,10 +63,12 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     if (!supabase) { setReady(true); return; }
     const resolve = async (userId: string | undefined) => {
-      if (!userId) { setRealAdmin(false); setReady(true); return; }
+      if (!userId) { setRealAdmin(false); setVerified(false); setReady(true); return; }
       const { data } = await supabase.from("profiles")
-        .select("is_admin").eq("id", userId).maybeSingle();
-      setRealAdmin(!!(data as { is_admin?: boolean } | null)?.is_admin);
+        .select("is_admin, character_id, character_verified_at").eq("id", userId).maybeSingle();
+      const p = data as { is_admin?: boolean; character_id?: number | null; character_verified_at?: string | null } | null;
+      setRealAdmin(!!p?.is_admin);
+      setVerified(!!p?.character_id && !!p?.character_verified_at);
       setReady(true);
     };
     void supabase.auth.getUser().then(({ data }) => resolve(data.user?.id));
@@ -75,7 +84,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminCtx.Provider
-      value={{ realAdmin, on, setOn, isAdmin: realAdmin && on, ready }}>
+      value={{ realAdmin, on, setOn, isAdmin: realAdmin && on, canEnterTown: realAdmin || verified, ready }}>
       {children}
     </AdminCtx.Provider>
   );

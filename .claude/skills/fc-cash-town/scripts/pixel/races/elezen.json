@@ -1,0 +1,1024 @@
+{
+ "race": "elezen",
+ "name": {
+  "en": "Elezen",
+  "th": "เอเลเซน"
+ },
+ "height": {
+  "f": {
+   "cm": [
+    183.4,
+    200.2
+   ],
+   "scale": 2.14
+  },
+  "m": {
+   "cm": [
+    194.1,
+    208.8
+   ],
+   "scale": 2.24
+  }
+ },
+ "features": {
+  "f": "A tall, willowy elf woman: slim waist, long neck, very long slender arms and legs. Long pointed ears that jut straight out sideways from the head, almost as long as the face is tall, tapering to sharp tips that angle slightly up and back; a narrow oval face with high cheekbones, a small pointed chin, a slim straight nose and almond eyes. No tail, horns, fur or scales.",
+  "m": "A very tall, lanky elf man: long legs, narrow hips, slim but squared shoulders and long arms. The same long pointed ears jutting straight out sideways, almost as long as the face is tall; a long narrow face with a strong angular jaw, high cheekbones, a heavy straight brow, a long straight nose and thin lips. No tail, horns, fur or scales."
+ },
+ "attire": {
+  "f": {
+   "items": [
+    "Elezen Gown",
+    "Elezen Halfgloves",
+    "Elezen Tights",
+    "Elezen Shoes"
+   ],
+   "desc": "A black sleeveless leather bodice with a high halter collar, laced down the front with white criss-cross cords, an olive-green band across the chest and an olive belt with a silver clasp at the waist, over short black leather shorts; one detached puffy white sleeve on the left upper arm, and white open overskirt panels hanging from the hips with long pointed, jagged tips. Black fingerless half-gloves, and black thigh-high leather boots laced with white cross-ties at the top, with a periwinkle-blue strap round one thigh and small wedge heels."
+  },
+  "m": {
+   "items": [
+    "Elezen Surcoat",
+    "Elezen Gloves",
+    "Elezen Braccae",
+    "Elezen Jackboots"
+   ],
+   "desc": "A black thigh-length asymmetric surcoat with elbow-length sleeves, laced down the front with white zigzag cords, a mustard-yellow sash draped over one shoulder and small silver clasps, worn over a white shirt whose sleeves show below the elbows, with a white collar and a thin black choker. A wide white belt with a big silver buckle over dark charcoal trousers with brown leather knee straps, black fingerless leather gloves, and cream-white thigh-high jackboots folded over at the top, with a brown leather strap and small pouch round one thigh."
+  }
+ },
+ "skins": {
+  "f": [
+   {
+    "hex": "#FEE6D4",
+    "en": "porcelain"
+   },
+   {
+    "hex": "#F9D7BF",
+    "en": "fair peach"
+   },
+   {
+    "hex": "#D1AC8B",
+    "en": "warm beige"
+   },
+   {
+    "hex": "#A0A5A2",
+    "en": "ash grey"
+   },
+   {
+    "hex": "#BD9B74",
+    "en": "golden tan"
+   },
+   {
+    "hex": "#657788",
+    "en": "slate blue-grey"
+   },
+   {
+    "hex": "#855C43",
+    "en": "warm brown"
+   },
+   {
+    "hex": "#553423",
+    "en": "deep brown"
+   }
+  ],
+  "m": [
+   {
+    "hex": "#FEDFCF",
+    "en": "porcelain"
+   },
+   {
+    "hex": "#F6D0BB",
+    "en": "fair peach"
+   },
+   {
+    "hex": "#CFA686",
+    "en": "warm beige"
+   },
+   {
+    "hex": "#9FA09F",
+    "en": "ash grey"
+   },
+   {
+    "hex": "#BC9671",
+    "en": "golden tan"
+   },
+   {
+    "hex": "#647386",
+    "en": "slate blue-grey"
+   },
+   {
+    "hex": "#845940",
+    "en": "warm brown"
+   },
+   {
+    "hex": "#543223",
+    "en": "deep brown"
+   }
+  ]
+ },
+ "hairs": {
+  "f": [
+   {
+    "id": "f01",
+    "en": "Side-swept bob",
+    "th": "บ็อบปัดข้าง",
+    "desc": "a layered chin-length bob parted on one side, with long side-swept bangs falling across one eye and the ends flicking out at the jaw",
+    "ties": ""
+   },
+   {
+    "id": "f02",
+    "en": "Crown braid",
+    "th": "เปียคาดศีรษะ",
+    "desc": "hair swept back off the forehead with a single braid running across the top of the head like a headband, the back tucked up short, and long wispy side locks hanging in front of the ears",
+    "ties": ""
+   },
+   {
+    "id": "f03",
+    "en": "Short low tail",
+    "th": "หางม้าต่ำสั้น",
+    "desc": "full straight blunt bangs, long thin side locks reaching the chin, and the rest gathered into a short low ponytail at the nape",
+    "ties": ""
+   },
+   {
+    "id": "f04",
+    "en": "Swept-back bob",
+    "th": "บ็อบเสยหลัง",
+    "desc": "a straight bob reaching the neck, swept back off the forehead with no bangs, a little lift at the crown and long side pieces hanging past the jaw",
+    "ties": ""
+   },
+   {
+    "id": "f05",
+    "en": "Tucked shoulder-length",
+    "th": "ผมประบ่าทัดหู",
+    "desc": "straight shoulder-length hair with a side parting, tucked behind the ears, with a long lock falling in front of each ear and the ends flicking out",
+    "ties": ""
+   },
+   {
+    "id": "f06",
+    "en": "Side-braid pixie",
+    "th": "พิกซี่เปียข้าง",
+    "desc": "a short pixie cut with long side-swept bangs across the forehead, a thin braid along the side above the ear and the back cropped short",
+    "ties": ""
+   },
+   {
+    "id": "f07",
+    "en": "Low tail, white tie",
+    "th": "หางม้าต่ำผูกขาว",
+    "desc": "full straight blunt bangs, long side locks past the chin, a thin braid at the side and a low ponytail at the nape tied with a white wrapped band",
+    "ties": "except the white wrapped band"
+   },
+   {
+    "id": "f08",
+    "en": "Buzz cut",
+    "th": "ผมเกรียน",
+    "desc": "a very short buzz cut cropped close to the scalp all over",
+    "ties": ""
+   },
+   {
+    "id": "f09",
+    "en": "Braided updo",
+    "th": "เปียถักรวบตึง",
+    "desc": "several tight braids running back over the scalp into an updo with short spiky ends at the crown, and two thin braids hanging down in front of the ears",
+    "ties": ""
+   },
+   {
+    "id": "f10",
+    "en": "Bowl bob",
+    "th": "บ็อบหน้าม้า",
+    "desc": "a rounded chin-length bob with full straight blunt bangs",
+    "ties": ""
+   },
+   {
+    "id": "f11",
+    "en": "Pinned bob, silver",
+    "th": "บ็อบติดกิ๊บเงิน",
+    "desc": "a short chin-length bob with a deep side parting, the hair on one side pinned back above the ear with several thin silver hairpins",
+    "ties": "except the silver hairpins"
+   },
+   {
+    "id": "f15",
+    "en": "Long, side bangs",
+    "th": "ผมยาวปัดข้าง",
+    "desc": "long straight hair swept back and falling down the back, with side-swept bangs over one eye and the sides tucked behind the ears",
+    "ties": ""
+   },
+   {
+    "id": "f16",
+    "en": "Long slicked back",
+    "th": "ผมยาวเสยหลัง",
+    "desc": "long straight hair slicked back off the forehead with no bangs, tucked behind the ears and falling down the back",
+    "ties": ""
+   }
+  ],
+  "m": [
+   {
+    "id": "m01",
+    "en": "Centre-parted",
+    "th": "ผมแสกกลาง",
+    "desc": "straight jaw-length hair with a centre parting and no bangs, falling down both sides of the face with the sides behind the ears",
+    "ties": ""
+   },
+   {
+    "id": "m02",
+    "en": "Shaggy over eyes",
+    "th": "ผมซอยยุ่งปิดตา",
+    "desc": "a shaggy layered medium cut with messy bangs falling over the eyes and wispy spiky ends at the neck",
+    "ties": ""
+   },
+   {
+    "id": "m03",
+    "en": "Slick knot",
+    "th": "มวยเล็กเสยหลัง",
+    "desc": "hair slicked back into a small knot at the back of the head with a loose looped end, and two long thin locks hanging down at the temples",
+    "ties": ""
+   },
+   {
+    "id": "m04",
+    "en": "Slick low ponytail",
+    "th": "หางม้าต่ำเสยหลัง",
+    "desc": "hair slicked straight back off the forehead with a widow's peak and gathered into a long low ponytail at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m05",
+    "en": "Swept back, flicked",
+    "th": "ผมเสยหลังปลายงอน",
+    "desc": "medium hair swept straight back off the forehead with no bangs, the ends flicking out at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m06",
+    "en": "Tall spikes",
+    "th": "ผมตั้งชี้",
+    "desc": "tall spiky hair swept up and back into a crest of long spikes, short at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m07",
+    "en": "Asymmetric fringe",
+    "th": "ผมซอยปัดข้าง",
+    "desc": "a choppy short-to-medium cut with long side-swept bangs falling over one eye and tousled ends at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m08",
+    "en": "Slick short tail",
+    "th": "เสยหลังจุกสั้น",
+    "desc": "short hair slicked neatly back with a tiny tail tied at the nape and short sideburn locks in front of the ears",
+    "ties": ""
+   },
+   {
+    "id": "m09",
+    "en": "Spiky widow's peak",
+    "th": "ผมชี้สั้น",
+    "desc": "short hair swept up into tall spikes with a widow's peak and short sides",
+    "ties": ""
+   },
+   {
+    "id": "m10",
+    "en": "Slicked back",
+    "th": "เสยเรียบ",
+    "desc": "short hair neatly combed and slicked straight back, with no bangs",
+    "ties": ""
+   },
+   {
+    "id": "m11",
+    "en": "Short with fringe",
+    "th": "ผมสั้นหน้าม้า",
+    "desc": "a short neat cut with straight choppy bangs over the forehead, ear-length at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m12",
+    "en": "Braided spikes",
+    "th": "ผมชี้ถักเปีย",
+    "desc": "short hair with braided rows along the top swept back into spikes, short at the sides",
+    "ties": ""
+   }
+  ]
+ },
+ "notes": "Hairstyles: from CharaMakeType rows 4-7 (Wildwood m/f = 4/5, Duskwight m/f = 6/7), menu 'Hairstyle' (Lobby 234); its SubMenuParam values are CharaMakeCustomize row ids (m 521-600, f 651-736), listed here in menu order. Both clans have the identical list. Every entry has IsPurchasable=false and no HintItem/UnlockLink, so all 48 m / 52 f are free at creation; the purchasable and Modern Aesthetics rows (e.g. 533, 538, 543...) are left out of the menu. f01-f16 (FeatureID 1-12 and 51-54) and m01-m12 (FeatureID 1-12) are the original A Realm Reborn styles; f17-f52 and m13-m48 (FeatureID 102-178) are older aesthetician styles the creator now offers free. Lalafell's creator menu (row 9) also holds 52, so take only f01-f16 / m01-m12 to match a Lalafell set built from the originals. Note the female menu puts FeatureID 3 at f11 and FeatureID 7 at f15. f11-f14 are one cut whose hairpins differ only in colour (silver, gold, dark bronze, rose gold). Accessory colours are as the creator icons show them; in game some may tint with the highlight colour. Icons saved in races/elezen-icons (m01.png.. f52.png). Attire: CharaMakeType Equipment[0] is model 86 v2 (m) / 87 v2 (f) for all four rows, matching the Elezen Surcoat set (131158) and Elezen Gown set (131159); Wildwood and Duskwight wear the same outfit. Colours from the official Elezen render on consolegameswiki (the Gamer Escape gown model is lit blue). The female's puffy sleeve is on one arm only (her left). Clan differences: Wildwood have an 'Ear Clasps' option (jewellery on the ears), Duskwight a 'Tattoos' option instead; neither is on by default. Height: vhpg.com chart, creator slider 0%/100% (averages m 201.9 cm, f 192.5 cm; scale = average / 90 cm). An older community estimate (ffxiv-roleplayers) gives m 6'3\"-7'0\", f 5'7\"-6'6\", so the female minimum is uncertain. Skins: creator (interface) half of chara/xls/charamake/human.cmp as exported by xivdyetools, 192 per clan and gender in an 8-column grid; not checked against an in-game screenshot. Picks (clan, index): porcelain Duskwight 0, fair peach Wildwood 0, warm beige Wildwood 82 (Wildwood default), ash grey Duskwight 50 (Duskwight female default; male default is 43, #8A9192), golden tan Wildwood 67, slate blue-grey Duskwight 83, warm brown Wildwood 133, deep brown Wildwood 167. Duskwight's palette runs to cool grey and blue-grey skin; Wildwood's from warm peach to dark brown.",
+ "sources": [
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/4",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/5",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/6",
+  "https://v2.xivapi.com/api/sheet/CharaMakeType/7",
+  "https://v2.xivapi.com/api/sheet/CharaMakeCustomize?after=520&limit=260&fields=FeatureID,Icon,IsPurchasable,Hint.Text,HintItem.Name,UnlockLink",
+  "https://v2.xivapi.com/api/asset?path=ui/icon/132000/132001_hr1.tex&format=png",
+  "https://v2.xivapi.com/api/search?sheets=Item&query=Name~\"Elezen\"",
+  "https://ffxiv.consolegameswiki.com/wiki/Racial_Starting_Glamour_Set",
+  "https://ffxiv.consolegameswiki.com/mediawiki/images/b/b3/Elezen_wildwood.jpg",
+  "https://ffxiv.gamerescape.com/wiki/Elezen_Surcoat",
+  "https://ffxiv.gamerescape.com/wiki/Elezen_Gown",
+  "https://ffxiv.gamerescape.com/wiki/Elezen_Tights",
+  "https://ffxiv.gamerescape.com/wiki/Elezen_Jackboots",
+  "https://github.com/FlashGalatine/xivdyetools/blob/main/packages/core/src/data/character_colors/race_specific/skin_colors.json",
+  "http://www.vhpg.com/ffxiv-race-heights/",
+  "https://ffxiv-roleplayers.com/topic/1643-character-heights-some-observations/"
+ ],
+ "allHairs": {
+  "f": [
+   {
+    "id": "f01",
+    "en": "Side-swept bob",
+    "th": "บ็อบปัดข้าง",
+    "desc": "a layered chin-length bob parted on one side, with long side-swept bangs falling across one eye and the ends flicking out at the jaw",
+    "ties": ""
+   },
+   {
+    "id": "f02",
+    "en": "Crown braid",
+    "th": "เปียคาดศีรษะ",
+    "desc": "hair swept back off the forehead with a single braid running across the top of the head like a headband, the back tucked up short, and long wispy side locks hanging in front of the ears",
+    "ties": ""
+   },
+   {
+    "id": "f03",
+    "en": "Short low tail",
+    "th": "หางม้าต่ำสั้น",
+    "desc": "full straight blunt bangs, long thin side locks reaching the chin, and the rest gathered into a short low ponytail at the nape",
+    "ties": ""
+   },
+   {
+    "id": "f04",
+    "en": "Swept-back bob",
+    "th": "บ็อบเสยหลัง",
+    "desc": "a straight bob reaching the neck, swept back off the forehead with no bangs, a little lift at the crown and long side pieces hanging past the jaw",
+    "ties": ""
+   },
+   {
+    "id": "f05",
+    "en": "Tucked shoulder-length",
+    "th": "ผมประบ่าทัดหู",
+    "desc": "straight shoulder-length hair with a side parting, tucked behind the ears, with a long lock falling in front of each ear and the ends flicking out",
+    "ties": ""
+   },
+   {
+    "id": "f06",
+    "en": "Side-braid pixie",
+    "th": "พิกซี่เปียข้าง",
+    "desc": "a short pixie cut with long side-swept bangs across the forehead, a thin braid along the side above the ear and the back cropped short",
+    "ties": ""
+   },
+   {
+    "id": "f07",
+    "en": "Low tail, white tie",
+    "th": "หางม้าต่ำผูกขาว",
+    "desc": "full straight blunt bangs, long side locks past the chin, a thin braid at the side and a low ponytail at the nape tied with a white wrapped band",
+    "ties": "except the white wrapped band"
+   },
+   {
+    "id": "f08",
+    "en": "Buzz cut",
+    "th": "ผมเกรียน",
+    "desc": "a very short buzz cut cropped close to the scalp all over",
+    "ties": ""
+   },
+   {
+    "id": "f09",
+    "en": "Braided updo",
+    "th": "เปียถักรวบตึง",
+    "desc": "several tight braids running back over the scalp into an updo with short spiky ends at the crown, and two thin braids hanging down in front of the ears",
+    "ties": ""
+   },
+   {
+    "id": "f10",
+    "en": "Bowl bob",
+    "th": "บ็อบหน้าม้า",
+    "desc": "a rounded chin-length bob with full straight blunt bangs",
+    "ties": ""
+   },
+   {
+    "id": "f11",
+    "en": "Pinned bob, silver",
+    "th": "บ็อบติดกิ๊บเงิน",
+    "desc": "a short chin-length bob with a deep side parting, the hair on one side pinned back above the ear with several thin silver hairpins",
+    "ties": "except the silver hairpins"
+   },
+   {
+    "id": "f12",
+    "en": "Pinned bob, gold",
+    "th": "บ็อบติดกิ๊บทอง",
+    "desc": "a short chin-length bob with a deep side parting, the hair on one side pinned back above the ear with several thin gold hairpins",
+    "ties": "except the gold hairpins"
+   },
+   {
+    "id": "f13",
+    "en": "Pinned bob, bronze",
+    "th": "บ็อบติดกิ๊บบรอนซ์",
+    "desc": "a short chin-length bob with a deep side parting, the hair on one side pinned back above the ear with several thin dark bronze hairpins",
+    "ties": "except the dark bronze hairpins"
+   },
+   {
+    "id": "f14",
+    "en": "Pinned bob, rose gold",
+    "th": "บ็อบติดกิ๊บโรสโกลด์",
+    "desc": "a short chin-length bob with a deep side parting, the hair on one side pinned back above the ear with several thin rose-gold hairpins",
+    "ties": "except the rose-gold hairpins"
+   },
+   {
+    "id": "f15",
+    "en": "Long, side bangs",
+    "th": "ผมยาวปัดข้าง",
+    "desc": "long straight hair swept back and falling down the back, with side-swept bangs over one eye and the sides tucked behind the ears",
+    "ties": ""
+   },
+   {
+    "id": "f16",
+    "en": "Long slicked back",
+    "th": "ผมยาวเสยหลัง",
+    "desc": "long straight hair slicked back off the forehead with no bangs, tucked behind the ears and falling down the back",
+    "ties": ""
+   },
+   {
+    "id": "f17",
+    "en": "High ponytail, ornament",
+    "th": "หางม้าสูงติดกิ๊บ",
+    "desc": "full straight blunt bangs, chin-length side locks and a big high ponytail at the back of the crown fastened with a small white hair ornament",
+    "ties": "except the small white hair ornament"
+   },
+   {
+    "id": "f18",
+    "en": "Undercut sweep",
+    "th": "อันเดอร์คัตปัดข้าง",
+    "desc": "an undercut with one side shaved short and the long top swept over to the other side, falling to the shoulder",
+    "ties": ""
+   },
+   {
+    "id": "f19",
+    "en": "Long side waves",
+    "th": "ผมยาวลอนปัดข้าง",
+    "desc": "long loose wavy hair parted on one side, swept over and tucked behind one ear, falling past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f20",
+    "en": "Long with bangs",
+    "th": "ผมยาวหน้าม้า",
+    "desc": "long straight layered hair past the shoulders with full straight blunt bangs",
+    "ties": ""
+   },
+   {
+    "id": "f21",
+    "en": "Dreadlocks",
+    "th": "เดรดล็อก",
+    "desc": "long dreadlocks pulled back off the forehead and hanging past the shoulders, with silver metal cuffs on several locks",
+    "ties": "except the silver cuffs"
+   },
+   {
+    "id": "f22",
+    "en": "Fanned high ponytail",
+    "th": "หางม้าสูงพู่ฟู",
+    "desc": "side-swept bangs and a high ponytail at the back of the head whose tied end fans out upward like a spray, the long tail hanging straight down",
+    "ties": ""
+   },
+   {
+    "id": "f23",
+    "en": "Long with hairband",
+    "th": "ผมยาวคาดผม",
+    "desc": "long straight hair with side-swept bangs and a plain white hairband",
+    "ties": "except the white hairband"
+   },
+   {
+    "id": "f24",
+    "en": "Shaggy short",
+    "th": "ผมสั้นซอยยุ่ง",
+    "desc": "a short shaggy layered cut with messy spiky ends and choppy bangs over the forehead",
+    "ties": ""
+   },
+   {
+    "id": "f25",
+    "en": "Twin braids",
+    "th": "เปียคู่",
+    "desc": "two long low braids hanging down over the front of the shoulders, with full side-swept bangs",
+    "ties": ""
+   },
+   {
+    "id": "f26",
+    "en": "Very high ponytail",
+    "th": "หางม้าสูง",
+    "desc": "full straight blunt bangs, long side locks to the chin and a very high ponytail on top of the head falling down the back",
+    "ties": ""
+   },
+   {
+    "id": "f27",
+    "en": "Long parted waves",
+    "th": "ผมยาวลอนแสกกลาง",
+    "desc": "long flowing wavy hair with a centre parting and no bangs, falling past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f28",
+    "en": "Long waves, bangs",
+    "th": "ผมยาวลอนหน้าม้า",
+    "desc": "long loose wavy hair with soft side-swept bangs, falling past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f29",
+    "en": "Tousled pixie",
+    "th": "พิกซี่ยุ่ง",
+    "desc": "a short tousled pixie cut with soft side-swept bangs, layered and ear-length",
+    "ties": ""
+   },
+   {
+    "id": "f30",
+    "en": "Low chignon",
+    "th": "มวยต่ำ",
+    "desc": "hair parted on one side and swept back into a low loose bun at the nape, with a few strands framing one cheek",
+    "ties": ""
+   },
+   {
+    "id": "f31",
+    "en": "Shaggy wolf cut",
+    "th": "วูล์ฟคัต",
+    "desc": "side-parted layered hair with no bangs, neck-length with wispy shaggy ends at the nape",
+    "ties": ""
+   },
+   {
+    "id": "f32",
+    "en": "Flipped bob",
+    "th": "บ็อบปลายงอน",
+    "desc": "a short bob with full choppy bangs and the ends flaring outward at the back",
+    "ties": ""
+   },
+   {
+    "id": "f33",
+    "en": "Spiky, eye covered",
+    "th": "ผมชี้ปิดตา",
+    "desc": "spiky messy short hair with volume on top and long asymmetric bangs covering one eye",
+    "ties": ""
+   },
+   {
+    "id": "f34",
+    "en": "Spiky swept-back",
+    "th": "ผมชี้เสยหลัง",
+    "desc": "short spiky hair swept up and back with a few thin strands hanging over the forehead",
+    "ties": ""
+   },
+   {
+    "id": "f35",
+    "en": "Ringlet twin tails",
+    "th": "ผมม้วนเกลียวคู่",
+    "desc": "a rounded bob with full bangs plus two long thick spiral ringlets hanging down behind the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f36",
+    "en": "Soft short bob",
+    "th": "บ็อบสั้น",
+    "desc": "a straight ear-to-chin-length bob with soft side bangs and a single strand sticking up on top",
+    "ties": ""
+   },
+   {
+    "id": "f37",
+    "en": "Braid, red band",
+    "th": "เปียเดี่ยวผูกแดง",
+    "desc": "side-parted hair swept back with a few loose strands over the forehead, gathered into a single braid at the nape bound with a red band",
+    "ties": "except the red band"
+   },
+   {
+    "id": "f38",
+    "en": "Pompadour",
+    "th": "ทรงป๊อมปาดัวร์",
+    "desc": "a huge rounded pompadour quiff jutting forward over the forehead, short slicked sides and longer hair at the nape",
+    "ties": ""
+   },
+   {
+    "id": "f39",
+    "en": "Spiky shag",
+    "th": "ผมซอยยาวชี้",
+    "desc": "a spiky layered shoulder-length shag with long side-swept bangs, a few spikes sticking up and long wispy pieces at the nape",
+    "ties": ""
+   },
+   {
+    "id": "f40",
+    "en": "Twisted bun",
+    "th": "มวยบิดหลัง",
+    "desc": "side-swept bangs falling over one eye, the rest swept back into a small twisted bun at the back of the head",
+    "ties": ""
+   },
+   {
+    "id": "f41",
+    "en": "Layered, long bangs",
+    "th": "ผมประบ่าปัดตา",
+    "desc": "straight layered chin-to-shoulder-length hair with long side-swept bangs over one eye",
+    "ties": ""
+   },
+   {
+    "id": "f42",
+    "en": "Faux-hawk mullet",
+    "th": "โมฮอว์กหางยาว",
+    "desc": "a faux-hawk with stubble-shaved sides, a spiky top swept up and back and a long tail of hair at the nape",
+    "ties": ""
+   },
+   {
+    "id": "f43",
+    "en": "Hime ponytail",
+    "th": "หางม้ายาวหน้าม้า",
+    "desc": "full straight blunt bangs, chin-length side locks and the rest in a long low ponytail at the nape",
+    "ties": ""
+   },
+   {
+    "id": "f44",
+    "en": "Choppy bob over eye",
+    "th": "บ็อบซอยปิดตา",
+    "desc": "a layered chin-length bob with long side-swept bangs falling over one eye and choppy ends",
+    "ties": ""
+   },
+   {
+    "id": "f45",
+    "en": "Curly crop",
+    "th": "ผมหยิกสั้น",
+    "desc": "a very short crop of tight textured curls with close-cut sides",
+    "ties": ""
+   },
+   {
+    "id": "f46",
+    "en": "Choppy short, tuft",
+    "th": "ผมสั้นซอยปัด",
+    "desc": "a short choppy cut with heavy side-swept bangs over one eye and a few strands flicking up at the crown",
+    "ties": ""
+   },
+   {
+    "id": "f47",
+    "en": "Spray ponytail",
+    "th": "หางม้าชี้",
+    "desc": "hair slicked back into a spiky high ponytail at the crown that bursts out like a spray, with one long curved lock hanging down beside the face",
+    "ties": ""
+   },
+   {
+    "id": "f48",
+    "en": "Half-up top bun",
+    "th": "มวยจุกครึ่งหัว",
+    "desc": "long straight hair falling to the shoulders with side-swept bangs, and a small round bun on top of the crown",
+    "ties": ""
+   },
+   {
+    "id": "f49",
+    "en": "Bob over one eye",
+    "th": "บ็อบปิดตา",
+    "desc": "a straight chin-length bob with long bangs swept down over one eye",
+    "ties": ""
+   },
+   {
+    "id": "f50",
+    "en": "Hime cut",
+    "th": "ทรงฮิเมะ",
+    "desc": "a long straight hime cut: blunt straight bangs, chin-length side locks and long straight hair hanging past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "f51",
+    "en": "Feathered shag",
+    "th": "ผมสั้นหน้าม้ายาว",
+    "desc": "a short shaggy cut with heavy feathery bangs hanging over the eyes, ear-length at the sides",
+    "ties": ""
+   },
+   {
+    "id": "f52",
+    "en": "Tousled swept-back",
+    "th": "ผมสั้นเสยยุ่ง",
+    "desc": "short tousled hair swept back with a few loose strands falling over the forehead, short at the nape",
+    "ties": ""
+   }
+  ],
+  "m": [
+   {
+    "id": "m01",
+    "en": "Centre-parted",
+    "th": "ผมแสกกลาง",
+    "desc": "straight jaw-length hair with a centre parting and no bangs, falling down both sides of the face with the sides behind the ears",
+    "ties": ""
+   },
+   {
+    "id": "m02",
+    "en": "Shaggy over eyes",
+    "th": "ผมซอยยุ่งปิดตา",
+    "desc": "a shaggy layered medium cut with messy bangs falling over the eyes and wispy spiky ends at the neck",
+    "ties": ""
+   },
+   {
+    "id": "m03",
+    "en": "Slick knot",
+    "th": "มวยเล็กเสยหลัง",
+    "desc": "hair slicked back into a small knot at the back of the head with a loose looped end, and two long thin locks hanging down at the temples",
+    "ties": ""
+   },
+   {
+    "id": "m04",
+    "en": "Slick low ponytail",
+    "th": "หางม้าต่ำเสยหลัง",
+    "desc": "hair slicked straight back off the forehead with a widow's peak and gathered into a long low ponytail at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m05",
+    "en": "Swept back, flicked",
+    "th": "ผมเสยหลังปลายงอน",
+    "desc": "medium hair swept straight back off the forehead with no bangs, the ends flicking out at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m06",
+    "en": "Tall spikes",
+    "th": "ผมตั้งชี้",
+    "desc": "tall spiky hair swept up and back into a crest of long spikes, short at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m07",
+    "en": "Asymmetric fringe",
+    "th": "ผมซอยปัดข้าง",
+    "desc": "a choppy short-to-medium cut with long side-swept bangs falling over one eye and tousled ends at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m08",
+    "en": "Slick short tail",
+    "th": "เสยหลังจุกสั้น",
+    "desc": "short hair slicked neatly back with a tiny tail tied at the nape and short sideburn locks in front of the ears",
+    "ties": ""
+   },
+   {
+    "id": "m09",
+    "en": "Spiky widow's peak",
+    "th": "ผมชี้สั้น",
+    "desc": "short hair swept up into tall spikes with a widow's peak and short sides",
+    "ties": ""
+   },
+   {
+    "id": "m10",
+    "en": "Slicked back",
+    "th": "เสยเรียบ",
+    "desc": "short hair neatly combed and slicked straight back, with no bangs",
+    "ties": ""
+   },
+   {
+    "id": "m11",
+    "en": "Short with fringe",
+    "th": "ผมสั้นหน้าม้า",
+    "desc": "a short neat cut with straight choppy bangs over the forehead, ear-length at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m12",
+    "en": "Braided spikes",
+    "th": "ผมชี้ถักเปีย",
+    "desc": "short hair with braided rows along the top swept back into spikes, short at the sides",
+    "ties": ""
+   },
+   {
+    "id": "m13",
+    "en": "Messy shag",
+    "th": "ผมยุ่งฟู",
+    "desc": "messy shaggy short-to-medium hair with spiky volume on top and a fringe hanging over the eyes",
+    "ties": ""
+   },
+   {
+    "id": "m14",
+    "en": "Topknot",
+    "th": "จุกบนหัว",
+    "desc": "a shaved head except a narrow strip from the forehead back to a small round topknot on the crown",
+    "ties": ""
+   },
+   {
+    "id": "m15",
+    "en": "Long side-parted",
+    "th": "ผมยาวแสกข้าง",
+    "desc": "long straight hair parted on one side and swept back, falling past the shoulders, with a long lock in front and a thin braid behind the ear",
+    "ties": ""
+   },
+   {
+    "id": "m16",
+    "en": "Long, eye covered",
+    "th": "ผมยาวปิดตา",
+    "desc": "long layered hair past the shoulders with long side-swept bangs covering one eye and a single strand sticking up on top",
+    "ties": ""
+   },
+   {
+    "id": "m17",
+    "en": "Long with circlet",
+    "th": "ผมยาวคาดหน้าผาก",
+    "desc": "long straight centre-parted hair falling past the shoulders, with a thin dark braided circlet across the forehead",
+    "ties": "except the dark braided circlet"
+   },
+   {
+    "id": "m18",
+    "en": "Wavy tousled",
+    "th": "ผมลอนยุ่ง",
+    "desc": "wavy tousled short-to-medium hair with a soft fringe and one curl flicking out at the front",
+    "ties": ""
+   },
+   {
+    "id": "m19",
+    "en": "Layered medium",
+    "th": "ผมซอยประคอ",
+    "desc": "medium-length layered hair with long side bangs over one eye and wispy ends at the neck",
+    "ties": ""
+   },
+   {
+    "id": "m20",
+    "en": "Spiky fringe shag",
+    "th": "ผมซอยหน้าม้าชี้",
+    "desc": "a shaggy layered cut with long spiky bangs over the forehead down to the eyes and chin-length wisps at the back",
+    "ties": ""
+   },
+   {
+    "id": "m21",
+    "en": "Side-part comb-over",
+    "th": "ผมสั้นหวีข้าง",
+    "desc": "short hair with a side parting, combed over with volume on top and short sides",
+    "ties": ""
+   },
+   {
+    "id": "m22",
+    "en": "Flared high ponytail",
+    "th": "หางม้าสูงชี้",
+    "desc": "hair slicked back into a messy high ponytail at the back of the crown that flares up like a spray, with a loose strand at the temple",
+    "ties": ""
+   },
+   {
+    "id": "m23",
+    "en": "Crew cut",
+    "th": "ผมสั้นเกรียน",
+    "desc": "a very short neat crew cut, lightly textured",
+    "ties": ""
+   },
+   {
+    "id": "m24",
+    "en": "Textured crop",
+    "th": "ผมสั้นยุ่ง",
+    "desc": "a short messy textured crop with a slightly spiky top",
+    "ties": ""
+   },
+   {
+    "id": "m25",
+    "en": "Tousled short",
+    "th": "ผมสั้นยุ่งนุ่ม",
+    "desc": "short tousled hair with a slight parting and soft bangs",
+    "ties": ""
+   },
+   {
+    "id": "m26",
+    "en": "Chin-length parted",
+    "th": "ผมประคางแสกกลาง",
+    "desc": "straight chin-length hair with a centre parting, falling to the jaw at the sides with the ends tucked behind the ears",
+    "ties": ""
+   },
+   {
+    "id": "m27",
+    "en": "Shoulder-length parted",
+    "th": "ผมประบ่าแสกกลาง",
+    "desc": "shoulder-length layered hair with a centre parting, falling past the jaw in wispy ends",
+    "ties": ""
+   },
+   {
+    "id": "m28",
+    "en": "Layered with bangs",
+    "th": "ผมซอยหน้าม้า",
+    "desc": "a neck-length layered cut with full straight bangs and the back flicked out in layers",
+    "ties": ""
+   },
+   {
+    "id": "m29",
+    "en": "Angular spikes",
+    "th": "ผมชี้ปัดตา",
+    "desc": "a spiky messy medium cut with long angular bangs swept across the eyes",
+    "ties": ""
+   },
+   {
+    "id": "m30",
+    "en": "Spiky swept back",
+    "th": "ผมชี้เสยหลัง",
+    "desc": "spiky hair swept back with a couple of thin strands falling over the forehead, short at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m31",
+    "en": "Low tail with bangs",
+    "th": "หางม้าต่ำหน้าม้า",
+    "desc": "full side-swept bangs, chin-length side locks and the rest twisted into a long low tail at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m32",
+    "en": "Shaggy mullet",
+    "th": "มัลเล็ตซอย",
+    "desc": "a shaggy mid-length layered cut with straight bangs, reaching the neck at the back",
+    "ties": ""
+   },
+   {
+    "id": "m33",
+    "en": "Braid, red band",
+    "th": "เปียเดี่ยวผูกแดง",
+    "desc": "side-parted hair swept back with loose strands over the forehead, gathered into a single braid at the nape bound with a red band",
+    "ties": "except the red band"
+   },
+   {
+    "id": "m34",
+    "en": "Pompadour",
+    "th": "ทรงป๊อมปาดัวร์",
+    "desc": "a big rounded pompadour quiff jutting forward over the forehead, with short sides and longer hair at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m35",
+    "en": "Spiky layers",
+    "th": "ผมซอยชี้",
+    "desc": "spiky layered chin-length hair with long side bangs and a few spikes flicking up on top",
+    "ties": ""
+   },
+   {
+    "id": "m36",
+    "en": "Bun with side bangs",
+    "th": "มวยหลังปัดข้าง",
+    "desc": "side-swept bangs covering one eye, the rest swept back into a small bun at the back of the head",
+    "ties": ""
+   },
+   {
+    "id": "m37",
+    "en": "Straight, eye covered",
+    "th": "ผมตรงปิดตา",
+    "desc": "straight chin-length hair with long side-swept bangs falling over one eye",
+    "ties": ""
+   },
+   {
+    "id": "m38",
+    "en": "Faux-hawk mullet",
+    "th": "โมฮอว์กหางยาว",
+    "desc": "a faux-hawk with stubble-shaved sides, a spiky top swept up and back and a long tail of hair at the nape",
+    "ties": ""
+   },
+   {
+    "id": "m39",
+    "en": "Hime ponytail",
+    "th": "หางม้ายาวหน้าม้า",
+    "desc": "full straight blunt bangs, chin-length side locks and a long low ponytail down the back",
+    "ties": ""
+   },
+   {
+    "id": "m40",
+    "en": "Choppy layered",
+    "th": "ผมซอยประคาง",
+    "desc": "choppy layered chin-length hair with long side-swept bangs",
+    "ties": ""
+   },
+   {
+    "id": "m41",
+    "en": "Curly crop",
+    "th": "ผมหยิกสั้น",
+    "desc": "a very short crop of tight textured curls with close-cut sides",
+    "ties": ""
+   },
+   {
+    "id": "m42",
+    "en": "Choppy short, tuft",
+    "th": "ผมสั้นซอยปัด",
+    "desc": "a short choppy cut with heavy side-swept bangs and a few strands flicking up into a little tuft at the crown",
+    "ties": ""
+   },
+   {
+    "id": "m43",
+    "en": "Spray ponytail",
+    "th": "หางม้าชี้",
+    "desc": "hair slicked back into a spiky high ponytail at the crown that bursts out like a spray, with one long curved lock hanging beside the face",
+    "ties": ""
+   },
+   {
+    "id": "m44",
+    "en": "Half-up top bun",
+    "th": "มวยจุกครึ่งหัว",
+    "desc": "straight shoulder-length hair with side-swept bangs and a small round bun on top of the crown",
+    "ties": ""
+   },
+   {
+    "id": "m45",
+    "en": "Bob over one eye",
+    "th": "บ็อบปิดตา",
+    "desc": "a straight chin-length bob with long bangs swept down over one eye",
+    "ties": ""
+   },
+   {
+    "id": "m46",
+    "en": "Hime cut",
+    "th": "ทรงฮิเมะ",
+    "desc": "a long straight hime cut: blunt straight bangs, chin-length side locks and long straight hair hanging past the shoulders",
+    "ties": ""
+   },
+   {
+    "id": "m47",
+    "en": "Feathered shag",
+    "th": "ผมสั้นหน้าม้ายาว",
+    "desc": "a short shaggy cut with heavy feathery bangs hanging over the eyes",
+    "ties": ""
+   },
+   {
+    "id": "m48",
+    "en": "Tousled swept-back",
+    "th": "ผมสั้นเสยยุ่ง",
+    "desc": "short tousled hair swept back with a few loose strands falling over the forehead",
+    "ties": ""
+   }
+  ]
+ },
+ "picked": "the original creator styles (FeatureID 1-12 and 51-54), one pinned bob of four"
+}
