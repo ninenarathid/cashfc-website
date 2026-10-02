@@ -1,6 +1,41 @@
 {
  "events": [
   {
+   "date": "2026-10-02",
+   "type": "grade_up",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "is now a Expert Explorer ✨"
+  },
+  {
+   "date": "2026-10-02",
+   "type": "grade_up",
+   "id": 22425670,
+   "name": "Shizuna-pan Misurugi",
+   "text": "is now a Expert Explorer ✨"
+  },
+  {
+   "date": "2026-10-02",
+   "type": "level_100",
+   "id": 29907674,
+   "name": "Ranjoe Tp'",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-10-02",
+   "type": "grade_up",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "is now a Expert Relic grinder ✨"
+  },
+  {
+   "date": "2026-10-02",
+   "type": "rare_up",
+   "id": 36363091,
+   "name": "Snow Winsfield",
+   "text": "earned Son of a... — only 0.6% of players have it, and 99 more"
+  },
+  {
    "date": "2026-10-01",
    "type": "level_100",
    "id": 57375278,
@@ -1364,41 +1399,6 @@
    "id": 9444020,
    "name": "Non Elemental",
    "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned In Pot Pursuit II — only 3.9% of players have it"
   }
  ]
 }
