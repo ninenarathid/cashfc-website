@@ -2183,7 +2183,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 68,
+  "level": 69,
   "cc": [
    true,
    true,
@@ -5768,9 +5768,9 @@
   "tiers": {},
   "jobs": {
    "Bard": "expert",
+   "WhiteMage": "expert",
    "Astrologian": "master",
    "Scholar": "expert",
-   "WhiteMage": "expert",
    "Summoner": "expert"
   },
   "ex": [
@@ -8475,8 +8475,14 @@
   "mounts": 33,
   "minions": 173,
   "rare": 3,
-  "level": 88,
-  "cc": null,
+  "level": 89,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [
    1302,
    2748,

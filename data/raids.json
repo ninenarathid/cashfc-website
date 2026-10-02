@@ -72765,17 +72765,17 @@
       "kills": 1,
       "best": 19
      },
+     "WhiteMage": {
+      "kills": 3,
+      "best": 64
+     },
      "Astrologian": {
-      "kills": 17,
+      "kills": 21,
       "best": 66
      },
      "Scholar": {
       "kills": 12,
       "best": 67
-     },
-     "WhiteMage": {
-      "kills": 2,
-      "best": 51
      }
     }
    },
@@ -72795,16 +72795,16 @@
       "best": 59
      },
      "Astrologian": {
-      "kills": 16,
-      "best": 56
+      "kills": 20,
+      "best": 67
      },
      "WhiteMage": {
-      "kills": 1,
-      "best": 33
+      "kills": 6,
+      "best": 54
      },
      "Scholar": {
-      "kills": 5,
-      "best": 34
+      "kills": 10,
+      "best": 39
      }
     }
    },
@@ -72828,8 +72828,8 @@
       "best": 39
      },
      "Astrologian": {
-      "kills": 1,
-      "best": 17
+      "kills": 9,
+      "best": 50
      }
     }
    },
@@ -72844,9 +72844,13 @@
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
+     "Reaper": {
+      "kills": 1,
+      "best": 28
+     },
      "Astrologian": {
-      "kills": 2,
-      "best": 39
+      "kills": 3,
+      "best": 65
      }
     }
    },
@@ -72862,7 +72866,7 @@
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 6,
+      "kills": 7,
       "best": 82
      },
      "Ninja": {
@@ -88888,7 +88892,23 @@
   "legacy": []
  },
  "60429500": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "22590312": {
   "current": {
