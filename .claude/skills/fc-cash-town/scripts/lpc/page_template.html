@@ -1,0 +1,362 @@
+<title>LPC Dressing Room</title>
+<meta name="description" content="A prototype of Cash Town's pixel avatars from the free LPC sprite library: pick a race, hair, face, clothes and colours, and watch it walk, stand, sit and run in four directions.">
+<style>
+:root { --bg:#0f1319; --surface:#161b23; --card:#1b212b; --line:#262d39; --line-strong:#3a4352; --ink:#e3e8ef; --muted:#8b97a8; --accent:#6aa9e0; --gold:#e5cc80; --jade:#4fb8a8; --chili:#d9654e; --stage1:#2b3a2f; --stage2:#26342a; }
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg:#f4f1ea; --surface:#fffdf8; --card:#ffffff; --line:#e3ddd0; --line-strong:#cfc6b4; --ink:#1f2430; --muted:#5f6878; --accent:#2f6fb0; --gold:#8a6a10; --jade:#1f7f72; --chili:#b0432f; --stage1:#cfe0c8; --stage2:#c3d6bc; } }
+:root[data-theme="light"] { --bg:#f4f1ea; --surface:#fffdf8; --card:#ffffff; --line:#e3ddd0; --line-strong:#cfc6b4; --ink:#1f2430; --muted:#5f6878; --accent:#2f6fb0; --gold:#8a6a10; --jade:#1f7f72; --chili:#b0432f; --stage1:#cfe0c8; --stage2:#c3d6bc; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.65 "Noto Sans Thai Looped", "Noto Sans Thai", system-ui, sans-serif; }
+main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 48px; }
+.eyebrow { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: 28px; margin: 2px 0 6px; line-height: 1.3; }
+.lede { color: var(--muted); margin: 0 0 16px; max-width: 48rem; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+@media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.stage { display: grid; place-items: center; height: 380px; background:
+  repeating-conic-gradient(var(--stage1) 0 25%, var(--stage2) 0 50%) 0 0 / 32px 32px; }
+.stage canvas { image-rendering: pixelated; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--line); }
+.row .lab { font-size: 12px; color: var(--muted); margin-right: 4px; min-width: 3.2rem; }
+.strip { display: flex; gap: 18px; align-items: end; justify-content: center; padding: 12px 14px 14px; border-top: 1px solid var(--line); background: var(--card); flex-wrap: wrap; }
+.strip figure { margin: 0; text-align: center; font-size: 11px; color: var(--muted); }
+.strip canvas { image-rendering: pixelated; display: block; margin: 0 auto 2px; }
+.warn { margin: 0; padding: 8px 14px; font-size: 13px; color: var(--gold); border-top: 1px solid var(--line); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; max-height: min(86vh, 900px); overflow: auto; }
+.g { margin-top: 12px; } .g:first-child { margin-top: 0; }
+.gl { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line-strong); background: transparent; color: var(--ink); border-radius: 99px; padding: 4px 11px; font: inherit; font-size: 13px; cursor: pointer; min-height: 32px; }
+.chip[aria-pressed="true"] { background: color-mix(in oklab, var(--accent) 22%, transparent); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip:disabled { opacity: .35; cursor: not-allowed; }
+.sw { width: 26px; height: 26px; border-radius: 50%; border: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.3); padding: 0; }
+.sw[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chip:focus-visible, .sw:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sub { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 16px; }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.fact b { display: block; font-size: 14px; } .fact span { font-size: 12.5px; color: var(--muted); }
+details.credits { margin-top: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; font-size: 12.5px; }
+details.credits summary { cursor: pointer; font-weight: 600; }
+details.credits li { margin: 3px 0; color: var(--muted); }
+details.credits b { color: var(--ink); font-weight: 600; }
+a { color: var(--accent); }
+</style>
+<main>
+  <div class="eyebrow">Cash Town · ทดลอง pixel art</div>
+  <h1>ห้องแต่งตัว pixel (LPC)</h1>
+  <p class="lede">ตัวละครประกอบจากชิ้นส่วนจริงของคลัง LPC ทุกชิ้นวาดบนกริดเดียวกัน ทุกท่า ทุกทิศ เลยซ้อนกันพอดี สีทั้งหมดเปลี่ยนด้วยการสลับพาเลต ลองกดเผ่าในแผงแต่งตัวแล้วแต่งต่อได้เลย</p>
+  <div class="grid">
+    <section class="card" aria-label="ตัวละคร">
+      <div class="stage"><canvas id="big" width="64" height="64" style="width:320px;height:320px" role="img" aria-label="ตัวละครที่กำลังแต่ง"></canvas></div>
+      <div class="row" id="animRow"><span class="lab">ท่า</span></div>
+      <div class="row" id="dirRow"><span class="lab">หันไป</span></div>
+      <p class="warn" id="warn" hidden></p>
+      <div class="strip" id="strip"></div>
+    </section>
+    <aside class="panel" id="panel" aria-label="แต่งตัว"></aside>
+  </div>
+  <div class="facts">
+    <div class="fact"><b>ทุกชิ้นซ้อนกันพอดี</b><span>วาดบนกริด 64×64 เดียวกันทุกท่า ไม่มีปัญหาคอหรือแขนเสื้อซ้อน</span></div>
+    <div class="fact"><b>สีแม่นทุกพิกเซล</b><span>สลับพาเลต 6 ระดับสี เงาอยู่ครบ เพิ่มสีใหม่ = เพิ่มพาเลต</span></div>
+    <div class="fact"><b>ร่างเล็ก (Lalafell) ยังมีชุดน้อย</b><span>คลังมีแค่เสื้อ กางเกง กระโปรง สำหรับท่าเดิน ยังไม่มีรองเท้าและหมวก</span></div>
+    <div class="fact"><b>ฟรี แต่ต้องใส่เครดิต</b><span>รายชื่อผู้วาดของชิ้นที่ใช้อยู่ ดูได้ด้านล่าง</span></div>
+  </div>
+  <details class="credits" id="credits"><summary>เครดิตผู้วาด (ชิ้นที่ใช้อยู่ตอนนี้)</summary><ul id="creditList"></ul>
+    <p class="sub">ภาพทั้งหมดจาก <a href="https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator" target="_blank" rel="noopener">Universal LPC Spritesheet Character Generator</a> · สัญญาอนุญาต CC-BY-SA 3.0 / GPL 3.0 / OGA-BY / CC-BY / CC0 ตามแต่ละชิ้น · รายชื่อทั้งหมดใน <a href="https://github.com/LiberatedPixelCup/Universal-LPC-Spritesheet-Character-Generator/blob/master/CREDITS.csv" target="_blank" rel="noopener">CREDITS.csv</a></p>
+  </details>
+</main>
+<script id="lpc-data" type="application/json">__DATA__</script>
+<script>
+const DATA = JSON.parse(document.getElementById("lpc-data").textContent);
+const P = DATA.palettes;
+const ITEMS = DATA.items;
+const byCat = (c) => ITEMS.filter((i) => i.cat === c);
+const item = (cat, id) => ITEMS.find((i) => i.cat === cat && i.id === id);
+
+/* ── colours ── */
+// A ramp is "ulpc:orange" or "lpcr:pink" within a material.
+const ramp = (mat, key) => { const [set, name] = key.split(":"); return P[mat][set]?.[name]; };
+const baseRamp = (mat) => P[mat].ulpc[P[mat].base];
+const rampsOf = (mat, sets = ["ulpc", "lpcr"]) => sets.flatMap((s) => Object.keys(P[mat][s] || {}).map((n) => `${s}:${n}`));
+const hexToRgb = (h) => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const NAMED = { black: "#222", white: "#eee", gray: "#888", grey: "#888", blue: "#3b6fd1", lightblue: "#8fc3ef", darkblue: "#24346f", navy: "#1f2d5a", green: "#3f9a4a", forest: "#2d5a35", red: "#c33", maroon: "#7a2333", pink: "#e98bb5", lavender: "#b9a3e3", purple: "#7a4fb0", brown: "#7a4a2e", leather: "#8b5a35", orange: "#e0822d", yellow: "#e6c84a", teal: "#2c9a96", gold: "#d4a52a", silver: "#b8bec8", charcoal: "#3a3f48", bluegray: "#6a7f99", tan: "#c9a27a", walnut: "#5c3b25", rose: "#d77a8f" };
+function swatchColor(name) {
+  const n = name.replace(/^base_/, "").replace(/ /g, "");
+  const hairNames = { "lightbrown": "chestnut", "darkbrown": "dark_brown" };
+  const hr = P.hair.ulpc[n] || P.hair.ulpc[hairNames[n]] || P.hair.lpcr[n];
+  if (hr) return hr[3];
+  return NAMED[n] || NAMED[n.replace(/light|dark/, "")] || "#8b8f99";
+}
+
+/* ── what is chosen ── */
+const S = { body: "female", skin: "ulpc:light", head: "human", face: "none", brows: "thin", ears: "none", horns: "none", hornColor: "ulpc:black", tail: "none",
+  hair: "pigtails", hairColor: "ulpc:orange", eye: "ulpc:blue", top: "tshirt", topColor: "ulpc:blue", bottom: "skirt", bottomColor: "ulpc:navy",
+  feet: "shoes", feetColor: "ulpc:brown", hat: "none", hatColor: "ulpc:red", acc: "none", variants: {}, anim: "walk", dir: 2 };
+const RESET = { face: "none", brows: "thin", ears: "none", horns: "none", tail: "none", hat: "none", acc: "none", eye: "ulpc:blue", hornColor: "ulpc:black" };
+const PRESETS = [
+  ["Lalafell", { body: "child", head: "human", skin: "ulpc:light", ears: "elven", hair: "relm_short", hairColor: "ulpc:pink", top: "child_shirt", bottom: "child_pants", feet: "none",
+    variants: { "top:child_shirt": "lightblue", "bottom:child_pants": "brown" } }],
+  ["Miqo'te", { body: "female", head: "human", skin: "ulpc:amber", ears: "cat", tail: "cat", hair: "relm_ponytail", hairColor: "ulpc:dark_gray", eye: "ulpc:yellow",
+    top: "cardigan_s", topColor: "ulpc:teal", bottom: "skirt", bottomColor: "ulpc:charcoal", feet: "boots", feetColor: "ulpc:brown" }],
+  ["Au Ra", { body: "female", head: "human", skin: "ulpc:light", ears: "hang", horns: "backwards", hornColor: "ulpc:black", tail: "lizard", hair: "long_straight", hairColor: "ulpc:white", eye: "ulpc:purple",
+    top: "longsleeve", topColor: "ulpc:maroon", bottom: "pants", bottomColor: "ulpc:black", feet: "boots", feetColor: "ulpc:charcoal" }],
+  ["Hrothgar", { body: "male", head: "wolf", skin: "ulpc:fur_grey", tail: "wolf", brows: "none", hair: "none",
+    top: "sleeveless", topColor: "ulpc:forest", bottom: "pantaloons", bottomColor: "ulpc:tan", feet: "boots", feetColor: "ulpc:brown" }],
+  ["Elezen", { body: "male", head: "human", skin: "ulpc:light", ears: "long", hair: "long", hairColor: "ulpc:platinum", eye: "ulpc:green",
+    top: "polo", topColor: "ulpc:navy", bottom: "cuffed", bottomColor: "ulpc:gray", feet: "shoes", feetColor: "ulpc:black" }],
+  ["Hyur", { body: "male", head: "human", skin: "ulpc:amber", hair: "spiked", hairColor: "ulpc:dark_brown", eye: "ulpc:brown",
+    top: "tshirt", topColor: "ulpc:red", bottom: "pants", bottomColor: "ulpc:navy", feet: "shoes", feetColor: "ulpc:brown" }],
+];
+const ANIMS = [["walk", "เดิน"], ["idle", "ยืน"], ["sit", "นั่ง"], ["run", "วิ่ง"]];
+const DIRS = [[2, "หน้า"], [1, "ซ้าย"], [3, "ขวา"], [0, "หลัง"]];
+const FRAME = { walk: { from: 1, n: 8, ms: 95 }, run: { from: 0, n: 8, ms: 80 }, idle: { from: 0, n: 2, ms: 600 }, sit: { from: 0, n: 3, ms: 1400 } };
+
+/* ── which item each slot has, for this body ── */
+const has = (it, body = S.body) => !!it?.bodies[body];
+function selected() {
+  const out = [];
+  const add = (cat, id) => { if (id === "none") return; const it = item(cat, id); if (has(it)) out.push(it); };
+  add("body", "body"); add("head", S.head);
+  if (S.head === "human") add("face", S.face);
+  if (S.head === "human") add("brows", S.brows);
+  add("ears", S.ears); add("horns", S.horns); add("tail", S.tail);
+  if (S.head === "human") add("hair", S.hair);
+  add("top", S.top); add("bottom", S.bottom); add("feet", S.feet); add("hat", S.hat); add("acc", S.acc);
+  return out;
+}
+/** The colour each material of an item takes. */
+function targetFor(it, mat, channel) {
+  // A secondary colour of its own (a hair tie, the inside of an ear): left as drawn.
+  if (channel?.source || ["hair_tie", "inner_ear"].includes(channel?.type_name)) return null;
+  if (it.cat === "tail") {
+    if (it.id === "lizard") return ["hair", S.horns !== "none" ? S.hornColor : S.hairColor];
+    if (S.head === "wolf" || S.skin.includes("fur_") || S.hair === "none") return ["body", S.skin];
+    return ["hair", S.hairColor];
+  }
+  if (mat === "body") return it.cat === "horns" ? ["hair", S.hornColor] : ["body", S.skin];
+  if (mat === "hair") return ["hair", S.hairColor];
+  if (mat === "eye") return ["eye", S.eye];
+  if (mat === "cloth") { const c = { top: S.topColor, bottom: S.bottomColor, feet: S.feetColor, hat: S.hatColor }[it.cat] || S.topColor; return ["cloth", c]; }
+  return null;
+}
+function mappingOf(it) {
+  const rc = it.recolors; if (!rc) return null;
+  const chans = rc.material ? [rc] : Object.values(rc);
+  const pairs = [];
+  for (const ch of chans) {
+    const mat = ch.material; if (!P[mat]) continue;
+    const t = targetFor(it, mat, ch); if (!t) continue;
+    // The ramp it is drawn in: the palette's base, unless the item says (a wolf head: "ulpc.fur_brown").
+    const declared = ch.base ? (ch.base.includes(".") ? ch.base.replace(".", ":") : `ulpc:${ch.base}`) : null;
+    const src = ch.source || ramp(mat, declared || it.src?.[mat] || `ulpc:${P[mat].base}`) || baseRamp(mat), dst = ramp(t[0], t[1]);
+    if (!dst || src.length !== dst.length) continue;
+    src.forEach((c, i) => pairs.push([c.toLowerCase(), dst[i].toLowerCase()]));
+  }
+  return pairs.length ? pairs : null;
+}
+
+/* ── sheets: decoded once, recoloured on demand ── */
+const decoded = new Map(), tinted = new Map();
+function sheet(key) {
+  let s = decoded.get(key);
+  if (s) return s;
+  const rec = DATA.sheets[key]; if (!rec) return null;
+  s = { rows: rec.rows, img: new Image(), ready: false };
+  s.img.onload = () => { s.ready = true; };
+  s.img.src = rec.src;
+  decoded.set(key, s);
+  return s;
+}
+function recoloured(key, pairs) {
+  const s = sheet(key); if (!s?.ready) return null;
+  if (!pairs) return s.img;
+  const mk = key + "#" + pairs.map((p) => p[1]).join("");
+  let c = tinted.get(mk); if (c) return c;
+  c = document.createElement("canvas"); c.width = s.img.width; c.height = s.img.height;
+  const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(s.img, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height), px = d.data;
+  const src = pairs.map(([a]) => hexToRgb(a)), dst = pairs.map(([, b]) => hexToRgb(b));
+  const exact = new Map(); pairs.forEach(([a], i) => exact.set(parseInt(a.slice(1), 16), i));
+  for (let i = 0; i < px.length; i += 4) {
+    if (!px[i + 3]) continue;
+    let k = exact.get((px[i] << 16) | (px[i + 1] << 8) | px[i + 2]);
+    if (k === undefined) { // within ±1, for compression noise
+      for (let j = 0; j < src.length; j++) if (Math.abs(px[i] - src[j][0]) <= 1 && Math.abs(px[i + 1] - src[j][1]) <= 1 && Math.abs(px[i + 2] - src[j][2]) <= 1) { k = j; break; }
+    }
+    if (k !== undefined) { px[i] = dst[k][0]; px[i + 1] = dst[k][1]; px[i + 2] = dst[k][2]; }
+  }
+  g.putImageData(d, 0, 0);
+  if (tinted.size > 400) tinted.clear();
+  tinted.set(mk, c);
+  return c;
+}
+
+/* ── drawing a frame ── */
+function layersFor(anim) {
+  const out = [], missing = [];
+  for (const it of selected()) {
+    const b = it.bodies[S.body];
+    if (!b.anims.includes(anim)) { missing.push(it); continue; }
+    const v = it.variants ? (S.variants[it.cat + ":" + it.id] || it.variants[0]) : "";
+    const pairs = mappingOf(it);
+    b.layers.forEach((L, li) => out.push({ z: L.z, key: `${it.id}|${S.body}|${li}|${v}`, pairs }));
+  }
+  out.sort((a, b) => a.z - b.z);
+  return { layers: out, missing };
+}
+function drawFrame(ctx, anim, dir, frame) {
+  ctx.clearRect(0, 0, 64, 64);
+  const { layers } = layersFor(anim);
+  for (const L of layers) {
+    const img = recoloured(L.key, L.pairs), s = sheet(L.key);
+    if (!img || !s.rows[anim]) continue;
+    const [y0, n] = s.rows[anim];
+    const f = Math.min(frame, n - 1);
+    ctx.drawImage(img, f * 64, y0 + dir * 64, 64, 64, 0, 0, 64, 64);
+  }
+}
+
+/* ── the panel ── */
+const panel = document.getElementById("panel");
+function group(label, node, sub) { const d = document.createElement("div"); d.className = "g"; d.innerHTML = `<div class="gl">${label}</div>`; d.append(node); if (sub) { const p = document.createElement("p"); p.className = "sub"; p.textContent = sub; d.append(p); } panel.append(d); return d; }
+function chips(items, get, set, disabled = () => false) {
+  const w = document.createElement("div"); w.className = "chips"; w.setAttribute("role", "group");
+  for (const [v, t] of items) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t;
+    b.setAttribute("aria-pressed", String(v === get())); b.disabled = disabled(v);
+    b.onclick = () => { set(v); rebuild(); };
+    w.append(b);
+  }
+  return w;
+}
+function swatches(keys, mat, get, set, label) {
+  const w = document.createElement("div"); w.className = "chips"; w.setAttribute("role", "group"); w.setAttribute("aria-label", label);
+  for (const k of keys) {
+    const r = ramp(mat, k); if (!r) continue;
+    const b = document.createElement("button"); b.type = "button"; b.className = "sw";
+    const hi = r[Math.min(4, r.length - 1)], lo = r[Math.max(1, Math.min(2, r.length - 2))];
+    b.style.background = `linear-gradient(135deg, ${hi} 0 45%, ${lo} 55%)`; b.title = k.split(":")[1].replace(/_/g, " ");
+    b.setAttribute("aria-label", `${label} ${b.title}`); b.setAttribute("aria-pressed", String(k === get()));
+    b.onclick = () => { set(k); rebuild(); };
+    w.append(b);
+  }
+  return w;
+}
+function variantSwatches(it) {
+  const key = it.cat + ":" + it.id, cur = S.variants[key] || it.variants[0];
+  const w = document.createElement("div"); w.className = "chips";
+  for (const v of it.variants) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "sw"; b.style.background = swatchColor(v);
+    b.title = v; b.setAttribute("aria-label", `สี ${v}`); b.setAttribute("aria-pressed", String(v === cur));
+    b.onclick = () => { S.variants[key] = v; rebuild(); };
+    w.append(b);
+  }
+  return w;
+}
+const optionsOf = (cat, withNone = true) => [...(withNone ? [["none", "ไม่มี"]] : []), ...byCat(cat).filter((i) => has(i)).map((i) => [i.id, i.label])];
+function ensureValid() {
+  const fix = (key, cat, fallback = "none") => { if (S[key] !== "none" && !has(item(cat, S[key]))) S[key] = optionsOf(cat, false)[0]?.[0] ?? fallback; };
+  fix("top", "top"); fix("bottom", "bottom"); fix("hair", "hair"); fix("feet", "feet"); fix("hat", "hat"); fix("acc", "acc");
+  fix("ears", "ears"); fix("horns", "horns"); fix("tail", "tail"); fix("face", "face"); fix("head", "head", "human");
+  if (S.anim === "run" && !item("body", "body").bodies[S.body].anims.includes("run")) S.anim = "walk";
+}
+function colourGroup(label, cat, colorKey) {
+  const id = S[cat]; if (id === "none") return;
+  const it = item(cat, id); if (!has(it)) return;
+  if (it.recolors) group(label, swatches(rampsOf("cloth", ["ulpc"]), "cloth", () => S[colorKey], (v) => (S[colorKey] = v), label));
+  else if (it.variants) group(label, variantSwatches(it));
+}
+function rebuild() {
+  ensureValid();
+  panel.innerHTML = "";
+  group("เผ่า (ตั้งค่าเร็ว)", chips(PRESETS.map(([n]) => [n, n]), () => "", (n) => { const p = PRESETS.find((q) => q[0] === n)[1]; Object.assign(S, RESET, p, { variants: { ...S.variants, ...(p.variants || {}) } }); }),
+    "Lalafell ใช้ร่างเด็กของ LPC · ที่เหลือใช้ร่างผู้ใหญ่");
+  group("ร่าง", chips([["female", "หญิง"], ["male", "ชาย"], ["child", "ร่างเล็ก"]], () => S.body, (v) => (S.body = v)));
+  group("หน้าตา", chips(optionsOf("head", false), () => S.head, (v) => (S.head = v)));
+  group("สีผิว / ขน", swatches(rampsOf("body", ["ulpc"]), "body", () => S.skin, (v) => (S.skin = v), "สีผิว"));
+  if (S.head === "human") {
+    group("ทรงผม", chips(optionsOf("hair"), () => S.hair, (v) => (S.hair = v)));
+    group("สีผม", swatches(rampsOf("hair"), "hair", () => S.hairColor, (v) => (S.hairColor = v), "สีผม"));
+    group("สีตา", swatches(rampsOf("eye"), "eye", () => S.eye, (v) => (S.eye = v), "สีตา"));
+    const faces = optionsOf("face");
+    if (faces.length > 1) group("สีหน้า", chips([["none", "ปกติ"], ...faces.slice(1)], () => S.face, (v) => (S.face = v)));
+    else group("สีหน้า", document.createTextNode(""), "ร่างเล็กยังไม่มีสีหน้าในคลัง");
+  }
+  if (S.head === "human") group("คิ้ว", chips(optionsOf("brows"), () => S.brows, (v) => (S.brows = v)));
+  group("หู", chips(optionsOf("ears"), () => S.ears, (v) => (S.ears = v)));
+  group("เขา", chips(optionsOf("horns"), () => S.horns, (v) => (S.horns = v)));
+  if (S.horns !== "none") group("สีเขา", swatches(rampsOf("hair", ["ulpc"]), "hair", () => S.hornColor, (v) => (S.hornColor = v), "สีเขา"));
+  group("หาง", chips(optionsOf("tail"), () => S.tail, (v) => (S.tail = v)));
+  if (S.tail !== "none") panel.lastChild.append(Object.assign(document.createElement("p"), { className: "sub",
+    textContent: S.tail === "lizard" ? "สีหางตามสีเขา (ถ้าไม่มีเขา ตามสีผม)" : "สีหางตามสีผม (หน้าหมาป่าหรือสีขน: ตามสีขน)" }));
+  group("เสื้อ", chips(optionsOf("top"), () => S.top, (v) => (S.top = v)));
+  colourGroup("สีเสื้อ", "top", "topColor");
+  group("กางเกง / กระโปรง", chips(optionsOf("bottom"), () => S.bottom, (v) => (S.bottom = v)));
+  colourGroup("สีกางเกง / กระโปรง", "bottom", "bottomColor");
+  const feet = optionsOf("feet");
+  group("รองเท้า", chips(feet, () => S.feet, (v) => (S.feet = v)), feet.length === 1 ? "ร่างเล็กยังไม่มีรองเท้าในคลัง" : "");
+  colourGroup("สีรองเท้า", "feet", "feetColor");
+  group("หมวก", chips(optionsOf("hat"), () => S.hat, (v) => (S.hat = v)), S.body === "child" ? "ร่างเล็กมีแค่ที่คาดผม" : "");
+  colourGroup("สีหมวก", "hat", "hatColor");
+  group("เครื่องประดับ", chips(optionsOf("acc"), () => S.acc, (v) => (S.acc = v)));
+  if (S.acc !== "none") group("สีแว่น", variantSwatches(item("acc", S.acc)));
+  controls();
+  credits();
+}
+
+/* ── animation, direction, warnings ── */
+function controls() {
+  const ar = document.getElementById("animRow"), dr = document.getElementById("dirRow");
+  ar.querySelectorAll("button").forEach((b) => b.remove()); dr.querySelectorAll("button").forEach((b) => b.remove());
+  const bodyAnims = item("body", "body").bodies[S.body].anims;
+  for (const [a, t] of ANIMS) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t;
+    b.setAttribute("aria-pressed", String(S.anim === a)); b.disabled = !bodyAnims.includes(a);
+    if (b.disabled) b.title = "ร่างนี้ยังไม่มีท่านี้";
+    b.onclick = () => { S.anim = a; controls(); };
+    ar.append(b);
+  }
+  for (const [d, t] of DIRS) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t;
+    b.setAttribute("aria-pressed", String(S.dir === d));
+    b.onclick = () => { S.dir = d; controls(); };
+    dr.append(b);
+  }
+  const { missing } = layersFor(S.anim), warn = document.getElementById("warn");
+  warn.hidden = !missing.length;
+  warn.textContent = missing.length ? `ท่านี้ยังไม่มีภาพของ: ${missing.map((m) => m.label).join(", ")} (เลยไม่แสดงชิ้นนี้)` : "";
+}
+function credits() {
+  const ul = document.getElementById("creditList"); ul.innerHTML = "";
+  const seen = new Set();
+  for (const it of selected()) for (const c of it.credits) {
+    const k = c.file + c.authors.join(); if (seen.has(k)) continue; seen.add(k);
+    const li = document.createElement("li");
+    li.innerHTML = `<b>${it.label}</b> (${c.file}): ${c.authors.join(", ")} · ${c.licenses.join(" / ")}${c.urls?.[0] ? ` · <a href="${c.urls[0]}" target="_blank" rel="noopener">ที่มา</a>` : ""}`;
+    ul.append(li);
+  }
+}
+
+/* ── the stage ── */
+const big = document.getElementById("big").getContext("2d");
+const strip = document.getElementById("strip");
+const small = [];
+for (const [d, t] of DIRS) {
+  const f = document.createElement("figure"); const c = document.createElement("canvas"); c.width = 64; c.height = 64; c.style.width = "128px"; c.style.height = "128px";
+  f.append(c, document.createTextNode(t)); strip.append(f); small.push([d, c.getContext("2d")]);
+}
+{ const f = document.createElement("figure"); const c = document.createElement("canvas"); c.width = 64; c.height = 64; c.style.width = "64px"; c.style.height = "64px";
+  f.append(c, document.createTextNode("ขนาดจริงในเมือง")); strip.append(f); small.push([-1, c.getContext("2d")]); }
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function tick(now) {
+  const F = FRAME[S.anim] || FRAME.walk;
+  const frame = reduce ? 0 : F.from + Math.floor(now / F.ms) % F.n;
+  drawFrame(big, S.anim, S.dir, frame);
+  for (const [d, g] of small) drawFrame(g, S.anim, d < 0 ? S.dir : d, frame);
+  requestAnimationFrame(tick);
+}
+rebuild();
+requestAnimationFrame(tick);
+</script>
