@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same figures at the same positions and the same size and height, the same poses, the same chunky square pixel size, the same bald round head, the same long pointed ears, the same skin colour, the same violet eye colour, the same thick dark outline and the same pixel art style.
+
+Turn this little girl into a little boy of the same small race. __VIEW__ Cut the light-blue tunic straight and short like a shirt that ends at the hips, not flared like a dress, so the cream shorts clearly show; keep the cream collar and cuffs, the brown belt with the gold buckle and the brown boots. He stays completely bald, no hair at all.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

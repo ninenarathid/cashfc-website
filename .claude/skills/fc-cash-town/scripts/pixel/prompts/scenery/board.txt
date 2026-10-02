@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. Draw a new sprite sheet of town scenery for the same cozy 2D game, seen from the same three-quarter top-down angle, at the same scale and with the same chunky pixel size. Do not draw any characters.
+
+Draw one item in the middle: a big wooden town notice board, the Popoto Board. Two sturdy wooden posts hold a wide board about as wide as four characters and as tall as two, with a small shingled roof on top. The board has a large empty cream parchment area in the middle (nothing written on it), a few small pinned paper notes at its edges, and a cute carved round potato creature with a happy face sitting on the middle of the roof.
+
+The board stands in the middle of the canvas, facing the viewer at the same three-quarter angle, with empty space all around it. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

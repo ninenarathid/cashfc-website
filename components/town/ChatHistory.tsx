@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import type { ChatLine } from "@/lib/town/session";
+import TownIcon from "./TownIcon";
 
 /**
  * The town's chat as far back as this tab heard it, to scroll through: the
@@ -86,7 +87,7 @@ export default function ChatHistory({ lines, th, className = "" }: {
       {unseen > 0 && (
         <button type="button" onClick={jump}
                 className="pressable absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-accent px-3 py-1 text-label font-semibold text-bg shadow-lg shadow-black/40">
-          ↓ {th ? `ข้อความใหม่ ${unseen}` : `${unseen} new`}
+          <span className="flex items-center gap-1"><TownIcon name="down" size={12} />{th ? `ข้อความใหม่ ${unseen}` : `${unseen} new`}</span>
         </button>
       )}
     </div>

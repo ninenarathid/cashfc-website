@@ -8,6 +8,7 @@ import { useLang } from "@/lib/i18n";
 import { useMyFace } from "@/lib/avatars";
 import { useAdmin } from "@/lib/admin";
 import { useAdminUnread } from "@/lib/notifications";
+import TownIcon from "@/components/town/TownIcon";
 
 /**
  * Who you are, in the header, and where that can take you.
@@ -137,7 +138,7 @@ export default function AuthButton() {
           {/* Here rather than in the header's tabs while it is a beta: a door
               for the members who go looking, not a promise to everybody. */}
           <Menu.Item asChild>
-            <Link href="/town" className={item}>{t("nav.town")}</Link>
+            <Link href="/town" className={item.replace("block ", "flex items-center gap-2 ")}><TownIcon name="town" size={16} />{t("nav.town")}</Link>
           </Menu.Item>
           {isAdmin && (
             <Menu.Item asChild>

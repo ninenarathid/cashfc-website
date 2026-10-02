@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale. Draw a new sprite sheet of tiny falling leaves for the same cozy 2D game, in the same pixel art style with the same thick dark outline, each leaf seen flat from above and about as big as the small green leaf in the reference.
+
+Six small leaves in one row, evenly spaced, not overlapping, with clear empty space between them: 1) a fresh green leaf; 2) a light yellow-green leaf; 3) a golden yellow leaf; 4) an orange leaf; 5) a small brown dry leaf; 6) a soft pink flower petal.
+
+Crisp pixel art with hard square pixel edges, flat shading with two or three tones, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

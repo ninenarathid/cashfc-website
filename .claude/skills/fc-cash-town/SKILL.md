@@ -11,7 +11,30 @@ where walking close to someone lets you talk by microphone.
 
 **Status (2026-10-01): a beta is live at `/town` for every member with a
 verified character** (v102; admins since v101). It has:
-- one isometric district drawn with plain Canvas 2D;
+- **one 64×64 map** (no buildings since 2026-10-02), drawn with plain Canvas 2D:
+  - the starter town in the middle (`TOWN`): a cobbled plaza with the fountain, a lamp and a flower bed at each corner, benches round the fountain with bins, a signpost;
+  - **four winding dirt paths** leave the plaza (`ARMS`, `pathMiddle`): straight at the mouth, wandering further out. They are shapes, not tiles: `groundLook(x, y)` gives the ground at any point, so bends and banks are drawn as curves (`scenery.ts` caches it per eighth of a tile). Each path is lit where it leaves the plaza and has two resting places (a bench facing it, a bin, flowers, a lamp across the way);
+  - **a river** down the left (`riverMiddle`, water and sandy banks, not walkable) cuts the west and south paths. It flows (streaks, glints, fish shadows, a koi leaping every 23 s, things drifting by: leaves, lily pads, a paper boat, a stick, a rubber duck), all by the wall clock;
+  - **road works** (`ROADWORKS`) close the north and east paths at the map's edge: a barrier, a popoto waving a flag, "กำลังซ่อมทางเดิน";
+  - **Popoto Shop** being built (`SHOP`, stage 1 of 3: a foundation with two animated popoto workers in hard hats, and a sign);
+  - **the Popoto Board** (`BOARD`, `lib/town/board.ts`, `TownBoard.tsx`) north of the fountain: the building news on its paper, a "!" until you vote; a tap opens the panel with the shop's progress and the vote for the next building (v103: `town_vote`, `town_vote_tally`, `town_my_vote`);
+  - countryside all round: woods, rocks, flowers.
+  - The layout comes from a fixed seed (`PROPS`, `BENCHES` in `world.ts`, pure and tested).
+- **life in town, from the clock alone** (everybody sees the same, nothing sent):
+  - popoto outings by the hour (`lib/town/popotos.ts`): morning a runner with toast, noon a picnic, evening football or badminton, late night a tired office popoto; about one every nine minutes in their hours. `?townPopoto=lunch` brings one out in `next dev`;
+  - birds in the trees, butterflies round the flowers, a dog chasing a cat (`lib/town/critters.ts`); none in the rain, birds and butterflies by day.
+- **Bangkok's weather, unannounced** (`lib/town/weather.ts`, `app/api/town/weather`: Open-Meteo, a static route revalidated every 15 min, the page asks every 10): fine weather sways the trees and blows pixel leaves across the scene (in the world, not on the screen); rain falls, puddles ring, everything looks wet; mist hazes. `?townWeather=rain|storm|windy|fog` in `next dev`.
+- **lofi music, a piece for every hour** (`lib/town/music.ts`, `TownMusicButton.tsx`): composed in code (keys, chords, a seed) and played by a Web Audio synth (electric piano, swung beat, vinyl crackle); on and soft by default, starting with the first tap; on/off and volume kept on the device.
+- **every icon is pixel art made for the town** (`TownIcon.tsx`, `lib/town/icon-atlas.json`, built by `scripts/pixel/build-icons.mjs`): no emoji anywhere in Cash Town.
+- **typing shows "…"** over your head (`Doing.typing`, told once and again every 6 s at most, gone after 10 s without word).
+- **zoom out stops at about the town's width** (`MOST_TILES_ACROSS`, `MIN_SCALE` on a phone).
+- **all of it in pixel art** (`lib/town/scenery.ts`, built by `scripts/pixel/build-scenery.mjs`):
+  - AI-made props at the characters' pixel size;
+  - top-down ground textures laid onto the isometric ground in 512 px chunks, as they come into view;
+  - the fountain's water in drawn frames.
+- **sitting:** tap a bench to walk up and sit (`Doing.sit`, an index into `BENCHES`, or −1); walking anywhere gets you up.
+- **day and night by the real clock** (`lib/town/daylight.ts`, Thai time, pure and tested): the scene is multiplied by the sky's tint and the lamps glow from dusk. A clock (`TownClock.tsx`) sits beside the Cash Town pill. In `next dev`, `?townHour=21` shows any hour.
+- **a close start** (`START_DESK` 1.6, `START_PHONE` 1.3), with the camera following you;
 - tap to walk, with the A\* path computed the same way on every client;
 - **one room where everybody in voice hears everybody**, at full volume
   wherever they stand (the owner's call). Distance-based hearing is kept
@@ -37,21 +60,23 @@ verified character** (v102; admins since v101). It has:
   fullscreen button; small controls in the corners, so chat (a slim bar, a 💬
   button on a phone) and the microphone never cover the town; wheel, pinch
   and button zoom, drag to look around (`lib/town/camera.ts`, pure and tested);
-- **avatars are Lalafell paper dolls** (`lib/town/doll.ts`, `lib/town/look.ts`):
-  chosen in the wardrobe (`Wardrobe.tsx`; free, change any time), drawn from
-  one picture (`public/town/doll-<hash>.webp` and `doll.json`, built by
-  `scripts/art/build-town-atlas.mjs`), facing the way they walk, blinking, and
-  talking when their microphone hears them. A look is eleven characters in
-  `Doing.look`, told to the room once the wardrobe settles (`LOOK_SETTLE_MS`)
-  and kept on the device (localStorage); somebody who never chose gets a look
-  of their own from their id. Profile pictures are only in the card a tap on
-  somebody opens; names are on the map.
+- **avatars are pixel Lalafell** (`lib/town/pixeldoll.ts`, `lib/town/look.ts`;
+  since 2026-10-02):
+  - **The look:** male or female in the game's own starter outfit (Lalafellin attire), with the character creator's own hairstyles: 14 for girls, 13 for boys, each gender its own list. Also 26 hair colours, 8 skins, 6 eye shapes and 18 eye colours, chosen in the wardrobe (`Wardrobe.tsx`; free, change any time).
+  - **The wardrobe** also lists the other 7 races, locked.
+  - **The art:** one picture, `public/town/pixel-<hash>.png` and `pixel.json`, built by `scripts/pixel/build-pixel-atlas.mjs` from AI sheets (see its README).
+  - **Walking:** four steps each way, three-quarter front and back, mirrored for the left. Each step's body carries one head cut from the standing step, so hair and faces never shimmer.
+  - **The face:** blinks, and the mouth opens while the microphone hears them.
+  - **Layers:** body, then face (per gender × eye shape), then hair. Skin is one ramp of exact colours, found on the bodies by an AI skin-key copy (cyan skin), so the tan boots never change with the skin.
+  - **The look string:** seven characters (`"4"` + 6 digits) in `Doing.look`; versions 1–3 are still read. It is told to the room once the wardrobe settles (`LOOK_SETTLE_MS`) and kept on the device (localStorage).
+  - **Nobody chose?** They get a look of their own from their id.
+  - **Profile pictures** are only in the card a tap on somebody opens; names are on the map.
 
 The code is in `components/town/` (`Town.tsx` the map, `TownGate.tsx`,
 `TownBar.tsx` the dock, `TownDock.tsx` the few lines in the root layout that
 load the dock only for a tab in town, `Wardrobe.tsx`) and `lib/town/`
 (`world.ts`, `chat.ts`, `active.ts`, `look.ts` and `camera.ts` are pure and
-tested; `session.ts`, `voice.ts`, `room.ts`, `doll.ts`). In `next dev`,
+tested; `session.ts`, `voice.ts`, `room.ts`, `pixeldoll.ts`). In `next dev`,
 `window.__townView.screenOf(id)` says where somebody stands on the screen, for
 scripts that tap them.
 The account menu links to it. In `next dev`, `/town?townTest=A` opens a public
@@ -91,6 +116,7 @@ name.
 | `node town-stay.mjs http://localhost:3100 <out>` | Two Chromes on the dev test room: typing both ways; another page in the same tab keeps the same stay (the dock shows, others see "on another page", voice keeps flowing); a line arriving there is counted and read from the dock, which replies; back to the map with nothing reconnected; a reload on the map and on another page each resume with the microphone; leaving from the dock is gone in 0.1s and stays gone after a reload. 24 checks. | nothing |
 | `node town-live.mjs full <out> [--freeze] [--crowd N]` | Production with **throwaway verified members (not admins)**: enter the private room, talk, opposite corners, one closes the tab. `--freeze` sleeps a tab 75s; `--crowd N` fills the room to N in voice. **Refuses to run while real members are in the room** (the probes' fake microphones beep into everyone's ears); `--even-if-busy` overrides. | creates the accounts and deletes them in `finally` |
 | `node town-who.mjs` | Production. How many are in the room now, and whether any are test probes. Listens without being listed, prints counts only. | nothing |
+| `node town-pixel.mjs http://localhost:3100 <out>` | Two Chromes on the dev test room. The pixel atlas loads. A dresses in the wardrobe (boy, bob, ruby hair, amber eyes, turning around), and B sees exactly that look. Screenshots of A walking and standing from B's zoomed view, plus no page errors. 11 checks. | nothing |
 | `node town-isolation.mjs` | Production. Unverified: told no name, refused even with it, cannot post. Verified: told the name, let in, refused somebody else's letterbox but can post into it. A public channel with the same name hears nothing. | three throwaway accounts, deleted |
 
 **Leaving, timed** (dev, 2026-10-01): closing the tab or going to another

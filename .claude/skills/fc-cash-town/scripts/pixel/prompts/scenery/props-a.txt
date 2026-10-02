@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. Draw a new sprite sheet of town scenery for the same cozy 2D game, seen from the same three-quarter top-down angle, at the same scale and with the same chunky pixel size. Do not draw any characters.
+
+Draw these four items, left to right: 1) a round leafy green tree about twice as tall as the characters, with a short brown trunk; 2) a tall dark green pine tree about two and a half times as tall as the characters; 3) a round leafy green bush about as tall as a character's waist; 4) a grey mossy boulder about knee high.
+
+All items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

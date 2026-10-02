@@ -8,7 +8,7 @@ import { defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look"
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
 import {
-  SPEED, distance, findPath, hearing, moveEvery, pickLines, spawnFor, stepAlong, type Vec,
+  BENCHES, FRONT, SPEED, distance, findPath, hearing, moveEvery, pickLines, spawnFor, stepAlong, type Vec,
 } from "./world";
 
 /**
@@ -29,6 +29,10 @@ import {
 
 export interface Person extends Identity, Doing {}
 
+/** How long "…" shows after the last word that somebody is typing, and how often a typist says so again. */
+export const TYPING_MS = 10_000;
+const TYPING_AGAIN_MS = 6_000;
+
 export interface Avatar {
   info: Person;
   pos: Vec;
@@ -42,6 +46,8 @@ export interface Avatar {
   byeAt?: number;
   /** What they last typed, for the bubble over their head. */
   said?: { text: string; at: number };
+  /** When they last told the room they were typing. */
+  typingAt?: number;
 }
 
 /** A line of the chat, as this tab heard it. Never stored anywhere. */
@@ -143,6 +149,8 @@ export class TownSession {
   private views = 0;
   private steppedAt = 0;
   private moveTimer: ReturnType<typeof setTimeout> | null = null;
+  /** The bench (index into BENCHES) to sit on once I have walked up to it. */
+  private sitWhenThere: number | null = null;
   private lastMoveAt = 0;
   private seenAt = 0;
   private readonly flood = new Flood();
@@ -159,7 +167,7 @@ export class TownSession {
     const start = spawnFor(me.id);
     const look = encodeLook(savedLook(me.id) ?? defaultLook(me.id));
     this.self = {
-      info: { ...me, x: start.x, y: start.y, voice: false, muted: false, away: true, look },
+      info: { ...me, x: start.x, y: start.y, voice: false, muted: false, away: true, look, sit: -1 },
       pos: { ...start }, path: [], img: loadFace(me.face), placed: true,
     };
 
@@ -212,7 +220,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, typing: i.typing ?? false };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -249,6 +257,12 @@ export class TownSession {
     for (const a of [this.self, ...this.avatars.values()]) {
       if (a.path.length) Object.assign(a, stepAlong(a.pos, a.path, SPEED * dt));
     }
+    // Arrived in front of the bench I was walking to: sit down.
+    if (this.sitWhenThere !== null && !this.self.path.length) {
+      const bench = this.sitWhenThere;
+      this.sitWhenThere = null;
+      this.tell({ sit: bench });
+    }
     // Each voice as loud as the town's rules say (all the same, for now).
     if (this.voice.active) {
       for (const a of this.avatars.values()) {
@@ -266,9 +280,22 @@ export class TownSession {
     const goal = { x: Math.floor(tile.x) + 0.5, y: Math.floor(tile.y) + 0.5 };
     const path = findPath(a.pos, goal);
     if (!path) return false;
+    // Walking anywhere gets up from a bench, or forgets the one I was heading for.
+    this.sitWhenThere = null;
+    if ((a.info.sit ?? -1) >= 0) this.tell({ sit: -1 });
     a.path = path;
     a.info = { ...a.info, x: goal.x, y: goal.y };
     this.announceMove();
+    return true;
+  }
+
+  /** Walk to the tile in front of a bench (an index into BENCHES), then sit on it. */
+  sitOn(bench: number): boolean {
+    const b = BENCHES[bench];
+    if (!b?.facing || this.closed) return false;
+    const f = FRONT[b.facing];
+    if (!this.walkTo({ x: b.x + f.x, y: b.y + f.y })) return false;
+    this.sitWhenThere = bench;
     return true;
   }
 
@@ -452,7 +479,7 @@ export class TownSession {
         this.early.delete(p.id);
         const spot = d.x !== undefined && d.y !== undefined ? { x: d.x, y: d.y } : spawnFor(p.id);
         this.avatars.set(p.id, {
-          info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look },
+          info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1 },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
         });
       } else {
@@ -484,6 +511,7 @@ export class TownSession {
       }
     }
     const voiceChanged = d.voice !== undefined && d.voice !== a.info.voice;
+    if (d.typing) a.typingAt = Date.now();
     a.info = { ...a.info, ...d };
     if (voiceChanged) this.syncVoice();
     this.notify();
@@ -536,6 +564,26 @@ export class TownSession {
     const wait = moveEvery(this.avatars.size + 1) - (Date.now() - this.lastMoveAt);
     if (wait <= 0) send();
     else if (this.moveTimer === null) this.moveTimer = setTimeout(send, wait);
+  }
+
+  /**
+   * Typing a chat line, or not any more: the room hears it once when it starts,
+   * again every TYPING_AGAIN_MS while it goes on (so "…" outlasts a lost
+   * message by no more than TYPING_MS), and once when it stops.
+   */
+  setTyping(on: boolean) {
+    const now = Date.now();
+    if (on) {
+      if (this.self.info.typing && now - this.typingToldAt < TYPING_AGAIN_MS) return;
+      this.typingToldAt = now;
+      this.tell({ typing: true });
+    } else if (this.self.info.typing) this.tell({ typing: false });
+  }
+  private typingToldAt = 0;
+
+  /** Whether somebody is typing now, by what they last told the room. */
+  isTyping(a: Avatar): boolean {
+    return !!a.info.typing && a.typingAt !== undefined && Date.now() - a.typingAt < TYPING_MS;
   }
 
   private tell(patch: Partial<Doing>) {
@@ -633,12 +681,14 @@ export class TownSession {
       status: () => this.status,
       me: () => ({ ...this.self.info, pos: this.self.pos }),
       people: () => this.people.map((a) => ({
-        id: a.info.id, name: a.info.name, voice: a.info.voice, away: a.info.away, pos: a.pos, look: a.info.look,
+        id: a.info.id, name: a.info.name, voice: a.info.voice, away: a.info.away, pos: a.pos, look: a.info.look, sit: a.info.sit ?? -1,
+        typing: this.isTyping(a),
         going: a.goneAt !== undefined,
       })),
       voice: () => this.voice.stats(),
       lines: () => this.voice.lines.size,
       walkTo: (x: number, y: number) => this.walkTo({ x, y }),
+      sitOn: (bench: number) => this.sitOn(bench),
       chat: (text: string) => this.sendChat(text),
       chatLog: () => this.chat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
       unread: () => this.unread,

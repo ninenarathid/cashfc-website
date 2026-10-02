@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same poses, the same bald round head with exactly the same outline and size, the same long pointed ears, the same outfit, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only her facial expression to a calm, neutral face: relaxed open eyes looking ahead, the same violet colour, size and place as now; a small closed mouth drawn as a short flat line; no smile, no grin, no blush. The same neutral face in all four frames.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

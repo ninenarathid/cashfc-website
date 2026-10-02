@@ -1,0 +1,10 @@
+Pixel art sprite sheet for a cozy 2D isometric game. Use the attached character exactly: the same pixel art style with the same chunky square pixels, the same small colour palette, the same thick dark outline, the same chibi proportions, the same green twin tails with brown ribbons, the same violet eyes, the same light-blue tunic with cream collar, cuffs and shorts, brown belt with a gold buckle, and brown boots.
+
+Draw a 4-frame walking animation of this character in a three-quarter view, turned to face down and towards the viewer's right. Frames from left to right:
+1) right foot stepping forward, left foot behind, left arm forward;
+2) feet passing under the body, body raised by one pixel;
+3) left foot stepping forward, right foot behind, right arm forward;
+4) feet passing under the body, body raised by one pixel.
+The head, hair and face look identical in all four frames, only moved up or down by one pixel. Short steps, small chibi legs.
+
+All four frames are the same size, evenly spaced in one row, standing on the same ground line, not overlapping, with clear empty space between them. Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no frame borders, no ground shadow, no other characters.

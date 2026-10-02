@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same figures at the same positions and the same size, the same poses, the same clothes, boots and pouch in their same colours, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only the colour of all the bare skin (the head, face, ears, neck, hands, arms and any skin showing between the clothes): paint it flat bright cyan, shaded only with darker cyans. Leave every piece of clothing, the boots, the belt, the pouch and the eyes exactly as they are.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

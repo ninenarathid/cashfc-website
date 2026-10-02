@@ -1,0 +1,5 @@
+Use the attached sprite sheet as the reference for the pixel art style, the chunky square pixel size and the scale. Draw a new sprite sheet of town scenery for the same cozy 2D game, seen from the same three-quarter top-down angle, at the same scale and with the same chunky pixel size. Do not draw any characters.
+
+Draw one item in the middle: the same small wooden park bench as in the attached sheet, with the same wood, iron legs and size, but turned around: seen from behind at the three-quarter angle, facing away from the viewer, up and to the right, so we see the back of its backrest and the seat behind it.
+
+All items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

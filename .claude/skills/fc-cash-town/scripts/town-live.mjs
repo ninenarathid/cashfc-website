@@ -161,8 +161,8 @@ async function full(out) {
     await linesUp(A, 1); await linesUp(B, 1);
     ok("audio flows both ways through production", true);
 
-    await A.evaluate(`${T}.walkTo(1, 1)`); await B.evaluate(`${T}.walkTo(16, 16)`);
-    await until("A sees B far away", () => A.evaluate(`(() => { const b = ${T}.people().find(p => p.name.endsWith(" B")); return b && b.pos.x > 16; })()`), 20000);
+    await A.evaluate(`${T}.walkTo(34, 3)`); await B.evaluate(`${T}.walkTo(60, 31)`);
+    await until("A sees B far away", () => A.evaluate(`(() => { const b = ${T}.people().find(p => p.name.endsWith(" B")); return b && b.pos.x > 59; })()`), 40000);
     const far = (await A.evaluate(`${T}.voice()`))[0];
     ok("opposite corners, still heard at full volume", far?.gain === 1 && !!(await flowing(A)), far);
     await A.shot(join(out, "town-live-A.png"));

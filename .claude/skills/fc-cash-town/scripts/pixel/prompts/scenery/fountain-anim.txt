@@ -1,0 +1,9 @@
+The attached picture is a pixel art fountain from a cozy 2D town game. Draw a sprite sheet of that same fountain as a looping water animation: four frames side by side in one row, evenly spaced, not overlapping, each frame the whole fountain at the same size and the same chunky square pixel size as the attached picture.
+
+The stone fountain itself is exactly the same in every frame: the same round basin, the same two tiers, the same stones, the same outline, in the same place within its frame. Only the water moves, smoothly from frame to frame, so the four frames play as a seamless loop:
+1) the jet at the top at its highest, water spilling over the upper bowl, a few droplets near the top;
+2) the jet a little lower, the falling streams and droplets further down, small splashes where they hit the basin;
+3) the jet at its lowest, droplets just above the basin water, the biggest splashes and ripple rings in the basin;
+4) the jet rising again, fresh droplets at the top, the ripple rings spreading out wider and fading.
+
+Clear bright blue water with white highlights and splashes, light warm grey stone. Crisp pixel art with hard square pixel edges, thick dark outline, flat shading with a few tones, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

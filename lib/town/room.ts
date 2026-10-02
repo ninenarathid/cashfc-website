@@ -4,6 +4,7 @@ import { createClient as createSupabase, type RealtimeChannel, type SupabaseClie
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 import { cleanChat } from "./chat";
 import { decodeLook } from "./look";
+import { BENCHES } from "./world";
 
 /**
  * The town's room on Supabase Realtime, written around the plan's limits
@@ -53,8 +54,12 @@ export interface Doing {
   voice: boolean;
   muted: boolean;
   away: boolean;
-  /** encodeLook's eleven characters; missing from a browser older than the wardrobe. */
+  /** encodeLook's characters (lib/town/look reads both versions); missing from a browser older than the wardrobe. */
   look?: string;
+  /** The bench sat on, an index into BENCHES, or −1; missing from a browser older than the benches. */
+  sit?: number;
+  /** Typing a chat line now ("…" over their head); missing from a browser older than that. */
+  typing?: boolean;
 }
 
 /**
@@ -126,6 +131,10 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (muted !== undefined) d.muted = muted;
   if (away !== undefined) d.away = away;
   if (decodeLook(p.look)) d.look = p.look as string;
+  const sit = num(p.sit);
+  if (sit !== undefined && Number.isInteger(sit) && sit >= -1 && sit < BENCHES.length) d.sit = sit;
+  const typing = bool(p.typing);
+  if (typing !== undefined) d.typing = typing;
   return d;
 }
 

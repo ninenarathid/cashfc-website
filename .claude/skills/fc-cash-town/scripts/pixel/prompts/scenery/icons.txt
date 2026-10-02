@@ -1,0 +1,8 @@
+Use the attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size, the colours and the thick dark outline. Draw a new sprite sheet for the same cozy 2D game: three small building pictures for a vote, each one a separate little isometric diorama seen from the same three-quarter top-down angle, all three the same size, standing side by side in one row across the canvas with wide empty space between them. Do not draw any characters.
+
+From left to right:
+1. A cozy little condo: a narrow three-storey apartment building of warm cream walls and a red tiled roof, rows of small square windows with tiny balconies and flower boxes, a front door with a little awning.
+2. Village land: a square plot of fresh green grass on a small block of earth, edged by a low wooden picket fence with a gap for a gate, one small round tree in a corner and a short wooden stake with a blank little sign in the middle, waiting to be built on.
+3. The Popoto village office: a small stately town hall of pale stone with four white columns at the front, wide steps, a blue tiled roof with a round clock tower on top, and a cute round potato face carved above the door.
+
+Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. The background must be fully transparent and empty: no backdrop, no dark background, no glow, no halo, no vignette, no lighting effects around the pictures, no ground around them beyond each diorama's own base, no shadows, no text, no labels, no numbers.

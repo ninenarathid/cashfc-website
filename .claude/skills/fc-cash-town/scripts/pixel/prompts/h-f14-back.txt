@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same figures at the same positions and the same size, the same poses, the same chunky square pixel size, the same face, eyes, eyebrows and mouth, the same long pointed ears, the same outfit, the same thick dark outline and the same pixel art style.
+
+Change only the bald head: give the character two short curly pigtails low at the sides of the head, each tied with a small pink bobble, with full bangs. The hair is one bright grass green, shaded only with darker greens and outlined with the same thick dark outline, with no other colours inside the hair, except the two pink bobbles. This is a back view: show the back of the hairstyle. The long pointed ears still poke out through the hair. Do not change the face, the eyes, the body or the outfit.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

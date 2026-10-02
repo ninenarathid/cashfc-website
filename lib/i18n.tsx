@@ -186,7 +186,7 @@ const DICT = {
     th: "ยังไม่มีข้อมูลใน FFXIV Collect",
   },
   "nav.editProfile": { en: "Edit profile", th: "แก้ไขโปรไฟล์" },
-  "nav.town": { en: "🏙️ Cash Town (beta)", th: "🏙️ Cash Town (ทดลอง)" },
+  "nav.town": { en: "Cash Town (beta)", th: "Cash Town (ทดลอง)" },
   "nav.admin": { en: "Admin panel", th: "หน้าผู้ดูแล" },
   "nav.language": { en: "Language", th: "ภาษา" },
   "nav.gallery": { en: "Gallery", th: "แกลเลอรี" },

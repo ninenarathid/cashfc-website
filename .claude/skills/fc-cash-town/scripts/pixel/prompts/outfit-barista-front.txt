@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same poses, the same chunky square pixel size, the same head, face, green twin tails, ribbons and pointed ears, the same thick dark outline and pixel art style.
+
+Change only her clothes: she now wears a cafe barista outfit, a white short-sleeved shirt, a dark brown apron with a small front pocket tied at the waist, black shorts, white socks and small black shoes. A small black bow tie at the collar.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

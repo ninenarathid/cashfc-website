@@ -1,0 +1,5 @@
+The first attached picture is a pixel art sprite sheet that shows the pixel art style, the chunky square pixel size and the size of things: the little potato creatures in it are knee high to a person. Draw a new pixel art sprite sheet for the same cozy 2D town game, in the same style, the same chunky pixel size and the same thick dark outline, seen from the same three-quarter top-down angle.
+
+Small butterflies, seen from above at the same three-quarter angle, each about a quarter as tall as the potato creatures. Six frames in one row, evenly spaced, not overlapping: 1) a bright yellow butterfly with black wing tips, wings fully open; 2) the same, wings half closed; 3) the same, wings closed up; 4) a sky blue butterfly with dark edges, wings fully open; 5) the same, wings half closed; 6) the same, wings closed up.
+
+Crisp pixel art with hard square pixel edges, flat shading with a few tones, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

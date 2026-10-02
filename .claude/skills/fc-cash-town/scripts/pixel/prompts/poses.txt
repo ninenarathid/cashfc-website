@@ -1,0 +1,9 @@
+Pixel art sprite sheet for a cozy 2D isometric game. The first attached picture is the character; the second attached picture is her finished walk, which shows the exact pixel size and sprite size to use. Keep exactly the same pixel art style, the same chunky square pixel size and sprite size as the second picture, the same small colour palette, the same thick dark outline, the same chibi proportions, the same outfit and hair.
+
+Draw four separate poses of her in one row, left to right:
+1) sitting on the ground with legs stretched forward, three-quarter view turned to the viewer's right, hands resting on her lap, relaxed smile;
+2) sitting on the ground the same way, but in a three-quarter back view turned away from the viewer towards the right;
+3) lying asleep on her side on the ground, eyes closed, head resting on her arm, legs slightly bent;
+4) standing and waving one hand high above her head with a big happy smile, three-quarter view turned to the viewer's right.
+
+All four poses at the same scale, evenly spaced in one row on the same ground line, not overlapping, with clear empty space between them. Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no frame borders, no ground shadow, no props, no other characters.

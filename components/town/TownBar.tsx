@@ -8,6 +8,7 @@ import { rememberTown, resumable } from "@/lib/town/active";
 import { BUBBLE_MS } from "@/lib/town/chat";
 import { currentSession, openSession, type TownSession } from "@/lib/town/session";
 import ChatHistory from "./ChatHistory";
+import TownIcon from "./TownIcon";
 
 /**
  * The dock: still in Cash Town while you look at another page of the site.
@@ -51,7 +52,7 @@ function useWords() {
     connecting: th ? "กำลังกลับเข้าเมือง…" : "Getting back in…",
     reconnecting: th ? "กำลังต่อใหม่…" : "Reconnecting…",
     full: th ? "ห้องเต็ม รอเข้าอยู่…" : "Room full, waiting…",
-    micProblem: th ? "เปิดไมค์ไม่สำเร็จ แตะ 🎤 เพื่อลองใหม่" : "The mic didn't start. Tap 🎤 to try again.",
+    micProblem: th ? "เปิดไมค์ไม่สำเร็จ แตะปุ่มไมค์เพื่อลองใหม่" : "The mic didn't start. Tap the mic to try again.",
   };
 }
 
@@ -137,7 +138,7 @@ export default function TownBar() {
   const send = (e: React.FormEvent) => {
     e.preventDefault();
     const r = s.sendChat(draft);
-    if (r === "sent") { setDraft(""); setNote(null); }
+    if (r === "sent") { setDraft(""); setNote(null); s.setTyping(false); }
     else if (r === "slow") setNote(w.slow);
     else if (r === "offline") setNote(w.offline);
   };
@@ -152,7 +153,8 @@ export default function TownBar() {
              onKeyDown={(e) => { if (e.key === "Escape") setChatOpen(false); }}>
           <ChatHistory lines={s.chat} th={w.th} className="max-h-60" />
           <form onSubmit={send} className="flex items-center gap-2 border-t border-line p-2">
-            <input value={draft} onChange={(e) => { setDraft(e.target.value); setNote(null); }} autoFocus
+            <input value={draft} onChange={(e) => { setDraft(e.target.value); setNote(null); s.setTyping(e.target.value.trim().length > 0); }}
+                   onBlur={() => s.setTyping(false)} autoFocus
                    maxLength={600} placeholder={w.placeholder} aria-label={w.placeholder} enterKeyHint="send"
                    className="min-w-0 flex-1 rounded-full border border-line-strong bg-bg px-3 py-1.5 text-read text-ink outline-none placeholder:text-muted focus:border-accent" />
             <button type="submit" className="rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent hover:bg-accent/30">
@@ -168,7 +170,7 @@ export default function TownBar() {
         <Link href="/town" title={w.back} className="flex min-w-0 flex-1 items-center gap-2 no-underline">
           <span aria-hidden className={`size-2 shrink-0 rounded-full ${ready ? "bg-jade" : "bg-gold"}`} />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-ui font-semibold text-ink">🏙️ Cash Town</span>
+            <span className="flex items-center gap-1.5 truncate text-ui font-semibold text-ink"><TownIcon name="town" size={16} />Cash Town</span>
             <span aria-live="polite" className={`block truncate text-label ${fresh ? "text-ink" : "text-muted"}`}>{line}</span>
           </span>
           <span aria-hidden className="shrink-0 text-lead text-muted">›</span>
@@ -176,12 +178,12 @@ export default function TownBar() {
 
         {voiceOn && s.voice.audioBlocked && (
           <button type="button" onClick={() => s.voice.resumeAudio()} aria-label={w.hear} title={w.hear}
-                  className={`${iconBtn} bg-gold text-bg`}>🔊</button>
+                  className={`${iconBtn} bg-gold text-bg`}><TownIcon name="speaker" size={18} /></button>
         )}
         <button type="button" onClick={() => setChatOpen((o) => !o)} aria-expanded={chatOpen}
                 aria-label={s.unread ? `${w.chat} (${w.unread(s.unread)})` : w.chat} title={w.chat}
                 className={`${iconBtn} relative ${chatOpen ? "bg-accent/20 text-accent" : "text-muted hover:bg-card hover:text-ink"}`}>
-          💬
+          <TownIcon name="chat" size={18} />
           {s.unread > 0 && !chatOpen && (
             <span aria-hidden className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-chili px-1 font-data text-label leading-4 text-ink">
               {s.unread > 9 ? "9+" : s.unread}
@@ -192,15 +194,15 @@ export default function TownBar() {
           <button type="button" onClick={() => s.toggleMute()} aria-pressed={muted}
                   aria-label={muted ? w.unmute : w.mute} title={muted ? w.unmute : w.mute}
                   className={`${iconBtn} ${muted ? "bg-chili text-ink" : "bg-jade/20 text-jade hover:bg-jade/30"}`}>
-            {muted ? "🔇" : "🎤"}
+            <TownIcon name={muted ? "muted" : "mic"} size={18} />
           </button>
         ) : (
           <button type="button" onClick={() => void s.joinVoice()} disabled={!ready}
                   aria-label={w.micOn} title={w.micOn}
-                  className={`${iconBtn} text-muted hover:bg-card hover:text-ink disabled:opacity-40`}>🎙️</button>
+                  className={`${iconBtn} text-muted hover:bg-card hover:text-ink disabled:opacity-40`}><TownIcon name="mic" size={18} /></button>
         )}
         <button type="button" onClick={() => s.close()} aria-label={w.leave} title={w.leave}
-                className={`${iconBtn} text-muted hover:bg-card hover:text-ink`}>✕</button>
+                className={`${iconBtn} text-muted hover:bg-card hover:text-ink`}><TownIcon name="close" size={14} /></button>
       </div>
     </div>
   );

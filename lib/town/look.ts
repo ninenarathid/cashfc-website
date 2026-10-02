@@ -1,63 +1,78 @@
 /**
- * What a Cash Town avatar looks like: a Lalafell paper doll, chosen in the
- * wardrobe and drawn by lib/town/doll.
+ * What a Cash Town avatar looks like: a pixel Lalafell, chosen in the
+ * wardrobe and drawn by lib/town/pixeldoll.
  *
- * Every choice is an index into a fixed list, so a look travels as eleven
- * characters ("1" and one base-36 digit per field) inside the moves the room
+ * Every choice is an index into a fixed list, so a look travels as seven
+ * characters ("4" and one base-36 digit per field) inside the moves the room
  * already sends, and a look from another browser can be checked field by field
  * before anything is drawn from it. Colours come from curated palettes rather
  * than a picker: each is kept in a lightness band where the art's shading
- * survives the recolour (the dressing room's lists, 2026-10-01).
+ * survives the recolour.
+ *
+ * Hairstyles are the game's character creator's own, each gender its own
+ * list, in the creator's order. Looks written before (version "3", before skin
+ * and eye shapes; "2", our first pixel hairstyles; "1", the paper doll) are
+ * still read, keeping their gender and colours, taking the nearest hairstyle,
+ * the skin as drawn and round eyes.
  *
  * Pure, so it can be tested without a browser.
  */
 
 export type Named = { id: string; th: string; en: string };
 export type Swatch = { hex: string; th: string; en: string };
+/** A hairstyle, and which gender's list it is in (an index into GENDERS). */
+export type Hair = Named & { g: number };
 
 export const GENDERS: Named[] = [
   { id: "f", th: "หญิง", en: "Female" },
   { id: "m", th: "ชาย", en: "Male" },
 ];
 
-export const HAIRS: Named[] = [
-  { id: "twin", th: "แฝดผูกโบว์", en: "Twin tails" },
-  { id: "spiky", th: "สั้นชี้ฟู", en: "Short and spiky" },
-  { id: "bald", th: "ไม่มีผม", en: "Bald" },
+/** The ids are the picture's heads (fc-cash-town scripts/pixel/build-pixel-atlas.mjs). Only ever add at the end. */
+export const HAIRS: Hair[] = [
+  { g: 0, id: "f01", th: "มวยสูงฟู", en: "Messy topknot" },
+  { g: 0, id: "f02", th: "จุกบนหัว ถักเปียข้าง", en: "Sprout and braids" },
+  { g: 0, id: "f03", th: "มวยข้าง ปอยลอน", en: "Side bun with curls" },
+  { g: 0, id: "f04", th: "หางม้าต่ำ", en: "Low ponytail" },
+  { g: 0, id: "f05", th: "ยาวแสกข้าง", en: "Long, side parting" },
+  { g: 0, id: "f06", th: "บ็อบคาดผม", en: "Bob with hairband" },
+  { g: 0, id: "f07", th: "เสยรวบหลัง", en: "Swept back" },
+  { g: 0, id: "f08", th: "ประบ่า", en: "Shoulder length" },
+  { g: 0, id: "f09", th: "ฟูคาดผม", en: "Fluffy with hairband" },
+  { g: 0, id: "f10", th: "แกละโบว์ขาว", en: "Pigtails with ribbons" },
+  { g: 0, id: "f11", th: "บ็อบแสกข้าง", en: "Side-parted bob" },
+  { g: 0, id: "f12", th: "ยาวปัดไหล่", en: "Long, over one shoulder" },
+  { g: 0, id: "f13", th: "ถักเปียข้าง", en: "Side braid" },
+  { g: 0, id: "f14", th: "แกละลอนต่ำ", en: "Curly low pigtails" },
+  { g: 1, id: "m01", th: "กะลาฟู", en: "Shaggy bowl cut" },
+  { g: 1, id: "m02", th: "ยุ่งมีจุก", en: "Messy with a tiny tail" },
+  { g: 1, id: "m03", th: "มวยจุก", en: "Topknot" },
+  { g: 1, id: "m04", th: "ปัดปิดตา", en: "Long fringe" },
+  { g: 1, id: "m05", th: "ควิฟฟ์", en: "Quiff" },
+  { g: 1, id: "m06", th: "ยาวแสกกลาง", en: "Centre parting" },
+  { g: 1, id: "m07", th: "เกรียน", en: "Buzz cut" },
+  { g: 1, id: "m08", th: "กะลาหัวจุก", en: "Bowl cut with a tuft" },
+  { g: 1, id: "m09", th: "เสยตั้ง", en: "Spiky, swept back" },
+  { g: 1, id: "m10", th: "ยุ่งมีจอน", en: "Messy with sideburns" },
+  { g: 1, id: "m11", th: "ถักแนบหัว", en: "Braided rows" },
+  { g: 1, id: "m12", th: "ชี้กระจาย", en: "Wild spikes" },
+  { g: 1, id: "m13", th: "ชี้ตั้งฟ้า", en: "Tall spikes" },
 ];
 
-export const EYES: Named[] = [
-  { id: "sparkle", th: "ตาโตวิ้ง", en: "Sparkly" },
-  { id: "round", th: "ตากลม", en: "Round" },
-  { id: "sharp", th: "ตาคม", en: "Sharp" },
-  { id: "sleepy", th: "ตาง่วง", en: "Sleepy" },
-  { id: "cat", th: "ตาแมว", en: "Cat" },
-  { id: "determined", th: "มุ่งมั่น", en: "Determined" },
-  { id: "happy", th: "ยิ้มหยี", en: "Smiling" },
-  { id: "closed", th: "หลับตา", en: "Closed" },
-  { id: "wink", th: "ขยิบตา", en: "Wink" },
-  { id: "surprised", th: "ตกใจ", en: "Surprised" },
-  { id: "teary", th: "น้ำตาคลอ", en: "Teary" },
-];
+/** A gender's hairstyles, as indices into HAIRS. */
+export const hairsFor = (gender: number): number[] => HAIRS.flatMap((h, i) => (h.g === gender ? [i] : []));
 
-export const BROWS: Named[] = [
-  { id: "none", th: "ซ่อนใต้ผม", en: "Hidden" },
-  { id: "soft", th: "บาง", en: "Soft" },
-  { id: "thick", th: "หนา", en: "Thick" },
-  { id: "angry", th: "โกรธ", en: "Cross" },
-  { id: "worried", th: "กังวล", en: "Worried" },
-];
+const hairAt = (id: string) => HAIRS.findIndex((h) => h.id === id);
 
-export const MOUTHS: Named[] = [
-  { id: "smile", th: "ยิ้ม", en: "Smile" },
-  { id: "happy", th: "ยิ้มกว้าง", en: "Big smile" },
-  { id: "grin", th: "ยิ้มเขี้ยว", en: "Fang grin" },
-  { id: "flat", th: "เฉยๆ", en: "Flat" },
-  { id: "o", th: "อ้าปาก", en: "Open" },
-  { id: "pout", th: "ปากจู๋", en: "Pout" },
-  { id: "frown", th: "เศร้า", en: "Sad" },
-  { id: "laugh", th: "หัวเราะ", en: "Laugh" },
-];
+/**
+ * The same place in the other gender's list, for switching gender in the
+ * wardrobe: the first hairstyle stays the first.
+ */
+export function hairForGender(hair: number, gender: number): number {
+  if (HAIRS[hair]?.g === gender) return hair;
+  const from = hairsFor(HAIRS[hair]?.g ?? 0).indexOf(hair), to = hairsFor(gender);
+  return to[Math.min(Math.max(0, from), to.length - 1)];
+}
 
 export const HAIR_COLORS: Swatch[] = [
   { hex: "#1f1c24", th: "ดำ", en: "Black" },
@@ -109,77 +124,121 @@ export const EYE_COLORS: Swatch[] = [
   { hex: "#3a3540", th: "ดำ", en: "Black" },
 ];
 
+/** Lalafell skin, Plainsfolk to Dunesfolk, each kept in a lightness band where the art's shading survives. */
 export const SKINS: Swatch[] = [
-  { hex: "#fbe7da", th: "Plainsfolk ขาวอมชมพู", en: "Plainsfolk, rosy" },
-  { hex: "#f8dccb", th: "Plainsfolk ขาว", en: "Plainsfolk, fair" },
-  { hex: "#f2cdb5", th: "Plainsfolk", en: "Plainsfolk" },
-  { hex: "#ecbd9f", th: "Plainsfolk แทน", en: "Plainsfolk, tan" },
-  { hex: "#e5b48a", th: "Dunesfolk อ่อน", en: "Dunesfolk, light" },
-  { hex: "#d39c6f", th: "Dunesfolk", en: "Dunesfolk" },
-  { hex: "#bd8358", th: "Dunesfolk เข้ม", en: "Dunesfolk, dark" },
-  { hex: "#9c6640", th: "Dunesfolk เข้มมาก", en: "Dunesfolk, deep" },
+  { hex: "#fbe3d4", th: "Plainsfolk ขาวอมชมพู", en: "Plainsfolk, rosy" },
+  { hex: "#f6d2bb", th: "Plainsfolk ขาว", en: "Plainsfolk, fair" },
+  { hex: "#f0c3a4", th: "Plainsfolk", en: "Plainsfolk" },
+  { hex: "#eab08a", th: "Plainsfolk แทน", en: "Plainsfolk, tan" },
+  { hex: "#e09a70", th: "Dunesfolk อ่อน", en: "Dunesfolk, light" },
+  { hex: "#cc8257", th: "Dunesfolk", en: "Dunesfolk" },
+  { hex: "#b06a43", th: "Dunesfolk เข้ม", en: "Dunesfolk, dark" },
+  { hex: "#8c5334", th: "Dunesfolk เข้มมาก", en: "Dunesfolk, deep" },
+];
+/** The skin the art was drawn in, for looks written before skin could be picked. */
+const ART_SKIN = 4;
+
+/** Eye shapes: the ids are the picture's faces (fc-cash-town scripts/pixel). Only ever add at the end. */
+export const EYES: Named[] = [
+  { id: "round", th: "ตากลม", en: "Round" },
+  { id: "big", th: "ตาโตวิ้ง", en: "Big and sparkly" },
+  { id: "sharp", th: "ตาคม", en: "Sharp" },
+  { id: "droopy", th: "ตาง่วง", en: "Droopy" },
+  { id: "cat", th: "ตาแมว", en: "Cat" },
+  { id: "small", th: "ตาเล็ก", en: "Small" },
 ];
 
-export const OUTFITS: Swatch[] = [
-  { hex: "#6aa9e0", th: "ฟ้า", en: "Sky" },
-  { hex: "#3d6fb0", th: "น้ำเงิน", en: "Blue" },
-  { hex: "#3fae8f", th: "เขียวหยก", en: "Jade" },
-  { hex: "#5e8a4a", th: "เขียวมะกอก", en: "Olive" },
-  { hex: "#d8b65a", th: "ทอง", en: "Gold" },
-  { hex: "#c98a5b", th: "ทองแดง", en: "Copper" },
-  { hex: "#c4473a", th: "แดง", en: "Red" },
-  { hex: "#b0527a", th: "บานเย็น", en: "Magenta" },
-  { hex: "#7e6bc4", th: "ม่วง", en: "Purple" },
-  { hex: "#3f4756", th: "เทาเข้ม", en: "Charcoal" },
-  { hex: "#8b8f99", th: "เทา", en: "Grey" },
-  { hex: "#e9e6df", th: "ขาว", en: "White" },
+/** The game's races, by the English names players use: only Lalafell can be played yet; the wardrobe shows the rest locked. */
+export const RACES: Array<Named & { open: boolean }> = [
+  { id: "lalafell", th: "Lalafell", en: "Lalafell", open: true },
+  { id: "hyur", th: "Hyur", en: "Hyur", open: false },
+  { id: "elezen", th: "Elezen", en: "Elezen", open: false },
+  { id: "miqote", th: "Miqo'te", en: "Miqo'te", open: false },
+  { id: "roegadyn", th: "Roegadyn", en: "Roegadyn", open: false },
+  { id: "aura", th: "Au Ra", en: "Au Ra", open: false },
+  { id: "hrothgar", th: "Hrothgar", en: "Hrothgar", open: false },
+  { id: "viera", th: "Viera", en: "Viera", open: false },
 ];
 
 export interface Look {
-  /** Indices into GENDERS, HAIRS, HAIR_COLORS, EYES, EYE_COLORS, BROWS, MOUTHS, SKINS, OUTFITS. */
+  /** Indices into GENDERS, HAIRS, HAIR_COLORS, EYE_COLORS, SKINS, EYES. */
   gender: number;
   hair: number;
   hairColor: number;
-  eyes: number;
   eyeColor: number;
-  brow: number;
-  mouth: number;
   skin: number;
-  outfit: number;
-  blush: boolean;
+  eyes: number;
 }
 
 /** The fields in the order they are written, and how many choices each has. */
 const FIELDS: Array<[keyof Look, number]> = [
-  ["gender", GENDERS.length], ["hair", HAIRS.length], ["hairColor", HAIR_COLORS.length],
-  ["eyes", EYES.length], ["eyeColor", EYE_COLORS.length], ["brow", BROWS.length],
-  ["mouth", MOUTHS.length], ["skin", SKINS.length], ["outfit", OUTFITS.length], ["blush", 2],
+  ["gender", GENDERS.length], ["hair", HAIRS.length], ["hairColor", HAIR_COLORS.length], ["eyeColor", EYE_COLORS.length],
+  ["skin", SKINS.length], ["eyes", EYES.length],
 ];
 
-const VERSION = "1";
+const VERSION = "4";
 /** How long a written look is: the version and one digit per field. */
 export const LOOK_LENGTH = 1 + FIELDS.length;
 
 export function encodeLook(look: Look): string {
-  return VERSION + FIELDS.map(([k]) => {
-    const v = look[k];
-    return (typeof v === "boolean" ? (v ? 1 : 0) : v).toString(36);
-  }).join("");
+  return VERSION + FIELDS.map(([k]) => look[k].toString(36)).join("");
 }
 
-/** A look as written by encodeLook, or null for anything else (it may come from another browser). */
+const digit = (c: string | undefined, n: number): number | null => {
+  if (!c || !/^[0-9a-z]$/.test(c)) return null;
+  const v = parseInt(c, 36);
+  return v < n ? v : null;
+};
+
+/** Earlier versions' hairstyles, by name, as the nearest of the creator's, for a girl and for a boy. */
+const OLD_HAIRS: Record<string, [string, string]> = {
+  twin: ["f10", "m02"], spiky: ["f01", "m12"], bun: ["f03", "m03"], bob: ["f06", "m01"],
+  long: ["f05", "m06"], pony: ["f04", "m02"], bald: ["f06", "m07"],
+};
+const V1_HAIRS = ["twin", "spiky", "bald"];
+const V2_HAIRS = ["twin", "spiky", "bun", "bob", "long", "pony", "bald"];
+const oldHair = (name: string, gender: number) => hairAt(OLD_HAIRS[name][gender]);
+
+/**
+ * A look as written by encodeLook (or by versions 1 to 3), or null for
+ * anything else (it may come from another browser). A hairstyle from the other
+ * gender's list is moved to the same place in this gender's.
+ */
 export function decodeLook(code: unknown): Look | null {
-  if (typeof code !== "string" || code.length !== LOOK_LENGTH || code[0] !== VERSION) return null;
-  const out: Record<string, number | boolean> = {};
-  for (let i = 0; i < FIELDS.length; i++) {
-    const [k, n] = FIELDS[i];
-    const c = code[i + 1];
-    if (!/^[0-9a-z]$/.test(c)) return null;
-    const v = parseInt(c, 36);
-    if (v >= n) return null;
-    out[k] = k === "blush" ? v === 1 : v;
+  if (typeof code !== "string") return null;
+  if (code.length === LOOK_LENGTH && code[0] === VERSION) {
+    const out: Partial<Look> = {};
+    for (let i = 0; i < FIELDS.length; i++) {
+      const [k, n] = FIELDS[i];
+      const v = digit(code[i + 1], n);
+      if (v === null) return null;
+      out[k] = v;
+    }
+    const look = out as Look;
+    return { ...look, hair: hairForGender(look.hair, look.gender) };
   }
-  return out as unknown as Look;
+  // Version 3: gender, hair, hair colour, eye colour (the skin as drawn, round eyes).
+  if (code.length === 5 && code[0] === "3") {
+    const gender = digit(code[1], GENDERS.length), hair = digit(code[2], HAIRS.length);
+    const hairColor = digit(code[3], HAIR_COLORS.length), eyeColor = digit(code[4], EYE_COLORS.length);
+    if (gender === null || hair === null || hairColor === null || eyeColor === null) return null;
+    return { gender, hair: hairForGender(hair, gender), hairColor, eyeColor, skin: ART_SKIN, eyes: 0 };
+  }
+  // Version 2: gender, our first seven hairstyles, hair colour, eye colour.
+  if (code.length === 5 && code[0] === "2") {
+    const gender = digit(code[1], GENDERS.length), hair = digit(code[2], V2_HAIRS.length);
+    const hairColor = digit(code[3], HAIR_COLORS.length), eyeColor = digit(code[4], EYE_COLORS.length);
+    if (gender === null || hair === null || hairColor === null || eyeColor === null) return null;
+    return { gender, hair: oldHair(V2_HAIRS[hair], gender), hairColor, eyeColor, skin: ART_SKIN, eyes: 0 };
+  }
+  // Version 1: gender, hair, hair colour, eyes, eye colour, then six fields this version has no use for.
+  if (code.length === 11 && code[0] === "1") {
+    const gender = digit(code[1], GENDERS.length), hair = digit(code[2], V1_HAIRS.length);
+    const hairColor = digit(code[3], HAIR_COLORS.length), eyeColor = digit(code[5], EYE_COLORS.length);
+    if (gender === null || hair === null || hairColor === null || eyeColor === null || !/^[0-9a-z]{10}$/.test(code.slice(1))) return null;
+    return { gender, hair: oldHair(V1_HAIRS[hair], gender), hairColor, eyeColor, skin: ART_SKIN, eyes: 0 };
+  }
+  return null;
 }
 
 /** A small, fixed hash of a string: the same number for the same id everywhere. */
@@ -202,24 +261,16 @@ function seeded(seed: number) {
 
 const pick = <T,>(r: () => number, list: readonly T[]): T => list[Math.floor(r() * list.length)];
 
-/**
- * A look from a stream of numbers, kept among the friendlier choices: open
- * eyes, a smile, soft or hidden brows. The wardrobe has the rest.
- */
+/** A look from a stream of numbers: any hairstyle from the gender's own list. */
 export function lookFrom(r: () => number): Look {
   const gender = r() < 0.5 ? 0 : 1;
   return {
     gender,
-    // Twin tails read as a girl's and spiky as a boy's, but either may have either.
-    hair: r() < 0.75 ? gender : 1 - gender,
+    hair: pick(r, hairsFor(gender)),
     hairColor: Math.floor(r() * HAIR_COLORS.length),
-    eyes: pick(r, [0, 1, 2, 4, 5]),
     eyeColor: Math.floor(r() * EYE_COLORS.length),
-    brow: pick(r, [0, 1, 1, 2]),
-    mouth: pick(r, [0, 0, 1, 2]),
     skin: Math.floor(r() * SKINS.length),
-    outfit: Math.floor(r() * OUTFITS.length),
-    blush: r() < 0.6,
+    eyes: Math.floor(r() * EYES.length),
   };
 }
 

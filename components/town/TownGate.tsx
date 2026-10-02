@@ -9,6 +9,7 @@ import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { resumable, useTownActive, type TownRecord } from "@/lib/town/active";
 import type { TownMe } from "./Town";
+import TownIcon from "./TownIcon";
 
 /**
  * Who may walk into Cash Town, and the town itself loaded only for them.
@@ -101,7 +102,7 @@ export default function TownGate() {
     stage = false;
     body = (
       <div className="mt-6 rounded-2xl border border-line bg-surface p-6 text-center">
-        <div className="text-4xl" aria-hidden>🏙️</div>
+        <TownIcon name="town" size={44} className="mx-auto block" />
         <p className="mt-2 text-read text-ink">
           {!userId
             ? (th ? "เข้าสู่ระบบด้วย Discord แล้วยืนยันตัวละครก่อน ถึงจะเข้า Cash Town ได้" : "Sign in with Discord and verify your character to enter Cash Town.")

@@ -1,0 +1,7 @@
+The first attached picture is the mascot: a cute round potato creature called popoto, with a light brown body, a happy little face and pink cheeks. The second attached picture is a pixel art sprite sheet of popoto workers that shows the pixel art style, the chunky square pixel size and the size of a popoto to use.
+
+Draw a pixel art sprite sheet of that popoto, the same size as the popoto workers in the second picture, in the same style, seen from the same three-quarter top-down angle, facing the viewer. It keeps its round potato body, little face and pink cheeks, with no hard hat. It is lunch time: the popoto sits on the ground on a small red and white checked picnic cloth, holding a bowl of white rice in one hand and chopsticks in the other.
+
+Three frames in one row, the same popoto on the same cloth, the same size, evenly spaced, not overlapping: 1) chopsticks down in the bowl; 2) chopsticks lifting a bite of rice; 3) eating the bite with its eyes happily closed, the chopsticks at its mouth.
+
+Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

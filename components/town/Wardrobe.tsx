@@ -1,17 +1,18 @@
 "use client";
 
 import {
-  BROWS, EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, MOUTHS, OUTFITS, SKINS, randomLook,
+  EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, RACES, SKINS, hairForGender, hairsFor, randomLook,
   type Look, type Named, type Swatch,
 } from "@/lib/town/look";
+import TownIcon from "./TownIcon";
 
 /**
  * The wardrobe: how your avatar looks, changed as you go.
  *
  * There is no preview of its own. While it is open the town's camera comes
- * close to your avatar and turns it to face you, so what you try on is what
- * everybody else will see, standing in the town. The room hears about it once
- * you stop changing things (TownSession.setLook).
+ * close to your avatar, so what you try on is what everybody else will see,
+ * standing in the town. The room hears about it once you stop changing things
+ * (TownSession.setLook).
  *
  * Every choice is free and can be changed back at any time: no unlocking, no
  * cost (the owner's call for the first version, 2026-10-01).
@@ -30,10 +31,10 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
   return (
     <section aria-labelledby="wardrobe-h" className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">
-        <h2 id="wardrobe-h" className="font-display text-title font-semibold text-ink">👕 {th ? "แต่งตัว" : "Wardrobe"}</h2>
+        <h2 id="wardrobe-h" className="font-display text-title font-semibold text-ink"><span className="flex items-center gap-2"><TownIcon name="wardrobe" size={22} />{th ? "แต่งตัว" : "Wardrobe"}</span></h2>
         <button type="button" onClick={() => onChange(randomLook())}
                 className="pressable ml-auto rounded-full border border-line-strong px-3 py-1.5 text-ui text-ink hover:border-accent hover:text-accent">
-          🎲 {th ? "สุ่ม" : "Surprise me"}
+          <span className="flex items-center gap-1.5"><TownIcon name="dice" size={16} />{th ? "สุ่ม" : "Surprise me"}</span>
         </button>
         <button type="button" onClick={onClose}
                 className="pressable rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg">
@@ -42,36 +43,43 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-2">
-        <p className="text-meta text-muted">
-          {th ? "เปลี่ยนได้ตลอด ทุกคนในเมืองเห็นทันที · ตอนนี้มีแค่ Lalafell เผ่าอื่นตามมาเร็วๆ นี้"
-            : "Change it any time; everyone in town sees it. Lalafell only for now, more races soon."}
-        </p>
 
         <Group label={th ? "หมุนตัวดู" : "Turn around"}>
           <div className="flex gap-1.5">
             <button type="button" onClick={() => onTurn(-1)} aria-label={th ? "หมุนซ้าย" : "Turn left"}
-                    className="pressable grid size-9 place-items-center rounded-full border border-line-strong text-read text-ink hover:border-accent">⟲</button>
+                    className="pressable grid size-9 place-items-center rounded-full border border-line-strong text-read text-ink hover:border-accent"><TownIcon name="turnLeft" size={18} /></button>
             <button type="button" onClick={() => onTurn(1)} aria-label={th ? "หมุนขวา" : "Turn right"}
-                    className="pressable grid size-9 place-items-center rounded-full border border-line-strong text-read text-ink hover:border-accent">⟳</button>
+                    className="pressable grid size-9 place-items-center rounded-full border border-line-strong text-read text-ink hover:border-accent"><TownIcon name="turnRight" size={18} /></button>
           </div>
         </Group>
 
-        <Choices label={th ? "เพศ" : "Body"} items={GENDERS} value={look.gender} t={t} onPick={(gender) => set({ gender })} />
-        <Choices label={th ? "ทรงผม" : "Hairstyle"} items={HAIRS} value={look.hair} t={t} onPick={(hair) => set({ hair })} />
-        <Swatches label={th ? "สีผม" : "Hair colour"} items={HAIR_COLORS} value={look.hairColor} t={t} onPick={(hairColor) => set({ hairColor })} />
-        <Choices label={th ? "ตา" : "Eyes"} items={EYES} value={look.eyes} t={t} onPick={(eyes) => set({ eyes })} />
-        <Swatches label={th ? "สีตา" : "Eye colour"} items={EYE_COLORS} value={look.eyeColor} t={t} onPick={(eyeColor) => set({ eyeColor })} />
-        <Choices label={th ? "คิ้ว" : "Brows"} items={BROWS} value={look.brow} t={t} onPick={(brow) => set({ brow })} />
-        <Choices label={th ? "ปาก" : "Mouth"} items={MOUTHS} value={look.mouth} t={t} onPick={(mouth) => set({ mouth })} />
-        <Swatches label={th ? "ผิว" : "Skin"} items={SKINS} value={look.skin} t={t} onPick={(skin) => set({ skin })} />
-        <Swatches label={th ? "สีชุด" : "Outfit colour"} items={OUTFITS} value={look.outfit} t={t} onPick={(outfit) => set({ outfit })} />
-
-        <Group label={th ? "แก้มแดง" : "Blush"}>
-          <button type="button" role="switch" aria-checked={look.blush} onClick={() => set({ blush: !look.blush })}
-                  className={`pressable rounded-full px-3 py-1.5 text-ui ${look.blush ? "bg-accent/20 text-accent" : "border border-line-strong text-muted"}`}>
-            {look.blush ? (th ? "มี" : "On") : (th ? "ไม่มี" : "Off")}
-          </button>
+        {/* Only Lalafell can be played yet: the other races are there, locked. */}
+        <Group label={th ? "เผ่า" : "Race"}>
+          <div role="group" aria-label={th ? "เผ่า" : "Race"} className="flex flex-wrap gap-1.5">
+            {RACES.map((r) => r.open ? (
+              <button key={r.id} type="button" aria-pressed="true"
+                      className="pressable rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent ring-1 ring-accent/60">
+                {t(r)}
+              </button>
+            ) : (
+              <button key={r.id} type="button" disabled aria-disabled="true"
+                      title={th ? "ยังไม่เปิด เร็วๆ นี้" : "Not open yet, coming soon"}
+                      className="inline-flex cursor-not-allowed items-center gap-1 rounded-full border border-dashed border-line-strong px-3 py-1.5 text-ui text-muted opacity-70">
+                <TownIcon name="lock" size={13} />{t(r)}
+                <span className="sr-only">{th ? " (ยังไม่เปิด)" : " (locked)"}</span>
+              </button>
+            ))}
+          </div>
         </Group>
+
+        <Choices label={th ? "เพศ" : "Body"} items={GENDERS} value={look.gender} t={t}
+                 onPick={(gender) => set({ gender, hair: hairForGender(look.hair, gender) })} />
+        {/* The game's character creator's own hairstyles, each gender its own list. */}
+        <Choices label={th ? "ทรงผม" : "Hairstyle"} items={HAIRS} only={hairsFor(look.gender)} value={look.hair} t={t} onPick={(hair) => set({ hair })} />
+        <Swatches label={th ? "สีผม" : "Hair colour"} items={HAIR_COLORS} value={look.hairColor} t={t} onPick={(hairColor) => set({ hairColor })} />
+        <Swatches label={th ? "สีผิว" : "Skin"} items={SKINS} value={look.skin} t={t} onPick={(skin) => set({ skin })} />
+        <Choices label={th ? "ทรงตา" : "Eyes"} items={EYES} value={look.eyes} t={t} onPick={(eyes) => set({ eyes })} />
+        <Swatches label={th ? "สีตา" : "Eye colour"} items={EYE_COLORS} value={look.eyeColor} t={t} onPick={(eyeColor) => set({ eyeColor })} />
       </div>
     </section>
   );
@@ -86,13 +94,15 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Choices({ label, items, value, onPick, t }: {
+function Choices({ label, items, only, value, onPick, t }: {
   label: string; items: Named[]; value: number; onPick: (i: number) => void; t: (n: Named) => string;
+  /** Only these indices of items, in this order. */
+  only?: number[];
 }) {
   return (
     <Group label={label}>
       <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
-        {items.map((n, i) => (
+        {(only ?? items.map((_, i) => i)).map((i) => [i, items[i]] as const).map(([i, n]) => (
           <button key={n.id} type="button" aria-pressed={i === value} onClick={() => onPick(i)}
                   className={`pressable rounded-full px-3 py-1.5 text-ui transition-colors ${i === value
                     ? "bg-accent/20 font-semibold text-accent ring-1 ring-accent/60"

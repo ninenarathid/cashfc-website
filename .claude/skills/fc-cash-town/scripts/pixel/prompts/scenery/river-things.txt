@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. Draw a new sprite sheet of small things for a river in the same cozy 2D game, seen from the same three-quarter top-down angle, at the same scale and with the same chunky pixel size. Do not draw any characters.
+
+Six small items in one row, evenly spaced, not overlapping, with clear empty space between them: 1) a single green leaf floating flat; 2) a round green lily pad with a small pink lotus flower on it; 3) a little white folded paper boat; 4) a short piece of driftwood with a twig; 5) a small yellow rubber duck; 6) an orange and white koi fish leaping, its body arched, drawn side on, about as long as half a character is tall.
+
+Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no water, no ground, no shadows, no text, no labels.

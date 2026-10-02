@@ -1,0 +1,6 @@
+
+Use the attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. Draw a new sprite sheet of town scenery for the same cozy 2D game, seen from the same three-quarter top-down angle, at the same scale and with the same chunky pixel size. Do not draw any characters.
+
+Draw one item in the middle: road works closing a dirt footpath. A long low wooden barricade of two posts with a red and white striped plank, about as wide as three characters, running diagonally from the upper left down to the lower right as on an isometric map; two small orange traffic cones in front of it; a small wooden sign on a post with a blank yellow board; a little heap of dug-up earth and a few loose paving stones with a shovel stuck in the heap.
+
+The group stands in the middle of the canvas with empty space all around it. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under it apart from the heap, no shadows, no text, no labels.

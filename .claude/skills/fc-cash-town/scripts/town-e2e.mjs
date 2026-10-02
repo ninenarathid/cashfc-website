@@ -127,8 +127,10 @@ try {
   ok("each sees the other", true);
 
   // Walking: A walks somewhere, and B sees A arrive there.
-  await A.evaluate(`${T}.walkTo(6, 7)`);
-  await until("B sees A arrive", () => B.evaluate(`(() => { const a = ${T}.people().find(p => p.name.endsWith(" A")); return a && Math.abs(a.pos.x - 6.5) < 0.05 && Math.abs(a.pos.y - 7.5) < 0.05; })()`), 15000);
+  await A.evaluate(`${T}.walkTo(31, 20)`);
+  // by id: somebody else's tab on the same test letter has the same name
+  const aId = (await A.evaluate(`${T}.me()`)).id, bId = (await B.evaluate(`${T}.me()`)).id;
+  await until("B sees A arrive", () => B.evaluate(`(() => { const a = ${T}.people().find(p => p.id === ${JSON.stringify(aId)}); return a && Math.abs(a.pos.x - 31.5) < 0.05 && Math.abs(a.pos.y - 20.5) < 0.05; })()`), 15000);
   ok("a walk on one screen arrives on the other", true);
 
   ok("A presses the mic button", await A.evaluate(press, true));
@@ -141,9 +143,10 @@ try {
   ok("A's ears pick up B's voice (level > 0)", heard > 0.01, heard);
 
   // One room: from opposite corners, still at full volume.
-  await A.evaluate(`${T}.walkTo(1, 1)`);
-  await B.evaluate(`${T}.walkTo(16, 16)`);
-  await until("A sees B in the far corner", () => A.evaluate(`(() => { const b = ${T}.people().find(p => p.name.endsWith(" B")); return b && b.pos.x > 16 && b.pos.y > 16; })()`), 20000);
+  // the far ends of the north and east paths, just inside their road works (the river cuts the other two)
+  await A.evaluate(`${T}.walkTo(34, 3)`);
+  await B.evaluate(`${T}.walkTo(60, 31)`);
+  await until("A sees B in the far corner", () => A.evaluate(`(() => { const b = ${T}.people().find(p => p.id === ${JSON.stringify(bId)}); return b && b.pos.x > 59; })()`), 40000);
   await sleep(1000);
   const far = (await A.evaluate(`${T}.voice()`))[0];
   ok("across the whole map, A still hears B at full volume", far?.gain === 1 && far.state === "connected", far);

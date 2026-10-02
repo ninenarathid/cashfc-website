@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small user interface icons for that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Seven icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) dawn: a half sun rising over a green hill with a pink sky band; 2) morning: a bright sun with a small white cloud in front; 3) noon: a big bright yellow sun with rays; 4) afternoon: a warm orange sun with rays, a little lower; 5) dusk: an orange and red sun setting behind a hill line; 6) evening: a pale moon with a purple sky band and one star; 7) night: a yellow crescent moon with two small stars.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

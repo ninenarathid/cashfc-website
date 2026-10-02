@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same figures at the same positions and the same size, the same poses, the same chunky square pixel size, the same face, eyes, mouth, pointed ears, the same outfit, the same thick dark outline and the same pixel art style.
+
+Change only her hair: remove all of her hair and both ribbons, so she has a smooth, round, completely bald head in the same skin colour as her face, like a doll before its wig goes on. This is a back view: we see the smooth bald back of her head, bare skin with a clean dark outline, and the back of her neck. Her long pointed ears stay exactly as they are. Nothing on top of the head, no hair at all, no hat. Where the twin tails used to cover her arms or body, draw her arms, sleeves and body there instead.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

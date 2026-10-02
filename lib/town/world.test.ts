@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  BUILDINGS, COLS, DROP, FAR, MAX_LINES, MOVE_BUDGET, NEAR, ROWS, TREES, findPath, fromIso, hearing,
-  moveEvery, pickLines, spawnFor, stepAlong, toIso, walkable,
+  BENCHES, BOARD, COLS, DROP, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, groundAt, hearing,
+  groundLook, moveEvery, pickLines, spawnFor, stepAlong, thingAt, toIso, walkable,
 } from "./world";
 
 describe("projection", () => {
@@ -15,19 +15,110 @@ describe("projection", () => {
 });
 
 describe("walking", () => {
-  it("keeps people off buildings, trees and the edge of the world", () => {
-    const k = BUILDINGS[0];
-    expect(walkable(k.x, k.y)).toBe(false);
-    expect(walkable(TREES[0].x, TREES[0].y)).toBe(false);
+  it("keeps people off the fountain, trees and lamps and the edge of the world, but not flowers", () => {
+    expect(walkable(FOUNTAIN.x, FOUNTAIN.y)).toBe(false);
+    for (const p of PROPS) expect(walkable(p.x, p.y)).toBe(!p.solid);
     expect(walkable(-1, 3)).toBe(false);
     expect(walkable(COLS, 3)).toBe(false);
     expect(walkable(0, 0)).toBe(true);
   });
 
-  it("finds a path around a building, never through it", () => {
-    const path = findPath({ x: 1.5, y: 3.5 }, { x: 6.5, y: 3.5 })!;
+  it("keeps the paths and the plaza clear of trees, so nobody's way is blocked", () => {
+    for (const p of PROPS) if (!["lamp", "bench", "barrel", "planter", "signpost", "bin", "flowerbed"].includes(p.kind)) expect(groundAt(p.x, p.y)).toBe("grass");
+    // and nothing at all stands on a path
+    for (const p of PROPS) expect(groundAt(p.x, p.y)).not.toBe("road");
+    // every bit of path is walkable, but where the road works close it (and the shop, on its dirt plot)
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      if (groundAt(x, y) === "road") expect(walkable(x, y) || thingAt(x, y) === "roadworks" || thingAt(x, y) === "shop").toBe(true);
+    }
+    // and the north and east paths go out to the road works; the river stops the other two
+    const n = ROADWORKS.find((w) => w.arm === "N")!, e = ROADWORKS.find((w) => w.arm === "E")!;
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: Math.floor(n.x) + 0.5, y: 2.5 })).not.toBeNull();
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: COLS - 2.5, y: Math.floor(e.y) + 0.5 })).not.toBeNull();
+  });
+
+  it("winds its paths: each wanders across, but leaves the plaza straight", () => {
+    const across = (row: (i: number) => number[]) => {
+      const mids: number[] = [];
+      for (let i = 0; i < 26; i++) { const r = row(i); if (r.length) mids.push(r.reduce((a, b) => a + b, 0) / r.length); }
+      return mids;
+    };
+    const north = across((y) => [...Array(COLS).keys()].filter((x) => x > 20 && x < 44 && groundAt(x, y) === "road"));
+    const east = across((i) => [...Array(ROWS).keys()].filter((y) => y > 20 && y < 44 && groundAt(COLS - 1 - i, y) === "road"));
+    for (const mids of [north, east]) {
+      expect(mids.length).toBeGreaterThan(20);
+      expect(Math.max(...mids) - Math.min(...mids)).toBeGreaterThan(2.5);
+    }
+    // at the plaza's sides, the paths are its two middle tiles
+    for (const [x, y] of [[31, 25], [32, 25], [38, 31], [38, 32], [31, 38], [32, 38], [25, 31], [25, 32]]) expect(groundAt(x, y)).toBe("road");
+    // drawn with curves: a tile's middle looks like the tile
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const g = groundAt(x, y);
+      if (g !== "sand" && g !== "grass") expect(groundLook(x + 0.5, y + 0.5)).toBe(g);
+    }
+  });
+
+  it("closes the north and east paths with road works at the map's edge", () => {
+    expect(ROADWORKS.map((w) => w.arm)).toEqual(["N", "E"]);
+    for (const w of ROADWORKS) {
+      expect(groundAt(Math.floor(w.x), Math.floor(w.y))).toBe("road");
+      expect(thingAt(Math.floor(w.x), Math.floor(w.y))).toBe("roadworks");
+    }
+    // nobody gets past them along the path
+    const n = ROADWORKS[0], e = ROADWORKS[1];
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: Math.floor(n.x) + 0.5, y: 0.5 })).toBeNull();
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: COLS - 0.5, y: Math.floor(e.y) + 0.5 })).toBeNull();
+  });
+
+  it("has a river on the left that nobody can cross yet, with a sandy bank", () => {
+    const water: Array<[number, number]> = [];
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (groundAt(x, y) === "water") water.push([x, y]);
+    expect(water.length).toBeGreaterThan(80);
+    for (const [x, y] of water) {
+      expect(walkable(x, y)).toBe(false);
+      // on the left of the map: down-left of the town's middle on the screen
+      expect(y - x).toBeGreaterThan(10);
+    }
+    // every water tile has a bank of sand or more water beside it, towards the town
+    for (const [x, y] of water) if (x + 1 < COLS) expect(["water", "sand"]).toContain(groundAt(x + 1, y));
+    // it cuts the west and south roads: their far ends can't be reached from the fountain
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: 0.5, y: 31.5 })).toBeNull();
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: 32.5, y: ROWS - 0.5 })).toBeNull();
+    // but the town itself is all on this side
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: 16.5, y: 31.5 })).not.toBeNull();
+  });
+
+  it("stands the Popoto Board north of the fountain, in the way of nobody", () => {
+    expect(BOARD.x + BOARD.y).toBeLessThan(FOUNTAIN.x + FOUNTAIN.y);
+    expect(Math.abs(BOARD.x - BOARD.y)).toBeLessThanOrEqual(1);
+    for (let y = BOARD.y; y < BOARD.y + BOARD.h; y++) for (let x = BOARD.x; x < BOARD.x + BOARD.w; x++) expect(walkable(x, y)).toBe(false);
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: 31.5, y: 2.5 })).not.toBeNull();
+    // somewhere to stand in front of it, to read it
+    expect(walkable(BOARD.x + BOARD.w, BOARD.y + BOARD.h)).toBe(true);
+  });
+
+  it("puts the plaza in the middle and the fountain in the plaza", () => {
+    expect(groundAt(PLAZA.x, PLAZA.y)).toBe("plaza");
+    expect(groundAt(FOUNTAIN.x, FOUNTAIN.y)).toBe("plaza");
+    expect([...Array(COLS).keys()].some((x) => groundAt(x, 2) === "road")).toBe(true);
+    expect(groundAt(2, 2)).toBe("grass");
+    expect(walkable(SHOP.x + 1, SHOP.y + 1)).toBe(false);
+    expect(PLAZA.x >= TOWN.x && PLAZA.x + PLAZA.w <= TOWN.x + TOWN.w).toBe(true);
+  });
+
+  it("has benches facing every way, each with a free tile in front to sit down from", () => {
+    expect(new Set(BENCHES.map((b) => b.facing))).toEqual(new Set(["SE", "SW", "NE", "NW"]));
+    for (const [i, b] of BENCHES.entries()) {
+      const f = FRONT[b.facing!];
+      expect(walkable(b.x + f.x, b.y + f.y)).toBe(true);
+      expect(benchAt(b.x, b.y)).toBe(i);
+    }
+  });
+
+  it("finds a path around the fountain, never through it", () => {
+    const path = findPath({ x: 29.5, y: 31.5 }, { x: 34.5, y: 31.5 })!;
     expect(path).not.toBeNull();
-    expect(path.at(-1)).toEqual({ x: 6.5, y: 3.5 });
+    expect(path.at(-1)).toEqual({ x: 34.5, y: 31.5 });
     for (const p of path) expect(walkable(Math.floor(p.x), Math.floor(p.y))).toBe(true);
   });
 
@@ -45,13 +136,13 @@ describe("walking", () => {
   });
 
   it("refuses a destination nobody can stand on", () => {
-    const k = BUILDINGS[0];
-    expect(findPath({ x: 0.5, y: 0.5 }, { x: k.x + 1.5, y: k.y + 1.5 })).toBeNull();
+    expect(findPath({ x: 0.5, y: 0.5 }, { x: FOUNTAIN.x + 1.5, y: FOUNTAIN.y + 1.5 })).toBeNull();
   });
 
   it("is the same path every time, so every client draws the same walk", () => {
-    const a = JSON.stringify(findPath({ x: 6.5, y: 6.5 }, { x: 16.5, y: 11.5 }));
-    const b = JSON.stringify(findPath({ x: 6.5, y: 6.5 }, { x: 16.5, y: 11.5 }));
+    const a = JSON.stringify(findPath({ x: 29.5, y: 29.5 }, { x: 60.5, y: 31.5 }));
+    const b = JSON.stringify(findPath({ x: 29.5, y: 29.5 }, { x: 60.5, y: 31.5 }));
+    expect(JSON.parse(a)).not.toBeNull();
     expect(a).toBe(b);
   });
 

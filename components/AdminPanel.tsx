@@ -1,5 +1,6 @@
 "use client";
 
+import TownIcon from "@/components/town/TownIcon";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -295,7 +296,7 @@ export default function AdminPanel(
           the same door. */}
       <Link href="/town"
             className="mt-2 flex items-center gap-3 rounded-xl border border-jade/40 bg-jade/5 px-4 py-3 no-underline transition-colors hover:border-jade/70 hover:bg-jade/10">
-        <span aria-hidden className="shrink-0 text-[22px] leading-none">🏙️</span>
+        <TownIcon name="town" size={24} />
         <span className="text-read text-ink">{t("town.adm.link")}</span>
         <span aria-hidden className="ml-auto text-lead text-jade">→</span>
       </Link>
