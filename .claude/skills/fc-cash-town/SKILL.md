@@ -170,10 +170,12 @@ Zheza and Gather do well, the proposed pillars, and the open questions.
    lazy-loaded bundle. Nothing about it ships to other pages (fc-perf).
 2. **The town is a front door, not a second site.** Buildings link to the
    pages that exist, and the plain site keeps working for whoever prefers it.
-3. **Reputation is never currency.** Popoto received is gratitude and is
-   never spent. The mall, seeds and decorations use a separate earned
-   currency. Rare popoto become pets without being consumed (fc-game-design
-   economy.md).
+3. **Popoto can be spent** (the owner's call, 2026-10-02: "เปลี่ยนกฎ project
+   เป็น popoto สามารถใช้จ่ายได้"). The shop, seeds and decorations may cost
+   popoto. Spend from a balance; the lifetime count of popoto received is the
+   record of being thanked and never goes down. Prices, balances and every
+   deduction live in the database (rule 4). Rare popoto become pets without
+   being consumed (fc-game-design economy.md).
 4. **Server authority.** The room server decides movement and chat. The
    database decides growth, harvests, rewards and caps, from server time.
    The browser is never trusted with a number.

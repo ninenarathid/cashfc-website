@@ -72,8 +72,9 @@ harvested_at)`. A crop catalogue holds the grow time, yield, art and season.
 
 ## The fashion mall (from the member's proposal)
 
-- **Cosmetics** for avatars and homes, bought with **coins**. Never with
-  popoto received, which is gratitude; see the economy rule.
+- **Cosmetics** for avatars and homes, bought with **popoto** (the owner's
+  call, 2026-10-02), from the spendable balance, never the lifetime count;
+  see the economy rule.
 - **Seasonal lines,** with the restaurant and FFXIV festival themes. Rotate
   them, but don't make them "gone forever" fear-of-missing-out; they return
   in later years.

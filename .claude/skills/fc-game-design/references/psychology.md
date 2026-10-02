@@ -9,7 +9,9 @@ for this if they saw exactly how it works?** If not, don't build it.
 **Overjustification effect.** Paying people for something they already
 enjoy turns it into work. When the pay stops, they do it less than before.
 - **Use:** keep the popoto a gesture. Celebrate kindness ("12 people thanked
-  you this week") rather than paying for it.
+  you this week") rather than paying for it. Popoto can be spent since
+  2026-10-02 (the owner's call): show the lifetime count as the thanks, and
+  keep the balance and prices in the background.
 - **Don't:** attach growing prizes to giving popoto, or the gratitude
   becomes farming. The prize draws and Evercold already sit near this line:
   keep their value small and fun, and never make them the reason to give.

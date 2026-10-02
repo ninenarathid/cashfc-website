@@ -73,10 +73,10 @@ performance as the open worry.
 
 ## Rules carried over from the site
 
-- **Reputation is never currency.** Popoto *received* is gratitude and is
-  never spent. The mall and seeds use a separate earned currency (for
-  example "coins" from farming and mini-games). Rare popoto can become pets,
-  and are never consumed. See fc-game-design economy.md.
+- **Popoto can be spent** (the owner's call, 2026-10-02). The mall and
+  seeds may cost popoto, taken from a balance; the lifetime count received
+  stays as the record and never goes down. Rare popoto can become pets, and
+  are never consumed. See fc-game-design economy.md.
 - **Only a verified character** may enter, talk or build (v85). Guests may
   be allowed to visit; decide that.
 - **Cooperative first; competition opt-in and friendly.** A pet fight never

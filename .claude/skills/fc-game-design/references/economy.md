@@ -8,7 +8,7 @@ tables.
 
 | Thing | What it really is | Faucet (how it is made) | Sink (how it goes) | Transferable? |
 |---|---|---|---|---|
-| **Popoto received** | **Reputation**: gratitude from friends | One per sender, per receiver, per day (07:00 Thai reset) | None, and none should exist | No |
+| **Popoto received** | **Reputation**, and since 2026-10-02 **spendable** (the owner's call) | One per sender, per receiver, per day (07:00 Thai reset) | Spending in Cash Town (the shop), from a balance; the lifetime count never goes down | No |
 | Gallery popoto | Appreciation for a picture, split with tagged members | One per picture per person, can be taken back | Taken back | No |
 | Contest popoto | Votes in a contest (a separate book) | Per contest, limited per member | The contest ends | No |
 | Rare popoto | Collectibles with members' lines | A chance on a popoto send, by tier | None (shown, not spent) | No |
@@ -16,23 +16,30 @@ tables.
 | Wallet gil | Gil that adds up toward a cash-out | Gil prizes | Cash-out at the threshold (250k by default) | No |
 | Evercold tickets | Entries in a monthly draw | One per day of giving popoto | The draw | No |
 
-## Rule one: reputation is never currency
+## Rule one: popoto can be spent, and the record stays
 
-**Popoto received** is the record of how many times friends thought of you.
-If it can be spent (in a shop, or Cash Town's fashion mall), three things
-happen:
+The owner changed this rule on 2026-10-02: "เปลี่ยนกฎ project เป็น popoto
+สามารถใช้จ่ายได้". Popoto received may be spent, in Cash Town's shop and
+mall, on seeds and decorations. Before then the rule was that reputation is
+never currency, for three reasons that are now things to design against:
 
-1. Spending erases the record of being cared for.
-2. People start asking for popoto to buy things, which turns gratitude into
-   begging.
-3. Giving becomes economic, and the overjustification effect kicks in.
+1. **Spending would erase the record of being cared for.** So keep two
+   numbers: the **lifetime count received**, which is what profiles and
+   leaderboards show and never goes down, and a **spendable balance**,
+   which spending takes from. Spending never touches the lifetime count.
+2. **People may start asking for popoto to buy things,** turning gratitude
+   into begging. The existing cap (one per sender, per receiver, per day)
+   keeps any one friend's help small; keep it, and don't add ways to send
+   more or to transfer a balance.
+3. **Giving may become economic** (the overjustification effect). Keep
+   prices modest and cosmetic, and keep celebrating the giving itself, not
+   the balance.
 
-So any spendable currency, in Cash Town or elsewhere, is a **separate**
-earned currency, for example "coins" from mini-games and farming. It may be
-*inspired* by the popoto (it can be called something potato-shaped), but it
-never decrements the gratitude count. Ownership of rare popoto (the
-collectibles) can unlock things, such as a rare popoto becoming a pet; it is
-never consumed to do so.
+Every price, balance and deduction lives in the database and is changed
+only by a server-side function from server time (fc-migration): the browser
+never says how much anything costs or how much somebody has. Ownership of
+rare popoto (the collectibles) can unlock things, such as a rare popoto
+becoming a pet; it is never consumed to do so.
 
 ## Faucets and sinks (for any spendable currency)
 

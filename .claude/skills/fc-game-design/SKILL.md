@@ -19,8 +19,10 @@ every decision:
   cost of wellbeing would be designing against people the FC eats dinner
   with in Eorzea.
 - **Real value moves.** Gil prizes are handed over in person by Aqua, and
-  popoto are gratitude between real people. Anything that turns gratitude
-  into farming, or a draw into gambling, damages the thing it was built on.
+  popoto are gratitude between real people, and since 2026-10-02 also
+  something to spend in Cash Town (the owner's call). Anything that turns
+  gratitude into farming, or a draw into gambling, damages the thing it was
+  built on.
 
 ## How to use this skill
 
@@ -108,8 +110,9 @@ keeps the economy fair. **fc-cash-town** is the future virtual town.
       same rules apply to everyone.
 - [ ] There is a cap or diminishing returns per person per day. Collusion
       (two alts, two friends) is unprofitable.
-- [ ] Reputation (popoto received, gratitude) cannot be spent, sold or
-      transferred.
+- [ ] Spending popoto takes from a balance and never lowers the lifetime
+      count received (the record of gratitude); popoto cannot be sold or
+      transferred between members.
 
 **Wellbeing and ethics**
 - [ ] No punishing streaks, no artificial countdowns on important things,
