@@ -8320,9 +8320,9 @@
     "state": "learning",
     "pct": 5.31,
     "phase": 3,
-    "pulls": 155,
-    "last": "2026-09-29",
-    "last_ts": 1790701205
+    "pulls": 144,
+    "last": "2026-10-02",
+    "last_ts": 1790952844
    }
   ]
  },
@@ -26612,11 +26612,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 24.28,
+    "pct": 22.88,
     "phase": 3,
-    "pulls": 104,
-    "last": "2026-09-29",
-    "last_ts": 1790701556
+    "pulls": 112,
+    "last": "2026-09-30",
+    "last_ts": 1790788041
    }
   ]
  },
@@ -33256,11 +33256,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 24.28,
+    "pct": 22.88,
     "phase": 3,
-    "pulls": 105,
-    "last": "2026-09-29",
-    "last_ts": 1790701556
+    "pulls": 113,
+    "last": "2026-09-30",
+    "last_ts": 1790788041
    }
   ]
  },
@@ -39832,7 +39832,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 41,
-    "kills": 11,
+    "kills": 12,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -62448,20 +62448,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 3,
-    "last": "2026-09-21",
-    "last_ts": 1790000703
-   }
-  ]
+  "_status": "ok"
  },
  "36183541": {
   "current": {
@@ -62610,20 +62597,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 3,
-    "last": "2026-09-21",
-    "last_ts": 1790000703
-   }
-  ]
+  "_status": "ok"
  },
  "36225854": {
   "current": {
@@ -72493,8 +72467,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 74,
-    "kills": 20,
+    "best": 95,
+    "kills": 25,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -72522,9 +72496,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 64,
-    "kills": 14,
-    "job": "Gunbreaker",
+    "best": 92,
+    "kills": 23,
+    "job": "Paladin",
     "cleared": true,
     "job_kills": {
      "Gunbreaker": {
@@ -72559,7 +72533,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 64,
-    "kills": 3,
+    "kills": 9,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -72579,9 +72553,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1080,
     "name": "Zelenia",
-    "best": 46,
-    "kills": 8,
-    "job": "Gunbreaker",
+    "best": 76,
+    "kills": 9,
+    "job": "Paladin",
     "cleared": true,
     "job_kills": {
      "Gunbreaker": {
@@ -72597,7 +72571,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 79,
-    "kills": 14,
+    "kills": 15,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -72617,9 +72591,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 88,
-    "kills": 26,
-    "job": "Gunbreaker",
+    "best": 93,
+    "kills": 29,
+    "job": "Paladin",
     "cleared": true,
     "job_kills": {
      "Dragoon": {
@@ -72670,9 +72644,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 80,
-    "kills": 6,
-    "job": "Gunbreaker",
+    "best": 84,
+    "kills": 10,
+    "job": "Paladin",
     "cleared": true,
     "job_kills": {
      "Ninja": {

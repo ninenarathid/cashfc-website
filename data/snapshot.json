@@ -2183,7 +2183,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 60,
+  "level": 64,
   "cc": [
    true,
    true,
@@ -2233,7 +2233,7 @@
  },
  "42021700": {
   "name": "Josuke Mizumoto",
-  "parse": 88,
+  "parse": 95,
   "ult": 0,
   "mounts": 109,
   "minions": 218,
@@ -2355,7 +2355,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-02"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -3384,6 +3384,7 @@
    880,
    881,
    903,
+   918,
    1002,
    1003,
    1015,
@@ -3453,7 +3454,6 @@
    3799,
    3868,
    3869,
-   3875,
    3884,
    3921,
    3925,
@@ -5001,14 +5001,14 @@
   "mounts": 125,
   "minions": 274,
   "rare": null,
-  "level": 40,
+  "level": 100,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-26"
+  "chg": "2026-10-02"
  },
  "38335568": {
   "name": "Vivienne Yhisa",
@@ -7133,7 +7133,7 @@
   "mounts": 68,
   "minions": 102,
   "rare": 47,
-  "level": 50,
+  "level": 56,
   "cc": [
    false,
    false,
@@ -7199,7 +7199,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-02"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8475,14 +8475,18 @@
   "mounts": 33,
   "minions": 173,
   "rare": 3,
-  "level": 82,
+  "level": 84,
   "cc": null,
-  "rare_ids": [],
+  "rare_ids": [
+   1302,
+   2748,
+   3875
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-02"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

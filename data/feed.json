@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-10-02",
+   "type": "parse_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "set a new best parse: 95 on Doomtrain as Paladin"
+  },
+  {
+   "date": "2026-10-02",
+   "type": "rare_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "earned Go Big or Go Home III"
+  },
+  {
+   "date": "2026-10-02",
+   "type": "level_100",
+   "id": 12058921,
+   "name": "Heidi Fox",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-10-02",
+   "type": "rare_up",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "earned Working the Bellows: Adept, and 2 more"
+  },
+  {
+   "date": "2026-10-02",
    "type": "grade_up",
    "id": 9444020,
    "name": "Non Elemental",
@@ -1371,34 +1399,6 @@
    "id": 25504317,
    "name": "Achel Clay",
    "text": "set a new best parse: 57 on Erichthonios as Gunbreaker"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "parse_up",
-   "id": 3256238,
-   "name": "Ai Tsukuyomi",
-   "text": "set a new best parse: 37 on Erichthonios as Blac\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "new_member",
-   "id": 5644067,
-   "name": "Ninenine Everdark",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "reached level 100 on Red Mage!"
   }
  ]
 }
