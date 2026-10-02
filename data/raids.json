@@ -82489,11 +82489,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 62.25,
+    "pct": 44.76,
     "phase": 4,
-    "pulls": 39,
-    "last": "2026-09-30",
-    "last_ts": 1790780670
+    "pulls": 51,
+    "last": "2026-10-01",
+    "last_ts": 1790866724
    }
   ]
  },
@@ -89273,7 +89273,60 @@
     }
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 94,
+      "median": 87,
+      "kills": 6,
+      "job": "Warrior"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 87,
+      "median": 79,
+      "kills": 6,
+      "job": "Warrior"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 95,
+      "median": 87,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 93,
+      "median": 58,
+      "kills": 26,
+      "job": "Warrior"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 97,
+      "median": 71,
+      "kills": 11,
+      "job": "Warrior"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "62539607": {
@@ -89510,7 +89563,60 @@
     "cleared": true
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 62,
+      "median": 58,
+      "kills": 3,
+      "job": "Dancer"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 39,
+      "median": 36,
+      "kills": 2,
+      "job": "Dancer"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 62,
+      "median": 13,
+      "kills": 4,
+      "job": "Dancer"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 16,
+      "median": 16,
+      "kills": 1,
+      "job": "Dancer"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 23,
+      "median": 23,
+      "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  }
 }
