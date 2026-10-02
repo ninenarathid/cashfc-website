@@ -45518,7 +45518,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 101,
+    "name": "Vamp Fatale",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 4,
+    "last": "2026-10-01",
+    "last_ts": 1790869521
+   }
+  ]
  },
  "31211526": {
   "current": {
@@ -72473,8 +72486,8 @@
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 3,
-      "best": 74
+      "kills": 8,
+      "best": 95
      },
      "Warrior": {
       "kills": 8,
@@ -72501,6 +72514,14 @@
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
+     "Paladin": {
+      "kills": 6,
+      "best": 92
+     },
+     "DarkKnight": {
+      "kills": 6,
+      "best": 71
+     },
      "Gunbreaker": {
       "kills": 6,
       "best": 64
@@ -72508,10 +72529,6 @@
      "Warrior": {
       "kills": 5,
       "best": 58
-     },
-     "Paladin": {
-      "kills": 3,
-      "best": 44
      }
     }
    },
@@ -72537,6 +72554,14 @@
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
+     "Summoner": {
+      "kills": 1,
+      "best": 47
+     },
+     "RedMage": {
+      "kills": 5,
+      "best": 43
+     },
      "Paladin": {
       "kills": 2,
       "best": 64
@@ -72558,6 +72583,10 @@
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
+     "Paladin": {
+      "kills": 1,
+      "best": 76
+     },
      "Gunbreaker": {
       "kills": 8,
       "best": 46
@@ -72580,7 +72609,7 @@
       "best": 79
      },
      "Paladin": {
-      "kills": 1,
+      "kills": 2,
       "best": 79
      }
     }
@@ -72657,6 +72686,18 @@
       "kills": 4,
       "best": 80
      },
+     "Paladin": {
+      "kills": 1,
+      "best": 84
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 69
+     },
+     "Scholar": {
+      "kills": 2,
+      "best": 61
+     },
      "DarkKnight": {
       "kills": 1,
       "best": 8
@@ -72708,7 +72749,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 44,
+    "kills": 49,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -72744,8 +72785,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 56,
-    "kills": 19,
+    "best": 67,
+    "kills": 38,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -72774,7 +72815,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 53,
-    "kills": 8,
+    "kills": 16,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -72798,8 +72839,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1080,
     "name": "Zelenia",
-    "best": 39,
-    "kills": 2,
+    "best": 65,
+    "kills": 4,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -72816,7 +72857,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 82,
-    "kills": 45,
+    "kills": 46,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -72853,7 +72894,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 28,
+    "kills": 30,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {

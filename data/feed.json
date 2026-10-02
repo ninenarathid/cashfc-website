@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-10-02",
+   "type": "job_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-10-02",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-10-02",
    "type": "parse_up",
    "id": 42021700,
    "name": "Josuke Mizumoto",
@@ -1385,20 +1399,6 @@
    "id": 32046284,
    "name": "Ene Shy",
    "text": "is now a Master Samurai"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-22",
-   "type": "parse_up",
-   "id": 25504317,
-   "name": "Achel Clay",
-   "text": "set a new best parse: 57 on Erichthonios as Gunbreaker"
   }
  ]
 }

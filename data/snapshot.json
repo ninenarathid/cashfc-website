@@ -849,7 +849,7 @@
   "mounts": 264,
   "minions": 487,
   "rare": 415,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -979,7 +979,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-02"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -2183,7 +2183,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 64,
+  "level": 68,
   "cc": [
    true,
    true,
@@ -2341,7 +2341,7 @@
    "explorer": "legendary"
   },
   "jobs": {
-   "Paladin": "expert",
+   "Paladin": "master",
    "Gunbreaker": "master"
   },
   "ex": [
@@ -3742,7 +3742,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 69,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -3848,7 +3848,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-30"
+  "chg": "2026-10-02"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -5238,7 +5238,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5262,7 +5262,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-02"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -5493,7 +5493,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 95,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -5615,7 +5615,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-01"
+  "chg": "2026-10-02"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6434,7 +6434,7 @@
   "mounts": 11,
   "minions": 35,
   "rare": 0,
-  "level": 22,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -6447,7 +6447,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-02"
  },
  "43335087": {
   "name": "Haru Senbonzakura",
@@ -7133,7 +7133,7 @@
   "mounts": 68,
   "minions": 102,
   "rare": 47,
-  "level": 56,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -7693,7 +7693,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 100,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -8431,7 +8431,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -8444,7 +8444,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-02"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8475,7 +8475,7 @@
   "mounts": 33,
   "minions": 173,
   "rare": 3,
-  "level": 84,
+  "level": 88,
   "cc": null,
   "rare_ids": [
    1302,
@@ -8583,7 +8583,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 58,
+  "level": 59,
   "cc": [
    false,
    false,
@@ -8596,7 +8596,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-02"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8632,7 +8632,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 58,
   "cc": [
    false,
    false,
@@ -8648,7 +8648,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-02"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
