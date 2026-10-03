@@ -2183,7 +2183,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 76,
+  "level": 78,
   "cc": [
    true,
    true,
@@ -3746,7 +3746,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 69,
-  "level": 90,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3852,7 +3852,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-02"
+  "chg": "2026-10-03"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -5497,7 +5497,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5619,7 +5619,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-02"
+  "chg": "2026-10-03"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6162,7 +6162,7 @@
   "mounts": 130,
   "minions": 208,
   "rare": 49,
-  "level": 99,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -7001,7 +7001,7 @@
   "mounts": 198,
   "minions": 420,
   "rare": 269,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -7128,7 +7128,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-03"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7137,7 +7137,7 @@
   "mounts": 69,
   "minions": 102,
   "rare": 48,
-  "level": 87,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -8169,7 +8169,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 92,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -8182,7 +8182,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-03"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8436,7 +8436,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8594,7 +8594,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 59,
+  "level": 60,
   "cc": [
    false,
    false,
@@ -8607,7 +8607,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-02"
+  "chg": "2026-10-03"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8697,7 +8697,7 @@
   "mounts": 4,
   "minions": 14,
   "rare": null,
-  "level": 68,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -8763,7 +8763,7 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8776,7 +8776,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-03"
  },
  "57419573": {
   "name": "A'kane Dorothy",

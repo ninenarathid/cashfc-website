@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-10-03",
+   "type": "level_100",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-03",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-10-03",
+   "type": "level_100",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-10-03",
+   "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-10-03",
    "type": "rare_up",
    "id": 58199536,
    "name": "Areeya Lovekin",
@@ -1371,34 +1399,6 @@
    "id": 42976317,
    "name": "Zeadz Stellar",
    "text": "earned Cut Above the Rest: Round Brush Occultum — only 1.5% of players have it, and 12 more"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "level_100",
-   "id": 43335087,
-   "name": "Haru Senbonzakura",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Phantom of the Umbra: Harp Bow Umbrae — only 5.0% of players have it"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "level_100",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "reached level 100 on Viper!"
   }
  ]
 }
