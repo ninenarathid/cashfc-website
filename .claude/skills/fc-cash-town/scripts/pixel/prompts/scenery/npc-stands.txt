@@ -1,0 +1,7 @@
+Use the attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. Draw a new sprite sheet of town scenery for the same cozy 2D game, seen from the same three-quarter top-down angle, at the same scale and with the same chunky pixel size. Do not draw any characters.
+
+Draw two items:
+1) a small wooden market stall with a red and cream striped cloth awning, about as wide as three characters standing side by side. Its goods are packed close on and against it, all touching the stall: two fishing rods and a small landing net standing at one side, a hoe and a rake leaning against the other side, and on its counter a watering can, three small sacks of seeds, a cooking pot, a frying pan and a woven basket;
+2) a small wooden bank counter with a little shingled roof on two posts, about as wide as two characters and a half. On its counter are a brass balance scale, three neat stacks of gold coins and an open ledger book; an iron-bound wooden strongbox stands against its side, touching it; and a small round blank wooden sign hangs under the roof.
+
+Both items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

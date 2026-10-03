@@ -5,10 +5,11 @@ import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BOARD, BUILDINGS, FAR, FOUNTAIN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, riverMiddle,
-  benchAt, distance, fromIso, groundAt, hearing, toIso, walkable, type Building, type Facing, type Prop, type Vec,
+  BENCHES, BOARD, BUILDINGS, FAR, FOUNTAIN, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, riverMiddle,
+  benchAt, distance, fromIso, groundAt, hearing, toIso, walkable, type Building, type Facing, type Keeper, type Prop, type Vec,
 } from "@/lib/town/world";
 import { START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
+import type { Speaker } from "@/lib/town/talk";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
@@ -28,6 +29,7 @@ import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import TownBoard from "./TownBoard";
+import TownTalk from "./TownTalk";
 import TownMusicButton from "./TownMusicButton";
 import TownIcon, { ICON_ATLAS, drawIcon, type IconName } from "./TownIcon";
 
@@ -291,6 +293,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, []);
   /** The Popoto Board on the screen, for taps; and whether it waits for my vote (a "!" over it). */
   const boardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  /** The shopkeepers on the screen this frame, for taps and the cursor. */
+  const keeperBoxes = useRef<Array<{ id: Keeper["id"]; x0: number; y0: number; x1: number; y1: number }>>([]);
   const boardNews = useRef(false);
   useEffect(() => {
     if (testTopic) return;
@@ -362,6 +366,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** The emote window: what my avatar can do where it stands (sit, for now). */
   const [emoteOpen, setEmoteOpen] = useState(false);
   const [boardOpen, setBoardOpen] = useState(false);
+  /** A talk with a shopkeeper: who, and which of their conversations (they go round, tap after tap). */
+  const [talk, setTalk] = useState<{ who: Speaker; turn: number } | null>(null);
+  const talkTurns = useRef<Record<Speaker, number>>({ uncle: 0, banker: 0 });
   const [chatOpen, setChatOpen] = useState(false);
   const [immersive, setImmersive] = useState(false);
   const [phone, setPhone] = useState(false);
@@ -1059,6 +1066,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.fillRect(0, 0, cw, ch);
 
     benchBoxes.current = [];
+    keeperBoxes.current = [];
     // The ground: the pixel-art picture of it, or plain tiles until it has come.
     const scenery = sceneryRef.current;
     if (scenery) {
@@ -1209,6 +1217,64 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         things.push({ depth: at.x + at.y, draw: () =>
           scenery.drawProp(ctx, `rush${[1, 2, 3, 2][Math.floor(t / 90) % 4]}`, c.x, c.y, k, dpr, 0, trip < 1) });
       }
+    }
+    // The cooking yard going up below the plaza, lying across the screen: the site, and popoto builders at it.
+    const kitchenArt = `kitchen${KITCHEN.stage}`;
+    if (scenery?.has(kitchenArt)) {
+      // stood by its ground point, the middle of its front by the way in; the builders are measured from it, in the
+      // picture's own pixels
+      const feet = project(KITCHEN.foot);
+      const t = reducedRef.current ? 0 : now, k = v.s * 1.2;
+      // It lies across the screen, so everybody behind its back kerb or beside it is further off than its front:
+      // drawn as far forward as its front kerb, in front of them and behind whoever stands before it.
+      things.push({ depth: KITCHEN.foot.x + KITCHEN.foot.y - 0.8, draw: () => {
+        scenery.drawProp(ctx, kitchenArt, feet.x, feet.y, v.s, dpr);
+        if (KITCHEN.stage === 1 && scenery.has("rush_h1")) {
+          // one at a stove that is still half walled, one nailing a worktable's frame together, one on the bare
+          // earth by the string line
+          for (const [px, py, lag] of [[-31, -177, 900], [54, -114, 3400], [199, -202, 2100]]) {
+            const wiping = (t + lag) % 5200 > 4300;
+            scenery.drawProp(ctx, wiping ? "rush_wipe" : `rush_h${1 + (Math.floor((t + lag) / 130) % 2)}`, feet.x + px * v.s, feet.y + py * v.s, k, dpr);
+          }
+        }
+        const [, tall] = scenery.anchorOf(kitchenArt);
+        signs.push(() => label(ctx, words.current.th ? "ลานทำอาหาร · กำลังสร้าง" : "Cooking yard · being built", feet.x, feet.y - (tall + 2) * v.s,
+          "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
+      } });
+      // three running planks down from the east path to its right side, where the planks are stacked, and back for
+      // more, one after another
+      if (KITCHEN.stage === 1 && scenery.has("rush1")) for (const lag of [0, 0.67, 1.33]) {
+        const trip = (t / 1700 + lag) % 2, along = trip < 1 ? trip : 2 - trip;
+        const at = { x: 50.5 + 0.1 * along, y: 35.6 + 5 * along }, c = project(at);
+        things.push({ depth: at.x + at.y, draw: () =>
+          scenery.drawProp(ctx, `rush${[1, 2, 3, 2][Math.floor(t / 90) % 4]}`, c.x, c.y, k, dpr, 0, trip < 1) });
+      }
+    }
+    // The two who keep shop in front of the Popoto Shop: the uncle at his stall, the banker at his counter.
+    if (scenery?.has("stall") && scenery.has("un_stand")) for (const kp of KEEPERS) {
+      const uncle = kp.id === "uncle", stand = project(kp.stand), at = project(kp.at);
+      if (!onScreen(stand)) continue;
+      things.push({ depth: kp.stand.x + kp.stand.y, draw: () => scenery.drawProp(ctx, uncle ? "stall" : "bankdesk", stand.x, stand.y, v.s, dpr) });
+      // Each has a little round of its own, by the clock: mostly standing; the uncle waves, holds up his wares and
+      // laughs, the banker writes in his ledger, holds up a coin and bows.
+      const beat = reducedRef.current ? 0 : Math.floor(now / 700) % 14;
+      const frame = uncle
+        ? (beat === 3 ? "un_wave" : beat === 7 || beat === 8 ? "un_show" : beat === 12 ? "un_laugh" : "un_stand")
+        : (beat === 1 || beat === 2 ? "bk_write" : beat === 6 ? "bk_coin" : beat === 10 ? "bk_bow" : "bk_stand");
+      things.push({ depth: kp.at.x + kp.at.y, draw: () => {
+        // both came out about one and a half times a builder's size: drawn down to a popoto's
+        const size = v.s * (uncle ? 0.78 : 0.72);
+        scenery.drawProp(ctx, frame, at.x, at.y, size, dpr);
+        // a tap on either of them, the popoto or what it stands at, opens a talk
+        const [fw, fh] = scenery.sizeOf(frame), [sw, sh] = scenery.sizeOf(uncle ? "stall" : "bankdesk");
+        keeperBoxes.current.push({ id: kp.id,
+          x0: Math.min(at.x - (fw / 2) * size, stand.x - (sw / 2) * v.s), y0: Math.min(at.y - fh * size, stand.y - sh * v.s),
+          x1: Math.max(at.x + (fw / 2) * size, stand.x + (sw / 2) * v.s), y1: Math.max(at.y, stand.y) });
+        const [, tall] = scenery.anchorOf(uncle ? "un_stand" : "bk_stand");
+        const th = words.current.th;
+        signs.push(() => label(ctx, uncle ? (th ? "ลุงขายของ" : "Uncle's stall") : (th ? "นายธนาคาร" : "The banker"), at.x, at.y - tall * size - 10,
+          "#e5cc80", "rgba(15,19,25,0.82)"));
+      } });
     }
     // The Popoto Board: the town's news and its vote, standing north of the fountain.
     boardBox.current = null;
@@ -1681,6 +1747,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (b) { setPopover({ b, x, y }); return; }
     const bb = boardBox.current;
     if (bb && x >= bb.x0 && x <= bb.x1 && y >= bb.y0 && y <= bb.y1) { setPopover(null); openBoard(); return; }
+    // a shopkeeper: a talk
+    const keeper = keeperBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
+    if (keeper) { setPopover(null); openTalk(keeper.id); return; }
     // a bench, anywhere on its picture: walk up to it and sit down
     const seat = benchUnder(x, y);
     if (seat >= 0) { setPopover(null); setPeopleOpen(false); if (sessionRef.current?.sitOn(seat)) cam.current.follow = true; return; }
@@ -1729,7 +1798,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         const bb = boardBox.current, t = tileAt(p.x, p.y);
         const someone = !!personAt(p.x, p.y);
         const seat = !someone && (benchUnder(p.x, p.y) >= 0 || benchAt(t.x, t.y) >= 0);
-        const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1);
+        const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1)
+          || keeperBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1);
         mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
       }
       return;
@@ -1801,6 +1871,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       cam: () => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy, follow: cam.current.follow }),
       /** Look at a tile without walking there (the camera stops following me). */
       lookAt: (x: number, y: number) => { const p = toIso(x, y); cam.current.follow = false; setCam({ s: cam.current.s, cx: p.x, cy: p.y }); },
+      /** The shopkeepers on the screen this frame. */
+      keepers: () => keeperBoxes.current.map((k) => ({ ...k })),
       /** The popoto out now: what, and where. */
       outings: () => outingsNow(Date.now(), forcedPopoto.current).map((o) => ({ activity: o.activity, at: o.spots?.[0] ?? alongRoute(o, Date.now())?.pos })),
       /** The benches on the screen this frame, and what the mouse cursor shows now. */
@@ -1865,12 +1937,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   const openBoard = () => {
     if (wardrobeOpenRef.current) closeWardrobe();
-    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false);
+    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null);
     setBoardOpen(true);
   };
 
+  /** Talk to a shopkeeper: their next conversation, in turn. */
+  const openTalk = (who: Speaker) => {
+    if (wardrobeOpenRef.current) closeWardrobe();
+    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false);
+    setTalk({ who, turn: talkTurns.current[who]++ });
+  };
+
   const openWardrobe = () => {
-    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false);
+    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null);
     turn.current = 0;
     zoomBefore.current = cam.current.s;
     const v = cam.current;
@@ -2281,6 +2360,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
              data-state="open">
           <TownBoard th={w.th} onClose={() => setBoardOpen(false)} onVoted={onVoted} art={boardArt} />
+        </div>
+      )}
+      {/* A talk with a shopkeeper: across the foot of the map, like a story game's box */}
+      {s && talk && (
+        <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2"
+             style={{ bottom: phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem" }}>
+          <div className="pop-in pointer-events-auto w-full max-w-[44rem]" data-state="open">
+            <TownTalk key={`${talk.who}:${talk.turn}`} who={talk.who} turn={talk.turn} th={w.th} phone={phone}
+                      reduced={reducedRef.current} art={boardArt} onClose={() => setTalk(null)} />
+          </div>
         </div>
       )}
     </div>

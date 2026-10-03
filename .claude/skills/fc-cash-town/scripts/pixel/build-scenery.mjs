@@ -61,6 +61,20 @@ const SHEETS = [
   // three running with a plank, two hammering, one wiping its brow
   ["scene-pier-1", ["pier1"], "whole"],
   ["popoto-rush", ["rush1", "rush2", "rush3", "rush_h1", "rush_h2", "rush_wipe"], "hat"],
+  // the two who keep shop in front of the Popoto Shop, and what each stands at: the uncle who sells tools and
+  // seeds, the banker who changes popoto into Popoto coins
+  ["popoto-uncle", ["un_stand", "un_wave", "un_show", "un_laugh"], "body"],
+  ["popoto-banker", ["bk_stand", "bk_write", "bk_coin", "bk_bow"], "body"],
+  ["scene-npc-stands", ["stall", "bankdesk"]],
+  // the cooking yard going up below the plaza (its first stage). The model drew it soft on its largest canvas, with
+  // no pixel size of its own: it is cut at 5 to the pixel, which gives its stoves and tables the size they had in
+  // the first, smaller yard, and the yard twice that one's length and depth
+  ["scene-kitchen-1", ["kitchen1"], "whole", undefined, [5, 5]],
+  // the shopkeepers as they talk: a large portrait each, the mouth closed and open. They are drawn at about twice
+  // the scenery's pixel size (the fifth entry is where to look for it); "talk" makes the open one the closed one
+  // with only its mouth changed, so nothing else moves when it speaks
+  ["talk-uncle", ["tk_uncle", "tk_uncle_o"], "talk", undefined, [7.5, 13]],
+  ["talk-banker", ["tk_banker", "tk_banker_o"], "talk", undefined, [7.5, 13]],
 ];
 const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
@@ -86,12 +100,12 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like] of SHEETS) {
+for (const [sheet, names, how, like, range] of SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
   // (a sheet that stands where another does is cut at that one's pixel size)
-  const grid = L.detectGrid(raw, wholes.get(like)?.grid.p, [4.5, 7.5]);
+  const grid = L.detectGrid(raw, wholes.get(like)?.grid.p, range ?? [4.5, 7.5]);
   const g = L.cellsOf(raw, grid);
   L.snap(g, L.paletteOf([g], 64));
   const figs = how === "whole" ? [new Set(L.components(g).filter(c => c.mem.length >= 3).flatMap(c => c.mem))] : L.figures(g, L.spansOf(g, names.length));
@@ -123,6 +137,33 @@ for (const [sheet, names, how, like] of SHEETS) {
     pieces.push({ name, img: im, ax: ax - im.x0, ay: ay - im.y0 });
     console.log(`${name.padEnd(9)} ${im.w}x${im.h}  (grid ${grid.p.toFixed(2)})`);
   });
+  if (how === "talk") {
+    // the talking face is the quiet one with only its mouth changed: the second is laid on the first at the move
+    // that agrees best, and only the cells that differ about the mouth (the middle of the lower face) are taken
+    const a = pieces.find(p => p.name === names[0]), b = pieces.find(p => p.name === names[1]);
+    const far = (i, j) => Math.abs(a.img.buf[i] - b.img.buf[j]) + Math.abs(a.img.buf[i + 1] - b.img.buf[j + 1]) + Math.abs(a.img.buf[i + 2] - b.img.buf[j + 2]);
+    let best = { n: -1, dx: 0, dy: 0 };
+    for (let dy = -6; dy <= 6; dy++) for (let dx = -6; dx <= 6; dx++) {
+      let n = 0;
+      for (let y = 0; y < a.img.h; y++) for (let x = 0; x < a.img.w; x++) {
+        const X = x + dx, Y = y + dy;
+        if (X < 0 || Y < 0 || X >= b.img.w || Y >= b.img.h) continue;
+        const i = (y * a.img.w + x) * 4, j = (Y * b.img.w + X) * 4;
+        if (!!a.img.buf[i + 3] === !!b.img.buf[j + 3] && (!a.img.buf[i + 3] || far(i, j) < 40)) n++;
+      }
+      if (n > best.n) best = { n, dx, dy };
+    }
+    const buf = Buffer.from(a.img.buf);
+    let changed = 0;
+    for (let y = Math.round(a.img.h * 0.44); y < a.img.h * 0.72; y++) for (let x = Math.round(a.img.w * 0.38); x < a.img.w * 0.8; x++) {
+      const X = x + best.dx, Y = y + best.dy;
+      if (X < 0 || Y < 0 || X >= b.img.w || Y >= b.img.h) continue;
+      const i = (y * a.img.w + x) * 4, j = (Y * b.img.w + X) * 4;
+      if (a.img.buf[i + 3] && b.img.buf[j + 3] && far(i, j) > 60) { b.img.buf.copy(buf, i, j, j + 4); changed++; }
+    }
+    b.img = { ...a.img, buf }; b.ax = a.ax; b.ay = a.ay;
+    console.log(`  ${names[1]}: ${names[0]} with ${changed} cells about the mouth changed (laid on it at ${best.dx},${best.dy})`);
+  }
   if (how === "anim") {
     // every later frame takes the first frame's stone wherever both have stone
     const first = pieces.find(p => p.name === names[0]);

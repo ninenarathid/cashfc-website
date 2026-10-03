@@ -135,6 +135,72 @@ export const PIER = (() => {
   }
   return { stage: 1, post, tiles };
 })();
+/**
+ * The cooking yard (the owner, 2026-10-03: "ลานทำอาหาร พวกโต๊ะ ที่ทำครัว … มี 2
+ * state พอ", then "ขอใหญ่กว่านี้ 2 เท่า และ วางแนวขวาง ตอนนี้เฉียงๆ", "อย่าทับทางเดิน
+ * ด้วย"), going up below the plaza on the screen, between the east path and
+ * the south and clear of both. It lies across the screen and faces the viewer,
+ * as the stall and the bank counter do, rather than along the tiles: four
+ * stoves along its back, worktables, a ring of stones for a big pot and
+ * dining tables on a flagstone floor, twice as long and twice as deep as the
+ * first one drawn. Stage 1 is the building site, with popoto builders at it;
+ * stage 2 will be the yard itself, where members cook with cookware of their
+ * own (bought from the uncle).
+ *
+ * `foot` is where the picture's ground point stands: the middle of its front,
+ * by the way in. `tiles` are the ones it closes: those whose middles are
+ * inside its kerb's four corners, which are measured from that point in the
+ * picture's own pixels (`at`: a tile is 64 of them across the screen and 32
+ * down it), and the one its sign post stands on. `near` is the ground about
+ * it that is kept clear of trees: a little to each side and behind, and far
+ * enough in front that no tree stands over its near kerb. The stage picks the
+ * picture (scenery `kitchen<stage>`).
+ */
+export const KITCHEN = (() => {
+  const foot = { x: 48.75, y: 50.75 };
+  /** A point of the picture, in its pixels from the ground point (right, down), as a point of the map. */
+  const at = (px: number, py: number): Vec => ({
+    x: foot.x + (py / (TILE_H / 2) + px / (TILE_W / 2)) / 2,
+    y: foot.y + (py / (TILE_H / 2) - px / (TILE_W / 2)) / 2,
+  });
+  /** And a point of the map in the picture's pixels. */
+  const px = (x: number, y: number) => ({ x: (x - y - (foot.x - foot.y)) * (TILE_W / 2), y: (x + y - (foot.x + foot.y)) * (TILE_H / 2) });
+  // the kerb's corners: back left, back right, front right, front left (it is a little narrower at the back)
+  const quad = [at(-345, -250), at(346, -250), at(375, -12), at(-376, -12)];
+  const inside = (x: number, y: number) => {
+    let left = 0, right = 0;
+    quad.forEach((a, i) => {
+      const b = quad[(i + 1) % quad.length], side = (b.x - a.x) * (y - a.y) - (b.y - a.y) * (x - a.x);
+      if (side > 0) left++; else if (side < 0) right++;
+    });
+    return !(left && right);
+  };
+  const xs = quad.map((q) => q.x), ys = quad.map((q) => q.y);
+  const tiles: Array<[number, number]> = [];
+  for (let y = Math.floor(Math.min(...ys)); y <= Math.ceil(Math.max(...ys)); y++) for (let x = Math.floor(Math.min(...xs)); x <= Math.ceil(Math.max(...xs)); x++) {
+    if (inside(x + 0.5, y + 0.5)) tiles.push([x, y]);
+  }
+  const sign = at(45, 0);
+  tiles.push([Math.floor(sign.x), Math.floor(sign.y)]);
+  // (and further still before the way in, which is a little left of the ground point: nothing stands in the way to it)
+  const near = (x: number, y: number) => {
+    const p = px(x + 0.5, y + 0.5);
+    return (Math.abs(p.x) < 420 && p.y > -290 && p.y < 100) || (Math.abs(p.x + 19) < 100 && p.y >= 100 && p.y < 200);
+  };
+  return { stage: 1, foot, tiles, near };
+})();
+/**
+ * The two who keep shop in town (the owner, 2026-10-03), in front of the Popoto
+ * Shop while it is being built: the uncle, who sells tools, seeds and bait from
+ * his stall, and the banker, who changes popoto into Popoto coins at his
+ * counter. `stand` is where the stall or counter stands, `at` where the popoto
+ * does, in front of it; `tiles` are the ones they close.
+ */
+export interface Keeper { id: "uncle" | "banker"; stand: Vec; at: Vec; tiles: Array<[number, number]> }
+export const KEEPERS: Keeper[] = [
+  { id: "uncle", stand: { x: 45.5, y: 27.6 }, at: { x: 45.0, y: 28.5 }, tiles: [[45, 27], [46, 26], [44, 28], [45, 28]] },
+  { id: "banker", stand: { x: 47.5, y: 25.6 }, at: { x: 47.3, y: 26.5 }, tiles: [[47, 25], [48, 24], [47, 26]] },
+];
 
 /**
  * A river round the left of the map (the owner's call, 2026-10-02: "แม่น้ำขนาด
@@ -247,13 +313,17 @@ const roadThen = (x: number, y: number) => !isPlaza(x, y) && !wetThen(x, y) && p
 const isBoard = (x: number, y: number) => within(x, y, BOARD);
 const pierAt = new Set(PIER.tiles.map(([x, y]) => `${x},${y}`));
 const isPier = (x: number, y: number) => pierAt.has(`${x},${y}`);
+const kitchenAt = new Set(KITCHEN.tiles.map(([x, y]) => `${x},${y}`));
+const isKitchen = (x: number, y: number) => kitchenAt.has(`${x},${y}`);
 /** The deck's plot as a rectangle: the box round its tiles. */
 const PIER_BOX = (() => {
   const xs = PIER.tiles.map(([x]) => x), ys = PIER.tiles.map(([, y]) => y);
   return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) + 1, h: Math.max(...ys) - Math.min(...ys) + 1 };
 })();
 /** A site's plot and a step round it, on the sides people see it from: no tree, bush or rock stands in front of it. */
-const bySite = (x: number, y: number) => [PIER_BOX].some((s) => within(x, y, { x: s.x - 1, y: s.y - 1, w: s.w + 3, h: s.h + 3 }));
+const bySite = (x: number, y: number) => [PIER_BOX].some((s) => within(x, y, { x: s.x - 1, y: s.y - 1, w: s.w + 3, h: s.h + 3 })) || KITCHEN.near(x, y);
+const keeperAt = new Set(KEEPERS.flatMap((k) => k.tiles.map(([x, y]) => `${x},${y}`)));
+const isKeeper = (x: number, y: number) => keeperAt.has(`${x},${y}`);
 
 /**
  * Road works (the owner's call, 2026-10-02): the north and east paths, the two
@@ -361,12 +431,14 @@ export const PROPS: Prop[] = (() => {
   // countryside: woods and meadows
   scatter("tree", 150, 0, false); scatter("pine", 90, 0, false); scatter("bush", 60, 0, false);
   scatter("rock", 30, 0, false); scatter("flowers", 90, 0, false, false);
-  // The fishing deck came after the town was laid out: what grew where it stands is cleared (and
-  // the trees, bushes and rocks a step round it, which hid its near edges), rather than kept off
-  // it above, so everything else in the town stays exactly where it was.
+  // The fishing deck, the cooking yard and the two shopkeepers came after the town was laid out:
+  // what grew where they stand is cleared (and the trees, bushes and rocks a step round the two
+  // sites, which hid their near edges), rather than kept off it above, so everything else in the
+  // town stays exactly where it was.
   const wild = (p: Prop) => p.kind === "tree" || p.kind === "pine" || p.kind === "bush" || p.kind === "rock";
-  // And the river is twice as wide as when the town was laid out: what stood where it runs now is gone.
-  return out.filter((p) => !isPier(p.x, p.y) && !(wild(p) && bySite(p.x, p.y)) && !isWater(p.x, p.y) && !isBank(p.x, p.y));
+  // And the river is twice as wide as when they were laid out: what stood where it runs now is gone.
+  return out.filter((p) => !isPier(p.x, p.y) && !isKitchen(p.x, p.y) && !isKeeper(p.x, p.y) && !(wild(p) && bySite(p.x, p.y))
+    && !isWater(p.x, p.y) && !isBank(p.x, p.y));
 })();
 
 /** The benches, in a fixed order: somebody sitting is told to the room by this index. */
@@ -386,12 +458,14 @@ export function benchAt(tx: number, ty: number): number {
 const solidAt = new Set(PROPS.filter((p) => p.solid).map((p) => `${p.x},${p.y}`));
 
 /** What stands on a tile and stops a walker, if anything. */
-export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "pier" | "roadworks" | "water" | "prop" | null {
+export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "pier" | "kitchen" | "keeper" | "roadworks" | "water" | "prop" | null {
   for (const b of BUILDINGS) if (within(tx, ty, b)) return b;
   if (within(tx, ty, FOUNTAIN)) return "fountain";
   if (isShop(tx, ty)) return "shop";
   if (isBoard(tx, ty)) return "board";
   if (isPier(tx, ty)) return "pier";
+  if (isKitchen(tx, ty)) return "kitchen";
+  if (isKeeper(tx, ty)) return "keeper";
   if (isClosed(tx, ty)) return "roadworks";
   if (isWater(tx, ty)) return "water";
   if (solidAt.has(`${tx},${ty}`)) return "prop";

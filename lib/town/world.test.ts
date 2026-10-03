@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  BENCHES, BOARD, COLS, DROP, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, groundAt, hearing,
+  BENCHES, BOARD, COLS, DROP, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, groundAt, hearing,
   groundLook, moveEvery, pickLines, spawnFor, stepAlong, thingAt, toIso, walkable,
 } from "./world";
 
@@ -130,6 +130,68 @@ describe("walking", () => {
     for (let y = y0; y <= y1; y++) expect(walkable(x1 + 1, y) || walkable(x1 + 2, y) || walkable(x1 + 3, y)).toBe(true);
     // the west path's end, where the deck first stood, is clear again
     expect(walkable(13, 31)).toBe(true);
+  });
+
+  it("builds the cooking yard below the plaza, lying across the screen, clear of the east and south paths", () => {
+    // twice as long and twice as deep as the first one drawn (which closed some forty tiles)
+    expect(KITCHEN.tiles.length).toBeGreaterThan(140);
+    for (const [x, y] of KITCHEN.tiles) {
+      expect(thingAt(x, y)).toBe("kitchen");
+      expect(groundAt(x, y)).toBe("grass");
+    }
+    // across the screen is x − y, down it x + y: it is wide, not deep, and its near and far edges are level
+    const across = KITCHEN.tiles.map(([x, y]) => x - y), down = KITCHEN.tiles.map(([x, y]) => x + y);
+    const wide = (Math.max(...across) - Math.min(...across)) * 32, deep = (Math.max(...down) - Math.min(...down)) * 16;
+    expect(wide).toBeGreaterThan(640);
+    expect(wide).toBeGreaterThan(2.5 * deep);
+    // below the plaza's lowest corner on the screen, and about under it
+    expect(Math.min(...down)).toBeGreaterThan(PLAZA.x + PLAZA.w + PLAZA.y + PLAZA.h);
+    expect(Math.abs((Math.max(...across) + Math.min(...across)) / 2 - (PLAZA.x - PLAZA.y))).toBeLessThan(4);
+    // on no path, and with grass between it and each of them (the owner: "อย่าทับทางเดินด้วย")
+    for (const [x, y] of KITCHEN.tiles) for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
+      const g = groundAt(x + dx, y + dy);
+      expect(g === "road" || g === "plaza" || g === "water" || g === "sand").toBe(false);
+    }
+    // nothing of the town's layout is left standing on it, and no tree, bush or rock stands over its near kerb
+    for (const p of PROPS) {
+      expect(thingAt(p.x, p.y)).not.toBe("kitchen");
+      if (p.kind === "tree" || p.kind === "pine" || p.kind === "bush" || p.kind === "rock") expect(KITCHEN.near(p.x, p.y)).toBe(false);
+    }
+    // its picture stands by its front, by the way in: walked up to there, and round its back and both its ends
+    expect(walkable(Math.floor(KITCHEN.foot.x), Math.floor(KITCHEN.foot.y))).toBe(true);
+    // (a point of its picture, in pixels from its ground point, as a point of the map; and the walkable tile nearest one)
+    const at = (px: number, py: number) => ({ x: KITCHEN.foot.x + (py / 16 + px / 32) / 2, y: KITCHEN.foot.y + (py / 16 - px / 32) / 2 });
+    const by = (p: { x: number; y: number }) => {
+      for (let r = 0; r <= 2; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+        const x = Math.floor(p.x) + dx, y = Math.floor(p.y) + dy;
+        if (walkable(x, y)) return { x: x + 0.5, y: y + 0.5 };
+      }
+      return null;
+    };
+    for (const p of [KITCHEN.foot, at(-430, -130), at(430, -130), at(0, -300)]) {
+      const stand = by(p);
+      expect(stand).not.toBeNull();
+      expect(findPath({ x: 32.5, y: 31.5 }, stand!)).not.toBeNull();
+    }
+  });
+
+  it("stands the two shopkeepers in front of the Popoto Shop, off the paths", () => {
+    expect(KEEPERS.map((k) => k.id)).toEqual(["uncle", "banker"]);
+    for (const k of KEEPERS) {
+      for (const [x, y] of k.tiles) {
+        expect(thingAt(x, y)).toBe("keeper");
+        expect(groundAt(x, y)).toBe("grass");
+      }
+      // each stands on a tile of its own, in front of its stand (lower on the screen)
+      expect(k.tiles.some(([x, y]) => x === Math.floor(k.at.x) && y === Math.floor(k.at.y))).toBe(true);
+      expect(k.at.x + k.at.y).toBeGreaterThan(k.stand.x + k.stand.y);
+      // on the shop's side of town: below it and to its right on the screen
+      expect(k.stand.x).toBeGreaterThan(SHOP.x + SHOP.w);
+      expect(k.stand.x + k.stand.y).toBeGreaterThan(SHOP.x + SHOP.w + SHOP.y + SHOP.h);
+    }
+    for (const p of PROPS) expect(thingAt(p.x, p.y)).not.toBe("keeper");
+    // somebody can walk up to each of them
+    for (const k of KEEPERS) expect(findPath({ x: 32.5, y: 31.5 }, { x: Math.floor(k.at.x) + 0.5, y: Math.floor(k.at.y) + 1.5 })).not.toBeNull();
   });
 
   it("puts the plaza in the middle and the fountain in the plaza", () => {
