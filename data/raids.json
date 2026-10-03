@@ -65225,6 +65225,10 @@
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
+     "Samurai": {
+      "kills": 1,
+      "best": 55
+     },
      "WhiteMage": {
       "kills": 4,
       "best": 42
@@ -72486,7 +72490,7 @@
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 8,
+      "kills": 11,
       "best": 95
      },
      "Warrior": {
@@ -72515,7 +72519,7 @@
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 6,
+      "kills": 7,
       "best": 92
      },
      "DarkKnight": {
@@ -72604,6 +72608,18 @@
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
+     "Monk": {
+      "kills": 1,
+      "best": 41
+     },
+     "Ninja": {
+      "kills": 1,
+      "best": 31
+     },
+     "Dragoon": {
+      "kills": 1,
+      "best": 33
+     },
      "Gunbreaker": {
       "kills": 13,
       "best": 79
@@ -76799,7 +76815,7 @@
     "cleared": true,
     "job_kills": {
      "Monk": {
-      "kills": 4,
+      "kills": 5,
       "best": 73
      }
     }
@@ -79016,8 +79032,8 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 5,
-      "best": 81
+      "kills": 8,
+      "best": 82
      }
     }
    },
