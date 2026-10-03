@@ -5,6 +5,12 @@
 //        talk, walk apart (still heard: one room), and one closes the browser
 //        (gone at once). --freeze adds a tab asleep 75 s; --crowd N brings the
 //        room to N members, all in voice. Every account is deleted in finally.
+//   node town-live.mjs game <out>
+//        the game (v115), while it is shut: one throwaway verified member who
+//        is no admin walks in with no microphone. The town is theirs as
+//        before; their page asks the database whether the game is open, and
+//        nothing else of the game's; no bag shows. (An admin's side is not
+//        tried: no throwaway is ever made an admin.)
 // Refuses to run while real members are in the room (their ears would get
 // the fake microphones' beeps and the probes' avatars); --even-if-busy
 // overrides that. Never prints a key, a token, a name or the room's name.
@@ -80,11 +86,13 @@ async function browser(label, cookies) {
   const page = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((t) => t.type === "page");
   const ws = new WebSocket(page.webSocketDebuggerUrl);
   await new Promise((r) => (ws.onopen = r));
-  let seq = 0; const wait = new Map(); const logs = [];
+  let seq = 0; const wait = new Map(); const logs = [], requests = [];
   ws.onmessage = (ev) => {
     const m = JSON.parse(ev.data);
     if (m.id && wait.has(m.id)) { const w = wait.get(m.id); wait.delete(m.id); m.error ? w.no(new Error(m.error.message)) : w.ok(m.result); }
     else if (m.method === "Runtime.exceptionThrown") logs.push(`exception: ${m.params.exceptionDetails.exception?.description?.split("\n")[0]}`);
+    // (what the page asks of the database's functions: their names only)
+    else if (m.method === "Network.requestWillBeSent") { const f = /\/rest\/v1\/rpc\/([a-z_0-9]+)/.exec(m.params.request.url)?.[1]; if (f) requests.push(f); }
   };
   ws.onclose = () => { for (const w of wait.values()) w.no(new Error("closed")); wait.clear(); };
   const send = (method, params = {}) => new Promise((ok_, no) => {
@@ -101,7 +109,7 @@ async function browser(label, cookies) {
     return r.result.value;
   };
   return {
-    label, logs, send, evaluate, goto: (u) => send("Page.navigate", { url: u }),
+    label, logs, requests, send, evaluate, goto: (u) => send("Page.navigate", { url: u }),
     shot: async (f) => { const s = await send("Page.captureScreenshot", { format: "png" }); writeFileSync(f, Buffer.from(s.data, "base64")); },
     /** Close the tab the way a person does (✕): the page gets to say goodbye. */
     async closeTab() { await send("Page.close").catch(() => {}); },
@@ -227,8 +235,52 @@ async function full(out) {
   }
 }
 
+/** The game while it is shut (v115's knob at 0), as a member who is no admin meets it on production. */
+async function game(out) {
+  const bs = [];
+  const knob = await (await fetch(`${URL_}/rest/v1/town_knobs?select=value&key=eq.game_open`, { headers: svc })).json();
+  if (knob?.[0]?.value !== 0) { console.log(`  the game is not shut (game_open is ${knob?.[0]?.value}): this check is for while it is.`); return; }
+  const busy = await membersInRoom();
+  if (busy > 0 && !process.argv.includes("--even-if-busy")) {
+    console.log(`  ${busy} member(s) are in the town now: not walking a probe in on them. Try later, or --even-if-busy.`);
+    return;
+  }
+  try {
+    const g = await makeMember("G");
+    const G = await browser("G", g.cookies);
+    bs.push(G);
+    await G.goto(`${SITE}/town`);
+    await until("G ready", () => G.evaluate(`${T}?.status?.() === "ready"`), 60000);
+    ok("a verified member who is no admin walks into the town as before", true);
+    await sleep(5000);
+    const asked = [...new Set(G.requests)];
+    ok("their page asked the database whether the game is open", asked.includes("town_is_open"), asked);
+    // (the town's own, older than the game: the room's name, the vote; anything else beginning town_ is the game's)
+    const own = ["town_is_open", "town_topic", "town_vote", "town_vote_tally", "town_my_vote"];
+    ok("…and nothing else of the game's", asked.filter((f) => f.startsWith("town_") && !own.includes(f)).length === 0, asked);
+    ok("no bag and no coins on the map", !(await G.evaluate(`[...document.querySelectorAll("button")].some((b) => b.title === "กระเป๋า" || b.title === "Bag")`)));
+    ok("the map is drawn, and they stand in it", await G.evaluate(`!!document.querySelector("canvas") && ${T}.people().length >= 0 && !!${T}.me()`));
+    await G.evaluate(`${T}.walkTo(34, 30)`);
+    await sleep(2500);
+    ok("no page errors", G.logs.length === 0, G.logs.slice(0, 3));
+    await G.shot(join(out, "town-live-game.png"));
+    await G.closeTab();
+    await sleep(800);
+  } catch (e) {
+    ok("the live run finished", false, e.message);
+  } finally {
+    for (const X of bs) if (X.logs.length) console.log(`  ${X.label} page errors:\n    ${[...new Set(X.logs)].join("\n    ")}`);
+    for (const X of bs) X.close();
+    for (const id of made) {
+      const r = await fetch(`${URL_}/auth/v1/admin/users/${id}`, { method: "DELETE", headers: svc });
+      console.log(`  cleanup: throwaway ${id.slice(0, 8)}… deleted ${r.ok ? "✓" : `✗ ${r.status}`}`);
+    }
+  }
+}
+
 const mode = process.argv[2] ?? "anon";
 const ran = await anonChecks();
 if (mode === "full" && ran) await full(process.argv[3] ?? ".");
+if (mode === "game" && ran) await game(process.argv[3] ?? ".");
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exitCode = fail ? 1 : 0;

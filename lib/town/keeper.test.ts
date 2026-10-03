@@ -45,14 +45,31 @@ describe("the database's keeper", () => {
     k.close();
   });
 
-  it("told the game is not open, asks nothing more", async () => {
-    const db = database({ town_is_open: () => false, town_me: () => ({ now: NOW, purse: purse() }) });
+  it("told the game is not open, asks nothing more; and asks again now and then, so that it opens here when its owner opens it", async () => {
+    let open = false;
+    const db = database({ town_is_open: () => open, town_me: () => ({ now: NOW, purse: purse() }) });
     const k = new DbKeeper("me", db.ask);
+    let told = 0;
+    k.watch(() => { told++; });
     await settle();
     expect(db.asked).toEqual(["town_is_open"]);
     expect(k.open()).toBe(false);
     expect(k.ready()).toBe(false);
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+    await settle();
+    expect(db.asked).toEqual(["town_is_open", "town_is_open"]);
+    expect(k.open()).toBe(false);
+    open = true;
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+    await settle();
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me"]);
+    expect(k.open()).toBe(true);
+    expect(k.ready()).toBe(true);
+    expect(told).toBeGreaterThan(1);
     k.close();
+    // closed, it asks no more
+    await vi.advanceTimersByTimeAsync(20 * 60_000);
+    expect(db.asked).toHaveLength(4);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {

@@ -796,6 +796,27 @@ function openWater(x: number, y: number): boolean {
 const WAYS: Vec[] = [[-1, 1], [-1, 0], [0, 1], [-1, -1], [1, 1], [0, -1], [1, 0], [1, -1]].map(([x, y]) => ({ x: x / Math.hypot(x, y), y: y / Math.hypot(x, y) }));
 const fishing = new Map<string, Fishing | null>();
 /**
+ * Whether the fishing deck and the cooking yard are finished, for whoever looks at this page.
+ *
+ * They are where the town's game is played, so they are finished for whoever the game is open to and building
+ * sites for everybody else: the owner finished them in `next dev` only while the game was a trial there ("เฉพาะใน
+ * dev", 2026-10-03), and the game now goes up shut, the admins' first, his to open (v115's knob). The map says so
+ * when its keeper answers (Town.tsx). Until then: finished in `next dev`, sites in production, as before.
+ *
+ * So two people may see them differently for as long as the game is open to one and not the other: an admin on the
+ * deck stands, for a member, on the site. Nothing is kept of where anybody may walk; each page works that out.
+ */
+export function setBuilt(done: boolean) {
+  const stage = done ? 2 : 1;
+  if (PIER.stage === stage && KITCHEN.stage === stage) return;
+  PIER.stage = stage;
+  KITCHEN.stage = stage;
+  // (where a line can be dropped from was worked out with the deck as it was)
+  fishing.clear();
+}
+/** Whether they are finished here now. */
+export const isBuilt = () => PIER.stage === 2 && KITCHEN.stage === 2;
+/**
  * Whether somebody standing on a tile can fish from it, and where their float
  * lands.
  *

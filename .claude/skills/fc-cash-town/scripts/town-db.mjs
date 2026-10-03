@@ -3,7 +3,9 @@
 // database (scripts/db/town-bench.mjs: every migration replayed into PGlite on a local port). Production is not
 // touched: there is one Supabase project, and this is how the game is played against the database's own rules first.
 //
-// Two testers in two tabs: the bank and the stall through their panels; a line dropped, struck and fought with the
+// First the game shut, as it goes up (v115's knob at 0, and `&townSites=1`: the deck and the cooking yard as the
+// building sites production begins with): no bag, no deck to stand on. Then opened: the bag, and the deck finished.
+// Then two testers in two tabs: the bank and the stall through their panels; a line dropped, struck and fought with the
 // database deciding what bit; a plot cleared, tilled and sown, which the other sees when the room says the farm
 // changed; a dish cooked and its pot ladled from by the other; a deal between the two.
 //
@@ -99,6 +101,33 @@ try {
   // a first visit, to learn who the tester is there; then begun again as new
   let a = await enter(X, "Dq");
   const charA = await fresh(a);
+  await X.goto("about:blank");
+  a = await enter(X, "Dq");
+
+  console.log("shut, then open");
+  const hasBag = () => X.evaluate(`[...document.querySelectorAll("button")].some((b) => b.title === "กระเป๋า")`);
+  const sites = `${BASE}/town?townTest=Dq&townRoom=check&townHour=12&townWeather=clear&townSites=1&townDb=${encodeURIComponent(BENCH)}`;
+  await sql(`update public.town_knobs set value = 0 where key = 'game_open'`);
+  await X.goto("about:blank");
+  await X.goto(sites);
+  await until("ready", async () => (await status(X)) === "ready", 240000);
+  await sleep(2500);
+  ok("shut: the town is there, with no bag on the map", !(await hasBag()) && !(await X.evaluate(`!!${K}`)));
+  ok("…and the deck and the yard are building sites: no board of the deck to stand on", (await X.evaluate(`window.__townView.built()`)) === false && (await X.evaluate(`window.__townView.walkable(17, 42)`)) === false);
+  await X.evaluate(`window.__townView.lookAt(22, 42)`);
+  await sleep(700);
+  await X.shot(`${OUT}/db-shut.png`);
+  await sql(`update public.town_knobs set value = 1 where key = 'game_open'`);
+  await X.goto("about:blank");
+  await X.goto(sites);
+  await until("ready", async () => (await status(X)) === "ready", 240000);
+  await until("opened: the bag is on the map", hasBag, 20000);
+  ok("opened by the owner: the bag is on the map at the next visit", await hasBag());
+  ok("…and the deck and the yard are finished: the deck is a place to stand", (await X.evaluate(`window.__townView.built()`)) === true && (await X.evaluate(`window.__townView.walkable(17, 42)`)) === true);
+  await X.evaluate(`window.__townView.warp(17, 42)`);
+  await X.evaluate(`window.__townView.lookAt(22, 42)`);
+  await sleep(900);
+  await X.shot(`${OUT}/db-open.png`);
   await X.goto("about:blank");
   a = await enter(X, "Dq");
 

@@ -152,6 +152,8 @@ const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
 const CHEW = 20_000;
+/** How often a keeper told the game is shut asks whether it is open yet. */
+const SHUT_MS = 5 * 60_000;
 /** How long an ended deal is still shown. */
 const ENDED_MS = 6000;
 /** The database gives a late strike this much grace (the catalog's `fishing.slack.late`), and a little for the clocks. */
@@ -210,7 +212,13 @@ export class DbKeeper implements Keeper {
   private async begin() {
     let open: unknown = null;
     try { open = await this.rpc("town_is_open"); } catch { open = null; }
-    if (open === false) { this.opened = false; this.tell(); return; }
+    if (open === false) {
+      if (this.opened !== false) { this.opened = false; this.tell(); }
+      // Shut to me now. Asked again now and then, so that the game opens here when its owner opens it, without the
+      // page being loaded again.
+      this.retry = setTimeout(() => { this.retry = null; this.line = this.line.then(() => this.begin()); }, SHUT_MS);
+      return;
+    }
     await this.once("town_me", {});
     if (this.read || this.opened === false || this.shut) return;
     // The town could not be reached: asked again in a while, a little later each time. (On a timer, not here: what

@@ -2,6 +2,7 @@ import {
   describe, expect, it, vi } from "vitest";
 import {
   BENCHES, BOARD, COLS, DROP, FARM, FARM_PROPS, GATES, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, gateAt, groundAt, hearing, groundLook, moveEvery, onDeck, fishFrom, CAST, pickLines, placeOf, plotAt, spawnFor, stepAlong, thingAt, toIso, walkable, onYard, yardPlace,
+  YARD_SEATS, isBuilt, setBuilt, yardSeat,
 } from "./world";
 
 describe("projection", () => {
@@ -539,5 +540,44 @@ describe("arriving", () => {
     expect(walkable(Math.floor(a.x), Math.floor(a.y))).toBe(true);
     expect(a.x).toBeLessThan(COLS);
     expect(a.y).toBeLessThan(ROWS);
+  });
+});
+describe("the deck and the cooking yard, finished or building sites", () => {
+  const deckTile = PIER.deck.find(([x, y]) => { setBuilt(true); return fishFrom(x, y) !== null; })!;
+  const stove = KITCHEN.places[0].at, floor = KITCHEN.floor[0];
+
+  it("are finished in a test, as in next dev", () => {
+    setBuilt(true);
+    expect(isBuilt()).toBe(true);
+    expect(onDeck(deckTile[0], deckTile[1])).toBe(true);
+    expect(walkable(deckTile[0], deckTile[1])).toBe(true);
+    expect(fishFrom(deckTile[0], deckTile[1])?.deep).toBe(true);
+    expect(onYard(floor[0], floor[1])).toBe(true);
+    expect(yardPlace(stove[0], stove[1])).not.toBeNull();
+    expect(yardSeat(YARD_SEATS)).toBeDefined();
+  });
+
+  it("are sites for whoever the game is not open to: no deck to stand or fish on, no place to cook at, no seat", () => {
+    try {
+      setBuilt(false);
+      expect(isBuilt()).toBe(false);
+      expect(onDeck(deckTile[0], deckTile[1])).toBe(false);
+      expect(thingAt(deckTile[0], deckTile[1])).not.toBeNull();
+      expect(walkable(deckTile[0], deckTile[1])).toBe(false);
+      // (where a line can be dropped from is worked out again: the deck's tiles are no longer places)
+      expect(fishFrom(deckTile[0], deckTile[1])).toBeNull();
+      expect(onYard(floor[0], floor[1])).toBe(false);
+      expect(walkable(floor[0], floor[1])).toBe(false);
+      expect(yardPlace(stove[0], stove[1])).toBeNull();
+      expect(yardSeat(YARD_SEATS)).toBeUndefined();
+      // the river's bank is a place to fish from all the same: the shallows
+      let bank = 0;
+      for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) { const at = fishFrom(x, y); if (at) { expect(at.deep).toBe(false); bank++; } }
+      expect(bank).toBeGreaterThan(20);
+    } finally {
+      setBuilt(true);
+    }
+    expect(fishFrom(deckTile[0], deckTile[1])?.deep).toBe(true);
+    expect(walkable(deckTile[0], deckTile[1])).toBe(true);
   });
 });

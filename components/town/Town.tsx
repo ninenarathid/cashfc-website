@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BOARD, BUILDINGS, FAR, FARM, FARM_PROPS, FOUNTAIN, GATES, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atWell, benchAt, distance, fishFrom, fromIso, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atWell, benchAt, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
@@ -477,6 +477,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     see();
     return keeper.watch(see);
   }, [keeper]);
+  // The deck and the cooking yard are where the game is played: finished for whoever it is open to, building sites
+  // for everybody else (lib/town/world's setBuilt). (`&townSites=1` in `next dev` begins with the sites, as
+  // production does, to see them finish when the keeper answers.)
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).get("townSites") === "1") setBuilt(false);
+  }, []);
+  useEffect(() => { if (game) setBuilt(true); }, [game]);
   /** Fishing: the place I stand at (a tile a line can be dropped from: where its float lands, and whether that is deep water), whether my rod is out, and what my line is doing (for the map to draw). */
   const [fishAt, setFishAt] = useState<FishPlace | null>(null);
   const fishAtRef = useRef<FishPlace | null>(null);
@@ -2455,6 +2462,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       keepers: () => keeperBoxes.current.map((k) => ({ ...k })),
       /** The place to fish from that I stand at, if it is one: its tile, where its float lands, and whether that is deep water. */
       fishAt: () => fishAtRef.current,
+      /** Whether the deck and the cooking yard are finished on this page, and whether a tile can be stood on. */
+      built: () => isBuilt(),
+      walkable: (x: number, y: number) => walkable(x, y),
       gates: () => gateBoxes.current.map((k) => ({ ...k })),
       /** The popoto out now: what, and where. */
       outings: () => outingsNow(Date.now(), forcedPopoto.current).map((o) => ({ activity: o.activity, at: o.spots?.[0] ?? alongRoute(o, Date.now())?.pos })),
