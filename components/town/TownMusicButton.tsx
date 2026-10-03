@@ -38,6 +38,13 @@ export default function TownMusicButton({ th, hour, className }: {
   const box = useRef<HTMLDivElement>(null);
   /** The hour in Bangkok, a new piece each. */
   const hourNow = (): number => (hour !== null ? Math.floor(hour) : Math.floor(bangkokMinute(new Date()) / 60));
+  /** The player, made when it is first wanted. */
+  const player = (): TownMusic => {
+    music.current ??= new TownMusic();
+    // for the test scripts (fc-cash-town): never in a production build
+    if (process.env.NODE_ENV !== "production") (window as unknown as { __townMusic?: TownMusic }).__townMusic = music.current;
+    return music.current;
+  };
 
   // The saved choice; if it was on, start with the first tap anywhere.
   useEffect(() => {
@@ -45,9 +52,8 @@ export default function TownMusicButton({ th, hour, className }: {
     setVol(p.vol);
     if (!p.on) return;
     const go = () => {
-      music.current ??= new TownMusic();
-      music.current.setVolume(p.vol);
-      music.current.start(hourNow());
+      player().setVolume(p.vol);
+      player().start(hourNow());
       setOn(true);
     };
     window.addEventListener("pointerdown", go, { once: true });
@@ -76,10 +82,7 @@ export default function TownMusicButton({ th, hour, className }: {
 
   const toggle = () => {
     const next = !on;
-    music.current ??= new TownMusic();
-    // for the test scripts (fc-cash-town): never in a production build
-    if (process.env.NODE_ENV !== "production") (window as unknown as { __townMusic?: TownMusic }).__townMusic = music.current;
-    if (next) { music.current.setVolume(vol); music.current.start(hourNow()); } else music.current.stop();
+    if (next) { player().setVolume(vol); player().start(hourNow()); } else player().stop();
     setOn(next);
     savePref({ on: next, vol });
   };

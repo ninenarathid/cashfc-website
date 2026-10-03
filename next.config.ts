@@ -48,6 +48,8 @@ const nextConfig: NextConfig = {
     return [
       // town: Cash Town's doll picture, named by its content (build-town-atlas.mjs).
       { source: "/:dir(duty|guides|wallet|emotes|ui|town)/:path*.:ext(png|jpg|jpeg|webp|avif|gif|svg)", headers: week },
+      // and its music, named by its content too (build-music.mjs): a piece is 2 MB, fetched once and not each visit.
+      { source: "/town/:path*.:ext(mp3)", headers: week },
       { source: "/:name(logo|logo-header|icon-512|sprout).png", headers: week },
     ];
   },

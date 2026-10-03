@@ -1,60 +1,63 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { BARS, SONGS, STEPS, chordTones, compose, midiOf, songAt } from "./music";
+import { HAVE, PARTS, fileAt, gainOf, partOf, pieceAt } from "./music";
+
+const DAY = [...Array(24).keys()];
 
 describe("the town's music", () => {
-  it("has a piece for every hour of the day, each its own", () => {
-    expect(SONGS).toHaveLength(24);
-    expect(songAt(0)).toBe(SONGS[0]);
-    expect(songAt(23.9)).toBe(SONGS[23]);
-    expect(songAt(24)).toBe(SONGS[0]);
-    expect(songAt(-1)).toBe(SONGS[23]);
-    const tunes = Object.values(SONGS).map((s) => JSON.stringify(compose(s).filter((n) => n.voice === s.lead).map((n) => n.midi)));
-    expect(new Set(tunes).size).toBe(tunes.length);
+  it("has a piece for every hour of the day: its own, or one of its part of the day", () => {
+    expect(HAVE.length).toBeGreaterThan(0);
+    for (const h of DAY) {
+      const p = pieceAt(h);
+      expect(HAVE).toContain(p);
+      if (HAVE.includes(h)) expect(p).toBe(h);
+      else if (HAVE.some((x) => partOf(x) === partOf(h))) expect(partOf(p)).toBe(partOf(h));
+    }
+    expect(pieceAt(24)).toBe(pieceAt(0));
+    expect(pieceAt(-1)).toBe(pieceAt(23));
+    expect(pieceAt(8.9)).toBe(pieceAt(8));
   });
 
-  it("composes the same piece every time", () => {
-    for (const s of Object.values(SONGS)) expect(JSON.stringify(compose(s))).toBe(JSON.stringify(compose(s)));
+  it("divides the day into parts that leave no hour out and share none", () => {
+    for (const h of DAY) expect(PARTS.filter(([from, to]) => (from <= to ? h >= from && h <= to : h >= from || h <= to))).toHaveLength(1);
+    expect([22, 2, 5, 6, 11, 12, 17, 18, 21].map(partOf)).toEqual([0, 0, 0, 1, 1, 2, 2, 3, 3]);
   });
 
-  it("keeps every note inside its loop and in a pleasant range", () => {
-    for (const s of Object.values(SONGS)) {
-      for (const n of compose(s)) {
-        expect(n.step).toBeGreaterThanOrEqual(0);
-        expect(n.step).toBeLessThan(BARS * STEPS);
-        expect(n.dur).toBeGreaterThan(0);
-        if (n.voice === s.lead) { expect(n.midi).toBeGreaterThanOrEqual(s.root + 5); expect(n.midi).toBeLessThanOrEqual(s.root + 27); }
-        if (n.voice === "bass") expect(n.midi).toBeLessThan(s.root);
-      }
+  it("lends an hour the nearest piece of its own part of the day", () => {
+    // the first four pieces, one to a part
+    expect(DAY.map((h) => pieceAt(h, [8, 16, 19, 23])))
+      .toEqual([23, 23, 23, 23, 23, 23, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16, 19, 19, 19, 19, 23, 23]);
+    // as more come: the night's 02 is nearer the small hours than 23 is, and dawn takes the morning's first
+    const more = [2, 7, 8, 16, 19, 23];
+    expect([22, 0, 1, 3, 4, 5].map((h) => pieceAt(h, more))).toEqual([23, 23, 2, 2, 2, 2]);
+    expect(pieceAt(6, more)).toBe(7);
+    expect(pieceAt(11, more)).toBe(8);
+    // of two as near, the lower hour; and a part with no piece takes the nearest of the day
+    expect(pieceAt(14, [12, 16])).toBe(12);
+    expect(pieceAt(13, [8, 23])).toBe(8);
+    expect(pieceAt(20, [8, 23])).toBe(23);
+  });
+
+  it("keeps each piece in public/town, under the name of its content", () => {
+    for (const h of HAVE) {
+      const file = fileAt(h);
+      expect(file).toMatch(new RegExp(`^/town/music-${String(h).padStart(2, "0")}-[0-9a-f]{10}\\.mp3$`));
+      const bytes = readFileSync(`public${file}`);
+      expect(createHash("sha256").update(bytes).digest("hex").slice(0, 10)).toBe(file.slice(-14, -4));
+      // an MP3 with no tag in front of it (the build takes them off): it begins with a frame
+      expect(bytes[0]).toBe(0xff);
+      expect(bytes[1] & 0xe0).toBe(0xe0);
     }
   });
 
-  it("lands its strong beats on the chord, and goes home at the end", () => {
-    for (const s of Object.values(SONGS)) {
-      const notes = compose(s);
-      for (const n of notes) {
-        if (n.voice !== s.lead || n.step % 4 !== 0) continue;
-        const chord = chordTones(s, Math.floor(n.step / STEPS)).map((x) => midiOf(s, x) % 12);
-        expect(chord).toContain(n.midi % 12);
-      }
-      const last = notes.filter((n) => n.voice === s.lead).at(-1)!;
-      expect(last.midi % 12).toBe(s.root % 12);
-    }
-  });
-
-  it("is lofi: jazzy chords on the keys, a swung beat by day, none at night and dawn", () => {
-    for (const s of Object.values(SONGS)) {
-      // every bar's chord has four notes (a seventh and a ninth, the root left to the bass)
-      const keys = compose(s).filter((n) => n.voice === "keys" && n.step % STEPS === 0);
-      expect(keys.length).toBe(BARS * 4);
-      expect(s.bpm).toBeLessThanOrEqual(90);
-      if (s.groove) expect(s.swing).toBeGreaterThan(0.15);
-    }
-    // the small hours have no beat; the middle of the day has the full one
-    for (const h of [22, 23, 0, 1, 2, 3, 4, 5]) expect(compose(songAt(h)).some((n) => n.voice === "kick" || n.voice === "snare" || n.voice === "hat")).toBe(false);
-    for (const h of [9, 10, 11, 12, 13, 14, 15]) expect(compose(songAt(h)).some((n) => n.voice === "kick")).toBe(true);
-    // and the night is slower than the day
-    expect(songAt(2).bpm).toBeLessThan(songAt(11).bpm);
-    expect(compose(songAt(2)).filter((n) => n.voice === songAt(2).lead).length)
-      .toBeLessThan(compose(songAt(11)).filter((n) => n.voice === songAt(11).lead).length);
+  it("is soft at the volume it starts at, and at the top no louder than the file", () => {
+    expect(gainOf(0)).toBe(0);
+    expect(gainOf(1)).toBe(1);
+    expect(gainOf(2)).toBe(1);
+    expect(gainOf(-1)).toBe(0);
+    expect(gainOf(0.3)).toBeGreaterThan(0.12);
+    expect(gainOf(0.3)).toBeLessThan(0.2);
+    for (let v = 0.05; v <= 1; v += 0.05) expect(gainOf(v)).toBeGreaterThan(gainOf(v - 0.05));
   });
 });
