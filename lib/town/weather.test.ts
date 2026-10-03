@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FINE, easeEffects, effectsOf, forcedWeather, readWeather, skyOf } from "./weather";
+import { FINE, HEAVY_RAIN, LIGHT_RAIN, easeEffects, effectsOf, forcedWeather, heaviness, readWeather, skyOf } from "./weather";
 
 describe("the town's weather", () => {
   it("reads the sky from a WMO code, trusting the rain gauge over a dry code", () => {
@@ -41,6 +41,43 @@ describe("the town's weather", () => {
     expect(storm.rain).toBe(1);
     expect(storm.wind).toBeGreaterThan(rain.wind);
     expect(effectsOf(forcedWeather("windy")!).wind).toBeGreaterThan(fine.wind);
+  });
+
+  it("keeps the day's light in light rain, and goes as dark as night in heavy rain", () => {
+    const light = effectsOf(forcedWeather("light")!), drizzle = effectsOf(forcedWeather("drizzle")!);
+    const heavy = effectsOf(forcedWeather("heavy")!), storm = effectsOf(forcedWeather("storm")!);
+    // light rain: rain and puddles, and nothing that darkens the day
+    for (const e of [light, drizzle]) {
+      expect(e.rain).toBeGreaterThan(0);
+      expect(e.wet).toBeGreaterThan(0);
+      expect(e.gloom).toBe(0);
+      expect(e.dim).toBeLessThan(0.08);
+      expect(e.haze).toBe(0);
+    }
+    // heavy rain and storms: the whole of the dark, and more rain than a shower has
+    for (const e of [heavy, storm]) {
+      expect(e.gloom).toBe(1);
+      expect(e.rain).toBeGreaterThan(light.rain + 0.4);
+    }
+    // in between, by the gauge
+    const at = (rain: number) => effectsOf({ sky: "rain", wind: 10, gust: 20, rain });
+    expect(at(LIGHT_RAIN).gloom).toBe(0);
+    expect(at(HEAVY_RAIN).gloom).toBe(1);
+    const mid = at((LIGHT_RAIN + HEAVY_RAIN) / 2);
+    expect(mid.gloom).toBeCloseTo(0.5, 5);
+    expect(mid.rain).toBeGreaterThan(at(LIGHT_RAIN).rain);
+    expect(mid.rain).toBeLessThan(at(HEAVY_RAIN).rain);
+    // only rain is heavy: a windy clear day, cloud and mist are not
+    for (const w of ["clear", "windy", "cloudy", "fog", "drizzle"]) expect(heaviness(forcedWeather(w)!)).toBe(0);
+    expect(effectsOf(FINE).gloom).toBe(0);
+  });
+
+  it("has clouds drifting over in any weather but mist, most of them under a cloudy sky", () => {
+    const fine = effectsOf(FINE), cloudy = effectsOf(forcedWeather("cloudy")!);
+    expect(fine.clouds).toBeGreaterThan(0.2);
+    expect(cloudy.clouds).toBeGreaterThan(fine.clouds);
+    expect(effectsOf(forcedWeather("light")!).clouds).toBeGreaterThan(0.2);
+    expect(effectsOf(forcedWeather("fog")!).clouds).toBe(0);
   });
 
   it("comes on gently, never jumping from one frame to the next", () => {

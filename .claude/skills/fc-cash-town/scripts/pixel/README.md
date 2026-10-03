@@ -27,6 +27,8 @@ Spike demo: [Pixel Lalafell Spike](https://claude.ai/artifact/Uetw3Y3U1iCnDn4Z9q
 | `gen.mjs` | One API call: `node gen.mjs <name> <model> <quality> <size> <prompt.txt> [ref.png ...]` |
 | `gen-hairs.sh` | Hairstyle sheets as in-place edits: `./gen-hairs.sh <g> <hair> [<g> <hair> ...]` |
 | `build-pixel-atlas.mjs` | `work/out` → `public/town` (`--out <dir>` to try elsewhere; `--poses` adds sit, sleep and wave) |
+| `gen-race.mjs`, `build-race-atlas.mjs`, `race-data.mjs` | The other seven races: sheets, picture, and what the wardrobe offers (see the last section) |
+| `checks/` | Audits and close-ups of the built dolls, and the town's sky in a headless browser (see the last section, and SKILL.md) |
 | `pxlib.mjs` | Grid, cells, palette, shapes |
 | `pixelize.mjs`, `anim.mjs` | The spike's one-sheet tools |
 | `work/` | Sheets, ledger, debug pictures. Git-ignored by its own `.gitignore`; back it up, the sheets cost money. |
@@ -36,7 +38,7 @@ Spike demo: [Pixel Lalafell Spike](https://claude.ai/artifact/Uetw3Y3U1iCnDn4Z9q
 
 - **The key** is `OPENAI_API_KEY` in fcnext/.env.local. It is never printed.
 - **Every call** is logged in `work/ledger.jsonl` with its cost, worked out from the returned usage: $8 per 1M image-input tokens, $30 per 1M image-output tokens, $5 per 1M text tokens. About $0.018 a call.
-- **Budget:** `gen.mjs` stops within $0.50 of `BUDGET` ($10).
+- **Budget:** `gen.mjs` stops within $0.50 of `BUDGET` ($25 since the owner topped it up, 2026-10-02; `work/ledger.jsonl` has what is spent).
 - **Rate limit:** a new account may send 5 reference pictures a minute. `gen.mjs` waits as the 429 says and tries again, and `gen-hairs.sh` runs one call at a time.
 
 ## The sheets (`work/out/<g>-<hair>-<type>.png`)
@@ -136,3 +138,65 @@ relayout with bigger pixels.
 - `build-icons.mjs` cuts the UI icon sheets (`prompts/icons/`, each a row of icons on a 16-pixel grid) into `public/town/icons-<hash>.png` and `lib/town/icon-atlas.json` (imported by `components/town/TownIcon.tsx`). Pieces are assigned to evenly spaced columns, since some icons come in parts.
 - A sheet whose transparent pixels carry colour looks like it has a glowing backdrop in a viewer; check its alpha before regenerating.
 - **The hairline fix** (`build-pixel-atlas.mjs`, "fillCrown"): seen from the front, several styles part with bare skin almost to the crown, which under dark hair read as a wig set too far back. Skin above 68% of the way from the head's top to the eyes, with hair on both sides of it, is filled with the style's main tone, with an outline-coloured edge. `work/doll-look.mjs` previews styles in black hair, before and after (`DIR2=work/pub2` for a build made with `--out work/pub2`).
+
+## The other races, and what keeps them clean (2026-10-02, 2026-10-03)
+
+Hyur, Elezen, Miqo'te, Roegadyn, Au Ra, Hrothgar and Viera each have their own sheets (`work/out/<race>/`), their own list of hairstyles and skins (`races/<race>.json`) and their own picture.
+
+1. `node gen-race.mjs <race> [f|m] [--only base,back,poses,starter,skinkey,eyes,hair] [--like <race>] [--dry]` makes the sheets.
+2. `node build-race-atlas.mjs <race> [--out <dir>] [--allow-holes]` builds `public/town/pixel-<race>-<hash>.png` and `pixel-<race>.json`. Try a change with `--out work/race-test` first, and look at it with the checks below (`DIR=work/race-test`).
+3. `node race-data.mjs [--open race,race]` writes `lib/town/races.json`, which is what the wardrobe offers.
+
+**A race's file** (`races/<race>.json`) holds the research (heights, features, the attire in words, hairstyles, skins) and two fixes for what the model draws wrong:
+- `attire.<g>.back`: the outfit as seen from behind, for the walking-away sheet. An outfit is described from the front, and where the front is its whole point the model drew it on figures walking away (the Viera woman: her bustier under the back of her head on three steps of four, her back on one). With it, the prompt says of all four figures that only the back shows. Her sitting-from-behind pose was then given the same keyhole by an in-place edit of the poses sheet (`prompts/race/viera-f-poses-back.txt`).
+- `steps.<g>.<view>`: which step each of the four is, when one is drawn wrong. `[0, 1, 2, 1]` walks step 1 again in place of step 3. The Elezen woman's last front step came without her sleeve puff, so the puff blinked off once a stride; 1 and 3 are the two passing steps, as alike as two steps get.
+
+Look at every step of a new sheet side by side before building on it (`checks/skin-audit.mjs <race>` with `G=f` or `G=m` shows all ten).
+
+**What the builder refuses** (the owner: "ห้ามให้มีจุดผิดพลาดเด็ดขาด"). It stops and says where; `--allow-holes` builds anyway, to look:
+- **A hole:** every step under every eye shape must cover its sheet's own figure from the neck down, with no see-through cell inside.
+- **A speck:** a step's body and each head it may wear must be one figure. A few loose cells (12 at most, the end of a tassel hanging in the air) are taken off; anything bigger apart stops the build.
+- **A sitting neck** outside 0.3–0.8 of the standing one.
+
+**Skin on the bodies.** The skin-key sheet is a redrawing: a cell out along edges, and whole patches wrong. Read cell by cell it left skin in the art's own peach on a doll of any other colour (the owner, 2026-10-03, a grey Roegadyn: "มี pixel มีปัญหา"). So, in this order (`SKIN_TRACE=<job>` prints which rule took each cell):
+1. Under the key's cyan: skin, unless the colour is plainly the outfit's. Each colour's share of cells under the key, over all of a gender's frames, says whose it is.
+2. Where the key repeats the cell's own colour, the model left it as the outfit's (`kept`): a gold buckle is the colour of a lion's fur.
+3. A thing the key painted by mistake is the outfit's whole: an Elezen woman's white sleeve puff was painted cyan, and took the skin's colour (dark, on a dark Elezen). The vote clears most of it; its beige shading is "always under the key" and stays. So, on walking steps, cell by cell: a pale cell that is like none of the skin's main colours, is not on the base sheet (what both sheets have is the body's own), and lies among plainly-outfit cells with little sure skin beside it, is the outfit's; then the next one in. Without the base sheet to ask, the rule went down an Au Ra's cream tail, cell after cell, so sitting poses are left alone. Tried and dropped: "an outlined shape that is nearly all outfit is outfit whole" (a neck and a mantle meet with no outline, and the neck went with the mantle), and "under the key and on the base sheet is skin" (a Roegadyn's scarf lies over the base tunic's cream collar).
+4. Elsewhere the colour decides: patches of the skin's main colours; edge cells close to the skin beside them; a shadow on the skin (colours that are the skin's more often than not, with skin along most of their edge); small clumps that skin surrounds; a forgotten bit of bare skin beside skin. A colour seen often and almost never under the key is never taken by the patch rule or by the later, deeper edge rounds: a Hyur man's tan mantle is within a shade of the shadow on his arms.
+5. Race rules: an Au Ra's horns are skin on the bodies too. A Hrothgar's tail tuft never is (the key painted it on some frames only).
+
+**Sitting.** A pose sheet draws its own head, a little bigger or smaller than the standing one and turned its own way. It is cut out (`fitHead`, `ownHead`, `tidyHead`) and the shared head is laid in its place, so every look has the same head sitting as standing. Of the own head these stay in the body:
+- the nooks between the shared head and the body (`neckFill`): where a 7-cell square cannot come from outside, and only clumps that reach the body. A clump touching the head alone is a step in the head's own outline, and showed as a line of skin outside it;
+- cells that would otherwise be holes (`closeHoles`).
+What stays is skin where the key says so, whatever the vote says of its colour.
+
+**Heads.** A head piece keeps nothing that is apart from the head below the chin line (a strip of the base collar with the neck in it lay over a Roegadyn's scarf on every step).
+
+**A face's skin** (`faceSkin`). Above the chin line every warm cell is skin. Below it the piece may carry a little of the base sheet's cream collar, so a warm cell needs a reason:
+1. the standing body has skin there, at that cell or the next;
+2. or it is one of the face's main colours (each a thirtieth or more of the skin above the line, within 30). Not "the commonest, to nine tenths": that took in the odd pale highlight, and with it a Roegadyn woman's cream collar on three of her six eye shapes. The face palette is shared, so cream and a pale highlight can be the very same colour;
+3. or it lies beside skin that is sure by 1's position or 2's colour, and is all but its colour (two cells deep). Never from skin that is skin only by lying next to the body's: at a collar that is a cell of cream;
+4. or it is at the eyes, warm, of a skin's depth of colour and lightness: an eyelid, the shade under a brow, the sliver of cheek past the far eye. A sleepy eye's lid stayed tan on a face of any other colour. Never the white of an eye (very light, or all but grey);
+5. or it is a small patch that skin and outline close in on every side (the last of a Hrothgar man's cream muzzle, under his nose). A patch that reaches the piece's edge or lies against anything light is collar;
+6. or, on another eye shape, the round face has sure skin there in that colour.
+
+**Hair.** A hair piece may carry skin: an ear through a mane, a horn through the hair. `hairSkin` marks what is of the skin's colours and joined to the bald head's skin; ribbons and flowers stay as drawn.
+
+**In the browser** (`lib/town/pixeldoll.ts`, `paintKeys`): each pixel is decided once. An exact ramp colour is skin; otherwise violet is an eye; otherwise green is hair (or fur, on Miqo'te and Viera). Painting the eyes first and the fur after turned green and olive eyes into the hair colour on those two races.
+
+**The checks** (`checks/`; all read `public/town`, or `DIR=<folder>` for a trial build):
+
+| Script | What it shows |
+|---|---|
+| `eye-audit.mjs [race …]` | every face's recolourable eye cells are at its two eyes, and nowhere else |
+| `face-audit.mjs [race …]` | every eye shape's skin agrees with its round face (a collar taken for skin on some eye shapes only shows here) |
+| `face-skins.mjs <race> [skinHex] [scale]` | every face piece alone in a far skin (black by default), with light warm cells that are not skin marked (`PLAIN=1` unmarked) |
+| `speck-audit.mjs [race …]` | nothing floats beside any doll, under any head |
+| `skin-audit.mjs <race> [scale]` | every step with the skin painted magenta, and a count of warm cells beside skin that are not skin (`MARK=1` marks them) |
+| `sit-necks.mjs [skinHex] [scale] [race …]` | every race sitting, bald, in a far skin, so skin left in its own colour shows (`NECK=1` closer, `FULL=1` whole, `WALK=1` standing) |
+| `piece-split.mjs <race> <g> <view> [sit\|0–3] [skinHex] [scale]` | one step's body and head apart, and together |
+| `hair-skin-check.mjs <race> <hair:view,…> [scale]` | hairstyles in a far skin, with skin-like cells that are not skin marked |
+| `look-check.mjs [base] [out] <look,…>` | looks in the dev town itself: standing, sitting on the ground and on a bench, photographed; green and olive eyes counted on the screen against the same look with other eyes |
+| `sky-check.mjs`, `sky-film.mjs <weather>` | the town's weather in a headless browser (SKILL.md) |
+
+**The builder's own switches:** `SKIN_TRACE=<job>` (and `SKIN_TRACE_ROWS`), `SKIN_WHY=<job>` (a map, and what is warm and not skin by colour; `SKIN_WHY_TEXT=1` adds letters), `SKIN_DEBUG=1` (the colour vote, and what each face rule took), `THING_DEBUG=1` (or a job: a map of what the mistaken-thing rule dropped), `FACE_DEBUG=1` (light cells left in a face, and why a patch stayed open), `OWN_DEBUG=1` (a face's main colours), `SHADE_MAP=1`, `SIT_MAP=1`, `FILL_DEBUG=<g>-<view>`, `FILL_SWEEP=1`, `SIT_DEBUG=1`, `EYE_DEBUG=1`, `CAP_DEBUG=1`. A job is `body-<g>-<view>-<step>` or `sit-<g>-<view>`.

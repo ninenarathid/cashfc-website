@@ -11,7 +11,8 @@ import {
 import { START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
-import { daylight, daylightAt } from "@/lib/town/daylight";
+import { daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
+import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
 import { decodeLook, defaultLook, type Look } from "@/lib/town/look";
 import { BUILDING, POLL, etaShort } from "@/lib/town/board";
 import { alongRoute, outingsNow, presence, type Activity, type Outing } from "@/lib/town/popotos";
@@ -312,16 +313,27 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const leaves = useRef<Leaf[]>([]);
   /** The wind's gusts: when the last one came, when the next will, and how hard it blows now (0 to 1). */
   const gust = useRef({ at: -1e9, next: 0, strength: 0 });
-  const drops = useRef<Array<{ x: number; y: number; v: number }>>([]);
+  /** Rain in the air: where on the screen, and how near (0 far and faint, 1 near and long). */
+  const drops = useRef<Array<{ x: number; y: number; z: number }>>([]);
+  /** Rain landing: a ring on the ground at a tile, and when it began. */
+  const splashes = useRef<Array<{ x: number; y: number; at: number }>>([]);
+  /** How far the clouds have drifted (lib/town/clouds), and their shadows' pictures, drawn once. */
+  const cloudDrift = useRef(0);
+  const cloudArt = useRef<HTMLCanvasElement[] | null>(null);
   useEffect(() => {
+    // somewhere else in their round each visit
+    cloudDrift.current = (Date.now() / 1000) * 24;
     const forced = process.env.NODE_ENV === "production" ? null : forcedWeather(new URLSearchParams(location.search).get("townWeather"));
     if (forced) { weather.current = forced; effects.current = effectsOf(forced); return; }
-    let gone = false;
+    let gone = false, first = true;
     const ask = async () => {
       if (document.visibilityState !== "visible") return;
       try {
         const w = readWeather(await (await fetch("/api/town/weather")).json());
-        if (!gone && w) weather.current = w;
+        if (gone || !w) return;
+        weather.current = w;
+        // the weather one walks into is simply there; after that a change comes on gently (easeEffects)
+        if (first) { effects.current = effectsOf(w); first = false; }
       } catch { /* fine weather it is */ }
     };
     void ask();
@@ -726,13 +738,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * somebody who asked for reduced motion; the wet look stays.
    */
   function drawWeather(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number, dt: number) {
-    const e = effects.current = easeEffects(effects.current, effectsOf(weather.current), Math.min(dt, 100));
+    // (`dt` is seconds, as everywhere here. Until 2026-10-03 this took it for milliseconds: the rain hung in the
+    // air, no leaf ever reached the ground, and a change in the weather took hours to come on.)
+    const sec = Math.min(dt, 0.1);
+    const e = effects.current = easeEffects(effects.current, effectsOf(weather.current), sec * 1000);
     const still = reducedRef.current, s = cam.current.s;
+    drawClouds(ctx, cw, ch, sec, e);
     ctx.save();
-    // wet: darker, bluer, and puddles on the paths and the plaza that catch the light
+    // wet: puddles on the paths and the plaza that catch the light, and everything a touch bluer. No more than a
+    // touch: light rain keeps the day's own light (the owner, 2026-10-03), and what darkens heavy rain is the sky
+    // (drawDaylight, lib/town/daylight's overcast).
     if (e.wet > 0.02) {
       ctx.globalCompositeOperation = "multiply";
-      ctx.fillStyle = `rgba(150,166,192,${0.42 * e.wet})`;
+      ctx.fillStyle = `rgba(150,166,192,${0.07 * e.wet})`;
       ctx.fillRect(0, 0, cw, ch);
       ctx.globalCompositeOperation = "source-over";
       for (const [i, p] of PUDDLES.entries()) {
@@ -769,25 +787,59 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fillRect(0, 0, cw, ch);
     }
     if (!still) {
-      const sec = Math.min(dt, 100) / 1000, slant = 0.12 + 0.5 * e.wind;
-      // rain: thin streaks falling at a slant with the wind
+      const slant = 0.08 + 0.46 * e.wind;
+      // Rain: streaks falling at a slant with the wind, the near ones long, bright and fast, the far ones short and
+      // faint. A shower's are few and fine; a downpour's many, longer and faster.
+      const heavy = Math.min(1, Math.max(0, (e.rain - 0.35) / 0.65));
       const want = Math.round(e.rain * (cw * ch) / 2600);
       const D = drops.current;
-      while (D.length < want) D.push({ x: Math.random() * (cw + 200) - 100, y: Math.random() * ch, v: 700 + Math.random() * 500 });
+      while (D.length < want) D.push({ x: Math.random() * (cw + 200) - 100, y: Math.random() * ch, z: Math.random() });
       if (D.length > want) D.length = want;
       if (D.length) {
-        ctx.strokeStyle = `rgba(205,220,240,${0.35 + 0.25 * e.rain})`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (const d of D) {
-          d.y += d.v * sec; d.x += d.v * slant * sec;
-          if (d.y > ch) { d.y = -20; d.x = Math.random() * (cw + 200) - 200; }
-          if (d.x > cw + 20) d.x -= cw + 220;
-          const len = 12 + d.v / 90;
-          ctx.moveTo(d.x, d.y);
-          ctx.lineTo(d.x - len * slant, d.y - len);
+        const fast = 0.8 + 0.5 * heavy, long = 0.75 + 0.85 * heavy;
+        for (const [z0, z1, alpha, width] of [[0, 0.4, 0.28, 1], [0.4, 0.75, 0.42, 1], [0.75, 1.01, 0.62, 1.4]] as const) {
+          ctx.strokeStyle = `rgba(214,228,246,${alpha * (0.8 + 0.2 * heavy)})`;
+          ctx.lineWidth = width;
+          ctx.beginPath();
+          for (const d of D) {
+            if (d.z < z0 || d.z >= z1) continue;
+            const v = (520 + 480 * d.z) * fast;
+            d.y += v * sec; d.x += v * slant * sec;
+            if (d.y > ch + 30) { d.y = -20; d.x = Math.random() * (cw + 200) - 200; }
+            if (d.x > cw + 20) d.x -= cw + 220;
+            const len = (8 + 16 * d.z) * long;
+            ctx.moveTo(d.x, d.y);
+            ctx.lineTo(d.x - len * slant, d.y - len);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
+      }
+      // and where it lands: a ring on the ground of the town, gone in a quarter of a second
+      const P = splashes.current, wantP = Math.round(e.rain * (cw * ch) / 9000), LAST = 260;
+      if (P.length > wantP) P.length = wantP;
+      while (P.length < wantP) P.push({ x: -1, y: -1, at: now - Math.random() * LAST });
+      if (P.length) {
+        const v = cam.current;
+        for (const p of P) {
+          if (now - p.at < LAST) continue;
+          // somewhere in view, if that is in the town at all
+          const iso = toIsoPoint(v, Math.random() * cw, Math.random() * ch, cw, ch), t = fromIso(iso.x, iso.y);
+          const inTown = t.x >= 0 && t.y >= 0 && t.x < COLS && t.y < ROWS;
+          p.x = inTown ? t.x : -1; p.y = t.y; p.at = now - Math.random() * 40;
+        }
+        ctx.lineWidth = Math.max(1, s * 0.7);
+        for (const [a0, a1, alpha] of [[0, 0.4, 0.5], [0.4, 0.75, 0.3], [0.75, 1.01, 0.14]] as const) {
+          ctx.strokeStyle = `rgba(225,238,252,${alpha})`;
+          ctx.beginPath();
+          for (const p of P) {
+            const age = (now - p.at) / LAST;
+            if (p.x < 0 || age < a0 || age >= a1) continue;
+            const c = project(p), r = (1.2 + 3.2 * age) * s;
+            ctx.moveTo(c.x + r, c.y);
+            ctx.ellipse(c.x, c.y, r, r * 0.45, 0, 0, Math.PI * 2);
+          }
+          ctx.stroke();
+        }
       }
       // Leaves, in the town itself (not on the screen), two ways (the owner, 2026-10-02: "ใบไม้ร่วงจากต้นไม้ ใบไม้ที่
       // ปลิวมาตามลม ตอนนี้มันดูนิ่งเกินไป"): dropping from the trees in view, rocking down to the ground under them
@@ -842,7 +894,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         for (; fall < wantFall; fall++) { const l = dropped(); if (!l) break; if (!first) l.h = Math.max(l.h, tay * 0.55); L.push(l); }
         for (; wind < wantWind; wind++) L.push(blown("wind", first));
         // the wind blows to the right of the screen: one way along x, the other along y
-        const gs = G.strength;
+        // (a gust is as hard as the day is windy: on a still day it only hurries the leaves a little)
+        const gs = G.strength, blow = Math.max(0, (e.wind - 0.3) / 0.7);
         for (let i = L.length - 1; i >= 0; i--) {
           const l = L[i];
           const t = now / 1000 * l.flutter + l.ph;
@@ -853,11 +906,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             // a gust takes the ones lying on the ground a little way along, tumbling
             if (gs > 0.25) { const go = (gs - 0.25) * 70 * l.speed * sec / TILE_W; l.x += go; l.y -= go; }
           } else if (l.kind === "fall") {
-            const go = ((8 + 30 * e.wind + 120 * gs) * (0.75 + 0.25 * Math.sin(l.ph)) + swing * 26) * sec / TILE_W;
+            const go = ((8 + 30 * e.wind + (40 + 80 * blow) * gs) * (0.75 + 0.25 * Math.sin(l.ph)) + swing * 26) * sec / TILE_W;
             l.x += go; l.y -= go;
             l.h -= (11 + 16 * (1 - Math.abs(swing))) * sec;
           } else {
-            const go = ((70 + 150 * e.wind) * l.speed + 240 * gs + swing * 20) * sec / TILE_W;
+            const go = ((70 + 150 * e.wind) * l.speed + (60 + 180 * blow) * gs + swing * 20) * sec / TILE_W;
             l.x += go; l.y -= go;
             // skimming along, rising a little on each lift of the wind, coming down as it drops
             l.h += (Math.sin(t * 2.2) * 14 - (l.kind === "gust" ? 2 + 5 * (1 - gs) : 6)) * sec;
@@ -896,8 +949,37 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.restore();
   }
 
+  /** The hour's light, under what the weather makes of it: heavy rain is as dark as night, the lamps lit. */
+  function skyNow() {
+    return overcast(forcedHour.current !== null ? daylightAt(forcedHour.current * 60) : daylight(), effects.current.gloom);
+  }
+
+  /**
+   * The shadows of clouds drifting over the town by day (lib/town/clouds; the owner, 2026-10-03: "เงาเมฆเคลื่อนตัว
+   * ตอนเช้า"): soft and a little blue, multiplied over everything under them, moving the way the wind blows the
+   * leaves and faster in more wind. More of them under a cloudy sky; none by lamplight, in mist, or in the dark
+   * of heavy rain, where there is no sun to cast one. They stand still for somebody who asked for reduced motion.
+   */
+  function drawClouds(ctx: CanvasRenderingContext2D, cw: number, ch: number, sec: number, e: Effects) {
+    if (!reducedRef.current) cloudDrift.current += (12 + 34 * e.wind) * sec;
+    const strength = 0.5 * sunOf(skyNow()) * Math.max(0, 1 - e.haze * 4);
+    if (strength < 0.02 || e.clouds < 0.02) return;
+    const art = (cloudArt.current ??= Array.from({ length: CLOUD_SHAPES }, (_, i) => cloudPicture(i)));
+    const v = cam.current;
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.imageSmoothingEnabled = true;
+    for (const c of cloudsAt(cloudDrift.current, e.clouds)) {
+      const p = toScreen(v, c, cw, ch), w = c.w * v.s, h = c.h * v.s;
+      if (p.x + w / 2 < 0 || p.x - w / 2 > cw || p.y + h / 2 < 0 || p.y - h / 2 > ch) continue;
+      ctx.globalAlpha = strength * c.k;
+      ctx.drawImage(art[c.shape], p.x - w / 2, p.y - h / 2, w, h);
+    }
+    ctx.restore();
+  }
+
   function drawDaylight(ctx: CanvasRenderingContext2D, cw: number, ch: number) {
-    const day = forcedHour.current !== null ? daylightAt(forcedHour.current * 60) : daylight();
+    const day = skyNow();
     const [r, g, b] = day.tint;
     if (r < 255 || g < 255 || b < 255) {
       ctx.save();
@@ -1691,6 +1773,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       cursor: () => mouse.current?.mode ?? null,
       /** The leaves now: how many of each kind, and how many lie on the ground. */
       leaves: () => ({ fall: leaves.current.filter((l) => l.kind === "fall").length, wind: leaves.current.filter((l) => l.kind === "wind").length, gust: leaves.current.filter((l) => l.kind === "gust").length, down: leaves.current.filter((l) => l.landed > 0).length }),
+      /** The sky: what the weather draws now, the light, and each cloud's shadow with its middle on the screen. */
+      sky: () => ({
+        effects: effects.current, day: skyNow(), fps: fpsRef.current, drops: drops.current.length, splashes: splashes.current.filter((p) => p.x >= 0).length,
+        clouds: cloudsAt(cloudDrift.current, effects.current.clouds).map((c) => ({ ...c, at: toScreen(cam.current, c, cam.current.cw, cam.current.ch) })),
+      }),
       /** The Popoto Board's middle on the screen, if it is drawn. */
       board: () => (boardBox.current ? { x: (boardBox.current.x0 + boardBox.current.x1) / 2, y: (boardBox.current.y0 + boardBox.current.y1) / 2 } : null),
     };
@@ -2196,6 +2283,28 @@ function PersonRow({ name, voice, muted, away, note, onClick }: {
 }
 
 /* ── small drawing helpers ──────────────────────────────────────────────── */
+
+/**
+ * A cloud's shadow as a picture (lib/town/clouds): soft round blobs of a cool dark, thickest where they overlap,
+ * fading to nothing at the edge. Drawn once, small; the map stretches it over the ground, twice as wide as tall.
+ */
+function cloudPicture(shape: number): HTMLCanvasElement {
+  const W = 256, H = 128, canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return canvas;
+  ctx.scale(W, H);
+  for (const [x, y, r] of cloudBlobs(shape)) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, "rgba(78,92,132,0.55)");
+    g.addColorStop(0.55, "rgba(78,92,132,0.34)");
+    g.addColorStop(1, "rgba(78,92,132,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  return canvas;
+}
 
 function diamond(ctx: CanvasRenderingContext2D, a: Vec, b: Vec, c: Vec, d: Vec) {
   ctx.beginPath();

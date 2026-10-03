@@ -53,6 +53,29 @@ export function daylightAt(minute: number): Daylight {
   return { phase: p0, tint: [mix(t0[0], t1[0]), mix(t0[1], t1[1]), mix(t0[2], t1[2])], lamps: l0 + (l1 - l0) * f };
 }
 
+/**
+ * The sky under heavy rain (lib/town/weather's gloom, 0 to 1): as dark as night whatever the hour, a greyer dark
+ * than night's own blue, with the lamps lit. Light rain has no gloom and leaves the hour as it is; at night the
+ * town is as dark already, and only loses a little of its blue.
+ */
+export const STORM_TINT: [number, number, number] = [86, 98, 132];
+export function overcast(day: Daylight, gloom: number): Daylight {
+  const k = Math.min(1, Math.max(0, gloom));
+  if (k <= 0) return day;
+  const mix = (c: number, to: number) => Math.round(c + (Math.min(c, to) - c) * k);
+  return {
+    phase: day.phase,
+    tint: [mix(day.tint[0], STORM_TINT[0]), mix(day.tint[1], STORM_TINT[1]), mix(day.tint[2], STORM_TINT[2])],
+    // the lamps come on as it darkens: none in a shower, all of them well before it is as dark as it gets
+    lamps: Math.max(day.lamps, Math.min(1, Math.max(0, (k - 0.3) / 0.45)) * 0.9),
+  };
+}
+
+/** How much of the sun reaches the ground at this light, 0 to 1: what casts a cloud's shadow. None by lamplight. */
+export function sunOf(day: Daylight): number {
+  return Math.min(1, Math.max(0, 1 - day.lamps * 2.5));
+}
+
 /** The sky now. */
 export function daylight(date = new Date()): Daylight {
   return daylightAt(bangkokMinute(date));

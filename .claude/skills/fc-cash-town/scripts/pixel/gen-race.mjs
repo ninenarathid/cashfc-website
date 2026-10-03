@@ -132,8 +132,16 @@ for (const g of genders) {
 ` : "" }), [file(sheet(g, "bald", "front"))]);
 
   if (want("starter")) for (const t of ["front", "back", "poses"]) {
-    const view = t === "back" ? "This is a back view: show the back of the outfit. " : t === "poses" ? "Dress the figure in every pose in this same outfit, seen from that pose's angle. " : "";
-    gen(sheet(g, "starter", t), fill("starter.txt", { ...common, OUTFIT: R.attire[g].desc, VIEWNOTE: view }), [file(sheet(g, "bald", t))]);
+    // An outfit is described from the front. Where its front is its whole point (the Viera woman's bustier), the
+    // model drew that front on three of the four figures walking away: her chest under the back of her head, and
+    // her back on one step in four ("Viera ญ ตอนเดินหันหลังเป็นแบบนี้ น่าจะบั๊ก", the owner, 2026-10-02). So a
+    // race's file may say how the outfit looks from behind (`attire.<g>.back`), and the note says it of every figure.
+    const behind = t === "back" && R.attire[g].back;
+    const view = t === "back" ? (behind
+        ? "Every one of the four figures on this sheet is seen from behind, walking away from the viewer: draw only the back of the body and the back of the outfit on all four, the same on each. Do not draw the chest, the front of the outfit or anything of the front of the body on any figure. "
+        : "This is a back view: show the back of the outfit. ")
+      : t === "poses" ? "Dress the figure in every pose in this same outfit, seen from that pose's angle. " : "";
+    gen(sheet(g, "starter", t), fill("starter.txt", { ...common, OUTFIT: behind || R.attire[g].desc, VIEWNOTE: view }), [file(sheet(g, "bald", t))]);
   }
   if (want("skinkey")) for (const t of ["front", "back", "poses"]) {
     gen(sheet(g, "skinkey", t), fill("skinkey.txt", { SKINWORD: ART.skinWord ?? "skin", SKINEXTRA: ART.extra ?? "", KEEP: ART.keep ?? "" }), [file(sheet(g, "starter", t))]);

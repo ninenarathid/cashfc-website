@@ -132,17 +132,35 @@ function shift([, s, l]: RGB, [sb, lb]: [number, number], [ht, st, lt]: RGB): RG
 const isHair = ([h, s, l]: RGB) => h >= 70 && h <= 170 && s > 0.2 && l > 0.08;
 const isEye = ([h, s, l]: RGB) => h >= 245 && h <= 310 && s > 0.15 && l > 0.12;
 
-/** Pixels whose colour passes `test`, moved to `hex` around their own median. */
-function recolourWhere(d: Uint8ClampedArray, test: (c: RGB) => boolean, hex: string) {
-  const hits: number[] = [], ss: number[] = [], ls: number[] = [];
+/** Pixels (offsets into a piece's data) moved to `hex` around their own median. */
+function recolour(d: Uint8ClampedArray, hits: number[], hex: string) {
+  if (!hits.length) return;
+  const cs = hits.map((i) => hsl(d[i], d[i + 1], d[i + 2]));
+  const base: [number, number] = [median(cs.map((c) => c[1])), median(cs.map((c) => c[2]))], to = hexHsl(hex);
+  hits.forEach((i, k) => { [d[i], d[i + 1], d[i + 2]] = shift(cs[k], base, to); });
+}
+
+/**
+ * A piece's key colours moved to a look's: the skin (the ramp's exact colours, each to its shade of the swatch),
+ * the eyes (violet, to a colour) and the hair or, on a furry race, the fur (green, to a colour).
+ *
+ * Which pixel is which is told from the art as drawn, all of it before anything is recoloured, so one key's new
+ * colour can never pass for another key: a green eye colour is in the fur's range, and a Miqo'te or a Viera who
+ * chose green eyes had eyes the colour of her hair (a member, 2026-10-03: "แก้สีตาเป็นสีเขียว แต่ตายังเป็นสีชมพู").
+ */
+export function paintKeys(d: Uint8ClampedArray, to: { skin?: Map<string, RGB>; eyes?: string; fur?: string }) {
+  const eyes: number[] = [], fur: number[] = [];
   for (let i = 0; i < d.length; i += 4) {
     if (!d[i + 3]) continue;
+    const skin = to.skin?.get(`${d[i]},${d[i + 1]},${d[i + 2]}`);
+    if (skin) { [d[i], d[i + 1], d[i + 2]] = skin; continue; }
+    if (!to.eyes && !to.fur) continue;
     const c = hsl(d[i], d[i + 1], d[i + 2]);
-    if (test(c)) { hits.push(i); ss.push(c[1]); ls.push(c[2]); }
+    if (to.eyes && isEye(c)) eyes.push(i);
+    else if (to.fur && isHair(c)) fur.push(i);
   }
-  if (!hits.length) return;
-  const base: [number, number] = [median(ss), median(ls)], to = hexHsl(hex);
-  for (const i of hits) [d[i], d[i + 1], d[i + 2]] = shift(hsl(d[i], d[i + 1], d[i + 2]), base, to);
+  if (to.eyes) recolour(d, eyes, to.eyes);
+  if (to.fur) recolour(d, fur, to.fur);
 }
 
 /* ── the kit ────────────────────────────────────────────────────────────── */
@@ -182,14 +200,6 @@ export class PixelKit {
     return out;
   }
 
-  private paintSkin(d: Uint8ClampedArray, skin: Map<string, RGB>) {
-    for (let i = 0; i < d.length; i += 4) {
-      if (!d[i + 3]) continue;
-      const to = skin.get(`${d[i]},${d[i + 1]},${d[i + 2]}`);
-      if (to) [d[i], d[i + 1], d[i + 2]] = to;
-    }
-  }
-
   /** A piece's pixels, as drawn in the picture. */
   private read(name: string): ImageData {
     const [x, y, w, h] = this.atlas.frames[name];
@@ -214,8 +224,7 @@ export class PixelKit {
   private body(name: string, look: Look) {
     return this.keep(`${name}|${look.skin}|${this.atlas.furKey ? look.hairColor : ""}`, () => {
       const img = this.read(name);
-      this.paintSkin(img.data, this.skinTo(this.skinHex(look)));
-      if (this.atlas.furKey) recolourWhere(img.data, isHair, HAIR_COLORS[look.hairColor].hex);
+      paintKeys(img.data, { skin: this.skinTo(this.skinHex(look)), fur: this.atlas.furKey ? HAIR_COLORS[look.hairColor].hex : undefined });
       return [canvasOf(img)];
     })[0];
   }
@@ -243,10 +252,14 @@ export class PixelKit {
     return neck * k.body + (h - neck) * k.head;
   }
 
+  /**
+   * A hairstyle in a look's colours: the hair, and the skin the piece carries (an ear or a horn through the hair,
+   * drawn on the hair sheet a little apart from the bald head's: it is in the skin ramp's colours like any skin).
+   */
   private hair(name: string, look: Look) {
-    return this.keep(`${name}|${look.hairColor}`, () => {
+    return this.keep(`${name}|${look.hairColor}|${look.skin}`, () => {
       const img = this.read(name);
-      recolourWhere(img.data, isHair, HAIR_COLORS[look.hairColor].hex);
+      paintKeys(img.data, { skin: this.skinTo(this.skinHex(look)), fur: HAIR_COLORS[look.hairColor].hex });
       return [canvasOf(img)];
     })[0];
   }
@@ -256,9 +269,7 @@ export class PixelKit {
     return this.keep(`${name}|${look.skin}|${look.eyeColor}|${this.atlas.furKey ? look.hairColor : ""}`, () => {
       const base = this.read(name), { width: w, height: h } = base;
       const skin = this.skinTo(this.skinHex(look));
-      this.paintSkin(base.data, skin);
-      recolourWhere(base.data, isEye, EYE_COLORS[look.eyeColor].hex);
-      if (this.atlas.furKey) recolourWhere(base.data, isHair, HAIR_COLORS[look.hairColor].hex);
+      paintKeys(base.data, { skin, eyes: EYE_COLORS[look.eyeColor].hex, fur: this.atlas.furKey ? HAIR_COLORS[look.hairColor].hex : undefined });
       const out = [canvasOf(base)];
       const face = this.atlas.faceData[name];
       if (!face) return out;
