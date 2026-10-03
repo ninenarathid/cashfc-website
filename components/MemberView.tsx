@@ -217,10 +217,21 @@ export default function MemberView({
         coverUrl: (row.cover_url as string | null) ?? null,
       });
     });
-    supabase.from("kudos")
-      .select("*", { count: "exact", head: true })
-      .eq("receiver_character_id", m.id)
-      .then(({ count }) => setKudos(count ?? 0));
+    // How many they have, which is what the boards rank them by: every one
+    // they were given, less the ones they changed into coins in Cash Town.
+    // The database says (popoto_count, v114). One that has not heard of the
+    // function yet is asked as it always was, by counting the rows, which is
+    // the same number while nobody has changed any.
+    supabase.rpc("popoto_count", { p_character: m.id }).then(async ({ data, error }) => {
+      if (!error && typeof data === "number") {
+        setKudos(data);
+        return;
+      }
+      const { count } = await supabase.from("kudos")
+        .select("*", { count: "exact", head: true })
+        .eq("receiver_character_id", m.id);
+      setKudos(count ?? 0);
+    });
     supabase.auth.getUser().then(async ({ data }) => {
       setUser(data.user);
       if (data.user) {

@@ -91,7 +91,7 @@ const open = async (label, dpr = 1) => {
   const X = await browser(label);
   all.push(X);
   if (dpr !== 1) await X.send("Emulation.setDeviceMetricsOverride", { width: 1100, height: 900, deviceScaleFactor: dpr, mobile: false });
-  await X.goto(`${BASE}/town?townTest=${label}`);
+  await X.goto(`${BASE}/town?townTest=${label}&townRoom=check`);
   return X;
 };
 

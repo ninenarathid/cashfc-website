@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D farming game. Draw a new sprite sheet of small wild weeds for that game's untended vegetable plots, in the same pixel art style, each seen from the front and a little above.
+
+Each one is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel is a large crisp square, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. They are all different kinds and different sizes, some small and low, some taller. Six in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a small low tuft of short green grass; 2) a tall clump of wild grass with thin blades leaning both ways and a few seed heads; 3) a low patch of clover leaves with two small white flowers; 4) a dandelion with jagged leaves and one yellow flower; 5) a spiky thistle with a purple flower on top; 6) a creeping weed with small round leaves spreading sideways and one tiny pink flower.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no soil, no ground, no frames or boxes, no shadows, no text, no letters, no numbers.

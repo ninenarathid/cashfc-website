@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D farming game. Draw a new sprite sheet of small plants for that game's vegetable plots, in the same pixel art style, each seen from the front and a little above.
+
+Each one is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel is a large crisp square, all the same scale, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Every plant grows out of the same small low mound of dark brown soil at its foot. Six in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a messy tuft of wild green weeds and tall grass with a tiny white flower; 2) only the mound of dark brown tilled soil with three neat furrows across it, nothing growing; 3) a tiny green sprout with two round seed leaves just out of the soil; 4) a small green seedling with four leaves on a thin stem; 5) a dead plant, brown, dry and drooping; 6) a red-brown beetle with black spots, seen from above, no soil under it.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no ground other than each small mound, no frames or boxes, no shadows, no text, no letters, no numbers.

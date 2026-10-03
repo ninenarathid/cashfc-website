@@ -1,4 +1,4 @@
-import { BOARD, COLS, ROWS, SHOP, TOWN, findPath, groundAt, walkable, type Vec } from "./world";
+import { BOARD, COLS, ROWS, SHOP, TOWN, findPath, groundAt, onDeck, onYard, walkable, type Vec } from "./world";
 
 /**
  * Popoto out and about (the owner's call, 2026-10-02: "นานๆทีจะมี popoto ออกมา
@@ -77,7 +77,8 @@ let open: Vec[] | null = null;
 function openGrass(): Vec[] {
   if (open) return open;
   open = [];
-  const clear = (x: number, y: number) => walkable(x, y) && groundAt(x, y) === "grass";
+  // (grass that is open ground: the fishing deck's boards are over grass too, and no picnic is laid on them)
+  const clear = (x: number, y: number) => walkable(x, y) && groundAt(x, y) === "grass" && !onDeck(x, y) && !onYard(x, y);
   // the board and the shop are big pictures: keep well away from them
   const far = (x: number, y: number, r: { x: number; y: number; w: number; h: number }) =>
     x < r.x - 3 || x > r.x + r.w + 2 || y < r.y - 3 || y > r.y + r.h + 2;

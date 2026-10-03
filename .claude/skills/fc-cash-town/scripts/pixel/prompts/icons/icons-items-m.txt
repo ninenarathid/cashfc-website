@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small item icons for that game's shop, bag and cooking, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) two grilled river prawns, orange, split open, on a plate; 2) a whole steamed fish on an oval plate with brown soy sauce and green spring onion strips on top; 3) a bowl of smooth orange pumpkin soup with a swirl of cream; 4) a big steaming hot pot on a little stove, full of cabbage, carrot, corn and prawn; 5) a blue open hand held flat and steady, with a small sparkle; 6) a yellow eye with a sharp gleam.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

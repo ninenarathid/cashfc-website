@@ -111,7 +111,7 @@ const all = [];
 const open = async (label, extra = "") => {
   const X = await browser(label);
   all.push(X);
-  await X.goto(`${BASE}/town?townTest=${label}${extra}`);
+  await X.goto(`${BASE}/town?townTest=${label}&townRoom=check${extra}`);
   return X;
 };
 

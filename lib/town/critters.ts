@@ -1,4 +1,4 @@
-import { PROPS, TOWN, findPath, groundAt, walkable, type Vec } from "./world";
+import { PROPS, TOWN, findPath, groundAt, onDeck, onYard, walkable, type Vec } from "./world";
 
 /**
  * Life about town (the owner's call, 2026-10-02: "มีแมวหมาวิ่งเล่น ผีเสื้อออกมาบิน
@@ -124,7 +124,7 @@ function openGrass(): Vec[] {
   if (grass) return grass;
   grass = [];
   for (let y = TOWN.y + 1; y < TOWN.y + TOWN.h - 1; y++) for (let x = TOWN.x + 1; x < TOWN.x + TOWN.w - 1; x++) {
-    if (walkable(x, y) && groundAt(x, y) === "grass") grass.push({ x, y });
+    if (walkable(x, y) && groundAt(x, y) === "grass" && !onDeck(x, y) && !onYard(x, y)) grass.push({ x, y });
   }
   return grass;
 }

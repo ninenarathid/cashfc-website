@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { WHO, talkFor, type Speaker } from "@/lib/town/talk";
-import { bangkokMinute } from "@/lib/town/daylight";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { WHO, type Line, type Speaker } from "@/lib/town/talk";
 import type { Sprite } from "@/lib/town/scenery";
 
 /** How fast a line is written out, and how often the mouth moves while it is. */
@@ -19,6 +18,9 @@ function pixelFor(want: number): number {
   return Math.max(1, Math.round(want * dpr)) / dpr;
 }
 
+/** Something to choose at the end of a talk: what it is called, and a small note beside it (how much is waiting, say). */
+export interface TalkChoice { id: string; label: string; note?: string }
+
 /**
  * A talk with one of the town's shopkeepers (the owner, 2026-10-03: "ทำให้ NPC
  * คุยได้ด้วย … ภาพใหญ่ตอนคุย พร้อมกับบทพูด"): its large portrait, its name, and what
@@ -26,14 +28,20 @@ function pixelFor(want: number): number {
  * box. A tap on the box, Enter or Space finishes the line being written, then
  * goes on to the next; after the last it closes. Escape closes at once.
  *
- * The lines are lib/town/talk's: nothing here buys, sells or exchanges yet.
- * The mouth moves while a line is being written. With reduced motion the line
- * is there at once and the mouth stays shut.
+ * A talk may end in choices instead (what one came to the stall for): they
+ * show once the last line is written, the first takes the keyboard, and the
+ * box then stays until one is chosen or it is closed.
+ *
+ * This box only talks. The lines are the town's to give (lib/town/talk), and
+ * what is chosen is the town's to act on. The mouth moves while a line is
+ * being written. With reduced motion the line is there at once and the mouth
+ * stays shut.
  */
-export default function TownTalk({ who, turn, th, phone, reduced, art, onClose }: {
+export default function TownTalk({ who, lines, choices, onPick, th, phone, reduced, art, onClose }: {
   who: Speaker;
-  /** Which of the speaker's conversations this is (they go round). */
-  turn: number;
+  lines: Line[];
+  choices?: TalkChoice[];
+  onPick?: (id: string) => void;
   th: boolean;
   phone: boolean;
   reduced: boolean;
@@ -41,13 +49,16 @@ export default function TownTalk({ who, turn, th, phone, reduced, art, onClose }
   art: (name: string) => Sprite | null;
   onClose: () => void;
 }) {
-  const lines = useMemo(() => talkFor(who, Math.floor(bangkokMinute(new Date()) / 60), turn), [who, turn]);
   const [at, setAt] = useState(0);
   const [shown, setShown] = useState(reduced ? Infinity : 0);
   const [mouth, setMouth] = useState(false);
+  const box = useRef<HTMLElement>(null);
   const next = useRef<HTMLButtonElement>(null);
+  const first = useRef<HTMLButtonElement>(null);
   const text = th ? lines[at].th : lines[at].en;
   const writing = shown < text.length;
+  const last = at + 1 >= lines.length;
+  const choosing = !!choices?.length && last && !writing;
 
   // The line writes itself out, and the mouth moves while it does. (A new talk is a new one of these: the
   // town gives each its own key, so it starts at its first line.)
@@ -60,30 +71,34 @@ export default function TownTalk({ who, turn, th, phone, reduced, art, onClose }
 
   const go = useCallback(() => {
     if (writing) { setShown(Infinity); return; }
-    if (at + 1 >= lines.length) { onClose(); return; }
+    if (at + 1 >= lines.length) { if (!choices?.length) onClose(); return; }
     setAt(at + 1);
     setShown(reduced ? Infinity : 0);
-  }, [writing, at, lines.length, onClose, reduced]);
+  }, [writing, at, lines.length, choices, onClose, reduced]);
 
   // The keyboard: on with Enter or Space, away with Escape, wherever the focus is. Heard before the
   // town hears it (the town takes Enter to start typing in its chat) and kept from it. The button
-  // takes the focus all the same, so a screen reader lands on the talk.
-  useEffect(() => { next.current?.focus({ preventScroll: true }); }, [who, turn]);
+  // takes the focus all the same, so a screen reader lands on the talk; when the choices come, the
+  // first of them does, and Enter or Space presses whichever of the talk's buttons has it.
+  useEffect(() => { (choosing ? first : next).current?.focus({ preventScroll: true }); }, [choosing]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
       if (e.key === "Escape") { e.preventDefault(); onClose(); return; }
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); go(); }
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault(); e.stopPropagation();
+      if (!choosing) { go(); return; }
+      const held = document.activeElement as HTMLElement | null;
+      if (held?.tagName === "BUTTON" && box.current?.contains(held)) held.click(); else onPick?.(choices![0].id);
     };
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
-  }, [onClose, go]);
+  }, [onClose, go, choosing, choices, onPick]);
 
   const w = WHO[who];
-  const last = at + 1 >= lines.length;
   return (
-    <section aria-labelledby="town-talk-h"
+    <section ref={box} aria-labelledby="town-talk-h"
              className="relative flex items-end gap-3 rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm"
              onClick={go}>
       <Portrait sprite={art(w.art[writing && mouth ? 1 : 0])} pixel={pixelFor(phone ? PIXEL_PHONE : PIXEL_WIDE)} />
@@ -98,20 +113,35 @@ export default function TownTalk({ who, turn, th, phone, reduced, art, onClose }
         </div>
         {/* the whole line is always there for a screen reader; what is written so far is what the eye sees */}
         <p className="sr-only" aria-live="polite">{text}</p>
-        <p aria-hidden className="mt-1 min-h-[4.5em] flex-1 text-read leading-relaxed text-ink">
+        <p aria-hidden className={`mt-1 flex-1 text-read leading-relaxed text-ink ${choosing ? "min-h-[3em]" : "min-h-[4.5em]"}`}>
           {text.slice(0, shown)}
         </p>
-        <div className="mt-1 flex items-center gap-2">
-          <span aria-hidden className="flex gap-1">
-            {lines.map((_, i) => (
-              <span key={i} className={`size-1.5 rounded-full ${i === at ? "bg-accent" : i < at ? "bg-accent/40" : "bg-line-strong"}`} />
+        {choosing ? (
+          <div role="group" aria-label={th ? "เลือก" : "Choose"} className="mt-1 flex flex-wrap items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+            {choices!.map((c, i) => (
+              <button key={c.id} ref={i === 0 ? first : undefined} type="button" onClick={() => onPick?.(c.id)}
+                      className={`pressable min-h-11 rounded-full px-4 py-2 text-ui font-semibold ${i === 0 ? "bg-accent text-bg" : "border border-line-strong bg-card/70 text-ink hover:border-accent"}`}>
+                {c.label}{c.note && <span className={`ml-1.5 font-data text-meta ${i === 0 ? "text-bg/80" : "text-gold"}`}>{c.note}</span>}
+              </button>
             ))}
-          </span>
-          <button ref={next} type="button" onClick={(e) => { e.stopPropagation(); go(); }}
-                  className="pressable ml-auto min-h-11 rounded-full bg-accent px-5 py-2 text-ui font-semibold text-bg">
-            {last && !writing ? (th ? "ไว้เจอกัน" : "See you") : (th ? "ต่อไป" : "Next")}
-          </button>
-        </div>
+            <button type="button" onClick={onClose}
+                    className="pressable min-h-11 rounded-full px-3 py-2 text-ui text-muted hover:text-ink">
+              {th ? "ไว้เจอกัน" : "See you"}
+            </button>
+          </div>
+        ) : (
+          <div className="mt-1 flex items-center gap-2">
+            <span aria-hidden className="flex gap-1">
+              {lines.map((_, i) => (
+                <span key={i} className={`size-1.5 rounded-full ${i === at ? "bg-accent" : i < at ? "bg-accent/40" : "bg-line-strong"}`} />
+              ))}
+            </span>
+            <button ref={next} type="button" onClick={(e) => { e.stopPropagation(); go(); }}
+                    className="pressable ml-auto min-h-11 rounded-full bg-accent px-5 py-2 text-ui font-semibold text-bg">
+              {last && !writing && !choices?.length ? (th ? "ไว้เจอกัน" : "See you") : (th ? "ต่อไป" : "Next")}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

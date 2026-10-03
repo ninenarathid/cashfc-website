@@ -39,7 +39,8 @@ const cut = (from, to) => (s) => {
 };
 const swap = (from, to) => (s) => {
   if (!s.includes(from)) throw new Error(`mutation anchor missing: ${from}`);
-  return s.replace(from, to);
+  // (as a function: a string with $$ in it, which SQL is full of, would be halved)
+  return s.replace(from, () => to);
 };
 
 const source = readFileSync(migrationPath, "utf8");

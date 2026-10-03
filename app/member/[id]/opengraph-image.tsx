@@ -146,7 +146,12 @@ async function inline(url: string | null | undefined): Promise<string | null> {
  * ladder the member page climbs, one rung long.
  */
 /**
- * How many potatoes this member has been given.
+ * How many potatoes this member has.
+ *
+ * The number their page and the boards show: every one they were given, less
+ * the ones they changed into coins in Cash Town, which the database counts
+ * (popoto_count, v114). A database that has not heard of the function yet is
+ * asked as it always was, below, and says the same while nobody has changed any.
  *
  * Asked for as a count rather than as rows: the number is all the card wants,
  * and a member with three hundred of them should not have three hundred rows
@@ -157,6 +162,14 @@ async function inline(url: string | null | undefined): Promise<string | null> {
 async function potatoes(characterId: string): Promise<number> {
   if (!supabaseConfigured) return 0;
   try {
+    const counted = await fetch(
+      `${SUPABASE_URL}/rest/v1/rpc/popoto_count?p_character=${encodeURIComponent(characterId)}`,
+      {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        signal: AbortSignal.timeout(FETCH_MS),
+      },
+    );
+    if (counted.ok) return Number(await counted.json()) || 0;
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/kudos?receiver_character_id=eq.${characterId}&select=id`,
       {

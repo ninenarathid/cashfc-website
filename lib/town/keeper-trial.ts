@@ -1,0 +1,148 @@
+import type { Taste } from "./cooking";
+import type { Give } from "./deal";
+import type { Chore, Deed } from "./farm";
+import { castLine, seeded, type Cast, type Strike } from "./fishing";
+import { FISH, type BaitId, type DishId, type FishId, type ItemId } from "./items";
+import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
+import type { Play } from "./plays";
+import { buffOf } from "./stamina";
+import type { Purse } from "./trade";
+import { trialFor, type Trial } from "./trial";
+
+const HOUR = 3_600_000;
+const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
+
+/**
+ * The browser's trial as a keeper (lib/town/keeper): the same rules, kept in
+ * this browser, answering at once. What the database decides for a member is
+ * decided here: what takes the bait is drawn when the line is dropped and told
+ * only at the strike, as there.
+ *
+ * Only for `next dev`: loaded behind a check production compiles away, like
+ * the trial itself.
+ */
+class TrialKeeper implements Keeper {
+  onDeed: ((what: Looked, to?: string) => void) | null = null;
+  /** The line that is out: what is on its way, and the bait it took. */
+  private out: { cast: Cast; bait: BaitId } | null = null;
+
+  constructor(readonly id: string, readonly trial: Trial) {}
+
+  ready() { return true; }
+  open() { return true; }
+  watch(fn: () => void) { return this.trial.watch(fn); }
+  look() { return () => {}; }
+  nudged() { /* everything is in this browser already */ }
+  now() { return this.trial.now(); }
+
+  purse() { return this.trial.purse(); }
+  stall() { return this.trial.stall(); }
+  shelf() { return this.trial.shelf(); }
+  order() { return this.trial.order(); }
+  nextHint() { return this.trial.nextHint(); }
+  farm() { return this.trial.farm(); }
+  well() { return this.trial.well(); }
+  owners() { return this.trial.owners(); }
+  deedAt(key: string) { return this.trial.deedAt(key); }
+  choreAt(where: Water) { return this.trial.choreAt(where); }
+  pots() { return this.trial.pots(); }
+  found() { return this.trial.found(); }
+  finder(id: ItemId) { return this.trial.finder(id); }
+  madeBefore(id: ItemId) { return this.trial.madeBefore(id); }
+  triesAt(id: ItemId) { return this.trial.triesAt(id); }
+  known() { return this.trial.known(); }
+  knownMakes() { return this.trial.knownMakes(); }
+  cookTry(things: Array<[ItemId, number]>, crew: Array<ItemId | null>) { return this.trial.cookTry(things, crew); }
+  deal() { return this.trial.deal(); }
+
+  async buy(item: ItemId, n: number): Promise<Did> { return this.trial.buy(item, n); }
+  async hint(): Promise<Did<{ hint: ItemId }>> { return this.trial.hint(); }
+  async orderGive(slot: number, n: number) { return this.trial.orderGive(slot, n); }
+  async leave(slot: number, n: number): Promise<Did> { return this.trial.leave(slot, n); }
+  async takeBack(at: number): Promise<Did> { return this.trial.takeBack(at); }
+  async collect(): Promise<Did<{ coins: number }>> { return this.trial.collect(); }
+  async change(kind: keyof Purse["popoto"], n: number): Promise<Did> { return this.trial.change(kind, n); }
+  async sitDown(slot: number, seated: boolean): Promise<Did<{ dish: DishId }>> { return this.trial.sitDown(slot, seated); }
+  chew(company: number) { this.trial.chew(company); }
+  async getUp(company: number) { this.trial.getUp(company); }
+  async readScroll(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.readScroll(slot); }
+  async openThing(slot: number): Promise<Did<{ found: ItemId | null }>> { return this.trial.openThing(slot); }
+  async hold(slot: number | null): Promise<Did> {
+    if (slot === null) { this.trial.letGo(); return { ok: true }; }
+    return this.trial.hold(slot);
+  }
+  async wear(slot: number): Promise<Did> { return this.trial.wear(slot); }
+  async takeOff(item: ItemId): Promise<Did> { return this.trial.takeOff(item); }
+  async serve(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.serve(slot); }
+  async drop(slot: number): Promise<Did> { this.trial.drop(slot); return { ok: true }; }
+
+  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false): Promise<Did<{ wait: number; nibbles: number[]; lag: number }>> {
+    const used = this.trial.bait(bait);
+    if (!used.ok) return used;
+    const now = this.trial.now(), p = this.trial.purse();
+    const cast = castLine(bait, bangkokHour(now), rain, buffOf(p, now) === "lucky", seeded(Math.floor(Math.random() * 2 ** 31)), !place.deep);
+    this.out = { cast, bait };
+    // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
+    const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
+    return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0 };
+  }
+  async strike(_reaction: number, how: Strike | null): Promise<Did<Struck>> {
+    const o = this.out;
+    if (!o) return { ok: false, why: "none" };
+    const { what, size } = o.cast;
+    if (!how) { this.out = null; return { ok: true, hooked: false, how: "early", what, size }; }
+    if (!(what in FISH)) {
+      // no fish: it comes in with no fight
+      this.out = null;
+      return { ok: true, hooked: true, what, size: 0, landed: true, ...this.trial.land(what, 0) };
+    }
+    // a fight costs its stamina whatever comes of it
+    this.trial.spend(FISH[what as FishId].fight.effort);
+    return { ok: true, hooked: true, what, size, landed: false };
+  }
+  async missed() {
+    const o = this.out;
+    this.out = null;
+    return o ? { what: o.cast.what, size: o.cast.size } : {};
+  }
+  async land(how: "landed" | "snapped" | "slipped" | "left"): Promise<Landed> {
+    const o = this.out;
+    this.out = null;
+    if (!o) return { how, kept: false, record: false };
+    if (how === "landed") return { how, ...this.trial.land(o.cast.what, o.cast.size) };
+    if (how === "snapped") this.trial.lose(o.bait);
+    return { how, kept: false, record: false };
+  }
+
+  async farmDo(key: string, name: string, timing?: Timing): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {
+    const did = this.trial.farmDo(key, name);
+    // every miss of the hoe is a little more stamina gone
+    if (did.ok && timing?.misses) this.trial.spend(timing.misses);
+    return did;
+  }
+  async choreDo(where: Water): Promise<Did<{ chore: Chore }>> { return this.trial.choreDo(where); }
+
+  async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>> {
+    return this.trial.cookDo(things, crew, timing.misses, name);
+  }
+  async potDown(at: [number, number]) { return this.trial.potDown(at); }
+  async potLadle(id: string) { return this.trial.potLadle(id); }
+  async potTake(id: string): Promise<Did> { return this.trial.potTake(id); }
+
+  async dealOpen(other: string, myName: string, otherName: string): Promise<Did> { return this.trial.dealOpen(other, myName, otherName); }
+  async dealLay(give: Give, coins = 0): Promise<Did> { return this.trial.dealLay(give, coins); }
+  async dealAgree(word = true): Promise<Did<{ done: boolean }>> { return this.trial.dealAgree(word); }
+  async dealCancel() { this.trial.dealCancel(); }
+
+  record(play: Play) { this.trial.record(play); }
+  close() { /* nothing of its own to stop */ }
+}
+
+const keepers = new Map<string, TrialKeeper>();
+/** The one trial's keeper for somebody in this tab. */
+export function trialKeeper(id: string): Keeper {
+  let k = keepers.get(id);
+  if (!k) { k = new TrialKeeper(id, trialFor(id)); keepers.set(id, k); }
+  return k;
+}
+

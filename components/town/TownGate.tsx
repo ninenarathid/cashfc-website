@@ -50,6 +50,12 @@ export default function TownGate() {
   const [test, setTest] = useState<string | null>(null);
   const [testCap, setTestCap] = useState<number | undefined>(undefined);
   const [testId, setTestId] = useState<string | null>(null);
+  /**
+   * A test room of one's own (dev only): `&townRoom=check` is another room than plain `?townTest=A`. The scripts that
+   * try the town use one, so that their testers neither walk about the room the owner is trying things in nor count
+   * him among their cooks.
+   */
+  const [testRoom, setTestRoom] = useState("");
   // A tester coming back after a reload of /town without ?townTest (dev only).
   const [testBack, setTestBack] = useState<TownRecord | null>(null);
   const active = useTownActive();
@@ -60,6 +66,7 @@ export default function TownGate() {
       const letter = q.get("townTest");
       setTest(letter);
       setTestCap(Number(q.get("townCap")) || undefined);
+      setTestRoom((q.get("townRoom") ?? "").replace(/[^A-Za-z0-9]/g, "").slice(0, 24));
       if (letter) setTestId(testerId(letter));
       else { const rec = resumable(); if (rec?.testTopic) setTestBack(rec); }
     }
@@ -90,7 +97,7 @@ export default function TownGate() {
   let stage = true;
   if (test) {
     const me: TownMe = { id: testId ?? "", name: th ? `ทดสอบ ${test}` : `Tester ${test}`, face: null, color: test === "B" ? "#c98a5b" : "#4fb8a8" };
-    body = testId ? <Town me={me} testTopic={TEST_TOPIC} cap={testCap} /> : <Waiting />;
+    body = testId ? <Town me={me} testTopic={testRoom ? `${TEST_TOPIC}:${testRoom}` : TEST_TOPIC} cap={testCap} /> : <Waiting />;
   } else if (testBack) {
     body = <Town me={testBack.me} testTopic={testBack.testTopic} cap={testBack.cap} />;
   } else if (active) {

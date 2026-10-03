@@ -253,6 +253,21 @@ export class PixelKit {
   }
 
   /**
+   * Where a doll's mouth is from its feet, in canvas units, standing or sitting: for what is brought up to it (a
+   * morsel of a meal). Null when it faces away, or its picture does not say where its mouth is.
+   */
+  mouthOf(look: Look, view: View, mirror: boolean, scale: number, sit = false): { x: number; y: number } | null {
+    if (view === "back") return null;
+    const A = this.atlas, g = (GENDERS[look.gender]?.id ?? "f") as G;
+    const step = (sit && A.sit?.[g]?.[view]) || A.walk[g][view][STAND];
+    const name = A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round, mouth = A.faceData[name]?.mouth, frame = A.frames[name];
+    if (!mouth || !frame) return null;
+    const sizes = this.sizesOf(g), kb = scale * sizes.body, kh = scale * sizes.head;
+    const x = step.hx * kb + (frame[4] + mouth.x + 0.5) * kh, y = step.hy * kb + (frame[5] + mouth.y + 1) * kh;
+    return { x: mirror ? -x : x, y };
+  }
+
+  /**
    * A hairstyle in a look's colours: the hair, and the skin the piece carries (an ear or a horn through the hair,
    * drawn on the hair sheet a little apart from the bald head's: it is in the skin ramp's colours like any skin).
    */

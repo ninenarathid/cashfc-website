@@ -1,0 +1,14 @@
+The attached picture is an open-air cooking yard being built, from a cozy 2D town game: a low stone kerb round a flagstone floor that is only partly laid, three brick stoves along its back with a gap in the back kerb between the second stove and the third, and half-made worktables and dining tables. Redraw the same yard finished, in exactly the same place on the canvas and at the same size: the same front-facing three-quarter top-down view, the same kerb in the same place with the same two gaps to walk in by (one in the middle of the front kerb, one in the back kerb between the second stove and the third), the same stone and wood colours, thick dark outline and chunky pixel size. Do not draw any characters.
+
+What changes, now that it is finished:
+- the flagstone floor is laid all over inside the kerb, with no bare earth left;
+- the building things are gone: no piles of stones, bricks or sand, no planks, no wheelbarrow, no buckets of mortar, no tools lying about;
+- the three brick stoves along the back are complete, each with an iron grate on top and a small fire glowing in its mouth. Nothing stands on them: their tops are flat and empty;
+- two sturdy wooden worktables stand in the back half of the yard, one to the left of the middle and one to the right, each with a clean empty top;
+- in the very middle of the yard a ring of stones holds a small camp fire with an empty iron tripod standing over it;
+- two long wooden dining tables stand in the front half, one at the left and one at the right, each with a bench along both of its long sides; their tops are empty;
+- in the back right corner stand a large clay water jar with a wooden dipper on it and, beside it, a low round wooden washing tub;
+- the wooden sign post at the front, beside the way in, has a small cooking pot painted on its board (a picture only, no letters);
+- everywhere else the floor is clear to walk on, with wide aisles between the tables, the fire and the stoves.
+
+The whole yard sits in the middle of the canvas with empty space all around it, and nothing is cropped. Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground outside the kerb, no shadows, no text, no labels.

@@ -54,54 +54,15 @@ export async function profileTotals(
   // both numbers as it finds it, so the board settles one the way it always
   // has. Asked with GET, as the rows were, because the client tries a GET
   // again when the database is briefly away.
-  let missing = false;
+  //
+  // Whatever the database cannot answer is said, the function going missing
+  // too: nothing here goes back to fetching every row (it did, until v104 had
+  // run, so the site could be deployed before the SQL).
   const lines = await allRowsOrThrow<{ receiver_character_id: number; score: number; n: number }>(
-    async (a, b) => {
-      const page = await supabase
-        .rpc("popoto_totals", from ? { p_since: from } : {}, { get: true })
-        .order("first_id").range(a, b);
-      // PGRST202 is PostgREST saying it knows no such function: this is a
-      // database v104 has not been run on yet.
-      missing ||= page.error?.code === "PGRST202";
-      return missing ? { data: null, error: null } : page;
-    });
-  if (missing) return countedHere(supabase, from);
+    (a, b) => supabase
+      .rpc("popoto_totals", from ? { p_since: from } : {}, { get: true })
+      .order("first_id").range(a, b));
   return new Map(lines.map((l) => [l.receiver_character_id, { score: l.score, n: l.n }]));
-}
-
-/**
- * The same totals from the rows themselves, as they were counted before v104.
- *
- * The site is deployed before the SQL is run, and the boards have to be right
- * on both sides of that. Delete this, and the PGRST202 branch that leads here,
- * once "v104 has run" is committed: it is every row of `kudos` again, and it
- * throws at a hundred thousand of them (about 2026-10-14 for all time).
- */
-async function countedHere(
-  supabase: SupabaseClient, from: string | null,
-): Promise<Totals> {
-  // In id order, so no page can repeat or skip a row of the one before.
-  const data = await allRowsOrThrow<{ receiver_character_id: number; sender_id: string }>(
-    (a, b) => {
-      let q = supabase.from("kudos").select("receiver_character_id, sender_id");
-      if (from) q = q.gte("created_at", from);
-      return q.order("id").range(a, b);
-    });
-  const out: Totals = new Map();
-  const senders = new Map<number, Set<string>>();
-  for (const k of data) {
-    const at = out.get(k.receiver_character_id) ?? { score: 0, n: 0 };
-    at.score += 1;
-    out.set(k.receiver_character_id, at);
-    const s = senders.get(k.receiver_character_id) ?? new Set<string>();
-    s.add(k.sender_id);
-    senders.set(k.receiver_character_id, s);
-  }
-  for (const [id, s] of senders) {
-    const at = out.get(id);
-    if (at) at.n = s.size;
-  }
-  return out;
 }
 
 /**

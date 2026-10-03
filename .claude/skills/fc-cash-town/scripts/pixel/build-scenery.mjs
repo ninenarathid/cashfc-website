@@ -60,6 +60,8 @@ const SHEETS = [
   // the fishing deck going up at the river (its first stage), and popoto builders in a hurry:
   // three running with a plank, two hammering, one wiping its brow
   ["scene-pier-1", ["pier1"], "whole"],
+  // the deck finished (its second stage): an edit of the first sheet, stood where the first stands
+  ["scene-pier-2", ["pier2"], "whole", "scene-pier-1"],
   ["popoto-rush", ["rush1", "rush2", "rush3", "rush_h1", "rush_h2", "rush_wipe"], "hat"],
   // the two who keep shop in front of the Popoto Shop, and what each stands at: the uncle who sells tools and
   // seeds, the banker who changes popoto into Popoto coins
@@ -70,6 +72,15 @@ const SHEETS = [
   // no pixel size of its own: it is cut at 5 to the pixel, which gives its stoves and tables the size they had in
   // the first, smaller yard, and the yard twice that one's length and depth
   ["scene-kitchen-1", ["kitchen1"], "whole", undefined, [5, 5]],
+  // the yard finished (2026-10-03): an edit of the first sheet, stood where the first stands, like the deck's
+  ["scene-kitchen-2", ["kitchen2"], "whole", "scene-kitchen-1", [5, 5]],
+  // the yard as it looks from outside (the owner, 2026-10-03: "ถ้าอยู่ด้านนอกจะเห้นเป็นอาคาร มองไม่เห้นข้างใน"): a house on the same
+  // kerb, an edit of the finished yard. Only its kerb, its posts and its sign are the yard's own, so far fewer of its
+  // cells agree with the yard's than a later stage's would: it is stood where the most of them do.
+  ["scene-kitchen-house", ["kitchenHouse"], "whole", "scene-kitchen-2", [5, 5], { least: 0.1 }],
+  // the farm's own things: its gateway, a length of fence (mirrored for the other way), the well, the tool shed, a
+  // scarecrow and a bale of hay
+  ["scene-farm-a", ["gateway", "fence", "well", "shed", "scarecrow", "hay"]],
   // the shopkeepers as they talk: a large portrait each, the mouth closed and open. They are drawn at about twice
   // the scenery's pixel size (the fifth entry is where to look for it); "talk" makes the open one the closed one
   // with only its mouth changed, so nothing else moves when it speaks
@@ -78,7 +89,7 @@ const SHEETS = [
 ];
 const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
-const TEXTURES = ["grass", "plaza", "road", "water", "sand"];
+const TEXTURES = ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
 /** Whole sheets as gridded, for a later sheet to stand where an earlier one does: its cells and its ground point. */
@@ -100,7 +111,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range] of SHEETS) {
+for (const [sheet, names, how, like, range, opts] of SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
@@ -130,7 +141,7 @@ for (const [sheet, names, how, like, range] of SHEETS) {
         const m = moveOnto(g, ref.g, ref.set);
         ax = ref.ax + m.dx; ay = ref.ay + m.dy;
         console.log(`  ${name}: stands where ${like} does, moved ${m.dx},${m.dy} (${m.n} of ${m.of} cells of its heaps agree)`);
-        if (m.n < m.of * 0.5) throw new Error(`${sheet}: its heaps do not match ${like}'s (${m.n} of ${m.of}); it cannot be stood on the same ground point`);
+        if (m.n < m.of * (opts?.least ?? 0.5)) throw new Error(`${sheet}: its heaps do not match ${like}'s (${m.n} of ${m.of}); it cannot be stood on the same ground point`);
       }
       wholes.set(sheet, { g, grid, set, ax, ay });
     }

@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small item icons for that game's shop, bag and cooking, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a square black lacquer box of white rice covered with glossy dark brown strips of grilled eel; 2) a thick round pancake with a lattice of brown sauce and green flakes on top; 3) a small bowl heaped with white cabbage leaves coated in bright red chilli; 4) a black stone bowl of rice topped with small heaps of orange, green and yellow vegetables round a fried egg; 5) a plate of white rice cake cylinders in thick glossy red sauce; 6) a row of round rice roll slices wrapped in dark green, with yellow, orange and green centres.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

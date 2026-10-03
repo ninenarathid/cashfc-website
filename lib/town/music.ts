@@ -359,7 +359,8 @@ export class TownMusic {
     for (const p of was) if (p) { p.out.gain.cancelScheduledValues(ctx.currentTime); p.out.gain.setTargetAtTime(0, ctx.currentTime, 0.15); }
     const crackle = this.crackle;
     this.now = null; this.fading = []; this.crackle = null;
-    setTimeout(() => { for (const p of was) p?.out.disconnect(); try { crackle?.stop(); } catch { /* stopped */ } void ctx.suspend(); }, 900);
+    // (closing the music stops it first, and by the time this runs its context is closed: nothing to suspend then)
+    setTimeout(() => { for (const p of was) p?.out.disconnect(); try { crackle?.stop(); } catch { /* stopped */ } if (ctx.state !== "closed") void ctx.suspend().catch(() => {}); }, 900);
   }
 
   /** 0 to 1, heard as an even step each way. */

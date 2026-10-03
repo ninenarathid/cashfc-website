@@ -1,0 +1,169 @@
+import { BOWL, BUFFS, BUFF_HOURS, DISHES, SCROLLS, inBowl, isDish, type BuffId, type DishId } from "./items";
+import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
+
+/**
+ * Stamina, meals and what a meal leaves behind (the owner, 2026-10-03).
+ *
+ * - **The gauge** is full once a day ("รี 1 ครั้งต่อวัน"), at dawn. Mini-games
+ *   spend it. With none left they can still be played, only much harder ("ไม่ใช่
+ *   ว่าจะเล่นต่อไม่ได้ แต่จะเล่นต่อแล้วยากขึ้นมากๆ").
+ * - **Three meals a day add to it**: breakfast, lunch and dinner, each once,
+ *   each in its own hours by the real clock in Bangkok (asked, he chose "ตามเวลา
+ *   จริง").
+ * - **A meal takes five minutes, sitting down** ("อยากให้การทานข้าวใช้เวลาระดับ
+ *   นึง … คนที่กินข้าวในชีวิตจริง อาจจะอยาก login เข้ามาเพื่อหาเพื่อนทานข้าว"). The
+ *   stamina comes as it is eaten; getting up early keeps what was eaten and
+ *   forfeits the rest. Finishing it leaves the dish's buff for a few hours.
+ * - **A helping is eaten out of its bowl** ("ตอนตักใส่ถ้วย ถ้วยต้องหายไปด้วย ต้องกินหมดก่อน
+ *   ถ้วยค่อยกลับมา", 2026-10-04): the bowl left the bag when the helping was
+ *   ladled (lib/town/cooking), and is back when the meal ends, eaten up or left
+ *   half eaten. A bag with no room for it then is owed it, and has it as soon
+ *   as there is room: no bowl is lost to a full bag.
+ * - **Eaten together it gives more**: each other person eating beside one adds
+ *   a tenth of the dish's stamina, up to five of them. Alone it gives all the
+ *   dish says, so nobody is the worse for eating alone.
+ *
+ * Pure, like lib/town/trade: every number is a knob, every function is given
+ * the moment, and what it gives back is new.
+ */
+export const STAMINA = {
+  max: 100,
+  /** The hour, in Bangkok, a day begins: the gauge is full again and the day's three meals are ahead. */
+  dawn: 5,
+  /** The hour each meal begins at: breakfast, lunch, dinner. Each runs until the next; dinner until the day ends. */
+  meals: [5, 11, 17] as [number, number, number],
+  /** How long a meal takes, in minutes. */
+  minutes: 5,
+  /** What each other person eating beside one adds, as a share of the dish's stamina, and how many of them count. */
+  together: 0.1,
+  company: 5,
+  /**
+   * With none left every mini-game is much harder (the owner, 2026-10-03: "ถ้า stamina หมด mini game ทุกอย่างจะยากขึ้น
+   * มากด้วย"). Fishing: how much of the strike's moment is left, how much of the safe stretch a fight keeps, how
+   * much harder the fish surges, and how much further and faster the safe stretch moves. A game to come takes
+   * its own numbers from here.
+   */
+  spent: { strike: 0.6, band: 0.6, surge: 1.3, sway: 1.15, pace: 1.3 },
+};
+export const MEALS = ["breakfast", "lunch", "dinner"] as const;
+
+/** The day a moment is in, counted from dawn in Bangkok. */
+export const dayOf = (now: number) => Math.floor((now + BANGKOK - STAMINA.dawn * HOUR) / DAY);
+/** Which meal's hours a moment is in: 0 breakfast, 1 lunch, 2 dinner. */
+export function mealOf(now: number): 0 | 1 | 2 {
+  const h = (((now + BANGKOK) % DAY) + DAY) % DAY / HOUR, [, lunch, dinner] = STAMINA.meals;
+  return h >= dinner || h < STAMINA.dawn ? 2 : h >= lunch ? 1 : 0;
+}
+/** The moment the meal after this one begins. */
+export function nextMealAt(now: number): number {
+  const start = (now + BANGKOK) - ((((now + BANGKOK) % DAY) + DAY) % DAY);   // Bangkok's midnight before now
+  const at = [...STAMINA.meals.map((h) => start + h * HOUR), start + DAY + STAMINA.meals[0] * HOUR].find((t) => t > now + BANGKOK)!;
+  return at - BANGKOK;
+}
+
+/** The stamina somebody has now: what was left, or all of it on a new day. */
+export const staminaOf = (purse: Purse, now: number) => (purse.stamina.day === dayOf(now) ? purse.stamina.left : STAMINA.max);
+/** Whether somebody has no stamina left: every mini-game is then much harder (STAMINA.spent), never refused. */
+export const isSpent = (purse: Purse, now: number) => staminaOf(purse, now) <= 0;
+/** The buff a meal left, while it lasts. */
+export const buffOf = (purse: Purse, now: number): BuffId | null => (purse.buff && purse.buff.until > now ? purse.buff.id : null);
+/** Which of today's meals have been eaten. */
+export const eatenToday = (purse: Purse, now: number): [boolean, boolean, boolean] =>
+  (purse.meals.day === dayOf(now) ? purse.meals.eaten : [false, false, false]);
+
+/** What something costs somebody, in stamina: less after a hearty meal. */
+export const costOf = (purse: Purse, n: number, now: number) => Math.round(n * (buffOf(purse, now) === "hearty" ? 1 - BUFFS.hearty.by : 1));
+/** Spend stamina on something: never below none (it is done all the same, the harder way). */
+export function spend(purse: Purse, n: number, now: number): Purse {
+  return { ...purse, stamina: { day: dayOf(now), left: Math.max(0, staminaOf(purse, now) - costOf(purse, n, now)) } };
+}
+
+/**
+ * The bowls a meal has done with, back in the bag: `more` of them now, and any owed from before. One the bag has no
+ * room for is owed (`owed` in the purse) until there is.
+ */
+export function bowlsBack(purse: Purse, more = 0): Purse {
+  const owed = (purse.owed ?? 0) + more;
+  if (!owed) return purse;
+  const fits = Math.min(owed, roomFor(purse.bag, BOWL)), rest = { ...purse };
+  delete rest.owed;
+  return { ...rest, bag: fits ? put(purse.bag, BOWL, fits) : purse.bag, ...(owed > fits ? { owed: owed - fits } : {}) };
+}
+
+/** Sit down to the dish in a slot of the bag: this meal's hours' one meal begins, and a helping leaves the bag. */
+export function sitDown(purse: Purse, slot: number, seated: boolean, now: number): Done<{ purse: Purse; dish: DishId }> {
+  const s = purse.bag[slot];
+  if (!s || !isDish(s.item)) return no("none");
+  if (!seated) return no("stand");
+  const meal = mealOf(now), eaten = eatenToday(purse, now);
+  if (purse.eating || eaten[meal]) return no("meal");
+  const marked = eaten.map((e, i) => e || i === meal) as [boolean, boolean, boolean];
+  return {
+    ok: true, dish: s.item,
+    purse: {
+      ...purse,
+      bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === 1 ? null : { item: s.item, n: s.n - 1 })),
+      meals: { day: dayOf(now), eaten: marked },
+      eating: { dish: s.item, meal, from: now, till: now, got: 0 },
+    },
+  };
+}
+
+/** How far through the meal somebody is, from 0 to 1. */
+export const mealProgress = (purse: Purse, now: number) =>
+  (purse.eating ? Math.min(1, Math.max(0, (now - purse.eating.from) / (STAMINA.minutes * 60_000))) : 0);
+
+/**
+ * Count a meal on to now, with so many others eating beside one: the stamina
+ * for the minutes since it was last counted, and, when its time is up, its end:
+ * the dish's buff, if it has one, and its bowl back in the bag.
+ */
+export function chew(purse: Purse, company: number, now: number): { purse: Purse; done: boolean } {
+  const e = purse.eating;
+  if (!e) return { purse, done: false };
+  const whole = STAMINA.minutes * 60_000, end = e.from + whole, till = Math.min(now, end);
+  const dish = DISHES[e.dish];
+  const gain = dish.stamina * (Math.max(0, till - e.till) / whole) * (1 + STAMINA.together * Math.min(STAMINA.company, Math.max(0, Math.floor(company))));
+  const left = Math.min(STAMINA.max, staminaOf(purse, now) + gain);
+  const done = now >= end;
+  const after: Purse = {
+    ...purse,
+    stamina: { day: dayOf(now), left },
+    eating: done ? null : { ...e, till, got: e.got + gain },
+    buff: done && dish.buff ? { id: dish.buff, until: now + BUFF_HOURS * HOUR } : purse.buff,
+  };
+  return { done, purse: done ? bowlsBack(after, inBowl(e.dish) ? 1 : 0) : after };
+}
+
+/**
+ * A meal whose time is up, finished: for a purse that was not looked at while
+ * it ran out (a tab closed at the table). The rest of it counts as eaten
+ * alone, and its buff runs from when the meal ended, not from when somebody
+ * came back to look. A purse with no meal, or one still being eaten, is as it
+ * was, but for a bowl it was owed and now has room for.
+ */
+export function settle(purse: Purse, now: number): Purse {
+  if (!purse.eating) return bowlsBack(purse);
+  const end = purse.eating.from + STAMINA.minutes * 60_000;
+  return now >= end ? chew(purse, 0, end).purse : bowlsBack(purse);
+}
+
+/** Get up from a meal before it is finished: what was eaten stays, the rest and the buff are forfeit. Its bowl comes back all the same. */
+export function getUp(purse: Purse, company: number, now: number): Purse {
+  if (!purse.eating) return purse;
+  const counted = chew(purse, company, now).purse;
+  const up: Purse = { ...counted, eating: null, buff: counted.eating ? purse.buff : counted.buff };
+  // (a meal that ran out as it was counted gave its bowl back already)
+  return counted.eating && inBowl(purse.eating.dish) ? bowlsBack(up, 1) : up;
+}
+
+/** Read the scroll in a slot of the bag: its recipe is known from now on, and the scroll is used up. */
+export function readScroll(purse: Purse, slot: number): Done<{ purse: Purse; dish: DishId }> {
+  const s = purse.bag[slot], dish = s ? SCROLLS[s.item] : undefined;
+  if (!s || !dish) return no("none");
+  if (purse.recipes.includes(dish)) return no("known");
+  return {
+    ok: true, dish,
+    purse: { ...purse, recipes: [...purse.recipes, dish], bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === 1 ? null : { item: s.item, n: s.n - 1 })) },
+  };
+}

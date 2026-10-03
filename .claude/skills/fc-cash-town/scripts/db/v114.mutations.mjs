@@ -1,0 +1,71 @@
+// The breaks v114.test.mjs must notice, one rule at a time.
+// Run: node mutate.mjs <the file> v114.test.mjs v114.mutations.mjs
+export default ({ swap }) => [
+  /* ── the board, with nothing changed ── */
+  ["the board comes in another order",
+    swap("   group by k.receiver_character_id\n   order by min(k.id);", "   group by k.receiver_character_id\n   order by k.receiver_character_id;"),
+    ["since ever: the same"]],
+  ["the board counts popoto where it counted people",
+    swap("         count(distinct k.sender_id) as n,", "         count(k.sender_id) as n,"),
+    ["since ever: the same"]],
+  ["a month's board is all time's",
+    swap("   where k.created_at >= coalesce(p_since, '-infinity'::timestamptz)\n     and k.id > coalesce(c.cut_id, 0)", "   where k.id > coalesce(c.cut_id, 0)"),
+    ["since 2026-10-01T00:00:00+07:00: the same"]],
+  ["a visitor is refused the board",
+    swap("language sql stable security definer set search_path = public\nas $$\n  select k.receiver_character_id,", "language sql stable set search_path = public\nas $$\n  select k.receiver_character_id,"),
+    ["who may call what: the two counts anybody, the exchange members, what is left nobody in a browser"]],
+
+  /* ── what was changed ── */
+  ["the board still counts what was changed",
+    swap("   where k.created_at >= coalesce(p_since, '-infinity'::timestamptz)\n     and k.id > coalesce(c.cut_id, 0)", "   where k.created_at >= coalesce(p_since, '-infinity'::timestamptz)"),
+    ["since ever: the board leaves out their five oldest, and nothing else"]],
+  ["the newest go first",
+    swap("and k.id > cut order by k.id offset p_popoto - 1 limit 1;", "and k.id > cut order by k.id desc offset p_popoto - 1 limit 1;"),
+    ["the character's mark is their fifth oldest popoto"]],
+  ["one more than was changed stops counting",
+    swap("and k.id > cut order by k.id offset p_popoto - 1 limit 1;", "and k.id > cut order by k.id offset p_popoto limit 1;"),
+    ["the character's mark is their fifth oldest popoto"]],
+  ["changing popoto does not move the mark",
+    swap("    if p_kind = 'profile' then perform town.mark_changed(mine, p_popoto); end if;\n", ""),
+    ["the character's mark is their fifth oldest popoto"]],
+  ["a second change counts from the beginning again",
+    swap("   where k.receiver_character_id = p_character and k.id > cut order by k.id offset p_popoto - 1 limit 1;", "   where k.receiver_character_id = p_character order by k.id offset p_popoto - 1 limit 1;"),
+    ["three more: the mark moves on to their eighth oldest"]],
+  ["run again, the file counts the whole ledger a second time",
+    swap("select town.mark_changed(s.character_id, s.n - coalesce(c.popoto, 0))", "select town.mark_changed(s.character_id, s.n)"),
+    ["a ledger ahead of its mark moves it on by the difference only"]],
+  ["the member page counts what was changed",
+    swap("     and k.id > coalesce((select c.cut_id from public.town_changed c where c.character_id = p_character), 0);", "   ;"),
+    ["the member page's count is five fewer, for whoever asks"]],
+  ["a visitor is refused the member page's count",
+    swap("grant execute on function public.popoto_count(bigint)\n  to anon, authenticated, service_role;", "grant execute on function public.popoto_count(bigint)\n  to authenticated, service_role;\nrevoke execute on function public.popoto_count(bigint) from anon;"),
+    ["who may call what: the two counts anybody, the exchange members, what is left nobody in a browser"]],
+
+  /* ── who may ── */
+  ["a browser may read and write the marks",
+    swap("revoke all on public.town_changed from anon, authenticated;", ""),
+    ["the marks' table has row security on, and nothing granted to a browser"]],
+  ["the marks have no row security",
+    swap("alter table public.town_changed enable row level security;", ""),
+    ["the marks' table has row security on, and nothing granted to a browser"]],
+  ["the function that moves a mark can be called from a browser",
+    swap("revoke execute on all functions in schema town from public, anon, authenticated;", ""),
+    ["the town's own functions are still nobody's in a browser"]],
+
+  /* ── the bank, otherwise as it was ── */
+  ["the bank forgets the week's cap",
+    swap("  elsif used + p_popoto > weekly then\n    refusal := 'cap';\n", ""),
+    ["the week's twenty are the week's twenty", "town_exchange is v105's word for word, but for the mark it moves"]],
+  ["a popoto somebody gave themselves can be changed",
+    swap("             where k.receiver_character_id = w.character_id and k.sender_id <> w.id)", "             where k.receiver_character_id = w.character_id)"),
+    ["town_popoto_left is v105's word for word, but for the picture side behind its knob"]],
+
+  /* ── the picture side ── */
+  ["popoto on pictures are changed whatever the knob says",
+    swap("         case when coalesce((select k.value from public.town_knobs k where k.key = 'bank_gallery'), 0) > 0 then", "         case when true then"),
+    ["the bank tells a member with three popoto on a picture that there is none to change"]],
+  ["running it again shuts the picture side again",
+    swap("  ('bank_gallery', 0)    -- whether popoto on pictures can be changed: not until the picture board counts less\n  on conflict (key) do nothing;",
+         "  ('bank_gallery', 0)\n  on conflict (key) do update set value = 0;"),
+    ["a knob an admin turned is not turned back, and no mark is lost"]],
+];

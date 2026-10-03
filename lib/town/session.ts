@@ -8,7 +8,7 @@ import { defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look"
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
 import {
-  BENCHES, FRONT, SIT_HERE, SPEED, distance, findPath, hearing, moveEvery, pickLines, spawnFor, stepAlong, type Vec,
+  BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, yardSeat, type Vec,
 } from "./world";
 
 /**
@@ -110,6 +110,9 @@ export function loadFace(url: string | null): HTMLImageElement | null {
   img.src = url;
   return img;
 }
+
+/** The least time between two nudges of the same kind from one person: every one is delivered to everybody in the room. */
+const NUDGE_MS = 4000;
 
 export class TownSession {
   /** Tells one stay from the next: the same id after a page change means nothing reconnected. */
@@ -220,7 +223,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, typing: i.typing ?? false };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", fish: i.fish ?? 0 };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -257,6 +260,11 @@ export class TownSession {
     for (const a of [this.self, ...this.avatars.values()]) {
       if (a.path.length) Object.assign(a, stepAlong(a.pos, a.path, SPEED * dt));
     }
+    // Stopped on a gate: through it, to the other map.
+    if (!this.self.path.length) {
+      const beyond = gateAt(this.self.pos.x, this.self.pos.y);
+      if (beyond) this.warpTo(beyond);
+    }
     // Arrived in front of the bench I was walking to: sit down.
     if (this.sitWhenThere !== null && !this.self.path.length) {
       const bench = this.sitWhenThere;
@@ -289,6 +297,24 @@ export class TownSession {
     return true;
   }
 
+  /**
+   * Stand at once somewhere else: through a gate, on the other map. The room
+   * hears it as an ordinary move, and whoever hears a move to another map puts
+   * the walker there instead of walking them across (onDoing).
+   */
+  warpTo(to: Vec): boolean {
+    if (this.closed || placeOf(to.x, to.y) === null) return false;
+    const a = this.self;
+    this.sitWhenThere = null;
+    if ((a.info.sit ?? -1) !== -1) this.tell({ sit: -1 });
+    a.pos = { x: to.x, y: to.y };
+    a.path = [];
+    a.info = { ...a.info, x: to.x, y: to.y };
+    this.announceMove();
+    this.notify();
+    return true;
+  }
+
   /** Sit down on the ground where I stand (from the emote window), or where I stop if I am walking. */
   sitHere(): boolean {
     if (this.closed) return false;
@@ -297,6 +323,9 @@ export class TownSession {
     if (!this.self.path.length) {
       const near = benchNear(this.self.pos);
       if (near >= 0) return this.sitOn(near);
+      // beside one of the cooking yard's tables: at the table
+      const place = yardSeatNear(this.self.pos);
+      if (place >= 0 && this.sitOn(place)) return true;
     }
     if (this.self.path.length) { this.sitWhenThere = SIT_HERE; return true; }
     if ((this.self.info.sit ?? -1) !== SIT_HERE) this.tell({ sit: SIT_HERE });
@@ -311,6 +340,17 @@ export class TownSession {
 
   /** Walk to the tile in front of a bench (an index into BENCHES), then sit on it. */
   sitOn(bench: number): boolean {
+    // A place at one of the cooking yard's tables: the one asked for, or the nearest on its bench that nobody has.
+    if (bench >= YARD_SEATS) {
+      const want = yardSeat(bench);
+      if (!want || this.closed) return false;
+      const taken = new Set(this.people.map((a) => a.info.sit ?? -1));
+      const free = KITCHEN.seats.map((s, i) => ({ s, i: YARD_SEATS + i })).filter(({ s, i }) => s.table === want.table && s.back === want.back && !taken.has(i))
+        .sort((a, b) => Math.abs(a.s.px - want.px) - Math.abs(b.s.px - want.px))[0];
+      if (!free || !this.walkTo({ x: free.s.stand[0], y: free.s.stand[1] })) return false;
+      this.sitWhenThere = free.i;
+      return true;
+    }
     const b = BENCHES[bench];
     if (!b?.facing || this.closed) return false;
     const f = FRONT[b.facing];
@@ -359,6 +399,29 @@ export class TownSession {
    * text, when it is empty, too soon after the last (chatEvery), or while
    * the room is reconnecting.
    */
+  /**
+   * The town's game: somebody did something the others will want to see (the
+   * farm, the kitchen, a deal). Only the word for what is said, to everybody
+   * or to one person; whoever hears it asks the database. At most one of a
+   * kind every few seconds: what was done meanwhile is told by the next.
+   */
+  onNudge: ((what: string) => void) | null = null;
+  private readonly nudgedAt = new Map<string, number>();
+  private readonly nudgeDue = new Map<string, ReturnType<typeof setTimeout>>();
+  nudge(what: string, to?: string) {
+    if (this.closed) return;
+    if (to) { this.current?.nudge(what, to); return; }
+    const now = Date.now(), wait = NUDGE_MS - (now - (this.nudgedAt.get(what) ?? 0));
+    if (wait <= 0) { this.nudgedAt.set(what, now); this.current?.nudge(what); return; }
+    if (this.nudgeDue.has(what)) return;
+    this.nudgeDue.set(what, setTimeout(() => {
+      this.nudgeDue.delete(what);
+      if (this.closed) return;
+      this.nudgedAt.set(what, Date.now());
+      this.current?.nudge(what);
+    }, wait));
+  }
+
   sendChat(raw: string): ChatResult {
     if (this.closed) return "offline";
     const text = cleanChat(raw);
@@ -465,6 +528,7 @@ export class TownSession {
       },
       onBye: (id) => { if (live()) this.onBye(id); },
       onChat: (id, text) => { if (live()) this.onChat(id, text); },
+      onNudge: (_id, what) => { if (live() && typeof what === "string" && what.length <= 12) this.onNudge?.(what); },
       onSignal: (from, data) => { if (mine === this.gen) void this.voice.receive(from, data as Signal); },
     }, { testTopic: this.testTopic, cancelled: () => !live(), doing: () => this.doing() });
     if (!r) return;
@@ -527,7 +591,9 @@ export class TownSession {
         a.path = [];
         a.placed = true;
       } else if (d.x !== a.info.x || d.y !== a.info.y) {
-        a.path = findPath(a.pos, { x: d.x, y: d.y }) ?? [{ x: d.x, y: d.y }];
+        // To the other map there is no walking: they went through a gate, and stand there now.
+        if (placeOf(d.x, d.y) !== placeOf(a.pos.x, a.pos.y)) { a.pos = { x: d.x, y: d.y }; a.path = []; }
+        else a.path = findPath(a.pos, { x: d.x, y: d.y }) ?? [{ x: d.x, y: d.y }];
       }
     }
     const voiceChanged = d.voice !== undefined && d.voice !== a.info.voice;
@@ -604,6 +670,20 @@ export class TownSession {
   /** Whether somebody is typing now, by what they last told the room. */
   isTyping(a: Avatar): boolean {
     return !!a.info.typing && a.typingAt !== undefined && Date.now() - a.typingAt < TYPING_MS;
+  }
+
+  /** Tell the room what I am eating (a dish's name), or that I have stopped. */
+  setEating(dish: string | null) {
+    if ((this.self.info.eat ?? "") !== (dish ?? "")) this.tell({ eat: dish ?? "" });
+  }
+
+  /** Tell the room what I hold in my hand (a thing's name), or that it is empty. */
+  setHolding(item: string | null) {
+    if ((this.self.info.hold ?? "") !== (item ?? "")) this.tell({ hold: item ?? "" });
+  }
+  /** Tell the room what I am doing with a rod: 0 nothing, 1 it is in my hand, 2 my line is in the water, 3 a fish is on, 4 one is landed this moment. */
+  setFishing(n: 0 | 1 | 2 | 3 | 4) {
+    if ((this.self.info.fish ?? 0) !== n) this.tell({ fish: n });
   }
 
   private tell(patch: Partial<Doing>) {
@@ -703,6 +783,9 @@ export class TownSession {
       people: () => this.people.map((a) => ({
         id: a.info.id, name: a.info.name, voice: a.info.voice, away: a.info.away, pos: a.pos, look: a.info.look, sit: a.info.sit ?? -1,
         typing: this.isTyping(a),
+        eat: a.info.eat ?? "",
+        fish: a.info.fish ?? 0,
+        hold: a.info.hold ?? "",
         going: a.goneAt !== undefined,
       })),
       voice: () => this.voice.stats(),
@@ -740,6 +823,14 @@ export function openSession(me: Identity, opts: SessionOptions = {}): TownSessio
   const fresh = new TownSession(me, opts);
   (globalThis as Slot)[SLOT] = fresh;
   return fresh;
+}
+
+/** The place at one of the cooking yard's tables nearest somewhere, if one is within a few steps: as `sit` tells it, or −1. */
+export function yardSeatNear(p: Vec): number {
+  if (KITCHEN.stage !== 2) return -1;
+  let best = -1, bestD = 2.4;
+  KITCHEN.seats.forEach((s, i) => { const d = distance(p, s.at); if (d < bestD) { bestD = d; best = YARD_SEATS + i; } });
+  return best;
 }
 
 /** The bench whose seat or front tile is within a tile of somewhere, as an index into BENCHES, or −1. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LINE_MAX, TALKS, WHO, hello, talkFor, type Speaker } from "./talk";
+import { ASK, CHATS, LINE_MAX, PAID, TALKS, WHO, askFor, chatFor, hello, talkFor, type Speaker } from "./talk";
 import { KEEPERS } from "./world";
 
 const SPEAKERS = Object.keys(TALKS) as Speaker[];
@@ -16,7 +16,7 @@ describe("what the shopkeepers say", () => {
   });
 
   it("says every line in both languages, short enough for the box, with no emoji", () => {
-    const lines = SPEAKERS.flatMap((who) => [...TALKS[who].flat(), ...[0, 6, 13, 18, 23].map((h) => hello(who, h))]);
+    const lines = [PAID, ...SPEAKERS.flatMap((who) => [...TALKS[who].flat(), ...CHATS[who].flat(), ASK[who], ...[0, 6, 13, 18, 23].map((h) => hello(who, h))])];
     expect(lines.length).toBeGreaterThan(20);
     for (const l of lines) for (const text of [l.th, l.en]) {
       expect(text.trim()).toBe(text);
@@ -33,7 +33,7 @@ describe("what the shopkeepers say", () => {
   });
 
   it("says no numbers: rates and limits live in the database", () => {
-    for (const who of SPEAKERS) for (const l of TALKS[who].flat()) {
+    for (const who of SPEAKERS) for (const l of [...TALKS[who].flat(), ...CHATS[who].flat(), ASK[who], PAID]) {
       expect(/\d/.test(l.th)).toBe(false);
       expect(/\d/.test(l.en)).toBe(false);
     }
@@ -63,5 +63,21 @@ describe("what the shopkeepers say", () => {
       expect(talkFor(who, 9, n)).toEqual(talkFor(who, 9, 0));
       expect(talkFor(who, 9, -1)).toEqual(talkFor(who, 9, n - 1));
     }
+  });
+
+  it("asks what you came for when it is open, and tells you when money is waiting", () => {
+    for (const who of SPEAKERS) {
+      expect(askFor(who, 9)).toEqual([hello(who, 9), ASK[who]]);
+      // a chat is one of its own conversations, in turn, with no greeting before it
+      const n = CHATS[who].length;
+      expect(n).toBeGreaterThanOrEqual(3);
+      for (let turn = 0; turn < n; turn++) expect(chatFor(who, turn)).toBe(CHATS[who][turn]);
+      expect(chatFor(who, n)).toBe(CHATS[who][0]);
+      // nothing an open stall says claims it is closed
+      for (const l of [...CHATS[who].flat(), ASK[who]]) expect(/ยังไม่เปิด|not open/.test(l.th + l.en)).toBe(false);
+    }
+    expect(askFor("uncle", 9, true)).toEqual([hello("uncle", 9), PAID]);
+    // only the uncle keeps money for anybody
+    expect(askFor("banker", 9, true)).toEqual([hello("banker", 9), ASK.banker]);
   });
 });

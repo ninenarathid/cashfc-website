@@ -73,7 +73,7 @@ export const TALKS: Record<Speaker, Line[][]> = {
     ],
     [
       { th: "ลานตกปลาที่ริมน้ำกำลังสร้างอยู่ พวก popoto ช่างเร่งกันใหญ่เลย", en: "They're building the fishing deck down by the river. The popoto crew is in a real hurry." },
-      { th: "แปลงผักจะอยู่ทางตะวันออก พ้นจุดที่ซ่อมทางอยู่นั่นแหละ ทางเสร็จเมื่อไรก็เดินไปได้", en: "The farm will be out east, past the road works. Once the road is mended, you can walk there." },
+      { th: "แปลงผักอยู่ทางตะวันออก เดินไปสุดทางก็ถึง แต่ยังไม่มีเครื่องมือก็ทำอะไรไม่ได้นะ", en: "The farm is out east, at the end of the path. Without tools there's nothing to do there yet, mind." },
       { th: "ลานทำอาหารก็กำลังก่อเตากันอยู่ เครื่องครัวมาซื้อที่ลุงได้ เมื่อของมานะ", en: "And they're laying the stoves for the cooking yard. You'll get your cookware from me, once it comes in." },
     ],
     [
@@ -106,4 +106,68 @@ export const TALKS: Record<Speaker, Line[][]> = {
 export function talkFor(who: Speaker, hour: number, turn: number): Line[] {
   const all = TALKS[who], n = ((Math.floor(turn) % all.length) + all.length) % all.length;
   return [hello(who, hour), ...all[n]];
+}
+
+/**
+ * When the stall and the counter are open: what each asks after its greeting,
+ * before what there is to choose from; what the uncle says instead when money
+ * is waiting with him; and what each says to somebody who only stops to chat,
+ * in turn. (Open today only as the browser's trial of them, in `next dev`:
+ * lib/town/trial.)
+ */
+export const ASK: Record<Speaker, Line> = {
+  uncle: { th: "ของมาถึงแล้วนะ วันนี้รับอะไรดีล่ะหลาน", en: "The goods are in. What'll it be today, kiddo?" },
+  banker: { th: "วันนี้ให้ผมช่วยเรื่องอะไรดีครับ", en: "How may I help you today?" },
+};
+export const PAID: Line = { th: "ญาติลุงเอาเงินค่าของที่ฝากไว้มาให้แล้วนะ มารับไปได้เลย", en: "My relatives brought the money for what you left. Come and take it." };
+export const CHATS: Record<Speaker, Line[][]> = {
+  uncle: [
+    [
+      { th: "บอกไว้ก่อนนะ ของลุงมีจำกัด เติมวันละสองรอบ หมดแล้วต้องรอรอบหน้า", en: "Fair warning: my stock is limited. It's topped up twice a day; when it's gone, wait for the next round." },
+      { th: "แล้วก็ซื้อได้คนละไม่กี่ชิ้นต่อรอบนะ จะได้เหลือถึงคนอื่นด้วย", en: "And only so many each, a round. That way there's some left for the others." },
+      { th: "ของที่หลานเอามาขาย ลุงรับฝากไว้ก่อน ญาติลุงจะมารับไปขายวันละสองรอบ", en: "What you bring me to sell, I keep for my relatives. They come by twice a day and take it to market." },
+      { th: "ญาติมารับไปเมื่อไร เงินจะมารออยู่ที่ลุง หลานค่อยแวะมารับ ไม่หายไปไหนหรอก", en: "Once they've been, your money waits here with me. Drop by whenever; it won't go anywhere." },
+    ],
+    [
+      { th: "กระเป๋าหลานมีไม่กี่ช่องนะ เครื่องมือก็กินช่องเหมือนกัน", en: "Your bag has only a few slots, mind, and a tool takes one like anything else." },
+      { th: "คิดดีๆ ว่าวันนี้จะพกอะไร ของชนิดเดียวกันซ้อนในช่องเดียวได้", en: "Think what to carry today. Things of a kind stack in one slot." },
+      { th: "ไว้สานตะกร้าเป็นเมื่อไร ค่อยใส่ของได้เยอะขึ้น", en: "Once you can weave a basket, you'll carry more." },
+    ],
+    [
+      { th: "ลานตกปลาที่ริมน้ำกำลังสร้างอยู่ พวก popoto ช่างเร่งกันใหญ่เลย", en: "They're building the fishing deck down by the river. The popoto crew is in a real hurry." },
+      { th: "แปลงผักอยู่ทางตะวันออก เดินไปสุดทางก็ถึง", en: "The farm is out east, at the end of the path." },
+      { th: "ลานทำอาหารก็กำลังก่อเตากันอยู่ เครื่องครัวซื้อที่ลุงได้เลย", en: "And they're laying the stoves for the cooking yard. You'll find your cookware right here." },
+    ],
+    [
+      { th: "ลุงมีของที่อยากได้วันละสามอย่าง เอามาให้ได้ที่ฝากขายนะ", en: "I want three things a day. Bring them to me where you leave things to sell." },
+      { th: "ทั้งหมู่บ้านช่วยกันหามาให้ครบ ลุงก็จะมีของใหม่มาขาย", en: "If the whole village brings them in between you, I'll have something new to sell." },
+      { th: "ช่วยๆ กันนะหลาน หมู่บ้านเราจะได้โตไวๆ", en: "Pull together, kiddo. That's how this village grows." },
+    ],
+  ],
+  banker: [
+    [
+      { th: "ขอเรียนให้ทราบก่อนตัดสินใจครับ แลกแล้วจำนวน popoto ของคุณจะลดลงจริง", en: "A word before you decide: what you exchange really does come off your popoto count." },
+      { th: "แต่ประวัติว่าใครส่งให้คุณยังอยู่ครบ ไม่หายไปไหนครับ", en: "The record of who sent them stays, every one of them." },
+      { th: "Popoto coin หาได้จากการเล่นในเมืองอยู่แล้ว การแลกเป็นเพียงทางลัดเล็กๆ ครับ", en: "Popoto coins are earned by playing in town anyway. The exchange is only a small shortcut." },
+    ],
+    [
+      { th: "ตอนนี้แลกได้ขาเดียวก่อนนะครับ จาก popoto เป็น coin", en: "For now it goes one way only: popoto into coins." },
+      { th: "ส่วนขากลับจะเปิดทีหลัง คนละเรทกันครับ", en: "The way back opens later, at a rate of its own." },
+      { th: "แต่ละสัปดาห์แลกได้จำนวนหนึ่งเท่านั้นครับ ครบแล้วรอวันจันทร์ถัดไป", en: "Only so many may be exchanged in a week. After that, please wait for Monday." },
+    ],
+    [
+      { th: "Popoto coin ใช้ได้ในเมืองนี้ครับ กับลุงที่แผงข้างๆ เป็นต้น", en: "Popoto coins are spent here in town: with the uncle at the stall beside me, for one." },
+      { th: "ไม่เกี่ยวกับ gil ในกระเป๋าของเว็บนะครับ สองอย่างนี้แยกกัน แลกข้ามกันไม่ได้", en: "They are not the gil in your wallet on the site. The two are kept apart, and neither buys the other." },
+      { th: "ผมจะจดทุกเหรียญลงสมุดอย่างเรียบร้อยครับ วางใจได้", en: "I shall write every coin down in my ledger. You may rely on it." },
+    ],
+  ],
+};
+/** What an open stall or counter says first: the greeting for the hour, then what it asks (or, the uncle, that money is waiting). */
+export function askFor(who: Speaker, hour: number, paid = false): Line[] {
+  return [hello(who, hour), who === "uncle" && paid ? PAID : ASK[who]];
+}
+/** The lines of a chat at an open stall or counter: that speaker's chat number `turn` (they go round). */
+export function chatFor(who: Speaker, turn: number): Line[] {
+  const all = CHATS[who];
+  return all[((Math.floor(turn) % all.length) + all.length) % all.length];
 }

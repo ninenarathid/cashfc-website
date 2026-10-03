@@ -1,20 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Suspense, lazy, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BOARD, BUILDINGS, FAR, FOUNTAIN, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, riverMiddle,
-  benchAt, distance, fromIso, groundAt, hearing, toIso, walkable, type Building, type Facing, type Keeper, type Prop, type Vec,
+  BENCHES, BOARD, BUILDINGS, FAR, FARM, FARM_PROPS, FOUNTAIN, GATES, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
+  atWell, benchAt, distance, fishFrom, fromIso, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
-import { START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
-import type { Speaker } from "@/lib/town/talk";
+import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
+import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
-import { daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
+import { bangkokMinute, daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
 import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
-import { decodeLook, defaultLook, type Look } from "@/lib/town/look";
+import { SKINS, decodeLook, defaultLook, type Look } from "@/lib/town/look";
 import { BUILDING, POLL, etaShort } from "@/lib/town/board";
 import { alongRoute, outingsNow, presence, type Activity, type Outing } from "@/lib/town/popotos";
 import { BIRDS, BUTTERFLIES, birdAt, butterflyAt, petsOf, rompsNow } from "@/lib/town/critters";
@@ -25,11 +25,20 @@ import type { Identity } from "@/lib/town/room";
 import { resumable } from "@/lib/town/active";
 import { BUBBLE_MS, wrapLines } from "@/lib/town/chat";
 import { ROOM_CAP, openSession, type Avatar, type TownSession } from "@/lib/town/session";
+import { DbKeeper, type Ask, type Keeper as GameKeeper, type Looked } from "@/lib/town/keeper";
 import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import TownBoard from "./TownBoard";
-import TownTalk from "./TownTalk";
+import TownTalk, { type TalkChoice } from "./TownTalk";
+import type { TradeSummary, TradeView } from "./TownTrade";
+import type { FarmDraw } from "./TownFarm";
+import type { Standing } from "./TownCook";
+import type { OpenDeal } from "./TownDeal";
+import type { FishPlace, LineState } from "./TownFish";
+import type { DishId, ItemId } from "@/lib/town/items";
+import { isRod, type RodId } from "@/lib/town/gear";
+import { FishSfx, heard } from "@/lib/town/sfx";
 import TownMusicButton from "./TownMusicButton";
 import TownIcon, { ICON_ATLAS, drawIcon, type IconName } from "./TownIcon";
 
@@ -63,6 +72,30 @@ export type TownMe = Identity;
 const DOLL_H = 77;
 /** How long a line stays in the log over the map. */
 const LOG_SHOWN_MS = 120_000;
+/**
+ * The town's game: the uncle's stall, the banker's counter, the bag, fishing, the farm, the kitchen, deals. Its
+ * panels are asked for only when a keeper says the game is open to whoever is here (lib/town/keeper): the database's
+ * for a member, and in `next dev`'s test room the browser's own trial (the owner, 2026-10-03: "ลองในเบราว์เซอร์ก่อน").
+ * Until then the shopkeepers say they are not open yet, and none of this is loaded.
+ *
+ * The test window is the trial's, and for `next dev` only (the owner: "ปุ่ม test ใช้ได้เฉพาะใน DEV เท่านั้น"): its import,
+ * and the trial's own, sit in a branch a production build drops. Look at the build's chunks before this is pushed,
+ * to see that it did.
+ */
+const TownTrade = lazy(() => import("./TownTrade"));
+/** Fishing from the finished deck, and a recipe unrolled to be read: of the same game, and loaded the same way. */
+const TownFish = lazy(() => import("./TownFish"));
+const TownTest = process.env.NODE_ENV !== "production" ? lazy(() => import("./TownTest")) : null;
+const TownFarm = lazy(() => import("./TownFarm"));
+const TownCook = lazy(() => import("./TownCook"));
+const TownDeal = lazy(() => import("./TownDeal"));
+const TownScroll = lazy(() => import("./TownScroll"));
+/** What a nudge from the room may be about (lib/town/keeper's Looked). */
+const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal"];
+/** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */
+const DEAL_NEAR = 3;
+/** How near somebody sits to be eating with me, in tiles. */
+const EAT_NEAR = 3;
 /** The river's moving parts, laid out once: streaks of current, glints, fish, and what drifts by. */
 const STREAKS = Array.from({ length: 120 }, (_, i) => ({ t0: (i * 37.7) % 140, across: ((i * 0.618) % 1) * 5.6 - 2.8, speed: 0.9 + ((i * 0.37) % 1) * 0.6, len: 0.5 + ((i * 0.53) % 1) * 0.6 }));
 const GLINTS = Array.from({ length: 60 }, (_, i) => ({ t: (i * 53.3) % 128, across: ((i * 0.414) % 1) * 5.6 - 2.8, ph: i * 1.7 }));
@@ -103,8 +136,16 @@ type CursorMode = "arrow" | "hand" | "sit" | "grab";
 const benchIndex = new Map(BENCHES.map((b, i) => [b, i]));
 /** How tall somebody sitting is against standing, for their name and the box a tap finds them in. */
 const SIT_HEIGHT = 0.72;
+/** How each rod is drawn in the hand: its cane, the joints along it, its grip, its dark edge, and its reel if it has one. */
+const ROD_LOOKS: Record<RodId, { cane: string; joint: string; grip: string; edge: string; reel?: string }> = {
+  rod: { cane: "#e0ba72", joint: "#a67a38", grip: "#8a5a2b", edge: "#3d2913" },
+  rodTeak: { cane: "#a0683a", joint: "#7a4a24", grip: "#56331a", edge: "#2a180b", reel: "#c9a45c" },
+  rodMaster: { cane: "#3b3138", joint: "#c0392b", grip: "#e5cc80", edge: "#141014", reel: "#f1d06b" },
+};
+/** How long a bite of a meal takes, the morsel going up and the chewing after it, in milliseconds. */
+const BITE_MS = 2600;
 /** Props drawn a little smaller than their pictures, to sit within a tile. */
-const PROP_K: Partial<Record<string, number>> = { bin: 0.75, flowerbed: 0.8, signpost: 0.85 };
+const PROP_K: Partial<Record<string, number>> = { bin: 0.75, flowerbed: 0.8, signpost: 0.85, well: 0.75, shed: 0.9, scarecrow: 0.7, hay: 0.8 };
 /** Popoto are drawn smaller than their pictures: about half a Lalafell tall. */
 const POPOTO_K = 0.78;
 /** How long a blink lasts. */
@@ -120,6 +161,7 @@ const GROUND: Record<ReturnType<typeof groundAt>, [string, string]> = {
   road: ["#343a46", "#373e4b"],
   plaza: ["#3d4452", "#424a59"],
   water: ["#1d4a6b", "#205073"],
+  field: ["#4a3d2f", "#4f4232"],
   sand: ["#6b5d43", "#706247"],
 };
 
@@ -234,6 +276,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cam = useRef({ s: 1, cx: 0, cy: 0, cw: 0, ch: 0, ready: false, follow: true, dpr: 1 });
+  /** Which map I am on (lib/town/world's places): the camera stays inside it. And when I last went through a gate: the other map comes up out of the dark. */
+  const placeRef = useRef<Place>("town");
+  const warpedAt = useRef(-1e9);
   const hover = useRef<Building | null>(null);
   const fontRef = useRef("sans-serif");
   const fpsRef = useRef(0);
@@ -272,6 +317,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * it) walks there and sits down (the owner, 2026-10-02: "กดนั่งยากไปหน่อย"), the front one when they overlap.
    */
   const benchBoxes = useRef<Array<{ i: number; x0: number; y0: number; x1: number; y1: number; depth: number }>>([]);
+  /**
+   * How much of the cooking yard's roof is on, 0 to 1: all of it for whoever is outside, none for whoever has stepped
+   * in (the owner, 2026-10-03: "ลานทำอาหาร จะกลายเป้น view แบบนี้เมื่อเดินเข้าไปแล้วเท่านั้น ถ้าอยู่ด้านนอกจะเห้นเป็นอาคาร มองไม่เห้นข้างใน").
+   */
+  const roofRef = useRef(1);
+  /** The roof as the last frame drew it (none at all where there is no house to draw), for the lights that follow it. */
+  const roofSeen = useRef(0);
   const benchUnder = (x: number, y: number) => {
     let best: { i: number; depth: number } | null = null;
     for (const b of benchBoxes.current) if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 && (!best || b.depth > best.depth)) best = b;
@@ -293,8 +345,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, []);
   /** The Popoto Board on the screen, for taps; and whether it waits for my vote (a "!" over it). */
   const boardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
-  /** The shopkeepers on the screen this frame, for taps and the cursor. */
+  /** The shopkeepers and the gateways on the screen this frame, for taps and the cursor: who, or the tile a gateway leads to. */
   const keeperBoxes = useRef<Array<{ id: Keeper["id"]; x0: number; y0: number; x1: number; y1: number }>>([]);
+  const gateBoxes = useRef<Array<{ to: [number, number]; x0: number; y0: number; x1: number; y1: number }>>([]);
   const boardNews = useRef(false);
   useEffect(() => {
     if (testTopic) return;
@@ -366,9 +419,108 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** The emote window: what my avatar can do where it stands (sit, for now). */
   const [emoteOpen, setEmoteOpen] = useState(false);
   const [boardOpen, setBoardOpen] = useState(false);
-  /** A talk with a shopkeeper: who, and which of their conversations (they go round, tap after tap). */
-  const [talk, setTalk] = useState<{ who: Speaker; turn: number } | null>(null);
+  /** A talk with a shopkeeper: who, what they say, and what there is to choose at its end. Each has a number of its own, so a new one starts at its first line. */
+  const [talk, setTalk] = useState<{ who: Speaker; n: number; lines: Line[]; choices?: TalkChoice[] } | null>(null);
+  /** Which of their conversations comes next (they go round, tap after tap), and how many talks there have been. */
   const talkTurns = useRef<Record<Speaker, number>>({ uncle: 0, banker: 0 });
+  const talks = useRef(0);
+  /** The trade's panel that is open (the uncle's stall, the bank, my bag), and what the map shows of my purse. */
+  const [trade, setTrade] = useState<TradeView | null>(null);
+  const [purse, setPurse] = useState<TradeSummary>({ hand: null, coins: 0, waiting: 0, stamina: 100, buff: null, eating: null });
+  /**
+   * Who keeps the game for me (lib/town/keeper), and whether it is open to me: the database for a member (which
+   * answers whether it is), the browser's trial in `next dev`'s test room. With `&townDb=<address>` the test room is
+   * kept by a stand-in for the database instead (dev only: the migrations replayed in a scratch folder, see the
+   * fc-cash-town skill's scripts/db), so that what a member will play can be played before anything is pushed.
+   */
+  const [keeper, setKeeper] = useState<GameKeeper | null>(null);
+  const [game, setGame] = useState(false);
+  const gameRef = useRef(false);
+  useEffect(() => {
+    let gone = false, made: GameKeeper | null = null;
+    if (testTopic) {
+      if (process.env.NODE_ENV !== "production") {
+        const bench = new URLSearchParams(location.search).get("townDb");
+        if (bench && /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(bench)) {
+          const ask: Ask = async (fn, args) => {
+            const r = await fetch(`${bench}/rest/v1/rpc/${fn}`, { method: "POST", headers: { "content-type": "application/json", "x-town-as": me.id }, body: JSON.stringify(args ?? {}) });
+            if (r.status === 403) return { denied: true };
+            return r.ok ? r.json() : null;
+          };
+          // (who this tester is there: a made-up member, by the tester's own id)
+          void fetch(`${bench}/bench/who?as=${encodeURIComponent(me.id)}&name=${encodeURIComponent(me.name)}`).then((r) => r.json()).then((who: { id?: string }) => {
+            if (gone || !who.id) return;
+            made = new DbKeeper(who.id, ask);
+            setKeeper(made);
+          }).catch(() => { /* no stand-in at that address: no game */ });
+        } else {
+          void import("@/lib/town/keeper-trial").then((m) => { if (!gone) setKeeper(m.trialKeeper(me.id)); });
+        }
+      }
+    } else {
+      const supabase = createClient();
+      if (supabase) {
+        made = new DbKeeper(me.id, async (fn, args) => {
+          const { data, error } = await supabase.rpc(fn, args ?? {});
+          // (refused outright: not signed in, no proved character, or the game not open to them yet)
+          if (error) return error.code === "42501" ? { denied: true } : null;
+          return data;
+        });
+        setKeeper(made);
+      }
+    }
+    return () => { gone = true; made?.close(); setKeeper(null); };
+  }, [me.id, testTopic]);
+  useEffect(() => {
+    if (!keeper) { gameRef.current = false; setGame(false); return; }
+    const see = () => { const on = keeper.ready() && keeper.open() === true; gameRef.current = on; setGame(on); };
+    see();
+    return keeper.watch(see);
+  }, [keeper]);
+  /** Fishing: the place I stand at (a tile a line can be dropped from: where its float lands, and whether that is deep water), whether my rod is out, and what my line is doing (for the map to draw). */
+  const [fishAt, setFishAt] = useState<FishPlace | null>(null);
+  const fishAtRef = useRef<FishPlace | null>(null);
+  const [fishing, setFishing] = useState(false);
+  const lineRef = useRef<LineState | null>(null);
+  /** The sounds of fishing: mine (made from the rod's panel) and other people's (made here, softer, by how far off they fish). What each of them was last seen doing with a rod says when. */
+  const sfxRef = useRef<FishSfx | null>(null);
+  if (game && !sfxRef.current && typeof window !== "undefined") sfxRef.current = new FishSfx();
+  useEffect(() => () => { sfxRef.current?.close(); }, []);
+  const fishWas = useRef(new Map<string, number>());
+  /** What I hold in my hand, for the map's own loop. */
+  const handRef = useRef<ItemId | null>(null);
+  /** The farm: the plot I stand on, when I stand still on one; and its own way of drawing the plots, which it hands over when it has loaded. */
+  const [plotHere, setPlotHere] = useState<[number, number] | null>(null);
+  const plotRef = useRef<string>("");
+  /** The kitchen: where I stand still, and what of the cooking yard that is; what the others at the yard's places hold; and its own way of drawing the pots that stand about. */
+  const [standing, setStanding] = useState<Standing | null>(null);
+  const standRef = useRef("");
+  const [crew, setCrew] = useState<string[]>([]);
+  const crewRef = useRef("");
+  /** Who those others are, in the same order (the database reads what each holds from their own purse). */
+  const [cooks, setCooks] = useState<string[]>([]);
+  /** Whether I am on the farm's map (what others do there is asked for while I am). */
+  const [onFarm, setOnFarm] = useState(false);
+  const onFarmRef = useRef(false);
+  const cookDraw = useRef<FarmDraw | null>(null);
+  const registerCook = useCallback((draw: FarmDraw | null) => { cookDraw.current = draw; }, []);
+  /** A deal with somebody (the trial's): its own way of opening one, handed over when it has loaded. */
+  const openDeal = useRef<OpenDeal | null>(null);
+  const registerDeal = useCallback((open: OpenDeal | null) => { openDeal.current = open; }, []);
+  /** Whether I stand still at the farm's well (where a bucket is poured in and a can filled). */
+  const [wellHere, setWellHere] = useState(false);
+  const wellRef = useRef(false);
+  const farmDraw = useRef<FarmDraw | null>(null);
+  const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
+  /** The test window (the owner's, in the trial): every thing there is, to look at and to conjure. */
+  const [testOpen, setTestOpen] = useState(false);
+  /** How many are eating beside me (sitting within a few tiles, a dish before them), and whether it is raining: told to the page when they change. */
+  const [company, setCompany] = useState(0);
+  const companyRef = useRef(0);
+  const [raining, setRaining] = useState(false);
+  const rainRef = useRef(false);
+  /** The recipe unrolled to be read. */
+  const [scroll, setScroll] = useState<ItemId | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [immersive, setImmersive] = useState(false);
   const [phone, setPhone] = useState(false);
@@ -395,6 +547,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, [me.id, testTopic, cap]);
   useEffect(() => { enter(); }, [enter]);
   useEffect(() => { sessionRef.current = session; }, [session]);
+  // The room says when something of the game's changed, and the keeper asks the database for it; my own deeds are
+  // said the same way. Only the word for what: never the change.
+  useEffect(() => {
+    if (!session || !keeper) return;
+    session.onNudge = (what) => { if (NUDGES.includes(what)) keeper.nudged(what as Looked); };
+    // (to one person when they are in the room under that id; a stand-in's members are not, so the room is told)
+    keeper.onDeed = (what, to) => session.nudge(what, to && session.avatars.has(to) ? to : undefined);
+    return () => { session.onNudge = null; keeper.onDeed = null; };
+  }, [session, keeper]);
 
   useSyncExternalStore(session?.subscribe ?? noSubscribe, () => session?.version ?? 0, () => 0);
   // This page showing the stay is what tells the others we are looking at the map.
@@ -494,11 +655,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   /* ── the camera ──────────────────────────────────────────────────────── */
   const camNow = (): Cam => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy });
-  const setCam = (c: Cam) => { const v = cam.current; const k = clampCam(c, v.cw, v.ch); v.s = k.s; v.cx = k.cx; v.cy = k.cy; };
+  const setCam = (c: Cam) => { const v = cam.current; const k = clampCam(c, v.cw, v.ch, BOUNDS[placeRef.current]); v.s = k.s; v.cx = k.cx; v.cy = k.cy; };
   const zoomBy = useCallback((factor: number, px?: number, py?: number) => {
     const v = cam.current;
     if (!v.cw) return;
-    setCam(zoomAt(camNow(), v.s * factor, px ?? v.cw / 2, py ?? v.ch / 2, v.cw, v.ch));
+    setCam(zoomAt(camNow(), v.s * factor, px ?? v.cw / 2, py ?? v.ch / 2, v.cw, v.ch, BOUNDS[placeRef.current]));
     // Zooming with the buttons keeps me in view; with the wheel or fingers, where you point.
     if (px === undefined) v.follow = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -985,7 +1146,106 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.restore();
   }
 
-  function drawDaylight(ctx: CanvasRenderingContext2D, cw: number, ch: number) {
+  /**
+   * The camp fire's flames (the owner, 2026-10-03: "ไฟตรงกลางลานอาหาร ช่วยทำให้มี อนิเมชัน"): three tongues of square pixels,
+   * one inside the next, licking and leaning by the clock, and a few sparks going up. (x, y) is the fire's foot.
+   */
+  function drawFlames(ctx: CanvasRenderingContext2D, x: number, y: number, k: number, now: number) {
+    const t = reducedRef.current ? 0 : now, px = 2 * k;
+    const tongues: Array<[string, number, number, number]> = [["#d9481c", 13, 15, 0], ["#f58a1f", 9, 12, 1.7], ["#ffd24a", 5, 8, 3.1]];
+    for (const [colour, wide, tall, beat] of tongues) {
+      ctx.fillStyle = colour;
+      for (let r = 0; r < tall; r++) {
+        const up = r / tall;
+        const w = Math.max(1, Math.round(wide * (1 - up) ** 0.75 * (0.82 + 0.18 * Math.sin(t / 110 + r * 0.9 + beat))));
+        const lean = Math.round((Math.sin(t / 170 + r * 0.45 + beat) * 1.6 + Math.sin(t / 61 + beat) * 0.7) * up);
+        ctx.fillRect(Math.round(x + (lean - w / 2) * px), Math.round(y - (r + 1) * px), Math.ceil(w * px), Math.ceil(px));
+      }
+    }
+    if (reducedRef.current) return;
+    for (let i = 0; i < 5; i++) {
+      const life = (t / 1500 + i * 0.211) % 1;
+      ctx.fillStyle = `rgba(255,${Math.round(205 - life * 90)},90,${(1 - life) * 0.9})`;
+      ctx.fillRect(Math.round(x + (Math.sin(i * 12.9) * 9 + Math.sin(life * 6 + i) * 4) * k), Math.round(y - (26 + life * 52) * k), Math.ceil(px * 0.75), Math.ceil(px * 0.75));
+    }
+  }
+
+  /** A soft round light at a point of the screen, added to what is there. */
+  function glowAt(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, rgb: string, alpha: number, flat = 1) {
+    if (alpha <= 0.004) return;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(1, flat);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    g.addColorStop(0, `rgba(${rgb},${alpha})`);
+    g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(-r, -r, 2 * r, 2 * r);
+    ctx.restore();
+  }
+
+  /**
+   * The cooking yard's own lights, added after the sky has had its say. Inside: the camp fire, which lights the whole
+   * yard, and the stoves' mouths. Outside: the house's two lanterns, the fire's light in its windows (their bars left
+   * dark) and its doorway, and what of it falls on the ground before them. Faint by day, warm at night; and slow
+   * (the owner, 2026-10-03: "ช่วยทำให้แสงไฟที่มองจากข้างนอกอาคาร ทำอาหารดุดีกว่านี้ และ ช้ากว่านี้หน่อยครับ ตอนนี้เร็วไปไม่มีความ cozy เลย"):
+   * the light from outside only breathes, over several seconds; by the fire itself it wavers a little more.
+   */
+  function drawYardLights(ctx: CanvasRenderingContext2D, lamps: number, now: number) {
+    if (KITCHEN.stage !== 2) return;
+    const feet = project(KITCHEN.foot);
+    if (!onScreen(feet)) return;
+    const s = cam.current.s, roof = roofSeen.current, L = KITCHEN.lights, still = reducedRef.current;
+    const breath = still ? 0.95 : 0.93 + 0.05 * Math.sin(now / 2300) + 0.02 * Math.sin(now / 1270 + 1.3);
+    const waver = still ? 0.92 : 0.9 + 0.06 * Math.sin(now / 760) + 0.04 * Math.sin(now / 430 + 1.3);
+    const lit = 0.12 + 0.88 * lamps, at = ([x, y]: readonly [number, number]) => ({ x: feet.x + x * s, y: feet.y + y * s });
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    if (roof < 1) {
+      const inside = (1 - roof) * lit * waver, fire = at(L.fire);
+      glowAt(ctx, fire.x, fire.y - 14 * s, 150 * s, "255,170,90", 0.5 * inside);
+      glowAt(ctx, fire.x, fire.y + 6 * s, 330 * s, "255,150,70", 0.2 * inside, 0.5);
+      for (const m of L.mouths) { const p = at(m); glowAt(ctx, p.x, p.y, 46 * s, "255,150,70", 0.42 * inside); }
+    }
+    if (roof > 0 && lamps > 0.02) {
+      const glow = roof * lamps * breath, ground = feet.y + 18 * s;
+      /** A pane of lit glass: amber at the top, golden lower down. */
+      const pane = (left: number, top: number, w: number, h: number, a: number) => {
+        const g = ctx.createLinearGradient(0, top, 0, top + h);
+        g.addColorStop(0, `rgba(255,146,60,${0.4 * a})`);
+        g.addColorStop(1, `rgba(255,206,124,${0.6 * a})`);
+        ctx.fillStyle = g;
+        ctx.fillRect(left, top, w, h);
+      };
+      // the lanterns: a bright heart, a wide soft halo, and their light on the ground below
+      for (const l of L.lanterns) {
+        const p = at(l);
+        glowAt(ctx, p.x, p.y, 20 * s, "255,232,180", 0.5 * roof * lamps);
+        glowAt(ctx, p.x, p.y, 78 * s, "255,200,130", 0.3 * glow);
+        glowAt(ctx, p.x, ground, 110 * s, "255,190,120", 0.13 * glow, 0.4);
+      }
+      // the windows: four panes each, the bars between them left dark; a halo round them, and their light on the grass
+      for (const [x0, y0, x1, y1] of L.windows) {
+        const left = feet.x + x0 * s, top = feet.y + y0 * s, w = (x1 - x0) * s, h = (y1 - y0) * s, bar = 3 * s;
+        for (const [i, j] of [[0, 0], [1, 0], [0, 1], [1, 1]]) pane(left + i * (w + bar) / 2, top + j * (h + bar) / 2, (w - bar) / 2, (h - bar) / 2, glow);
+        glowAt(ctx, left + w / 2, top + h / 2, 104 * s, "255,170,90", 0.15 * glow);
+        glowAt(ctx, left + w / 2, ground, 130 * s, "255,176,100", 0.1 * glow, 0.36);
+      }
+      // the doorway: the light inside, and a long pool of it out over the grass
+      {
+        const [x0, y0, x1, y1] = L.door, left = feet.x + x0 * s, top = feet.y + y0 * s, w = (x1 - x0) * s, h = (y1 - y0) * s;
+        // (the sign post stands before its right side: lit only above the sign's board)
+        const post = KITCHEN.posts[2], cut = Math.max(0, Math.min(w, (post[0] - x0) * s)), above = Math.max(0, Math.min(h, (post[1] - y0) * s));
+        pane(left, top, cut, h, glow * 0.85);
+        pane(left + cut, top, w - cut, above, glow * 0.85);
+        glowAt(ctx, left + w / 2, top + h / 2, 96 * s, "255,176,96", 0.16 * glow);
+        glowAt(ctx, left + w / 2, feet.y + 30 * s, 190 * s, "255,184,108", 0.2 * glow, 0.4);
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawDaylight(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number) {
     const day = skyNow();
     const [r, g, b] = day.tint;
     if (r < 255 || g < 255 || b < 255) {
@@ -995,6 +1255,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fillRect(0, 0, cw, ch);
       ctx.restore();
     }
+    drawYardLights(ctx, day.lamps, now);
     if (day.lamps < 0.02) return;
     const s = cam.current.s;
     ctx.save();
@@ -1050,6 +1311,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       v.ready = true;
       setCam(camNow());
     }
+    // Which map I am on decides how far the camera may go. Through a gate it is put on me at once
+    // (not swept across the nothing between the maps), and the screen comes up out of the dark.
+    const place = (mine && placeOf(mine.pos.x, mine.pos.y)) || placeRef.current;
+    if (place !== placeRef.current) {
+      placeRef.current = place;
+      if (mine) { const iso = toIso(mine.pos.x, mine.pos.y); v.cx = iso.x; v.cy = iso.y - dollH(mine) * 0.45; }
+      v.follow = true;
+      setCam(camNow());
+      warpedAt.current = now;
+    }
     if (v.follow && mine) {
       const iso = toIso(mine.pos.x, mine.pos.y);
       const f = focus.current ?? { x: cw / 2, y: ch / 2 };
@@ -1057,6 +1328,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const ease = Math.min(1, dt * 7);
       setCam({ s: v.s, cx: v.cx + (tx - v.cx) * ease, cy: v.cy + (ty - v.cy) * ease });
     }
+
+    // The cooking yard's roof: off for whoever stands in the yard, on for everybody else; a quarter of a second either way.
+    const indoors = !!mine && onYard(Math.floor(mine.pos.x), Math.floor(mine.pos.y));
+    roofRef.current = reducedRef.current ? (indoors ? 0 : 1) : Math.max(0, Math.min(1, roofRef.current + (indoors ? -1 : 1) * dt * 4));
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const sky = ctx.createLinearGradient(0, 0, 0, ch);
@@ -1067,6 +1342,60 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
     benchBoxes.current = [];
     keeperBoxes.current = [];
+    gateBoxes.current = [];
+    // Whether a line can be dropped from where I stand, who is eating beside me, and whether it rains: told to the
+    // page only when they change.
+    if (gameRef.current && mine) {
+      const tx = Math.floor(mine.pos.x), ty = Math.floor(mine.pos.y);
+      const can = mine.path.length || (mine.info.sit ?? -1) !== -1 ? null : fishFrom(tx, ty), was = fishAtRef.current;
+      if (can ? !was || was.tile[0] !== tx || was.tile[1] !== ty : !!was) {
+        fishAtRef.current = can ? { ...can, tile: [tx, ty] } : null;
+        setFishAt(fishAtRef.current);
+      }
+      let beside = 0;
+      if (mine.info.eat) for (const a of sessionRef.current?.avatars.values() ?? []) {
+        // beside me, or at my table in the cooking yard, on whichever of its benches
+        const table = yardSeat(a.info.sit)?.table;
+        if (a.info.eat && (a.info.sit ?? -1) !== -1
+          && (Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y) <= EAT_NEAR || (table !== undefined && table === yardSeat(mine.info.sit)?.table))) beside++;
+      }
+      if (beside !== companyRef.current) { companyRef.current = beside; setCompany(beside); }
+      const wet = effects.current.rain > 0.2;
+      if (wet !== rainRef.current) { rainRef.current = wet; setRaining(wet); }
+      const onPlot = !mine.path.length && plotAt(tx, ty) ? `${tx},${ty}` : "";
+      if (onPlot !== plotRef.current) { plotRef.current = onPlot; setPlotHere(onPlot ? [tx, ty] : null); }
+      const byWell = !mine.path.length && atWell(tx, ty);
+      if (byWell !== wellRef.current) { wellRef.current = byWell; setWellHere(byWell); }
+      const farming = tx >= FARM.x - 2 && ty >= FARM.y - 2 && tx < FARM.x + FARM.w + 2 && ty < FARM.y + FARM.h + 2;
+      if (farming !== onFarmRef.current) { onFarmRef.current = farming; setOnFarm(farming); }
+      // where I stand still (not sitting), for the kitchen; and what the others at the yard's places hold
+      const spot = !mine.path.length && (mine.info.sit ?? -1) === -1 ? `${tx},${ty}` : "";
+      if (spot !== standRef.current) { standRef.current = spot; setStanding(spot ? { tile: [tx, ty], place: yardPlace(tx, ty) } : null); }
+      let hands = "", who = "";
+      for (const a of sessionRef.current?.avatars.values() ?? []) {
+        const at = a.path.length ? null : yardPlace(Math.floor(a.pos.x), Math.floor(a.pos.y));
+        if (at && at !== "wash") { hands += `${a.info.hold ?? ""},`; who += `${a.info.id},`; }
+      }
+      if (hands + who !== crewRef.current) {
+        crewRef.current = hands + who;
+        setCrew(hands ? hands.slice(0, -1).split(",") : []);
+        setCooks(who ? who.slice(0, -1).split(",") : []);
+      }
+      // Other people's fishing is heard: a line dropped, a fish hooked, one landed or lost; softer than my own, and
+      // fainter the further off they are.
+      const sfx = sfxRef.current, seen = fishWas.current;
+      for (const a of sessionRef.current?.avatars.values() ?? []) {
+        const n = a.info.fish ?? 0, was = seen.get(a.info.id) ?? 0;
+        if (n === was) continue;
+        seen.set(a.info.id, n);
+        const loud = heard(Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y));
+        if (!sfx || loud <= 0) continue;
+        if (n === 2 && was < 2) sfx.play("cast", "common", loud);
+        else if (n === 3) { sfx.play("strike", "common", loud); sfx.play("surge", "common", loud * 0.8); }
+        else if (n === 4) sfx.play("landed", "common", loud);
+        else if (was === 3) sfx.play("slipped", "common", loud);
+      }
+    }
     // The ground: the pixel-art picture of it, or plain tiles until it has come.
     const scenery = sceneryRef.current;
     if (scenery) {
@@ -1183,7 +1512,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
       } });
     }
-    // The fishing deck going up at the river: the site as it stands at its stage, and popoto builders in a hurry at it.
+    // The fishing deck at the river, as it stands at its stage: going up, with popoto builders in a hurry at it; or
+    // finished, with its places to fish from.
     const pierArt = `pier${PIER.stage}`;
     if (scenery?.has(pierArt)) {
       // The picture is stood by the platform's left corner post, out in the river (so its bare frame is over the water
@@ -1195,7 +1525,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const k = v.s * 1.2;
       // Behind whoever stands in front of its near edges, in front of whoever is behind its far ones: after the
       // nearest tile behind its far edge, before the nearest in front of its near one.
-      things.push({ depth: PIER.post.x + PIER.post.y + 1.1, draw: () => {
+      // (Finished, it is walked on: it is drawn before anybody who stands on its boards, the furthest of which are out
+      // on its upper jetty.)
+      things.push({ depth: PIER.stage === 2 ? 50.9 : PIER.post.x + PIER.post.y + 1.1, draw: () => {
         scenery.drawProp(ctx, pierArt, feet.x, feet.y, v.s, dpr);
         if (PIER.stage === 1 && scenery.has("rush_h1")) {
           // three nailing boards down as fast as they can, where the platform's floor ends and out on each jetty,
@@ -1206,7 +1538,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           }
         }
         const [, tall] = scenery.anchorOf(pierArt);
-        signs.push(() => label(ctx, words.current.th ? "ลานตกปลา · กำลังสร้าง" : "Fishing deck · being built", feet.x + 91 * v.s, feet.y - (tall + 2) * v.s,
+        const built = PIER.stage === 2;
+        signs.push(() => label(ctx, words.current.th ? (built ? "ลานตกปลา" : "ลานตกปลา · กำลังสร้าง") : (built ? "Fishing deck" : "Fishing deck · being built"), feet.x + 91 * v.s, feet.y - (tall + 2) * v.s,
           "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
       } });
       // three running planks down the south path and across to where its steps will be, and back for more, one
@@ -1218,6 +1551,28 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           scenery.drawProp(ctx, `rush${[1, 2, 3, 2][Math.floor(t / 90) % 4]}`, c.x, c.y, k, dpr, 0, trip < 1) });
       }
     }
+    // Whoever has a line in the water: their float rides where it lands (mine twitches at a nibble and goes under at
+    // the bite; the rod and the line are drawn with whoever holds them). Where I stand at a place to fish from with
+    // no line out, a faint float shows where one would land.
+    {
+      const stay = sessionRef.current, floats: Array<{ at: Vec; state: LineState | "idle"; id: string }> = [];
+      for (const a of stay ? [stay.self, ...stay.avatars.values()] : []) {
+        const rod = rodOf(a, a === stay!.self);
+        if (rod && rod.state !== "ready") floats.push({ at: rod.float, state: rod.state, id: a.info.id });
+      }
+      const here = isRod(handRef.current) ? fishAtRef.current : null;
+      if (here && stay && !floats.some((fl) => fl.id === stay.self.info.id)) floats.push({ at: here.float, state: "idle", id: stay.self.info.id });
+      for (const fl of floats) {
+        if (!onScreen(project(fl.at))) continue;
+        things.push({ depth: fl.at.x + fl.at.y, draw: () => {
+          const at = floatOn(fl.at, fl.state, fl.id, now);
+          ctx.save();
+          ctx.globalAlpha = fl.state === "idle" || fl.state === "bite" ? 0.45 : 1;
+          drawIcon(ctx, iconImg.current, "bobber", at.x, at.y, 13 * v.s);
+          ctx.restore();
+        } });
+      }
+    }
     // The cooking yard going up below the plaza, lying across the screen: the site, and popoto builders at it.
     const kitchenArt = `kitchen${KITCHEN.stage}`;
     if (scenery?.has(kitchenArt)) {
@@ -1226,20 +1581,53 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const feet = project(KITCHEN.foot);
       const t = reducedRef.current ? 0 : now, k = v.s * 1.2;
       // It lies across the screen, so everybody behind its back kerb or beside it is further off than its front:
-      // drawn as far forward as its front kerb, in front of them and behind whoever stands before it.
-      things.push({ depth: KITCHEN.foot.x + KITCHEN.foot.y - 0.8, draw: () => {
+      // drawn as far forward as its front kerb, in front of them and behind whoever stands before it. Finished, it
+      // is stood on: drawn as far back as its back kerb, behind everybody on its floor; and what stands on it is
+      // drawn again over whoever stands behind it, each piece where its own foot is (its stoves and tables, the
+      // fire, the jar and the tub; the posts of its front kerb).
+      const built = KITCHEN.stage === 2, down = KITCHEN.foot.x + KITCHEN.foot.y;
+      // From outside it is a house: its walls and its roof, and nothing of what is in it. The roof is on as far as
+      // `roof` says; while it comes off or goes on, the yard shows through it.
+      const house = built && scenery.has("kitchenHouse"), roof = house ? roofRef.current : 0;
+      roofSeen.current = roof;
+      if (built && roof < 1) {
+        // the camp fire, burning: as far forward as its own foot
+        const [fx, fy] = KITCHEN.lights.fire;
+        things.push({ depth: down + fy / (TILE_H / 2) + 0.01, draw: () => drawFlames(ctx, feet.x + fx * v.s, feet.y + fy * v.s, v.s, now) });
+        for (const st of KITCHEN.stands) if (st.rise) {
+          const part: [number, number, number, number] = [st.box[0], st.box[1], st.box[2], st.box[1] + st.rise];
+          things.push({ depth: down + (st.box[1] + st.rise) / (TILE_H / 2) + 0.01, draw: () => scenery.drawPart(ctx, kitchenArt, feet.x, feet.y, v.s, dpr, part) });
+        }
+        for (const post of KITCHEN.posts) things.push({ depth: down - 0.7, draw: () => scenery.drawPart(ctx, kitchenArt, feet.x, feet.y, v.s, dpr, post) });
+        // each dining table's own top again, over whoever sits on the bench behind it
+        for (const top of KITCHEN.tops) things.push({ depth: down + top[1] / (TILE_H / 2) + 0.03, draw: () => scenery.drawPart(ctx, kitchenArt, feet.x, feet.y, v.s, dpr, top) });
+        // and each place at a table, for a tap to sit down at it
+        if (roof < 0.5) KITCHEN.seats.forEach((seat, i) => {
+          const c = project(seat.at);
+          benchBoxes.current.push({ i: YARD_SEATS + i, x0: c.x - 27 * v.s, y0: c.y - 30 * v.s, x1: c.x + 27 * v.s, y1: c.y + 14 * v.s, depth: seat.at.x + seat.at.y });
+        });
+      }
+      if (house && roof > 0) things.push({ depth: down - 0.75, draw: () => {
+        ctx.save();
+        ctx.globalAlpha *= roof;
+        scenery.drawProp(ctx, "kitchenHouse", feet.x, feet.y, v.s, dpr);
+        ctx.restore();
+      } });
+      {
+        const [, tall] = scenery.anchorOf(roof > 0.5 ? "kitchenHouse" : kitchenArt), th = words.current.th;
+        signs.push(() => label(ctx, th ? (built ? "ลานทำอาหาร" : "ลานทำอาหาร · กำลังสร้าง") : (built ? "Cooking yard" : "Cooking yard · being built"), feet.x, feet.y - (tall + 2) * v.s,
+          "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
+      }
+      if (roof < 1) things.push({ depth: built ? down - 15.6 : down - 0.8, draw: () => {
         scenery.drawProp(ctx, kitchenArt, feet.x, feet.y, v.s, dpr);
         if (KITCHEN.stage === 1 && scenery.has("rush_h1")) {
           // one at a stove that is still half walled, one nailing a worktable's frame together, one on the bare
           // earth by the string line
-          for (const [px, py, lag] of [[-31, -177, 900], [54, -114, 3400], [199, -202, 2100]]) {
+          for (const [px, py, lag] of [[67, -172, 900], [54, -114, 3400], [199, -203, 2100]]) {
             const wiping = (t + lag) % 5200 > 4300;
             scenery.drawProp(ctx, wiping ? "rush_wipe" : `rush_h${1 + (Math.floor((t + lag) / 130) % 2)}`, feet.x + px * v.s, feet.y + py * v.s, k, dpr);
           }
         }
-        const [, tall] = scenery.anchorOf(kitchenArt);
-        signs.push(() => label(ctx, words.current.th ? "ลานทำอาหาร · กำลังสร้าง" : "Cooking yard · being built", feet.x, feet.y - (tall + 2) * v.s,
-          "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
       } });
       // three running planks down from the east path to its right side, where the planks are stacked, and back for
       // more, one after another
@@ -1249,6 +1637,38 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         things.push({ depth: at.x + at.y, draw: () =>
           scenery.drawProp(ctx, `rush${[1, 2, 3, 2][Math.floor(t / 90) % 4]}`, c.x, c.y, k, dpr, 0, trip < 1) });
       }
+    }
+    // The gateways between the maps, each over its path's end: a tap on one walks there, and through.
+    if (scenery?.has("gateway")) for (const g of GATES) {
+      const c = project(g.arch);
+      if (!onScreen(c)) continue;
+      things.push({ depth: g.arch.x + g.arch.y, draw: () => {
+        scenery.drawProp(ctx, "gateway", c.x, c.y, v.s, dpr);
+        const [gw, gh] = scenery.sizeOf("gateway");
+        gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (gw / 2) * v.s, y0: c.y - gh * v.s, x1: c.x + (gw / 2) * v.s, y1: c.y });
+        const th = words.current.th;
+        signs.push(() => label(ctx, g.from === "town" ? (th ? "ไปแปลงผัก" : "To the farm") : (th ? "กลับเข้าเมือง" : "Back to town"), c.x, c.y - (gh + 4) * v.s,
+          "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
+      } });
+    }
+    // The farm, beyond the east gate (a map of its own): what stands about it. Its trees sway as the town's do.
+    // The farm's plots: weeds, tilled soil, what grows (drawn by the farm's own code, once it has loaded).
+    if (gameRef.current) {
+      const frame = {
+        ctx, things, project, onScreen, s: v.s, now, img: iconImg.current, still: reducedRef.current, th: words.current.th,
+        indoors: !(KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1),
+        self: mine ? { x: mine.pos.x, y: mine.pos.y } : null,
+        sign: (text: string, x: number, y: number) => { signs.push(() => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)")); },
+      };
+      if (placeRef.current === "farm") farmDraw.current?.(frame);
+      // the pots of food that stand about, wherever they were set down
+      cookDraw.current?.(frame);
+    }
+    if (scenery && placeRef.current === "farm") for (const p of FARM_PROPS) {
+      const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
+      if (!onScreen(c) || !scenery.has(p.kind)) continue;
+      things.push({ depth: p.x + p.y + 1, draw: () =>
+        scenery.drawProp(ctx, p.kind, c.x, c.y, v.s * (PROP_K[p.kind] ?? 1), dpr, 0, false, swayOf(p, now)) });
     }
     // The two who keep shop in front of the Popoto Shop: the uncle at his stall, the banker at his counter.
     if (scenery?.has("stall") && scenery.has("un_stand")) for (const kp of KEEPERS) {
@@ -1318,7 +1738,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         });
       } });
     }
-    // Road works closing the north and east paths, a popoto waving its flag at each.
+    // Road works closing the north path, a popoto waving its flag there (the east path's are finished: it leads to the farm).
     if (scenery?.has("roadworks")) for (const w of ROADWORKS) {
       const c = project({ x: w.x, y: w.y + 0.2 });
       if (!onScreen(c)) continue;
@@ -1343,8 +1763,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       else drawFountain(ctx, now);
     } });
     if (stay) {
+      // (whoever is under the cooking yard's roof is not seen from outside it, nor their name)
+      const roofOn = KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1;
       for (const a of stay.avatars.values()) {
-        if (a.byeAt !== undefined) continue;
+        if (a.byeAt !== undefined || (roofOn && onYard(Math.floor(a.pos.x), Math.floor(a.pos.y)))) continue;
         things.push({ depth: depthOf(a), draw: () => drawAvatar(ctx, a, false, names, boxes, !live, wall, now, dpr) });
       }
     }
@@ -1354,10 +1776,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // The weather (lib/town/weather), then the time of day: the town multiplied by the
     // sky's colour, then the lamps' light.
     drawWeather(ctx, cw, ch, now, dt);
-    drawDaylight(ctx, cw, ch);
+    drawDaylight(ctx, cw, ch, now);
     for (const sign of signs) sign();
     for (const n of names) n();
     hits.current = boxes;
+    // Through a gate: the other map comes up out of the dark.
+    const since = now - warpedAt.current;
+    if (since < 450 && !reducedRef.current) {
+      ctx.fillStyle = `rgba(10,13,18,${(1 - since / 450).toFixed(3)})`;
+      ctx.fillRect(0, 0, cw, ch);
+    }
     drawCursor(ctx, now, dpr);
   }
 
@@ -1431,13 +1859,22 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     return i >= 0 && !a.path.length ? BENCHES[i] : undefined;
   }
 
-  /** Whether somebody is sitting, on a bench or on the ground (not while walking off). */
+  /** The place at one of the cooking yard's tables somebody is sitting at (not just walking away from it), if any. */
+  function tableSeatOf(a: Avatar) {
+    return a.path.length ? undefined : yardSeat(a.info.sit);
+  }
+
+  /** Whether somebody is sitting, on a bench, at a table or on the ground (not while walking off). */
   function sitting(a: Avatar) {
-    return !!seatOf(a) || ((a.info.sit ?? -1) === SIT_HERE && !a.path.length);
+    return !!seatOf(a) || !!tableSeatOf(a) || ((a.info.sit ?? -1) === SIT_HERE && !a.path.length);
   }
 
   /** Where somebody is drawn in the back-to-front order. */
   function depthOf(a: Avatar): number {
+    // at a table of the cooking yard: on its bench. On the far one that is behind the table's top, which is drawn
+    // again over their legs (see where the yard is drawn)
+    const place = tableSeatOf(a);
+    if (place) return KITCHEN.foot.x + KITCHEN.foot.y + (place.back ? place.py : KITCHEN.tops[place.table][1]) / (TILE_H / 2) + 0.02;
     const b = seatOf(a);
     if (!b) return a.pos.x + a.pos.y;
     return b.x + b.y + 1 + (b.facing === "NE" || b.facing === "NW" ? -0.01 : 0.01);
@@ -1445,17 +1882,118 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   /** On screen: the seat of the bench they sit on, or where they stand. */
   function spotOf(a: Avatar): Vec {
+    const place = tableSeatOf(a);
+    if (place) return project(place.at);
     const b = seatOf(a);
     if (!b) return project(a.pos);
     const c = project({ x: b.x + 0.5, y: b.y + 0.62 });
     return { x: c.x, y: c.y - SEAT_LIFT * cam.current.s };
   }
 
-  /** Which way somebody faces: the way they walk; after standing a while, towards you. */
+  /** What somebody is doing with a rod, if anything: where their float lands (from where they stand), and what their line is doing. Mine is known to the moment; another's is what they told the room. */
+  function rodOf(a: Avatar, isMe: boolean): { float: Vec; state: LineState | "ready" } | null {
+    const n = a.info.fish ?? 0;
+    if (!n || a.path.length) return null;
+    const place = fishFrom(Math.floor(a.pos.x), Math.floor(a.pos.y));
+    if (!place) return null;
+    return { float: place.float, state: isMe ? lineRef.current ?? "ready" : n === 3 ? "fight" : n === 2 ? "wait" : "ready" };   // (4, one just landed: the rod is up again)
+  }
+
+  /** Where a float is drawn on the screen: where it lands, bobbing (each to its own beat), lower at a nibble and under at the bite. */
+  function floatOn(at: Vec, state: string, id: string, now: number): Vec {
+    const v = cam.current, w = project(at);
+    const bob = reducedRef.current ? 0 : Math.sin(now / 420 + id.charCodeAt(0)) * 1.5 * v.s;
+    return { x: w.x, y: w.y + bob + (state === "bite" ? 7 : state === "nibble" ? 3 : 0) * v.s - 13 * v.s * 0.3 };
+  }
+
+  /**
+   * The rod somebody fishes with, and their line (the owner, 2026-10-03: "ตอนตกปลา อยากให้มีรูป คันเบ็ดที่ใช้ด้วย ตอนนี้เหมือน
+   * มีแต่สาย"): a bamboo cane from the hands up and out towards the water, in the dolls' own pixels, and the line
+   * from its tip to the float. Upright with no line out; leaning out over the water with one; dipping at the bite;
+   * bent hard and shaking with a fish on.
+   */
+  function drawRod(ctx: CanvasRenderingContext2D, p: Vec, h: number, rod: { float: Vec; state: LineState | "ready" }, id: string, now: number, which: RodId = "rod", held?: 1 | -1) {
+    const wood = ROD_LOOKS[which];
+    const v = cam.current, px = Math.max(1, v.s), still = reducedRef.current;
+    // (only held, not fished with: on the side they face, with no float to lean towards)
+    const to = held ? p : floatOn(rod.float, rod.state, id, now), side = held ?? (to.x >= p.x ? 1 : -1);
+    const hand = { x: p.x + side * h * 0.2, y: p.y - h * 0.42 }, long = 34 * v.s;
+    // how far it leans from upright, how much its tip bends towards the float, and its shake
+    const lean = rod.state === "ready" ? 0.3 : rod.state === "fight" ? 0.85 : rod.state === "bite" ? 0.8 : 0.62;
+    const bend = rod.state === "fight" ? 0.75 : rod.state === "bite" ? 0.5 : rod.state === "nibble" ? 0.2 : 0.06;
+    const shake = still ? 0 : rod.state === "fight" ? Math.sin(now / 55) * 0.05 : rod.state === "nibble" ? Math.sin(now / 45) * 0.04 : 0;
+    const dir = (a: number, far: number) => ({ x: hand.x + side * Math.sin(a) * far, y: hand.y - Math.cos(a) * far });
+    const knee = dir(lean + shake - bend * 0.5, long * 0.6), tip = dir(lean + shake + bend * 0.5, long);
+    const at = (t: number) => ({
+      x: (1 - t) * (1 - t) * hand.x + 2 * t * (1 - t) * knee.x + t * t * tip.x,
+      y: (1 - t) * (1 - t) * hand.y + 2 * t * (1 - t) * knee.y + t * t * tip.y,
+    });
+    const steps = Math.ceil(long / px), snap = (n: number) => Math.round(n / px) * px;
+    ctx.save();
+    // its dark edge first, then the cane: thicker at the grip, with a joint every few pixels
+    ctx.fillStyle = wood.edge;
+    for (let i = 0; i <= steps; i++) { const q = at(i / steps), w = i < steps * 0.45 ? 2 : 1; ctx.fillRect(snap(q.x) - px, snap(q.y) - px, (w + 2) * px, 3 * px); }
+    for (let i = 0; i <= steps; i++) {
+      const q = at(i / steps), w = i < steps * 0.45 ? 2 : 1;
+      ctx.fillStyle = i < steps * 0.16 ? wood.grip : i % 6 === 0 ? wood.joint : wood.cane;
+      ctx.fillRect(snap(q.x), snap(q.y), w * px, px);
+    }
+    // a better rod has a reel by its grip
+    if (wood.reel) {
+      const q = at(0.2);
+      ctx.fillStyle = wood.edge;
+      ctx.fillRect(snap(q.x) + side * 2 * px - px, snap(q.y) - px, 4 * px, 4 * px);
+      ctx.fillStyle = wood.reel;
+      ctx.fillRect(snap(q.x) + side * 2 * px, snap(q.y), 2 * px, 2 * px);
+    }
+    // the line: slack while it waits, tight with a fish on
+    if (rod.state !== "ready") {
+      const end = at(1), sag = rod.state === "fight" || rod.state === "bite" ? 0 : 7 * v.s;
+      ctx.strokeStyle = "rgba(240,240,235,0.9)";
+      ctx.lineWidth = Math.max(1, v.s * 0.6);
+      ctx.beginPath();
+      ctx.moveTo(snap(end.x) + px / 2, snap(end.y));
+      ctx.quadraticCurveTo((end.x + to.x) / 2, (end.y + to.y) / 2 + sag, to.x, to.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /**
+   * What somebody holds in their hand (the owner, 2026-10-03: "ของทุกชิ้นสามารถ กดใส่เพื่อถือในมือได้เช่น คันเบ็ดหรือปลา"): the
+   * thing's own picture at their side, on the side they face, with their fist on it. (A rod is drawn as the rod it
+   * is, upright; and while somebody fishes, the rod they fish with is what is seen.)
+   */
+  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number) {
+    if (isRod(item)) { drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side); return; }
+    // (its picture is its own name's, but every scroll looks the same: lib/town/items' iconOf, without the catalog)
+    const icon = (item.startsWith("scroll") ? "scroll" : item) as IconName;
+    if (!(icon in ICON_ATLAS.icons)) return;
+    const v = cam.current, px = Math.max(1, v.s), size = Math.round(15 * v.s);
+    const snap = (n: number) => Math.round(n / px) * px;
+    const x = snap(p.x + side * h * 0.27), y = snap(p.y - h * 0.36);
+    drawIcon(ctx, iconImg.current, icon, x, y - size * 0.25, size);
+    // the fist that holds it: a few pixels of their own skin, edged dark
+    ctx.save();
+    ctx.fillStyle = "#2a1b12";
+    ctx.fillRect(x - 2 * px, y - px, 4 * px, 4 * px);
+    ctx.fillStyle = SKINS[look.skin]?.hex ?? "#e8b98f";
+    ctx.fillRect(x - px, y, 2 * px, 2 * px);
+    ctx.restore();
+  }
+
+  /** Which way somebody faces: the way they walk; after standing a while, towards you; with a rod out, towards their float. */
   function facingOf(a: Avatar, isMe: boolean, now: number): { view: View; mirror: boolean } {
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
+    const rod = rodOf(a, isMe);
+    if (rod) return facingFor(rod.float.x - a.pos.x, rod.float.y - a.pos.y);
+    // Eating on the ground: towards the viewer, the way they last faced.
+    if (a.info.eat && (a.info.sit ?? -1) === SIT_HERE && !a.path.length) return { view: "front", mirror: facings.current.get(a.info.id)?.mirror ?? false };
     const seat = seatOf(a);
     if (seat?.facing) return FACINGS[seat.facing];
+    // at a table: towards it, and a little towards the fire in the middle of the yard
+    const place = tableSeatOf(a);
+    if (place) return { view: place.back ? "back" : "front", mirror: place.table === 1 };
     const id = a.info.id;
     let f = facings.current.get(id);
     if (a.path.length) {
@@ -1503,7 +2041,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     else if (away) ctx.globalAlpha = 0.6;
 
     // A shadow (not on a bench: the bench has the ground), and a ring at the feet while they speak.
-    if (!seatOf(a)) {
+    if (!seatOf(a) && !tableSeatOf(a)) {
       ctx.fillStyle = "rgba(0,0,0,0.32)";
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, 15 * k, 6 * k, 0, 0, Math.PI * 2);
@@ -1526,7 +2064,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       else blinks.current.set(a.info.id, next);
       blink = now >= next && now <= next + BLINK_MS;
     }
-    const talk = talking && Math.floor(now / 150) % 2 === 1;
+    // Eating (the owner, 2026-10-03: "อนิเมชั่นการนั่งกิน แบบง่ายๆ … ของทุกเผ่า ทุกเพศ … ขนาดตัวที่ทำไว้ต้องไม่เปลี่ยนแปลง"): the
+    // sitting doll they have already, with its own mouth; a bite every few seconds, each on their own beat: a morsel
+    // goes up from the dish, the mouth opens for it, and chews.
+    const eats = !!a.info.eat && a.info.eat in ICON_ATLAS.icons && sitting(a);
+    const bite = eats && !reducedRef.current ? ((now + a.info.id.charCodeAt(0) * 173) % BITE_MS) / BITE_MS : -1;
+    const chew = bite >= 0.3 && (bite < 0.42 || (bite < 0.9 && Math.floor(now / 170) % 2 === 0));
+    const talk = eats ? chew : talking && Math.floor(now / 150) % 2 === 1;
+    // A rod in their hands, or whatever else they hold: behind them when they face away; in front otherwise.
+    // (what is held is held walking too: the owner, "ตอนนี้ถือแล้ว เดินของที่ถือจะหายไป")
+    const rod = rodOf(a, isMe), held = !rod ? a.info.hold || null : null;
+    const handSide = (face.view === "back") !== face.mirror ? -1 : 1;
+    const fishesWith: RodId = isRod(a.info.hold) ? a.info.hold : "rod";
+    if (rod && face.view === "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
+    if (held && face.view === "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now);
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
@@ -1541,6 +2092,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.arc(p.x, p.y - h * 0.72 - bob, h * 0.24, 0, Math.PI * 2);
       ctx.fill();
     }
+    if (rod && face.view !== "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
+    if (held && face.view !== "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now);
 
     const top = p.y - h * 1.12 - bob;
     ctx.font = `10px ${fontRef.current}`;
@@ -1563,6 +2116,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fillStyle = "#36414f";
       ctx.fill();
       drawIcon(ctx, iconImg.current, "away", bx, by, 11);
+    }
+    // What they are eating: the dish set down before them, on the side they face, and a morsel on its way up to
+    // their mouth (when they face the viewer, and their picture says where the mouth is).
+    if (eats) {
+      const side = face.mirror ? -1 : 1, size = 17 * k, px = Math.max(1, k);
+      const dish = { x: p.x + side * h * 0.5, y: p.y - size * 0.3 };
+      drawIcon(ctx, iconImg.current, a.info.eat as IconName, dish.x, dish.y, size);
+      const mouth = kit?.mouthOf(look, face.view, face.mirror, k, true);
+      if (mouth && bite >= 0 && bite < 0.34) {
+        const t = bite / 0.34, from = { x: dish.x, y: dish.y - size * 0.35 }, to = { x: p.x + mouth.x, y: p.y + mouth.y };
+        // up in an arc, a little towards the viewer
+        const mx = from.x + (to.x - from.x) * t, my = from.y + (to.y - from.y) * t - Math.sin(t * Math.PI) * 5 * k;
+        const snap = (n: number) => Math.round(n / px) * px;
+        ctx.fillStyle = "#3d2913";
+        ctx.fillRect(snap(mx) - 2 * px, snap(my) - 2 * px, 4 * px, 4 * px);
+        ctx.fillStyle = "#f6e7c4";
+        ctx.fillRect(snap(mx) - px, snap(my) - px, 2 * px, 2 * px);
+      }
     }
     ctx.restore();
 
@@ -1747,9 +2318,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (b) { setPopover({ b, x, y }); return; }
     const bb = boardBox.current;
     if (bb && x >= bb.x0 && x <= bb.x1 && y >= bb.y0 && y <= bb.y1) { setPopover(null); openBoard(); return; }
-    // a shopkeeper: a talk
+    // a shopkeeper: a talk; a gateway: walk to it, and through
     const keeper = keeperBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
     if (keeper) { setPopover(null); openTalk(keeper.id); return; }
+    const gate = gateBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
+    if (gate) {
+      setPopover(null); setPeopleOpen(false);
+      if (sessionRef.current?.walkTo({ x: gate.to[0], y: gate.to[1] })) cam.current.follow = true;
+      return;
+    }
     // a bench, anywhere on its picture: walk up to it and sit down
     const seat = benchUnder(x, y);
     if (seat >= 0) { setPopover(null); setPeopleOpen(false); if (sessionRef.current?.sitOn(seat)) cam.current.follow = true; return; }
@@ -1762,6 +2339,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   };
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    sfxRef.current?.wake();
     const p = local(e.clientX, e.clientY);
     if (e.pointerType === "mouse") { mouseAt(e.currentTarget, p, mouse.current?.mode ?? "arrow"); mouse.current!.pressAt = performance.now(); }
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -1799,7 +2377,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         const someone = !!personAt(p.x, p.y);
         const seat = !someone && (benchUnder(p.x, p.y) >= 0 || benchAt(t.x, t.y) >= 0);
         const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1)
-          || keeperBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1);
+          || [...keeperBoxes.current, ...gateBoxes.current].some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1);
         mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
       }
       return;
@@ -1808,7 +2386,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (g.mode === "pinch" && pointers.current.size >= 2 && g.iso) {
       const [a, b] = [...pointers.current.values()];
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-      const ns = clampScale(g.s0 * (Math.hypot(a.x - b.x, a.y - b.y) / g.d0), v.cw, v.ch);
+      const ns = clampScale(g.s0 * (Math.hypot(a.x - b.x, a.y - b.y) / g.d0), v.cw, v.ch, BOUNDS[placeRef.current]);
       // The spot under the fingers stays under the fingers, as they move and spread.
       setCam({ s: ns, cx: g.iso.x - (mx - v.cw / 2) / ns, cy: g.iso.y - (my - v.ch / 2) / ns });
       return;
@@ -1871,8 +2449,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       cam: () => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy, follow: cam.current.follow }),
       /** Look at a tile without walking there (the camera stops following me). */
       lookAt: (x: number, y: number) => { const p = toIso(x, y); cam.current.follow = false; setCam({ s: cam.current.s, cx: p.x, cy: p.y }); },
-      /** The shopkeepers on the screen this frame. */
+      /** Stand at a tile of either map at once, without walking to a gate. */
+      warp: (x: number, y: number) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
+      /** The shopkeepers and the gateways on the screen this frame. */
       keepers: () => keeperBoxes.current.map((k) => ({ ...k })),
+      /** The place to fish from that I stand at, if it is one: its tile, where its float lands, and whether that is deep water. */
+      fishAt: () => fishAtRef.current,
+      gates: () => gateBoxes.current.map((k) => ({ ...k })),
       /** The popoto out now: what, and where. */
       outings: () => outingsNow(Date.now(), forcedPopoto.current).map((o) => ({ activity: o.activity, at: o.spots?.[0] ?? alongRoute(o, Date.now())?.pos })),
       /** The benches on the screen this frame, and what the mouse cursor shows now. */
@@ -1897,7 +2480,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
-      if (e.key === "Escape") { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); return; }
+      if (e.key === "Escape") { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); setTrade(null); return; }
       // Enter starts typing, as in a game; Esc in the box gives the keys back to walking.
       if (e.key === "Enter" && !(target && /^(BUTTON|A)$/.test(target.tagName))) {
         e.preventDefault();
@@ -1937,25 +2520,77 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   const openBoard = () => {
     if (wardrobeOpenRef.current) closeWardrobe();
-    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null);
+    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null);
     setBoardOpen(true);
   };
 
-  /** Talk to a shopkeeper: their next conversation, in turn. */
+  /**
+   * Talk to a shopkeeper. While their stall or counter is closed: a greeting, and their next conversation, in turn.
+   * Open (the trial): a greeting, what they ask, and what one came for to choose from.
+   */
   const openTalk = (who: Speaker) => {
     if (wardrobeOpenRef.current) closeWardrobe();
-    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false);
-    setTalk({ who, turn: talkTurns.current[who]++ });
+    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTrade(null);
+    setFishing(false);
+    const hour = Math.floor(bangkokMinute(new Date()) / 60), n = ++talks.current, th = words.current.th;
+    if (!gameRef.current) { setTalk({ who, n, lines: talkFor(who, hour, talkTurns.current[who]++) }); return; }
+    const chat: TalkChoice = { id: "chat", label: th ? "คุยเล่น" : "Just chatting" };
+    const buy: TalkChoice = { id: "buy", label: th ? "ซื้อของ" : "Buy" };
+    // (his order of the day is where things are left with him: the same panel, asked for by its own name)
+    const order: TalkChoice = { id: "order", label: th ? "ลุงอยากได้อะไร" : "What do you want today?" };
+    const choices: TalkChoice[] = who === "banker"
+      ? [{ id: "bank", label: th ? "แลก popoto" : "Exchange popoto" }, chat]
+      : purse.waiting > 0
+        ? [{ id: "sell", label: th ? "รับเงิน" : "Collect", note: String(purse.waiting) }, buy, order, chat]
+        : [buy, { id: "sell", label: th ? "ฝากขาย" : "Sell" }, order, chat];
+    setTalk({ who, n, lines: askFor(who, hour, purse.waiting > 0), choices });
+  };
+  // Walking off my place to fish from puts the rod away, and so does letting go of it; and the room is told what I do
+  // with it, and what I am eating.
+  const rodInHand = isRod(purse.hand);
+  useEffect(() => { handRef.current = purse.hand; }, [purse.hand]);
+  useEffect(() => { if (!fishAt || !rodInHand) setFishing(false); }, [fishAt, rodInHand]);
+  useEffect(() => {
+    if (!fishing) lineRef.current = null;
+    sessionRef.current?.setFishing(fishing ? 1 : 0);
+  }, [fishing]);
+  const eatingNow = purse.eating?.dish ?? null;
+  useEffect(() => { sessionRef.current?.setEating(eatingNow); }, [eatingNow]);
+  useEffect(() => { sessionRef.current?.setHolding(purse.hand); }, [purse.hand]);
+  const landedAt = useRef(0);
+  const onLine = useCallback((state: LineState | null) => {
+    lineRef.current = state;
+    // (for a moment after a landing the room is still being told of it)
+    if (state || performance.now() - landedAt.current > 1500) sessionRef.current?.setFishing(state === "fight" ? 3 : state ? 2 : 1);
+  }, []);
+  /** Something landed: the room is told for a moment, so that those near enough hear it. */
+  const onLanded = useCallback(() => {
+    landedAt.current = performance.now();
+    sessionRef.current?.setFishing(4);
+    window.setTimeout(() => { if (sessionRef.current?.self.info.fish === 4) sessionRef.current.setFishing(1); }, 1500);
+  }, []);
+
+  /** One of the trade's panels: the uncle's stall, the bank, or my bag. */
+  const openTrade = (view: TradeView) => {
+    setFishing(false);
+    if (wardrobeOpenRef.current) closeWardrobe();
+    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null);
+    setTrade(view);
+  };
+  /** What was chosen at the end of a talk: a chat (their next one, in turn), or one of the trade's panels. */
+  const pickTalk = (who: Speaker, id: string) => {
+    if (id === "chat") setTalk({ who, n: ++talks.current, lines: chatFor(who, talkTurns.current[who]++) });
+    else openTrade(id === "order" ? "sell" : (id as TradeView));
   };
 
   const openWardrobe = () => {
-    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null);
+    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null); setTrade(null);
     turn.current = 0;
     zoomBefore.current = cam.current.s;
     const v = cam.current;
     // Close to me, in the part of the screen the panel leaves.
     focus.current = phone ? { x: v.cw / 2, y: v.ch * 0.24 } : { x: (v.cw - 384) / 2, y: v.ch / 2 };
-    setCam({ s: clampScale(WARDROBE_ZOOM, v.cw, v.ch), cx: v.cx, cy: v.cy });
+    setCam({ s: clampScale(WARDROBE_ZOOM, v.cw, v.ch, BOUNDS[placeRef.current]), cx: v.cx, cy: v.cy });
     v.follow = true;
     setWardrobeOpen(true);
   };
@@ -2001,6 +2636,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const cardNote = (a: Avatar) => noted([
     a.info.voice ? (a.info.muted ? ["muted", w.mutedNote] : ["mic", w.inVoice]) : null,
     a.info.id !== me.id && a.info.away ? ["away", w.away] : null,
+    a.info.eat ? ["meal", w.th ? "กำลังกินข้าว" : "Eating"] : null,
   ]);
 
   const walkOver = (a: Avatar) => {
@@ -2172,6 +2808,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               <button type="button" onClick={() => walkOver(cardWho)}
                       className="pressable rounded-lg bg-accent/15 px-3 py-1.5 text-ui text-accent hover:bg-accent/25"><span className="flex items-center gap-1.5"><TownIcon name="walk" size={16} />{w.walkTo}</span></button>
             )}
+            {/* a deal, with somebody who stands near (the trial's) */}
+            {game && card.id !== me.id && s && Math.hypot(cardWho.pos.x - s.self.pos.x, cardWho.pos.y - s.self.pos.y) <= DEAL_NEAR && (
+              <button type="button" onClick={() => { openDeal.current?.(cardWho.info.id, cardWho.info.name); setCard(null); }}
+                      className="pressable rounded-lg bg-gold/15 px-3 py-1.5 text-ui text-gold hover:bg-gold/25"><span className="flex items-center gap-1.5"><TownIcon name="handshake" size={16} />{w.th ? "แลกของ" : "Trade"}</span></button>
+            )}
             <button type="button" onClick={() => setCard(null)} className="ml-auto px-2 py-1.5 text-ui text-muted hover:text-ink">{w.close}</button>
           </div>
         </div>
@@ -2218,7 +2859,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* Bottom left: the chat. A slim bar on a wide screen, with its history a
           tap away; a button on a phone, opening the history and the box. While
           the history is shut, the last few lines show over the map. */}
-      {s && !wardrobeOpen && !(phone && boardOpen) && (() => {
+      {s && !wardrobeOpen && !(phone && (boardOpen || !!trade)) && (() => {
         const showHistory = phone ? chatOpen : historyOpen;
         // A phone's history fits between the top bar and the box over the keyboard.
         const screenH = visibleH || cam.current.ch;
@@ -2290,7 +2931,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       })()}
 
       {/* Bottom right: the emotes, and the microphone */}
-      {s && !wardrobeOpen && !(phone && (chatOpen || boardOpen)) && (
+      {s && !wardrobeOpen && !(phone && (chatOpen || boardOpen || !!trade || testOpen)) && (
         <div className="absolute right-3 flex flex-col items-end gap-1.5" style={{ bottom: "var(--hud-b)" }}>
           {/* The emote window (the owner, 2026-10-02: "ช่วยทำหน้าต่าง Emote ให้สามารถกดท่านั่งได้"): sit down on
               the ground where I stand, or get up; walking anywhere gets up too */}
@@ -2305,6 +2946,33 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               </div>
             );
           })()}
+          {/* The test window's button (the trial's, in `next dev` only): look at every thing there is, and conjure it */}
+          {TownTest && keeper?.trial && (
+            <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setTestOpen((o) => !o); }}
+                    aria-expanded={testOpen} title={w.th ? "หน้าต่างทดสอบ: ดูและเสกของทุกอย่าง" : "The test window: look at everything, and conjure it"}
+                    className={`pressable flex h-8 items-center rounded-full border px-3 font-data text-label font-semibold uppercase tracking-wider shadow-lg shadow-black/30 backdrop-blur-sm transition-colors ${testOpen
+                      ? "border-gold bg-gold text-bg" : "border-gold/60 bg-bg/80 text-gold hover:border-gold"}`}>
+              <TownIcon name="test" size={16} className="mr-1" />Test
+            </button>
+          )}
+          {/* My bag, and my Popoto coins beside it */}
+          {game && (
+            <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"}
+                    className="pressable flex h-10 items-center gap-1.5 rounded-full border border-line-strong bg-bg/80 pl-2.5 pr-3 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
+              <TownIcon name="bag" size={20} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
+              <TownIcon name="coin" size={14} /><span className="font-data tabular-nums text-gold">{purse.coins}</span>
+              <TownIcon name="stamina" size={14} /><span className={`font-data tabular-nums ${purse.stamina ? "text-ink" : "text-chili"}`}>{purse.stamina}</span>
+              <span className="sr-only">stamina</span>
+            </button>
+          )}
+          {/* The meal I am at: how far through it I am */}
+          {game && purse.eating && (
+            <span className="flex h-8 items-center gap-1.5 rounded-full border border-gold/60 bg-bg/85 pl-2 pr-3 text-meta text-ink shadow-lg shadow-black/30 backdrop-blur-sm">
+              <TownIcon name="meal" size={16} />{w.th ? "กำลังกิน" : "Eating"}
+              <span aria-hidden className="h-1.5 w-14 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-gold" style={{ width: `${Math.round(purse.eating.progress * 100)}%` }} /></span>
+              {company > 0 && <span className="font-data text-gold">+{company}</span>}
+            </span>
+          )}
           <button type="button" onClick={() => setEmoteOpen((o) => !o)} aria-expanded={emoteOpen} title={w.emote}
                   className={emoteOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
             <TownIcon name="emote" size={22} /><span className="sr-only">{w.emote}</span>
@@ -2367,9 +3035,85 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2"
              style={{ bottom: phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem" }}>
           <div className="pop-in pointer-events-auto w-full max-w-[44rem]" data-state="open">
-            <TownTalk key={`${talk.who}:${talk.turn}`} who={talk.who} turn={talk.turn} th={w.th} phone={phone}
-                      reduced={reducedRef.current} art={boardArt} onClose={() => setTalk(null)} />
+            <TownTalk key={talk.n} who={talk.who} lines={talk.lines} choices={talk.choices} onPick={(id) => pickTalk(talk.who, id)}
+                      th={w.th} phone={phone} reduced={reducedRef.current} art={boardArt} onClose={() => setTalk(null)} />
           </div>
+        </div>
+      )}
+      {/* At a place to fish from (the deck where a line reaches water, or the town's bank), with the rod in my hand
+          (the owner: "ตกปลาตรงนี้ ช่วยทำให้ขึ้นมาเฉพาะตอนถือเบ็ดตกปลา"): the way to begin, and then the rod's own panel, across
+          the foot of the map */}
+      {s && game && keeper && fishAt && rodInHand && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && (
+        <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2"
+             style={{ bottom: phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem" }}>
+          {fishing ? (
+            <div className="pop-in pointer-events-auto w-full max-w-[30rem]" data-state="open">
+              <Suspense fallback={null}>
+                <TownFish me={keeper.id} keeper={keeper} th={w.th} rain={raining} place={fishAt} reduced={reducedRef.current} sfx={sfxRef.current!} onClose={() => setFishing(false)} onLine={onLine} onLanded={onLanded} />
+              </Suspense>
+            </div>
+          ) : (
+            <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setFishing(true); }}
+                    className="pop-in pressable pointer-events-auto mb-14 flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40" data-state="open">
+              <TownIcon name="hook" size={20} />{w.th ? "ตกปลาตรงนี้" : "Fish here"}
+            </button>
+          )}
+        </div>
+      )}
+      {/* The test window (the trial's, the owner's): every thing there is, to look at and to conjure. On the left, so
+          that the bag can be open beside it. */}
+      {s && TownTest && keeper?.trial && testOpen && (
+        <div className={`pop-in absolute z-20 overflow-hidden border border-gold/50 bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
+               ? "inset-x-0 h-[min(78%,42rem)] rounded-t-2xl"
+               : "left-3 top-16 w-[24rem] rounded-2xl"}`}
+             style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
+             data-state="open">
+          <Suspense fallback={null}>
+            <TownTest me={me.id} name={me.name} th={w.th} onClose={() => setTestOpen(false)} />
+          </Suspense>
+        </div>
+      )}
+      {/* The farm: its plots on the map, and what the thing in my hand can do to the one I stand on */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownFarm keeper={keeper} name={me.name} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? plotHere : null}
+                    at={wellHere ? standing?.tile ?? null : fishAt?.tile ?? null} near={onFarm}
+                    water={talk || trade || boardOpen || wardrobeOpen || (phone && testOpen) ? null : wellHere ? "well" : fishAt ? "river" : null} sfx={sfxRef.current}
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} />
+        </Suspense>
+      )}
+      {/* The kitchen: cooking at the yard, and the pots that stand about */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} />
+        </Suspense>
+      )}
+      {/* A deal with somebody: what each lays out, and their word */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownDeal me={keeper.id} keeper={keeper} name={me.name} th={w.th} sfx={sfxRef.current} register={registerDeal}
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} />
+        </Suspense>
+      )}
+      {/* A recipe unrolled to be read: over everything */}
+      {s && game && keeper && scroll && (
+        <Suspense fallback={null}>
+          <TownScroll dish={scroll} keeper={keeper} th={w.th} reduced={reducedRef.current} onClose={() => setScroll(null)} />
+        </Suspense>
+      )}
+      {/* The uncle's stall, the bank and my bag: where the wardrobe goes. It is always there while I am in town, so
+          that my coins show on the map and the uncle knows when money is waiting; hidden until one is opened. */}
+      {s && game && keeper && (
+        <div className={trade ? `pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
+               ? "inset-x-0 h-[min(72%,40rem)] rounded-t-2xl"
+               : "right-3 top-16 w-[24rem] rounded-2xl"}` : "hidden"}
+             style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
+             data-state="open">
+          <Suspense fallback={null}>
+            <TownTrade keeper={keeper} view={trade} th={w.th} art={boardArt} seated={(s.self.info.sit ?? -1) !== -1} company={company}
+                       onView={setTrade} onSummary={setPurse} onScroll={setScroll} />
+          </Suspense>
         </div>
       )}
     </div>

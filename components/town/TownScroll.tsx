@@ -1,0 +1,187 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { KIND_WORD, toldOf } from "@/lib/town/hints";
+import { BUFFS, DISHES, ITEMS, MAKES, type DishId, type ItemId } from "@/lib/town/items";
+import type { Keeper } from "@/lib/town/keeper";
+import TownIcon, { type IconName } from "./TownIcon";
+import { ItemIcon } from "./TownTrade";
+
+/** How long the paper takes to unroll, and to roll up again, in milliseconds. */
+const UNROLL_MS = 560, ROLL_MS = 380;
+/** The paper, its shaded edges, its ink, and the rods' wood. */
+const PAPER = "#f0dfb6", PAPER_EDGE = "#d9bf85", INK = "#4a3520", INK_SOFT = "#7a5f3c", WOOD = "#8a5a2c", WOOD_DARK = "#5c3a1a", WOOD_LIGHT = "#b98346";
+
+/**
+ * A recipe written on a scroll, unrolled to be read (the owner, 2026-10-03:
+ * "ช่วยทำ UI เปิดม้วนกระดาษอ่านแบบดีๆให้หน่อย สำหรับอ่านสูตรอาหาร"). Two wooden rods
+ * part and the paper between them unrolls; on it, the dish, what goes into it
+ * and in what, how many it feeds, and what eating it gives. Closing it rolls
+ * it up again. A tap outside it, the button or Escape closes it.
+ *
+ * It shows a recipe as a found recipe is told (lib/town/hints; the owner:
+ * "สูตรที่มีให้เจอ จะบอกแค่เกือบหมด เหลือชิ้นสุดท้ายจะบอกแค่ชนิดของ ไอเทมนั้น ต้องไปเดากันเอง"):
+ * all of it but its last thing, which is named only by its kind. Whoever has
+ * made the thing reads all of it. Under its name, who found it first: the one
+ * to ask. With reduced motion the paper is simply there.
+ */
+export default function TownScroll({ dish, keeper, th, reduced, onClose }: {
+  /** What the recipe is of: a dish, or something else that is made. */
+  dish: ItemId;
+  /** Who keeps what the reader has found and made. */
+  keeper: Keeper;
+  th: boolean;
+  reduced: boolean;
+  onClose: () => void;
+}) {
+  const [open, setOpen] = useState(reduced);
+  const closing = useRef(false);
+  const button = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setOpen(true));
+    button.current?.focus({ preventScroll: true });
+    return () => cancelAnimationFrame(t);
+  }, []);
+  const close = useCallback(() => {
+    if (closing.current) return;
+    closing.current = true;
+    if (reduced) { onClose(); return; }
+    setOpen(false);
+    setTimeout(onClose, ROLL_MS);
+  }, [onClose, reduced]);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" && e.key !== "Enter") return;
+      e.preventDefault(); e.stopPropagation();
+      close();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [close]);
+
+  const d = dish in DISHES ? DISHES[dish as DishId] : null, it = ITEMS[dish];
+  const by = keeper.finder(dish);
+  const recipe = d?.recipe || MAKES[dish] ? toldOf(dish, keeper.madeBefore(dish), keeper.triesAt(dish)) : undefined;
+  const name = (id: keyof typeof ITEMS) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
+  const ms = open ? UNROLL_MS : ROLL_MS;
+  return (
+    <div className="absolute inset-0 z-30 grid place-items-center overflow-y-auto bg-black/55 px-3 py-4 backdrop-blur-[2px]" onClick={close}>
+      <div role="dialog" aria-modal="true" aria-labelledby="town-scroll-h" className="w-full max-w-[22rem]" onClick={(e) => e.stopPropagation()}>
+        <Rod />
+        {/* the paper: it unrolls between the rods */}
+        <div className="mx-3 grid" style={{ gridTemplateRows: open ? "1fr" : "0fr", transition: reduced ? "none" : `grid-template-rows ${ms}ms cubic-bezier(0.2, 0.8, 0.2, 1)` }}>
+          <div className="min-h-0 overflow-hidden">
+            <div className="relative px-5 pb-5 pt-4"
+                 style={{
+                   color: INK,
+                   backgroundColor: PAPER,
+                   backgroundImage: `radial-gradient(ellipse at 18% 12%, rgba(140,100,40,0.16), transparent 42%), radial-gradient(ellipse at 84% 78%, rgba(140,100,40,0.14), transparent 46%), linear-gradient(90deg, ${PAPER_EDGE} 0, transparent 9%, transparent 91%, ${PAPER_EDGE} 100%)`,
+                   boxShadow: `inset 0 10px 10px -8px rgba(60,35,10,0.45), inset 0 -10px 10px -8px rgba(60,35,10,0.45)`,
+                 }}>
+              <div style={{ opacity: open ? 1 : 0, transition: reduced ? "none" : `opacity 260ms ease ${open ? UNROLL_MS * 0.45 : 0}ms` }}>
+                <p className="text-center font-data text-label uppercase tracking-[0.2em]" style={{ color: INK_SOFT }}>{th ? "สูตรอาหาร" : "Recipe"}</p>
+                <div className="mt-1 flex flex-col items-center">
+                  <ItemIcon id={dish} size={64} />
+                  <h2 id="town-scroll-h" className="mt-1.5 text-center font-display text-title font-semibold leading-tight">{name(dish)}</h2>
+                  <p className="text-center text-meta" style={{ color: INK_SOFT }}>{th ? it.name.en : it.name.th}</p>
+                  {by && (
+                    <p className="mt-1 flex items-center gap-1 text-center text-meta" style={{ color: INK_SOFT }}>
+                      <TownIcon name="rosette" size={16} />{th ? `คนแรกที่ทำได้: ${by}` : `First made by ${by}`}
+                    </p>
+                  )}
+                </div>
+                <Rule />
+
+                {recipe ? (
+                  <>
+                    <h3 className="font-data text-label uppercase tracking-wider" style={{ color: INK_SOFT }}>{th ? "ของที่ใช้" : "What goes in"}</h3>
+                    <ul className="mt-1 flex flex-col gap-1">
+                      {recipe.needs.map(([id, n]) => (
+                        <li key={id} className="flex items-center gap-2 text-ui">
+                          <ItemIcon id={id} size={24} className="shrink-0" />
+                          <span className="min-w-0 flex-1 truncate font-semibold">{name(id)}</span>
+                          <span className="font-data tabular-nums">×{n}</span>
+                        </li>
+                      ))}
+                      {recipe.last && (
+                        <li className="flex items-start gap-2 text-ui">
+                          <TownIcon name="mystery" size={24} className="shrink-0" />
+                          <span className="min-w-0 flex-1" style={{ color: INK_SOFT }}>
+                            <span className="block truncate font-semibold italic">{th ? KIND_WORD[recipe.last.kind].th : KIND_WORD[recipe.last.kind].en}</span>
+                            {/* after so many misses by this thing alone: what it looks like, never its name */}
+                            {recipe.last.looks && <span className="block text-meta">{th ? recipe.last.looks.th : recipe.last.looks.en}</span>}
+                          </span>
+                          <span className="font-data tabular-nums">×{recipe.last.n}</span>
+                        </li>
+                      )}
+                    </ul>
+                    <Rule />
+                    <dl className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1 text-ui">
+                      <dt style={{ color: INK_SOFT }}>{th ? "ทำใน" : "Cooked in"}</dt>
+                      <dd className="flex flex-wrap items-center gap-x-3 gap-y-1 font-semibold">
+                        {recipe.in.map((tool) => <span key={tool} className="flex items-center gap-1.5"><ItemIcon id={tool} size={22} />{name(tool)}</span>)}
+                        {!recipe.in.length && <span className="flex items-center gap-1.5"><TownIcon name="hand" size={20} />{th ? "มือเปล่า ที่โต๊ะ" : "Bare hands, at a worktable"}</span>}
+                      </dd>
+                      <dt style={{ color: INK_SOFT }}>{th ? "ได้" : "Makes"}</dt>
+                      <dd className="font-semibold">{d ? (th ? `${recipe.gives} ที่` : `${recipe.gives} helping${recipe.gives === 1 ? "" : "s"}`) : `×${recipe.gives}`}</dd>
+                      {recipe.cooks > 1 && (
+                        <>
+                          <dt style={{ color: INK_SOFT }}>{th ? "คนทำ" : "Cooks"}</dt>
+                          <dd className="font-semibold">{th ? `ต้องช่วยกัน ${recipe.cooks} คน` : `${recipe.cooks}, together`}</dd>
+                        </>
+                      )}
+                    </dl>
+                  </>
+                ) : (
+                  <p className="text-center text-ui">{th ? "ไม่ต้องทำเอง ลุงขายของมีขาย" : "Nothing to cook: the uncle sells it."}</p>
+                )}
+                {d && <Rule />}
+                {d && <h3 className="font-data text-label uppercase tracking-wider" style={{ color: INK_SOFT }}>{th ? "กินแล้วได้" : "Eating it gives"}</h3>}
+                {d && <p className="mt-1 flex items-center gap-1.5 text-ui font-semibold"><TownIcon name="stamina" size={18} />Stamina +{d.stamina}</p>}
+                {d?.buff && (
+                  <p className="mt-1 flex items-start gap-1.5 text-ui">
+                    <TownIcon name={BUFFS[d.buff].icon as IconName} size={20} className="mt-0.5" />
+                    <span><span className="font-semibold">{th ? BUFFS[d.buff].name.th : BUFFS[d.buff].name.en}</span>{" "}
+                      <span style={{ color: INK_SOFT }}>{th ? BUFFS[d.buff].about.th : BUFFS[d.buff].about.en}</span></span>
+                  </p>
+                )}
+
+                <div className="mt-4 flex justify-center">
+                  <button ref={button} type="button" onClick={close}
+                          className="pressable min-h-11 rounded-full px-6 text-ui font-semibold"
+                          style={{ backgroundColor: INK, color: PAPER }}>
+                    {th ? "ม้วนเก็บ" : "Roll it up"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Rod />
+      </div>
+    </div>
+  );
+}
+
+/** One of the scroll's two wooden rods, with a knob at each end. */
+function Rod() {
+  const knob = { background: `linear-gradient(180deg, ${WOOD_LIGHT}, ${WOOD} 45%, ${WOOD_DARK})`, boxShadow: `0 0 0 2px ${WOOD_DARK}` } as const;
+  return (
+    <div aria-hidden className="relative z-10 flex items-center">
+      <span className="size-4 shrink-0 rounded-sm" style={knob} />
+      <span className="h-3.5 flex-1" style={{ background: `linear-gradient(180deg, ${WOOD_LIGHT}, ${WOOD} 40%, ${WOOD_DARK})`, boxShadow: `0 0 0 2px ${WOOD_DARK}, 0 4px 6px rgba(0,0,0,0.35)` }} />
+      <span className="size-4 shrink-0 rounded-sm" style={knob} />
+    </div>
+  );
+}
+
+/** A line across the paper, a little flourish in its middle. */
+function Rule() {
+  return (
+    <div aria-hidden className="my-3 flex items-center gap-2" style={{ color: INK_SOFT }}>
+      <span className="h-px flex-1" style={{ backgroundColor: "currentColor", opacity: 0.5 }} />
+      <span className="size-1.5 rotate-45" style={{ backgroundColor: "currentColor" }} />
+      <span className="h-px flex-1" style={{ backgroundColor: "currentColor", opacity: 0.5 }} />
+    </div>
+  );
+}

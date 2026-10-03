@@ -1,0 +1,11 @@
+The attached picture is a large wooden fishing deck being built at a river bank, from a cozy 2D town game. Redraw the same deck finished, in exactly the same place on the canvas and at the same size: the same isometric three-quarter top-down angle, the same platform on its round posts and the same two jetties where they are now, the same wood colours, thick dark outline and chunky pixel size. Do not draw any characters.
+
+What changes, now that it is finished:
+- every floor board is laid: the left third of the platform and both jetties are boarded like the rest, with no bare joists left;
+- the building things are gone: no stacks of planks, no sawhorses, no toolbox, no coils of rope lying on the floor;
+- the short flight of three wooden steps at the platform's right corner is finished, with a post at each side, leading down to the ground;
+- a low wooden railing runs only along the two far edges of the platform (the upper left edge and the upper right edge). The two near edges (lower left and lower right) and both jetties have no railing at all, only a short post with an empty rod holder here and there, so that people can stand at the edge and fish;
+- the floor is clear to walk on. Keep only these, standing in a row close along the far railing: two wooden racks of bamboo fishing rods, three wooden barrels, a long wooden bench and two wooden buckets. Put one small wooden stool at the far end of each jetty;
+- the wooden sign post beside the steps has a small fish painted on its board (a picture only, no letters).
+
+The whole deck sits in the middle of the canvas with empty space all around it, and nothing is cropped. Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no water, no ground under it, no shadows, no text, no labels.

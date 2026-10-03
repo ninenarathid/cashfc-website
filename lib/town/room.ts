@@ -4,7 +4,7 @@ import { createClient as createSupabase, type RealtimeChannel, type SupabaseClie
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 import { cleanChat } from "./chat";
 import { decodeLook } from "./look";
-import { BENCHES, SIT_HERE } from "./world";
+import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS } from "./world";
 
 /**
  * The town's room on Supabase Realtime, written around the plan's limits
@@ -60,6 +60,12 @@ export interface Doing {
   sit?: number;
   /** Typing a chat line now ("…" over their head); missing from a browser older than that. */
   typing?: boolean;
+  /** The dish being eaten (its name in lib/town/items), "" when none; missing from a browser older than meals. */
+  eat?: string;
+  /** The thing held in the hand (its name in lib/town/items), "" when none; missing from a browser older than hands. */
+  hold?: string;
+  /** Fishing: 1 with a rod in hand, 2 with a line in the water, 3 with a fish on, 4 for a moment when one has just been landed; 0 or missing when not. Where the float is follows from where they stand (lib/town/world's fishFrom). */
+  fish?: number;
 }
 
 /**
@@ -81,6 +87,8 @@ export interface RoomHandlers {
   /** Somebody typed a line (raw: clean it before showing it). */
   onChat(id: string, text: unknown): void;
   onSignal(from: string, data: unknown): void;
+  /** Somebody did something the others will want to see (raw: a word for what, never the change itself, which each asks the database for). */
+  onNudge(id: string, what: unknown): void;
   onStatus(status: RoomStatus, detail?: string): void;
 }
 
@@ -92,6 +100,8 @@ export interface Room {
   /** Type a line to everybody in the room; false when not connected (nothing was sent). */
   chat(text: string): boolean;
   signal(to: string, data: unknown): void;
+  /** Say that something of the town's game changed (the farm, the kitchen), to everybody; or, into one letterbox, that a deal with them did. */
+  nudge(what: string, to?: string): void;
   bye(): void;
   /** Make sure the room still lists me; say who I am again if it lost me. */
   check(): void;
@@ -132,9 +142,13 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (away !== undefined) d.away = away;
   if (decodeLook(p.look)) d.look = p.look as string;
   const sit = num(p.sit);
-  if (sit !== undefined && Number.isInteger(sit) && sit >= SIT_HERE && sit < BENCHES.length) d.sit = sit;
+  // (a bench of the town's, the ground, or a place at one of the cooking yard's tables)
+  if (sit !== undefined && Number.isInteger(sit) && ((sit >= SIT_HERE && sit < BENCHES.length) || (sit >= YARD_SEATS && sit < YARD_SEATS + KITCHEN.seats.length))) d.sit = sit;
   const typing = bool(p.typing);
   if (typing !== undefined) d.typing = typing;
+  if (typeof p.eat === "string" && /^[A-Za-z]{0,24}$/.test(p.eat)) d.eat = p.eat;
+  if (typeof p.hold === "string" && /^[A-Za-z]{0,24}$/.test(p.hold)) d.hold = p.hold;
+  if (p.fish === 0 || p.fish === 1 || p.fish === 2 || p.fish === 3 || p.fish === 4) d.fish = p.fish;
   return d;
 }
 
@@ -229,6 +243,10 @@ export async function joinTown(
     const p = payload as Record<string, unknown>;
     if (typeof p?.id === "string" && p.id !== me.id) h.onChat(p.id, p.t);
   });
+  room.on("broadcast", { event: "nd" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
+  });
 
   /* ── my letterbox ── */
   const box: RealtimeChannel = supabase.channel(boxOf(me.id), {
@@ -237,6 +255,10 @@ export async function joinTown(
   box.on("broadcast", { event: "st" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
     if (typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
+  });
+  box.on("broadcast", { event: "nd" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
   });
   box.on("broadcast", { event: "rtc" }, ({ payload }) => {
     const p = payload as { from?: unknown; data?: unknown };
@@ -305,6 +327,7 @@ export async function joinTown(
     tell(to, d) { post(to, "st", { id: me.id, ...d }); },
     chat(text) { return cast("chat", { id: me.id, t: text }); },
     signal(to, data) { post(to, "rtc", { from: me.id, data }); },
+    nudge(what, to) { if (to) post(to, "nd", { id: me.id, w: what }); else cast("nd", { id: me.id, w: what }); },
     bye() { cast("bye", { id: me.id }); },
     check() {
       if (room.state !== "joined") return;

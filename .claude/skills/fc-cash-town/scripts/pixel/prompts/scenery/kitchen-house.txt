@@ -1,0 +1,11 @@
+The attached picture is an open-air cooking yard from a cozy 2D town game: a low stone kerb round a flagstone floor, with brick stoves, tables and benches on it, seen from the front and a little above. Redraw the same place as it looks from outside now that it has walls and a roof: a single-storey village kitchen house standing on that same stone kerb, in exactly the same place on the canvas and at the same size, in the same front-facing three-quarter top-down view, with the same stone and wood colours, thick dark outline and chunky pixel size. Do not draw any characters.
+
+What it looks like:
+- the stone kerb is its foundation: it shows all along the front and at both ends exactly where it is in the attached picture, with its wooden corner posts at the two front corners;
+- warm brown wooden plank walls rise straight up from the kerb on every side, about as tall as a person. Nothing inside can be seen: no stoves, no tables, no benches, no floor;
+- in the front wall, where the gap in the front kerb is (a little left of the middle), a wide open doorway, dark inside, with a short dark blue cloth curtain hanging across its top, and a small round paper lantern on the wall at each side of it;
+- two wide windows with wooden shutters and dark openings in the front wall, one well to the left of the doorway and one well to the right;
+- a big roof of reddish-brown clay tiles covers the whole house, its ridge running from left to right and its front slope facing the viewer, overhanging the walls a little on every side; a short brick chimney stands on the roof toward the back at the left, with no smoke;
+- the wooden sign post with the small cooking pot painted on its board still stands in front, beside the doorway, exactly where it is in the attached picture.
+
+The whole house sits in the middle of the canvas with empty space all around it, with room above for the roof, and nothing is cropped. Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground outside the kerb, no shadows, no text, no labels.

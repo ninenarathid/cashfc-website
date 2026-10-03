@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small item icons for that game's shop, bag and cooking, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a knobbly pinkish-white galangal root; 2) two round green limes, one of them cut in half; 3) a long green-yellow papaya with one half cut open showing orange flesh and black seeds; 4) one whole flat oval grey-green gourami with dark slanted stripes and a long thread-like belly fin, seen from the side, facing left; 5) a small brown-purple rice-field crab with raised claws, seen from above; 6) a dark olive pond snail with a pointed spiral shell.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.
