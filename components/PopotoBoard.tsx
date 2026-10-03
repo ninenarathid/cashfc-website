@@ -138,7 +138,7 @@ function OneBoard({ board, names, period, first }: {
 }) {
   const { t } = useLang();
   // Every period read so far, kept while the page is open. Going back to one
-  // is the same question asked twice, and all time is forty pages of rows.
+  // is the same question asked twice.
   const [lists, setLists] = useState<Partial<Record<PopotoPeriod, BoardRow[]>>>({});
   const [failed, setFailed] = useState<Partial<Record<PopotoPeriod, boolean>>>({});
   const [attempt, setAttempt] = useState(0);

@@ -38,14 +38,48 @@ export type FirstLook = Record<"profile" | "gallery", BoardRow[]>;
  *
  * One row per sender per person per day, which the table enforces, so counting
  * rows counts potatoes and counting senders counts people.
+ *
+ * The database does the counting (popoto_totals, v104) and sends one line a
+ * person. It used to send every row to be added up here: fifty-odd pages of
+ * them for all time by October 2026, on the way to the hundred lib/rows.ts
+ * stops at, and the whole month to every visitor of the front page.
  */
 export async function profileTotals(
   supabase: SupabaseClient, from: string | null,
 ): Promise<Totals> {
-  // Paged. This used to be one select, which meant the board counted the
-  // first thousand rows of the table and then quietly stopped — every
-  // total on the page was short from the day kudos passed that mark, while
-  // each member's own page, which filters to one person, stayed right.
+  // Still paged. PostgREST cuts an answer at a thousand lines without a word,
+  // which is how this board once came up short (lib/rows.ts), and it is past
+  // five hundred people. In the order each was first given one, which never
+  // ties and is the order the rows used to be met in: `rank` leaves a tie in
+  // both numbers as it finds it, so the board settles one the way it always
+  // has. Asked with GET, as the rows were, because the client tries a GET
+  // again when the database is briefly away.
+  let missing = false;
+  const lines = await allRowsOrThrow<{ receiver_character_id: number; score: number; n: number }>(
+    async (a, b) => {
+      const page = await supabase
+        .rpc("popoto_totals", from ? { p_since: from } : {}, { get: true })
+        .order("first_id").range(a, b);
+      // PGRST202 is PostgREST saying it knows no such function: this is a
+      // database v104 has not been run on yet.
+      missing ||= page.error?.code === "PGRST202";
+      return missing ? { data: null, error: null } : page;
+    });
+  if (missing) return countedHere(supabase, from);
+  return new Map(lines.map((l) => [l.receiver_character_id, { score: l.score, n: l.n }]));
+}
+
+/**
+ * The same totals from the rows themselves, as they were counted before v104.
+ *
+ * The site is deployed before the SQL is run, and the boards have to be right
+ * on both sides of that. Delete this, and the PGRST202 branch that leads here,
+ * once "v104 has run" is committed: it is every row of `kudos` again, and it
+ * throws at a hundred thousand of them (about 2026-10-14 for all time).
+ */
+async function countedHere(
+  supabase: SupabaseClient, from: string | null,
+): Promise<Totals> {
   // In id order, so no page can repeat or skip a row of the one before.
   const data = await allRowsOrThrow<{ receiver_character_id: number; sender_id: string }>(
     (a, b) => {

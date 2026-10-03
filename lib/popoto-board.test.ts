@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { TOP_N, rank, type Totals } from "@/lib/popoto-board";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { TOP_N, profileTotals, rank, type Totals } from "@/lib/popoto-board";
 
 /**
  * The top of a popoto board.
@@ -34,5 +35,200 @@ describe("rank", () => {
   it(`stops at ${TOP_N}`, () => {
     const many = totals(Array.from({ length: 25 }, (_, i) => [i + 1, 30 - i, 1]));
     expect(rank(many, names)).toHaveLength(TOP_N);
+  });
+});
+
+/**
+ * Who has how many: asked of the database and, until v104 has run, counted
+ * from the rows.
+ *
+ * The two ways have to give the same board, down to who comes first on a tie.
+ * The site is deployed before the SQL is run, and a board that reshuffled
+ * itself the evening the function arrived would look like a bug in whichever
+ * half somebody noticed. And an answer the database could not give must never
+ * be read as nobody having any, nor as a reason to go and fetch every row.
+ */
+
+interface Kudo { id: number; receiver_character_id: number; sender_id: string; created_at: string }
+interface Line { receiver_character_id: number; score: number; n: number; first_id: number }
+
+const OCTOBER = "2026-10-01T00:00:00+07:00";
+
+/** What popoto_totals answers for these rows, in no order the caller is owed. */
+function totalsOf(kudos: Kudo[], since: string | null): Line[] {
+  const by = new Map<number, { score: number; who: Set<string>; first_id: number }>();
+  for (const k of kudos) {
+    if (since && Date.parse(k.created_at) < Date.parse(since)) continue;
+    const at = by.get(k.receiver_character_id)
+      ?? { score: 0, who: new Set<string>(), first_id: k.id };
+    at.score += 1;
+    at.who.add(k.sender_id);
+    at.first_id = Math.min(at.first_id, k.id);
+    by.set(k.receiver_character_id, at);
+  }
+  return [...by.entries()]
+    .map(([id, v]) => ({
+      receiver_character_id: id, score: v.score, n: v.who.size, first_id: v.first_id,
+    }))
+    .sort((a, b) => a.receiver_character_id - b.receiver_character_id);
+}
+
+/**
+ * Just enough of a Supabase client for profileTotals, over rows held here.
+ *
+ * `fn` is what the database says when asked for popoto_totals: "there" answers
+ * as v104's function does, "missing" as PostgREST does before it has been run,
+ * and anything else is handed back as the error. Answers and rows are both cut
+ * a thousand at a time, the way PostgREST cuts them, and put in an order only
+ * when one is asked for. Every request is written down.
+ */
+function fake(
+  kudos: Kudo[],
+  fn: "there" | "missing" | { code: string; message: string } = "there",
+  rowsFail = false,
+) {
+  const asked: string[] = [];
+  const cut = <T,>(all: T[], a: number, b: number) =>
+    ({ data: all.slice(a, Math.min(b, a + 999) + 1), error: null });
+  const client = {
+    rpc(name: string, args: { p_since?: string }, how?: { get?: boolean }) {
+      let by = "";
+      const q = {
+        order(column: string) { by = column; return q; },
+        range(a: number, b: number) {
+          asked.push(`${how?.get ? "GET" : "POST"} ${name} ${JSON.stringify(args)} by ${by} ${a}-${b}`);
+          if (fn === "missing") {
+            return Promise.resolve({ data: null, error: {
+              code: "PGRST202",
+              message: "Could not find the function public.popoto_totals(p_since) in the schema cache",
+            } });
+          }
+          if (fn !== "there") return Promise.resolve({ data: null, error: fn });
+          const lines = totalsOf(kudos, args.p_since ?? null);
+          if (by === "first_id") lines.sort((x, y) => x.first_id - y.first_id);
+          return Promise.resolve(cut(lines, a, b));
+        },
+      };
+      return q;
+    },
+    from(table: string) {
+      let since: string | null = null;
+      let by = "";
+      const q = {
+        select() { return q; },
+        gte(_column: string, value: string) { since = value; return q; },
+        order(column: string) { by = column; return q; },
+        range(a: number, b: number) {
+          asked.push(`rows of ${table} since ${since} by ${by} ${a}-${b}`);
+          if (rowsFail) {
+            return Promise.resolve({ data: null, error: { message: "the rows would not come" } });
+          }
+          const rows = kudos
+            .filter((k) => !since || Date.parse(k.created_at) >= Date.parse(since))
+            .sort((x, y) => (by === "id" ? x.id - y.id : 0));
+          return Promise.resolve(cut(rows, a, b));
+        },
+      };
+      return q;
+    },
+  };
+  return { supabase: client as unknown as SupabaseClient, asked };
+}
+
+const kudo = (id: number, to: number, from: string, at: string): Kudo =>
+  ({ id, receiver_character_id: to, sender_id: from, created_at: `${at}+07:00` });
+
+// Five people over the turn of a month. 50 and 40 end level, on one potato
+// from one person each, and 50 was given theirs first.
+const KUDOS: Kudo[] = [
+  kudo(1, 50, "a", "2026-09-10T08:00:00"),
+  kudo(2, 10, "a", "2026-09-28T10:00:00"),
+  kudo(3, 10, "b", "2026-09-29T10:00:00"),
+  kudo(4, 30, "a", "2026-09-30T23:59:59.999"),   // the last millisecond of September
+  kudo(5, 20, "a", "2026-10-01T00:00:00"),       // October, to the instant
+  kudo(6, 20, "b", "2026-10-01T09:00:00"),
+  kudo(7, 10, "a", "2026-10-02T10:00:00"),       // the same giver, another day
+  kudo(8, 30, "c", "2026-10-02T11:00:00"),
+  kudo(9, 20, "c", "2026-10-02T12:00:00"),
+  kudo(10, 40, "c", "2026-10-03T07:00:00"),
+];
+
+const ALL_TIME = [
+  [50, { score: 1, n: 1 }], [10, { score: 3, n: 2 }], [30, { score: 2, n: 2 }],
+  [20, { score: 3, n: 3 }], [40, { score: 1, n: 1 }],
+];
+const THIS_MONTH = [
+  [20, { score: 3, n: 3 }], [10, { score: 1, n: 1 }], [30, { score: 1, n: 1 }],
+  [40, { score: 1, n: 1 }],
+];
+
+/** Which rows or lines each request asked for, without the rest of it. */
+const pages = (asked: string[]) => asked.map((a) => a.split(" ").at(-1));
+
+describe("profileTotals", () => {
+  it("asks the database, and keeps the order each was first given one", async () => {
+    const { supabase, asked } = fake(KUDOS);
+    expect([...await profileTotals(supabase, null)]).toEqual(ALL_TIME);
+    expect([...await profileTotals(supabase, OCTOBER)]).toEqual(THIS_MONTH);
+    // One request each, no date at all for all time, and never the rows.
+    expect(asked).toEqual([
+      "GET popoto_totals {} by first_id 0-999",
+      `GET popoto_totals {"p_since":"${OCTOBER}"} by first_id 0-999`,
+    ]);
+  });
+
+  it("counts the rows itself until v104 has run, to the same answer", async () => {
+    const { supabase, asked } = fake(KUDOS, "missing");
+    expect([...await profileTotals(supabase, null)]).toEqual(ALL_TIME);
+    expect([...await profileTotals(supabase, OCTOBER)]).toEqual(THIS_MONTH);
+    expect(asked).toEqual([
+      "GET popoto_totals {} by first_id 0-999",
+      "rows of kudos since null by id 0-999",
+      `GET popoto_totals {"p_since":"${OCTOBER}"} by first_id 0-999`,
+      `rows of kudos since ${OCTOBER} by id 0-999`,
+    ]);
+  });
+
+  it("draws the same board either way, a tie going to whoever was given theirs first", async () => {
+    for (const from of [null, OCTOBER]) {
+      const counted = rank(await profileTotals(fake(KUDOS).supabase, from), {});
+      const fetched = rank(await profileTotals(fake(KUDOS, "missing").supabase, from), {});
+      expect(counted).toEqual(fetched);
+    }
+    const all = rank(await profileTotals(fake(KUDOS).supabase, null), {});
+    expect(all.map((r) => r.id)).toEqual([20, 10, 30, 50, 40]);
+  });
+
+  it("asks again past a thousand people, and drops nobody", async () => {
+    const crowd = Array.from({ length: 2500 }, (_, i) =>
+      kudo(i + 1, 9000 + i, "a", "2026-10-02T10:00:00"));
+    const { supabase, asked } = fake(crowd);
+    const got = await profileTotals(supabase, null);
+    expect(got.size).toBe(2500);
+    expect([...got.keys()].slice(0, 2)).toEqual([9000, 9001]);
+    expect([...got.keys()].at(-1)).toBe(11499);
+    expect(pages(asked)).toEqual(["0-999", "1000-1999", "2000-2999"]);
+  });
+
+  it("reads every page of rows while the function is missing", async () => {
+    // 2,500 potatoes to five people from fifty givers, a thousand rows a page.
+    const many = Array.from({ length: 2500 }, (_, i) =>
+      kudo(i + 1, 10 + (i % 5), `giver-${i % 50}`, "2026-10-02T10:00:00"));
+    const { supabase, asked } = fake(many, "missing");
+    const got = await profileTotals(supabase, null);
+    expect([...got]).toEqual([10, 11, 12, 13, 14].map((id) => [id, { score: 500, n: 10 }]));
+    expect(pages(asked.slice(1))).toEqual(["0-999", "1000-1999", "2000-2999"]);
+  });
+
+  it("says so when the database fails, and does not fetch every row instead", async () => {
+    const { supabase, asked } = fake(KUDOS,
+      { code: "57014", message: "canceling statement due to statement timeout" });
+    await expect(profileTotals(supabase, null)).rejects.toThrow("statement timeout");
+    expect(asked).toEqual(["GET popoto_totals {} by first_id 0-999"]);
+  });
+
+  it("says so when the rows will not come either", async () => {
+    const { supabase } = fake(KUDOS, "missing", true);
+    await expect(profileTotals(supabase, null)).rejects.toThrow("the rows would not come");
   });
 });
