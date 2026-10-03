@@ -1060,21 +1060,36 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         else if (p.kind === "tree" || p.kind === "pine") drawTree(ctx, p);
       } });
     }
-    // Popoto Shop, being built: the site, and popoto workers at it.
-    if (scenery?.has("shop1")) {
+    // Popoto Shop, being built: the site as it stands at its stage, and popoto workers at it.
+    const shopArt = scenery?.has(`shop${SHOP.stage}`) ? `shop${SHOP.stage}` : "shop1";
+    if (scenery?.has(shopArt)) {
       const corner = project({ x: SHOP.x + SHOP.w - 0.1, y: SHOP.y + SHOP.h - 0.1 });
       things.push({ depth: SHOP.x + SHOP.y + SHOP.w + SHOP.h - 1, draw: () => {
-        scenery.drawProp(ctx, "shop1", corner.x, corner.y, v.s, dpr);
+        scenery.drawProp(ctx, shopArt, corner.x, corner.y, v.s, dpr);
         const t = reducedRef.current ? 0 : now;
-        // one hammering on the floor boards
-        const h = project({ x: SHOP.x + 1.1, y: SHOP.y + 2.2 });
-        scenery.drawProp(ctx, `pw_h${[1, 2, 3, 2][Math.floor(t / 210) % 4]}`, h.x, h.y, v.s, dpr);
-        // one carrying a plank across the site and back
-        const k = (t / 3200) % 2, along = k < 1 ? k : 2 - k;
-        const w = project({ x: SHOP.x + 0.6 + along * 1.6, y: SHOP.y + 0.9 });
-        scenery.drawProp(ctx, `pw_c${[1, 2, 3, 2][Math.floor(t / 170) % 4]}`, w.x, w.y, v.s, dpr, 0, k >= 1);
-        const top = project({ x: SHOP.x + SHOP.w / 2, y: SHOP.y + SHOP.h / 2 });
-        signs.push(() => label(ctx, `Popoto Shop · ${words.current.th ? "กำลังสร้าง" : "being built"}`, top.x, top.y - 70 * v.s,
+        const hammer = `pw_h${[1, 2, 3, 2][Math.floor(t / 210) % 4]}`, carry = `pw_c${[1, 2, 3, 2][Math.floor(t / 170) % 4]}`;
+        if (shopArt === "shop1") {
+          // one hammering on the floor boards
+          const h = project({ x: SHOP.x + 1.1, y: SHOP.y + 2.2 });
+          scenery.drawProp(ctx, hammer, h.x, h.y, v.s, dpr);
+          // one carrying a plank across the site and back
+          const k = (t / 3200) % 2, along = k < 1 ? k : 2 - k;
+          const w = project({ x: SHOP.x + 0.6 + along * 1.6, y: SHOP.y + 0.9 });
+          scenery.drawProp(ctx, carry, w.x, w.y, v.s, dpr, 0, k >= 1);
+        } else {
+          // The walls are up: the workers are where the picture has room for them, measured in its own pixels
+          // from its ground point. One hammers up on the scaffold; one carries planks along the front wall,
+          // between the ladder and the doorway, and back.
+          const at = (px: number, py: number) => ({ x: corner.x + px * v.s, y: corner.y + py * v.s });
+          const h = at(-61, -101);
+          scenery.drawProp(ctx, hammer, h.x, h.y, v.s, dpr);
+          const k = (t / 3400) % 2, along = k < 1 ? k : 2 - k;
+          const w = at(-84 + along * 70, -58 + along * 8);
+          scenery.drawProp(ctx, carry, w.x, w.y, v.s, dpr, 0, k >= 1);
+        }
+        // its name, over the top of whatever stands there now
+        const [, tall] = scenery.anchorOf(shopArt);
+        signs.push(() => label(ctx, `Popoto Shop · ${words.current.th ? "กำลังสร้าง" : "being built"}`, corner.x, corner.y - (tall - 4) * v.s,
           "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
       } });
     }

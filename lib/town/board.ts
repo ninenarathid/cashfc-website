@@ -37,6 +37,20 @@ export interface Work {
 /** What is being built now. Popoto Shop: "อีก 3-4 วัน" on 2026-10-02. */
 export const BUILDING: Work = { th: "Popoto Shop", en: "Popoto Shop", began: "2026-10-02", soonest: "2026-10-05", latest: "2026-10-06" };
 
+/** The stages a building goes up in, in order; lib/town/world says which the shop is at (SHOP.stage, from 1). */
+export const STAGES: Array<{ th: string; en: string }> = [
+  { th: "วางฐานราก", en: "Foundation" },
+  { th: "ขึ้นโครงและผนัง", en: "Frame and walls" },
+  { th: "มุงหลังคาและตกแต่ง", en: "Roof and fittings" },
+];
+
+/** "ขั้นที่ 2 จาก 3 · ขึ้นโครงและผนัง": the stage, by its number from 1 (kept within the list). */
+export function stageText(stage: number, th: boolean): string {
+  const n = Math.min(STAGES.length, Math.max(1, Math.floor(stage)));
+  const s = STAGES[n - 1];
+  return th ? `ขั้นที่ ${n} จาก ${STAGES.length} · ${s.th}` : `Stage ${n} of ${STAGES.length} · ${s.en}`;
+}
+
 const DAY = 86_400_000;
 
 /** Whole Bangkok days from `now` to a Bangkok date: 0 on the day itself, negative after it. */

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BUILDING, CHOICES, countsOf, daysUntil, etaShort, etaText, moved, progressOf } from "./board";
+import { BUILDING, CHOICES, STAGES, countsOf, daysUntil, etaShort, etaText, moved, progressOf, stageText } from "./board";
+import { SHOP } from "./world";
 
 /** A moment in Bangkok (UTC+7). */
 const bkk = (s: string) => new Date(`${s}+07:00`);
@@ -26,6 +27,16 @@ describe("the Popoto Board", () => {
     expect(etaText(BUILDING, bkk("2026-10-06T09:00:00"), true)).toBe("น่าจะเสร็จวันนี้");
     expect(etaText(BUILDING, bkk("2026-10-09T09:00:00"), true)).toBe("ใกล้เสร็จแล้ว อีกนิดเดียว");
     expect(etaText({ ...BUILDING, soonest: "2026-10-04", latest: "2026-10-04" }, bkk("2026-10-03T09:00:00"), false)).toBe("About 1 more day");
+  });
+
+  it("says which stage the shop is at, in words, and stays within its stages", () => {
+    expect(stageText(2, true)).toBe("ขั้นที่ 2 จาก 3 · ขึ้นโครงและผนัง");
+    expect(stageText(2, false)).toBe("Stage 2 of 3 · Frame and walls");
+    expect(stageText(0, false)).toBe("Stage 1 of 3 · Foundation");
+    expect(stageText(9, true)).toBe("ขั้นที่ 3 จาก 3 · มุงหลังคาและตกแต่ง");
+    // the shop's own stage is one of them
+    expect(SHOP.stage).toBeGreaterThanOrEqual(1);
+    expect(SHOP.stage).toBeLessThanOrEqual(STAGES.length);
   });
 
   it("fills its bar as the days go, never empty and never full", () => {

@@ -27,6 +27,9 @@ const SHEETS = [
   ["scene-fountain", ["fountain"]],
   ["scene-bench-back", ["lamp2", "barrel", "bench_back", "planter", "sign2"]],
   ["scene-shop-1", ["shop1"], "whole"],
+  // the shop's later stages are edits of the first sheet, which the model moves about the canvas a little: each
+  // stands on the first stage's ground point, found by laying its heaps (planks, bricks, barrow) on the first's
+  ["scene-shop-2", ["shop2"], "whole", "scene-shop-1"],
   ["scene-popoto-workers", ["pw_h1", "pw_h2", "pw_h3", "pw_c1", "pw_c2", "pw_c3"], "hat"],
   // the fountain as four frames drawn together (one image, so they agree); "anim" keeps
   // the first frame's stone in every frame, so only the water moves
@@ -60,11 +63,31 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
 const TEXTURES = ["grass", "plaza", "road", "water", "sand"];
 
 const pieces = [];
-for (const [sheet, names, how] of SHEETS) {
+/** Whole sheets as gridded, for a later sheet to stand where an earlier one does: its cells and its ground point. */
+const wholes = new Map();
+/** How far sheet `g` is from sheet `ref`, in cells: the move that lays the most of ref's lowest third on it. */
+function moveOnto(g, ref, refSet) {
+  const b = L.bbox(ref, refSet), y0 = Math.round(b.y1 - (b.y1 - b.y0) * 0.33);
+  const low = [...refSet].filter((i) => ((i / ref.GW) | 0) >= y0);
+  let best = { n: -1, dx: 0, dy: 0 };
+  for (let dy = -40; dy <= 40; dy++) for (let dx = -40; dx <= 40; dx++) {
+    let n = 0;
+    for (const i of low) {
+      const x = (i % ref.GW) + dx, y = ((i / ref.GW) | 0) + dy;
+      if (x < 0 || y < 0 || x >= g.GW || y >= g.GH) continue;
+      const j = (y * g.GW + x) * 4;
+      if (g.c[j + 3] && Math.abs(g.c[j] - ref.c[i * 4]) + Math.abs(g.c[j + 1] - ref.c[i * 4 + 1]) + Math.abs(g.c[j + 2] - ref.c[i * 4 + 2]) < 70) n++;
+    }
+    if (n > best.n) best = { n, dx, dy };
+  }
+  return { ...best, of: low.length };
+}
+for (const [sheet, names, how, like] of SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
-  const grid = L.detectGrid(raw, undefined, [4.5, 7.5]);
+  // (a sheet that stands where another does is cut at that one's pixel size)
+  const grid = L.detectGrid(raw, wholes.get(like)?.grid.p, [4.5, 7.5]);
   const g = L.cellsOf(raw, grid);
   L.snap(g, L.paletteOf([g], 64));
   const figs = how === "whole" ? [new Set(L.components(g).filter(c => c.mem.length >= 3).flatMap(c => c.mem))] : L.figures(g, L.spansOf(g, names.length));
@@ -82,7 +105,18 @@ for (const [sheet, names, how] of SHEETS) {
       for (const i of set) { const [h, s2, l] = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]); if (h >= 20 && h <= 42 && s2 > 0.35 && l > 0.42 && l < 0.78) { sx += i % g.GW; n++; } }
       if (n > 20) ax = Math.round(sx / n);
     }
-    pieces.push({ name, img: im, ax: ax - im.x0, ay: b.y1 - im.y0 });
+    let ay = b.y1;
+    if (how === "whole") {
+      const ref = wholes.get(like);
+      if (ref) {
+        const m = moveOnto(g, ref.g, ref.set);
+        ax = ref.ax + m.dx; ay = ref.ay + m.dy;
+        console.log(`  ${name}: stands where ${like} does, moved ${m.dx},${m.dy} (${m.n} of ${m.of} cells of its heaps agree)`);
+        if (m.n < m.of * 0.5) throw new Error(`${sheet}: its heaps do not match ${like}'s (${m.n} of ${m.of}); it cannot be stood on the same ground point`);
+      }
+      wholes.set(sheet, { g, grid, set, ax, ay });
+    }
+    pieces.push({ name, img: im, ax: ax - im.x0, ay: ay - im.y0 });
     console.log(`${name.padEnd(9)} ${im.w}x${im.h}  (grid ${grid.p.toFixed(2)})`);
   });
   if (how === "anim") {

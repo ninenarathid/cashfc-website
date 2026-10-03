@@ -92,10 +92,12 @@ export const FOUNTAIN = { x: 31, y: 31, w: 2, h: 2 };
 /** The starter town: lamps, benches and planters inside; woods and meadows outside. */
 export const TOWN = { x: 16, y: 16, w: 32, h: 32 };
 /**
- * Popoto Shop, being built (stage 1 of 3: the foundation, popoto workers on
- * site). Where things will be bought; not walkable.
+ * Popoto Shop, being built, popoto workers on site: stage 1 of 3 was the
+ * foundation; stage 2 (the owner, 2026-10-03: "ขึ้น state 2 ได้เลย") is the
+ * timber frame and walls up, the roof's rafters going on. Where things will be
+ * bought; not walkable. The stage picks the picture (scenery `shop<stage>`).
  */
-export const SHOP = { x: 39, y: 24, w: 3, h: 3, stage: 1 };
+export const SHOP = { x: 39, y: 24, w: 3, h: 3, stage: 2 };
 /**
  * The Popoto Board: a big notice board just north of the plaza, in the middle
  * of the map, telling the town how the building work goes and taking votes for

@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import { createClient } from "@/lib/supabase/client";
-import { BUILDING, CHOICES, POLL, countsOf, etaText, moved, progressOf } from "@/lib/town/board";
+import { BUILDING, CHOICES, POLL, countsOf, etaText, moved, progressOf, stageText } from "@/lib/town/board";
+import { SHOP } from "@/lib/town/world";
 import type { Sprite } from "@/lib/town/scenery";
 import TownIcon from "./TownIcon";
 
@@ -116,7 +117,8 @@ export default function TownBoard({ th, onClose, onVoted, art }: {
               {th ? "กำลังสร้าง" : "Being built"}
             </span>
           </div>
-          <p className="mt-1 text-meta text-muted">{etaText(BUILDING, now, th)}</p>
+          <p className="mt-1 text-meta text-ink">{stageText(SHOP.stage, th)}</p>
+          <p className="text-meta text-muted">{etaText(BUILDING, now, th)}</p>
           <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-line">
             <div className="h-full rounded-full bg-accent/70 [background-image:repeating-linear-gradient(45deg,transparent_0_6px,rgba(0,0,0,0.18)_6px_12px)]"
                  style={{ width: `${Math.round(progressOf(BUILDING, now) * 100)}%` }} />
