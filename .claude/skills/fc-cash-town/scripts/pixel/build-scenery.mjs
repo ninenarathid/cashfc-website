@@ -57,6 +57,10 @@ const SHEETS = [
   ["river-things", ["rv_leaf", "rv_lily", "rv_boat", "rv_stick", "rv_duck", "rv_koi"]],
   // leaves on the wind (fine weather), drawn small and tumbling
   ["scene-leaves", ["lf1", "lf2", "lf3", "lf4", "lf5", "lf6"]],
+  // the fishing deck going up at the river (its first stage), and popoto builders in a hurry:
+  // three running with a plank, two hammering, one wiping its brow
+  ["scene-pier-1", ["pier1"], "whole"],
+  ["popoto-rush", ["rush1", "rush2", "rush3", "rush_h1", "rush_h2", "rush_wipe"], "hat"],
 ];
 const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
@@ -151,7 +155,9 @@ for (const t of TEXTURES) {
 
 // pack
 const all = [...pieces, ...textures];
-const PAD = 1, W = 512;
+// (1024 across since the fishing deck grew to 619: a piece wider than the picture would be written over its neighbours)
+const PAD = 1, W = 1024;
+for (const p of all) if (p.img.w + 2 * PAD > W) throw new Error(`${p.name} is ${p.img.w} wide: wider than the picture (${W})`);
 all.sort((a, b) => b.img.h - a.img.h);
 let x = PAD, y = PAD, rowH = 0;
 for (const p of all) {

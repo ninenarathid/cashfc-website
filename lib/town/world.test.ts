@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  BENCHES, BOARD, COLS, DROP, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, groundAt, hearing,
+  BENCHES, BOARD, COLS, DROP, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, groundAt, hearing,
   groundLook, moveEvery, pickLines, spawnFor, stepAlong, thingAt, toIso, walkable,
 } from "./world";
 
@@ -73,7 +73,13 @@ describe("walking", () => {
   it("has a river on the left that nobody can cross yet, with a sandy bank", () => {
     const water: Array<[number, number]> = [];
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (groundAt(x, y) === "water") water.push([x, y]);
-    expect(water.length).toBeGreaterThan(80);
+    expect(water.length).toBeGreaterThan(200);
+    // twice as wide as it was (the owner, 2026-10-03), away from the town: four tiles of water or more across
+    // any row (it was two), and the town's own bank where it always was, by the west path's end
+    for (const y of [29, 36, 44, 50]) expect(water.filter(([, wy]) => wy === y).length).toBeGreaterThanOrEqual(4);
+    expect(groundAt(9, 29)).toBe("water");
+    expect(groundAt(10, 29)).toBe("sand");
+    expect(groundAt(12, 29)).toBe("road");
     for (const [x, y] of water) {
       expect(walkable(x, y)).toBe(false);
       // on the left of the map: down-left of the town's middle on the screen
@@ -95,6 +101,35 @@ describe("walking", () => {
     expect(findPath({ x: 32.5, y: 31.5 }, { x: 31.5, y: 2.5 })).not.toBeNull();
     // somewhere to stand in front of it, to read it
     expect(walkable(BOARD.x + BOARD.w, BOARD.y + BOARD.h)).toBe(true);
+  });
+
+  it("builds the fishing deck on the town's bank, between the west and south paths and on neither", () => {
+    expect(PIER.tiles.length).toBeGreaterThan(60);
+    const kinds = new Set<string>();
+    for (const [x, y] of PIER.tiles) {
+      expect(thingAt(x, y)).toBe("pier");
+      kinds.add(groundAt(x, y));
+    }
+    // on the bank, with its left end over the river, and on no path
+    expect([...kinds].sort()).toEqual(["grass", "sand", "water"]);
+    // its post stands in the water
+    expect(groundAt(Math.floor(PIER.post.x), Math.floor(PIER.post.y))).toBe("water");
+    const xs = PIER.tiles.map(([x]) => x), ys = PIER.tiles.map(([, y]) => y);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    // straight left of the plaza on the screen (as far down it as the plaza's middle, give or take), below its left corner
+    expect(Math.abs((x0 + x1 + 1) / 2 + (y0 + y1 + 1) / 2 - (PLAZA.x + PLAZA.y + PLAZA.w))).toBeLessThan(3);
+    expect(y0).toBeGreaterThanOrEqual(PLAZA.y + PLAZA.h);
+    // nothing of the town's layout is left standing on it, and no tree or bush in front of it
+    for (const p of PROPS) {
+      expect(thingAt(p.x, p.y)).not.toBe("pier");
+      if (p.kind === "tree" || p.kind === "bush") expect(p.x >= x0 - 1 && p.x <= x1 + 2 && p.y >= y0 - 1 && p.y <= y1 + 2).toBe(false);
+    }
+    // people walk up to it: behind it, to where its steps will be (from the south path, which stays clear beside it), and in front
+    for (const [x, y] of [[x0 + 6.5, y0 - 0.5], [x1 + 1.5, y0 + 2.5], [x0 + 8.5, y1 + 1.5]])
+      expect(findPath({ x: 32.5, y: 31.5 }, { x, y })).not.toBeNull();
+    for (let y = y0; y <= y1; y++) expect(walkable(x1 + 1, y) || walkable(x1 + 2, y) || walkable(x1 + 3, y)).toBe(true);
+    // the west path's end, where the deck first stood, is clear again
+    expect(walkable(13, 31)).toBe(true);
   });
 
   it("puts the plaza in the middle and the fountain in the plaza", () => {

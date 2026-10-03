@@ -104,23 +104,69 @@ export const SHOP = { x: 39, y: 24, w: 3, h: 3, stage: 2 };
  * the next building (supabase v103). Not walkable; a tap on it opens it.
  */
 export const BOARD = { x: 23, y: 23, w: 2, h: 2 };
+/**
+ * The fishing deck (the owner, 2026-10-03: "ลานตกปลา แถวแม่น้ำด้านซ้าย", then
+ * "ไม่อยู่จุดที่เป็นทางเดิน แต่อยู่ระหว่างทางเดิน ซ้ายบน ซ้ายล่าง ทำให้ใหญ่พอ จะทำให้หลายคน
+ * ตกปลาพร้อมกันได้", then "ขอใหญ่กว่านี้ 2 เท่า ตอนสร้างเสร็จขอมีทางเดินขึ้นไปได้ (บันได
+ * เล็กๆ)"): on the town's bank of the river, straight left of the plaza on the
+ * screen and below its left corner, between where the west path and the south
+ * path meet the water and on neither. A long platform, its left third out over
+ * the river, two jetties further out, and the frame of a few steps up to it at
+ * its right corner, beside the south path. At its first stage it is two thirds
+ * boarded, with popoto builders hurrying at it, and nobody walks on it yet.
+ *
+ * `post` is where the platform's left corner post stands, in the water: the
+ * picture is stood by it. `tiles` are the ones the platform closes: those
+ * whose middles are inside its four corners, which are measured from that post
+ * in the picture (the jetties are over water). The stage picks the picture
+ * (scenery `pier<stage>`).
+ */
+export const PIER = (() => {
+  const post = { x: 18.4, y: 44.5 };
+  // the platform's corners, round from the post: its near corner, its right corner, its far corner
+  const quad = [post, { x: post.x + 10.4, y: post.y + 0.25 }, { x: post.x + 8.9, y: post.y - 6.1 }, { x: post.x - 2.4, y: post.y - 6.55 }];
+  const inside = (px: number, py: number) => quad.every((a, i) => {
+    const b = quad[(i + 1) % quad.length];
+    return (b.x - a.x) * (py - a.y) - (b.y - a.y) * (px - a.x) <= 0;
+  });
+  const tiles: Array<[number, number]> = [];
+  for (let y = Math.floor(post.y) - 8; y <= Math.floor(post.y) + 1; y++) for (let x = Math.floor(post.x) - 4; x <= Math.floor(post.x) + 12; x++) {
+    if (inside(x + 0.5, y + 0.5)) tiles.push([x, y]);
+  }
+  return { stage: 1, post, tiles };
+})();
 
 /**
  * A river round the left of the map (the owner's call, 2026-10-02: "แม่น้ำขนาด
- * กลางที่ยังไม่สามารถข้ามได้"), three tiles wide with sandy banks. It runs down
- * the screen, so it cuts the west and the south paths about as far from the
- * plaza as each other; the far side waits for a bridge. On screen the left is
- * y − x, and down is x + y, so the river's middle wanders in y − x as it goes
- * down.
+ * กลางที่ยังไม่สามารถข้ามได้"), with sandy banks. It runs down the screen, so it
+ * cuts the west and the south paths about as far from the plaza as each other;
+ * the far side waits for a bridge. On screen the left is y − x, and down is
+ * x + y, so the river's middle wanders in y − x as it goes down.
+ *
+ * Twice as wide since 2026-10-03 (the owner: "เพิ่มขนาดแม่น้ำความกว้างเป็นสองเท่าจาก
+ * ตอนนี้"), six tiles of water and more. It grew away from the town: the town's
+ * own bank is exactly where it was, and the far bank a good three tiles further
+ * off, so its middle moved half the old width that way.
  */
+/** Half the water's width, and the sand's beyond it, in tiles of y − x. */
+const RIVER_HALF = 3.2, BANK = 1.6;
+/** Half the river's width as the town was laid out. */
+const RIVER_THEN = 1.6;
 export function riverMiddle(t: number): number {
-  return 24 + 2.4 * Math.sin(t / 9) + 1.2 * Math.sin(t / 4.3 + 1);
+  return 24 + (RIVER_HALF - RIVER_THEN) + 2.4 * Math.sin(t / 9) + 1.2 * Math.sin(t / 4.3 + 1);
 }
 /** How far a point is across the river from its middle, in tiles of y − x. */
 const acrossRiver = (x: number, y: number) => Math.abs(y - x - riverMiddle(x + y - 1));
 /** Tiles, by their middles: water, and the sandy bank beside it. */
-const isWater = (x: number, y: number) => acrossRiver(x + 0.5, y + 0.5) < 1.6;
-const isBank = (x: number, y: number) => !isWater(x, y) && acrossRiver(x + 0.5, y + 0.5) < 3.2;
+const isWater = (x: number, y: number) => acrossRiver(x + 0.5, y + 0.5) < RIVER_HALF;
+const isBank = (x: number, y: number) => !isWater(x, y) && acrossRiver(x + 0.5, y + 0.5) < RIVER_HALF + BANK;
+/**
+ * The river and its banks as they were when the town was laid out, half as
+ * wide. The layout (PROPS) still keeps clear of that river, and what it put
+ * where the water is now is taken away afterwards: so nothing else in the town
+ * moved when the river widened.
+ */
+const wetThen = (x: number, y: number) => Math.abs(y - x - (riverMiddle(x + y) - (RIVER_HALF - RIVER_THEN))) < RIVER_THEN + BANK;
 
 /**
  * The paths (the owner's call, 2026-10-02: "ทางเดินให้ดูธรรมชาติกว่านี้ ตอนนี้มัน
@@ -196,7 +242,18 @@ const within = (x: number, y: number, r: { x: number; y: number; w: number; h: n
 const isPlaza = (x: number, y: number) => within(x, y, PLAZA);
 const isShop = (x: number, y: number) => within(x, y, SHOP);
 const isRoad = (x: number, y: number) => !isPlaza(x, y) && !isWater(x, y) && !isBank(x, y) && pathAt(x + 0.5, y + 0.5);
+/** A path's tile when the town was laid out, beside the narrower river (see wetThen). */
+const roadThen = (x: number, y: number) => !isPlaza(x, y) && !wetThen(x, y) && pathAt(x + 0.5, y + 0.5);
 const isBoard = (x: number, y: number) => within(x, y, BOARD);
+const pierAt = new Set(PIER.tiles.map(([x, y]) => `${x},${y}`));
+const isPier = (x: number, y: number) => pierAt.has(`${x},${y}`);
+/** The deck's plot as a rectangle: the box round its tiles. */
+const PIER_BOX = (() => {
+  const xs = PIER.tiles.map(([x]) => x), ys = PIER.tiles.map(([, y]) => y);
+  return { x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs) + 1, h: Math.max(...ys) - Math.min(...ys) + 1 };
+})();
+/** A site's plot and a step round it, on the sides people see it from: no tree, bush or rock stands in front of it. */
+const bySite = (x: number, y: number) => [PIER_BOX].some((s) => within(x, y, { x: s.x - 1, y: s.y - 1, w: s.w + 3, h: s.h + 3 }));
 
 /**
  * Road works (the owner's call, 2026-10-02): the north and east paths, the two
@@ -254,7 +311,7 @@ export const PROPS: Prop[] = (() => {
     const out = along < PLAZA.x ? PLAZA.x - along : along - PLAZA.x - PLAZA.w;
     const mid = pathMiddle(along + 0.5, out + 0.5, arm.seed), half = pathHalf(along + 0.5, arm.seed);
     let across = Math.floor(mid + side * (half + 0.2));
-    while (upDown ? isRoad(across, along) : isRoad(along, across)) across += side;
+    while (upDown ? roadThen(across, along) : roadThen(along, across)) across += side;
     return upDown ? { x: across, y: along } : { x: along, y: across };
   };
   /** Where a point `out` tiles from the plaza is along an arm. */
@@ -263,7 +320,7 @@ export const PROPS: Prop[] = (() => {
   const facingPath = (arm: Arm, side: -1 | 1): Facing =>
     arm.dir === "N" || arm.dir === "S" ? (side < 0 ? "SE" : "NW") : (side < 0 ? "SW" : "NE");
   /** Put something down only where nothing is and nobody walks a path. */
-  const free = (p: Vec) => !taken.has(`${p.x},${p.y}`) && !isRoad(p.x, p.y) && !isPlaza(p.x, p.y) && !isShop(p.x, p.y) && !isBoard(p.x, p.y);
+  const free = (p: Vec) => !taken.has(`${p.x},${p.y}`) && !roadThen(p.x, p.y) && !isPlaza(p.x, p.y) && !isShop(p.x, p.y) && !isBoard(p.x, p.y);
   ARMS.forEach((arm, i) => {
     // lit on both sides where it leaves the plaza
     for (const side of [-1, 1] as const) { const p = beside(arm, alongAt(arm, 1), side); if (free(p)) put("lamp", p.x, p.y); }
@@ -288,7 +345,7 @@ export const PROPS: Prop[] = (() => {
     if (x < 1 || y < 1 || x >= COLS - 1 || y >= ROWS - 1) return false;
     for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
       const X = x + dx, Y = y + dy;
-      if (taken.has(`${X},${Y}`) || isRoad(X, Y) || isPlaza(X, Y) || isShop(X, Y) || isBoard(X, Y) || isWater(X, Y) || isBank(X, Y) || isClosed(X, Y)) return false;
+      if (taken.has(`${X},${Y}`) || roadThen(X, Y) || isPlaza(X, Y) || isShop(X, Y) || isBoard(X, Y) || wetThen(X, Y) || isClosed(X, Y)) return false;
     }
     return true;
   };
@@ -304,7 +361,12 @@ export const PROPS: Prop[] = (() => {
   // countryside: woods and meadows
   scatter("tree", 150, 0, false); scatter("pine", 90, 0, false); scatter("bush", 60, 0, false);
   scatter("rock", 30, 0, false); scatter("flowers", 90, 0, false, false);
-  return out;
+  // The fishing deck came after the town was laid out: what grew where it stands is cleared (and
+  // the trees, bushes and rocks a step round it, which hid its near edges), rather than kept off
+  // it above, so everything else in the town stays exactly where it was.
+  const wild = (p: Prop) => p.kind === "tree" || p.kind === "pine" || p.kind === "bush" || p.kind === "rock";
+  // And the river is twice as wide as when the town was laid out: what stood where it runs now is gone.
+  return out.filter((p) => !isPier(p.x, p.y) && !(wild(p) && bySite(p.x, p.y)) && !isWater(p.x, p.y) && !isBank(p.x, p.y));
 })();
 
 /** The benches, in a fixed order: somebody sitting is told to the room by this index. */
@@ -324,11 +386,12 @@ export function benchAt(tx: number, ty: number): number {
 const solidAt = new Set(PROPS.filter((p) => p.solid).map((p) => `${p.x},${p.y}`));
 
 /** What stands on a tile and stops a walker, if anything. */
-export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "roadworks" | "water" | "prop" | null {
+export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "pier" | "roadworks" | "water" | "prop" | null {
   for (const b of BUILDINGS) if (within(tx, ty, b)) return b;
   if (within(tx, ty, FOUNTAIN)) return "fountain";
   if (isShop(tx, ty)) return "shop";
   if (isBoard(tx, ty)) return "board";
+  if (isPier(tx, ty)) return "pier";
   if (isClosed(tx, ty)) return "roadworks";
   if (isWater(tx, ty)) return "water";
   if (solidAt.has(`${tx},${ty}`)) return "prop";
@@ -357,8 +420,8 @@ export function groundAt(tx: number, ty: number): "plaza" | "road" | "grass" | "
  */
 export function groundLook(x: number, y: number): ReturnType<typeof groundAt> {
   const r = acrossRiver(x, y);
-  if (r < 1.6) return "water";
-  if (r < 2.5 + 0.22 * Math.sin(x * 1.9) * Math.sin(y * 2.3)) return "sand";
+  if (r < RIVER_HALF) return "water";
+  if (r < RIVER_HALF + 0.9 + 0.22 * Math.sin(x * 1.9) * Math.sin(y * 2.3)) return "sand";
   if (within(x, y, PLAZA)) return "plaza";
   if (within(x, y, SHOP) || pathAt(x, y)) return "road";
   return "grass";

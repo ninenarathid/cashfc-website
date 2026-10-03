@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BOARD, BUILDINGS, FAR, FOUNTAIN, NEAR, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, riverMiddle,
+  BENCHES, BOARD, BUILDINGS, FAR, FOUNTAIN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, riverMiddle,
   benchAt, distance, fromIso, groundAt, hearing, toIso, walkable, type Building, type Facing, type Prop, type Vec,
 } from "@/lib/town/world";
 import { START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
@@ -62,13 +62,13 @@ const DOLL_H = 77;
 /** How long a line stays in the log over the map. */
 const LOG_SHOWN_MS = 120_000;
 /** The river's moving parts, laid out once: streaks of current, glints, fish, and what drifts by. */
-const STREAKS = Array.from({ length: 70 }, (_, i) => ({ t0: (i * 37.7) % 140, across: ((i * 0.618) % 1) * 2.4 - 1.2, speed: 0.9 + ((i * 0.37) % 1) * 0.6, len: 0.5 + ((i * 0.53) % 1) * 0.6 }));
-const GLINTS = Array.from({ length: 36 }, (_, i) => ({ t: (i * 53.3) % 128, across: ((i * 0.414) % 1) * 2.4 - 1.2, ph: i * 1.7 }));
-const FISH = Array.from({ length: 7 }, (_, i) => ({ t0: i * 21.4, across: ((i * 0.73) % 1) * 1.6 - 0.8, speed: 0.35 + (i % 3) * 0.12 }));
+const STREAKS = Array.from({ length: 120 }, (_, i) => ({ t0: (i * 37.7) % 140, across: ((i * 0.618) % 1) * 5.6 - 2.8, speed: 0.9 + ((i * 0.37) % 1) * 0.6, len: 0.5 + ((i * 0.53) % 1) * 0.6 }));
+const GLINTS = Array.from({ length: 60 }, (_, i) => ({ t: (i * 53.3) % 128, across: ((i * 0.414) % 1) * 5.6 - 2.8, ph: i * 1.7 }));
+const FISH = Array.from({ length: 10 }, (_, i) => ({ t0: i * 21.4, across: ((i * 0.73) % 1) * 4.4 - 2.2, speed: 0.35 + (i % 3) * 0.12 }));
 const DRIFT = [
   { name: "rv_leaf", k: 0.5 }, { name: "rv_lily", k: 0.55 }, { name: "rv_boat", k: 0.5 }, { name: "rv_leaf", k: 0.45 },
   { name: "rv_stick", k: 0.5 }, { name: "rv_duck", k: 0.48 }, { name: "rv_lily", k: 0.5 }, { name: "rv_leaf", k: 0.5 },
-].map((d, i) => ({ ...d, t0: i * 21, across: ((i * 0.618) % 1) * 1.8 - 0.9, flip: i % 2 === 1 }));
+].map((d, i) => ({ ...d, t0: i * 21, across: ((i * 0.618) % 1) * 4.4 - 2.2, flip: i % 2 === 1 }));
 /** Leaves blowing in fine weather, from the scenery picture: mostly green, some turning, a petal. */
 const LEAVES = ["lf1", "lf1", "lf2", "lf2", "lf3", "lf4", "lf5", "lf6"];
 /** The most leaves at once, falling, blowing and lying together. */
@@ -629,7 +629,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const every = 23, n = Math.floor(sec / every), into = sec - n * every;
     if (into < 1.4) {
       const r = (x: number) => { const v = Math.sin((n + 1) * 12.9898 * x) * 43758.5453; return v - Math.floor(v); };
-      const t = 20 + r(1) * 100, across = (r(2) - 0.5) * 1.6;
+      const t = 20 + r(1) * 100, across = (r(2) - 0.5) * 4.4;
       const c = project(riverPoint(t, across)), c2 = project(riverPoint(t + 1.2, across));
       if (onScreen(c)) {
         const k = Math.min(1, into / 0.9);
@@ -1174,6 +1174,41 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         signs.push(() => label(ctx, `Popoto Shop · ${words.current.th ? "กำลังสร้าง" : "being built"}`, corner.x, corner.y - (tall - 4) * v.s,
           "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
       } });
+    }
+    // The fishing deck going up at the river: the site as it stands at its stage, and popoto builders in a hurry at it.
+    const pierArt = `pier${PIER.stage}`;
+    if (scenery?.has(pierArt)) {
+      // The picture is stood by the platform's left corner post, out in the river (so its bare frame is over the water
+      // and its boards on the bank); everything else is measured from the picture's ground point, in its own pixels.
+      const post = project(PIER.post);
+      const feet = { x: post.x + 216 * v.s, y: post.y + 170 * v.s };
+      const t = reducedRef.current ? 0 : now;
+      /** The hurrying builders came out a little smaller than the shop's: drawn up to their size. */
+      const k = v.s * 1.2;
+      // Behind whoever stands in front of its near edges, in front of whoever is behind its far ones: after the
+      // nearest tile behind its far edge, before the nearest in front of its near one.
+      things.push({ depth: PIER.post.x + PIER.post.y + 1.1, draw: () => {
+        scenery.drawProp(ctx, pierArt, feet.x, feet.y, v.s, dpr);
+        if (PIER.stage === 1 && scenery.has("rush_h1")) {
+          // three nailing boards down as fast as they can, where the platform's floor ends and out on each jetty,
+          // each stopping now and then to wipe its brow
+          for (const [px, py, lag] of [[-9, -173, 0], [-159, -148, 2700], [-159, -288, 1400]]) {
+            const wiping = (t + lag) % 5200 > 4300;
+            scenery.drawProp(ctx, wiping ? "rush_wipe" : `rush_h${1 + (Math.floor((t + lag) / 130) % 2)}`, feet.x + px * v.s, feet.y + py * v.s, k, dpr);
+          }
+        }
+        const [, tall] = scenery.anchorOf(pierArt);
+        signs.push(() => label(ctx, words.current.th ? "ลานตกปลา · กำลังสร้าง" : "Fishing deck · being built", feet.x + 91 * v.s, feet.y - (tall + 2) * v.s,
+          "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
+      } });
+      // three running planks down the south path and across to where its steps will be, and back for more, one
+      // after another
+      if (PIER.stage === 1 && scenery.has("rush1")) for (const lag of [0, 0.67, 1.33]) {
+        const trip = (t / 1550 + lag) % 2, d = (trip < 1 ? trip : 2 - trip) * 4.6;
+        const at = d < 3.2 ? { x: 31.6 - 0.22 * d, y: 38.4 + 0.97 * d } : { x: 30.9 - (d - 3.2) * 0.93, y: 41.5 + (d - 3.2) * 0.1 }, c = project(at);
+        things.push({ depth: at.x + at.y, draw: () =>
+          scenery.drawProp(ctx, `rush${[1, 2, 3, 2][Math.floor(t / 90) % 4]}`, c.x, c.y, k, dpr, 0, trip < 1) });
+      }
     }
     // The Popoto Board: the town's news and its vote, standing north of the fountain.
     boardBox.current = null;

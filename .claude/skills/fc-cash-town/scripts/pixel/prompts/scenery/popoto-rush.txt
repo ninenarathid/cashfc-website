@@ -1,0 +1,13 @@
+The first attached picture is the mascot: a cute round potato creature called popoto, with a light brown body, a happy little face and pink cheeks. The second attached picture is a pixel art sprite sheet of popoto workers that shows the pixel art style, the chunky square pixel size and the size of a popoto to use.
+
+Draw a pixel art sprite sheet of that popoto as a little construction worker in a great hurry, the same size as the popoto workers in the second picture, in the same style, seen from the same three-quarter top-down angle. It keeps its round potato body, little face and pink cheeks, and wears the same small yellow hard hat.
+
+Six frames in one row, the same popoto, the same size, evenly spaced, standing on the same ground line, not overlapping:
+1) running fast to the right, drawn side on, carrying a wooden plank on top of its head with both hands, leaning forward, left foot far forward, two tiny light blue sweat drops flying off behind it;
+2) the same run, both feet off the ground, mouth open, panting;
+3) the same run, right foot far forward, sweat drops flying off behind it;
+4) facing the viewer, a small hammer raised high over a short wooden board on the ground, eyes squeezed shut with effort, a light blue sweat drop on its brow;
+5) facing the viewer, the hammer hitting the board, tiny yellow sparks;
+6) facing the viewer, stopped for a second, wiping its brow with one hand, one big light blue sweat drop, tired but smiling.
+
+Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no speed lines, no text, no labels.
