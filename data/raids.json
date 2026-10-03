@@ -82510,9 +82510,9 @@
     "state": "learning",
     "pct": 44.76,
     "phase": 4,
-    "pulls": 51,
-    "last": "2026-10-01",
-    "last_ts": 1790866724
+    "pulls": 63,
+    "last": "2026-10-02",
+    "last_ts": 1790952819
    }
   ]
  },
@@ -87154,7 +87154,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 82,
-    "kills": 7,
+    "kills": 8,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
@@ -89647,6 +89647,49 @@
       "best": 23,
       "median": 23,
       "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 87,
+      "median": 50,
+      "kills": 13,
+      "job": "Dancer"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 68,
+      "median": 38,
+      "kills": 17,
+      "job": "Dancer"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 63,
+      "median": 48,
+      "kills": 15,
+      "job": "Dancer"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 70,
+      "median": 23,
+      "kills": 19,
       "job": "Dancer"
      }
     ]
