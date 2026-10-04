@@ -38,7 +38,8 @@ describe("the database's keeper", () => {
     expect(k.ready()).toBe(false);
     expect(k.open()).toBeNull();
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_me"]);
+    // (and, the game being theirs, everybody's rank at the well, for the names over heads)
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_well_ranks"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -64,14 +65,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_well_ranks"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(4);
+    expect(db.asked).toHaveLength(5);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -138,11 +139,64 @@ describe("the database's keeper", () => {
     k.close();
   });
 
+  it("keeps the well's book and everybody's rank: asked for at the beginning and now and then, the book when it is looked at", async () => {
+    const book = (more: Record<string, unknown> = {}) => ({ buckets: 12, rank: 0, towards: 0.24, gift: false, today: { buckets: 2, waterings: 5, plants: 3, people: 2, watered: 0, helped: 0 }, carriers: [], ...more });
+    let poured = 12;
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_well_ranks: () => ({ now: NOW, ranks: { somebody: 2 } }),
+      town_well: () => ({ now: NOW, wellBook: book({ buckets: poured, rank: poured >= 50 ? 1 : 0, gift: poured >= 50 }) }),
+      town_chore: () => ({ ok: true, chore: "pour", well: 7, now: NOW, purse: purse() }),
+      town_well_take: () => ({ ok: true, gift: "waterYoke", rank: 1, now: NOW, purse: purse({ coins: 1 }), wellBook: book({ buckets: poured, rank: 1 }) }),
+    });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.ranks()).toEqual({ somebody: 2 });
+    expect(k.wellBook()).toBeNull();
+    // a bucketful poured by somebody who has not opened the book asks for no book
+    await k.choreDo("well", [1, 1]);
+    await settle();
+    expect(db.asked.filter((f) => f === "town_well")).toHaveLength(0);
+    await k.wellLook();
+    expect(k.wellBook()?.buckets).toBe(12);
+    expect(k.ranks()).toEqual({ somebody: 2 });
+    // …and by somebody who has, reads it again: the rank it says is mine at once, with everybody's as they were
+    poured = 50;
+    await k.choreDo("well", [1, 1]);
+    await settle();
+    expect(db.asked.filter((f) => f === "town_well")).toHaveLength(2);
+    expect(k.wellBook()).toMatchObject({ buckets: 50, rank: 1, gift: true });
+    expect(k.ranks()).toEqual({ somebody: 2, me: 1 });
+    // what the well has is taken: the answer brings the purse and the book
+    const did = await k.wellTake();
+    expect(did).toMatchObject({ ok: true, gift: "waterYoke", rank: 1 });
+    expect(k.purse().coins).toBe(1);
+    expect(k.wellBook()?.gift).toBe(false);
+    // everybody's rank is asked for again every five minutes, and no more once it is closed
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+    await settle();
+    expect(db.asked.filter((f) => f === "town_well_ranks")).toHaveLength(2);
+    k.close();
+    await vi.advanceTimersByTimeAsync(20 * 60_000);
+    expect(db.asked.filter((f) => f === "town_well_ranks")).toHaveLength(2);
+  });
+
+  it("offers no book where the database has none yet: nothing is kept of an answer that never came", async () => {
+    const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    await k.wellLook();
+    expect(k.wellBook()).toBeNull();
+    expect(k.ranks()).toEqual({});
+    expect(await k.wellTake()).toEqual({ ok: false, why: "away" });
+    k.close();
+  });
+
   it("answers in the order asked, whatever order the answers would come in", async () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);

@@ -14,6 +14,7 @@ import { BASIC, ORDER, UNLOCKS, mayAsk, sourcesAt } from "./orders";
 import { INSIDE, insideOf } from "./scrolls";
 import { STAMINA } from "./stamina";
 import { GOODS, RULES } from "./trade";
+import { WELL_BOOK } from "./well";
 import { BEDS_IN_FARM, COLS, FARM, ROWS, WELL, bedCorner, bedOf, fishFrom } from "./world";
 
 /**
@@ -195,6 +196,8 @@ export function catalogOf() {
       haunts: HAUNTS.map((h): [string, string, string | null, Array<[number, number]>] => [h.kind, h.place, h.zone, h.perches.map((p): [number, number] => [p.x, p.y])]),
       net: { reach: NET.reach, far: NET.far, misses: NET.misses }, nets: NETS, lures: LURES,
     },
+    /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
+    well: { ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -227,6 +230,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * the signs), which is why the code went out before the file: a page built before cannot draw a fish it has not
  * heard of.
  *
+ * v127 (pending) seeds `well` and writes two over, for the members who carry water for the others (the owner,
+ * 2026-10-05): what the well's book counts by (well), the two yokes the well gives its carriers (items) and how many
+ * bucketfuls each carries (farming).
+ *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
  * twice). What the code itself changes after a row was seeded has to be written over it by the next migration
  * (`over`): name that migration here with the rows it writes, and `TOWN_WRITE=1 npx vitest run
@@ -241,7 +248,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * that go on a hook as a bait there already was (fish, flotsam, fishing) and on a plant (farming); and what the
  * uncle may ask for and hint at (order, hints).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v127: { keys: ["well"], over: ["items", "farming"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

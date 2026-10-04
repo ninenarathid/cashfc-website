@@ -32,6 +32,7 @@ import { DbKeeper, type Ask, type Keeper as GameKeeper, type Looked } from "@/li
 import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
+import { RANK_TITLES } from "@/lib/town/well";
 import TownBoard from "./TownBoard";
 import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
@@ -93,12 +94,15 @@ const TownTest = process.env.NODE_ENV !== "production" ? lazy(() => import("./To
 const TownFarm = lazy(() => import("./TownFarm"));
 const TownForest = lazy(() => import("./TownForest"));
 const TownBugs = lazy(() => import("./TownBugs"));
+const TownWell = lazy(() => import("./TownWell"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
 const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
 const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices"];
+/** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
+const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */
 const DEAL_NEAR = 3;
 /** How near somebody sits to be eating with me, in tiles. */
@@ -586,6 +590,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Whether I stand still at the farm's well (where a bucket is poured in and a can filled). */
   const [wellHere, setWellHere] = useState(false);
   const wellRef = useRef(false);
+  /** Everybody's rank at the well, and who I am to whoever keeps the game: for the names over heads. */
+  const ranksRef = useRef<{ ranks: Record<string, number>; me: string }>({ ranks: {}, me: "" });
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
   /** Whether I am on the forest's map (what it has is looked at while I am), and its own way of drawing what lies and grows there. */
@@ -641,6 +647,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     keeper.onDeed = (what, to) => session.nudge(what, to && session.avatars.has(to) ? to : undefined);
     return () => { session.onNudge = null; keeper.onDeed = null; };
   }, [session, keeper]);
+  // Everybody's rank at the well (lib/town/well): the keeper's, read as it changes.
+  useEffect(() => {
+    if (!keeper) { ranksRef.current = { ranks: {}, me: "" }; return; }
+    const read = () => { ranksRef.current = { ranks: keeper.ranks(), me: keeper.id }; };
+    read();
+    return keeper.watch(read);
+  }, [keeper]);
 
   useSyncExternalStore(session?.subscribe ?? noSubscribe, () => session?.version ?? 0, () => 0);
   // This page showing the stay is what tells the others we are looking at the map.
@@ -2333,6 +2346,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.save();
       if (faded || away) ctx.globalAlpha = 0.6;
       label(ctx, name, p.x, p.y + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
+      // whoever has carried enough water to the farm's well has a name for it, under their own
+      const rank = ranksRef.current.ranks[isMe ? ranksRef.current.me : a.info.id] ?? 0;
+      if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, p.y + 31, RANK_INK[rank - 1]);
       ctx.restore();
       // What they just typed, over their head; it fades in its last moment.
       if (said) bubble(ctx, said.text, p.x, top - 2, Math.min(1, (BUBBLE_MS - (wall - said.at)) / 800));
@@ -2456,6 +2472,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (iw) ctx.drawImage(icon!, x - w / 2 + 5, y - 8, 16, 16);
     ctx.fillStyle = fg;
     ctx.fillText(text, x + iw / 2, y + 0.5);
+  }
+
+  /** A few small words under a name: what somebody is called for what they have done. */
+  function tag(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, fg: string) {
+    ctx.font = `600 10px ${fontRef.current}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const w = ctx.measureText(text).width + 12;
+    ctx.fillStyle = "rgba(15,19,25,0.72)";
+    roundRect(ctx, x - w / 2, y - 8, w, 16, 8);
+    ctx.fill();
+    ctx.fillStyle = fg;
+    ctx.fillText(text, x, y + 0.5);
   }
 
   /* ── input ───────────────────────────────────────────────────────────── */
@@ -3316,6 +3345,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownBugs keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerBugs} registerTap={registerBugsTap} />
+        </Suspense>
+      )}
+      {/* The well's book: offered to whoever stands at the farm's well */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownWell keeper={keeper} name={me.name} th={w.th} at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen)} phone={phone} tabbar={tabbar}
+                    bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} />
         </Suspense>
       )}
       {/* The kitchen: cooking at the yard, and the pots that stand about */}

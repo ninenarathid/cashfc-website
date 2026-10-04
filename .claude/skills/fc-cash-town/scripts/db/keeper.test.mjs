@@ -20,7 +20,7 @@ const { shelfOf } = await import("@/lib/town/orders");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = ["v123", "v124", "v128"];
+const NEXT = ["v123", "v124", "v127", "v128"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -507,6 +507,46 @@ try {
     did = await Q.noticeBuy(up.id, 1);
     ok("a notice that is gone is said so", !did.ok && did.why === "gone", did);
     stopP(); stopQ(); P.close(); Q.close();
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_well()') is not null as there`))[0].there) {
+    section("the well's book: carried, read, a rank, the yoke taken (v127)");
+    const well = (await sql(`select town.cat('farming')->'wellAt' as at`))[0].at, AT_WELL = [well[0] + 1, well[1]], RIVER = [16, 38];
+    await sql(`update public.town_things set doc = '0'::jsonb where key = 'well'`);
+    await sql(`truncate public.town_well_water, public.town_well_cans, public.town_carriers, public.town_well_reach`);
+    await purse(a, 0, [{ item: "bucket", n: 1 }]);
+    await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'bucket', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [a]);
+    const C = new DbKeeper(a, askAs("A")), D = new DbKeeper(b, askAs("B"));
+    await settled(C); await settled(D);
+    ok("at the beginning everybody's rank is asked for, and nobody has one", asked.includes("A town_well_ranks") && Object.keys(C.ranks()).length === 0 && C.wellBook() === null, C.ranks());
+    let did = await C.choreDo("river", RIVER);
+    did = await C.choreDo("well", AT_WELL);
+    await settled(C);
+    ok("a bucketful poured by somebody who never opened the book asks for none", did.ok && did.chore === "pour" && C.well() === 1 && C.wellBook() === null && !asked.includes("A town_well"), did);
+    await C.wellLook();
+    ok("looked at: one bucketful, mine, and I am today's carrier by my character's name", C.wellBook()?.buckets === 1 && C.wellBook().today.buckets === 1 && C.wellBook().carriers.length === 1 && C.wellBook().carriers[0].id === a && C.wellBook().carriers[0].name === "Tester A", C.wellBook());
+    await sql(`update public.town_carriers set buckets = 49 where member_id = $1`, [a]);
+    await C.choreDo("river", RIVER);
+    did = await C.choreDo("well", AT_WELL);
+    await settled(C); await settled(C);
+    ok("the fiftieth poured: the book is read again by itself, the rank is mine at once, and something waits", did.ok && C.wellBook()?.buckets === 50 && C.wellBook().rank === 1 && C.wellBook().gift === true && C.ranks()[a] === 1, { book: C.wellBook(), ranks: C.ranks() });
+    const told = await askAs("B")("town_well_ranks");
+    ok("anybody who asks is told the rank", told?.ranks?.[a] === 1 && Object.keys(told.ranks).length === 1, told);
+    await D.wellLook();
+    ok("the other's book: nothing of their own, the same carrier today", D.wellBook()?.buckets === 0 && D.wellBook().gift === false && D.wellBook().carriers[0]?.id === a, D.wellBook());
+    did = await D.wellTake();
+    ok("the other has nothing waiting", !did.ok && did.why === "none", did);
+    did = await C.wellTake();
+    ok("taken: the yoke is in the bag, and the book says nothing waits", did.ok && did.gift === "waterYoke" && did.rank === 1 && slotOf(C, "waterYoke") >= 0 && C.wellBook().gift === false, did);
+    did = await C.wellTake();
+    ok("once", !did.ok && did.why === "none" && C.purse().bag.filter((s) => s?.item === "waterYoke").length === 1, did);
+    await C.hold(slotOf(C, "waterYoke"));
+    await C.choreDo("river", RIVER);
+    ok("the yoke drawn holds two bucketfuls", C.purse().bag[slotOf(C, "waterYoke")]?.water === 2, C.purse().bag);
+    did = await C.choreDo("well", AT_WELL);
+    await settled(C); await settled(C);
+    ok("…and poured, two more in the well and in the book", did.ok && C.well() === 4 && C.wellBook().buckets === 52, { well: C.well(), book: C.wellBook() });
+    C.close(); D.close();
   }
 
   section("one thing at a time");

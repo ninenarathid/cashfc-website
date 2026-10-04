@@ -19,6 +19,7 @@ import {
   type Done, type Purse, type Refusal, type Stall,
 } from "./trade";
 import { bedCorner, bedOf } from "./world";
+import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -57,6 +58,8 @@ interface KeptNote { id: number; by: string; day: number; wish: WishId; note: st
 /** The forest: the word its rolls hang on, and who has taken from which place in which turn. */
 const WILD_SALT = "cashtown.trial.wild.salt.1", WILD_TOOK = "cashtown.trial.wild.took.1";
 const BUG_TOOK = "cashtown.trial.bugs.took.1", BUG_BOOK = "cashtown.trial.bugs.book.1";
+/** The well's book (lib/town/well): whose water is where, for the whole browser. */
+const WELL_LOG = "cashtown.trial.welllog.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -356,15 +359,20 @@ export class Trial {
     if (!did.bed) delete kept[bed];
     else kept[bed] = { ...did.bed, name: (did.bed.by === beds[bed]?.by && beds[bed]?.name) || name || did.bed.by };
     this.write(BEDS, kept);
+    // (a plant watered is a line of the well's book: with which can, and whose plant when not my own)
+    if (did.deed === "water") this.wellSeen({ by: this.id, at: now, what: "water", can: handOf(p) ?? undefined, tile: [x, y], ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}) });
     this.save(did.purse);
     return { ok: true, deed: did.deed, got: did.got };
   }
   /** What the thing in my hand can do with water where I stand (by the river, or at the well), if anything; and doing it. */
   choreAt(where: "river" | "well" | null): Chore | null { return choreFor(this.purse(), where, this.well()); }
   choreDo(where: "river" | "well" | null): { ok: true; chore: Chore } | { ok: false; why: Refusal } {
-    const did = chore(this.purse(), where, this.well(), this.now());
+    const p = this.purse(), well = this.well(), now = this.now(), did = chore(p, where, well, now);
     if (!did.ok) return did;
     this.write(WELL, did.well);
+    // (the well's book: so many bucketfuls poured; a can filled)
+    if (did.chore === "pour") this.wellSeen({ by: this.id, at: now, what: "pour", n: did.well - well });
+    else if (did.chore === "fill") this.wellSeen({ by: this.id, at: now, what: "fill", can: handOf(p) ?? undefined });
     this.save(did.purse);
     return { ok: true, chore: did.chore };
   }
@@ -441,6 +449,31 @@ export class Trial {
     if (first) this.write(BUG_BOOK, { ...book, [has!.bug]: name || this.id });
     this.save(did.purse);
     return { ok: true, got: did.got, first };
+  }
+
+  /* ── the well's book (lib/town/well) ── */
+  private wellLog(): WellLog {
+    return this.read<WellLog>(WELL_LOG, newLog, (v) => { const l = v as Partial<WellLog> | null; return !!l && Array.isArray(l.water) && !!l.cans && !!l.carriers && !!l.days && !!l.reach && !!l.hands; });
+  }
+  private wellSeen(deed: WaterDeed) { this.write(WELL_LOG, seen(this.wellLog(), deed)); }
+  /** The book as I read it now; a carrier is called what their bed is called by, if they have one. */
+  wellBook(): WellBook {
+    const names = new Map([...this.owners().values()].map((o) => [o.by, o.name]));
+    return bookOf(this.wellLog(), this.id, this.now(), (id) => names.get(id) ?? id);
+  }
+  ranks(): Record<string, number> { return ranksOf(this.wellLog()); }
+  wellTake(): { ok: true; gift: ItemId; rank: number } | { ok: false; why: Refusal } {
+    const did = takeGift(this.purse(), this.wellLog(), this.id);
+    if (!did.ok) return did;
+    this.write(WELL_LOG, did.log);
+    this.save(did.purse);
+    return { ok: true, gift: did.gift, rank: did.rank };
+  }
+  /** For scripts and the test window: so many bucketfuls poured, all told, as mine. */
+  setCarried(buckets: number) {
+    const log = this.wellLog(), mine = log.carriers[this.id] ?? { buckets: 0, taken: [] };
+    this.write(WELL_LOG, { ...log, carriers: { ...log.carriers, [this.id]: { ...mine, buckets: Math.max(0, Math.floor(buckets)) } } });
+    this.tell();
   }
 
   /** For scripts trying things out: a plot as it is told (a plant sown days ago that a pest has had, say: nothing else brings one about for certain). */
@@ -668,7 +701,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
     this.tell();
   }
 }

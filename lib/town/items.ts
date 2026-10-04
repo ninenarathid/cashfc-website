@@ -65,6 +65,9 @@ export const ITEMS = {
   // a pot with what was cooked in it (lib/town/cooking), and a bucket for carrying water to the farm's well (lib/town/farm)
   potFull: it("tool", "หม้ออาหาร", "Pot of food", "หม้อดินใบใหญ่ มีอาหารอยู่ข้างใน ควันกรุ่น", "A big clay pot with food in it, steaming", 1, 0),
   bucket: it("tool", "ถังไม้", "Wooden bucket", "ถังไม้คาดเหล็ก มีเชือกหิ้ว", "A wooden bucket with iron hoops and a rope handle", 1, 8),
+  // what the farm's well has for whoever carries water to it (lib/town/well): a yoke, and a great one. They fetch nothing: they are not for selling.
+  waterYoke: it("tool", "คานหาบน้ำ", "Water yoke", "คานไม้พาดบ่า ปลายสองข้างแขวนถังไม้ใบย่อม", "A wooden pole worn across the shoulders, a small wooden pail hung from each end", 1, 0),
+  waterYokeGreat: it("tool", "คานหาบน้ำใหญ่", "Great water yoke", "คานไม้เนื้อแข็งหัวหุ้มทองเหลือง ปลายสองข้างแขวนถังใบใหญ่คาดทองเหลือง", "A hardwood pole capped with brass, a big brass-hooped pail hung from each end", 1, 0),
 
   // bait
   worm: it("bait", "ไส้เดือน", "Worm", "ตัวยาวสีชมพูอมน้ำตาล เปื้อนดิน ยังดิ้นอยู่", "Long, pinkish brown and earthy, and still wriggling", 20, 1),

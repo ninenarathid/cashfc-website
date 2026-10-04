@@ -187,6 +187,10 @@ const SHEETS = [
   ["icons-fx-c", ["fxRipple", "fxLeaves", "fxClover", "fxHeart", "fxSteam", "fxDrops"]],
   // three more blessings (a carrier of water, a forager, a catcher of insects), and a wish in its writer's words
   ["icons-fx-d", ["buffCarry", "buffForage", "buffNet", "wishNote"]],
+  // the well's book (2026-10-05, lib/town/well): the two yokes the well gives whoever carries water to it, empty and
+  // full; the book; something waiting; a carrier's three ranks; and, for what comes after, a jar, a card of thanks, a cart
+  ["icons-well-a", ["waterYoke", "waterYokeFull", "waterYokeGreat", "waterYokeGreatFull", "wellBook", "wellGift"], { range: [7, 8] }],
+  ["icons-well-b", ["rankWaterA", "rankWaterB", "rankWaterC", "tipJar", "thanksCard", "waterCart"]],
 ];
 
 const pieces = [];

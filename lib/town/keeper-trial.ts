@@ -149,6 +149,10 @@ class TrialKeeper implements Keeper {
     return did;
   }
   async choreDo(where: Water): Promise<Did<{ chore: Chore }>> { return this.trial.choreDo(where); }
+  wellBook() { return this.trial.wellBook(); }
+  ranks() { return this.trial.ranks(); }
+  async wellLook() { /* the book is in this browser already */ }
+  async wellTake(): Promise<Did<{ gift: ItemId; rank: number }>> { return this.trial.wellTake(); }
 
   wild() { return this.trial.wild(); }
   async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]> }>> { return this.trial.gatherDo(spot, at, went); }

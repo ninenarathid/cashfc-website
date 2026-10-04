@@ -7,6 +7,7 @@ import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE } from "./gear";
 import { BAITS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
 import { INSIDE, foundScrolls } from "./scrolls";
 import { GOODS } from "./trade";
+import { WELL_BOOK } from "./well";
 
 /**
  * What every thing is good for, and where every thing comes from: the two
@@ -52,12 +53,13 @@ export function usesOf(id: ItemId): Use[] {
 }
 
 /** Where a thing comes from. */
-export type Source = "shop" | "river" | "farm" | "kitchen" | "forest" | "net";
+export type Source = "shop" | "river" | "farm" | "kitchen" | "forest" | "net" | "well";
 
 /**
  * Everything that can be had in the game, and from where: bought from the
  * uncle; caught on a bait that can itself be had; grown from a seed that can;
- * cooked or made of things that can, in cookware that can. Worked out to the
+ * cooked or made of things that can, in cookware that can; given by the well
+ * to whoever has carried enough water to it (lib/town/well). Worked out to the
  * end: what is made of what is made is here too. `shelf` is what the uncle
  * sells: everything he ever will, or only what his orders have opened so far
  * (lib/town/orders). `wild` is whether what the forest gives is counted: it
@@ -95,6 +97,8 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     // insects (lib/town/insects): with a net, whatever is out at whatever hour and under whatever sky; a beetle only
     // when somebody has something sweet to hold under its tree
     if (wild && NETS.some(has)) for (const id of BUG_IDS) if (BUGS[id].habit !== "lure" || LURES.some(has)) add(id, "net");
+    // the well: what it has for its carriers, once there is something to carry water in
+    if ((Object.keys(WATER.buckets) as ItemId[]).some((b) => has(b) && !WELL_BOOK.gifts.some(([, gift]) => gift === b))) for (const [, gift] of WELL_BOOK.gifts) add(gift, "well");
     // the kitchen: a dish (in a pot of the yard's), and what else is made
     for (const id of DISH_IDS) {
       const r = DISHES[id].recipe;

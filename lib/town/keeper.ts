@@ -15,6 +15,7 @@ import type { Rain } from "./weather";
 import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
+import type { WellBook } from "./well";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 import { bedOf } from "./world";
 
@@ -167,6 +168,18 @@ export interface Keeper {
   /** The village's book of insects: who first caught each kind that has been caught. */
   bugBook(): Record<string, string>;
 
+  /**
+   * The well's book (lib/town/well): what came of the water I carried, who carried today, my rank and whether the
+   * well has something for me. Null until it has been read, and for as long as whoever keeps the game knows of no
+   * book. `ranks` is everybody who has a rank, for the names over heads.
+   */
+  wellBook(): WellBook | null;
+  ranks(): Record<string, number>;
+  /** Read the book again. */
+  wellLook(): Promise<void>;
+  /** Take what the well has waiting for me. */
+  wellTake(): Promise<Did<{ gift: ItemId; rank: number }>>;
+
   /** Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who they are (the database reads each one's hand itself). */
   cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>>;
   potDown(at: [number, number]): Promise<Did<{ pot: Pot }>>;
@@ -201,6 +214,8 @@ const DEAL_OPEN = 2500;
 const CHEW = 20_000;
 /** How often a keeper told the game is shut asks whether it is open yet. */
 const SHUT_MS = 5 * 60_000;
+/** How often everybody's rank at the well is asked for again. */
+const RANKS_MS = 5 * 60_000;
 /** How long an ended deal is still shown. */
 const ENDED_MS = 6000;
 /** The database gives a late strike this much grace (the catalog's `fishing.slack.late`), and a little for the clocks. */
@@ -239,6 +254,9 @@ export class DbKeeper implements Keeper {
   private wild_: Array<Sight & { until: number }> = [];
   private bugs_: Array<BugSight & { until: number }> = [];
   private book_: Record<string, string> = {};
+  private wellBook_: WellBook | null = null;
+  private ranks_: Record<string, number> = {};
+  private ranksAgain: ReturnType<typeof setInterval> | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -274,6 +292,12 @@ export class DbKeeper implements Keeper {
       return;
     }
     await this.once("town_me", {});
+    // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
+    // (A database that has no such book yet answers nothing, and nobody has a rank.)
+    if (this.read && !this.shut && !this.ranksAgain) {
+      void this.ask("town_well_ranks");
+      this.ranksAgain = setInterval(() => { void this.ask("town_well_ranks"); }, RANKS_MS);
+    }
     if (this.read || this.opened === false || this.shut) return;
     // The town could not be reached: asked again in a while, a little later each time. (On a timer, not here: what
     // is asked meanwhile is answered "away" at once, not kept waiting.)
@@ -348,6 +372,14 @@ export class DbKeeper implements Keeper {
       this.bugs_ = (a.bugs as Array<[number, BugId, number, number, number]>).filter((s) => Array.isArray(s) && s[1] in BUGS).map(([id, bug, turn, seed, until]) => ({ id, bug, turn, seed, until }));
     }
     if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
+    if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
+    if (a.wellBook && typeof a.wellBook === "object") {
+      this.wellBook_ = a.wellBook as WellBook;
+      // (my own rank is in my book: it need not wait for everybody's to be asked for again)
+      const others = { ...this.ranks_ };
+      delete others[this.id];
+      this.ranks_ = this.wellBook_.rank > 0 ? { ...others, [this.id]: this.wellBook_.rank } : others;
+    }
     if ("deal" in a) this.dealt(a.deal as (KeptDeal & { end?: string | null }) | null, !!a.purse);
     this.tell();
   }
@@ -431,6 +463,8 @@ export class DbKeeper implements Keeper {
   }
   rains(): readonly Rain[] { return SKIES.rains(); }
   choreAt(where: Water): Chore | null { return choreFor(this.mine, where, this.well_); }
+  wellBook(): WellBook | null { return this.wellBook_; }
+  ranks(): Record<string, number> { return this.ranks_; }
   pots(): Pot[] { return this.pots_; }
   found(): ItemId[] { return this.found_; }
   finder(id: ItemId): string | null { return this.finders_[id] ?? null; }
@@ -592,8 +626,12 @@ export class DbKeeper implements Keeper {
     if (!at) return { ok: false, why: "none" };
     const did = await this.deed<{ chore: Chore }>("town_chore", { p_x: at[0], p_y: at[1] });
     if (did.ok && did.chore !== "draw") this.onDeed?.("farm");
+    // (the book changes with a bucketful poured: read again by whoever has had it open)
+    if (did.ok && did.chore === "pour" && this.wellBook_) void this.ask("town_well");
     return did;
   }
+  async wellLook() { await this.ask("town_well"); }
+  wellTake() { return this.deed<{ gift: ItemId; rank: number }>("town_well_take"); }
 
   async cookDo(things: Array<[ItemId, number]>, _crew: Array<ItemId | null>, cooks: string[], timing: Timing): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>> {
     const did = await this.deed<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>("town_cook", { p_things: things, p_crew: cooks, p_timing: timing });
@@ -653,6 +691,7 @@ export class DbKeeper implements Keeper {
     this.looking.clear();
     if (this.mealEnd) clearTimeout(this.mealEnd);
     if (this.retry) clearTimeout(this.retry);
+    if (this.ranksAgain) clearInterval(this.ranksAgain);
     this.heard.clear();
   }
 }
