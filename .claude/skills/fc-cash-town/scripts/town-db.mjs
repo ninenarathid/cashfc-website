@@ -12,6 +12,7 @@
 //   node scripts/db/town-bench.mjs            (in a scratch folder, see scripts/db/README.md: leave it running)
 //   node town-db.mjs <base> <outdir> [bench]  (http://localhost:3100  .  http://127.0.0.1:3199)
 import { browser, sleep, status, until } from "./cdp.mjs";
+import { gameUp, play } from "./games.mjs";
 
 const [BASE = "http://localhost:3100", OUT = ".", BENCH = "http://127.0.0.1:3199"] = process.argv.slice(2);
 let pass = 0, fail = 0;
@@ -46,17 +47,9 @@ async function talkTo(X, who) {
   for (let i = 0; i < 8 && !(await X.evaluate(`!!${TALK}?.querySelector('[role="group"]')`)); i++) { await enterKey(X); await sleep(160); }
   return X.evaluate(`${TALK}?.innerText.replace(/\\s+/g, " ") ?? ""`);
 }
-/** Play the game of timing with a steady hand. */
+/** Play whatever game is up with a steady hand (scripts/games.mjs). */
 async function swing(X) {
-  await until("the game of timing is up", () => X.evaluate(`!!window.__townTiming`), 4000);
-  const end = Date.now() + 40000;
-  while (Date.now() < end) {
-    const done = await X.evaluate(`(() => { const t = window.__townTiming; if (!t) return true; const r = t.round();
-      if (r.at > r.lo + r.width * 0.2 && r.at < r.lo + r.width * 0.8) t.press(); return false; })()`);
-    if (done) return true;
-    await sleep(8);
-  }
-  return false;
+  return !!(await play(X));
 }
 /** A hand on the reel. Says how it ended. */
 async function fight(X) {
@@ -240,7 +233,7 @@ try {
   await hold(Y, "hoe");
   await until("the hoe has weeds to clear", () => X.evaluate(`window.__townFarm?.deed() === "clear"`), 8000);
   await X.evaluate(`window.__townFarm.act()`);
-  ok("the weeds are cleared by the game of timing", await swing(X));
+  ok("the weeds are cleared by pulling them", await swing(X));
   await until("the plot is cleared", () => X.evaluate(`window.__townFarm.seen("133,5").soil === "cleared"`), 6000);
   await X.evaluate(`window.__townFarm.act()`);
   await swing(X);
@@ -267,7 +260,7 @@ try {
     await until("the page asks a second time", () => X.evaluate(`!!document.querySelector('[data-farm-ask="uproot"]')`), 4000);
     await sleep(500);
     const still = await sql(`select plant->>'crop' as crop from public.town_plots where x = 133 and y = 5`);
-    ok("with a hoe in its owner's hand, the page asks before the database is asked anything", still[0]?.crop === "kangkong" && !(await X.evaluate(`!!window.__townTiming`)), still);
+    ok("with a hoe in its owner's hand, the page asks before the database is asked anything", still[0]?.crop === "kangkong" && (await gameUp(X)) === null, still);
     await X.shot(`${OUT}/db-dig.png`);
     await X.evaluate(`document.querySelector("[data-farm-ask-yes]").click()`);
     await until("the plant is gone", () => X.evaluate(`!window.__townFarm.seen("133,5").crop`), 6000);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BLADES, WATER, WILD, hitsFor, plotKey, roll, see, type Chore, type Deed, type Seen } from "@/lib/town/farm";
+import { BLADES, WATER, WILD, gameFor, hitsFor, plotKey, roll, see, type Chore, type Deed, type Seen } from "@/lib/town/farm";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
@@ -10,7 +10,11 @@ import { handOf } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import { FARM, WELL, bedCorner, plotAt, type Vec } from "@/lib/town/world";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
-import TownTiming, { type TimingResult } from "./TownTiming";
+import type { GameResult } from "./TownGame";
+import TownPouring from "./TownPouring";
+import TownSteady from "./TownSteady";
+import TownTiming from "./TownTiming";
+import TownWeeding from "./TownWeeding";
 import { WHY } from "./TownTrade";
 import { Vfx, type VfxKind } from "./vfx";
 
@@ -50,9 +54,13 @@ const WHY_FARM: Record<string, [string, string]> = {
   tired: ["หมดแรง จอบหลุดมือ", "Too tired: the hoe slips from your hands"],
   shaky: ["หมดแรง มือสั่นจนทำไม่สำเร็จ", "Too tired: your hands shake, and it comes to nothing"],
 };
-/** The work that is done with water: its short round (tired hands play one) runs along a strip of water, not of earth. */
-const WATERY: Array<Deed | Chore> = ["water", "draw", "pour", "fill"];
-/** What runs along the strip in that short round: the thing in the hand, or the hand itself (picking takes no tool, unless a blade is held). */
+/** What water is poured into (or onto, or taken from) in each piece of work that is done with it: the picture beside the thing in the hand. */
+const INTO: Partial<Record<Deed | Chore, IconName>> = { water: "plotSprout", draw: "plotDrop", pour: "well", fill: "well" };
+/** The word on the button that is held for each of them. */
+const HOLD: Partial<Record<Deed | Chore, [th: string, en: string]>> = {
+  water: ["กดค้างรด", "Hold to water"], draw: ["กดค้างตัก", "Hold to draw"], pour: ["กดค้างเท", "Hold to pour"], fill: ["กดค้างเติม", "Hold to fill"],
+};
+/** What is in the hand for a piece of work: the thing held, or the hand itself (picking takes no tool, unless a blade is held). */
 function toolIcon(work: Deed | Chore, hand: ItemId | null): IconName {
   const name = work === "pick" && hand !== BLADES.plant && hand !== BLADES.tree ? "hand" : hand ? iconOf(hand) : "hand";
   return (name in ICON_ATLAS.icons ? name : "hand") as IconName;
@@ -101,9 +109,11 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * and a ripe plant of one's own bed is picked. By the river a bucket
  * is filled, at the farm's well it is poured in, and a can is filled there.
  * Nothing says which thing does what: the button only shows when the hand
- * holds the right one. With no stamina left everything but the hoe's work is a
- * short round of the hoe's game as well (lib/town/farm's hitsFor), and all of
- * it is dropped at the third miss; digging a plant out is never a game.
+ * holds the right one. Each piece of work that is a game is its own
+ * (lib/town/farm's gameFor): weeds are pulled, soil is tilled by the hoe's
+ * swing, and with no stamina left water is poured and everything else is
+ * steadied by shaking hands, all of it dropped at the third miss; digging a
+ * plant out is never a game.
  *
  * It also draws every plot on the map, each frame: weeds, tilled soil, a
  * plant at its stage, a pest on it, the shine of a ripe one; whose each bed
@@ -214,7 +224,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const say = useCallback((why: string) => { const w = WHY_FARM[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
 
   /** Do the deed, and say what came of it. `sure`: a living plant is meant to be dug out (asked twice, and answered). */
-  const act = useCallback(async (k: string, timing?: TimingResult, sure = false) => {
+  const act = useCallback(async (k: string, timing?: GameResult, sure = false) => {
     // (every miss of the hoe is a little more stamina gone: the keeper's to take)
     const did = await keeper.farmDo(k, name, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined, sure);
     if (!did.ok) { say(did.why); return; }
@@ -303,33 +313,43 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   return (
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
-      {working ? (
-        <div className="pop-in pointer-events-auto w-full max-w-[26rem]" data-state="open">
-          <TownTiming th={th} title={th ? VERB[working.work][0] : VERB[working.work][1]} verb={hoeing ? (th ? "ฟันจอบ" : "Swing") : th ? "ออกแรง" : "Steady"} need={working.need}
-                      mods={{ tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true }}
-                      look={WATERY.includes(working.work) ? "water" : "hoe"} icon={hoeing ? undefined : toolIcon(working.work, hand)}
-                      onHit={(hit) => {
-                        sfx?.wake();
-                        // (tired hands at lighter work: only a miss is heard, the work's own sound comes when it is done)
-                        if (!hoeing || !working.key) { if (!hit) sfx?.work("knock"); return; }
-                        // the blade into the earth, and what it throws up
-                        sfx?.work(hit ? "hoe" : "knock");
-                        const [x, y] = working.key.split(",").map(Number);
-                        if (hit) vfx.add(working.work === "clear" ? "leaves" : "soil", { x: x + 0.5, y: y + 0.5 });
-                      }}
-                      onDone={(result) => {
-                        const { key: k, work } = working;
-                        setWorking(null);
-                        // (a round of tired hands is written down whatever its end; the hoe's own, when it is done, with the deed)
-                        if (result.dropped || !hoeing) keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: work, need: result.need, hits: result.hits, misses: result.misses });
-                        // with no stamina left the work is dropped at the third miss: nothing is done
-                        if (result.dropped) { say(hoeing ? "tired" : "shaky"); return; }
-                        if (k) void act(k, hoeing ? result : undefined);
-                        else void carry();
-                      }}
-                      onCancel={() => setWorking(null)} />
-        </div>
-      ) : asking ? (
+      {working ? (() => {
+        // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things
+        const game = gameFor(working.work), title = th ? VERB[working.work][0] : VERB[working.work][1];
+        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true };
+        const growing = working.key ? seen.current.get(working.key) : undefined;
+        const common = {
+          th, title,
+          onHit: (hit: boolean) => {
+            sfx?.wake();
+            // (tired hands at lighter work: only a miss is heard, the work's own sound comes when it is done)
+            if (!hoeing || !working.key) { if (!hit) sfx?.work("knock"); return; }
+            // a weed out of the ground, or the blade into the earth, and what flies up from it
+            sfx?.work(hit ? (working.work === "clear" ? "pull" : "hoe") : "knock");
+            const [x, y] = working.key.split(",").map(Number);
+            if (hit) vfx.add(working.work === "clear" ? "leaves" : "soil", { x: x + 0.5, y: y + 0.5 });
+          },
+          onDone: (result: GameResult) => {
+            const { key: k, work } = working;
+            setWorking(null);
+            // (a game of tired hands is written down whatever its end; the hoe's own, when it is done, with the deed)
+            if (result.dropped || !hoeing) keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: work, need: result.need, hits: result.hits, misses: result.misses });
+            // with no stamina left the work is dropped at the third miss: nothing is done
+            if (result.dropped) { say(hoeing ? "tired" : "shaky"); return; }
+            if (k) void act(k, hoeing ? result : undefined);
+            else void carry();
+          },
+          onCancel: () => setWorking(null),
+        };
+        return (
+          <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
+            {game === "weeding" ? <TownWeeding {...common} need={working.need} mods={mods} />
+              : game === "pouring" ? <TownPouring {...common} verb={(HOLD[working.work] ?? HOLD.pour!)[th ? 0 : 1]} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} taking={working.work === "draw" || working.work === "fill"} into={(working.work === "water" && growing?.crop ? growIconOf(growing.crop, growing.stage) : INTO[working.work] ?? "plotDrop") as IconName} />
+                : game === "steady" ? <TownSteady {...common} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} over={(growing?.crop ? growIconOf(growing.crop, growing.stage) : "plotSoil") as IconName} />
+                  : <TownTiming {...common} verb={th ? "ฟันจอบ" : "Swing"} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} />}
+          </div>
+        );
+      })() : asking ? (
         <div role="alertdialog" aria-labelledby="farm-ask-h" aria-describedby="farm-ask-p" data-state="open" data-farm-ask={asking.deed}
              className="pop-in pointer-events-auto mb-14 w-full max-w-[22rem] rounded-2xl border border-line-lit bg-surface/97 p-4 shadow-xl shadow-black/40 backdrop-blur-sm">
           <p id="farm-ask-h" className="text-read font-semibold text-ink">

@@ -10,7 +10,8 @@ import type { Keeper } from "@/lib/town/keeper";
 import { KITCHEN, onYard } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
-import TownTiming, { type TimingResult } from "./TownTiming";
+import type { GameResult } from "./TownGame";
+import TownStirring from "./TownStirring";
 import { ItemIcon, WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
 
@@ -161,7 +162,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     if (why) { say(why); return; }
     setStirring({ things, crew: cooks });
   }, [keeper, things, cooks, say]);
-  const finish = useCallback(async (result: TimingResult) => {
+  const finish = useCallback(async (result: GameResult) => {
     const job = stirring;
     setStirring(null);
     if (!job) return;
@@ -236,9 +237,9 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {stirring ? (
         <div className="pop-in pointer-events-auto w-full max-w-[26rem]" data-state="open">
-          <TownTiming th={th} title={th ? "ทำอาหาร" : "Cooking"} verb={th ? "คน" : "Stir"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent)} look="stir"
-                      onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
-                      onDone={finish} onCancel={() => setStirring(null)} />
+          <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent)}
+                        onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
+                        onDone={finish} onCancel={() => setStirring(null)} />
         </div>
       ) : open ? (
         <section aria-label={th ? "ทำอาหาร" : "Cooking"} className="pop-in pointer-events-auto w-full max-w-[30rem] rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm" data-state="open">

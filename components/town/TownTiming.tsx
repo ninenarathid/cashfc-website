@@ -3,66 +3,41 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { dropped, finished, markerAt, press, startRound, type Round, type TimingMods } from "@/lib/town/timing";
 import TownIcon, { type IconName } from "./TownIcon";
+import { BIG, GameFrame, PixelGround, STAGE, useFrames, useGameHandle, type GameProps, type GameResult } from "./TownGame";
 
-/** How a round of the timing game went. `dropped`: the work was not done (tired hands, and too many misses). */
-export interface TimingResult { hits: number; misses: number; secs: number; need: number; dropped?: boolean }
-/** What the game is dressed as: a hoe along a strip of earth, a ladle round a pot, a brush along a soapy tub, a can along a strip of water. */
-export type TimingLook = "hoe" | "stir" | "scrub" | "water";
-
-/** The two that run along a bar: its ground, the stretch to hit, and the tool that runs over it. */
-const STRIPS = {
-  hoe: { bar: "linear-gradient(180deg,#4a3320,#33220f)", edge: "#6b4a2a", zone: "rgba(226,184,104,0.5)", line: "#e9c877", tool: "hoe", puff: "plotSoil" },
-  scrub: { bar: "linear-gradient(180deg,#2f5874,#1f3d52)", edge: "#4b84a8", zone: "rgba(240,250,255,0.72)", line: "#ffffff", tool: "brush", puff: "puff" },
-  water: { bar: "linear-gradient(180deg,#2b6272,#1b4452)", edge: "#4f99a8", zone: "rgba(214,246,252,0.62)", line: "#e8fcff", tool: "can", puff: "plotDrop" },
-} as const;
+/** How a round of the timing game went (what every game gives back: components/town/TownGame). */
+export type TimingResult = GameResult;
 
 /**
- * The game of timing on the screen (lib/town/timing): something runs to and
- * fro, and the big button (or the space bar) is pressed while it is over the
- * lit stretch. So many hits and the work is done. Hoeing a plot, cooking and
- * scrubbing a pot are all this game, and each looks like the work it is (the
- * owner, 2026-10-03: "การทำอาหาร และ ปลูกพืช ช่วยใช้ vfx ที่เหมาะสมด้วยนะครับ ตอนนี้เหมือน ตกปลา
- * เลย"): a hoe along a strip of earth, a ladle round a pot seen from above,
- * a brush along a soapy tub. The rules are the same for all three.
+ * The game of timing on the screen (lib/town/timing): the hoe runs to and fro along a strip of the plot's earth, and
+ * the big button (or the space bar) is pressed while it is over the soft stretch. Each hit is a swing of the hoe,
+ * and leaves a furrow where it fell; so many and the soil is tilled.
  *
- * Nothing on it says how it works: what moves, the stretch and the dots that
- * fill say it.
+ * It is tilling's game alone now (the owner, 2026-10-04: "การกดตามจังหว่ะ ดูจะมีเยอะไปหน่อย"): what else was this game
+ * is each its own (TownWeeding, TownStirring, TownPouring, TownSteady). The swing of a hoe is a thing of timing.
+ *
+ * Nothing on it says how it works: what moves, the stretch and the squares that fill say it.
  */
-export default function TownTiming({ th, title, verb, need, mods, look, icon, onDone, onCancel, onHit }: {
-  th: boolean;
-  title: string;
+export default function TownTiming({ th, title, verb, need, mods, icon = "hoe", onDone, onCancel, onHit }: GameProps & {
   /** The word on the button: what a hit is. */
   verb: string;
   need: number;
   mods: TimingMods;
-  /** What it is dressed as (a plain bar, with none). */
-  look?: TimingLook;
-  /** What runs along the strip, in place of the look's own tool: the thing in the hand, for the farm's lighter work. */
+  /** What runs along the strip: the hoe in the hand. */
   icon?: IconName;
-  onDone: (result: TimingResult) => void;
-  onCancel: () => void;
-  /** Told at each press, a hit or a miss: for a sound. */
-  onHit?: (hit: boolean) => void;
 }) {
   const round = useRef<Round>(startRound(need, mods, Math.floor(Math.random() * 2 ** 31)));
   const from = useRef(0);
   const [, setShown] = useState(0);
+  /** Where each swing fell along the strip: a furrow is left there. */
+  const [furrows, setFurrows] = useState<number[]>([]);
   const marker = useRef<HTMLSpanElement>(null), bar = useRef<HTMLDivElement>(null), tool = useRef<HTMLSpanElement>(null), puff = useRef<HTMLSpanElement>(null);
   const ended = useRef(false);
-  const round_ = look === "stir";
+  useEffect(() => { from.current = performance.now(); }, []);
 
-  useEffect(() => {
-    from.current = performance.now();
-    let raf = 0;
-    const frame = (t: number) => {
-      const at = markerAt(round.current, (t - from.current) / 1000);
-      // round the pot and back again; or along the bar and back
-      if (marker.current) { if (round_) marker.current.style.transform = `rotate(${at * 360}deg)`; else marker.current.style.left = `${at * 100}%`; }
-      raf = requestAnimationFrame(frame);
-    };
-    raf = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(raf);
-  }, [round_]);
+  useFrames((_dt, t) => {
+    if (marker.current) marker.current.style.left = `${markerAt(round.current, (t - from.current) / 1000) * 100}%`;
+  });
 
   const strike = useCallback(() => {
     if (ended.current) return;
@@ -70,21 +45,19 @@ export default function TownTiming({ th, title, verb, need, mods, look, icon, on
     round.current = now;
     const hit = now.hits > was.hits;
     onHit?.(hit);
-    // a miss shakes it; a hit is the tool at its work, and what comes up from it
+    // a miss jolts the strip; a hit is the hoe coming down, the earth it throws up, and the furrow it leaves
     if (!hit && bar.current) bar.current.animate([{ transform: "translateX(-4px)" }, { transform: "translateX(4px)" }, { transform: "translateX(0)" }], { duration: 160 });
     if (hit) {
-      tool.current?.animate(look === "hoe" ? [{ transform: "rotate(-38deg) translateY(-6px)" }, { transform: "rotate(10deg) translateY(5px)" }, { transform: "rotate(0) translateY(0)" }]
-        : look === "scrub" ? [{ transform: "translateX(-5px)" }, { transform: "translateX(5px)" }, { transform: "translateX(-3px)" }, { transform: "translateX(0)" }]
-          : look === "water" ? [{ transform: "rotate(0) translateY(0)" }, { transform: "rotate(30deg) translateY(4px)" }, { transform: "rotate(0) translateY(0)" }]
-          : [{ transform: "scale(1.25)" }, { transform: "scale(1)" }], { duration: 200 });
+      tool.current?.animate([{ transform: "rotate(-38deg) translateY(-6px)" }, { transform: "rotate(14deg) translateY(6px)" }, { transform: "rotate(0) translateY(0)" }], { duration: 200 });
       puff.current?.animate([{ opacity: 0.95, transform: "translateY(0) scale(0.7)" }, { opacity: 0, transform: "translateY(-30px) scale(1.5)" }], { duration: 560, easing: "ease-out" });
+      setFurrows((f) => [...f, markerAt(was, t)]);
     }
     setShown((n) => n + 1);
     if (finished(now) || dropped(now)) {
       ended.current = true;
       window.setTimeout(() => onDone({ hits: now.hits, misses: now.misses, secs: Math.round(t * 10) / 10, need: now.need, ...(dropped(now) ? { dropped: true } : {}) }), dropped(now) ? 420 : 220);
     }
-  }, [onDone, onHit, look]);
+  }, [onDone, onHit]);
 
   // The space bar is the big button; Escape gives the work up. Heard before the town hears them.
   useEffect(() => {
@@ -103,70 +76,35 @@ export default function TownTiming({ th, title, verb, need, mods, look, icon, on
     return () => { window.removeEventListener("keydown", down, true); window.removeEventListener("keyup", up, true); };
   }, [strike, onCancel]);
 
-  // (for scripts in `next dev`: the round, and a press)
+  // (for scripts in `next dev`: the round, and a press; under the game's own name and, as it always was, the timing's)
+  const handle = { kind: "timing", round: () => ({ ...round.current, at: markerAt(round.current, (performance.now() - from.current) / 1000) }), press: strike };
+  useGameHandle(handle, [strike]);
   useEffect(() => {
-    const handle = {
-      round: () => ({ ...round.current, at: markerAt(round.current, (performance.now() - from.current) / 1000) }),
-      press: strike, look: look ?? null,
-    };
+    if (process.env.NODE_ENV === "production") return;
     (window as unknown as { __townTiming?: typeof handle }).__townTiming = handle;
     return () => { delete (window as unknown as { __townTiming?: typeof handle }).__townTiming; };
-  }, [strike, look]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- rebuilt with the press
+  }, [strike]);
 
-  const r = round.current, strip = look && look !== "stir" ? STRIPS[look] : null;
+  const r = round.current;
   return (
-    <section aria-label={title} className="rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm">
-      <div className="flex items-center gap-2">
-        <h2 className="font-display text-title font-semibold text-ink">{title}</h2>
-        {/* a dot for each hit wanted, filled as they come */}
-        <span className="ml-2 flex gap-1" aria-label={`${r.hits} / ${r.need}`}>
-          {Array.from({ length: r.need }, (_, i) => <span key={i} className={`size-2.5 rounded-full ${i < r.hits ? "bg-jade" : "bg-line-strong"}`} />)}
+    <GameFrame th={th} title={title} need={r.need} hits={r.hits} misses={r.misses} most={r.most} onCancel={onCancel}>
+      {/* a strip of the plot's earth, the soft stretch in it, the furrows left so far, and the hoe that runs over it */}
+      <div className="relative mt-9">
+        <div ref={bar} aria-hidden className={`${STAGE} h-11`} data-look="hoe">
+          <PixelGround kind="rows" w={96} h={12} className="absolute inset-0 size-full" />
+          <span className="absolute inset-y-0 border-x-[3px] border-[#ffe19a] bg-[#f3d08a]/55" style={{ left: `${r.lo * 100}%`, width: `${r.width * 100}%` }} />
+          {furrows.map((at, i) => <span key={i} className="absolute inset-y-1 -ml-[5px] w-[10px] border-x-2 border-[#2a190d] bg-[#3b210c]" style={{ left: `${at * 100}%` }} />)}
+        </div>
+        <span ref={marker} aria-hidden className="pointer-events-none absolute inset-y-0 w-0" style={{ left: "0%" }}>
+          <span className="absolute inset-y-[3px] -ml-[1.5px] w-[3px] bg-[#fff6e3]" />
+          <span ref={tool} className="absolute -top-8 -ml-[15px] block origin-bottom"><TownIcon name={icon} size={30} /></span>
+          <span ref={puff} className="absolute -top-3 -ml-[10px] opacity-0"><TownIcon name="plotSoil" size={20} /></span>
         </span>
-        {/* tired hands: a mark for each miss they still have in them, going out one by one (said by nothing but itself) */}
-        {r.most > 0 ? (
-          <span className="ml-1 flex gap-1" aria-label={`${Math.max(0, r.most - r.misses)} / ${r.most}`} data-misses-left={Math.max(0, r.most - r.misses)}>
-            {Array.from({ length: r.most }, (_, i) => <span key={i} className={`size-2 rotate-45 ${i < r.most - r.misses ? "bg-chili" : "bg-line"}`} />)}
-          </span>
-        ) : r.misses > 0 && <span className="font-data text-meta tabular-nums text-chili">×{r.misses}</span>}
-        <button type="button" onClick={onCancel} className="pressable -mr-1 ml-auto rounded-full px-3 py-1.5 text-meta text-muted hover:text-ink">{th ? "เลิก" : "Stop"}</button>
       </div>
-      {round_ ? (
-        // a pot seen from above: its rim, what simmers in it, the stretch of the rim to stir at, and the ladle going round
-        <div ref={bar} aria-hidden className="relative mx-auto mt-3 size-40" data-look="stir">
-          <span className="absolute inset-0 rounded-full bg-[#7a3f22] shadow-[inset_0_0_0_3px_#4a2412]" />
-          <span className="absolute inset-[9px] overflow-hidden rounded-full bg-[radial-gradient(circle_at_38%_32%,#f3b45c,#cf7a2c_62%,#a8551c)] shadow-[inset_0_0_10px_rgba(60,25,5,0.6)]">
-            <span className="absolute inset-0 animate-[spin_4s_linear_infinite] rounded-full bg-[conic-gradient(from_0deg,rgba(255,236,190,0.28),transparent_28%,rgba(255,236,190,0.18)_52%,transparent_78%)] motion-reduce:animate-none" />
-          </span>
-          <span className="absolute inset-[1px] rounded-full"
-                style={{
-                  background: `conic-gradient(from ${r.lo * 360}deg, rgba(126,236,176,0.95) 0deg ${r.width * 360}deg, transparent ${r.width * 360}deg)`,
-                  WebkitMask: "radial-gradient(farthest-side, transparent 78%, #000 80%)", mask: "radial-gradient(farthest-side, transparent 78%, #000 80%)",
-                }} />
-          <span ref={marker} className="absolute inset-0" style={{ transform: "rotate(0deg)" }}>
-            <span ref={tool} className="absolute left-1/2 top-[2px] -ml-[18px] block"><TownIcon name="ladle" size={36} /></span>
-          </span>
-          <span ref={puff} className="pointer-events-none absolute left-1/2 top-[34%] -ml-[14px] opacity-0"><TownIcon name="puff" size={28} /></span>
-        </div>
-      ) : strip ? (
-        // a strip of earth, or of soapy water, and the tool that runs along it
-        <div ref={bar} aria-hidden className="relative mt-9 h-9 rounded-lg border-2" data-look={look} style={{ background: strip.bar, borderColor: strip.edge }}>
-          <span className="absolute inset-y-0 border-x-2" style={{ left: `${r.lo * 100}%`, width: `${r.width * 100}%`, background: strip.zone, borderColor: strip.line }} />
-          <span ref={marker} className="absolute inset-y-0 w-0" style={{ left: "0%" }}>
-            <span className="absolute inset-y-0 -ml-px w-[2px] bg-ink/80" />
-            <span ref={tool} className="absolute -top-8 -ml-[15px] block origin-bottom"><TownIcon name={icon ?? strip.tool} size={30} /></span>
-            <span ref={puff} className="pointer-events-none absolute -top-3 -ml-[10px] opacity-0"><TownIcon name={strip.puff} size={20} /></span>
-          </span>
-        </div>
-      ) : (
-        <div ref={bar} aria-hidden className="relative mt-3 h-9 overflow-hidden rounded-lg border border-line-strong bg-bg/60">
-          <span className="absolute inset-y-0 border-x-2 border-jade bg-jade/45" style={{ left: `${r.lo * 100}%`, width: `${r.width * 100}%` }} />
-          <span ref={marker} className="absolute inset-y-0 -ml-[2px] w-[4px] bg-ink shadow-[0_0_4px_rgba(255,255,255,0.8)]" style={{ left: "0%" }} />
-        </div>
-      )}
-      <button type="button" onPointerDown={(e) => { e.preventDefault(); strike(); }}
-              className="mt-3 min-h-14 w-full touch-none select-none rounded-2xl bg-accent text-read font-semibold text-bg active:brightness-125">
-        {verb}<kbd aria-hidden className="ml-2 hidden rounded border border-bg/40 px-1.5 py-px align-middle font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
+      <button type="button" onPointerDown={(e) => { e.preventDefault(); strike(); }} className={`${BIG} mt-3`}>
+        {verb}<kbd aria-hidden className="ml-2 hidden rounded border border-[#3a2209]/40 px-1.5 py-px align-middle font-data text-label font-normal uppercase tracking-wider text-[#3a2209]/80 sm:inline">Space</kbd>
       </button>
-    </section>
+    </GameFrame>
   );
 }

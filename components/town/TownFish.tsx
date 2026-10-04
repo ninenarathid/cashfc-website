@@ -10,6 +10,7 @@ import { buffOf, isSpent, staminaOf } from "@/lib/town/stamina";
 import { handOf, held, roomFor } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Fishing } from "@/lib/town/world";
+import { BIG, PixelGround, STAGE } from "./TownGame";
 import TownIcon, { type IconName } from "./TownIcon";
 import { ItemIcon, WHY } from "./TownTrade";
 
@@ -102,8 +103,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   };
   const kitButton = (words: [string, string]) => (
     <button type="button" onClick={kit}
-            className="pressable mt-2 flex min-h-11 items-center gap-1.5 rounded-full border border-gold/60 bg-gold/10 px-4 text-ui text-ink hover:border-gold">
-      <span className="rounded-full bg-gold/20 px-1.5 py-0.5 font-data text-label uppercase tracking-wider text-gold">{th ? "โหมดลอง" : "Trial"}</span>
+            className="pressable mt-2 flex min-h-11 items-center gap-1.5 rounded-full border border-gold/60 bg-gold/10 px-4 text-ui text-[#fff6e3] hover:border-gold">
+      <span className="rounded-full bg-gold/20 px-1.5 py-0.5 font-data text-label uppercase tracking-wider text-[#ffe19a]">{th ? "โหมดลอง" : "Trial"}</span>
       {th ? words[0] : words[1]}
     </button>
   );
@@ -252,7 +253,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const holding = useRef(false);
   const fight = useRef<Fight | null>(null);
   const gauge = { needle: useRef<HTMLSpanElement>(null), band: useRef<HTMLSpanElement>(null), line: useRef<HTMLSpanElement>(null),
-    strain: useRef<HTMLSpanElement>(null), slack: useRef<HTMLSpanElement>(null), fish: useRef<HTMLSpanElement>(null), word: useRef<HTMLSpanElement>(null) };
+    strain: useRef<HTMLSpanElement>(null), slack: useRef<HTMLSpanElement>(null), fish: useRef<HTMLSpanElement>(null), word: useRef<HTMLSpanElement>(null),
+    swim: useRef<HTMLSpanElement>(null), taut: useRef<SVGLineElement>(null) };
   useEffect(() => {
     if (phase.at !== "fight") return;
     const p = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31);
@@ -283,6 +285,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       if (gauge.needle.current) gauge.needle.current.style.bottom = pct(f.tension);
       if (gauge.band.current) { gauge.band.current.style.bottom = pct(f.lo); gauge.band.current.style.height = pct(f.hi - f.lo); }
       if (gauge.line.current) gauge.line.current.style.width = pct(1 - f.line / f.length);
+      // the fish, as far out as there is line still to bring in; and the line to it, redder the nearer it is to breaking
+      if (gauge.swim.current) gauge.swim.current.style.left = `${8 + 70 * Math.max(0, Math.min(1, f.line / f.length))}%`;
+      if (gauge.taut.current) {
+        gauge.taut.current.setAttribute("x2", String(26 + 202 * Math.max(0, Math.min(1, f.line / f.length))));
+        gauge.taut.current.setAttribute("stroke", f.strain >= 0.75 ? "#ff7a5c" : f.strain >= 0.4 ? "#ffd27a" : "#f0f0eb");
+      }
       if (gauge.strain.current) gauge.strain.current.style.width = pct(f.strain);
       if (gauge.slack.current) gauge.slack.current.style.width = pct(f.slack);
       const wild = surging(f), about = warning(f);
@@ -364,22 +372,23 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const press = (on: boolean) => (e: ReactPointerEvent) => { e.preventDefault(); holding.current = on; if (on) { sfx.wake(); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); } };
   const hasRod = !!gear.rod;
   return (
-    <section aria-labelledby="town-fish-h" className="rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm">
+    <section aria-labelledby="town-fish-h" data-town-game data-look="fish"
+             className="rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
       <div className="flex items-center gap-2">
         {/* the rod in use, when there is one */}
         <span title={gear.rod ? name(gear.rod) : undefined}>{gear.rod ? <ItemIcon id={gear.rod} size={24} /> : <TownIcon name="hook" size={22} />}</span>
-        <h2 id="town-fish-h" className="font-display text-title font-semibold text-ink">{th ? "ตกปลา" : "Fishing"}</h2>
-        <span className="rounded-full bg-bg/50 px-2 py-0.5 text-meta text-muted">{place.deep ? (th ? "น้ำลึก" : "Deep water") : (th ? "น้ำตื้น" : "Shallows")}</span>
-        <span className={`ml-auto flex items-center gap-1 font-data text-ui tabular-nums ${stamina ? "text-ink" : "text-chili"}`} title="Stamina">
+        <h2 id="town-fish-h" className="font-display text-title font-semibold text-[#ffeccb] [text-shadow:0_2px_0_#2a190d]">{th ? "ตกปลา" : "Fishing"}</h2>
+        <span className="rounded-[3px] bg-[#4a2f18] px-2 py-0.5 text-meta text-[#e9cfa4]">{place.deep ? (th ? "น้ำลึก" : "Deep water") : (th ? "น้ำตื้น" : "Shallows")}</span>
+        <span className={`ml-auto flex items-center gap-1 font-data text-ui tabular-nums ${stamina ? "text-[#fff6e3]" : "text-[#ffb09c]"}`} title="Stamina">
           <TownIcon name="stamina" size={16} />{stamina}
         </span>
         {buff && <span title={th ? BUFFS[buff].name.th : BUFFS[buff].name.en}><TownIcon name={BUFFS[buff].icon as IconName} size={18} /></span>}
         <button type="button" onClick={() => { const on = !sound; sfx.setOn(on); setSound(on); if (on) { sfx.wake(); sfx.play("nibble"); } }} aria-pressed={sound}
                 title={th ? (sound ? "ปิดเสียงตกปลา" : "เปิดเสียงตกปลา") : (sound ? "Turn the fishing sounds off" : "Turn the fishing sounds on")}
-                className={`pressable grid size-8 place-items-center rounded-full border ${sound ? "border-line-strong" : "border-line opacity-50"}`}>
+                className={`pressable grid size-8 place-items-center rounded-full border ${sound ? "border-[#2a190d]" : "border-[#2a190d] opacity-50"}`}>
           <TownIcon name={sound ? "volumeHigh" : "volumeLow"} size={16} /><span className="sr-only">{th ? "เสียงตกปลา" : "Fishing sounds"}</span>
         </button>
-        <button type="button" onClick={onClose} className="pressable -mr-1 rounded-full px-3 py-1.5 text-meta text-muted hover:text-ink">
+        <button type="button" onClick={onClose} className="pressable -mr-1 rounded-full px-3 py-1.5 text-meta text-[#e9cfa4] hover:text-[#fff6e3]">
           {phase.at === "ready" || phase.at === "result" ? (th ? "ปิด" : "Close") : (th ? "เก็บเบ็ด" : "Reel in")}
         </button>
       </div>
@@ -388,12 +397,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         <div className="mt-2">
           {!hasRod ? (
             <>
-              <p className="text-ui text-ink">{th ? "ต้องมีคันเบ็ดก่อน" : "You need a rod first."}</p>
+              <p className="text-ui text-[#fff6e3]">{th ? "ต้องมีคันเบ็ดก่อน" : "You need a rod first."}</p>
               {process.env.NODE_ENV !== "production" && trial && kitButton(["รับคันเบ็ดกับไส้เดือน 10 ตัว", "Take a rod and ten worms"])}
             </>
           ) : !baits.length ? (
             <>
-              <p className="text-ui text-ink">{th ? "ในกระเป๋าไม่มีอะไรที่เกี่ยวเบ็ดได้เลย" : "Nothing in your bag will go on a hook."}</p>
+              <p className="text-ui text-[#fff6e3]">{th ? "ในกระเป๋าไม่มีอะไรที่เกี่ยวเบ็ดได้เลย" : "Nothing in your bag will go on a hook."}</p>
               {process.env.NODE_ENV !== "production" && trial && kitButton(["รับไส้เดือน 10 ตัว", "Take ten worms"])}
             </>
           ) : (
@@ -401,52 +410,52 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               <div role="radiogroup" aria-label={th ? "เหยื่อ" : "Bait"} className="flex flex-wrap gap-1.5">
                 {baits.map((b) => (
                   <button key={b} type="button" role="radio" aria-checked={inHand === b} onClick={() => setBait(b)}
-                          className={`pressable flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-ui ${inHand === b ? "border-accent bg-accent/10 font-semibold text-ink" : "border-line-strong text-ink hover:border-accent"}`}>
-                    <ItemIcon id={b} size={20} />{name(b)}<span className="font-data text-meta text-muted">×{have(b)}</span>
+                          className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-3 text-ui ${inHand === b ? "border-[#ffe19a] bg-[#f0c060]/25 font-semibold text-[#fff6e3]" : "border-[#2a190d] text-[#fff6e3] hover:border-[#ffe19a]"}`}>
+                    <ItemIcon id={b} size={20} />{name(b)}<span className="font-data text-meta text-[#e9cfa4]">×{have(b)}</span>
                   </button>
                 ))}
               </div>
               {/* what a bait may bring: shown to nobody for now (lib/town/fishing's seesOdds) */}
               {shown && (
                 <>
-                  <p className="mt-2 text-meta text-muted">
+                  <p className="mt-2 text-meta text-[#e9cfa4]">
                     {odds.some((o) => o.what in FISH) ? (th ? "ตอนนี้เหยื่อนี้อาจได้:" : "This bait, at this hour, may bring:") : (th ? "ชั่วโมงนี้ไม่มีปลาที่กินเหยื่อชนิดนี้ออกหากิน จะได้แต่ของลอยน้ำ" : "No fish that takes this bait is feeding at this hour: only what drifts by.")}
                   </p>
                   <ul className="mt-1 flex flex-wrap gap-1">
                     {odds.map((o) => (
-                      <li key={o.what} className="flex items-center gap-1 rounded-full bg-bg/40 px-2 py-0.5 text-meta text-ink">
+                      <li key={o.what} className="flex items-center gap-1 rounded-[3px] bg-[#4a2f18] px-2 py-0.5 text-meta text-[#fff6e3]">
                         {known(o.what) ? <ItemIcon id={o.what} size={16} /> : <TownIcon name="fishShadow" size={16} />}
                         {known(o.what) ? name(o.what) : (th ? "ยังไม่เคยจับได้" : "Not caught yet")}
-                        <span className="font-data tabular-nums text-muted">{o.p >= 0.1 ? Math.round(o.p * 100) : (o.p * 100).toFixed(1)}%</span>
+                        <span className="font-data tabular-nums text-[#e9cfa4]">{o.p >= 0.1 ? Math.round(o.p * 100) : (o.p * 100).toFixed(1)}%</span>
                       </li>
                     ))}
                   </ul>
                 </>
               )}
-              {!roomFor(purse.bag, "minnow") && purse.bag.every(Boolean) && <p className="mt-1.5 text-meta text-chili">{th ? "กระเป๋าเต็ม ปลาชนิดใหม่จะไม่มีที่ใส่" : "Your bag is full: a new kind of fish will have nowhere to go."}</p>}
+              {!roomFor(purse.bag, "minnow") && purse.bag.every(Boolean) && <p className="mt-1.5 text-meta text-[#ffb09c]">{th ? "กระเป๋าเต็ม ปลาชนิดใหม่จะไม่มีที่ใส่" : "Your bag is full: a new kind of fish will have nowhere to go."}</p>}
               <div className="mt-2 flex items-center gap-2">
                 {process.env.NODE_ENV !== "production" && trial && (
-                  <label className="flex min-h-11 items-center gap-1.5 text-meta text-muted">
+                  <label className="flex min-h-11 items-center gap-1.5 text-meta text-[#e9cfa4]">
                     <input type="checkbox" checked={quick} onChange={(e) => setQuick(e.target.checked)} className="size-4 accent-[var(--color-accent)]" />
                     {th ? "โหมดลอง: รอสั้นลงห้าเท่า" : "Trial: a fifth of the wait"}
                   </label>
                 )}
                 <button type="button" onClick={() => { void drop(); }}
-                        className="pressable ml-auto min-h-11 rounded-full bg-accent px-5 text-ui font-semibold text-bg">
+                        className="pressable ml-auto min-h-11 rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] px-5 text-ui font-semibold text-[#3a2209] shadow-[inset_0_-3px_0_#c98f2f]">
                   {th ? "หย่อนเบ็ด" : "Drop the line"}<Key />
                 </button>
               </div>
             </>
           )}
-          {note && <p className="mt-1.5 text-meta text-chili" aria-live="polite">{note}</p>}
+          {note && <p className="mt-1.5 text-meta text-[#ffb09c]" aria-live="polite">{note}</p>}
         </div>
       )}
 
       {/* (the same water while the line is on its way out and while the strike is on its way in: the keeper's answer is waited for) */}
       {(phase.at === "waiting" || phase.at === "casting" || phase.at === "striking") && (
         <div className="mt-2">
-          <div aria-hidden className="relative mx-auto grid h-24 w-full max-w-[18rem] place-items-center overflow-hidden rounded-xl border border-line bg-[#2b7fb8]">
-            <span className="absolute inset-0 opacity-30 [background-image:repeating-linear-gradient(0deg,transparent_0_10px,rgba(255,255,255,0.35)_10px_11px)]" />
+          <div aria-hidden className={`${STAGE} mx-auto grid h-28 w-full place-items-center`} data-look="float">
+            <PixelGround kind="water" w={96} h={28} className="absolute inset-0 size-full" />
             {/* the rod's tip, and the line down to the float */}
             <svg className="absolute inset-0 size-full" viewBox="0 0 288 96" preserveAspectRatio="none">
               <line ref={thread} x1="262" y1="6" x2="144" y2="40" stroke="rgba(240,240,235,0.85)" strokeWidth="1.2" />
@@ -457,8 +466,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
           </div>
           {/* (nothing is said of when to strike: the float shows it, and a strike too soon or too late says why it failed) */}
-          <button type="button" onClick={() => { void strike(); }} disabled={phase.at !== "waiting"}
-                  className="pressable mt-2 min-h-12 w-full rounded-full bg-accent text-read font-semibold text-bg disabled:opacity-70">
+          <button type="button" onClick={() => { void strike(); }} disabled={phase.at !== "waiting"} className={`${BIG} mt-2 disabled:opacity-70`}>
             {th ? "ตวัดเบ็ด!" : "Strike!"}<Key />
           </button>
         </div>
@@ -466,24 +474,33 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 
       {phase.at === "fight" && (
         <div className="mt-2">
-          <div className="flex items-stretch gap-3">
+          <div className="flex items-stretch gap-2.5">
             {/* the line's tension: the needle has to stay in the lit stretch, which moves as the fish does. Twice as
                 long as it was at first (the owner: "เพิ่มหลอด ตกปลาให้กว้างกว่านี้ 2 เท่า"), less on a short screen. */}
-            <div aria-hidden className="relative h-[min(20rem,44dvh)] w-11 shrink-0 overflow-hidden rounded-lg border border-line-strong bg-bg/60">
-              <span className="absolute inset-x-0 top-0 h-[2.5%] bg-chili/60" />
-              <span ref={gauge.band} className="absolute inset-x-0 border-y-2 border-jade bg-jade/45" style={{ bottom: "42%", height: "16%" }} />
-              <span ref={gauge.needle} className="absolute inset-x-0 -mb-[2px] h-[4px] bg-ink shadow-[0_0_4px_rgba(255,255,255,0.8)]" style={{ bottom: "50%" }} />
+            <div aria-hidden className={`${STAGE} h-[min(20rem,44dvh)] w-12 shrink-0 bg-[#1c2c38]`} data-look="tension">
+              <span className="absolute inset-x-0 top-0 h-[2.5%] bg-[#e9573f]" />
+              <span ref={gauge.band} className="absolute inset-x-0 border-y-[3px] border-[#d6ffe0] bg-[#5cc58d]/60" style={{ bottom: "42%", height: "16%" }} />
+              <span ref={gauge.needle} className="absolute inset-x-0 -mb-[2px] h-[5px] bg-[#fff6e3] shadow-[0_0_0_1px_#2a190d]" style={{ bottom: "50%" }} />
             </div>
-            <div className="flex min-w-0 flex-1 flex-col">
-              <div className="flex items-center gap-2">
-                <span ref={gauge.fish} className="inline-block"><TownIcon name="fishShadow" size={30} /></span>
-                <span ref={gauge.word} className="text-ui font-semibold text-ink" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              {/* the water: the fish out on the line, nearer as the line comes in, thrashing when it surges */}
+              <div aria-hidden className={`${STAGE} h-24 w-full`} data-look="fight">
+                <PixelGround kind="water" w={96} h={24} className="absolute inset-0 size-full" />
+                <svg className="absolute inset-0 size-full" viewBox="0 0 260 96" preserveAspectRatio="none">
+                  <line ref={gauge.taut} x1="6" y1="8" x2="228" y2="52" stroke="#f0f0eb" strokeWidth="1.6" />
+                  <line x1="-12" y1="-6" x2="8" y2="9" stroke="#3d2913" strokeWidth="7" strokeLinecap="round" />
+                  <line x1="-12" y1="-6" x2="8" y2="9" stroke="#e0ba72" strokeWidth="3.5" strokeLinecap="round" />
+                </svg>
+                <span ref={gauge.swim} className="absolute top-[30%] block" style={{ left: "78%" }}>
+                  <span ref={gauge.fish} className="inline-block"><TownIcon name="fishShadow" size={40} /></span>
+                </span>
+                <span ref={gauge.word} className="absolute bottom-1 right-1.5 rounded-[3px] bg-[#2a190d]/75 px-1.5 py-0.5 text-meta font-semibold text-[#fff6e3]" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
               </div>
-              <Bar label={th ? "สายที่สาวเข้ามาแล้ว" : "Line in"} bar={gauge.line} tone="bg-accent" />
-              <Bar label={th ? "สายใกล้ขาด" : "Line straining"} bar={gauge.strain} tone="bg-chili" />
-              <Bar label={th ? "เบ็ดใกล้หลุด" : "Hook slipping"} bar={gauge.slack} tone="bg-gold" />
+              <Bar label={th ? "สายที่สาวเข้ามาแล้ว" : "Line in"} bar={gauge.line} tone="bg-[#7cc6e6]" icon="rod" />
+              <Bar label={th ? "สายใกล้ขาด" : "Line straining"} bar={gauge.strain} tone="bg-[#e9573f]" icon="warning" />
+              <Bar label={th ? "เบ็ดใกล้หลุด" : "Hook slipping"} bar={gauge.slack} tone="bg-[#f0c060]" icon="hook" />
               <button type="button" onPointerDown={press(true)} onPointerUp={press(false)} onPointerCancel={press(false)} onContextMenu={(e) => e.preventDefault()}
-                      className="mt-auto min-h-14 w-full touch-none select-none rounded-2xl bg-accent text-read font-semibold text-bg active:brightness-125">
+                      className={`${BIG} mt-auto`}>
                 {th ? "กดค้าง = สาวสาย · ปล่อย = ผ่อน" : "Hold to reel · let go to give line"}<Key />
               </button>
             </div>
@@ -497,14 +514,14 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             <div className="flex items-center gap-3">
               <ItemIcon id={phase.what} size={52} />
               <div className="min-w-0">
-                <p className="text-read font-semibold text-ink">{th ? `ได้ ${name(phase.what)}` : `You landed: ${name(phase.what)}`}{phase.size ? (th ? ` ยาว ${phase.size} ซม.` : `, ${phase.size} cm`) : ""}</p>
-                {phase.record && <p className="text-ui font-semibold text-gold">{th ? "ตัวยาวที่สุดที่เคยจับได้!" : "Your longest yet!"}</p>}
-                {phase.kept === false && <p className="text-meta text-chili">{th ? "กระเป๋าเต็ม เลยปล่อยกลับลงน้ำไป" : "Your bag is full, so it went back in the water."}</p>}
-                <p className="text-meta text-muted">{th ? ITEMS[phase.what].about.th : ITEMS[phase.what].about.en}</p>
+                <p className="text-read font-semibold text-[#fff6e3]">{th ? `ได้ ${name(phase.what)}` : `You landed: ${name(phase.what)}`}{phase.size ? (th ? ` ยาว ${phase.size} ซม.` : `, ${phase.size} cm`) : ""}</p>
+                {phase.record && <p className="text-ui font-semibold text-[#ffe19a]">{th ? "ตัวยาวที่สุดที่เคยจับได้!" : "Your longest yet!"}</p>}
+                {phase.kept === false && <p className="text-meta text-[#ffb09c]">{th ? "กระเป๋าเต็ม เลยปล่อยกลับลงน้ำไป" : "Your bag is full, so it went back in the water."}</p>}
+                <p className="text-meta text-[#e9cfa4]">{th ? ITEMS[phase.what].about.th : ITEMS[phase.what].about.en}</p>
               </div>
             </div>
           ) : (
-            <p className="text-read text-ink">
+            <p className="text-read text-[#fff6e3]">
               {phase.how === "snapped" ? (th ? "สายขาด! ปลาหนีไปพร้อมเหยื่อ" : "The line snapped! It is gone, with the bait.")
                 : phase.how === "slipped" ? (th ? "เบ็ดหลุด ปลาหนีไปแล้ว" : "The hook slipped. It got away.")
                   : phase.how === "early" ? (th ? "ตวัดเร็วไป ปลายังไม่กินเบ็ด มันตกใจหนีไปแล้ว" : "Too soon: it had not taken the hook, and now it has fled.")
@@ -512,8 +529,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             </p>
           )}
           <div className="mt-2 flex justify-end gap-1.5">
-            <button type="button" onClick={onClose} className="pressable min-h-11 rounded-full px-3 text-ui text-muted hover:text-ink">{th ? "พอแล้ว" : "That will do"}</button>
-            <button type="button" onClick={() => setPhase({ at: "ready" })} className="pressable min-h-11 rounded-full bg-accent px-5 text-ui font-semibold text-bg">{th ? "หย่อนอีก" : "Again"}<Key /></button>
+            <button type="button" onClick={onClose} className="pressable min-h-11 rounded-full px-3 text-ui text-[#e9cfa4] hover:text-[#fff6e3]">{th ? "พอแล้ว" : "That will do"}</button>
+            <button type="button" onClick={() => setPhase({ at: "ready" })} className="pressable min-h-11 rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] px-5 text-ui font-semibold text-[#3a2209] shadow-[inset_0_-3px_0_#c98f2f]">{th ? "หย่อนอีก" : "Again"}<Key /></button>
           </div>
         </div>
       )}
@@ -523,15 +540,18 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 
 /** The key that does what a button does, shown on it where there is a keyboard to press (not on a phone's width). */
 function Key() {
-  return <kbd aria-hidden className="ml-2 hidden rounded border border-bg/40 px-1.5 py-px align-middle font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>;
+  return <kbd aria-hidden className="ml-2 hidden rounded border border-[#3a2209]/40 px-1.5 py-px align-middle font-data text-label font-normal uppercase tracking-wider text-[#3a2209]/80 sm:inline">Space</kbd>;
 }
 
-/** A thin bar with its name over it, filled from the left as told. */
-function Bar({ label, bar, tone }: { label: string; bar: RefObject<HTMLSpanElement | null>; tone: string }) {
+/** A bar with its sign and its name, filled from the left as told: in the board's own hard edges. */
+function Bar({ label, bar, tone, icon }: { label: string; bar: RefObject<HTMLSpanElement | null>; tone: string; icon: IconName }) {
   return (
-    <div className="mt-1.5">
-      <span className="block text-label text-muted">{label}</span>
-      <span aria-hidden className="block h-1.5 overflow-hidden rounded-full bg-line"><span ref={bar} className={`block h-full rounded-full ${tone}`} style={{ width: "0%" }} /></span>
+    <div className="flex items-center gap-2">
+      <TownIcon name={icon} size={18} />
+      <div className="min-w-0 flex-1">
+        <span className="block text-label text-[#e9cfa4]">{label}</span>
+        <span aria-hidden className="block h-2.5 overflow-hidden border-2 border-[#2a190d] bg-[#3a2513]"><span ref={bar} className={`block h-full ${tone}`} style={{ width: "0%" }} /></span>
+      </div>
     </div>
   );
 }

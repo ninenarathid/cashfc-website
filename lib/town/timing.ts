@@ -8,13 +8,14 @@ import { STAMINA } from "./stamina";
  * miss costs a little and the work goes on. After each hit the stretch moves
  * somewhere else and the marker runs a little faster.
  *
- * Hoeing a plot, stirring a pot and scrubbing one are all this game, each with
- * its own numbers; a better tool widens the stretch, and with no stamina left
- * it is narrower and the marker quicker ("ถ้า stamina หมด mini game ทุกอย่างจะยาก
- * ขึ้นมากด้วย"), and the farm's work is dropped at the third miss. The farm's
- * lighter work (sowing, watering, picking) is this game too then, a short
- * round of it (lib/town/farm); the pot's stirring is kinder than the rest at
- * any time (lib/town/cooking).
+ * Tilling a plot is this game: the hoe's swing, which is a thing of timing.
+ * A better tool widens the stretch, and with no stamina left it is narrower
+ * and the marker quicker ("ถ้า stamina หมด mini game ทุกอย่างจะยากขึ้นมากด้วย"), and
+ * the work is dropped at the third miss. (It was every game there was but
+ * the line's: clearing weeds, stirring a pot and everything tired hands did.
+ * The owner, 2026-10-04: "การกดตามจังหว่ะ ดูจะมีเยอะไปหน่อย". Each of those is its
+ * own game now: lib/town/weeding, stirring, pouring and steady, which take
+ * this one's numbers for how much harder tired hands have it.)
  *
  * Pure: where the marker is and where the stretch lies are worked out from the
  * time and a seed.

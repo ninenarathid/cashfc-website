@@ -29,6 +29,9 @@ const SHEETS = [
   // the settings at the top right (2026-10-04): their cog, a gauge for how often the map is drawn, and the two
   // ends of that choice, a cool machine and a smooth picture
   ["icons-g", ["settings", "gauge", "snowflake", "bolt"], { range: [19.5, 22.5] }],
+  // the stirring game (2026-10-04): the pot seen from above, as it simmers, boils over (stirred too fast), scorches
+  // (too slowly) and stands empty; drawn on a 32-pixel grid, so finer than the icons
+  ["icons-game-a", ["potTop", "potTopOver", "potTopBurnt", "potTopEmpty"], { range: [9.5, 11.5] }],
   // the emote window: its button, sitting down where you stand, getting up, a wave
   // (drawn on a 16-pixel grid of big pixels, which measured freely comes out at half their size)
   ["icons-emote", ["emote", "sitDown", "standUp", "wave"], { range: [15, 16.5] }],

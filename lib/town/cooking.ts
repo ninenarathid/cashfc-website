@@ -67,6 +67,12 @@ export const COOKING = {
    * times, and was left with half of it, fed. With this it loses a helping of one such pot in three, and with no
    * stamina one or two of each. A miss never took everything: half the pot is always left, and one of anything
    * else that is made.
+   *
+   * Since 2026-10-04 the stirring is a game of its own, the ladle taken round the pot (lib/town/stirring), and these
+   * are read by it: `wide` is how much kinder its good pace is than a plain one, and with no stamina `zone` is what
+   * is left of the good pace's width and `speed` how much less patient it is with a slip. Of made-up hands, one
+   * whose pace wanders as an unsure hand's does loses two helpings in five pots of seven stirs, a practised one
+   * hardly any; with no stamina, three helpings in two pots and one in eight.
    */
   stirring: { wide: 2, spent: { zone: 0.75, speed: 1.15 } },
   /** How many kinds of thing can be put together at most. */
@@ -139,7 +145,7 @@ export function helpings(dish: DishId, crew: Array<ItemId | null>, misses: numbe
 /** How many stirs putting some things together asks for, and how much wider the mark is for what the cook carries. */
 export const stirsFor = (things: Array<[ItemId, number]>) => COOKING.stirs + tidy(things).length;
 export const easeOf = (bag: Purse["bag"]) => Math.max(1, ...bag.map((s) => (s ? COOK_EASE[s.item] ?? 1 : 1)));
-/** What the pot's stirring is played with (lib/town/timing): its own wide stretch, wider for what the cook carries, and what having no stamina does to it. */
+/** What the pot's stirring is played with (lib/town/stirring): its own wide pace, wider for what the cook carries, and what having no stamina does to it. */
 export const stirMods = (bag: Purse["bag"], spent: boolean): TimingMods => ({ tool: easeOf(bag), spent, wide: COOKING.stirring.wide, tired: COOKING.stirring.spent });
 
 /** How many helpings of the odd dish some things come to: one for every so many of them (never none, never many), less for every stir missed (never under half). */

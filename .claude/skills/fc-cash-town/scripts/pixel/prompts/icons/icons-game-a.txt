@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of game objects for that game, in the same pixel art style.
+
+Each object is drawn on its own 32 by 32 pixel grid, scaled up big so every pixel is a large crisp square, all objects the same size, simple and bold, with a thick dark outline and two or three tones per colour. Four objects in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping. Every one of them is seen from DIRECTLY ABOVE, a flat top-down view, a perfect circle:
+1) a round brown clay cooking pot seen from directly above, full to near the rim with smooth orange soup, with two small handles at left and right; 2) the same round clay pot seen from directly above with the orange soup boiling over, bubbles and soup spilling over the rim; 3) the same round clay pot seen from directly above with the soup burnt dark brown and black, scorched; 4) the same round clay pot seen from directly above, empty, its dark inside showing.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the objects, no shadows, no text, no letters, no numbers.

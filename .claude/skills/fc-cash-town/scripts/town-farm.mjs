@@ -1,7 +1,8 @@
 // Cash Town's vegetable plots, tried in a real browser on the dev test room (the trial kept in the browser, `next dev`
 // only), by two testers in two tabs of one browser, who share its farm:
 //
-// - a plot of weeds (of many kinds, scattered) is cleared and tilled with a hoe by the game of timing, a seed is sown,
+// - a plot of weeds (of many kinds, scattered) is cleared with a hoe by pulling them (a patch seen close: weeds are
+//   touched, stones are not) and tilled by the game of timing, each on the town's own wooden board; a seed is sown,
 //   and the bed is the sower's: its name plate says so, and the other tester can neither sow nor pick in it, but may
 //   hoe there, for the stamina it costs anybody;
 // - a watering can waters nothing until it is filled: a bucket is drawn at the river, poured into the farm's well,
@@ -12,14 +13,16 @@
 //   lived leaves nothing, what died leaves compost;
 // - a bed nobody has tended for more than four days is anybody's again;
 // - nothing is offered to a hand that holds the wrong thing; every go at the hoe is written down;
-// - with no stamina left the stretch is a good third of itself and the hoe is dropped at the third miss, the plot left
-//   as it was; a steady hand hoes it all the same. Everything else is a short round of the same game then (sowing,
-//   watering, drawing water), dropped the same way with nothing lost; with stamina again it is done at once.
+// - with no stamina left each game is its own and much harder: the weeds change places in the wind four times as
+//   often, among more stones, and are dropped at the third miss with the plot left as it was; tilling's stretch is a
+//   good third of itself; sowing is shaking hands to be steadied over the plot, watering and drawing water are a pour
+//   let go between two marks: each dropped the same way with nothing lost, and with stamina again done at once.
 //
 // Prints PASS/FAIL lines and writes screenshots to <outdir>.
 //
 //   node town-farm.mjs <base> <outdir>
 import { browser, sleep, status, until } from "./cdp.mjs";
+import { awaitGame, board, fumble, gameGone, gameState, gameUp, play } from "./games.mjs";
 
 const [BASE = "http://localhost:3100", OUT = "."] = process.argv.slice(2);
 let pass = 0, fail = 0;
@@ -34,18 +37,6 @@ const seen = (X, key) => X.evaluate(`${F}.seen(${JSON.stringify(key)})`);
 const waterOf = async (X, item) => (await purse(X)).bag.find((s) => s?.item === item)?.water ?? 0;
 const warp = async (X, x, y) => { await X.evaluate(`window.__townView.warp(${x}, ${y})`); await sleep(700); };
 const shown = (X, re) => X.evaluate(`[...document.querySelectorAll("button, p")].some((b) => ${re}.test(b.innerText))`);
-/** Play the game of timing with a steady hand: press whenever the marker is well inside the stretch. */
-async function swing(X) {
-  await until("the game of timing is up", () => X.evaluate(`!!window.__townTiming`), 4000);
-  const end = Date.now() + 40000;
-  while (Date.now() < end) {
-    const done = await X.evaluate(`(() => { const t = window.__townTiming; if (!t) return true; const r = t.round();
-      if (r.at > r.lo + r.width * 0.2 && r.at < r.lo + r.width * 0.8) t.press(); return false; })()`);
-    if (done) return true;
-    await sleep(8);
-  }
-  return false;
-}
 const has = async (X, item) => (await purse(X)).bag.reduce((t, b) => t + (b?.item === item ? b.n : 0), 0);
 /** Put the fertiliser that keeps pests off on the plant I stand at. */
 async function guard(X) {
@@ -60,7 +51,7 @@ async function dig(X) {
   for (const want of ["clear", "till"]) {
     await until(`the hoe is offered: ${want}`, async () => (await deed(X)) === want, 5000);
     await X.evaluate(`${F}.act()`);
-    await swing(X);
+    await play(X);
     await sleep(400);
   }
 }
@@ -90,21 +81,46 @@ try {
   await hold(X, "rod");
   ok("…nor with the wrong thing in it", (await deed(X)) === null);
 
-  // the hoe: clear the weeds, then till, each by the game of timing
+  // the hoe: the weeds are pulled, on a patch seen close; then the soil is tilled, by the game of timing
   await hold(X, "hoe");
   await until("the hoe's work is offered", async () => (await deed(X)) === "clear", 4000);
   await X.shot(`${OUT}/farm-weeds.png`);
   const before = (await purse(X)).stamina;
   await X.evaluate(`${F}.act()`);
-  ok("the hoe's work is the game of timing", await swing(X));
+  ok("clearing a plot is pulling its weeds: a game of its own", (await awaitGame(X)) === "weeding");
+  await sleep(200);
+  let patch = await gameState(X), sign = await board(X);
+  const kinds_ = (p) => p.cells.map((c) => c?.kind ?? "bare");
+  ok("a patch of eight places: three weeds, two stones, bare earth", patch.cells.length === 8 && kinds_(patch).filter((k) => k === "weed").length === 3 && kinds_(patch).filter((k) => k === "stone").length === 2 && patch.most === 0, kinds_(patch));
+  ok("…on the town's wooden board: what the work is, a square for each weed wanted, nothing to lose", sign.title === "ถางหญ้า" && sign.need === 3 && sign.hits === 0 && sign.left === null && sign.look === "weeding", sign);
+  ok("…each place a button that says what stands in it", await X.evaluate(`(() => { const b = [...document.querySelectorAll("[data-town-game] [data-place]")]; return b.length === 8 && b.every((x) => x.tagName === "BUTTON" && /ต้นหญ้า|ก้อนหิน|ดินเปล่า/.test(x.getAttribute("aria-label"))); })()`));
+  await X.shot(`${OUT}/farm-weeding.png`);
+  await fumble(X);
+  await sleep(150);
+  ok("a stone touched is a miss: it is counted, and no weed is pulled", (await gameState(X)).misses === 1 && (await gameState(X)).hits === 0 && (await X.evaluate(`document.querySelector("[data-town-game] [data-misses]")?.dataset.misses`)) === "1", await gameState(X));
+  // a weed, touched as a finger touches it: on its own place of the picture
+  const spot = await X.evaluate(`(() => { const b = document.querySelector('[data-town-game] [data-kind="weed"]'), r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+  for (const type of ["mousePressed", "mouseReleased"]) await X.send("Input.dispatchMouseEvent", { type, x: spot.x, y: spot.y, button: "left", buttons: type === "mousePressed" ? 1 : 0, clickCount: 1 });
+  await sleep(200);
+  patch = await gameState(X);
+  ok("a weed touched comes out: one pulled, two left standing", patch.hits === 1 && kinds_(patch).filter((k) => k === "weed").length === 2 && (await board(X)).hits === 1, patch);
+  // the wind goes through it: the same things, in other places
+  const wasAt = JSON.stringify(kinds_(patch));
+  await until("the wind has gone through the patch", async () => JSON.stringify(kinds_(await gameState(X))) !== wasAt, 5000, 60);
+  patch = await gameState(X);
+  ok("every little while the wind goes through, and things change places: the same things", kinds_(patch).filter((k) => k === "weed").length === 2 && kinds_(patch).filter((k) => k === "stone").length === 2, kinds_(patch));
+  ok("the rest pulled, the plot is cleared", (await play(X)) === "weeding");
   await until("the plot is cleared", async () => (await seen(X, KEY)).soil === "cleared", 4000);
-  ok("three good swings clear the weeds, for stamina", (await deed(X)) === "till" && (await purse(X)).stamina.left < (before.day < 0 ? 100 : before.left), await purse(X));
+  ok("three weeds pulled clear the plot, for stamina (and a point more for the stone)", (await deed(X)) === "till" && (before.day < 0 ? 100 : before.left) - (await purse(X)).stamina.left === 3, await purse(X));
   await X.evaluate(`${F}.act()`);
+  ok("tilling is the game of timing: the hoe's swing, and the only work that is", (await awaitGame(X)) === "timing");
   await sleep(300);
+  sign = await board(X);
+  ok("…on the same board: a strip of earth, a button to swing by", sign.title === "พรวนดิน" && sign.need === 3 && sign.look === "hoe" && (await X.evaluate(`[...document.querySelectorAll("[data-town-game] button")].some((b) => /ฟันจอบ/.test(b.innerText))`)), sign);
   await X.shot(`${OUT}/farm-timing.png`);
-  await swing(X);
+  await play(X);
   await until("the plot is tilled", async () => (await seen(X, KEY)).soil === "tilled", 4000);
-  ok("three more till the soil, and the hoe has no more to do there", (await deed(X)) === null);
+  ok("three swings till the soil, and the hoe has no more to do there", (await deed(X)) === null);
 
   // a seed: the bed is the sower's
   ok("nobody owns a bed nothing was sown in", (await X.evaluate(`${F}.owners()`)).length === 0);
@@ -179,7 +195,7 @@ try {
   await until("in somebody's bed, a hoe is offered the weeds", async () => (await deed(Y)) === "clear", 5000);
   const lent = (await purse(Y)).stamina;
   await Y.evaluate(`${F}.act()`);
-  ok("…cleared by the game of timing, like one's own", await swing(Y));
+  ok("…cleared by pulling its weeds, like one's own", (await play(Y)) === "weeding");
   await until("the neighbour's plot is cleared", async () => (await seen(Y, "135,5")).soil === "cleared", 4000);
   const after = (await purse(Y)).stamina, owned = await X.evaluate(`${F}.owners()`);
   ok("…for the stamina it costs anybody, and the bed is still its owner's", after.left < (lent.day < 0 ? 100 : lent.left) && owned.length === 1 && owned[0].bed === 0 && /M/.test(owned[0].name), { lent, after, owned });
@@ -258,7 +274,7 @@ try {
     await sleep(400);
     let said = await X.evaluate(`(() => { const d = ${ASK}; return d ? { what: d.dataset.farmAsk, text: d.innerText.replace(/\\s+/g, " ").trim(), role: d.getAttribute("role"), no: document.activeElement?.hasAttribute("data-farm-ask-no") ?? false, emoji: /\\p{Extended_Pictographic}/u.test(d.innerText) } : null; })()`);
     ok("it is asked a second time, by name, with what will be lost: this one is ripe", !!said && said.what === "uproot" && said.role === "alertdialog" && /ขุดผักบุ้งออกจากแปลง\?/.test(said.text) && /เก็บได้แล้ว/.test(said.text) && /เอาคืนไม่ได้/.test(said.text) && !said.emoji, said);
-    ok("…with no game of timing, and nothing done yet", !(await X.evaluate(`!!window.__townTiming`)) && (await seen(X, KEY)).crop === "kangkong");
+    ok("…with no game of timing, and nothing done yet", (await gameUp(X)) === null && (await seen(X, KEY)).crop === "kangkong");
     ok("…and leaving it is what the keys are on", !!said && said.no === true, said);
     await X.shot(`${OUT}/farm-dig-ask.png`);
     await key(X, "Space");
@@ -318,10 +334,10 @@ try {
     await X.evaluate(`${F}.act()`);
     await sleep(400);
     said = await X.evaluate(`(() => { const d = ${ASK}; return d ? { what: d.dataset.farmAsk, text: d.innerText.replace(/\\s+/g, " ").trim() } : null; })()`);
-    ok("with no stamina left it is still asked, not played: this one is growing", !!said && said.what === "uproot" && /ยังโตอยู่/.test(said.text) && !(await X.evaluate(`!!window.__townTiming`)), said);
+    ok("with no stamina left it is still asked, not played: this one is growing", !!said && said.what === "uproot" && /ยังโตอยู่/.test(said.text) && (await gameUp(X)) === null, said);
     await X.evaluate(`${ASK}.querySelector("[data-farm-ask-yes]").click()`);
     await until("the plant is gone, with no stamina", async () => !(await seen(X, "136,8")).crop, 4000);
-    ok("…and dug out with no game", !(await X.evaluate(`!!window.__townTiming`)) && (await seen(X, "136,8")).soil === "cleared" && (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming").length === 4);
+    ok("…and dug out with no game", (await gameUp(X)) === null && (await seen(X, "136,8")).soil === "cleared" && (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming").length === 4);
     await X.evaluate(`${T}.setStamina(${kept})`);
     // (the plot is put back as it stood, for what the check goes on to: a plant in it, ripe, mine)
     await X.evaluate(`${T}.setPlot(${JSON.stringify(KEY)}, { soil: "tilled", plant: { by: ${T}.id, crop: "kangkong", sown: ${T}.now() - 86400000, boost: 0, watered: 0, fed: 0, guard: ${T}.now() + 864000000, cured: 0, picked: 0, pickedAt: 0 } })`);
@@ -345,9 +361,9 @@ try {
 
   // every go at the hoe was written down
   const log = (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming");
-  ok("the hoe's rounds are written down, with their hits and misses", log.length === 4 && log[0].what === "clear" && log[1].what === "till" && log.every((l) => l.hits === 3 && l.need === 3 && l.secs > 0), log);
+  ok("the hoe's games are written down, with their hits and misses", log.length === 4 && log[0].what === "clear" && log[0].misses === 1 && log[1].what === "till" && log.every((l) => l.hits === 3 && l.need === 3 && l.secs > 0), log);
 
-  // with no stamina left: much harder, and the hoe is dropped at the third miss (the owner, 2026-10-04: three times
+  // with no stamina left: much harder, and the work is dropped at the third miss (the owner, 2026-10-04: three times
   // as hard as it was, and still to be done by a very good hand)
   const TIRED = "142,6";
   await X.evaluate(`${T}.setStamina(0)`);
@@ -355,77 +371,108 @@ try {
   await hold(X, "hoe");
   await until("the hoe is offered weeds, with no stamina left", async () => (await deed(X)) === "clear", 5000);
   await X.evaluate(`${F}.act()`);
-  await until("the game of timing is up", () => X.evaluate(`!!window.__townTiming`), 4000);
+  await awaitGame(X);
   await sleep(150);
-  const tired = await X.evaluate(`(() => { const r = window.__townTiming.round(); return { most: r.most, width: r.width, speed: r.speed, left: document.querySelector("[data-misses-left]")?.dataset.missesLeft ?? null }; })()`);
-  ok("with no stamina the stretch is a good third of itself, the marker faster, and three marks stand for the misses left", tired.most === 3 && tired.width > 0.05 && tired.width < 0.07 && tired.speed > 1.2 && tired.left === "3", tired);
+  let tired = await gameState(X);
+  sign = await board(X);
+  ok("with no stamina the wind goes through the weeds four times as often, among four stones, and three marks stand for the misses left",
+    tired.kind === "weeding" && tired.most === 3 && tired.every > 0.5 && tired.every < 0.7 && kinds_(tired).filter((k) => k === "stone").length === 4 && sign.left === 3, { every: tired.every, most: tired.most, sign });
   await X.shot(`${OUT}/farm-tired.png`);
   for (let n = 0; n < 3; n++) {
-    await until("the marker is well away from the stretch", () => X.evaluate(`(() => { const t = window.__townTiming; if (!t) return true; const r = t.round();
-      if (r.at < r.lo - 0.08 || r.at > r.lo + r.width + 0.08) { t.press(); return true; } return false; })()`), 5000);
+    await fumble(X);
     await sleep(80);
-    if (n === 1) ok("…one mark goes out at each miss", (await X.evaluate(`document.querySelector("[data-misses-left]")?.dataset.missesLeft ?? null`)) === "1");
+    if (n === 1) ok("…one mark goes out at each miss", (await board(X))?.left === 1, await board(X));
   }
-  await until("the game of timing is gone", () => X.evaluate(`!window.__townTiming`), 3000);
+  await gameGone(X, 3000);
   await sleep(200);
   ok("the third miss drops the hoe: it is said, and the weeds are as they were", (await shown(X, "/หมดแรง จอบหลุดมือ/")) && (await seen(X, TIRED)).soil === "wild" && (await deed(X)) === "clear", await seen(X, TIRED));
   await X.shot(`${OUT}/farm-dropped.png`);
   const lost = (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming").at(-1);
   ok("…and written down as a go that was lost, played with none", lost.won === false && lost.spent === true && lost.misses === 3 && lost.hits === 0 && lost.what === "clear", lost);
   await X.evaluate(`${F}.act()`);
-  ok("a steady hand hoes it all the same", await swing(X));
+  ok("a steady hand clears it all the same", (await play(X)) === "weeding");
   await until("the plot is cleared with no stamina", async () => (await seen(X, TIRED)).soil === "cleared", 4000);
   ok("…for nothing: there is no stamina to take", (await purse(X)).stamina.left === 0, (await purse(X)).stamina);
 
-  // …and everything else on the farm is a short round of the same game then (the owner: "ออกแบบเพิ่มเลย"): two hits,
-  // dropped at the third miss, with nothing lost
+  // tilling, tired: the game of timing, its stretch a good third of itself and the marker faster
   await X.evaluate(`${F}.act()`);
-  await swing(X);
+  await awaitGame(X);
+  await sleep(150);
+  tired = await gameState(X);
+  ok("tilling with no stamina: the stretch is a good third of itself, the marker faster, and it too is dropped at the third miss", tired.kind === "timing" && tired.most === 3 && tired.width > 0.05 && tired.width < 0.07 && tired.speed > 1.2 && (await board(X)).left === 3, tired);
+  await X.shot(`${OUT}/farm-tired-till.png`);
+  await play(X);
   await until("the plot is tilled with no stamina", async () => (await seen(X, TIRED)).soil === "tilled", 4000);
+
+  // …and everything else on the farm is a game then (the owner: "ออกแบบเพิ่มเลย"), each its own: shaking hands to be
+  // steadied, water to be poured; two parts, dropped at the third miss, with nothing lost
   await hold(X, "seedKangkong");
   await until("a seed is offered the tilled plot", async () => (await deed(X)) === "sow", 5000);
   const seeds = await has(X, "seedKangkong");
   await X.evaluate(`${F}.act()`);
-  await until("tired hands sow by the game of timing", () => X.evaluate(`!!window.__townTiming`), 4000);
+  await awaitGame(X);
   await sleep(150);
-  const light = await X.evaluate(`(() => { const r = window.__townTiming.round(); return { need: r.need, most: r.most, width: r.width, look: document.querySelector("[data-look]")?.dataset.look ?? null,
-    button: [...document.querySelectorAll("button")].some((b) => /ออกแรง/.test(b.innerText)), sown: !!window.__townFarm.seen("${TIRED}").crop }; })()`);
-  ok("with no stamina, sowing is a short round of the hoe's game: two hits, and three misses drop it", light.need === 2 && light.most === 3 && light.width < 0.07 && light.look === "hoe" && light.button && !light.sown, light);
+  let light = await gameState(X);
+  sign = await board(X);
+  ok("with no stamina, sowing is shaking hands to be steadied over the plot: two parts, and three misses drop it",
+    light.kind === "steady" && light.need === 2 && light.most === 3 && sign.title === "หว่านเมล็ด" && sign.look === "steady" && sign.left === 3 && !(await seen(X, TIRED)).crop, { light, sign });
+  ok("…the seed hangs over the plot inside a ring, and wanders out of it when it is left alone", await until("it has left the ring", async () => (await gameState(X)).within === false, 5000, 40).catch(() => false));
   await X.shot(`${OUT}/farm-tired-sow.png`);
-  for (let n = 0; n < 3; n++) {
-    await until("the marker is well away from the stretch", () => X.evaluate(`(() => { const t = window.__townTiming; if (!t) return true; const r = t.round();
-      if (r.at < r.lo - 0.08 || r.at > r.lo + r.width + 0.08) { t.press(); return true; } return false; })()`), 5000);
+  // dragged by a real mouse, anywhere on the picture: the hand goes with it, by as much
+  {
+    const box = await X.evaluate(`(() => { const r = document.querySelector('[data-look="steady"]').getBoundingClientRect(); return { x: r.left + r.width * 0.3, y: r.top + r.height * 0.8, half: r.width / 2 }; })()`);
+    const was = (await gameState(X)).x;
+    await X.send("Input.dispatchMouseEvent", { type: "mousePressed", x: box.x, y: box.y, button: "left", buttons: 1, clickCount: 1 });
+    for (let i = 1; i <= 6; i++) { await X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: box.x + i * 6, y: box.y, button: "left", buttons: 1 }); await sleep(20); }
+    await X.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: box.x + 36, y: box.y, button: "left", buttons: 0, clickCount: 1 });
     await sleep(80);
+    const now = (await gameState(X)).x;
+    ok("…dragged anywhere on the picture, the hand is moved by as much: not held by its own place", Math.abs((now - was) - 36 / box.half) < 0.03, { was, now, want: 36 / box.half });
   }
-  await until("the short round is gone", () => X.evaluate(`!window.__townTiming`), 3000);
+  // left alone: it stays out, and is a miss each time it has been out long enough
+  await until("the hands have given it up", async () => (await gameUp(X)) === null, 12000, 60);
   await sleep(200);
   ok("dropped, nothing is sown and no seed is lost: it is said", (await shown(X, "/หมดแรง มือสั่น/")) && (await seen(X, TIRED)).crop === null && (await has(X, "seedKangkong")) === seeds && (await deed(X)) === "sow", await seen(X, TIRED));
   await X.evaluate(`${F}.act()`);
-  ok("a steady hand sows all the same", await swing(X));
+  ok("a steady hand sows all the same", (await play(X)) === "steady");
   await until("the seed is in the ground", async () => (await seen(X, TIRED)).crop === "kangkong", 4000);
   ok("…one seed gone", (await has(X, "seedKangkong")) === seeds - 1);
-  // watering, along a strip of water
+  // watering: a pour, let go between the marks
   await hold(X, "can");
   await until("the can is offered what was sown", async () => (await deed(X)) === "water", 5000);
   const waterings = await waterOf(X, "can");
   await X.evaluate(`${F}.act()`);
-  await until("tired hands water by the game of timing", () => X.evaluate(`!!window.__townTiming`), 4000);
+  await awaitGame(X);
   await sleep(150);
-  ok("watering is the same round, along a strip of water", (await X.evaluate(`document.querySelector("[data-look]")?.dataset.look ?? null`)) === "water" && (await X.evaluate(`window.__townTiming.round().need`)) === 2);
+  light = await gameState(X);
+  sign = await board(X);
+  ok("watering is a pour: the button held, and let go with the water between two marks",
+    light.kind === "pouring" && light.need === 2 && light.most === 3 && light.width > 0.04 && light.width < 0.07 && sign.look === "pour" && (await X.evaluate(`[...document.querySelectorAll("[data-town-game] button")].some((b) => /กดค้างรด/.test(b.innerText))`)), { light, sign });
+  await fumble(X);
+  await sleep(150);
+  ok("…let go short of them, a miss: one mark goes out", (await gameState(X)).misses === 1 && (await board(X)).left === 2, await gameState(X));
+  // the big button held with a real mouse, past the brim: spilt, and it says to let go
+  const big = await X.evaluate(`(() => { const b = [...document.querySelectorAll("[data-town-game] button")].find((x) => /กดค้างรด/.test(x.innerText)), r = b.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+  await X.send("Input.dispatchMouseEvent", { type: "mousePressed", x: big.x, y: big.y, button: "left", buttons: 1, clickCount: 1 });
+  await until("it has run over", async () => (await gameState(X)).spilt === true, 4000, 30);
+  ok("…held until it runs over, it is spilt: a miss at once, and the button says to let go", (await gameState(X)).misses === 2 && (await X.evaluate(`[...document.querySelectorAll("[data-town-game] button")].some((b) => /หกแล้ว/.test(b.innerText))`)), await gameState(X));
   await X.shot(`${OUT}/farm-tired-water.png`);
-  await swing(X);
+  await X.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: big.x, y: big.y, button: "left", buttons: 0, clickCount: 1 });
+  await sleep(120);
+  ok("two good pours and it is watered", (await play(X)) === "pouring");
   await until("the plant is watered", async () => (await seen(X, TIRED)).wet === true, 4000);
-  ok("…two hits and it is watered: one watering less in the can", (await waterOf(X, "can")) === waterings - 1, { waterings, now: await waterOf(X, "can") });
+  ok("…one watering less in the can", (await waterOf(X, "can")) === waterings - 1, { waterings, now: await waterOf(X, "can") });
   // carrying water
   await warp(X, ...RIVER);
   await hold(X, "bucket");
   await until("a bucket is offered the river", async () => (await chore(X)) === "draw", 5000);
   await X.evaluate(`${F}.act()`);
-  await until("tired hands draw water by the game of timing", () => X.evaluate(`!!window.__townTiming`), 4000);
-  ok("drawing water is a round too", (await waterOf(X, "bucket")) === 0 && (await swing(X)));
+  await awaitGame(X);
+  ok("drawing water is a pour too: the bucket dipped, held and let go", (await gameUp(X)) === "pouring" && (await board(X)).title === "ตักน้ำ" && (await waterOf(X, "bucket")) === 0 && (await X.evaluate(`[...document.querySelectorAll("[data-town-game] button")].some((b) => /กดค้างตัก/.test(b.innerText))`)), await board(X));
+  await play(X);
   await until("the bucket is full", async () => (await waterOf(X, "bucket")) >= 1, 4000);
   const rounds = (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming").slice(-4).map((l) => [l.what, l.won, l.need, l.spent]);
-  ok("each of those rounds is written down, the dropped one as lost", JSON.stringify(rounds) === JSON.stringify([["sow", false, 2, true], ["sow", true, 2, true], ["water", true, 2, true], ["draw", true, 2, true]]), rounds);
+  ok("each of those games is written down, the dropped one as lost", JSON.stringify(rounds) === JSON.stringify([["sow", false, 2, true], ["sow", true, 2, true], ["water", true, 2, true], ["draw", true, 2, true]]), rounds);
   // with stamina again, the same work is done at once
   await X.evaluate(`${T}.setStamina(100)`);
   await warp(X, ...WELL);
@@ -433,7 +480,7 @@ try {
   const wellWas = await X.evaluate(`${F}.well()`);
   await X.evaluate(`${F}.act()`);
   await sleep(500);
-  ok("with stamina, the same work is done at once, with no round", !(await X.evaluate(`!!window.__townTiming`)) && (await X.evaluate(`${F}.well()`)) === wellWas + 1 && (await waterOf(X, "bucket")) === 0);
+  ok("with stamina, the same work is done at once, with no game", (await gameUp(X)) === null && (await X.evaluate(`${F}.well()`)) === wellWas + 1 && (await waterOf(X, "bucket")) === 0);
 
   // a few more plots at their stages, to look at
   await X.evaluate(`${T}.reset()`);

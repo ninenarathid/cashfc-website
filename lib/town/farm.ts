@@ -89,9 +89,9 @@ export const FARMING = {
    * watering, feeding, curing, picking, and carrying water; not digging a plant out, which is never a game: it is
    * asked for twice instead). The owner, 2026-10-04, had the
    * mini-games made three times as hard with none, "เพื่อที่อาหารจะได้สำคัญมากขึ้น"; told that this work has no game and so
-   * stays free, he said "ออกแบบเพิ่มเลย". So with none it is a short round of the same game, with the tired stretch,
-   * and dropped at the third miss like the hoe's (lib/town/timing): nothing is done then and nothing lost, and it
-   * may be tried again at once. Two hits and not the hoe's three, for lighter work: of made-up hands, one as unsure
+   * stays free, he said "ออกแบบเพิ่มเลย". So with none it is a short game (water is poured, the rest is steadied:
+   * `gameFor`), as hard as the tired stretch, and dropped at the third miss like the hoe's (lib/town/timing):
+   * nothing is done then and nothing lost, and it may be tried again at once. Two hits and not the hoe's three, for lighter work: of made-up hands, one as unsure
    * as the members' were does it one go in four, a practised one two in three, a very good one nearly always; a
    * better can or blade widens the stretch as a better hoe does. Watering a bed so takes about as long as sitting
    * down to a meal, which is the point. With stamina it is done at once, as ever.
@@ -366,9 +366,21 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
 
 /** What the thing in the hand can do with water where one stands: draw a bucket at the river, pour it into the well, fill a can at the well. */
 export type Chore = "draw" | "pour" | "fill";
-/** How many hits of the game of timing a piece of the farm's work asks for: clearing and tilling always, digging a plant out never (it is asked for twice instead), anything else only of tired hands. None: it is done at once. */
+/** How much of its game a piece of the farm's work asks for: clearing and tilling always, digging a plant out never (it is asked for twice instead), anything else only of tired hands. None: it is done at once. */
 export const hitsFor = (work: Deed | Chore, spent: boolean): number =>
   (work === "clear" || work === "till" ? FARMING.swings[work] : work === "pull" || work === "uproot" ? 0 : spent ? FARMING.tired : 0);
+/**
+ * Which game each piece of the farm's work is, when it is one (the owner, 2026-10-04: every one of them was the game
+ * of timing, "การกดตามจังหว่ะ ดูจะมีเยอะไปหน่อย … ทำ minigame อื่นให้สอดคล้องกับ action ที่ทำ"): weeds are pulled
+ * (lib/town/weeding); soil is tilled by the game of timing, the hoe's swing, and nothing else is any more
+ * (lib/town/timing); water is poured, whether onto a plant, out of the river, into the well or into a can
+ * (lib/town/pouring); and what else tired hands do they have to steady themselves for (lib/town/steady). Each gives
+ * back what the game of timing gave (hits, misses, how long), so nothing that reads it changes.
+ */
+export type FarmGame = "weeding" | "timing" | "pouring" | "steady";
+export const gameFor = (work: Deed | Chore): FarmGame | null =>
+  (work === "clear" ? "weeding" : work === "till" ? "timing" : work === "pull" || work === "uproot" ? null
+    : work === "water" || work === "draw" || work === "pour" || work === "fill" ? "pouring" : "steady");
 export function choreFor(purse: Purse, where: "river" | "well" | null, well: number): Chore | null {
   const hand = handOf(purse);
   if (hand && hand in WATER.buckets) {

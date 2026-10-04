@@ -160,7 +160,7 @@ try {
   // with no stamina it is said to be much harder, and written down as played so
   await X.evaluate(`window.__townTrade.setStamina(0)`);
   await sleep(400);
-  ok("with no stamina left the panel shows it in red, and explains nothing", (await X.evaluate(`${FISH}.querySelector('[title="Stamina"]').className`)).includes("text-chili") && !/ยากขึ้น/.test(await text(X, FISH)));
+  ok("with no stamina left the panel shows it in red, and explains nothing", (await X.evaluate(`${FISH}.querySelector('[title="Stamina"]').className`)).includes("#ffb09c") && !/ยากขึ้น/.test(await text(X, FISH)));
   c = await cast(X);
   await strikeAtBite(X, c);
   if ((await X.evaluate(`window.__townFish.phase()`)) === "fight") {

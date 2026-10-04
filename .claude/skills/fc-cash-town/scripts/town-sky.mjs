@@ -15,6 +15,7 @@
 //
 //   node town-sky.mjs <base> <outdir> [bench]  (http://localhost:3100  .  http://127.0.0.1:3199)
 import { browser, sleep, status, until } from "./cdp.mjs";
+import { play } from "./games.mjs";
 
 const [BASE = "http://localhost:3100", OUT = ".", BENCH = "http://127.0.0.1:3199"] = process.argv.slice(2);
 let pass = 0, fail = 0;
@@ -137,13 +138,7 @@ try {
   ok("the weather asked for is the weather: rain, and it rains", s.a.weather.sky === "rain" && s.a.raining === true && s.a.effects.rain > 0.3, s.a);
   const slot = (item) => Z.evaluate(`${T}.purse().bag.findIndex((s) => s?.item === ${JSON.stringify(item)})`);
   const take = async (item) => { await Z.evaluate(`${T}.hold(${await slot(item)})`); await sleep(350); };
-  const swing = async () => {
-    await until("the game of timing is up", () => Z.evaluate(`!!window.__townTiming`), 4000);
-    for (const end = Date.now() + 40000; Date.now() < end;) {
-      if (await Z.evaluate(`(() => { const t = window.__townTiming; if (!t) return true; const r = t.round(); if (r.at > r.lo + r.width * 0.2 && r.at < r.lo + r.width * 0.8) t.press(); return false; })()`)) return;
-      await sleep(8);
-    }
-  };
+  const swing = () => play(Z);
   await warp(Z, 133, 5);
   await until("the farm's own code has come to the trial", () => Z.evaluate(`!!${F}`), 20000);
   await take("hoe");

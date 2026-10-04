@@ -5,8 +5,8 @@
 //   in the hand (bare hands will do at a worktable);
 // - things are picked one by one, never by recipe; the wrong ones, cooked in cookware, are a pot of an odd dish, which
 //   tastes of how near it was to something (one thing not the one; the right things in the wrong amounts); the pot is
-//   the yard's own, and the cook's is still theirs; the right things become a pot of the dish, by the game of timing
-//   (dressed as a pot and a ladle), and the recipe is found, under the finder's name, for both testers;
+//   the yard's own, and the cook's is still theirs; the right things become a pot of the dish, by stirring it
+//   (the ladle taken round the pot seen from above, at an even pace), and the recipe is found, under the finder's name, for both testers;
 //   whoever has made it reads all of it, and is told when the cookware is wrong; the other reads all but its last thing;
 // - something that is not a dish is made by hand, into the bag; a basket is worn, and the bag is bigger;
 // - the cook ladles a helping out of their own pot into a bowl, which leaves the bag with it; the pot is set down, and
@@ -16,7 +16,9 @@
 // - a dish for two, cooked alone, is an odd dish too; it is cooked when the other stands at a place with the other
 //   piece of cookware;
 // - the uncle's hint is bought; every stirring is written down;
-// - the stirring's stretch is twice the hoe's, and with no stamina left three quarters of that, never dropped;
+// - the stirring is the ladle taken round the pot: a turn at a good pace is a stir, too fast for a while and the soup
+//   goes over (a helping lost), and it shows; the good pace is wide, with no stamina three quarters of that, never
+//   dropped;
 // - the scroll of the cure for pests is bought from the first day's shelf and read into the book, which tells all of
 //   the cure but its last thing; chilies, scallions and salt in a pot make two of it.
 //
@@ -24,6 +26,7 @@
 //
 //   node town-cook.mjs <base> <outdir>
 import { browser, sleep, status, until } from "./cdp.mjs";
+import { awaitGame, board, fumble, gameState, gameUp, play } from "./games.mjs";
 
 const [BASE = "http://localhost:3100", OUT = "."] = process.argv.slice(2);
 let pass = 0, fail = 0;
@@ -38,26 +41,14 @@ const act = async (X, offer) => { await X.evaluate(`${C}.act(${JSON.stringify(of
 const warp = async (X, [x, y]) => { await X.evaluate(`window.__townView.warp(${x}, ${y})`); await sleep(800); };
 const shown = (X, re) => X.evaluate(`[...document.querySelectorAll("p")].some((b) => ${re}.test(b.innerText))`);
 const grant = (X, list) => X.evaluate(`(() => { for (const [id, n] of ${JSON.stringify(list)}) ${T}.grant(id, n); })()`);
-/** Play the game of timing with a steady hand: press whenever the marker is well inside the stretch. */
-async function swing(X) {
-  await until("the game of timing is up", () => X.evaluate(`!!window.__townTiming`), 4000);
-  const end = Date.now() + 60000;
-  while (Date.now() < end) {
-    const done = await X.evaluate(`(() => { const t = window.__townTiming; if (!t) return true; const r = t.round();
-      if (r.at > r.lo + r.width * 0.2 && r.at < r.lo + r.width * 0.8) t.press(); return false; })()`);
-    if (done) return true;
-    await sleep(8);
-  }
-  return false;
-}
 /** Put some things together in the open panel, and stir if it comes to that. Says whether there was stirring. */
 async function make(X, things) {
   await X.evaluate(`${C}.put(${JSON.stringify(things)})`);
   await sleep(300);
   await X.evaluate(`${C}.go()`);
   await sleep(350);
-  if (!(await X.evaluate(`!!window.__townTiming`))) return false;
-  await swing(X);
+  if (!(await gameUp(X))) return false;
+  await play(X);
   await sleep(700);
   return true;
 }
@@ -131,11 +122,28 @@ try {
   await X.evaluate(`${C}.put([["minnow", 2], ["rice", 1]])`);
   await sleep(300);
   await X.evaluate(`${C}.go()`);
-  await until("the game is up", () => X.evaluate(`!!window.__townTiming`), 4000);
-  ok("the stirring is a ladle going round a pot, not a fishing line", (await X.evaluate(`window.__townTiming.look`)) === "stir" && (await X.evaluate(`!!document.querySelector('[data-look="stir"]')`)));
-  const kind = await X.evaluate(`(() => { const r = window.__townTiming.round(); return { width: r.width, speed: r.speed, most: r.most }; })()`);
-  ok("…the kindest of the games: its stretch is twice the hoe's", Math.abs(kind.width - 0.34) < 1e-6 && Math.abs(kind.speed - 0.9) < 1e-6 && kind.most === 0, kind);
-  await swing(X);
+  ok("cooking is stirring the pot: a game of its own", (await awaitGame(X)) === "stirring");
+  await sleep(200);
+  let soup = await gameState(X);
+  const sign = await board(X);
+  ok("the pot is seen from above, with the ladle in it, on the town's wooden board: a square for each stir wanted, and nothing to lose",
+    sign.title === "ทำอาหาร" && sign.look === "stir" && sign.need === 4 && sign.left === null && (await X.evaluate(`document.querySelector('[data-look="stir"]')?.dataset.pot`)) === "potTop", sign);
+  ok("…the kindest of the games: the good pace is a wide one, from under half a turn a second to well over one", soup.lo < 0.45 && soup.hi > 1.35 && soup.begun === false && soup.hits === 0, soup);
+  // before the ladle is touched nothing is held against the cook
+  await sleep(1500);
+  ok("…and nothing is held against a ladle that has not been touched yet", (await gameState(X)).misses === 0 && (await gameState(X)).begun === false);
+  // the ladle taken round by a finger, as a finger does it: round the middle of the picture
+  const box = await X.evaluate(`(() => { const r = document.querySelector('[data-look="stir"]').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width * 0.36 }; })()`);
+  await X.send("Input.dispatchMouseEvent", { type: "mousePressed", x: box.x + box.r, y: box.y, button: "left", buttons: 1, clickCount: 1 });
+  for (let i = 1; i <= 40; i++) { const a = (i / 40) * 2 * Math.PI * 1.25; await X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: box.x + Math.cos(a) * box.r, y: box.y + Math.sin(a) * box.r, button: "left", buttons: 1 }); await sleep(33); }
+  await X.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: box.x + box.r, y: box.y, button: "left", buttons: 0, clickCount: 1 });
+  soup = await gameState(X);
+  ok("taken round the pot at an even pace, a turn is a stir done", soup.begun === true && soup.hits >= 1 && soup.misses === 0 && (await board(X)).hits === soup.hits, soup);
+  // stirred far too fast for a while: the soup goes over, and a helping is lost
+  ok("stirred too fast for a while, the soup goes over: a helping lost, and the pot shows it", await fumble(X));
+  ok("…it is counted on the board", (await gameState(X)).misses === 1 && (await X.evaluate(`document.querySelector("[data-town-game] [data-misses]")?.dataset.misses`)) === "1", await gameState(X));
+  await X.shot(`${OUT}/cook-stir.png`);
+  await play(X);
   await sleep(700);
   ok("things that make nothing are stirred all the same", true);
   let p = await purse(X), odd = p.bag.find((s) => s?.item === "potFull");
@@ -298,11 +306,13 @@ try {
   await X.evaluate(`${C}.put([["chili", 2], ["scallion", 2], ["salt", 1]])`);
   await sleep(300);
   await X.evaluate(`${C}.go()`);
-  await until("the cure is stirred", () => X.evaluate(`!!window.__townTiming`), 4000);
-  const weary = await X.evaluate(`(() => { const r = window.__townTiming.round(); return { width: r.width, speed: r.speed, most: r.most, need: r.need }; })()`);
-  ok("with no stamina the stirring is a little harder and no more: three quarters of its wide stretch, never dropped", Math.abs(weary.width - 0.34 * 0.75) < 1e-6 && Math.abs(weary.speed - 0.9 * 1.15) < 1e-6 && weary.most === 0 && weary.need === 5, weary);
+  await awaitGame(X);
+  await sleep(150);
+  const weary = await gameState(X), fresh = { lo: 0.9 - 0.36 * Math.SQRT2, hi: 0.9 + 0.36 * Math.SQRT2 };
+  ok("with no stamina the stirring is a little harder and no more: three quarters of its wide pace, a little less patient, never dropped",
+    weary.kind === "stirring" && Math.abs((weary.hi - weary.lo) - (fresh.hi - fresh.lo) * 0.75) < 1e-6 && Math.abs(weary.grace - 1 / 1.15) < 1e-6 && weary.need === 5 && (await board(X)).left === null, weary);
   await X.shot(`${OUT}/cook-cure-stir.png`);
-  await swing(X);
+  await play(X);
   await sleep(700);
   ok("chilies, scallions and salt in a pot are two of the cure, a recipe found", (await has(X, "pestCure")) === 2 && (await X.evaluate(`${C}.found()`)).includes("pestCure"), (await purse(X)).bag.filter(Boolean));
   await X.evaluate(`${T}.setStamina(100)`);
