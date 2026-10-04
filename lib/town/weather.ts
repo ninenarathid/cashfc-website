@@ -1,9 +1,12 @@
 /**
  * Cash Town's weather is Bangkok's (the owner's call, 2026-10-02: "effect ตาม
  * สภาพอากาศ Bangkok ไม่ต้องบอกผู้เล่น ... แบบไม่ต้องเปลืองมาก"). The site asks
- * Open-Meteo (free, no key) at most every fifteen minutes, on the server, and
- * every screen in town reads that one answer (app/api/town/weather). Nothing
- * on screen says what the weather is; the town just has it:
+ * Open-Meteo (free, no key), on the server, and writes what it says into the
+ * database a quarter of an hour at a time, the next ones ahead of their time
+ * (app/api/town/weather); every screen in town reads those quarter hours from
+ * the database and draws the one the database's clock is in (see "the weather
+ * as everybody has it", below). Nothing on screen says what the weather is;
+ * the town just has it:
  *
  *   · fine (clear or cloudy): a breeze, stronger with the real wind, that sways
  *     the trees and blows a few leaves across, and by day the shadows of
@@ -119,6 +122,114 @@ export function effectsOf(w: Weather): Effects {
     clouds: w.sky === "clear" ? 0.35 : w.sky === "fog" ? 0 : w.sky === "cloudy" ? 0.8 : 0.6,
     gloom: heavy,
   };
+}
+
+/* ── the weather as everybody has it: a quarter of an hour at a time ────── */
+
+/*
+ * Until 2026-10-04 each page asked a cached answer every ten minutes, in its own time, and eased towards it from
+ * the moment it was told: two members standing side by side could be twenty minutes apart, one in the rain and one
+ * in the sun (the owner: "คนเห็นสภาพอากาศไม่ตรงกัน บางคนเห็นฝนตก บางคนไม่เห็น"). Now the weather is kept in the database
+ * in quarter hours, each written once and never changed, the next ones before their time; what a page draws is
+ * worked out from those and the database's clock alone, so every page draws the same at the same moment, a change
+ * of weather included ("ทำให้ transition ระหว่างการเปลี่ยนสภาพอากาศออกมาดี และเห็นตรงกันทุกคน"). And since the database knows
+ * when it rained, rain waters the plots (lib/town/farm: "ระหว่างที่ฝนตก พืชทั้งหมดจะถือว่ารดน้ำแล้ว ตลอดการตก").
+ */
+
+/** A quarter of an hour, in milliseconds: the weather is kept in slots so long, numbered from long ago. */
+export const SLOT_MS = 900_000;
+/** The slot a moment is in. */
+export const slotOf = (ms: number) => Math.floor(ms / SLOT_MS);
+/** The skies rain falls from: what the town draws as rain, and what waters the plots. */
+export const WET_SKIES: Sky[] = ["drizzle", "rain", "storm"];
+export const isWet = (sky: Sky) => WET_SKIES.includes(sky);
+/** The weather of each slot that is known. */
+export type Slots = ReadonlyMap<number, Weather>;
+/** The weather at a moment: its slot's; fine weather when that slot is not known. */
+export const weatherAt = (slots: Slots, ms: number): Weather => slots.get(slotOf(ms)) ?? FINE;
+
+/**
+ * How a change of weather comes on, effect by effect: the seconds before the quarter hour turns that it begins,
+ * and the seconds after that it is done; one pair for an effect that grows, one for an effect that fades. Clouds
+ * gather and the light goes before the first drop; the rain itself begins on the turn and takes a minute and a half
+ * to come down in earnest; the ground is wet a little after it. When it stops the rain thins first, the sky clears
+ * over some minutes, and the puddles are the last to go.
+ */
+export const TURN: Record<keyof Effects, { up: [before: number, after: number]; down: [before: number, after: number] }> = {
+  clouds: { up: [240, 30], down: [0, 300] },
+  dim: { up: [210, 30], down: [0, 240] },
+  gloom: { up: [150, 60], down: [20, 240] },
+  haze: { up: [120, 120], down: [0, 300] },
+  wind: { up: [120, 60], down: [0, 180] },
+  leaves: { up: [0, 240], down: [45, 0] },
+  rain: { up: [0, 100], down: [0, 80] },
+  wet: { up: [0, 160], down: [0, 600] },
+};
+const EFFECT_KEYS = Object.keys(TURN) as Array<keyof Effects>;
+const smooth = (x: number) => { const t = clamp(x, 0, 1); return t * t * (3 - 2 * t); };
+
+/**
+ * What the town draws at a moment: the effects of that moment's slot, on their way from the slot before for a
+ * while after the turn, and on their way to the slot after for a while before it. A pure matter of the slots and
+ * the clock, so everybody who has the same slots and the same clock draws the same. A slot that is not known is
+ * taken to be like the one beside it (so that nothing turns towards fine weather and back for want of an answer);
+ * with none known at all the weather is fine.
+ */
+export function effectsAt(slots: Slots, ms: number): Effects {
+  const i = slotOf(ms), here = slots.get(i);
+  const now = effectsOf(here ?? FINE), was = effectsOf(slots.get(i - 1) ?? here ?? FINE), next = effectsOf(slots.get(i + 1) ?? here ?? FINE);
+  const since = (ms - i * SLOT_MS) / 1000, left = ((i + 1) * SLOT_MS - ms) / 1000, out = { ...now };
+  for (const key of EFFECT_KEYS) {
+    // the turn into this slot, not done yet; or the turn out of it, begun already
+    const into = TURN[key][now[key] > was[key] ? "up" : "down"], onto = TURN[key][next[key] > now[key] ? "up" : "down"];
+    if (was[key] !== now[key] && since < into[1]) out[key] = was[key] + (now[key] - was[key]) * smooth((into[0] + since) / (into[0] + into[1]));
+    else if (next[key] !== now[key] && left < onto[0]) out[key] = now[key] + (next[key] - now[key]) * smooth((onto[0] - left) / (onto[0] + onto[1]));
+  }
+  return out;
+}
+
+/** A stretch of rain: from when to when, in milliseconds. */
+export type Rain = readonly [from: number, to: number];
+/** No rain at all. */
+export const DRY: readonly Rain[] = [];
+/** Rain without end (for `next dev`'s ?townWeather=rain, where the weather is whatever was asked for). */
+export const ALWAYS_RAIN: readonly Rain[] = [[0, Number.MAX_SAFE_INTEGER]];
+/** The stretches of rain some wet slots make: neighbours joined, in order. */
+export function rainsOf(wet: Iterable<number>): Rain[] {
+  const out: Array<[number, number]> = [];
+  for (const slot of [...new Set(wet)].sort((a, b) => a - b)) {
+    const last = out[out.length - 1];
+    if (last && last[1] === slot * SLOT_MS) last[1] = (slot + 1) * SLOT_MS;
+    else out.push([slot * SLOT_MS, (slot + 1) * SLOT_MS]);
+  }
+  return out;
+}
+/** How many milliseconds of rain fell between two moments. */
+export function wetMs(rains: readonly Rain[], from: number, to: number): number {
+  let t = 0;
+  for (const [a, b] of rains) { if (b <= from) continue; if (a >= to) break; t += Math.min(b, to) - Math.max(a, from); }
+  return Math.max(0, t);
+}
+/** Whether it rains at a moment. */
+export const rainingAt = (rains: readonly Rain[], ms: number) => rains.some(([a, b]) => ms >= a && ms < b);
+
+/**
+ * Open-Meteo's quarter hours (`minutely_15`, times as unix seconds) read into slots, carefully: an entry that is
+ * odd in any way is left out. An entry's time is the start of its slot; the rain it measures is the quarter hour
+ * before, as the one answer the town used to ask for was.
+ */
+export function readSlots(json: unknown): Array<Weather & { slot: number }> {
+  const m = (json as { minutely_15?: Record<string, unknown> } | null)?.minutely_15;
+  if (!m || typeof m !== "object" || !Array.isArray(m.time)) return [];
+  const list = (key: string) => (Array.isArray(m[key]) ? (m[key] as unknown[]) : []);
+  const code = list("weather_code"), rain = list("precipitation"), wind = list("wind_speed_10m"), gust = list("wind_gusts_10m");
+  const out: Array<Weather & { slot: number }> = [];
+  (m.time as unknown[]).forEach((at, i) => {
+    const t = num(at), c = num(code[i]), w = num(wind[i]), r = num(rain[i]) ?? 0, g = num(gust[i]);
+    if (t === undefined || c === undefined || w === undefined || t % (SLOT_MS / 1000) !== 0) return;
+    out.push({ slot: t / (SLOT_MS / 1000), sky: skyOf(c, r), wind: clamp(w, 0, 200), gust: clamp(g ?? w, 0, 250), rain: clamp(r, 0, 200) });
+  });
+  return out;
 }
 
 /** Effects moving towards a new weather a little each frame, so a change comes on gently. */

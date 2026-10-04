@@ -18,7 +18,8 @@ import { SKINS, decodeLook, defaultLook, type Look } from "@/lib/town/look";
 import { BUILDING, POLL, etaShort } from "@/lib/town/board";
 import { alongRoute, outingsNow, presence, type Activity, type Outing } from "@/lib/town/popotos";
 import { BIRDS, BUTTERFLIES, birdAt, butterflyAt, petsOf, rompsNow } from "@/lib/town/critters";
-import { FINE, easeEffects, effectsOf, forcedWeather, readWeather, type Effects, type Weather } from "@/lib/town/weather";
+import { SKIES } from "@/lib/town/skies";
+import { FINE, effectsOf, forcedWeather, readWeather, type Effects } from "@/lib/town/weather";
 import { createClient } from "@/lib/supabase/client";
 import type { PeerInfo } from "@/lib/town/voice";
 import type { Identity } from "@/lib/town/room";
@@ -361,10 +362,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     return () => { gone = true; };
   }, [testTopic]);
   /**
-   * Bangkok's weather (lib/town/weather), asked of our own cached route every
-   * ten minutes while the page shows; `next dev`'s ?townWeather=rain forces one.
+   * Bangkok's weather, as everybody has it (lib/town/weather, lib/town/skies): the database's quarter hours, asked
+   * for every few minutes while the page shows, and drawn by the database's clock, so that every page draws the same
+   * weather at the same moment, a change of it included. When the quarter hours to come are nearly due the site is
+   * asked to write them (app/api/town/weather). Where the database has no weather to give, the one answer of the
+   * old way is held; `next dev`'s ?townWeather=rain forces one.
    */
-  const weather = useRef<Weather>(FINE);
   const effects = useRef<Effects>(effectsOf(FINE));
   /** Leaves in the air and on the ground: where over the map (tiles), how high (unscaled pixels), and how they move. */
   const leaves = useRef<Leaf[]>([]);
@@ -380,22 +383,45 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   useEffect(() => {
     // somewhere else in their round each visit
     cloudDrift.current = (Date.now() / 1000) * 24;
-    const forced = process.env.NODE_ENV === "production" ? null : forcedWeather(new URLSearchParams(location.search).get("townWeather"));
-    if (forced) { weather.current = forced; effects.current = effectsOf(forced); return; }
-    let gone = false, first = true;
-    const ask = async () => {
+    const dev = process.env.NODE_ENV !== "production", params = new URLSearchParams(location.search);
+    const forced = dev ? forcedWeather(params.get("townWeather")) : null;
+    if (forced) { SKIES.force(forced); effects.current = SKIES.effects(); return; }
+    // (which database: the stand-in's, in `next dev`'s &townDb=; otherwise the site's own, which anybody may ask the weather of)
+    const bench = dev && /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(params.get("townDb") ?? "") ? params.get("townDb") : null;
+    const supabase = bench ? null : createClient();
+    const ask = async (): Promise<unknown> => {
+      const p_since = Math.floor(SKIES.since(60));
+      if (bench) {
+        const r = await fetch(`${bench}/rest/v1/rpc/town_sky`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ p_since }) });
+        return r.ok ? r.json() : null;
+      }
+      if (!supabase) return null;
+      const { data, error } = await supabase.rpc("town_sky", { p_since });
+      return error ? null : data;
+    };
+    let gone = false, written = 0;
+    const look = async () => {
       if (document.visibilityState !== "visible") return;
       try {
-        const w = readWeather(await (await fetch("/api/town/weather")).json());
-        if (gone || !w) return;
-        weather.current = w;
-        // the weather one walks into is simply there; after that a change comes on gently (easeEffects)
-        if (first) { effects.current = effectsOf(w); first = false; }
+        let sent = Date.now();
+        const took = SKIES.take(await ask(), sent);
+        if (gone || bench) return;
+        // The quarter hours to come are written when somebody asks the site for them: asked when the last one kept
+        // is less than twenty minutes off (and where the database has no weather at all, what the site answers is
+        // held, as the town did before).
+        if ((took && SKIES.reaches(20)) || Date.now() - written < 60_000) return;
+        written = Date.now();
+        const one = readWeather(await (await fetch("/api/town/weather")).json());
+        if (gone) return;
+        sent = Date.now();
+        if (!SKIES.take(await ask(), sent) && !took) SKIES.hold(one);
       } catch { /* fine weather it is */ }
     };
-    void ask();
-    const t = setInterval(() => void ask(), 10 * 60_000);
-    return () => { gone = true; clearInterval(t); };
+    void look();
+    const t = setInterval(() => void look(), 4 * 60_000);
+    const shown = () => { if (document.visibilityState === "visible") void look(); };
+    document.addEventListener("visibilitychange", shown);
+    return () => { gone = true; clearInterval(t); document.removeEventListener("visibilitychange", shown); };
   }, []);
   const facings = useRef(new Map<string, { view: View; mirror: boolean; at: number }>());
   const blinks = useRef(new Map<string, number>());
@@ -916,7 +942,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // (`dt` is seconds, as everywhere here. Until 2026-10-03 this took it for milliseconds: the rain hung in the
     // air, no leaf ever reached the ground, and a change in the weather took hours to come on.)
     const sec = Math.min(dt, 0.1);
-    const e = effects.current = easeEffects(effects.current, effectsOf(weather.current), sec * 1000);
+    // (what every page draws at this moment of the database's clock: lib/town/weather's effectsAt)
+    const e = effects.current = SKIES.effects();
     const still = reducedRef.current, s = cam.current.s;
     drawClouds(ctx, cw, ch, sec, e);
     ctx.save();
@@ -1367,7 +1394,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           && (Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y) <= EAT_NEAR || (table !== undefined && table === yardSeat(mine.info.sit)?.table))) beside++;
       }
       if (beside !== companyRef.current) { companyRef.current = beside; setCompany(beside); }
-      const wet = effects.current.rain > 0.2;
+      // (whether it rains is the database's to say: what it keeps of the weather, not what is drawn here)
+      const wet = SKIES.raining();
       if (wet !== rainRef.current) { rainRef.current = wet; setRaining(wet); }
       const onPlot = !mine.path.length && plotAt(tx, ty) ? `${tx},${ty}` : "";
       if (onPlot !== plotRef.current) { plotRef.current = onPlot; setPlotHere(onPlot ? [tx, ty] : null); }
@@ -2475,6 +2503,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       leaves: () => ({ fall: leaves.current.filter((l) => l.kind === "fall").length, wind: leaves.current.filter((l) => l.kind === "wind").length, gust: leaves.current.filter((l) => l.kind === "gust").length, down: leaves.current.filter((l) => l.landed > 0).length }),
       /** The sky: what the weather draws now, the light, and each cloud's shadow with its middle on the screen. */
       sky: () => ({
+        weather: SKIES.weather(), raining: SKIES.raining(), known: SKIES.knows(), clock: SKIES.now(),
         effects: effects.current, day: skyNow(), fps: fpsRef.current, drops: drops.current.length, splashes: splashes.current.filter((p) => p.x >= 0).length,
         clouds: cloudsAt(cloudDrift.current, effects.current.clouds).map((c) => ({ ...c, at: toScreen(cam.current, c, cam.current.cw, cam.current.ch) })),
       }),

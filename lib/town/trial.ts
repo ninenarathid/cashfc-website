@@ -7,6 +7,7 @@ import { CROPS, CROP_IDS, DISHES, STAGES, STAGE_AT, type BaitId, type CatchId, t
 import { UNLOCKS, give, newVillage, orderOf, shelfOf, sourcesAt, type Order, type Village } from "./orders";
 import { count, keep, newTally, type Play, type Tally } from "./plays";
 import { open } from "./scrolls";
+import { SKIES } from "./skies";
 import { STAMINA, bowlsBack, chew, dayOf, getUp, readScroll, sitDown, spend } from "./stamina";
 import {
   RULES, buy, change, collect, handOf, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, takeBack, takeOff, wear,
@@ -219,14 +220,14 @@ export class Trial {
   /** What the thing in my hand can do to a plot now, if anything. */
   deedAt(key: string): Deed | null {
     const [x, y] = key.split(",").map(Number);
-    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null);
+    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, SKIES.rains());
   }
   /** Do to a plot what the thing in my hand does: clear it, till it, sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
   farmDo(key: string, name = ""): { ok: true; deed: Deed; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
     const p = this.purse(), now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, beds = this.beds();
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), planted = this.plantedIn(plots);
     const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
-    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now);
+    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, SKIES.rains());
     if (!did.ok) return did;
     const next = { ...plots };
     if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = did.plot;

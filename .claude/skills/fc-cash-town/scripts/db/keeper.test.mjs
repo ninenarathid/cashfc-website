@@ -20,7 +20,7 @@ const { shelfOf } = await import("@/lib/town/orders");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (a draft of the next migration, kept out of supabase/ until it is proved, is tried with the rest)
-const NEXT = "v117";
+const NEXT = "v118";
 const draft = fileURLToPath(new URL(`./${NEXT}_draft.sql`, import.meta.url));
 const pending = existsSync(draft) && !readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`).some((f) => f.startsWith(`${NEXT}_`));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -243,7 +243,7 @@ try {
   B.nudged("farm");
   await settled(B);
   ok("the room says the farm changed, and they ask: the plot, the plant and whose the bed is", B.farm()[key]?.plant?.crop === "kangkong" && B.owners().get(bed)?.by === a, { plot: B.farm()[key], owners: [...B.owners()] });
-  ok("…where their hoe has nothing to do: the bed is somebody's", B.deedAt(key) === null, B.deedAt(key));
+  ok("…where their hoe has nothing to do: something grows there", B.deedAt(key) === null, B.deedAt(key));
   const theirs = await B.farmDo(key, "Tester B");
   ok("…and the database says the same if they try", !theirs.ok, theirs);
   stopFarmB();

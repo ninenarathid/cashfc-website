@@ -7,6 +7,7 @@ import atlas from "./icon-atlas.json";
 import { CROPS, CROP_IDS, FISH, ITEMS, STAGES, growIconOf, type ItemId } from "./items";
 import { staminaOf } from "./stamina";
 import { GOODS, held, hold, newPurse, put, type Purse } from "./trade";
+import { ALWAYS_RAIN, SLOT_MS, rainsOf, slotOf, type Rain } from "./weather";
 import { BEDS_IN_FARM, FARM, WELL, atWell, bedCorner, bedOf, plotAt, walkable } from "./world";
 
 /** A moment by Bangkok's clock. */
@@ -271,9 +272,13 @@ describe("what a thing in the hand does to a plot", () => {
     expect(deedFor("1,1", WILD, null, "me", NIGHT)).toBeNull();
   });
 
-  it("is only the helping deeds, in somebody else's bed", () => {
+  it("is only the helping deeds, in somebody else's bed: the hoe's, watering, feeding, curing; never sowing or picking", () => {
     const tilled: Plot = { soil: "tilled", plant: null }, growing = sown({ by: "me" }), ripeAt = NIGHT + CROPS.kangkong.hours * HOUR;
-    expect(deedFor("1,1", WILD, "hoe", "you", NIGHT, "me")).toBeNull();
+    // a hoe works in anybody's bed (the owner, 2026-10-04: "ยังขุดแปลงคนอื่นได้เหมือนเดิมแต่ เสีย stamina")
+    expect(deedFor("1,1", WILD, "hoe", "you", NIGHT, "me")).toBe("clear");
+    expect(deedFor("1,1", { soil: "cleared", plant: null }, "hoe", "you", NIGHT, "me")).toBe("till");
+    expect(deedFor("1,1", tilled, "hoe", "you", NIGHT, "me")).toBeNull();
+    expect(deedFor("1,1", growing, "hoe", "you", NIGHT + HOUR, "me")).toBeNull();
     expect(deedFor("1,1", tilled, "seedCorn", "you", NIGHT, "me")).toBeNull();
     expect(deedFor("1,1", growing, null, "you", ripeAt, "me")).toBeNull();
     expect(deedFor("1,1", growing, "can", "you", NIGHT + HOUR, "me")).toBe("water");
@@ -293,9 +298,18 @@ describe("a bed", () => {
     expect(first.deed).toBe("sow");
     expect(first.bed).toEqual({ by: "me", tended: NIGHT, empty: 0 });
     expect(ownerOf(first.bed, true, NIGHT + HOUR)).toBe("me");
-    // somebody else, in another plot of the same bed: no hoeing, no sowing, no picking; but they may water
+    // somebody else, in another plot of the same bed: no sowing, no picking; but they may hoe and water
     expect(tend("2,1", tilled, first.bed, 1, 0, sower(), "you", NIGHT + HOUR)).toEqual({ ok: false, why: "theirs" });
-    expect(tend("2,1", WILD, first.bed, 1, 0, holding(purseWith(["hoe", 1]), "hoe"), "you", NIGHT + HOUR)).toEqual({ ok: false, why: "theirs" });
+    // …but may hoe there, for the stamina it costs anybody; the bed stays its owner's, and is not tended by it
+    const helper = holding(purseWith(["hoe", 1]), "hoe");
+    const lent = tend("2,1", WILD, first.bed, 1, 0, helper, "you", NIGHT + HOUR);
+    expect(lent.ok && lent.deed).toBe("clear");
+    expect(lent.ok && lent.plot).toEqual({ soil: "cleared", plant: null });
+    expect(lent.ok && lent.bed).toEqual(first.bed);
+    expect(lent.ok && staminaOf(helper, NIGHT + HOUR) - staminaOf(lent.purse, NIGHT + HOUR)).toBe(FARMING.costs.clear);
+    const tilledToo = tend("2,1", { soil: "cleared", plant: null }, first.bed, 1, 0, helper, "you", NIGHT + HOUR);
+    expect(tilledToo.ok && tilledToo.deed).toBe("till");
+    expect(tilledToo.ok && tilledToo.bed).toEqual(first.bed);
     const ripeAt = NIGHT + CROPS.kangkong.hours * HOUR;
     expect(tend("1,1", first.plot, first.bed, 0, 0, newPurse(), "you", ripeAt)).toEqual({ ok: false, why: "theirs" });
     const helped = done(tend("1,1", first.plot, first.bed, 0, 0, holding(withWater("can", 2), "can"), "you", NIGHT + HOUR));
@@ -466,5 +480,79 @@ describe("tired hands (the owner, 2026-10-04: the work that has no game stayed f
     // lighter work, a shorter round: fewer hits than the hoe's, and more than one
     expect(FARMING.tired).toBe(2);
     expect(FARMING.tired).toBeLessThan(FARMING.swings.clear);
+  });
+});
+
+describe("rain on the plots (the owner, 2026-10-04: \"ระหว่างที่ฝนตก พืชทั้งหมดจะถือว่ารดน้ำแล้ว ตลอดการตก\")", () => {
+  // a morning glory (six hours) sown at eight in the evening, when no pest is about; two hours of rain from nine
+  const T0 = NIGHT, S = slotOf(T0 + HOUR);
+  const rains: Rain[] = rainsOf([S, S + 1, S + 2, S + 3, S + 4, S + 5, S + 6, S + 7]);
+  const plant = (more: Partial<Plant> = {}): Plant => ({ by: "me", crop: "kangkong", sown: T0, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0, ...more });
+  const plot = (more: Partial<Plant> = {}): Plot => ({ soil: "tilled", plant: plant(more) });
+  const withCan = (): Purse => { const p = newPurse(); const bag = put(p.bag, "can", 1).map((s) => (s?.item === "can" ? { ...s, water: 5 } : s)); return { ...p, hand: "can", bag, stamina: { day: -1, left: 0 } }; };
+
+  it("adds what watering on the hour would: half an hour of growth to an hour of rain, by the minute", () => {
+    expect(rains).toEqual([[S * SLOT_MS, (S + 8) * SLOT_MS]]);
+    expect(FARMING.water.adds / FARMING.water.every).toBe(0.5);
+    const p = plant();
+    // before the rain, and with none, the clock alone
+    expect(grown(p, T0 + HOUR, rains)).toBeCloseTo(grown(p, T0 + HOUR), 9);
+    expect(grown(p, T0 + 6 * HOUR)).toBeCloseTo(6, 9);
+    // half an hour into it, a quarter of an hour more; at its end, an hour more; and no more after
+    expect(grown(p, T0 + 1.5 * HOUR, rains)).toBeCloseTo(1.5 + 0.25, 9);
+    expect(grown(p, T0 + 3 * HOUR, rains)).toBeCloseTo(3 + 1, 9);
+    expect(grown(p, T0 + 5 * HOUR, rains)).toBeCloseTo(5 + 1, 9);
+    // rain that fell before it was sown did nothing for it
+    expect(grown(plant({ sown: T0 + 2 * HOUR }), T0 + 4 * HOUR, rains)).toBeCloseTo(2 + 0.5, 9);
+    // …on top of what a can and a fertiliser did
+    expect(grown(plant({ boost: 30 * 60_000 }), T0 + 3 * HOUR, rains)).toBeCloseTo(3 + 0.5 + 1, 9);
+  });
+
+  it("so a plant is ripe sooner for it: an hour sooner, for two hours of rain", () => {
+    expect(see("133,5", plot(), T0 + 5 * HOUR - 1).ripe).toBe(false);
+    expect(see("133,5", plot(), T0 + 5 * HOUR, rains).ripe).toBe(true);
+    expect(see("133,5", plot(), T0 + 5 * HOUR - 60_000, rains).ripe).toBe(false);
+    expect(see("133,5", plot(), T0 + 6 * HOUR).ripe).toBe(true);
+    // and it is picked then
+    const picked = pick("133,5", newPurse(), plot(), true, null, T0 + 5 * HOUR, rains);
+    expect(picked.ok).toBe(true);
+    expect(pick("133,5", newPurse(), plot(), true, null, T0 + 5 * HOUR)).toEqual({ ok: false, why: "unripe" });
+  });
+
+  it("a plot is wet for as long as it rains, and a can has nothing to do there", () => {
+    const k = "133,5", me = withCan();
+    expect(see(k, plot(), T0 + 30 * 60_000, rains).wet).toBe(false);
+    expect(see(k, plot(), T0 + HOUR, rains).wet).toBe(true);
+    expect(see(k, plot(), T0 + 3 * HOUR - 1, rains).wet).toBe(true);
+    expect(see(k, plot(), T0 + 3 * HOUR, rains).wet).toBe(false);
+    expect(deedFor(k, plot(), "can", "me", T0 + 2 * HOUR, null, rains)).toBeNull();
+    expect(water(k, me, plot(), "can", T0 + 2 * HOUR, rains)).toEqual({ ok: false, why: "wet" });
+    expect(tend(k, plot(), { by: "me", tended: T0, empty: 0 }, 0, 0, me, "me", T0 + 2 * HOUR, rains)).toMatchObject({ ok: false });
+    // before it and after it the can waters as ever
+    expect(deedFor(k, plot(), "can", "me", T0 + 30 * 60_000, null, rains)).toBe("water");
+    const after = water(k, me, plot(), "can", T0 + 3 * HOUR, rains);
+    expect(after.ok && after.plot.plant!.boost).toBe(30 * 60_000);
+    // with no rain said, the rules are what they were
+    expect(deedFor(k, plot(), "can", "me", T0 + 2 * HOUR)).toBe("water");
+  });
+
+  it("reaches every plant, whoever's it is; a plant picked once and bearing again waits by the clock as it did", () => {
+    expect(see("140,5", { soil: "tilled", plant: plant({ by: "somebody" }) }, T0 + 2 * HOUR, rains).wet).toBe(true);
+    // (kept from pests all the while, so that the clock alone decides)
+    const chili = plant({ crop: "chili", picked: 1, pickedAt: T0, guard: T0 + 1000 * HOUR }), again = CROPS.chili.again!;
+    expect(see("133,5", { soil: "tilled", plant: chili }, T0 + again * HOUR - 1, ALWAYS_RAIN).ripe).toBe(false);
+    expect(see("133,5", { soil: "tilled", plant: chili }, T0 + again * HOUR, ALWAYS_RAIN).ripe).toBe(true);
+  });
+
+  it("is counted the same when a pest is looked for: a plant the rain has ripened is safe from then on", () => {
+    // a carrot sown before the pests' hours, under a week of rain: half as long again in the ground as the clock says
+    const key = "133,5", p = plant({ crop: "carrot", sown: at("2026-10-03T06:00:00") }), hours = CROPS.carrot.hours;
+    const ripeDry = p.sown + hours * HOUR, ripeWet = p.sown + (hours / 1.5) * HOUR;
+    expect(grown(p, ripeWet, ALWAYS_RAIN)).toBeCloseTo(hours, 6);
+    for (let t = p.sown; t <= ripeDry + 30 * HOUR; t += HOUR) {
+      const dry = pestAt(key, p, t), wet = pestAt(key, p, t, ALWAYS_RAIN);
+      // (no pest ever comes to it in the rain that would not have come without, and none after the rain has ripened it)
+      if (wet !== null) { expect(wet).toBe(dry); expect(wet).toBeLessThan(ripeWet); }
+    }
   });
 });

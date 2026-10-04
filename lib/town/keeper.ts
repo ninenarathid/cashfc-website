@@ -5,6 +5,8 @@ import type { Strike } from "./fishing";
 import { nextHint } from "./hints";
 import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { shelfOf, sourcesAt, type Order } from "./orders";
+import { SKIES } from "./skies";
+import type { Rain } from "./weather";
 import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
@@ -75,6 +77,8 @@ export interface Keeper {
   well(): number;
   owners(): Map<number, { by: string; name: string }>;
   deedAt(key: string): Deed | null;
+  /** The stretches of rain the plots have had (lib/town/weather): what the farm's rules are read with. */
+  rains(): readonly Rain[];
   choreAt(where: Water): Chore | null;
   pots(): Pot[];
   found(): ItemId[];
@@ -356,8 +360,9 @@ export class DbKeeper implements Keeper {
   }
   deedAt(key: string): Deed | null {
     const [x, y] = key.split(",").map(Number);
-    return deedFor(key, this.plots[key] ?? WILD, handOf(this.mine), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null);
+    return deedFor(key, this.plots[key] ?? WILD, handOf(this.mine), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, SKIES.rains());
   }
+  rains(): readonly Rain[] { return SKIES.rains(); }
   choreAt(where: Water): Chore | null { return choreFor(this.mine, where, this.well_); }
   pots(): Pot[] { return this.pots_; }
   found(): ItemId[] { return this.found_; }

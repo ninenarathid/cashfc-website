@@ -1,6 +1,7 @@
 import { FIELD } from "./gear";
 import { BUFFS, CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { buffOf, spend } from "./stamina";
+import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
@@ -12,9 +13,16 @@ import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, ty
  *
  * - **A bed belongs to whoever sows in it first, the whole bed** ("เพื่อไม่ให้
  *   แย่งแปลงปลูกผักกัน ใครเริ่ม หว่านเมล้ดคนแรก แปลงจะเป็นของคนนั้นทั้งแปลง"): only its
- *   owner hoes, sows and picks there. It is free again when it has stood with
+ *   owner sows and picks there. It is free again when it has stood with
  *   nothing growing for more than a day, or has plants its owner has not
  *   tended for more than four days.
+ * - **A hoe works in anybody's bed** (the owner, 2026-10-04: "ยังขุดแปลงคนอื่นได้
+ *   เหมือนเดิมแต่ เสีย stamina และถ้า stamina หมดก็จะเกมยากขึ้นเหมือนปกติ"): anybody may
+ *   clear its weeds, till its soil and pull up what has died there, for the
+ *   stamina it costs anybody and by the same game (harder with none left, as
+ *   everywhere). It is help, like watering: the bed stays its owner's, and
+ *   only the owner's own deeds count as tending it. (For its first day the
+ *   database let nobody hoe in a bed that was somebody's.)
  * - **Watering** adds half an hour of growth, once an hour for each plot, and
  *   anybody may water anybody's plant; half as much again from somebody a meal
  *   has left with green fingers. **A can has to have water in it**
@@ -22,6 +30,13 @@ import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, ty
  *   the well in the middle of the farm, a bucket of the well's water to a
  *   can; and **the well is filled by buckets carried from the river** ("ต้องมี
  *   คนขนน้ำมาจากแม่น้ำมาใส่บ่อตรงกลางแมพแปลงผัก").
+ * - **Rain waters everything** (the owner, 2026-10-04: "ระหว่างที่ฝนตก พืชทั้งหมดจะถือว่า
+ *   รดน้ำแล้ว ตลอดการตก"): while it rains every plant is watered, for as long as
+ *   it rains. It adds what watering on the hour would (half an hour of growth
+ *   to an hour of rain, by the minute), a plot is wet all the while, and a can
+ *   has nothing to do there. The rain is the database's (lib/town/weather),
+ *   given to these rules as its stretches (`rains`): none, where nothing is
+ *   said of it.
  * - **Fertiliser**: one kind makes a plant grow faster from then on, the other
  *   keeps pests off it for a day.
  * - **Pests** strike a growing plant only between 08:00 and 18:00; one left
@@ -137,13 +152,15 @@ export function roll(word: string, ...n: number[]): number {
   return (h >>> 0) / 4294967296;
 }
 
-/** The hours a plant has grown by a moment: the clock's, faster once it is fed, and what watering added. */
-export function grown(p: Plant, now: number): number {
+/** The hours a plant has grown by a moment: the clock's, faster once it is fed, what watering added, and what the rain did. */
+export function grown(p: Plant, now: number, rains: readonly Rain[] = DRY): number {
   const fed = p.fed ? Math.max(0, now - Math.max(p.fed, p.sown)) * (FARMING.feed - 1) : 0;
-  return (Math.max(0, now - p.sown) + fed + p.boost) / HOUR;
+  // (rain is watering by the minute: what a watering adds, for every stretch as long as a watering lasts)
+  const rained = rains.length ? wetMs(rains, p.sown, now) * FARMING.water.adds / FARMING.water.every : 0;
+  return (Math.max(0, now - p.sown) + fed + p.boost + rained) / HOUR;
 }
 /** Where a plant is in its growing, pests left out. */
-const growing = (p: Plant, now: number) => growth(p.crop, grown(p, now), p.picked, (now - p.pickedAt) / HOUR);
+const growing = (p: Plant, now: number, rains: readonly Rain[] = DRY) => growth(p.crop, grown(p, now, rains), p.picked, (now - p.pickedAt) / HOUR);
 
 /**
  * When a pest struck a plant, if one has and it has not been cured since: the
@@ -151,28 +168,31 @@ const growing = (p: Plant, now: number) => growth(p.crop, grown(p, now), p.picke
  * roll for that plot and that hour came up, the plant being still unripe and
  * not covered. Null when none has.
  */
-export function pestAt(key: string, p: Plant, now: number): number | null {
+export function pestAt(key: string, p: Plant, now: number, rains: readonly Rain[] = DRY): number | null {
   const { from, to, chance } = FARMING.pests;
   const start = Math.max(p.sown, p.cured, p.pickedAt);
   for (let h = Math.ceil(start / HOUR); h * HOUR <= now; h++) {
     const t = h * HOUR, hour = Math.floor((((t + BANGKOK) % DAY) + DAY) % DAY / HOUR);
     if (hour < from || hour >= to || t < p.guard) continue;
     // (a ripe plant is safe: it only waits to be picked)
-    if (growing(p, t).ripe) return null;
+    if (growing(p, t, rains).ripe) return null;
     if (roll(key, h, p.sown) < chance) return t;
   }
   return null;
 }
 
-/** What a plot shows at a moment: its plant's stage, whether it is ripe, has a pest on it, is dead, or was watered this hour. */
+/** What a plot shows at a moment: its plant's stage, whether it is ripe, has a pest on it, is dead, or is wet (watered this hour, or rained on now). */
 export interface Seen { soil: Soil; crop: CropId | null; by: string | null; stage: 0 | 1 | 2 | 3 | 4 | 5; ripe: boolean; pest: boolean; dead: boolean; wet: boolean }
-export function see(key: string, plot: Plot, now: number): Seen {
+export function see(key: string, plot: Plot, now: number, rains: readonly Rain[] = DRY): Seen {
   const p = plot.plant;
   if (!p) return { soil: plot.soil, crop: null, by: null, stage: 0, ripe: false, pest: false, dead: false, wet: false };
-  const struck = pestAt(key, p, now), dead = struck !== null && now - struck > FARMING.pests.kills * HOUR;
+  const struck = pestAt(key, p, now, rains), dead = struck !== null && now - struck > FARMING.pests.kills * HOUR;
   // (a dead plant stays as it was when it died)
-  const g = growing(p, dead ? struck! + FARMING.pests.kills * HOUR : now);
-  return { soil: plot.soil, crop: p.crop, by: p.by, stage: g.stage, ripe: g.ripe && !dead, pest: struck !== null && !dead, dead, wet: now - p.watered < FARMING.water.every * 60_000 };
+  const g = growing(p, dead ? struck! + FARMING.pests.kills * HOUR : now, rains);
+  return {
+    soil: plot.soil, crop: p.crop, by: p.by, stage: g.stage, ripe: g.ripe && !dead, pest: struck !== null && !dead, dead,
+    wet: now - p.watered < FARMING.water.every * 60_000 || rainingAt(rains, now),
+  };
 }
 
 /** Why something was not done to a plot, beyond a purse's own reasons: the wrong thing in the hand, a plot not ready for it, watered already this hour, somebody else's bed, not ripe yet, as many beds held as one may. */
@@ -182,9 +202,9 @@ const not = (why: FarmRefusal): { ok: false; why: FarmRefusal } => ({ ok: false,
 const hasInHand = (purse: Purse, hand: ItemId | null) => !!hand && held(purse.bag, hand) > 0;
 
 /** Clear a plot of weeds, or till cleared ground, or pull up a dead plant (which leaves compost): each with a hoe in the hand. */
-export function hoe(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number): Did {
+export function hoe(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did {
   if (toolOf(hand) !== "hoe" || !hasInHand(purse, hand)) return not("hand");
-  const seen = see(key, plot, now);
+  const seen = see(key, plot, now, rains);
   if (seen.dead) {
     const left = FARMING.pulled, room = roomFor(purse.bag, left) > 0;
     return { ok: true, plot: { soil: "cleared", plant: null }, purse: { ...spend(purse, FARMING.costs.pull, now), bag: room ? put(purse.bag, left, 1) : purse.bag }, got: room ? [[left, 1]] : [] };
@@ -212,11 +232,11 @@ export const waterIn = (bag: Purse["bag"], id: ItemId | null) => bag.reduce((t, 
 /** A bag with one stack changed. */
 const setStack = (bag: Purse["bag"], slot: number, to: Stack) => bag.map((s, i) => (i === slot ? to : s));
 
-/** Water a growing plant, anybody's, with a can in the hand that has water in it: once an hour for each plot. A better can adds more, and so does a meal that left green fingers. */
-export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number): Did | { ok: false; why: Refusal } {
+/** Water a growing plant, anybody's, with a can in the hand that has water in it: once an hour for each plot, and not while the rain does it. A better can adds more, and so does a meal that left green fingers. */
+export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did | { ok: false; why: Refusal } {
   if (toolOf(hand) !== "can" || !hasInHand(purse, hand)) return not("hand");
-  const seen = see(key, plot, now), p = plot.plant;
-  if (!p || seen.dead || (seen.ripe && !CROPS[p.crop].again) || growing(p, now).spent) return not("soil");
+  const seen = see(key, plot, now, rains), p = plot.plant;
+  if (!p || seen.dead || (seen.ripe && !CROPS[p.crop].again) || growing(p, now, rains).spent) return not("soil");
   if (seen.wet) return not("wet");
   const slot = purse.bag.findIndex((s) => s?.item === hand && (s.water ?? 0) > 0);
   if (slot < 0) return no("dry");
@@ -228,19 +248,19 @@ export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null
 }
 
 /** Put the fertiliser in the hand on a growing plant: one makes it grow faster from now on, the other keeps pests off it for a day. */
-export function feed(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number): Did {
+export function feed(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did {
   const kind = toolOf(hand);
   if ((kind !== "feed" && kind !== "guard") || !hasInHand(purse, hand)) return not("hand");
-  const seen = see(key, plot, now), p = plot.plant;
+  const seen = see(key, plot, now, rains), p = plot.plant;
   if (!p || seen.dead || (kind === "feed" && p.fed) || (kind === "guard" && p.guard > now)) return not("soil");
   const plant = kind === "feed" ? { ...p, fed: now } : { ...p, guard: now + FARMING.guard * HOUR };
   return { ok: true, plot: { ...plot, plant }, purse: { ...spend(purse, FARMING.costs.feed, now), bag: take(purse.bag, hand!, 1) } };
 }
 
 /** Rid a plant, anybody's, of its pest, with a cure in the hand. */
-export function cure(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number): Did {
+export function cure(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did {
   if (toolOf(hand) !== "cure" || !hasInHand(purse, hand)) return not("hand");
-  const seen = see(key, plot, now);
+  const seen = see(key, plot, now, rains);
   if (!plot.plant || !seen.pest) return not("soil");
   return { ok: true, plot: { ...plot, plant: { ...plot.plant, cured: now } }, purse: { ...spend(purse, FARMING.costs.cure, now), bag: take(purse.bag, "pestCure", 1) } };
 }
@@ -254,8 +274,8 @@ export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): numb
 }
 
 /** Pick a ripe plant into the bag (which must have the room), by somebody who may. One that bears again goes back a stage; another leaves the plot cleared. */
-export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: ItemId | null, now: number): Did | { ok: false; why: Refusal } {
-  const p = plot.plant, seen = see(key, plot, now);
+export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did | { ok: false; why: Refusal } {
+  const p = plot.plant, seen = see(key, plot, now, rains);
   if (!p || seen.dead) return not("soil");
   if (!may) return not("theirs");
   if (!seen.ripe) return not("unripe");
@@ -271,19 +291,20 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
 
 /**
  * What the thing in the hand can do to a plot now, if anything: the one deed
- * the map offers. In somebody else's bed only the helping deeds are offered
- * (watering, feeding, curing). (Picking needs nothing in the hand: a ripe
+ * the map offers. In somebody else's bed only the helping deeds are offered:
+ * the hoe's (clearing, tilling, pulling up what died), watering, feeding and
+ * curing; never sowing or picking. (Picking needs nothing in the hand: a ripe
  * plant is picked whatever is held, unless what is held has a deed of its own
  * to do.)
  */
 export type Deed = "clear" | "till" | "pull" | "sow" | "water" | "feed" | "cure" | "pick";
-export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string, now: number, owner: string | null = null): Deed | null {
-  const seen = see(key, plot, now), kind = toolOf(hand), p = plot.plant, mine = owner === null || owner === me;
-  if (kind === "hoe") return !mine ? null : seen.dead ? "pull" : p ? null : plot.soil === "wild" ? "clear" : plot.soil === "cleared" ? "till" : null;
+export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string, now: number, owner: string | null = null, rains: readonly Rain[] = DRY): Deed | null {
+  const seen = see(key, plot, now, rains), kind = toolOf(hand), p = plot.plant, mine = owner === null || owner === me;
+  if (kind === "hoe") return seen.dead ? "pull" : p ? null : plot.soil === "wild" ? "clear" : plot.soil === "cleared" ? "till" : null;
   if (kind === "seed") return mine && plot.soil === "tilled" && !p ? "sow" : null;
   if (p && !seen.dead) {
     if (kind === "cure" && seen.pest) return "cure";
-    if (kind === "can" && !seen.wet && !growing(p, now).spent && !(seen.ripe && !CROPS[p.crop].again)) return "water";
+    if (kind === "can" && !seen.wet && !growing(p, now, rains).spent && !(seen.ripe && !CROPS[p.crop].again)) return "water";
     if (kind === "feed" && !p.fed) return "feed";
     if (kind === "guard" && p.guard <= now) return "feed";
     if (seen.ripe && mine) return "pick";
@@ -299,15 +320,15 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
  * counts as tending it; and when its last plant goes, the day it may stand
  * empty begins. A bed that has lapsed is nobody's: its keeping is dropped.
  */
-export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number):
+export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: readonly Rain[] = DRY):
   { ok: true; deed: Deed; purse: Purse; plot: Plot; bed: Bed | undefined; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
   const hand = handOf(purse), owner = ownerOf(bed, others > 0 || !!plot.plant, now);
-  const deed = deedFor(key, plot, hand, me, now, owner);
+  const deed = deedFor(key, plot, hand, me, now, owner, rains);
   if (!deed) return { ok: false, why: owner !== null && owner !== me ? "theirs" : "soil" };
   if (deed === "sow" && owner === null && holds >= BEDS.each) return { ok: false, why: "beds" };
-  const did = deed === "clear" || deed === "till" || deed === "pull" ? hoe(key, purse, plot, hand, now)
-    : deed === "sow" ? sow(purse, plot, hand, me, now) : deed === "water" ? water(key, purse, plot, hand, now)
-      : deed === "feed" ? feed(key, purse, plot, hand, now) : deed === "cure" ? cure(key, purse, plot, hand, now) : pick(key, purse, plot, true, hand, now);
+  const did = deed === "clear" || deed === "till" || deed === "pull" ? hoe(key, purse, plot, hand, now, rains)
+    : deed === "sow" ? sow(purse, plot, hand, me, now) : deed === "water" ? water(key, purse, plot, hand, now, rains)
+      : deed === "feed" ? feed(key, purse, plot, hand, now, rains) : deed === "cure" ? cure(key, purse, plot, hand, now, rains) : pick(key, purse, plot, true, hand, now, rains);
   if (!did.ok) return did;
   const planted = others > 0 || !!did.plot.plant;
   let next: Bed | undefined = owner === null ? undefined : bed;

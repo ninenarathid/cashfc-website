@@ -20,6 +20,7 @@ import {
   GOODS, HOUR, buy, collect, held, hold, leave, newPurse, put, roomFor, roomy, roundOf, take, takeBack, takeOff, wear, weekOf,
   type Purse, type Stack, type Stall,
 } from "./trade";
+import { DRY, SLOT_MS, rainsOf, slotOf, type Rain } from "./weather";
 import { BEDS_IN_FARM, FARM, bedCorner, bedOf } from "./world";
 
 /**
@@ -269,9 +270,12 @@ export function vectorsV108(): Vector[] {
  * Every case for the rules of v110, the farm: what a thing in the hand is for, which bed a tile is in, how a plant
  * grows, when a pest strikes and what a plot shows, whose a bed is, each deed on a plot and all of them together with
  * the bed's keeping, and water carried from the river to the well to the can.
+ *
+ * Given stretches of rain (v118: rain waters the plots), the same cases are made under that rain, a share of them,
+ * and only those the rain can touch.
  */
-export function vectorsV110(): Vector[] {
-  const c = chance(20261007), out: Vector[] = [];
+export function vectorsV110(rains: readonly Rain[] = DRY, share = 1): Vector[] {
+  const c = chance(20261007), out: Vector[] = [], whole = share === 1, many = (n: number) => Math.round(n * share);
   const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
   const SEED_IDS = CROP_IDS.map((id) => CROPS[id].seed), CANS = Object.keys(WATER.cans) as ItemId[], BUCKETS = Object.keys(WATER.buckets) as ItemId[];
   const HANDS: ItemId[] = [...HOES, ...CANS, ...BUCKETS, "growFert", "guardFert", "pestCure", "sickle", "shears", ...SEED_IDS];
@@ -308,7 +312,7 @@ export function vectorsV110(): Vector[] {
     for (let n = c.maybe(0.15) ? 40 : 0; n > 0; n--) {
       const crop = c.of(CROP_IDS), sown = moment();
       const plant: Plant = { by: c.of(WHO), crop, sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
-      const struck = pestAt(key, plant, sown + CROPS[crop].hours * HOUR);
+      const struck = pestAt(key, plant, sown + CROPS[crop].hours * HOUR, rains);
       if (struck !== null) return { now: struck + c.int(0, 8 * HOUR), key, plot: { soil: "tilled", plant } };
     }
     const now = moment();
@@ -335,7 +339,7 @@ export function vectorsV110(): Vector[] {
   const handFor = (key: string, plot: Plot, now: number): ItemId | null => {
     if (c.maybe(0.07)) return null;
     if (c.maybe(0.25)) return c.of(HANDS);
-    const seen = see(key, plot, now);
+    const seen = see(key, plot, now, rains);
     if (!plot.plant) return plot.soil === "tilled" ? c.of(SEED_IDS) : c.of(HOES);
     if (seen.dead) return c.of(HOES);
     if (seen.pest && c.maybe(0.6)) return "pestCure";
@@ -344,11 +348,11 @@ export function vectorsV110(): Vector[] {
   };
 
   // what each thing is for in the hand; and which bed every tile of the farm is in, with a rim of what is not the farm
-  for (const id of [...ITEM_IDS, null]) add("tool_of", [id], toolOf(id));
-  for (let y = FARM.y - 2; y < FARM.y + FARM.h + 2; y++) for (let x = FARM.x - 2; x < FARM.x + FARM.w + 2; x++) add("bed_of", [x, y], bedOf(x, y));
+  for (const id of whole ? [...ITEM_IDS, null] : []) add("tool_of", [id], toolOf(id));
+  for (let y = FARM.y - 2; whole && y < FARM.y + FARM.h + 2; y++) for (let x = FARM.x - 2; x < FARM.x + FARM.w + 2; x++) add("bed_of", [x, y], bedOf(x, y));
 
   // how a plant grows: each vegetable either side of every stage, and one that bears again either side of its next picking
-  for (const crop of CROP_IDS) {
+  for (const crop of whole ? CROP_IDS : []) {
     const cr = CROPS[crop], picks = cr.picks ?? 1, again = cr.again ?? 10;
     for (const part of [-0.5, 0, 0.05, 0.1, 0.2, 0.3, 0.45, 0.6, 0.99, 1, 1.5]) add("growth", [crop, part * cr.hours, 0, 0], growth(crop, part * cr.hours, 0, 0));
     for (let picked = 1; picked <= picks + 1; picked += picks > 4 ? 3 : 1) {
@@ -357,17 +361,17 @@ export function vectorsV110(): Vector[] {
   }
 
   // a plant's hours, its pest, what its plot shows, what a picking gives
-  for (let i = 0; i < 700; i++) {
+  for (let i = 0; i < many(700); i++) {
     const { now, key, plot } = scene(), plant = plot.plant ?? plantOf(now);
-    add("grown", [plant, now], grown(plant, now));
-    add("pest_at", [key, plant, now], pestAt(key, plant, now));
-    add("see", [key, plot, now], see(key, plot, now));
+    add("grown", [plant, now], grown(plant, now, rains));
+    add("pest_at", [key, plant, now], pestAt(key, plant, now, rains));
+    add("see", [key, plot, now], see(key, plot, now, rains));
     const blade = c.of(["sickle", "shears", null, "hoe"] as Array<ItemId | null>);
     add("yield_of", [key, plant, blade], yieldOf(key, plant, blade));
   }
 
   // whose a bed is
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < (whole ? 300 : 0); i++) {
     const now = moment(), tended = now - c.of([0, 1, 23, 24, 25, 95, 96, 97, 200]) * HOUR - c.int(0, 1) * c.int(0, 3_599_999);
     const bed: Bed | undefined = c.maybe(0.08) ? undefined : { by: c.of(WHO), tended, empty: c.maybe(0.5) ? 0 : tended + c.int(0, Math.max(0, now - tended)) };
     const planted = c.maybe(0.5);
@@ -375,45 +379,67 @@ export function vectorsV110(): Vector[] {
   }
 
   // each deed by itself
-  for (let i = 0; i < 900; i++) {
+  for (let i = 0; i < many(900); i++) {
     const { now, key, plot } = scene(), me = c.of(WHO), fits = handFor(key, plot, now), p = farmer(now, fits);
     const hand = c.maybe(0.92) ? fits : c.of(HANDS);
-    add("hoe", [key, p, plot, hand, now], hoe(key, p, plot, hand, now));
+    add("hoe", [key, p, plot, hand, now], hoe(key, p, plot, hand, now, rains));
     add("sow", [p, plot, hand, me, now], sow(p, plot, hand, me, now));
-    add("water", [key, p, plot, hand, now], water(key, p, plot, hand, now));
-    add("feed", [key, p, plot, hand, now], feed(key, p, plot, hand, now));
-    add("cure", [key, p, plot, hand, now], cure(key, p, plot, hand, now));
+    add("water", [key, p, plot, hand, now], water(key, p, plot, hand, now, rains));
+    add("feed", [key, p, plot, hand, now], feed(key, p, plot, hand, now, rains));
+    add("cure", [key, p, plot, hand, now], cure(key, p, plot, hand, now, rains));
     const may = c.maybe(0.85);
-    add("pick", [key, p, plot, may, hand, now], pick(key, p, plot, may, hand, now));
+    add("pick", [key, p, plot, may, hand, now], pick(key, p, plot, may, hand, now, rains));
     const owner = c.of([null, me, c.of(WHO)]);
-    add("deed_for", [key, plot, hand, me, now, owner], deedFor(key, plot, hand, me, now, owner));
+    add("deed_for", [key, plot, hand, me, now, owner], deedFor(key, plot, hand, me, now, owner, rains));
   }
   // (a ripe plant and a bag with no room for what it bears)
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < many(60); i++) {
     const now = moment(), key = c.of(KEYS), crop = c.of(CROP_IDS), me = c.of(WHO);
     const plant: Plant = { by: me, crop, sown: now - CROPS[crop].hours * HOUR - c.int(0, HOUR), boost: 0, watered: 0, fed: 0, guard: now + HOUR, cured: 0, picked: 0, pickedAt: 0 };
     const full: Purse = { ...farmer(now, null), bag: Array.from({ length: 5 }, (_, n): Stack => (n === 0 && c.maybe(0.5) ? { item: crop, n: ITEMS[crop].stack - c.int(0, 2) } : { item: "pebble" as ItemId, n: 1 })) };
-    add("pick", [key, full, { soil: "tilled", plant }, true, null, now], pick(key, full, { soil: "tilled", plant }, true, null, now));
-    add("tend", [key, { soil: "tilled", plant }, { by: me, tended: now - HOUR, empty: 0 }, 2, 0, full, me, now], tend(key, { soil: "tilled", plant }, { by: me, tended: now - HOUR, empty: 0 }, 2, 0, full, me, now));
+    add("pick", [key, full, { soil: "tilled", plant }, true, null, now], pick(key, full, { soil: "tilled", plant }, true, null, now, rains));
+    add("tend", [key, { soil: "tilled", plant }, { by: me, tended: now - HOUR, empty: 0 }, 2, 0, full, me, now], tend(key, { soil: "tilled", plant }, { by: me, tended: now - HOUR, empty: 0 }, 2, 0, full, me, now, rains));
   }
 
   // tending: the deed the hand offers, with the bed's keeping
-  for (let i = 0; i < 1100; i++) {
+  for (let i = 0; i < many(1100); i++) {
     const { now, key, plot } = scene(), me = c.of(WHO), p = farmer(now, handFor(key, plot, now));
     const tended = now - c.of([0, 1, 20, 30, 90, 100]) * HOUR - c.int(0, 3_599_999);
     const bed: Bed | undefined = c.maybe(0.3) ? undefined : { by: c.maybe(0.7) ? me : c.of(WHO), tended, empty: c.maybe(0.6) ? 0 : tended + c.int(0, now - tended) };
     const others = c.of([0, 0, 1, 5]), holds = c.of([0, 1, BEDS.each, BEDS.each + 1]);
-    add("tend", [key, plot, bed ?? null, others, holds, p, me, now], tend(key, plot, bed, others, holds, p, me, now));
+    add("tend", [key, plot, bed ?? null, others, holds, p, me, now], tend(key, plot, bed, others, holds, p, me, now, rains));
   }
 
   // water: drawn at the river, poured into the well, a can filled there
-  for (let i = 0; i < 700; i++) {
+  for (let i = 0; i < (whole ? 700 : 0); i++) {
     const now = moment(), where = c.of(["river", "well", "well", null] as Array<"river" | "well" | null>), well = c.of([0, 0, 1, WATER.well - 1, WATER.well, c.int(0, WATER.well)]);
     const p = farmer(now, c.maybe(0.85) ? c.of([...BUCKETS, ...CANS]) : c.maybe(0.5) ? c.of(HANDS) : null);
     add("chore_for", [p, where, well], choreFor(p, where, well));
     add("chore", [p, where, well, now], chore(p, where, well, now));
   }
   return out;
+}
+
+/** The farm's rules that the rain can touch. */
+const RAIN_FNS = ["grown", "pest_at", "see", "hoe", "water", "feed", "cure", "pick", "deed_for", "tend"];
+/**
+ * The skies v118's cases are made under, each the quarter hours that are wet: showers of half an hour, rains of
+ * four hours, whole wet days, rain without a break, and a quarter hour here and there. Over every quarter hour a
+ * plant of the cases could live through: from forty days before the moments they are made at to a fortnight after.
+ */
+export function skiesV118(): number[][] {
+  const DAY_MS = 24 * HOUR, spans: Array<[number, number]> = [
+    [slotOf(MOMENTS[0] - 40 * DAY_MS), slotOf(MOMENTS[MOMENTS.length - 2] + 15 * DAY_MS)],
+    [slotOf(MOMENTS[MOMENTS.length - 1] - 40 * DAY_MS), slotOf(MOMENTS[MOMENTS.length - 1] + 15 * DAY_MS)],
+  ];
+  const slots = spans.flatMap(([a, b]) => Array.from({ length: b - a + 1 }, (_, i) => a + i));
+  const sky = (k: number, stretch: number, share: number) => slots.filter((s) => roll("sky", k, Math.floor(s / stretch)) < share);
+  return [sky(0, 2, 0.25), sky(1, 16, 0.2), sky(2, 96, 0.5), slots, sky(4, 1, 0.03)];
+}
+/** Every case for v118's rain on the plots: the farm's cases again, a fifth of them, under each of those skies. */
+export function vectorsV118(): { slot: number; skies: number[][]; cases: Array<Vector & { sky: number }> } {
+  const skies = skiesV118();
+  return { slot: SLOT_MS, skies, cases: skies.flatMap((wet, sky) => vectorsV110(rainsOf(wet), 0.2).filter((v) => RAIN_FNS.includes(v.fn)).map((v) => ({ ...v, sky }))) };
 }
 
 /**
@@ -711,6 +737,36 @@ describe("the cases the database's rules are held to", () => {
     expect(new Set(of<number>("bed_of")).size).toBe(BEDS_IN_FARM + 1);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v110.json`, JSON.stringify(all)); }
+  });
+
+  it("are made for the rain too: the farm's rules under five skies (v118)", () => {
+    const { slot, skies, cases } = vectorsV118(), dry = vectorsV110(DRY, 0.2).filter((v) => RAIN_FNS.includes(v.fn));
+    expect(slot).toBe(900_000);
+    expect(skies.length).toBe(5);
+    expect(cases.length).toBeGreaterThan(8000);
+    const under = (sky: number, fn: string) => cases.filter((v) => v.sky === sky && v.fn === fn);
+    const wetShare = (list: Vector[]) => list.filter((v) => (v.want as { wet?: boolean } | null)?.wet).length / Math.max(1, list.length);
+    const refusedWet = (list: Vector[]) => list.filter((v) => (v.want as { why?: string } | null)?.why === "wet").length;
+    for (let sky = 0; sky < skies.length; sky++) {
+      // every rule the rain can touch is asked about under every sky
+      for (const fn of RAIN_FNS) expect(under(sky, fn).length).toBeGreaterThan(fn === "tend" || fn === "pick" ? 150 : 100);
+      // and the rain does something: plants have grown more than the clock, the fertiliser and the can account for
+      const more = under(sky, "grown").filter((v) => (v.want as number) > grown(v.args[0] as Plant, v.args[1] as number) + 1e-9).length;
+      expect(more).toBeGreaterThan(sky === 4 ? 20 : 80);
+    }
+    // under rain without a break every plant is wet and no can is offered; with no rain said, a good many are not
+    expect(wetShare(under(3, "see").filter((v) => (v.want as { crop?: string | null }).crop))).toBe(1);
+    expect(under(3, "deed_for").filter((v) => v.want === "water").length).toBe(0);
+    expect(refusedWet(under(3, "water"))).toBeGreaterThan(refusedWet(dry.filter((v) => v.fn === "water")) + 10);
+    expect(wetShare(dry.filter((v) => v.fn === "see" && (v.want as { crop?: string | null }).crop))).toBeLessThan(0.6);
+    expect(dry.filter((v) => v.fn === "deed_for" && v.want === "water").length).toBeGreaterThan(10);
+    // plants ripe, struck and dead under every sky, so that the rain is counted where it decides
+    for (let sky = 0; sky < skies.length; sky++) {
+      const seen = under(sky, "see").map((v) => v.want as { ripe: boolean; pest: boolean; dead: boolean });
+      for (const what of ["ripe", "pest", "dead"] as const) expect(seen.filter((w) => w[what]).length).toBeGreaterThan(3);
+    }
+    const dir = process.env.TOWN_VECTORS;
+    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v118.json`, JSON.stringify({ slot, skies, cases })); }
   });
 
   it("are made for fishing too", () => {

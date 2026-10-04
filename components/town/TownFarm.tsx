@@ -145,7 +145,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // and every few seconds, not every frame.
   const now = keeper.now(), plots = keeper.farm();
   const seen = useRef(new Map<string, Seen>());
-  seen.current = new Map(Object.entries(plots).map(([key, plot]) => [key, see(key, plot, now)]));
+  // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
+  const rains = keeper.rains();
+  seen.current = new Map(Object.entries(plots).map(([key, plot]) => [key, see(key, plot, now, rains)]));
   const owners = useRef(keeper.owners());
   owners.current = keeper.owners();
   const well = useRef(0);
@@ -261,7 +263,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // (for scripts in `next dev`: what stands in a plot, the deed or the chore on offer, the well and whose the beds are)
   useEffect(() => {
     const handle = {
-      seen: (k: string) => seen.current.get(k) ?? see(k, WILD, keeper.now()), deed: () => deed, chore: () => chore, act: begin, plots: () => keeper.farm(),
+      seen: (k: string) => seen.current.get(k) ?? see(k, WILD, keeper.now(), keeper.rains()), deed: () => deed, chore: () => chore, act: begin, plots: () => keeper.farm(),
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
     };
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;

@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { oddsOf } from "./fishing";
+import { FISH, FLOTSAM_IDS } from "./items";
+import { INSIDE, foundScrolls } from "./scrolls";
 import {
   GOODS, ITEMS, RULES, SHELF, buy, change, collect, handOf, held, hold, leave, letGo, mayBuy, mayChange, newPurse, newStall, nextRoundAt, onShelf,
   roomFor, roomy, roundOf, roundStart, takeBack, waiting, weekOf, type Purse, type Stall,
@@ -238,8 +241,28 @@ describe("selling through the uncle", () => {
     expect(leave(purse, 3, 1, NOW)).toEqual({ ok: false, why: "none" });
     expect(leave(purse, 0, 9, NOW)).toEqual({ ok: false, why: "none" });
     expect(leave(purse, 0, 0, NOW)).toEqual({ ok: false, why: "amount" });
-    // and an old boot is nobody's to sell
-    expect(leave({ ...newPurse(), bag: [{ item: "boot", n: 1 }, null, null, null, null] }, 0, 1, NOW)).toEqual({ ok: false, why: "unwanted" });
+    // what fetches nothing is nobody's to sell: a basket of one's own weaving, a scroll he sells himself
+    for (const item of ["basket", "scrollGrilledFish"] as const) {
+      expect(ITEMS[item].pays).toBe(0);
+      expect(leave({ ...newPurse(), bag: [{ item, n: 1 }, null, null, null, null] }, 0, 1, NOW)).toEqual({ ok: false, why: "unwanted" });
+    }
+    // what a line brings up that is no fish fetches a little, every one of them (the owner, 2026-10-04): an old boot
+    // what a minnow does; nothing early more than the cheapest fish but the things that are made into something
+    for (const id of FLOTSAM_IDS) expect(ITEMS[id].pays).toBeGreaterThan(0);
+    expect(ITEMS.boot.pays).toBe(ITEMS.minnow.pays);
+    const boot = leave({ ...newPurse(), bag: [{ item: "boot", n: 2 }, null, null, null, null] }, 0, 2, NOW);
+    expect(boot.ok && boot.purse.left).toEqual([{ item: "boot", n: 2, pays: 3, round: roundOf(NOW) }]);
+    // …and what opens is worth less sold shut than what is in it fetches on average, so that opening it is still the better guess
+    for (const id of ["boot", "bottle", "chest"] as const) {
+      const all = foundScrolls(INSIDE[id]!.tiers), inside = INSIDE[id]!.chance * all.reduce((t, s) => t + ITEMS[s].pays, 0) / all.length;
+      expect(ITEMS[id].pays).toBeLessThan(inside);
+    }
+    // a bite on the early baits is worth next to nothing more for it: all that is no fish comes to a few hundredths of the fish
+    for (const bait of ["worm", "dough"] as const) {
+      let fish = 0, junk = 0;
+      for (let hour = 0; hour < 24; hour++) for (const o of oddsOf(bait, hour)) { if (o.what in FISH) fish += o.p * ITEMS[o.what].pays; else junk += o.p * ITEMS[o.what].pays; }
+      expect(junk / fish).toBeLessThan(0.03);
+    }
   });
 });
 

@@ -114,9 +114,13 @@ export const ITEMS = {
   goby: it("fish", "ปลาบู่", "Marble goby", "ตัวป้อมสีน้ำตาลลายหินอ่อน หัวโต ปากกว้าง", "Stout and marbled brown, with a big head and a wide mouth", 5, 60),
   koi: it("fish", "ปลาคาร์ปทอง", "Golden koi", "ตัวใหญ่ เกล็ดสีทองอร่ามทั้งตัว หนวดสั้นสองคู่", "Large, golden-scaled all over, with two pairs of short barbels", 1, 300),
 
-  // what else comes up
+  // What else comes up. Each fetches a little from the uncle's relatives (the owner, 2026-10-04: "ช่วยทำให้ ขยะจากการ
+  // ตกปลา สามารถขายมีราคาได้ด้วย แต่ไม่เวอร์เกินไป"): an old boot and an old chest fetched nothing, and could not be left
+  // with him at all. A boot now fetches what a minnow does, a chest (further on) a little less than the scroll that
+  // is in it would: so opening either is still the better guess, and selling it the sure thing. On the early baits
+  // one bite in a hundred is a boot, so a bite is worth a third of a hundredth more than it was.
   hyacinth: it("catch", "ผักตบชวา", "Water hyacinth", "กอพืชน้ำใบเขียวมัน ก้านพองเป็นทุ่น รากยาวเป็นฝอย", "A clump of glossy green leaves on swollen stalks, trailing long roots", 20, 2),
-  boot: it("catch", "รองเท้าบูทเก่า", "Old boot", "รองเท้าบูทยางข้างเดียว เปื่อย มีตะไคร่เกาะ", "A single rubber boot, rotting and green with algae", 5, 0),
+  boot: it("catch", "รองเท้าบูทเก่า", "Old boot", "รองเท้าบูทยางข้างเดียว เปื่อย มีตะไคร่เกาะ", "A single rubber boot, rotting and green with algae", 5, 3),
 
   // goods made from other things
   fishSauce: it("goods", "น้ำปลา", "Fish sauce", "น้ำใสสีอำพันในขวดแก้ว กลิ่นแรง รสเค็ม", "A clear amber liquid in a glass bottle. Pungent and salty.", 10, 12),
@@ -354,7 +358,7 @@ export const ITEMS = {
   stingray: it("fish", "ปลากระเบนราหู", "Giant stingray", "ตัวแบนกลมกว้างเท่ากระด้ง สีน้ำตาล หางยาวเรียว", "Flat, round and as wide as a winnowing tray, brown, with a long thin tail", 1, 700, 3),
   megaCatfish: it("fish", "ปลาบึก", "Giant catfish", "ตัวมหึมาสีเทาซีด ท้องขาว ไม่มีหนวด ตาอยู่ต่ำ", "Enormous and pale grey, white-bellied, without whiskers, its eyes set low", 1, 800, 3),
   pearl: it("catch", "ไข่มุกน้ำจืด", "River pearl", "เม็ดกลมสีขาวนวลเป็นเงาเหลือบ อยู่ในฝาหอย", "A round, cream-white bead with a shifting sheen, in a mussel's shell", 10, 150, 3),
-  chest: it("catch", "หีบไม้เก่า", "Old chest", "หีบไม้ใบเล็กคาดเหล็กขึ้นสนิม เปียกโคลน", "A small wooden chest bound with rusty iron, wet with mud", 1, 0, 3),
+  chest: it("catch", "หีบไม้เก่า", "Old chest", "หีบไม้ใบเล็กคาดเหล็กขึ้นสนิม เปียกโคลน", "A small wooden chest bound with rusty iron, wet with mud", 1, 20, 3),
   // goods made from other things
   coconutMilk: it("goods", "กะทิ", "Coconut milk", "น้ำสีขาวข้นมัน กลิ่นหอม", "A thick, rich white liquid with a sweet smell", 10, 22, 3),
   fermentedFish: it("goods", "ปลาร้า", "Fermented fish", "เนื้อปลาสีเทาอมน้ำตาลในไห กลิ่นแรงมาก", "Grey-brown fish in a jar, with a very strong smell", 10, 26, 3),

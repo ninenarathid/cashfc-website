@@ -160,7 +160,7 @@ export function catalogOf() {
 export type Catalog = ReturnType<typeof catalogOf>;
 
 /**
- * The rows of `town_catalog` each migration that has not run yet writes: none, today. v106 seeded items, goods,
+ * The rows of `town_catalog` each migration that has not run yet writes: v118 writes one over (see below). v106 seeded items, goods,
  * shelf, rules, carries, order and hints; v107 stamina, dishes and scrolls; v108 fish, flotsam and fishing; v109
  * wrote seven of those over; v110 seeded crops and farming; v111 makes and cooking, and wrote items, goods, shelf,
  * order and hints over again (for the things that went with the dirty pot); v112 seeded deals; v113 wrote rules over
@@ -172,6 +172,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * asked for and hinted at from the first day too (order, hints); and the strike's moment with no stamina left
  * (fishing).
  *
+ * v118 (2026-10-04, for the owner to run) writes items over: an old boot and an old chest, which fetched nothing,
+ * fetch 3 coins and 20 (the same file gives the town its weather and lets rain water the plots: tables and
+ * functions, no other row).
+ *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
  * twice). What the code itself changes after a row was seeded has to be written over it by the next migration
  * (`over`): name that migration here with the rows it writes, and `TOWN_WRITE=1 npx vitest run
@@ -179,7 +183,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * **Changing any number the catalog carries (a price, a recipe, a thing) needs such a migration before it is true in
  * the database.**
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v118: { keys: [], over: ["items"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

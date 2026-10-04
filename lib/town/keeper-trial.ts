@@ -5,6 +5,7 @@ import { castLine, seeded, type Cast, type Strike } from "./fishing";
 import { FISH, type BaitId, type DishId, type FishId, type ItemId } from "./items";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
 import type { Play } from "./plays";
+import { SKIES } from "./skies";
 import { buffOf } from "./stamina";
 import type { Purse } from "./trade";
 import { trialFor, type Trial } from "./trial";
@@ -44,6 +45,7 @@ class TrialKeeper implements Keeper {
   well() { return this.trial.well(); }
   owners() { return this.trial.owners(); }
   deedAt(key: string) { return this.trial.deedAt(key); }
+  rains() { return SKIES.rains(); }
   choreAt(where: Water) { return this.trial.choreAt(where); }
   pots() { return this.trial.pots(); }
   found() { return this.trial.found(); }

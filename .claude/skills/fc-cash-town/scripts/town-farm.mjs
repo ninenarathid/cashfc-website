@@ -2,7 +2,8 @@
 // only), by two testers in two tabs of one browser, who share its farm:
 //
 // - a plot of weeds (of many kinds, scattered) is cleared and tilled with a hoe by the game of timing, a seed is sown,
-//   and the bed is the sower's: its name plate says so, and the other tester can neither hoe, sow nor pick in it;
+//   and the bed is the sower's: its name plate says so, and the other tester can neither sow nor pick in it, but may
+//   hoe there, for the stamina it costs anybody;
 // - a watering can waters nothing until it is filled: a bucket is drawn at the river, poured into the farm's well,
 //   and the can is filled there; the other tester may water too;
 // - time is put forward until the plant is ripe, it is picked into the bag and bears again;
@@ -168,9 +169,20 @@ try {
   ok("the other tester sees the same farm, and whose the bed is", (await seen(Y, KEY)).crop === "kangkong" && (await Y.evaluate(`${F}.owners()`)).some((o) => o.bed === 0 && /M/.test(o.name)));
   await hold(Y, "seedKangkong");
   ok("in somebody's bed, a seed is offered nothing", (await deed(Y)) === null);
-  await warp(Y, 135, 5);
   await hold(Y, "hoe");
-  ok("…and a hoe nothing", (await deed(Y)) === null);
+  ok("…and a hoe nothing where something grows", (await deed(Y)) === null);
+  // but a hoe works in anybody's bed (the owner, 2026-10-04: "ยังขุดแปลงคนอื่นได้เหมือนเดิมแต่ เสีย stamina")
+  await warp(Y, 135, 5);
+  await until("in somebody's bed, a hoe is offered the weeds", async () => (await deed(Y)) === "clear", 5000);
+  const lent = (await purse(Y)).stamina;
+  await Y.evaluate(`${F}.act()`);
+  ok("…cleared by the game of timing, like one's own", await swing(Y));
+  await until("the neighbour's plot is cleared", async () => (await seen(Y, "135,5")).soil === "cleared", 4000);
+  const after = (await purse(Y)).stamina, owned = await X.evaluate(`${F}.owners()`);
+  ok("…for the stamina it costs anybody, and the bed is still its owner's", after.left < (lent.day < 0 ? 100 : lent.left) && owned.length === 1 && owned[0].bed === 0 && /M/.test(owned[0].name), { lent, after, owned });
+  await hold(Y, "seedKangkong");
+  await sleep(300);
+  ok("…where a seed of theirs is still offered nothing", (await deed(Y)) === null);
   // but they may water: with a can filled at the well
   await warp(Y, ...WELL);
   await hold(Y, "can");
