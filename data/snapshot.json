@@ -2290,7 +2290,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 85,
+  "level": 88,
   "cc": [
    true,
    true,
@@ -8375,7 +8375,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 19,
-  "level": 100,
+  "level": 64,
   "cc": [
    true,
    true,
@@ -8416,7 +8416,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-30"
+  "chg": "2026-10-04"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8591,7 +8591,7 @@
   "mounts": 33,
   "minions": 173,
   "rare": 3,
-  "level": 96,
+  "level": 99,
   "cc": [
    false,
    false,
