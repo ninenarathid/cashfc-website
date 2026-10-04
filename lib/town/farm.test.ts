@@ -4,9 +4,9 @@ import {
   type Bed, type Plant, type Plot,
 } from "./farm";
 import atlas from "./icon-atlas.json";
-import { CROPS, CROP_IDS, STAGES, growIconOf, type ItemId } from "./items";
+import { CROPS, CROP_IDS, FISH, ITEMS, STAGES, growIconOf, type ItemId } from "./items";
 import { staminaOf } from "./stamina";
-import { held, hold, newPurse, put, type Purse } from "./trade";
+import { GOODS, held, hold, newPurse, put, type Purse } from "./trade";
 import { BEDS_IN_FARM, FARM, WELL, atWell, bedCorner, bedOf, plotAt, walkable } from "./world";
 
 /** A moment by Bangkok's clock. */
@@ -141,8 +141,10 @@ describe("a plant", () => {
     expect(pick("1,1", me, plot, true, null, ripeAt - HOUR)).toEqual({ ok: false, why: "unripe" });
     expect(pick("1,1", me, plot, false, null, ripeAt)).toEqual({ ok: false, why: "theirs" });
     const d = done(pick("1,1", me, plot, true, null, ripeAt));
-    expect(d.got).toEqual([["cabbage", 1]]);
-    expect(held(d.purse.bag, "cabbage")).toBe(1);
+    // (a cabbage plant gives two heads, never more or fewer)
+    expect(CROPS.cabbage.yield).toEqual([2, 2]);
+    expect(d.got).toEqual([["cabbage", 2]]);
+    expect(held(d.purse.bag, "cabbage")).toBe(2);
     // picked once and done: the plot is cleared ground again
     expect(d.plot).toEqual({ soil: "cleared", plant: null });
     // a bag with no room keeps the plant where it is
@@ -416,5 +418,37 @@ describe("water", () => {
     expect(round.filter(([x, y]) => walkable(x, y)).length).toBeGreaterThanOrEqual(6);
     expect(atWell(WELL.x, WELL.y)).toBe(false);
     expect(atWell(WELL.x + 2, WELL.y)).toBe(false);
+  });
+});
+describe("what waiting is worth (the owner, 2026-10-04: every crop twice as many, the hoe half the stamina)", () => {
+  // what each crop gave at a picking when the game opened, least and most
+  const OPENED: Record<string, [number, number]> = {
+    kangkong: [2, 3], scallion: [2, 3], cabbage: [1, 1], carrot: [2, 3], daikon: [1, 2], corn: [2, 3], chili: [3, 5], tomato: [3, 4], basil: [3, 4],
+    sweetPotato: [2, 4], garlic: [2, 3], pumpkin: [1, 1], eggplant: [2, 3], cucumber: [2, 4], longBean: [3, 5], lemongrass: [2, 3], galangal: [1, 2],
+    lime: [3, 5], papaya: [1, 2], mango: [2, 3], banana: [3, 4], coconut: [1, 2], ginger: [1, 2], turmeric: [1, 2], taro: [1, 2], watermelon: [1, 1],
+  };
+
+  it("gives of every crop twice what it gave when the game opened", () => {
+    expect(Object.keys(CROPS).sort()).toEqual(Object.keys(OPENED).sort());
+    for (const [id, [lo, hi]] of Object.entries(OPENED)) expect(CROPS[id as keyof typeof CROPS].yield, id).toEqual([lo * 2, hi * 2]);
+  });
+
+  it("clears and tills for two stamina each, and the other deeds for what they cost", () => {
+    expect(FARMING.costs).toEqual({ clear: 2, till: 2, pull: 2, sow: 1, water: 1, feed: 1, cure: 1, pick: 2 });
+  });
+
+  it("pays a point of stamina better for morning glory than for a common fish, and better still for what takes longer", () => {
+    // coins a planting brings less its seed, for the stamina it takes on ground that was cleared (till, sow, each picking)
+    const perStamina = (id: keyof typeof CROPS) => {
+      const c = CROPS[id], picks = c.picks ?? 1, pieces = ((c.yield[0] + c.yield[1]) / 2) * picks;
+      return (pieces * ITEMS[id].pays - GOODS[c.seed]!.price) / (FARMING.costs.till + FARMING.costs.sow + FARMING.costs.pick * picks);
+    };
+    // a catfish, the best of the common fish for its stamina: what it pays less a worm, for its fight
+    const fish = (ITEMS.catfish.pays - GOODS.worm!.price) / FISH.catfish.fight.effort;
+    expect(fish).toBe(2);
+    expect(perStamina("kangkong")).toBeGreaterThan(fish * 2);
+    expect(perStamina("cabbage")).toBeGreaterThan(perStamina("kangkong"));
+    expect(perStamina("chili")).toBeGreaterThan(perStamina("cabbage"));
+    expect(perStamina("pumpkin")).toBeGreaterThan(perStamina("chili"));
   });
 });

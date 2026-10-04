@@ -601,41 +601,46 @@ export interface Crop {
   seed: ItemId;
   /** Hours from sowing to ripe. */
   hours: number;
-  /** How many are picked at a time, least and most. */
+  /**
+   * How many are picked at a time, least and most. Twice what they were at first (the owner, 2026-10-04, the morning
+   * after the game opened: a vegetable waited hours for fetched no more than a fish caught at once, and asked which
+   * way to mend it he chose this one, "1 + 2 ครับ ทำเลย": every crop gives twice as many, at the price it had, so that
+   * no dish's worth moves; and the hoe costs half, lib/town/farm).
+   */
   yield: [number, number];
   /** For one that bears again: the hours until it is ripe again, and how many times it is picked in all. */
   again?: number;
   picks?: number;
 }
 export const CROPS: Record<CropId, Crop> = {
-  kangkong: { seed: "seedKangkong", hours: 6, yield: [2, 3], again: 12, picks: 3 },
-  scallion: { seed: "seedScallion", hours: 8, yield: [2, 3], again: 12, picks: 3 },
-  cabbage: { seed: "seedCabbage", hours: 24, yield: [1, 1] },
-  carrot: { seed: "seedCarrot", hours: 24, yield: [2, 3] },
-  daikon: { seed: "seedDaikon", hours: 36, yield: [1, 2] },
-  corn: { seed: "seedCorn", hours: 48, yield: [2, 3] },
-  chili: { seed: "seedChili", hours: 48, yield: [3, 5], again: 24, picks: 4 },
-  tomato: { seed: "seedTomato", hours: 72, yield: [3, 4], again: 36, picks: 3 },
-  basil: { seed: "seedBasil", hours: 36, yield: [3, 4], again: 24, picks: 4 },
-  sweetPotato: { seed: "seedSweetPotato", hours: 72, yield: [2, 4] },
-  garlic: { seed: "seedGarlic", hours: 60, yield: [2, 3] },
-  pumpkin: { seed: "seedPumpkin", hours: 144, yield: [1, 1] },
+  kangkong: { seed: "seedKangkong", hours: 6, yield: [4, 6], again: 12, picks: 3 },
+  scallion: { seed: "seedScallion", hours: 8, yield: [4, 6], again: 12, picks: 3 },
+  cabbage: { seed: "seedCabbage", hours: 24, yield: [2, 2] },
+  carrot: { seed: "seedCarrot", hours: 24, yield: [4, 6] },
+  daikon: { seed: "seedDaikon", hours: 36, yield: [2, 4] },
+  corn: { seed: "seedCorn", hours: 48, yield: [4, 6] },
+  chili: { seed: "seedChili", hours: 48, yield: [6, 10], again: 24, picks: 4 },
+  tomato: { seed: "seedTomato", hours: 72, yield: [6, 8], again: 36, picks: 3 },
+  basil: { seed: "seedBasil", hours: 36, yield: [6, 8], again: 24, picks: 4 },
+  sweetPotato: { seed: "seedSweetPotato", hours: 72, yield: [4, 8] },
+  garlic: { seed: "seedGarlic", hours: 60, yield: [4, 6] },
+  pumpkin: { seed: "seedPumpkin", hours: 144, yield: [2, 2] },
   // the second tier: two to seven days, and most of them bear again
-  eggplant: { seed: "seedEggplant", hours: 60, yield: [2, 3], again: 30, picks: 3 },
-  cucumber: { seed: "seedCucumber", hours: 40, yield: [2, 4], again: 20, picks: 3 },
-  longBean: { seed: "seedLongBean", hours: 48, yield: [3, 5], again: 24, picks: 4 },
-  lemongrass: { seed: "seedLemongrass", hours: 72, yield: [2, 3], again: 36, picks: 5 },
-  galangal: { seed: "seedGalangal", hours: 96, yield: [1, 2] },
-  lime: { seed: "seedLime", hours: 168, yield: [3, 5], again: 48, picks: 8 },
-  papaya: { seed: "seedPapaya", hours: 144, yield: [1, 2], again: 48, picks: 5 },
+  eggplant: { seed: "seedEggplant", hours: 60, yield: [4, 6], again: 30, picks: 3 },
+  cucumber: { seed: "seedCucumber", hours: 40, yield: [4, 8], again: 20, picks: 3 },
+  longBean: { seed: "seedLongBean", hours: 48, yield: [6, 10], again: 24, picks: 4 },
+  lemongrass: { seed: "seedLemongrass", hours: 72, yield: [4, 6], again: 36, picks: 5 },
+  galangal: { seed: "seedGalangal", hours: 96, yield: [2, 4] },
+  lime: { seed: "seedLime", hours: 168, yield: [6, 10], again: 48, picks: 8 },
+  papaya: { seed: "seedPapaya", hours: 144, yield: [2, 4], again: 48, picks: 5 },
   // the third tier: trees that take a week and more, and bear for a season
-  mango: { seed: "seedMango", hours: 240, yield: [2, 3], again: 48, picks: 8 },
-  banana: { seed: "seedBanana", hours: 192, yield: [3, 4], again: 48, picks: 4 },
-  coconut: { seed: "seedCoconut", hours: 288, yield: [1, 2], again: 48, picks: 10 },
-  ginger: { seed: "seedGinger", hours: 120, yield: [1, 2] },
-  turmeric: { seed: "seedTurmeric", hours: 120, yield: [1, 2] },
-  taro: { seed: "seedTaro", hours: 168, yield: [1, 2] },
-  watermelon: { seed: "seedWatermelon", hours: 144, yield: [1, 1] },
+  mango: { seed: "seedMango", hours: 240, yield: [4, 6], again: 48, picks: 8 },
+  banana: { seed: "seedBanana", hours: 192, yield: [6, 8], again: 48, picks: 4 },
+  coconut: { seed: "seedCoconut", hours: 288, yield: [2, 4], again: 48, picks: 10 },
+  ginger: { seed: "seedGinger", hours: 120, yield: [2, 4] },
+  turmeric: { seed: "seedTurmeric", hours: 120, yield: [2, 4] },
+  taro: { seed: "seedTaro", hours: 168, yield: [2, 4] },
+  watermelon: { seed: "seedWatermelon", hours: 144, yield: [2, 2] },
 };
 export const CROP_IDS = Object.keys(CROPS) as CropId[];
 export const STAGES = 5;

@@ -216,7 +216,7 @@ try {
   p = await purse(X);
   s = await seen(X, KEY);
   const got = p.bag.find((b) => b?.item === "kangkong")?.n ?? 0;
-  ok("picked: two or three of it in the bag", got >= 2 && got <= 3, p.bag);
+  ok("picked: four to six of it in the bag", got >= 4 && got <= 6, p.bag);
   ok("it bears again: back a stage, not ripe", s.crop === "kangkong" && s.stage === 4 && !s.ripe && (await deed(X)) === null, s);
   // (still under the day's cover from pests it was given when it was sown)
   await X.evaluate(`${T}.skipHours(12)`);

@@ -40,8 +40,12 @@ import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, ty
  * gone by, the same for everybody who looks.
  */
 export const FARMING = {
-  /** Stamina: clearing weeds, tilling, pulling up a dead plant, sowing, watering, feeding, curing, picking. */
-  costs: { clear: 4, till: 4, pull: 2, sow: 1, water: 1, feed: 1, cure: 1, pick: 2 },
+  /**
+   * Stamina: clearing weeds, tilling, pulling up a dead plant, sowing, watering, feeding, curing, picking. Clearing
+   * and tilling were 4 each: on the game's first morning two hundred plots were hoed for thirty-six sown, and half
+   * the village had no stamina left (the owner, 2026-10-04: "1 + 2 ครับ ทำเลย").
+   */
+  costs: { clear: 2, till: 2, pull: 2, sow: 1, water: 1, feed: 1, cure: 1, pick: 2 },
   /** A watering: the minutes of growth it adds, and the minutes before the same plot can be watered again. */
   water: { adds: 30, every: 60 },
   /** Growth fertiliser: how many times as fast a plant grows from when it is put on. */
