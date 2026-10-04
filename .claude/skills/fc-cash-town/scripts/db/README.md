@@ -30,6 +30,7 @@ SP="<scratchpad>/pgtest"; mkdir -p "$SP" && cd "$SP" && npm init -y >/dev/null &
 | `v117_tired_hands_and_a_cure.sql` (ran 2026-10-04) | No function: nine catalog rows written over, for two things he asked for on the game's first day. A scroll of how the cure for pests is made (`items`, `scrolls`), on the shelf from the first day at 40 coins, six a round, one each (`shelf.basic`, `goods`); the cure made of what that shelf grows, chili 2, scallion 2 and salt 1 in a pot, where it took garlic and basil that nobody could have (`makes`, `cooking.needs`), so that it is asked for and hinted at from the first day (`order.asks.made`, `hints.ids`); and 0.3 of the strike's moment left with no stamina, where it was 0.6 (`fishing.spent`). v107's `town_read` takes the scroll as it is. Compared entry by entry with the live rows: seventeen entries differ, and no other. **The code went out first and the file after the deploy**: a page built before the scroll cannot draw a shelf with it. After it ran, a read-only look (`probe-v117.mjs`, with the file's block kept as `v117.seed.sql`): the nine rows are the file's to the entry, written in one go, and no other row then or since; 15 of 15. | 133 checks (48,644 cases: every rule again); 16 of 16 |
 
 | `v118_the_same_sky_for_everybody.sql` (ran 2026-10-04) | The town's weather kept here, a quarter of an hour to a row (`town_weather`): anybody reads it, the site's key inserts and no more, and what is kept stays kept (`town_weather_kept`: no change, no removal, no quarter hour more than two hours ahead or a week behind, by anybody but the editor). `town_sky(since)` tells a page this clock, the quarter hours from two hours back, and the wet ones since a moment. Rain waters the plots: `town.wet_ms`, `town.raining`, and v110's `grown`, `pest_at` and `see` again, word for word but for the rain. A hoe works in anybody's bed: v110's `deed_for` less one refusal. A line's rain is this clock's: v108's `town_cast` again. And the catalog's `items` row written over: an old boot fetches 3 and an old chest 20 (two entries differ from the live row, and no other). After it ran, a look at the live database (`probe-v118.mjs`, with the file's block kept as `v118.seed.sql`; it reads, asks production's own route for the weather once as a page does, and tries no write): the `items` row is the file's to the entry and the only one written; within two minutes of the run the site had written the quarter hours due (this one and three to come); `town_sky` tells somebody signed out the same rows; the rules are no browser's to call; 15 of 15. | 184 checks (48,644 cases with no rain, 8,720 of the farm's again under five skies); 27 of 27 |
+| `v119_a_plant_dug_out.sql` (not run yet) | A hoe digs a plant out of a plot, for the bed's owner only: a dead one (`pull`, as before, but no longer anybody's) and now a living one (`uproot`, which leaves nothing). `town.uproot` is new; `town.deed_for` is v118's but for the hoe's line, `town.hoe` v110's less its dead plant, `town.tend` and `town_tend` v110's with one more argument (`p_sure`, false unless given: a living plant goes only when the call says it is meant), the old ones of eight and three arguments dropped first. No catalog row. | 172 checks (50,444 cases without rain and 10,520 under five skies); 22 of 22 |
 
 **The rule cases.** `TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors.test.ts` writes `vectors-v106.json`, `-v107` and `-v108` from the site's own rules as they are at that moment. v106–v108's dry runs read them from the scratch folder itself (and are held to the catalog their own files seeded, so they only pass with cases made when those files were written); v109's and every later one's read them from `now/`, made from the code as it is. v114's needs no cases: it has `kudos-stub.mjs` (the table as it stands live) and `v104.sample.mjs` (made-up popoto) beside it.
 
@@ -50,7 +51,7 @@ reads its file with `migration(n)`, from `supabase/` while it is there and from 
 test, `vNNN_draft.sql`, comes first while there is one; `MIGRATION_FILE` still hands in a broken copy for `mutate.mjs`).
 
 A mutation run of v111 is long: `RULES=107,111` puts only the cases its own functions answer (about 45 minutes for its 48
-breaks; all the cases, three times that). v113's with `RULES=113` is a few minutes.
+breaks; all the cases, three times that). v113's with `RULES=113` is a few minutes. v119's 22 breaks with `RULES=110 RAIN=12` take a minute and a half each: they were run in six parts side by side (a list beside the list that takes a slice of it by `FROM` and `TO`), since a command here is stopped at ten minutes. A break that leaves two functions of one name stops PGlite itself ("stack depth limit exceeded" on everything after): name a check that fails before that, not one after.
 
 ## The keeper: how the page calls all this
 
@@ -98,7 +99,7 @@ drops. The map (Town.tsx) makes the keeper and shows the game only when it says 
 
 ```bash
 cd "<scratchpad>/pgtest"     # set up as above, with scripts/db/*.mjs copied in
-node keeper.test.mjs         # 86 checks: DbKeeper driven as the page drives it, against a stand-in of its own
+node keeper.test.mjs         # 93 checks: DbKeeper driven as the page drives it, against a stand-in of its own
 node town-bench.mjs 3199     # the stand-in, left running: every migration in PGlite, answered like PostgREST
 node E:/NinenineProject/fcnext/.claude/skills/fc-cash-town/scripts/town-db.mjs http://localhost:3100 <out> http://127.0.0.1:3199
 ```
@@ -112,7 +113,7 @@ address only): the same page then plays by the database's rules instead of the t
 in a real browser: first the game shut and then opened, beginning from the building sites as production does (no
 bag and no deck; then the bag, and the deck finished); then two testers: the bank and the stall through their
 panels, a fish hooked by the database's clock and fought, a plot sown that the other sees when the room says so, a
-pot ladled from by the other, a deal (35 checks). `repo-ts-town.mjs` lets plain node import the repo's TypeScript (so no class there takes
+pot ladled from by the other, a deal (38 checks). `repo-ts-town.mjs` lets plain node import the repo's TypeScript (so no class there takes
 `constructor(private x)`: node strips types and does no more).
 
 **Before pushing, look at a production build's chunks** (`npx next build`, then search `.next/static`): none of
