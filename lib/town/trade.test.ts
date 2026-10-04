@@ -4,7 +4,7 @@ import { FISH, FLOTSAM_IDS } from "./items";
 import { INSIDE, foundScrolls } from "./scrolls";
 import {
   GOODS, ITEMS, RULES, SHELF, buy, change, collect, handOf, held, hold, leave, letGo, mayBuy, mayChange, newPurse, newStall, nextRoundAt, onShelf,
-  roomFor, roomy, roundOf, roundStart, takeBack, waiting, weekOf, type Purse, type Stall,
+  leftOf, roomFor, roomy, roundOf, roundStart, takeBack, waiting, weekOf, type Purse, type Stall,
 } from "./trade";
 
 /** A moment by Bangkok's clock. */
@@ -338,5 +338,26 @@ describe("the hand", () => {
     expect(none.ok && handOf(none.purse)).toBeNull();
     // and a purse from before there were hands has none
     expect(handOf(newPurse())).toBeNull();
+  });
+});
+
+describe("how long until the relatives come (the owner, 2026-10-04: \"ช่วยทำให้ขึ้นเวลาด้วยว่า รอบต่อไปที่เงินจะเข้าเหลือเวลาอีกเท่าไหร่\")", () => {
+  it("is counted down in hours and minutes, and by the second under ten minutes", () => {
+    // ten in the morning: they come at seven in the evening
+    const at = nextRoundAt(NOW);
+    expect(leftOf(at - NOW)).toEqual({ h: 9, m: 0, s: null });
+    expect(leftOf(2 * 3_600_000 + 15 * 60_000 + 30_000)).toEqual({ h: 2, m: 15, s: null });
+    expect(leftOf(59 * 60_000 + 59_000)).toEqual({ h: 0, m: 59, s: null });
+    expect(leftOf(10 * 60_000)).toEqual({ h: 0, m: 10, s: null });
+    expect(leftOf(9 * 60_000 + 59_000)).toEqual({ h: 0, m: 9, s: 59 });
+    expect(leftOf(60_000)).toEqual({ h: 0, m: 1, s: 0 });
+    // (a second begun is a second left: nothing says none while there is some)
+    expect(leftOf(1_500)).toEqual({ h: 0, m: 0, s: 2 });
+    expect(leftOf(1)).toEqual({ h: 0, m: 0, s: 1 });
+    expect(leftOf(0)).toEqual({ h: 0, m: 0, s: 0 });
+    expect(leftOf(-5_000)).toEqual({ h: 0, m: 0, s: 0 });
+    // the moment they come, the next time is half a day off
+    expect(leftOf(nextRoundAt(at) - at)).toEqual({ h: 12, m: 0, s: null });
+    expect(leftOf(nextRoundAt(at - 1) - (at - 1))).toEqual({ h: 0, m: 0, s: 1 });
   });
 });

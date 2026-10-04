@@ -65,6 +65,11 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     await sleep(200);
     // (the shelf is laid out by kind: tools first)
     const kinds = await X.evaluate(`[...${TRADE}.querySelectorAll('[role="tablist"] [role="tab"]')].map((b) => b.innerText.trim())`);
+    // when the relatives come next, and how long until then (the owner, 2026-10-04: "ช่วยทำให้ขึ้นเวลาด้วยว่า รอบต่อไปที่เงินจะเข้า
+    // เหลือเวลาอีกเท่าไหร่ เห็นทุกคนได้เลย")
+    const round = () => X.evaluate(`(() => { const p = document.querySelector("[data-next-round]"); return p ? { at: Number(p.dataset.nextRound), text: p.innerText.replace(/\\s+/g, " ").trim() } : null; })()`);
+    const first = await round();
+    ok("the stall says when the relatives come next, and how long until then", !!first && /รอบถัดไป/.test(first.text) && /(07|19):00 น\./.test(first.text) && /อีก \d/.test(first.text) && !/จะได้/.test(first.text), first);
     ok("the shelf is laid out by kind, tools first", ["เครื่องมือ", "เหยื่อ", "ของครัว", "เมล็ดพันธุ์"].every((k) => kinds.includes(k)) && !(await X.evaluate(`${TRADE}.innerText.includes("ไส้เดือน")`)), kinds);
     ok("only the basic things are on it at first: no better rod yet", (await X.evaluate(`${TRADE}.innerText.includes("คันเบ็ดไม้ไผ่")`)) && !(await X.evaluate(`${TRADE}.innerText.includes("คันเบ็ดไม้สัก")`))
       && (await X.evaluate(`window.__townTrade.shelf().length`)) === 22);
@@ -94,9 +99,13 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     p = await purse(X);
     ok("the worms are out of the bag and with the uncle, and no coin has come", p.coins === 30 && p.bag.filter(Boolean).length === 1 && p.left.length === 1 && p.left[0].n === 5, p);
     ok("…and nothing can be collected yet", await X.evaluate(`[...${TRADE}.querySelectorAll("button")].find((b) => b.innerText.trim() === "รับเงิน").disabled`));
+    const left = await round();
+    ok("…the stall says when the money comes, and how much: five worms at a coin each", !!left && /เงินเข้ารอบถัดไป/.test(left.text) && /อีก \d/.test(left.text) && /จะได้ 5/.test(left.text) && left.at === first.at, left);
     await X.shot(`${OUT}/trade-${label}-left.png`);
-    await press(X, "ข้ามไปรอบถัดไป", TRADE); await sleep(300);
+    await press(X, "ข้ามไปรอบถัดไป", TRADE); await sleep(1300);
     ok("after the next round the money is waiting", await X.evaluate(`!${"[...document.querySelectorAll('button')]"}.find((b) => b.innerText.trim() === "รับเงิน").disabled`));
+    const next = await round();
+    ok("…and the stall counts down to the round after: half a day on, with nothing more to come", !!next && next.at === first.at + 12 * 3600000 && !/จะได้/.test(next.text) && /อีก (11|12) ชม\./.test(next.text), next);
     await press(X, "ปิด", TRADE); await sleep(250);
     const paid = await talkTo(X, "uncle");
     ok("the uncle says the money has come, and offers it first", /เงินค่าของ/.test(paid) && /รับเงิน\s*5/.test(paid), paid);

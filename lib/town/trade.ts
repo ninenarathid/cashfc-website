@@ -113,6 +113,14 @@ export function roundStart(round: number): number {
 }
 /** When the relatives come next. */
 export const nextRoundAt = (now: number) => roundStart(roundOf(now) + 1);
+/**
+ * A stretch of time as the stall counts it down: whole hours and minutes; and under ten minutes the seconds too
+ * (`s` is null while they are not said). Never less than nothing.
+ */
+export function leftOf(ms: number): { h: number; m: number; s: number | null } {
+  const secs = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60);
+  return { h, m, s: h || m >= 10 ? null : secs % 60 };
+}
 /** The week a moment is in, from Monday's first minute in Bangkok. */
 export function weekOf(now: number): number {
   return Math.floor((Math.floor((now + BANGKOK) / DAY) + 3) / 7);

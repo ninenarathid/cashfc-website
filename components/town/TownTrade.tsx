@@ -9,7 +9,7 @@ import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
 import { MEALS, STAMINA, buffOf, eatenToday, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
-  GOODS, RULES, SHELF, handOf, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
+  GOODS, RULES, SHELF, handOf, leftOf, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
   type Purse, type Refusal, type Stack, type Stall,
 } from "@/lib/town/trade";
 import type { Did, Keeper } from "@/lib/town/keeper";
@@ -58,12 +58,29 @@ export const WHY: Record<Refusal, [th: string, en: string]> = {
   away: ["ติดต่อเมืองไม่ได้ ลองอีกครั้ง", "The town cannot be reached. Try again."],
 };
 
-/** A clock time in Bangkok, and how long until it. */
-function whenText(t: number, now: number, th: boolean): string {
-  const at = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(t));
-  const mins = Math.max(1, Math.ceil((t - now) / 60_000)), h = Math.floor(mins / 60), m = mins % 60;
-  const left = th ? `${h ? `${h} ชม. ` : ""}${m ? `${m} นาที` : ""}`.trim() : `${h ? `${h} h ` : ""}${m ? `${m} min` : ""}`.trim();
-  return th ? `${at} น. (อีก ${left})` : `${at} (in ${left})`;
+/**
+ * When the relatives come next, at the uncle's stall, for everybody to see (the owner, 2026-10-04: "ในลุงขายของ ช่วยทำ
+ * ให้ขึ้นเวลาด้วยว่า รอบต่อไปที่เงินจะเข้าเหลือเวลาอีกเท่าไหร่ เห็นทุกคนได้เลย"): the hour by Bangkok's clock, and how long until
+ * it, counted down by the keeper's clock (the database's, for a member) second by second. That is when what was left
+ * with him is paid for, and when his shelf is full again; where something is left with him, what it will fetch.
+ */
+function NextRound({ keeper, th, sell, coming }: { keeper: Keeper; th: boolean; sell: boolean; coming: number }) {
+  const [now, setNow] = useState(() => keeper.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(keeper.now()), 1000);
+    return () => clearInterval(t);
+  }, [keeper]);
+  const at = nextRoundAt(now), { h, m, s } = leftOf(at - now);
+  const hour = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(at));
+  const left = [h ? (th ? `${h} ชม.` : `${h} h`) : "", h || m ? (th ? `${m} นาที` : `${m} min`) : "", s !== null ? (th ? `${s} วิ` : `${s} s`) : ""].filter(Boolean).join(" ");
+  return (
+    <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 border-b border-line px-4 py-2 text-meta text-muted" data-next-round={at}>
+      <span>{th ? (sell ? "ญาติลุงมารับของ เงินเข้ารอบถัดไป" : "ของขึ้นแผงใหม่รอบถัดไป") : sell ? "The relatives come, and pay, at" : "The shelf is full again at"}</span>
+      <span className="font-data tabular-nums text-ink">{hour}{th ? " น." : ""}</span>
+      <span className="font-data tabular-nums text-accent" aria-live="off">{th ? `อีก ${left}` : `in ${left}`}</span>
+      {sell && coming > 0 && <span className="ml-auto flex items-center gap-1">{th ? "จะได้" : "to come"} <Coins n={coming} th={th} small /></span>}
+    </p>
+  );
 }
 const MEAL_NAME: Array<[th: string, en: string]> = [["มื้อเช้า", "Breakfast"], ["มื้อเที่ยง", "Lunch"], ["มื้อเย็น", "Dinner"]];
 
@@ -164,7 +181,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
   };
 
   if (!view) return null;
-  const uncle = atStall, round = whenText(nextRoundAt(now), now, th), order = keeper.order();
+  const uncle = atStall, order = keeper.order();
   const title = uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
   return (
     <section aria-labelledby="town-trade-h" className="flex h-full flex-col">
@@ -190,9 +207,13 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
         </div>
       )}
 
+      {uncle && (view === "buy" || view === "sell") && (
+        <NextRound keeper={keeper} th={th} sell={view === "sell"} coming={due.held.reduce((t, l) => t + l.n * l.pays, 0)} />
+      )}
+
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-3">
         <p className="mb-2 min-h-[1.5em] text-meta text-accent" aria-live="polite">{said ?? ""}</p>
-        {view === "buy" && <Buy purse={purse} stall={stall} now={now} th={th} round={round} next={keeper.nextHint()} shelf={keeper.shelf()}
+        {view === "buy" && <Buy purse={purse} stall={stall} now={now} th={th} next={keeper.nextHint()} shelf={keeper.shelf()}
                                 onBuy={(id, n) => tried(keeper.buy(id, n), ["ขอบใจนะหลาน", "Much obliged, kiddo."])}
                                 onHint={() => tried(keeper.hint(), ["ลุงจดให้แล้วนะ ส่วนอย่างสุดท้าย ไปเดาเอาเอง", "There, I've jotted it down. The last thing is yours to guess."])} />}
         {view === "sell" && order && <Wanted order={order} purse={purse} th={th}
@@ -202,7 +223,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
                                       if (did.opened) say(`ครบแล้ว! ขอบใจทุกคนนะ ลุงมีของใหม่มาขาย: ${ITEMS[did.opened].name.th}`, `That's the lot! Thank you all. Something new on my shelf: ${ITEMS[did.opened].name.en.toLowerCase()}`);
                                       else say(`ขอบใจนะหลาน นี่ ${did.coins} coin`, `Much obliged, kiddo. Here's ${did.coins} coins.`);
                                     }} />}
-        {view === "sell" && <Sell purse={purse} now={now} th={th} round={round}
+        {view === "sell" && <Sell purse={purse} now={now} th={th}
                                   onLeave={(slot, n) => tried(keeper.leave(slot, n), ["ลุงรับฝากไว้ให้นะ ญาติลุงมารับรอบหน้า", "I'll keep it for my relatives. They fetch it next round."])}
                                   onBack={(at) => tried(keeper.takeBack(at), ["เอาคืนไปได้เลย", "Here, have it back."])}
                                   onCollect={() => tried(keeper.collect(), ["นี่เงินของหลาน นับดูได้เลย", "Here's your money. Count it if you like."])} />}
@@ -267,7 +288,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
 
 /** The stall's shelf: each thing, what it costs, how many are left for the village and for me, and a button to buy. */
 function Buy({ purse, stall, now, th, next, shelf, onBuy, onHint }: {
-  purse: Purse; stall: Stall; now: number; th: boolean; round: string;
+  purse: Purse; stall: Stall; now: number; th: boolean;
   /** The hint he would sell me next, if he has one. */
   next: ItemId | null;
   /** What the stall has open: the basic things, and what the village's orders have opened since (lib/town/orders). */
@@ -356,8 +377,8 @@ function Buy({ purse, stall, now, th, next, shelf, onBuy, onHint }: {
 }
 
 /** What I can leave with the uncle to be sold, what he is holding for me, and the money that has come back. */
-function Sell({ purse, now, th, round, onLeave, onBack, onCollect }: {
-  purse: Purse; now: number; th: boolean; round: string;
+function Sell({ purse, now, th, onLeave, onBack, onCollect }: {
+  purse: Purse; now: number; th: boolean;
   onLeave: (slot: number, n: number) => void; onBack: (at: number) => void; onCollect: () => void;
 }) {
   const due = waiting(purse, now), mine = purse.bag.map((s, slot) => ({ s, slot })).filter((x) => x.s);
