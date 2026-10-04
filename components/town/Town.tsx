@@ -10,6 +10,7 @@ import {
 } from "@/lib/town/world";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, paced, type Fps } from "@/lib/town/pace";
+import { keepMotion, keptMotion } from "@/lib/town/motion";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
@@ -287,7 +288,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const fpsRef = useRef(0);
   /** How many frames a second the map is held to (lib/town/pace): what the drawing reads, every frame. */
   const paceRef = useRef<number>(PACE.most);
+  /**
+   * Whether the town stands still: what the drawing reads, every frame. The settings' choice (lib/town/motion), and
+   * not the machine's word on motion, which this was until 2026-10-04: the town moves for everybody until they turn
+   * it off.
+   */
   const reducedRef = useRef(false);
+  /** When it was made to stand still: the moment its birds and butterflies are kept at. */
+  const stillAt = useRef(0);
   /** The dolls' pictures, one per race, each fetched the first time somebody of that race is drawn. */
   const kits = useRef(new Map<number, PixelKit>());
   const kitFor = (race: number): PixelKit | null => {
@@ -449,6 +457,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [pace, setPace] = useState<Fps>(PACE.most);
   useEffect(() => { const kept = keptFps(); paceRef.current = kept; setPace(kept); }, []);
   const choosePace = (fps: Fps) => { paceRef.current = fps; setPace(fps); keepFps(fps); };
+  /** The settings' choice of whether the town moves (lib/town/motion): kept on this device, moving until it is read. */
+  const [moving, setMoving] = useState(true);
+  useEffect(() => { const kept = keptMotion(); stillAt.current = Date.now(); reducedRef.current = !kept; setMoving(kept); }, []);
+  const chooseMoving = (on: boolean) => { stillAt.current = Date.now(); reducedRef.current = !on; setMoving(on); keepMotion(on); };
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   /** The emote window: what my avatar can do where it stands (sit, for now). */
   const [emoteOpen, setEmoteOpen] = useState(false);
@@ -604,7 +616,6 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   useEffect(() => {
     fontRef.current = getComputedStyle(document.body).getPropertyValue("--font-body-face").trim() || "sans-serif";
-    reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }, []);
 
   // The dolls: one picture, fetched once per tab.
@@ -874,7 +885,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * and butterflies by day, dogs till the evening, cats whenever they like.
    */
   function drawLife(things: Array<{ depth: number; draw: () => void }>, scenery: SceneryKit, dpr: number, now: number) {
-    const v = cam.current, s = v.s, wall = Date.now(), still = reducedRef.current;
+    // (with the town's motion off the birds and the butterflies are kept where they were when it was turned off:
+    // their wings were stopped before, but they went on gliding about by the clock)
+    const v = cam.current, s = v.s, still = reducedRef.current, wall = still ? stillAt.current : Date.now();
     const e = effects.current;
     if (e.rain > 0.1) return;
     const phase = (forcedHour.current !== null ? daylightAt(forcedHour.current * 60) : daylight()).phase;
@@ -951,7 +964,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /**
    * The weather over the town: wet ground and puddles in rain, falling rain,
    * leaves blowing in fine weather, grey light and mist. Nothing moves for
-   * somebody who asked for reduced motion; the wet look stays.
+   * somebody who turned the town's motion off (lib/town/motion); the wet look
+   * stays.
    */
   function drawWeather(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number, dt: number) {
     // (`dt` is seconds, as everywhere here. Until 2026-10-03 this took it for milliseconds: the rain hung in the
@@ -1162,6 +1176,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           ctx.restore();
         }
       }
+    } else {
+      // (motion turned off while it rained or blew: what was in the air is not kept hanging there, unseen)
+      drops.current.length = 0; splashes.current.length = 0; leaves.current.length = 0;
     }
     ctx.restore();
   }
@@ -1175,7 +1192,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * The shadows of clouds drifting over the town by day (lib/town/clouds; the owner, 2026-10-03: "เงาเมฆเคลื่อนตัว
    * ตอนเช้า"): soft and a little blue, multiplied over everything under them, moving the way the wind blows the
    * leaves and faster in more wind. More of them under a cloudy sky; none by lamplight, in mist, or in the dark
-   * of heavy rain, where there is no sun to cast one. They stand still for somebody who asked for reduced motion.
+   * of heavy rain, where there is no sun to cast one. They stand still for somebody who turned the town's motion off.
    */
   function drawClouds(ctx: CanvasRenderingContext2D, cw: number, ch: number, sec: number, e: Effects) {
     if (!reducedRef.current) cloudDrift.current += (12 + 34 * e.wind) * sec;
@@ -2519,7 +2536,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       /** The sky: what the weather draws now, the light, and each cloud's shadow with its middle on the screen. */
       sky: () => ({
         weather: SKIES.weather(), raining: SKIES.raining(), known: SKIES.knows(), clock: SKIES.now(),
-        effects: effects.current, day: skyNow(), fps: fpsRef.current, pace: paceRef.current, drops: drops.current.length, splashes: splashes.current.filter((p) => p.x >= 0).length,
+        effects: effects.current, day: skyNow(), fps: fpsRef.current, pace: paceRef.current, moving: !reducedRef.current, drops: drops.current.length, splashes: splashes.current.filter((p) => p.x >= 0).length,
         clouds: cloudsAt(cloudDrift.current, effects.current.clouds).map((c) => ({ ...c, at: toScreen(cam.current, c, cam.current.cw, cam.current.ch) })),
       }),
       /** The Popoto Board's middle on the screen, if it is drawn. */
@@ -2749,8 +2766,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
           </button>
           <TownMusicButton th={w.th} hour={forcedHour.current} className={hudBtn} />
-          {/* (a wide screen only, like the numbers: a phone's corner has no room for one more) */}
-          {!phone && <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} className={hudBtn} />}
+          {/* (here on a wide screen only, like the numbers: a phone's corner has no room for one more, and its cog is
+              at the foot of the screen, beside the chat) */}
+          {!phone && <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} moving={moving} onMoving={chooseMoving} className={hudBtn} />}
           {!phone && (
             <button type="button" onClick={() => setStatsOpen((o) => !o)} aria-pressed={statsOpen} title={w.stats} className={hudBtn}>
               <TownIcon name="stats" size={20} /><span className="sr-only">{w.stats}</span>
@@ -2953,8 +2971,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             )}
             {chatNote && <div role="status" className="w-fit rounded-full bg-bg/85 px-3 py-0.5 text-label text-gold">{chatNote}</div>}
             {phone && !chatOpen ? (
-              <button type="button" onClick={openHistory}
-                      aria-label={w.chat} className={`${hudBtn} pointer-events-auto size-11`}><TownIcon name="chat" size={22} /></button>
+              // (and a phone's settings beside it: whoever the town's motion makes dizzy has to be able to turn it
+              // off on a phone too, and the top corner is full; the panel opens upwards from this row's left)
+              <div className="pointer-events-auto relative flex w-fit items-center gap-1.5">
+                <button type="button" onClick={openHistory}
+                        aria-label={w.chat} className={`${hudBtn} size-11`}><TownIcon name="chat" size={22} /></button>
+                <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} moving={moving} onMoving={chooseMoving} low className={`${hudBtn} size-11`} />
+              </div>
             ) : (
               <form onSubmit={sendChat} className="pointer-events-auto flex w-full items-center gap-1.5">
                 {!phone && (

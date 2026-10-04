@@ -7,7 +7,8 @@
 // - the settings at the top right: the cog opens a panel that says what the map draws at; choosing 30 draws 30, is
 //   kept on the device and is still the choice after a reload; choosing 60 goes back;
 // - walking is as fast at 30 as at 60: the same road in the same time;
-// - a phone has no cog (no room in its corner) and is held to 60 all the same.
+// - a phone's cog is at the foot of its screen, beside the chat (no room in its corner); it is held to 60 all the same,
+//   and to 30 when that is chosen there.
 //
 // Prints PASS/FAIL lines and writes screenshots to <outdir>.
 //
@@ -113,9 +114,14 @@ try {
   await enter(P, "G");
   const rawP = await asked(P);
   ok(`the phone's screen asks for far more than 60 too (${rawP})`, rawP > 100, rawP);
-  ok("a phone has no cog: its corner has no room for one more", await P.evaluate(`!document.querySelector("[data-town-settings]")`));
+  const cogP = await P.evaluate(`(() => { const all = document.querySelectorAll("[data-town-settings]"), c = document.querySelector("canvas").getBoundingClientRect(); if (all.length !== 1) return { n: all.length }; const r = all[0].getBoundingClientRect(); return { n: 1, fromTop: r.top - c.top, fromLeft: r.left - c.left, up: innerHeight - r.bottom }; })()`);
+  ok("a phone has one cog, at the foot of the screen beside the chat: its corner has no room for one more", cogP.n === 1 && cogP.fromTop > 300 && cogP.fromLeft < 80 && cogP.up > 60, cogP);
   const phone = await drawn(P, 5);
   ok(`…and is held to 60 all the same (${phone.all.join(" ")})`, (await sky(P)).pace === 60 && phone.most <= 61, phone);
+  await choose(P, 30);
+  await sleep(1500);
+  const phone30 = await drawn(P, 4);
+  ok(`…and to 30 when that is chosen there (${phone30.all.join(" ")})`, (await sky(P)).pace === 30 && phone30.most <= 31 && phone30.mid >= 28, phone30);
   await P.shot(`${OUT}/fps-phone.png`);
   ok("no errors on the phone's page", P.logs.length === 0, P.logs);
 } catch (e) {
