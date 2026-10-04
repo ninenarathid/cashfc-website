@@ -9,6 +9,7 @@ import {
   atWell, benchAt, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
+import { PACE, keepFps, keptFps, paced, type Fps } from "@/lib/town/pace";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
@@ -41,6 +42,7 @@ import type { DishId, ItemId } from "@/lib/town/items";
 import { isRod, type RodId } from "@/lib/town/gear";
 import { FishSfx, heard } from "@/lib/town/sfx";
 import TownMusicButton from "./TownMusicButton";
+import TownSettingsButton from "./TownSettingsButton";
 import TownIcon, { ICON_ATLAS, drawIcon, type IconName } from "./TownIcon";
 
 /**
@@ -283,6 +285,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const hover = useRef<Building | null>(null);
   const fontRef = useRef("sans-serif");
   const fpsRef = useRef(0);
+  /** How many frames a second the map is held to (lib/town/pace): what the drawing reads, every frame. */
+  const paceRef = useRef<number>(PACE.most);
   const reducedRef = useRef(false);
   /** The dolls' pictures, one per race, each fetched the first time somebody of that race is drawn. */
   const kits = useRef(new Map<number, PixelKit>());
@@ -441,6 +445,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [card, setCard] = useState<Card | null>(null);
   const [peopleOpen, setPeopleOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
+  /** The settings' choice of how often the map is drawn: kept on this device, the most until it is read. */
+  const [pace, setPace] = useState<Fps>(PACE.most);
+  useEffect(() => { const kept = keptFps(); paceRef.current = kept; setPace(kept); }, []);
+  const choosePace = (fps: Fps) => { paceRef.current = fps; setPace(fps); keepFps(fps); };
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   /** The emote window: what my avatar can do where it stands (sit, for now). */
   const [emoteOpen, setEmoteOpen] = useState(false);
@@ -720,6 +728,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const ctx = canvas.getContext("2d")!;
     let raf = 0;
     let last = performance.now();
+    /** When a frame is next due (lib/town/pace). */
+    let due = 0;
     let frames = 0;
     let fpsSince = last;
 
@@ -741,6 +751,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ro.observe(stage);
 
     const frame = (now: number) => {
+      // No more often than the pace: a fast screen asks for frames the town does not draw (the owner, 2026-10-04:
+      // "บางคนรันแล้ว fps สูงเกินไป แล้วคอมร้อน"). One let go by costs nothing: nothing moves, nothing is drawn.
+      const after = paced(now, last, due, paceRef.current);
+      if (after === null) { raf = requestAnimationFrame(frame); return; }
+      due = after;
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       frames++;
@@ -2504,7 +2519,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       /** The sky: what the weather draws now, the light, and each cloud's shadow with its middle on the screen. */
       sky: () => ({
         weather: SKIES.weather(), raining: SKIES.raining(), known: SKIES.knows(), clock: SKIES.now(),
-        effects: effects.current, day: skyNow(), fps: fpsRef.current, drops: drops.current.length, splashes: splashes.current.filter((p) => p.x >= 0).length,
+        effects: effects.current, day: skyNow(), fps: fpsRef.current, pace: paceRef.current, drops: drops.current.length, splashes: splashes.current.filter((p) => p.x >= 0).length,
         clouds: cloudsAt(cloudDrift.current, effects.current.clouds).map((c) => ({ ...c, at: toScreen(cam.current, c, cam.current.cw, cam.current.ch) })),
       }),
       /** The Popoto Board's middle on the screen, if it is drawn. */
@@ -2725,7 +2740,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
       </div>
 
-      {/* Top right: the wardrobe, the numbers, fullscreen, the way out */}
+      {/* Top right: the wardrobe, the music, the settings, the numbers, fullscreen, the way out */}
       {s && (
         <div className="absolute right-3 top-3 flex items-center gap-1.5">
           {/* the icon alone, like the buttons beside it: the word took too much room (the owner, 2026-10-02) */}
@@ -2734,6 +2749,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
           </button>
           <TownMusicButton th={w.th} hour={forcedHour.current} className={hudBtn} />
+          {/* (a wide screen only, like the numbers: a phone's corner has no room for one more) */}
+          {!phone && <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} className={hudBtn} />}
           {!phone && (
             <button type="button" onClick={() => setStatsOpen((o) => !o)} aria-pressed={statsOpen} title={w.stats} className={hudBtn}>
               <TownIcon name="stats" size={20} /><span className="sr-only">{w.stats}</span>

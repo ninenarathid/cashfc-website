@@ -45,12 +45,13 @@ async function attach(label, url, size) {
   };
 }
 
-export async function browser(label, size = { width: 1280, height: 860 }) {
+/** `flags`: more of Chrome's own switches, for a check that needs a browser unlike a member's (town-fps: a fast screen). */
+export async function browser(label, size = { width: 1280, height: 860 }, flags = []) {
   const profile = mkdtempSync(join(tmpdir(), `town-${label}-`));
   const proc = spawn(CHROME, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`,
     "--no-first-run", "--no-default-browser-check", "--use-fake-ui-for-media-stream",
     "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required",
-    "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding", "about:blank"], { stdio: "ignore" });
+    "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding", ...flags, "about:blank"], { stdio: "ignore" });
   let port;
   for (let i = 0; i < 150 && !port; i++) {
     try { port = readFileSync(join(profile, "DevToolsActivePort"), "utf8").split("\n")[0]; } catch { await sleep(100); }

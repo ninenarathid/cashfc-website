@@ -26,6 +26,9 @@ const SHEETS = [
   ["icons-d", ["chat", "history", "down", "chevron", "check", "lock"]],
   ["icons-e", ["dice", "turnLeft", "turnRight", "town", "vote", "hammer"]],
   ["icons-f", ["music", "musicOff", "volumeLow", "volumeHigh"]],
+  // the settings at the top right (2026-10-04): their cog, a gauge for how often the map is drawn, and the two
+  // ends of that choice, a cool machine and a smooth picture
+  ["icons-g", ["settings", "gauge", "snowflake", "bolt"], { range: [19.5, 22.5] }],
   // the emote window: its button, sitting down where you stand, getting up, a wave
   // (drawn on a 16-pixel grid of big pixels, which measured freely comes out at half their size)
   ["icons-emote", ["emote", "sitDown", "standUp", "wave"], { range: [15, 16.5] }],
