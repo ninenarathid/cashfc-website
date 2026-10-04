@@ -1,6 +1,48 @@
 {
  "events": [
   {
+   "date": "2026-10-04",
+   "type": "grade_up",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "is now a Expert Gatherer ✨"
+  },
+  {
+   "date": "2026-10-04",
+   "type": "grade_up",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "is now a Legendary Crafter ✨"
+  },
+  {
+   "date": "2026-10-04",
+   "type": "grade_up",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "is now a Legendary Relic grinder ✨"
+  },
+  {
+   "date": "2026-10-04",
+   "type": "grade_up",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "is now a Legendary Explorer ✨"
+  },
+  {
+   "date": "2026-10-04",
+   "type": "grade_up",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "is now a Expert Treasure hunter ✨"
+  },
+  {
+   "date": "2026-10-04",
+   "type": "rare_up",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "earned Where Rabbits Roam II — only 0.2% of players have it, and 99 more"
+  },
+  {
    "date": "2026-10-03",
    "type": "level_100",
    "id": 9444020,
@@ -1357,48 +1399,6 @@
    "id": 58199536,
    "name": "Areeya Lovekin",
    "text": "earned Phantom of the Umbra: Sword & Kite Shield Umbrae"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Stranger than Fiction"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Rocket Geology I — only 3.9% of players have it"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Resplendent: Brilliant Round Knife"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "rare_up",
-   "id": 5644067,
-   "name": "Ninenine Everdark",
-   "text": "earned Date with Destiny VI — only 1.1% of players have it, and 64 more"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned An Eye for Detail: Carpenter III — only 4.9% of players have it"
-  },
-  {
-   "date": "2026-09-23",
-   "type": "rare_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "earned Cut Above the Rest: Round Brush Occultum — only 1.5% of players have it, and 12 more"
   }
  ]
 }

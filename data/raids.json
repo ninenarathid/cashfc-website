@@ -8318,11 +8318,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 5.31,
-    "phase": 3,
-    "pulls": 144,
-    "last": "2026-10-02",
-    "last_ts": 1790952844
+    "pct": 63.97,
+    "phase": 4,
+    "pulls": 153,
+    "last": "2026-10-03",
+    "last_ts": 1791046971
    }
   ]
  },
@@ -9197,12 +9197,12 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 71,
-    "kills": 9,
+    "kills": 10,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
      "Monk": {
-      "kills": 3,
+      "kills": 4,
       "best": 49
      },
      "Sage": {
@@ -18060,10 +18060,14 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 83,
-    "kills": 8,
+    "kills": 9,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
+     "BlackMage": {
+      "kills": 1,
+      "best": 57
+     },
      "Viper": {
       "kills": 4,
       "best": 81
@@ -18081,7 +18085,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 96,
-    "kills": 61,
+    "kills": 62,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -18126,7 +18130,7 @@
       "best": 54
      },
      "Sage": {
-      "kills": 1,
+      "kills": 2,
       "best": 33
      }
     }
@@ -21241,7 +21245,7 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 4,
+      "kills": 5,
       "best": 55
      }
     }
@@ -26614,7 +26618,7 @@
     "state": "learning",
     "pct": 22.88,
     "phase": 3,
-    "pulls": 112,
+    "pulls": 100,
     "last": "2026-09-30",
     "last_ts": 1790788041
    }
@@ -30695,7 +30699,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 86,
-    "kills": 52,
+    "kills": 53,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -33258,7 +33262,7 @@
     "state": "learning",
     "pct": 22.88,
     "phase": 3,
-    "pulls": 113,
+    "pulls": 101,
     "last": "2026-09-30",
     "last_ts": 1790788041
    }
@@ -65220,9 +65224,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 42,
-    "kills": 11,
-    "job": "WhiteMage",
+    "best": 55,
+    "kills": 12,
+    "job": "Samurai",
     "cleared": true,
     "job_kills": {
      "Samurai": {
@@ -72485,7 +72489,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 95,
-    "kills": 25,
+    "kills": 28,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -72514,7 +72518,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 23,
+    "kills": 24,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -72604,7 +72608,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 79,
-    "kills": 15,
+    "kills": 18,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -72637,7 +72641,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 93,
-    "kills": 29,
+    "kills": 31,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -72781,13 +72785,13 @@
       "kills": 1,
       "best": 19
      },
+     "Astrologian": {
+      "kills": 24,
+      "best": 75
+     },
      "WhiteMage": {
       "kills": 3,
       "best": 64
-     },
-     "Astrologian": {
-      "kills": 21,
-      "best": 66
      },
      "Scholar": {
       "kills": 12,
@@ -72807,12 +72811,12 @@
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 2,
+      "kills": 4,
       "best": 59
      },
      "Astrologian": {
-      "kills": 20,
-      "best": 67
+      "kills": 31,
+      "best": 79
      },
      "WhiteMage": {
       "kills": 6,
@@ -72846,6 +72850,10 @@
      "Astrologian": {
       "kills": 9,
       "best": 50
+     },
+     "Scholar": {
+      "kills": 2,
+      "best": 41
      }
     }
    },
@@ -72890,8 +72898,8 @@
       "best": 19
      },
      "Astrologian": {
-      "kills": 25,
-      "best": 79
+      "kills": 28,
+      "best": 80
      },
      "WhiteMage": {
       "kills": 1,
@@ -72927,7 +72935,7 @@
       "best": 36
      },
      "Astrologian": {
-      "kills": 12,
+      "kills": 14,
       "best": 82
      },
      "WhiteMage": {
@@ -76810,7 +76818,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 73,
-    "kills": 4,
+    "kills": 5,
     "job": "Monk",
     "cleared": true,
     "job_kills": {
@@ -79026,8 +79034,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 81,
-    "kills": 5,
+    "best": 82,
+    "kills": 8,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -79044,7 +79052,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 85,
-    "kills": 7,
+    "kills": 8,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -81181,7 +81189,7 @@
       "best": 4
      },
      "Paladin": {
-      "kills": 13,
+      "kills": 14,
       "best": 4
      }
     }

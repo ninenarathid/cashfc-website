@@ -763,8 +763,8 @@
   "parse": 15,
   "ult": 0,
   "mounts": 186,
-  "minions": 452,
-  "rare": null,
+  "minions": 454,
+  "rare": 430,
   "level": 100,
   "cc": [
    false,
@@ -773,15 +773,122 @@
    false,
    false
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   140,
+   142,
+   176,
+   178,
+   1313,
+   1317,
+   1318,
+   1321,
+   1322,
+   1324,
+   1325,
+   1326,
+   1327,
+   1592,
+   1724,
+   1726,
+   1727,
+   2166,
+   2167,
+   2168,
+   2169,
+   2170,
+   2171,
+   2172,
+   2527,
+   2528,
+   2529,
+   2530,
+   2531,
+   2532,
+   2533,
+   2534,
+   2648,
+   2649,
+   2650,
+   2651,
+   2652,
+   2653,
+   2654,
+   2655,
+   2823,
+   2824,
+   2825,
+   2826,
+   2829,
+   2996,
+   3533,
+   3686,
+   3687,
+   3708,
+   3711,
+   3714,
+   3715,
+   3716,
+   3717,
+   3720,
+   3721,
+   3722,
+   3723,
+   3724,
+   3725,
+   3848,
+   3906,
+   3908,
+   3909,
+   3924,
+   3949,
+   3950,
+   3951,
+   3952,
+   3953,
+   3954,
+   3955,
+   3956,
+   3957,
+   3958,
+   3959,
+   3960,
+   3961,
+   3962,
+   3963,
+   3964,
+   3965,
+   3966,
+   3967,
+   3968,
+   3969,
+   3981,
+   3982,
+   3997,
+   4000,
+   4005,
+   4007,
+   4008,
+   4015,
+   4017,
+   4018,
+   4022,
+   4032,
+   4034
+  ],
+  "tiers": {
+   "gatherer": "expert",
+   "crafter": "legendary",
+   "relic": "legendary",
+   "explorer": "legendary",
+   "treasure": "expert"
+  },
   "jobs": {},
   "ex": [
    "Queen Eternal",
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-20"
+  "chg": "2026-10-04"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -3825,9 +3932,7 @@
    4007,
    4074
   ],
-  "tiers": {
-   "explorer": "expert"
-  },
+  "tiers": {},
   "jobs": {
    "BlackMage": "legendary",
    "Pictomancer": "legendary",
@@ -4553,8 +4658,7 @@
    3823
   ],
   "tiers": {
-   "relic": "master",
-   "explorer": "expert"
+   "relic": "master"
   },
   "jobs": {
    "Machinist": "legendary",
@@ -5772,8 +5876,8 @@
   "tiers": {},
   "jobs": {
    "Bard": "expert",
-   "WhiteMage": "expert",
    "Astrologian": "master",
+   "WhiteMage": "expert",
    "Scholar": "expert",
    "Summoner": "expert"
   },
@@ -8169,7 +8273,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 95,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -8182,7 +8286,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8436,7 +8540,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -8449,7 +8553,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8480,7 +8584,7 @@
   "mounts": 33,
   "minions": 173,
   "rare": 3,
-  "level": 91,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -8497,7 +8601,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8594,7 +8698,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 60,
+  "level": 61,
   "cc": [
    false,
    false,
@@ -8607,7 +8711,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "44085912": {
   "name": "Mayu Ferguson",
