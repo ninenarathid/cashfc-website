@@ -2290,7 +2290,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 81,
+  "level": 84,
   "cc": [
    true,
    true,
@@ -2510,7 +2510,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 100,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -2537,7 +2537,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-10-04"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -4267,7 +4267,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 50,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    847,
@@ -5601,7 +5601,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -5723,7 +5723,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6903,7 +6903,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -7241,7 +7241,7 @@
   "mounts": 69,
   "minions": 104,
   "rare": 53,
-  "level": 66,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -8496,7 +8496,7 @@
  },
  "47525984": {
   "name": "Dasei Mizumoto",
-  "parse": null,
+  "parse": 10,
   "ult": 0,
   "mounts": 6,
   "minions": 28,
@@ -8512,9 +8512,11 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-04"
  },
  "54419512": {
   "name": "Film Nio",
@@ -8545,7 +8547,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 85,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8589,7 +8591,7 @@
   "mounts": 33,
   "minions": 173,
   "rare": 3,
-  "level": 70,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -8703,7 +8705,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 61,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -8752,7 +8754,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 63,
   "cc": [
    false,
    false,

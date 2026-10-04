@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-10-04",
+   "type": "level_100",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-10-04",
+   "type": "parse_up",
+   "id": 47525984,
+   "name": "Dasei Mizumoto",
+   "text": "set a new best parse: 10 on Valigarmanda as Machinist"
+  },
+  {
+   "date": "2026-10-04",
+   "type": "ex_clear",
+   "id": 47525984,
+   "name": "Dasei Mizumoto",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-10-04",
+   "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-10-04",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1371,34 +1399,6 @@
    "id": 60873337,
    "name": "Imy Kitty",
    "text": "reached level 100 on Dragoon!"
-  },
-  {
-   "date": "2026-09-24",
-   "type": "new_member",
-   "id": 61014734,
-   "name": "Hanna Doss",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-09-24",
-   "type": "rare_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "earned R&D: Stellar Saw"
-  },
-  {
-   "date": "2026-09-24",
-   "type": "level_100",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-24",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned R&D: Stellar Alembic"
   }
  ]
 }

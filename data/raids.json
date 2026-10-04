@@ -88859,7 +88859,7 @@
   "_status": "ok"
  },
  "47525984": {
-  "_status": "none",
+  "_status": "ok",
   "current": {
    "zone": "AAC Heavyweight",
    "zone_id": 73,
@@ -88874,7 +88874,19 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 10,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   }
+  ],
   "legacy": []
  },
  "61997211": {
