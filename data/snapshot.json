@@ -2290,7 +2290,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 84,
+  "level": 85,
   "cc": [
    true,
    true,
@@ -5902,7 +5902,7 @@
   "mounts": 65,
   "minions": 116,
   "rare": null,
-  "level": 100,
+  "level": 51,
   "cc": [
    false,
    false,
@@ -5917,7 +5917,7 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-10-04"
  },
  "38488824": {
   "name": "Daffodil Amary",

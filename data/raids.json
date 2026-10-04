@@ -88884,7 +88884,13 @@
     "best": 10,
     "kills": 2,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 2,
+      "best": 10
+     }
+    }
    }
   ],
   "legacy": []
