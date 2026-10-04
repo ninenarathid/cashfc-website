@@ -188,12 +188,12 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * moment with no stamina left is 0.6 of its length again, where v117 made it 0.3 (fishing: few fished with none, it
  * was too hard); and a bite comes in half the time (fish and flotsam: every `wait` halved).
  *
- * v122 (not run yet) writes ten over, for the twenty fish the owner asked for on 2026-10-05, each found its own way
+ * v122 (ran 2026-10-05) wrote ten over, for the twenty fish the owner asked for on 2026-10-05, each found its own way
  * and each good for something of its own: the fish and what they wait for (fish, fishing), the things they and what
  * is made of them are (items), what they are eaten and cooked as (dishes, scrolls, cooking), what is made of three of
  * them by hand (makes), the three that are put on a plant (farming), and what the uncle may ask for and hint at
- * (order, hints). With them the rule of what takes a bait is written again (`town.odds`: a fish's water, a dry sky,
- * the signs), which is why the code goes out before the file: a page built before cannot draw a fish it has not
+ * (order, hints). With them the rule of what takes a bait was written again (`town.odds`: a fish's water, a dry sky,
+ * the signs), which is why the code went out before the file: a page built before cannot draw a fish it has not
  * heard of.
  *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
@@ -203,9 +203,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * **Changing any number the catalog carries (a price, a recipe, a thing) needs such a migration before it is true in
  * the database.**
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v122: { keys: [], over: ["items", "fish", "fishing", "dishes", "scrolls", "makes", "cooking", "farming", "order", "hints"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
