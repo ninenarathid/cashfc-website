@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { oddsOf, startFight, strikeWindow } from "./fishing";
 import { CARRIES, PLAIN, RODS, ROD_IDS, TACKLE, gearOf, isRod } from "./gear";
 import {
-  BAITS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, SCROLLS,
-  type BaitId, type FishId, type ItemId,
+  BAITS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS,
+  type BaitId, type DishId, type FishId, type ItemId,
 } from "./items";
 import { STAMINA } from "./stamina";
 import { GOODS, newPurse, put, type Purse } from "./trade";
@@ -18,8 +18,9 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // seventy-two there were; the pot's things joined them (a pot of food and a bowl; the dirty pot, the scrubber and
     // the ash that came with them went again on 2026-10-04, when the owner cut the dirty pot) and a bucket for the
     // well; and the odd dish, which is what comes of cooking the wrong things
-    // (and a scroll for every dish that had none: thirteen, twenty-three and twenty-four of them)
-    expect(by(1).length).toBe(79 - 3 + 13);
+    // (and a scroll for every dish that had none: thirteen, twenty-three and twenty-four of them; and one of how the
+    // cure for pests is made, 2026-10-04)
+    expect(by(1).length).toBe(79 - 3 + 13 + 1);
     // the later tiers were twice what the early game was when he asked, seventy-two each; then came the dishes of five
     // other countries (the owner: "ช่วยเอาอาหารประเทศอื่นที่ดังๆ มาด้วย ซัก 5 ประเทศ ประเทสละ 5 menu จะเพิ่ม อุปกรณ์ด้วยก็ได้"): twenty-five
     // dishes, the noodles they are made of, four staples and four pieces of cookware; and flour came down a tier for them
@@ -132,8 +133,11 @@ describe("recipes that take more than one piece of cookware (the owner: \"ใช
     }
     // no dish gives more than half the gauge, however grand
     for (const id of DISH_IDS) expect(DISHES[id].stamina).toBeLessThanOrEqual(STAMINA.max / 2);
-    // every scroll is of a dish with a recipe
-    for (const [scroll, dish] of Object.entries(SCROLLS)) { expect(ITEMS[scroll as ItemId].kind).toBe("scroll"); expect(DISHES[dish!].recipe).toBeDefined(); }
+    // every scroll is of a dish with a recipe, but the one of the cure for pests, which is made
+    for (const [scroll, of] of Object.entries(SCROLLS)) {
+      expect(ITEMS[scroll as ItemId].kind).toBe("scroll");
+      expect(of === "pestCure" ? MAKES.pestCure : DISHES[of as DishId].recipe).toBeDefined();
+    }
   });
 });
 

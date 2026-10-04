@@ -1,11 +1,38 @@
 import { describe, expect, it } from "vitest";
-import { TIMING, finished, markerAt, over, press, startRound, type Round } from "./timing";
+import { COOKING, stirMods } from "./cooking";
+import { FARMING, hitsFor } from "./farm";
+import { seeded } from "./fishing";
+import { TIMING, dropped, finished, markerAt, over, press, startRound, type Round, type TimingMods } from "./timing";
 
 /** The first moment from `from` on at which the marker is over the stretch (or not), found by looking every millisecond. */
 function when(r: Round, from: number, inside: boolean): number {
   for (let t = from; t < from + 20; t += 0.001) if (over(r, t) === inside) return t;
   throw new Error("never");
 }
+/**
+ * A made-up hand at the game: it aims each press at the moment the marker is over the middle of the stretch, and is
+ * off by so much (seconds, either way; the members' own presses on the game's first day were off by about 0.07).
+ * Gives the share of so many rounds it finishes, and the misses of a round.
+ */
+function plays(unsure: number, mods: TimingMods, need: number, many = 300): { done: number; misses: number } {
+  const rnd = seeded(91), off = () => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(2 * Math.PI * rnd()) * unsure;
+  let done = 0, misses = 0;
+  for (let i = 0; i < many; i++) {
+    let r = startRound(need, mods, 500 + i * 131), t = 0;
+    for (let presses = 0; presses < 400 && !finished(r) && !dropped(r); presses++) {
+      // the next moment the marker passes the middle of the stretch (nobody presses twice in a sixth of a second)
+      let at = t + 0.16;
+      while (Math.abs(markerAt(r, at) - (r.lo + r.width / 2)) > r.speed * 0.00051) at += 0.001;
+      t = Math.max(t + 0.05, at + off());
+      r = press(r, t);
+    }
+    if (finished(r)) done++;
+    misses += r.misses;
+  }
+  return { done: done / many, misses: misses / many };
+}
+/** The share of so many plots it hoes. */
+const hoes = (unsure: number, mods: TimingMods, many = 300) => plays(unsure, mods, 3, many).done;
 
 describe("the game of timing", () => {
   it("runs the marker to one end of the bar and back to the other, evenly", () => {
@@ -56,14 +83,109 @@ describe("the game of timing", () => {
   it("is easier with a better tool and much harder with no stamina left", () => {
     const plain = startRound(3, {}, 5), good = startRound(3, { tool: 2.2 }, 5), spent = startRound(3, { spent: true }, 5);
     expect(good.width).toBeGreaterThan(plain.width * 1.3);
-    expect(spent.width).toBeLessThan(plain.width * 0.7);
-    expect(spent.speed).toBeGreaterThan(plain.speed * 1.2);
-    // hard, not impossible: the stretch is never under a tenth of the bar, and the marker is over it for a tenth of a second and more
-    expect(spent.width).toBeGreaterThanOrEqual(0.1);
+    // (2026-10-04) a good third of the stretch is left, and the marker is over it for a quarter as long
+    expect(spent.width).toBeLessThan(plain.width * 0.4);
+    expect(spent.speed).toBeGreaterThan(plain.speed * 1.3);
     expect(plain.width / plain.speed).toBeGreaterThan(0.15);
-    expect(spent.width / spent.speed).toBeGreaterThan(0.08);
+    expect(spent.width / spent.speed).toBeLessThan(0.06);
+    // hard, not impossible: the stretch is to be seen (a twentieth of the bar), and the marker is over it for more than two pictures of a phone's screen
+    expect(spent.width).toBeGreaterThanOrEqual(0.05);
+    expect(spent.width / spent.speed).toBeGreaterThan(0.04);
+    // a good hoe helps tired hands as it helps any
+    expect(startRound(3, { tool: 2.2, spent: true }, 5).width).toBeGreaterThan(spent.width * 1.3);
     // the same seed is the same round
     expect(startRound(3, {}, 5)).toEqual(plain);
     expect(startRound(3, {}, 6)).not.toEqual(plain);
+  });
+
+  it("with no stamina left, drops the work at the third miss, where the work asks for that (the hoe)", () => {
+    const hoe = startRound(3, { spent: true, drops: true }, 9), miss = when(hoe, 0, false);
+    expect(hoe.most).toBe(3);
+    expect(TIMING.spent.misses).toBe(3);
+    const twice = press(press(hoe, miss), miss);
+    expect(dropped(twice)).toBe(false);
+    const thrice = press(twice, miss);
+    expect(thrice.misses).toBe(3);
+    expect(dropped(thrice)).toBe(true);
+    expect(finished(thrice)).toBe(false);
+    // and takes no more presses: a hit no more than a miss
+    expect(press(thrice, when(thrice, miss, true) + 0.003)).toBe(thrice);
+    expect(press(thrice, miss)).toBe(thrice);
+    // two misses and then the hits: done, and not dropped
+    let r = twice, t = miss;
+    for (let n = 0; n < 3; n++) { t = when(r, t, true) + 0.003; r = press(r, t); }
+    expect(finished(r)).toBe(true);
+    expect(dropped(r)).toBe(false);
+    // with stamina the hoe is never dropped (a miss costs stamina there), nor is a pot's stirring with none (a miss costs a helping)
+    for (const mods of [{ drops: true }, { spent: true }, {}]) {
+      let other = startRound(3, mods, 9);
+      const m = when(other, 0, false);
+      expect(other.most).toBe(0);
+      for (let n = 0; n < 12; n++) other = press(other, m);
+      expect(other.misses).toBe(12);
+      expect(dropped(other)).toBe(false);
+    }
+  });
+
+  it("with no stamina left can still be done, by a very good hand (the owner: \"ยังคงเป็นไปได้ที่จะเล่นผ่าน ถ้าเป็นคนที่เล่นเก่งมาก\")", () => {
+    const tired = { spent: true, drops: true };
+    // fed, every hand hoes its plot: it only misses more
+    for (const unsure of [0.07, 0.035, 0.02]) expect(hoes(unsure, { drops: true })).toBe(1);
+    // with none: a hand as unsure as the members' were, now and then; a practised one, less than half the time; a very good one, mostly
+    expect(hoes(0.07, tired)).toBeGreaterThan(0.02);
+    expect(hoes(0.07, tired)).toBeLessThan(0.25);
+    expect(hoes(0.035, tired)).toBeGreaterThan(0.25);
+    expect(hoes(0.035, tired)).toBeLessThan(0.6);
+    expect(hoes(0.02, tired)).toBeGreaterThan(0.75);
+    // and a good hoe is worth having then
+    expect(hoes(0.035, { ...tired, tool: 2.2 })).toBeGreaterThan(hoes(0.035, tired) + 0.15);
+  });
+});
+
+describe("work that is kinder than the rest, and work that tired hands find hard (the owner, 2026-10-04)", () => {
+  it("can have a wider stretch at any time, and its own numbers for no stamina", () => {
+    const plain = startRound(5, {}, 5), kind = startRound(5, { wide: 2 }, 5), own = { zone: 0.75, speed: 1.15 };
+    expect(kind.width).toBeCloseTo(plain.width * 2, 9);
+    expect(kind.speed).toBe(plain.speed);
+    const tired = startRound(5, { wide: 2, spent: true, tired: own }, 5), hoe = startRound(5, { spent: true }, 5);
+    expect(tired.width).toBeCloseTo(plain.width * 2 * 0.75, 9);
+    expect(tired.speed).toBeCloseTo(plain.speed * 1.15, 9);
+    expect(tired.width / tired.speed).toBeGreaterThan((hoe.width / hoe.speed) * 4);
+    // its own numbers are for no stamina only, and it is not dropped unless it asks to be
+    expect(startRound(5, { wide: 2, tired: own }, 5)).toEqual(kind);
+    expect(tired.most).toBe(0);
+    // never more than half the bar, however wide and however good the tool
+    expect(startRound(5, { wide: 2, tool: 4 }, 5).width).toBe(0.5);
+  });
+
+  it("stirs a pot kindly (\"ทำอาหารทำให้ง่ายกว่าปกติหน่อย … ไม่อยากให้ fail มาก\"): fed, hardly a miss; with no stamina, a miss or two, and never dropped", () => {
+    const fed = stirMods([], false), none = stirMods([], true);
+    expect(fed).toEqual({ tool: 1, spent: false, wide: COOKING.stirring.wide, tired: COOKING.stirring.spent });
+    expect(startRound(7, none, 1).most).toBe(0);
+    // a hand as unsure as the members' were, at a pot stirred seven times: with the hoe's stretch it missed three
+    // stirs and more, and was left with half the pot
+    expect(plays(0.07, {}, 7).misses).toBeGreaterThan(2.5);
+    expect(plays(0.07, fed, 7).misses).toBeLessThan(0.8);
+    // with no stamina it is harder, and nothing like the hoe's
+    expect(plays(0.07, none, 7).misses).toBeGreaterThan(plays(0.07, fed, 7).misses + 0.5);
+    expect(plays(0.07, none, 7).misses).toBeLessThan(2.6);
+    expect(plays(0.07, { spent: true }, 7).misses).toBeGreaterThan(15);
+    // a practised hand loses next to nothing either way; and an apron helps as it did
+    expect(plays(0.035, none, 7).misses).toBeLessThan(0.4);
+    expect(startRound(7, stirMods([{ item: "apron", n: 1 }], false), 1).width).toBeGreaterThan(startRound(7, fed, 1).width);
+  });
+
+  it("makes the farm's lighter work a short round with no stamina left (\"ออกแบบเพิ่มเลย\"): two hits, dropped at the third miss", () => {
+    const need = hitsFor("water", true), tired = { spent: true, drops: true };
+    expect(need).toBe(FARMING.tired);
+    expect(startRound(need, tired, 3).most).toBe(TIMING.spent.misses);
+    // lighter than the hoe's for every hand, and still for a very good one to do nearly always
+    for (const unsure of [0.07, 0.035, 0.02]) expect(plays(unsure, tired, need).done).toBeGreaterThan(hoes(unsure, tired));
+    expect(plays(0.07, tired, need).done).toBeGreaterThan(0.12);
+    expect(plays(0.07, tired, need).done).toBeLessThan(0.45);
+    expect(plays(0.035, tired, need).done).toBeGreaterThan(0.5);
+    expect(plays(0.02, tired, need).done).toBeGreaterThan(0.88);
+    // a better can widens the stretch for tired hands as a better hoe does
+    expect(plays(0.07, { ...tired, tool: 2.2 }, need).done).toBeGreaterThan(plays(0.07, tired, need).done + 0.1);
   });
 });

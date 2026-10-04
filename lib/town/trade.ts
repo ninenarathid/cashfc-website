@@ -58,6 +58,8 @@ export const GOODS: Partial<Record<ItemId, Good>> = {
   seedKangkong: good(4, 100, 8), seedScallion: good(5, 100, 8), seedCabbage: good(8, 60, 6),
   seedCarrot: good(8, 60, 6), seedChili: good(10, 40, 4), seedPumpkin: good(25, 20, 2),
   scrollFriedMinnow: good(40, 3, 1), scrollGrilledFish: good(40, 3, 1),
+  // (how the cure for pests is made: more of it than of a dish's, since every plot wants the cure)
+  scrollPestCure: good(40, 6, 1),
   // for serving, carrying water and cooking in
   bowl: good(5, 60, 5), bucket: good(20, 30, 4),
   bucketIron: good(70, 6, 1), apron: good(120, 4, 1),
@@ -151,7 +153,8 @@ export interface Purse {
   eating: { dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number } | null;
   buff: { id: BuffId; until: number } | null;
   best: Partial<Record<FishId, number>>;
-  recipes: DishId[];
+  /** The recipes read off scrolls: of dishes, and of the one other thing a scroll tells of (lib/town/items' SCROLLS). */
+  recipes: ItemId[];
   /** The thing taken up to hold in the hand, for everybody to see (handOf says whether it is still held). Missing from a purse older than hands. */
   hand?: ItemId | null;
   /** Bowls a meal has done with that the bag had no room for when it ended: they come back as soon as there is room (lib/town/stamina). */

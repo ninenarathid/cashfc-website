@@ -20,11 +20,15 @@ describe("the scrolls nobody sells (the owner: \"อาหารมีหลา�
       // a scroll is of its dish's tier, so that it is found no earlier than its dish can be cooked
       expect(ITEMS[scroll].tier).toBe(ITEMS[dish].tier);
     }
-    expect(Object.keys(SCROLLS).length).toBe(cooked.length);
+    // and one more, of no dish: how the cure for pests is made, which the uncle sells (the owner, 2026-10-04)
+    expect(SCROLLS.scrollPestCure).toBe("pestCure");
+    expect(SCROLL_OF.pestCure).toBe("scrollPestCure");
+    expect(Object.keys(SCROLLS).length).toBe(cooked.length + 1);
     const sold = (Object.keys(SCROLLS) as ItemId[]).filter((s) => GOODS[s]), found = foundScrolls([1, 2, 3]);
-    expect(sold.length).toBe(6);
+    expect(sold.length).toBe(7);
+    expect(sold).toContain("scrollPestCure");
     expect(found.length).toBe(cooked.length - 6);
-    expect(new Set([...sold, ...found]).size).toBe(cooked.length);
+    expect(new Set([...sold, ...found]).size).toBe(cooked.length + 1);
     // each tier's are in something: the early game's in a boot or a bottle, the last tier's in a chest
     for (const tier of [1, 2, 3] as const) expect((Object.keys(INSIDE) as ItemId[]).some((thing) => INSIDE[thing]!.tiers.includes(tier))).toBe(true);
     for (const scroll of found) expect((Object.keys(INSIDE) as ItemId[]).some((thing) => foundScrolls(INSIDE[thing]!.tiers).includes(scroll))).toBe(true);

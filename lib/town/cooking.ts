@@ -1,6 +1,7 @@
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, type Cookware, type DishId, type ItemId } from "./items";
 import { spend } from "./stamina";
+import type { TimingMods } from "./timing";
 import { held, no, put, roomFor, take, type Done, type Purse, type Stack } from "./trade";
 
 /**
@@ -57,6 +58,17 @@ export const COOKING = {
   cost: 4,
   /** The stirs the game of timing asks for: so many, and one more for each kind of thing put in. Each miss is a helping lost, down to half of them. */
   stirs: 2,
+  /**
+   * The stirring is the kindest of the games of timing (the owner, 2026-10-04: "ทำอาหารทำให้ง่ายกว่าปกติหน่อย เพราะกว่าจะหา
+   * วัตถุดิบมาปรุงอาหารได้ ก็ยากมากแล้ว ไม่อยากให้ fail มาก ถ้าพลาดก็ยังได้อะไรบ้าง"): the stretch to stir at is so many times
+   * as wide as the hoe's, and with no stamina left it is a little narrower and the ladle a little quicker, where
+   * the other games come down to a third of themselves (lib/town/stamina). With the hoe's stretch a hand as unsure
+   * as the members' were on the game's first day (0.07 s either way) missed three stirs of a pot stirred seven
+   * times, and was left with half of it, fed. With this it loses a helping of one such pot in three, and with no
+   * stamina one or two of each. A miss never took everything: half the pot is always left, and one of anything
+   * else that is made.
+   */
+  stirring: { wide: 2, spent: { zone: 0.75, speed: 1.15 } },
   /** How many kinds of thing can be put together at most. */
   kinds: 8,
   /** How near a pot that is set down one has to stand to ladle from it, in tiles; and from one set on a rattan table. */
@@ -127,6 +139,8 @@ export function helpings(dish: DishId, crew: Array<ItemId | null>, misses: numbe
 /** How many stirs putting some things together asks for, and how much wider the mark is for what the cook carries. */
 export const stirsFor = (things: Array<[ItemId, number]>) => COOKING.stirs + tidy(things).length;
 export const easeOf = (bag: Purse["bag"]) => Math.max(1, ...bag.map((s) => (s ? COOK_EASE[s.item] ?? 1 : 1)));
+/** What the pot's stirring is played with (lib/town/timing): its own wide stretch, wider for what the cook carries, and what having no stamina does to it. */
+export const stirMods = (bag: Purse["bag"], spent: boolean): TimingMods => ({ tool: easeOf(bag), spent, wide: COOKING.stirring.wide, tired: COOKING.stirring.spent });
 
 /** How many helpings of the odd dish some things come to: one for every so many of them (never none, never many), less for every stir missed (never under half). */
 export function oddHelpings(things: Array<[ItemId, number]>, misses: number): number {

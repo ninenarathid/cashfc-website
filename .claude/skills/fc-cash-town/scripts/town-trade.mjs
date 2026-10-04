@@ -67,7 +67,14 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     const kinds = await X.evaluate(`[...${TRADE}.querySelectorAll('[role="tablist"] [role="tab"]')].map((b) => b.innerText.trim())`);
     ok("the shelf is laid out by kind, tools first", ["เครื่องมือ", "เหยื่อ", "ของครัว", "เมล็ดพันธุ์"].every((k) => kinds.includes(k)) && !(await X.evaluate(`${TRADE}.innerText.includes("ไส้เดือน")`)), kinds);
     ok("only the basic things are on it at first: no better rod yet", (await X.evaluate(`${TRADE}.innerText.includes("คันเบ็ดไม้ไผ่")`)) && !(await X.evaluate(`${TRADE}.innerText.includes("คันเบ็ดไม้สัก")`))
-      && (await X.evaluate(`window.__townTrade.shelf().length`)) === 21);
+      && (await X.evaluate(`window.__townTrade.shelf().length`)) === 22);
+    // (twenty-one, and the scroll of the cure for pests: the owner, 2026-10-04)
+    const tab = (name) => X.evaluate(`[...${TRADE}.querySelectorAll('[role="tablist"] [role="tab"]')].find((b) => b.innerText.trim() === ${JSON.stringify(name)})?.click()`);
+    await tab("สูตรและคำใบ้"); await sleep(250);
+    const scrolls = await X.evaluate(`[...${TRADE}.querySelectorAll("li")].map((li) => li.innerText.replace(/\\s+/g, " ").trim())`);
+    ok("…and the scroll of how the cure for pests is made is one of them, at forty coins", (await X.evaluate(`window.__townTrade.shelf().includes("scrollPestCure")`)) && scrolls.some((s) => /ม้วนสูตร ยาไล่แมลง/.test(s) && /40/.test(s)), scrolls);
+    await X.shot(`${OUT}/trade-${label}-scrolls.png`);
+    await tab("เครื่องมือ"); await sleep(250);
     await X.evaluate(`[...${TRADE}.querySelectorAll("li")].find((li) => li.innerText.includes("คันเบ็ดไม้ไผ่")).querySelector("button:last-of-type").click()`);
     await sleep(150);
     await press(X, "เหยื่อ", TRADE); await sleep(200);

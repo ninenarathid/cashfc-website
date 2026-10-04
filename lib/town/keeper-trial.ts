@@ -65,7 +65,7 @@ class TrialKeeper implements Keeper {
   async sitDown(slot: number, seated: boolean): Promise<Did<{ dish: DishId }>> { return this.trial.sitDown(slot, seated); }
   chew(company: number) { this.trial.chew(company); }
   async getUp(company: number) { this.trial.getUp(company); }
-  async readScroll(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.readScroll(slot); }
+  async readScroll(slot: number): Promise<Did<{ dish: ItemId }>> { return this.trial.readScroll(slot); }
   async openThing(slot: number): Promise<Did<{ found: ItemId | null }>> { return this.trial.openThing(slot); }
   async hold(slot: number | null): Promise<Did> {
     if (slot === null) { this.trial.letGo(); return { ok: true }; }

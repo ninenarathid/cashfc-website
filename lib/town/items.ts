@@ -148,6 +148,8 @@ export const ITEMS = {
   // recipes written out: the two simplest, from the uncle (the rest are hinted at about the town, and found)
   scrollFriedMinnow: it("scroll", "ม้วนสูตร ปลาซิวทอด", "Recipe scroll: fried minnows", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 0),
   scrollGrilledFish: it("scroll", "ม้วนสูตร ปลาเผาเกลือ", "Recipe scroll: salt-grilled fish", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 0),
+  // and how the cure for pests is made: the one scroll that is of no dish (the owner, 2026-10-04: "ช่วยเพิ่มสูตรทำยาฆ่าแมลงในร้านค้าให้ด้วย")
+  scrollPestCure: it("scroll", "ม้วนสูตร ยาไล่แมลง", "Recipe scroll: pest cure", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 0),
   // the scrolls nobody sells: of every other dish of this tier, to be found in what the river brings up (lib/town/scrolls)
   scrollGrilledCorn: it("scroll", "ม้วนสูตร ข้าวโพดปิ้ง", "Recipe scroll: grilled corn", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
   scrollRoastSweetPotato: it("scroll", "ม้วนสูตร มันเทศเผา", "Recipe scroll: roast sweet potato", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
@@ -425,8 +427,13 @@ export const ITEM_IDS = Object.keys(ITEMS) as ItemId[];
  * The recipe each scroll has written on it: one for every dish that has a recipe (the owner, 2026-10-03: "อาหารมีหลาย
  * อย่างมาก ทำไมม้วนสูตรมีแค่ 6 อัน"). The uncle sells six, the two simplest of each tier; the rest are found in what
  * the river brings up (lib/town/scrolls), and change hands like anything else.
+ *
+ * And one that is of no dish: how the cure for pests is made (the owner, the day after the game opened: "ช่วยเพิ่มสูตร
+ * ทำยาฆ่าแมลงในร้านค้าให้ด้วย"). A pest kills a plant in six hours, the cure is made and not sold, and what is made is
+ * found by guessing: nobody had found it, and nobody could have (see MAKES). The uncle sells it from the first day.
  */
-export const SCROLLS: Partial<Record<ItemId, DishId>> = {
+export const SCROLLS: Partial<Record<ItemId, ItemId>> = {
+  scrollPestCure: "pestCure",
   scrollFriedMinnow: "friedMinnow", scrollGrilledFish: "grilledFish", scrollGrilledCorn: "grilledCorn", scrollRoastSweetPotato: "roastSweetPotato", scrollStirKangkong: "stirKangkong", scrollBasilCatfish: "basilCatfish",
   scrollTomYum: "tomYum", scrollSourCurry: "sourCurry", scrollFriedPerch: "friedPerch", scrollFishCake: "fishCake", scrollSpicyEel: "spicyEel", scrollGrilledPrawn: "grilledPrawn",
   scrollSteamedGoby: "steamedGoby", scrollPumpkinSoup: "pumpkinSoup", scrollShabu: "shabu", scrollSomTam: "somTam", scrollGrilledEggplant: "grilledEggplant", scrollTomKha: "tomKha",
@@ -832,7 +839,10 @@ export const MAKES: Partial<Record<ItemId, Make>> = {
   compost: { needs: [["hyacinth", 3]], in: [], gives: 2 },
   growFert: { needs: [["compost", 2], ["minnow", 2]], in: [], gives: 2 },
   guardFert: { needs: [["compost", 2], ["chili", 2], ["garlic", 1]], in: [], gives: 2 },
-  pestCure: { needs: [["chili", 2], ["garlic", 2], ["basil", 1]], in: ["pot"], gives: 2 },
+  // (of what the first day's shelf grows: it took garlic and basil at first, whose seeds the uncle has only once two
+  // of his orders are filled, and a pest waits for nobody. The owner asked for its recipe to be sold, 2026-10-04,
+  // with no order filled yet and forty-two plants in the ground.)
+  pestCure: { needs: [["chili", 2], ["scallion", 2], ["salt", 1]], in: ["pot"], gives: 2 },
   basket: { needs: [["hyacinth", 6]], in: [], gives: 1 },
   // the second tier
   driedFish: { needs: [["barb", 2], ["salt", 1]], in: ["grill"], gives: 2 },

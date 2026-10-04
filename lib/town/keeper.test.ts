@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { HINT_IDS, nextHint } from "./hints";
 import { DbKeeper, type Ask } from "./keeper";
+import { shelfOf, sourcesAt } from "./orders";
 import { newPurse, type Purse } from "./trade";
 import { bedOf } from "./world";
 
@@ -113,6 +115,25 @@ describe("the database's keeper", () => {
     expect(k.shelf()).toHaveLength(23);
     expect(k.order()?.day).toBe(1);
     expect(k.found()).toEqual(["friedMinnow"]);
+    stop();
+    k.close();
+  });
+
+  it("leaves off the shelf a thing this page was built before, and takes the uncle's own count of his orders filled", async () => {
+    const shelf = [...shelfOf(0), "seedGarlic", "somethingOfNextWeek"];
+    // (somebody who has every hint there is with one order filled: with two there would be another to buy)
+    const mine = purse({ hints: HINT_IDS.filter((id) => sourcesAt(1).has(id)) });
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: mine }),
+      town_stall: () => ({ now: NOW, stall: { round: 3, sold: {} }, shelf, unlocked: 1, found: [], order: null }),
+    });
+    const k = new DbKeeper("me", db.ask);
+    const stop = k.look("stall");
+    await settle();
+    expect(k.shelf()).toEqual([...shelfOf(0), "seedGarlic"]);
+    // (one order filled, as he says: not two, as a shelf two longer than the first day's would say)
+    expect(nextHint(mine, [], (id) => sourcesAt(2).has(id))).not.toBeNull();
+    expect(k.nextHint()).toBeNull();
     stop();
     k.close();
   });

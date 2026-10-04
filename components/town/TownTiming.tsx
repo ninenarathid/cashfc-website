@@ -1,18 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { finished, markerAt, press, startRound, type Round, type TimingMods } from "@/lib/town/timing";
-import TownIcon from "./TownIcon";
+import { dropped, finished, markerAt, press, startRound, type Round, type TimingMods } from "@/lib/town/timing";
+import TownIcon, { type IconName } from "./TownIcon";
 
-/** How a round of the timing game went. */
-export interface TimingResult { hits: number; misses: number; secs: number; need: number }
-/** What the game is dressed as: a hoe along a strip of earth, a ladle round a pot, a brush along a soapy tub. */
-export type TimingLook = "hoe" | "stir" | "scrub";
+/** How a round of the timing game went. `dropped`: the work was not done (tired hands, and too many misses). */
+export interface TimingResult { hits: number; misses: number; secs: number; need: number; dropped?: boolean }
+/** What the game is dressed as: a hoe along a strip of earth, a ladle round a pot, a brush along a soapy tub, a can along a strip of water. */
+export type TimingLook = "hoe" | "stir" | "scrub" | "water";
 
 /** The two that run along a bar: its ground, the stretch to hit, and the tool that runs over it. */
 const STRIPS = {
-  hoe: { bar: "linear-gradient(180deg,#4a3320,#33220f)", edge: "#6b4a2a", zone: "rgba(226,184,104,0.5)", line: "#e9c877", tool: "hoe" },
-  scrub: { bar: "linear-gradient(180deg,#2f5874,#1f3d52)", edge: "#4b84a8", zone: "rgba(240,250,255,0.72)", line: "#ffffff", tool: "brush" },
+  hoe: { bar: "linear-gradient(180deg,#4a3320,#33220f)", edge: "#6b4a2a", zone: "rgba(226,184,104,0.5)", line: "#e9c877", tool: "hoe", puff: "plotSoil" },
+  scrub: { bar: "linear-gradient(180deg,#2f5874,#1f3d52)", edge: "#4b84a8", zone: "rgba(240,250,255,0.72)", line: "#ffffff", tool: "brush", puff: "puff" },
+  water: { bar: "linear-gradient(180deg,#2b6272,#1b4452)", edge: "#4f99a8", zone: "rgba(214,246,252,0.62)", line: "#e8fcff", tool: "can", puff: "plotDrop" },
 } as const;
 
 /**
@@ -27,7 +28,7 @@ const STRIPS = {
  * Nothing on it says how it works: what moves, the stretch and the dots that
  * fill say it.
  */
-export default function TownTiming({ th, title, verb, need, mods, look, onDone, onCancel, onHit }: {
+export default function TownTiming({ th, title, verb, need, mods, look, icon, onDone, onCancel, onHit }: {
   th: boolean;
   title: string;
   /** The word on the button: what a hit is. */
@@ -36,6 +37,8 @@ export default function TownTiming({ th, title, verb, need, mods, look, onDone, 
   mods: TimingMods;
   /** What it is dressed as (a plain bar, with none). */
   look?: TimingLook;
+  /** What runs along the strip, in place of the look's own tool: the thing in the hand, for the farm's lighter work. */
+  icon?: IconName;
   onDone: (result: TimingResult) => void;
   onCancel: () => void;
   /** Told at each press, a hit or a miss: for a sound. */
@@ -72,13 +75,14 @@ export default function TownTiming({ th, title, verb, need, mods, look, onDone, 
     if (hit) {
       tool.current?.animate(look === "hoe" ? [{ transform: "rotate(-38deg) translateY(-6px)" }, { transform: "rotate(10deg) translateY(5px)" }, { transform: "rotate(0) translateY(0)" }]
         : look === "scrub" ? [{ transform: "translateX(-5px)" }, { transform: "translateX(5px)" }, { transform: "translateX(-3px)" }, { transform: "translateX(0)" }]
+          : look === "water" ? [{ transform: "rotate(0) translateY(0)" }, { transform: "rotate(30deg) translateY(4px)" }, { transform: "rotate(0) translateY(0)" }]
           : [{ transform: "scale(1.25)" }, { transform: "scale(1)" }], { duration: 200 });
       puff.current?.animate([{ opacity: 0.95, transform: "translateY(0) scale(0.7)" }, { opacity: 0, transform: "translateY(-30px) scale(1.5)" }], { duration: 560, easing: "ease-out" });
     }
     setShown((n) => n + 1);
-    if (finished(now)) {
+    if (finished(now) || dropped(now)) {
       ended.current = true;
-      window.setTimeout(() => onDone({ hits: now.hits, misses: now.misses, secs: Math.round(t * 10) / 10, need: now.need }), 220);
+      window.setTimeout(() => onDone({ hits: now.hits, misses: now.misses, secs: Math.round(t * 10) / 10, need: now.need, ...(dropped(now) ? { dropped: true } : {}) }), dropped(now) ? 420 : 220);
     }
   }, [onDone, onHit, look]);
 
@@ -109,7 +113,7 @@ export default function TownTiming({ th, title, verb, need, mods, look, onDone, 
     return () => { delete (window as unknown as { __townTiming?: typeof handle }).__townTiming; };
   }, [strike, look]);
 
-  const r = round.current, strip = look === "hoe" || look === "scrub" ? STRIPS[look] : null;
+  const r = round.current, strip = look && look !== "stir" ? STRIPS[look] : null;
   return (
     <section aria-label={title} className="rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm">
       <div className="flex items-center gap-2">
@@ -118,7 +122,12 @@ export default function TownTiming({ th, title, verb, need, mods, look, onDone, 
         <span className="ml-2 flex gap-1" aria-label={`${r.hits} / ${r.need}`}>
           {Array.from({ length: r.need }, (_, i) => <span key={i} className={`size-2.5 rounded-full ${i < r.hits ? "bg-jade" : "bg-line-strong"}`} />)}
         </span>
-        {r.misses > 0 && <span className="font-data text-meta tabular-nums text-chili">×{r.misses}</span>}
+        {/* tired hands: a mark for each miss they still have in them, going out one by one (said by nothing but itself) */}
+        {r.most > 0 ? (
+          <span className="ml-1 flex gap-1" aria-label={`${Math.max(0, r.most - r.misses)} / ${r.most}`} data-misses-left={Math.max(0, r.most - r.misses)}>
+            {Array.from({ length: r.most }, (_, i) => <span key={i} className={`size-2 rotate-45 ${i < r.most - r.misses ? "bg-chili" : "bg-line"}`} />)}
+          </span>
+        ) : r.misses > 0 && <span className="font-data text-meta tabular-nums text-chili">×{r.misses}</span>}
         <button type="button" onClick={onCancel} className="pressable -mr-1 ml-auto rounded-full px-3 py-1.5 text-meta text-muted hover:text-ink">{th ? "เลิก" : "Stop"}</button>
       </div>
       {round_ ? (
@@ -144,8 +153,8 @@ export default function TownTiming({ th, title, verb, need, mods, look, onDone, 
           <span className="absolute inset-y-0 border-x-2" style={{ left: `${r.lo * 100}%`, width: `${r.width * 100}%`, background: strip.zone, borderColor: strip.line }} />
           <span ref={marker} className="absolute inset-y-0 w-0" style={{ left: "0%" }}>
             <span className="absolute inset-y-0 -ml-px w-[2px] bg-ink/80" />
-            <span ref={tool} className="absolute -top-8 -ml-[15px] block origin-bottom"><TownIcon name={strip.tool} size={30} /></span>
-            <span ref={puff} className="pointer-events-none absolute -top-3 -ml-[10px] opacity-0"><TownIcon name={look === "scrub" ? "puff" : "plotSoil"} size={20} /></span>
+            <span ref={tool} className="absolute -top-8 -ml-[15px] block origin-bottom"><TownIcon name={icon ?? strip.tool} size={30} /></span>
+            <span ref={puff} className="pointer-events-none absolute -top-3 -ml-[10px] opacity-0"><TownIcon name={strip.puff} size={20} /></span>
           </span>
         </div>
       ) : (

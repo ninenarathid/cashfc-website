@@ -160,12 +160,17 @@ export function catalogOf() {
 export type Catalog = ReturnType<typeof catalogOf>;
 
 /**
- * The rows of `town_catalog` each migration that has not run yet writes: none, today. v106 seeded items, goods,
+ * The rows of `town_catalog` each migration that has not run yet writes: v117 writes nine over (see below). v106 seeded items, goods,
  * shelf, rules, carries, order and hints; v107 stamina, dishes and scrolls; v108 fish, flotsam and fishing; v109
  * wrote seven of those over; v110 seeded crops and farming; v111 makes and cooking, and wrote items, goods, shelf,
  * order and hints over again (for the things that went with the dirty pot); v112 seeded deals; v113 wrote rules over
- * (a bag begins with ten slots). All of them have run (v111 to v113 on 2026-10-04), so every row is the database's now, and the files are the record of what ran, not
+ * (a bag begins with ten slots); v116 wrote crops and farming over (a bigger harvest, a lighter hoe). All of them have run (v111 to v113 and v116 on 2026-10-04), so every row is the database's now, and the files are the record of what ran, not
  * to be written again.
+ *
+ * v117 (2026-10-04, for the owner to run): the scroll of how the cure for pests is made, on the shelf from the first
+ * day (items, goods, shelf, scrolls); the cure made of what that shelf grows (makes, cooking), so that it can be
+ * asked for and hinted at from the first day too (order, hints); and the strike's moment with no stamina left
+ * (fishing).
  *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
  * twice). What the code itself changes after a row was seeded has to be written over it by the next migration
@@ -174,7 +179,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * **Changing any number the catalog carries (a price, a recipe, a thing) needs such a migration before it is true in
  * the database.**
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v117: { keys: [], over: ["items", "goods", "shelf", "order", "hints", "scrolls", "fishing", "makes", "cooking"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

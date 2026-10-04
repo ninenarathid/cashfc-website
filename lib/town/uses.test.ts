@@ -147,9 +147,10 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
     expect([...tiers].sort((a, b) => a - b)).toEqual(tiers);
     expect(HINT_PRICE[1]).toBeLessThan(HINT_PRICE[2]);
     expect(HINT_PRICE[2]).toBeLessThan(HINT_PRICE[3]);
-    // a scroll tells as much, and there is one for every dish that is cooked: six the uncle sells, the rest found
-    expect(Object.values(SCROLLS).sort()).toEqual([...cooked].sort());
-    expect(Object.keys(SCROLLS).filter((s) => GOODS[s as ItemId]).length).toBe(6);
+    // a scroll tells as much, and there is one for every dish that is cooked: six the uncle sells, the rest found;
+    // and one of the cure for pests, which he sells too
+    expect(Object.values(SCROLLS).sort()).toEqual([...cooked, "pestCure"].sort());
+    expect(Object.keys(SCROLLS).filter((s) => GOODS[s as ItemId]).length).toBe(7);
   });
 
   it("sells its hints one at a time: the next that is neither heard nor found, for coins", () => {

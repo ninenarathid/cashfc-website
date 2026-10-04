@@ -29,8 +29,9 @@ describe("the uncle's shelf (the owner: \"เราเอาของ basic ข�
     const all = Object.keys(GOODS) as ItemId[];
     expect(new Set([...BASIC, ...UNLOCKS]).size).toBe(BASIC.length + UNLOCKS.length);
     expect([...BASIC, ...UNLOCKS].sort()).toEqual([...all].sort());
-    expect(BASIC.length).toBe(21);
-    expect(UNLOCKS.length).toBe(all.length - 21);
+    // (twenty-one, and the scroll of the cure for pests: the owner, 2026-10-04)
+    expect(BASIC.length).toBe(22);
+    expect(UNLOCKS.length).toBe(all.length - 22);
     // the basic things are the early game's; what is opened comes tier by tier
     for (const id of BASIC) expect(ITEMS[id].tier).toBe(1);
     const tiers = UNLOCKS.map((id) => ITEMS[id].tier);

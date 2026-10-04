@@ -5,9 +5,11 @@ import {
 } from "./cooking";
 import atlas from "./icon-atlas.json";
 import { WATER } from "./farm";
-import { DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, potIconOf, type DishId, type ItemId } from "./items";
+import { toldOf } from "./hints";
+import { DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, SCROLLS, potIconOf, type DishId, type ItemId } from "./items";
+import { BASIC, sourcesAt } from "./orders";
 import { staminaOf } from "./stamina";
-import { held, newPurse, put, type Purse } from "./trade";
+import { GOODS, held, newPurse, put, type Purse } from "./trade";
 
 const NOW = Date.parse("2026-10-03T12:00:00+07:00"), MIN = 60_000;
 const purseWith = (...items: Array<[ItemId, number]>): Purse => {
@@ -351,5 +353,43 @@ describe("the things themselves", () => {
     for (const icon of ["oddDish", potIconOf(ODD), "mystery", "rosette"]) expect(icons).toContain(icon);
     expect(potIconOf("tomYum")).toBe("potTomYum");
     for (const name of ["potEmpty", "tok", "tub", "note", "handshake", "hand", ...Object.keys(WATER.buckets).map((b) => `${b}Full`)]) expect(icons).toContain(name);
+  });
+});
+
+describe("the cure for pests (the owner, 2026-10-04: \"ช่วยเพิ่มสูตรทำยาฆ่าแมลงในร้านค้าให้ด้วย\")", () => {
+  it("is made of what the first day's shelf grows, and its recipe is sold from the first day", () => {
+    const m = MAKES.pestCure!, first = sourcesAt(0);
+    expect(m.in).toEqual(["pot"]);
+    // every thing of it, and the pot, can be had before any of the uncle's orders is filled: so can it
+    for (const [id] of m.needs) expect(first.has(id)).toBe(true);
+    expect(first.has("pot")).toBe(true);
+    expect(first.get("pestCure")).toBe("kitchen");
+    expect(BASIC).toContain("scrollPestCure");
+    expect(SCROLLS.scrollPestCure).toBe("pestCure");
+    // a scroll like the others he sells, and more of it: every plot wants the cure
+    expect(GOODS.scrollPestCure!.price).toBe(GOODS.scrollFriedMinnow!.price);
+    expect(GOODS.scrollPestCure!.stock).toBeGreaterThan(GOODS.scrollFriedMinnow!.stock);
+    expect(ITEMS.scrollPestCure.pays).toBe(0);
+  });
+
+  it("is told by its scroll as any found recipe is: all but its last thing, a staple", () => {
+    const told = toldOf("pestCure");
+    expect(told.needs).toEqual([["chili", 2], ["scallion", 2]]);
+    expect(told.last).toEqual({ kind: "staple", n: 1 });
+    expect(told.in).toEqual(["pot"]);
+    expect(told.gives).toBe(2);
+    expect(ITEMS[MAKES.pestCure!.needs.at(-1)![0]].kind).toBe("staple");
+  });
+
+  it("comes of those things in a pot, two of it; a miss of the stirring is one fewer, never none", () => {
+    const made = done(cook(ready("pestCure"), MAKES.pestCure!.needs, ["pot"], 0, NOW));
+    expect(made.made).toBe("pestCure");
+    expect(made.n).toBe(2);
+    expect(held(made.purse.bag, "pestCure")).toBe(2);
+    expect(done(cook(ready("pestCure"), MAKES.pestCure!.needs, ["pot"], 5, NOW)).n).toBe(1);
+    // the wrong staple is an odd dish, and tastes of being one thing off
+    const wrong = done(cook(purseWith(["chili", 2], ["scallion", 2], ["rice", 1], ["pot", 1]), [["chili", 2], ["scallion", 2], ["rice", 1]], ["pot"], 0, NOW));
+    expect(wrong.made).toBe(ODD);
+    expect(wrong.taste).toBe("swap");
   });
 });

@@ -16,11 +16,13 @@ import { existsSync, readdirSync } from "node:fs";
 await import("./repo-ts-town.mjs");
 const { DbKeeper } = await import("@/lib/town/keeper");
 const { FARM, plotAt, fishFrom, bedOf } = await import("@/lib/town/world");
+const { shelfOf } = await import("@/lib/town/orders");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (a draft of the next migration, kept out of supabase/ until it is proved, is tried with the rest)
-const draft = fileURLToPath(new URL("./v115_draft.sql", import.meta.url));
-const pending = existsSync(draft) && !readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`).some((f) => f.startsWith("v115_"));
+const NEXT = "v117";
+const draft = fileURLToPath(new URL(`./${NEXT}_draft.sql`, import.meta.url));
+const pending = existsSync(draft) && !readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`).some((f) => f.startsWith(`${NEXT}_`));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
   { stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, BENCH_EXTRA: pending ? draft : "" } });
 let up = false, log = "";
@@ -104,10 +106,12 @@ try {
   ok("popoto from pictures are refused: none to change", !did.ok && did.why === "popoto", did);
   did = await A.change("profile", 17);
   ok("more than the week's rest is refused: cap", !did.ok && did.why === "cap", did);
-  ok("the stall is not known until it is looked at", A.order() === null && A.shelf().length === 21);
+  // (the first day's shelf: twenty-one things, and from v117 the scroll of the cure for pests)
+  const withCure = (await sql(`select town.cat('items') ? 'scrollPestCure' as there`))[0].there, first = withCure ? 22 : 21;
+  ok("the stall is not known until it is looked at", A.order() === null && A.shelf().length === shelfOf(0).length);
   const stopStall = A.look("stall");
   await settled(A);
-  ok("looked at: today's order, the shelf of twenty-one, the next hint", A.order()?.wants?.length === 3 && A.shelf().length === 21 && typeof A.nextHint() === "string", { order: A.order(), hint: A.nextHint() });
+  ok(`looked at: today's order, the first day's shelf of ${first}, the next hint`, A.order()?.wants?.length === 3 && A.shelf().length === first && typeof A.nextHint() === "string", { order: A.order(), shelf: A.shelf().length, hint: A.nextHint() });
   stopStall();
   did = await A.buy("worm", 3);
   ok("three worms bought: six coins gone, in the bag, counted on the stall", did.ok && A.purse().coins === 14 && A.purse().bag[0]?.item === "worm" && A.purse().bag[0].n === 3 && A.stall().sold.worm === 3, { purse: A.purse().bag[0], stall: A.stall() });
@@ -322,6 +326,21 @@ try {
   deal = await A.dealOpen("B", "Tester A", "Tester B");
   await A.dealCancel();
   ok("called off: said so, to the one who called it off", deal.ok && A.deal()?.end === "off", A.deal());
+
+  if (withCure) {
+    section("the cure for pests: its scroll bought, read and cooked (v117)");
+    const CURE = [["chili", 2], ["scallion", 2], ["salt", 1]];
+    await purse(a, 100, [{ item: "pot", n: 1 }, { item: "chili", n: 2 }, { item: "scallion", n: 2 }, { item: "salt", n: 1 }]);
+    await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'pot', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [a]);
+    await settled(A);
+    did = await A.buy("scrollPestCure", 1);
+    ok("the scroll is bought for forty coins", did.ok && A.purse().coins === 60 && slotOf(A, "scrollPestCure") >= 0, did.ok ? A.purse().coins : did);
+    did = await A.readScroll(slotOf(A, "scrollPestCure"));
+    ok("read: the cure is in the book with what else is made, and the scroll is used up", did.ok && did.dish === "pestCure" && A.knownMakes().includes("pestCure") && !A.known().includes("pestCure") && slotOf(A, "scrollPestCure") < 0, did);
+    ok("what goes into it is tried here first, and taken for it", A.cookTry(CURE, ["pot"]) === null, A.cookTry(CURE, ["pot"]));
+    const cure = await A.cookDo(CURE, ["pot"], [], { hits: 5, misses: 0, secs: 4, need: 5 }, "Tester A");
+    ok("chilies, scallions and salt in a pot: two of the cure, found first, and made", cure.ok && cure.made === "pestCure" && cure.n === 2 && cure.first === true && A.purse().bag[slotOf(A, "pestCure")]?.n === 2 && A.madeBefore("pestCure"), cure);
+  }
 
   section("one thing at a time");
   await purse(a, 100, []);

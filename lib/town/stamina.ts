@@ -1,4 +1,4 @@
-import { BOWL, BUFFS, BUFF_HOURS, DISHES, SCROLLS, inBowl, isDish, type BuffId, type DishId } from "./items";
+import { BOWL, BUFFS, BUFF_HOURS, DISHES, SCROLLS, inBowl, isDish, type BuffId, type DishId, type ItemId } from "./items";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 
 /**
@@ -40,10 +40,22 @@ export const STAMINA = {
   /**
    * With none left every mini-game is much harder (the owner, 2026-10-03: "ถ้า stamina หมด mini game ทุกอย่างจะยากขึ้น
    * มากด้วย"). Fishing: how much of the strike's moment is left, how much of the safe stretch a fight keeps, how
-   * much harder the fish surges, and how much further and faster the safe stretch moves. A game to come takes
-   * its own numbers from here.
+   * much harder the fish surges, and how much further and faster the safe stretch moves. The game of timing takes
+   * its stretch and its marker's speed from here (lib/town/timing).
+   *
+   * About three times as hard as it first was (the owner, on the game's first day, 2026-10-04: "เมื่อ stamina หมด
+   * minigame จะยากขึ้นกว่านี้อีกสามเท่า แต่ยังคงเป็นไปได้ที่จะเล่นผ่าน ถ้าเป็นคนที่เล่นเก่งมาก … เพื่อที่อาหารจะได้สำคัญ
+   * มากขึ้น"). With the first numbers (0.6, 0.6, 1.3, 1.15, 1.3) a practised hand landed the four small common fish
+   * nearly as often with no stamina as with it, and nobody had to eat. These are set by what comes of a whole go (a
+   * strike, then the fight it begins), played by made-up players as the fight's own numbers were: of a hundred
+   * bites a practised hand lands 35 where it landed 95, a very good one 85, one that plays as the members did that
+   * first day hardly any, and nobody the bigger fish: those are for somebody who has eaten. A third of each number
+   * was tried, and is no game: with a fifth of the stretch even the very good hand lands one small fish in four.
+   * - The strike's moment is half of what it was with none, 0.48 s for 0.96. Under about 0.3 s a strike is the
+   *   quickness of the nerves and of the phone, not skill, so the weight is on the fight.
+   * - The safe stretch is 0.35 of its width where it was 0.6, and moves a little faster.
    */
-  spent: { strike: 0.6, band: 0.6, surge: 1.3, sway: 1.15, pace: 1.3 },
+  spent: { strike: 0.3, band: 0.35, surge: 1.3, sway: 1.15, pace: 1.4 },
 };
 export const MEALS = ["breakfast", "lunch", "dinner"] as const;
 
@@ -158,7 +170,7 @@ export function getUp(purse: Purse, company: number, now: number): Purse {
 }
 
 /** Read the scroll in a slot of the bag: its recipe is known from now on, and the scroll is used up. */
-export function readScroll(purse: Purse, slot: number): Done<{ purse: Purse; dish: DishId }> {
+export function readScroll(purse: Purse, slot: number): Done<{ purse: Purse; dish: ItemId }> {
   const s = purse.bag[slot], dish = s ? SCROLLS[s.item] : undefined;
   if (!s || !dish) return no("none");
   if (purse.recipes.includes(dish)) return no("known");

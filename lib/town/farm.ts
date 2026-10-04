@@ -58,6 +58,18 @@ export const FARMING = {
   swings: { clear: 3, till: 3 },
   /** What a dead plant leaves when it is pulled up. */
   pulled: "compost" as ItemId,
+  /**
+   * Tired hands: with no stamina left, how many hits of the hoe's game everything else on the farm asks for (pulling
+   * up what died, sowing, watering, feeding, curing, picking, and carrying water). The owner, 2026-10-04, had the
+   * mini-games made three times as hard with none, "เพื่อที่อาหารจะได้สำคัญมากขึ้น"; told that this work has no game and so
+   * stays free, he said "ออกแบบเพิ่มเลย". So with none it is a short round of the same game, with the tired stretch,
+   * and dropped at the third miss like the hoe's (lib/town/timing): nothing is done then and nothing lost, and it
+   * may be tried again at once. Two hits and not the hoe's three, for lighter work: of made-up hands, one as unsure
+   * as the members' were does it one go in four, a practised one two in three, a very good one nearly always; a
+   * better can or blade widens the stretch as a better hoe does. Watering a bed so takes about as long as sitting
+   * down to a meal, which is the point. With stamina it is done at once, as ever.
+   */
+  tired: 2,
 };
 /** The hoes. */
 export const HOES: ItemId[] = ["hoe", "hoeIron", "hoeSteel"];
@@ -308,6 +320,9 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
 
 /** What the thing in the hand can do with water where one stands: draw a bucket at the river, pour it into the well, fill a can at the well. */
 export type Chore = "draw" | "pour" | "fill";
+/** How many hits of the game of timing a piece of the farm's work asks for: the hoe's always, anything else only of tired hands. None: it is done at once. */
+export const hitsFor = (work: Deed | Chore, spent: boolean): number =>
+  (work === "clear" || work === "till" ? FARMING.swings[work] : spent ? FARMING.tired : 0);
 export function choreFor(purse: Purse, where: "river" | "well" | null, well: number): Chore | null {
   const hand = handOf(purse);
   if (hand && hand in WATER.buckets) {

@@ -295,9 +295,9 @@ export class Trial {
   /** The recipes I can read: the dishes I have read of or made, and those anybody has found; and what else is known to be made. */
   known(): DishId[] {
     const p = this.purse();
-    return [...new Set<DishId>([...p.recipes, ...this.found().filter((id): id is DishId => id in DISHES)])];
+    return [...new Set<ItemId>([...p.recipes, ...this.found()])].filter((id): id is DishId => id in DISHES);
   }
-  knownMakes(): ItemId[] { return [...new Set<ItemId>([...(this.purse().made ?? []), ...this.found()])].filter((id) => !(id in DISHES)); }
+  knownMakes(): ItemId[] { const p = this.purse(); return [...new Set<ItemId>([...(p.made ?? []), ...p.recipes, ...this.found()])].filter((id) => !(id in DISHES)); }
   /** Whether putting some things together would be refused, and why (nothing is done). */
   cookTry(things: Array<[ItemId, number]>, crew: Array<ItemId | null>): Refusal | null {
     const did = cook(this.purse(), things, crew, 0, this.now());

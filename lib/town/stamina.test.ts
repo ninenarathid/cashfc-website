@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BUFFS, BUFF_HOURS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, SCROLLS, STAGES, STAGE_AT, growth, iconOf, type ItemId } from "./items";
+import { BUFFS, BUFF_HOURS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, SCROLLS, STAGES, STAGE_AT, growth, iconOf, isDish, type DishId, type ItemId } from "./items";
 import { STAMINA, bowlsBack, buffOf, chew, costOf, dayOf, eatenToday, getUp, mealOf, mealProgress, nextMealAt, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
 import { GOODS, held, newPurse, put, type Purse } from "./trade";
 import atlas from "./icon-atlas.json";
@@ -45,9 +45,10 @@ describe("everything there is", () => {
     expect(GOODS.riceBox).toBeDefined();
     // the scrolls he sells are of the two simplest recipes of each tier; the early game's are both made from what the
     // river gives (every other dish has a scroll too, which is found: lib/town/scrolls)
-    const first = Object.entries(SCROLLS).filter(([scroll]) => ITEMS[scroll as ItemId].tier === 1 && GOODS[scroll as ItemId]);
+    // (the one scroll he sells that is of no dish, of the cure for pests, aside)
+    const first = Object.entries(SCROLLS).filter(([scroll, of]) => ITEMS[scroll as ItemId].tier === 1 && GOODS[scroll as ItemId] && isDish(of!));
     expect(first.map(([, dish]) => dish).sort()).toEqual(["friedMinnow", "grilledFish"]);
-    for (const [scroll, dish] of first) { expect(GOODS[scroll as ItemId]).toBeDefined(); expect(DISHES[dish!].recipe!.needs.length).toBeLessThanOrEqual(2); }
+    for (const [scroll, dish] of first) { expect(GOODS[scroll as ItemId]).toBeDefined(); expect(DISHES[dish as DishId].recipe!.needs.length).toBeLessThanOrEqual(2); }
     // the big pot takes three to cook, and feeds the most of the early game's dishes
     expect(DISHES.shabu.recipe!.cooks).toBe(3);
     expect(Math.max(...DISH_IDS.filter((id) => ITEMS[id].tier === 1).map((id) => DISHES[id].recipe?.serves ?? 0))).toBe(DISHES.shabu.recipe!.serves);
@@ -282,5 +283,13 @@ describe("a recipe scroll", () => {
     expect(read.purse.bag[0]).toBeNull();
     expect(readScroll({ ...read.purse, bag: p.bag }, 0)).toEqual({ ok: false, why: "known" });
     expect(readScroll(withFood("worm"), 0)).toEqual({ ok: false, why: "none" });
+  });
+
+  it("teaches how the cure for pests is made as it teaches a dish", () => {
+    const read = readScroll({ ...withFood("scrollPestCure"), recipes: ["grilledFish"] }, 0);
+    expect(read.ok && read.dish).toBe("pestCure");
+    expect(read.ok && read.purse.recipes).toEqual(["grilledFish", "pestCure"]);
+    expect(read.ok && read.purse.bag[0]).toBeNull();
+    expect(iconOf("scrollPestCure")).toBe("scroll");
   });
 });

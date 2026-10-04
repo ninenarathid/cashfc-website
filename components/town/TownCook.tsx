@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { COOKING, easeOf, goesIn, isCookware, isFind, mayTake, reachOf, stirsFor, type Pot, type Taste } from "@/lib/town/cooking";
+import { COOKING, goesIn, isCookware, isFind, mayTake, reachOf, stirMods, stirsFor, type Pot, type Taste } from "@/lib/town/cooking";
 import { DISHES, ITEMS, potIconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
@@ -236,7 +236,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {stirring ? (
         <div className="pop-in pointer-events-auto w-full max-w-[26rem]" data-state="open">
-          <TownTiming th={th} title={th ? "ทำอาหาร" : "Cooking"} verb={th ? "คน" : "Stir"} need={stirsFor(stirring.things)} mods={{ tool: easeOf(purse.bag), spent }} look="stir"
+          <TownTiming th={th} title={th ? "ทำอาหาร" : "Cooking"} verb={th ? "คน" : "Stir"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent)} look="stir"
                       onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
                       onDone={finish} onCancel={() => setStirring(null)} />
         </div>

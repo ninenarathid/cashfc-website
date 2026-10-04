@@ -1,4 +1,4 @@
-import { ITEMS, SCROLLS, type DishId, type ItemId } from "./items";
+import { ITEMS, SCROLLS, type ItemId } from "./items";
 import { GOODS, no, put, type Done, type Purse } from "./trade";
 
 /**
@@ -28,8 +28,8 @@ export const INSIDE: Partial<Record<ItemId, { chance: number; tiers: Array<1 | 2
   chest: { chance: 1, tiers: [2, 3] },
 };
 
-/** The scroll of each dish that has one. */
-export const SCROLL_OF = Object.fromEntries((Object.keys(SCROLLS) as ItemId[]).map((scroll) => [SCROLLS[scroll], scroll])) as Partial<Record<DishId, ItemId>>;
+/** The scroll of each thing that has one: a dish, or the cure for pests. */
+export const SCROLL_OF = Object.fromEntries((Object.keys(SCROLLS) as ItemId[]).map((scroll) => [SCROLLS[scroll], scroll])) as Partial<Record<ItemId, ItemId>>;
 /** The scrolls that are only found, of dishes of some tiers: every one the uncle does not sell, in the order the things are listed. */
 export const foundScrolls = (tiers: Array<1 | 2 | 3>): ItemId[] => (Object.keys(SCROLLS) as ItemId[]).filter((s) => !GOODS[s] && tiers.includes(ITEMS[s].tier));
 /** Whether a thing can be opened. */

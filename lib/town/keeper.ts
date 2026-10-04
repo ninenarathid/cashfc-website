@@ -3,7 +3,7 @@ import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
 import type { Strike } from "./fishing";
 import { nextHint } from "./hints";
-import { DISHES, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
+import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { shelfOf, sourcesAt, type Order } from "./orders";
 import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
@@ -97,7 +97,7 @@ export interface Keeper {
   /** Count the meal on, with so many eating beside one (asked every second; a keeper may ask less often of whoever it keeps with). */
   chew(company: number): void;
   getUp(company: number): Promise<void>;
-  readScroll(slot: number): Promise<Did<{ dish: DishId }>>;
+  readScroll(slot: number): Promise<Did<{ dish: ItemId }>>;
   openThing(slot: number): Promise<Did<{ found: ItemId | null }>>;
   /** Take up the thing in a slot, to hold it; null puts away what is held. */
   hold(slot: number | null): Promise<Did>;
@@ -259,7 +259,15 @@ export class DbKeeper implements Keeper {
     if (a.purse && typeof a.purse === "object") { this.mine = a.purse as Purse; this.read = true; this.opened = true; this.meal(); }
     if (a.stall && typeof a.stall === "object") this.stall_ = a.stall as Stall;
     if (typeof a.unlocked === "number") this.unlocked = a.unlocked;
-    if (Array.isArray(a.shelf)) { this.shelf_ = a.shelf as ItemId[]; this.unlocked = Math.max(0, this.shelf_.length - shelfOf(0).length); }
+    // The shelf is the database's, and the database can come to sell a thing this page was built before (the scroll of
+    // the cure for pests did, on the game's first day, with members in town who had not loaded the page again). Such
+    // a thing is left off: a shelf one short is better than a shelf that cannot be drawn. How many of his orders are
+    // filled is the uncle's own count when he says it, and only otherwise the length of his shelf.
+    if (Array.isArray(a.shelf)) {
+      const shelf = a.shelf as ItemId[];
+      this.shelf_ = shelf.filter((id) => id in ITEMS);
+      if (typeof a.unlocked !== "number") this.unlocked = Math.max(0, shelf.length - shelfOf(0).length);
+    }
     if (a.order && typeof a.order === "object") this.order_ = a.order as Order;
     // (a list of what has been found: a thing opened says `found` too, of what was in it, which is one thing or none)
     if (Array.isArray(a.found)) this.found_ = a.found as ItemId[];
@@ -356,8 +364,8 @@ export class DbKeeper implements Keeper {
   finder(id: ItemId): string | null { return this.finders_[id] ?? null; }
   madeBefore(id: ItemId): boolean { return hasMade(this.mine, id); }
   triesAt(id: ItemId): number { return this.mine.tries?.[id] ?? 0; }
-  known(): DishId[] { return [...new Set<DishId>([...this.mine.recipes, ...this.found_.filter((id): id is DishId => id in DISHES)])]; }
-  knownMakes(): ItemId[] { return [...new Set<ItemId>([...(this.mine.made ?? []), ...this.found_])].filter((id) => !(id in DISHES)); }
+  known(): DishId[] { return [...new Set<ItemId>([...this.mine.recipes, ...this.found_])].filter((id): id is DishId => id in DISHES); }
+  knownMakes(): ItemId[] { return [...new Set<ItemId>([...(this.mine.made ?? []), ...this.mine.recipes, ...this.found_])].filter((id) => !(id in DISHES)); }
   cookTry(things: Array<[ItemId, number]>, crew: Array<ItemId | null>): Refusal | null {
     const did = cook(this.mine, things, crew, 0, this.now());
     return did.ok ? null : did.why;
@@ -406,7 +414,7 @@ export class DbKeeper implements Keeper {
     this.mealEnd = setTimeout(() => { this.mealEnd = null; if (this.mine.eating) this.munch(this.company); }, Math.max(0, till) + 300);
   }
   async getUp(company: number) { if (this.mine.eating) await this.ask("town_get_up", { p_company: company }); }
-  readScroll(slot: number) { return this.deed<{ dish: DishId }>("town_read", { p_slot: slot }); }
+  readScroll(slot: number) { return this.deed<{ dish: ItemId }>("town_read", { p_slot: slot }); }
   /** (Its answer's `found` is what was inside, one thing or none: not the list of what has been found, which is a list and so is not mistaken for it.) */
   openThing(slot: number) { return this.deed<{ found: ItemId | null }>("town_open", { p_slot: slot }); }
   hold(slot: number | null) { return this.deed("town_hold", { p_slot: slot }); }

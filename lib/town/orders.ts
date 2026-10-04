@@ -45,7 +45,7 @@ export const ORDER = {
 export const BASIC: ItemId[] = [
   "rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox",
   "seedKangkong", "seedScallion", "seedCabbage", "seedCarrot", "seedChili", "seedPumpkin",
-  "scrollFriedMinnow", "scrollGrilledFish", "bowl", "bucket",
+  "scrollFriedMinnow", "scrollGrilledFish", "scrollPestCure", "bowl", "bucket",
 ];
 /**
  * What the orders open, in this order, one for each day filled: the early

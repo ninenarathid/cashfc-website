@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  BEDS, FARMING, WATER, WILD, chore, choreFor, cropOf, cure, deedFor, feed, grown, hoe, isTree, ownerOf, pestAt, pick, see, sow, tend, toolOf, water, waterIn, yieldOf,
+  BEDS, FARMING, WATER, WILD, chore, choreFor, cropOf, cure, deedFor, feed, grown, hitsFor, hoe, isTree, ownerOf, pestAt, pick, see, sow, tend, toolOf, water, waterIn, yieldOf,
   type Bed, type Plant, type Plot,
 } from "./farm";
 import atlas from "./icon-atlas.json";
@@ -450,5 +450,21 @@ describe("what waiting is worth (the owner, 2026-10-04: every crop twice as many
     expect(perStamina("cabbage")).toBeGreaterThan(perStamina("kangkong"));
     expect(perStamina("chili")).toBeGreaterThan(perStamina("cabbage"));
     expect(perStamina("pumpkin")).toBeGreaterThan(perStamina("chili"));
+  });
+});
+
+describe("tired hands (the owner, 2026-10-04: the work that has no game stayed free with no stamina; \"ออกแบบเพิ่มเลย\")", () => {
+  it("asks the hoe's game of the hoe's work always, and of everything else only with no stamina left", () => {
+    for (const spent of [false, true]) {
+      expect(hitsFor("clear", spent)).toBe(FARMING.swings.clear);
+      expect(hitsFor("till", spent)).toBe(FARMING.swings.till);
+    }
+    for (const work of ["pull", "sow", "water", "feed", "cure", "pick", "draw", "pour", "fill"] as const) {
+      expect(hitsFor(work, false)).toBe(0);
+      expect(hitsFor(work, true)).toBe(FARMING.tired);
+    }
+    // lighter work, a shorter round: fewer hits than the hoe's, and more than one
+    expect(FARMING.tired).toBe(2);
+    expect(FARMING.tired).toBeLessThan(FARMING.swings.clear);
   });
 });

@@ -15,7 +15,10 @@
 // - a helping eaten up gives its bowl back;
 // - a dish for two, cooked alone, is an odd dish too; it is cooked when the other stands at a place with the other
 //   piece of cookware;
-// - the uncle's hint is bought; every stirring is written down.
+// - the uncle's hint is bought; every stirring is written down;
+// - the stirring's stretch is twice the hoe's, and with no stamina left three quarters of that, never dropped;
+// - the scroll of the cure for pests is bought from the first day's shelf and read into the book, which tells all of
+//   the cure but its last thing; chilies, scallions and salt in a pot make two of it.
 //
 // Prints PASS/FAIL lines and writes screenshots to <outdir>.
 //
@@ -130,6 +133,8 @@ try {
   await X.evaluate(`${C}.go()`);
   await until("the game is up", () => X.evaluate(`!!window.__townTiming`), 4000);
   ok("the stirring is a ladle going round a pot, not a fishing line", (await X.evaluate(`window.__townTiming.look`)) === "stir" && (await X.evaluate(`!!document.querySelector('[data-look="stir"]')`)));
+  const kind = await X.evaluate(`(() => { const r = window.__townTiming.round(); return { width: r.width, speed: r.speed, most: r.most }; })()`);
+  ok("…the kindest of the games: its stretch is twice the hoe's", Math.abs(kind.width - 0.34) < 1e-6 && Math.abs(kind.speed - 0.9) < 1e-6 && kind.most === 0, kind);
   await swing(X);
   await sleep(700);
   ok("things that make nothing are stirred all the same", true);
@@ -272,6 +277,35 @@ try {
   const cooking = log.filter((l) => l.game === "cooking");
   ok("every stirring is written down", cooking.length === 6 && cooking.filter((l) => l.won).length === 3 && cooking.filter((l) => l.what === "oddDish" && !l.won).length === 3
     && cooking.some((l) => l.what === "tomYum") && log.every((l) => l.game !== "washing"), { cooking: cooking.map((l) => [l.what, l.won]) });
+  // the cure for pests (the owner, 2026-10-04: "ช่วยเพิ่มสูตรทำยาฆ่าแมลงในร้านค้าให้ด้วย"): its scroll from the uncle's first
+  // shelf, read into the book; the cure made of what that shelf grows; stirred with no stamina left
+  await X.evaluate(`${T}.grant("rice", 0, 100)`);
+  const sold = await X.evaluate(`${T}.buy("scrollPestCure", 1)`);
+  ok("the uncle sells the scroll of the cure for pests, with none of his orders filled", sold.ok === true && (await has(X, "scrollPestCure")) === 1, sold);
+  const told = await X.evaluate(`${T}.readScroll(${await slotOf(X, "scrollPestCure")})`);
+  ok("read, the cure is in the recipe book with what else is made, and the scroll is used up", told.ok === true && told.dish === "pestCure" && (await X.evaluate(`${T}.knownMakes()`)).includes("pestCure") && (await has(X, "scrollPestCure")) === 0, told);
+  paper = await readRecipe(X, "ยาไล่แมลง");
+  ok("the book tells all of it but its last thing, which is some staple", /พริก/.test(paper) && /ต้นหอม/.test(paper) && !/เกลือ/.test(paper) && /ของคู่ครัวสักอย่าง/.test(paper), paper);
+  await X.shot(`${OUT}/cook-cure-scroll.png`);
+  await rollUp(X);
+  // (the bag shut again, and a pot of one's own in it)
+  if (await X.evaluate(`!!${TRADE}`)) { await X.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า").click()`); await sleep(700); }
+  await X.evaluate(`${T}.setStamina(0)`);
+  await grant(X, [["chili", 2], ["scallion", 2], ["salt", 1], ...((await has(X, "pot")) ? [] : [["pot", 1]])]);
+  await warp(X, open);
+  await warp(X, at("stove"));
+  await cookAgain(X);
+  await X.evaluate(`${C}.put([["chili", 2], ["scallion", 2], ["salt", 1]])`);
+  await sleep(300);
+  await X.evaluate(`${C}.go()`);
+  await until("the cure is stirred", () => X.evaluate(`!!window.__townTiming`), 4000);
+  const weary = await X.evaluate(`(() => { const r = window.__townTiming.round(); return { width: r.width, speed: r.speed, most: r.most, need: r.need }; })()`);
+  ok("with no stamina the stirring is a little harder and no more: three quarters of its wide stretch, never dropped", Math.abs(weary.width - 0.34 * 0.75) < 1e-6 && Math.abs(weary.speed - 0.9 * 1.15) < 1e-6 && weary.most === 0 && weary.need === 5, weary);
+  await X.shot(`${OUT}/cook-cure-stir.png`);
+  await swing(X);
+  await sleep(700);
+  ok("chilies, scallions and salt in a pot are two of the cure, a recipe found", (await has(X, "pestCure")) === 2 && (await X.evaluate(`${C}.found()`)).includes("pestCure"), (await purse(X)).bag.filter(Boolean));
+  await X.evaluate(`${T}.setStamina(100)`);
   ok("no page errors", X.logs.length === 0 && Y.logs.length === 0, [...X.logs, ...Y.logs]);
 } catch (e) { ok("the run", false, e.message + " " + JSON.stringify(X.logs)); } finally { X.close(); }
 console.log(`\n${pass} passed, ${fail} failed`);

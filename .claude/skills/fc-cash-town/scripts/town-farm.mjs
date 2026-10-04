@@ -7,7 +7,10 @@
 //   and the can is filled there; the other tester may water too;
 // - time is put forward until the plant is ripe, it is picked into the bag and bears again;
 // - a bed nobody has tended for more than four days is anybody's again;
-// - nothing is offered to a hand that holds the wrong thing; every go at the hoe is written down.
+// - nothing is offered to a hand that holds the wrong thing; every go at the hoe is written down;
+// - with no stamina left the stretch is a good third of itself and the hoe is dropped at the third miss, the plot left
+//   as it was; a steady hand hoes it all the same. Everything else is a short round of the same game then (sowing,
+//   watering, drawing water), dropped the same way with nothing lost; with stamina again it is done at once.
 //
 // Prints PASS/FAIL lines and writes screenshots to <outdir>.
 //
@@ -238,6 +241,94 @@ try {
   // every go at the hoe was written down
   const log = (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming");
   ok("the hoe's rounds are written down, with their hits and misses", log.length === 4 && log[0].what === "clear" && log[1].what === "till" && log.every((l) => l.hits === 3 && l.need === 3 && l.secs > 0), log);
+
+  // with no stamina left: much harder, and the hoe is dropped at the third miss (the owner, 2026-10-04: three times
+  // as hard as it was, and still to be done by a very good hand)
+  const TIRED = "142,6";
+  await X.evaluate(`${T}.setStamina(0)`);
+  await warp(X, 142, 6);
+  await hold(X, "hoe");
+  await until("the hoe is offered weeds, with no stamina left", async () => (await deed(X)) === "clear", 5000);
+  await X.evaluate(`${F}.act()`);
+  await until("the game of timing is up", () => X.evaluate(`!!window.__townTiming`), 4000);
+  await sleep(150);
+  const tired = await X.evaluate(`(() => { const r = window.__townTiming.round(); return { most: r.most, width: r.width, speed: r.speed, left: document.querySelector("[data-misses-left]")?.dataset.missesLeft ?? null }; })()`);
+  ok("with no stamina the stretch is a good third of itself, the marker faster, and three marks stand for the misses left", tired.most === 3 && tired.width > 0.05 && tired.width < 0.07 && tired.speed > 1.2 && tired.left === "3", tired);
+  await X.shot(`${OUT}/farm-tired.png`);
+  for (let n = 0; n < 3; n++) {
+    await until("the marker is well away from the stretch", () => X.evaluate(`(() => { const t = window.__townTiming; if (!t) return true; const r = t.round();
+      if (r.at < r.lo - 0.08 || r.at > r.lo + r.width + 0.08) { t.press(); return true; } return false; })()`), 5000);
+    await sleep(80);
+    if (n === 1) ok("…one mark goes out at each miss", (await X.evaluate(`document.querySelector("[data-misses-left]")?.dataset.missesLeft ?? null`)) === "1");
+  }
+  await until("the game of timing is gone", () => X.evaluate(`!window.__townTiming`), 3000);
+  await sleep(200);
+  ok("the third miss drops the hoe: it is said, and the weeds are as they were", (await shown(X, "/หมดแรง จอบหลุดมือ/")) && (await seen(X, TIRED)).soil === "wild" && (await deed(X)) === "clear", await seen(X, TIRED));
+  await X.shot(`${OUT}/farm-dropped.png`);
+  const lost = (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming").at(-1);
+  ok("…and written down as a go that was lost, played with none", lost.won === false && lost.spent === true && lost.misses === 3 && lost.hits === 0 && lost.what === "clear", lost);
+  await X.evaluate(`${F}.act()`);
+  ok("a steady hand hoes it all the same", await swing(X));
+  await until("the plot is cleared with no stamina", async () => (await seen(X, TIRED)).soil === "cleared", 4000);
+  ok("…for nothing: there is no stamina to take", (await purse(X)).stamina.left === 0, (await purse(X)).stamina);
+
+  // …and everything else on the farm is a short round of the same game then (the owner: "ออกแบบเพิ่มเลย"): two hits,
+  // dropped at the third miss, with nothing lost
+  await X.evaluate(`${F}.act()`);
+  await swing(X);
+  await until("the plot is tilled with no stamina", async () => (await seen(X, TIRED)).soil === "tilled", 4000);
+  await hold(X, "seedKangkong");
+  await until("a seed is offered the tilled plot", async () => (await deed(X)) === "sow", 5000);
+  const seeds = await has(X, "seedKangkong");
+  await X.evaluate(`${F}.act()`);
+  await until("tired hands sow by the game of timing", () => X.evaluate(`!!window.__townTiming`), 4000);
+  await sleep(150);
+  const light = await X.evaluate(`(() => { const r = window.__townTiming.round(); return { need: r.need, most: r.most, width: r.width, look: document.querySelector("[data-look]")?.dataset.look ?? null,
+    button: [...document.querySelectorAll("button")].some((b) => /ออกแรง/.test(b.innerText)), sown: !!window.__townFarm.seen("${TIRED}").crop }; })()`);
+  ok("with no stamina, sowing is a short round of the hoe's game: two hits, and three misses drop it", light.need === 2 && light.most === 3 && light.width < 0.07 && light.look === "hoe" && light.button && !light.sown, light);
+  await X.shot(`${OUT}/farm-tired-sow.png`);
+  for (let n = 0; n < 3; n++) {
+    await until("the marker is well away from the stretch", () => X.evaluate(`(() => { const t = window.__townTiming; if (!t) return true; const r = t.round();
+      if (r.at < r.lo - 0.08 || r.at > r.lo + r.width + 0.08) { t.press(); return true; } return false; })()`), 5000);
+    await sleep(80);
+  }
+  await until("the short round is gone", () => X.evaluate(`!window.__townTiming`), 3000);
+  await sleep(200);
+  ok("dropped, nothing is sown and no seed is lost: it is said", (await shown(X, "/หมดแรง มือสั่น/")) && (await seen(X, TIRED)).crop === null && (await has(X, "seedKangkong")) === seeds && (await deed(X)) === "sow", await seen(X, TIRED));
+  await X.evaluate(`${F}.act()`);
+  ok("a steady hand sows all the same", await swing(X));
+  await until("the seed is in the ground", async () => (await seen(X, TIRED)).crop === "kangkong", 4000);
+  ok("…one seed gone", (await has(X, "seedKangkong")) === seeds - 1);
+  // watering, along a strip of water
+  await hold(X, "can");
+  await until("the can is offered what was sown", async () => (await deed(X)) === "water", 5000);
+  const waterings = await waterOf(X, "can");
+  await X.evaluate(`${F}.act()`);
+  await until("tired hands water by the game of timing", () => X.evaluate(`!!window.__townTiming`), 4000);
+  await sleep(150);
+  ok("watering is the same round, along a strip of water", (await X.evaluate(`document.querySelector("[data-look]")?.dataset.look ?? null`)) === "water" && (await X.evaluate(`window.__townTiming.round().need`)) === 2);
+  await X.shot(`${OUT}/farm-tired-water.png`);
+  await swing(X);
+  await until("the plant is watered", async () => (await seen(X, TIRED)).wet === true, 4000);
+  ok("…two hits and it is watered: one watering less in the can", (await waterOf(X, "can")) === waterings - 1, { waterings, now: await waterOf(X, "can") });
+  // carrying water
+  await warp(X, ...RIVER);
+  await hold(X, "bucket");
+  await until("a bucket is offered the river", async () => (await chore(X)) === "draw", 5000);
+  await X.evaluate(`${F}.act()`);
+  await until("tired hands draw water by the game of timing", () => X.evaluate(`!!window.__townTiming`), 4000);
+  ok("drawing water is a round too", (await waterOf(X, "bucket")) === 0 && (await swing(X)));
+  await until("the bucket is full", async () => (await waterOf(X, "bucket")) >= 1, 4000);
+  const rounds = (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming").slice(-4).map((l) => [l.what, l.won, l.need, l.spent]);
+  ok("each of those rounds is written down, the dropped one as lost", JSON.stringify(rounds) === JSON.stringify([["sow", false, 2, true], ["sow", true, 2, true], ["water", true, 2, true], ["draw", true, 2, true]]), rounds);
+  // with stamina again, the same work is done at once
+  await X.evaluate(`${T}.setStamina(100)`);
+  await warp(X, ...WELL);
+  await until("a full bucket is offered the well", async () => (await chore(X)) === "pour", 5000);
+  const wellWas = await X.evaluate(`${F}.well()`);
+  await X.evaluate(`${F}.act()`);
+  await sleep(500);
+  ok("with stamina, the same work is done at once, with no round", !(await X.evaluate(`!!window.__townTiming`)) && (await X.evaluate(`${F}.well()`)) === wellWas + 1 && (await waterOf(X, "bucket")) === 0);
 
   // a few more plots at their stages, to look at
   await X.evaluate(`${T}.reset()`);

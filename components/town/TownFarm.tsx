@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FARMING, WATER, WILD, plotKey, roll, see, type Chore, type Deed, type Seen } from "@/lib/town/farm";
+import { BLADES, WATER, WILD, hitsFor, plotKey, roll, see, type Chore, type Deed, type Seen } from "@/lib/town/farm";
 import { FIELD } from "@/lib/town/gear";
-import { ITEMS, growIconOf, type ItemId } from "@/lib/town/items";
+import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
@@ -45,7 +45,16 @@ const WHY_FARM: Record<string, [string, string]> = {
   hand: ["ของในมือทำอะไรกับแปลงนี้ไม่ได้", "What you hold does nothing here"], soil: ["แปลงนี้ยังไม่พร้อม", "This plot is not ready for that"],
   wet: ["เพิ่งรดไป", "Watered already"], theirs: ["แปลงนี้มีเจ้าของแล้ว", "This bed is somebody's"], unripe: ["ยังไม่สุก", "Not ripe yet"],
   beds: ["มีแปลงของตัวเองครบแล้ว", "You hold as many beds as you may"],
+  tired: ["หมดแรง จอบหลุดมือ", "Too tired: the hoe slips from your hands"],
+  shaky: ["หมดแรง มือสั่นจนทำไม่สำเร็จ", "Too tired: your hands shake, and it comes to nothing"],
 };
+/** The work that is done with water: its short round (tired hands play one) runs along a strip of water, not of earth. */
+const WATERY: Array<Deed | Chore> = ["water", "draw", "pour", "fill"];
+/** What runs along the strip in that short round: the thing in the hand, or the hand itself (picking takes no tool, unless a blade is held). */
+function toolIcon(work: Deed | Chore, hand: ItemId | null): IconName {
+  const name = work === "pick" && hand !== BLADES.plant && hand !== BLADES.tree ? "hand" : hand ? iconOf(hand) : "hand";
+  return (name in ICON_ATLAS.icons ? name : "hand") as IconName;
+}
 /** What flies up at each deed, and what it sounds like (the owner, 2026-10-03: "ปลูกพืช ช่วยใช้ vfx ที่เหมาะสมด้วยนะครับ ตอนนี้เหมือน ตกปลาเลย"). */
 const DEED_FX: Record<Deed, [VfxKind, WorkSound]> = {
   clear: ["leaves", "pull"], till: ["soil", "hoe"], pull: ["soil", "pull"], sow: ["seeds", "sow"], water: ["water", "water"], feed: ["dust", "feed"], cure: ["mist", "spray"], pick: ["sparkle", "pick"],
@@ -88,7 +97,9 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * pest off; and a ripe plant of one's own bed is picked. By the river a bucket
  * is filled, at the farm's well it is poured in, and a can is filled there.
  * Nothing says which thing does what: the button only shows when the hand
- * holds the right one.
+ * holds the right one. With no stamina left everything but the hoe's work is a
+ * short round of the hoe's game as well (lib/town/farm's hitsFor), and all of
+ * it is dropped at the third miss.
  *
  * It also draws every plot on the map, each frame: weeds, tilled soil, a
  * plant at its stage, a pest on it, the shine of a ripe one; whose each bed
@@ -123,7 +134,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     return () => { stop(); clearInterval(t); };
   }, [keeper]);
   useEffect(() => (near ? keeper.look("farm") : undefined), [near, keeper]);
-  const [working, setWorking] = useState<{ key: string; deed: Deed } | null>(null);
+  /** The work being done by the game of timing: on which plot (none, for carrying water), what, and how many hits it asks for. */
+  const [working, setWorking] = useState<{ key: string | null; work: Deed | Chore; need: number } | null>(null);
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2600); return () => clearTimeout(t); }, [note]);
   /** What is in the air over the plots: earth, leaves, water, a sparkle. */
@@ -218,13 +230,17 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the tile is told by its two numbers
   }, [keeper, water, at?.[0], at?.[1], sfx, th, say, vfx]);
   const begin = useCallback(() => {
-    if (key && deed) {
-      if (deed === "clear" || deed === "till") setWorking({ key, deed });
-      else void act(key);
-    } else if (chore) void carry();
-  }, [key, deed, chore, act, carry]);
-  // walking off the plot leaves the work
-  useEffect(() => { if (working && working.key !== key) setWorking(null); }, [working, key]);
+    const work = key && deed ? deed : chore;
+    if (!work) return;
+    // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
+    const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
+    if (need) setWorking({ key: key && deed ? key : null, work, need });
+    else if (key && deed) void act(key);
+    else void carry();
+  }, [key, deed, chore, act, carry, keeper]);
+  // walking off the plot, or away from the water, leaves the work
+  useEffect(() => { if (working && (working.key ? working.key !== key : working.work !== chore)) setWorking(null); }, [working, key, chore]);
+  const hoeing = working?.work === "clear" || working?.work === "till";
   const offer = deed ?? chore;
 
   // The space bar is the button (while the timing game is up it is the game's).
@@ -258,16 +274,28 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {working ? (
         <div className="pop-in pointer-events-auto w-full max-w-[26rem]" data-state="open">
-          <TownTiming th={th} title={th ? VERB[working.deed][0] : VERB[working.deed][1]} verb={th ? "ฟันจอบ" : "Swing"} need={FARMING.swings[working.deed === "clear" ? "clear" : "till"]}
-                      mods={{ tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now) }} look="hoe"
+          <TownTiming th={th} title={th ? VERB[working.work][0] : VERB[working.work][1]} verb={hoeing ? (th ? "ฟันจอบ" : "Swing") : th ? "ออกแรง" : "Steady"} need={working.need}
+                      mods={{ tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true }}
+                      look={WATERY.includes(working.work) ? "water" : "hoe"} icon={hoeing ? undefined : toolIcon(working.work, hand)}
                       onHit={(hit) => {
-                        // the blade into the earth, and what it throws up
                         sfx?.wake();
+                        // (tired hands at lighter work: only a miss is heard, the work's own sound comes when it is done)
+                        if (!hoeing || !working.key) { if (!hit) sfx?.work("knock"); return; }
+                        // the blade into the earth, and what it throws up
                         sfx?.work(hit ? "hoe" : "knock");
                         const [x, y] = working.key.split(",").map(Number);
-                        if (hit) vfx.add(working.deed === "clear" ? "leaves" : "soil", { x: x + 0.5, y: y + 0.5 });
+                        if (hit) vfx.add(working.work === "clear" ? "leaves" : "soil", { x: x + 0.5, y: y + 0.5 });
                       }}
-                      onDone={(result) => { const k = working.key; setWorking(null); act(k, result); }}
+                      onDone={(result) => {
+                        const { key: k, work } = working;
+                        setWorking(null);
+                        // (a round of tired hands is written down whatever its end; the hoe's own, when it is done, with the deed)
+                        if (result.dropped || !hoeing) keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: work, need: result.need, hits: result.hits, misses: result.misses });
+                        // with no stamina left the work is dropped at the third miss: nothing is done
+                        if (result.dropped) { say(hoeing ? "tired" : "shaky"); return; }
+                        if (k) void act(k, hoeing ? result : undefined);
+                        else void carry();
+                      }}
                       onCancel={() => setWorking(null)} />
         </div>
       ) : offer && (
