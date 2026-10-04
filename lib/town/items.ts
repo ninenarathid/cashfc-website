@@ -491,6 +491,10 @@ export interface Fish {
    * Seconds before it bites, least and most: anywhere between, by chance. Half what they were at first, and a
    * wider spread (the owner, 2026-10-03: "ช่วยทำให้การรอปลา ลดลง 2 เท่าด้วย ตอนนี้มันนานเกินไป", "ทำให้เวลาการรอปลา เป็นค่า random
    * ด้วย"): the longest halved, the shortest quartered, so a bite may come almost at once or keep one waiting.
+   * And halved again, least and most (the owner, the game's second night, 2026-10-04: "ช่วยทำให้รอปลาติดเบ็ด เร็วขึ้น
+   * ด้วยตอนนี้นานไป"): the members had waited 32 s for a bite, taking one with another (205 bites), and 15 s in the
+   * fight that followed, so two thirds of fishing was waiting. A common fish takes at most half a minute now, and
+   * the rarest two minutes; what is no fish (FLOTSAM) comes in half the time too.
    */
   wait: [number, number];
   /** Its length in centimetres, least and most. */
@@ -508,71 +512,71 @@ export interface Fish {
 
 const NIGHT: Array<[number, number]> = [[19, 24], [0, 5]];
 export const FISH: Record<FishId, Fish> = {
-  minnow: { tier: "common", baits: { worm: 1, dough: 1 }, hours: [[5, 22]], rain: 1, wait: [5, 30], size: [4, 8],
+  minnow: { tier: "common", baits: { worm: 1, dough: 1 }, hours: [[5, 22]], rain: 1, wait: [3, 15], size: [4, 8],
     fight: { style: "darter", band: 0.22, pull: 0.08, surge: 0.22, every: [2.6, 4.5], line: 0.5, effort: 2, sway: 0.12, pace: 0.11 } },
-  barb: { tier: "common", baits: { dough: 1, corn: 1, worm: 0.6 }, hours: [[6, 18]], rain: 1, wait: [10, 50], size: [12, 22],
+  barb: { tier: "common", baits: { dough: 1, corn: 1, worm: 0.6 }, hours: [[6, 18]], rain: 1, wait: [5, 25], size: [12, 22],
     fight: { style: "steady", band: 0.2, pull: 0.14, surge: 0.32, every: [2.6, 4.6], line: 0.8, effort: 3, sway: 0.15, pace: 0.08 } },
-  tilapia: { tier: "common", baits: { dough: 1, corn: 0.8 }, hours: [[7, 17]], rain: 1, wait: [10, 55], size: [18, 32],
+  tilapia: { tier: "common", baits: { dough: 1, corn: 0.8 }, hours: [[7, 17]], rain: 1, wait: [5, 28], size: [18, 32],
     fight: { style: "steady", band: 0.19, pull: 0.17, surge: 0.36, every: [2.4, 4.4], line: 0.9, effort: 4, sway: 0.17, pace: 0.09 } },
-  perch: { tier: "common", baits: { worm: 1 }, hours: [[5, 20]], rain: 1.3, wait: [10, 50], size: [10, 18],
+  perch: { tier: "common", baits: { worm: 1 }, hours: [[5, 20]], rain: 1.3, wait: [5, 25], size: [10, 18],
     fight: { style: "darter", band: 0.18, pull: 0.12, surge: 0.42, every: [1.5, 2.8], line: 0.8, effort: 4, sway: 0.17, pace: 0.15 } },
-  catfish: { tier: "common", baits: { worm: 1, minnow: 0.5, dough: 0.3 }, hours: [[18, 24], [0, 6]], rain: 2, wait: [15, 70], size: [25, 45],
+  catfish: { tier: "common", baits: { worm: 1, minnow: 0.5, dough: 0.3 }, hours: [[18, 24], [0, 6]], rain: 2, wait: [8, 35], size: [25, 45],
     fight: { style: "steady", band: 0.18, pull: 0.24, surge: 0.3, every: [3, 6], line: 1, effort: 5, sway: 0.2, pace: 0.1 } },
-  pangasius: { tier: "uncommon", baits: { dough: 1, corn: 1 }, hours: [[8, 17]], rain: 1, wait: [20, 100], size: [50, 90],
+  pangasius: { tier: "uncommon", baits: { dough: 1, corn: 1 }, hours: [[8, 17]], rain: 1, wait: [10, 50], size: [50, 90],
     fight: { style: "steady", band: 0.165, pull: 0.3, surge: 0.34, every: [2.8, 5], line: 1.3, effort: 7, sway: 0.24, pace: 0.12 } },
-  snakehead: { tier: "uncommon", baits: { minnow: 1, worm: 0.3 }, hours: [[5, 8], [17, 20]], rain: 1.2, wait: [25, 110], size: [35, 70],
+  snakehead: { tier: "uncommon", baits: { minnow: 1, worm: 0.3 }, hours: [[5, 8], [17, 20]], rain: 1.2, wait: [13, 55], size: [35, 70],
     fight: { style: "leaper", band: 0.155, pull: 0.18, surge: 0.7, every: [2.6, 4.2], line: 1.1, effort: 7, sway: 0.26, pace: 0.14 } },
-  eel: { tier: "uncommon", baits: { worm: 1 }, hours: NIGHT, rain: 2.5, wait: [25, 110], size: [40, 80],
+  eel: { tier: "uncommon", baits: { worm: 1 }, hours: NIGHT, rain: 2.5, wait: [13, 55], size: [40, 80],
     fight: { style: "slippery", band: 0.155, pull: 0.16, surge: 0.4, every: [2.2, 4], line: 1, effort: 6, sway: 0.28, pace: 0.15 } },
-  prawn: { tier: "uncommon", baits: { worm: 0.8, dough: 0.6 }, hours: [[17, 24]], rain: 1, wait: [20, 90], size: [14, 28],
+  prawn: { tier: "uncommon", baits: { worm: 0.8, dough: 0.6 }, hours: [[17, 24]], rain: 1, wait: [10, 45], size: [14, 28],
     fight: { style: "darter", band: 0.155, pull: 0.1, surge: 0.46, every: [1.3, 2.4], line: 0.7, effort: 4, sway: 0.24, pace: 0.16 } },
-  featherback: { tier: "rare", baits: { minnow: 1 }, hours: NIGHT, rain: 1, wait: [35, 150], size: [45, 85],
+  featherback: { tier: "rare", baits: { minnow: 1 }, hours: NIGHT, rain: 1, wait: [18, 75], size: [45, 85],
     fight: { style: "leaper", band: 0.14, pull: 0.22, surge: 0.62, every: [2.4, 4], line: 1.2, effort: 8, sway: 0.3, pace: 0.14 } },
-  goby: { tier: "rare", baits: { minnow: 1, worm: 0.7 }, hours: [[20, 24], [0, 4]], rain: 1, wait: [45, 180], size: [25, 50],
+  goby: { tier: "rare", baits: { minnow: 1, worm: 0.7 }, hours: [[20, 24], [0, 4]], rain: 1, wait: [23, 90], size: [25, 50],
     fight: { style: "sleeper", band: 0.14, pull: 0.1, surge: 0.8, every: [4, 7], line: 1.1, effort: 8, sway: 0.3, pace: 0.15 } },
   // ── the second tier: on a cricket, a ball of bran or small shrimp ──
-  gourami: { tier: "common", baits: { branBait: 1, cricket: 0.6 }, hours: [[6, 18]], rain: 1, wait: [10, 50], size: [12, 20],
+  gourami: { tier: "common", baits: { branBait: 1, cricket: 0.6 }, hours: [[6, 18]], rain: 1, wait: [5, 25], size: [12, 20],
     fight: { style: "steady", band: 0.19, pull: 0.14, surge: 0.32, every: [2.6, 4.6], line: 0.8, effort: 3, sway: 0.17, pace: 0.09 } },
-  crab: { tier: "common", baits: { shrimpLive: 1, branBait: 0.5 }, hours: [[17, 24], [0, 6]], rain: 1.5, wait: [10, 50], size: [5, 9],
+  crab: { tier: "common", baits: { shrimpLive: 1, branBait: 0.5 }, hours: [[17, 24], [0, 6]], rain: 1.5, wait: [5, 25], size: [5, 9],
     fight: { style: "darter", band: 0.19, pull: 0.1, surge: 0.3, every: [1.6, 3], line: 0.5, effort: 2, sway: 0.15, pace: 0.13 } },
-  snail: { tier: "common", baits: { branBait: 1 }, hours: [[0, 24]], rain: 1.2, wait: [8, 40], size: [2, 4],
+  snail: { tier: "common", baits: { branBait: 1 }, hours: [[0, 24]], rain: 1.2, wait: [4, 20], size: [2, 4],
     fight: { style: "sleeper", band: 0.22, pull: 0.05, surge: 0.12, every: [4, 7], line: 0.4, effort: 1, sway: 0.1, pace: 0.06 } },
-  hampala: { tier: "uncommon", baits: { cricket: 1, shrimpLive: 0.8 }, hours: [[5, 9], [16, 19]], rain: 1, wait: [20, 90], size: [25, 50],
+  hampala: { tier: "uncommon", baits: { cricket: 1, shrimpLive: 0.8 }, hours: [[5, 9], [16, 19]], rain: 1, wait: [10, 45], size: [25, 50],
     fight: { style: "darter", band: 0.155, pull: 0.14, surge: 0.48, every: [1.3, 2.4], line: 0.9, effort: 6, sway: 0.26, pace: 0.16 } },
-  sheatfish: { tier: "uncommon", baits: { shrimpLive: 1 }, hours: NIGHT, rain: 1.5, wait: [25, 110], size: [25, 45],
+  sheatfish: { tier: "uncommon", baits: { shrimpLive: 1 }, hours: NIGHT, rain: 1.5, wait: [13, 55], size: [25, 45],
     fight: { style: "slippery", band: 0.15, pull: 0.14, surge: 0.4, every: [2.2, 4], line: 1, effort: 6, sway: 0.28, pace: 0.15 } },
-  bagrid: { tier: "uncommon", baits: { cricket: 1, branBait: 0.4 }, hours: [[18, 24], [0, 5]], rain: 2, wait: [25, 110], size: [30, 60],
+  bagrid: { tier: "uncommon", baits: { cricket: 1, branBait: 0.4 }, hours: [[18, 24], [0, 5]], rain: 2, wait: [13, 55], size: [30, 60],
     fight: { style: "steady", band: 0.16, pull: 0.28, surge: 0.36, every: [2.8, 5], line: 1.2, effort: 7, sway: 0.24, pace: 0.12 } },
-  giantGourami: { tier: "uncommon", baits: { branBait: 1 }, hours: [[8, 17]], rain: 1, wait: [25, 110], size: [35, 60],
+  giantGourami: { tier: "uncommon", baits: { branBait: 1 }, hours: [[8, 17]], rain: 1, wait: [13, 55], size: [35, 60],
     fight: { style: "steady", band: 0.16, pull: 0.32, surge: 0.34, every: [3, 5.5], line: 1.4, effort: 8, sway: 0.22, pace: 0.11 } },
-  frog: { tier: "uncommon", baits: { cricket: 1 }, hours: [[18, 24], [0, 6]], rain: 3, wait: [20, 90], size: [8, 14],
+  frog: { tier: "uncommon", baits: { cricket: 1 }, hours: [[18, 24], [0, 6]], rain: 3, wait: [10, 45], size: [8, 14],
     fight: { style: "leaper", band: 0.155, pull: 0.08, surge: 0.7, every: [1.6, 3], line: 0.6, effort: 4, sway: 0.26, pace: 0.15 } },
-  tigerfish: { tier: "rare", baits: { shrimpLive: 1 }, hours: [[5, 8], [17, 20]], rain: 1, wait: [45, 180], size: [20, 40],
+  tigerfish: { tier: "rare", baits: { shrimpLive: 1 }, hours: [[5, 8], [17, 20]], rain: 1, wait: [23, 90], size: [20, 40],
     fight: { style: "sleeper", band: 0.135, pull: 0.12, surge: 0.85, every: [3.5, 6.5], line: 1.1, effort: 9, sway: 0.3, pace: 0.16 } },
-  wallago: { tier: "rare", baits: { shrimpLive: 1, cricket: 0.5 }, hours: NIGHT, rain: 1.5, wait: [45, 180], size: [60, 120],
+  wallago: { tier: "rare", baits: { shrimpLive: 1, cricket: 0.5 }, hours: NIGHT, rain: 1.5, wait: [23, 90], size: [60, 120],
     fight: { style: "leaper", band: 0.135, pull: 0.26, surge: 0.6, every: [2.4, 4], line: 1.5, effort: 10, sway: 0.3, pace: 0.15 } },
   // ── the third tier: on red ant eggs, a carved fish or a fermented ball ──
-  croaker: { tier: "uncommon", baits: { antEggs: 1 }, hours: [[19, 24], [0, 5]], rain: 1, wait: [25, 110], size: [20, 35],
+  croaker: { tier: "uncommon", baits: { antEggs: 1 }, hours: [[19, 24], [0, 5]], rain: 1, wait: [13, 55], size: [20, 35],
     fight: { style: "steady", band: 0.15, pull: 0.22, surge: 0.4, every: [2.4, 4.4], line: 1.1, effort: 7, sway: 0.26, pace: 0.13 } },
-  blackEar: { tier: "uncommon", baits: { fermentedBait: 1 }, hours: [[6, 18]], rain: 1, wait: [25, 110], size: [50, 90],
+  blackEar: { tier: "uncommon", baits: { fermentedBait: 1 }, hours: [[6, 18]], rain: 1, wait: [13, 55], size: [50, 90],
     fight: { style: "steady", band: 0.15, pull: 0.34, surge: 0.38, every: [2.8, 5], line: 1.5, effort: 9, sway: 0.26, pace: 0.13 } },
-  spinyEel: { tier: "uncommon", baits: { antEggs: 1 }, hours: NIGHT, rain: 2, wait: [25, 110], size: [25, 45],
+  spinyEel: { tier: "uncommon", baits: { antEggs: 1 }, hours: NIGHT, rain: 2, wait: [13, 55], size: [25, 45],
     fight: { style: "slippery", band: 0.145, pull: 0.12, surge: 0.42, every: [2, 3.6], line: 0.9, effort: 6, sway: 0.3, pace: 0.16 } },
-  puffer: { tier: "uncommon", baits: { antEggs: 0.8, lure: 0.5 }, hours: [[9, 16]], rain: 1, wait: [20, 90], size: [8, 15],
+  puffer: { tier: "uncommon", baits: { antEggs: 0.8, lure: 0.5 }, hours: [[9, 16]], rain: 1, wait: [10, 45], size: [8, 15],
     fight: { style: "darter", band: 0.15, pull: 0.08, surge: 0.5, every: [1.2, 2.2], line: 0.6, effort: 4, sway: 0.26, pace: 0.18 } },
-  goldenCarp: { tier: "rare", baits: { fermentedBait: 1 }, hours: [[5, 8], [16, 19]], rain: 1, wait: [45, 180], size: [50, 90],
+  goldenCarp: { tier: "rare", baits: { fermentedBait: 1 }, hours: [[5, 8], [16, 19]], rain: 1, wait: [23, 90], size: [50, 90],
     fight: { style: "steady", band: 0.135, pull: 0.36, surge: 0.44, every: [2.6, 4.6], line: 1.6, effort: 10, sway: 0.3, pace: 0.15 } },
-  giantSnakehead: { tier: "rare", baits: { lure: 1 }, hours: [[5, 9], [16, 20]], rain: 1.2, wait: [45, 180], size: [60, 110],
+  giantSnakehead: { tier: "rare", baits: { lure: 1 }, hours: [[5, 9], [16, 20]], rain: 1.2, wait: [23, 90], size: [60, 110],
     fight: { style: "leaper", band: 0.13, pull: 0.24, surge: 0.85, every: [2, 3.6], line: 1.5, effort: 11, sway: 0.32, pace: 0.16 } },
-  royalFeatherback: { tier: "rare", baits: { lure: 1 }, hours: NIGHT, rain: 1, wait: [45, 180], size: [50, 90],
+  royalFeatherback: { tier: "rare", baits: { lure: 1 }, hours: NIGHT, rain: 1, wait: [23, 90], size: [50, 90],
     fight: { style: "leaper", band: 0.13, pull: 0.24, surge: 0.7, every: [2.2, 3.8], line: 1.4, effort: 10, sway: 0.32, pace: 0.16 } },
-  arowana: { tier: "legend", baits: { lure: 1 }, hours: [[5, 7], [17, 19]], rain: 1, wait: [60, 240], size: [50, 90],
+  arowana: { tier: "legend", baits: { lure: 1 }, hours: [[5, 7], [17, 19]], rain: 1, wait: [30, 120], size: [50, 90],
     fight: { style: "leaper", band: 0.14, pull: 0.24, surge: 0.78, every: [1.8, 3.2], line: 1.6, effort: 13, sway: 0.36, pace: 0.16 } },
-  stingray: { tier: "legend", baits: { fermentedBait: 1 }, hours: [[21, 24], [0, 4]], rain: 1, wait: [60, 240], size: [100, 220],
+  stingray: { tier: "legend", baits: { fermentedBait: 1 }, hours: [[21, 24], [0, 4]], rain: 1, wait: [30, 120], size: [100, 220],
     fight: { style: "sleeper", band: 0.14, pull: 0.36, surge: 0.72, every: [3, 5.5], line: 2, effort: 14, sway: 0.36, pace: 0.13 } },
-  megaCatfish: { tier: "legend", baits: { fermentedBait: 0.7, antEggs: 0.5 }, hours: [[4, 7], [18, 21]], rain: 1, wait: [60, 240], size: [120, 270],
+  megaCatfish: { tier: "legend", baits: { fermentedBait: 0.7, antEggs: 0.5 }, hours: [[4, 7], [18, 21]], rain: 1, wait: [30, 120], size: [120, 270],
     fight: { style: "steady", band: 0.14, pull: 0.4, surge: 0.46, every: [2.6, 4.6], line: 2.2, effort: 15, sway: 0.34, pace: 0.12 } },
-  koi: { tier: "legend", baits: { dough: 1, corn: 0.7 }, hours: [[5, 7], [17, 19]], rain: 1, wait: [60, 240], size: [60, 100],
+  koi: { tier: "legend", baits: { dough: 1, corn: 0.7 }, hours: [[5, 7], [17, 19]], rain: 1, wait: [30, 120], size: [60, 100],
     fight: { style: "leaper", band: 0.16, pull: 0.24, surge: 0.85, every: [1.8, 3.2], line: 1.5, effort: 12, sway: 0.34, pace: 0.15 } },
 };
 export const FISH_IDS = Object.keys(FISH) as FishId[];
@@ -583,12 +587,12 @@ export const TIER_WEIGHT: Record<Tier, number> = { common: 100, uncommon: 26, ra
  * on any bait; those of a later tier only on that tier's baits (`on`), like its fish.
  */
 export const FLOTSAM: Record<FlotsamId, { weight: number; wait: [number, number]; on?: BaitId[] }> = {
-  hyacinth: { weight: 9, wait: [8, 45] },
-  boot: { weight: 2, wait: [10, 60] },
-  driftwood: { weight: 6, wait: [8, 45], on: ["cricket", "branBait", "shrimpLive"] },
-  bottle: { weight: 3, wait: [10, 60], on: ["cricket", "branBait", "shrimpLive"] },
-  pearl: { weight: 0.6, wait: [30, 120], on: ["antEggs", "lure", "fermentedBait"] },
-  chest: { weight: 0.3, wait: [40, 150], on: ["antEggs", "lure", "fermentedBait"] },
+  hyacinth: { weight: 9, wait: [4, 23] },
+  boot: { weight: 2, wait: [5, 30] },
+  driftwood: { weight: 6, wait: [4, 23], on: ["cricket", "branBait", "shrimpLive"] },
+  bottle: { weight: 3, wait: [5, 30], on: ["cricket", "branBait", "shrimpLive"] },
+  pearl: { weight: 0.6, wait: [15, 60], on: ["antEggs", "lure", "fermentedBait"] },
+  chest: { weight: 0.3, wait: [20, 75], on: ["antEggs", "lure", "fermentedBait"] },
 };
 export const FLOTSAM_IDS = Object.keys(FLOTSAM) as FlotsamId[];
 

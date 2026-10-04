@@ -1,5 +1,3 @@
-import { STAMINA } from "./stamina";
-
 /**
  * A small game of timing, for work done by hand (the owner, 2026-10-03:
  * "มินิเกมทุกอย่างอยากให้ทำให้ยากระดับหนึ่ง", and for washing a pot "มินิเกมล้างให้เล่น
@@ -28,9 +26,9 @@ export const TIMING = {
   /** How near the bar's ends the stretch may lie. */
   edge: 0.04,
   /**
-   * With no stamina left: how much of the stretch is left and how much faster the marker runs (the fight's own
-   * numbers), and how many misses tired hands have in them before the work is dropped (for work that asks it:
-   * `drops`).
+   * With no stamina left: how much of the stretch is left and how much faster the marker runs, and how many misses
+   * tired hands have in them before the work is dropped (for work that asks it: `drops`). The first two were the
+   * fishing fight's own numbers (STAMINA.spent); fishing was eased since and this game was not, so they are its own.
    *
    * About three times as hard as it first was (the owner, 2026-10-04: "เมื่อ stamina หมด minigame จะยากขึ้นกว่านี้อีก
    * สามเท่า แต่ยังคงเป็นไปได้ที่จะเล่นผ่าน ถ้าเป็นคนที่เล่นเก่งมาก"). At first the marker was over the stretch for 87
@@ -39,7 +37,7 @@ export const TIMING = {
    * is dropped at the third miss. Of made-up players, one whose presses are as unsure as the members' were (0.07 s
    * either way) hoes a plot one go in ten, a practised one (0.035) two in five, a very good one (0.02) six in seven.
    */
-  spent: { zone: STAMINA.spent.band, speed: STAMINA.spent.pace, misses: 3 },
+  spent: { zone: 0.35, speed: 1.4, misses: 3 },
 };
 
 /**

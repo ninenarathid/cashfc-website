@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BAITS, FISH, FISH_IDS, ITEMS, type CatchId, type FishId } from "./items";
+import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type CatchId, type FishId } from "./items";
 import {
   FIGHT, STEPS, STRIKE, castLine, oddsOf, playFight, replayFight, seeded, seesOdds, startFight, stepFight, strikeOf, strikeWindow, surging, warning,
   type Fight, type FightMods,
@@ -129,9 +129,9 @@ describe("a cast", () => {
         expect(c.nibbles).toEqual([]);
         expect(c.size).toBe(0);
       }
-      // (the owner: a short wait, then half of that again: seconds to a minute or two, the rare ones longer)
-      expect(c.wait).toBeGreaterThanOrEqual(5);
-      expect(c.wait).toBeLessThanOrEqual(240);
+      // (the owner: a short wait, then half of that again, and half of that once more: seconds to a minute, the rare ones longer)
+      expect(c.wait).toBeGreaterThanOrEqual(3);
+      expect(c.wait).toBeLessThanOrEqual(120);
       // a nibble is well before the bite and well apart from another, so it is never the bite by its timing
       expect(c.nibbles.length).toBeLessThanOrEqual(2);
       const marks = [...c.nibbles, c.wait];
@@ -152,8 +152,12 @@ describe("a cast", () => {
       const from = w0 + ((w1 - w0) * k) / 5, to = w0 + ((w1 - w0) * (k + 1)) / 5;
       expect(waits.filter((w) => w >= from && w <= to).length).toBeGreaterThan(waits.length * 0.12);
     }
-    // and nobody waits long for a common fish: none of them more than a little over a minute
-    for (const id of FISH_IDS) if (FISH[id].tier === "common") expect(FISH[id].wait[1]).toBeLessThanOrEqual(70);
+    // and nobody waits long for a common fish: none of them more than a little over half a minute; the rarest two minutes
+    for (const id of FISH_IDS) if (FISH[id].tier === "common") expect(FISH[id].wait[1]).toBeLessThanOrEqual(35);
+    for (const id of FISH_IDS) expect(FISH[id].wait[1]).toBeLessThanOrEqual(120);
+    // (a bite is never sooner than a nibble could be told from it)
+    for (const id of FISH_IDS) expect(FISH[id].wait[0]).toBeGreaterThanOrEqual(3);
+    for (const id of FLOTSAM_IDS) { expect(FLOTSAM[id].wait[0]).toBeGreaterThanOrEqual(3); expect(FLOTSAM[id].wait[1]).toBeLessThanOrEqual(75); }
     // most fish are small ones
     const sizes = Array.from({ length: 2000 }, (_, i) => castLine("dough", 10, false, false, seeded(9000 + i))).filter((c) => c.what === "tilapia").map((c) => c.size);
     const [lo, hi] = FISH.tilapia.size;
@@ -184,16 +188,17 @@ describe("the strike", () => {
   });
 
   it("is much harder to time with no stamina left", () => {
-    // (2026-10-04) half a second, where a fed hand has a second and a half
-    expect(strikeWindow({ spent: true })).toBeLessThan(STRIKE.window * 0.35);
-    expect(strikeOf(0.6)).toBe("good");
-    expect(strikeOf(0.6, { spent: true })).toBeNull();
-    expect(strikeOf(0.4, { spent: true })).toBe("late");
-    expect(strikeOf(0.25, { spent: true })).toBe("good");
-    // still to be had, by somebody watching the float: never less than a quick hand and a phone need between them
-    expect(strikeWindow({ spent: true })).toBeGreaterThanOrEqual(0.45);
+    // (2026-10-04, eased that night) a second, where a fed hand has a second and a half
+    expect(strikeWindow({ spent: true })).toBeLessThan(STRIKE.window * 0.65);
+    expect(strikeOf(0.9)).toBe("good");
+    expect(strikeOf(1.0, { spent: true })).toBeNull();
+    expect(strikeOf(0.9, { spent: true })).toBe("late");
+    expect(strikeOf(0.5, { spent: true })).toBe("good");
+    // still to be had, by a member watching the float: nine in ten of the members' own strikes come within 0.91 s
+    // of the bite (146 of them, kept with their goes), and with half a second only one in ten did
+    expect(strikeWindow({ spent: true })).toBeGreaterThanOrEqual(0.91);
     // and a meal that sharpens the eye helps then too
-    expect(strikeWindow({ spent: true, keen: true })).toBeGreaterThan(0.7);
+    expect(strikeWindow({ spent: true, keen: true })).toBeGreaterThan(1.4);
   });
 });
 
@@ -408,9 +413,9 @@ describe("the safe stretch", () => {
 describe("with no stamina left (the owner: \"ถ้า stamina หมด mini game ทุกอย่างจะยากขึ้นมากด้วย\")", () => {
   it("the stretch is narrower, moves further and faster, and the fish surges harder; steady hands widen it", () => {
     const fresh = startFight("catfish", "good", {}, 3), spent = startFight("catfish", "good", { spent: true }, 3), calm = startFight("catfish", "good", { calm: true }, 3);
-    // (2026-10-04) a good third of the stretch is left: with a fifth of it nobody lands anything
-    expect(spent.hi - spent.lo).toBeLessThan((fresh.hi - fresh.lo) * 0.4);
-    expect(spent.hi - spent.lo).toBeGreaterThan((fresh.hi - fresh.lo) * 0.3);
+    // (2026-10-04, eased that night) half of the stretch is left: with a good third of it the members landed nothing
+    expect(spent.hi - spent.lo).toBeLessThan((fresh.hi - fresh.lo) * 0.55);
+    expect(spent.hi - spent.lo).toBeGreaterThan((fresh.hi - fresh.lo) * 0.45);
     expect(spent.power).toBeGreaterThan(fresh.power * 1.2);
     expect(spent.sway).toBeGreaterThan(fresh.sway * 1.1);
     expect(spent.pace).toBeGreaterThan(fresh.pace * 1.2);
@@ -423,27 +428,30 @@ describe("with no stamina left (the owner: \"ถ้า stamina หมด mini ga
     expect(playFight(spent, steady).over).toBe("landed");
   });
 
-  it("is about three times as hard as it first was, and still to be won by a very good hand (the owner, 2026-10-04: \"ยังคงเป็นไปได้ที่จะเล่นผ่าน ถ้าเป็นคนที่เล่นเก่งมาก\")", () => {
+  it("is hard and not out of reach: eased from three times as hard as it first was, when the members hardly fished with none (the owner, 2026-10-04: \"คนตกปลาน้อยเพราะพอสตามิน่าหมด เล่นยากเกินไป\")", () => {
     const SMALL = ["minnow", "barb", "tilapia", "catfish"] as const;
     const four = (hand: [number, number]) => SMALL.reduce((t, id) => t + lands(id, hand, { spent: true }), 0) / SMALL.length;
-    // everybody lands far fewer than they do fed, and the average hand next to nothing: it has to eat
+    // everybody lands fewer than they do fed, the average hand far fewer, and a newcomer nothing: it has to eat
     for (const id of SMALL) {
-      expect(lands(id, SKILLED, { spent: true })).toBeLessThan(lands(id, SKILLED) - 0.15);
-      expect(lands(id, AVERAGE, { spent: true })).toBeLessThan(0.15);
+      expect(lands(id, SKILLED, { spent: true })).toBeLessThan(lands(id, SKILLED) - 0.05);
+      expect(lands(id, AVERAGE, { spent: true })).toBeLessThan(lands(id, AVERAGE) - 0.5);
+      expect(lands(id, NEW, { spent: true })).toBeLessThan(0.1);
     }
-    // a practised hand, which landed nearly every small fish with the first numbers: a good third of them
-    expect(four(SKILLED)).toBeGreaterThan(0.25);
-    expect(four(SKILLED)).toBeLessThan(0.6);
-    // a very good hand lands most of the small ones
-    expect(lands("minnow", MASTER, { spent: true })).toBeGreaterThan(0.85);
-    expect(lands("barb", MASTER, { spent: true })).toBeGreaterThan(0.75);
-    expect(lands("tilapia", MASTER, { spent: true })).toBeGreaterThan(0.7);
-    expect(lands("catfish", MASTER, { spent: true })).toBeGreaterThan(0.5);
-    expect(four(MASTER)).toBeGreaterThan(0.75);
-    // the bigger fish are for somebody who has eaten, however good
+    // an average hand lands a minnow or a barb now and then, where it landed next to none
+    expect(lands("minnow", AVERAGE, { spent: true })).toBeGreaterThan(0.1);
+    expect(lands("barb", AVERAGE, { spent: true })).toBeGreaterThan(0.1);
+    expect(four(AVERAGE)).toBeLessThan(0.3);
+    // a practised hand most of the small ones, and a catfish less than half the time
+    expect(four(SKILLED)).toBeGreaterThan(0.55);
+    expect(four(SKILLED)).toBeLessThan(0.85);
+    expect(lands("catfish", SKILLED, { spent: true })).toBeLessThan(0.6);
+    // a very good hand nearly all of them
+    expect(four(MASTER)).toBeGreaterThan(0.85);
+    // the bigger fish are for somebody who has eaten: a practised hand lands none of them, a very good one far fewer
     for (const id of ["perch", "pangasius", "snakehead"] as const) {
+      expect(lands(id, SKILLED, { spent: true })).toBeLessThan(0.1);
       expect(lands(id, MASTER)).toBeGreaterThan(0.8);
-      expect(lands(id, MASTER, { spent: true })).toBeLessThan(0.15);
+      expect(lands(id, MASTER, { spent: true })).toBeLessThan(lands(id, MASTER) - 0.35);
     }
   });
 });

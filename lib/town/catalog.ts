@@ -175,6 +175,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v118 (ran 2026-10-04) wrote items over: an old boot and an old chest, which fetched nothing, fetch 3 coins and 20
  * (the same file gave the town its weather and let rain water the plots: tables and functions, no other row).
  *
+ * v120 (2026-10-04, for the owner to run) writes three over, for fishing as he asked for it that night: the strike's
+ * moment with no stamina left is 0.6 of its length again, where v117 made it 0.3 (fishing: few fished with none, it
+ * was too hard); and a bite comes in half the time (fish and flotsam: every `wait` halved).
+ *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
  * twice). What the code itself changes after a row was seeded has to be written over it by the next migration
  * (`over`): name that migration here with the rows it writes, and `TOWN_WRITE=1 npx vitest run
@@ -182,7 +186,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * **Changing any number the catalog carries (a price, a recipe, a thing) needs such a migration before it is true in
  * the database.**
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v120: { keys: [], over: ["fishing", "fish", "flotsam"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

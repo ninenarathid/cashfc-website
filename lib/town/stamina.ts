@@ -40,8 +40,8 @@ export const STAMINA = {
   /**
    * With none left every mini-game is much harder (the owner, 2026-10-03: "ถ้า stamina หมด mini game ทุกอย่างจะยากขึ้น
    * มากด้วย"). Fishing: how much of the strike's moment is left, how much of the safe stretch a fight keeps, how
-   * much harder the fish surges, and how much further and faster the safe stretch moves. The game of timing takes
-   * its stretch and its marker's speed from here (lib/town/timing).
+   * much harder the fish surges, and how much further and faster the safe stretch moves. (The game of timing took
+   * its stretch and its marker's speed from here, and keeps them as they were: lib/town/timing.)
    *
    * About three times as hard as it first was (the owner, on the game's first day, 2026-10-04: "เมื่อ stamina หมด
    * minigame จะยากขึ้นกว่านี้อีกสามเท่า แต่ยังคงเป็นไปได้ที่จะเล่นผ่าน ถ้าเป็นคนที่เล่นเก่งมาก … เพื่อที่อาหารจะได้สำคัญ
@@ -54,8 +54,25 @@ export const STAMINA = {
    * - The strike's moment is half of what it was with none, 0.48 s for 0.96. Under about 0.3 s a strike is the
    *   quickness of the nerves and of the phone, not skill, so the weight is on the fight.
    * - The safe stretch is 0.35 of its width where it was 0.6, and moves a little faster.
+   *
+   * Eased that night (the owner: "ตอนนี้คนตกปลาน้อยเพราะพอสตามิน่าหมด เล่นยากเกินไป ช่วยทำให้ ง่ายขึ้นหน่อย"). The made-up
+   * players above were wrong about the strike. They were given 0.42 s from the bite to the strike; the members' own,
+   * kept with every go (146 strikes with stamina, by ten members), come half within 0.63 s, a tenth within 0.47, the
+   * quickest ever at 0.31. So with 0.48 s to strike in, eight bites in ten were gone before the hand came down,
+   * however well it would have fought, and what it did hook was hooked late. Six lines were dropped with no stamina
+   * in the half day those numbers stood, and one fish landed; the farm's work was done over five hundred times with
+   * none in the same hours. Played again by hands that strike as the members do, of a hundred bites of the four
+   * small common fish:
+   * - as it was (0.48 s to strike in, 0.35 of the stretch): a member lands none, the quicker members nine, a very
+   *   good hand fifty-four;
+   * - as it is (0.96 s, half the stretch): forty-two, seventy-seven, ninety-seven. A minnow or a barb is landed
+   *   more often than not, a catfish by the quick; the bigger fish are still for somebody who has eaten (nine in a
+   *   hundred for the very good hand, none for the others).
+   * The strike's moment is what it first was, since under about half a second it is the nerves and the phone that
+   * are tried, not skill; the stretch is between what it first was and what it became. The surge, the sway and the
+   * pace are not changed.
    */
-  spent: { strike: 0.3, band: 0.35, surge: 1.3, sway: 1.15, pace: 1.4 },
+  spent: { strike: 0.6, band: 0.5, surge: 1.3, sway: 1.15, pace: 1.4 },
 };
 export const MEALS = ["breakfast", "lunch", "dinner"] as const;
 
