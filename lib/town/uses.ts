@@ -1,6 +1,6 @@
 import { goesIn, isCookware } from "./cooking";
 import { WATER, toolOf } from "./farm";
-import { oddsOf } from "./fishing";
+import { ALL_SIGNS, oddsOf } from "./fishing";
 import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE } from "./gear";
 import { BAITS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
 import { INSIDE, foundScrolls } from "./scrolls";
@@ -65,14 +65,16 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[]): Map<I
   for (let more = true; more;) {
     more = false;
     const add = (id: ItemId, source: Source) => { if (!from.has(id)) { from.set(id, source); more = true; } };
-    // the river: with a rod, whatever a bait one has brings up, at any hour, in rain or not, deep water or shallow
+    // the river: with a rod, whatever a bait one has brings up, at any hour, in rain or not, deep water or shallow,
+    // and whatever a fish may wait for
     if (Object.keys(RODS).some((r) => has(r as ItemId))) {
       for (const bait of BAITS) if (has(bait)) for (let hour = 0; hour < 24; hour++) for (const rain of [false, true]) for (const shallow of [false, true]) {
-        for (const o of oddsOf(bait, hour, rain, false, shallow)) add(o.what, "river");
+        for (const o of oddsOf(bait, hour, rain, false, shallow, ALL_SIGNS)) add(o.what, "river");
       }
     }
-    // and what is inside what the river brings up: the scrolls nobody sells
-    for (const thing of Object.keys(INSIDE) as ItemId[]) if (has(thing)) for (const scroll of foundScrolls(INSIDE[thing]!.tiers)) add(scroll, "river");
+    // and what is inside what the river brings up: the scrolls nobody sells. (A seed in a fish's belly is not
+    // counted on: it is luck, and what the uncle may ask for is worked out from this, lib/town/orders.)
+    for (const thing of Object.keys(INSIDE) as ItemId[]) if (has(thing) && INSIDE[thing]!.tiers) for (const scroll of foundScrolls(INSIDE[thing]!.tiers!)) add(scroll, "river");
     // the farm: with a hoe, what a seed one has grows; and a plant that dies leaves compost
     if (ITEM_IDS.some((id) => toolOf(id) === "hoe" && has(id))) {
       for (const c of CROP_IDS) if (has(CROPS[c].seed)) { add(c, "farm"); add("compost", "farm"); }

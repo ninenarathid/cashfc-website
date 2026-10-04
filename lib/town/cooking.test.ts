@@ -114,7 +114,8 @@ describe("cooking", () => {
     expect(staminaOf(d.purse, NOW)).toBe(100 - COOKING.cost);
     // it can be eaten, gives less than anything else there is to eat, leaves nothing behind, and nobody buys it
     expect(DISHES.oddDish).toEqual({ stamina: 6 });
-    expect(DISHES.oddDish.stamina).toBeLessThan(Math.min(...DISH_IDS.filter((id) => id !== ODD).map((id) => DISHES[id].stamina)));
+    // (of what is cooked or sold: a fish eaten as it comes up for its luck gives less still)
+    expect(DISHES.oddDish.stamina).toBeLessThan(Math.min(...DISH_IDS.filter((id) => id !== ODD && id !== "rainbowFish").map((id) => DISHES[id].stamina)));
     expect(ITEMS.oddDish.kind).toBe("dish");
     expect(ITEMS.oddDish.pays).toBe(0);
     // a helping for every two things put in, never more than four; a stir missed is one fewer, never under half

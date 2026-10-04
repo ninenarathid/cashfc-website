@@ -1,5 +1,5 @@
 import { roll } from "./farm";
-import { CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, ITEMS, MAKES, MAKE_IDS, type ItemId } from "./items";
+import { CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, ITEMS, LATER_MADE, MAKES, MAKE_IDS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { GOODS, no, type Done, type Purse } from "./trade";
 import { sources, type Source } from "./uses";
@@ -91,7 +91,8 @@ export function mayAsk(unlocked: number): Record<"fish" | "crop" | "made", ItemI
   const have = askable.get(unlocked);
   if (have) return have;
   const shelf = shelfOf(unlocked), from = sourcesAt(unlocked);
-  const fish = FISH_IDS.filter((id) => FISH[id].tier === "common" && from.has(id));
+  // (a common fish, and one that waits for nothing: no sign, and no rain. So an order can be filled on any day.)
+  const fish = FISH_IDS.filter((id) => FISH[id].tier === "common" && !FISH[id].needs && (FISH[id].dry ?? 1) > 0 && from.has(id));
   const crop = CROP_IDS.filter((id) => from.has(id) && CROPS[id].hours <= ORDER.ripe);
   // what is quick to come by: those, what he sells, and the weed every line brings up; then what is made of them
   const quick = new Set<ItemId>([...fish, ...crop, ...shelf, ...(from.has("hyacinth") ? ["hyacinth" as ItemId] : [])]);
@@ -105,6 +106,10 @@ export function mayAsk(unlocked: number): Record<"fish" | "crop" | "made", ItemI
       const r = id in DISHES ? DISHES[id as keyof typeof DISHES].recipe : { ...MAKES[id]!, cooks: 1 };
       // (nor for anything he sells himself, now or later: so what he may ask for only ever grows as his shelf opens)
       if (!r || made.includes(id) || quick.has(id) || id in GOODS || r.cooks > ORDER.cooks || ITEMS[id].stack < 2 || !ITEMS[id].pays || ITEMS[id].tier > top) continue;
+      // (nor, for now, for what is cooked of the fish that came on 2026-10-05: the village had filled no order when
+      // they came, and a dish nobody has found the recipe of would make the kitchen's third of one harder still.
+      // The fish themselves he does ask for, which is how many will first hear of them.)
+      if (LATER_MADE.includes(id)) continue;
       if (!r.needs.every(([n]) => quick.has(n)) || !r.in.every((t) => shelf.includes(t))) continue;
       made.push(id);
       quick.add(id);

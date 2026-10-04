@@ -9,7 +9,7 @@ import { STAMINA } from "./stamina";
 import { GOODS, newPurse, put, type Purse } from "./trade";
 
 const tierOf = (id: ItemId) => ITEMS[id].tier;
-const FIRST: BaitId[] = ["worm", "dough", "minnow", "corn"];
+const FIRST: BaitId[] = ["worm", "dough", "minnow", "corn", "loach"];
 const bagOf = (...items: ItemId[]): Purse["bag"] => items.reduce((bag, id) => put(bag, id, 1), Array<null>(20).fill(null) as Purse["bag"]);
 
 describe("three times the things (the owner: \"ช่วยเพิ่ม ไอเทมทั้งหมดอีก 3 เท่า … ไอเทม next tier มาอีก จำนวน 2 เท่าของที่มีอยู่ตอนนี้\")", () => {
@@ -20,7 +20,8 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // well; and the odd dish, which is what comes of cooking the wrong things
     // (and a scroll for every dish that had none: thirteen, twenty-three and twenty-four of them; and one of how the
     // cure for pests is made, 2026-10-04)
-    expect(by(1).length).toBe(79 - 3 + 13 + 1);
+    // (and the twenty fish of 2026-10-05: with them a hook and a float that are made of two, eight dishes, and a scroll of each)
+    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8);
     // the later tiers were twice what the early game was when he asked, seventy-two each; then came the dishes of five
     // other countries (the owner: "ช่วยเอาอาหารประเทศอื่นที่ดังๆ มาด้วย ซัก 5 ประเทศ ประเทสละ 5 menu จะเพิ่ม อุปกรณ์ด้วยก็ได้"): twenty-five
     // dishes, the noodles they are made of, four staples and four pieces of cookware; and flour came down a tier for them
@@ -70,7 +71,9 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
       expect(ITEM_IDS).toContain(bait);
       expect(Array.from({ length: 24 }, (_, h) => h).some((h) => oddsOf(bait, h).some((o) => o.what in FISH))).toBe(true);
     }
-    for (const id of FISH_IDS) expect(BAITS.some((b) => Array.from({ length: 24 }, (_, h) => h).some((h) => oddsOf(b, h).some((o) => o.what === id)))).toBe(true);
+    // (in its own water, under the sky it bites under, with what it waits for)
+    for (const id of FISH_IDS) expect(BAITS.some((b) => Array.from({ length: 24 }, (_, h) => h).some((h) =>
+      oddsOf(b, h, (FISH[id].dry ?? 1) === 0, false, FISH[id].water === "bank", FISH[id].needs ?? []).some((o) => o.what === id)))).toBe(true);
     // a carved fish is not eaten: it comes back with the line
     expect(KEPT_BAITS).toEqual(["lure"]);
   });
@@ -88,8 +91,8 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
       expect(f.pace).toBeLessThan(0.22 - f.pull * 0.175);
       expect(FISH[id].wait[1]).toBeLessThanOrEqual(240);
     }
-    // three legends more, each on its own bait
-    expect(FISH_IDS.filter((id) => FISH[id].tier === "legend").sort()).toEqual(["arowana", "koi", "megaCatfish", "stingray"]);
+    // three legends more, each on its own bait (and a second of the early game's, on a loach: 2026-10-05)
+    expect(FISH_IDS.filter((id) => FISH[id].tier === "legend").sort()).toEqual(["arapaima", "arowana", "koi", "megaCatfish", "stingray"]);
   });
 
   it("grows the later vegetables slower, and its trees bear for a season", () => {

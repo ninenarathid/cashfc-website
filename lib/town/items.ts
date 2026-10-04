@@ -169,6 +169,55 @@ export const ITEMS = {
   scrollPumpkinSoup: it("scroll", "ม้วนสูตร ซุปฟักทอง", "Recipe scroll: pumpkin soup", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
   scrollShabu: it("scroll", "ม้วนสูตร ชาบูหม้อใหญ่", "Recipe scroll: the big shabu pot", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
 
+  // Twenty more of the early game's water (the owner, 2026-10-05: "ช่วยเพิ่มปลาขั้นแรก ไปอีก 20 แบบ ไม่จำเป้นต้องเป็นปลาไทย เป้นปลา
+  // ประเทศอื่น หรือ แฟนตาซี หน่อยก็ได้", then "แต่ละปลามีเงื่อนไขในการเจอ และ วัตถุประสงค์ในการใช้งาน ที่แตกต่างกันด้วย"): fish of other
+  // rivers and four that are of no river at all, each found its own way (FISH) and each good for something of its
+  // own. A line says what one looks like and, here and there, how it behaves: that is all anybody is told of when
+  // it bites. Off the bank:
+  loach: it("fish", "ปลาโดโจ", "Dojo loach", "ตัวเรียวยาวสีน้ำตาลเหลือง มีหนวดสั้นรอบปาก ลื่นมือ ดิ้นแรงเมื่ออากาศอึมครึม", "Long, slim and yellow-brown, with short whiskers round its mouth; slippery, and restless when the air turns heavy", 20, 3),
+  mosquitofish: it("fish", "ปลากินยุง", "Mosquitofish", "ปลาตัวจิ๋วสีเทาใส ท้องป่อง ปากเชิดขึ้นคอยงับแมลงที่ผิวน้ำ", "A tiny, clear grey fish with a round belly and an upturned mouth, snapping at insects on the water", 20, 2),
+  mussel: it("fish", "หอยกาบ", "River mussel", "หอยสองฝาสีน้ำตาลเขียว เปลือกหนา ด้านในเป็นมันวาว", "A thick two-part shell, brown-green outside and glossy within", 20, 2),
+  crayfish: it("fish", "กุ้งเครย์ฟิช", "Crayfish", "กุ้งตัวป้อมสีแดงเข้ม เปลือกแข็ง ก้ามใหญ่สองข้าง ชอบซุกตัวตามโคลน", "A stout, dark red crustacean in hard armour, with two big claws; it hides in the mud", 10, 9),
+  goldfish: it("fish", "ปลาทอง", "Goldfish", "ตัวกลมป้อมสีส้มทอง หางบานเป็นแพร ว่ายอวดโฉมเหมือนอยู่ในงานวัด", "Round and orange-gold with a tail like a silk fan, parading as if at a fair", 5, 35),
+  // off the deck, and one from anywhere
+  carp: it("fish", "ปลาไน", "Common carp", "ลำตัวหนาสีน้ำตาลทอง เกล็ดใหญ่ มีหนวดสั้นที่มุมปาก", "Thick-bodied and golden brown, with big scales and short barbels at the corners of its mouth", 10, 10),
+  piranha: it("fish", "ปลาปิรันยา", "Piranha", "ตัวแบนกลมสีเงิน ท้องแดง ฟันแหลมคมเรียงเต็มปาก", "Round, flat and silver with a red belly, its mouth full of sharp teeth", 10, 11),
+  herring: it("fish", "ปลาเฮอร์ริง", "Herring", "ตัวเรียวสีเงินวาว หลังอมฟ้า ว่ายเป็นฝูงตอนฟ้าเริ่มสาง", "Slender and bright silver, blue along the back; it runs in shoals as the sky begins to pale", 10, 8),
+  archerfish: it("fish", "ปลาเสือพ่นน้ำ", "Archerfish", "ตัวแบนสีเงิน มีแถบดำพาดลงมาจากหลัง ตาโต ปากแหลมเชิด เล็งขึ้นฟ้า", "Flat and silver with black bars down from its back, big-eyed, its pointed mouth aimed at the sky", 10, 14),
+  pacu: it("fish", "ปลาเปคู", "Pacu", "ตัวกลมแบนสีเทาเข้ม ท้องอมส้ม ฟันเป็นซี่เหมือนฟันคน ท้องตุงแน่น", "Round, flat and dark grey with an orange belly, teeth like a person's, and a tight, full stomach", 5, 20),
+  pike: it("fish", "ปลาไพค์", "Pike", "ตัวยาวสีเขียวมะกอก ลายจุดสีอ่อน ปากแบนยาวเหมือนปากเป็ด ฟันคม", "Long and olive green with pale spots, a flat snout like a duck's bill, and sharp teeth", 5, 28),
+  nilePerch: it("fish", "ปลากะพงไนล์", "Nile perch", "ตัวใหญ่สีเงินอมเทา หลังโหนก ตาสีเหลืองเรืองๆ ชอบแดดจัด", "Big and silver-grey, hump-backed, with eyes that glow yellow; fond of strong sun", 5, 32),
+  salmon: it("fish", "ปลาแซลมอน", "Salmon", "ตัวเพรียวสีเงิน หลังอมเขียว เนื้อสีส้ม ว่ายทวนน้ำเมื่อน้ำหลาก", "Sleek and silver, green along the back, orange-fleshed; it swims upstream when the water runs high", 5, 26),
+  wels: it("fish", "ปลาเวลส์", "Wels catfish", "ตัวยาวใหญ่สีเขียวคล้ำ ลื่น ไม่มีเกล็ด ปากกว้างเท่าหัว ท้องนูนเป็นก้อนแข็ง", "Long, big and dark green, smooth and scaleless, with a mouth as wide as its head and something hard bulging in its belly", 5, 45),
+  gar: it("fish", "ปลาการ์จระเข้", "Alligator gar", "ตัวยาวทรงกระบอก ปากยาวเหมือนจระเข้ เกล็ดแข็งเป็นแผ่นเงาเหมือนเกราะ", "Long and round-bodied, with jaws like a crocodile's and hard, glossy scales like plates of armour", 5, 42),
+  arapaima: it("fish", "ปลาช่อนอะเมซอน", "Arapaima", "ตัวมหึมายาวกว่าคน หัวแบนสีเขียวคล้ำ เกล็ดใหญ่ขอบแดงไล่ไปถึงหาง", "Enormous, longer than a person, with a flat dark green head and big scales edged in red down to the tail", 1, 320),
+  // the four of no river. Two of them are eaten as they are, and so are dishes among the things (a dish is what is
+  // sat down to: lib/town/stamina), though they come up on a line like any fish
+  dozyFish: it("dish", "ปลาขี้เซา", "Dozy fish", "ตัวกลมนุ่มสีฟ้าอ่อน ตาปรือ หาวอยู่ตลอด เนื้อใสหวานทั้งที่ยังสด", "Round, soft and pale blue, heavy-lidded and always yawning; its flesh is clear and sweet as it is", 5, 2),
+  popotoFish: it("fish", "ปลาโปโปโต้", "Popoto fish", "ตัวป้อมสีน้ำตาลอ่อนเหมือนหัวมัน มีตาเล็กๆ กับครีบจิ๋ว ชอบอยู่ที่คนเยอะๆ", "Stubby and light brown like a potato, with tiny eyes and tiny fins; it likes a crowd", 10, 10),
+  rainbowFish: it("dish", "ปลาสายรุ้ง", "Rainbow fish", "ตัวเล็กเกล็ดเหลือบเจ็ดสี วาวขึ้นเมื่อแดดออกหลังฝน เนื้อใสกินสดได้", "Small, its scales shot with seven colours, brightest when the sun comes out after rain; clear-fleshed, good as it is", 5, 6),
+  moonFish: it("fish", "ปลาจันทรา", "Moonfish", "ตัวกลมแบนสีเงินนวล เกล็ดเรืองแสงอ่อนๆ เหมือนพระจันทร์เต็มดวง", "Round, flat and pale silver, its scales faintly glowing like a full moon", 5, 50),
+  // what two of them are made into (lib/town/gear)
+  hookScale: it("tool", "เบ็ดเกล็ดปลา", "Scale hook", "ตะขอสีเทาเงาเหลือบ ฝนจากเกล็ดแผ่นหนาแข็ง", "A hook with a grey sheen, ground out of one thick, hard scale", 1, 20),
+  floatGlow: it("tool", "ทุ่นเรืองแสง", "Glowing float", "ทุ่นใสสีฟ้าอมเขียว เปล่งแสงนวลในที่มืด", "A clear blue-green float that gives off a soft light in the dark", 1, 25),
+  // and what eight of them are cooked into: dishes of the countries they are from
+  fishChips: it("dish", "ฟิชแอนด์ชิปส์", "Fish and chips", "ชิ้นปลาชุบแป้งทอดสีเหลืองทอง วางคู่กับแท่งมันทอด ห่อด้วยกระดาษ", "Golden battered fish beside a heap of fried potato sticks, wrapped in paper", 5, 8),
+  ukha: it("dish", "อูฮา", "Ukha", "น้ำซุปใสสีทองอ่อน มีชิ้นปลาขาว แครอทหั่นแว่น และใบสีเขียวลอยอยู่", "A clear, pale golden broth with white pieces of fish, rounds of carrot and green leaves afloat", 5, 17),
+  thieboudienne: it("dish", "เจบูเจน", "Thieboudienne", "ข้าวสีส้มแดงในถาดกลมใหญ่ มีปลาชิ้นโตวางกลาง ล้อมด้วยผักชิ้นใหญ่", "Red-orange rice on a big round tray, a large piece of fish in the middle, ringed with big chunks of vegetables", 5, 18),
+  piranhaSoup: it("dish", "ซุปปิรันยา", "Piranha soup", "น้ำซุปข้นสีส้ม มีหัวปลาฟันแหลมโผล่ขึ้นมา", "A thick orange soup with a sharp-toothed fish head sticking out of it", 5, 16),
+  crawfishBoil: it("dish", "เครย์ฟิชต้มเครื่องเทศ", "Crawfish boil", "กองกุ้งก้ามแดงสดบนกระดาษ ปนกับฝักข้าวโพดสีเหลืองหั่นท่อน", "A heap of bright red clawed things on paper, among lengths of yellow corn", 10, 15),
+  masgouf: it("dish", "มัสกูฟ", "Masgouf", "ปลาผ่าแผ่แบนเป็นวงกลม ย่างจนเนื้อสีน้ำตาลทอง ขอบเกรียม", "A fish split and spread flat into a round, grilled golden brown and charred at the edge", 5, 9),
+  salmonSteak: it("dish", "สเต็กแซลมอน", "Salmon steak", "ชิ้นปลาหนาสีส้มอมชมพู ผิวเกรียมเป็นลายตาราง", "A thick, pink-orange slice of fish, seared in a criss-cross", 5, 26),
+  arapaimaRoast: it("dish", "ปลายักษ์ย่างทั้งตัว", "Whole roast giant", "ปลาตัวยาวเท่าคนย่างบนไม้เสียบ หนังเกรียมสีน้ำตาลแดง", "A fish as long as a person, roasted on a spit, its skin charred red-brown", 10, 45),
+  scrollFishChips: it("scroll", "ม้วนสูตร ฟิชแอนด์ชิปส์", "Recipe scroll: fish and chips", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollUkha: it("scroll", "ม้วนสูตร อูฮา", "Recipe scroll: ukha", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollThieboudienne: it("scroll", "ม้วนสูตร เจบูเจน", "Recipe scroll: thieboudienne", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollPiranhaSoup: it("scroll", "ม้วนสูตร ซุปปิรันยา", "Recipe scroll: piranha soup", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollCrawfishBoil: it("scroll", "ม้วนสูตร เครย์ฟิชต้มเครื่องเทศ", "Recipe scroll: crawfish boil", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollMasgouf: it("scroll", "ม้วนสูตร มัสกูฟ", "Recipe scroll: masgouf", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollSalmonSteak: it("scroll", "ม้วนสูตร สเต็กแซลมอน", "Recipe scroll: salmon steak", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollArapaimaRoast: it("scroll", "ม้วนสูตร ปลายักษ์ย่างทั้งตัว", "Recipe scroll: whole roast giant", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+
   /* ── the second tier: iron and hardwood. The village has grown a little: more to catch, more to grow, cookware of
         more kinds, and dishes that take two cooks, each at a tool of their own. ── */
   // better gear for the river, the plots and the kitchen (lib/town/gear says what each is better at)
@@ -449,6 +498,9 @@ export const SCROLLS: Partial<Record<ItemId, ItemId>> = {
   scrollTurmericFish: "turmericFish", scrollJungleCurry: "jungleCurry", scrollMegaLaab: "megaLaab", scrollWatermelonSlices: "watermelonSlices", scrollKhantoke: "khantoke", scrollNaamPrik: "naamPrik",
   scrollRamen: "ramen", scrollUnadon: "unadon", scrollTteokbokki: "tteokbokki", scrollChowMein: "chowMein", scrollMapoTofu: "mapoTofu", scrollPizza: "pizza",
   scrollRisotto: "risotto", scrollLasagna: "lasagna", scrollFishCurry: "fishCurry", scrollNaan: "naan", scrollBiryani: "biryani", scrollLassi: "lassi",
+  // the dishes of the twenty fish that came later (2026-10-05): none of them sold, all of the early game
+  scrollFishChips: "fishChips", scrollUkha: "ukha", scrollThieboudienne: "thieboudienne", scrollPiranhaSoup: "piranhaSoup",
+  scrollCrawfishBoil: "crawfishBoil", scrollMasgouf: "masgouf", scrollSalmonSteak: "salmonSteak", scrollArapaimaRoast: "arapaimaRoast",
 };
 /** The name of an item's picture: its own id, but every scroll looks the same. */
 export const iconOf = (id: ItemId): string => (id in SCROLLS ? "scroll" : id);
@@ -458,23 +510,32 @@ export const potIconOf = (dish: DishId): string => `pot${dish[0].toUpperCase()}$
 /* ── fish ───────────────────────────────────────────────────────────────── */
 
 /**
- * What goes on a hook: the two baits, a minnow for the hunters, and corn; then the next tiers' (a cricket, a ball of
- * bran, small shrimp; red ant eggs, a carved fish, a fermented ball). The fish of a later tier take only that
- * tier's baits or later ones, so the early game's water is what it was.
+ * What goes on a hook: the two baits, a minnow for the hunters, corn, and a loach alive for the biggest of them (it
+ * came with the twenty fish of 2026-10-05); then the next tiers' (a cricket, a ball of bran, small shrimp; red ant
+ * eggs, a carved fish, a fermented ball). The fish of a later tier take only that tier's baits or later ones, so
+ * the early game's water has only the early game's fish in it.
  */
-export type BaitId = "worm" | "dough" | "minnow" | "corn" | "cricket" | "branBait" | "shrimpLive" | "antEggs" | "lure" | "fermentedBait";
-export const BAITS: BaitId[] = ["worm", "dough", "minnow", "corn", "cricket", "branBait", "shrimpLive", "antEggs", "lure", "fermentedBait"];
+export type BaitId = "worm" | "dough" | "minnow" | "corn" | "loach" | "cricket" | "branBait" | "shrimpLive" | "antEggs" | "lure" | "fermentedBait";
+export const BAITS: BaitId[] = ["worm", "dough", "minnow", "corn", "loach", "cricket", "branBait", "shrimpLive", "antEggs", "lure", "fermentedBait"];
 /** Baits that are not eaten: they come back with the line, and are lost only when the line snaps. */
 export const KEPT_BAITS: BaitId[] = ["lure"];
 export type FishId =
   | "minnow" | "barb" | "tilapia" | "perch" | "catfish" | "pangasius" | "snakehead" | "eel" | "prawn" | "featherback" | "goby" | "koi"
   | "gourami" | "crab" | "snail" | "hampala" | "sheatfish" | "bagrid" | "giantGourami" | "frog" | "tigerfish" | "wallago"
-  | "croaker" | "blackEar" | "spinyEel" | "puffer" | "goldenCarp" | "giantSnakehead" | "royalFeatherback" | "arowana" | "stingray" | "megaCatfish";
+  | "croaker" | "blackEar" | "spinyEel" | "puffer" | "goldenCarp" | "giantSnakehead" | "royalFeatherback" | "arowana" | "stingray" | "megaCatfish"
+  | "loach" | "mosquitofish" | "mussel" | "crayfish" | "goldfish" | "carp" | "piranha" | "herring" | "archerfish" | "pacu"
+  | "pike" | "nilePerch" | "salmon" | "wels" | "gar" | "arapaima" | "dozyFish" | "popotoFish" | "rainbowFish" | "moonFish";
 /** What comes up that is no fish. */
 export type FlotsamId = "hyacinth" | "boot" | "driftwood" | "bottle" | "pearl" | "chest";
 /** What a line can bring up: a fish, or one of the things that are not. */
 export type CatchId = FishId | FlotsamId;
 export type Tier = "common" | "uncommon" | "rare" | "legend";
+/**
+ * What may have to hold for a fish to bite at all (lib/town/fishing's `signsOf` says when each does): whoever
+ * fishes has no stamina left; others have lines in the water too; it is the weekend; the rain has only just
+ * stopped; the moon is full.
+ */
+export type Sign = "tired" | "crowd" | "weekend" | "after" | "full";
 
 /** How it fights: steady and heavy, in quick darts, in rare great leaps, by slipping (the safe part of the line wanders), or lying still and then bolting. */
 export type FightStyle = "steady" | "darter" | "leaper" | "slippery" | "sleeper";
@@ -485,8 +546,17 @@ export interface Fish {
   baits: Partial<Record<BaitId, number>>;
   /** The hours it bites, in Bangkok, as [from, to) pairs; one that runs past midnight is two pairs. */
   hours: Array<[number, number]>;
-  /** How many times as often it bites in the rain (1 when it does not care). */
+  /** How many times as often it bites in the rain (1 when it does not care; 0 for one that never bites in it). */
   rain: number;
+  /** How many times as often it bites while it does not rain: 1 when left out, 0 for one that bites only in the rain. */
+  dry?: number;
+  /**
+   * Where it is caught from: only off the bank, or only off the deck. Left out, a common fish comes to both and any
+   * other only to the deck's deep water (as it was before a fish could say).
+   */
+  water?: "bank" | "deck";
+  /** What has to hold for it to bite at all: every one of these. Nothing tells them; a fish's line may hint at one. */
+  needs?: Sign[];
   /**
    * Seconds before it bites, least and most: anywhere between, by chance. Half what they were at first, and a
    * wider spread (the owner, 2026-10-03: "ช่วยทำให้การรอปลา ลดลง 2 เท่าด้วย ตอนนี้มันนานเกินไป", "ทำให้เวลาการรอปลา เป็นค่า random
@@ -520,7 +590,9 @@ export const FISH: Record<FishId, Fish> = {
     fight: { style: "steady", band: 0.19, pull: 0.17, surge: 0.36, every: [2.4, 4.4], line: 0.9, effort: 4, sway: 0.17, pace: 0.09 } },
   perch: { tier: "common", baits: { worm: 1 }, hours: [[5, 20]], rain: 1.3, wait: [5, 25], size: [10, 18],
     fight: { style: "darter", band: 0.18, pull: 0.12, surge: 0.42, every: [1.5, 2.8], line: 0.8, effort: 4, sway: 0.17, pace: 0.15 } },
-  catfish: { tier: "common", baits: { worm: 1, minnow: 0.5, dough: 0.3 }, hours: [[18, 24], [0, 6]], rain: 2, wait: [8, 35], size: [25, 45],
+  // (it takes a loach as it takes a minnow: the bait came on 2026-10-05, and without the catfish a loach dropped at
+  // night would bring up a rare fish two bites in five, there being nothing else for it to be)
+  catfish: { tier: "common", baits: { worm: 1, minnow: 0.5, loach: 0.5, dough: 0.3 }, hours: [[18, 24], [0, 6]], rain: 2, wait: [8, 35], size: [25, 45],
     fight: { style: "steady", band: 0.18, pull: 0.24, surge: 0.3, every: [3, 6], line: 1, effort: 5, sway: 0.2, pace: 0.1 } },
   pangasius: { tier: "uncommon", baits: { dough: 1, corn: 1 }, hours: [[8, 17]], rain: 1, wait: [10, 50], size: [50, 90],
     fight: { style: "steady", band: 0.165, pull: 0.3, surge: 0.34, every: [2.8, 5], line: 1.3, effort: 7, sway: 0.24, pace: 0.12 } },
@@ -578,6 +650,57 @@ export const FISH: Record<FishId, Fish> = {
     fight: { style: "steady", band: 0.14, pull: 0.4, surge: 0.46, every: [2.6, 4.6], line: 2.2, effort: 15, sway: 0.34, pace: 0.12 } },
   koi: { tier: "legend", baits: { dough: 1, corn: 0.7 }, hours: [[5, 7], [17, 19]], rain: 1, wait: [30, 120], size: [60, 100],
     fight: { style: "leaper", band: 0.16, pull: 0.24, surge: 0.85, every: [1.8, 3.2], line: 1.5, effort: 12, sway: 0.34, pace: 0.15 } },
+  // ── twenty more of the first tier (the owner, 2026-10-05), each found its own way: by where the line is dropped
+  //    (`water`), by the hour, the bait, the sky (`rain`, `dry`) and, a few of them, by something else that has to
+  //    hold (`needs`). They come after everything else, so that the fish there were are weighed in the order they
+  //    always were. ──
+  // off the bank only: the shallows have fish of their own now
+  loach: { tier: "common", baits: { worm: 1, dough: 0.5 }, hours: [[0, 24]], rain: 3, water: "bank", wait: [4, 20], size: [8, 15],
+    fight: { style: "slippery", band: 0.21, pull: 0.06, surge: 0.25, every: [1.8, 3.2], line: 0.5, effort: 2, sway: 0.14, pace: 0.12 } },
+  mosquitofish: { tier: "common", baits: { dough: 1, worm: 0.5 }, hours: [[6, 18]], rain: 1, water: "bank", wait: [3, 15], size: [3, 6],
+    fight: { style: "darter", band: 0.23, pull: 0.05, surge: 0.18, every: [2.6, 4.5], line: 0.4, effort: 1, sway: 0.1, pace: 0.1 } },
+  mussel: { tier: "common", baits: { dough: 1 }, hours: [[0, 24]], rain: 1, water: "bank", wait: [5, 25], size: [6, 12],
+    fight: { style: "sleeper", band: 0.23, pull: 0.04, surge: 0.1, every: [4, 7], line: 0.4, effort: 1, sway: 0.08, pace: 0.05 } },
+  crayfish: { tier: "common", baits: { worm: 1, minnow: 0.5 }, hours: [[18, 24], [0, 5]], rain: 1.5, water: "bank", wait: [5, 25], size: [7, 13],
+    fight: { style: "darter", band: 0.19, pull: 0.1, surge: 0.34, every: [1.5, 2.8], line: 0.6, effort: 3, sway: 0.16, pace: 0.14 } },
+  goldfish: { tier: "common", baits: { dough: 1 }, hours: [[8, 18]], rain: 1, water: "bank", needs: ["weekend"], wait: [5, 25], size: [6, 14],
+    fight: { style: "darter", band: 0.2, pull: 0.07, surge: 0.3, every: [1.6, 3], line: 0.5, effort: 2, sway: 0.16, pace: 0.13 } },
+  // from anywhere, by day
+  carp: { tier: "common", baits: { corn: 1, dough: 0.7 }, hours: [[6, 18]], rain: 1, wait: [6, 28], size: [25, 50],
+    fight: { style: "steady", band: 0.185, pull: 0.2, surge: 0.34, every: [2.6, 4.8], line: 1, effort: 5, sway: 0.18, pace: 0.09 } },
+  // off the deck: on a fish for bait, mostly
+  piranha: { tier: "common", baits: { minnow: 1, loach: 1, worm: 0.4 }, hours: [[9, 17]], rain: 1, water: "deck", wait: [4, 20], size: [15, 30],
+    fight: { style: "darter", band: 0.18, pull: 0.14, surge: 0.48, every: [1.2, 2.2], line: 0.8, effort: 4, sway: 0.2, pace: 0.16 } },
+  herring: { tier: "uncommon", baits: { worm: 1, dough: 0.6 }, hours: [[4, 8]], rain: 1, wait: [8, 40], size: [18, 32],
+    fight: { style: "darter", band: 0.16, pull: 0.1, surge: 0.44, every: [1.4, 2.6], line: 0.8, effort: 4, sway: 0.24, pace: 0.15 } },
+  archerfish: { tier: "uncommon", baits: { worm: 1 }, hours: [[8, 18]], rain: 0, wait: [10, 45], size: [10, 20],
+    fight: { style: "leaper", band: 0.16, pull: 0.08, surge: 0.6, every: [1.8, 3.2], line: 0.7, effort: 4, sway: 0.25, pace: 0.15 } },
+  pacu: { tier: "uncommon", baits: { dough: 1, corn: 1 }, hours: [[9, 16]], rain: 1, wait: [10, 50], size: [30, 60],
+    fight: { style: "steady", band: 0.16, pull: 0.28, surge: 0.36, every: [2.8, 5], line: 1.2, effort: 7, sway: 0.24, pace: 0.12 } },
+  pike: { tier: "uncommon", baits: { minnow: 1, loach: 1 }, hours: [[5, 9], [16, 19]], rain: 1, wait: [13, 55], size: [40, 90],
+    fight: { style: "leaper", band: 0.155, pull: 0.2, surge: 0.68, every: [2.4, 4], line: 1.2, effort: 7, sway: 0.26, pace: 0.14 } },
+  nilePerch: { tier: "uncommon", baits: { loach: 1, minnow: 0.6 }, hours: [[10, 16]], rain: 0, wait: [13, 55], size: [50, 110],
+    fight: { style: "steady", band: 0.155, pull: 0.32, surge: 0.4, every: [2.6, 4.6], line: 1.4, effort: 8, sway: 0.25, pace: 0.12 } },
+  // (only in the rain, and then as readily as a common fish: four times an uncommon one's share)
+  salmon: { tier: "uncommon", baits: { loach: 1, worm: 0.6 }, hours: [[0, 24]], rain: 4, dry: 0, wait: [10, 45], size: [45, 85],
+    fight: { style: "leaper", band: 0.155, pull: 0.22, surge: 0.7, every: [2.2, 3.8], line: 1.2, effort: 7, sway: 0.26, pace: 0.14 } },
+  wels: { tier: "rare", baits: { minnow: 1, loach: 1 }, hours: [[21, 24], [0, 4]], rain: 2, wait: [18, 75], size: [80, 180],
+    fight: { style: "steady", band: 0.145, pull: 0.34, surge: 0.42, every: [3, 5.5], line: 1.5, effort: 9, sway: 0.28, pace: 0.12 } },
+  gar: { tier: "rare", baits: { loach: 1, minnow: 0.6 }, hours: [[17, 21]], rain: 1, wait: [18, 75], size: [70, 150],
+    fight: { style: "leaper", band: 0.14, pull: 0.24, surge: 0.75, every: [2.2, 3.8], line: 1.4, effort: 9, sway: 0.3, pace: 0.15 } },
+  // (a loach is not much to it: beside the pike it is a bite or two in a hundred, as the koi is on dough)
+  arapaima: { tier: "legend", baits: { loach: 0.3 }, hours: [[5, 7], [17, 19]], rain: 1, wait: [30, 120], size: [120, 250],
+    fight: { style: "leaper", band: 0.15, pull: 0.34, surge: 0.8, every: [2, 3.4], line: 1.9, effort: 13, sway: 0.34, pace: 0.14 } },
+  // the four of no river: each bites only when something holds (and then as a common fish does; the moon's is rare
+  // even under a full moon)
+  dozyFish: { tier: "common", baits: { worm: 1, dough: 1 }, hours: [[0, 24]], rain: 1, needs: ["tired"], wait: [4, 20], size: [12, 24],
+    fight: { style: "sleeper", band: 0.25, pull: 0.04, surge: 0.1, every: [5, 8], line: 0.4, effort: 1, sway: 0.08, pace: 0.05 } },
+  popotoFish: { tier: "common", baits: { worm: 1, dough: 1 }, hours: [[0, 24]], rain: 1, needs: ["crowd"], wait: [5, 25], size: [10, 20],
+    fight: { style: "steady", band: 0.2, pull: 0.12, surge: 0.28, every: [2.6, 4.6], line: 0.7, effort: 3, sway: 0.15, pace: 0.09 } },
+  rainbowFish: { tier: "common", baits: { dough: 1, worm: 1 }, hours: [[6, 18]], rain: 1, needs: ["after"], wait: [5, 25], size: [8, 14],
+    fight: { style: "darter", band: 0.19, pull: 0.08, surge: 0.36, every: [1.4, 2.6], line: 0.6, effort: 3, sway: 0.18, pace: 0.15 } },
+  moonFish: { tier: "rare", baits: { dough: 1, worm: 0.6 }, hours: [[19, 24], [0, 5]], rain: 1, needs: ["full"], wait: [18, 75], size: [20, 40],
+    fight: { style: "slippery", band: 0.145, pull: 0.12, surge: 0.5, every: [2, 3.6], line: 1, effort: 7, sway: 0.3, pace: 0.16 } },
 };
 export const FISH_IDS = Object.keys(FISH) as FishId[];
 /** How often each tier bites beside the others, before the bait, the hour and the rain are counted. */
@@ -719,7 +842,8 @@ export type DishId =
   | "somTam" | "grilledEggplant" | "tomKha" | "friedGourami" | "crabCurry" | "steamedSheatfish" | "friedFrog" | "laab" | "omelette" | "snailCurry" | "candiedPumpkin" | "friedRice"
   | "greenCurry" | "khanomJeen" | "hoMok" | "mangoStickyRice" | "bananaInCoconut" | "taroPudding" | "steamedCroaker" | "gingerFish" | "turmericFish" | "jungleCurry" | "megaLaab" | "watermelonSlices" | "khantoke" | "naamPrik"
   | "sushi" | "ramen" | "tempura" | "unadon" | "okonomiyaki" | "kimchi" | "bibimbap" | "tteokbokki" | "kimbap" | "pajeon" | "harGow" | "chowMein" | "springRoll" | "congee" | "mapoTofu"
-  | "pizza" | "spaghetti" | "risotto" | "lasagna" | "minestrone" | "fishCurry" | "naan" | "biryani" | "samosa" | "lassi";
+  | "pizza" | "spaghetti" | "risotto" | "lasagna" | "minestrone" | "fishCurry" | "naan" | "biryani" | "samosa" | "lassi"
+  | "dozyFish" | "rainbowFish" | "fishChips" | "ukha" | "thieboudienne" | "piranhaSoup" | "crawfishBoil" | "masgouf" | "salmonSteak" | "arapaimaRoast";
 /** What a dish is cooked in: the first three, and the cookware of the later tiers. */
 export type Cookware = "pot" | "pan" | "grill" | "mortar" | "steamer" | "cleaver" | "jar" | "wok" | "potBrass" | "stoveBig" | "panBrass" | "steamerBamboo" | "hotpot"
   | "rollingPin" | "sushiMat" | "stoneBowl" | "oven";
@@ -824,6 +948,21 @@ export const DISHES: Record<DishId, Dish> = {
   biryani: { stamina: 44, buff: "calm", recipe: { needs: [["rice", 3], ["turmeric", 1], ["milk", 1], ["pepper", 1], ["pangasius", 1]], in: ["pot"], serves: 5, cooks: 1 } },
   samosa: { stamina: 28, buff: "green", recipe: { needs: [["flour", 1], ["chili", 1], ["oil", 1], ["sweetPotato", 1]], in: ["rollingPin", "wok"], serves: 4, cooks: 2 } },
   lassi: { stamina: 24, buff: "lucky", recipe: { needs: [["mango", 1], ["sugar", 1], ["milk", 1]], in: ["mortar"], serves: 3, cooks: 1 } },
+  // What the twenty fish of 2026-10-05 are eaten as. Two are eaten as they come up, with no recipe (like the rice
+  // parcel, they are in no bowl): the one that bites for the tired gives a little stamina back, and the one that
+  // comes after the rain leaves its luck.
+  dozyFish: { stamina: 12 },
+  rainbowFish: { stamina: 5, buff: "lucky" },
+  // Eight are cooked, each the dish of the country its fish is from, in the early game's own cookware. Where the
+  // dish's name does not give the fish away, the fish is its last thing: the one a found recipe does not name.
+  fishChips: { stamina: 30, buff: "hearty", recipe: { needs: [["salt", 1], ["popotoFish", 2]], in: ["pan"], serves: 4, cooks: 1 } },
+  ukha: { stamina: 32, buff: "calm", recipe: { needs: [["carrot", 2], ["scallion", 1], ["salt", 1], ["pike", 1]], in: ["pot"], serves: 4, cooks: 1 } },
+  thieboudienne: { stamina: 36, buff: "green", recipe: { needs: [["rice", 3], ["cabbage", 1], ["carrot", 1], ["nilePerch", 1]], in: ["pot"], serves: 5, cooks: 1 } },
+  piranhaSoup: { stamina: 30, buff: "keen", recipe: { needs: [["piranha", 2], ["chili", 2], ["scallion", 1]], in: ["pot"], serves: 3, cooks: 1 } },
+  crawfishBoil: { stamina: 36, buff: "lucky", recipe: { needs: [["crayfish", 5], ["salt", 2], ["chili", 2], ["corn", 2]], in: ["pot"], serves: 8, cooks: 2 } },
+  masgouf: { stamina: 28, buff: "calm", recipe: { needs: [["salt", 2], ["scallion", 2], ["carp", 1]], in: ["grill"], serves: 3, cooks: 1 } },
+  salmonSteak: { stamina: 34, buff: "keen", recipe: { needs: [["salmon", 1], ["salt", 1], ["garlic", 1]], in: ["pan"], serves: 2, cooks: 1 } },
+  arapaimaRoast: { stamina: 45, buff: "hearty", recipe: { needs: [["arapaima", 1], ["salt", 3], ["chili", 2]], in: ["grill"], serves: 10, cooks: 3 } },
 };
 export const DISH_IDS = Object.keys(DISHES) as DishId[];
 export const isDish = (id: ItemId): id is DishId => id in DISHES;
@@ -852,6 +991,11 @@ export const MAKES: Partial<Record<ItemId, Make>> = {
   // with no order filled yet and forty-two plants in the ground.)
   pestCure: { needs: [["chili", 2], ["scallion", 2], ["salt", 1]], in: ["pot"], gives: 2 },
   basket: { needs: [["hyacinth", 6]], in: [], gives: 1 },
+  // of three of the twenty fish of 2026-10-05, by hand: a hook of a gar's scale, a float of a moonfish's, and a bowl
+  // of a mussel's shells (the uncle sells bowls too, five a round)
+  hookScale: { needs: [["gar", 1]], in: [], gives: 1 },
+  floatGlow: { needs: [["moonFish", 1]], in: [], gives: 1 },
+  bowl: { needs: [["mussel", 2]], in: [], gives: 1 },
   // the second tier
   driedFish: { needs: [["barb", 2], ["salt", 1]], in: ["grill"], gives: 2 },
   saltedFish: { needs: [["tilapia", 1], ["salt", 3]], in: ["jar"], gives: 2 },
@@ -871,3 +1015,9 @@ export const MAKES: Partial<Record<ItemId, Make>> = {
   yoke: { needs: [["driftwood", 2], ["rope", 2], ["basket", 2]], in: [], gives: 1 },
 };
 export const MAKE_IDS = Object.keys(MAKES) as ItemId[];
+/**
+ * What is cooked or made of the twenty fish that came on 2026-10-05, after the game had opened. Two things are kept
+ * as they were for the rest: the uncle's hints of these are sold after the others of their tier (lib/town/hints),
+ * and he does not ask for them in an order (lib/town/orders).
+ */
+export const LATER_MADE: ItemId[] = ["fishChips", "ukha", "thieboudienne", "piranhaSoup", "crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast", "hookScale", "floatGlow", "bowl"];

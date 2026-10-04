@@ -39,7 +39,7 @@ describe("everything there is", () => {
       for (const [item, n] of d.recipe.needs) { expect(ITEM_IDS).toContain(item); expect(n).toBeGreaterThanOrEqual(1); }
     }
     // the dishes with no recipe: the one the uncle sells, and the odd dish that comes of cooking the wrong things
-    expect(DISH_IDS.filter((id) => !DISHES[id].recipe)).toEqual(["riceBox", "oddDish"]);
+    expect(DISH_IDS.filter((id) => !DISHES[id].recipe)).toEqual(["riceBox", "oddDish", "dozyFish", "rainbowFish"]);
     expect(GOODS.oddDish).toBeUndefined();
     expect(DISHES.oddDish.buff).toBeUndefined();
     expect(GOODS.riceBox).toBeDefined();

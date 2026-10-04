@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { FLOTSAM_IDS, DISHES, DISH_IDS, ITEMS, SCROLLS, type ItemId } from "./items";
-import { INSIDE, SCROLL_OF, foundScrolls, open, opens } from "./scrolls";
+import { FISH_IDS, FLOTSAM_IDS, DISHES, DISH_IDS, ITEMS, SCROLLS, type ItemId } from "./items";
+import { INSIDE, SCROLL_OF, foundScrolls, insideOf, open, opens } from "./scrolls";
 import { GOODS, held, newPurse, put, type Purse } from "./trade";
 import { sources } from "./uses";
 
@@ -30,12 +30,13 @@ describe("the scrolls nobody sells (the owner: \"อาหารมีหลา�
     expect(found.length).toBe(cooked.length - 6);
     expect(new Set([...sold, ...found]).size).toBe(cooked.length + 1);
     // each tier's are in something: the early game's in a boot or a bottle, the last tier's in a chest
-    for (const tier of [1, 2, 3] as const) expect((Object.keys(INSIDE) as ItemId[]).some((thing) => INSIDE[thing]!.tiers.includes(tier))).toBe(true);
-    for (const scroll of found) expect((Object.keys(INSIDE) as ItemId[]).some((thing) => foundScrolls(INSIDE[thing]!.tiers).includes(scroll))).toBe(true);
+    for (const tier of [1, 2, 3] as const) expect((Object.keys(INSIDE) as ItemId[]).some((thing) => INSIDE[thing]!.tiers?.includes(tier))).toBe(true);
+    for (const scroll of found) expect((Object.keys(INSIDE) as ItemId[]).some((thing) => insideOf(thing).includes(scroll))).toBe(true);
     // what holds them comes up on a line, and no later than the scrolls in it are of use
     for (const thing of Object.keys(INSIDE) as ItemId[]) {
-      expect(FLOTSAM_IDS as ItemId[]).toContain(thing);
-      expect(Math.max(...INSIDE[thing]!.tiers)).toBeGreaterThanOrEqual(ITEMS[thing].tier);
+      expect([...FLOTSAM_IDS, ...FISH_IDS] as ItemId[]).toContain(thing);
+      for (const inside of insideOf(thing)) expect(ITEMS[inside]).toBeDefined();
+      expect(Math.max(...insideOf(thing).map((x) => ITEMS[x].tier))).toBeGreaterThanOrEqual(ITEMS[thing].tier);
       expect(opens(thing)).toBe(true);
     }
     expect(opens("rod")).toBe(false);

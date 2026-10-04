@@ -2,6 +2,10 @@
 //
 //   node build-icons.mjs
 //
+// (Run from another checkout of the repo, a worktree say, it would still read this one's sheets and write this one's
+// picture: ICONS_SHEETS, ICONS_PUB and ICONS_JSON say otherwise. Two sessions that each added sheets build an atlas
+// of their own sheets alone that way, to commit, while the shared tree keeps the one with both.)
+//
 // The owner's call (2026-10-02): every icon in Cash Town is pixel art made for
 // it, no emoji ("จะได้ดูไม่เหมือน AI ทำ"). Each sheet is one row of icons drawn on
 // a 16-pixel grid and scaled up; the true pixels are found, each icon cut out,
@@ -14,9 +18,9 @@ import crypto from "node:crypto";
 import * as L from "./pxlib.mjs";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
-const OUT = path.join(HERE, "work", "out");
-const PUB = "E:/NinenineProject/fcnext/public/town";
-const JSON_OUT = "E:/NinenineProject/fcnext/lib/town/icon-atlas.json";
+const OUT = process.env.ICONS_SHEETS ?? path.join(HERE, "work", "out");
+const PUB = process.env.ICONS_PUB ?? "E:/NinenineProject/fcnext/public/town";
+const JSON_OUT = process.env.ICONS_JSON ?? "E:/NinenineProject/fcnext/lib/town/icon-atlas.json";
 
 // [sheet, names] in the order they stand on the sheet, left to right
 const SHEETS = [
@@ -134,6 +138,18 @@ const SHEETS = [
   ["icons-pots-i", ["potBibimbap", "potTteokbokki", "potKimbap", "potPajeon", "potHarGow", "potChowMein"], { range: [5.25, 5.45] }],
   ["icons-pots-j", ["potSpringRoll", "potCongee", "potMapoTofu", "potPizza", "potSpaghetti", "potRisotto"], { range: [5.25, 5.45], split: true }],
   ["icons-pots-k", ["potLasagna", "potMinestrone", "potFishCurry", "potNaan", "potBiryani", "potSamosa"], { range: [5.25, 5.45] }],
+  // twenty more fish of the early game (the owner, 2026-10-05: "ช่วยเพิ่มปลาขั้นแรก ไปอีก 20 แบบ ไม่จำเป้นต้องเป็นปลาไทย เป้นปลาประเทศอื่น หรือ
+  // แฟนตาซี หน่อยก็ได้"; work/make-fish-prompts.mjs): the fish, the hook and the float two of them are made into (with a
+  // full moon and a rainbow beside them, to make the sheet a row of six: drawn as four its pixels came out twice the
+  // size), the eight dishes eight of them are cooked into, and those dishes' pots
+  ["icons-items-av", ["loach", "mosquitofish", "mussel", "crayfish", "goldfish", "carp"], { range: [5.35, 5.55] }],
+  ["icons-items-aw", ["piranha", "herring", "archerfish", "pacu", "pike", "nilePerch"], { range: [5.35, 5.55] }],
+  ["icons-items-ax", ["salmon", "wels", "gar", "arapaima", "dozyFish", "popotoFish"], { range: [5.2, 5.45] }],
+  ["icons-items-ay", ["rainbowFish", "moonFish", "hookScale", "floatGlow", "moonFull", "rainbow"], { range: [5.3, 5.5] }],
+  ["icons-items-az", ["fishChips", "ukha", "thieboudienne", "piranhaSoup"], { range: [7.9, 8.1] }],
+  ["icons-items-ba", ["crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast"], { range: [7.9, 8.1] }],
+  ["icons-pots-l", ["potFishChips", "potUkha", "potThieboudienne", "potPiranhaSoup"], { range: [7.9, 8.1] }],
+  ["icons-pots-m", ["potCrawfishBoil", "potMasgouf", "potSalmonSteak", "potArapaimaRoast"], { range: [7.9, 8.1] }],
 ];
 
 const pieces = [];

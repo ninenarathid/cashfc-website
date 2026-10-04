@@ -1,7 +1,7 @@
 import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
 import { BEDS, BLADES, FARMING, TREE_PICKS, WATER, toolOf } from "./farm";
-import { FIGHT, NIBBLES_APART, STRIKE } from "./fishing";
+import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { HINT_IDS, HINT_PRICE } from "./hints";
 import {
@@ -9,7 +9,7 @@ import {
   inBowl, type ItemId,
 } from "./items";
 import { BASIC, ORDER, UNLOCKS, mayAsk, sourcesAt } from "./orders";
-import { INSIDE, foundScrolls } from "./scrolls";
+import { INSIDE, insideOf } from "./scrolls";
 import { STAMINA } from "./stamina";
 import { GOODS, RULES } from "./trade";
 import { BEDS_IN_FARM, COLS, FARM, ROWS, WELL, bedCorner, bedOf, fishFrom } from "./world";
@@ -78,10 +78,15 @@ export function catalogOf() {
     dishes: Object.fromEntries(DISH_IDS.map((id) => [id, { stamina: DISHES[id].stamina, buff: DISHES[id].buff ?? null, recipe: DISHES[id].recipe ?? null }])),
     /** The dish each scroll has written on it. */
     scrolls: SCROLLS,
-    /** Every fish: how rare, which baits it takes and how readily, its hours, what rain does, how long it waits, how long it is, what a fight with it costs and how much line there is to win. */
+    /**
+     * Every fish: how rare, which baits it takes and how readily, its hours, what rain does, how long it waits, how
+     * long it is, what a fight with it costs and how much line there is to win; and, for one that says so, what a dry
+     * sky does (`dry`), the water it keeps to (`water`) and the signs it waits for (`needs`).
+     */
     fish: Object.fromEntries(FISH_IDS.map((id) => [id, {
       tier: FISH[id].tier, baits: FISH[id].baits, hours: FISH[id].hours, rain: FISH[id].rain, wait: FISH[id].wait, size: FISH[id].size,
       effort: FISH[id].fight.effort, line: FISH[id].fight.line,
+      ...(FISH[id].dry === undefined ? {} : { dry: FISH[id].dry }), ...(FISH[id].water ? { water: FISH[id].water } : {}), ...(FISH[id].needs ? { needs: FISH[id].needs } : {}),
     }])),
     /** What comes up that is no fish. */
     flotsam: FLOTSAM,
@@ -100,6 +105,9 @@ export function catalogOf() {
       floats: Object.fromEntries(Object.entries(TACKLE).filter(([, t]) => t!.strike).map(([id, t]) => [id, t!.strike])),
       strike: STRIKE.window, spent: STAMINA.spent.strike, apart: NIBBLES_APART, reel: FIGHT.reel,
       slack: { early: 300, late: 1500 }, least: 0.5, longest: 900,
+      // what some fish wait for (lib/town/fishing's SIGNS): how many others' lines make a crowd and how lately dropped,
+      // the minutes after rain, the days either side of a full moon, the weekend's days
+      signs: SIGNS,
       places: Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [i % COLS, Math.floor(i / COLS)])
         .flatMap(([x, y]) => { const f = fishFrom(x, y); return f ? [[`${x},${y}`, f.deep] as [string, boolean]] : []; })),
     },
@@ -144,7 +152,8 @@ export function catalogOf() {
       cost: COOKING.cost, stirs: COOKING.stirs, kinds: COOKING.kinds, ladle: COOKING.ladle, pots: COOKING.pots, reach: COOKING.reach, tok: COOKING.tok,
       odd: COOKING.odd, oddDish: ODD, clue: COOKING.clue,
       recipes: RECIPE_IDS, needs: Object.fromEntries(RECIPE_IDS.map((id) => [id, Object.fromEntries(tidy(needsOf(id)))])), cookware: COOKWARE_IDS, gear: KITCHEN_GEAR, never: NOT_PUT_IN, bowl: BOWL, bowled: DISH_IDS.filter(inBowl),
-      inside: Object.fromEntries(Object.entries(INSIDE).map(([id, x]) => [id, { chance: x!.chance, scrolls: foundScrolls(x!.tiers) }])),
+      // (`scrolls` is what may be inside, whatever it is: a fish's belly may hold a seed)
+      inside: Object.fromEntries((Object.keys(INSIDE) as ItemId[]).map((id) => [id, { chance: INSIDE[id]!.chance, scrolls: insideOf(id) }])),
       map: { town: [COLS, ROWS], farm: [FARM.x, FARM.y, FARM.w, FARM.h] },
       misses: 30,
     },
@@ -160,7 +169,7 @@ export function catalogOf() {
 export type Catalog = ReturnType<typeof catalogOf>;
 
 /**
- * The rows of `town_catalog` each migration that has not run yet writes: none, today. v106 seeded items, goods,
+ * The rows of `town_catalog` each migration that has not run yet writes: v122's ten, today. v106 seeded items, goods,
  * shelf, rules, carries, order and hints; v107 stamina, dishes and scrolls; v108 fish, flotsam and fishing; v109
  * wrote seven of those over; v110 seeded crops and farming; v111 makes and cooking, and wrote items, goods, shelf,
  * order and hints over again (for the things that went with the dirty pot); v112 seeded deals; v113 wrote rules over
@@ -179,6 +188,14 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * moment with no stamina left is 0.6 of its length again, where v117 made it 0.3 (fishing: few fished with none, it
  * was too hard); and a bite comes in half the time (fish and flotsam: every `wait` halved).
  *
+ * v122 (not run yet) writes ten over, for the twenty fish the owner asked for on 2026-10-05, each found its own way
+ * and each good for something of its own: the fish and what they wait for (fish, fishing), the things they and what
+ * is made of them are (items), what they are eaten and cooked as (dishes, scrolls, cooking), what is made of three of
+ * them by hand (makes), the three that are put on a plant (farming), and what the uncle may ask for and hint at
+ * (order, hints). With them the rule of what takes a bait is written again (`town.odds`: a fish's water, a dry sky,
+ * the signs), which is why the code goes out before the file: a page built before cannot draw a fish it has not
+ * heard of.
+ *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
  * twice). What the code itself changes after a row was seeded has to be written over it by the next migration
  * (`over`): name that migration here with the rows it writes, and `TOWN_WRITE=1 npx vitest run
@@ -186,7 +203,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * **Changing any number the catalog carries (a price, a recipe, a thing) needs such a migration before it is true in
  * the database.**
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v122: { keys: [], over: ["items", "fish", "fishing", "dishes", "scrolls", "makes", "cooking", "farming", "order", "hints"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

@@ -152,9 +152,18 @@ export function ownerOf(bed: Bed | undefined, planted: boolean, now: number): st
 export const cropOf = (seed: ItemId | null | undefined): CropId | null => (seed ? CROP_IDS.find((c) => CROPS[c].seed === seed) ?? null : null);
 const isHoe = (id: ItemId | null) => !!id && HOES.includes(id);
 const isCan = (id: ItemId | null) => !!id && id in WATER.cans;
+/**
+ * What is put on a plant: the two fertilisers and the cure; and three of the fish that came on 2026-10-05, each of
+ * which does as one of those does (a herring dug in feeds a plant, as fish were buried under corn; a mosquitofish
+ * keeps the pests off it for a day; an archerfish spits a pest off it). Used up by it, like the powder.
+ */
+export const PUT_ON: Partial<Record<ItemId, "feed" | "guard" | "cure">> = {
+  growFert: "feed", guardFert: "guard", pestCure: "cure",
+  herring: "feed", mosquitofish: "guard", archerfish: "cure",
+};
 /** What can be done to a plot with a thing in the hand, by its kind. */
 export const toolOf = (hand: ItemId | null): "hoe" | "can" | "seed" | "feed" | "guard" | "cure" | null =>
-  (isHoe(hand) ? "hoe" : isCan(hand) ? "can" : cropOf(hand) ? "seed" : hand === "growFert" ? "feed" : hand === "guardFert" ? "guard" : hand === "pestCure" ? "cure" : null);
+  (isHoe(hand) ? "hoe" : isCan(hand) ? "can" : cropOf(hand) ? "seed" : (hand && PUT_ON[hand]) || null);
 
 /** A number in [0, 1) from a few numbers and a word: the same for everybody. */
 export function roll(word: string, ...n: number[]): number {
@@ -284,7 +293,7 @@ export function cure(key: string, purse: Purse, plot: Plot, hand: ItemId | null,
   if (toolOf(hand) !== "cure" || !hasInHand(purse, hand)) return not("hand");
   const seen = see(key, plot, now, rains);
   if (!plot.plant || !seen.pest) return not("soil");
-  return { ok: true, plot: { ...plot, plant: { ...plot.plant, cured: now } }, purse: { ...spend(purse, FARMING.costs.cure, now), bag: take(purse.bag, "pestCure", 1) } };
+  return { ok: true, plot: { ...plot, plant: { ...plot.plant, cured: now } }, purse: { ...spend(purse, FARMING.costs.cure, now), bag: take(purse.bag, hand!, 1) } };
 }
 
 /** Whether a vegetable is a tree or a bush that bears for a season (picked five times and more): shears are for those, a sickle for the rest. */

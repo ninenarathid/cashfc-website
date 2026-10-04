@@ -4,15 +4,16 @@ import {
   COOKWARE_IDS, RECIPE_IDS, cook, goesIn, helpings, inHands, ladle, madeOf, mayTake, needsOf, oddHelpings, serve, setDown, takeUp, takes, tasteOf, tidy,
   type Pot,
 } from "./cooking";
+import { catalogOf } from "./catalog";
 import { DEAL, agree, hasAll, lay, pull, push, sideOf, swap, tidyGive, type Deal, type Give } from "./deal";
 import {
   BEDS, FARMING, HOES, WATER, chore, choreFor, cure, deedFor, feed, grown, hoe, ownerOf, pestAt, pick, plotKey, roll, see, sow, tend, toolOf, uproot, water, yieldOf,
   type Bed, type Plant, type Plot,
 } from "./farm";
-import { castLine, hookBait, landCatch, loseBait, oddsOf, strikeWindowOf } from "./fishing";
+import { ALL_SIGNS, SIGNS, castLine, hookBait, landCatch, loseBait, oddsOf, signsOf, strikeWindowOf } from "./fishing";
 import { CARRIES } from "./gear";
 import { HINT_IDS, buyHint, nextHint } from "./hints";
-import { BAITS, CROPS, CROP_IDS, DISH_IDS, FISH_IDS, FLOTSAM_IDS, ITEMS, ITEM_IDS, SCROLLS, growth, type BaitId, type BuffId, type CatchId, type DishId, type ItemId } from "./items";
+import { BAITS, CROPS, CROP_IDS, DISH_IDS, FISH_IDS, FLOTSAM_IDS, ITEMS, ITEM_IDS, SCROLLS, growth, type BaitId, type BuffId, type CatchId, type DishId, type ItemId, type Sign } from "./items";
 import { UNLOCKS, give, mayAsk, orderOf, shelfOf, sourcesAt, wantsFor, type Village } from "./orders";
 import { INSIDE, open } from "./scrolls";
 import { bowlsBack, buffOf, chew, costOf, dayOf, eatenToday, getUp, mealOf, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
@@ -146,6 +147,11 @@ export function vectorsV106(): Vector[] {
     add("take_back", [p, at, now], takeBack(p, at, now));
     add("collect", [p, now], collect(p, now));
   }
+  // (and what his relatives do not take, by name: so that the refusal is tried whatever the dice gave above)
+  for (const id of ITEM_IDS.filter((x) => !ITEMS[x].pays && x !== "potFull").slice(0, 6)) {
+    const now = MOMENTS[0], p: Purse = { ...newPurse(), bag: put(Array<null>(5).fill(null), id, 1) };
+    add("leave", [p, 0, 1, now], leave(p, 0, 1, now));
+  }
 
   // the uncle's shelf and his order
   for (const n of [-2, 0, 1, 6, 7, 40, UNLOCKS.length, UNLOCKS.length + 5]) add("shelf_of", [n], shelfOf(n));
@@ -234,20 +240,36 @@ export function vectorsV107(): Vector[] {
   return out;
 }
 
-/** Every case for the rules of v108: what bites, a cast worked out, the purse around a cast, how long there is to strike. */
+/**
+ * Every case for the rules of v108: what bites, a cast worked out, the purse around a cast, how long there is to strike.
+ * And, since the twenty fish of 2026-10-05 (v122): what bites under each of the signs some fish wait for, and when a
+ * sign holds.
+ */
 export function vectorsV108(): Vector[] {
   const c = chance(20261006), out: Vector[] = [];
   const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
-  const TACKLE_IDS = ["rod", "rodTeak", "rodMaster", "floatQuill", "floatBell", "hookSteel", "lineSilk", "netLong"] as ItemId[];
+  const TACKLE_IDS = ["rod", "rodTeak", "rodMaster", "floatGlow", "floatQuill", "floatBell", "hookScale", "hookSteel", "lineSilk", "netLong"] as ItemId[];
   const CATCHES = [...FISH_IDS, ...FLOTSAM_IDS] as CatchId[];
   for (const bait of BAITS) for (let hour = 0; hour < 24; hour += bait === "worm" ? 1 : 3) for (const rain of [false, true]) for (const lucky of [false, true]) for (const shallow of [false, true]) {
-    add("odds", [bait, hour, rain, lucky, shallow], oddsOf(bait, hour, rain, lucky, shallow));
+    add("odds", [bait, hour, rain, lucky, shallow, []], oddsOf(bait, hour, rain, lucky, shallow));
+  }
+  // (the early game's baits again under each sign by itself and under all of them: the fish that wait for one)
+  for (const bait of ["worm", "dough", "minnow", "loach"] as BaitId[]) for (let hour = 0; hour < 24; hour += bait === "worm" ? 1 : 3) for (const rain of [false, true]) for (const shallow of [false, true]) {
+    for (const signs of [...ALL_SIGNS.map((x) => [x]), ALL_SIGNS] as Sign[][]) add("odds", [bait, hour, rain, false, shallow, signs], oddsOf(bait, hour, rain, false, shallow, signs));
   }
   for (let i = 0; i < 900; i++) {
     const bait = c.of(BAITS), hour = c.int(0, 23), rain = c.maybe(0.3), lucky = c.maybe(0.3), shallow = c.maybe(0.4);
+    const signs = ALL_SIGNS.filter(() => c.maybe(0.3));
     const rnd = Array.from({ length: 6 }, () => (c.maybe(0.05) ? c.of([0, 0.2999999, 0.3, 0.75, 0.9999999]) : c.next()));
     let k = 0;
-    add("cast_line", [bait, hour, rain, lucky, shallow, rnd], castLine(bait, hour, rain, lucky, () => rnd[k++], shallow));
+    add("cast_line", [bait, hour, rain, lucky, shallow, signs, rnd], castLine(bait, hour, rain, lucky, () => rnd[k++], shallow, signs));
+  }
+  // when a sign holds: moments over two months of days and nights (so every day of the week and every age of the
+  // moon, its edges among them), somebody tired or not, the others' lines on either side of a crowd, rain that fell or not
+  for (let i = 0; i < 700; i++) {
+    const now = MOMENTS[0] + c.int(0, 60 * 24) * HOUR + c.int(0, 3_599_999), rain = c.maybe(0.25);
+    const scene = { now, spent: c.maybe(0.3), others: c.of([0, 0, 1, SIGNS.crowd - 1, SIGNS.crowd, SIGNS.crowd + 3]), wet: c.of([0, 0, 1, 90_000, 1_800_000]) };
+    add("signs_of", [scene.now, scene.spent, scene.others, scene.wet, rain], signsOf(scene, rain));
   }
   for (let i = 0; i < 500; i++) {
     const now = c.of(MOMENTS), base = purseOf(c, now, [...BAITS, ...TACKLE_IDS, ...CATCHES]);
@@ -278,7 +300,7 @@ export function vectorsV110(rains: readonly Rain[] = DRY, share = 1): Vector[] {
   const c = chance(20261007), out: Vector[] = [], whole = share === 1, many = (n: number) => Math.round(n * share);
   const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
   const SEED_IDS = CROP_IDS.map((id) => CROPS[id].seed), CANS = Object.keys(WATER.cans) as ItemId[], BUCKETS = Object.keys(WATER.buckets) as ItemId[];
-  const HANDS: ItemId[] = [...HOES, ...CANS, ...BUCKETS, "growFert", "guardFert", "pestCure", "sickle", "shears", ...SEED_IDS];
+  const HANDS: ItemId[] = [...HOES, ...CANS, ...BUCKETS, "growFert", "guardFert", "pestCure", "herring", "mosquitofish", "archerfish", "sickle", "shears", ...SEED_IDS];
   const WHO = ["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002", "00000000-0000-0000-0000-00000000000a"];
   const KEYS = Array.from({ length: 40 }, () => { const [x, y] = bedCorner(c.int(0, BEDS_IN_FARM - 1)); return plotKey(x + c.int(0, 6), y + c.int(0, 6)); });
   /** A moment at any hour of the day or night. */
@@ -342,9 +364,12 @@ export function vectorsV110(rains: readonly Rain[] = DRY, share = 1): Vector[] {
     const seen = see(key, plot, now, rains);
     if (!plot.plant) return plot.soil === "tilled" ? c.of(SEED_IDS) : c.of(HOES);
     if (seen.dead) return c.of(HOES);
-    if (seen.pest && c.maybe(0.6)) return "pestCure";
+    // (the cure, or the fish that does as it does: 2026-10-05)
+    if (seen.pest && c.maybe(0.6)) return c.of(["pestCure", "pestCure", "archerfish"] as ItemId[]);
     if (seen.ripe && c.maybe(0.6)) return c.of(["sickle", "shears", null, "hoe"] as Array<ItemId | null>);
-    return c.of([...CANS, ...CANS, "growFert", "guardFert", "sickle", "shears"] as ItemId[]);
+    // (a can as often as it was; and now and then, for a powder, the fish that does as it does)
+    const hand = c.of([...CANS, ...CANS, "growFert", "guardFert", "sickle", "shears"] as ItemId[]);
+    return hand === "growFert" && c.maybe(0.4) ? "herring" : hand === "guardFert" && c.maybe(0.4) ? "mosquitofish" : hand;
   };
 
   // what each thing is for in the hand; and which bed every tile of the farm is in, with a rim of what is not the farm
@@ -809,6 +834,11 @@ describe("the cases the database's rules are held to", () => {
   it("are made for fishing too", () => {
     const all = vectorsV108();
     expect(all.length).toBeGreaterThan(3500);
+    // what bites under a sign, and when a sign holds: each sign held in some case and not in another
+    const held = all.filter((v) => v.fn === "signs_of").map((v) => v.want as Sign[]);
+    for (const sign of ALL_SIGNS) { expect(held.some((w) => w.includes(sign))).toBe(true); expect(held.some((w) => !w.includes(sign))).toBe(true); }
+    const bit = new Set(all.filter((v) => v.fn === "odds").flatMap((v) => (v.want as Array<{ what: string }>).map((o) => o.what)));
+    for (const id of FISH_IDS) expect(bit.has(id)).toBe(true);
     const whys = (fn: string) => new Set(all.filter((v) => v.fn === fn).map((v) => { const w = v.want as { ok?: boolean; why?: string } | null; return w?.ok ? "ok" : w?.why; }));
     expect([...whys("hook_bait")].sort()).toEqual(["none", "ok", "tool"]);
     // casts that bring a fish with nibbles and a length, and casts that bring what is no fish
@@ -822,7 +852,8 @@ describe("the cases the database's rules are held to", () => {
     const windows = new Set(all.filter((v) => v.fn === "strike_window").map((v) => v.want as number));
     expect(windows.size).toBeGreaterThan(4);
     const dir = process.env.TOWN_VECTORS;
-    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v108.json`, JSON.stringify(all)); }
+    // (the catalog itself beside the cases: a dry run that writes rows over holds every row to it)
+    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v108.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });
 
   it("are made for stamina and meals too", () => {

@@ -21,7 +21,8 @@ const press = (X, words, within = "document") => X.evaluate(`(() => {
   if (!b) return false; b.click(); return true; })()`);
 const purse = (X) => X.evaluate(`window.__townTrade.purse()`);
 const me = (X) => X.evaluate(`window.__cashTown.me()`);
-const COMMON = ["minnow", "barb", "tilapia", "perch", "catfish", "hyacinth", "boot"];
+// (what comes to the bank: the common fish and, since the twenty fish of 2026-10-05, the shallows' own and the common ones that wait for a sign)
+const COMMON = ["minnow", "barb", "tilapia", "perch", "catfish", "hyacinth", "boot", "loach", "mosquitofish", "mussel", "crayfish", "goldfish", "carp", "dozyFish", "popotoFish", "rainbowFish"];
 /** Walk to a tile and stand there. */
 async function walk(X, x, y, ms = 30000) {
   await X.evaluate(`window.__cashTown.walkTo(${x}, ${y})`);

@@ -143,6 +143,20 @@ export const CHATS: Record<Speaker, Line[][]> = {
       { th: "ทั้งหมู่บ้านช่วยกันหามาให้ครบ ลุงก็จะมีของใหม่มาขาย", en: "If the whole village brings them in between you, I'll have something new to sell." },
       { th: "ช่วยๆ กันนะหลาน หมู่บ้านเราจะได้โตไวๆ", en: "Pull together, kiddo. That's how this village grows." },
     ],
+    // Hearsay about the fish that came on 2026-10-05, each of which bites in its own way (lib/town/items' FISH).
+    // Nothing on the screen tells how; the owner's rule is that what is kept secret can still be felt for ("ยังต้อง
+    // ทำให้ ผู้เล่นยังพอ คลำทางไปเจอ"), so the uncle has heard things: that there are such fish, never which or how.
+    [
+      { th: "ช่วงนี้แม่น้ำแปลกไปนะหลาน มีปลาหน้าตาไม่คุ้นว่ายมาจากต่างแดนเต็มไปหมด", en: "The river's changed of late, kiddo. Fish I don't know by sight, come up from far-off waters." },
+      { th: "ริมตลิ่งน้ำตื้นก็มีพวกตัวเล็กของมันเอง ที่บนลานไม่เคยเห็น", en: "The shallows by the bank have little ones of their own, never seen off the deck." },
+      { th: "ส่วนตัวใหญ่ๆ บางตัวไม่แลไส้เดือนเลย ต้องเอาปลาเป็นๆ ไปล่อ", en: "And some of the big ones won't look at a worm. It takes a live fish to tempt them." },
+    ],
+    [
+      { th: "คนเก่าคนแก่เล่าว่า คืนพระจันทร์เต็มดวงมีปลาเกล็ดเรืองแสงขึ้นมาเล่นน้ำ", en: "The old folk say that on a full-moon night a fish with glowing scales comes up to play." },
+      { th: "บางตัวรอให้ฝนซาก่อนถึงจะออกมา บางตัวชอบวันหยุด บางตัวชอบตอนคนมาตกปลากันหลายๆ คน", en: "Some wait for the rain to ease. Some like a day off. Some like it when a good few are fishing together." },
+      { th: "แล้วก็มีตัวหนึ่ง ชอบมาหาแต่คนที่หมดแรงแล้ว ลุงก็ไม่รู้ว่าทำไม", en: "And there's one that only comes to somebody who's worn out. Don't ask me why." },
+      { th: "จริงเท็จแค่ไหนลุงไม่รู้นะ ลองถามคนที่ตกปลาบ่อยๆ ดูสิ", en: "How much of it is true, I couldn't say. Ask whoever fishes a lot." },
+    ],
   ],
   banker: [
     [

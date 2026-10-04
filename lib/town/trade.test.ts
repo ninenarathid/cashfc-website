@@ -254,7 +254,7 @@ describe("selling through the uncle", () => {
     expect(boot.ok && boot.purse.left).toEqual([{ item: "boot", n: 2, pays: 3, round: roundOf(NOW) }]);
     // …and what opens is worth less sold shut than what is in it fetches on average, so that opening it is still the better guess
     for (const id of ["boot", "bottle", "chest"] as const) {
-      const all = foundScrolls(INSIDE[id]!.tiers), inside = INSIDE[id]!.chance * all.reduce((t, s) => t + ITEMS[s].pays, 0) / all.length;
+      const all = foundScrolls(INSIDE[id]!.tiers!), inside = INSIDE[id]!.chance * all.reduce((t, s) => t + ITEMS[s].pays, 0) / all.length;
       expect(ITEMS[id].pays).toBeLessThan(inside);
     }
     // a bite on the early baits is worth next to nothing more for it: all that is no fish comes to a few hundredths of the fish

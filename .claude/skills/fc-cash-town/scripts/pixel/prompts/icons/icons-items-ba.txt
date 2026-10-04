@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small item icons for that game's shop, bag and cooking, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Four icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a heap of bright red boiled crayfish with pieces of yellow corn on the cob, on brown paper; 2) a fish split open and spread flat into a round, grilled golden brown with charred edges, on a plate; 3) a thick pink-orange salmon steak with dark criss-cross grill marks, on a plate with a green sprig; 4) a very long whole fish roasted red-brown on a wooden spit resting on two forked sticks.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

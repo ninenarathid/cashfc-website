@@ -1,14 +1,15 @@
 import type { Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
-import { castLine, seeded, type Cast, type Strike } from "./fishing";
-import { FISH, type BaitId, type DishId, type FishId, type ItemId } from "./items";
+import { ALL_SIGNS, SIGNS, castLine, seeded, signsOf, type Cast, type Strike } from "./fishing";
+import { FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
 import type { Play } from "./plays";
 import { SKIES } from "./skies";
-import { buffOf } from "./stamina";
+import { buffOf, isSpent } from "./stamina";
 import type { Purse } from "./trade";
 import { trialFor, type Trial } from "./trial";
+import { wetMs } from "./weather";
 
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
@@ -82,7 +83,12 @@ class TrialKeeper implements Keeper {
     const used = this.trial.bait(bait);
     if (!used.ok) return used;
     const now = this.trial.now(), p = this.trial.purse();
-    const cast = castLine(bait, bangkokHour(now), rain, buffOf(p, now) === "lucky", seeded(Math.floor(Math.random() * 2 ** 31)), !place.deep);
+    // What some fish wait for (lib/town/fishing's signs), by this browser's clock, its purse and its sky. The others'
+    // lines it cannot know (each tab keeps its own): `&townSigns=crowd` says they are out, and any other sign named
+    // there holds as well, so that a fish that waits for the moon need not be waited for.
+    const named = (typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("townSigns") ?? "").split(",").filter((x): x is Sign => ALL_SIGNS.includes(x as Sign));
+    const signs = [...new Set([...signsOf({ now, spent: isSpent(p, now), others: 0, wet: wetMs(SKIES.rains(), now - SIGNS.after * 60_000, now) }, rain), ...named])];
+    const cast = castLine(bait, bangkokHour(now), rain, buffOf(p, now) === "lucky", seeded(Math.floor(Math.random() * 2 ** 31)), !place.deep, signs);
     this.out = { cast, bait };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);

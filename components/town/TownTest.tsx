@@ -5,7 +5,7 @@ import {
   BAITS, BUFFS, CROPS, CROP_IDS, DISHES, FISH, ITEMS, ITEM_IDS, MAKES, SCROLLS, STAGES, STAGE_AT, growIconOf, isDish,
   type BaitId, type CropId, type FishId, type ItemId, type ItemKind,
 } from "@/lib/town/items";
-import { WATER } from "@/lib/town/farm";
+import { PUT_ON, WATER } from "@/lib/town/farm";
 import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE, isRod } from "@/lib/town/gear";
 import { HINT_IDS, HINT_PRICE, hintOf } from "@/lib/town/hints";
 import { BASIC, UNLOCKS } from "@/lib/town/orders";
@@ -233,6 +233,7 @@ function Detail({ id, th, have, knows, onConjure, onLearn }: {
   if (COOK_EASE[id]) facts.push([th ? "คนอาหารง่ายขึ้น" : "Stirring", `×${COOK_EASE[id]}`]);
   if (WATER.cans[id]) facts.push([th ? "รดน้ำได้ต่อการเติม" : "Waterings a filling", String(WATER.cans[id])]);
   if (WATER.buckets[id]) facts.push([th ? "ตักน้ำได้" : "Carries", th ? `${WATER.buckets[id]} ถัง` : `${WATER.buckets[id]} bucketful(s)`]);
+  if (PUT_ON[id]) facts.push([th ? "วางที่ต้นผัก" : "Put on a plant", PUT_ON[id]!]);
   const uses = usesOf(id);
   if (uses.length) facts.push([th ? "ใช้ทำ" : "Used as", uses.join(" · ")]);
   facts.push([th ? "ได้มาจาก" : "Comes from", SOURCES.get(id) ?? "–"]);
@@ -250,6 +251,8 @@ function Detail({ id, th, have, knows, onConjure, onLearn }: {
       [th ? "ระดับ" : "Tier", f.tier],
       [th ? "กินเหยื่อ" : "Takes", (Object.keys(f.baits) as BaitId[]).map((b) => `${name(b)} ×${f.baits[b]}`).join(", ")],
       [th ? "ชั่วโมง" : "Hours", hours(f.hours)], [th ? "ฝน" : "Rain", `×${f.rain}`],
+      [th ? "ฟ้าไม่ฝน" : "Dry", `×${f.dry ?? 1}`], [th ? "น้ำ" : "Water", f.water ?? (f.tier === "common" ? (th ? "ตลิ่งและลาน" : "bank and deck") : "deck")],
+      [th ? "รอสัญญาณ" : "Waits for", f.needs?.join(", ") ?? "–"],
       [th ? "รอ" : "Wait", `${f.wait[0]}–${f.wait[1]} s`], [th ? "ยาว" : "Length", `${f.size[0]}–${f.size[1]} cm`],
       [th ? "วิธีสู้" : "Fights", `${q.style} · band ${q.band} · sway ${q.sway} · pace ${q.pace}`],
       [th ? "แรง" : "Pull", `${q.pull} · surge ${q.surge} · every ${q.every[0]}–${q.every[1]} s`],
@@ -272,7 +275,9 @@ function Detail({ id, th, have, knows, onConjure, onLearn }: {
       : (th ? "ไม่มี (ลุงขาย)" : "none (the uncle sells it)")]);
   }
   const inside = INSIDE[id];
-  if (inside) facts.push([th ? "เปิดดูได้" : "Opens", th ? `เจอม้วนสูตร ${Math.round(inside.chance * 100)}% · ของช่วงเกม ${inside.tiers.join(", ")}` : `a scroll ${Math.round(inside.chance * 100)}% of the time · of tier ${inside.tiers.join(", ")}`]);
+  if (inside) facts.push([th ? "เปิดดูได้" : "Opens", inside.tiers
+    ? (th ? `เจอม้วนสูตร ${Math.round(inside.chance * 100)}% · ของช่วงเกม ${inside.tiers.join(", ")}` : `a scroll ${Math.round(inside.chance * 100)}% of the time · of tier ${inside.tiers.join(", ")}`)
+    : `${Math.round(inside.chance * 100)}% · ${(inside.things ?? []).map((x) => name(x)).join(", ")}`]);
   const of = SCROLLS[id];
   if (of) facts.push([th ? "สูตรของ" : "The recipe of", name(of)]);
   return (

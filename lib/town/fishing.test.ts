@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type CatchId, type FishId } from "./items";
+import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type Sign } from "./items";
 import {
-  FIGHT, STEPS, STRIKE, castLine, oddsOf, playFight, replayFight, seeded, seesOdds, startFight, stepFight, strikeOf, strikeWindow, surging, warning,
+  ALL_SIGNS, FIGHT, SIGNS, STEPS, STRIKE, bangkokDay, castLine, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, signsOf, startFight, stepFight, strikeOf, strikeWindow, surging, warning,
   type Fight, type FightMods,
 } from "./fishing";
 import { STAMINA } from "./stamina";
 
 const share = (odds: Array<{ what: CatchId; p: number }>, what: CatchId) => odds.find((o) => o.what === what)?.p ?? 0;
+/** What takes a bait at an hour where a fish lives, under the sky it bites under, with what it waits for: its own water. */
+const home = (id: FishId, bait: BaitId, hour: number) => oddsOf(bait, hour, (FISH[id].dry ?? 1) === 0, false, FISH[id].water === "bank", FISH[id].needs ?? []);
 /** The early game's twelve fish (the later tiers' are tried in tiers.test.ts). */
 const EARLY = FISH_IDS.filter((id) => ITEMS[id].tier === 1);
 /** A hand with no delay at all: reels below the middle of the safe stretch, and keeps low in it while the fish surges. */
@@ -56,19 +58,21 @@ describe("what takes the bait", () => {
   it("brings a fish only on a bait it takes, in the hours it feeds", () => {
     for (const id of FISH_IDS) for (const bait of BAITS) for (let hour = 0; hour < 24; hour++) {
       const feeds = FISH[id].hours.some(([a, b]) => hour >= a && hour < b), takes = (FISH[id].baits[bait] ?? 0) > 0;
-      expect(share(oddsOf(bait, hour), id) > 0).toBe(feeds && takes);
+      expect(share(home(id, bait, hour), id) > 0).toBe(feeds && takes);
     }
     // the two baits the uncle sells bring a fish at any hour of the day or night
     for (const bait of ["worm", "dough"] as const) for (let hour = 0; hour < 24; hour++)
       expect(oddsOf(bait, hour).some((o) => o.what in FISH)).toBe(true);
     // every fish can be caught at some hour on some bait
-    for (const id of FISH_IDS) expect(BAITS.some((b) => Array.from({ length: 24 }, (_, h) => h).some((h) => share(oddsOf(b, h), id) > 0))).toBe(true);
-    // and every fish is a thing in the catalog, with a picture of that name
-    for (const id of FISH_IDS) expect(ITEMS[id].kind).toBe("fish");
+    for (const id of FISH_IDS) expect(BAITS.some((b) => Array.from({ length: 24 }, (_, h) => h).some((h) => share(home(id, b, h), id) > 0))).toBe(true);
+    // and every fish is a thing in the catalog, with a picture of that name (two are eaten as they come up, and so are dishes among the things)
+    for (const id of FISH_IDS) expect(ITEMS[id].kind).toBe(id in DISHES ? "dish" : "fish");
+    expect(FISH_IDS.filter((id) => id in DISHES)).toEqual(["dozyFish", "rainbowFish"]);
   });
 
   it("brings the night's fish out in the rain, and the rare ones to the lucky", () => {
-    expect(share(oddsOf("worm", 21, true), "eel")).toBeGreaterThan(share(oddsOf("worm", 21, false), "eel") * 1.5);
+    // (not half as often again, as it was while the eel had the rain to itself: the salmon comes up in it too)
+    expect(share(oddsOf("worm", 21, true), "eel")).toBeGreaterThan(share(oddsOf("worm", 21, false), "eel") * 1.3);
     expect(share(oddsOf("worm", 21, true), "catfish")).toBeGreaterThan(share(oddsOf("worm", 21, false), "catfish"));
     expect(share(oddsOf("minnow", 22, false, true), "goby")).toBeGreaterThan(share(oddsOf("minnow", 22), "goby"));
     expect(share(oddsOf("dough", 6, false, true), "koi")).toBeGreaterThan(share(oddsOf("dough", 6), "koi") * 1.3);
@@ -88,11 +92,13 @@ describe("what takes the bait", () => {
     for (const bait of BAITS) for (let hour = 0; hour < 24; hour++) for (const rain of [false, true]) for (const lucky of [false, true]) {
       for (const o of oddsOf(bait, hour, rain, lucky, true)) if (o.what in FISH) expect(FISH[o.what as FishId].tier).toBe("common");
     }
-    // the common ones are there in the shallows as often beside each other as in deep water, and oftener in all
+    // the common ones are there in the shallows as often beside each other as in deep water
     const deep = oddsOf("worm", 21), shallow = oddsOf("worm", 21, false, false, true);
     expect(share(deep, "eel")).toBeGreaterThan(0);
     expect(share(shallow, "eel")).toBe(0);
-    expect(share(shallow, "catfish")).toBeGreaterThan(share(deep, "catfish"));
+    expect(share(shallow, "catfish") / share(shallow, "minnow")).toBeCloseTo(share(deep, "catfish") / share(deep, "minnow"), 9);
+    // and the shallows have fish of their own, which the deck never sees (2026-10-05)
+    for (const id of ["loach", "crayfish"] as const) { expect(share(shallow, id)).toBeGreaterThan(0); expect(share(deep, id)).toBe(0); }
     // a fish of the uncle's two baits still comes at every hour, even there
     for (const bait of ["worm", "dough"] as const) for (let hour = 0; hour < 24; hour++)
       expect(oddsOf(bait, hour, false, false, true).some((o) => o.what in FISH)).toBe(true);
@@ -105,6 +111,110 @@ describe("what takes the bait", () => {
 
   it("is shown to nobody before the line is dropped, for now", () => {
     expect(seesOdds("anybody")).toBe(false);
+  });
+});
+
+describe("twenty more of the early game's fish (the owner: \"แต่ละปลามีเงื่อนไขในการเจอ และ วัตถุประสงค์ในการใช้งาน ที่แตกต่างกันด้วย\")", () => {
+  const NEW: FishId[] = ["loach", "mosquitofish", "mussel", "crayfish", "goldfish", "carp", "piranha", "herring", "archerfish", "pacu",
+    "pike", "nilePerch", "salmon", "wels", "gar", "arapaima", "dozyFish", "popotoFish", "rainbowFish", "moonFish"];
+  const HOURS = Array.from({ length: 24 }, (_, h) => h);
+  /** Every way a line can be dropped: the bait, the hour, the rain, the water, and one sign or none. */
+  const WAYS = BAITS.flatMap((bait) => HOURS.flatMap((hour) => [false, true].flatMap((rain) => [false, true].flatMap((shallow) =>
+    [[] as Sign[], ...ALL_SIGNS.map((s) => [s])].map((signs) => ({ bait, hour, rain, shallow, signs }))))));
+  const bites = (id: FishId) => WAYS.filter((w) => share(oddsOf(w.bait, w.hour, w.rain, false, w.shallow, w.signs), id) > 0);
+
+  it("are twenty, all of the first tier, on the first tier's baits", () => {
+    expect(new Set(NEW).size).toBe(20);
+    for (const id of NEW) {
+      expect(FISH[id]).toBeDefined();
+      expect(ITEMS[id].tier).toBe(1);
+      for (const bait of Object.keys(FISH[id].baits)) expect(ITEMS[bait as BaitId].tier).toBe(1);
+    }
+    expect(FISH_IDS.length).toBe(32 + 20);
+    // they are weighed after the fish there were, in this order
+    expect(FISH_IDS.slice(-20)).toEqual(NEW);
+  });
+
+  it("are each found their own way: no two bite in the same set of casts", () => {
+    const where = NEW.map((id) => bites(id).map((w) => `${w.bait}/${w.hour}/${w.rain}/${w.shallow}/${w.signs}`).join(" "));
+    for (const w of where) expect(w.length).toBeGreaterThan(0);
+    expect(new Set(where).size).toBe(20);
+  });
+
+  it("keep to their water: five only off the bank, the rest of the uncommon and rare ones only off the deck, and one common fish too", () => {
+    for (const id of ["loach", "mosquitofish", "mussel", "crayfish", "goldfish"] as const) expect(bites(id).every((w) => w.shallow)).toBe(true);
+    for (const id of ["piranha", "herring", "archerfish", "pacu", "pike", "nilePerch", "salmon", "wels", "gar", "arapaima", "moonFish"] as const) expect(bites(id).every((w) => !w.shallow)).toBe(true);
+    for (const id of ["carp", "dozyFish", "popotoFish", "rainbowFish"] as const) { expect(bites(id).some((w) => w.shallow)).toBe(true); expect(bites(id).some((w) => !w.shallow)).toBe(true); }
+  });
+
+  it("mind the sky: a salmon only in the rain, an archerfish and a Nile perch never in it, a loach three times as readily", () => {
+    expect(bites("salmon").every((w) => w.rain)).toBe(true);
+    expect(bites("archerfish").every((w) => !w.rain)).toBe(true);
+    expect(bites("nilePerch").every((w) => !w.rain)).toBe(true);
+    const dry = oddsOf("worm", 10, false, false, true), wet = oddsOf("worm", 10, true, false, true);
+    expect(share(wet, "loach") / share(wet, "minnow")).toBeCloseTo(3 * share(dry, "loach") / share(dry, "minnow"), 9);
+    // one the sky keeps away has no place among the odds at all
+    expect(oddsOf("worm", 10, true).some((o) => o.what === "archerfish")).toBe(false);
+    expect(oddsOf("worm", 10, false).some((o) => o.what === "salmon")).toBe(false);
+  });
+
+  it("wait, five of them, for a sign: the tired, a crowd, the weekend, the rain's end, a full moon", () => {
+    const sign: Partial<Record<FishId, Sign>> = { dozyFish: "tired", popotoFish: "crowd", goldfish: "weekend", rainbowFish: "after", moonFish: "full" };
+    for (const id of FISH_IDS) expect(FISH[id].needs).toEqual(sign[id] ? [sign[id]] : undefined);
+    for (const [id, s] of Object.entries(sign) as Array<[FishId, Sign]>) {
+      expect(bites(id).length).toBeGreaterThan(0);
+      expect(bites(id).every((w) => w.signs.includes(s))).toBe(true);
+    }
+    // and with no sign the water is what it is on any day
+    for (const w of WAYS) if (!w.signs.length) for (const o of oddsOf(w.bait, w.hour, w.rain, false, w.shallow)) if (o.what in FISH) expect(FISH[o.what as FishId].needs).toBeUndefined();
+    // somebody with no stamina, on a worm at any hour, off the deck or the bank: about one bite in five is the dozy one
+    for (const shallow of [false, true]) for (const hour of [3, 10, 21]) {
+      const p = share(oddsOf("worm", hour, false, false, shallow, ["tired"]), "dozyFish");
+      expect(p).toBeGreaterThan(0.15);
+      expect(p).toBeLessThan(0.45);
+    }
+  });
+
+  it("holds a sign by the clock, the purse, the others' lines and the rain that fell", () => {
+    const AT = Date.UTC(2026, 9, 5, 5, 0), calm = { now: AT, spent: false, others: 0, wet: 0 };   // a Monday noon in Bangkok, no moon to speak of
+    expect(signsOf(calm, false)).toEqual([]);
+    expect(signsOf({ ...calm, spent: true }, false)).toEqual(["tired"]);
+    expect(signsOf({ ...calm, others: SIGNS.crowd - 1 }, false)).toEqual([]);
+    expect(signsOf({ ...calm, others: SIGNS.crowd }, false)).toEqual(["crowd"]);
+    // the rain's end: it rained in the last half hour, and does not now
+    expect(signsOf({ ...calm, wet: 60_000 }, false)).toEqual(["after"]);
+    expect(signsOf({ ...calm, wet: 60_000 }, true)).toEqual([]);
+    // the weekend is Bangkok's: from Friday's midnight there (17:00 UTC) to Sunday's
+    expect(bangkokDay(Date.UTC(2026, 9, 2, 16, 59))).toBe(5);
+    expect(bangkokDay(Date.UTC(2026, 9, 2, 17, 0))).toBe(6);
+    expect(bangkokDay(Date.UTC(2026, 9, 4, 16, 59))).toBe(0);
+    expect(bangkokDay(Date.UTC(2026, 9, 4, 17, 0))).toBe(1);
+    expect(signsOf({ ...calm, now: Date.UTC(2026, 9, 3, 5, 0) }, false)).toEqual(["weekend"]);
+    // the moon: full on 2026-10-26 (04:12 UTC) and on 2026-11-24 (14:53 UTC), new on 2026-10-10: by its mean month, within a day
+    const full = Date.UTC(2026, 9, 26, 4, 12), month = 29.530588853;
+    expect(Math.abs(moonAge(full) - month / 2)).toBeLessThan(0.8);
+    expect(Math.abs(moonAge(Date.UTC(2026, 10, 24, 14, 53)) - month / 2)).toBeLessThan(0.8);
+    expect(Math.min(moonAge(Date.UTC(2026, 9, 10, 15, 50)), month - moonAge(Date.UTC(2026, 9, 10, 15, 50)))).toBeLessThan(0.8);
+    expect(signsOf({ ...calm, now: full }, false)).toEqual(["full"]);
+    expect(signsOf({ ...calm, now: full + 3 * 86_400_000 }, false)).toEqual([]);
+    // three nights of it, each month: from a day and a half before to a day and a half after
+    const nights = Array.from({ length: 30 }, (_, d) => Date.UTC(2026, 9, 12 + d, 15, 0)).filter((at) => signsOf({ ...calm, now: at }, false).includes("full"));
+    expect(nights.length).toBe(3);
+    // all of them at once, in the order they are listed
+    expect(signsOf({ now: Date.UTC(2026, 9, 25, 5, 0), spent: true, others: 5, wet: 1 }, false)).toEqual(ALL_SIGNS);
+  });
+
+  it("keeps the river's new legend rarer than its old one, and only on a loach", () => {
+    for (const hour of [5, 6, 17, 18]) {
+      const p = share(oddsOf("loach", hour), "arapaima");
+      expect(p).toBeGreaterThan(0.005);
+      expect(p).toBeLessThan(0.03);
+    }
+    for (const bait of BAITS) if (bait !== "loach") for (const hour of HOURS) expect(share(oddsOf(bait, hour), "arapaima")).toBe(0);
+    // no rare fish is more than a bite in six of any cast, whatever the bait: a thin water does not make one common
+    for (const w of WAYS) for (const o of oddsOf(w.bait, w.hour, w.rain, false, w.shallow, w.signs)) {
+      if (o.what in FISH && ITEMS[o.what].tier === 1 && ["rare", "legend"].includes(FISH[o.what as FishId].tier)) expect(o.p).toBeLessThan(0.17);
+    }
   });
 });
 
@@ -349,8 +459,9 @@ describe("the safe stretch", () => {
     const least = (tier: string) => Math.min(...EARLY.filter((id) => FISH[id].tier === tier).map((id) => FISH[id].fight.sway));
     expect(least("uncommon")).toBeGreaterThan(least("common"));
     expect(least("rare")).toBeGreaterThan(least("uncommon"));
-    // of the steady ones, the harder is also the faster
-    const steadies = EARLY.filter((id) => FISH[id].fight.style === "steady");
+    // of the steady ones there were at first, the harder is also the faster
+    const steadies = (["barb", "tilapia", "catfish", "pangasius"] as FishId[]).filter((id) => FISH[id].fight.style === "steady");
+    expect(steadies.length).toBe(4);
     for (let i = 1; i < steadies.length; i++) expect(FISH[steadies[i]].fight.pace).toBeGreaterThan(FISH[steadies[i - 1]].fight.pace);
   });
 

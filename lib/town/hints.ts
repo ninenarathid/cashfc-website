@@ -1,5 +1,5 @@
 import { COOKING } from "./cooking";
-import { DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, type Cookware, type DishId, type ItemId, type ItemKind } from "./items";
+import { DISHES, DISH_IDS, ITEMS, LATER_MADE, MAKES, MAKE_IDS, type Cookware, type DishId, type ItemId, type ItemKind } from "./items";
 import type { Line } from "./talk";
 import { no, type Done, type Purse } from "./trade";
 
@@ -34,9 +34,14 @@ import { no, type Done, type Purse } from "./trade";
  */
 export const HINT_PRICE: Record<1 | 2 | 3, number> = { 1: 15, 2: 40, 3: 90 };
 
-/** Everything there is a hint for: the dishes that are cooked, then what else is made; the early game's first. */
+/**
+ * Everything there is a hint for: the dishes that are cooked, then what else is made; the early game's first. What
+ * came after the game opened (the dishes and the made things of the twenty fish of 2026-10-05) is sold after the
+ * rest of its tier, so that the hints he was selling already come in the order they did (the owner had been told
+ * which were the seventh and the eighth, and chose to leave them there).
+ */
 export const HINT_IDS: ItemId[] = [...DISH_IDS.filter((id) => DISHES[id].recipe), ...MAKE_IDS]
-  .map((id, i) => ({ id: id as ItemId, i })).sort((a, b) => ITEMS[a.id].tier - ITEMS[b.id].tier || a.i - b.i).map((x) => x.id);
+  .map((id, i) => ({ id: id as ItemId, i: i + (LATER_MADE.includes(id as ItemId) ? 1000 : 0) })).sort((a, b) => ITEMS[a.id].tier - ITEMS[b.id].tier || a.i - b.i).map((x) => x.id);
 
 /** What a thing's recipe is: what goes in, in what, how many come of it, and by how many. */
 const recipeOf = (id: ItemId) => (id in DISHES

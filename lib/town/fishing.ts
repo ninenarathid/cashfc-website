@@ -1,5 +1,5 @@
 import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
-import { BAITS, BUFFS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId } from "./items";
+import { BAITS, BUFFS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign } from "./items";
 import { STAMINA, buffOf, isSpent } from "./stamina";
 import { handOf, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
 
@@ -33,22 +33,79 @@ export function seeded(seed: number): () => number {
 
 const inHours = (hours: Array<[number, number]>, h: number) => hours.some(([a, b]) => h >= a && h < b);
 
+/* ── the signs ──────────────────────────────────────────────────────────── */
+
 /**
- * What takes a bait at an hour, and how likely each is. Rain brings some out;
- * a lucky meal half again as many of the rare ones. From the bank the water
- * is shallow, and only the common fish come that near (the owner, asked how
- * the places to fish should grow: the deck wherever a line reaches water and
- * the town's bank all along the river, "ริมตลิ่งเป็นน้ำตื้น ได้แต่ปลาทั่วไป ปลาหายากต้อง
- * ขึ้นลาน").
+ * What some fish wait for (the owner, 2026-10-05, of the twenty fish he asked for: "แต่ละปลามีเงื่อนไขในการเจอ … ที่แตกต่าง
+ * กันด้วย"). Most of a fish's conditions are the bait, the hour, the rain and the water; a few fish bite only while
+ * something else holds, a sign. Nothing on the screen says which, or that there are any ("ส่วนใหญ่ผมอยากให้ ผู้เล่น
+ * หาข้อมูลกันเอาเอง"): a fish's own line may hint at its sign, and whoever has caught one is the one to ask.
+ *
+ * - `tired`: whoever fishes has no stamina left.
+ * - `crowd`: so many others have dropped a line within the last few minutes (three fishing together, with the
+ *   number below: of the game's first 266 lines, 41 were dropped so).
+ * - `weekend`: it is Saturday or Sunday, in Bangkok.
+ * - `after`: it does not rain, and did within the last half hour.
+ * - `full`: the moon is full, give or take a day and a half (the real one: the town's clock is the world's).
  */
-export function oddsOf(bait: BaitId, hour: number, rain = false, lucky = false, shallow = false): Array<{ what: CatchId; p: number }> {
+export const SIGNS = {
+  /** How many others' lines make a crowd, and how many seconds ago a line may have been dropped to count. */
+  crowd: 2, lately: 300,
+  /** How many minutes after the rain a fish that waits for its end still bites. */
+  after: 30,
+  /** How many days either side of the full moon count as full. */
+  moon: 1.5,
+  /** The days of the week that are the weekend (0 is Sunday). */
+  weekend: [0, 6],
+};
+const DAY_MS = 86_400_000;
+/** The moon's month, in days, and a moment it was new (2000-01-06 18:14 UTC). */
+const MOON = { month: 29.530588853, new: 947182440000 };
+/** How many days old the moon is at a moment: 0 when new, half its month when full. (By its mean month: within a day of the sky's.) */
+export function moonAge(now: number): number {
+  const days = (now - MOON.new) / DAY_MS;
+  return days - Math.floor(days / MOON.month) * MOON.month;
+}
+/** The day of the week in Bangkok at a moment: 0 is Sunday. */
+export const bangkokDay = (now: number): number => (((Math.floor((now + 7 * 3_600_000) / DAY_MS) + 4) % 7) + 7) % 7;
+/** What is known of the moment a line is dropped, besides its bait, its hour, its rain and its water: the moment, whether whoever drops it has any stamina left, how many others' lines are out, and how many milliseconds of rain fell in the last half hour. */
+export interface Scene { now: number; spent: boolean; others: number; wet: number }
+/** The signs that hold as a line is dropped, in the order they are listed. */
+export function signsOf(scene: Scene, rain: boolean): Sign[] {
+  const signs: Sign[] = [];
+  if (scene.spent) signs.push("tired");
+  if (scene.others >= SIGNS.crowd) signs.push("crowd");
+  if (SIGNS.weekend.includes(bangkokDay(scene.now))) signs.push("weekend");
+  if (!rain && scene.wet > 0) signs.push("after");
+  if (Math.abs(moonAge(scene.now) - MOON.month / 2) <= SIGNS.moon) signs.push("full");
+  return signs;
+}
+/** Every sign there is: for reckoning what can ever be caught (lib/town/uses). */
+export const ALL_SIGNS: Sign[] = ["tired", "crowd", "weekend", "after", "full"];
+
+/**
+ * What takes a bait at an hour, and how likely each is. Rain brings some out
+ * and keeps some away, as its end does (`rain`, `dry`); a lucky meal brings
+ * half again as many of the rare ones. From the bank the water is shallow,
+ * and only the common fish come that near (the owner, asked how the places
+ * to fish should grow: the deck wherever a line reaches water and the town's
+ * bank all along the river, "ริมตลิ่งเป็นน้ำตื้น ได้แต่ปลาทั่วไป ปลาหายากต้องขึ้นลาน"), unless a
+ * fish says where it lives (`water`: the bank has a few of its own, and one
+ * common fish keeps to the deck). A fish that waits for a sign bites only
+ * while it holds (`needs`: every one of them among `signs`).
+ */
+export function oddsOf(bait: BaitId, hour: number, rain = false, lucky = false, shallow = false, signs: readonly Sign[] = []): Array<{ what: CatchId; p: number }> {
   const weights: Array<[CatchId, number]> = [];
   for (const id of FISH_IDS) {
     const f = FISH[id], likes = f.baits[bait] ?? 0;
     if (!likes || !inHours(f.hours, ((Math.floor(hour) % 24) + 24) % 24)) continue;
-    if (shallow && f.tier !== "common") continue;
+    if (f.water ? f.water !== (shallow ? "bank" : "deck") : shallow && f.tier !== "common") continue;
+    if (f.needs && !f.needs.every((s) => signs.includes(s))) continue;
+    // (one the sky keeps away is not in the water at all: it is given no share, not a share of nothing)
+    const sky = rain ? f.rain : f.dry ?? 1;
+    if (!(sky > 0)) continue;
     const luck = lucky && (f.tier === "rare" || f.tier === "legend") ? 1 + BUFFS.lucky.by : 1;
-    weights.push([id, TIER_WEIGHT[f.tier] * likes * (rain ? f.rain : 1) * luck]);
+    weights.push([id, TIER_WEIGHT[f.tier] * likes * sky * luck]);
   }
   // what is no fish: the first two on any bait, a later tier's only on that tier's baits
   for (const id of FLOTSAM_IDS) if (!FLOTSAM[id].on || FLOTSAM[id].on!.includes(bait)) weights.push([id, FLOTSAM[id].weight]);
@@ -71,8 +128,8 @@ export interface Cast { what: CatchId; wait: number; nibbles: number[]; size: nu
 const APART = 3;
 
 /** Drop a line: everything about what happens to it is decided now. */
-export function castLine(bait: BaitId, hour: number, rain: boolean, lucky: boolean, rnd: () => number, shallow = false): Cast {
-  const odds = oddsOf(bait, hour, rain, lucky, shallow);
+export function castLine(bait: BaitId, hour: number, rain: boolean, lucky: boolean, rnd: () => number, shallow = false, signs: readonly Sign[] = []): Cast {
+  const odds = oddsOf(bait, hour, rain, lucky, shallow, signs);
   let roll = rnd(), what = odds[odds.length - 1].what;
   for (const o of odds) { if (roll < o.p) { what = o.what; break; } roll -= o.p; }
   const fish = what in FISH ? FISH[what as FishId] : null;
