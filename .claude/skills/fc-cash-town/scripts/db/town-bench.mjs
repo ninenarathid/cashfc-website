@@ -31,9 +31,9 @@ create table public.gallery_likes (post_id bigint not null references public.gal
 alter table public.gallery_likes enable row level security;
 `;
 const t = await supabaseLike({ extra });
-// every file of the town's there is, in order: v104 to v115 have run and are read back from history (the harness's
+// every file of the town's there is, in order: v104 to v116 have run and are read back from history (the harness's
 // migration() does that); what is in supabase/ after them is taken to be the town's, as it stands in the folder
-const RAN = 115;
+const RAN = 116;
 const pending = existsSync(`${repo}/supabase`) ? readdirSync(`${repo}/supabase`).map((f) => Number(/^v(\d+)_/.exec(f)?.[1])).filter((n) => n > RAN) : [];
 const newest = Math.max(RAN, ...pending);
 for (let n = 104; n <= newest; n++) {

@@ -174,10 +174,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * **Changing any number the catalog carries (a price, a recipe, a thing) needs such a migration before it is true in
  * the database.**
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  // a bigger harvest and a lighter hoe (the owner, 2026-10-04)
-  v116: { keys: [], over: ["crops", "farming"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
