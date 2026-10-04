@@ -21240,7 +21240,7 @@
     "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 55,
-    "kills": 4,
+    "kills": 5,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -64713,7 +64713,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 54,
+    "pulls": 38,
     "last": "2026-09-30",
     "last_ts": 1790776956
    }
@@ -72769,7 +72769,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 49,
+    "kills": 52,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -72805,8 +72805,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 67,
-    "kills": 38,
+    "best": 79,
+    "kills": 57,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -72835,7 +72835,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 53,
-    "kills": 16,
+    "kills": 18,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -72885,7 +72885,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 82,
-    "kills": 46,
+    "kills": 49,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -72922,7 +72922,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 30,
+    "kills": 32,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -81176,7 +81176,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 4,
-    "kills": 22,
+    "kills": 23,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {

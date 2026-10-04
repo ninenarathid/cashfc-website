@@ -30,9 +30,9 @@
   "name": "Aqua Eleison",
   "parse": 100,
   "ult": 4,
-  "mounts": 281,
-  "minions": 486,
-  "rare": 485,
+  "mounts": 285,
+  "minions": 487,
+  "rare": 501,
   "level": 100,
   "cc": [
    true,
@@ -45,7 +45,6 @@
    1313,
    1315,
    1317,
-   1318,
    1321,
    1322,
    1323,
@@ -54,7 +53,6 @@
    1354,
    1603,
    1604,
-   1855,
    1952,
    2007,
    2008,
@@ -65,7 +63,6 @@
    2494,
    2497,
    2500,
-   2502,
    2503,
    2506,
    2509,
@@ -101,12 +98,9 @@
    2657,
    2658,
    2712,
-   2757,
    2766,
    2785,
    2803,
-   2810,
-   2811,
    2815,
    2816,
    2877,
@@ -137,11 +131,17 @@
    3834,
    3944,
    3949,
+   3959,
+   3960,
    3991,
    4000,
    4007,
-   4017,
-   4018
+   4018,
+   4032,
+   4035,
+   4043,
+   4045,
+   4047
   ],
   "tiers": {
    "gatherer": "legendary",
@@ -170,7 +170,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-09-30"
+  "chg": "2026-10-04"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -662,7 +662,6 @@
    3736,
    3758,
    3760,
-   3761,
    3762,
    3763,
    3765,
@@ -706,6 +705,7 @@
    3885,
    3886,
    3887,
+   3898,
    3899,
    3921,
    3922,
@@ -1068,7 +1068,7 @@
   ],
   "tiers": {
    "gatherer": "expert",
-   "crafter": "legendary",
+   "crafter": "master",
    "relic": "legendary",
    "explorer": "legendary",
    "treasure": "master",
@@ -1133,7 +1133,7 @@
   "mounts": 75,
   "minions": 144,
   "rare": 41,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1208,7 +1208,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-30"
+  "chg": "2026-10-04"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -2290,7 +2290,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 78,
+  "level": 81,
   "cc": [
    true,
    true,
@@ -2336,7 +2336,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2724,6 +2724,7 @@
    3368,
    3369,
    3468,
+   3470,
    3471,
    3472,
    3617,
@@ -2746,7 +2747,6 @@
    3870,
    3883,
    3884,
-   3897,
    3898,
    3937,
    3938,
@@ -3005,6 +3005,7 @@
    3649,
    3652,
    3677,
+   3752,
    3754,
    3755,
    3759,
@@ -3064,7 +3065,6 @@
    3966,
    3969,
    3979,
-   3998,
    3999,
    4000,
    4003,
@@ -4267,7 +4267,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 100,
+  "level": 50,
   "cc": null,
   "rare_ids": [
    847,
@@ -4387,7 +4387,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-27"
+  "chg": "2026-10-04"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -6903,7 +6903,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 67,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6920,7 +6920,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-04"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7105,7 +7105,7 @@
   "mounts": 198,
   "minions": 420,
   "rare": 269,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7232,16 +7232,16 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "46243891": {
   "name": "Marin Elysium",
   "parse": 29,
   "ult": 0,
   "mounts": 69,
-  "minions": 102,
-  "rare": 48,
-  "level": 50,
+  "minions": 104,
+  "rare": 53,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -7292,12 +7292,17 @@
    4034,
    4035,
    4036,
+   4037,
    4043,
    4044,
    4045,
    4046,
    4047,
-   4049
+   4048,
+   4049,
+   4051,
+   4053,
+   4062
   ],
   "tiers": {},
   "jobs": {},
@@ -7308,7 +7313,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7729,7 +7734,7 @@
   "mounts": 29,
   "minions": 121,
   "rare": null,
-  "level": 57,
+  "level": 58,
   "cc": [
    false,
    false,
@@ -7742,7 +7747,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-04"
  },
  "33387937": {
   "name": "R'bael Senkou",
@@ -7802,7 +7807,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 86,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7847,7 +7852,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8273,7 +8278,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8540,7 +8545,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 83,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -8747,7 +8752,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 60,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8763,7 +8768,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-03"
+  "chg": "2026-10-04"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
